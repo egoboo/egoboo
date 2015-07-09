@@ -144,6 +144,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
 {
     fvec3_t fluid_acc;
@@ -212,6 +213,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
 
 	return this;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
@@ -310,7 +312,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 	std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     // is the particle a homing type?
-	if (!loc_ppip->homing) return this;
+	if (!loc_pprt->getProfile()->homing) return this;
 
     // the particle update function is supposed to turn homing off if the particle looses its target
 	if (!loc_pprt->isHoming()) return this;
@@ -379,6 +381,7 @@ prt_bundle_t *prt_bundle_t::updateParticleSimpleGravity()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
 {
     float loc_zlerp, tmp_buoyancy, loc_buoyancy;
@@ -458,19 +461,17 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
 
     return this;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 {
-    float loc_level;
-    bool touch_a_floor, hit_a_wall, needs_test;
+    bool touch_a_floor, hit_a_wall;
     fvec3_t nrm_total;
-    fvec3_t tmp_pos;
 
     if (NULL == this->_prt_ptr) return NULL;
     Ego::Particle *loc_pprt = this->_prt_ptr;
     PRT_REF loc_iprt = this->_prt_ref;
-    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is not still in "display mode" there is no point in going on
@@ -479,48 +480,42 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
     // only deal with attached particles
     if (!loc_pprt->isAttached()) return this;
 
-    // capture the particle position
-    tmp_pos = loc_pprt->getPosition();
-
     touch_a_floor = false;
     hit_a_wall = false;
     nrm_total = fvec3_t::zero();
 
-    loc_level = penviro->adj_level;
-
     // Move the particle
-    if (tmp_pos[kZ] < loc_level)
+    if (loc_pprt->getPosition()[kZ] < penviro->adj_level)
     {
         touch_a_floor = true;
     }
 
+    // handle floor collision
     if (touch_a_floor)
     {
         // Play the sound for hitting the floor [FSND]
-        loc_pprt->playSound(loc_ppip->end_sound_floor);
-    }
+        loc_pprt->playSound(loc_pprt->getProfile()->end_sound_floor);
 
-    // handle the collision
-    if (touch_a_floor && loc_ppip->end_ground)
-    {
-        loc_pprt->requestTerminate();
-        return nullptr;
+        if(loc_pprt->getProfile()->end_ground)
+        {
+            loc_pprt->requestTerminate();
+            return nullptr;
+        }
     }
 
     // interaction with the mesh walls
     hit_a_wall = false;
-    needs_test = false;
     if (std::abs(loc_pprt->vel[kX]) + std::abs(loc_pprt->vel[kY]) > 0.0f)
     {
         mesh_wall_data_t wdata;
 
-        if (EMPTY_BIT_FIELD != loc_pprt->test_wall(tmp_pos, &wdata))
+        if (EMPTY_BIT_FIELD != loc_pprt->test_wall(loc_pprt->getPosition(), &wdata))
         {
             fvec2_t nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            BIT_FIELD hit_bits = loc_pprt->hit_wall(tmp_pos, nrm, &pressure, &wdata);
+            BIT_FIELD hit_bits = loc_pprt->hit_wall(loc_pprt->getPosition(), nrm, &pressure, &wdata);
 
             if (0 != hit_bits)
             {
@@ -529,21 +524,15 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
         }
     }
 
-    // handle the sounds
+    // handle the collision
     if (hit_a_wall)
     {
-        // Play the sound for hitting the floor [FSND]
-        loc_pprt->playSound(loc_ppip->end_sound_wall);
+        if(loc_pprt->getProfile()->end_wall || loc_pprt->getProfile()->end_bump)
+        {
+            loc_pprt->requestTerminate();
+            return nullptr;
+        }
     }
-
-    // handle the collision
-    if (hit_a_wall && (loc_ppip->end_wall || loc_ppip->end_bump))
-    {
-        loc_pprt->requestTerminate();
-        return nullptr;
-    }
-
-    loc_pprt->setPosition(tmp_pos);
 
     return this;
 }
@@ -551,47 +540,42 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 //--------------------------------------------------------------------------------------------
 prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 {
-    float ftmp, loc_level;
-    bool hit_a_floor, hit_a_wall, needs_test;
-    bool touch_a_floor, touch_a_wall;
+    float ftmp;
     fvec3_t nrm_total;
-    fvec3_t tmp_pos;
 
     if (NULL == this->_prt_ptr) return NULL;
+
     Ego::Particle *loc_pprt = this->_prt_ptr;
     PRT_REF loc_iprt = this->_prt_ref;
-    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is not still in "display mode" there is no point in going on
     if (loc_pprt->isTerminated()) return this;
 
     // capture the position
-    tmp_pos = loc_pprt->getPosition();
+    fvec3_t tmp_pos = loc_pprt->getPosition();
 
     // no point in doing this if the particle thinks it's attached
-    if (loc_pprt->isAttached())
-    {
+    if (loc_pprt->isAttached()) {
         return this->move_one_particle_integrate_motion_attached();
     }
 
-    hit_a_floor = false;
-    hit_a_wall = false;
-    touch_a_floor = false;
-    touch_a_wall = false;
+    bool hit_a_floor = false;
+    bool hit_a_wall = false;
+    bool touch_a_floor = false;
+    bool touch_a_wall = false;
     nrm_total[kX] = nrm_total[kY] = nrm_total[kZ] = 0.0f;
-
-    loc_level = penviro->adj_level;
 
     // Move the particle
     ftmp = tmp_pos[kZ];
     tmp_pos[kZ] += loc_pprt->vel[kZ];
     LOG_NAN(tmp_pos[kZ]);
-    if (tmp_pos[kZ] < loc_level)
+
+    //Are we touching the floor?
+    if (tmp_pos[kZ] < penviro->adj_level)
     {
         fvec3_t floor_nrm = fvec3_t(0.0f, 0.0f, 1.0f);
-        float vel_dot;
-        fvec3_t vel_perp, vel_para;
+        //fvec3_t vel_perp, vel_para;
 
         touch_a_floor = true;
 
@@ -602,25 +586,26 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
             floor_nrm = map_twist_nrm[penviro->twist];
         }
 
-        vel_dot = floor_nrm.dot(loc_pprt->vel);
-        if (0.0f == vel_dot)
-        {
-            vel_perp = fvec3_t::zero();
-            vel_para = loc_pprt->vel;
-        }
-        else
-        {
-            vel_perp = floor_nrm * vel_dot;
-            vel_para = loc_pprt->vel - vel_perp;
-        }
+        float vel_dot = floor_nrm.dot(loc_pprt->vel);
+        //if (0.0f == vel_dot)
+        //{
+        //    vel_perp = fvec3_t::zero();
+        //    vel_para = loc_pprt->vel;
+        //}
+        //else
+        //{
+        //    vel_perp = floor_nrm * vel_dot;
+        //    vel_para = loc_pprt->vel - vel_perp;
+        //}
 
+        //Handle bouncing
         if (loc_pprt->vel[kZ] < -STOPBOUNCINGPART)
         {
             // the particle will bounce
             nrm_total += floor_nrm;
 
             // take reflection in the floor into account when computing the new level
-            tmp_pos[kZ] = loc_level + (loc_level - ftmp) * loc_ppip->dampen + 0.1f;
+            tmp_pos[kZ] = penviro->adj_level + (penviro->adj_level - ftmp) * loc_pprt->getProfile()->dampen + 0.1f;
 
             loc_pprt->vel[kZ] = -loc_pprt->vel[kZ];
 
@@ -629,12 +614,12 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         else if (vel_dot > 0.0f)
         {
             // the particle is not bouncing, it is just at the wrong height
-            tmp_pos[kZ] = loc_level + 0.1f;
+            tmp_pos[kZ] = penviro->adj_level + 0.1f;
         }
         else
         {
             // the particle is in the "stop bouncing zone"
-            tmp_pos[kZ] = loc_level + 0.1f;
+            tmp_pos[kZ] = penviro->adj_level + 0.1f;
             //loc_pprt->vel = vel_para;
         }
     }
@@ -643,11 +628,11 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     if (hit_a_floor)
     {
         // Play the sound for hitting the floor [FSND]
-        loc_pprt->playSound(loc_ppip->end_sound_floor);
+        loc_pprt->playSound(loc_pprt->getProfile()->end_sound_floor);
     }
 
     // handle the collision
-    if (touch_a_floor && loc_ppip->end_ground)
+    if (touch_a_floor && loc_pprt->getProfile()->end_ground)
     {
         loc_pprt->requestTerminate();
         return NULL;
@@ -655,7 +640,6 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 
     // interaction with the mesh walls
     hit_a_wall = false;
-    needs_test = false;
     if (std::abs(loc_pprt->vel[kX]) + std::abs(loc_pprt->vel[kY]) > 0.0f)
     {
         mesh_wall_data_t wdata;
@@ -686,14 +670,18 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     if (hit_a_wall)
     {
         // Play the sound for hitting the wall [WSND]
-        loc_pprt->playSound(loc_ppip->end_sound_wall);
+        loc_pprt->playSound(loc_pprt->getProfile()->end_sound_wall);
     }
 
     // handle the collision
-    if (touch_a_wall && loc_ppip->end_wall)
+    if (touch_a_wall)
     {
-        loc_pprt->requestTerminate();
-        return nullptr;
+        //End particle if it hits a wall?
+        if(loc_pprt->getProfile()->end_wall)
+        {
+            loc_pprt->requestTerminate();
+            return nullptr;            
+        }
     }
 
     // do the reflections off the walls and floors
@@ -715,25 +703,25 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
             vpara = loc_pprt->vel - vperp;
 
             // we can use the impulse to determine how much velocity to kill in the parallel direction
-            // imp = vperp * (1.0f + loc_ppip->dampen);
+            // imp = vperp * (1.0f + loc_pprt->getProfile()->dampen);
 
             // do the reflection
-            vperp *= -loc_ppip->dampen;
+            vperp *= -loc_pprt->getProfile()->dampen;
 
             // fake the friction, for now
             if (0.0f != nrm_total[kY] || 0.0f != nrm_total[kZ])
             {
-                vpara[kX] *= loc_ppip->dampen;
+                vpara[kX] *= loc_pprt->getProfile()->dampen;
             }
 
             if (0.0f != nrm_total[kX] || 0.0f != nrm_total[kZ])
             {
-                vpara[kY] *= loc_ppip->dampen;
+                vpara[kY] *= loc_pprt->getProfile()->dampen;
             }
 
             if (0.0f != nrm_total[kX] || 0.0f != nrm_total[kY])
             {
-                vpara[kZ] *= loc_ppip->dampen;
+                vpara[kZ] *= loc_pprt->getProfile()->dampen;
             }
 
             // add the components back together
@@ -744,7 +732,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         {
             // this is the very last bounce
             loc_pprt->vel[kZ] = 0.0f;
-            tmp_pos[kZ] = loc_level + 0.0001f;
+            tmp_pos[kZ] = penviro->adj_level + 0.0001f;
         }
 
         if (hit_a_wall)
@@ -769,10 +757,12 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     }
 
     //Don't fall in pits...
-    if (loc_pprt->isHoming()) tmp_pos[kZ] = std::max(tmp_pos[kZ], 0.0f);
+    if (loc_pprt->isHoming()) {
+        tmp_pos[kZ] = std::max(tmp_pos[kZ], 0.0f);
+    }
 
     //Rotate particle to the direction we are moving
-    if (loc_ppip->rotatetoface)
+    if (loc_pprt->getProfile()->rotatetoface)
     {
         if (std::abs(loc_pprt->vel[kX]) + std::abs(loc_pprt->vel[kY]) > FLT_EPSILON)
         {

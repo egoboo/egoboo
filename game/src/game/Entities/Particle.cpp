@@ -805,7 +805,7 @@ void Particle::playSound(int8_t sound)
     }
 
     //If we were spawned by an Object, then use that Object's sound pool
-    const auto profile = ProfileSystem::get().getProfile(_spawnerProfile);
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(_spawnerProfile);
     if (profile) {
         AudioSystem::get().playSound(pos, profile->getSoundID(sound));
     }
@@ -824,7 +824,6 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
 {
     const int INFINITE_UPDATES = std::numeric_limits<int>::max();
 
-    int     velocity;
     fvec3_t vel;
     int     offsetfacing = 0, newrand;
 
@@ -887,7 +886,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
 
     offset[kZ] = generate_irand_pair(getProfile()->spacing_vrt_pair) - (getProfile()->spacing_vrt_pair.rand / 2);
     tmp_pos[kZ] += offset[kZ];
-    velocity = generate_irand_pair(getProfile()->vel_hrz_pair);
+    const int velocity = generate_irand_pair(getProfile()->vel_hrz_pair);
 
     //Set target
     _target = spawnTarget;
@@ -1006,7 +1005,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     vel[kX] = -turntocos[turn] * velocity;
     vel[kY] = -turntosin[turn] * velocity;
     vel[kZ] += generate_irand_pair(getProfile()->vel_vrt_pair) - (getProfile()->vel_vrt_pair.rand / 2);
-    vel = vel_old = vel_stt = vel;
+    this->vel = vel_old = vel_stt = vel;
 
     // Template values
     bump_size_stt = getProfile()->bump_size;
