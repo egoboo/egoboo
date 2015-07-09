@@ -26,7 +26,33 @@
 #include "egolib/Profiles/ParticleProfile.hpp"
 #include "egolib/Profiles/ParticleProfileReader.hpp"
 
-extern AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader> PipStack;
+//eew... remove this hack
+#define PipStack ParticleProfileSystem::get()
+
+class ParticleProfileSystem : public AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>, public Ego::Core::Singleton<ParticleProfileSystem>
+{
+protected:
+
+    // Befriend with singleton to grant access to ParticleProfileSystem::ParticleProfileSystem and ParticleProfileSystem::~ParticleProfileSystem.
+    using TheSingleton = Ego::Core::Singleton<ParticleProfileSystem>;
+    friend TheSingleton;
+
+    ParticleProfileSystem();
+    ~ParticleProfileSystem();
+
+public:
+    /**
+    * @return
+    *   true if the specified ParticleProfileID has been loaded by a valid profile
+    **/
+    bool isLoaded(const PIP_REF ref) const;
+
+    /**
+    * @return
+    *   true if the specified ParticleProfileID is a valid ID number that can be used
+    **/
+    bool isValidProfileID(PIP_REF ref) const;
+};
 
 inline bool VALID_PIP_RANGE(PIP_REF ref) {
     return PipStack.isValidRange(ref);
