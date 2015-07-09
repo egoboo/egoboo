@@ -1098,70 +1098,51 @@ void update_pits()
 void do_weather_spawn_particles()
 {
     /// @author ZZ
-    /// @details This function drops snowflakes or rain or whatever, also swings the camera
+    /// @details This function drops snowflakes or rain or whatever
 
-    int    cnt;
-    bool foundone;
+    //Does this module have valid weather?
+    if(weather.time < 0 || weather.part_gpip == LocalParticleProfileRef::Invalid) {
+        return;
+    }
 
-    if ( weather.time > 0 && LocalParticleProfileRef::Invalid != weather.part_gpip)
+    weather.time--;
+    if ( 0 == weather.time )
     {
-        weather.time--;
-        if ( 0 == weather.time )
+        weather.time = weather.timer_reset;
+
+        // Find a valid player
+        bool foundone = false;
+        for ( int cnt = 0; cnt < MAX_PLAYER; cnt++ )
         {
-            weather.time = weather.timer_reset;
-
-            // Find a valid player
-            foundone = false;
-            for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+            // Yes, but is the character valid?
+            weather.iplayer = ( PLA_REF )(( REF_TO_INT( weather.iplayer ) + 1 ) % MAX_PLAYER );
+            if ( PlaStack.lst[weather.iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[weather.iplayer].index) )
             {
-                weather.iplayer = ( PLA_REF )(( REF_TO_INT( weather.iplayer ) + 1 ) % MAX_PLAYER );
-                if ( PlaStack.lst[weather.iplayer].valid )
-                {
-                    foundone = true;
-                    break;
-                }
+                foundone = true;
+                break;
             }
+        }
 
-            // Did we find one?
-            if ( foundone )
+        // Did we find one?
+        if ( foundone )
+        {
+            CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
+            if ( _currentModule->getObjectHandler().exists( ichr ) && !_currentModule->getObjectHandler().exists( _currentModule->getObjectHandler().get(ichr)->inwhich_inventory ) )
             {
-                // Yes, but is the character valid?
-                CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
-                if ( _currentModule->getObjectHandler().exists( ichr ) && !_currentModule->getObjectHandler().exists( _currentModule->getObjectHandler().get(ichr)->inwhich_inventory ) )
+                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[weather.iplayer].index];
+
+                // Yes, so spawn nearby that character
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0, weather.over_water);
+                if ( particle )
                 {
-                    Object * pchr = _currentModule->getObjectHandler().get( ichr );
-
-                    // Yes, so spawn over that character
-                    std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
-                    if ( particle )
+                    // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
+                    if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
                     {
-                        bool destroy_particle = false;
-
-                        if ( weather.over_water && !particle->isOverWater() )
-                        {
-                            destroy_particle = true;
-                        }
-                        else if ( EMPTY_BIT_FIELD != particle->test_wall( nullptr ) )
-                        {
-                            destroy_particle = true;
-                        }
-                        else
-                        {
-                            // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                            if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
-                            {
-                                destroy_particle = true;
-                            }
-                            else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
-                            {
-                                destroy_particle = true;
-                            }
-                        }
-
-                        if ( destroy_particle )
-                        {
-                            particle->requestTerminate();
-                        }
+                        particle->requestTerminate();
+                    }
+                    else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
+                    {
+                        particle->requestTerminate();
                     }
                 }
             }

@@ -67,18 +67,19 @@ const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const PRT_REF
     return (*result).second;
 }
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const LocalParticleProfileRef& pip_index, int multispawn)
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, 
+                        const LocalParticleProfileRef& pip_index, int multispawn, const bool onlyOverWater)
 {
     //Get global particle profile
     PIP_REF globalProfile = ((pip_index.get() < 0) || (pip_index.get() > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index.get());
 
     return spawnParticle(spawnPos, spawnFacing, INVALID_PRO_REF, globalProfile, INVALID_CHR_REF, GRIP_LAST, Team::TEAM_NULL, 
-        INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF);
+        INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF, onlyOverWater);
 }
 
 std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile, 
                         const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                        const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget)
+                        const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget, const bool onlyOverWater)
 {
     const std::shared_ptr<pip_t> &ppip = PipStack.get_ptr(particleProfile);
 
@@ -99,7 +100,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const fvec3_t& spa
     if(particle) {
         //Initialize particle and add it into the game
         if(particle->initialize(_totalParticlesSpawned++, spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, 
-            spawnTeam, spawnOrigin, spawnParticleOrigin, multispawn, spawnTarget)) 
+            spawnTeam, spawnOrigin, spawnParticleOrigin, multispawn, spawnTarget, onlyOverWater)) 
         {
             _pendingParticles.push_back(particle);
             _particleMap[particle->getParticleID()] = particle;

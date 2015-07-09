@@ -257,8 +257,8 @@ public:
     **/
     bool initialize(const PRT_REF particleID, const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
                 const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0, 
-                const CHR_REF spawnTarget = INVALID_CHR_REF);
+                const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
+                const bool onlyOverWater);
 
     /**
     * @brief

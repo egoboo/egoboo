@@ -805,7 +805,8 @@ void Particle::playSound(int8_t sound)
 
 bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
                         const PIP_REF particleProfile, const CHR_REF spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
-                        const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget)
+                        const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
+                        const bool onlyOverWater)
 {
     const int INFINITE_UPDATES = std::numeric_limits<int>::max();
 
@@ -988,6 +989,11 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
     setPosition(tmp_pos);
     pos_old = tmp_pos;
     pos_stt = tmp_pos;
+
+    //Can this particle only spawn over water?
+    if(onlyOverWater && !isOverWater()) {
+        return false;
+    }
 
     // Velocity data
     vel[kX] = -turntocos[turn] * velocity;

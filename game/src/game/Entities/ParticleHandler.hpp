@@ -175,13 +175,16 @@ public:
      *  used for bulk spawn (spawning many particles at the same time). This is the index number of the particle in the bulk spawn
      * @param spawnTarget
      *  set the particle target to this on spawn
+     * @param onlyOverWater
+     *  if this is set to true, then the particle will fail to spawn if the resulting position (after random offsets) does not result in
+     *  a tile containing water
      * @return
      *   The Particle object that was spawned or nullptr if it failed.
      */
     std::shared_ptr<Ego::Particle> spawnParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
                             const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                             const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0, 
-                            const CHR_REF spawnTarget = INVALID_CHR_REF);
+                            const CHR_REF spawnTarget = INVALID_CHR_REF, const bool onlyOverWater = false);
 
     /**
     * @brief
@@ -189,7 +192,8 @@ public:
     * @return
     *   The Particle object that was spawned or nullptr if it failed.
     **/
-    std::shared_ptr<Ego::Particle> spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const LocalParticleProfileRef& pip_index, int multispawn);
+    std::shared_ptr<Ego::Particle> spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const LocalParticleProfileRef& pip_index, 
+                                int multispawn, const bool onlyOverWater = false);
 
     /**
     * @brief
