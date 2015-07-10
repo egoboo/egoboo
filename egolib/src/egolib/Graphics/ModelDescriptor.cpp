@@ -453,7 +453,10 @@ void ModelDescriptor::parseFrameDescriptors(const char * cFrameName, int frame)
 
         if ( -1 == token_index )
         {
-            log_warning( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", _name.c_str(), frame, cFrameName, ptmp );
+            //Ignore trailing zeros. Some older models appended zeros to all frames
+            if(*ptmp != '0') {
+                log_warning( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", _name.c_str(), frame, cFrameName, ptmp );
+            }
             ptmp++;
         }
         else
