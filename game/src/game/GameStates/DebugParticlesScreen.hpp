@@ -17,16 +17,22 @@
 //*
 //********************************************************************************************
 
-#define EGOLIB_PROFILES_PRIVATE 1
-#include "egolib/Profiles/ParticleProfileSystem.hpp"
+/// @file game/GameStates/DebugParticlesScreen.hpp
+/// @author Johan Jansen
 
-ParticleProfileSystem::ParticleProfileSystem() :
-    AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>("particle", "/debug/particle_profile_usage.txt")
-{
-    //ctor
-}
+#pragma once
 
-ParticleProfileSystem::~ParticleProfileSystem()
+#include "game/GameStates/GameState.hpp"
+
+class DebugParticlesScreen : public GameState
 {
-    //dtor
-}
+public:
+    DebugParticlesScreen();
+
+    void update() override;
+
+    void beginState() override;
+
+protected:
+    void drawContainer() override {};
+};

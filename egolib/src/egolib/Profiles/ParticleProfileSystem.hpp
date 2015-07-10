@@ -26,12 +26,32 @@
 #include "egolib/Profiles/ParticleProfile.hpp"
 #include "egolib/Profiles/ParticleProfileReader.hpp"
 
-extern AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader> PipStack;
+//eew... remove this hack
+#define PipStack ParticleProfileSystem::get()
+
+class ParticleProfileSystem : public AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>, public Ego::Core::Singleton<ParticleProfileSystem>
+{
+protected:
+
+    // Befriend with singleton to grant access to ParticleProfileSystem::ParticleProfileSystem and ParticleProfileSystem::~ParticleProfileSystem.
+    using TheSingleton = Ego::Core::Singleton<ParticleProfileSystem>;
+    friend TheSingleton;
+
+    ParticleProfileSystem();
+    ~ParticleProfileSystem();
+
+public:
+    //Explicit member to avoid ambiguous inheritance with Singleton
+    void initialize() { AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::initialize(); }
+    
+    //Explicit member to avoid ambiguous inheritance with Singleton
+    void unintialize() { AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::unintialize(); }
+};
 
 inline bool VALID_PIP_RANGE(PIP_REF ref) {
-    return PipStack.isValidRange(ref);
+    return ParticleProfileSystem::get().isValidRange(ref);
 }
 
 inline bool LOADED_PIP(PIP_REF ref) {
-    return PipStack.isLoaded(ref);
+    return ParticleProfileSystem::get().isLoaded(ref);
 }

@@ -101,12 +101,12 @@ Uint32 instance_update = (Uint32)~0;
 //--------------------------------------------------------------------------------------------
 static gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float size, bool do_reflect);
-static void draw_one_attachment_point(chr_instance_t *pinst, mad_t *pmad, int vrt_offset);
+static void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset);
 static void prt_draw_attached_point(prt_bundle_t *pbdl_prt);
 static void render_prt_bbox(prt_bundle_t *pbdl_prt);
-static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t * pinst, prt_t * pprt);
+static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t * pinst, Ego::Particle * pprt);
 static fmat_4x4_t prt_instance_make_matrix(prt_instance_t *pinst);
-static gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, prt_t *pprt, Uint8 trans, bool do_lighting);
+static gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
 
 //--------------------------------------------------------------------------------------------
 
@@ -115,15 +115,15 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
     /// @author BB
     /// @details Render the solid version of the particle
 
-    if (!DISPLAY_PRT(iprt))
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
+    if (pprt == nullptr || pprt->isTerminated())
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle");
         return gfx_error;
     }
-    prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
     // if the particle is hidden, do not continue
-    if (pprt->is_hidden) return gfx_fail;
+    if (pprt->isHidden()) return gfx_fail;
 
     // if the particle instance data is not valid, do not continue
     if (!pprt->inst.valid) return gfx_fail;
@@ -173,15 +173,17 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
 {
     /// @author BB
     /// @details do all kinds of transparent sprites next
-    if (!DISPLAY_PRT(iprt))
+
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
+
+    if (pprt == nullptr || pprt->isTerminated())
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle");
         return gfx_error;
     }
-    prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
     // if the particle is hidden, do not continue
-    if (pprt->is_hidden) return gfx_fail;
+    if (pprt->isHidden()) return gfx_fail;
 
     // if the particle instance data is not valid, do not continue
     if (!pprt->inst.valid) return gfx_fail;
@@ -283,15 +285,14 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
     /// @details render one particle
     int startalpha;
 
-    if (!DISPLAY_PRT(iprt))
-    {
+    const std::shared_ptr<Ego::Particle>& pprt = ParticleHandler::get()[iprt];
+    if(!pprt || pprt->isTerminated()) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle");
         return gfx_error;
     }
-    prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
     // if the particle is hidden, do not continue
-    if (pprt->is_hidden) return gfx_fail;
+    if (pprt->isHidden()) return gfx_fail;
 
     if (!pprt->inst.valid || !pprt->inst.ref_valid) return gfx_fail;
     prt_instance_t *pinst = &(pprt->inst);
@@ -482,28 +483,32 @@ void render_all_prt_attachment()
 {
     Ego::Renderer::get().setBlendingEnabled(false);
 
-    PRT_BEGIN_LOOP_DISPLAY(iprt, prt_bdl)
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+
+        prt_bundle_t prt_bdl(particle.get());
         prt_draw_attached_point(&prt_bdl);
     }
-    PRT_END_LOOP();
 }
 
 void render_all_prt_bbox()
 {
-    PRT_BEGIN_LOOP_DISPLAY(iprt, prt_bdl)
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+
+        prt_bundle_t prt_bdl(particle.get());
         render_prt_bbox(&prt_bdl);
     }
-    PRT_END_LOOP();
 }
 
-void draw_one_attachment_point(chr_instance_t *pinst, mad_t *pmad, int vrt_offset)
+void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset)
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
-    if (!pinst || !pmad)
+    if (!pinst)
     {
         return;
     }
@@ -546,28 +551,18 @@ void prt_draw_attached_point(prt_bundle_t *pbdl_prt)
         return;
     }
 
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
-    if (!loc_pprt)
-    {
-        return;
-    }
-    if (!DISPLAY_PPRT(loc_pprt))
+    Ego::Particle *loc_pprt = pbdl_prt->_prt_ptr;
+    if (loc_pprt == nullptr || loc_pprt->isTerminated())
     {
         return;
     }
 
-    if (!_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref))
+    if (!loc_pprt->isAttached())
     {
         return;
     }
-    Object *pholder = _currentModule->getObjectHandler().get(loc_pprt->attachedto_ref);
 
-    mad_t *pholder_mad = chr_get_pmad(GET_INDEX_PCHR(pholder));
-    if (!pholder_mad)
-    {
-        return;
-    }
-    draw_one_attachment_point(&(pholder->inst), pholder_mad, loc_pprt->attachedto_vrt_off);
+    draw_one_attachment_point(&(loc_pprt->getAttachedObject()->inst), loc_pprt->attachedto_vrt_off);
 }
 
 gfx_rv update_all_prt_instance(Camera& camera)
@@ -579,8 +574,12 @@ gfx_rv update_all_prt_instance(Camera& camera)
     // assume the best
     gfx_rv retval = gfx_success;
 
-    PRT_BEGIN_LOOP_DISPLAY(iprt, prt_bdl)
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+        
+        prt_bundle_t prt_bdl(particle.get());
+
         prt_instance_t *pinst = &(prt_bdl._prt_ptr->inst);
 
         // only do frame counting for particles that are fully activated!
@@ -594,18 +593,17 @@ gfx_rv update_all_prt_instance(Camera& camera)
         else
         {
             // calculate the "billboard" for this particle
-            if (gfx_error == prt_instance_update(camera, iprt, 255, true))
+            if (gfx_error == prt_instance_update(camera, particle->getParticleID(), 255, true))
             {
                 retval = gfx_error;
             }
         }
     }
-    PRT_END_LOOP();
-
+ 
     return retval;
 }
 
-gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t *pprt)
+gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::Particle *pprt)
 {
     if (!pinst)
     {
@@ -615,18 +613,13 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
     pinst->valid = false;
     pinst->ref_valid = false;
 
-    if (!DISPLAY_PPRT(pprt))
+    if (pprt->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_REF_PPRT(pprt), "invalid particle");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, pprt->getParticleID(), "invalid particle");
         return gfx_error;
     }
 
-    if (!LOADED_PIP(pprt->pip_ref))
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, pprt->pip_ref, "invalid pip");
-        return gfx_error;
-    }
-    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(pprt->pip_ref);
+    const std::shared_ptr<pip_t> &ppip = pprt->getProfile();
 
     pinst->type = pprt->type;
 
@@ -651,7 +644,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
     // Set the up and right vectors.
     fvec3_t vup = fvec3_t(0.0f, 0.0f, 1.0f), vright;
     fvec3_t vup_ref = fvec3_t(0.0f, 0.0f, 1.0f), vright_ref;
-    if (ppip->rotatetoface && !_currentModule->getObjectHandler().exists(pprt->attachedto_ref) && (pprt->vel.length_abs() > 0))
+    if (ppip->rotatetoface && !pprt->isAttached() && (pprt->vel.length_abs() > 0))
     {
         // The particle points along its direction of travel.
 
@@ -730,11 +723,11 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
         vright_ref = vright;
         vup_ref = vup;
     }
-    else if (_currentModule->getObjectHandler().exists(pprt->attachedto_ref))
+    else if (pprt->isAttached())
     {
-        chr_instance_t *cinst = chr_get_pinstance(pprt->attachedto_ref);
+        chr_instance_t *cinst = &(pprt->getAttachedObject()->inst);
 
-        if (chr_matrix_valid(_currentModule->getObjectHandler().get(pprt->attachedto_ref)))
+        if (chr_matrix_valid(pprt->getAttachedObject().get()))
         {
             // Use the character matrix to orient the particle.
             // Assume that the particle "up" is in the z-direction in the object's
@@ -880,7 +873,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
     }
 
     // Set some particle dependent properties.
-    pinst->scale = pprt->get_scale();
+    pinst->scale = pprt->getScale();
     pinst->size = FP8_TO_FLOAT(pprt->size) * pinst->scale;
 
     // This instance is now completely valid.
@@ -909,7 +902,7 @@ fmat_4x4_t prt_instance_make_matrix(prt_instance_t *pinst)
     return mat;
 }
 
-gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, prt_t *pprt, Uint8 trans, bool do_lighting)
+gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
 {
     if (!pinst)
     {
@@ -968,25 +961,25 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, prt_t *pprt, Uint8 tr
 
 gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting)
 {
-    if (!DISPLAY_PRT(particle))
-    {
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
+    if(!pprt) {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, particle, "invalid particle");
         return gfx_error;
     }
-    prt_t *pprt = ParticleHandler::get().get_ptr(particle);
+
     prt_instance_t *pinst = &(pprt->inst);
 
     // assume the best
     gfx_rv retval = gfx_success;
 
     // make sure that the vertices are interpolated
-    if (gfx_error == prt_instance_update_vertices(camera, pinst, pprt))
+    if (gfx_error == prt_instance_update_vertices(camera, pinst, pprt.get()))
     {
         retval = gfx_error;
     }
 
     // do the lighting
-    if (gfx_error == prt_instance_update_lighting(pinst, pprt, trans, do_lighting))
+    if (gfx_error == prt_instance_update_lighting(pinst, pprt.get(), trans, do_lighting))
     {
         retval = gfx_error;
     }
@@ -1000,12 +993,8 @@ void render_prt_bbox(prt_bundle_t *pbdl_prt)
     {
         return;
     }
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
-    if (!loc_pprt)
-    {
-        return;
-    }
-    if (!DISPLAY_PPRT(loc_pprt))
+    Ego::Particle *loc_pprt = pbdl_prt->_prt_ptr;
+    if (!loc_pprt || loc_pprt->isTerminated())
     {
         return;
     }

@@ -42,8 +42,6 @@
 struct Billboard;
 struct mesh_wall_data_t;
 
-struct prt_t;
-
 //--------------------------------------------------------------------------------------------
 // internal structs
 struct chr_environment_t;

@@ -31,6 +31,7 @@
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "game/char.h" //ZF> TODO: remove
+#include "egolib/Graphics/ModelDescriptor.hpp"
 
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
@@ -336,7 +337,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     }
 
     //We need a riding animation to be able to mount stuff
-    int action_mi = mad_get_action_ref( chr_get_imad( _characterID ), ACTION_MI );
+    int action_mi = getProfile()->getModel()->getAction(ACTION_MI);
     bool has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
 
     return has_ride_anim;
@@ -484,7 +485,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 {
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
-                        ParticleHandler::get().spawnOneParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
+                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                             INVALID_CHR_REF, GRIP_LAST, team, _characterID);
                     }
                 }
@@ -726,7 +727,7 @@ void Object::update()
         if ( !enviro.inwater )
         {
             // Splash
-            ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( water._is_water )
             {
@@ -766,7 +767,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getCharacterID()) & ripand ))
                     {
-                        ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }

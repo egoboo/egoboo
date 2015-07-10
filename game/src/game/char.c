@@ -30,7 +30,7 @@
 #include "game/Module/Module.hpp"
 #include "game/GUI/UIManager.hpp"
 
-#include "egolib/Graphics/mad.h"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/player.h"
 #include "egolib/Script/script.h"
 #include "game/graphic_billboard.h"
@@ -112,14 +112,10 @@ egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
     Uint32 cnt;
     Sint16 z;
 
-    mad_t * pmad;
     chr_instance_t * pinst;
 
     pinst = chr_get_pinstance( character );
     if ( NULL == pinst ) return rv_error;
-
-    pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return rv_error;
 
     for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
     {
@@ -352,99 +348,6 @@ void make_one_character_matrix( const CHR_REF ichr )
 
         pinst->matrix_cache.pos = pchr->getPosition();
     }
-}
-
-//--------------------------------------------------------------------------------------------
-prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int vertex_offset )
-{
-    /// @author ZZ
-    /// @details This function sets one particle's position to be attached to a character.
-    ///    It will kill the particle if the character is no longer around
-
-    int     vertex;
-    fvec4_t point[1], nupoint[1];
-
-    Object * pchr;
-
-    if ( !DEFINED_PPRT( pprt ) ) return pprt;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) )
-    {
-        goto place_particle_at_vertex_fail;
-    }
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    // Check validity of attachment
-    if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
-    {
-        goto place_particle_at_vertex_fail;
-    }
-
-    // Do we have a matrix???
-    if ( !chr_matrix_valid( pchr ) )
-    {
-        chr_update_matrix( pchr, true );
-    }
-
-    // Do we have a matrix???
-    if ( chr_matrix_valid( pchr ) )
-    {
-        // Transform the weapon vertex_offset from model to world space
-        mad_t * pmad = chr_get_pmad( character );
-
-        if ( vertex_offset == GRIP_ORIGIN )
-        {
-            fvec3_t tmp_pos;
-
-            tmp_pos[kX] = pchr->inst.matrix( 0, 3 );
-            tmp_pos[kY] = pchr->inst.matrix( 1, 3 );
-            tmp_pos[kZ] = pchr->inst.matrix( 2, 3 );
-
-            pprt->setPosition(tmp_pos);
-
-            return pprt;
-        }
-
-        vertex = 0;
-        if ( NULL != pmad )
-        {
-            vertex = (( int )pchr->inst.vrt_count ) - vertex_offset;
-
-            // do the automatic update
-            chr_instance_t::update_vertices(pchr->inst, vertex, vertex, false );
-
-            // Calculate vertex_offset point locations with linear interpolation and other silly things
-            point[0][kX] = pchr->inst.vrt_lst[vertex].pos[XX];
-            point[0][kY] = pchr->inst.vrt_lst[vertex].pos[YY];
-            point[0][kZ] = pchr->inst.vrt_lst[vertex].pos[ZZ];
-            point[0][kW] = 1.0f;
-        }
-        else
-        {
-            point[0][kX] =
-                point[0][kY] =
-                    point[0][kZ] = 0.0f;
-            point[0][kW] = 1.0f;
-        }
-
-        // Do the transform
-        pchr->inst.matrix.transform(point, nupoint, 1);
-
-        pprt->setPosition(fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
-    }
-    else
-    {
-        // No matrix, so just wing it...
-        pprt->setPosition(pchr->getPosition());
-    }
-
-    return pprt;
-
-place_particle_at_vertex_fail:
-
-    pprt->requestTerminate();
-
-    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1238,41 +1141,36 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                PRT_REF iparticle = ParticleHandler::get().spawnOneParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iholder);
 
-                if ( DEFINED_PRT( iparticle ) )
+                if (particle)
                 {
-                    prt_t * pprt = ParticleHandler::get().get_ptr( iparticle );
-
-                    fvec3_t tmp_pos = pprt->getPosition();
+                    fvec3_t tmp_pos = particle->getPosition();
 
                     if ( weaponProfile->hasAttachParticleToWeapon() )
                     {
-                        pprt->phys.weight     = pchr->phys.weight;
-                        pprt->phys.bumpdampen = pweapon->phys.bumpdampen;
+                        particle->phys.weight     = pchr->phys.weight;
+                        particle->phys.bumpdampen = pweapon->phys.bumpdampen;
 
-                        pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
-                        if ( NULL == pprt ) return;
+                        particle->placeAtVertex(pweapon, spawn_vrt_offset);
                     }
-                    else if ( prt_get_ppip( iparticle )->startontarget && _currentModule->getObjectHandler().exists( pprt->target_ref ) )
+                    else if ( particle->getProfile()->startontarget && particle->hasValidTarget() )
                     {
-                        pprt = place_particle_at_vertex( pprt, pprt->target_ref, spawn_vrt_offset );
-                        if ( NULL == pprt ) return;
+                        particle->placeAtVertex(particle->getTarget(), spawn_vrt_offset);
 
                         // Correct Z spacing base, but nothing else...
-                        tmp_pos[kZ] += prt_get_ppip( iparticle )->spacing_vrt_pair.base;
+                        tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
                     }
                     else
                     {
                         // NOT ATTACHED
-                        pprt->attachedto_ref = INVALID_CHR_REF;
 
                         // Don't spawn in walls
-                        if ( EMPTY_BIT_FIELD != pprt->test_wall( tmp_pos, NULL))
+                        if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL))
                         {
                             tmp_pos[kX] = pweapon->getPosX();
                             tmp_pos[kY] = pweapon->getPosY();
-                            if ( EMPTY_BIT_FIELD != pprt->test_wall( tmp_pos, NULL ) )
+                            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL ) )
                             {
                                 tmp_pos[kX] = pchr->getPosX();
                                 tmp_pos[kY] = pchr->getPosY();
@@ -1281,14 +1179,14 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     }
 
                     // Initial particles get a bonus, which may be zero. Increases damage with +(factor)% per attribute point (e.g Might=10 and MightFactor=0.06 then damageBonus=0.6=60%)
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
+                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
+                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
+                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
 
                     // Initial particles get an enchantment bonus
-                    pprt->damage.base += pweapon->damage_boost;
+                    particle->damage.base += pweapon->damage_boost;
 
-                    pprt->setPosition(tmp_pos);
+                    particle->setPosition(tmp_pos);
                 }
                 else
                 {
@@ -1356,7 +1254,7 @@ void drop_money( const CHR_REF character, int money )
 
             for ( tnc = 0; tnc < count; tnc++ )
             {
-                ParticleHandler::get().spawn_one_particle_global( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
+                ParticleHandler::get().spawnGlobalParticle( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
             }
         }
     }
@@ -1614,7 +1512,7 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
     /// @details Spawn a defend particle
     if ( 0 != pchr->damage_timer ) return;
 
-    ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
+    ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
 
     pchr->damage_timer    = DEFENDTIME;
     SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
@@ -1643,7 +1541,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
     {
-        ParticleHandler::get().spawnOneParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
+        ParticleHandler::get().spawnParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
                             INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt);
 
         facing_z += profile->getParticlePoofFacingAdd();
@@ -1801,10 +1699,14 @@ Object * chr_config_do_init( Object * pchr )
         pchr->Name[tnc] = CSTR_END;
     }
 
+    // initalize the character instance
+    chr_instance_t::spawn(pchr->inst, spawn_ptr->profile, spawn_ptr->skin);
+    chr_update_matrix( pchr, true );
+
     // Particle attachments
     for ( tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
-        ParticleHandler::get().spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
+        ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc);
     }
 
@@ -1832,10 +1734,6 @@ Object * chr_config_do_init( Object * pchr )
     //{
     //    pchr->isshopitem = true;
     //}
-
-    // initalize the character instance
-    chr_instance_t::spawn(pchr->inst, spawn_ptr->profile, spawn_ptr->skin);
-    chr_update_matrix( pchr, true );
 
     // determine whether the object is hidden
     chr_update_hide( pchr );
@@ -1919,25 +1817,18 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	chr_instance_t& pinst = pchr->inst;
 
-	mad_t *pmad = ProfileSystem::get().pro_get_pmad(pchr->profile_ref);
-    if (!pmad) {
-        // make sure that the instance has a valid imad
-        if (!LOADED_MAD(pinst.imad)) {
-            if (chr_instance_t::set_mad(pinst, pchr->getProfile()->getModelRef())) {
-                chr_update_collision_size(pchr, true);
-            }
-            pmad = chr_get_pmad(character);
+	const std::shared_ptr<Ego::ModelDescriptor> &model = pchr->getProfile()->getModel();
+
+    // make sure that the instance has a valid imad
+    if (!pinst.imad) {
+        if (chr_instance_t::set_mad(pinst, model)) {
+            chr_update_collision_size(pchr, true);
         }
     }
 
-    if (!pmad) {
-        pchr->skin = 0;
-        pinst.texture = TX_WATER_TOP;
-    } else {
-        // the normal thing to happen
-        new_texture = pchr->getProfile()->getSkin(skin);
-        pchr->skin = skin;
-    }
+    // the normal thing to happen
+    new_texture = pchr->getProfile()->getSkin(skin);
+    pchr->skin = skin;
 
     chr_instance_t::set_texture(pinst, new_texture);
 
@@ -2056,18 +1947,11 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
     /// @details This function polymorphs a character permanently so that it can be exported properly
     /// A character turned into a frog with this function will also export as a frog!
 
-    MAD_REF imad_old, imad_new;
-
-    if (!ProfileSystem::get().isValidProfileID(profile)) return;
-
-    imad_new = ProfileSystem::get().getProfile(profile)->getModelRef();
-    if ( !LOADED_MAD( imad_new ) ) return;
-
-    imad_old = chr_get_imad( ichr );
-    if ( !LOADED_MAD( imad_old ) ) return;
+    const std::shared_ptr<ObjectProfile>& newProfile = ProfileSystem::get().getProfile(profile);
+    if (!newProfile) return;
 
     // copy the new name
-    strncpy( MadStack.lst[imad_old].name, MadStack.lst[imad_new].name, SDL_arraysize( MadStack.lst[imad_old].name ) );
+    //strncpy( MadStack.lst[imad_old].name, MadStack.lst[imad_new].name, SDL_arraysize( MadStack.lst[imad_old].name ) );
 
     // change their model
     change_character( ichr, profile, skin, leavewhich );
@@ -2084,8 +1968,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     CHR_REF item;
     Object * pchr;
 
-    mad_t * pmad_new;
-
     int old_attached_prt_count, new_attached_prt_count;
 
     if (!ProfileSystem::get().isValidProfileID(profile_new) || !_currentModule->getObjectHandler().exists(ichr)) return;
@@ -2097,8 +1979,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     if(!newProfile) {
         return;
     }
-
-    pmad_new = ProfileSystem::get().pro_get_pmad(profile_new);
 
     // Drop left weapon
     const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
@@ -3103,7 +2983,6 @@ void move_one_character_do_voluntary( Object * pchr )
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 {
     CHR_REF ichr, iweapon;
-    MAD_REF imad;
 
     int    base_action, hand_action, action;
     bool action_valid, allowedtoattack;
@@ -3113,7 +2992,6 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     ichr = GET_INDEX_PCHR( pchr );
 
-    imad = chr_get_imad( ichr );
 
     if (which_slot >= SLOT_COUNT) return false;
 
@@ -3132,10 +3010,10 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
     // grab the iweapon's action
     base_action = weaponProfile->getWeaponAction();
-    hand_action = randomize_action( base_action, which_slot );
+    hand_action = pchr->getProfile()->getModel()->randomizeAction( base_action, which_slot );
 
     // see if the character can play this action
-    action       = mad_get_action_ref( imad, hand_action );
+    action       = pchr->getProfile()->getModel()->getAction(hand_action);
     action_valid = TO_C_BOOL( ACTION_COUNT != action );
 
     // Can it do it?
@@ -3238,16 +3116,11 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
             if(allowedtoattack)
             {
-                Uint32 action_madfx = 0;
-
                 // randomize the action
-                action = randomize_action( action, which_slot );
+                action = pchr->getProfile()->getModel()->randomizeAction( action, which_slot );
 
                 // make sure it is valid
-                action = mad_get_action_ref( imad, action );
-
-                // grab the MADFX_* flags for this action
-                action_madfx = mad_get_action_ref( imad, action );
+                action = pchr->getProfile()->getModel()->getAction(action);
 
                 if ( ACTION_IS_TYPE( action, P ) )
                 {
@@ -3294,6 +3167,8 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 pchr->ai.lastitemused = iweapon;
 
                 /// @note ZF@> why should there any reason the weapon should NOT be alerted when it is used?
+                // grab the MADFX_* flags for this action
+//                BIT_FIELD action_madfx = getProfile()->getModel()->getActionFX(action);
 //                if ( iweapon == ichr || HAS_NO_BITS( action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
                 {
                     SET_BIT( pweapon->ai.alert, ALERTIF_USED );
@@ -4096,15 +3971,11 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
     FACING_T left, right;
 
     Object * pchr;
-    mad_t * pmad;
 
     bool  is_invictus;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return true;
     pchr = _currentModule->getObjectHandler().get( character );
-
-    pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return true;
 
     // if the invictus flag is set, we are invictus
     if ( pchr->invictus ) return true;
@@ -4255,8 +4126,6 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     int cnt;
     oct_bb_t bsrc, bdst, bmin;
 
-    mad_t * pmad;
-
     if ( nullptr == ( pchr ) ) return rv_error;
 
     // re-initialize the collision volumes
@@ -4266,9 +4135,6 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     {
         oct_bb_t::ctor(pchr->slot_cv[cnt]);
     }
-
-    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
-    if ( NULL == pmad ) return rv_error;
 
     // make sure the matrix is updated properly
     if ( update_matrix )

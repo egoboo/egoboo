@@ -1,5 +1,6 @@
 #include "ObjectAnimation.h"
 #include "CharacterMatrix.h"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game.h"
 
 //--------------------------------------------------------------------------------------------
@@ -106,16 +107,12 @@ egolib_rv chr_increment_action( Object * pchr )
 egolib_rv chr_increment_frame( Object * pchr )
 {
     egolib_rv retval;
-    mad_t * pmad;
     int mount_action;
     CHR_REF imount;
     bool needs_keep;
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
     imount = pchr->attachedto;
-
-    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
-    if ( NULL == pmad ) return rv_error;
 
     // do we need to keep this animation?
     needs_keep = false;
@@ -133,7 +130,7 @@ egolib_rv chr_increment_frame( Object * pchr )
             // if the character is holding anything, make the animation
             // ACTION_MH == "sitting" so that it does not look so silly
 
-            mount_action = mad_get_action_ref( pchr->inst.imad, ACTION_MH );
+            mount_action = pchr->getProfile()->getModel()->getAction(ACTION_MH);
             if ( ACTION_MH != mount_action )
             {
                 // no real sitting animation. set the animation to keep
@@ -143,7 +140,7 @@ egolib_rv chr_increment_frame( Object * pchr )
         else
         {
             // if it is not holding anything, go for the riding animation
-            mount_action = mad_get_action_ref( pchr->inst.imad, ACTION_MI );
+            mount_action = pchr->getProfile()->getModel()->getAction(ACTION_MI);
             if ( ACTION_MI != mount_action )
             {
                 // no real riding animation. set the animation to keep
@@ -152,7 +149,7 @@ egolib_rv chr_increment_frame( Object * pchr )
         }
     }
 
-    retval = ( egolib_rv )chr_instance_t::increment_frame(pchr->inst, pmad, imount, mount_action );
+    retval = ( egolib_rv )chr_instance_t::increment_frame(pchr->inst, imount, mount_action );
     if ( rv_success != retval ) return retval;
 
     /// @note BB@> this did not work as expected...
@@ -189,59 +186,6 @@ egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_heal_mad( Object * pchr )
-{
-    // try to repair a bad model if it exists
-
-    if (!pchr) {
-        return false;
-    }
-    chr_instance_t& pinst = pchr->inst;
-
-    if (LOADED_MAD(pinst.imad)) {
-        return true;
-    }
-
-    // get whatever mad index the profile says to use
-    MAD_REF imad_tmp = ProfileSystem::get().getProfile(pchr->profile_ref)->getModelRef();
-
-    // set the mad index to whatever the profile says, even if it is wrong,
-    // since we know that our current one is invalid
-    chr_instance_t::set_mad(pinst, imad_tmp);
-
-    // if we healed the mad index, make sure to recalculate the collision size
-    if (LOADED_MAD( pinst.imad)) {
-        chr_update_collision_size(pchr, true);
-    }
-
-    return LOADED_MAD(pinst.imad);
-}
-
-//--------------------------------------------------------------------------------------------
-MAD_REF chr_get_imad( const CHR_REF ichr )
-{
-    Object * pchr   = NULL;
-    MAD_REF retval = INVALID_MAD_REF;
-
-    pchr = _currentModule->getObjectHandler().get( ichr );
-    if ( NULL == pchr ) return retval;
-
-    // heal the mad index if it is invalid
-    if ( chr_heal_mad( pchr ) )
-    {
-        retval = pchr->inst.imad;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-mad_t * chr_get_pmad( const CHR_REF ichr )
-{
-    return MadStack.get_ptr( chr_get_imad( ichr ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -349,8 +293,6 @@ float set_character_animation_rate( Object * pchr )
     int    action, lip;
     bool found;
 
-    mad_t          * pmad;
-
     // set the character speed to zero
     speed = 0;
 
@@ -395,8 +337,7 @@ float set_character_animation_rate( Object * pchr )
     if ( !pchr->enviro.grounded && 0 == pchr->flyheight ) return pinst.rate;
 
     // get the model
-    pmad = chr_get_pmad( ichr );
-    if ( NULL == pmad ) return pinst.rate;
+    const std::shared_ptr<Ego::ModelDescriptor> pmad = pchr->getProfile()->getModel();
 
     //---- set up the anim_info structure
     chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
@@ -434,7 +375,7 @@ float set_character_animation_rate( Object * pchr )
         anim_info[cnt].allowed = HAS_SOME_BITS( pchr->movement_bits, 1 << cnt );
     }
 
-    if ( ACTION_WA != pmad->action_map[ACTION_WA] )
+    if ( ACTION_WA != pmad->getAction(ACTION_WA) )
     {
         // no specific walk animation exists
         anim_info[CHR_MOVEMENT_SNEAK].allowed = false;
@@ -447,13 +388,13 @@ float set_character_animation_rate( Object * pchr )
         }
     }
 
-    if ( ACTION_WB != pmad->action_map[ACTION_WB] )
+    if ( ACTION_WB != pmad->getAction(ACTION_WB) )
     {
         // no specific walk animation exists
         anim_info[CHR_MOVEMENT_WALK].allowed = false;
     }
 
-    if ( ACTION_WC != pmad->action_map[ACTION_WC] )
+    if ( ACTION_WC != pmad->getAction(ACTION_WC) )
     {
         // no specific walk animation exists
         anim_info[CHR_MOVEMENT_RUN].allowed = false;
@@ -563,7 +504,7 @@ float set_character_animation_rate( Object * pchr )
 
             // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
             rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
-            tmp_action = mad_get_action_ref( pinst.imad, ACTION_DB + ( rand_val % 3 ) );
+            tmp_action = pinst.imad->getAction(ACTION_DB + ( rand_val % 3 ));
             chr_start_anim( pchr, tmp_action, true, true );
         }
         else
@@ -572,7 +513,7 @@ float set_character_animation_rate( Object * pchr )
             if ( !ACTION_IS_TYPE( pinst.action_which, D ) )
             {
                 // get an appropriate version of the boredom action
-                int tmp_action = mad_get_action_ref( pinst.imad, ACTION_DA );
+                int tmp_action = pinst.imad->getAction(ACTION_DA);
 
                 // start the animation
                 chr_start_anim( pchr, tmp_action, true, true );
@@ -581,13 +522,13 @@ float set_character_animation_rate( Object * pchr )
     }
     else
     {
-        int tmp_action = mad_get_action_ref( pinst.imad, action );
+        int tmp_action = pinst.imad->getAction(action);
         if ( ACTION_COUNT != tmp_action )
         {
             if ( pinst.action_which != tmp_action )
             {
                 const MD2_Frame &nextFrame  = chr_instance_t::get_frame_nxt(pchr->inst);
-                chr_set_anim( pchr, tmp_action, pmad->framelip_to_walkframe[lip][nextFrame.framelip], true, true );
+                chr_set_anim( pchr, tmp_action, pmad->getFrameLipToWalkFrame(lip, nextFrame.framelip), true, true );
             }
 
             // "loop" the action

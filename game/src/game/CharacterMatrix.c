@@ -62,7 +62,6 @@ int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
     int vrt_count, tnc;
 
     Object * pmount;
-    mad_t * pmount_mad;
 
     if ( NULL == grip_verts ) return 0;
 
@@ -74,9 +73,6 @@ int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
 
     if ( !_currentModule->getObjectHandler().exists( imount ) ) return 0;
     pmount = _currentModule->getObjectHandler().get( imount );
-
-    pmount_mad = chr_get_pmad( imount );
-    if ( NULL == pmount_mad ) return 0;
 
     if ( 0 == pmount->inst.vrt_count ) return 0;
 

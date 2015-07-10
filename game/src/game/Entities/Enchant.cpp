@@ -24,7 +24,7 @@
 #include "game/Entities/Enchant.hpp"
 
 #include "egolib/Audio/AudioSystem.hpp"
-#include "egolib/Graphics/mad.h"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "egolib/Profiles/_Include.hpp"
 
 #include "game/game.h"
@@ -916,11 +916,9 @@ enc_t *enc_t::config_do_init()
         if ( _currentModule->getObjectHandler().exists( overlay ) )
         {
             Object *povl;
-            mad_t *povl_mad;
             int action;
 
             povl     = _currentModule->getObjectHandler().get( overlay );
-            povl_mad = chr_get_pmad( overlay );
 
             penc->overlay_ref = overlay;  // Kill this character on end...
             povl->ai.target   = pdata->target_ref;
@@ -928,7 +926,7 @@ enc_t *enc_t::config_do_init()
             chr_set_ai_state( povl, peve->spawn_overlay );  // ??? WHY DO THIS ???
 
             // Start out with ActionMJ...  Object activated
-            action = mad_get_action_ref( chr_get_imad( overlay ), ACTION_MJ );
+            action = povl->getProfile()->getModel()->getAction(ACTION_MJ);
             if ( !ACTION_IS_TYPE( action, D ) )
             {
                 chr_start_anim( povl, action, false, true );
@@ -986,7 +984,7 @@ enc_t *enc_t::config_do_active()
         FACING_T facing = ptarget->ori.facing_z;
         for (Uint8 i = 0; i < peve->contspawn._amount; ++i)
         {
-            ParticleHandler::get().spawn_one_particle(ptarget->getPosition(), facing, this->profile_ref, peve->contspawn._lpip,
+            ParticleHandler::get().spawnLocalParticle(ptarget->getPosition(), facing, this->profile_ref, peve->contspawn._lpip,
                                                       INVALID_CHR_REF, GRIP_LAST, chr_get_iteam(this->owner_ref), this->owner_ref,
                                                       INVALID_PRT_REF, i, INVALID_CHR_REF);
 

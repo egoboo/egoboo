@@ -2,9 +2,7 @@
 
 enum class RefKind
 {
-    Animation,       ///< @todo Formerly known as MAD_REF.
     Billboard,       ///< @see BillboardRef
-    Particle,        ///< @see ParticleRef
     ParticleProfile, ///< @see ParticleProfileRef
     Enchant,         ///< @see EnchantRef.
     EnchantProfile,  ///< @see EnchantProfileRef

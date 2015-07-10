@@ -71,9 +71,9 @@ gfx_rv EntityList::reset()
         element_t *element = &(_lst[i]);
 
         // Tell all valid objects that they are removed from this dolist.
-        if (INVALID_CHR_REF == element->ichr && VALID_PRT_RANGE(element->iprt))
+        if (INVALID_CHR_REF == element->ichr && element->iprt != INVALID_PRT_REF)
         {
-            prt_t *pprt = ParticleHandler::get().get_ptr(element->iprt);
+            const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element->iprt];
             if (nullptr != pprt) pprt->inst.indolist = false;
         }
         else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
@@ -142,7 +142,7 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
     return gfx_success;
 }
 
-gfx_rv EntityList::test_prt(const prt_t& prt)
+gfx_rv EntityList::test_prt(const std::shared_ptr<Ego::Particle>& prt)
 {
     // The entity is not a candidate if the list is full.
     if (_size == CAPACITY)
@@ -151,13 +151,13 @@ gfx_rv EntityList::test_prt(const prt_t& prt)
     }
 
     // The entity is not a candidate if it is not displayed.
-    if (!DISPLAY_PPRT(&prt))
+    if (!prt || prt->isTerminated())
     {
         return gfx_fail;
     }
 
     // The entity is not a candidate if it is explicitly or implicitly hidden.
-    if (prt.is_hidden || 0 == prt.size)
+    if (prt->isHidden() || 0 == prt->size)
     {
         return gfx_fail;
     }
@@ -165,16 +165,16 @@ gfx_rv EntityList::test_prt(const prt_t& prt)
     return gfx_success;
 }
 
-gfx_rv EntityList::add_prt_raw(prt_t& prt)
+gfx_rv EntityList::add_prt_raw(const std::shared_ptr<Ego::Particle>& prt)
 {
     /// @author ZZ
     /// @details This function puts an entity in the list
 
     _lst[_size].ichr = INVALID_CHR_REF;
-    _lst[_size].iprt = GET_REF_PPRT(&prt);
+    _lst[_size].iprt = prt->getParticleID();
     _size++;
 
-    prt.inst.indolist = true;
+    prt->inst.indolist = true;
 
     return gfx_success;
 }
@@ -231,21 +231,17 @@ gfx_rv EntityList::add_colst(const Ego::DynamicArray<BSP_leaf_t *> *leaves)
             PRT_REF iprt = (PRT_REF)(pleaf->_index);
 
             // Is it a valid reference.
-            if (!VALID_PRT_RANGE(iprt))
-            {
-                continue;
-            }
-            prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
-            if (!pprt)
+            const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
+            if (pprt == nullptr || pprt->isTerminated())
             {
                 continue;
             }
 
             // Do some more obvious tests before testing the frustum.
-            if (test_prt(*pprt))
+            if (test_prt(pprt))
             {
                 // Add the particle.
-                if (gfx_error == add_prt_raw(*pprt))
+                if (gfx_error == add_prt_raw(pprt))
                 {
                     return gfx_error;
                 }
@@ -298,17 +294,17 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
 
             vtmp = pos_tmp - cam.getPosition();
         }
-        else if (INVALID_CHR_REF == _lst[i].ichr && VALID_PRT_RANGE(_lst[i].iprt))
+        else if (INVALID_CHR_REF == _lst[i].ichr && _lst[i].iprt != INVALID_PRT_REF)
         {
             PRT_REF iprt = _lst[i].iprt;
 
             if (do_reflect)
             {
-                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.pos - cam.getPosition();
+                vtmp = ParticleHandler::get()[iprt]->inst.pos - cam.getPosition();
             }
             else
             {
-                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.ref_pos - cam.getPosition();
+                vtmp = ParticleHandler::get()[iprt]->inst.ref_pos - cam.getPosition();
             }
         }
         else

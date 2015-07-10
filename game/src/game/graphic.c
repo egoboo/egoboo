@@ -32,7 +32,6 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "egolib/Graphics/mad.h"
 #include "game/bsp.h"
 #include "game/player.h"
 #include "game/collision.h"
@@ -1339,7 +1338,7 @@ float draw_debug(float y)
     {
         // More debug information
         y = draw_string_raw(0, y, "!!!DEBUG MODE-6!!!");
-        y = draw_string_raw(0, y, "~~FREEPRT %d", ParticleHandler::get().getFreeCount());
+        y = draw_string_raw(0, y, "~~FREEPRT %" PRIuZ, ParticleHandler::get().getFreeCount());
         y = draw_string_raw(0, y, "~~FREECHR %" PRIuZ, OBJECTS_MAX - _currentModule->getObjectHandler().getObjectCount());
 #if 0
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
@@ -2764,9 +2763,11 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
     // Don't really make a list, just set to visible or not
     dynalist_init(&dyl);
 
-    PRT_BEGIN_LOOP_DISPLAY(iprt, prt_bdl)
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        dynalight_info_t * pprt_dyna = &(prt_bdl._prt_ptr->dynalight);
+        if(particle->isTerminated()) continue;
+        
+        dynalight_info_t * pprt_dyna = &(particle->dynalight);
 
         // is the light on?
         if (!pprt_dyna->on || 0.0f == pprt_dyna->level) continue;
@@ -2775,7 +2776,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
         plight = NULL;
 
         // find the distance to the camera
-        vdist = prt_bdl._prt_ptr->getPosition() - cam.getTrackPosition();
+        vdist = particle->getPosition() - cam.getTrackPosition();
         distance = vdist.length_2();
 
         // insert the dynalight
@@ -2819,12 +2820,11 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
         if (NULL != plight)
         {
             plight->distance = distance;
-            plight->pos = prt_bdl._prt_ptr->getPosition();
+            plight->pos = particle->getPosition();
             plight->level = pprt_dyna->level;
             plight->falloff = pprt_dyna->falloff;
         }
     }
-    PRT_END_LOOP();
 
     // the list is updated, so update the frame count
     dyl.frame = game_frame_all;

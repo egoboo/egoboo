@@ -26,7 +26,7 @@
 #include "egolib/Profiles/ObjectProfile.hpp"
 #include "game/game.h"
 #include "game/Entities/_Include.hpp"
-#include "egolib/Graphics/mad.h"       //for loading md2
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/FileFormats/template.h"
 #include "egolib/Math/Random.hpp"
@@ -37,7 +37,7 @@ ObjectProfile::ObjectProfile() :
     _spawnRequestCount(0),
     _spawnCount(0),
     _pathname("*NONE*"),
-    _imad(INVALID_MAD_REF),
+    _model(nullptr),
     _ieve(INVALID_EVE_REF),
     _slotNumber(-1),
 
@@ -213,10 +213,6 @@ ObjectProfile::ObjectProfile() :
 
 ObjectProfile::~ObjectProfile()
 {
-    // release all of the sub-profiles
-    MadStack_release_one( _imad );
-    //EveStack_release_one( pobj->ieve );
-
     //Release particle profiles
     for(const auto &element : _particleProfiles)
     {
@@ -659,7 +655,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     // More item and damage stuff
     _damageTargetDamageType = vfs_get_next_damage_type(ctxt);
-    _weaponAction = action_which(vfs_get_next_printable(ctxt));
+    _weaponAction = Ego::ModelDescriptor::charToAction(vfs_get_next_printable(ctxt));
 
     // Particle attachments
     _attachedParticleAmount = vfs_get_next_int(ctxt);
@@ -982,9 +978,10 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     if(!lightWeight)
     {
         // Load the model for this profile
-        profile->_imad = load_one_model_profile_vfs(folderPath.c_str(), profile->_slotNumber);
-        if(profile->_imad == INVALID_MAD_REF)
-        {
+        try {
+            profile->_model = std::make_shared<Ego::ModelDescriptor>(folderPath.c_str());
+        }
+        catch (const std::runtime_error &ex) {
             log_warning("ObjectProfile::loadFromFile() - Unable to load model (%s)\n", folderPath.c_str());
             return nullptr;
         }
@@ -1044,7 +1041,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     // Fix lighting if need be
     if (profile->_uniformLit && egoboo_config_t::get().graphic_gouraudShading_enable.getValue())
     {
-        mad_make_equally_lit_ref(profile->_imad);
+        profile->getModel()->makeEquallyLit();
     }
 
     return profile;

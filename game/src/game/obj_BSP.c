@@ -154,8 +154,6 @@ bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
  */
 bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
 {
-    prt_t * pprt;
-
     // Each one of these tests allows one MORE reason to include the particle, not one less.
     // Removed bump particles. We have another loop that can detect these, and there
     // is no reason to fill up the BSP with particles like coins.
@@ -171,19 +169,18 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     {
         return false;
     }
-    pprt = static_cast<prt_t *>(pprt_leaf->_data);
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return false;
-    std::shared_ptr<pip_t> ppip = PipStack.get_ptr( pprt->pip_ref );
+    Ego::Particle* pprt = static_cast<Ego::Particle *>(pprt_leaf->_data);
+    const std::shared_ptr<pip_t> &ppip = pprt->getProfile();
 
     // is the particle in-game?
-    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden || pprt->is_ghost ) return false;
+    if ( pprt->isTerminated() || pprt->isHidden() ) return false;
 
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
     has_enchant = false;
     if ( ppip->spawnenchant )
     {
-        has_enchant = LOADED_EVE(ProfileSystem::get().pro_get_ieve(pprt->profile_ref));
+        has_enchant = LOADED_EVE(ProfileSystem::get().pro_get_ieve(pprt->getSpawnerProfile()));
     }
 
     // any possible damage?
@@ -249,10 +246,10 @@ bool prt_BSP_is_visible(BSP_leaf_t * pprt_leaf)
     {
         return false;
     }
-	prt_t *pprt = (prt_t *)(pprt_leaf->_data);
+	Ego::Particle *pprt = (Ego::Particle *)(pprt_leaf->_data);
 
     // is the particle in-game?
-    if (!INGAME_PPRT_BASE(pprt) || pprt->is_hidden) return false;
+    if (pprt == nullptr || pprt->isTerminated() || pprt->isHidden()) return false;
 
     // zero sized particles are not visible
     if (0 == pprt->size)
