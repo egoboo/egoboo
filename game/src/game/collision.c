@@ -2965,7 +2965,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
-        if ( HAS_NO_BITS(pdata->ppip->damfx, DAMFX_ARRO) && (!prt_needs_impact || pdata->is_impact) )
+        if ( HAS_NO_BITS(pdata->ppip->damfx, DAMFX_ARRO) /*&& (!prt_needs_impact || pdata->is_impact)*/ )
         {
             //Damage adjusted for attributes and weaknesses
             IPair modifiedDamage = pdata->pprt->damage;
