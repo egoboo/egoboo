@@ -25,7 +25,6 @@
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
 #include "game/script_functions.h"
-#include "egolib/Graphics/mad.h"
 #include "egolib/AI/AStar.h"
 #include "game/game.h"
 #include "game/network.h"

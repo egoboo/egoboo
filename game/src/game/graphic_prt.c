@@ -101,7 +101,7 @@ Uint32 instance_update = (Uint32)~0;
 //--------------------------------------------------------------------------------------------
 static gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float size, bool do_reflect);
-static void draw_one_attachment_point(chr_instance_t *pinst, mad_t *pmad, int vrt_offset);
+static void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset);
 static void prt_draw_attached_point(prt_bundle_t *pbdl_prt);
 static void render_prt_bbox(prt_bundle_t *pbdl_prt);
 static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t * pinst, Ego::Particle * pprt);
@@ -503,12 +503,12 @@ void render_all_prt_bbox()
     }
 }
 
-void draw_one_attachment_point(chr_instance_t *pinst, mad_t *pmad, int vrt_offset)
+void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset)
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
-    if (!pinst || !pmad)
+    if (!pinst)
     {
         return;
     }
@@ -561,14 +561,8 @@ void prt_draw_attached_point(prt_bundle_t *pbdl_prt)
     {
         return;
     }
-    const std::shared_ptr<Object>& pholder = loc_pprt->getAttachedObject();
 
-    mad_t *pholder_mad = chr_get_pmad(pholder->getCharacterID());
-    if (!pholder_mad)
-    {
-        return;
-    }
-    draw_one_attachment_point(&(pholder->inst), pholder_mad, loc_pprt->attachedto_vrt_off);
+    draw_one_attachment_point(&(loc_pprt->getAttachedObject()->inst), loc_pprt->attachedto_vrt_off);
 }
 
 gfx_rv update_all_prt_instance(Camera& camera)

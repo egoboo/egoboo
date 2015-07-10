@@ -26,7 +26,6 @@
 #include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
-#include "egolib/Graphics/mad.h"
 #include "game/player.h"
 #include "game/link.h"
 #include "game/graphic.h"
@@ -43,6 +42,7 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/Graphics/CameraSystem.hpp"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
 #include "game/physics.h"
@@ -373,8 +373,7 @@ void log_madused_vfs( const char *savename )
             }
             lastSlotNumber = profile->getSlotNumber();
 
-            MAD_REF imad = profile->getModelRef();
-            vfs_printf( hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), profile->getClassName().c_str(), MadStack.lst[imad].name );
+            vfs_printf(hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), profile->getClassName().c_str(), profile->getModel()->getName().c_str());
         }
 
         vfs_close( hFileWrite );
@@ -389,18 +388,13 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
     ///    rotate Tank turrets
 
     Object * pchr;
-    MAD_REF imad;
     egolib_rv retval;
-    int action;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return rv_error;
     pchr = _currentModule->getObjectHandler().get( character );
 
-    imad = chr_get_imad( character );
-    if ( !LOADED_MAD( imad ) ) return rv_fail;
-
     // resolve the requested action to a action that is valid for this model (if possible)
-    action = mad_get_action_ref( imad, req_action );
+    int action = pchr->getProfile()->getModel()->getAction(req_action);
 
     // set the action
     retval = chr_set_action( pchr, action, true, true );
@@ -409,7 +403,7 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
         // the action is set. now set the frame info.
         // pass along the imad in case the pchr->inst is not using this same mad
         // (corrupted data?)
-        retval = (egolib_rv)chr_instance_t::set_frame_full(pchr->inst, frame_along, ilip, imad);
+        retval = (egolib_rv)chr_instance_t::set_frame_full(pchr->inst, frame_along, ilip, pchr->getProfile()->getModel());
     }
 
     return retval;

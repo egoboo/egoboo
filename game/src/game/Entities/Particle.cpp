@@ -50,6 +50,9 @@ Particle::Particle() :
 
 void Particle::reset(PRT_REF ref) 
 {
+    //We are terminated until we are initialized()
+    _isTerminated = true;
+
     _particleID = ref;
     frame_count = 0;
     _bspLeaf = BSP_leaf_t(this, BSP_LEAF_PRT, ref); //because we have a new ref
@@ -813,9 +816,9 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
     fvec3_t vel;
     int     offsetfacing = 0, newrand;
 
-    if(!isTerminated()) {
-        throw std::logic_error("Tried to spawn an existing particle that was not terminated");
-    }
+    //if(!isTerminated()) {
+    //    throw std::logic_error("Tried to spawn an existing particle that was not terminated");
+    //}
 
     //Clear any old data first
     reset(particleID);
@@ -1254,29 +1257,20 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
             return true;
         }
 
-        vertex = 0;
-        if ( chr_get_pmad(object->getCharacterID()) != nullptr )
-        {
-            if(vertex_offset > object->inst.vrt_count) {
-                throw std::invalid_argument("Particle::placeAtVertex() =  vertex_offset > object->inst.vrt_count");
-            }
-
-            vertex = object->inst.vrt_count - vertex_offset;
-
-            // do the automatic update
-            chr_instance_t::update_vertices(object->inst, vertex, vertex, false );
-
-            // Calculate vertex_offset point locations with linear interpolation and other silly things
-            point[0][kX] = object->inst.vrt_lst[vertex].pos[XX];
-            point[0][kY] = object->inst.vrt_lst[vertex].pos[YY];
-            point[0][kZ] = object->inst.vrt_lst[vertex].pos[ZZ];
-            point[0][kW] = 1.0f;
+        if(vertex_offset > object->inst.vrt_count) {
+            throw std::invalid_argument("Particle::placeAtVertex() =  vertex_offset > object->inst.vrt_count");
         }
-        else
-        {
-            point[0][kX] = point[0][kY] = point[0][kZ] = 0.0f;
-            point[0][kW] = 1.0f;
-        }
+
+        vertex = object->inst.vrt_count - vertex_offset;
+
+        // do the automatic update
+        chr_instance_t::update_vertices(object->inst, vertex, vertex, false );
+
+        // Calculate vertex_offset point locations with linear interpolation and other silly things
+        point[0][kX] = object->inst.vrt_lst[vertex].pos[XX];
+        point[0][kY] = object->inst.vrt_lst[vertex].pos[YY];
+        point[0][kZ] = object->inst.vrt_lst[vertex].pos[ZZ];
+        point[0][kW] = 1.0f;
 
         // Do the transform
         object->inst.matrix.transform(point, nupoint, 1);

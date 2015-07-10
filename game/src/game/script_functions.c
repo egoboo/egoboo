@@ -25,11 +25,11 @@
 /// The current code is about 3/4 of the way toward this goal.
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_functions.h"
 #include "game/script_implementation.h"
 #include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
-#include "egolib/Graphics/mad.h"
 #include "game/link.h"
 #include "game/input.h"
 #include "game/network.h"
@@ -1035,7 +1035,7 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    action = mad_get_action_ref( pchr->inst.imad, pstate->argument );
+    action = pchr->getProfile()->getModel()->getAction( pstate->argument );
 
     returncode = false;
     if ( rv_success == chr_start_anim( pchr, action, false, false ) )
@@ -1133,7 +1133,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
 
         if ( pself_target->alive )
         {
-            int action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
+            int action = pself_target->getProfile()->getModel()->getAction( pstate->argument );
 
             if ( rv_success == chr_start_anim( pself_target, action, false, false ) )
             {
@@ -1309,7 +1309,7 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    action = mad_get_action_ref( pchr->inst.imad, pstate->argument );
+    action = pchr->getProfile()->getModel()->getAction(pstate->argument);
 
     returncode = false;
     if ( rv_success == chr_start_anim( pchr, action, false, true ) )
@@ -2443,7 +2443,6 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     /// them too much
 
     PRO_REF  old_profile;
-    mad_t * pmad;
     int iskin;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2461,17 +2460,12 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     pself->content = REF_TO_INT( old_profile );
 
     // set the spellbook animations
-    pmad = chr_get_pmad(pself->index);
+    // Do dropped animation
+    int tmp_action = pchr->getProfile()->getModel()->getAction(ACTION_JB);
 
-    if ( NULL != pmad )
+    if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
     {
-        // Do dropped animation
-        int tmp_action = mad_get_action_ref(pchr->inst.imad, ACTION_JB);
-
-        if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
-        {
-            returncode = true;
-        }
+        returncode = true;
     }
 
     // have to do this every time pself->state is modified
@@ -4481,7 +4475,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
         Object * pchild = _currentModule->getObjectHandler().get( pself->child );
 
-        action = mad_get_action_ref( pchild->inst.imad, pstate->argument );
+        action = pchild->getProfile()->getModel()->getAction(pstate->argument);
 
         if ( rv_success == chr_start_anim( pchild, action, false, true ) )
         {
@@ -5719,7 +5713,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         int action;
         Object * pself_target = _currentModule->getObjectHandler().get( pself->target );
 
-        action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
+        action = pself_target->getProfile()->getModel()->getAction(pstate->argument );
 
         if ( rv_success == chr_start_anim( pself_target, action, false, true ) )
         {
@@ -6989,10 +6983,7 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     {
-        mad_t * pmad = chr_get_pmad( pself->index );
-
-        log_warning( "Depacrated script function used: EnableListenSkill! (%s)\n",
-                     ( NULL == pmad ) ? "UNKNOWN" : pmad->name );
+        log_warning("Deprecated script function used: EnableListenSkill! (%s)\n", pchr->getProfile()->getClassName().c_str());
     }
 
     returncode = false;

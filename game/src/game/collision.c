@@ -32,6 +32,7 @@
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 #include "egolib/Profiles/_Include.hpp"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 
 CollisionSystem *CollisionSystem::_singleton = nullptr;
 

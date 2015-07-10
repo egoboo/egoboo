@@ -41,23 +41,17 @@ protected:
     ~ParticleProfileSystem();
 
 public:
-    /**
-    * @return
-    *   true if the specified ParticleProfileID has been loaded by a valid profile
-    **/
-    bool isLoaded(const PIP_REF ref) const;
-
-    /**
-    * @return
-    *   true if the specified ParticleProfileID is a valid ID number that can be used
-    **/
-    bool isValidProfileID(PIP_REF ref) const;
+    //Explicit member to avoid ambiguous inheritance with Singleton
+    void initialize() { AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::initialize(); }
+    
+    //Explicit member to avoid ambiguous inheritance with Singleton
+    void unintialize() { AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::unintialize(); }
 };
 
 inline bool VALID_PIP_RANGE(PIP_REF ref) {
-    return PipStack.isValidRange(ref);
+    return ParticleProfileSystem::get().isValidRange(ref);
 }
 
 inline bool LOADED_PIP(PIP_REF ref) {
-    return PipStack.isLoaded(ref);
+    return ParticleProfileSystem::get().isLoaded(ref);
 }

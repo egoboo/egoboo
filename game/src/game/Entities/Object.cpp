@@ -31,6 +31,7 @@
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "game/char.h" //ZF> TODO: remove
+#include "egolib/Graphics/ModelDescriptor.hpp"
 
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
@@ -336,7 +337,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     }
 
     //We need a riding animation to be able to mount stuff
-    int action_mi = mad_get_action_ref( chr_get_imad( _characterID ), ACTION_MI );
+    int action_mi = getProfile()->getModel()->getAction(ACTION_MI);
     bool has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
 
     return has_ride_anim;

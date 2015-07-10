@@ -30,7 +30,7 @@
 #include "game/Module/Module.hpp"
 #include "game/GUI/UIManager.hpp"
 
-#include "egolib/Graphics/mad.h"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/player.h"
 #include "egolib/Script/script.h"
 #include "game/graphic_billboard.h"
@@ -112,14 +112,10 @@ egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
     Uint32 cnt;
     Sint16 z;
 
-    mad_t * pmad;
     chr_instance_t * pinst;
 
     pinst = chr_get_pinstance( character );
     if ( NULL == pinst ) return rv_error;
-
-    pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return rv_error;
 
     for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
     {
@@ -1703,6 +1699,10 @@ Object * chr_config_do_init( Object * pchr )
         pchr->Name[tnc] = CSTR_END;
     }
 
+    // initalize the character instance
+    chr_instance_t::spawn(pchr->inst, spawn_ptr->profile, spawn_ptr->skin);
+    chr_update_matrix( pchr, true );
+
     // Particle attachments
     for ( tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
@@ -1734,10 +1734,6 @@ Object * chr_config_do_init( Object * pchr )
     //{
     //    pchr->isshopitem = true;
     //}
-
-    // initalize the character instance
-    chr_instance_t::spawn(pchr->inst, spawn_ptr->profile, spawn_ptr->skin);
-    chr_update_matrix( pchr, true );
 
     // determine whether the object is hidden
     chr_update_hide( pchr );
@@ -1821,25 +1817,18 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	chr_instance_t& pinst = pchr->inst;
 
-	mad_t *pmad = ProfileSystem::get().pro_get_pmad(pchr->profile_ref);
-    if (!pmad) {
-        // make sure that the instance has a valid imad
-        if (!LOADED_MAD(pinst.imad)) {
-            if (chr_instance_t::set_mad(pinst, pchr->getProfile()->getModelRef())) {
-                chr_update_collision_size(pchr, true);
-            }
-            pmad = chr_get_pmad(character);
+	const std::shared_ptr<Ego::ModelDescriptor> &model = pchr->getProfile()->getModel();
+
+    // make sure that the instance has a valid imad
+    if (!pinst.imad) {
+        if (chr_instance_t::set_mad(pinst, model)) {
+            chr_update_collision_size(pchr, true);
         }
     }
 
-    if (!pmad) {
-        pchr->skin = 0;
-        pinst.texture = TX_WATER_TOP;
-    } else {
-        // the normal thing to happen
-        new_texture = pchr->getProfile()->getSkin(skin);
-        pchr->skin = skin;
-    }
+    // the normal thing to happen
+    new_texture = pchr->getProfile()->getSkin(skin);
+    pchr->skin = skin;
 
     chr_instance_t::set_texture(pinst, new_texture);
 
@@ -1958,18 +1947,11 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
     /// @details This function polymorphs a character permanently so that it can be exported properly
     /// A character turned into a frog with this function will also export as a frog!
 
-    MAD_REF imad_old, imad_new;
-
-    if (!ProfileSystem::get().isValidProfileID(profile)) return;
-
-    imad_new = ProfileSystem::get().getProfile(profile)->getModelRef();
-    if ( !LOADED_MAD( imad_new ) ) return;
-
-    imad_old = chr_get_imad( ichr );
-    if ( !LOADED_MAD( imad_old ) ) return;
+    const std::shared_ptr<ObjectProfile>& newProfile = ProfileSystem::get().getProfile(profile);
+    if (!newProfile) return;
 
     // copy the new name
-    strncpy( MadStack.lst[imad_old].name, MadStack.lst[imad_new].name, SDL_arraysize( MadStack.lst[imad_old].name ) );
+    //strncpy( MadStack.lst[imad_old].name, MadStack.lst[imad_new].name, SDL_arraysize( MadStack.lst[imad_old].name ) );
 
     // change their model
     change_character( ichr, profile, skin, leavewhich );
@@ -1986,8 +1968,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     CHR_REF item;
     Object * pchr;
 
-    mad_t * pmad_new;
-
     int old_attached_prt_count, new_attached_prt_count;
 
     if (!ProfileSystem::get().isValidProfileID(profile_new) || !_currentModule->getObjectHandler().exists(ichr)) return;
@@ -1999,8 +1979,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     if(!newProfile) {
         return;
     }
-
-    pmad_new = ProfileSystem::get().pro_get_pmad(profile_new);
 
     // Drop left weapon
     const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
@@ -3005,7 +2983,6 @@ void move_one_character_do_voluntary( Object * pchr )
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 {
     CHR_REF ichr, iweapon;
-    MAD_REF imad;
 
     int    base_action, hand_action, action;
     bool action_valid, allowedtoattack;
@@ -3015,7 +2992,6 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     ichr = GET_INDEX_PCHR( pchr );
 
-    imad = chr_get_imad( ichr );
 
     if (which_slot >= SLOT_COUNT) return false;
 
@@ -3034,10 +3010,10 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
     // grab the iweapon's action
     base_action = weaponProfile->getWeaponAction();
-    hand_action = randomize_action( base_action, which_slot );
+    hand_action = pchr->getProfile()->getModel()->randomizeAction( base_action, which_slot );
 
     // see if the character can play this action
-    action       = mad_get_action_ref( imad, hand_action );
+    action       = pchr->getProfile()->getModel()->getAction(hand_action);
     action_valid = TO_C_BOOL( ACTION_COUNT != action );
 
     // Can it do it?
@@ -3140,16 +3116,11 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
             if(allowedtoattack)
             {
-                Uint32 action_madfx = 0;
-
                 // randomize the action
-                action = randomize_action( action, which_slot );
+                action = pchr->getProfile()->getModel()->randomizeAction( action, which_slot );
 
                 // make sure it is valid
-                action = mad_get_action_ref( imad, action );
-
-                // grab the MADFX_* flags for this action
-                action_madfx = mad_get_action_ref( imad, action );
+                action = pchr->getProfile()->getModel()->getAction(action);
 
                 if ( ACTION_IS_TYPE( action, P ) )
                 {
@@ -3196,6 +3167,8 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 pchr->ai.lastitemused = iweapon;
 
                 /// @note ZF@> why should there any reason the weapon should NOT be alerted when it is used?
+                // grab the MADFX_* flags for this action
+//                BIT_FIELD action_madfx = getProfile()->getModel()->getActionFX(action);
 //                if ( iweapon == ichr || HAS_NO_BITS( action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
                 {
                     SET_BIT( pweapon->ai.alert, ALERTIF_USED );
@@ -3998,15 +3971,11 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
     FACING_T left, right;
 
     Object * pchr;
-    mad_t * pmad;
 
     bool  is_invictus;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return true;
     pchr = _currentModule->getObjectHandler().get( character );
-
-    pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return true;
 
     // if the invictus flag is set, we are invictus
     if ( pchr->invictus ) return true;
@@ -4157,8 +4126,6 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     int cnt;
     oct_bb_t bsrc, bdst, bmin;
 
-    mad_t * pmad;
-
     if ( nullptr == ( pchr ) ) return rv_error;
 
     // re-initialize the collision volumes
@@ -4168,9 +4135,6 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     {
         oct_bb_t::ctor(pchr->slot_cv[cnt]);
     }
-
-    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
-    if ( NULL == pmad ) return rv_error;
 
     // make sure the matrix is updated properly
     if ( update_matrix )

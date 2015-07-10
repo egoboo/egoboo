@@ -27,7 +27,7 @@
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"
-#include "egolib/Graphics/mad.h"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
 #include "game/mesh.h"
@@ -883,9 +883,6 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
 
     if (!_currentModule->getObjectHandler().exists(character)) return 0;
     Object *pchr = _currentModule->getObjectHandler().get(character);
-
-    mad_t *pmad = chr_get_pmad(character);
-    if (NULL == pmad) return 0;
 
     const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 

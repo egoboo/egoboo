@@ -31,7 +31,6 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "egolib/Graphics/mad.h"
 #include "game/bsp.h"
 #include "game/player.h"
 #include "game/collision.h"

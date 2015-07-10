@@ -26,7 +26,6 @@
 #endif
 
 #include "egolib/Script/script.h"
-#include "egolib/Graphics/mad.h"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Logic/Gender.hpp"
 #include "egolib/Logic/Attribute.hpp"
@@ -36,7 +35,7 @@
 //Forward declarations
 typedef int SoundID;
 class Object;
-
+namespace Ego { class ModelDescriptor; }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -208,8 +207,9 @@ public:
         return _pathname;
     }
 
-    inline MAD_REF getModelRef() const {return _imad;}
     inline EVE_REF getEnchantRef() const {return _ieve;}
+
+    const std::shared_ptr<Ego::ModelDescriptor>& getModel() const { return _model; }
 
     /**
     * @return get which slot number this profile is loaded with
@@ -588,7 +588,7 @@ private:
     std::string _pathname;                      ///< Usually the source filename
 
     // the sub-profiles
-    MAD_REF _imad;                             ///< the md2 model for this profile
+    std::shared_ptr<Ego::ModelDescriptor> _model;   ///< the md2 model for this profile
     EVE_REF _ieve;                             ///< the enchant profile for this profile
     int _slotNumber;
 

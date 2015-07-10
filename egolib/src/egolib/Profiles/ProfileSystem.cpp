@@ -45,17 +45,11 @@ ProfileSystem::ProfileSystem() :
     _loadPlayerList()
 {
     // Initialize the particle and enchant profile system.
-    PipStack.initialize();
+    ParticleProfileSystem::get().initialize();
     EveStack.initialize();
-
-    // Initialize the MAD stack system.
-    MadStack_ctor();
 
     // Initialize the script compiler.
     parser_state_t::initialize();
-
-    // necessary for loading up the copy.txt file
-    load_action_names_vfs("mp_data/actions.txt");
 }
 
 
@@ -69,10 +63,7 @@ ProfileSystem::~ProfileSystem()
 
     // Uninitialize the enchant and particle profile system.
     EveStack.unintialize();
-    PipStack.unintialize();
-
-    // Uninitialize the MAD stack system.
-    MadStack_dtor();
+    ParticleProfileSystem::get().unintialize();
 
     // Clear the book icons.
     _bookIcons.clear();
@@ -90,9 +81,8 @@ void ProfileSystem::reset()
     _loadPlayerList.clear();
 
     // Reset particle, enchant and models.
-    PipStack.reset();
+    ParticleProfileSystem::get().reset();
     EveStack.reset();
-    MadStack_reset();
 }
 
 const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const
@@ -145,15 +135,6 @@ EVE_REF ProfileSystem::pro_get_ieve(const PRO_REF iobj)
     if (!isValidProfileID(iobj)) return INVALID_EVE_REF;
 
     return LOADED_EVE(_profilesLoaded[iobj]->getEnchantRef()) ? _profilesLoaded[iobj]->getEnchantRef() : INVALID_EVE_REF;
-}
-
-mad_t * ProfileSystem::pro_get_pmad(const PRO_REF iobj)
-{
-    if (!isValidProfileID(iobj)) return nullptr;
-
-    if (!LOADED_MAD(_profilesLoaded[iobj]->getModelRef())) return nullptr;
-
-    return MadStack.get_ptr(_profilesLoaded[iobj]->getModelRef());
 }
 
 std::shared_ptr<eve_t> ProfileSystem::pro_get_peve(const PRO_REF iobj)
