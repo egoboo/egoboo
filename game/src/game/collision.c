@@ -3116,6 +3116,11 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     // if the particle was deflected, then it can't bump the character
     if ( pdata->pchr->isInvincible() || pdata->pprt->getAttachedObject().get() == pdata->pchr ) return false;
 
+    //Only allow one collision per particle unless that particle is eternal
+    if(!pdata->pprt->isEternal() && pdata->pprt->hasCollided(_currentModule->getObjectHandler()[pdata->pchr->getCharacterID()])) {
+        return false;
+    }
+
 	prt_belongs_to_chr = TO_C_BOOL(pdata->pchr->getCharacterID() == pdata->pprt->owner_ref);
 
     if ( !prt_belongs_to_chr )
@@ -3362,7 +3367,7 @@ bool do_chr_prt_collision( CoNode_t * d )
     if ( !cn_data.pchr->isAlive() ) return false;
 
     // skip objects that are inside inventories
-    if ( _currentModule->getObjectHandler().exists( cn_data.pchr->inwhich_inventory ) ) return false;
+    if ( cn_data.pchr->isInsideInventory() ) return false;
 
     // if the particle is attached to this character, ignore a "collision"
     if ( cn_data.pprt->getAttachedObject().get() ==  cn_data.pchr )
@@ -3443,6 +3448,7 @@ bool do_chr_prt_collision( CoNode_t * d )
         }
     }
 
+    //Do they hit each other?
     if(prt_can_hit_chr && (cn_data.int_min || cn_data.int_max))
     {
         // do "damage" to the character
@@ -3453,6 +3459,8 @@ bool do_chr_prt_collision( CoNode_t * d )
             cn_data.prt_damages_chr = do_chr_prt_collision_damage( &cn_data );
             if ( cn_data.prt_damages_chr )
             {
+                //Remember the collision so that this doesn't happen again
+                cn_data.pprt->addCollision(_currentModule->getObjectHandler()[cn_data.pchr->getCharacterID()]);
                 retval = true;
             }
         }

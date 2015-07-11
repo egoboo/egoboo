@@ -37,6 +37,7 @@ const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 Particle::Particle() :
     _particleID(INVALID_PRT_REF),
     _bspLeaf(this, BSP_LEAF_PRT, INVALID_PRT_REF),
+    _collidedObjects(),
     _attachedTo(INVALID_CHR_REF),
     _particleProfileID(INVALID_PIP_REF),
     _particleProfile(nullptr),
@@ -56,6 +57,7 @@ void Particle::reset(PRT_REF ref)
     _particleID = ref;
     frame_count = 0;
     _bspLeaf = BSP_leaf_t(this, BSP_LEAF_PRT, ref); //because we have a new ref
+    _collidedObjects.clear();
 
     _particleProfileID = INVALID_PIP_REF;
     _particleProfile = nullptr;
@@ -1309,6 +1311,29 @@ PRT_REF Particle::getParticleID() const
 void Particle::setHoming(bool homing)
 {
     _isHoming = homing;
+}
+
+bool Particle::hasCollided(const std::shared_ptr<Object> &object) const
+{
+    for(const CHR_REF &ref : _collidedObjects)
+    {
+        if(ref == object->getCharacterID())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Particle::addCollision(const std::shared_ptr<Object> &object)
+{
+    if(isTerminated()) return;
+    _collidedObjects.push_front(object->getCharacterID());
+}
+
+bool Particle::isEternal() const
+{
+    return is_eternal;
 }
 
 } //Ego

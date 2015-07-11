@@ -247,6 +247,25 @@ public:
     **/
     void setHoming(bool homing);
 
+    /**
+    * @return
+    *   true if this Particle has previously collided with the specified Object
+    **/
+    bool hasCollided(const std::shared_ptr<Object> &object) const;  
+
+    /**
+    * @brief
+    *   Notify that this Particle has collided with the specified Object. It cannot
+    *   collide with it again unless this particle is eternal
+    **/
+    void addCollision(const std::shared_ptr<Object> &object);
+
+    /**
+    * @return
+    *   true if this Particle has no lifetime and will not timeout
+    **/
+    bool isEternal() const;
+
 //ZF> These functions should only be accessed by the ParticleHandler
 public:
     /**
@@ -307,7 +326,7 @@ private:
     * @brief
     *   Clear the data of a Particle
     **/
-    void reset(PRT_REF ref);    
+    void reset(PRT_REF ref);  
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;
@@ -423,8 +442,12 @@ public:
 
 private:
     PRT_REF       _particleID;                 ///< Unique identifier
-    BSP_leaf_t    _bspLeaf;
 
+    //Collisions
+    BSP_leaf_t    _bspLeaf;
+    std::forward_list<CHR_REF> _collidedObjects;    ///< List of the ID's of all Object this particle has collided with
+
+    //Profile
     PIP_REF _particleProfileID;                ///< The particle profile
     std::shared_ptr<pip_t> _particleProfile;
 
