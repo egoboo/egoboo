@@ -7,8 +7,6 @@ namespace Ego
 namespace Perks
 {
 
-std::unique_ptr<PerkHandler> PerkHandler::_singleton = std::unique_ptr<PerkHandler>(new PerkHandler());
-
 PerkHandler::PerkHandler() :
     _perkList()
 {
@@ -21,38 +19,45 @@ PerkHandler::PerkHandler() :
         "Sense Kurses", "Warns of nearby items that are Kursed by flashing black.");
     initializePerk(KURSE_IMMUNITY, Attribute::INTELLECT, "mp_data/perks/kurse_immunity",
         "Protection from Kurses", "Character is not affected by Kursed items.", SENSE_KURSES);
-    initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatic",
+    initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",
         "Acrobatic", "Allows double jumping.");
 
     //Make sure all perks have been initialized properly
     for(size_t i = 0; i < _perkList.size(); ++i) {
-        assert(_perkList[i] && _perkList[i]->_id != NR_OF_PERKS);
+        assert(_perkList[i]._id != NR_OF_PERKS);
     }
+}
+
+PerkHandler::~PerkHandler()
+{
+    //dtor
 }
 
 void PerkHandler::initializePerk(const PerkID id, const Ego::Attribute::AttributeType type, const std::string &iconPath,
         const std::string &name, const std::string &description, const PerkID perkRequirement)
 {
-    //Allocate memory
-    std::unique_ptr<Perk> &perk = _perkList[id];
-    perk = std::unique_ptr<Perk>(new Perk());
+    Perk& perk = _perkList[id];
 
     //Initialize data
-    perk->_id = id;
-    perk->_perkType = type;
-    perk->_name = name;
-    perk->_description = description;
-    perk->_perkRequirement = perkRequirement;
-//    ego_texture_load_vfs(perk->_icon.get(), iconPath.c_str(), TRANSCOLOR);
+    perk._id = id;
+    perk._perkType = type;
+    perk._name = name;
+    perk._description = description;
+    perk._perkRequirement = perkRequirement;
+    perk._icon = Ego::DeferredOpenGLTexture(iconPath);
+
+    if(!vfs_exists(iconPath)) {
+        log_warning("No icon for perk %s: %s\n", name.c_str(), iconPath.c_str());
+    }
 }
 
 PerkID PerkHandler::fromString(const std::string &name) const
 {
-    for(const std::unique_ptr<Perk> &perk : _perkList)
+    for(const Perk &perk : _perkList)
     {
-        if(perk->getName() == name)
+        if(perk.getName() == name)
         {
-            return perk->_id;
+            return perk._id;
         }
     }
 
@@ -62,7 +67,7 @@ PerkID PerkHandler::fromString(const std::string &name) const
 
 const Perk& PerkHandler::getPerk(const PerkID id) const
 {
-    return *_perkList[id];
+    return _perkList[id];
 }
 
 } //Perk

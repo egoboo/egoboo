@@ -25,8 +25,9 @@
  */
 #pragma once
 
-#include "egolib/Renderer/Renderer.hpp"
+#include "egolib/Renderer/DeferredOpenGLTexture.hpp"
 #include "egolib/Logic/Attribute.hpp"
+#include "egolib/Math/Colour4f.hpp"
 
 namespace Ego
 {
@@ -64,11 +65,27 @@ enum PerkID : uint8_t
 class Perk
 {
 public:
+
+    /**
+    * @brief
+    *   Default constructor initializes to invalid perk
+    **/
+    Perk();
+
     const std::string& getName() const;
 
     const std::string& getDescription() const;
 
     PerkID getRequirement() const;
+
+    const oglx_texture_t& getIcon() const;
+
+    /**
+    * @brief
+    *   Get the theme colour associated with this Perk
+    *   which depends on what attribute type it is linked with
+    **/
+    const Ego::Math::Colour4f& getColour() const;
 
 private:
     PerkID _id;
@@ -76,13 +93,7 @@ private:
     std::string _name;
     std::string _description;
     PerkID _perkRequirement;
-    std::unique_ptr<oglx_texture_t> _icon;
-
-    /**
-    * @brief
-    *   Default constructor initializes to invalid perk
-    **/
-    Perk();
+    Ego::DeferredOpenGLTexture _icon;
 
     friend class PerkHandler;
 };

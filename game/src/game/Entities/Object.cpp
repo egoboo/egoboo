@@ -1866,7 +1866,7 @@ std::vector<Ego::Perks::PerkID> Object::getValidPerks() const
 
         //Do we fulfill the requirements for this perk?
         const Ego::Perks::Perk& perk = Ego::Perks::PerkHandler::get().getPerk(id);
-        if(!hasPerk(perk.getRequirement())) {
+        if(perk.getRequirement() == Ego::Perks::NR_OF_PERKS || hasPerk(perk.getRequirement())) {
             result.push_back(id);
         }
     }

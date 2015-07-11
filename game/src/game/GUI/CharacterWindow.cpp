@@ -1,7 +1,9 @@
 #include "CharacterWindow.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
+#include "game/GUI/Button.hpp"
 #include "game/GUI/InventorySlot.hpp"
+#include "game/GUI/LevelUpWindow.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/player.h"
 
@@ -112,6 +114,24 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     //If the character is a local player, then we consume that players input events for inventory managment
     if(_character->isPlayer()) {
         PlaStack.get_ptr(_character->is_which_player)->inventoryMode = true;
+    }
+
+    //LevelUp button
+    if(_character->isPlayer())
+    {
+        setSize(getWidth(), getHeight() + 35);
+
+        std::shared_ptr<Button> levelUpButton = std::make_shared<Button>("LEVEL UP");
+        levelUpButton->setSize(100, 30);
+        levelUpButton->setPosition(getWidth()/2 - levelUpButton->getWidth()/2, getHeight() - levelUpButton->getHeight() - 10);
+        levelUpButton->setOnClickFunction(
+            [this](){
+                std::shared_ptr<LevelUpWindow> window = std::make_shared<LevelUpWindow>(_character);
+                getParent()->addComponent(window);
+                destroy();
+            }
+        );
+        addComponent(levelUpButton);
     }
 }
 

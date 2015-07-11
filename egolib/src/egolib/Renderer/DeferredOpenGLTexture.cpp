@@ -5,6 +5,15 @@
 namespace Ego
 {
 
+DeferredOpenGLTexture::DeferredOpenGLTexture() :
+    _texture(),
+    _filePath(),
+    _loaded(false)
+{
+    //default ctor invalid texture
+}
+
+
 DeferredOpenGLTexture::DeferredOpenGLTexture(const std::string &filePath) :
     _texture(),
     _filePath(filePath),
@@ -16,6 +25,10 @@ DeferredOpenGLTexture::DeferredOpenGLTexture(const std::string &filePath) :
 const oglx_texture_t& DeferredOpenGLTexture::get()
 {
     if(!_loaded) {
+         if(_filePath.empty()) {
+            throw std::logic_error("DeferredOpenGLTexture::get() on nullptr texture");
+         }
+
         std::unordered_map<std::string, std::shared_ptr<oglx_texture_t>> &textureCache = TextureManager::get().getTextureCache();
 
         //Not loaded yet?

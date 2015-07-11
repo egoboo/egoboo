@@ -1,3 +1,5 @@
+#pragma once
+
 #include "egolib/Renderer/Texture.hpp"
 
 namespace Ego
@@ -10,6 +12,8 @@ namespace Ego
     class DeferredOpenGLTexture
     {
     public:
+        DeferredOpenGLTexture();
+
         DeferredOpenGLTexture(const std::string &filePath);
 
         const oglx_texture_t& get();

@@ -590,6 +590,12 @@ public:
     **/
     bool hasPerk(Ego::Perks::PerkID perk) const;
 
+    /**
+    * @brief
+    *   Generates a list of all Perks that the character can currently learn
+    **/
+    std::vector<Ego::Perks::PerkID> getValidPerks() const;
+
 private:
 
     /**
@@ -605,12 +611,6 @@ private:
     *   on their fat_goto and fat_goto_time. Spellbooks do not resize
     */
     void updateResize();
-
-    /**
-    * @brief
-    *   Generates a list of all Perks that the character can currently learn
-    **/
-    std::vector<Ego::Perks::PerkID> getValidPerks() const;
 
 public:
     BSP_leaf_t     bsp_leaf;

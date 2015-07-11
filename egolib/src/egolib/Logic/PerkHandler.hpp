@@ -32,8 +32,25 @@ namespace Ego
 namespace Perks
 {
 
-class PerkHandler
+class PerkHandler : public Ego::Core::Singleton<Ego::Perks::PerkHandler>
 {
+protected:
+    // Befriend with the singleton to grant access to PerkHandler::~PerkHandler.
+    using TheSingleton = Ego::Core::Singleton<Ego::Perks::PerkHandler>;
+    friend TheSingleton;
+
+    /**
+    * @brief
+    *   Protected constructor
+    **/
+    PerkHandler();
+
+    /**
+    * @brief
+    *   Protected deconstructor
+    **/
+    virtual ~PerkHandler();
+
 public:
     const Perk& getPerk(const PerkID type) const;
 
@@ -45,21 +62,12 @@ public:
     **/
     PerkID fromString(const std::string &name) const;
 
-    static inline const PerkHandler& get() { return *_singleton.get(); }
+private:
+    void initializePerk(const PerkID id, const Ego::Attribute::AttributeType type, const std::string &iconPath, 
+        const std::string &name, const std::string &description, const PerkID perkRequirement = NR_OF_PERKS);
 
 private:
-    /**
-    * @brief
-    *   Private constructor
-    **/
-    PerkHandler();
-
-    void initializePerk(const PerkID id, const Ego::Attribute::AttributeType type, const std::string &iconPath, const std::string &name, const std::string &description, const PerkID perkRequirement = NR_OF_PERKS);
-
-private:
-    std::array<std::unique_ptr<Perk>, NR_OF_PERKS> _perkList;
-
-    static std::unique_ptr<PerkHandler> _singleton;
+    std::array<Ego::Perks::Perk, NR_OF_PERKS> _perkList;
 };
 
 } //Perks

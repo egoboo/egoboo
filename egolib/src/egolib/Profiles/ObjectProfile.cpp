@@ -914,8 +914,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             //Perks known
             case MAKE_IDSZ( 'P', 'E', 'R', 'K' ):
             {
-                vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
-                const std::string perkName = buffer;
+                const std::string perkName = ctxt.readName();
                 Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
                 if(id != Ego::Perks::NR_OF_PERKS)
                 {
@@ -928,15 +927,15 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             }
             break;
 
-            //Perk Pool
+            //Perk Pool (perks that we can learn in the future)
             case MAKE_IDSZ( 'P', 'O', 'O', 'L' ):
             {
-                vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
-                const std::string perkName = buffer;
+                const std::string perkName = ctxt.readName();
                 Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
                 if(id != Ego::Perks::NR_OF_PERKS)
                 {
                     _perkPool[id] = true;
+                    log_warning("Perk added: %s\n", Ego::Perks::PerkHandler::get().getPerk(id).getName().c_str());
                 }
                 else
                 {
