@@ -520,11 +520,15 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     action = ACTION_HA;
                     if ( base_damage > HURTDAMAGE )
                     {
-                        action += Random::next(3);
-                        chr_play_action(this, action, false);
+                        //If we have Endurance perk, we have 1% chance per Might to resist hurt animation (which cause a minor delay)
+                        if(!hasPerk(Ego::Perks::ENDURANCE) || Random::getPercent() > getAttribute(Ego::Attribute::MIGHT))
+                        {
+                            action += Random::next(3);
+                            chr_play_action(this, action, false);                            
+                        }
 
                         // Make the character invincible for a limited time only
-                        if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
+                        if ( HAS_NO_BITS(effects, DAMFX_TIME) )
                         {
                             damage_timer = DAMAGETIME;
                         }
@@ -1833,11 +1837,30 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
 
     float resistance = damage_resistance[type];
 
-    //Stalwart attribute increases CRUSH, SLASH and POKE by 1
+    //Stalwart perk increases CRUSH, SLASH and POKE by 1
     if(type == DAMAGE_CRUSH || type == DAMAGE_POKE || type == DAMAGE_SLASH) {
         if(hasPerk(Ego::Perks::STALWART)) {
             resistance += 1.0f;
         }
+    }
+
+    //Elemental Resistance perk increases FIRE, ICE and ZAP by 1
+    if(type == DAMAGE_FIRE || type == DAMAGE_ICE || type == DAMAGE_ZAP) {
+        if(hasPerk(Ego::Perks::ELEMENTAL_RESISTANCE)) {
+            resistance += 1.0f;
+        }
+    
+        //Ward perks increases it by further 3
+        if(type == DAMAGE_FIRE && hasPerk(Ego::Perks::FIRE_WARD)) {
+            resistance += 3.0f;
+        }
+        else if(type == DAMAGE_ZAP && hasPerk(Ego::Perks::ZAP_WARD)) {
+            resistance += 3.0f;
+        }
+        else if(type == DAMAGE_ICE && hasPerk(Ego::Perks::ICE_WARD)) {
+            resistance += 3.0f;
+        }
+
     }
 
     //Negative armor means it's a weakness

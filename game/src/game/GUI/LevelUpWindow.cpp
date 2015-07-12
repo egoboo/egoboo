@@ -2,6 +2,7 @@
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/player.h"
 
 namespace Ego
 {
@@ -286,6 +287,19 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
             _character->jumpnumberreset += 1;
         break;
 
+        case Ego::Perks::POWER:
+            increase[Ego::Attribute::MAX_MANA] += 2.00f;
+        break;
+
+        case Ego::Perks::PERFECTION:
+            increase[Ego::Attribute::INTELLECT] += 1.00f;
+            increase[Ego::Attribute::AGILITY] += 1.00f;
+        break;
+
+        case Ego::Perks::ATHLETICS:
+            _character->jump_power += _character->getProfile()->getJumpPower()*0.25f; //+25% jump power
+        break;
+
         default:
             //nothing
         break;
@@ -294,6 +308,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
     //Increase character level by 1
     _character->experiencelevel += 1;
     SET_BIT(_character->ai.alert, ALERTIF_LEVELUP);
+    PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp = false;
 
     //Might slightly increases character size
     if(increase[Ego::Attribute::MIGHT] != 0) {

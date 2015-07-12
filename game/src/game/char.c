@@ -2413,6 +2413,7 @@ bool chr_get_skill( Object *pchr, IDSZ whichskill )
             return pchr->hasPerk(Ego::Perks::ARCANE_MAGIC);
 
         case MAKE_IDSZ('D', 'M', 'A', 'G'):
+        case MAKE_IDSZ('H', 'M', 'A', 'G'):
             return pchr->hasPerk(Ego::Perks::DIVINE_MAGIC);
 
         case MAKE_IDSZ('D', 'I', 'S', 'A'):
@@ -2642,8 +2643,16 @@ void move_one_character_get_environment( Object * pchr )
     //---- the friction of the fluid we are in
     if ( penviro->is_watery )
     {
-        penviro->fluid_friction_vrt  = Physics::g_environment.waterfriction;
-        penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;
+        //Athletics perk halves penality for moving in water
+        if(pchr->hasPerk(Ego::Perks::ATHLETICS)) {
+            penviro->fluid_friction_vrt  = (Physics::g_environment.waterfriction + penviro->air_friction)*0.5f;
+            penviro->fluid_friction_hrz  = (Physics::g_environment.waterfriction + penviro->air_friction)*0.5f;
+        }
+        else {
+            penviro->fluid_friction_vrt  = Physics::g_environment.waterfriction;
+            penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;            
+        }
+
     }
     else
     {

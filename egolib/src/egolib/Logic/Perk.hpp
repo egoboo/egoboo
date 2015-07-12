@@ -47,6 +47,9 @@ enum PerkID : uint8_t
     HOLD_THE_LINE,
     STALWART,
     JOUSTING,
+    PERFECTION,
+    ENDURANCE,
+    ATHLETICS,
 
     //Intellect perks
     CARTOGRAPHY,
@@ -69,6 +72,11 @@ enum PerkID : uint8_t
     SENSE_INVISIBLE,
     THAUMATURGY,
     WAND_MASTERY,
+    ELEMENTAL_RESISTANCE,
+    FIRE_WARD,
+    ICE_WARD,
+    ZAP_WARD,
+    POWER,
     //LORE_MASTER,
     //DARKVISION,
     
