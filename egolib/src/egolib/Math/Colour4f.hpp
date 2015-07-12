@@ -131,6 +131,17 @@ public:
         return colour;
     }
 
+    /**
+     * @brief The colour "purple".
+     * @return the colour "purple"
+     * @see Ego::Math::Colour3f::purple()
+     */
+    static const Colour4f purple()
+    {
+        static const Colour4f colour(Colour3f::purple(), 1.0f);
+        return colour;
+    }
+
 private:
 
     /**

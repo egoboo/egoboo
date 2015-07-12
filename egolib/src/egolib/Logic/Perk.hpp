@@ -46,6 +46,7 @@ enum PerkID : uint8_t
     MOBILE_DEFENCE,
     HOLD_THE_LINE,
     STALWART,
+    JOUSTING,
 
     //Intellect perks
     CARTOGRAPHY,
@@ -65,7 +66,9 @@ enum PerkID : uint8_t
     NAVIGATION,
     SENSE_UNDEAD,
     PERCEPTIVE,  
-    SENSE_INVISIBLE,  
+    SENSE_INVISIBLE,
+    THAUMATURGY,
+    WAND_MASTERY,
     //LORE_MASTER,
     //DARKVISION,
     

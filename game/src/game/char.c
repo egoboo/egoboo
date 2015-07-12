@@ -1131,7 +1131,20 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
         {
             if ( pweapon->ammo > 0 && !weaponProfile->isStackable() )
             {
-                pweapon->ammo--;  // Ammo usage
+                //Is it a wand? (Wand Mastery perk has chance to not use charge)
+                if(pweapon->getProfile()->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('W','A','N','D')
+                    && pchr->hasPerk(Ego::Perks::WAND_MASTERY)) {
+
+                    if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::INTELLECT)) {
+                        chr_make_text_billboard(pchr->getCharacterID(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Billboard::Flags::All);
+                    }
+                    else {
+                        pweapon->ammo--;  // Ammo usage
+                    }
+                }
+                else {
+                    pweapon->ammo--;  // Ammo usage
+                }
             }
 
             PIP_REF attackParticle = weaponProfile->getAttackParticleProfile();
@@ -2416,6 +2429,12 @@ bool chr_get_skill( Object *pchr, IDSZ whichskill )
 
         case MAKE_IDSZ('R', 'E', 'A', 'D'):
             return pchr->hasPerk(Ego::Perks::LITERACY);
+
+        case MAKE_IDSZ('W', 'A', 'N', 'D'):
+            return pchr->hasPerk(Ego::Perks::THAUMATURGY);
+
+        case MAKE_IDSZ('J', 'O', 'U', 'S'):
+            return pchr->hasPerk(Ego::Perks::JOUSTING);            
 
     }
 

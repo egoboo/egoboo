@@ -29,6 +29,8 @@ PerkHandler::PerkHandler() :
         "Hold the Line", "Immune to knockback.", DEFENDER);
     initializePerk(STALWART, Attribute::MIGHT, "mp_data/perks/stalwart", 
         "Stalwart", "+1 Poke, Slash and Crush resistance.", DEFENDER);
+    initializePerk(JOUSTING, Attribute::MIGHT, "mp_data/perks/jousting", 
+        "Jousting", "Can use the Lance both on foot and charge while mounted.");
 
     //Intellectual
     initializePerk(CARTOGRAPHY, Attribute::INTELLECT, "mp_data/perks/cartography",
@@ -67,6 +69,10 @@ PerkHandler::PerkHandler() :
         "Danger Sense", "Reveals enemies on the minimap.", PERCEPTIVE);
     initializePerk(SENSE_INVISIBLE, Attribute::INTELLECT, "mp_data/perks/sense_invisible",
         "Sense Invisible", "Reveals invisible enemies.", PERCEPTIVE);
+    initializePerk(THAUMATURGY, Attribute::INTELLECT, "mp_data/perks/thaumaturgy",
+        "Thaumaturgy", "Can use magic staves and wands to cast spells.");
+    initializePerk(WAND_MASTERY, Attribute::INTELLECT, "mp_data/perks/wand_mastery",
+        "Wand Mastery", "1% chance per Intellect to not consume charge when using wands.", THAUMATURGY);
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",

@@ -136,6 +136,15 @@ public:
         return colour;
     }
 
+    /**
+     * @brief The colour "purple" (153, 0, 153).
+     * @return the colour "purple".
+     */
+    static const Colour3f& purple()
+    {
+        static const Colour3f colour = Colour3f::parse(0x99, 0, 0x99);
+        return colour;
+    }
 
 private:
 
