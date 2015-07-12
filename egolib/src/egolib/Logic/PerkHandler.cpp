@@ -62,9 +62,11 @@ PerkHandler::PerkHandler() :
     initializePerk(SENSE_UNDEAD, Attribute::INTELLECT, "mp_data/perks/sense_undead",
         "Sense Undead", "Reveals undead monsters on the minimap.", DIVINE_MAGIC);
     initializePerk(PERCEPTIVE, Attribute::INTELLECT, "mp_data/perks/perceptive",
-        "Sense Undead", "Can find traps.\nCan find hidden treasure.\n+100% listening range\n10% minimum ambient light.");
+        "Perceptive", "Can find traps.\nCan find hidden treasure.\n+100% listening range\n10% minimum ambient light.");
     initializePerk(DANGER_SENSE, Attribute::INTELLECT, "mp_data/perks/danger_sense",
         "Danger Sense", "Reveals enemies on the minimap.", PERCEPTIVE);
+    initializePerk(SENSE_INVISIBLE, Attribute::INTELLECT, "mp_data/perks/sense_invisible",
+        "Sense Invisible", "Reveals invisible enemies.", PERCEPTIVE);
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",
@@ -109,9 +111,10 @@ void PerkHandler::initializePerk(const PerkID id, const Ego::Attribute::Attribut
     perk._perkRequirement = perkRequirement;
     perk._icon = Ego::DeferredOpenGLTexture(iconPath);
 
-    if(!vfs_exists(iconPath)) {
-        log_warning("No icon for perk %s: %s\n", name.c_str(), iconPath.c_str());
-    }
+    //TODO: basicdat folder is not added to vfs path yet
+    //if(!vfs_exists(iconPath)) {
+    //    log_warning("No icon for perk %s: %s\n", name.c_str(), iconPath.c_str());
+    //}
 }
 
 PerkID PerkHandler::fromString(const std::string &name) const

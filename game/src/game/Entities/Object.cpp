@@ -1216,7 +1216,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
 
     //Too invisible?
     int alpha = target->inst.alpha;
-    if ( 0 != see_invisible_level )
+    if (canSeeInvisible())
     {
         alpha = get_alpha(alpha, expf(0.32f * static_cast<float>(see_invisible_level)));
     }

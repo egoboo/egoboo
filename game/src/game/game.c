@@ -573,8 +573,13 @@ int update_game()
             local_stats.grog_level     += pchr->grog_timer;
             local_stats.daze_level     += pchr->daze_timer;
 
-            //Do they have the listening skill? (+100% hearing distance)
-            if(pchr->hasPerk(Ego::Perks::PERCEPTIVE)) {
+            //See invisble through perk
+            if (pchr->hasPerk(Ego::Perks::SENSE_INVISIBLE)) {
+                local_stats.seeinvis_level += 1;
+            }
+
+            //Do they have the listening perk? (+100% hearing distance)
+            if (pchr->hasPerk(Ego::Perks::PERCEPTIVE)) {
                 AudioSystem::get().setMaxHearingDistance(AudioSystem::DEFAULT_MAX_DISTANCE*2);
             }
         }

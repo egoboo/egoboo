@@ -602,6 +602,12 @@ public:
     **/
     void addPerk(Ego::Perks::PerkID perk);
 
+    /**
+    * @return
+    *   true if this Object can detect and see invisible objects
+    **/
+    bool canSeeInvisible() const { return see_invisible_level > 0 || getProfile()->canSeeInvisible() || hasPerk(Ego::Perks::SENSE_INVISIBLE); }
+
 private:
 
     /**

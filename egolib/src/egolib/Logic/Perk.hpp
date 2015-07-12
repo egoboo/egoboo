@@ -64,7 +64,8 @@ enum PerkID : uint8_t
     DANGER_SENSE,
     NAVIGATION,
     SENSE_UNDEAD,
-    PERCEPTIVE,    
+    PERCEPTIVE,  
+    SENSE_INVISIBLE,  
     //LORE_MASTER,
     //DARKVISION,
     

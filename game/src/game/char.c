@@ -2415,7 +2415,7 @@ bool chr_get_skill( Object *pchr, IDSZ whichskill )
             return pchr->hasPerk(Ego::Perks::BACKSTAB);
 
         case MAKE_IDSZ('R', 'E', 'A', 'D'):
-            return pchr->hasPerk(Ego::Perks::LITERACY) || pchr->see_invisible_level > 0; //Truesight also allows reading
+            return pchr->hasPerk(Ego::Perks::LITERACY);
 
     }
 
