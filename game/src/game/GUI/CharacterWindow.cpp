@@ -15,7 +15,8 @@ namespace GUI
 static const int LINE_SPACING_OFFSET = 5; //To make space between lines less
 
 CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : InternalWindow(object->getName()),
-    _character(object)
+    _character(object),
+    _levelUpButton(nullptr)
 {
     int yPos = 0;
 
@@ -119,19 +120,22 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     //LevelUp button
     if(_character->isPlayer())
     {
-        setSize(getWidth(), getHeight() + 35);
+        setSize(getWidth(), getHeight() + 40);
 
-        std::shared_ptr<Button> levelUpButton = std::make_shared<Button>("LEVEL UP");
-        levelUpButton->setSize(100, 30);
-        levelUpButton->setPosition(getWidth()/2 - levelUpButton->getWidth()/2, getHeight() - levelUpButton->getHeight() - 10);
-        levelUpButton->setOnClickFunction(
+        _levelUpButton = std::make_shared<Button>("LEVEL UP");
+        _levelUpButton->setSize(100, 30);
+        _levelUpButton->setPosition(getWidth()/2 - _levelUpButton->getWidth()/2, getHeight() - _levelUpButton->getHeight() - 15);
+        _levelUpButton->setOnClickFunction(
             [this](){
                 std::shared_ptr<LevelUpWindow> window = std::make_shared<LevelUpWindow>(_character);
                 getParent()->addComponent(window);
                 destroy();
             }
         );
-        addComponent(levelUpButton);
+        addComponent(_levelUpButton);
+
+        //Make level up button visible if needed
+        _levelUpButton->setVisible(PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp);
     }
 }
 
@@ -210,6 +214,16 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
     addComponent(percent);
 
     return label->getHeight()-LINE_SPACING_OFFSET;
+}
+
+bool CharacterWindow::notifyMouseMoved(const int x, const int y)
+{
+    //Make level up button visible if needed
+    if(_character->isPlayer()) {
+        _levelUpButton->setVisible(PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp);
+    }
+
+    return InternalWindow::notifyMouseMoved(x, y);
 }
 
 } //GUI

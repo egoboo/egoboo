@@ -1537,7 +1537,7 @@ void ReadContext::readName0()
     do
     {
         saveAndNext();
-    } while (isAlpha() || isDigit() || is('_'));
+    } while (isAlpha() || isDigit() || is('_') || is('\''));
 }
 
 std::string ReadContext::readName()

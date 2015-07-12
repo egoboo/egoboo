@@ -23,6 +23,7 @@
 #include "CharacterStatus.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/renderer_2d.h"
+#include "game/player.h"
 
 CharacterStatus::CharacterStatus(const std::shared_ptr<Object> &object) :
     _object(object)
@@ -51,8 +52,13 @@ void CharacterStatus::draw()
     // draw the character's money
     yOffset = draw_string_raw(getX() + 8, yOffset, "$%4d", pchr->getMoney()) + 8;
 
+    bool levelUp = false;
+    if(pchr->isPlayer()) {
+        levelUp = PlaStack.get_ptr(pchr->is_which_player)->_unspentLevelUp;
+    }
+
     // draw the character's main icon
-    draw_one_character_icon(pchr->getCharacterID(), getX() + 40, yOffset, false, NOSPARKLE);
+    draw_one_character_icon(pchr->getCharacterID(), getX() + 40, yOffset, false, levelUp ? COLOR_YELLOW : NOSPARKLE);
 
     // draw the left hand item icon
     draw_one_character_icon(pchr->holdingwhich[SLOT_LEFT], getX() + 8, yOffset, true, NOSPARKLE);

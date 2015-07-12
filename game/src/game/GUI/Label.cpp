@@ -1,11 +1,13 @@
 #include "game/GUI/Label.hpp"
 
-Label::Label(const std::string &text) :
-	_text(),
-    _font(_gameEngine->getUIManager()->getDefaultFont()),
+Label::Label(const std::string &text, const UIManager::UIFontType font) :
+    _text(text),
+    _font(_gameEngine->getUIManager()->getFont(font)),
     _color(Ego::Math::Colour4f::white())
 {
-	setText(text);
+    if(!text.empty()) {
+        setText(text);
+    }
 }
 
 void Label::draw()
@@ -37,4 +39,14 @@ void Label::setFont(const std::shared_ptr<Ego::Font> &font)
 void Label::setColor(const Ego::Math::Colour4f& color)
 {
     _color = color;
+}
+
+void Label::setAlpha(const float a)
+{
+    _color.setAlpha(a);
+}
+
+const Ego::Math::Colour4f& Label::getColour() const
+{
+    return _color;
 }

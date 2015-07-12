@@ -1321,7 +1321,10 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
         idsz_map_add(pchr->skills, SDL_arraysize(pchr->skills), element.first, element.second);
     }
 
-    pchr->darkvision_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
+    pchr->darkvision_level = 0;
+    if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
+        pchr->darkvision_level += 1;
+    }
     pchr->see_invisible_level = profile->canSeeInvisible();
 
     // Ammo
@@ -2086,7 +2089,11 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     {
         idsz_map_add(pchr->skills, SDL_arraysize(pchr->skills), element.first, element.second);
     }
-    pchr->darkvision_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
+
+    pchr->darkvision_level = 0; 
+    if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
+        pchr->darkvision_level += 1;        
+    }
     pchr->see_invisible_level = newProfile->canSeeInvisible();
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
@@ -2359,53 +2366,61 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_get_skill( Object *pchr, IDSZ whichskill )
+bool chr_get_skill( Object *pchr, IDSZ whichskill )
 {
-    /// @author ZF
-    /// @details This returns the skill level for the specified skill or 0 if the character doesn't
-    ///                  have the skill. Also checks the skill IDSZ.
+    //Maps between old IDSZ skill system and new Perk system
     IDSZ_node_t *pskill;
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
     //Any [NONE] IDSZ returns always "true"
-    if ( IDSZ_NONE == whichskill ) return 1;
-
-    //Do not allow poison or backstab skill if we are restricted by code of conduct
-    if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill || MAKE_IDSZ( 's', 'T', 'A', 'B' ) == whichskill )
-    {
-        if ( NULL != idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), MAKE_IDSZ( 'C', 'O', 'D', 'E' ) ) )
-        {
-            return 0;
-        }
-    }
+    if ( IDSZ_NONE == whichskill ) return true;
 
     // First check the character Skill ID matches
     // Then check for expansion skills too.
-    if ( chr_get_idsz( pchr->ai.index, IDSZ_SKILL )  == whichskill )
-    {
-        return 1;
+    if ( chr_get_idsz( pchr->ai.index, IDSZ_SKILL )  == whichskill ) {
+        return true;
     }
 
-    // Simply return the skill level if we have the skill
-    pskill = idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), whichskill );
-    if ( pskill != NULL )
+    switch(whichskill)
     {
-        return pskill->level;
-    }
+        case MAKE_IDSZ('P', 'O', 'I', 'S'):
+            return pchr->hasPerk(Ego::Perks::POISONRY);
 
-    // Truesight allows reading
-    if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill )
-    {
-        pskill = idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), MAKE_IDSZ( 'C', 'K', 'U', 'R' ) );
-        if ( pskill != NULL && pchr->see_invisible_level > 0 )
-        {
-            return pchr->see_invisible_level + pskill->level;
-        }
+        case MAKE_IDSZ('C', 'K', 'U', 'R'):
+            return pchr->hasPerk(Ego::Perks::SENSE_KURSES);
+
+        case MAKE_IDSZ('D', 'A', 'R', 'K'):
+            return pchr->hasPerk(Ego::Perks::NIGHT_VISION) || pchr->hasPerk(Ego::Perks::PERCEPTIVE);
+
+        case MAKE_IDSZ('A', 'W', 'E', 'P'):
+            return pchr->hasPerk(Ego::Perks::WEAPON_PROFICIENCY);
+
+        case MAKE_IDSZ('W', 'M', 'A', 'G'):
+            return pchr->hasPerk(Ego::Perks::ARCANE_MAGIC);
+
+        case MAKE_IDSZ('D', 'M', 'A', 'G'):
+            return pchr->hasPerk(Ego::Perks::DIVINE_MAGIC);
+
+        case MAKE_IDSZ('D', 'I', 'S', 'A'):
+            return pchr->hasPerk(Ego::Perks::TRAP_LORE);
+
+        case MAKE_IDSZ('F', 'I', 'N', 'D'):
+            return pchr->hasPerk(Ego::Perks::PERCEPTIVE);
+
+        case MAKE_IDSZ('T', 'E', 'C', 'H'):
+            return pchr->hasPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS);
+
+        case MAKE_IDSZ('S', 'T', 'A', 'B'):
+            return pchr->hasPerk(Ego::Perks::BACKSTAB);
+
+        case MAKE_IDSZ('R', 'E', 'A', 'D'):
+            return pchr->hasPerk(Ego::Perks::LITERACY) || pchr->see_invisible_level > 0; //Truesight also allows reading
+
     }
 
     //Skill not found
-    return 0;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2455,10 +2470,14 @@ bool update_chr_darkvision( const CHR_REF character )
     if ( life_regen < 0 )
     {
         int tmp_level  = ( 0 == pchr->getAttribute(Ego::Attribute::MAX_LIFE) ) ? 0 : ( 10 * -life_regen ) / FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));                      // Darkvision gained by poison
-        int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );     // Natural darkvision
 
         //Use the better of the two darkvision abilities
-        pchr->darkvision_level = std::max( base_level, tmp_level );
+        pchr->darkvision_level = tmp_level;
+
+        //Nightvision skill
+        if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
+            pchr->darkvision_level += 1;
+        }
     }
 
     return true;
@@ -2814,18 +2833,14 @@ void move_one_character_do_voluntary( Object * pchr )
     pchr->enviro.new_v[kX] = pchr->vel[kX];
     pchr->enviro.new_v[kY] = pchr->vel[kY];
 
-    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) ) return;
+    //Mounted?
+    if ( pchr->isBeingHeld() ) return;
 
     float new_ax = 0.0f, new_ay = 0.0f;
 
     // Character latches for generalized movement
     float dvx = pchr->latch.x;
     float dvy = pchr->latch.y;
-
-    //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
-    //const float speedBonus = 0.9f + pchr->getAttribute(Ego::Attribute::AGILITY) * 0.01f;
-    //dvx *= speedBonus;
-    //dvy *= speedBonus;
 
     // Reverse movements for daze
     if ( pchr->daze_timer > 0 )
@@ -2843,11 +2858,33 @@ void move_one_character_do_voluntary( Object * pchr )
     // this is the maximum speed that a character could go under the v2.22 system
     float maxspeed = pchr->maxaccel * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
 
+    //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
+    maxspeed *= 0.9f + pchr->getAttribute(Ego::Attribute::AGILITY) * 0.01f;
+
+    //Sprint perk gives +10% movement speed if above 75% life remaining
+    if(pchr->getLife() >= pchr->getAttribute(Ego::Attribute::MAX_MANA)*0.75f)
+    {
+        maxspeed *= 1.1f;
+    }
+
     //Check animation frame freeze movement
     if ( chr_get_framefx( pchr ) & MADFX_STOP )
     {
-        //TODO: ZF> might want skill that allows movement while blocking and attacking
-        maxspeed = 0.0f;
+        //Allow 50% movement while using Shield and have the Mobile Defence perk
+        if(pchr->hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(pchr->inst.action_which, P))
+        {
+            maxspeed *= 0.5f;
+        }
+        //Allow 50% movement with Mobility perk and attacking with a weapon
+        else if(pchr->hasPerk(Ego::Perks::MOBILITY) && pchr->isAttacking())
+        {
+            maxspeed *= 0.5f;
+        }
+        else
+        {
+            //No movement allowed
+            maxspeed = 0.0f;
+        }
     }
 
     bool sneak_mode_active = false;

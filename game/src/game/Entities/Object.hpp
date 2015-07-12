@@ -445,12 +445,6 @@ public:
     void recalculateCollisionSize();
 
     /**
-    * @brief
-    *   Gives this object 1 experience level, increasing it's stats and giving it new/improved abilities
-    **/
-    void giveLevelUp();
-
-    /**
     * @author BB
     * @details Handle a character death. Set various states, disconnect it from the world, etc.
     **/
@@ -513,7 +507,7 @@ public:
 
     /**
     * @brief
-    *   Get current mana
+    *   Get current mana in SPF8 format
     **/
     inline SFP8_T getMana() const { return mana; }
 
@@ -522,6 +516,12 @@ public:
     *   Get max allowed mana for this Object
     **/
     inline float getMaxMana() const { return getAttribute(Ego::Attribute::MAX_MANA); }
+
+    /**
+    * @return
+    *   current life remaining in float format
+    **/
+    float getLife() const;
 
     /**
     * @brief
@@ -596,6 +596,12 @@ public:
     **/
     std::vector<Ego::Perks::PerkID> getValidPerks() const;
 
+    /**
+    * @brief
+    *   permanently adds a new Perk to this character object
+    **/
+    void addPerk(Ego::Perks::PerkID perk);
+
 private:
 
     /**
@@ -611,6 +617,12 @@ private:
     *   on their fat_goto and fat_goto_time. Spellbooks do not resize
     */
     void updateResize();
+    
+    /**
+    * @brief
+    *   Checks if this Object has attained enough experience to increase its Experience Level
+    **/
+    void checkLevelUp();
 
 public:
     BSP_leaf_t     bsp_leaf;

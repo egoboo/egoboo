@@ -178,7 +178,7 @@ void chr_set_grnshift( Object * pchr, const int gs );
 void chr_set_blushift( Object * pchr, const int bs );
 
 std::string chr_get_dir_name( const CHR_REF ichr );
-int chr_get_skill( Object * pchr, IDSZ whichskill );
+bool chr_get_skill( Object * pchr, IDSZ whichskill );
 
 bool update_chr_darkvision( const CHR_REF character );
 

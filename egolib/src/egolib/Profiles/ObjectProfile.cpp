@@ -914,7 +914,8 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             //Perks known
             case MAKE_IDSZ( 'P', 'E', 'R', 'K' ):
             {
-                const std::string perkName = ctxt.readName();
+                std::string perkName = ctxt.readName();
+                std::replace(perkName.begin(), perkName.end(), '_', ' '); //replace underscore with spaces
                 Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
                 if(id != Ego::Perks::NR_OF_PERKS)
                 {
@@ -930,12 +931,12 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             //Perk Pool (perks that we can learn in the future)
             case MAKE_IDSZ( 'P', 'O', 'O', 'L' ):
             {
-                const std::string perkName = ctxt.readName();
+                std::string perkName = ctxt.readName();
+                std::replace(perkName.begin(), perkName.end(), '_', ' '); //replace underscore with spaces
                 Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
                 if(id != Ego::Perks::NR_OF_PERKS)
                 {
                     _perkPool[id] = true;
-                    log_warning("Perk added: %s\n", Ego::Perks::PerkHandler::get().getPerk(id).getName().c_str());
                 }
                 else
                 {
@@ -943,6 +944,18 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 }
             }
             break;
+
+            //Backwards compatability with old skill system (for older data files)
+            case MAKE_IDSZ( 'A', 'W', 'E', 'P' ): _startingPerks[Ego::Perks::WEAPON_PROFICIENCY] = true; break;
+            case MAKE_IDSZ( 'P', 'O', 'I', 'S' ): _startingPerks[Ego::Perks::POISONRY] = true; break;
+            case MAKE_IDSZ( 'C', 'K', 'U', 'R' ): _startingPerks[Ego::Perks::SENSE_KURSES] = true; break;
+            case MAKE_IDSZ( 'R', 'E', 'A', 'D' ): _startingPerks[Ego::Perks::LITERACY] = true; break;
+            case MAKE_IDSZ( 'W', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::ARCANE_MAGIC] = true; break;
+            case MAKE_IDSZ( 'D', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::DIVINE_MAGIC] = true; break;
+            case MAKE_IDSZ( 'T', 'E', 'C', 'H' ): _startingPerks[Ego::Perks::USE_TECHNOLOGICAL_ITEMS] = true; break;
+            case MAKE_IDSZ( 'D', 'I', 'S', 'A' ): _startingPerks[Ego::Perks::TRAP_LORE] = true; break;
+            case MAKE_IDSZ( 'S', 'T', 'A', 'B' ): _startingPerks[Ego::Perks::BACKSTAB] = true; break;
+            case MAKE_IDSZ( 'D', 'A', 'R', 'K' ): _startingPerks[Ego::Perks::NIGHT_VISION] = true; break;
 
             default:
                 //If it is none of the predefined IDSZ extensions then add it as a new skill
@@ -1421,17 +1434,22 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( character->life ) );
     vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( character->mana ) );
 
-    // write down any skills that have been learned
-    IDSZ_node_t *pidsz;
-    int iterator = 0;
-    pidsz = idsz_map_iterate(character->skills, SDL_arraysize(character->skills), &iterator);
-    while ( pidsz != nullptr )
-    {
-        //Write that skill into the file
-        vfs_put_expansion(fileWrite, "", pidsz->id, pidsz->level);
+    // write down any perks that have been mastered
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+        const Ego::Perks::Perk& perk = Ego::Perks::PerkHandler::get().getPerk(static_cast<Ego::Perks::PerkID>(i));
+        if(!character->hasPerk(perk.getID())) continue;
+        std::string name = perk.getName();
+        std::replace(name.begin(), name.end(), ' ', '_'); //replace space with underscore
+        vfs_put_expansion_string(fileWrite, "", MAKE_IDSZ( 'P', 'E', 'R', 'K' ), name.c_str() );
+    }
 
-        //Get the next IDSZ from the map
-        pidsz = idsz_map_iterate(character->skills, SDL_arraysize(character->skills), &iterator);
+    // write down all perks that we can still learn
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+        const Ego::Perks::Perk& perk = Ego::Perks::PerkHandler::get().getPerk(static_cast<Ego::Perks::PerkID>(i));
+        if(!profile->_perkPool[i] || character->hasPerk(perk.getID())) continue;
+        std::string name = perk.getName();
+        std::replace(name.begin(), name.end(), ' ', '_'); //replace space with underscore
+        vfs_put_expansion_string(fileWrite, "", MAKE_IDSZ( 'P', 'O', 'O', 'L' ), name.c_str() );
     }
 
     // dump the rest of the template file

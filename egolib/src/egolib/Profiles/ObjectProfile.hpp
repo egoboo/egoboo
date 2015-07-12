@@ -311,7 +311,7 @@ public:
     inline bool isDontCullBackfaces() const {return _dontCullBackfaces;}
 
 
-    inline float getSizeGainPerLevel() const {return _sizeGainPerLevel;}
+    inline float getSizeGainPerMight() const {return _sizeGainPerLevel;}
 
     inline uint8_t getWeight() const {return _weight;}
 

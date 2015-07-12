@@ -97,6 +97,7 @@ void pla_reinit( player_t * ppla )
     //reset data
     BLANK_STRUCT_PTR( ppla )
     ppla->index  = INVALID_CHR_REF;
+    ppla->_unspentLevelUp = false;
 
     // initialize the latches
     ppla->local_latch.clear();

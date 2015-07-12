@@ -33,6 +33,11 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 
+//For the minimap
+#include "game/Core/GameEngine.hpp"
+#include "game/GameStates/PlayingState.hpp"
+#include "game/GUI/MiniMap.hpp"
+
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
@@ -817,7 +822,7 @@ void Object::update()
     if ( clock_chr_stat >= ONESECOND )
     {
         // check for a level up
-        giveLevelUp();
+        checkLevelUp();
 
         // do the mana and life regen for "living" characters
         if (isAlive())
@@ -846,13 +851,41 @@ void Object::update()
 
         // possibly gain/lose darkvision
         update_chr_darkvision( getCharacterID() );
+
+        // update some special skills (players and NPC's)
+        if(getShowStatus())
+        {
+            //Cartography perk reveals the minimap
+            if(hasPerk(Ego::Perks::CARTOGRAPHY)) {
+                _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
+            }
+
+            //Navigation reveals the players position on the minimap
+            if(hasPerk(Ego::Perks::NAVIGATION)) {
+                _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
+            }
+
+            //Danger Sense reveals enemies on the minimap
+            if(hasPerk(Ego::Perks::DANGER_SENSE)) {
+                local_stats.sense_enemies_team = this->team;
+                local_stats.sense_enemies_idsz = IDSZ_NONE;     //Reveal all
+            }
+
+            //Danger Sense reveals enemies on the minimap
+            else if(hasPerk(Ego::Perks::SENSE_UNDEAD)) {
+                local_stats.sense_enemies_team = this->team;
+                local_stats.sense_enemies_idsz = MAKE_IDSZ('U','N','D','E');     //Reveal only undead
+            }
+        }        
     }
 
     updateResize();
 
-    // update some special skills
-    see_kurse_level  = std::max(see_kurse_level,  chr_get_skill(this, MAKE_IDSZ( 'C', 'K', 'U', 'R' )));
-    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )));
+    //Update some special skills
+    if(hasPerk(Ego::Perks::SENSE_KURSES)) {
+        see_kurse_level = std::max(see_kurse_level, 1);
+    }
+    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )) ? 1 : 0);
 }
 
 void Object::updateResize()
@@ -1228,7 +1261,7 @@ void Object::recalculateCollisionSize()
     chr_update_collision_size(this, true);
 }
 
-void Object::giveLevelUp()
+void Object::checkLevelUp()
 {
     int number;
 
@@ -1241,25 +1274,37 @@ void Object::giveLevelUp()
 
         if ( xpcurrent >= xpneeded )
         {
-            // do the level up
+            // The character is ready to advance...
+            if(isPlayer()) {
+                if(!PlaStack.get_ptr(is_which_player)->_unspentLevelUp) {
+                    PlaStack.get_ptr(is_which_player)->_unspentLevelUp = true;
+                    DisplayMsg_printf("%s gained a level!!!", getName().c_str());
+                    AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
+                }
+                return;
+            }
+
+            //Automatic level up for AI characters
             experiencelevel++;
             SET_BIT(ai.alert, ALERTIF_LEVELUP);
 
-            // The character is ready to advance...
-            if ( VALID_PLA(is_which_player) )
-            {
-                DisplayMsg_printf("%s gained a level!!!", getName().c_str());
-                AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
-            }
-
             // Size Increase
-            fat_goto += getProfile()->getSizeGainPerLevel() * 0.25f;  // Limit this?
+            fat_goto += getProfile()->getSizeGainPerMight() * 0.25f;  // Limit this?
             fat_goto_time += SIZETIME;
 
             //Attribute increase
             for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
                 _baseAttribute[i] += Random::next(getProfile()->getAttributeGain(static_cast<Ego::Attribute::AttributeType>(i)));
             }
+
+            //Grab random Perk? (ZF> just uncomment if we want to do this for AI characters as well)
+            //std::vector<Ego::Perks::PerkID> perkPool = getValidPerks();
+            //if(!perkPool.empty()) {
+            //    addPerk(Random::getRandomElement(perkPool));
+            //}
+            //else {
+            //    addPerk(Ego::Perks::TOUGHNESS); //Add TOUGHNESS as default perk if none other are available
+            //}
         }
     }
 }
@@ -1491,6 +1536,13 @@ void Object::giveExperience(const int amount, const XPType xptype, const bool ov
         {
             newamount *= 1.10f; // 10% extra on normal
         }
+
+
+        //Fast Learner Perk gives +10% XP gain
+        if(hasPerk(Ego::Perks::FAST_LEARNER)) {
+            newamount *= 1.10f;
+        }
+
         experience += newamount;
     }
 }
@@ -1781,6 +1833,13 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
 
     float resistance = damage_resistance[type];
 
+    //Stalwart attribute increases CRUSH, SLASH and POKE by 1
+    if(type == DAMAGE_CRUSH || type == DAMAGE_POKE || type == DAMAGE_SLASH) {
+        if(hasPerk(Ego::Perks::STALWART)) {
+            resistance += 1.0f;
+        }
+    }
+
     //Negative armor means it's a weakness
     if(resistance < 0.0f) {
 
@@ -1833,6 +1892,14 @@ void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, flo
 {
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
     _baseAttribute[type] = Ego::Math::constrain(_baseAttribute[type] + value, 0.0f, 255.0f);
+
+    //Handle current life and mana increase as well
+    if(type == Ego::Attribute::MAX_LIFE) {
+        life += FLOAT_TO_FP8(value);
+    }
+    else if(type == Ego::Attribute::MAX_MANA) {
+        mana += FLOAT_TO_FP8(value);
+    }
 }
 
 Inventory& Object::getInventory()
@@ -1872,4 +1939,15 @@ std::vector<Ego::Perks::PerkID> Object::getValidPerks() const
     }
 
     return result;
+}
+
+void Object::addPerk(Ego::Perks::PerkID perk)
+{
+    if(perk == Ego::Perks::NR_OF_PERKS) return;
+    _perks[perk] = true;
+}
+
+float Object::getLife() const
+{
+    return FP8_TO_FLOAT(life);
 }

@@ -26,7 +26,11 @@
 
 #include "game/GUI/InternalWindow.hpp"
 
+//Forward declarations
 class Object;
+class Label;
+class Image;
+namespace Ego { namespace GUI { class PerkButton; } }
 
 namespace Ego
 {
@@ -39,8 +43,33 @@ class LevelUpWindow : public InternalWindow
         LevelUpWindow(const std::shared_ptr<Object> &object);
         ~LevelUpWindow();
         
+    protected:
+        void drawContainer() override;
+
+    private:
+        void doLevelUp(PerkButton *selectedPerk);
+        void setHoverPerk(Ego::Perks::PerkID id);
+        Ego::Perks::PerkID getCurrentPerk() const;
+
     private:
         std::shared_ptr<Object> _character;
+
+        //Perk selection state
+        Ego::Perks::PerkID _currentPerk;
+        std::shared_ptr<Label> _descriptionLabel;
+        std::shared_ptr<Label> _perkIncreaseLabel;
+
+        //Attribute increase state
+        std::vector<std::shared_ptr<Label>> _fadeInLabels;
+        std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_ATTRIBUTES> _attributeValues;
+        std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_ATTRIBUTES> _attributeIncrease;
+        std::shared_ptr<Image> _selectedPerk;
+        Vector2f _animationSpeed;
+        Vector2f _animationPos;
+        uint32_t _attributeRevealTime;
+
+
+        friend class Ego::GUI::PerkButton;
 };
 
 } //GUI

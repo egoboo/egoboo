@@ -533,6 +533,7 @@ int update_game()
     local_stats.seedark_level   = 0.0f;
     local_stats.grog_level      = 0.0f;
     local_stats.daze_level      = 0.0f;
+    AudioSystem::get().setMaxHearingDistance(AudioSystem::DEFAULT_MAX_DISTANCE);
 
     //status text for player stats
     check_stats();
@@ -571,6 +572,11 @@ int update_game()
             local_stats.seedark_level  += pchr->darkvision_level;
             local_stats.grog_level     += pchr->grog_timer;
             local_stats.daze_level     += pchr->daze_timer;
+
+            //Do they have the listening skill? (+100% hearing distance)
+            if(pchr->hasPerk(Ego::Perks::PERCEPTIVE)) {
+                AudioSystem::get().setMaxHearingDistance(AudioSystem::DEFAULT_MAX_DISTANCE*2);
+            }
         }
         else
         {
@@ -814,7 +820,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     if ( !psrc->canSeeObject(ptst) ) return false;
 
     //Need specific skill? ([NONE] always passes)
-    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst.get(), idsz ) ) return false;
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && !chr_get_skill( ptst.get(), idsz ) ) return false;
 
     // Require player to have specific quest?
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
@@ -1984,28 +1990,14 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
         if ( pchr->experiencelevel < pinfo->level )
         {
             pchr->experience = pchr->getProfile()->getXPNeededForLevel(pinfo->level);
-            pchr->giveLevelUp();
         }
     }
 
     // automatically identify and unkurse all player starting equipment? I think yes.
-    if ( !_currentModule->isImportValid() && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
+    if ( !_currentModule->isImportValid() && NULL != pparent && pparent->isPlayer() )
     {
-        Object *pitem;
         pchr->nameknown = true;
-
-        //Unkurse both inhand items
-        if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
-        {
-            pitem = _currentModule->getObjectHandler().get( pchr->holdingwhich[SLOT_LEFT] );
-            pitem->iskursed = false;
-        }
-        if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) )
-        {
-            pitem = _currentModule->getObjectHandler().get( pchr->holdingwhich[SLOT_RIGHT] );
-            pitem->iskursed = false;
-        }
-
+        pchr->iskursed = false;
     }
 
     return true;

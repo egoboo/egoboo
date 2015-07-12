@@ -65,4 +65,9 @@ void DeferredOpenGLTexture::setTextureSource(const std::string &filePath)
     _filePath = filePath;
 }
 
+const std::string& DeferredOpenGLTexture::getFilePath() const
+{
+    return _filePath;
+}
+
 } //Ego

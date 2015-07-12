@@ -74,7 +74,7 @@ void GUIComponent::setPosition(const int x, const int y)
 
 void GUIComponent::setCenterPosition(const int x, const int y, const bool onlyHorizontal)
 {
-    setPosition(x - getWidth() / 2, onlyHorizontal ? getY() : y - getHeight()/2);
+    setPosition(x - getWidth() / 2, onlyHorizontal ? y : y - getHeight()/2);
 }
 
 const SDL_Rect& GUIComponent::getBounds() const

@@ -38,26 +38,45 @@ enum PerkID : uint8_t
 {
     //Might perks
     TOUGHNESS,
+    WEAPON_PROFICIENCY,
+    GIGANTISM,
+    SOLDIERS_FORTITUDE,
+    BRUTE,
+    DEFENDER,
+    MOBILE_DEFENCE,
+    HOLD_THE_LINE,
+    STALWART,
 
     //Intellect perks
     CARTOGRAPHY,
     SENSE_KURSES,
     KURSE_IMMUNITY,
-    //LITERACY,
-    //ARCANE_MAGIC,
+    DRAGON_BLOOD,
+    FAST_LEARNER,
+    NIGHT_VISION,
+    LITERACY,
+    ARCANE_MAGIC,
+    DIVINE_MAGIC,
+    POISONRY,
+    TRAP_LORE,
+    USE_TECHNOLOGICAL_ITEMS,
+    READ_GNOMISH,
+    DANGER_SENSE,
+    NAVIGATION,
+    SENSE_UNDEAD,
+    PERCEPTIVE,    
     //LORE_MASTER,
-    //NAVIGATION,
-    //PERCEPTIVE,
-    //DANGER_SENSE,
-    //NIGHTVISION,
     //DARKVISION,
-    //THIEVERY,
-    //READ_GNOMISH
-    //DIVINE_MAGIC
-    //FAST_LEARNER
-
+    
     //Agility perks
     ACROBATIC,
+    MASTER_ACROBAT,
+    SPRINT,
+    DASH,
+    MOBILITY,
+    DODGE,
+    MASTERFUL_DODGE,
+    BACKSTAB,
 
     NR_OF_PERKS    //Always last
 };
@@ -78,7 +97,7 @@ public:
 
     PerkID getRequirement() const;
 
-    const oglx_texture_t& getIcon() const;
+    const Ego::DeferredOpenGLTexture& getIcon() const;
 
     /**
     * @brief
@@ -86,6 +105,10 @@ public:
     *   which depends on what attribute type it is linked with
     **/
     const Ego::Math::Colour4f& getColour() const;
+
+    Ego::Attribute::AttributeType getType() const;
+
+    PerkID getID() const;
 
 private:
     PerkID _id;
