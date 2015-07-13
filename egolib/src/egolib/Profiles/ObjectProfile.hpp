@@ -475,8 +475,6 @@ public:
     inline float getIntelligenceDamageFactor() const  {return _intelligenceBonus;}
     inline float getDexterityDamageFactor() const     {return _dexterityBonus;}
 
-    inline const std::unordered_map<IDSZ, int>& getSkillMap() const {return _skills;}
-
     inline uint8_t getManaColor() const {return _manaColor;}
 
     inline uint8_t getLifeColor() const {return _lifeColor;}
@@ -761,7 +759,6 @@ private:
     LocalParticleProfileRef _bludParticle;   ///< What kind of blud?
 
     // skill system
-    std::unordered_map<IDSZ, int> _skills;        ///< Set of skills this character posesses
     int          _seeInvisibleLevel;              ///< Can it see invisible?
 
     // random stuff

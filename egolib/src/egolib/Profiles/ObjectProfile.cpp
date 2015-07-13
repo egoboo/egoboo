@@ -199,7 +199,6 @@ ObjectProfile::ObjectProfile() :
     _bludParticle(-1),
 
     // skill system
-    _skills(),
     _seeInvisibleLevel(0),
 
     // random stuff
@@ -951,15 +950,14 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             case MAKE_IDSZ( 'C', 'K', 'U', 'R' ): _startingPerks[Ego::Perks::SENSE_KURSES] = true; break;
             case MAKE_IDSZ( 'R', 'E', 'A', 'D' ): _startingPerks[Ego::Perks::LITERACY] = true; break;
             case MAKE_IDSZ( 'W', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::ARCANE_MAGIC] = true; break;
-            case MAKE_IDSZ( 'D', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::DIVINE_MAGIC] = true; break;
+            case MAKE_IDSZ( 'H', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::DIVINE_MAGIC] = true; break;
             case MAKE_IDSZ( 'T', 'E', 'C', 'H' ): _startingPerks[Ego::Perks::USE_TECHNOLOGICAL_ITEMS] = true; break;
             case MAKE_IDSZ( 'D', 'I', 'S', 'A' ): _startingPerks[Ego::Perks::TRAP_LORE] = true; break;
             case MAKE_IDSZ( 'S', 'T', 'A', 'B' ): _startingPerks[Ego::Perks::BACKSTAB] = true; break;
             case MAKE_IDSZ( 'D', 'A', 'R', 'K' ): _startingPerks[Ego::Perks::NIGHT_VISION] = true; break;
 
             default:
-                //If it is none of the predefined IDSZ extensions then add it as a new skill
-                _skills[idsz] = ctxt.readInt();
+                log_warning("Unknown IDSZ parsed: [%4s] (%s)\n", undo_idsz(idsz), filePath.c_str());
             break;
         }
     }

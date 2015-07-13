@@ -8090,9 +8090,20 @@ Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( ptarget );
 
-    rv = idsz_map_add( ptarget->skills, SDL_arraysize( ptarget->skills ), pstate->argument, pstate->distance );
-
-    returncode = ( rv_success == rv );
+    //IDSZ to Perk
+    switch(pstate->argument)
+    {
+        case MAKE_IDSZ( 'A', 'W', 'E', 'P' ): ptarget->addPerk(Ego::Perks::WEAPON_PROFICIENCY); break;
+        case MAKE_IDSZ( 'P', 'O', 'I', 'S' ): ptarget->addPerk(Ego::Perks::POISONRY); break;
+        case MAKE_IDSZ( 'C', 'K', 'U', 'R' ): ptarget->addPerk(Ego::Perks::SENSE_KURSES); break;
+        case MAKE_IDSZ( 'R', 'E', 'A', 'D' ): ptarget->addPerk(Ego::Perks::LITERACY); break;
+        case MAKE_IDSZ( 'W', 'M', 'A', 'G' ): ptarget->addPerk(Ego::Perks::ARCANE_MAGIC); break;
+        case MAKE_IDSZ( 'H', 'M', 'A', 'G' ): ptarget->addPerk(Ego::Perks::DIVINE_MAGIC); break;
+        case MAKE_IDSZ( 'T', 'E', 'C', 'H' ): ptarget->addPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS); break;
+        case MAKE_IDSZ( 'D', 'I', 'S', 'A' ): ptarget->addPerk(Ego::Perks::TRAP_LORE); break;
+        case MAKE_IDSZ( 'S', 'T', 'A', 'B' ): ptarget->addPerk(Ego::Perks::BACKSTAB); break;
+        case MAKE_IDSZ( 'D', 'A', 'R', 'K' ): ptarget->addPerk(Ego::Perks::NIGHT_VISION); break;
+    }
 
     SCRIPT_FUNCTION_END();
 }

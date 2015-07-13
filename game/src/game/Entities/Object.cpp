@@ -130,7 +130,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     darkvision_level(0),
     see_kurse_level(0),
     see_invisible_level(0),
-    skills(),
 
     bump_stt(),
     bump(),

@@ -113,6 +113,12 @@ PerkHandler::PerkHandler() :
         "Crackshot", "1% chance per Intellect to Daze enemies for 3 seconds who are hit by your fireweapons.");
     initializePerk(SHARPSHOOTER, Attribute::AGILITY, "mp_data/perks/sharpshooter",
         "Sharpshooter", "+10% ranged attack damage.\n+25% ranged aim.");
+    initializePerk(DEADLY_STRIKE, Attribute::AGILITY, "mp_data/perks/deadly_strike",
+        "Deadly Strike", "+1% chance per level to deal +0.25 damage per Agility.");
+    initializePerk(CRITICAL_HIT, Attribute::AGILITY, "mp_data/perks/critical_hit",
+        "Critical Hit", "+0.5% chance per Agility to deal maximum damage.");
+    initializePerk(LUCKY, Attribute::AGILITY, "mp_data/perks/lucky",
+        "Lucky", "+10% Critical Hit chance.");
 
 
     //Make sure all perks have been initialized properly

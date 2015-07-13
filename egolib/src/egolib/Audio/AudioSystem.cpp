@@ -47,7 +47,8 @@ static const std::array<const char*, GSND_COUNT> wavenames =
     "game_ready",
     "perk_select",
     "gui_hover",
-    "dodge"
+    "dodge",
+    "critical_hit"
 };
 
 AudioSystem::AudioSystem() :

@@ -137,6 +137,7 @@ enum GlobalSound : uint8_t
     GSND_PERK_SELECT,   //Selected new perk
     GSND_GUI_HOVER,     //Mouse over sound effect
     GSND_DODGE,         //Dodged attack
+    GSND_CRITICAL_HIT,  //Critical Hit
     GSND_COUNT
 };
 

@@ -92,6 +92,9 @@ enum PerkID : uint8_t
     BACKSTAB,
     CRACKSHOT,
     SHARPSHOOTER,
+    DEADLY_STRIKE,
+    CRITICAL_HIT,
+    LUCKY,
 
     NR_OF_PERKS    //Always last
 };

@@ -3050,9 +3050,17 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 }
 
                 //If it is a ranged attack then Sharpshooter increases damage by 10%
-                if(powner->hasPerk(Ego::Perks::SHARPSHOOTER) && spawnerProfile != nullptr && spawnerProfile->isRangedWeapon()) {
+                if(powner->hasPerk(Ego::Perks::SHARPSHOOTER) && spawnerProfile != nullptr && spawnerProfile->isRangedWeapon() && DamageType_isPhysical(pdata->pprt->damagetype)) {
                     modifiedDamage.base *= 1.1f;
                     modifiedDamage.rand *= 1.1f;                    
+                }
+
+                //Deadly Strike perk (1% chance per character level to trigger)
+                if(powner->hasPerk(Ego::Perks::DEADLY_STRIKE) && powner->getExperienceLevel() >= Random::getPercent() && DamageType_isPhysical(pdata->pprt->damagetype)){
+                    //Gain +0.25 damage per Agility
+                    modifiedDamage.base += powner->getAttribute(Ego::Attribute::AGILITY) * 0.25f;
+                    chr_make_text_billboard(powner->getCharacterID(), "Deadly Strike", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                    AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                 }
             }
 
@@ -3067,6 +3075,24 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
                 // Initialize for the billboard
                 chr_make_text_billboard(pdata->pchr->getCharacterID(), "Super Effective!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+            }
+
+            //Is it a critical hit?
+            if(powner && powner->hasPerk(Ego::Perks::CRITICAL_HIT) && DamageType_isPhysical(pdata->pprt->damagetype)) {
+                //0.5% chance per agility to deal max damage
+                float critChance = powner->getAttribute(Ego::Attribute::AGILITY)*0.5f;
+
+                //Lucky Perk increases critical hit chance by 10%!
+                if(powner->hasPerk(Ego::Perks::LUCKY)) {
+                    critChance += 10.0f;
+                }
+
+                if(Random::getPercent() <= critChance) {
+                    modifiedDamage.base += modifiedDamage.rand;
+                    modifiedDamage.rand = 0;
+                    chr_make_text_billboard(powner->getCharacterID(), "Critical Hit!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
+                    AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
+                }
             }
 
             // Damage the character

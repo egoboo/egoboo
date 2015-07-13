@@ -756,7 +756,6 @@ public:
     int           darkvision_level;
     int           see_kurse_level;
     int           see_invisible_level;
-    IDSZ_node_t   skills[MAX_IDSZ_MAP_SIZE];
 
     // collision info
 

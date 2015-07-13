@@ -2097,12 +2097,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->jump_timer      = JUMPDELAY;
 
     // change the skillz, too, jack!
-    idsz_map_init(pchr->skills, SDL_arraysize(pchr->skills));
-    for(const auto &element : newProfile->getSkillMap())
-    {
-        idsz_map_add(pchr->skills, SDL_arraysize(pchr->skills), element.first, element.second);
-    }
-
     pchr->darkvision_level = 0; 
     if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
         pchr->darkvision_level += 1;        
