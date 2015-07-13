@@ -445,12 +445,6 @@ public:
     void recalculateCollisionSize();
 
     /**
-    * @brief
-    *   Gives this object 1 experience level, increasing it's stats and giving it new/improved abilities
-    **/
-    void giveLevelUp();
-
-    /**
     * @author BB
     * @details Handle a character death. Set various states, disconnect it from the world, etc.
     **/
@@ -513,7 +507,7 @@ public:
 
     /**
     * @brief
-    *   Get current mana
+    *   Get current mana in SPF8 format
     **/
     inline SFP8_T getMana() const { return mana; }
 
@@ -522,6 +516,12 @@ public:
     *   Get max allowed mana for this Object
     **/
     inline float getMaxMana() const { return getAttribute(Ego::Attribute::MAX_MANA); }
+
+    /**
+    * @return
+    *   current life remaining in float format
+    **/
+    float getLife() const;
 
     /**
     * @brief
@@ -584,6 +584,30 @@ public:
 
     uint16_t getAmmo() const { return ammo; }
 
+    /**
+    * @return
+    *   true if this Object has mastered the specified perk. Returns always true for NR_OF_PERKS
+    **/
+    bool hasPerk(Ego::Perks::PerkID perk) const;
+
+    /**
+    * @brief
+    *   Generates a list of all Perks that the character can currently learn
+    **/
+    std::vector<Ego::Perks::PerkID> getValidPerks() const;
+
+    /**
+    * @brief
+    *   permanently adds a new Perk to this character object
+    **/
+    void addPerk(Ego::Perks::PerkID perk);
+
+    /**
+    * @return
+    *   true if this Object can detect and see invisible objects
+    **/
+    bool canSeeInvisible() const { return see_invisible_level > 0 || getProfile()->canSeeInvisible() || hasPerk(Ego::Perks::SENSE_INVISIBLE); }
+
 private:
 
     /**
@@ -599,6 +623,12 @@ private:
     *   on their fat_goto and fat_goto_time. Spellbooks do not resize
     */
     void updateResize();
+    
+    /**
+    * @brief
+    *   Checks if this Object has attained enough experience to increase its Experience Level
+    **/
+    void checkLevelUp();
 
 public:
     BSP_leaf_t     bsp_leaf;
@@ -782,6 +812,7 @@ private:
     bool _showStatus;                                    ///< Display stats?
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
     Inventory _inventory;
+    std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
 
     friend class ObjectHandler;
 };

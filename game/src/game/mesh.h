@@ -23,6 +23,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/lighting.h"
+#include "egolib/bsp.h"
 
 //--------------------------------------------------------------------------------------------
 // external types

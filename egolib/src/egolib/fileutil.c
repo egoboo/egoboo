@@ -425,6 +425,7 @@ void vfs_read_string_lit(ReadContext& ctxt, char *buffer, size_t max)
     strncpy(buffer,_literal.c_str(), max);
     str_decode(buffer, max, buffer);
 }
+//--------------------------------------------------------------------------------------------
 void vfs_read_name(ReadContext& ctxt, char *buffer, size_t max)
 {
     std::string _literal = ctxt.readName();
@@ -1536,7 +1537,7 @@ void ReadContext::readName0()
     do
     {
         saveAndNext();
-    } while (isAlpha() || isDigit() || is('_'));
+    } while (isAlpha() || isDigit() || is('_') || is('\''));
 }
 
 std::string ReadContext::readName()

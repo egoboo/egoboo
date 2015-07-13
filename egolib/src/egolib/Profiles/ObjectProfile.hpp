@@ -29,6 +29,7 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Logic/Gender.hpp"
 #include "egolib/Logic/Attribute.hpp"
+#include "egolib/Logic/Perk.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -310,7 +311,7 @@ public:
     inline bool isDontCullBackfaces() const {return _dontCullBackfaces;}
 
 
-    inline float getSizeGainPerLevel() const {return _sizeGainPerLevel;}
+    inline float getSizeGainPerMight() const {return _sizeGainPerLevel;}
 
     inline uint8_t getWeight() const {return _weight;}
 
@@ -539,6 +540,8 @@ public:
     **/
     const FRange& getAttributeBase(Ego::Attribute::AttributeType type) const;
 
+    bool canLearnPerk(const Ego::Perks::PerkID id) const;
+
     /**
     * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
     * @param slotOverride Which slot number to load this profile in
@@ -764,4 +767,8 @@ private:
     // random stuff
     bool       _stickyButt;                       ///< Stick to the ground? (conform to hills like chair)
     float      _useManaCost;                      ///< Mana usage for unarmed attack
+
+    //Perks
+    std::bitset<Ego::Perks::NR_OF_PERKS> _startingPerks;    ///< Which perks this Object spawns with
+    std::bitset<Ego::Perks::NR_OF_PERKS> _perkPool;         ///< Pool of perks that the Object can learn by gaining experience levels
 };

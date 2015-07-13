@@ -1,7 +1,9 @@
 #include "CharacterWindow.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
+#include "game/GUI/Button.hpp"
 #include "game/GUI/InventorySlot.hpp"
+#include "game/GUI/LevelUpWindow.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/player.h"
 
@@ -13,7 +15,8 @@ namespace GUI
 static const int LINE_SPACING_OFFSET = 5; //To make space between lines less
 
 CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : InternalWindow(object->getName()),
-    _character(object)
+    _character(object),
+    _levelUpButton(nullptr)
 {
     int yPos = 0;
 
@@ -113,6 +116,27 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     if(_character->isPlayer()) {
         PlaStack.get_ptr(_character->is_which_player)->inventoryMode = true;
     }
+
+    //LevelUp button
+    if(_character->isPlayer())
+    {
+        setSize(getWidth(), getHeight() + 40);
+
+        _levelUpButton = std::make_shared<Button>("LEVEL UP");
+        _levelUpButton->setSize(100, 30);
+        _levelUpButton->setPosition(getWidth()/2 - _levelUpButton->getWidth()/2, getHeight() - _levelUpButton->getHeight() - 15);
+        _levelUpButton->setOnClickFunction(
+            [this](){
+                std::shared_ptr<LevelUpWindow> window = std::make_shared<LevelUpWindow>(_character);
+                getParent()->addComponent(window);
+                destroy();
+            }
+        );
+        addComponent(_levelUpButton);
+
+        //Make level up button visible if needed
+        _levelUpButton->setVisible(PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp);
+    }
 }
 
 CharacterWindow::~CharacterWindow()
@@ -190,6 +214,16 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
     addComponent(percent);
 
     return label->getHeight()-LINE_SPACING_OFFSET;
+}
+
+bool CharacterWindow::notifyMouseMoved(const int x, const int y)
+{
+    //Make level up button visible if needed
+    if(_character->isPlayer()) {
+        _levelUpButton->setVisible(PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp);
+    }
+
+    return InternalWindow::notifyMouseMoved(x, y);
 }
 
 } //GUI

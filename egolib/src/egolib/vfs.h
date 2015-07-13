@@ -222,7 +222,7 @@ int vfs_seek(vfs_FILE *file , long offset);
 bool vfs_mkdir(const std::string& pathname);
 /** @return @a true on success, @a false on failure */
 bool vfs_delete_file(const std::string& pathname);
-/** @return @a true if the path refers to an existing file, @a false otherwise */
+/** @return @a true if the path refers to a file that exists, @a false otherwise */
 bool vfs_exists(const std::string& pathname);
 /** @return @a true if the pathname refers to an existing directory file, @a false otherwise */
 bool vfs_isDirectory(const std::string& pathname);

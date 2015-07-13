@@ -41,6 +41,7 @@ struct player_t
 {
     bool                  valid;                    ///< Player used?
     CHR_REF                 index;                    ///< Which character?
+    bool                    _unspentLevelUp;        ///< Has gained new experience level?
 
     /// the buffered input from the local input devices
     input_device_t          *pdevice;

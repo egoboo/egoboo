@@ -327,8 +327,11 @@ bool GameEngine::initialize()
     // Initialize the console.
     egolib_console_handler_t::initialize();
 
+    // Initialize Perks
+    Ego::Perks::PerkHandler::initialize();
+
     // Initialize the profile system.
-    Ego::Core::Singleton<ParticleProfileSystem>::initialize();
+    Ego::Core::Singleton<ParticleProfileSystem>::initialize(); //explicit static member call to avoid ambigious call
     ProfileSystem::initialize();
 
     // Initialize the collision system.

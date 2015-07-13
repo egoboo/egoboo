@@ -36,6 +36,7 @@ class TimerService : public Id::NonCopyable
 {
 protected:
     friend class System;
+    friend std::unique_ptr<TimerService>::deleter_type;
     TimerService();
     virtual ~TimerService();
 public:
@@ -172,7 +173,7 @@ public:
     static void uninitialize();
 
 private:
-    TimerService *_timerService;
+    std::unique_ptr<TimerService> _timerService;
     EventService *_eventService;
 	VideoService *_videoService;
 	AudioService *_audioService;
@@ -180,7 +181,7 @@ private:
 public:
     TimerService &getTimerService()
     {
-        return *_timerService;
+        return *_timerService.get();
     }
     EventService& getEventService()
     {

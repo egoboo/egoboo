@@ -1,3 +1,5 @@
+#pragma once
+
 #include "egolib/Renderer/Texture.hpp"
 
 namespace Ego
@@ -10,6 +12,8 @@ namespace Ego
     class DeferredOpenGLTexture
     {
     public:
+        DeferredOpenGLTexture();
+
         DeferredOpenGLTexture(const std::string &filePath);
 
         const oglx_texture_t& get();
@@ -17,6 +21,15 @@ namespace Ego
         void release();
 
         void setTextureSource(const std::string &filePath);
+
+        //Type cast operator
+        operator const oglx_texture_t&() const {return const_cast<DeferredOpenGLTexture*>(this)->get();}
+
+        /**
+        * @return
+        *   Get the filepath this deferred texture is pointing to
+        **/
+        const std::string& getFilePath() const;
 
     private:
         std::shared_ptr<oglx_texture_t> _texture;

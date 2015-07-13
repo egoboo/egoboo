@@ -22,7 +22,6 @@
 
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/game.h"
-#include "game/mesh.h"
 #include "game/char.h"
 
 #if SDL_VERSIONNUM(SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL) < SDL_VERSIONNUM(1, 2, 12)
@@ -32,9 +31,6 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *rw, Mix_MusicType, int freesrc) {
     return ret;
 }
 #endif
-
-//ZF> TODO: MAX_DISTANCE is 15 tiles away for those with ListeningSkill
-static const float MAX_DISTANCE = GRID_FSIZE * 10.0f;   ///< Max hearing distance (10 tiles)
 
 // text filenames for the global sounds
 static const std::array<const char*, GSND_COUNT> wavenames =
@@ -48,7 +44,10 @@ static const std::array<const char*, GSND_COUNT> wavenames =
     "pitfall",
     "shieldblock",
     "button",
-    "game_ready"
+    "game_ready",
+    "perk_select",
+    "gui_hover",
+    "dodge"
 };
 
 AudioSystem::AudioSystem() :
@@ -57,7 +56,8 @@ AudioSystem::AudioSystem() :
     _soundsLoaded(),
     _globalSounds(),
     _loopingSounds(),
-    _currentSongPlaying(INVALID_SOUND_CHANNEL)
+    _currentSongPlaying(INVALID_SOUND_CHANNEL),
+    _maxSoundDistance(DEFAULT_MAX_DISTANCE)
 {
     _globalSounds.fill(INVALID_SOUND_ID);
     // Set the configuration first.
@@ -144,6 +144,9 @@ void AudioSystem::reconfigure(egoboo_config_t& cfg)
             log_warning("AudioSystem::reset() - Cannot get AudioSystem to start. (%s)\n", Mix_GetError());
         }
     }
+
+    //Reset max hearing distance to default
+    _maxSoundDistance = DEFAULT_MAX_DISTANCE;
 
     // Do we restart the music?
     if (_audioConfig.enableMusic)
@@ -324,7 +327,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
     const float distance = getSoundDistance(soundPosition);
 
     //Sound is close enough to be heard?
-    if (distance < MAX_DISTANCE)
+    if (distance < _maxSoundDistance)
     {
         //No channel allocated to this sound yet? try to allocate a free one
         if (channel == INVALID_SOUND_CHANNEL) {
@@ -458,7 +461,7 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fv
     const float cameraY = CameraSystem::get()->getMainCamera()->getCenter()[kY];
 
     //Scale distance (0 is very close 255 is very far away)
-    distance *= 255.0f / MAX_DISTANCE;
+    distance *= 255.0f / _maxSoundDistance;
 
     //Calculate angle from camera to sound origin
     float angle = std::atan2(cameraY - soundPosition[kY], cameraX - soundPosition[kX]);
@@ -529,7 +532,7 @@ int AudioSystem::playSound(const fvec3_t& snd_pos, const SoundID soundID)
     float distance = getSoundDistance(snd_pos);
 
     // Outside hearing distance?
-    if (distance > MAX_DISTANCE)
+    if (distance > _maxSoundDistance)
     {
         return INVALID_SOUND_CHANNEL;
     }
@@ -550,4 +553,11 @@ int AudioSystem::playSound(const fvec3_t& snd_pos, const SoundID soundID)
     }
 
     return channel;
+}
+
+void AudioSystem::setMaxHearingDistance(const float distance)
+{
+    if(distance > 0.0f) {
+        _maxSoundDistance = distance;
+    }
 }

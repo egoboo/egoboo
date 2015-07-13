@@ -952,7 +952,7 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( 0 != chr_get_skill( pself_target, ( IDSZ )pstate->argument ) );
+    returncode = chr_get_skill(pself_target, ( IDSZ )pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -7127,7 +7127,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
         if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
         {
             //And require the backstab skill
-            if ( chr_get_skill( pattacker, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
+            if ( pattacker->hasPerk(Ego::Perks::BACKSTAB) )
             {
                 //Finally we require it to be physical damage!
                 if (DamageType_isPhysical(pself->damagetypelast))

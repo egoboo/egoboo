@@ -2703,8 +2703,12 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
                     Object *pattacker = _currentModule->getObjectHandler().get( pdata->pprt->owner_ref );
 
                     // use the character block skill plus the base block rating of the shield and adjust for strength
-                    total_block_rating = chr_get_skill( pdata->pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
-                    total_block_rating += chr_get_skill( pshield, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
+                    total_block_rating = chr_get_skill( pshield, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
+
+                    //Defender Perk gives +100% Block Rating
+                    if(pdata->pchr->hasPerk(Ego::Perks::DEFENDER)) {
+                        total_block_rating += 100;
+                    }
 
                     // -4% per attacker strength
                     total_block_rating -= 4 * pattacker->getAttribute(Ego::Attribute::MIGHT);
@@ -2991,18 +2995,40 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 powner->ai.hitlast = pdata->pchr->getCharacterID();
 
                 // Tell the weapons who the attacker hit last
+                bool meleeAttack = false;
                 const std::shared_ptr<Object> &leftHanditem = powner->getRightHandItem();
                 if (leftHanditem)
                 {
                     leftHanditem->ai.hitlast = pdata->pchr->getCharacterID();
-                    if ( powner->ai.lastitemused == leftHanditem->getCharacterID() ) SET_BIT(leftHanditem->ai.alert, ALERTIF_SCOREDAHIT);
+                    if (powner->ai.lastitemused == leftHanditem->getCharacterID()) {
+                        SET_BIT(leftHanditem->ai.alert, ALERTIF_SCOREDAHIT);  
+                        if(leftHanditem->getProfile()->getIDSZ(IDSZ_SPECIAL) == MAKE_IDSZ('X', 'W', 'E', 'P') && !leftHanditem->getProfile()->isRangedWeapon()) {
+                            meleeAttack = true;
+                        }
+                    } 
                 }
 
                 const std::shared_ptr<Object> &rightHandItem = powner->getRightHandItem();
                 if (rightHandItem)
                 {
                     rightHandItem->ai.hitlast = pdata->pchr->getCharacterID();
-                    if ( powner->ai.lastitemused == rightHandItem->getCharacterID() ) SET_BIT(rightHandItem->ai.alert, ALERTIF_SCOREDAHIT);
+                    if (powner->ai.lastitemused == rightHandItem->getCharacterID()) {
+                        SET_BIT(rightHandItem->ai.alert, ALERTIF_SCOREDAHIT);  
+                        if(rightHandItem->getProfile()->getIDSZ(IDSZ_SPECIAL) == MAKE_IDSZ('X', 'W', 'E', 'P') && !rightHandItem->getProfile()->isRangedWeapon()) {
+                            meleeAttack = true;
+                        }
+                    } 
+                }
+
+                //Unarmed attack?
+                if (powner->ai.lastitemused == powner->getCharacterID()) {
+                    meleeAttack = true;
+                }
+
+                //If it is a melee attack then Brue perk increases damage by 10%
+                if(powner->hasPerk(Ego::Perks::BRUTE) && meleeAttack) {
+                    modifiedDamage.base *= 1.1f;
+                    modifiedDamage.rand *= 1.1f;
                 }
             }
 
@@ -3451,40 +3477,77 @@ bool do_chr_prt_collision( CoNode_t * d )
     //Do they hit each other?
     if(prt_can_hit_chr && (cn_data.int_min || cn_data.int_max))
     {
-        // do "damage" to the character
-        if (!prt_deflected && 0 == cn_data.pchr->damage_timer )
-        {
-            // we can't even get to this point if the character is completely invulnerable (invictus)
-            // or can't be damaged this round
-            cn_data.prt_damages_chr = do_chr_prt_collision_damage( &cn_data );
-            if ( cn_data.prt_damages_chr )
+        bool dodged = false;
+
+        //Does the character have a dodge ability?
+        if(cn_data.pchr->hasPerk(Ego::Perks::DODGE)) {
+            float dodgeChance = cn_data.pchr->getAttribute(Ego::Attribute::AGILITY);
+
+            //Masterful Dodge Perk gives flat +10% dodge chance
+            if(cn_data.pchr->hasPerk(Ego::Perks::MASTERFUL_DODGE)) {
+                dodgeChance += 10.0f;
+            }
+
+            //1% dodge chance per Agility
+            if(Random::getPercent() <= dodgeChance) 
             {
-                //Remember the collision so that this doesn't happen again
-                cn_data.pprt->addCollision(_currentModule->getObjectHandler()[cn_data.pchr->getCharacterID()]);
-                retval = true;
+                dodged = true;
             }
         }
 
-#if 0
-        // calculate the impulse.
-        if (( cn_data.int_min || cn_data.int_max ) && cn_data.ppip->allowpush )
-        {
-            do_chr_prt_collision_impulse( &cn_data );
-        }
-
-        // make the character and particle recoil from the collision
-        if (cn_data.vimpulse.length_abs() > 0.0f ||
-            cn_data.pimpulse.length_abs() > 0.0f)
-        {
-            if ( do_chr_prt_collision_recoil( &cn_data ) )
+        if(!dodged) {
+            // do "damage" to the character
+            if (!prt_deflected && 0 == cn_data.pchr->damage_timer )
             {
-                retval = true;
+                // we can't even get to this point if the character is completely invulnerable (invictus)
+                // or can't be damaged this round
+                cn_data.prt_damages_chr = do_chr_prt_collision_damage( &cn_data );
+                if ( cn_data.prt_damages_chr )
+                {
+                    //Remember the collision so that this doesn't happen again
+                    cn_data.pprt->addCollision(_currentModule->getObjectHandler()[cn_data.pchr->getCharacterID()]);
+                    retval = true;
+                }
             }
-        }
-#endif
 
-        //Cause knockback
-        do_chr_prt_collision_knockback(cn_data);
+    #if 0
+            // calculate the impulse.
+            if (( cn_data.int_min || cn_data.int_max ) && cn_data.ppip->allowpush )
+            {
+                do_chr_prt_collision_impulse( &cn_data );
+            }
+
+            // make the character and particle recoil from the collision
+            if (cn_data.vimpulse.length_abs() > 0.0f ||
+                cn_data.pimpulse.length_abs() > 0.0f)
+            {
+                if ( do_chr_prt_collision_recoil( &cn_data ) )
+                {
+                    retval = true;
+                }
+            }
+    #endif
+
+            //Cause knockback (Hold the Line perk makes Objects immune to knockback)
+            if(!cn_data.pchr->hasPerk(Ego::Perks::HOLD_THE_LINE)) {
+                do_chr_prt_collision_knockback(cn_data);
+            }
+
+        }
+
+        //Attack was dodged!
+        else {
+            //Cannot collide again
+            cn_data.pprt->addCollision(_currentModule->getObjectHandler()[cn_data.pchr->getCharacterID()]);
+
+            //Play sound effect
+            AudioSystem::get().playSound(cn_data.pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_DODGE));
+
+            // Initialize for the billboard
+            const float lifetime = 3;
+            chr_make_text_billboard( cn_data.pchr->getCharacterID(), "Dodged!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(1.0f, 0.6f, 0.0f, 1.0f), lifetime, Billboard::Flags::All);
+        }
+
 
         // handle a couple of special cases
         if ( cn_data.prt_bumps_chr )

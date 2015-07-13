@@ -171,7 +171,7 @@ System::System(const char *binaryPath, const char *egobooPath)
     log_message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
     try
     {
-        _timerService = new TimerService();
+        _timerService = std::unique_ptr<TimerService>(new TimerService());
     }
     catch (...)
     {
@@ -188,8 +188,7 @@ System::System(const char *binaryPath, const char *egobooPath)
     }
     catch (...)
     {
-        delete _timerService;
-        _timerService = nullptr;
+        _timerService.reset();
         SDL_Quit();
         setup_end();
         /*sys_uninitialize();*/
@@ -205,8 +204,7 @@ System::System(const char *binaryPath, const char *egobooPath)
 	{
 		delete _eventService;
 		_eventService = nullptr;
-		delete _timerService;
-		_timerService = nullptr;
+        _timerService.reset();
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
@@ -224,8 +222,7 @@ System::System(const char *binaryPath, const char *egobooPath)
 		_videoService = nullptr;
 		delete _eventService;
 		_eventService = nullptr;
-		delete _timerService;
-		_timerService = nullptr;
+        _timerService.reset();
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
@@ -245,8 +242,7 @@ System::System(const char *binaryPath, const char *egobooPath)
 		_videoService = nullptr;
 		delete _eventService;
 		_eventService = nullptr;
-		delete _timerService;
-		_timerService = nullptr;
+        _timerService.reset();
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
@@ -266,8 +262,7 @@ System::~System()
 	_videoService = nullptr;
     delete _eventService;
     _eventService = nullptr;
-    delete _timerService;
-    _timerService = nullptr;
+    _timerService.reset();
     setup_end();
     /*sys_uninitialize();*/
     log_message("Exiting Egoboo Engine %s.\n", VERSION.c_str());

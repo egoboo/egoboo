@@ -33,6 +33,11 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 
+//For the minimap
+#include "game/Core/GameEngine.hpp"
+#include "game/GameStates/PlayingState.hpp"
+#include "game/GUI/MiniMap.hpp"
+
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
@@ -161,7 +166,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
     _baseAttribute(),
-    _inventory()
+    _inventory(),
+    _perks()
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -514,11 +520,15 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     action = ACTION_HA;
                     if ( base_damage > HURTDAMAGE )
                     {
-                        action += Random::next(3);
-                        chr_play_action(this, action, false);
+                        //If we have Endurance perk, we have 1% chance per Might to resist hurt animation (which cause a minor delay)
+                        if(!hasPerk(Ego::Perks::ENDURANCE) || Random::getPercent() > getAttribute(Ego::Attribute::MIGHT))
+                        {
+                            action += Random::next(3);
+                            chr_play_action(this, action, false);                            
+                        }
 
                         // Make the character invincible for a limited time only
-                        if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
+                        if ( HAS_NO_BITS(effects, DAMFX_TIME) )
                         {
                             damage_timer = DAMAGETIME;
                         }
@@ -816,7 +826,7 @@ void Object::update()
     if ( clock_chr_stat >= ONESECOND )
     {
         // check for a level up
-        giveLevelUp();
+        checkLevelUp();
 
         // do the mana and life regen for "living" characters
         if (isAlive())
@@ -845,13 +855,41 @@ void Object::update()
 
         // possibly gain/lose darkvision
         update_chr_darkvision( getCharacterID() );
+
+        // update some special skills (players and NPC's)
+        if(getShowStatus())
+        {
+            //Cartography perk reveals the minimap
+            if(hasPerk(Ego::Perks::CARTOGRAPHY)) {
+                _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
+            }
+
+            //Navigation reveals the players position on the minimap
+            if(hasPerk(Ego::Perks::NAVIGATION)) {
+                _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
+            }
+
+            //Danger Sense reveals enemies on the minimap
+            if(hasPerk(Ego::Perks::DANGER_SENSE)) {
+                local_stats.sense_enemies_team = this->team;
+                local_stats.sense_enemies_idsz = IDSZ_NONE;     //Reveal all
+            }
+
+            //Danger Sense reveals enemies on the minimap
+            else if(hasPerk(Ego::Perks::SENSE_UNDEAD)) {
+                local_stats.sense_enemies_team = this->team;
+                local_stats.sense_enemies_idsz = MAKE_IDSZ('U','N','D','E');     //Reveal only undead
+            }
+        }        
     }
 
     updateResize();
 
-    // update some special skills
-    see_kurse_level  = std::max(see_kurse_level,  chr_get_skill(this, MAKE_IDSZ( 'C', 'K', 'U', 'R' )));
-    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )));
+    //Update some special skills
+    if(hasPerk(Ego::Perks::SENSE_KURSES)) {
+        see_kurse_level = std::max(see_kurse_level, 1);
+    }
+    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )) ? 1 : 0);
 }
 
 void Object::updateResize()
@@ -1182,7 +1220,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
 
     //Too invisible?
     int alpha = target->inst.alpha;
-    if ( 0 != see_invisible_level )
+    if (canSeeInvisible())
     {
         alpha = get_alpha(alpha, expf(0.32f * static_cast<float>(see_invisible_level)));
     }
@@ -1227,7 +1265,7 @@ void Object::recalculateCollisionSize()
     chr_update_collision_size(this, true);
 }
 
-void Object::giveLevelUp()
+void Object::checkLevelUp()
 {
     int number;
 
@@ -1240,25 +1278,37 @@ void Object::giveLevelUp()
 
         if ( xpcurrent >= xpneeded )
         {
-            // do the level up
+            // The character is ready to advance...
+            if(isPlayer()) {
+                if(!PlaStack.get_ptr(is_which_player)->_unspentLevelUp) {
+                    PlaStack.get_ptr(is_which_player)->_unspentLevelUp = true;
+                    DisplayMsg_printf("%s gained a level!!!", getName().c_str());
+                    AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
+                }
+                return;
+            }
+
+            //Automatic level up for AI characters
             experiencelevel++;
             SET_BIT(ai.alert, ALERTIF_LEVELUP);
 
-            // The character is ready to advance...
-            if ( VALID_PLA(is_which_player) )
-            {
-                DisplayMsg_printf("%s gained a level!!!", getName().c_str());
-                AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
-            }
-
             // Size Increase
-            fat_goto += getProfile()->getSizeGainPerLevel() * 0.25f;  // Limit this?
+            fat_goto += getProfile()->getSizeGainPerMight() * 0.25f;  // Limit this?
             fat_goto_time += SIZETIME;
 
             //Attribute increase
             for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
                 _baseAttribute[i] += Random::next(getProfile()->getAttributeGain(static_cast<Ego::Attribute::AttributeType>(i)));
             }
+
+            //Grab random Perk? (ZF> just uncomment if we want to do this for AI characters as well)
+            //std::vector<Ego::Perks::PerkID> perkPool = getValidPerks();
+            //if(!perkPool.empty()) {
+            //    addPerk(Random::getRandomElement(perkPool));
+            //}
+            //else {
+            //    addPerk(Ego::Perks::TOUGHNESS); //Add TOUGHNESS as default perk if none other are available
+            //}
         }
     }
 }
@@ -1490,6 +1540,13 @@ void Object::giveExperience(const int amount, const XPType xptype, const bool ov
         {
             newamount *= 1.10f; // 10% extra on normal
         }
+
+
+        //Fast Learner Perk gives +10% XP gain
+        if(hasPerk(Ego::Perks::FAST_LEARNER)) {
+            newamount *= 1.10f;
+        }
+
         experience += newamount;
     }
 }
@@ -1780,6 +1837,32 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
 
     float resistance = damage_resistance[type];
 
+    //Stalwart perk increases CRUSH, SLASH and POKE by 1
+    if(type == DAMAGE_CRUSH || type == DAMAGE_POKE || type == DAMAGE_SLASH) {
+        if(hasPerk(Ego::Perks::STALWART)) {
+            resistance += 1.0f;
+        }
+    }
+
+    //Elemental Resistance perk increases FIRE, ICE and ZAP by 1
+    if(type == DAMAGE_FIRE || type == DAMAGE_ICE || type == DAMAGE_ZAP) {
+        if(hasPerk(Ego::Perks::ELEMENTAL_RESISTANCE)) {
+            resistance += 1.0f;
+        }
+    
+        //Ward perks increases it by further 3
+        if(type == DAMAGE_FIRE && hasPerk(Ego::Perks::FIRE_WARD)) {
+            resistance += 3.0f;
+        }
+        else if(type == DAMAGE_ZAP && hasPerk(Ego::Perks::ZAP_WARD)) {
+            resistance += 3.0f;
+        }
+        else if(type == DAMAGE_ICE && hasPerk(Ego::Perks::ICE_WARD)) {
+            resistance += 3.0f;
+        }
+
+    }
+
     //Negative armor means it's a weakness
     if(resistance < 0.0f) {
 
@@ -1832,9 +1915,62 @@ void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, flo
 {
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
     _baseAttribute[type] = Ego::Math::constrain(_baseAttribute[type] + value, 0.0f, 255.0f);
+
+    //Handle current life and mana increase as well
+    if(type == Ego::Attribute::MAX_LIFE) {
+        life += FLOAT_TO_FP8(value);
+    }
+    else if(type == Ego::Attribute::MAX_MANA) {
+        mana += FLOAT_TO_FP8(value);
+    }
 }
 
 Inventory& Object::getInventory()
 {
     return _inventory;
+}
+
+bool Object::hasPerk(Ego::Perks::PerkID perk) const
+{
+    if(perk == Ego::Perks::NR_OF_PERKS) return true;
+    return _perks[perk];
+}
+
+std::vector<Ego::Perks::PerkID> Object::getValidPerks() const
+{
+    //Build list of perks we can learn
+    std::vector<Ego::Perks::PerkID> result;
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i)
+    {
+        const Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
+
+        //Can we learn this perk?
+        if(!getProfile()->canLearnPerk(id)) {
+            continue;
+        }
+
+        //Cannot learn the same perk twice
+        if(hasPerk(id)) {
+            continue;
+        }
+
+        //Do we fulfill the requirements for this perk?
+        const Ego::Perks::Perk& perk = Ego::Perks::PerkHandler::get().getPerk(id);
+        if(perk.getRequirement() == Ego::Perks::NR_OF_PERKS || hasPerk(perk.getRequirement())) {
+            result.push_back(id);
+        }
+    }
+
+    return result;
+}
+
+void Object::addPerk(Ego::Perks::PerkID perk)
+{
+    if(perk == Ego::Perks::NR_OF_PERKS) return;
+    _perks[perk] = true;
+}
+
+float Object::getLife() const
+{
+    return FP8_TO_FLOAT(life);
 }

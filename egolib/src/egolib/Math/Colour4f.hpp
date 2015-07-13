@@ -131,6 +131,17 @@ public:
         return colour;
     }
 
+    /**
+     * @brief The colour "purple".
+     * @return the colour "purple"
+     * @see Ego::Math::Colour3f::purple()
+     */
+    static const Colour4f purple()
+    {
+        static const Colour4f colour(Colour3f::purple(), 1.0f);
+        return colour;
+    }
+
 private:
 
     /**
@@ -204,13 +215,28 @@ public:
 
     /**
      * @brief
-     *  Get the value of the blue component.
+     *  Get the value of the alpha component.
      * @return
-     *  the value of the blue component
+     *  the value of the alpha component
      */
     float getAlpha() const
     {
         return _a;
+    }
+
+    /**
+     * @brief
+     *  Set the value of the alpha component.
+     * @param a
+     *  the value of the alpha component
+     */
+    void setAlpha(const float a)
+    {
+        if (_a < 0.0f || _a > 1.0f)
+        {
+            throw std::domain_error("alpha component outside bounds");
+        }        
+        _a = a;
     }
 
     /**
@@ -303,14 +329,33 @@ public:
      *  the inverted colour
      * @remark
      *  Given a colour  \f$(r,g,b,a)\f$ in real-valued, normalized RGBA space,
-     *  then corresponding inverted colour is \f$(1-r,1-g,1-b,1-a)\f$. Inverting
+     *  then corresponding inverted colour is \f$(1-r,1-g,1-b,a)\f$. Inverting
      *  a colour twice yields the same colour (modula floating-point precision).
      * @remark
      *  The corresponding inverted colour is also known as the complementary colour.
      */
     Colour4f invert() const
     {
-        return Colour4f(1.0f - _r, 1.0f - _g, 1.0f - _b, 1.0 - _a);
+        return Colour4f(1.0f - _r, 1.0f - _g, 1.0f - _b, _a);
+    }
+
+    /**
+     * @brief
+     *  Make a brighter version of this colour
+     * @param brightness
+     *  the scalar for brightness increase (0 = normal, 1 = twice as bright)
+     * @return
+     *  the brighter colour
+     * @remark
+     *  Given a colour  \f$(r,g,b,a)\f$ in real-valued, normalized RGBA space,
+     *  then corresponding inverted colour is \f$(brighness*r,brighness*1,brighness*1,a)\f$. This conversion
+     *  is not reverrsible.
+     */
+    Colour4f brighter(float brightness) const
+    {
+        if(brightness <= 0.0f) return *this;
+        brightness += 1.0f;
+        return Colour4f(std::min(1.0f, _r*brightness), std::min(1.0f, _g*brightness), std::min(1.0f, _b*brightness), _a);
     }
 
     /**

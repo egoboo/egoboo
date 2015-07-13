@@ -91,7 +91,6 @@ struct local_stats_t
     float seedark_level;
     float seedark_mag;
     float seekurse_level;
-    float listening_level;    ///< Players with listen skill?
 
     bool allpladead;         ///< Have players died?
     int revivetimer;        ///< Cooldown to respawn
