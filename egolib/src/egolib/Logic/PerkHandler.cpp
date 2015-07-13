@@ -57,7 +57,7 @@ PerkHandler::PerkHandler() :
         "Night Vision", "+25% minimum ambient light.");
     initializePerk(LITERACY, Attribute::INTELLECT, "mp_data/perks/literacy",
         "Literacy", "Can read and write. Allows use of books, scrolls and signs.");
-    initializePerk(READ_GNOMISH, Attribute::INTELLECT, "mp_data/perks/use_technological_items",
+    initializePerk(READ_GNOMISH, Attribute::INTELLECT, "mp_data/perks/read_gnomish",
         "Read G'nomish", "Learn to read G'nomish inscriptions.", LITERACY);
     initializePerk(ARCANE_MAGIC, Attribute::INTELLECT, "mp_data/perks/arcane_magic",
         "Arcane Magic", "Can spend mana to cast Arcane magic through Spellbooks.", LITERACY);
@@ -114,7 +114,7 @@ PerkHandler::PerkHandler() :
     initializePerk(SHARPSHOOTER, Attribute::AGILITY, "mp_data/perks/sharpshooter",
         "Sharpshooter", "+10% ranged attack damage.\n+25% ranged aim.");
     initializePerk(DEADLY_STRIKE, Attribute::AGILITY, "mp_data/perks/deadly_strike",
-        "Deadly Strike", "+1% chance per level to deal +0.25 damage per Agility.");
+        "Deadly Strike", "+1% chance per level to deal +0.25 damage per Agility vs non-undead.");
     initializePerk(CRITICAL_HIT, Attribute::AGILITY, "mp_data/perks/critical_hit",
         "Critical Hit", "+0.5% chance per Agility to deal maximum damage.");
     initializePerk(LUCKY, Attribute::AGILITY, "mp_data/perks/lucky",

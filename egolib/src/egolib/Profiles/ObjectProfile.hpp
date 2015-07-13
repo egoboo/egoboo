@@ -543,6 +543,14 @@ public:
     bool beginsWithPerk(const Ego::Perks::PerkID id) const;
 
     /**
+    * @return
+    *   Get the base block rating for this item if it is a shield. This is the
+    *   base percentage chance that this shield can block an incoming attack.
+    *   (before applying attributes, perks, magic, etc.)
+    **/
+    uint16_t getBaseBlockRating() const { return _blockRating; }
+
+    /**
     * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
     * @param slotOverride Which slot number to load this profile in
     * @param lightWeight If true, then no 3D model, sounds, particle or enchant will be loaded (for menu)
@@ -696,10 +704,11 @@ private:
     bool         _skinHasTransparency;          ///< The skin has transparent areas
 
     // attack blocking info
-    uint16_t       iframefacing;                  ///< Invincibility frame
+    uint16_t       iframefacing;                ///< Invincibility frame
     uint16_t       iframeangle;
-    uint16_t       nframefacing;                  ///< Normal frame
+    uint16_t       nframefacing;                ///< Normal frame
     uint16_t       nframeangle;
+    uint16_t      _blockRating;                 ///< Base block rating of this shield
 
     // defense
     bool           _resistBumpSpawn;             ///< Don't catch fire

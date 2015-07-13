@@ -137,6 +137,7 @@ ObjectProfile::ObjectProfile() :
     iframeangle(0),
     nframefacing(0),
     nframeangle(0),
+    _blockRating(0),
 
     // defense
     _resistBumpSpawn(false),
@@ -907,6 +908,12 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                         ptr = strpbrk( ptr, "SBHCT" );
                     }
                 }
+            }
+            break;
+
+            case MAKE_IDSZ('B', 'L', 'O', 'C'):
+            {
+                _blockRating = ctxt.readInt();
             }
             break;
 

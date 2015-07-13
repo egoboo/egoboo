@@ -2703,7 +2703,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
                     Object *pattacker = _currentModule->getObjectHandler().get( pdata->pprt->owner_ref );
 
                     // use the character block skill plus the base block rating of the shield and adjust for strength
-                    total_block_rating = chr_get_skill( pshield, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
+                    total_block_rating = pshield->getProfile()->getBaseBlockRating();
 
                     //Defender Perk gives +100% Block Rating
                     if(pdata->pchr->hasPerk(Ego::Perks::DEFENDER)) {
@@ -3055,12 +3055,15 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     modifiedDamage.rand *= 1.1f;                    
                 }
 
-                //Deadly Strike perk (1% chance per character level to trigger)
-                if(powner->hasPerk(Ego::Perks::DEADLY_STRIKE) && powner->getExperienceLevel() >= Random::getPercent() && DamageType_isPhysical(pdata->pprt->damagetype)){
-                    //Gain +0.25 damage per Agility
-                    modifiedDamage.base += powner->getAttribute(Ego::Attribute::AGILITY) * 0.25f;
-                    chr_make_text_billboard(powner->getCharacterID(), "Deadly Strike", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
-                    AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
+                //Deadly Strike perk (1% chance per character level to trigger vs non undead)
+                if(pdata->pchr->getProfile()->getIDSZ(IDSZ_PARENT) != MAKE_IDSZ('U','N','D','E'))
+                {
+                    if(powner->hasPerk(Ego::Perks::DEADLY_STRIKE) && powner->getExperienceLevel() >= Random::getPercent() && DamageType_isPhysical(pdata->pprt->damagetype)){
+                        //Gain +0.25 damage per Agility
+                        modifiedDamage.base += powner->getAttribute(Ego::Attribute::AGILITY) * 0.25f;
+                        chr_make_text_billboard(powner->getCharacterID(), "Deadly Strike", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                        AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
+                    }
                 }
             }
 
