@@ -109,6 +109,8 @@ PerkHandler::PerkHandler() :
         "Masterful Dodge", "+10% Dodge chance.", DODGE);
     initializePerk(BACKSTAB, Attribute::AGILITY, "mp_data/perks/backstab",
         "Backstab", "Attacking enemies from behind deals +10% damage per Agility. Instantly kills sleeping creatures.");
+    initializePerk(CRACKSHOT, Attribute::AGILITY, "mp_data/perks/crackshot",
+        "Crackshot", "1% chance per Intellect to Daze enemies for 3 seconds who are hit by your fireweapons.");
 
 
     //Make sure all perks have been initialized properly

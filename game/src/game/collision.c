@@ -2957,14 +2957,26 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         pdata->pchr->daze_timer = std::max(static_cast<unsigned>(pdata->pchr->daze_timer), pdata->ppip->dazeTime );
     }
 
+    // Check Crack Shot perk which applies 3 second Daze with fireweapons
+    if(pdata->pchr->getProfile()->canBeDazed() && powner != nullptr && powner->hasPerk(Ego::Perks::CRACKSHOT))
+    {
+        //Is the particle spawned by a gun?
+        const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pdata->pprt->getSpawnerProfile());
+        if(spawnerProfile && spawnerProfile->isRangedWeapon() && spawnerProfile->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('T','E','C','H')) {
+            SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
+            pdata->pchr->daze_timer = std::max<uint16_t>(pdata->pchr->daze_timer, 3);
+
+            chr_make_text_billboard(powner->getCharacterID(), "Crackshot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+        }
+    }
+
     //---- Damage the character, if necessary
     if ( 0 != std::abs( pdata->pprt->damage.base ) + std::abs( pdata->pprt->damage.rand ) )
     {
         prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || pdata->pprt->isAttached() );
 
         if(powner != nullptr) {
-            const std::shared_ptr<ObjectProfile> &ownerProfile = ProfileSystem::get().getProfile(powner->profile_ref);
-            if ( ownerProfile != nullptr && ownerProfile->isRangedWeapon() ) prt_needs_impact = true;            
+            if ( powner->getProfile()->isRangedWeapon() ) prt_needs_impact = true;            
         }
 
 
