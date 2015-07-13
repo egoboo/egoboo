@@ -2948,6 +2948,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->grog_timer = std::max(static_cast<unsigned>(pdata->pchr->grog_timer), pdata->ppip->grogTime );
+
+        chr_make_text_billboard(powner->getCharacterID(), "Groggy!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);
     }
 
     // Do daze
@@ -2955,6 +2957,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->daze_timer = std::max(static_cast<unsigned>(pdata->pchr->daze_timer), pdata->ppip->dazeTime );
+
+        chr_make_text_billboard(powner->getCharacterID(), "Dazed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
     }
 
     // Check Crack Shot perk which applies 3 second Daze with fireweapons
