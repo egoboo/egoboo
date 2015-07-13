@@ -91,6 +91,12 @@ PerkHandler::PerkHandler() :
         "Zap Ward", "+3 Zap resistance.", ELEMENTAL_RESISTANCE);
     initializePerk(POWER, Attribute::INTELLECT, "mp_data/perks/power",
         "Power", "+2 Mana.", ARCANE_MAGIC);
+    initializePerk(JACK_OF_ALL_TRADES, Attribute::INTELLECT, "mp_data/perks/jack_of_all_trades",
+        "Jack of All Trades", "Gets 2 additional perks to select from each level.");
+    initializePerk(TELEPORT_MASTERY, Attribute::INTELLECT, "mp_data/perks/teleport_mastery",
+        "Teleport Mastery", "+1 Spell Power.\nNo chance to botch teleports.\nTeleport Spell costs 33% less mana.");
+    initializePerk(DISINTEGRATE, Attribute::INTELLECT, "mp_data/perks/disintegrate",
+        "Disintegrate", "+0.025% chance per Intellect to deal +100 extra damage with Zap damage spells.");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",
@@ -119,6 +125,8 @@ PerkHandler::PerkHandler() :
         "Critical Hit", "+0.5% chance per Agility to deal maximum damage.");
     initializePerk(LUCKY, Attribute::AGILITY, "mp_data/perks/lucky",
         "Lucky", "+10% Critical Hit chance.");
+    initializePerk(QUICK_STRIKE, Attribute::AGILITY, "mp_data/perks/quick_strike", 
+        "Quick Strike", "10% chance to strike twice with melee weapons.");
 
 
     //Make sure all perks have been initialized properly

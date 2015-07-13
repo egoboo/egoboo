@@ -3006,6 +3006,17 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     percent /= 100.0f;
                     modifiedDamage.base *= 1.00f + percent;
                     modifiedDamage.rand *= 1.00f + percent;
+
+                    //Disintegrate perk deals +100 ZAP damage at 0.025% chance per Intellect!
+                    if(pdata->pprt->damagetype == DAMAGE_ZAP && powner->hasPerk(Ego::Perks::DISINTEGRATE)) {
+                        if(Random::nextFloat()*100.0f <= powner->getAttribute(Ego::Attribute::INTELLECT) * 0.025f) {
+                            modifiedDamage.base += FLOAT_TO_FP8(100.0f);
+                            chr_make_text_billboard(pdata->pchr->getCharacterID(), "Disintegrated!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 6, Billboard::Flags::All);
+
+                            //Disintegrate effect
+                            ParticleHandler::get().spawnGlobalParticle(pdata->pchr->getPosition(), ATK_FRONT, LocalParticleProfileRef(PIP_DISINTEGRATE_START), 0);
+                        }
+                    }
                 }
 
                 // Notify the attacker of a scored hit
@@ -3060,7 +3071,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 {
                     if(powner->hasPerk(Ego::Perks::DEADLY_STRIKE) && powner->getExperienceLevel() >= Random::getPercent() && DamageType_isPhysical(pdata->pprt->damagetype)){
                         //Gain +0.25 damage per Agility
-                        modifiedDamage.base += powner->getAttribute(Ego::Attribute::AGILITY) * 0.25f;
+                        modifiedDamage.base += FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::AGILITY) * 0.25f);
                         chr_make_text_billboard(powner->getCharacterID(), "Deadly Strike", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
                         AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                     }

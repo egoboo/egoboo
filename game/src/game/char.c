@@ -2432,6 +2432,9 @@ bool chr_get_skill( Object *pchr, IDSZ whichskill )
         case MAKE_IDSZ('J', 'O', 'U', 'S'):
             return pchr->hasPerk(Ego::Perks::JOUSTING);            
 
+        case MAKE_IDSZ('T', 'E', 'L', 'E'):
+            return pchr->hasPerk(Ego::Perks::TELEPORT_MASTERY); 
+
     }
 
     //Skill not found
@@ -3206,10 +3209,16 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     pchr->inst.rate  = 0.80f;                                 //base attack speed
                     pchr->inst.rate += std::min(3.00f, agility * 0.02f);      //every Agility increases base attack speed by 2%
 
+                    //If Quick Strike perk triggers then we have fastest possible attack (10% chance)
+                    if(pchr->hasPerk(Ego::Perks::QUICK_STRIKE) && pweapon->getProfile()->isMeleeWeapon() && Random::getPercent() <= 10) {
+                        pchr->inst.rate = 3.00f;
+                        chr_make_text_billboard(pchr->getCharacterID(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                    }
+
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
                     //reduce reload time for spells or gonnes here.
-                    if ( !weaponProfile->hasFastAttack() )
+                    else if ( !weaponProfile->hasFastAttack() )
                     {
                         int base_reload_time = -agility;
                         if ( ACTION_IS_TYPE( action, U ) )      base_reload_time += 50;     //Unarmed  (Fists)

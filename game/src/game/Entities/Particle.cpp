@@ -624,8 +624,14 @@ size_t Particle::updateContinuousSpawning()
     FACING_T facing = this->facing;
     for (size_t tnc = 0; tnc < getProfile()->contspawn._amount; tnc++)
     {
-        std::shared_ptr<Ego::Particle> prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
+        std::shared_ptr<Ego::Particle> prt_child;
+        if(_spawnerProfile == INVALID_PRO_REF) {
+            prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), facing, getProfile()->contspawn._lpip, tnc);
+        }
+        else {
+            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
                                                                       INVALID_CHR_REF, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
+        }
 
         if (prt_child)
         {

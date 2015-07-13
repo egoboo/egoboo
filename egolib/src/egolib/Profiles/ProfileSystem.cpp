@@ -411,6 +411,18 @@ void ProfileSystem::loadGlobalParticleProfiles()
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
+
+    loadpath = "mp_data/disintegrate_start.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_START ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/disintegrate_particle.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_PARTICLE ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
 #if 0
     // Load module specific information
     loadpath = "mp_data/weather4.txt";

@@ -13,7 +13,7 @@ Label::Label(const std::string &text, const UIManager::UIFontType font) :
 void Label::draw()
 {
     //Draw text
-    _font->drawTextBox(_text, getX(), getY(), getWidth(), getHeight(), 25, _color);
+    _font->drawTextBox(_text, getX(), getY(), getWidth(), getHeight(), _font->getLineSpacing(), _color);
 }
 
 void Label::setText(const std::string &text)

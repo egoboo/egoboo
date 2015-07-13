@@ -78,6 +78,11 @@ enum PerkID : uint8_t
     ICE_WARD,
     ZAP_WARD,
     POWER,
+    JACK_OF_ALL_TRADES,
+    //SPELL_MASTERY,
+    //SORCERY,
+    DISINTEGRATE,
+    TELEPORT_MASTERY,
     //LORE_MASTER,
     //DARKVISION,
     
@@ -95,6 +100,7 @@ enum PerkID : uint8_t
     DEADLY_STRIKE,
     CRITICAL_HIT,
     LUCKY,
+    QUICK_STRIKE,
 
     NR_OF_PERKS    //Always last
 };

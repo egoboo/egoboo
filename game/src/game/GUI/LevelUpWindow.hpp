@@ -58,6 +58,7 @@ class LevelUpWindow : public InternalWindow
         Ego::Perks::PerkID _currentPerk;
         std::shared_ptr<Label> _descriptionLabel;
         std::shared_ptr<Label> _perkIncreaseLabel;
+        int _desciptionLabelOffset;
 
         //Attribute increase state
         std::vector<std::shared_ptr<Label>> _fadeInLabels;
@@ -67,7 +68,6 @@ class LevelUpWindow : public InternalWindow
         Vector2f _animationSpeed;
         Vector2f _animationPos;
         uint32_t _attributeRevealTime;
-
 
         friend class Ego::GUI::PerkButton;
 };

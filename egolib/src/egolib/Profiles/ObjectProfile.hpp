@@ -389,6 +389,7 @@ public:
     inline int getSpellEffectType() const {return _spellEffectType;}
 
     inline bool isRangedWeapon() const {return  _isRanged;}
+    inline bool isMeleeWeapon() const {return !_isRanged && _idsz[IDSZ_SPECIAL] == MAKE_IDSZ('X','W','E','P');}
 
     inline bool isDrawIcon() const {return _drawIcon;}
 

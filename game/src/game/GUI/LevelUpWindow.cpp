@@ -15,11 +15,10 @@ class PerkButton : public GUIComponent
 public:
     PerkButton(const Ego::Perks::PerkID id) :
         _perk(Ego::Perks::PerkHandler::get().getPerk(id)),
-        _label(_perk.getName()),
         _mouseOver(false),
         _hoverFadeEffect(0.0f)
     {
-        _label.setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
+        //ctor
     }
 
     void draw() override
@@ -62,15 +61,6 @@ public:
 
         //Icon
         _gameEngine->getUIManager()->drawImage(_perk.getIcon(), shakeEffectX, shakeEffectY, getWidth(), getHeight(), Ego::Math::Colour4f(0, 0, 0, 0.75f));
-
-        //Name
-        _label.draw();
-    }
-
-    void setPosition(int x, int y) override
-    {
-        _label.setCenterPosition(x + getWidth()/2, y + getHeight() + _label.getHeight(), true);
-        GUIComponent::setPosition(x, y);
     }
 
     bool notifyMouseMoved(const int x, const int y) override
@@ -81,7 +71,9 @@ public:
                 _mouseOver = false;
 
                 LevelUpWindow *parentWindow = dynamic_cast<LevelUpWindow*>(getParent());
-                parentWindow->setHoverPerk(Ego::Perks::NR_OF_PERKS);
+                if(parentWindow->getCurrentPerk() == _perk.getID()) {
+                    parentWindow->setHoverPerk(Ego::Perks::NR_OF_PERKS);
+                }
 
                 return true;
             }
@@ -122,7 +114,6 @@ private:
     const std::shared_ptr<Label> _descriptionLabel;
     const std::shared_ptr<Label> _perkIncreaseLabel;
     Ego::DeferredOpenGLTexture _texture;
-    Label _label;
     bool _mouseOver;
     float _hoverFadeEffect;
 };
@@ -144,8 +135,9 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
 {
     int yPos = 0;
 
+    setSize(510, 340);
+
     //Place us in the center of the screen
-    setSize(510, 320);
     setCenterPosition(_gameEngine->getUIManager()->getScreenWidth()/2, _gameEngine->getUIManager()->getScreenHeight()/2);
 
     // draw the character's main icon
@@ -201,8 +193,8 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
 
     //Figure out what perks this player can learn
     std::vector<Ego::Perks::PerkID> perkPool = _character->getValidPerks();
-    for(size_t i = perkPool.size(); i < 3; ++i) {
-        //Ensure at least 3 perks are selectable, add TOUGHNESS as default perk
+    for(size_t i = perkPool.size(); i < 5; ++i) {
+        //Ensure at least 5 perks are selectable, add TOUGHNESS as default perk
         perkPool.push_back(Ego::Perks::TOUGHNESS);
     }
 
@@ -215,9 +207,9 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
 
     //No perk by default
     setHoverPerk(Ego::Perks::NR_OF_PERKS);
-    
-    //Perk buttons
-    const size_t NR_OF_PERKS = 3;
+
+    //Perk buttons (Jack of All Trades gives +2 perks)
+    const size_t NR_OF_PERKS = _character->hasPerk(Ego::Perks::JACK_OF_ALL_TRADES) ? 5 : 3;
     const int PERK_BUTTON_SIZE = (getWidth() - 40 - 10*NR_OF_PERKS) / NR_OF_PERKS;
     for(size_t i = 0; i < NR_OF_PERKS; ++i) {
         //Select a random perk
@@ -226,6 +218,8 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
         perkButton->setSize(PERK_BUTTON_SIZE, PERK_BUTTON_SIZE);
         perkButton->setPosition(20 + i * (perkButton->getWidth()+10), selectPerkLabel->getY() + selectPerkLabel->getHeight());
         addComponent(perkButton);
+
+        _desciptionLabelOffset = perkButton->getY() + perkButton->getHeight();
 
         //Remove perk from pool
         perkPool.erase(perkPool.begin() + randomIndex);
@@ -302,6 +296,10 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
 
         case Ego::Perks::ANCIENT_BLUD:
             increase[Ego::Attribute::LIFE_REGEN] += 0.25f;
+        break;
+
+        case Ego::Perks::TELEPORT_MASTERY:
+            increase[Ego::Attribute::SPELL_POWER] += 1.0f;
         break;
 
         default:
@@ -483,6 +481,8 @@ void LevelUpWindow::drawContainer()
 
 void LevelUpWindow::setHoverPerk(Ego::Perks::PerkID id)
 {
+    _currentPerk = id;
+
     if(id == Ego::Perks::NR_OF_PERKS)
     {
         _descriptionLabel->setText("Select your new perk...");
@@ -492,12 +492,11 @@ void LevelUpWindow::setHoverPerk(Ego::Perks::PerkID id)
     {
         const Ego::Perks::Perk &perk = Ego::Perks::PerkHandler::get().getPerk(id);
         _descriptionLabel->setText(perk.getDescription());
-        _perkIncreaseLabel->setText("+1 " + Ego::Attribute::toString(perk.getType()));
+        _perkIncreaseLabel->setText(perk.getName() + "\n+1 " + Ego::Attribute::toString(perk.getType()));
     }
 
-    _descriptionLabel->setCenterPosition(getX() + getWidth()/2, getY() + getHeight() - _descriptionLabel->getHeight(), true);
-    _perkIncreaseLabel->setCenterPosition(getX() + getWidth()/2, _descriptionLabel->getY() - _perkIncreaseLabel->getHeight(), true);        
-
+    _perkIncreaseLabel->setCenterPosition(getX() + getWidth()/2, getY() + _desciptionLabelOffset + 10, true);        
+    _descriptionLabel->setCenterPosition(getX() + getWidth()/2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight(), true);
 }
 
 Ego::Perks::PerkID LevelUpWindow::getCurrentPerk() const

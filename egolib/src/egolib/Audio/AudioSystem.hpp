@@ -124,9 +124,9 @@ private:
 /// Pre defined global particle sounds
 enum GlobalSound : uint8_t
 {
-    GSND_GETCOIN = 0,	//Grab money
-    GSND_DEFEND,		//Immune clink
-    GSND_SPLISH,		//Raindrop
+    GSND_COINGET,       //Coin grabbed
+    GSND_DEFEND,        //Attack deflected clink
+    GSND_SPLISH,    	//Raindrop
     GSND_SPLOSH,		//Hit water
     GSND_COINFALL,		//Coin hits ground
     GSND_LEVELUP,		//Character gains level
@@ -138,6 +138,7 @@ enum GlobalSound : uint8_t
     GSND_GUI_HOVER,     //Mouse over sound effect
     GSND_DODGE,         //Dodged attack
     GSND_CRITICAL_HIT,  //Critical Hit
+    GSND_DISINTEGRATE,  //Disintegrated
     GSND_COUNT
 };
 
