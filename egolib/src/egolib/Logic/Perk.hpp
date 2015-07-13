@@ -50,6 +50,7 @@ enum PerkID : uint8_t
     PERFECTION,
     ENDURANCE,
     ATHLETICS,
+    ANCIENT_BLUD,
 
     //Intellect perks
     CARTOGRAPHY,

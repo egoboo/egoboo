@@ -37,6 +37,8 @@ PerkHandler::PerkHandler() :
         "Endurance", "1% per Might to ignore Staggering when injured.");
     initializePerk(ATHLETICS, Attribute::MIGHT, "mp_data/perks/athletics", 
         "Athletics", "Halves movement penality in water.\n+25% jump power.");
+    initializePerk(ANCIENT_BLUD, Attribute::MIGHT, "mp_data/perks/ancient_blud", 
+        "Ancient Blud", "+0.25 Life Regeneration");
 
     //Intellectual
     initializePerk(CARTOGRAPHY, Attribute::INTELLECT, "mp_data/perks/cartography",

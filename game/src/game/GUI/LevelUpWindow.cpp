@@ -300,6 +300,10 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
             _character->jump_power += _character->getProfile()->getJumpPower()*0.25f; //+25% jump power
         break;
 
+        case Ego::Perks::ANCIENT_BLUD:
+            increase[Ego::Attribute::LIFE_REGEN] += 0.25f;
+        break;
+
         default:
             //nothing
         break;
