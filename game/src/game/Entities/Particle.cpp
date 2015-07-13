@@ -873,7 +873,7 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
     attachedto_vrt_off = vrt_offset;
 
     // Correct loc_facing
-    loc_facing = loc_facing + getProfile()->facing_pair.base;
+    loc_facing += getProfile()->facing_pair.base;
 
     // Targeting...
     vel[kZ] = 0;
@@ -893,8 +893,13 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
         }
         else
         {
-            const int PERFECT_AIM = 45.0f;   // 45 dex is perfect aim
-            const float attackerAgility = _currentModule->getObjectHandler().get(owner_ref)->getAttribute(Ego::Attribute::AGILITY);
+            const float PERFECT_AIM = 45.0f;   // 45 dex is perfect aim
+            float attackerAgility = _currentModule->getObjectHandler().get(owner_ref)->getAttribute(Ego::Attribute::AGILITY);
+
+            //Sharpshooter Perk improves aim by 25%
+            if(_currentModule->getObjectHandler().get(owner_ref)->hasPerk(Ego::Perks::SHARPSHOOTER)) {
+                attackerAgility = std::min(PERFECT_AIM, attackerAgility*1.25f);
+            }
 
             // Find a target
             FACING_T targetAngle;
@@ -974,7 +979,7 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
         // Correct loc_facing for randomness
         offsetfacing = generate_irand_pair(getProfile()->facing_pair) - (getProfile()->facing_pair.base + getProfile()->facing_pair.rand / 2);
     }
-    loc_facing = loc_facing + offsetfacing;
+    loc_facing += offsetfacing;
     facing = loc_facing;
 
     // this is actually pointing in the opposite direction?

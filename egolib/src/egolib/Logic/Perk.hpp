@@ -91,6 +91,7 @@ enum PerkID : uint8_t
     MASTERFUL_DODGE,
     BACKSTAB,
     CRACKSHOT,
+    SHARPSHOOTER,
 
     NR_OF_PERKS    //Always last
 };

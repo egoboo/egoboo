@@ -2885,6 +2885,9 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         powner = _currentModule->getObjectHandler().get( pdata->pprt->owner_ref );
     }
 
+    //Get the Profile of the Object that spawned this particle (i.e the weapon itself, not the holder)
+    const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pdata->pprt->getSpawnerProfile());
+
     // clean up the enchant list before doing anything
     cleanup_character_enchants( pdata->pchr );
 
@@ -2965,8 +2968,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     if(pdata->pchr->getProfile()->canBeDazed() && powner != nullptr && powner->hasPerk(Ego::Perks::CRACKSHOT))
     {
         //Is the particle spawned by a gun?
-        const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pdata->pprt->getSpawnerProfile());
-        if(spawnerProfile && spawnerProfile->isRangedWeapon() && spawnerProfile->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('T','E','C','H')) {
+        if(spawnerProfile != nullptr && spawnerProfile->isRangedWeapon() && spawnerProfile->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('T','E','C','H')) {
             SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
             pdata->pchr->daze_timer = std::max<uint16_t>(pdata->pchr->daze_timer, 3);
 
@@ -2979,8 +2981,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     {
         prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || pdata->pprt->isAttached() );
 
-        if(powner != nullptr) {
-            if ( powner->getProfile()->isRangedWeapon() ) prt_needs_impact = true;            
+        if(spawnerProfile != nullptr) {
+            if ( spawnerProfile->isRangedWeapon() ) prt_needs_impact = true;            
         }
 
 
@@ -3041,10 +3043,16 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     meleeAttack = true;
                 }
 
-                //If it is a melee attack then Brue perk increases damage by 10%
+                //If it is a melee attack then Brute perk increases damage by 10%
                 if(powner->hasPerk(Ego::Perks::BRUTE) && meleeAttack) {
                     modifiedDamage.base *= 1.1f;
                     modifiedDamage.rand *= 1.1f;
+                }
+
+                //If it is a ranged attack then Sharpshooter increases damage by 10%
+                if(powner->hasPerk(Ego::Perks::SHARPSHOOTER) && spawnerProfile != nullptr && spawnerProfile->isRangedWeapon()) {
+                    modifiedDamage.base *= 1.1f;
+                    modifiedDamage.rand *= 1.1f;                    
                 }
             }
 

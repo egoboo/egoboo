@@ -111,6 +111,8 @@ PerkHandler::PerkHandler() :
         "Backstab", "Attacking enemies from behind deals +10% damage per Agility. Instantly kills sleeping creatures.");
     initializePerk(CRACKSHOT, Attribute::AGILITY, "mp_data/perks/crackshot",
         "Crackshot", "1% chance per Intellect to Daze enemies for 3 seconds who are hit by your fireweapons.");
+    initializePerk(SHARPSHOOTER, Attribute::AGILITY, "mp_data/perks/sharpshooter",
+        "Sharpshooter", "+10% ranged attack damage.\n+25% ranged aim.");
 
 
     //Make sure all perks have been initialized properly
