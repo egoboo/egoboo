@@ -707,7 +707,6 @@ public:
     // "variable" properties
     bool         is_hidden;
     bool         alive;                         ///< Is it alive?
-    bool         waskilled;                     ///< Fix for network
     PLA_REF      is_which_player;               ///< true = player
     bool         islocalplayer;                 ///< true = local player
     bool         invictus;                      ///< Totally invincible?
@@ -812,6 +811,7 @@ private:
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
+    bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)
 
     friend class ObjectHandler;
 };

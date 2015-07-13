@@ -91,7 +91,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     missilehandler(INVALID_CHR_REF),
     is_hidden(false),
     alive(true),
-    waskilled(false),
     is_which_player(INVALID_PLA_REF),
     islocalplayer(false),
     invictus(false),
@@ -166,7 +165,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _showStatus(false),
     _baseAttribute(),
     _inventory(),
-    _perks()
+    _perks(),
+    _hasBeenKilled(false)
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -1335,7 +1335,6 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     }
 
     alive = false;
-    waskilled = true;
 
     life            = -1;
     platform        = true;
@@ -1369,6 +1368,12 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
 
             // Nope, award direct kill experience instead
             else actualKiller->giveExperience(experience, XP_KILLENEMY, false);
+
+            //Mercenary Perk gives +1 Zenny per kill
+            if(actualKiller->hasPerk(Ego::Perks::MERCENARY) && !_hasBeenKilled && actualKiller->money < MAXMONEY) {
+                actualKiller->money += 1;
+                AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_COINGET));
+            }
         }
     }
 
@@ -1409,6 +1414,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     }
 
     // Let it's AI script run one last time
+    _hasBeenKilled = true;
     ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
     scr_run_chr_script(this);
 }

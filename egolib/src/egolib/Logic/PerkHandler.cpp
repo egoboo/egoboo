@@ -101,6 +101,18 @@ PerkHandler::PerkHandler() :
         "Sorcery", "+10% Spell Damage", ARCANE_MAGIC);
     initializePerk(SPELL_MASTERY, Attribute::INTELLECT, "mp_data/perks/spell_mastery",
         "Spell Mastery", "+1 Spell Power", ARCANE_MAGIC);
+    initializePerk(MYSTIC_INTELLECT, Attribute::INTELLECT, "mp_data/perks/mystic_intellect",
+        "Mystic Intellect", "+1 Mana\n+0.1 Mana Regeneration", ARCANE_MAGIC);
+    initializePerk(MEDITATION, Attribute::INTELLECT, "mp_data/perks/meditation",
+        "Meditation", "+0.15 Mana Regeneration");
+    initializePerk(BOOKWORM, Attribute::INTELLECT, "mp_data/perks/bookworm",
+        "Bookworm", "+2 Intellect.\n-2 Might.");
+    initializePerk(MERCENARY, Attribute::INTELLECT, "mp_data/perks/mercenary",
+        "Mercenary", "Gain +1 Zenny for each monster killed.");
+    initializePerk(DARK_ARTS_MASTERY, Attribute::INTELLECT, "mp_data/perks/dark_arts_mastery",
+        "Dark Arts Mastery", "+20% Evil damage with magic.");
+    initializePerk(POWER_FOCUS, Attribute::INTELLECT, "mp_data/perks/power_focus",
+        "Power Focus", "All allies gain +0.2 Mana Regeneration.");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",

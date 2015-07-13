@@ -265,7 +265,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         break;
 
         case Ego::Perks::BRUTE:
-            increase[Ego::Attribute::MIGHT] += 2.00f;
+            increase[Ego::Attribute::MIGHT] += 1.00f;
             increase[Ego::Attribute::INTELLECT] -= 2.00f;
         break;
 
@@ -302,6 +302,20 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
             increase[Ego::Attribute::SPELL_POWER] += 1.0f;
         break;
 
+        case Ego::Perks::MYSTIC_INTELLECT:
+            increase[Ego::Attribute::MAX_MANA] += 1.0f;
+            increase[Ego::Attribute::MANA_REGEN] += 0.1f;
+        break;
+
+        case Ego::Perks::MEDITATION:
+            increase[Ego::Attribute::MANA_REGEN] += 0.15f;
+        break;
+
+        case Ego::Perks::BOOKWORM:
+            increase[Ego::Attribute::INTELLECT] += 2.00f;
+            increase[Ego::Attribute::MIGHT] -= 2.00f;
+        break;
+
         default:
             //nothing
         break;
@@ -314,7 +328,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
 
     //Might slightly increases character size
     if(increase[Ego::Attribute::MIGHT] != 0) {
-        _character->fat_goto += _character->getProfile()->getSizeGainPerMight() * increase[Ego::Attribute::MIGHT];
+        _character->fat_goto += _character->getProfile()->getSizeGainPerMight() * 0.1f * increase[Ego::Attribute::MIGHT];
         _character->fat_goto_time += SIZETIME;
     }
 
@@ -487,16 +501,18 @@ void LevelUpWindow::setHoverPerk(Ego::Perks::PerkID id)
     {
         _descriptionLabel->setText("Select your new perk...");
         _perkIncreaseLabel->setText("Hover mouse over a perk to see the benefits.");
+        _perkIncreaseLabel->setColor(Ego::Math::Colour4f::purple());
     }
     else
     {
         const Ego::Perks::Perk &perk = Ego::Perks::PerkHandler::get().getPerk(id);
         _descriptionLabel->setText(perk.getDescription());
         _perkIncreaseLabel->setText(perk.getName() + "\n+1 " + Ego::Attribute::toString(perk.getType()));
+        _perkIncreaseLabel->setColor(perk.getColour());
     }
 
     _perkIncreaseLabel->setCenterPosition(getX() + getWidth()/2, getY() + _desciptionLabelOffset + 10, true);        
-    _descriptionLabel->setCenterPosition(getX() + getWidth()/2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight(), true);
+    _descriptionLabel->setCenterPosition(getX() + getWidth()/2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight()-10, true);
 }
 
 Ego::Perks::PerkID LevelUpWindow::getCurrentPerk() const

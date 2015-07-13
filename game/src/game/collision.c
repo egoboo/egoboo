@@ -3009,6 +3009,11 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                         percent += 10.0f;
                     }
 
+                    //Dark Arts Master perk gives evil damage +20%
+                    if(pdata->pprt->damagetype == DAMAGE_EVIL && powner->hasPerk(Ego::Perks::DARK_ARTS_MASTERY)) {
+                        percent += 20.0f;
+                    }
+
                     percent /= 100.0f;
                     modifiedDamage.base *= 1.00f + percent;
                     modifiedDamage.rand *= 1.00f + percent;
