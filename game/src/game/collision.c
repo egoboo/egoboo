@@ -3003,6 +3003,12 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 if ( pdata->ppip->_intellectDamageBonus )
                 {
                     float percent = ( powner->getAttribute(Ego::Attribute::INTELLECT) - 14.0f ) * 2.0f;
+
+                    //Sorcery Perk increases spell damage by 10%
+                    if(powner->hasPerk(Ego::Perks::SORCERY)) {
+                        percent += 10.0f;
+                    }
+
                     percent /= 100.0f;
                     modifiedDamage.base *= 1.00f + percent;
                     modifiedDamage.rand *= 1.00f + percent;

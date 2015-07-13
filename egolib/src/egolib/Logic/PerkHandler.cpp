@@ -72,7 +72,7 @@ PerkHandler::PerkHandler() :
     initializePerk(SENSE_UNDEAD, Attribute::INTELLECT, "mp_data/perks/sense_undead",
         "Sense Undead", "Reveals undead monsters on the minimap.", DIVINE_MAGIC);
     initializePerk(PERCEPTIVE, Attribute::INTELLECT, "mp_data/perks/perceptive",
-        "Perceptive", "Can find traps.\nCan find hidden treasure.\n+100% listening range\n10% minimum ambient light.");
+        "Perceptive", "Can find traps and hidden treasure.\n+100% listening range\n10% minimum ambient light.");
     initializePerk(DANGER_SENSE, Attribute::INTELLECT, "mp_data/perks/danger_sense",
         "Danger Sense", "Reveals enemies on the minimap.", PERCEPTIVE);
     initializePerk(SENSE_INVISIBLE, Attribute::INTELLECT, "mp_data/perks/sense_invisible",
@@ -94,9 +94,13 @@ PerkHandler::PerkHandler() :
     initializePerk(JACK_OF_ALL_TRADES, Attribute::INTELLECT, "mp_data/perks/jack_of_all_trades",
         "Jack of All Trades", "Gets 2 additional perks to select from each level.");
     initializePerk(TELEPORT_MASTERY, Attribute::INTELLECT, "mp_data/perks/teleport_mastery",
-        "Teleport Mastery", "+1 Spell Power.\nNo chance to botch teleports.\nTeleport Spell costs 33% less mana.");
+        "Teleport Mastery", "No chance to botch teleports.\nTeleport Spell costs 33% less mana.", ARCANE_MAGIC);
     initializePerk(DISINTEGRATE, Attribute::INTELLECT, "mp_data/perks/disintegrate",
-        "Disintegrate", "+0.025% chance per Intellect to deal +100 extra damage with Zap damage spells.");
+        "Disintegrate", "+0.025% chance per Intellect to deal +100 extra damage with Zap damage spells.", ARCANE_MAGIC);
+    initializePerk(SORCERY, Attribute::INTELLECT, "mp_data/perks/sorcery",
+        "Sorcery", "+10% Spell Damage", ARCANE_MAGIC);
+    initializePerk(SPELL_MASTERY, Attribute::INTELLECT, "mp_data/perks/spell_mastery",
+        "Spell Mastery", "+1 Spell Power", ARCANE_MAGIC);
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",

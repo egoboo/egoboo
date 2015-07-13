@@ -298,7 +298,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
             increase[Ego::Attribute::LIFE_REGEN] += 0.25f;
         break;
 
-        case Ego::Perks::TELEPORT_MASTERY:
+        case Ego::Perks::SPELL_MASTERY:
             increase[Ego::Attribute::SPELL_POWER] += 1.0f;
         break;
 

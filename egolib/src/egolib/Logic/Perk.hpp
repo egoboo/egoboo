@@ -79,10 +79,10 @@ enum PerkID : uint8_t
     ZAP_WARD,
     POWER,
     JACK_OF_ALL_TRADES,
-    //SPELL_MASTERY,
-    //SORCERY,
+    SORCERY,
     DISINTEGRATE,
     TELEPORT_MASTERY,
+    SPELL_MASTERY,
     //LORE_MASTER,
     //DARKVISION,
     
