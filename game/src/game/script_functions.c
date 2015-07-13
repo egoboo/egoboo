@@ -8079,9 +8079,9 @@ Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
 {
-    // GiveSkillToTarget( tmpargument = "skill_IDSZ", tmpdistance = "skill_level" )
+    // GiveSkillToTarget( tmpargument = "skill_IDSZ" )
     /// @author ZF
-    /// @details This function permanently gives the target character a skill
+    /// @details This function permanently gives the target character a Perk
 
     Object *ptarget;
     egolib_rv rv;

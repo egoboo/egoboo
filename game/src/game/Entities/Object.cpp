@@ -1932,7 +1932,10 @@ Inventory& Object::getInventory()
 bool Object::hasPerk(Ego::Perks::PerkID perk) const
 {
     if(perk == Ego::Perks::NR_OF_PERKS) return true;
-    return _perks[perk];
+
+    //@note ZF> We also have to check our profile in case we are polymorphed and gain new
+    //          skills from our new form (e.g Lumpkin form allows gunplay)
+    return _perks[perk] || getProfile()->beginsWithPerk(perk);
 }
 
 std::vector<Ego::Perks::PerkID> Object::getValidPerks() const

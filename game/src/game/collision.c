@@ -2965,7 +2965,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     }
 
     // Check Crack Shot perk which applies 3 second Daze with fireweapons
-    if(pdata->pchr->getProfile()->canBeDazed() && powner != nullptr && powner->hasPerk(Ego::Perks::CRACKSHOT))
+    if(pdata->pchr->getProfile()->canBeDazed() && powner != nullptr && powner->hasPerk(Ego::Perks::CRACKSHOT) && DamageType_isPhysical(pdata->pprt->damagetype))
     {
         //Is the particle spawned by a gun?
         if(spawnerProfile != nullptr && spawnerProfile->isRangedWeapon() && spawnerProfile->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('T','E','C','H')) {

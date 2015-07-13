@@ -540,6 +540,8 @@ public:
 
     bool canLearnPerk(const Ego::Perks::PerkID id) const;
 
+    bool beginsWithPerk(const Ego::Perks::PerkID id) const;
+
     /**
     * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
     * @param slotOverride Which slot number to load this profile in

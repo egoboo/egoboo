@@ -1327,11 +1327,12 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
         pchr->iskursed = Random::getPercent() <= profile->getKurseChance();
     }
 
-    // Skillz
-    idsz_map_init(pchr->skills, SDL_arraysize(pchr->skills));
-    for(const auto &element : profile->getSkillMap())
-    {
-        idsz_map_add(pchr->skills, SDL_arraysize(pchr->skills), element.first, element.second);
+    // Starting Perks
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+        Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
+        if(profile->beginsWithPerk(id)) {
+            pchr->addPerk(id);
+        }
     }
 
     pchr->darkvision_level = 0;

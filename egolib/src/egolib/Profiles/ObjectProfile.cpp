@@ -1488,3 +1488,9 @@ bool ObjectProfile::canLearnPerk(const Ego::Perks::PerkID id) const
     if(id == Ego::Perks::NR_OF_PERKS) return false;
     return _perkPool[id];
 }
+
+bool ObjectProfile::beginsWithPerk(const Ego::Perks::PerkID id) const
+{
+    if(id == Ego::Perks::NR_OF_PERKS) return false;
+    return _startingPerks[id];
+}
