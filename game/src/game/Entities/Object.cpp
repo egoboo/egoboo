@@ -403,7 +403,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     // Lessen actual damage taken by resistance
     // This can also be used to lessen effectiveness of healing
     int base_damage = Random::next(damage.base, damage.base+damage.rand);
-    int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(DAMFX_ARMO, effects));
+    int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(effects, DAMFX_ARMO));
 
     // Increase electric damage when in water
     if ( damagetype == DAMAGE_ZAP && isInWater(false) )

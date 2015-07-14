@@ -53,7 +53,11 @@ enum PerkID : uint8_t
     ANCIENT_BLUD,
     BLUNT_WEAPONS_MASTERY,
     BRUTAL_STRIKE,
-    
+    POLEARM_MASTERY,
+    SWORD_MASTERY,
+    AXE_MASTERY,
+    GRIM_REAPER,
+
     //Intellect perks
     CARTOGRAPHY,
     SENSE_KURSES,

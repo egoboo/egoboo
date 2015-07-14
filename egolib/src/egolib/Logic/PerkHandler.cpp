@@ -42,7 +42,15 @@ PerkHandler::PerkHandler() :
     initializePerk(BLUNT_WEAPONS_MASTERY, Attribute::MIGHT, "mp_data/perks/blunt_weapons_mastery", 
         "Blunt Weapons Mastery", "Melee blunt weapons deal +25% extra CRUSH damage.");
     initializePerk(BRUTAL_STRIKE, Attribute::MIGHT, "mp_data/perks/brutal_strike", 
-        "Brutal Strike", "CRUSH weapons have 1% chance per Might\nto inflict Groggy for 2 seconds.");
+        "Brutal Strike", "CRUSH weapons have 1% chance per Might\nto inflict Groggy for 2 seconds.", BLUNT_WEAPONS_MASTERY);
+    initializePerk(POLEARM_MASTERY, Attribute::MIGHT, "mp_data/perks/polearm_mastery", 
+        "Polearm Mastery", "+20% damage with Spears, Tridents and other Polearms.");
+    initializePerk(SWORD_MASTERY, Attribute::MIGHT, "mp_data/perks/sword_mastery", 
+        "Sword Mastery", "+20% damage with Swords.", WEAPON_PROFICIENCY);
+    initializePerk(AXE_MASTERY, Attribute::MIGHT, "mp_data/perks/axe_mastery", 
+        "Axe Mastery", "+20% damage with Hatchets and other Axes.", WEAPON_PROFICIENCY);
+    initializePerk(GRIM_REAPER, Attribute::MIGHT, "mp_data/perks/grim_reaper", 
+        "Grim Reaper", "5% chance to deal +50 EVIL damage with the Scythe.", WEAPON_PROFICIENCY);
 
     //Intellectual
     initializePerk(CARTOGRAPHY, Attribute::INTELLECT, "mp_data/perks/cartography",
