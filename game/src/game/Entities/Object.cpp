@@ -1923,6 +1923,16 @@ float Object::getDamageReduction(const DamageType type, const bool includeArmor)
 float Object::getAttribute(const Ego::Attribute::AttributeType type) const 
 { 
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
+
+    //Wolverine perk gives +0.25 Life Regeneration while holding a Claw weapon
+    if(type == Ego::Attribute::LIFE_REGEN && hasPerk(Ego::Perks::WOLVERINE)) {
+        if( (getLeftHandItem() && getLeftHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W'))
+         || (getRightHandItem() && getRightHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W')))
+         {
+            return _baseAttribute[type] + 0.25f;
+         }
+    }
+
     return _baseAttribute[type]; 
 }
 

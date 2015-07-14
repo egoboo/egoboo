@@ -536,7 +536,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         // set tehis action to loop
         chr_instance_t::set_action_loop(prider->inst, true);
     }
-    else if ( prider->alive )
+    else if ( prider->isAlive() )
     {
         /// @note ZF@> hmm, here is the torch holding bug. Removing
         /// the interpolation seems to fix it...
@@ -545,7 +545,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         chr_instance_t::remove_interpolation(prider->inst);
 
         // set the action to keep for items
-        if ( prider->isitem )
+        if ( prider->isItem() )
         {
             // Item grab
             chr_instance_t::set_action_keep(prider->inst, true);
@@ -553,14 +553,21 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
     }
 
     // Set the team
-    if ( prider->isitem )
+    if ( prider->isItem() )
     {
         prider->team = pmount->team;
 
         // Set the alert
-        if ( prider->alive )
+        if ( prider->isAlive() )
         {
             SET_BIT( prider->ai.alert, ALERTIF_GRABBED );
+        }
+
+        //Lore Master perk identifies everything
+        if(pmount->hasPerk(Ego::Perks::LORE_MASTER)) {
+            prider->getProfile()->makeUsageKnown();
+            prider->nameknown = true;
+            prider->ammoknown = true;
         }
     }
 
@@ -569,7 +576,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         pmount->team = prider->team;
 
         // Set the alert
-        if ( !pmount->isitem && pmount->alive )
+        if ( !pmount->isItem() && pmount->isAlive() )
         {
             SET_BIT( pmount->ai.alert, ALERTIF_GRABBED );
         }
@@ -1135,6 +1142,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 if(pweapon->getProfile()->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('W','A','N','D')
                     && pchr->hasPerk(Ego::Perks::WAND_MASTERY)) {
 
+                    //1% chance per Intellect
                     if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::INTELLECT)) {
                         chr_make_text_billboard(pchr->getCharacterID(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Billboard::Flags::All);
                     }
@@ -1148,65 +1156,167 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             }
 
             PIP_REF attackParticle = weaponProfile->getAttackParticleProfile();
+            int NR_OF_ATTACK_PARTICLES = 1;
+
+            //Handle Double Shot perk
+            if(pchr->hasPerk(Ego::Perks::DOUBLE_SHOT) && weaponProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('L','B','O','W'))
+            {
+                //1% chance per Agility
+                if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::AGILITY) && pweapon->ammo > 0) {
+                    NR_OF_ATTACK_PARTICLES = 2;
+                    chr_make_text_billboard(pchr->getCharacterID(), "Double Shot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);                    
+
+                    //Spend one extra ammo
+                    pweapon->ammo--;
+                }
+            }
 
             // Spawn an attack particle
             if (INVALID_PIP_REF != attackParticle)
             {
-                // make the weapon's holder the owner of the attack particle?
-                // will this mess up wands?
-                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
-                    pchr->ori.facing_z, weaponProfile->getSlotNumber(), 
-                    attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : INVALID_CHR_REF,  
-                    spawn_vrt_offset, chr_get_iteam(iholder), iholder);
-
-                if (particle)
+                for(int i = 0; i < NR_OF_ATTACK_PARTICLES; ++i)
                 {
-                    fvec3_t tmp_pos = particle->getPosition();
+                    // make the weapon's holder the owner of the attack particle?
+                    // will this mess up wands?
+                    std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
+                        pchr->ori.facing_z, weaponProfile->getSlotNumber(), 
+                        attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : INVALID_CHR_REF,  
+                        spawn_vrt_offset, chr_get_iteam(iholder), iholder);
 
-                    if ( weaponProfile->hasAttachParticleToWeapon() )
+                    if (particle)
                     {
-                        particle->phys.weight     = pchr->phys.weight;
-                        particle->phys.bumpdampen = pweapon->phys.bumpdampen;
+                        fvec3_t tmp_pos = particle->getPosition();
 
-                        particle->placeAtVertex(pweapon, spawn_vrt_offset);
-                    }
-                    else if ( particle->getProfile()->startontarget && particle->hasValidTarget() )
-                    {
-                        particle->placeAtVertex(particle->getTarget(), spawn_vrt_offset);
+                        if ( weaponProfile->hasAttachParticleToWeapon() )
+                        {
+                            particle->phys.weight     = pchr->phys.weight;
+                            particle->phys.bumpdampen = pweapon->phys.bumpdampen;
 
-                        // Correct Z spacing base, but nothing else...
-                        tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
+                            particle->placeAtVertex(pweapon, spawn_vrt_offset);
+                        }
+                        else if ( particle->getProfile()->startontarget && particle->hasValidTarget() )
+                        {
+                            particle->placeAtVertex(particle->getTarget(), spawn_vrt_offset);
+
+                            // Correct Z spacing base, but nothing else...
+                            tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
+                        }
+                        else
+                        {
+                            // NOT ATTACHED
+
+                            // Don't spawn in walls
+                            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL))
+                            {
+                                tmp_pos[kX] = pweapon->getPosX();
+                                tmp_pos[kY] = pweapon->getPosY();
+                                if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL ) )
+                                {
+                                    tmp_pos[kX] = pchr->getPosX();
+                                    tmp_pos[kY] = pchr->getPosY();
+                                }
+                            }
+                        }
+
+                        // Initial particles get a bonus, which may be zero. Increases damage with +(factor)% per attribute point (e.g Might=10 and MightFactor=0.06 then damageBonus=0.6=60%)
+                        particle->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
+                        particle->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
+                        particle->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
+
+                        // Initial particles get an enchantment bonus
+                        particle->damage.base += pweapon->damage_boost;
+
+                        //Handle traits that increase weapon damage
+                        float damageBonus = 1.0f;
+                        switch(weaponProfile->getIDSZ(IDSZ_PARENT))
+                        {
+                            //Wolverine perk gives +100% Claw damage
+                            case MAKE_IDSZ('C','L','A','W'):
+                                if(pchr->hasPerk(Ego::Perks::WOLVERINE)) {
+                                    damageBonus += 1.0f;
+                                }
+                            break;
+
+                            //+20% damage with polearms
+                            case MAKE_IDSZ('P','O','L','E'):
+                                if(pchr->hasPerk(Ego::Perks::POLEARM_MASTERY)) {
+                                    damageBonus += 0.2f;
+                                }
+                            break;
+
+                            //+20% damage with swords
+                            case MAKE_IDSZ('S','W','O','R'):
+                                if(pchr->hasPerk(Ego::Perks::SWORD_MASTERY)) {
+                                    damageBonus += 0.2f;
+                                }
+                            break;
+
+                            //+20% damage with Axes
+                            case MAKE_IDSZ('A','X','E','E'):
+                                if(pchr->hasPerk(Ego::Perks::AXE_MASTERY)) {
+                                    damageBonus += 0.2f;
+                                }       
+                            break;
+
+                            //+20% damage with Longbows
+                            case MAKE_IDSZ('L','B','O','W'):
+                                if(pchr->hasPerk(Ego::Perks::BOW_MASTERY)) {
+                                    damageBonus += 0.2f;
+                                }
+                            break;
+
+                            //+100% damage with Whips
+                            case MAKE_IDSZ('W','H','I','P'):
+                                if(pchr->hasPerk(Ego::Perks::WHIP_MASTERY)) {
+                                    damageBonus += 1.0f;
+                                }
+                            break;
+                        }
+
+                        //Improvised Weapons perk gives +100% to some unusual weapons
+                        if(pchr->hasPerk(Ego::Perks::IMPROVISED_WEAPONS)) {
+                            if (weaponProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('T','O','R','C')    //Torch
+                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','H','O','V')      //Shovel
+                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('P','L','U','N')      //Toilet Plunger
+                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('C','R','O','W')      //Crowbar
+                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('P','I','C','K')) {   //Pick
+                                damageBonus += 1.0f;
+                            }
+                        }
+    
+                        //If it is a ranged attack then Sharpshooter increases damage by 10%
+                        if(pchr->hasPerk(Ego::Perks::SHARPSHOOTER) && weaponProfile->isRangedWeapon() && DamageType_isPhysical(particle->damagetype)) {
+                            damageBonus += 0.1f;
+                        }
+
+                        //+25% damage with Blunt Weapons Mastery
+                        if(particle->damagetype == DAMAGE_CRUSH && pchr->hasPerk(Ego::Perks::BLUNT_WEAPONS_MASTERY) && weaponProfile->isMeleeWeapon()) {
+                            damageBonus += 0.25f;
+                        }
+
+                        //If it is a melee attack then Brute perk increases damage by 10%
+                        if(pchr->hasPerk(Ego::Perks::BRUTE) && weaponProfile->isMeleeWeapon()) {
+                            damageBonus += 0.1f;
+                        }
+
+                        //Apply damage bonus modifiers
+                        particle->damage.base *= damageBonus;
+                        particle->damage.rand *= damageBonus;                            
+
+                        //If this is a double shot particle, then add a little space between the arrows
+                        if(i > 0) {
+                            float x, y;
+                            facing_to_vec(particle->facing, &x, &y);
+                            tmp_pos[kX] -= x*32.0f;
+                            tmp_pos[kY] -= x*32.0f;
+                        }
+
+                        particle->setPosition(tmp_pos);
                     }
                     else
                     {
-                        // NOT ATTACHED
-
-                        // Don't spawn in walls
-                        if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL))
-                        {
-                            tmp_pos[kX] = pweapon->getPosX();
-                            tmp_pos[kY] = pweapon->getPosY();
-                            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL ) )
-                            {
-                                tmp_pos[kX] = pchr->getPosX();
-                                tmp_pos[kY] = pchr->getPosY();
-                            }
-                        }
+                        log_debug("character_swipe() - unable to spawn attack particle for %s\n", weaponProfile->getClassName().c_str());
                     }
-
-                    // Initial particles get a bonus, which may be zero. Increases damage with +(factor)% per attribute point (e.g Might=10 and MightFactor=0.06 then damageBonus=0.6=60%)
-                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
-                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
-                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
-
-                    // Initial particles get an enchantment bonus
-                    particle->damage.base += pweapon->damage_boost;
-
-                    particle->setPosition(tmp_pos);
-                }
-                else
-                {
-                    log_debug("character_swipe() - unable to spawn attack particle for %s\n", weaponProfile->getClassName().c_str());
                 }
             }
             else
@@ -3195,7 +3305,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 }
                 else
                 {
-                    const float agility = pchr->getAttribute(Ego::Attribute::AGILITY);
+                    float agility = pchr->getAttribute(Ego::Attribute::AGILITY);
 
                     chr_play_action( pchr, action, false );
 
@@ -3203,6 +3313,12 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     if ( iweapon != ichr )
                     {
                         chr_play_action( pweapon, ACTION_MJ, false );
+                    }
+
+                    //Crossbow Mastery increases XBow attack speed by 30%
+                    if(pchr->hasPerk(Ego::Perks::CROSSBOW_MASTERY) && 
+                       pweapon->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('X','B','O','W')) {
+                        agility *= 1.30f;
                     }
 
                     //Determine the attack speed (how fast we play the animation)
@@ -3227,7 +3343,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                         else if ( ACTION_IS_TYPE( action, S ) ) base_reload_time += 65;     //Slice    (Sword)
                         else if ( ACTION_IS_TYPE( action, B ) ) base_reload_time += 70;     //Bash     (Mace)
                         else if ( ACTION_IS_TYPE( action, L ) ) base_reload_time += 60;     //Longbow  (Longbow)
-                        else if ( ACTION_IS_TYPE( action, X ) ) base_reload_time += 110;    //Xbow     (Crossbow)
+                        else if ( ACTION_IS_TYPE( action, X ) ) base_reload_time += 130;    //Xbow     (Crossbow)
                         else if ( ACTION_IS_TYPE( action, F ) ) base_reload_time += 60;     //Flinged  (Unused)
 
                         //it is possible to have so high dex to eliminate all reload time

@@ -51,6 +51,8 @@ PerkHandler::PerkHandler() :
         "Axe Mastery", "+20% damage with Hatchets and other Axes.", WEAPON_PROFICIENCY);
     initializePerk(GRIM_REAPER, Attribute::MIGHT, "mp_data/perks/grim_reaper", 
         "Grim Reaper", "5% chance to deal +50 EVIL damage with the Scythe.", WEAPON_PROFICIENCY);
+    initializePerk(WOLVERINE, Attribute::MIGHT, "mp_data/perks/wolverine", 
+        "Wolverine", "+100% damage with Claws.\nGain +0.25 Life Regeneration while holding Claws.");
 
     //Intellectual
     initializePerk(CARTOGRAPHY, Attribute::INTELLECT, "mp_data/perks/cartography",
@@ -82,7 +84,7 @@ PerkHandler::PerkHandler() :
     initializePerk(USE_TECHNOLOGICAL_ITEMS, Attribute::INTELLECT, "mp_data/perks/use_technological_items",
         "Use Technological Items", "Can use technological items like Guns, G'nomish tinker, Medkit and Camera.");
     initializePerk(SENSE_UNDEAD, Attribute::INTELLECT, "mp_data/perks/sense_undead",
-        "Sense Undead", "Reveals undead monsters on the minimap.", DIVINE_MAGIC);
+        "Sense Undead", "Reveals undead monsters on the minimap.");
     initializePerk(PERCEPTIVE, Attribute::INTELLECT, "mp_data/perks/perceptive",
         "Perceptive", "Can find traps and hidden treasure.\n+100% listening range\n10% minimum ambient light.");
     initializePerk(DANGER_SENSE, Attribute::INTELLECT, "mp_data/perks/danger_sense",
@@ -127,6 +129,8 @@ PerkHandler::PerkHandler() :
         "Magic Attunement", "25% of life healing also refills your mana.");
     initializePerk(CRUSADER, Attribute::INTELLECT, "mp_data/perks/crusader",
         "Crusader", "Regain 1 mana each time you destroy an undead.");
+    initializePerk(LORE_MASTER, Attribute::INTELLECT, "mp_data/perks/lore_master",
+        "Lore Master", "Automatically identify all items.", BOOKWORM);
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",
@@ -157,6 +161,16 @@ PerkHandler::PerkHandler() :
         "Lucky", "+10% Critical Hit chance.");
     initializePerk(QUICK_STRIKE, Attribute::AGILITY, "mp_data/perks/quick_strike", 
         "Quick Strike", "10% chance to strike twice with melee weapons.");
+    initializePerk(BOW_MASTERY, Attribute::AGILITY, "mp_data/perks/bow_mastery", 
+        "Bow Mastery", "+20% damage with Longbows.", WEAPON_PROFICIENCY);
+    initializePerk(CROSSBOW_MASTERY, Attribute::AGILITY, "mp_data/perks/crossbow_mastery", 
+        "Crossbow Mastery", "+30% Attack Speed with Crossbows.");
+    initializePerk(WHIP_MASTERY, Attribute::AGILITY, "mp_data/perks/whip_mastery", 
+        "Whip Mastery", "+100% damage with Whips.");
+    initializePerk(DOUBLE_SHOT, Attribute::AGILITY, "mp_data/perks/double_shot", 
+        "Double Shot", "+1% chance per Agility to fire 1 extra arrow with Longbows.", BOW_MASTERY);
+    initializePerk(IMPROVISED_WEAPONS, Attribute::AGILITY, "mp_data/perks/improvised_weapons", 
+        "Improvised Weapons", "+100% damage with Shovel, Crowbar, Pick, Torch and Toilet Plunger.");
 
 
     //Make sure all perks have been initialized properly

@@ -57,6 +57,7 @@ enum PerkID : uint8_t
     SWORD_MASTERY,
     AXE_MASTERY,
     GRIM_REAPER,
+    WOLVERINE,
 
     //Intellect perks
     CARTOGRAPHY,
@@ -96,7 +97,7 @@ enum PerkID : uint8_t
     DARK_ARTS_MASTERY,
     MAGIC_ATTUNEMENT,
     CRUSADER,
-    //LORE_MASTER,
+    LORE_MASTER,
     //DARKVISION,
     
     //Agility perks
@@ -114,6 +115,11 @@ enum PerkID : uint8_t
     CRITICAL_HIT,
     LUCKY,
     QUICK_STRIKE,
+    BOW_MASTERY,
+    CROSSBOW_MASTERY,
+    WHIP_MASTERY,
+    DOUBLE_SHOT,
+    IMPROVISED_WEAPONS,
 
     NR_OF_PERKS    //Always last
 };

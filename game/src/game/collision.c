@@ -3077,72 +3077,23 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     meleeAttack = true;
                 }
 
-                //If it is a melee attack then Brute perk increases damage by 10%
-                if(powner->hasPerk(Ego::Perks::BRUTE) && meleeAttack) {
-                    modifiedDamage.base *= 1.1f;
-                    modifiedDamage.rand *= 1.1f;
-                }
+                //Grim Reaper (5% chance to trigger +50 EVIL damage)
+                if(spawnerProfile != nullptr && powner->hasPerk(Ego::Perks::GRIM_REAPER)) {
 
-                if(spawnerProfile != nullptr)
-                {
-                    //If it is a ranged attack then Sharpshooter increases damage by 10%
-                    if(powner->hasPerk(Ego::Perks::SHARPSHOOTER) && spawnerProfile->isRangedWeapon() && DamageType_isPhysical(pdata->pprt->damagetype)) {
-                        modifiedDamage.base *= 1.1f;
-                        modifiedDamage.rand *= 1.1f;                    
-                    }
+                    //Is it a Scythe?
+                    if(spawnerProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','C','Y','T') && Random::getPercent() <= 5) {
 
-                    //+25% damage with Blunt Weapons Mastery
-                    if(pdata->pprt->damagetype == DAMAGE_CRUSH && powner->hasPerk(Ego::Perks::BLUNT_WEAPONS_MASTERY) && spawnerProfile->isMeleeWeapon())
-                    {
-                        modifiedDamage.base *= 1.25f;
-                        modifiedDamage.rand *= 1.25f;
-                    }
-
-                    //+20% damage with polearms
-                    if(powner->hasPerk(Ego::Perks::POLEARM_MASTERY))
-                    {
-                        if(spawnerProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('P','O','L','E')) {
-                            modifiedDamage.base *= 1.20f;
-                            modifiedDamage.rand *= 1.20f;                            
+                        //Make sure they can be damaged by EVIL first
+                        if(pdata->pchr->damage_modifier[DAMAGE_EVIL] == NONE) {
+                            IPair grimReaperDamage;
+                            grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
+                            grimReaperDamage.rand = 0.0f;
+                            pdata->pchr->damage(direction, grimReaperDamage, DAMAGE_EVIL, pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], DAMFX_TIME, false);
+                            chr_make_text_billboard(powner->getCharacterID(), "Grim Reaper!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);                                
+                            AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                         }
                     }
-
-                    //+20% damage with swords
-                    if(powner->hasPerk(Ego::Perks::SWORD_MASTERY))
-                    {
-                        if(spawnerProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('S','W','O','R')) {
-                            modifiedDamage.base *= 1.20f;
-                            modifiedDamage.rand *= 1.20f;                            
-                        }
-                    }
-
-                    //+20% damage with Axes
-                    if(powner->hasPerk(Ego::Perks::AXE_MASTERY))
-                    {
-                        if(spawnerProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('A','X','E','E')) {
-                            modifiedDamage.base *= 1.20f;
-                            modifiedDamage.rand *= 1.20f;                            
-                        }
-                    }       
-
-                    //Grim Reaper (5% chance to trigger +50 EVIL damage)
-                    if(powner->hasPerk(Ego::Perks::GRIM_REAPER)) {
-
-                        //Is it a Scythe?
-                        if(spawnerProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','C','Y','T') && Random::getPercent() <= 5) {
-
-                            //Make sure they can be damaged by EVIL first
-                            if(pdata->pchr->damage_modifier[DAMAGE_EVIL] == NONE) {
-                                IPair grimReaperDamage;
-                                grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
-                                grimReaperDamage.rand = 0.0f;
-                                pdata->pchr->damage(direction, grimReaperDamage, DAMAGE_EVIL, pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], DAMFX_TIME, false);
-                                chr_make_text_billboard(powner->getCharacterID(), "Grim Reaper!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);                                
-                                AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
-                            }
-                        }
-                    }            
-                }
+                }                
 
                 //Deadly Strike perk (1% chance per character level to trigger vs non undead)
                 if(pdata->pchr->getProfile()->getIDSZ(IDSZ_PARENT) != MAKE_IDSZ('U','N','D','E'))
