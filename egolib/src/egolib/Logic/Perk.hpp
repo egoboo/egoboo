@@ -88,7 +88,8 @@ enum PerkID : uint8_t
     BOOKWORM,
     MERCENARY,
     DARK_ARTS_MASTERY,
-    POWER_FOCUS,
+    MAGIC_ATTUNEMENT,
+    CRUSADER,
     //LORE_MASTER,
     //DARKVISION,
     

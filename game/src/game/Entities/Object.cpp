@@ -624,7 +624,6 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     // Don't let characters chase themselves...  That would be silly
     if ( this == attacker.get() ) return;
 
-
     // Don't alert the character too much if under constant fire
     if (0 != careful_timer) return;
 
@@ -668,7 +667,12 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
     if (!alive || (invictus && !ignoreInvincibility)) return false;
 
     //This actually heals the character
-    life = CLIP(static_cast<UFP8_T>(life), life + amount, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
+    life = Ego::Math::constrain(static_cast<UFP8_T>(life), life + amount, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
+
+    //With Magical Attunement perk 25% of healing effects also refills mana
+    if(hasPerk(Ego::Perks::MAGIC_ATTUNEMENT)) {
+        mana = Ego::Math::constrain(static_cast<UFP8_T>(mana), mana + (amount/4), FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
+    }
 
     // Set alerts, but don't alert that we healed ourselves
     if (healer && this != healer.get() && healer->attachedto != _characterID && amount > HURTDAMAGE)
@@ -1360,8 +1364,8 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         if ( actualKiller->getTeam().hatesTeam(getTeam()) )
         {
             //Check for special hatred
-            if ( chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_PARENT ) ||
-                 chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_TYPE ) )
+            if ( actualKiller->getProfile()->getIDSZ(IDSZ_HATE) == getProfile()->getIDSZ(IDSZ_PARENT) ||
+                 actualKiller->getProfile()->getIDSZ(IDSZ_HATE) == getProfile()->getIDSZ(IDSZ_TYPE) )
             {
                 actualKiller->giveExperience(experience, XP_KILLHATED, false);
             }
@@ -1373,6 +1377,12 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
             if(actualKiller->hasPerk(Ego::Perks::MERCENARY) && !_hasBeenKilled && actualKiller->money < MAXMONEY) {
                 actualKiller->money += 1;
                 AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_COINGET));
+            }
+        
+            //Crusader Perk regains 1 mana per Undead kill
+            if(actualKiller->hasPerk(Ego::Perks::CRUSADER) && getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('U','N','D','E')) {
+                actualKiller->costMana(-1, actualKiller->getCharacterID());
+                chr_make_text_billboard(actualKiller->getCharacterID(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
             }
         }
     }

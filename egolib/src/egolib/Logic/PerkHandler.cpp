@@ -111,8 +111,10 @@ PerkHandler::PerkHandler() :
         "Mercenary", "Gain +1 Zenny for each monster killed.");
     initializePerk(DARK_ARTS_MASTERY, Attribute::INTELLECT, "mp_data/perks/dark_arts_mastery",
         "Dark Arts Mastery", "+20% Evil damage with magic.");
-    initializePerk(POWER_FOCUS, Attribute::INTELLECT, "mp_data/perks/power_focus",
-        "Power Focus", "All allies gain +0.2 Mana Regeneration.");
+    initializePerk(MAGIC_ATTUNEMENT, Attribute::INTELLECT, "mp_data/perks/magic_attunement",
+        "Magic Attunement", "25% of life healing also refills your mana.");
+    initializePerk(CRUSADER, Attribute::INTELLECT, "mp_data/perks/crusader",
+        "Crusader", "Regain 1 mana each time you destroy an undead.");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",
