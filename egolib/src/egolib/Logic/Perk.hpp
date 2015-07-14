@@ -51,7 +51,9 @@ enum PerkID : uint8_t
     ENDURANCE,
     ATHLETICS,
     ANCIENT_BLUD,
-
+    BLUNT_WEAPONS_MASTERY,
+    BRUTAL_STRIKE,
+    
     //Intellect perks
     CARTOGRAPHY,
     SENSE_KURSES,

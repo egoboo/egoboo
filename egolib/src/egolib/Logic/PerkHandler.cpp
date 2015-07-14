@@ -39,6 +39,10 @@ PerkHandler::PerkHandler() :
         "Athletics", "Halves movement penality in water.\n+25% jump power.");
     initializePerk(ANCIENT_BLUD, Attribute::MIGHT, "mp_data/perks/ancient_blud", 
         "Ancient Blud", "+0.25 Life Regeneration");
+    initializePerk(BLUNT_WEAPONS_MASTERY, Attribute::MIGHT, "mp_data/perks/blunt_weapons_mastery", 
+        "Blunt Weapons Mastery", "Melee blunt weapons deal +25% extra CRUSH damage.");
+    initializePerk(BRUTAL_STRIKE, Attribute::MIGHT, "mp_data/perks/brutal_strike", 
+        "Brutal Strike", "CRUSH weapons have 1% chance per Might\nto inflict Groggy for 2 seconds.");
 
     //Intellectual
     initializePerk(CARTOGRAPHY, Attribute::INTELLECT, "mp_data/perks/cartography",
@@ -193,6 +197,7 @@ PerkID PerkHandler::fromString(const std::string &name) const
 
 const Perk& PerkHandler::getPerk(const PerkID id) const
 {
+    assert(id != NR_OF_PERKS);
     return _perkList[id];
 }
 

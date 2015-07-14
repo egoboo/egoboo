@@ -2964,18 +2964,6 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         chr_make_text_billboard(powner->getCharacterID(), "Dazed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
     }
 
-    // Check Crack Shot perk which applies 3 second Daze with fireweapons
-    if(pdata->pchr->getProfile()->canBeDazed() && powner != nullptr && powner->hasPerk(Ego::Perks::CRACKSHOT) && DamageType_isPhysical(pdata->pprt->damagetype))
-    {
-        //Is the particle spawned by a gun?
-        if(spawnerProfile != nullptr && spawnerProfile->isRangedWeapon() && spawnerProfile->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('T','E','C','H')) {
-            SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
-            pdata->pchr->daze_timer = std::max<uint16_t>(pdata->pchr->daze_timer, 3);
-
-            chr_make_text_billboard(powner->getCharacterID(), "Crackshot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
-        }
-    }
-
     //---- Damage the character, if necessary
     if ( 0 != std::abs( pdata->pprt->damage.base ) + std::abs( pdata->pprt->damage.rand ) )
     {
@@ -2984,7 +2972,6 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         if(spawnerProfile != nullptr) {
             if ( spawnerProfile->isRangedWeapon() ) prt_needs_impact = true;            
         }
-
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
         if ( HAS_NO_BITS(pdata->ppip->damfx, DAMFX_ARRO) /*&& (!prt_needs_impact || pdata->is_impact)*/ )
@@ -2996,8 +2983,33 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
             // These things only apply if the particle has an owner
-            if ( NULL != powner )
+            if ( nullptr != powner )
             {
+                //Check special perk effects
+                if(spawnerProfile != nullptr)
+                {                
+                    // Check Crack Shot perk which applies 3 second Daze with fireweapons
+                    if(pdata->pchr->getProfile()->canBeDazed() && powner->hasPerk(Ego::Perks::CRACKSHOT) && DamageType_isPhysical(pdata->pprt->damagetype))
+                    {
+                        //Is the particle spawned by a gun?
+                        if(spawnerProfile->isRangedWeapon() && spawnerProfile->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('T','E','C','H')) {
+                            SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
+                            pdata->pchr->daze_timer += 3;
+
+                            chr_make_text_billboard(powner->getCharacterID(), "Crackshot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                        }
+                    }
+
+                    //Brutal Strike has chance to inflict 2 second Grog with melee CRUSH attacks
+                    if(pdata->pchr->getProfile()->canBeGrogged() && powner->hasPerk(Ego::Perks::BRUTAL_STRIKE) && spawnerProfile->isMeleeWeapon() && pdata->pprt->damagetype == DAMAGE_CRUSH) {
+                        SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
+                        pdata->pchr->grog_timer += 2;
+
+                        chr_make_text_billboard(powner->getCharacterID(), "Brutal Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
+                        AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
+                    }
+                }
+
                 // Apply intellect bonus damage for particles with the [IDAM] expansions (Low ability gives penality)
                 // +2% bonus for every point of intellect. Below 14 gives -2% instead!
                 if ( pdata->ppip->_intellectDamageBonus )
@@ -3071,10 +3083,20 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     modifiedDamage.rand *= 1.1f;
                 }
 
-                //If it is a ranged attack then Sharpshooter increases damage by 10%
-                if(powner->hasPerk(Ego::Perks::SHARPSHOOTER) && spawnerProfile != nullptr && spawnerProfile->isRangedWeapon() && DamageType_isPhysical(pdata->pprt->damagetype)) {
-                    modifiedDamage.base *= 1.1f;
-                    modifiedDamage.rand *= 1.1f;                    
+                if(spawnerProfile != nullptr)
+                {
+                    //If it is a ranged attack then Sharpshooter increases damage by 10%
+                    if(powner->hasPerk(Ego::Perks::SHARPSHOOTER) && spawnerProfile->isRangedWeapon() && DamageType_isPhysical(pdata->pprt->damagetype)) {
+                        modifiedDamage.base *= 1.1f;
+                        modifiedDamage.rand *= 1.1f;                    
+                    }
+
+                    //+25% damage with Weapons Mastery
+                    if(pdata->pprt->damagetype == DAMAGE_CRUSH && powner->hasPerk(Ego::Perks::BLUNT_WEAPONS_MASTERY) && spawnerProfile->isMeleeWeapon())
+                    {
+                        modifiedDamage.base *= 1.25f;
+                        modifiedDamage.rand *= 1.25f;
+                    }
                 }
 
                 //Deadly Strike perk (1% chance per character level to trigger vs non undead)
