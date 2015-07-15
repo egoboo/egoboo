@@ -570,8 +570,6 @@ enum slot_t : uint8_t
     SLOT_COUNT
 };
 
-#define NO_SKIN_OVERRIDE    -1                      ///< For import
-
 #include "egolib/Ref.hpp"
 
 typedef Ref<REF_T, 0, OBJECTS_MAX, OBJECTS_MAX, RefKind::Object> ObjectRef;

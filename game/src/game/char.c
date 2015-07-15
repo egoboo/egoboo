@@ -1480,13 +1480,8 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
 
     // Skin
     pchr->skin = profile->getSkinOverride();
-    if (pchr->skin >= SKINS_PEROBJECT_MAX)
-    {
-        int irnd = Random::next(std::numeric_limits<uint16_t>::max());
-        pchr->skin = irnd % SKINS_PEROBJECT_MAX;
-    }
 
-    // Damage
+    // Resistances
     const SkinInfo &skin = profile->getSkinInfo(pchr->skin);
     pchr->defense = skin.defence;
     pchr->damagetarget_damagetype = profile->getDamageTargetType();
@@ -1756,18 +1751,18 @@ Object * chr_config_do_init( Object * pchr )
     }
 
     // Heal the spawn_ptr->skin, if needed
-    if ( spawn_ptr->skin < 0 )
+    if (spawn_ptr->skin < 0 || ppro->getSkinOverride() != ObjectProfile::NO_SKIN_OVERRIDE)
     {
         spawn_ptr->skin = ppro->getSkinOverride();
     }
 
-    // cap_get_skin_overide() can return NO_SKIN_OVERIDE or SKINS_PEROBJECT_MAX, so we need to check
+    // cap_get_skin_overide() can return NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX, so we need to check
     // for the "random skin marker" even if that function is called
-    if (spawn_ptr->skin >= SKINS_PEROBJECT_MAX)
+    if (spawn_ptr->skin == ObjectProfile::NO_SKIN_OVERRIDE)
     {
         // This is a "random" skin.
         // Force it to some specific value so it will go back to the same skin every respawn
-        // We are now ensuring that there are skin graphics for all skins up to SKINS_PEROBJECT_MAX, so there
+        // We are now ensuring that there are skin graphics for all skins, so there
         // is no need to count the skin graphics loaded into the profile.
         // Limiting the available skins to ones that had unique graphics may have been a mistake since
         // the skin-dependent properties in data.txt may exist even if there are no unique graphics.

@@ -419,7 +419,7 @@ uint16_t ObjectProfile::getSkinOverride() const
 {
     /// @details values of spelleffect_type or skin_override less than zero mean that the values are not valid.
     ///          values >= mean that the value is random.
-    uint16_t retval = SKINS_PEROBJECT_MAX;
+    uint16_t retval = _skinOverride;
 
     if ( _spellEffectType >= 0 )
     {
@@ -427,20 +427,12 @@ uint16_t ObjectProfile::getSkinOverride() const
         {
             retval = getRandomSkinID();
         }
-        else
-        {
-            retval = _spellEffectType % SKINS_PEROBJECT_MAX;
-        }
     }
     else if ( _skinOverride >= 0 )
     {
         if (_skinOverride >= SKINS_PEROBJECT_MAX)
         {
             retval = getRandomSkinID();
-        }
-        else
-        {
-            retval = _skinOverride % SKINS_PEROBJECT_MAX;
         }
     }
 
@@ -803,7 +795,6 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 int iTmp = ctxt.readInt();
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
-                iTmp = (iTmp > SKINS_PEROBJECT_MAX) ? SKINS_PEROBJECT_MAX : iTmp;
                 _skinOverride = iTmp;  
             }          
             break;
@@ -1474,7 +1465,7 @@ size_t ObjectProfile::getRandomSkinID() const
     }
 
     auto element = _skinInfo.begin();
-    std::advance(element, Random::next(_skinInfo.size()));
+    std::advance(element, Random::next(_skinInfo.size()-1));
     return element->first;
 }
 

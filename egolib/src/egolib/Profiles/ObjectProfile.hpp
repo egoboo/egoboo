@@ -156,6 +156,9 @@ struct SkinInfo
 class ObjectProfile
 {
 public:
+    static CONSTEXPR uint16_t NO_SKIN_OVERRIDE = std::numeric_limits<uint16_t>::max();   ///< Means spawn.txt value is used
+
+public:
     /**
     * Default constructor
     **/
