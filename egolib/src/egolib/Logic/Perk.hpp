@@ -102,6 +102,7 @@ enum PerkID : uint8_t
     TOO_SILLY_TO_DIE,
     //DARKVISION,
     RALLY,
+    GUARDIAN_ANGEL,
     
     //Agility perks
     ACROBATIC,

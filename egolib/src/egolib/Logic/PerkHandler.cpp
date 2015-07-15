@@ -137,6 +137,8 @@ PerkHandler::PerkHandler() :
         "Too Silly to Die", "1% chance per character level to regain full life instead of dying.");
     initializePerk(RALLY, Attribute::INTELLECT, "mp_data/perks/rally",
         "Rally", "Nearby allies gain +10% Movement Speed and Attack Damage.");
+    initializePerk(GUARDIAN_ANGEL, Attribute::INTELLECT, "mp_data/perks/guardian_angel",
+        "Guardian Angel", "1% chance per Experience Level to gain full health when suffering a killing blow.");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",

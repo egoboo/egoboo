@@ -53,7 +53,8 @@ static const std::array<const char*, GSND_COUNT> wavenames =
     "dodge",
     "critical_hit",
     "disintegrate",
-    "drums"
+    "drums",
+    "angel_choir"
 };
 
 AudioSystem::AudioSystem() :

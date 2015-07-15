@@ -1350,6 +1350,21 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         }
     }
 
+    //Guardian Angel perk?
+    if(hasPerk(Ego::Perks::GUARDIAN_ANGEL) && !ignoreInvincibility)
+    {
+        //1% per character level to be rescued by your guardian angel
+        if(Random::getPercent() <= getExperienceLevel())
+        {
+            //Refill to full Life instead!
+            this->life = getAttribute(Ego::Attribute::MAX_LIFE);
+            chr_make_text_billboard(getCharacterID(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
+            DisplayMsg_printf("%s was saved by a Guardian Angel!", getName(false, true, true).c_str());
+            AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_ANGEL_CHOIR));
+            return;
+        }
+    }
+
     //Fix who is actually the killer if needed
     std::shared_ptr<Object> actualKiller = originalKiller;
     if (actualKiller)
