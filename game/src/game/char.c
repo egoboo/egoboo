@@ -1283,6 +1283,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                                 damageBonus += 1.0f;
                             }
                         }
+
+                        //Berserker perk deals +25% damage if you are below 25% life
+                        if(pchr->hasPerk(Ego::Perks::BERSERKER) && pchr->getLife() <= pchr->getAttribute(Ego::Attribute::MAX_LIFE)/4) {
+                            damageBonus += 0.25f;
+                        }
     
                         //If it is a ranged attack then Sharpshooter increases damage by 10%
                         if(pchr->hasPerk(Ego::Perks::SHARPSHOOTER) && weaponProfile->isRangedWeapon() && DamageType_isPhysical(particle->damagetype)) {

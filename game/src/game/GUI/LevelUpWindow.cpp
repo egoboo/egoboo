@@ -423,7 +423,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         if(std::abs(increase[i]) > std::numeric_limits<float>::epsilon()) {
             _attributeIncrease[type] = std::make_shared<Label>();
             std::stringstream valueString;
-            valueString << "+" << std::setprecision(2) << std::fixed << increase[i];
+            valueString << (increase[i] > 0 ? "+" : "") << std::setprecision(2) << std::fixed << increase[i];
             _attributeIncrease[type]->setText(valueString.str());
             _attributeIncrease[type]->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
             _attributeIncrease[type]->setPosition(x + attributeWidthSpacing + 50, y);

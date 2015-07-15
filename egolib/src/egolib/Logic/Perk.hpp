@@ -58,6 +58,7 @@ enum PerkID : uint8_t
     AXE_MASTERY,
     GRIM_REAPER,
     WOLVERINE,
+    BERSERKER,
 
     //Intellect perks
     CARTOGRAPHY,
@@ -98,6 +99,7 @@ enum PerkID : uint8_t
     MAGIC_ATTUNEMENT,
     CRUSADER,
     LORE_MASTER,
+    TOO_SILLY_TO_DIE,
     //DARKVISION,
     
     //Agility perks

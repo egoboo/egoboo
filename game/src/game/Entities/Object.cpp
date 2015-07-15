@@ -1321,6 +1321,21 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     //No need to continue is there?
     if (!isAlive() || (isInvincible() && !ignoreInvincibility)) return;
 
+    //Too silly to Die perk?
+    if(hasPerk(Ego::Perks::TOO_SILLY_TO_DIE) && !ignoreInvincibility)
+    {
+        //1% per character level to simply not die
+        if(Random::getPercent() <= getExperienceLevel())
+        {
+            //Refill to full Life instead!
+            this->life = getAttribute(Ego::Attribute::MAX_LIFE);
+            chr_make_text_billboard(getCharacterID(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
+            DisplayMsg_printf("%s decided not to die after all!", getName(false, true, true).c_str());
+            AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_DRUMS));
+            return;
+        }
+    }
+
     //Fix who is actually the killer if needed
     std::shared_ptr<Object> actualKiller = originalKiller;
     if (actualKiller)

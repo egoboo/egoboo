@@ -53,6 +53,8 @@ PerkHandler::PerkHandler() :
         "Grim Reaper", "5% chance to deal +50 EVIL damage with the Scythe.", WEAPON_PROFICIENCY);
     initializePerk(WOLVERINE, Attribute::MIGHT, "mp_data/perks/wolverine", 
         "Wolverine", "+100% damage with Claws.\nGain +0.25 Life Regeneration while holding Claws.");
+    initializePerk(BERSERKER, Attribute::MIGHT, "mp_data/perks/berserker", 
+        "Berserker", "Deal +25% damage if you are below 25% health.", BRUTE);
 
     //Intellectual
     initializePerk(CARTOGRAPHY, Attribute::INTELLECT, "mp_data/perks/cartography",
@@ -80,7 +82,7 @@ PerkHandler::PerkHandler() :
     initializePerk(POISONRY, Attribute::INTELLECT, "mp_data/perks/poisonry",
         "Poisonry", "Always identify Poisoned items.\nCan safely use poisoned items without hurting yourself.\nCan throw bottles of poison.");
     initializePerk(TRAP_LORE, Attribute::INTELLECT, "mp_data/perks/trap_lore",
-        "Trap Lore", "Can disarm traps and pick locks.");
+        "Trap Lore", "Can disarm traps and pick locks.", PERCEPTIVE);
     initializePerk(USE_TECHNOLOGICAL_ITEMS, Attribute::INTELLECT, "mp_data/perks/use_technological_items",
         "Use Technological Items", "Can use technological items like Guns, G'nomish tinker, Medkit and Camera.");
     initializePerk(SENSE_UNDEAD, Attribute::INTELLECT, "mp_data/perks/sense_undead",
@@ -94,7 +96,7 @@ PerkHandler::PerkHandler() :
     initializePerk(THAUMATURGY, Attribute::INTELLECT, "mp_data/perks/thaumaturgy",
         "Thaumaturgy", "Can use magic staves and wands to cast spells.");
     initializePerk(WAND_MASTERY, Attribute::INTELLECT, "mp_data/perks/wand_mastery",
-        "Wand Mastery", "1% chance per Intellect to not consume charge when using wands.", THAUMATURGY);
+        "Wand Mastery", "1% chance per Intellect to not consume charge\nwhen using wands.", THAUMATURGY);
     initializePerk(ELEMENTAL_RESISTANCE, Attribute::INTELLECT, "mp_data/perks/elemental_resistance",
         "Elemental Resistance", "+1 Fire, Ice and Zap resistance.");
     initializePerk(FIRE_WARD, Attribute::INTELLECT, "mp_data/perks/fire_ward",
@@ -131,6 +133,8 @@ PerkHandler::PerkHandler() :
         "Crusader", "Regain 1 mana each time you destroy an undead.");
     initializePerk(LORE_MASTER, Attribute::INTELLECT, "mp_data/perks/lore_master",
         "Lore Master", "Automatically identify all items.", BOOKWORM);
+    initializePerk(TOO_SILLY_TO_DIE, Attribute::INTELLECT, "mp_data/perks/too_silly_to_die",
+        "Too Silly to Die", "");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",
@@ -150,7 +154,7 @@ PerkHandler::PerkHandler() :
     initializePerk(BACKSTAB, Attribute::AGILITY, "mp_data/perks/backstab",
         "Backstab", "Attacking enemies from behind deals +10% damage per Agility. Instantly kills sleeping creatures.");
     initializePerk(CRACKSHOT, Attribute::AGILITY, "mp_data/perks/crackshot",
-        "Crackshot", "1% chance per Intellect to Daze enemies for 3 seconds who are hit by your fireweapons.");
+        "Crackshot", "1% chance per Intellect to Daze enemies for 3 seconds\nwho are hit by your fireweapons.");
     initializePerk(SHARPSHOOTER, Attribute::AGILITY, "mp_data/perks/sharpshooter",
         "Sharpshooter", "+10% ranged attack damage.\n+25% ranged aim.");
     initializePerk(DEADLY_STRIKE, Attribute::AGILITY, "mp_data/perks/deadly_strike",
@@ -158,7 +162,7 @@ PerkHandler::PerkHandler() :
     initializePerk(CRITICAL_HIT, Attribute::AGILITY, "mp_data/perks/critical_hit",
         "Critical Hit", "+0.5% chance per Agility to deal maximum damage.");
     initializePerk(LUCKY, Attribute::AGILITY, "mp_data/perks/lucky",
-        "Lucky", "+10% Critical Hit chance.");
+        "Lucky", "+10% Critical Hit chance.", CRITICAL_HIT);
     initializePerk(QUICK_STRIKE, Attribute::AGILITY, "mp_data/perks/quick_strike", 
         "Quick Strike", "10% chance to strike twice with melee weapons.");
     initializePerk(BOW_MASTERY, Attribute::AGILITY, "mp_data/perks/bow_mastery", 
@@ -171,7 +175,6 @@ PerkHandler::PerkHandler() :
         "Double Shot", "+1% chance per Agility to fire 1 extra arrow with Longbows.", BOW_MASTERY);
     initializePerk(IMPROVISED_WEAPONS, Attribute::AGILITY, "mp_data/perks/improvised_weapons", 
         "Improvised Weapons", "+100% damage with Shovel, Crowbar, Pick, Torch and Toilet Plunger.");
-
 
     //Make sure all perks have been initialized properly
     for(size_t i = 0; i < _perkList.size(); ++i) {
