@@ -905,11 +905,11 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
             if(player) {
 
                 //Within range?
-                Vector3f distance = (player->getPosition() - psrc->getPosition()).length();
+                float distance = (player->getPosition() - psrc->getPosition()).length();
                 if(max_dist == NEAREST || distance < max_dist) {
                     searchList.push_back(player);
                 }
-                
+
             }
 
         }
