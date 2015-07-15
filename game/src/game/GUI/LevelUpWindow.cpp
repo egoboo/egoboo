@@ -208,6 +208,9 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
     //No perk by default
     setHoverPerk(Ego::Perks::NR_OF_PERKS);
 
+    //Set random seed for deterministic level ups (no aborting or re-loading game for better results)
+    Random::setSeed(_character->getLevelUpSeed());
+
     //Perk buttons (Jack of All Trades gives +2 perks)
     const size_t NR_OF_PERKS = _character->hasPerk(Ego::Perks::JACK_OF_ALL_TRADES) ? 5 : 3;
     const int PERK_BUTTON_SIZE = (getWidth() - 40 - 10*NR_OF_PERKS) / NR_OF_PERKS;
@@ -235,6 +238,9 @@ LevelUpWindow::~LevelUpWindow()
 
 void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
 {
+    //Set random seed for deterministic level ups (no aborting or re-loading game for better results)
+    Random::setSeed(_character->getLevelUpSeed());
+
     //Calculate attribute improvements
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> increase;
     for(uint8_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
@@ -325,6 +331,9 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
     _character->experiencelevel += 1;
     SET_BIT(_character->ai.alert, ALERTIF_LEVELUP);
     PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp = false;
+
+    //Generate random seed for next level increase
+    _character->randomizeLevelUpSeed();
 
     //Might slightly increases character size
     if(increase[Ego::Attribute::MIGHT] != 0) {
@@ -436,6 +445,8 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         _character->increaseBaseAttribute(type, increase[i]);
     }
 
+    //Make sure the animation is drawn above other GUI components inside this window
+    _selectedPerk->bringToFront();
 }
 
 void LevelUpWindow::drawContainer()

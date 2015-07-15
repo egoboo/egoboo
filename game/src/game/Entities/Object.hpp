@@ -614,6 +614,21 @@ public:
     **/
     uint32_t getRallyDuration() const { return _reallyDuration; }
 
+
+    /**
+    * @brief
+    *   Get the random seed used for determining which perks will be available when leveling and
+    *   how much attributes get improved
+    **/
+    uint32_t getLevelUpSeed() const { return _levelUpSeed; }
+
+    /**
+    * @brief
+    *   Generates a new random level up seed. Should be called every time a level up is complete
+    *   or first time generating a character from scratch (not a save game)
+    **/
+    void randomizeLevelUpSeed() { _levelUpSeed = Random::next(Random::next<uint32_t>(numeric_limits<uint32_t>::max())); }
+
 private:
 
     /**
@@ -817,6 +832,7 @@ private:
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
+    uint32_t _levelUpSeed;
 
     //Non persistent variables. Once game ends these are not saved
     bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)

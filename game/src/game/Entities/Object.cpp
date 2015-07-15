@@ -166,7 +166,9 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _baseAttribute(),
     _inventory(),
     _perks(),
-    _hasBeenKilled(false)
+    _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
+    _hasBeenKilled(false),
+    _reallyDuration(0)
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);

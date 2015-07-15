@@ -16,7 +16,8 @@ static const int LINE_SPACING_OFFSET = 5; //To make space between lines less
 
 CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : InternalWindow(object->getName()),
     _character(object),
-    _levelUpButton(nullptr)
+    _levelUpButton(nullptr),
+    _levelUpWindow()
 {
     int yPos = 0;
 
@@ -123,13 +124,15 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
         setSize(getWidth(), getHeight() + 40);
 
         _levelUpButton = std::make_shared<Button>("LEVEL UP");
-        _levelUpButton->setSize(100, 30);
+        _levelUpButton->setSize(120, 30);
         _levelUpButton->setPosition(getWidth()/2 - _levelUpButton->getWidth()/2, getHeight() - _levelUpButton->getHeight() - 15);
         _levelUpButton->setOnClickFunction(
             [this](){
                 std::shared_ptr<LevelUpWindow> window = std::make_shared<LevelUpWindow>(_character);
                 getParent()->addComponent(window);
-                destroy();
+                //destroy();
+                _levelUpWindow = window;
+                _levelUpButton->setVisible(false);
             }
         );
         addComponent(_levelUpButton);
@@ -144,6 +147,12 @@ CharacterWindow::~CharacterWindow()
     //If the character is a local player, then we no longer consume that players input events
     if(_character->isPlayer()) {
         PlaStack.get_ptr(_character->is_which_player)->inventoryMode = false;
+    }
+
+    //If the level up window is open, close it as well
+    std::shared_ptr<InternalWindow> window = _levelUpWindow.lock();
+    if(window) {
+        window->destroy();
     }
 }
 
@@ -220,7 +229,7 @@ bool CharacterWindow::notifyMouseMoved(const int x, const int y)
 {
     //Make level up button visible if needed
     if(_character->isPlayer()) {
-        _levelUpButton->setVisible(PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp);
+        _levelUpButton->setVisible(_levelUpWindow.expired() && PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp);
     }
 
     return InternalWindow::notifyMouseMoved(x, y);

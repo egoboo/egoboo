@@ -26,6 +26,7 @@
 
 class Object;
 class Button;
+class InternalWindow;
 
 namespace Ego
 {
@@ -47,6 +48,7 @@ class CharacterWindow : public InternalWindow
     private:
         std::shared_ptr<Object> _character;
         std::shared_ptr<Button> _levelUpButton;
+        std::weak_ptr<InternalWindow> _levelUpWindow;
 };
 
 } //GUI

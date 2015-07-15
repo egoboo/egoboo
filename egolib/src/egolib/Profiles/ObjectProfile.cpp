@@ -148,6 +148,7 @@ ObjectProfile::ObjectProfile() :
     _experienceWorth(0),
     _experienceExchange(0.0f),
     _experienceRate(),
+    _levelUpRandomSeedOverride(0),
 
     // flags
     _isEquipment(false),
@@ -904,6 +905,11 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             }
             break;
 
+            //Random Seed for level ups
+            case  MAKE_IDSZ( 'S', 'E', 'E', 'D' ):
+                _levelUpRandomSeedOverride = ctxt.readInt();
+            break;
+
             //Perks known
             case MAKE_IDSZ( 'P', 'E', 'R', 'K' ):
             {
@@ -1252,14 +1258,9 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_float( fileTemp, fileWrite, FLOAT_TO_FP8( character->experience ) );    //Note overriden by chr
     template_put_int( fileTemp, fileWrite, profile->_experienceWorth );
     template_put_float( fileTemp, fileWrite, profile->_experienceExchange );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[0] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[1] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[2] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[3] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[4] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[5] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[6] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[7] );
+    for(size_t i = 0; i < profile->_experienceRate.size(); ++i) {
+        template_put_float( fileTemp, fileWrite, profile->_experienceRate[i] );        
+    }
 
     // IDSZ identification tags
     template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_PARENT] );
@@ -1423,6 +1424,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), character->ai.content );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), character->ai.state );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), character->experiencelevel );
+    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'E', 'E', 'D' ), character->getLevelUpSeed() );
     vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( character->life ) );
     vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( character->mana ) );
 

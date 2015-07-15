@@ -721,8 +721,9 @@ private:
     std::array<uint32_t, MAXLEVEL> _experienceForLevel;  ///< Experience needed for next level
     FRange                          _startingExperience;  ///< Starting experience
     uint16_t                        _experienceWorth;     ///< Amount given to killer/user
-    float                           _experienceExchange;  ///< Adds to worth
-    std::array<float, XP_COUNT>     _experienceRate;
+    float                           _experienceExchange;  ///< How much of this Object's experience enemies get upon killing
+    std::array<float, XP_COUNT>     _experienceRate;      ///< How much experience this Object gains from various XP types
+    uint32_t                        _levelUpRandomSeedOverride;   ///< Random seed used for level ups (for save games)
 
     // flags
     bool       _isEquipment;                   ///< Behave in silly ways

@@ -89,7 +89,8 @@ void GameEngine::start()
     while(!_terminateRequested)
     {
         // Test the panic button
-        if ( SDL_KEYDOWN( keyb, SDLK_q ) && SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
+        const uint8_t *keyboardState = SDL_GetKeyboardState(nullptr);
+        if ( keyboardState[SDL_SCANCODE_Q] && keyboardState[SDL_SCANCODE_LCTRL] )
         {
             // Terminate the program
             shutdown();
