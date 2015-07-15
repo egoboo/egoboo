@@ -348,7 +348,7 @@ void ModelDescriptor::ripActions()
         ModelAction action_now = stringToAction(frame.name);
         
         if (action_now == ACTION_COUNT) {
-            log_warning("Got no action for frame name '%s', ignoring\n", frame.name);
+            log_warning("Got no action for frame name '%s', ignoring (%s)\n", frame.name, _name.c_str());
             iframe++;
             continue;
         }

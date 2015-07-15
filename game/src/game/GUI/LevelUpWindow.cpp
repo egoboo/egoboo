@@ -152,7 +152,7 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
     buffer << object->getName() << " is now a ";
 
     //Level
-    buffer << std::to_string(_character->getExperienceLevel());
+    buffer << std::to_string(_character->getExperienceLevel() + 1);
     switch(_character->getExperienceLevel())
     {
         case 1:
