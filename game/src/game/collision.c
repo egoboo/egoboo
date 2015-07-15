@@ -3437,12 +3437,20 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     //Apply knockback to the victim (limit between 0% and 300% knockback)
     Vector3f knockbackVelocity = pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 
-    //Limit total knockback velocity to MAXTHROWVELOCITY
-    const float magnitudeVelocity = knockbackVelocity.length();
-    if(magnitudeVelocity > MAXTHROWVELOCITY) {
-        knockbackVelocity *= MAXTHROWVELOCITY / magnitudeVelocity;
+    //Limit horizontal knockback velocity to MAXTHROWVELOCITY
+    const float magnitudeVelocityXY = std::sqrt(knockbackVelocity[kX]*knockbackVelocity[kX] + knockbackVelocity[kY]*knockbackVelocity[kY]);
+    if(magnitudeVelocityXY > MAXTHROWVELOCITY) {
+        knockbackVelocity[kX] *= MAXTHROWVELOCITY / magnitudeVelocityXY;
+        knockbackVelocity[kY] *= MAXTHROWVELOCITY / magnitudeVelocityXY;
     }
 
+    //Limit vertical knockback velocity to one third of MAXTHROWVELOCTIY
+    const float magnitudeVelocityZ = std::sqrt(knockbackVelocity[kZ]*knockbackVelocity[kZ]);
+    if(magnitudeVelocityZ > MAXTHROWVELOCITY) {
+        knockbackVelocity[kZ] *= MAXTHROWVELOCITY / magnitudeVelocityZ;
+    }
+
+    //Apply knockback
     pdata.pchr->phys.avel += knockbackVelocity;
 }
 
