@@ -1,7 +1,7 @@
 #pragma once
 
 #include "egolib/Math/Dimensionality.hpp"
-#include "egolib/Math/ScalarField.hpp"
+#include "egolib/Math/Field.hpp"
 
 namespace Ego {
 namespace Math {
@@ -29,10 +29,12 @@ struct VectorSpaceEnable
 
 /**
  * @brief
+ *	A vector space.
+ * @param _ScalarFieldType
+ *	the underlaying type. Must fulfil the scalar field concept.
  *	A line.
- * @remark
- *	A line is defined as \f$L(t) = O + t \vec{d}\f$ where \f$P\f$ is an origin point,
- *	\f$\vec{d}\f$ is a unit-length direction vector, and \f$t\f$ is any real number.
+ * @todo
+ *	Rename @a _ScalarFieldType to _UnderlayingType.
  * @author
  *	Michael Heilmann
  */
@@ -81,11 +83,6 @@ struct VectorSpace<_ScalarFieldType, _Dimensionality,
 	 */
 	typedef typename std::integral_constant < size_t, _Dimensionality > Dimensionality;
 };
-
-#if 0
-template <typename _ScalarFieldType, size_t _Dimensionality>
-const size_t VectorSpace<_ScalarFieldType, _Dimensionality, typename std::enable_if<Internal::VectorSpaceEnable<_ScalarFieldType, _Dimensionality>::value>::type>::Dimensionality = _Dimensionality;
-#endif
 
 } // namespace Math
 } // namespace Ego

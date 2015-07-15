@@ -96,10 +96,12 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
 /**
  * @brief
  *	A tuple is the base class of vectors and points.
+ * @tparam _UnderlayingType
+ *	the underlaying type. Must fulfil the ordered integral domain concept.
  * @author
  *	Michael Heilmann
  */
-template <typename _VectorSpaceType>
+template <typename _UnderlayingType>
 struct Tuple {
     
 public:
@@ -108,25 +110,25 @@ public:
      * @brief
      *  @a MyType is the type of this template/template specialization.
      */
-    typedef Tuple<_VectorSpaceType> MyType;
+	typedef Tuple<_UnderlayingType> MyType;
 
 	/**
 	 * @brief
 	 *	@a VectorSpaceType is the type of the vector space.
 	 */
-	typedef _VectorSpaceType VectorSpaceType;
+	typedef _UnderlayingType VectorSpaceType;
 
 	/**
 	 * @brief
 	 *  @a ScalarFieldType is the type of the underlaying scalar field.
 	 */
-	typedef typename _VectorSpaceType::ScalarFieldType ScalarFieldType;
+	typedef typename _UnderlayingType::ScalarFieldType ScalarFieldType;
 
 	/**
 	 * @brief
 	 *  @a ScalarType is the type of the underlaying scalars.
 	 */
-	typedef typename _VectorSpaceType::ScalarFieldType::ScalarType ScalarType;
+	typedef typename _UnderlayingType::ScalarFieldType::ScalarType ScalarType;
 
 
     
@@ -136,7 +138,7 @@ public:
      * @invariant
      *  The dimensionality be a positive integral constant.
      */
-    static_assert(IsDimensionality<_VectorSpaceType::Dimensionality::value>::value, "VectorSpaceType::Dimensionality must fulfil the dimensionality concept");
+	static_assert(IsDimensionality<_UnderlayingType::Dimensionality::value>::value, "_UnderlayingType::Dimensionality must fulfil the dimensionality concept");
 
 	/**
 	 * @brief
@@ -145,7 +147,7 @@ public:
 	 *	the dimensionality of this tuple
 	 */
 	static size_t dimensionality() {
-		return VectorSpaceType::Dimensionality::value;
+		return _UnderlayingType::Dimensionality::value;
 	}
     
 protected:
@@ -154,7 +156,7 @@ protected:
      * @brief
      *  The elements of this tuple.
      */
-	ScalarType _elements[VectorSpaceType::Dimensionality::value];
+	ScalarType _elements[_UnderlayingType::Dimensionality::value];
 
 	/**
 	 * @brief
@@ -162,10 +164,10 @@ protected:
 	 * @param v, ... args
 	 *	the element values
 	 */
-	template<typename ... ArgTypes, typename = typename std::enable_if<Internal::TupleConstructorEnable<_VectorSpaceType, ArgTypes ...>::value>::type>
+	template<typename ... ArgTypes, typename = typename std::enable_if<Internal::TupleConstructorEnable<_UnderlayingType, ArgTypes ...>::value>::type>
 	Tuple(ScalarType v, ArgTypes&& ... args) {
-		static_assert(_VectorSpaceType::Dimensionality::value - 1 == sizeof ... (args), "wrong number of arguments");
-		Internal::unpack<float, _VectorSpaceType::Dimensionality::value>(_elements, std::forward<ScalarType>(v), args ...);
+		static_assert(_UnderlayingType::Dimensionality::value - 1 == sizeof ... (args), "wrong number of arguments");
+		Internal::unpack<float, _UnderlayingType::Dimensionality::value>(_elements, std::forward<ScalarType>(v), args ...);
 	}
 
 	/**

@@ -459,6 +459,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Module.hpp" />
+    <ClInclude Include="src\egolib\Math\Point.hpp" />
+    <ClInclude Include="src\egolib\Math\OrderedRing.hpp" />
+    <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp" />
     <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp" />
     <ClInclude Include="src\egolib\Core\QuadTree.hpp" />
     <ClInclude Include="src\egolib\Time\LocalTime.hpp" />
@@ -468,7 +472,7 @@
     <ClInclude Include="src\egolib\Math\VectorSpace.hpp" />
     <ClInclude Include="src\egolib\Math\_Tuple.hpp" />
     <ClInclude Include="src\egolib\Logic\Team.hpp" />
-    <ClInclude Include="src\egolib\Math\ScalarField.hpp" />
+    <ClInclude Include="src\egolib\Math\Field.hpp" />
     <ClInclude Include="src\egolib\Math\Dimensionality.hpp" />
     <ClInclude Include="src\egolib\Math\Entity.hpp" />
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />

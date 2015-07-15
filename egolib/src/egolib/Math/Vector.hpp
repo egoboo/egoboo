@@ -105,7 +105,7 @@ public:
 
 /**
  * @brief
- *  A vector template generalizing dimensionality as well as the scalar type.
+ *  A vector of a vector space.
  * @tparam _VectorSpaceType
  *	the vector space type
  * @author
@@ -215,9 +215,7 @@ public:
      *  the other vector
      */
     void assign(const MyType& other) {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
-            this->_elements[i] = other._elements[i];
-        }
+		Tuple<_VectorSpaceType>::assign(other);
     }
 
     /**
