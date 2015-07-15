@@ -417,33 +417,29 @@ PIP_REF ObjectProfile::getParticleProfile(const LocalParticleProfileRef& lppref)
 
 uint16_t ObjectProfile::getSkinOverride() const
 {
-    /// @details values of spelleffect_type or skin_override less than zero mean that the values are not valid.
-    ///          values >= mean that the value is random.
-    uint16_t retval = _skinOverride;
-
-    if ( _spellEffectType >= 0 )
-    {
-        if (_spellEffectType >= SKINS_PEROBJECT_MAX)
-        {
-            retval = getRandomSkinID();
+    //Are we actually a spell book?
+    if (_spellEffectType != NO_SKIN_OVERRIDE) {
+        if(_spellEffectType >= SKINS_PEROBJECT_MAX) {
+            return getRandomSkinID();
         }
-    }
-    else if ( _skinOverride >= 0 )
-    {
-        if (_skinOverride >= SKINS_PEROBJECT_MAX)
-        {
-            retval = getRandomSkinID();
+        else {
+            return _spellEffectType;
         }
     }
 
-    return retval;
+    //No skin overriding?
+    if(_skinOverride == NO_SKIN_OVERRIDE) {
+        return NO_SKIN_OVERRIDE;
+    }
+
+    return _skinOverride;
 }
 
 void ObjectProfile::setupXPTable()
 {
     for (size_t level = MAXBASELEVEL; level < MAXLEVEL; level++ )
     {
-        Uint32 xpneeded = _experienceForLevel[MAXBASELEVEL - 1];
+        uint32_t xpneeded = _experienceForLevel[MAXBASELEVEL - 1];
         xpneeded += ( level * level * level * 15 );
         xpneeded -= (( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * 15 );
         _experienceForLevel[level] = xpneeded;
