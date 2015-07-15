@@ -175,6 +175,15 @@ public:
     **/
     ego_mesh_t* getMeshPointer() { return &_mesh; }
 
+    /**
+     * @brief
+     *  Spawn an Object into the game.
+     * @return
+     *  The object that was spawned or nullptr on failure
+     */
+     std::shared_ptr<Object> spawnObject(const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, 
+                         const FACING_T facing, const char *name, const CHR_REF override);
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module

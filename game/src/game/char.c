@@ -1094,11 +1094,9 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        CHR_REF ithrown = spawn_one_character(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
-        if (_currentModule->getObjectHandler().exists(ithrown))
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
+        if (pthrown)
         {
-            Object * pthrown = _currentModule->getObjectHandler().get( ithrown );
-
             pthrown->iskursed = false;
             pthrown->ammo = 1;
             SET_BIT( pthrown->ai.alert, ALERTIF_THROWN );
@@ -1113,20 +1111,20 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 velocity += FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT)) / ( pthrown->phys.weight * THROWFIX );
             }
-            velocity = CLIP( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
+            velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pthrown->vel[kX] += turntocos[ turn ] * velocity;
             pthrown->vel[kY] += turntosin[ turn ] * velocity;
             pthrown->vel[kZ] = DROPZVEL;
-            if ( pweapon->ammo <= 1 )
-            {
+
+            //Was that the last one?
+            if ( pweapon->ammo <= 1 ) {
                 // Poof the item
                 pweapon->requestTerminate();
                 return;
             }
-            else
-            {
+            else {
                 pweapon->ammo--;
             }
         }
@@ -1304,6 +1302,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                             damageBonus += 0.1f;
                         }
 
+                        //Rally Bonus? (+10%)
+                        if(pchr->hasPerk(Ego::Perks::RALLY) && update_wld < pchr->getRallyDuration()) {
+                            damageBonus += 0.1f;
+                        }
+
                         //Apply damage bonus modifiers
                         particle->damage.base *= damageBonus;
                         particle->damage.rand *= damageBonus;                            
@@ -1357,18 +1360,14 @@ void drop_money( const CHR_REF character, int money )
 	fvec3_t loc_pos = pchr->getPosition();
 
     // limit the about of money to the character's actual money
-    if ( money > pchr->money )
-    {
-        money = pchr->money;
+    if (money > pchr->getMoney()) {
+        money = pchr->getMoney();
     }
 
     if ( money > 0 && loc_pos[kZ] > -2 )
     {
-        int cnt, tnc;
-        int count;
-
         // remove the money from inventory
-        pchr->money = ( int )pchr->money - money;
+        pchr->money = pchr->getMoney() - money;
 
         // make the particles emit from "waist high"
         loc_pos[kZ] += ( pchr->chr_min_cv._maxs[OCT_Z] + pchr->chr_min_cv._mins[OCT_Z] ) * 0.5f;
@@ -1378,12 +1377,12 @@ void drop_money( const CHR_REF character, int money )
         pchr->damage_timer = DAMAGETIME;
 
         // count and spawn the various denominations
-        for ( cnt = PIP_MONEY_COUNT - 1; cnt >= 0 && money >= 0; cnt-- )
+        for (int cnt = PIP_MONEY_COUNT - 1; cnt >= 0 && money >= 0; cnt-- )
         {
-            count = money / vals[cnt];
+            int count = money / vals[cnt];
             money -= count * vals[cnt];
 
-            for ( tnc = 0; tnc < count; tnc++ )
+            for ( int tnc = 0; tnc < count; tnc++)
             {
                 ParticleHandler::get().spawnGlobalParticle( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
             }
@@ -1884,61 +1883,6 @@ Object * chr_config_do_init( Object * pchr )
 #endif
 
     return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team,
-                             const int skin, const FACING_T facing, const char *name, const CHR_REF override )
-{
-    // fix a "bad" name
-    if ( NULL == name ) name = "";
-
-    if (!ProfileSystem::get().isValidProfileID(profile))
-    {
-        if ( profile > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning( "spawn_one_character() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
-        }
-        return INVALID_CHR_REF;
-    }
-    std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(profile);
-
-    // count all the requests for this character type
-    ppro->_spawnRequestCount++;
-
-    // allocate a new character
-    std::shared_ptr<Object> pchr = _currentModule->getObjectHandler().insert(profile, override);
-    if (!pchr)
-    {
-        log_warning( "spawn_one_character() - failed to spawn character\n" );
-        return INVALID_CHR_REF;
-    }
-
-    // just set the spawn info
-	pchr->spawn_data.pos = pos;
-    pchr->spawn_data.profile  = profile;
-    pchr->spawn_data.team     = team;
-    pchr->spawn_data.skin     = skin;
-    pchr->spawn_data.facing   = facing;
-    strncpy( pchr->spawn_data.name, name, SDL_arraysize( pchr->spawn_data.name ) );
-    pchr->spawn_data.override = override;
-
-    chr_config_do_init(pchr.get());
-
-    // start the character out in the "dance" animation
-    chr_start_anim( pchr.get(), ACTION_DA, true, true );
-
-    // count all the successful spawns of this character
-    ppro->_spawnCount++;
-
-#if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
-    {
-        log_debug( "spawn_one_character() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( pchr->getCharacterID() ), name, ppro->getClassName().c_str() );
-    }
-#endif
-
-    return pchr->getCharacterID();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2998,15 +2942,28 @@ void move_one_character_do_voluntary( Object * pchr )
 
     // this is the maximum speed that a character could go under the v2.22 system
     float maxspeed = pchr->maxaccel * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
-
-    //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
-    maxspeed *= 0.9f + pchr->getAttribute(Ego::Attribute::AGILITY) * 0.01f;
+    float speedBonus = 1.0f;
 
     //Sprint perk gives +10% movement speed if above 75% life remaining
-    if(pchr->getLife() >= pchr->getAttribute(Ego::Attribute::MAX_MANA)*0.75f)
-    {
-        maxspeed *= 1.1f;
+    if(pchr->hasPerk(Ego::Perks::SPRINT) && pchr->getLife() >= pchr->getAttribute(Ego::Attribute::MAX_LIFE)*0.75f) {
+        speedBonus += 0.1f;
+
+        //Uninjured? (Dash perk can give another 10% extra speed)
+        if(pchr->hasPerk(Ego::Perks::DASH) && pchr->getAttribute(Ego::Attribute::MAX_LIFE)-pchr->getLife() < 1.0f) {
+            speedBonus += 0.1f;
+        }
     }
+
+    //Rally Bonus? (+10%)
+    if(pchr->hasPerk(Ego::Perks::RALLY) && update_wld < pchr->getRallyDuration()) {
+        speedBonus += 0.1f;
+    }    
+
+    //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
+    speedBonus += (pchr->getAttribute(Ego::Attribute::AGILITY)-10.0f) * 0.01f;
+
+    //Now apply speed modifiers
+    maxspeed *= speedBonus;
 
     //Check animation frame freeze movement
     if ( chr_get_framefx( pchr ) & MADFX_STOP )

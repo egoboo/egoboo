@@ -158,10 +158,10 @@ int CharacterWindow::addAttributeLabel(const int x, const int y, const Ego::Attr
     //Value
     std::shared_ptr<Label> value = std::make_shared<Label>("");
 
-    //Special case regeneration values, draw per-second regen
+    //Special case regeneration values, use decimals
     if(type == Ego::Attribute::MANA_REGEN || type == Ego::Attribute::LIFE_REGEN) {
         std::stringstream valueString;
-        valueString << std::setprecision(2) << std::fixed << _character->getAttribute(type)/GameEngine::GAME_TARGET_UPS;
+        valueString << std::setprecision(2) << std::fixed << _character->getAttribute(type);
         value->setText(valueString.str());
     }
     else {

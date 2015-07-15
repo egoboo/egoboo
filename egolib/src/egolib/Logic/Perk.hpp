@@ -101,6 +101,7 @@ enum PerkID : uint8_t
     LORE_MASTER,
     TOO_SILLY_TO_DIE,
     //DARKVISION,
+    RALLY,
     
     //Agility perks
     ACROBATIC,

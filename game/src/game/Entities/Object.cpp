@@ -884,6 +884,20 @@ void Object::update()
                 local_stats.sense_enemies_idsz = MAKE_IDSZ('U','N','D','E');     //Reveal only undead
             }
         }        
+
+        //Give Rally bonus to friends within 6 tiles
+        if(hasPerk(Ego::Perks::RALLY)) {
+            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(pos[kX], pos[kY], WIDE))
+            {
+                //Only valid objects that are on our team
+                if(object->isTerminated() || object->getTeam() != getTeam()) continue;
+
+                //Don't give bonus to ourselves!
+                if(object.get() == this) continue;
+
+                object->_reallyDuration = update_wld + GameEngine::GAME_TARGET_UPS*3;    //Apply bonus for 3 seconds
+            }
+        }
     }
 
     updateResize();

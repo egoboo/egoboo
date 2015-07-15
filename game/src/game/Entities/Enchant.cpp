@@ -808,7 +808,6 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 enc_t *enc_t::config_do_init()
 {
     enc_t *penc = this;
-    CHR_REF overlay;
     float lifetime;
 
 	Object * ptarget;
@@ -912,29 +911,24 @@ enc_t *enc_t::config_do_init()
     // Create an overlay character?
     if ( peve->spawn_overlay && NULL != ptarget )
     {
-        overlay = spawn_one_character(ptarget->getPosition(), pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
-        if ( _currentModule->getObjectHandler().exists( overlay ) )
+        std::shared_ptr<Object> povl = _currentModule->spawnObject(ptarget->getPosition(), pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
+        if (povl)
         {
-            Object *povl;
-            int action;
-
-            povl     = _currentModule->getObjectHandler().get( overlay );
-
-            penc->overlay_ref = overlay;  // Kill this character on end...
+            penc->overlay_ref = povl->getCharacterID();  // Kill this character on end...
             povl->ai.target   = pdata->target_ref;
             povl->is_overlay  = true;
-            chr_set_ai_state( povl, peve->spawn_overlay );  // ??? WHY DO THIS ???
+            chr_set_ai_state( povl.get(), peve->spawn_overlay );  // ??? WHY DO THIS ???
 
             // Start out with ActionMJ...  Object activated
-            action = povl->getProfile()->getModel()->getAction(ACTION_MJ);
+            int action = povl->getProfile()->getModel()->getAction(ACTION_MJ);
             if ( !ACTION_IS_TYPE( action, D ) )
             {
-                chr_start_anim( povl, action, false, true );
+                chr_start_anim( povl.get(), action, false, true );
             }
 
             // Assume it's transparent...
             povl->setLight(254);
-            povl->setAlpha(0);
+            povl->setAlpha(128);
         }
     }
 

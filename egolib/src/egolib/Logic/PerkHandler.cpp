@@ -135,6 +135,8 @@ PerkHandler::PerkHandler() :
         "Lore Master", "Automatically identify all items.", BOOKWORM);
     initializePerk(TOO_SILLY_TO_DIE, Attribute::INTELLECT, "mp_data/perks/too_silly_to_die",
         "Too Silly to Die", "1% chance per character level to regain full life instead of dying.");
+    initializePerk(RALLY, Attribute::INTELLECT, "mp_data/perks/rally",
+        "Rally", "Nearby allies gain +10% Movement Speed and Attack Damage.");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",

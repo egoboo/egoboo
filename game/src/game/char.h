@@ -214,15 +214,6 @@ void move_one_character_get_environment( Object * pchr );
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
 float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
 
-
-/**
- * @brief
- *	Spawn a character.
- * @return
- *	the index of the character on success success, #INVALID_CHR_REF on failure
- */
-CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
-
 /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
 ///    inventory ( Not hands ).
 void  drop_keys(const CHR_REF character);

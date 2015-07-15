@@ -1893,30 +1893,23 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, 0);
 
-    ichr = spawn_one_character(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
-    returncode = _currentModule->getObjectHandler().exists( ichr );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
+    returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
-        }
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
     }
     else
     {
-        Object * pchild = _currentModule->getObjectHandler().get( ichr );
-
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe( pchild))
-        {
-            _currentModule->getObjectHandler().remove( ichr );
-            ichr = INVALID_CHR_REF;
+        if (!chr_get_safe( pchild.get())) {
+            pchild->requestTerminate();
         }
         else
         {
             TURN_T turn;
-            pself->child = ichr;
+            pself->child = pchild->getCharacterID();
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pchild->vel[kX] += turntocos[ turn ] * pstate->distance;
@@ -5402,29 +5395,23 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    CHR_REF ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
-    returncode = _currentModule->getObjectHandler().exists( ichr );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
+    returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
-        }
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
     }
     else
     {
-        Object * pchild = _currentModule->getObjectHandler().get( ichr );
-
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe(pchild))
+        if (!chr_get_safe(pchild.get()))
         {
-            _currentModule->getObjectHandler().remove( ichr );
-            ichr = INVALID_CHR_REF;
+            pchild->requestTerminate();
         }
         else
         {
-            pself->child = ichr;
+            pself->child = pchild->getCharacterID();
 
             pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
@@ -5458,15 +5445,10 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         pstate->distance
         );
 
-    CHR_REF ichr = spawn_one_character(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
-    const std::shared_ptr<Object> &pchild = _currentModule->getObjectHandler()[ichr];
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
 
     if ( !pchild )
     {
-        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ppro->getClassName().c_str(), pstate->argument );
-        }
         returncode = false;
     }
     else
@@ -5479,7 +5461,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
         else
         {
-            pself->child = ichr;
+            pself->child = pchild->getCharacterID();
 
             pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
@@ -7401,35 +7383,30 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    CHR_REF ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
-    returncode = _currentModule->getObjectHandler().exists( ichr );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
+    returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ProfileSystem::get().getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument);
-        }
+        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, pchr->getProfile()->getClassName().c_str(), pstate->argument);
     }
     else
     {
-        Object * pchild = _currentModule->getObjectHandler().get( ichr );
-
-        Uint8 grip = CLIP( pstate->distance, (int)ATTACH_INVENTORY, (int)ATTACH_RIGHT );
+        Uint8 grip = Ego::Math::constrain<int>(pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT);
 
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( Inventory::add_item( pself->target, ichr, pchr->getInventory().getFirstFreeSlotNumber(), true ) )
+            if ( Inventory::add_item( pself->target, pchild->getCharacterID(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work
-                scr_run_chr_script( ichr );  // Empty the grabbed messages
+                scr_run_chr_script( pchild->getCharacterID() );  // Empty the grabbed messages
 
                 pchild->attachedto = INVALID_CHR_REF;  // Fix grab
 
                 //Set some AI values
-                pself->child = ichr;
+                pself->child = pchild->getCharacterID();
                 pchild->ai.passage = pself->passage;
                 pchild->ai.owner   = pself->owner;
             }
@@ -7437,8 +7414,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //No more room!
             else
             {
-                _currentModule->getObjectHandler().remove( ichr );
-                ichr = INVALID_CHR_REF;
+                pchild->requestTerminate();
             }
         }
         else if ( grip == ATTACH_LEFT || grip == ATTACH_RIGHT )
@@ -7448,14 +7424,14 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
 
-                if ( rv_success == attach_character_to_mount( ichr, pself->target, grip_off ) )
+                if ( rv_success == attach_character_to_mount( pchild->getCharacterID(), pself->target, grip_off ) )
                 {
                     // Handle the "grabbed" messages
-                    scr_run_chr_script( ichr );
+                    scr_run_chr_script( pchild->getCharacterID() );
                 }
 
                 //Set some AI values
-                pself->child = ichr;
+                pself->child = pchild->getCharacterID();
                 pchild->ai.passage = pself->passage;
                 pchild->ai.owner   = pself->owner;
             }
@@ -7463,8 +7439,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //Grip is already used
             else
             {
-                _currentModule->getObjectHandler().remove( ichr );
-                ichr = INVALID_CHR_REF;
+                pchild->requestTerminate();
             }
         }
         else
@@ -7473,10 +7448,16 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // still allow the character to spawn if it is not in an invalid area
 
             // technically this should never occur since we are limiting the attachment points above
-            if (!chr_get_safe(pchild))
+            if (!chr_get_safe(pchild.get()))
             {
-                _currentModule->getObjectHandler().remove( ichr );
-                ichr = INVALID_CHR_REF;
+                pchild->requestTerminate();
+            }
+            else
+            {
+                //Set some AI values
+                pself->child = pchild->getCharacterID();
+                pchild->ai.passage = pself->passage;
+                pchild->ai.owner   = pself->owner;                
             }
         }
     }

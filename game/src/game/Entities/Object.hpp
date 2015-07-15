@@ -608,6 +608,12 @@ public:
     **/
     bool canSeeInvisible() const { return see_invisible_level > 0 || getProfile()->canSeeInvisible() || hasPerk(Ego::Perks::SENSE_INVISIBLE); }
 
+    /**
+    * @return
+    *   The logic update frame when the rally bonus ends
+    **/
+    uint32_t getRallyDuration() const { return _reallyDuration; }
+
 private:
 
     /**
@@ -811,7 +817,10 @@ private:
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
+
+    //Non persistent variables. Once game ends these are not saved
     bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)
+    uint32_t _reallyDuration;                            ///< Game Logic Update frame duration for rally bonus gained from the Perk
 
     friend class ObjectHandler;
 };

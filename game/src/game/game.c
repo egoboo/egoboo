@@ -2075,7 +2075,6 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 {
     int     local_index = 0;
-    CHR_REF new_object;
     PRO_REF iprofile;
 
     if ( NULL == psp_info || !psp_info->do_spawn || psp_info->slot < 0 ) return false;
@@ -2083,17 +2082,15 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    new_object = spawn_one_character(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);
-    
-    const std::shared_ptr<Object> &pobject = _currentModule->getObjectHandler()[new_object];
+    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);    
     if (!pobject) return false;
 
     // determine the attachment
     if (psp_info->attach == ATTACH_NONE)
     {
         // Free character
-        psp_info->parent = new_object;
-        make_one_character_matrix( new_object );
+        psp_info->parent = pobject->getCharacterID();
+        make_one_character_matrix( pobject->getCharacterID() );
     }
 
     chr_setup_apply(pobject, psp_info);
@@ -2113,7 +2110,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             bool player_added;
 
-            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
+            player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
 
             if ( _currentModule->getImportAmount() == 0 && player_added )
             {
@@ -2146,12 +2143,12 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
+                player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
             }
             else
             {
                 // It's a remote PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, NULL );
+                player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, NULL );
             }
         }
     }
