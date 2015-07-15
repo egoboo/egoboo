@@ -1572,8 +1572,13 @@ void Object::giveExperience(const int amount, const XPType xptype, const bool ov
         }
 
 
-        //Fast Learner Perk gives +10% XP gain
+        //Fast Learner Perk gives +20% XP gain
         if(hasPerk(Ego::Perks::FAST_LEARNER)) {
+            newamount *= 1.20f;
+        }
+
+        //Bookworm Perk gives +10% XP gain
+        if(hasPerk(Ego::Perks::BOOKWORM)) {
             newamount *= 1.10f;
         }
 

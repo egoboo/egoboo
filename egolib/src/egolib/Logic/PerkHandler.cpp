@@ -68,7 +68,7 @@ PerkHandler::PerkHandler() :
     initializePerk(DRAGON_BLOOD, Attribute::INTELLECT, "mp_data/perks/dragonblood",
         "Dragon Blood", "+0.25 Mana Regeneration");
     initializePerk(FAST_LEARNER, Attribute::INTELLECT, "mp_data/perks/fast_learner",
-        "Fast Learner", "+10% Experience Gain");
+        "Fast Learner", "+20% Experience Gain");
     initializePerk(NIGHT_VISION, Attribute::INTELLECT, "mp_data/perks/night_vision",
         "Night Vision", "+25% minimum ambient light.");
     initializePerk(LITERACY, Attribute::INTELLECT, "mp_data/perks/literacy",
@@ -122,7 +122,7 @@ PerkHandler::PerkHandler() :
     initializePerk(MEDITATION, Attribute::INTELLECT, "mp_data/perks/meditation",
         "Meditation", "+0.15 Mana Regeneration");
     initializePerk(BOOKWORM, Attribute::INTELLECT, "mp_data/perks/bookworm",
-        "Bookworm", "+2 Intellect.\n-2 Might.");
+        "Bookworm", "+2 Intellect.\n-2 Might.\n+10% experience gain.");
     initializePerk(MERCENARY, Attribute::INTELLECT, "mp_data/perks/mercenary",
         "Mercenary", "Gain +1 Zenny for each monster killed.");
     initializePerk(DARK_ARTS_MASTERY, Attribute::INTELLECT, "mp_data/perks/dark_arts_mastery",
@@ -134,7 +134,7 @@ PerkHandler::PerkHandler() :
     initializePerk(LORE_MASTER, Attribute::INTELLECT, "mp_data/perks/lore_master",
         "Lore Master", "Automatically identify all items.", BOOKWORM);
     initializePerk(TOO_SILLY_TO_DIE, Attribute::INTELLECT, "mp_data/perks/too_silly_to_die",
-        "Too Silly to Die", "");
+        "Too Silly to Die", "1% chance per character level to regain full life instead of dying.");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",
