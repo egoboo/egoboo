@@ -32,6 +32,9 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *rw, Mix_MusicType, int freesrc) {
 }
 #endif
 
+// TODO: move back to the header file when VS 2013 support is dropped
+const float AudioSystem::DEFAULT_MAX_DISTANCE = 128.0f * 10.0f; //GRID_FSIZE*10.0f
+
 // text filenames for the global sounds
 static const std::array<const char*, GSND_COUNT> wavenames =
 {

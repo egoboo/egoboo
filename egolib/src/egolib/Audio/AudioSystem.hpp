@@ -148,7 +148,11 @@ class AudioSystem : public Ego::Core::Singleton<AudioSystem>
 public:
     static CONSTEXPR int MIX_HIGH_QUALITY = 44100;
     static CONSTEXPR size_t MENU_SONG = 0;
-    static CONSTEXPR float DEFAULT_MAX_DISTANCE = 128.0f * 10.0f; //GRID_FSIZE*10.0f   ///< Default max hearing distance (10 tiles)
+
+	// TODO: re-add constexpr when we drop VS 2013 support
+	// Workaround for compilers without constexpr support (VS 2013);
+	// only integral types can be initialized in-class for a const static member.
+	static const float DEFAULT_MAX_DISTANCE;    ///< Default max hearing distance (10 tiles)
 
 protected:
     // Befriend with the singleton to grant access to AudioSystem::~AudioSystem.
