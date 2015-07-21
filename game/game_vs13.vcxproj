@@ -385,7 +385,15 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Entities\particle.c">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)particle-c.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)particle-c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\game\GameStates\DebugParticlesScreen.cpp" />
+    <ClCompile Include="src\game\GUI\CharacterWindow.cpp" />
     <ClCompile Include="src\game\GUI\InternalWindow.cpp" />
+    <ClCompile Include="src\game\GUI\InventorySlot.cpp" />
+    <ClCompile Include="src\game\GUI\LevelUpWindow.cpp" />
     <ClCompile Include="src\game\ObjectAnimation.c" />
     <ClCompile Include="src\game\GUI\CharacterStatus.cpp" />
     <ClCompile Include="src\game\GUI\MiniMap.cpp" />
@@ -460,7 +468,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Entities\particle.h" />
+    <ClInclude Include="src\game\GameStates\DebugParticlesScreen.hpp" />
+    <ClInclude Include="src\game\GUI\CharacterWindow.hpp" />
     <ClInclude Include="src\game\GUI\InternalWindow.hpp" />
+    <ClInclude Include="src\game\GUI\InventorySlot.hpp" />
+    <ClInclude Include="src\game\GUI\LevelUpWindow.hpp" />
     <ClInclude Include="src\game\ObjectAnimation.h" />
     <ClInclude Include="src\game\GUI\CharacterStatus.hpp" />
     <ClInclude Include="src\game\GUI\MiniMap.hpp" />

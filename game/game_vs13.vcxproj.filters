@@ -290,6 +290,21 @@
     <ClCompile Include="src\game\GUI\InternalWindow.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Entities\particle.c">
+      <Filter>Game Sources\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GUI\CharacterWindow.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GUI\InventorySlot.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GUI\LevelUpWindow.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GameStates\DebugParticlesScreen.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -531,6 +546,21 @@
     </ClInclude>
     <ClInclude Include="src\game\GUI\InternalWindow.hpp">
       <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Entities\particle.h">
+      <Filter>Game Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\InventorySlot.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\LevelUpWindow.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\CharacterWindow.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\DebugParticlesScreen.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

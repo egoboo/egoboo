@@ -420,9 +420,6 @@
     <ClCompile Include="src\egolib\Graphics\MD2Model.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Graphics\mad.c">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\AI\AStar.c">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
@@ -443,6 +440,18 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Time\LocalTime.cpp">
       <Filter>Source Files\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\ModelDescriptor.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Logic\Perk.cpp">
+      <Filter>Source Files\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Logic\PerkHandler.cpp">
+      <Filter>Source Files\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\DeferredOpenGLTexture.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -893,9 +902,6 @@
     <ClInclude Include="src\egolib\Script\script.h">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Graphics\mad.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\MD2Model.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -957,6 +963,21 @@
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\ModelDescriptor.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\Attribute.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\Perk.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\PerkHandler.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
