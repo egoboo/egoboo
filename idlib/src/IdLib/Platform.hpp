@@ -206,7 +206,8 @@
  * @brief
  *  A macro alias for <tt>constexpr</tt>.
  * @remark
- *  This is necessary because of Redmon Retards' (aka Microsoft) Visual C++.
+ *  This is necessary because of Redmon Retards' (aka Microsoft) Visual C++
+ *  for versions before 19.0 (Visual Studio 2015).
  * @warning
  *  Obviously this macro can not add the semantics of the constexpr keyword
  *  to a compiler with pseudo-C++ 11 support, however, in some cases it can
@@ -214,7 +215,7 @@
  *  as soon as the RR are able to "go native" and provide some "conformance"
  *  in their "industrial strength" "compiler".
  */
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
     #define CONSTEXPR const
 #else
     #define CONSTEXPR constexpr
@@ -227,12 +228,16 @@
  *  This is necessary because of Redmon Retards' (aka Microsoft) Visual C++ / Windows.
  */
 #if defined(_MSC_VER)
-#define snprintf _snprintf
 #define stricmp _stricmp
 #define strlwr _strlwr
 #define strupr _strupr
 
-// This isn't needed anymore since MSCV 2013 and causes errors.
+// This isn't needed anymore since MSVC 2015 and causes errors.
+#if (_MSC_VER < 1900)
+#define snprintf _snprintf
+#endif
+
+// This isn't needed anymore since MSVC 2013 and causes errors.
 #if !(_MSC_VER >= 1800)
 #define isnan _isnan
 #endif
