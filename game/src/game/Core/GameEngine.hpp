@@ -28,7 +28,7 @@ class CameraSystem;
 class AudioSystem;
 class GameModule;
 class ObjectHandler;
-struct ego_mesh_t;
+class ego_mesh_t;
 struct status_list_t;
 class UIManager;
 class PlayingState;

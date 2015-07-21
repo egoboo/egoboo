@@ -25,7 +25,7 @@
 #include "game/Graphics/Camera.hpp"
 
 // Forward declaration.
-struct ego_mesh_t;
+class ego_mesh_t;
 
 CONSTEXPR size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
 
