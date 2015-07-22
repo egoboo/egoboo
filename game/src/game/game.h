@@ -466,10 +466,6 @@ bool get_chr_regeneration( Object * pchr, int *pliferegen, int * pmanaregen );
 
 float get_chr_level( ego_mesh_t * mesh, Object * pchr );
 
-void disenchant_character( const CHR_REF ichr );
-
-void cleanup_character_enchants( Object * pchr );
-
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
 bool attach_Objecto_platform( Object * pchr, Object * pplat );

@@ -26,7 +26,6 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
@@ -168,7 +167,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
     _hasBeenKilled(false),
-    _reallyDuration(0)
+    _reallyDuration(0),
+    _activeEnchants()
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -188,7 +188,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     ori.map_twist_facing_x = MAP_TURN_OFFSET;
 
     //Initialize attributes
-    for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const FRange& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
@@ -728,6 +728,18 @@ void Object::update()
     //then do status updates
     chr_update_hide(this);
 
+    //Update active enchantments on this Object
+    if(!_activeEnchants.empty()) {    
+        _activeEnchants.remove_if([](const std::shared_ptr<Ego::Enchantment> &enchant) 
+            {
+                //Update enchantment 
+                enchant->update();
+
+                //Remove all terminated enchants
+                return enchant->isTerminated(); 
+            });        
+    }
+
     //Don't do items that are in inventory
     if (isInsideInventory()) {
         return;
@@ -1136,51 +1148,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     // Reset transparency
     if ( isitem && pholder->transferblend )
     {
-        ENC_REF ienc_now, ienc_nxt;
-        size_t  ienc_count;
-
-        // cleanup the enchant list
-        cleanup_character_enchants( this );
-
-        // Okay, reset transparency
-        ienc_now = firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            enc_remove_set( ienc_now, eve_t::SETALPHABLEND );
-            enc_remove_set( ienc_now, eve_t::SETLIGHTBLEND );
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
         setAlpha(getProfile()->getAlpha());
         setLight(getProfile()->getLight());
-
-        // cleanup the enchant list
-        cleanup_character_enchants( this );
-
-        // apply the blend enchants
-        ienc_now = firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            PRO_REF ipro = enc_get_ipro( ienc_now );
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            if (ProfileSystem::get().isValidProfileID(ipro))
-            {
-                enc_apply_set( ienc_now, eve_t::SETALPHABLEND, ipro );
-                enc_apply_set( ienc_now, eve_t::SETLIGHTBLEND, ipro );
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Set twist
@@ -1316,7 +1285,7 @@ void Object::checkLevelUp()
             fat_goto_time += SIZETIME;
 
             //Attribute increase
-            for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+            for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
                 _baseAttribute[i] += Random::next(getProfile()->getAttributeGain(static_cast<Ego::Attribute::AttributeType>(i)));
             }
 
@@ -1485,93 +1454,15 @@ void Object::resetAlpha()
 
     if (isItem() && mount->transferblend)
     {
-        // cleanup the enchant list
-        cleanup_character_enchants(this);
-
-        // Okay, reset transparency
-        ENC_REF ienc_now = firstenchant;
-        ENC_REF ienc_nxt;
-        size_t ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            enc_remove_set(ienc_now, eve_t::SETALPHABLEND);
-            enc_remove_set(ienc_now, eve_t::SETLIGHTBLEND);
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
         setAlpha(getProfile()->getAlpha());
         setLight(getProfile()->getLight());
-
-        // cleanup the enchant list
-        cleanup_character_enchants(this);
-
-        ienc_now = firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            PRO_REF ipro = enc_get_ipro( ienc_now );
-
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            if (ProfileSystem::get().isValidProfileID(ipro))
-            {
-                enc_apply_set(ienc_now, eve_t::SETALPHABLEND, ipro);
-                enc_apply_set(ienc_now, eve_t::SETLIGHTBLEND, ipro);
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 }
 
 void Object::resetAcceleration()
 {
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-
-    // cleanup the enchant list
-    cleanup_character_enchants(this);
-
-    // Okay, remove all acceleration enchants
-    ienc_now = firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_remove_add(ienc_now, eve_t::ADDACCEL);
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
     // Set the starting value
     maxaccel = maxaccel_reset = getProfile()->getSkinInfo(skin).maxAccel;
-
-    // cleanup the enchant list
-    cleanup_character_enchants(this);
-
-    // Put the acceleration enchants back on
-    ienc_now = firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_apply_add(ienc_now, eve_t::ADDACCEL, enc_get_ieve(ienc_now));
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
 }
 
 void Object::giveExperience(const int amount, const XPType xptype, const bool overrideInvincibility)
@@ -2052,4 +1943,57 @@ void Object::addPerk(Ego::Perks::PerkID perk)
 float Object::getLife() const
 {
     return FP8_TO_FLOAT(life);
+}
+
+std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile)
+{
+    if (enchantProfile >= ENCHANTPROFILES_MAX || !EveStack.get_ptr(enchantProfile)->_loaded) {
+        log_warning("Object::addEnchant() - Cannot add enchant with invalid enchant profile %d\n", enchantProfile);        
+        return nullptr;
+    }
+    const std::shared_ptr<eve_t> &enchantmentProfile = EveStack.get_ptr(enchantProfile);
+
+    if(!ProfileSystem::get().isValidProfileID(spawnerProfile)) {
+        log_warning("Object::addEnchant() - Cannot add enchant with invalid spawner profile %d\n", spawnerProfile);
+        return nullptr;
+    }
+
+    std::shared_ptr<Ego::Enchantment> enchant = std::make_shared<Ego::Enchantment>(enchantmentProfile, spawnerProfile);
+    enchant->applyEnchantment(_currentModule->getObjectHandler()[getCharacterID()]);
+
+    return enchant;
+}
+
+void Object::removeEnchantsWithIDSZ(const IDSZ idsz)
+{
+    //Nothing to do?
+    if(idsz == IDSZ_NONE) return;
+
+    //Remove all active enchants that have the corresponding IDSZ
+    _activeEnchants.remove_if([idsz](const std::shared_ptr<Ego::Enchantment> &enchant)
+    {
+        if(idsz == enchant->getProfile()->removedByIDSZ) {
+            enchant->requestTerminate();
+            return true;
+        }
+        return false;
+    });
+}
+
+std::forward_list<std::shared_ptr<Ego::Enchantment>>& Object::getActiveEnchants()
+{
+    return _activeEnchants;
+}
+
+bool Object::disenchant()
+{
+    bool oneRemoved = false;
+
+    for(const std::shared_ptr<Ego::Enchantment> &enchant : _activeEnchants) {
+        if(enchant->isTerminated()) continue;
+        enchant->requestTerminate();
+        oneRemoved = true;
+    }
+
+    return oneRemoved;
 }

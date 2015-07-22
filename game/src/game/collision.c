@@ -2888,25 +2888,23 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     //Get the Profile of the Object that spawned this particle (i.e the weapon itself, not the holder)
     const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pdata->pprt->getSpawnerProfile());
 
-    // clean up the enchant list before doing anything
-    cleanup_character_enchants( pdata->pchr );
-
     // Check all enchants to see if they are removed
-    ienc_now = pdata->pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        if ( enc_is_removed( ienc_now, pdata->pprt->getSpawnerProfile() ) )
-        {
-            remove_enchant( ienc_now, NULL );
+    for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
+        if(enchant->isTerminated()) {
+            continue;
         }
 
-        ienc_now = ienc_nxt;
-        ienc_count++;
+        // if nothing can remove it, just go on with your business
+        if(enchant->getProfile()->removedByIDSZ == IDSZ_NONE) {
+            continue;
+        }
+
+        // check vs. every IDSZ that could have something to do with cancelling the enchant
+        if ( enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_TYPE) ||
+             enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_PARENT) ) {
+            enchant->requestTerminate();
+        }
     }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Steal some life.
     if ( pdata->pprt->lifedrain > 0 && pdata->pchr->life > 0)

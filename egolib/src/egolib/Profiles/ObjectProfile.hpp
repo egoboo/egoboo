@@ -655,8 +655,8 @@ private:
     UFP8_T       _spawnLife;                    ///< Life left from last module (8.8 fixed point)
     UFP8_T       _spawnMana;                    ///< Mana left from last module (8.8 fixed point)
 
-    std::array<FRange, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Base attributes
-    std::array<FRange, Ego::Attribute::NR_OF_ATTRIBUTES> _attributeGain; ///< Attribute increase each level
+    std::array<FRange, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _baseAttribute; ///< Base attributes
+    std::array<FRange, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeGain; ///< Attribute increase each level
 
     // physics
     uint8_t      _weight;                        ///< Weight

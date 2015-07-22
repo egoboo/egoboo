@@ -47,7 +47,6 @@
 #include "game/char.h"
 #include "game/physics.h"
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -104,9 +103,6 @@ static void   game_reset_players();
 // Model stuff
 static void log_madused_vfs( const char *savename );
 
-// place the object lists in the initial state
-void reset_all_object_lists();
-
 // implementing wawalite data
 static bool upload_light_data(const wawalite_data_t *data);
 static bool upload_phys_data(const wawalite_physics_t *data);
@@ -138,11 +134,9 @@ static void game_load_module_profiles( const char *modname );
 static void initialize_all_objects();
 static void finalize_all_objects();
 
-static void update_used_lists();
 static void update_all_objects();
 static void move_all_objects();
 static void cleanup_all_objects();
-static void bump_all_update_counters();
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -157,9 +151,6 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     STRING tofile;
     STRING todirname;
     STRING todirfullname;
-
-    // Don't export enchants
-    disenchant_character( character );
 
     const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[character];
     if(!object) {
@@ -445,12 +436,6 @@ void activate_alliance_file_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void update_used_lists()
-{
-    EnchantHandler::get().update_used();
-}
-
-//--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
     chr_stoppedby_tests = 0;
@@ -458,7 +443,6 @@ void update_all_objects()
 
     update_all_characters();
     ParticleHandler::get().updateAllParticles();
-    update_all_enchants();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -481,16 +465,6 @@ void cleanup_all_objects()
 
         object->requestTerminate();
     }
-
-    cleanup_all_enchants();
-}
-
-//--------------------------------------------------------------------------------------------
-void bump_all_update_counters()
-{
-    //bump_all_characters_update_counters();
-    //bump_all_particles_update_counters();
-    bump_all_enchants_update_counters();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -501,9 +475,6 @@ void initialize_all_objects()
 
     // update all object timers etc.
     update_all_objects();
-
-    // fix the list optimization, in case update_all_objects() turned some objects off.
-    update_used_lists();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -511,9 +482,6 @@ void finalize_all_objects()
 {
     /// @author BB
     /// @details end the code for updating in-game objects
-
-    // update the object's update counter for every active object
-    bump_all_update_counters();
 
     // do end-of-life care for all objects
     cleanup_all_objects();
@@ -1719,21 +1687,17 @@ bool get_chr_regeneration( Object * pchr, int * pliferegen, int * pmanaregen )
     ( *pliferegen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS);
 
     // Don't forget to add gains and costs from enchants
-    ENC_BEGIN_LOOP_ACTIVE( enchant, penc )
-    {
-        if ( penc->target_ref == ichr )
-        {
-            ( *pliferegen ) += penc->target_life;
-            ( *pmanaregen ) += penc->target_mana;
+    for(const std::shared_ptr<Ego::Enchantment> &enchant : pchr->getActiveEnchants()) {
+        if ( enchant->getTarget()->getCharacterID() == ichr ) {
+            ( *pliferegen ) += enchant->getTargetLifeDrain();
+            ( *pmanaregen ) += enchant->getTargetManaDrain();
         }
 
-        if ( penc->owner_ref == ichr )
-        {
-            ( *pliferegen ) += penc->owner_life;
-            ( *pmanaregen ) += penc->owner_mana;
+        if ( enchant->getOwnerID() == ichr ) {
+            ( *pliferegen ) += enchant->getOwnerLifeSustain();
+            ( *pmanaregen ) += enchant->getOwnerManaSustain();
         }
     }
-    ENC_END_LOOP();
 
     return true;
 }
@@ -1754,11 +1718,8 @@ void show_full_status( int statindex )
 
     SKIN_T skinlevel = pchr->skin;
 
-    // clean up the enchant list
-    cleanup_character_enchants( pchr.get() );
-
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", pchr->getProfile()->getSkinInfo(skinlevel).defence,
@@ -1792,11 +1753,8 @@ void show_magic_status( int statindex )
         return;
     }
 
-    // clean up the enchant list
-    cleanup_character_enchants( pchr.get() );
-
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -2568,9 +2526,6 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // set up the virtual file system for the module (Do before loading the module)
     if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
 
-    // make sure that the object lists are in a good state
-    reset_all_object_lists();
-
     // start the module
     _currentModule = std::unique_ptr<GameModule>(new GameModule(module, time(NULL)));
 
@@ -2771,14 +2726,7 @@ void free_all_objects()
     /// @details free every instance of the three object types used in the game.
 
     ParticleHandler::get().clear();
-    EnchantHandler::get().free_all();
     free_all_chraracters();
-}
-
-//--------------------------------------------------------------------------------------------
-void reset_all_object_lists()
-{
-    EnchantHandler::get().reinit();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3891,41 +3839,6 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     if ( zmax == -1e6 ) zmax = 0.0f;
 
     return zmax;
-}
-
-//--------------------------------------------------------------------------------------------
-void disenchant_character( const CHR_REF cnt )
-{
-    /// @author ZZ
-    /// @details This function removes all enchantments from a character
-
-    Object * pchr;
-    size_t ienc_count;
-
-    if ( !_currentModule->getObjectHandler().exists( cnt ) ) return;
-    pchr = _currentModule->getObjectHandler().get( cnt );
-
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        // do not let disenchant_character() get stuck in an infinite loop if there is an error
-        if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
-        {
-            break;
-        }
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-}
-
-//--------------------------------------------------------------------------------------------
-void cleanup_character_enchants( Object * pchr )
-{
-    if ( NULL == pchr ) return;
-
-    // clean up the enchant list
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &( pchr->firstenchant ) );
 }
 
 //--------------------------------------------------------------------------------------------

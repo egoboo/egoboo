@@ -2824,12 +2824,16 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details This function enchants the target with the enchantment given
     /// in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = EnchantHandler::get().spawn_one_enchant( pself->owner, pself->target, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = DEFINED_ENC( iTmp );
+    const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[pself->target];
+    if(target) {
+        target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref);
+        returncode = true; //TODO: only if enchant was added
+    }   
+    else {
+        returncode = false;
+    } 
 
     SCRIPT_FUNCTION_END();
 }
@@ -2843,12 +2847,16 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
     /// newly spawned character with the enchantment
     /// given in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = EnchantHandler::get().spawn_one_enchant( pself->owner, pself->child, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = DEFINED_ENC( iTmp );
+    const std::shared_ptr<Object> child = _currentModule->getObjectHandler()[pself->child];
+    if(child) {
+        child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref);
+        returncode = true; //TODO: only if enchant was added
+    }   
+    else {
+        returncode = false;
+    } 
 
     SCRIPT_FUNCTION_END();
 }
@@ -3247,14 +3255,9 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( INGAME_ENC( pchr->undoenchant ) )
-    {
-        returncode = remove_enchant( pchr->undoenchant, NULL );
-    }
-    else
-    {
-        pchr->undoenchant = INVALID_ENC_REF;
-        returncode = false;
+    if(!pchr->getActiveEnchants().empty()) {
+        returncode = !pchr->getActiveEnchants().front()->isTerminated();
+        pchr->getActiveEnchants().front()->requestTerminate();
     }
 
     SCRIPT_FUNCTION_END();
@@ -4916,7 +4919,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
     if ( target->heal(_currentModule->getObjectHandler()[pself->index], pstate->argument, false) )
     {
         returncode = true;
-        remove_all_enchants_with_idsz(pself->target, MAKE_IDSZ('H', 'E', 'A', 'L'));
+        target->removeEnchantsWithIDSZ(MAKE_IDSZ('H', 'E', 'A', 'L'));
     }
 
     SCRIPT_FUNCTION_END();
@@ -5364,21 +5367,15 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     /// spawned by this character.
     /// Values are 8.8 fixed point
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = pchr->undoenchant;
-
     returncode = false;
-    if ( INGAME_ENC( iTmp ) )
-    {
-        EnchantHandler::get().get_ptr(iTmp)->owner_mana = pstate->argument;
-        EnchantHandler::get().get_ptr(iTmp)->owner_life = pstate->distance;
-        EnchantHandler::get().get_ptr(iTmp)->target_mana = pstate->x;
-        EnchantHandler::get().get_ptr(iTmp)->target_life = pstate->y;
-
-        returncode = true;
+    if(!pchr->getActiveEnchants().empty()) {
+        const std::shared_ptr<Ego::Enchantment> &enchant = pchr->getActiveEnchants().front();
+        if(!enchant->isTerminated()) {
+            enchant->setBoostValues(FP8_TO_FLOAT(pstate->argument), FP8_TO_FLOAT(pstate->distance), FP8_TO_FLOAT(pstate->x), FP8_TO_FLOAT(pstate->y));
+            returncode = true;            
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -6451,9 +6448,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( INVALID_ENC_REF != pself_target->firstenchant );
-
-    disenchant_character( pself->target );
+    returncode = pself_target->disenchant();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6465,13 +6460,12 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function removes all enchantments in the game
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    for ( iTmp = 0; iTmp < ENCHANTS_MAX; iTmp++ )
-    {
-        remove_enchant( iTmp, NULL );
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator()) {
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : object->getActiveEnchants()) {
+            enchant->requestTerminate();
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -7805,10 +7799,11 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = false;
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
         // Check all enchants to see if they are removed
-        returncode = remove_all_enchants_with_idsz( pself->target, pstate->argument );
+        pself_target->removeEnchantsWithIDSZ(pstate->argument);
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();

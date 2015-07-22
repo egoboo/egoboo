@@ -36,6 +36,9 @@
 #include "game/Module/Module.hpp"
 #include "game/Inventory.hpp"
 
+//Forward declarations
+namespace Ego { class Enchantment; }
+
 /// The possible methods for characters to determine what direction they are facing
 enum turn_mode_t : uint8_t
 {
@@ -629,6 +632,28 @@ public:
     **/
     void randomizeLevelUpSeed() { _levelUpSeed = Random::next(Random::next<uint32_t>(numeric_limits<uint32_t>::max())); }
 
+    /**
+    * @brief
+    *   Applies an enchantment to this object
+    * @param enchantProfile
+    *   The unique profile ID for the Enchantment (ENC_REF)
+    * @param spawnerProfile
+    *   The unique ObjectProfile ID for the object that creates this enchant
+    * @brief
+    *   pointer to the enchant that was added (or nullptr if it failed)
+    **/
+    std::shared_ptr<Ego::Enchantment> addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile);
+
+    void removeEnchantsWithIDSZ(const IDSZ idsz);
+
+    std::forward_list<std::shared_ptr<Ego::Enchantment>>& getActiveEnchants();
+
+    /**
+    * @brief
+    *   Removes all enchantments from character
+    **/
+    bool disenchant();
+
 private:
 
     /**
@@ -829,7 +854,7 @@ private:
     CHR_REF _characterID;                                ///< Our unique CHR_REF id
     std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
     bool _showStatus;                                    ///< Display stats?
-    std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
+    std::array<float, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _baseAttribute; ///< Character attributes
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
     uint32_t _levelUpSeed;
@@ -838,5 +863,10 @@ private:
     bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)
     uint32_t _reallyDuration;                            ///< Game Logic Update frame duration for rally bonus gained from the Perk
 
+    std::forward_list<std::shared_ptr<Ego::Enchantment>> _activeEnchants;    ///< List of all active enchants on this Object
+
+    std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _attributes;
+
     friend class ObjectHandler;
+    friend class Ego::Enchantment; //TODO: remove?
 };

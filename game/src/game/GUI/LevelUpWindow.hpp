@@ -62,8 +62,8 @@ class LevelUpWindow : public InternalWindow
 
         //Attribute increase state
         std::vector<std::shared_ptr<Label>> _fadeInLabels;
-        std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_ATTRIBUTES> _attributeValues;
-        std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_ATTRIBUTES> _attributeIncrease;
+        std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeValues;
+        std::array<std::shared_ptr<Label>, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeIncrease;
         std::shared_ptr<Image> _selectedPerk;
         Vector2f _animationSpeed;
         Vector2f _animationPos;

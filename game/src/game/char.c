@@ -46,7 +46,6 @@
 #include "game/Module/Module.hpp"
 
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/mesh.h"
 
@@ -370,12 +369,6 @@ void free_all_chraracters()
 {
     /// @author ZZ
     /// @details This function resets the character allocation list
-
-    //Remove all enchants
-    for (ENC_REF ref = 0; ref < ENCHANTS_MAX; ++ref)
-    {
-        remove_enchant(ref, nullptr);
-    }
 
     // free all the characters
     if(_currentModule) {
@@ -1594,42 +1587,6 @@ void cleanup_one_character( Object * pchr )
         rightItem->detatchFromHolder(true, false);
     }
 
-    // start with a clean list
-    cleanup_character_enchants( pchr );
-
-    // remove enchants from the character
-    if ( pchr->life >= 0 )
-    {
-        disenchant_character( ichr );
-    }
-    else
-    {
-        std::shared_ptr<eve_t> peve;
-        ENC_REF ienc_now, ienc_nxt;
-        size_t  ienc_count;
-
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
-        // remove all invalid enchants
-        ienc_now = pchr->firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            peve = enc_get_peve( ienc_now );
-            if ( NULL != peve && !peve->_target._stay )
-            {
-                remove_enchant( ienc_now, NULL );
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-    }
-
     // Stop all sound loops for this object
     AudioSystem::get().stopObjectLoopingSounds(ichr);
 }
@@ -1925,30 +1882,6 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     if ( !_currentModule->getObjectHandler().exists( character ) ) return 0;
     pchr = _currentModule->getObjectHandler().get( character );
 
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // Remove armor enchantments
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_remove_set(ienc_now, eve_t::SETSLASHMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETCRUSHMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETPOKEMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETHOLYMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETEVILMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETFIREMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETICEMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETZAPMODIFIER);
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
     // Change the skin
     std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
     loc_skin = chr_change_skin( character, loc_skin );
@@ -1966,50 +1899,6 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
 
     // set the character's maximum acceleration
     chr_set_maxaccel( pchr, skinInfo.maxAccel );
-
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // Reset armor enchantments
-    /// @todo These should really be done in reverse order ( Start with last enchant ), but
-    /// I don't care at this point !!!BAD!!!
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        PRO_REF ipro = enc_get_ipro( ienc_now );
-
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        if (ProfileSystem::get().isValidProfileID(ipro))
-        {
-            EVE_REF ieve = ProfileSystem::get().pro_get_ieve(ipro);
-
-            enc_apply_set(ienc_now, eve_t::SETSLASHMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETCRUSHMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETPOKEMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETHOLYMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETEVILMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETFIREMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETICEMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETZAPMODIFIER, ipro);
-
-            enc_apply_add(ienc_now, eve_t::ADDACCEL, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDDEFENSE, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDSLASHRESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDCRUSHRESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDPOKERESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDHOLYRESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDEVILRESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDFIRERESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDICERESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDZAPRESIST, ieve);
-        }
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return loc_skin;
 }
@@ -2087,36 +1976,22 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     // Remove particles
     disaffirm_attached_particles( ichr );
 
-    // clean up the enchant list before doing anything
-    cleanup_character_enchants( pchr );
-
     // Remove enchantments
     if ( leavewhich == ENC_LEAVE_FIRST )
     {
-        // Remove all enchantments except top one
-        if ( INVALID_ENC_REF != pchr->firstenchant )
-        {
-            ENC_REF ienc_now, ienc_nxt;
-            size_t  ienc_count;
-
-            ienc_now = EnchantHandler::get().get_ptr(pchr->firstenchant)->nextenchant_ref;
-            ienc_count = 0;
-            while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-            {
-                ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-                remove_enchant( ienc_now, NULL );
-
-                ienc_now = ienc_nxt;
-                ienc_count++;
-            }
-            if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        //Leave only the first enchant
+        bool first = true;
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : pchr->getActiveEnchants()) {
+            if(!first) {
+                enchant->requestTerminate();
+            } 
+            first = false;
         }
     }
     else if ( ENC_LEAVE_NONE == leavewhich )
     {
         // Remove all enchantments
-        disenchant_character( ichr );
+        pchr->disenchant();
     }
 
     // Stuff that must be set
@@ -2515,29 +2390,21 @@ bool update_chr_darkvision( const CHR_REF character )
     if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
     pchr = _currentModule->getObjectHandler().get( character );
 
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
     // grab the life loss due poison to determine how much darkvision a character has earned, he he he!
-    // clean up the enchant list before doing anything
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-        peve = enc_get_peve( ienc_now );
-
-        //Is it true poison?
-        if ( NULL != peve && MAKE_IDSZ( 'H', 'E', 'A', 'L' ) == peve->removedByIDSZ )
-        {
-            life_regen += EnchantHandler::get().get_ptr(ienc_now)->target_life;
-            if (EnchantHandler::get().get_ptr(ienc_now)->owner_ref == pchr->ai.index ) life_regen += EnchantHandler::get().get_ptr(ienc_now)->owner_life;
+    for(std::shared_ptr<Ego::Enchantment> &enchant : pchr->getActiveEnchants()) {
+        if(enchant->isTerminated()) {
+            continue;
         }
 
-        ienc_now = ienc_nxt;
-        ienc_count++;
+        //Poison?
+        if(enchant->getProfile()->removedByIDSZ == MAKE_IDSZ( 'H', 'E', 'A', 'L' )) {
+            life_regen -= enchant->getTargetLifeDrain();
+
+            if (enchant->getOwnerID() == pchr->getCharacterID()) {
+                life_regen += enchant->getOwnerLifeSustain();
+            }
+        }
     }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     if ( life_regen < 0 )
     {

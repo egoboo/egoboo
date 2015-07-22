@@ -130,22 +130,6 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     return -1;
 }
 
-EVE_REF ProfileSystem::pro_get_ieve(const PRO_REF iobj)
-{
-    if (!isValidProfileID(iobj)) return INVALID_EVE_REF;
-
-    return LOADED_EVE(_profilesLoaded[iobj]->getEnchantRef()) ? _profilesLoaded[iobj]->getEnchantRef() : INVALID_EVE_REF;
-}
-
-std::shared_ptr<eve_t> ProfileSystem::pro_get_peve(const PRO_REF iobj)
-{
-    if (!isValidProfileID(iobj)) return nullptr;
-
-    if (!LOADED_EVE(_profilesLoaded[iobj]->getEnchantRef())) return nullptr;
-
-    return EveStack.get_ptr(_profilesLoaded[iobj]->getEnchantRef());
-}
-
 std::shared_ptr<pip_t> ProfileSystem::pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref)
 {
     if (!isValidProfileID(iobj))

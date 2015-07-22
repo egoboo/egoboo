@@ -25,134 +25,106 @@
 #error(do not include directly, include `game/Entities/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo_typedef.h"
-#include "game/egoboo_object.h"
+#include "egolib/typedef.h"
+#include "egolib/Logic/Attribute.hpp"
+#include "game/Entities/_Include.hpp"
 
-// Forward declarations.
-struct EnchantHandler;
-class ObjectProfile;
-class Object;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
+//Macros? eww...
 #define ENC_LEAVE_ALL           0
 #define ENC_LEAVE_FIRST         1
 #define ENC_LEAVE_NONE          2
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-struct enc_spawn_data_t
-{
-    CHR_REF owner_ref;
-    CHR_REF target_ref;
-    CHR_REF spawner_ref;
-    PRO_REF profile_ref;
-    EVE_REF eve_ref;
+//Forward declarations
+class eve_t;
+class Object;
 
-    void reset()
+namespace Ego
+{
+
+struct EnchantModifier
+{
+    Ego::Attribute::AttributeType _type;
+    float _value;
+
+    EnchantModifier(Ego::Attribute::AttributeType type, float value) :
+        _type(type),
+        _value(value)
     {
-        owner_ref = INVALID_CHR_REF;
-        target_ref = INVALID_CHR_REF;
-        spawner_ref = INVALID_CHR_REF;
-        profile_ref = INVALID_PRO_REF;
-        eve_ref = INVALID_EVE_REF;
+        //ctor
     }
 };
 
 /**
  * @brief
  *  The definition of an enchantment entity.
- * @extends
- *  Ego::Entity
  */
-struct enc_t : public _StateMachine<enc_t, ENC_REF, EnchantHandler>
+class Enchantment : public std::enable_shared_from_this<Enchantment>
 {
-    enc_spawn_data_t spawn_data;
+public:
+    Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_REF spawnerProfile);
 
-    int     lifetime;                 ///< Time before end
-    int     spawn_timer;              ///< Time before spawn
-
-    PRO_REF profile_ref;              ///< The object  profile index that spawned this enchant
-    EVE_REF eve_ref;                  ///< The enchant profile index
-
-    CHR_REF target_ref;               ///< Who it enchants
-    CHR_REF owner_ref;                ///< Who cast the enchant
-    CHR_REF spawner_ref;              ///< The spellbook character
-    PRO_REF spawnermodel_ref;         ///< The spellbook character's profile index
-    CHR_REF overlay_ref;              ///< The overlay character
-
-    int     owner_mana;               ///< Boost values
-    int     owner_life;
-    int     target_mana;
-    int     target_life;
-
-    ENC_REF nextenchant_ref;          ///< Next in the list
-
-    /// A struct used to remember if a property had its value modified (by this enchant)
-    /// + the property value before modification. Related to EnchantProfile::Modifier.
-    struct Modification
-    {
-        bool _modified;  /// Was the property value modified by this enchant?
-        float _oldValue; /// The property value before modification.
-    };
-
-    /// List to remember if properties were subjected to "set" modifications by this enchant
-    /// & the unmodified property values.
-    Modification _set[eve_t::MAX_ENCHANT_SET];
-
-    /// List to remember if properties were subjected to "add" modifications by this enchant
-    /// & the unmodified property values.
-    Modification _add[eve_t::MAX_ENCHANT_ADD];
-
-    enc_t(ENC_REF ref);
-    ~enc_t();
-	void reset();
-
+    ~Enchantment();
 
     void requestTerminate();
 
-    // enchant state machine function
-    void config_do_ctor() override;
-    // enchant state machine function
-    enc_t *config_do_init() override;
-    // enchant state machine function
-    enc_t *config_do_active() override;
-    // enchant state machine function
-    void config_do_deinit() override;
-    // enchant state machine function
-    void config_do_dtor() override;
+    bool isTerminated() const;
+
+    void update();
+
+    const std::shared_ptr<eve_t>& getProfile() const;
+
+    /**
+    * @brief
+    *   Applies this Enchantment to the specified target. It will stay there and affect the target until
+    *   it expires or is removed.
+    **/
+    void applyEnchantment(std::shared_ptr<Object> target);
+
+    /**
+    * @return
+    *   The target of this enchant, or nullptr if it no longer has a valid target
+    **/
+    std::shared_ptr<Object> getTarget() const;
+
+    /**
+    * @return
+    *   character ID of the Owner of this enchant or INVALID_CHR_REF if there is no valid owner
+    **/
+    CHR_REF getOwnerID() const;
+
+    float getOwnerManaSustain() const {return _ownerManaSustain;}
+    float getOwnerLifeSustain() const {return _ownerLifeSustain;}
+    float getTargetManaDrain()  const {return _targetManaDrain;}
+    float getTargetLifeDrain()  const {return _targetLifeDrain;}
+
+    void setBoostValues(float ownerManaSustain, float ownerLifeSustain, float targetManaDrain, float targetLifeDrain);
+
+private:
+    bool _isTerminated;
+
+    ENC_REF _enchantProfileID;      ///< The enchant profile index
+    std::shared_ptr<eve_t> _enchantProfile;
+
+    PRO_REF _spawnerProfileID;        ///< The object  profile index that spawned this enchant
+
+    int _lifeTime;                  ///< Time before end (in game logic frames)
+    int _spawnParticlesTimer;       ///< Time before spawning particle effects (in game logic frames)
+
+    std::weak_ptr<Object> _target;  ///< Who it enchants
+    std::weak_ptr<Object> _owner;   ///< Who cast the enchant
+
+    std::weak_ptr<Object> _spawner; ///< The spellbook character
+    //PRO_REF spawnermodel_ref;         ///< The spellbook character's profile index
+
+    std::weak_ptr<Object> _overlay; ///< The overlay character
+
+    /// List to remember if properties were subjected to modifications by this enchant
+    std::forward_list<EnchantModifier> _modifiers;
+
+    float _ownerManaSustain;               ///< Boost values
+    float _ownerLifeSustain;
+    float _targetManaDrain;
+    float _targetLifeDrain;
 };
 
-
-void update_all_enchants();
-void cleanup_all_enchants();
-
-void bump_all_enchants_update_counters();
-
-// enchant list management
-bool remove_enchant(const ENC_REF encRef, ENC_REF *enchant_parent);
-bool remove_all_enchants_with_idsz(const CHR_REF chrRef, IDSZ remove_idsz);
-ENC_REF cleanup_enchant_list(const ENC_REF encRef, ENC_REF *enc_parent);
-
-// enc functions
-ENC_REF enc_value_filled(const ENC_REF encRef, int value_idx);
-void enc_apply_set(const ENC_REF encRef, int value_idx, const PRO_REF profile);
-void enc_apply_add(const ENC_REF encRef, int value_idx, const EVE_REF enchanttype);
-void enc_remove_set(const ENC_REF encRef, int value_idx);
-void enc_remove_add(const ENC_REF encRef, int value_idx);
-
-//--------------------------------------------------------------------------------------------
-// FORWARD DECLARARIONS (inline)
-//--------------------------------------------------------------------------------------------
-PRO_REF enc_get_ipro(const ENC_REF ienc);
-ObjectProfile *enc_get_ppro(const ENC_REF ienc);
-
-CHR_REF enc_get_iowner(const ENC_REF ienc);
-Object *enc_get_powner(const ENC_REF ienc);
-
-EVE_REF enc_get_ieve(const ENC_REF ienc);
-std::shared_ptr<eve_t> enc_get_peve(const ENC_REF ienc);
-
-IDSZ enc_get_idszremove(const ENC_REF ienc);
-bool enc_is_removed(const ENC_REF ienc, const PRO_REF test_profile);
+} //Ego

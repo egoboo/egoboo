@@ -31,7 +31,6 @@
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
 #include "game/mesh.h"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 
@@ -896,9 +895,10 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     if (!is_invictus_direction(direction, character, ppip->damfx))
     {
         // Spawn new enchantments
-        if (ppip->spawnenchant)
+        if (ppip->spawnenchant) 
         {
-            EnchantHandler::get().spawn_one_enchant(pprt->owner_ref, character, INVALID_CHR_REF, INVALID_ENC_REF, pprt->getSpawnerProfile());
+            const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pprt->getSpawnerProfile());
+            pchr->addEnchant(spawnerProfile->getEnchantRef(), pprt->getSpawnerProfile());
         }
 
         // Spawn particles - this has been modded to maximize the visual effect

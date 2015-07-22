@@ -741,8 +741,9 @@ void Camera::updateEffects()
     }
     
     // Apply motion blur
-    if ( local_stats.daze_level > 0 || local_stats.grog_level > 0 )
+    if ( local_stats.daze_level > 0 || local_stats.grog_level > 0 ) {
         _motionBlur = std::min( 0.95f, 0.5f + 0.03f * std::max( local_stats.daze_level, local_stats.grog_level ));
+    }
 
     //Apply camera swinging
     //mat_Multiply( _mView.v, mat_Translate( tmp1.v, pos[kX], -pos[kY], pos[kZ] ), _mViewSave.v );  // xgg

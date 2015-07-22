@@ -242,8 +242,8 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
     Random::setSeed(_character->getLevelUpSeed());
 
     //Calculate attribute improvements
-    std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> increase;
-    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    std::array<float, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> increase;
+    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const Ego::Attribute::AttributeType type = static_cast<Ego::Attribute::AttributeType>(i);
         increase[i] = Random::next(_character->getProfile()->getAttributeGain(type));
     }
@@ -383,14 +383,14 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
 
     //Figure out the widest attribute name width
     int attributeWidthSpacing = 0;
-    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         int width;
         _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->getTextSize(Ego::Attribute::toString(static_cast<Ego::Attribute::AttributeType>(i)), &width, nullptr);
         attributeWidthSpacing = std::max(attributeWidthSpacing, width+10);
     }
 
     //Attributes
-    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const Ego::Attribute::AttributeType type = static_cast<Ego::Attribute::AttributeType>(i);
 
         //Name
@@ -398,13 +398,13 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         attributeLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
 
         float x, y;
-        if(i < Ego::Attribute::NR_OF_ATTRIBUTES/2) {
+        if(i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES/2) {
             x = 20;
             y = 40 + attributeIncrease->getHeight() + i * 25;
         }
         else {
             x = 10 + getWidth()/2;
-            y = 40 + attributeIncrease->getHeight() + (i-Ego::Attribute::NR_OF_ATTRIBUTES/2) * 25;
+            y = 40 + attributeIncrease->getHeight() + (i-Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES/2) * 25;
         }
         attributeLabel->setPosition(x, y);
         attributeLabel->setAlpha(0.0f);
