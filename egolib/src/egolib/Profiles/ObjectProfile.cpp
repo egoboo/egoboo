@@ -1186,7 +1186,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_float( fileTemp, fileWrite, character->anim_speed_sneak );          //Note: overriden by chr
     template_put_float( fileTemp, fileWrite, character->anim_speed_walk );           //Note: overriden by chr
     template_put_float( fileTemp, fileWrite, character->anim_speed_run );            //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->flyheight );                    //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT) ); //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->flashand );                     //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, profile->_alpha);
     template_put_int( fileTemp, fileWrite, profile->_light );
@@ -1314,7 +1314,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_local_particle_profile_ref( fileTemp, fileWrite, profile->_bludParticle );
 
     // Extra stuff
-    template_put_bool( fileTemp, fileWrite, TO_C_BOOL( character->waterwalk ) ); //Note: overriden by chr
+    template_put_bool(fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::WALK_ON_WATER) > 0); //Note: overriden by chr
     template_put_float( fileTemp, fileWrite, character->phys.dampen );   //Note: overriden by chr
 
     // More stuff

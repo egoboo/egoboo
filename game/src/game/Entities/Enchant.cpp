@@ -129,6 +129,12 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
         }
         _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
     }
+    if(_enchantProfile->seeKurses) {
+        _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::SENSE_KURSES, 1.0f));        
+    }
+    if(_enchantProfile->darkvision) {
+        _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::DARKVISION, 1.0f));        
+    }
 
     if(doMorph) {
         _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MORPH, _spawnerProfileID));

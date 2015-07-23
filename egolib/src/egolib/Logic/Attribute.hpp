@@ -106,7 +106,8 @@ namespace Attribute
         ICE_RESIST,
         ZAP_RESIST,
 
-        DARKVISION,         //Can see in darkness?
+        DARKVISION,         ///< Can see in darkness?
+        SENSE_KURSES,       ///< Nearby kursed items flash back?
 
         NR_OF_ATTRIBUTES            //Always last
     };

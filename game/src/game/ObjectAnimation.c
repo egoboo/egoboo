@@ -334,7 +334,7 @@ float set_character_animation_rate( Object * pchr )
     pinst.rate = 1.0f;
 
     // for non-flying objects, you have to be touching the ground
-    if ( !pchr->enviro.grounded && 0 == pchr->flyheight ) return pinst.rate;
+    if ( !pchr->enviro.grounded && !pchr->isFlying() ) return pinst.rate;
 
     // get the model
     const std::shared_ptr<Ego::ModelDescriptor> pmad = pchr->getProfile()->getModel();
@@ -346,7 +346,7 @@ float set_character_animation_rate( Object * pchr )
     anim_info[CHR_MOVEMENT_WALK ].speed = pchr->anim_speed_walk;
     anim_info[CHR_MOVEMENT_RUN  ].speed = pchr->anim_speed_run;
 
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         // for flying characters, you have to flap like crazy to stand still and
         // do nothing to move quickly
@@ -416,7 +416,7 @@ float set_character_animation_rate( Object * pchr )
     }
 
     // estimate our speed
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         // for flying objects, the speed is the actual speed
         speed = pchr->vel.length_abs();

@@ -522,7 +522,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
         if ( IS_ATTACHED_CHR( pchr->ai.index ) ) continue;
 
         // nothing flying
-        if ( 0 != pchr->flyheight ) continue;
+        if (pchr->isFlying()) continue;
 
         lerp_z = ( pchr->getPosZ() - pchr->enviro.floor_level ) / DAMAGERAISE;
         lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );

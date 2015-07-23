@@ -170,8 +170,6 @@ bool chr_update_safe_raw( Object * pchr );
 bool chr_update_safe( Object * pchr, bool force );
 bool chr_get_safe( Object * pchr);
 
-bool chr_set_maxaccel( Object * pchr, float new_val );
-
 void chr_set_floor_level( Object * pchr, const float level );
 void chr_set_redshift( Object * pchr, const int rs );
 void chr_set_grnshift( Object * pchr, const int gs );

@@ -1114,7 +1114,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
             case VARSELFMANA:
                 varname = "SELFMANA";
                 iTmp = pchr->mana;
-                if ( pchr->canchannel )  iTmp += pchr->life;
+                if ( pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) )  iTmp += pchr->life;
 
                 break;
 
@@ -1147,7 +1147,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
                 else
                 {
                     iTmp = ptarget->mana;
-                    if ( ptarget->canchannel ) iTmp += ptarget->life;
+                    if ( ptarget->getAttribute(Ego::Attribute::CHANNEL_LIFE) ) iTmp += ptarget->life;
                 }
 
                 break;
@@ -1314,7 +1314,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARSELFACCEL:
                 varname = "SELFACCEL";
-                iTmp = ( pchr->maxaccel_reset * 100.0f );
+                iTmp = ( pchr->getAttribute(Ego::Attribute::ACCELERATION) * 100.0f );
                 break;
 
             case VARTARGETEXP:

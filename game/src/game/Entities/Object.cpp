@@ -76,7 +76,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     holdingweight(0),
     damagetarget_damagetype(DamageType::DAMAGE_SLASH),
     reaffirm_damagetype(DamageType::DAMAGE_SLASH),
-    damage_boost(0),
     damage_threshold(0),
     missiletreatment(MISSILE_NORMAL),
     missilecost(0),
@@ -97,7 +96,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     stickybutt(false),
     isshopitem(false),
     canbecrushed(false),
-    canchannel(false),
     grog_timer(0),
     daze_timer(0),
     bore_timer(BORETIME),
@@ -118,7 +116,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     profile_ref(profile),
     basemodel_ref(profile),
     inst(),
-    see_kurse_level(0),
 
     bump_stt(),
     bump(),
@@ -134,16 +131,13 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     ori_old(),
     bumplist_next(INVALID_CHR_REF),
 
-    waterwalk(false),
     turnmode(TURNMODE_VELOCITY),
     movement_bits(( unsigned )(~0)),    // all movements valid
     anim_speed_sneak(0.0f),
     anim_speed_walk(0.0f),
     anim_speed_run(0.0f),
     maxaccel(0.0f),
-    maxaccel_reset(0.0f),
 
-    flyheight(0),
     enviro(),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     dismount_object(INVALID_CHR_REF),
@@ -235,7 +229,6 @@ bool Object::setSkin(const size_t skinNumber)
 
     //Armour movement speed
     _baseAttribute[Ego::Attribute::ACCELERATION] = newSkin.maxAccel;
-    chr_set_maxaccel(this, newSkin.maxAccel);
 
     //Defence from Armour
     _baseAttribute[Ego::Attribute::DEFENCE] = newSkin.defence;
@@ -352,7 +345,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     }
 
     //Cannot mount while flying
-    if(flyheight != 0)
+    if(isFlying())
     {
         return false;
     }
@@ -932,11 +925,6 @@ void Object::update()
     }
 
     updateResize();
-
-    //Update some special skills
-    if(hasPerk(Ego::Perks::SENSE_KURSES)) {
-        see_kurse_level = std::max(see_kurse_level, 1);
-    }
 }
 
 void Object::updateResize()
@@ -1473,12 +1461,6 @@ void Object::resetAlpha()
     }
 }
 
-void Object::resetAcceleration()
-{
-    // Set the starting value
-    maxaccel = maxaccel_reset = getProfile()->getSkinInfo(skin).maxAccel;
-}
-
 void Object::giveExperience(const int amount, const XPType xptype, const bool overrideInvincibility)
 {
     //No xp to give
@@ -1678,7 +1660,7 @@ bool Object::costMana(int amount, const CHR_REF killer)
 
         mana = 0;
 
-        if ( canchannel )
+        if ( getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 )
         {
             life -= manaDebt;
 
@@ -1703,7 +1685,7 @@ bool Object::costMana(int amount, const CHR_REF killer)
         }
 
         // allow surplus mana to go to health if you can channel?
-        if ( canchannel && mana_surplus > 0 )
+        if ( getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 && mana_surplus > 0 )
         {
             // use some factor, divide by 2
             heal(pkiller, mana_surplus / 2, true);
@@ -1764,7 +1746,7 @@ void Object::respawn()
 
     platform        = profile->isPlatform();
     canuseplatforms = profile->canUsePlatforms();
-    flyheight       = profile->getFlyHeight();
+    _baseAttribute[Ego::Attribute::FLY_TO_HEIGHT] = profile->getFlyHeight();
     phys.bumpdampen = profile->getBumpDampen();
 
     ai.alert = ALERTIF_CLEANEDUP;
@@ -2069,4 +2051,9 @@ bool Object::disenchant()
 std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>>& Object::getTempAttributes()
 {
     return _tempAttribute;
+}
+
+bool Object::isFlying() const
+{
+    return getAttribute(Ego::Attribute::FLY_TO_HEIGHT) > 0.0f;
 }

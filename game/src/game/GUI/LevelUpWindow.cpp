@@ -322,6 +322,10 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
             _character->increaseBaseAttribute(Ego::Attribute::DARKVISION, 1.0f);
         break;
 
+        case Ego::Perks::SENSE_KURSES:
+            _character->increaseBaseAttribute(Ego::Attribute::SENSE_KURSES, 1.0f);
+        break;
+
         default:
             //nothing
         break;

@@ -536,7 +536,7 @@ int update_game()
             numalive++;
 
             local_stats.seeinvis_level += pchr->getAttribute(Ego::Attribute::SEE_INVISIBLE);
-            local_stats.seekurse_level += pchr->see_kurse_level;
+            local_stats.seekurse_level += pchr->getAttribute(Ego::Attribute::SENSE_KURSES);
             local_stats.seedark_level  += pchr->getAttribute(Ego::Attribute::DARKVISION);
             local_stats.grog_level     += pchr->grog_timer;
             local_stats.daze_level     += pchr->daze_timer;
@@ -1758,12 +1758,12 @@ void show_magic_status( int statindex )
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
-                       pchr->canSeeInvisible() ? "Yes" : "No",
-                       pchr->see_kurse_level ? "Yes" : "No" );
+                       pchr->getAttribute(Ego::Attribute::SEE_INVISIBLE) > 0 ? "Yes" : "No",
+                       pchr->getAttribute(Ego::Attribute::SENSE_KURSES) > 0 ? "Yes" : "No" );
 
     DisplayMsg_printf( "~Channel Life: %s~~Waterwalking: %s",
-                       pchr->canchannel ? "Yes" : "No",
-                       pchr->waterwalk ? "Yes" : "No" );
+                       pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 ? "Yes" : "No",
+                       pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? "Yes" : "No" );
 
     switch ( pchr->missiletreatment )
     {
@@ -1774,7 +1774,7 @@ void show_magic_status( int statindex )
         case MISSILE_NORMAL : missile_str = "None";    break;
     }
 
-    DisplayMsg_printf( "~Flying: %s~~Missile Protection: %s", ( pchr->flyheight > 0 ) ? "Yes" : "No", missile_str );
+    DisplayMsg_printf( "~Flying: %s~~Missile Protection: %s", pchr->isFlying() ? "Yes" : "No", missile_str );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3742,10 +3742,10 @@ float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
         pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->waterwalk );
+    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
+        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         zmax = std::max( zmax, fval );
     }
 
@@ -3770,7 +3770,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == pchr->bump_stt.size )
     {
-        return get_mesh_level( mesh, pchr->getPosX(), pchr->getPosY(), pchr->waterwalk );
+        return get_mesh_level(mesh, pchr->getPosX(), pchr->getPosY(), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
@@ -3828,10 +3828,10 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->waterwalk );
+        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->waterwalk );
+            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
             zmax = std::max( zmax, fval );
         }
     }
@@ -3860,7 +3860,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
     // check if they can be connected
-    if ( !profile->canUsePlatforms() || ( 0 != pchr->flyheight ) ) return false;
+    if ( !profile->canUsePlatforms() || pchr->isFlying() ) return false;
     if ( !pplat->platform ) return false;
 
     // do the attachment
@@ -3872,10 +3872,10 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     pchr->enviro.level     = std::max( pchr->enviro.floor_level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] );
     pchr->enviro.zlerp     = ( pchr->getPosZ() - pchr->enviro.level ) / PLATTOLERANCE;
     pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0.0f, 1.0f );
-    pchr->enviro.grounded  = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
+    pchr->enviro.grounded  = !pchr->isFlying() && ( pchr->enviro.zlerp < 0.25f );
 
     pchr->enviro.fly_level = std::max( pchr->enviro.fly_level, pchr->enviro.level );
-    if ( 0 != pchr->flyheight )
+    if ( !pchr->isFlying() )
     {
         if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
     }

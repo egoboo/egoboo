@@ -186,6 +186,12 @@ public:
     inline bool isItem() const {return isitem;}
 
     /**
+    * @return
+    *   true if this Object is currently levitating above the ground
+    **/
+    bool isFlying() const;
+
+    /**
     * @brief
     *   Respawns a Object, bringing it back to life and moving it to its initial position and state.
     *   Does nothing if character is already alive.
@@ -456,10 +462,6 @@ public:
     /// @author ZZ
     /// @details This function fixes an item's transparency
     void resetAlpha();
-
-    /// @author ZZ
-    /// @details This function fixes a character's max acceleration
-    void resetAcceleration();
 
     /**
     * @brief
@@ -756,7 +758,6 @@ public:
     // combat stuff
     DamageType          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
     DamageType          reaffirm_damagetype;           ///< For relighting torches
-    SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
     // missle handling
@@ -783,7 +784,6 @@ public:
     bool         stickybutt;                    ///< Rests on floor
     bool         isshopitem;                    ///< Spawned in a shop?
     bool         canbecrushed;                  ///< Crush in a door?
-    bool         canchannel;                    ///< Can it convert life to mana?
 
     // misc timers
     int16_t         grog_timer;                    ///< Grog timer
@@ -793,7 +793,7 @@ public:
     uint16_t         reload_timer;                  ///< Time before another shot
     uint8_t          damage_timer;                  ///< Invincibility timer
 
-    // graphica info
+    // graphical info
     uint8_t          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
     bool         transferblend;   ///< Give transparency to weapons?
     bool         draw_icon;       ///< Show the icon?
@@ -810,9 +810,6 @@ public:
     PRO_REF        profile_ref;                      ///< Character's profile
     PRO_REF        basemodel_ref;                     ///< The true form
     chr_instance_t inst;                          ///< the render data
-
-    // Skills
-    int           see_kurse_level;
 
     // collision info
 
@@ -841,16 +838,13 @@ public:
     CHR_REF        bumplist_next;                 ///< Next character on fanblock
 
     // movement properties
-    bool         waterwalk;                     ///< Always above watersurfacelevel?
     turn_mode_t  turnmode;                      ///< Turning mode
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
     float          anim_speed_sneak;              ///< Movement rate of the sneak animation
     float          anim_speed_walk;               ///< Walking if above this speed
     float          anim_speed_run;                ///< Running if above this speed
-    float          maxaccel;                      ///< The actual maximum acelleration
-    float          maxaccel_reset;                ///< The current maxaccel_reset
-    uint8_t          flyheight;                     ///< Height to stabilize at
+    float          maxaccel;                      ///< Current maximum acceleration
 
     // data for doing the physics in bump_all_objects()
 

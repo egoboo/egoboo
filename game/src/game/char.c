@@ -1214,7 +1214,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         particle->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
 
                         // Initial particles get an enchantment bonus
-                        particle->damage.base += pweapon->damage_boost;
+                        particle->damage.base += pweapon->getAttribute(Ego::Attribute::DAMAGE_BONUS);
 
                         //Handle traits that increase weapon damage
                         float damageBonus = 1.0f;
@@ -1472,7 +1472,7 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     pchr->stickybutt      = profile->hasStickyButt();
     pchr->openstuff       = profile->canOpenStuff();
     pchr->transferblend   = profile->transferBlending();
-    pchr->waterwalk       = profile->canWalkOnWater();
+    pchr->setBaseAttribute(Ego::Attribute::WALK_ON_WATER, profile->canWalkOnWater() ? 1.0f : 0.0f);
     pchr->platform        = profile->isPlatform();
     pchr->canuseplatforms = profile->canUsePlatforms();
     pchr->isitem          = profile->isItem();
@@ -1484,7 +1484,7 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     pchr->setBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, profile->getJumpNumber());
 
     // Other junk
-    pchr->flyheight   = profile->getFlyHeight();
+    pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, profile->getFlyHeight());
     pchr->flashand    = profile->getFlashAND();
     pchr->phys.dampen = profile->getBounciness();
 
@@ -2349,7 +2349,7 @@ void move_one_character_get_environment( Object * pchr )
     }
     else
     {
-        penviro->floor_level = pchr->waterwalk ? water_level : grid_level;
+        penviro->floor_level = pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) ? water_level : grid_level;
     }
 
     //---- The actual level of the characer.
@@ -2376,7 +2376,7 @@ void move_one_character_get_environment( Object * pchr )
     penviro->zlerp = ( pchr->getPosZ() - penviro->level ) / PLATTOLERANCE;
     penviro->zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
-    penviro->grounded = (( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
+    penviro->grounded = (!pchr->isFlying() && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
     penviro->grid_twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), pchr->getTile() );
@@ -2387,7 +2387,7 @@ void move_one_character_get_environment( Object * pchr )
 
     //---- traction
     penviro->traction = 1.0f;
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         // any traction factor here
         /* traction = ??; */
@@ -2442,7 +2442,7 @@ void move_one_character_get_environment( Object * pchr )
 
     //---- friction
     penviro->friction_hrz       = 1.0f;
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         if ( pchr->platform )
         {
@@ -2465,7 +2465,7 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     //---- jump stuff
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         // Flying
         pchr->jumpready = false;
@@ -2529,7 +2529,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
     penviro = &( pchr->enviro );
 
-    if ( 0 != pchr->flyheight ) return;
+    if ( pchr->isFlying() ) return;
 
     // assume the best
 	floor_acc = fvec3_t::zero();
@@ -2750,14 +2750,14 @@ void move_one_character_do_voluntary( Object * pchr )
     if ( sneak_mode_active )
     {
         // sneak mode
-        pchr->maxaccel      = pchr->maxaccel_reset * 0.33f;
+        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
         pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
     }
     else
     {
         // non-sneak mode
         pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-        pchr->maxaccel      = pchr->maxaccel_reset;
+        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION);
     }
 
     // do platform friction
@@ -3090,7 +3090,7 @@ bool chr_do_latch_button( Object * pchr )
             detach_character_from_platform( pchr );
 
             pchr->jump_timer = JUMPDELAY;
-            if ( 0 != pchr->flyheight )
+            if ( pchr->isFlying() )
             {
                 pchr->vel[kZ] += DISMOUNTZVELFLY;
             }
@@ -3109,7 +3109,7 @@ bool chr_do_latch_button( Object * pchr )
         }
 
         //Normal jump
-        else if ( 0 != pchr->jumpnumber && 0 == pchr->flyheight )
+        else if ( 0 != pchr->jumpnumber && !pchr->isFlying() )
         {
             if ( 1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready )
             {
@@ -3207,9 +3207,9 @@ void move_one_character_do_z_motion( Object * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     //---- do z acceleration
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
-        pchr->vel[kZ] += ( pchr->enviro.fly_level + pchr->flyheight - pchr->getPosZ() ) * FLYDAMPEN;
+        pchr->vel[kZ] += ( pchr->enviro.fly_level + pchr->getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - pchr->getPosZ() ) * FLYDAMPEN;
     }
 
     else if (
@@ -3508,7 +3508,7 @@ bool move_one_character_integrate_motion( Object * pchr )
     }
 
     // fixes to the z-position
-    if ( 0.0f != pchr->flyheight )
+    if (pchr->isFlying())
     {
         if ( tmp_pos[kZ] < 0.0f ) tmp_pos[kZ] = 0.0f;  // Don't fall in pits...
     }
@@ -4422,29 +4422,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     }
 
     return object;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_set_maxaccel( Object * pchr, float new_val )
-{
-    bool retval = false;
-    float ftmp;
-
-    if ( nullptr == ( pchr ) ) return retval;
-
-    if ( 0.0f == pchr->maxaccel_reset )
-    {
-        pchr->maxaccel_reset = new_val;
-        pchr->maxaccel       = new_val;
-    }
-    else
-    {
-        ftmp = pchr->maxaccel / pchr->maxaccel_reset;
-        pchr->maxaccel_reset = new_val;
-        pchr->maxaccel = ftmp * pchr->maxaccel_reset;
-    }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
