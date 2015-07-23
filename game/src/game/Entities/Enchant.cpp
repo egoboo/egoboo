@@ -28,7 +28,7 @@
 namespace Ego
 {
 
-Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_REF spawnerProfile) :
+Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object> &owner) :
     _isTerminated(false),
     _enchantProfileID(INVALID_ENC_REF),
     _enchantProfile(enchantmentProfile),
@@ -38,7 +38,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
     _spawnParticlesTimer(0),
 
     _target(),
-    _owner(),
+    _owner(owner),
     _spawner(),
     _overlay(),
 
@@ -92,7 +92,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
             default: throw std::logic_error("Unhandled enchant set type");
         }
-        _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
+        _modifiers.push_front(Ego::EnchantModifier(type, FP8_TO_FLOAT(_enchantProfile->_add[i].value)));
     }
     for(size_t i = 0; i < eve_t::MAX_ENCHANT_ADD; ++i) {
         if(!_enchantProfile->_add[i].apply) continue;
@@ -127,8 +127,9 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::ADDZAPRESIST: type = Ego::Attribute::ZAP_RESIST; break;
             default: throw std::logic_error("Unhandled enchant add type");
         }
-        _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
+        _modifiers.push_front(Ego::EnchantModifier(type, FP8_TO_FLOAT(_enchantProfile->_add[i].value)));
     }
+
     if(_enchantProfile->seeKurses) {
         _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::SENSE_KURSES, 1.0f));        
     }
@@ -348,7 +349,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         std::shared_ptr<Object> overlay = _currentModule->spawnObject(target->getPosition(), _spawnerProfileID, target->team, 0, target->ori.facing_z, NULL, INVALID_CHR_REF );
         if (overlay)
         {
-            overlay = overlay;                             //Kill this character on end...
+            _overlay = overlay;                             //Kill this character on end...
             overlay->ai.target   = target->getCharacterID();
             overlay->is_overlay  = true;
             chr_set_ai_state(overlay.get(), _enchantProfile->spawn_overlay);  // ??? WHY DO THIS ???

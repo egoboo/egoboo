@@ -898,7 +898,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
         if (ppip->spawnenchant) 
         {
             const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pprt->getSpawnerProfile());
-            pchr->addEnchant(spawnerProfile->getEnchantRef(), pprt->getSpawnerProfile());
+            pchr->addEnchant(spawnerProfile->getEnchantRef(), pprt->getSpawnerProfile(), _currentModule->getObjectHandler()[pprt->owner_ref]);
         }
 
         // Spawn particles - this has been modded to maximize the visual effect

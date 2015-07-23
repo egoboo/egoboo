@@ -657,7 +657,7 @@ public:
     * @brief
     *   pointer to the enchant that was added (or nullptr if it failed)
     **/
-    std::shared_ptr<Ego::Enchantment> addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile);
+    std::shared_ptr<Ego::Enchantment> addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner);
 
     void removeEnchantsWithIDSZ(const IDSZ idsz);
 
@@ -680,6 +680,8 @@ public:
     bool setSkin(const size_t skinNumber);
 
     std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>>& getTempAttributes();
+
+    std::shared_ptr<Ego::Enchantment> getLastEnchantmentSpawned() const;
 
 private:
 
@@ -873,7 +875,7 @@ private:
     uint32_t _reallyDuration;                            ///< Game Logic Update frame duration for rally bonus gained from the Perk
 
     std::forward_list<std::shared_ptr<Ego::Enchantment>> _activeEnchants;    ///< List of all active enchants on this Object
-
+    std::weak_ptr<Ego::Enchantment> _lastEnchantSpawned;    //< Last enchantment that his Object has spawned
 
     friend class ObjectHandler;
 };

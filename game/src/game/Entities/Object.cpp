@@ -154,7 +154,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
     _hasBeenKilled(false),
     _reallyDuration(0),
-    _activeEnchants()
+    _activeEnchants(),
+    _lastEnchantSpawned()
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -598,6 +599,9 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
                     // write the string into the buffer
                     snprintf( text_buffer, SDL_arraysize( text_buffer ), "%.1f", static_cast<float>(actual_damage) / 256.0f );
+
+                    //Size depends on the amount of damage (more = bigger)
+                    //TODO: not implemented                    
 
                     chr_make_text_billboard(_characterID, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All );
                 }
@@ -1995,7 +1999,7 @@ float Object::getLife() const
     return FP8_TO_FLOAT(life);
 }
 
-std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile)
+std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner)
 {
     if (enchantProfile >= ENCHANTPROFILES_MAX || !EveStack.get_ptr(enchantProfile)->_loaded) {
         log_warning("Object::addEnchant() - Cannot add enchant with invalid enchant profile %d\n", enchantProfile);        
@@ -2008,10 +2012,16 @@ std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO
         return nullptr;
     }
 
-    std::shared_ptr<Ego::Enchantment> enchant = std::make_shared<Ego::Enchantment>(enchantmentProfile, spawnerProfile);
+    std::shared_ptr<Ego::Enchantment> enchant = std::make_shared<Ego::Enchantment>(enchantmentProfile, spawnerProfile, owner);
     enchant->applyEnchantment(_currentModule->getObjectHandler()[getCharacterID()]);
 
-    return enchant;
+    //Succeeded to apply the enchantment to the target?
+    if(!enchant->isTerminated()) {
+        owner->_lastEnchantSpawned = enchant;
+        return enchant;
+    }
+
+    return nullptr;
 }
 
 void Object::removeEnchantsWithIDSZ(const IDSZ idsz)
@@ -2056,4 +2066,9 @@ std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>>& Ob
 bool Object::isFlying() const
 {
     return getAttribute(Ego::Attribute::FLY_TO_HEIGHT) > 0.0f;
+}
+
+std::shared_ptr<Ego::Enchantment> Object::getLastEnchantmentSpawned() const
+{
+    return _lastEnchantSpawned.lock();
 }
