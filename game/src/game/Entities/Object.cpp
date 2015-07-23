@@ -230,6 +230,9 @@ bool Object::setSkin(const size_t skinNumber)
     //Armour movement speed
     _baseAttribute[Ego::Attribute::ACCELERATION] = newSkin.maxAccel;
 
+    //Recalculate total movement speed
+    maxaccel = getAttribute(Ego::Attribute::ACCELERATION);
+
     //Defence from Armour
     _baseAttribute[Ego::Attribute::DEFENCE] = newSkin.defence;
 
@@ -243,7 +246,9 @@ bool Object::setSkin(const size_t skinNumber)
             chr_update_collision_size(this, true);
         }
     }
-    chr_instance_t::set_texture(this->inst, getProfile()->getSkin(this->skin));    
+    chr_instance_t::set_texture(this->inst, getProfile()->getSkin(this->skin));
+
+    return true;
 }
 
 
@@ -1874,28 +1879,23 @@ float Object::getAttribute(const Ego::Attribute::AttributeType type) const
 { 
     EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
 
+    float attributeValue = _baseAttribute[type];
+
     //Try to find temp value in map, but don't create it if it doesn't already exist
-    float tempValue = 0.0f;
-    auto result = _tempAttribute.find(type);
+    const auto& result = _tempAttribute.find(type);
     if(result != _tempAttribute.end()) {
-        tempValue = (*result).second;
-    }
 
-    //Is this a SET type attribute or a cumulative ADD type attribute?
-    if(isOverrideSetAttribute(type)) {
-        return tempValue;
+        //Is this a SET type attribute or a cumulative ADD type attribute?
+        if(isOverrideSetAttribute(type)) {
+            return (*result).second;
+        }
+        else {
+            //Total value is base plus temp bonuses from enchants
+            attributeValue += (*result).second;
+        }
     }
-
-    //Total value is base plus temp bonuses from enchants
-    float attributeValue = _baseAttribute[type] + tempValue;
 
     switch(type) {
-        case Ego::Attribute::SEE_INVISIBLE:
-            //See Invisible Perk allows us to see invisible
-            if(hasPerk(Ego::Perks::SENSE_INVISIBLE)) {
-                return 1.0f;
-            }
-        break;
 
         //Wolverine perk gives +0.25 Life Regeneration while holding a Claw weapon
         case Ego::Attribute::LIFE_REGEN:

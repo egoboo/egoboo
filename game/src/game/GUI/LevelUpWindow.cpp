@@ -326,6 +326,10 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
             _character->increaseBaseAttribute(Ego::Attribute::SENSE_KURSES, 1.0f);
         break;
 
+        case Ego::Perks::SENSE_INVISIBLE:
+            _character->increaseBaseAttribute(Ego::Attribute::SEE_INVISIBLE, 1.0f);
+        break;
+
         default:
             //nothing
         break;

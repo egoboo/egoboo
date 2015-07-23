@@ -158,11 +158,12 @@ Enchantment::~Enchantment()
                 //change back into original form
                 change_character(target->getCharacterID(), target->basemodel_ref, modifier._value, ENC_LEAVE_ALL);
             }
-
             else if(Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
+                //remove effect completely
                 target->getTempAttributes().erase(modifier._type);
             }
             else {
+                //remove cumulative bonus/penality
                 target->getTempAttributes()[modifier._type] -= modifier._value;
             }
         }
