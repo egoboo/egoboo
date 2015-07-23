@@ -148,6 +148,25 @@ Enchantment::~Enchantment()
     if(overlay) {
         overlay->requestTerminate();
     }
+
+    //Remove enchantment modifiers from target
+    std::shared_ptr<Object> target = _target.lock();
+    if(target != nullptr && !target->isTerminated()) {
+        for(const EnchantModifier &modifier : _modifiers)
+        {
+            if(modifier._type == Ego::Attribute::MORPH) {
+                //change back into original form
+                change_character(target->getCharacterID(), target->basemodel_ref, modifier._value, ENC_LEAVE_ALL);
+            }
+
+            else if(Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
+                target->getTempAttributes().erase(modifier._type);
+            }
+            else {
+                target->getTempAttributes()[modifier._type] -= modifier._value;
+            }
+        }
+    }
 }
 
 void Enchantment::requestTerminate()
