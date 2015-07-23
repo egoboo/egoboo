@@ -555,6 +555,14 @@ public:
     uint16_t getBaseBlockRating() const { return _blockRating; }
 
     /**
+    * @return
+    *   true if the specified skin number is valid and can be used for this profile
+    * @see
+    *   getSkinInfo()
+    **/
+    bool isValidSkin(size_t index) const;
+
+    /**
     * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
     * @param slotOverride Which slot number to load this profile in
     * @param lightWeight If true, then no 3D model, sounds, particle or enchant will be loaded (for menu)

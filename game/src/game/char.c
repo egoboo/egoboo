@@ -83,7 +83,6 @@ static void chr_set_enviro_grid_level( Object * pchr, const float level );
 static bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 Object * chr_config_do_init( Object * pchr );
-static int chr_change_skin( const CHR_REF character, const SKIN_T skin );
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
 
 static void move_one_character_do_floor_friction( Object * pchr );
@@ -1442,12 +1441,6 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
         }
     }
 
-    pchr->darkvision_level = 0;
-    if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
-        pchr->darkvision_level += 1;
-    }
-    pchr->see_invisible_level = profile->canSeeInvisible();
-
     // Ammo
     pchr->ammomax = profile->getMaxAmmo();
     pchr->ammo = profile->getAmmo();
@@ -1468,23 +1461,14 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     }
 
     // Life and Mana bars
-    pchr->life_color = profile->getLifeColor();
-    pchr->mana_color = profile->getManaColor();
+    pchr->setBaseAttribute(Ego::Attribute::LIFE_BARCOLOR, profile->getLifeColor());
+    pchr->setBaseAttribute(Ego::Attribute::MANA_BARCOLOR, profile->getManaColor());
 
     // Skin
-    pchr->skin = profile->getSkinOverride();
-
-    // Resistances
-    const SkinInfo &skin = profile->getSkinInfo(pchr->skin);
-    pchr->defense = skin.defence;
-    pchr->damagetarget_damagetype = profile->getDamageTargetType();
-    for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
-    {
-        pchr->damage_modifier[tnc] = skin.damageModifier[tnc];
-        pchr->damage_resistance[tnc] = skin.damageResistance[tnc];
-    }
+    pchr->setSkin(profile->getSkinOverride());
 
     // Flags
+    pchr->damagetarget_damagetype = profile->getDamageTargetType();
     pchr->stickybutt      = profile->hasStickyButt();
     pchr->openstuff       = profile->canOpenStuff();
     pchr->transferblend   = profile->transferBlending();
@@ -1496,12 +1480,11 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     pchr->cangrabmoney    = profile->canGrabMoney();
 
     // Jumping
-    pchr->jump_power = profile->getJumpPower();
-    pchr->jumpnumberreset = profile->getJumpNumber();
+    pchr->setBaseAttribute(Ego::Attribute::JUMP_POWER, profile->getJumpPower());
+    pchr->setBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, profile->getJumpNumber());
 
     // Other junk
     pchr->flyheight   = profile->getFlyHeight();
-    pchr->maxaccel    = pchr->maxaccel_reset = skin.maxAccel;
     pchr->flashand    = profile->getFlashAND();
     pchr->phys.dampen = profile->getBounciness();
 
@@ -1727,21 +1710,7 @@ Object * chr_config_do_init( Object * pchr )
     }
 
     // actually set the character skin
-    pchr->skin = spawn_ptr->skin;
-
-    // fix the spawn_ptr->skin-related parameters, in case there was some funny business with overriding
-    // the spawn_ptr->skin from the data.txt file
-    {
-        const SkinInfo &skin = ppro->getSkinInfo(pchr->skin);
-        pchr->defense = skin.defence;
-        for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
-        {
-            pchr->damage_modifier[tnc] = skin.damageModifier[tnc];
-            pchr->damage_resistance[tnc] = skin.damageResistance[tnc];
-        }
-
-        chr_set_maxaccel( pchr, skin.maxAccel );
-    }
+    pchr->setSkin(spawn_ptr->skin);
 
     // override the default behavior for an "easy" game
     if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal)
@@ -1838,69 +1807,20 @@ Object * chr_config_do_init( Object * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_change_skin( const CHR_REF character, const SKIN_T skin )
-{
-    TX_REF new_texture = (TX_REF)TX_WATER_TOP;
-
-	if (!_currentModule->getObjectHandler().exists(character)) {
-		return 0;
-	}
-	Object *pchr = _currentModule->getObjectHandler().get(character);
-	chr_instance_t& pinst = pchr->inst;
-
-	const std::shared_ptr<Ego::ModelDescriptor> &model = pchr->getProfile()->getModel();
-
-    // make sure that the instance has a valid imad
-    if (!pinst.imad) {
-        if (chr_instance_t::set_mad(pinst, model)) {
-            chr_update_collision_size(pchr, true);
-        }
-    }
-
-    // the normal thing to happen
-    new_texture = pchr->getProfile()->getSkin(skin);
-    pchr->skin = skin;
-
-    chr_instance_t::set_texture(pinst, new_texture);
-
-    return pchr->skin;
-}
-
-//--------------------------------------------------------------------------------------------
 int change_armor( const CHR_REF character, const SKIN_T skin )
 {
     /// @author ZZ
     /// @details This function changes the armor of the character
 
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-    int     loc_skin = skin;
-
-    int     iTmp;
     Object * pchr;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return 0;
     pchr = _currentModule->getObjectHandler().get( character );
 
     // Change the skin
-    std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-    loc_skin = chr_change_skin( character, loc_skin );
+    pchr->setSkin(skin);
 
-    const SkinInfo &skinInfo = profile->getSkinInfo(loc_skin);
-
-    // Change stats associated with skin
-    pchr->defense = skinInfo.defence;
-
-    for ( iTmp = 0; iTmp < DAMAGE_COUNT; iTmp++ )
-    {
-        pchr->damage_modifier[iTmp] = skinInfo.damageModifier[iTmp];
-        pchr->damage_resistance[iTmp] = skinInfo.damageResistance[iTmp];
-    }
-
-    // set the character's maximum acceleration
-    chr_set_maxaccel( pchr, skinInfo.maxAccel );
-
-    return loc_skin;
+    return pchr->skin;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1913,7 +1833,7 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
     const std::shared_ptr<ObjectProfile>& newProfile = ProfileSystem::get().getProfile(profile);
     if (!newProfile) return;
 
-    // copy the new name
+    // copy the new name (TODO: not implemented)
     //strncpy( MadStack.lst[imad_old].name, MadStack.lst[imad_new].name, SDL_arraysize( MadStack.lst[imad_old].name ) );
 
     // change their model
@@ -2025,13 +1945,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->invictus        = newProfile->isInvincible();
     pchr->cangrabmoney    = newProfile->canGrabMoney();
     pchr->jump_timer      = JUMPDELAY;
-
-    // change the skillz, too, jack!
-    pchr->darkvision_level = 0; 
-    if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
-        pchr->darkvision_level += 1;        
-    }
-    pchr->see_invisible_level = newProfile->canSeeInvisible();
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
     /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
@@ -2371,58 +2284,6 @@ bool chr_get_skill( Object *pchr, IDSZ whichskill )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool update_chr_darkvision( const CHR_REF character )
-{
-    /// @author BB
-    /// @details as an offset to negative status effects like things like poisoning, a
-    ///               character gains darkvision ability the more they are "poisoned".
-    ///               True poisoning can be removed by [HEAL] and tints the character green
-
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-
-    std::shared_ptr<eve_t> peve;
-    int life_regen = 0;
-
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    // grab the life loss due poison to determine how much darkvision a character has earned, he he he!
-    for(std::shared_ptr<Ego::Enchantment> &enchant : pchr->getActiveEnchants()) {
-        if(enchant->isTerminated()) {
-            continue;
-        }
-
-        //Poison?
-        if(enchant->getProfile()->removedByIDSZ == MAKE_IDSZ( 'H', 'E', 'A', 'L' )) {
-            life_regen -= enchant->getTargetLifeDrain();
-
-            if (enchant->getOwnerID() == pchr->getCharacterID()) {
-                life_regen += enchant->getOwnerLifeSustain();
-            }
-        }
-    }
-
-    if ( life_regen < 0 )
-    {
-        int tmp_level  = ( 0 == pchr->getAttribute(Ego::Attribute::MAX_LIFE) ) ? 0 : ( 10 * -life_regen ) / FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));                      // Darkvision gained by poison
-
-        //Use the better of the two darkvision abilities
-        pchr->darkvision_level = tmp_level;
-
-        //Nightvision skill
-        if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
-            pchr->darkvision_level += 1;
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void update_all_characters()
 {
     /// @author ZZ
@@ -2632,14 +2493,14 @@ void move_one_character_get_environment( Object * pchr )
                 // Reset jumping on flat areas of slippiness
                 if ( penviro->grounded && 0 == pchr->jump_timer )
                 {
-                    pchr->jumpnumber = pchr->jumpnumberreset;
+                    pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
                 }
             }
         }
         else if ( penviro->grounded && 0 == pchr->jump_timer )
         {
             // Reset jumping
-            pchr->jumpnumber = pchr->jumpnumberreset;
+            pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
         }
     }
 
@@ -3240,7 +3101,7 @@ bool chr_do_latch_button( Object * pchr )
 
             pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel[kZ]);
 
-            if ( pchr->jumpnumberreset != JUMPINFINITE && 0 != pchr->jumpnumber )
+            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE && 0 != pchr->jumpnumber )
                 pchr->jumpnumber--;
 
             // Play the jump sound
@@ -3250,7 +3111,7 @@ bool chr_do_latch_button( Object * pchr )
         //Normal jump
         else if ( 0 != pchr->jumpnumber && 0 == pchr->flyheight )
         {
-            if ( 1 != pchr->jumpnumberreset || pchr->jumpready )
+            if ( 1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready )
             {
 
                 // Make the character jump
@@ -3263,11 +3124,11 @@ bool chr_do_latch_button( Object * pchr )
                 else
                 {
                     pchr->jump_timer = JUMPDELAY;
-                    pchr->vel[kZ] += pchr->jump_power * 1.5f;
+                    pchr->vel[kZ] += pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
                 }
 
                 pchr->jumpready = false;
-                if ( pchr->jumpnumberreset != JUMPINFINITE ) pchr->jumpnumber--;
+                if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE ) pchr->jumpnumber--;
 
                 // Set to jump animation if not doing anything better
                 if ( pchr->inst.action_ready )

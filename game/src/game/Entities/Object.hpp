@@ -569,15 +569,28 @@ public:
 
     /**
     * @brief
-    *   Get total value for the specified attribute
+    *   Get total value for the specified attribute. Includes bonuses from Enchants, Perks
+    *   and other active boni or penalties.
     **/
     float getAttribute(const Ego::Attribute::AttributeType type) const;
+
+    /**
+    * @brief
+    *   Get base value for the specified attribute (without applying effects from Enchants and Perks)
+    **/
+    float getBaseAttribute(const Ego::Attribute::AttributeType type) const;
 
     /**
     * @brief
     *   Permanently increases or decreases an attribute of this Object
     **/
     void increaseBaseAttribute(const Ego::Attribute::AttributeType type, float value);
+
+    /**
+    * @brief
+    *   Permanently changes the base attribute of this character to something else
+    **/
+    void setBaseAttribute(const Ego::Attribute::AttributeType type, float value);
 
     /**
     * @return
@@ -609,7 +622,7 @@ public:
     * @return
     *   true if this Object can detect and see invisible objects
     **/
-    bool canSeeInvisible() const { return see_invisible_level > 0 || getProfile()->canSeeInvisible() || hasPerk(Ego::Perks::SENSE_INVISIBLE); }
+    bool canSeeInvisible() const { return getAttribute(Ego::Attribute::SEE_INVISIBLE); }
 
     /**
     * @return
@@ -654,6 +667,18 @@ public:
     **/
     bool disenchant();
 
+    /**
+    * @brief
+    *   Changes the skin of this Object to the specified skin number.
+    *   This changes this Objects damage resistances and movement speed accordingly to the new
+    *   armor of the skin.
+    * @return
+    *   true if the skin could be changed into the specified number or false if it fails
+    **/
+    bool setSkin(const size_t skinNumber);
+
+    std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>>& getTempAttributes();
+
 private:
 
     /**
@@ -689,10 +714,8 @@ public:
     STRING         Name;            ///< My name
     uint8_t        gender;          ///< Gender
 
-    uint8_t        life_color;      ///< Bar color
 	SFP8_T         life;            ///< current life (signed 8.8 fixed point)
 
-    uint8_t        mana_color;      ///< Bar color
 	SFP8_T         mana;            ///< current mana (signed 8.8 fixed point)
 
     uint32_t       experience;      ///< Experience
@@ -710,21 +733,15 @@ public:
     TEAM_REF       team;            ///< Character's team
     TEAM_REF       team_base;        ///< Character's starting team
 
-    // enchant data
-    ENC_REF        firstenchant;                  ///< Linked list for enchants
-    ENC_REF        undoenchant;                   ///< Last enchantment spawned
-
     float          fat_stt;                       ///< Character's initial size
     float          fat;                           ///< Character's size
     float          fat_goto;                      ///< Character's size goto
     int16_t         fat_goto_time;                 ///< Time left in size change
 
     // jump stuff
-    float          jump_power;                    ///< Jump power
     uint8_t          jump_timer;                      ///< Delay until next jump
     uint8_t          jumpnumber;                    ///< Number of jumps remaining
-    uint8_t          jumpnumberreset;               ///< Number of jumps total, 255=Flying
-    uint8_t          jumpready;                     ///< For standing on a platform character
+    bool             jumpready;                     ///< For standing on a platform character
 
     // attachments
     CHR_REF        attachedto;                    ///< != INVALID_CHR_REF if character is a held weapon
@@ -739,9 +756,6 @@ public:
     // combat stuff
     DamageType          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
     DamageType          reaffirm_damagetype;           ///< For relighting torches
-    std::array<uint8_t, DAMAGE_COUNT> damage_modifier; ///< Damage inversion
-    std::array<float, DAMAGE_COUNT> damage_resistance; ///< Damage Resistances
-    uint8_t          defense;                       ///< Base defense rating
     SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
@@ -798,9 +812,7 @@ public:
     chr_instance_t inst;                          ///< the render data
 
     // Skills
-    int           darkvision_level;
     int           see_kurse_level;
-    int           see_invisible_level;
 
     // collision info
 
@@ -854,7 +866,10 @@ private:
     CHR_REF _characterID;                                ///< Our unique CHR_REF id
     std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
     bool _showStatus;                                    ///< Display stats?
-    std::array<float, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _baseAttribute; ///< Character attributes
+
+    std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
+    std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>> _tempAttribute; ///< Character attributes with enchants
+
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
     uint32_t _levelUpSeed;
@@ -865,8 +880,6 @@ private:
 
     std::forward_list<std::shared_ptr<Ego::Enchantment>> _activeEnchants;    ///< List of all active enchants on this Object
 
-    std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _attributes;
 
     friend class ObjectHandler;
-    friend class Ego::Enchantment; //TODO: remove?
 };

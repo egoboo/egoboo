@@ -535,9 +535,9 @@ int update_game()
         {
             numalive++;
 
-            local_stats.seeinvis_level += pchr->see_invisible_level;
+            local_stats.seeinvis_level += pchr->getAttribute(Ego::Attribute::SEE_INVISIBLE);
             local_stats.seekurse_level += pchr->see_kurse_level;
-            local_stats.seedark_level  += pchr->darkvision_level;
+            local_stats.seedark_level  += pchr->getAttribute(Ego::Attribute::DARKVISION);
             local_stats.grog_level     += pchr->grog_timer;
             local_stats.daze_level     += pchr->daze_timer;
 
@@ -1655,13 +1655,13 @@ void show_armor( int statindex )
 
     // jumps
     tmps[0] = CSTR_END;
-    switch ( profile->getJumpNumber() )
+    switch ( static_cast<int>(pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS)) )
     {
-        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%d)", pchr->jumpnumberreset ); break;
-        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%d)", pchr->jumpnumberreset ); break;
-        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%d)", pchr->jumpnumberreset ); break;
-        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%d)", pchr->jumpnumberreset ); break;
-        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", pchr->jumpnumberreset ); break;
+        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
     };
 
     DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", skinInfo.maxAccel*80, tmps );
@@ -1758,7 +1758,7 @@ void show_magic_status( int statindex )
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
-                       pchr->see_invisible_level ? "Yes" : "No",
+                       pchr->canSeeInvisible() ? "Yes" : "No",
                        pchr->see_kurse_level ? "Yes" : "No" );
 
     DisplayMsg_printf( "~Channel Life: %s~~Waterwalking: %s",
@@ -3887,7 +3887,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
     {
-        pchr->jumpnumber = pchr->jumpnumberreset;
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
 
     // what to do about traction if the platform is tilted... hmmm?
@@ -3948,7 +3948,7 @@ bool detach_character_from_platform( Object * pchr )
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
     {
-        pchr->jumpnumber = pchr->jumpnumberreset;
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
 
     return true;

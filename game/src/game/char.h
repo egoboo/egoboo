@@ -180,8 +180,6 @@ void chr_set_blushift( Object * pchr, const int bs );
 std::string chr_get_dir_name( const CHR_REF ichr );
 bool chr_get_skill( Object * pchr, IDSZ whichskill );
 
-bool update_chr_darkvision( const CHR_REF character );
-
 // this function is needed because the "hidden" state of an ai is determined by
 // whether  ai.state == cap.hidestate
 Object * chr_set_ai_state( Object * pchr, int state );

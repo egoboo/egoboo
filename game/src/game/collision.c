@@ -3082,7 +3082,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     if(spawnerProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','C','Y','T') && Random::getPercent() <= 5) {
 
                         //Make sure they can be damaged by EVIL first
-                        if(pdata->pchr->damage_modifier[DAMAGE_EVIL] == NONE) {
+                        if(pdata->pchr->getAttribute(Ego::Attribute::EVIL_MODIFIER) == NONE) {
                             IPair grimReaperDamage;
                             grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
                             grimReaperDamage.rand = 0.0f;

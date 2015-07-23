@@ -5719,7 +5719,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->see_invisible_level > 0 );
+    returncode = pself_target->canSeeInvisible();
 
     SCRIPT_FUNCTION_END();
 }

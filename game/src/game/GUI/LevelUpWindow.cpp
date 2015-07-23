@@ -280,11 +280,11 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         break;
 
         case Ego::Perks::ACROBATIC:
-            _character->jumpnumberreset += 1;
+            _character->increaseBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, 1.0f);
         break;
 
         case Ego::Perks::MASTER_ACROBAT:
-            _character->jumpnumberreset += 1;
+            _character->increaseBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, 1.0f);
         break;
 
         case Ego::Perks::POWER:
@@ -294,10 +294,6 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         case Ego::Perks::PERFECTION:
             increase[Ego::Attribute::INTELLECT] += 1.00f;
             increase[Ego::Attribute::AGILITY] += 1.00f;
-        break;
-
-        case Ego::Perks::ATHLETICS:
-            _character->jump_power += _character->getProfile()->getJumpPower()*0.25f; //+25% jump power
         break;
 
         case Ego::Perks::ANCIENT_BLUD:
@@ -320,6 +316,10 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         case Ego::Perks::BOOKWORM:
             increase[Ego::Attribute::INTELLECT] += 2.00f;
             increase[Ego::Attribute::MIGHT] -= 2.00f;
+        break;
+
+        case Ego::Perks::NIGHT_VISION:
+            _character->increaseBaseAttribute(Ego::Attribute::DARKVISION, 1.0f);
         break;
 
         default:

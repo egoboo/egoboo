@@ -48,9 +48,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     latch(),
     Name(),
     gender(GENDER_MALE),
-    life_color(0),
     life(0),
-    mana_color(0),
     mana(0),
     experience(0),
     experiencelevel(0),
@@ -61,17 +59,15 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     equipment(),
     team(Team::TEAM_NULL),
     team_base(Team::TEAM_NULL),
-    firstenchant(INVALID_ENC_REF),
-    undoenchant(INVALID_ENC_REF), 
     fat_stt(0.0f),
     fat(0.0f),
     fat_goto(0.0f),
     fat_goto_time(0),
-    jump_power(0.0f),
+
     jump_timer(JUMPDELAY),
     jumpnumber(0),
-    jumpnumberreset(0),
-    jumpready(0),
+    jumpready(false),
+
     attachedto(INVALID_CHR_REF),
     inwhich_slot(SLOT_LEFT),
     inwhich_inventory(INVALID_CHR_REF),
@@ -80,9 +76,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     holdingweight(0),
     damagetarget_damagetype(DamageType::DAMAGE_SLASH),
     reaffirm_damagetype(DamageType::DAMAGE_SLASH),
-    damage_modifier(),
-    damage_resistance(),
-    defense(0),
     damage_boost(0),
     damage_threshold(0),
     missiletreatment(MISSILE_NORMAL),
@@ -125,9 +118,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     profile_ref(profile),
     basemodel_ref(profile),
     inst(),
-    darkvision_level(0),
     see_kurse_level(0),
-    see_invisible_level(0),
 
     bump_stt(),
     bump(),
@@ -163,6 +154,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
     _baseAttribute(),
+    _tempAttribute(),
     _inventory(),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
@@ -173,12 +165,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
 
-    //Damage resistance
-    for (size_t i = 0; i < DAMAGE_COUNT; i++ )
-    {
-        damage_modifier[i]   = getProfile()->getSkinInfo(skin).damageModifier[i];
-        damage_resistance[i] = getProfile()->getSkinInfo(skin).damageResistance[i];
-    }
+    //Clear initial base attributes
+    _baseAttribute.fill(0.0f);
 
     // pack/inventory info
     equipment.fill(INVALID_CHR_REF);
@@ -187,13 +175,11 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     ori.map_twist_facing_x = MAP_TURN_OFFSET;
 
-    //Initialize attributes
+    //Initialize primary attributes
     for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const FRange& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
-
-    //---- call the constructors of the "has a" classes
 
     // set the insance values to safe values
     chr_instance_t::ctor(inst);
@@ -233,6 +219,40 @@ Object::~Object()
 
     EGOBOO_ASSERT( nullptr == inst.vrt_lst );    
 }
+
+bool Object::setSkin(const size_t skinNumber)
+{
+    if(!getProfile()->isValidSkin(skinNumber)) {
+        return false;
+    }
+    const SkinInfo& newSkin = getProfile()->getSkinInfo(skinNumber);
+
+    //Damage resistance and modifiers from Armour
+    for(size_t i = 0; i < DAMAGE_COUNT; ++i) {
+        _baseAttribute[Ego::Attribute::resistFromDamageType(static_cast<DamageType>(i))] = newSkin.damageResistance[i];
+        _baseAttribute[Ego::Attribute::modifierFromDamageType(static_cast<DamageType>(i))] = newSkin.damageModifier[i];
+    }
+
+    //Armour movement speed
+    _baseAttribute[Ego::Attribute::ACCELERATION] = newSkin.maxAccel;
+    chr_set_maxaccel(this, newSkin.maxAccel);
+
+    //Defence from Armour
+    _baseAttribute[Ego::Attribute::DEFENCE] = newSkin.defence;
+
+    //Set new skin
+    this->skin = skinNumber;
+
+    //Change the model texture
+    if (!this->inst.imad) {
+        const std::shared_ptr<Ego::ModelDescriptor> &model = getProfile()->getModel();
+        if (chr_instance_t::set_mad(this->inst, model)) {
+            chr_update_collision_size(this, true);
+        }
+    }
+    chr_instance_t::set_texture(this->inst, getProfile()->getSkin(this->skin));    
+}
+
 
 bool Object::isOverWater(bool anyLiquid) const
 {
@@ -367,7 +387,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     if ( !isAlive() || 0 == max_damage ) return 0;
 
     // make a special exception for DAMAGE_DIRECT
-    uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : damage_modifier[damagetype];
+    uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : getAttribute(Ego::Attribute::resistFromDamageType(damagetype));
 
     // determine some optional behavior
     bool friendly_fire = false;
@@ -802,7 +822,7 @@ void Object::update()
             if (water._is_water && HAS_NO_BITS(update_wld, 7))
             {
                 jumpready = true;
-                jumpnumber = 1;
+                jumpnumber = 1; //Limit to 1 jump while in water
             }
         }
 
@@ -870,9 +890,6 @@ void Object::update()
            daze_timer--;
         }
 
-        // possibly gain/lose darkvision
-        update_chr_darkvision( getCharacterID() );
-
         // update some special skills (players and NPC's)
         if(getShowStatus())
         {
@@ -920,7 +937,6 @@ void Object::update()
     if(hasPerk(Ego::Perks::SENSE_KURSES)) {
         see_kurse_level = std::max(see_kurse_level, 1);
     }
-    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )) ? 1 : 0);
 }
 
 void Object::updateResize()
@@ -1199,9 +1215,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     int enviro_light = ( target->inst.alpha * target->inst.max_light ) * INV_FF;
     int self_light   = ( target->inst.light == 255 ) ? 0 : target->inst.light;
     int light        = std::max(enviro_light, self_light);
-    if (0 != darkvision_level) {
-        light *= expf(0.32f * static_cast<float>(darkvision_level));
-    }
+    light *= expf(0.32f * getAttribute(Ego::Attribute::DARKVISION));
     if(light < INVISIBLE) {
         return false;
     }
@@ -1210,7 +1224,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     int alpha = target->inst.alpha;
     if (canSeeInvisible())
     {
-        alpha = get_alpha(alpha, expf(0.32f * static_cast<float>(see_invisible_level)));
+        alpha = get_alpha(alpha, expf(0.32f * getAttribute(Ego::Attribute::SEE_INVISIBLE)));
     }
     alpha = Ego::Math::constrain(alpha, 0, 255);
     if(alpha < INVISIBLE) {
@@ -1284,7 +1298,7 @@ void Object::checkLevelUp()
             fat_goto += getProfile()->getSizeGainPerMight() * 0.25f;  // Limit this?
             fat_goto_time += SIZETIME;
 
-            //Attribute increase
+            //Primary Attribute increase
             for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
                 _baseAttribute[i] += Random::next(getProfile()->getAttributeGain(static_cast<Ego::Attribute::AttributeType>(i)));
             }
@@ -1792,7 +1806,7 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
         return 0.0f;
     }
 
-    float resistance = damage_resistance[type];
+    float resistance = getAttribute(Ego::Attribute::resistFromDamageType(type));
 
     //Stalwart perk increases CRUSH, SLASH and POKE by 1
     if(type == DAMAGE_CRUSH || type == DAMAGE_POKE || type == DAMAGE_SLASH) {
@@ -1825,15 +1839,15 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
 
         //Defence reduces weakness, but cannot eliminate it completely (50% weakness reduction at 255 defence)
         if(includeArmor) {
-            resistance *= 1.0f - (static_cast<float>(this->defense) / 512.0f);
+            resistance *= 1.0f - (getAttribute(Ego::Attribute::DEFENCE) / 512.0f);
         }
         return resistance;
     }
 
     //Defence bonus increases all damage type resistances (every 14 points gives +1.0 resistance)
     //This means at 255 defence and 0% resistance results in 52% damage reduction
-    if(includeArmor && HAS_NO_BITS(damage_modifier[type], DAMAGEINVERT)) {
-        resistance += static_cast<float>(this->defense) / 14.0f;
+    if(includeArmor && HAS_NO_BITS( static_cast<int>(getAttribute(Ego::Attribute::modifierFromDamageType(type))), DAMAGEINVERT)) {
+        resistance += getAttribute(Ego::Attribute::DEFENCE) / 14.0f;
     }
 
     return resistance;
@@ -1847,7 +1861,7 @@ float Object::getDamageReduction(const DamageType type, const bool includeArmor)
     }
 
     //Immunity to damage type?
-    if(HAS_SOME_BITS(DAMAGEINVICTUS, damage_modifier[type])) {
+    if( HAS_SOME_BITS(static_cast<int>(getAttribute(Ego::Attribute::modifierFromDamageType(type))), DAMAGEINVICTUS) ) {
         return 1.0f;
     }
 
@@ -1862,25 +1876,79 @@ float Object::getDamageReduction(const DamageType type, const bool includeArmor)
     return ((resistance*0.06f) / (1.0f + resistance*0.06f));
 }
 
+float Object::getBaseAttribute(const Ego::Attribute::AttributeType type) const
+{
+    EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
+    return _baseAttribute[type];
+}
+
+void Object::setBaseAttribute(const Ego::Attribute::AttributeType type, float value)
+{
+    EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
+    _baseAttribute[type] = value;
+}
+
 float Object::getAttribute(const Ego::Attribute::AttributeType type) const 
 { 
-    EGOBOO_ASSERT(type < _baseAttribute.size()); 
+    EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
 
-    //Wolverine perk gives +0.25 Life Regeneration while holding a Claw weapon
-    if(type == Ego::Attribute::LIFE_REGEN && hasPerk(Ego::Perks::WOLVERINE)) {
-        if( (getLeftHandItem() && getLeftHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W'))
-         || (getRightHandItem() && getRightHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W')))
-         {
-            return _baseAttribute[type] + 0.25f;
-         }
+    //Try to find temp value in map, but don't create it if it doesn't already exist
+    float tempValue = 0.0f;
+    auto result = _tempAttribute.find(type);
+    if(result != _tempAttribute.end()) {
+        tempValue = (*result).second;
     }
 
-    return _baseAttribute[type]; 
+    //Is this a SET type attribute or a cumulative ADD type attribute?
+    if(isOverrideSetAttribute(type)) {
+        return tempValue;
+    }
+
+    //Total value is base plus temp bonuses from enchants
+    float attributeValue = _baseAttribute[type] + tempValue;
+
+    switch(type) {
+        case Ego::Attribute::SEE_INVISIBLE:
+            //See Invisible Perk allows us to see invisible
+            if(hasPerk(Ego::Perks::SENSE_INVISIBLE)) {
+                return 1.0f;
+            }
+        break;
+
+        //Wolverine perk gives +0.25 Life Regeneration while holding a Claw weapon
+        case Ego::Attribute::LIFE_REGEN:
+            if(hasPerk(Ego::Perks::WOLVERINE)) {
+                if( (getLeftHandItem() && getLeftHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W'))
+                 || (getRightHandItem() && getRightHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W')))
+                 {
+                    attributeValue += 0.25f;
+                 }                
+            }
+        break;
+
+        case Ego::Attribute::JUMP_POWER:
+            //Special value for flying Objects
+            if(getAttribute(Ego::Attribute::FLY_TO_HEIGHT) > 0.0f) {
+                return JUMPINFINITE;
+            }
+
+            //Athletics Perks gives +25% jump power
+            if(hasPerk(Ego::Perks::ATHLETICS)) {
+                attributeValue *= 1.25f;
+            }
+        break;
+
+        default:
+            //nothing, keep default case to quench GCC warnings
+        break;
+    }
+
+    return attributeValue; 
 }
 
 void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, float value)
 {
-    EGOBOO_ASSERT(type < _baseAttribute.size()); 
+    EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
     _baseAttribute[type] = Ego::Math::constrain(_baseAttribute[type] + value, 0.0f, 255.0f);
 
     //Handle current life and mana increase as well
@@ -1996,4 +2064,9 @@ bool Object::disenchant()
     }
 
     return oneRemoved;
+}
+
+std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>>& Object::getTempAttributes()
+{
+    return _tempAttribute;
 }

@@ -86,7 +86,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::SETSHEEN: type = Ego::Attribute::SHEEN; break;
             case eve_t::SETFLYTOHEIGHT: type = Ego::Attribute::FLY_TO_HEIGHT; break;
             case eve_t::SETWALKONWATER: type = Ego::Attribute::WALK_ON_WATER; break;
-            case eve_t::SETCANSEEINVISIBLE: type = Ego::Attribute::CAN_SEE_INVISIBLE; break;
+            case eve_t::SETCANSEEINVISIBLE: type = Ego::Attribute::SEE_INVISIBLE; break;
             case eve_t::SETMISSILETREATMENT: type = Ego::Attribute::MISSILE_TREATMENT; break;
             case eve_t::SETCOSTFOREACHMISSILE: type = Ego::Attribute::COST_FOR_EACH_MISSILE; break;
             case eve_t::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
@@ -347,8 +347,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         enchant->_modifiers.remove_if([this, &enchant](const EnchantModifier &modifier)
             {
                 //Only set types can conflict
-                if(modifier._type >= Ego::Attribute::NR_OF_SET_ATTRIBUTES 
-                    || modifier._type <= Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES) {
+                if(Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
                     return false;
                 }
 
@@ -385,8 +384,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     {
         //These should never occur
         if(modifier._type == Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES ||
-           modifier._type == Ego::Attribute::NR_OF_ATTRIBUTES  ||
-           modifier._type == Ego::Attribute::NR_OF_SET_ATTRIBUTES) 
+           modifier._type == Ego::Attribute::NR_OF_ATTRIBUTES) 
         {
             throw std::logic_error("Enchant.cpp - Invalid enchant type: meta-type as modifier");
         }
@@ -396,17 +394,17 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
             change_character(target->getCharacterID(), _spawnerProfileID, 0, ENC_LEAVE_ALL);
 
             //Store target's original armor
-            target->_attributes[Ego::Attribute::MORPH] = target->skin;
+            target->getTempAttributes()[Ego::Attribute::MORPH] = target->skin;
         }
 
         //Is it a set type?
-        else if(modifier._type > Ego::Attribute::NR_OF_SET_ATTRIBUTES) {
-            target->_attributes[modifier._type] = modifier._value;
+        else if(Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
+            target->getTempAttributes()[modifier._type] = modifier._value;
         }
 
         //It's a cumulative addition
         else {
-            target->_attributes[modifier._type] += modifier._value;            
+            target->getTempAttributes()[modifier._type] += modifier._value;            
         }
     }
 

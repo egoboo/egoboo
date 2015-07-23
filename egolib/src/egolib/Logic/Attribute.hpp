@@ -23,6 +23,7 @@
 #pragma once
 
 #include "egolib/Core/UnhandledSwitchCaseException.hpp"
+#include "egolib/Logic/Damage.hpp"
 
 namespace Ego
 {
@@ -78,14 +79,12 @@ namespace Attribute
         SHEEN,              //Shininess effect
         FLY_TO_HEIGHT,      //Object levitates this high
         WALK_ON_WATER,      //Object walks on top of water
-        CAN_SEE_INVISIBLE,  //Can see other invisible Objects?
+        SEE_INVISIBLE,      //Can see other invisible Objects?
         MISSILE_TREATMENT,  //Incoming projectiles are NORMAL, DEFLECTED or REFLECTED
         COST_FOR_EACH_MISSILE, //Mana cost for each projectile DEFLECTED or REFLECTED
         CHANNEL_LIFE,       //Can spend life as mana?
-        DARKVISION,         //Can see in darkness?
 
-        NR_OF_SET_ATTRIBUTES, //TODO
-
+        //Cumulative attributes
         JUMP_POWER,
         BUMP_DAMPEN,
         BOUNCINESS,
@@ -93,12 +92,11 @@ namespace Attribute
         SIZE,
         ACCELERATION,        //Acceleration
 
-        RED_SHIFT,                        ///< Red shift
-        GREEN_SHIFT,                      ///< Green shift
-        BLUE_SHIFT,                       ///< Blue shift
+        RED_SHIFT,           ///< Red shift
+        GREEN_SHIFT,         ///< Green shift
+        BLUE_SHIFT,          ///< Blue shift
 
-        ///< Defensive attributes
-        DEFENCE,
+        DEFENCE,             ///< Defensive attributes
         SLASH_RESIST,
         CRUSH_RESIST,
         POKE_RESIST,
@@ -107,6 +105,8 @@ namespace Attribute
         FIRE_RESIST,
         ICE_RESIST,
         ZAP_RESIST,
+
+        DARKVISION,         //Can see in darkness?
 
         NR_OF_ATTRIBUTES            //Always last
     };
@@ -129,6 +129,70 @@ namespace Attribute
             case NR_OF_ATTRIBUTES: throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
         }
         throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+    }
+
+    inline AttributeType resistFromDamageType(const DamageType type) {
+        switch(type) {
+            case DAMAGE_SLASH:  return SLASH_RESIST;
+            case DAMAGE_POKE:   return POKE_RESIST;
+            case DAMAGE_CRUSH:  return CRUSH_RESIST;
+            case DAMAGE_FIRE:   return FIRE_RESIST;
+            case DAMAGE_ICE:    return ICE_RESIST;
+            case DAMAGE_ZAP:    return ZAP_RESIST;
+            case DAMAGE_HOLY:   return HOLY_RESIST;
+            case DAMAGE_EVIL:   return EVIL_RESIST;
+            default:            return NR_OF_ATTRIBUTES;
+        }
+    }
+
+    inline AttributeType modifierFromDamageType(const DamageType type) {
+        switch(type) {
+            case DAMAGE_SLASH:  return SLASH_MODIFIER;
+            case DAMAGE_POKE:   return POKE_MODIFIER;
+            case DAMAGE_CRUSH:  return CRUSH_MODIFIER;
+            case DAMAGE_FIRE:   return FIRE_MODIFIER;
+            case DAMAGE_ICE:    return ICE_MODIFIER;
+            case DAMAGE_ZAP:    return ZAP_MODIFIER;
+            case DAMAGE_HOLY:   return HOLY_MODIFIER;
+            case DAMAGE_EVIL:   return EVIL_MODIFIER;
+            default:            return NR_OF_ATTRIBUTES;
+        }
+    }
+
+    inline bool isOverrideSetAttribute(const AttributeType type)
+    {
+        switch(type)
+        {
+            //These attributes are used instead of Base Attribute of Objects (override)
+            case FLASHING_AND:
+            case LIGHT_BLEND:
+            case ALPHA_BLEND:
+            case SHEEN:
+            case FLY_TO_HEIGHT:
+            case WALK_ON_WATER:
+            case SEE_INVISIBLE:
+            case MISSILE_TREATMENT:
+            case COST_FOR_EACH_MISSILE:
+            case CHANNEL_LIFE:
+            case SLASH_MODIFIER:
+            case CRUSH_MODIFIER:
+            case POKE_MODIFIER:
+            case HOLY_MODIFIER:
+            case EVIL_MODIFIER:
+            case FIRE_MODIFIER:
+            case ICE_MODIFIER:
+            case ZAP_MODIFIER:
+            case MORPH:
+            case DAMAGE_TYPE:
+            case NUMBER_OF_JUMPS:
+            case LIFE_BARCOLOR:
+            case MANA_BARCOLOR:
+                return true;
+            
+            //All other attributes are added together instead
+            default:
+                return false;
+        }
     }
 }
 }
