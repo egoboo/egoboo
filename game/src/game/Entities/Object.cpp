@@ -1822,7 +1822,16 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
         else if(type == DAMAGE_ICE && hasPerk(Ego::Perks::ICE_WARD)) {
             resistance += 3.0f;
         }
+    }
 
+    //Pyromaniac and Troll Blood perks *reduces* FIRE resistance by 10 each
+    if(type == DAMAGE_FIRE) {
+        if(hasPerk(Ego::Perks::PYROMANIAC)) {
+            resistance -= 10.0f;
+        }
+        if(hasPerk(Ego::Perks::TROLL_BLOOD)) {
+            resistance -= 10.0f;
+        }
     }
 
     //Negative armor means it's a weakness

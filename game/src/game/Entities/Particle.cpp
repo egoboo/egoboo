@@ -1111,6 +1111,13 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
     // Damage stuff
     range_to_pair(getProfile()->damage, &(damage));
 
+    //If it is a FIRE particle spawned by a Pyromaniac, increase damage by 25%
+    const std::shared_ptr<Object> &owner = _currentModule->getObjectHandler()[owner_ref];
+    if(owner != nullptr && owner->hasPerk(Ego::Perks::PYROMANIAC)) {
+        damage.base *= 1.25f;
+        damage.rand *= 1.25f;
+    }
+
     // Spawning data
     if (0 != getProfile()->contspawn._delay)
     {

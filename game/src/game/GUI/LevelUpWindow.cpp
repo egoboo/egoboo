@@ -265,6 +265,10 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
             increase[Ego::Attribute::LIFE_REGEN] += 0.15f;
         break;
 
+        case Ego::Perks::TROLL_BLOOD:
+            increase[Ego::Attribute::LIFE_REGEN] += 0.25f;
+        break;        
+
         case Ego::Perks::GIGANTISM:
             increase[Ego::Attribute::MIGHT] += 2.00f;
             increase[Ego::Attribute::AGILITY] -= 2.00f;

@@ -55,6 +55,8 @@ PerkHandler::PerkHandler() :
         "Wolverine", "+100% damage with Claws.\nGain +0.25 Life Regeneration while holding Claws.");
     initializePerk(BERSERKER, Attribute::MIGHT, "mp_data/perks/berserker", 
         "Berserker", "Deal +25% damage if you are below 25% health.", BRUTE);
+    initializePerk(TROLL_BLOOD, Attribute::MIGHT, "mp_data/perks/troll_blood", 
+        "Troll Blood", "+0.25 Life Regeneration.\n-10 Fire Resistance.", BRUTE);
 
     //Intellectual
     initializePerk(CARTOGRAPHY, Attribute::INTELLECT, "mp_data/perks/cartography",
@@ -139,6 +141,8 @@ PerkHandler::PerkHandler() :
         "Rally", "Nearby allies gain +10% Movement Speed and Attack Damage.");
     initializePerk(GUARDIAN_ANGEL, Attribute::INTELLECT, "mp_data/perks/guardian_angel",
         "Guardian Angel", "1% chance per Experience Level to gain full health when suffering a killing blow.");
+    initializePerk(PYROMANIAC, Attribute::INTELLECT, "mp_data/perks/dark_arts_mastery",
+        "Pyromaniac", "+25% Fire damage.\n-10 Fire Resistance.");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",

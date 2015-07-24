@@ -59,6 +59,7 @@ enum PerkID : uint8_t
     GRIM_REAPER,
     WOLVERINE,
     BERSERKER,
+    TROLL_BLOOD,
 
     //Intellect perks
     CARTOGRAPHY,
@@ -103,6 +104,7 @@ enum PerkID : uint8_t
     //DARKVISION,
     RALLY,
     GUARDIAN_ANGEL,
+    PYROMANIAC,
     
     //Agility perks
     ACROBATIC,
