@@ -1668,41 +1668,6 @@ void show_armor( int statindex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_chr_regeneration( Object * pchr, int * pliferegen, int * pmanaregen )
-{
-    /// @author ZF
-    /// @details Get a character's life and mana regeneration, considering all sources
-
-    int local_liferegen, local_manaregen;
-    CHR_REF ichr;
-
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
-    ichr = GET_INDEX_PCHR( pchr );
-
-    if ( NULL == pliferegen ) pliferegen = &local_liferegen;
-    if ( NULL == pmanaregen ) pmanaregen = &local_manaregen;
-
-    // set the base values
-    ( *pmanaregen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MANA_REGEN) / GameEngine::GAME_TARGET_UPS);
-    ( *pliferegen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS);
-
-    // Don't forget to add gains and costs from enchants
-    for(const std::shared_ptr<Ego::Enchantment> &enchant : pchr->getActiveEnchants()) {
-        if ( enchant->getTarget()->getCharacterID() == ichr ) {
-            ( *pliferegen ) += enchant->getTargetLifeDrain();
-            ( *pmanaregen ) += enchant->getTargetManaDrain();
-        }
-
-        if ( enchant->getOwnerID() == ichr ) {
-            ( *pliferegen ) += enchant->getOwnerLifeSustain();
-            ( *pmanaregen ) += enchant->getOwnerManaSustain();
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void show_full_status( int statindex )
 {
     /// @author ZF
@@ -1734,9 +1699,7 @@ void show_full_status( int statindex )
                        pchr->getDamageReduction(DAMAGE_ICE) *100.0f,
                        pchr->getDamageReduction(DAMAGE_ZAP) *100.0f );
 
-    get_chr_regeneration( pchr.get(), &liferegen, &manaregen );
-
-    DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT( manaregen ), FP8_TO_FLOAT( liferegen ) );
+    DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", pchr->getAttribute(Ego::Attribute::MANA_REGEN), pchr->getAttribute(Ego::Attribute::LIFE_REGEN) );
 }
 
 //--------------------------------------------------------------------------------------------

@@ -751,7 +751,7 @@ void Object::update()
     chr_update_hide(this);
 
     //Update active enchantments on this Object
-    if(!_activeEnchants.empty()) {    
+    if(!_activeEnchants.empty()) {
         _activeEnchants.remove_if([](const std::shared_ptr<Ego::Enchantment> &enchant) 
             {
                 //Update enchantment 
@@ -759,7 +759,7 @@ void Object::update()
 
                 //Remove all terminated enchants
                 return enchant->isTerminated(); 
-            });        
+            });
     }
 
     //Don't do items that are in inventory
@@ -870,14 +870,10 @@ void Object::update()
         // do the mana and life regen for "living" characters
         if (isAlive())
         {
-            int manaregen = 0;
-            int liferegen = 0;
-            get_chr_regeneration( this, &liferegen, &manaregen );
-
-            mana += manaregen;
+            mana += FLOAT_TO_FP8(getAttribute(Ego::Attribute::MANA_REGEN) / GameEngine::GAME_TARGET_UPS);
             mana = Ego::Math::constrain<uint32_t>(mana, 0, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
 
-            life += liferegen;
+            life += FLOAT_TO_FP8(getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS);
             life = Ego::Math::constrain<uint32_t>(life, 1, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
         }
 
@@ -2008,7 +2004,7 @@ float Object::getLife() const
     return FP8_TO_FLOAT(life);
 }
 
-std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner)
+std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner)
 {
     if (enchantProfile >= ENCHANTPROFILES_MAX || !EveStack.get_ptr(enchantProfile)->_loaded) {
         log_warning("Object::addEnchant() - Cannot add enchant with invalid enchant profile %d\n", enchantProfile);        
@@ -2025,8 +2021,8 @@ std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO
     enchant->applyEnchantment(_currentModule->getObjectHandler()[getCharacterID()]);
 
     //Succeeded to apply the enchantment to the target?
-    if(!enchant->isTerminated()) {
-        owner->_lastEnchantSpawned = enchant;
+    if(!enchant->isTerminated() && spawner) {
+        spawner->_lastEnchantSpawned = enchant;
         return enchant;
     }
 

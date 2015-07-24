@@ -2824,7 +2824,7 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[pself->target];
     if(target) {
-        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref, _currentModule->getObjectHandler()[pself->owner]) != nullptr;
+        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref, _currentModule->getObjectHandler()[pself->owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
     }   
     else {
         returncode = false;
@@ -2846,7 +2846,7 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
 
     const std::shared_ptr<Object> child = _currentModule->getObjectHandler()[pself->child];
     if(child) {
-        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref, _currentModule->getObjectHandler()[pself->owner]) != nullptr;
+        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref, _currentModule->getObjectHandler()[pself->owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
     }   
     else {
         returncode = false;
@@ -3250,7 +3250,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     std::shared_ptr<Ego::Enchantment> lastEnchant = pchr->getLastEnchantmentSpawned();
-    if(!lastEnchant || lastEnchant->isTerminated()) {
+    if(lastEnchant == nullptr || lastEnchant->isTerminated()) {
         returncode = false;
     }
     else {

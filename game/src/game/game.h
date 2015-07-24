@@ -462,8 +462,6 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF ichr );
 bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem );
 bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
-bool get_chr_regeneration( Object * pchr, int *pliferegen, int * pmanaregen );
-
 float get_chr_level( ego_mesh_t * mesh, Object * pchr );
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );

@@ -44,10 +44,10 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
 
     _modifiers(),
 
-    _ownerManaSustain(enchantmentProfile->_owner._manaDrain / static_cast<float>(GameEngine::GAME_TARGET_UPS)),
-    _ownerLifeSustain(enchantmentProfile->_owner._lifeDrain / static_cast<float>(GameEngine::GAME_TARGET_UPS)),
-    _targetManaDrain(enchantmentProfile->_target._manaDrain / static_cast<float>(GameEngine::GAME_TARGET_UPS)),
-    _targetLifeDrain(enchantmentProfile->_target._lifeDrain / static_cast<float>(GameEngine::GAME_TARGET_UPS))
+    _ownerManaSustain(FP8_TO_FLOAT(enchantmentProfile->_owner._manaDrain)),
+    _ownerLifeSustain(FP8_TO_FLOAT(enchantmentProfile->_owner._lifeDrain)),
+    _targetManaDrain(FP8_TO_FLOAT(enchantmentProfile->_target._manaDrain)),
+    _targetLifeDrain(FP8_TO_FLOAT(enchantmentProfile->_target._lifeDrain))
 {
     bool doMorph = false;
 
@@ -137,6 +137,9 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
         _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::DARKVISION, 1.0f));        
     }
 
+    _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::LIFE_REGEN, FP8_TO_FLOAT(enchantmentProfile->_target._lifeDrain)));
+    _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MANA_REGEN, FP8_TO_FLOAT(enchantmentProfile->_target._manaDrain)));
+
     if(doMorph) {
         _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MORPH, _spawnerProfileID));
     }
@@ -168,6 +171,13 @@ Enchantment::~Enchantment()
                 target->getTempAttributes()[modifier._type] -= modifier._value;
             }
         }
+    }
+
+    //Remove boost effects from owner
+    std::shared_ptr<Object> owner = _owner.lock();
+    if(owner != nullptr && !owner->isTerminated()) {
+        owner->getTempAttributes()[Ego::Attribute::MANA_REGEN] -= _ownerManaSustain;
+        owner->getTempAttributes()[Ego::Attribute::LIFE_REGEN] -= _ownerLifeSustain;
     }
 }
 
@@ -227,45 +237,27 @@ void Enchantment::update()
         }
     }
 
-    //Do drains
+    //Can we kill the target by draining life?
     if(target->isAlive()) {
-        // Change life
-        if (0 != _targetLifeDrain) {
-            target->life += _targetLifeDrain;
-            if (target->getLife() <= 0.0f) {
-                target->kill(owner, false);
-            }
-            else if (target->getLife() > target->getAttribute(Ego::Attribute::MAX_LIFE)) {
-                target->life = FLOAT_TO_FP8(target->getAttribute(Ego::Attribute::MAX_LIFE));
-            }
+        if (FP8_TO_FLOAT(target->life) + _targetLifeDrain < 0.0f) {
+            target->kill(owner, false);
         }
-
-        // Change mana
-        if (0 != _targetManaDrain) {
-            target->costMana(-_targetManaDrain, owner->getCharacterID());
-        }
-
     }
 
-    // Do enchantment sustain cost (owner)
+    //Can the owner still sustain us?
     if (owner && owner->isAlive()) {
-        // Change life
-        if (0 != _ownerLifeSustain) {
-            owner->life += (_ownerLifeSustain / GameEngine::GAME_TARGET_UPS);
 
-            //Drained to death?
-            if ( owner->getLife() <= 0.0f ) {
-                owner->kill(target, false);
-            }
-            else if (owner->getLife() > owner->getAttribute(Ego::Attribute::MAX_LIFE)) {
-                owner->life = FLOAT_TO_FP8(owner->getAttribute(Ego::Attribute::MAX_LIFE));
+        //Killed by sustaining life?
+        if(FP8_TO_FLOAT(owner->life) + _ownerLifeSustain < 0.0f) {
+            owner->kill(target, false);
+            if(_enchantProfile->endIfCannotPay) {
+                requestTerminate();
             }
         }
 
-        // Cost mana to sustain
-        if (0 != _ownerManaSustain) {
-            bool manaPaid = owner->costMana(-_ownerManaSustain, target->getCharacterID());
-            if (_enchantProfile->endIfCannotPay && !manaPaid) {
+        //Owner has no longer enough mana to sustain the enchant?
+        if(_enchantProfile->endIfCannotPay) {
+            if(FP8_TO_FLOAT(owner->mana) + _ownerManaSustain < 0.0f) {
                 requestTerminate();
             }
         }
@@ -435,6 +427,13 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         }
     }
 
+    //Finally apply boost values to owner as well
+    std::shared_ptr<Object> owner = _owner.lock();
+    if(owner != nullptr && !owner->isTerminated()) {
+        owner->getTempAttributes()[Ego::Attribute::MANA_REGEN] += _ownerManaSustain;
+        owner->getTempAttributes()[Ego::Attribute::LIFE_REGEN] += _ownerLifeSustain;
+    }
+
     //Insert this enchantment into the Objects list of active enchants
     target->getActiveEnchants().push_front(shared_from_this());    
 }
@@ -455,8 +454,33 @@ CHR_REF Enchantment::getOwnerID() const
 
 void Enchantment::setBoostValues(float ownerManaSustain, float ownerLifeSustain, float targetManaDrain, float targetLifeDrain)
 {
+    //Update boost effects to owner
+    std::shared_ptr<Object> owner = _owner.lock();
+    if(owner && !owner->isTerminated()) {
+        owner->getTempAttributes()[Ego::Attribute::MANA_REGEN] -= _ownerManaSustain;
+        owner->getTempAttributes()[Ego::Attribute::LIFE_REGEN] -= _ownerLifeSustain;
+        owner->getTempAttributes()[Ego::Attribute::MANA_REGEN] += ownerManaSustain;
+        owner->getTempAttributes()[Ego::Attribute::LIFE_REGEN] += ownerLifeSustain;
+    }
     _ownerManaSustain = ownerManaSustain;
     _ownerLifeSustain = ownerLifeSustain;
+
+    //Update boost effects to target
+    std::shared_ptr<Object> target = _target.lock();  
+    if(target != nullptr) {
+        for(EnchantModifier &modifier : _modifiers) {
+            if(modifier._type == Ego::Attribute::MANA_REGEN) {
+                target->getTempAttributes()[Ego::Attribute::MANA_REGEN] -= modifier._value;
+                modifier._value = -targetManaDrain;
+                target->getTempAttributes()[Ego::Attribute::MANA_REGEN] += modifier._value;
+            }
+            else if(modifier._type == Ego::Attribute::LIFE_REGEN) {
+                target->getTempAttributes()[Ego::Attribute::LIFE_REGEN] -= modifier._value;
+                modifier._value = -targetLifeDrain;
+                target->getTempAttributes()[Ego::Attribute::LIFE_REGEN] += modifier._value;            
+            }
+        }        
+    }  
     _targetManaDrain = targetManaDrain;
     _targetLifeDrain = targetLifeDrain;
 }

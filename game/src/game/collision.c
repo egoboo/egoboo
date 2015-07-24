@@ -2887,23 +2887,24 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
     //Get the Profile of the Object that spawned this particle (i.e the weapon itself, not the holder)
     const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pdata->pprt->getSpawnerProfile());
+    if(spawnerProfile != nullptr) { //global particles do not have a spawner profile, so this is possible
+        // Check all enchants to see if they are removed
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
+            if(enchant->isTerminated()) {
+                continue;
+            }
 
-    // Check all enchants to see if they are removed
-    for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
-        if(enchant->isTerminated()) {
-            continue;
-        }
+            // if nothing can remove it, just go on with your business
+            if(enchant->getProfile()->removedByIDSZ == IDSZ_NONE) {
+                continue;
+            }
 
-        // if nothing can remove it, just go on with your business
-        if(enchant->getProfile()->removedByIDSZ == IDSZ_NONE) {
-            continue;
-        }
-
-        // check vs. every IDSZ that could have something to do with cancelling the enchant
-        if ( enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_TYPE) ||
-             enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_PARENT) ) {
-            enchant->requestTerminate();
-        }
+            // check vs. every IDSZ that could have something to do with cancelling the enchant
+            if ( enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_TYPE) ||
+                 enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_PARENT) ) {
+                enchant->requestTerminate();
+            }
+        }        
     }
 
     // Steal some life.

@@ -657,7 +657,7 @@ public:
     * @brief
     *   pointer to the enchant that was added (or nullptr if it failed)
     **/
-    std::shared_ptr<Ego::Enchantment> addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner);
+    std::shared_ptr<Ego::Enchantment> addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner);
 
     void removeEnchantsWithIDSZ(const IDSZ idsz);
 
