@@ -29,6 +29,7 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Logic/Gender.hpp"
 #include "egolib/Logic/Attribute.hpp"
+#include "egolib/Logic/Perk.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

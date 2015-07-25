@@ -148,8 +148,8 @@ bool Particle::setPosition(const fvec3_t& position)
     {
         this->pos = position;
 
-        _tile = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
-        _block = ego_mesh_t::get_block(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
+        _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(this->pos[kX], this->pos[kY])).getI();
+        _block = _currentModule->getMeshPointer()->get_block(PointWorld(this->pos[kX], this->pos[kY])).getI();
 
         // Update whether the current particle position is safe.
         updateSafe(false);
@@ -173,7 +173,7 @@ bool Particle::updateSafeRaw()
         safe_valid = true;
         safe_pos = getPosition();
         safe_time = update_wld;
-        safe_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pos[kX], pos[kY])).getI();
+        safe_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY])).getI();
 
         retval = true;
     }
@@ -192,7 +192,7 @@ bool Particle::updateSafe(bool force)
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pos[kX], pos[kY]));
+        TileIndex new_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY]));
 
         if (TileIndex::Invalid == new_grid)
         {

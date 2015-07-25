@@ -197,22 +197,6 @@ bool PlayingState::notifyKeyDown(const int keyCode)
             displayCharacterWindow(statusNumber);
         }
         return true;
-
-        //Show character sheet
-        case SDLK_1:
-        case SDLK_2:
-        case SDLK_3:
-        case SDLK_4:
-        case SDLK_5:
-        case SDLK_6:
-        case SDLK_7:
-        case SDLK_8:
-        {
-            //Ensure that the same character cannot open more than 1 character window
-            const size_t statusNumber = keyCode - SDLK_1;
-            displayCharacterWindow(statusNumber);
-        }
-        return true;
     }
 
     return ComponentContainer::notifyKeyDown(keyCode);
