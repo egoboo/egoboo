@@ -131,8 +131,8 @@ struct eve_t : public AbstractProfile
     {
 
         bool _stay;         ///< Stay even the related object has died?
-        SFP8_T _manaDrain;  ///< Mana drain from related object?
-        SFP8_T _lifeDrain;  ///< Life drain from related object?
+        float _manaDrain;  ///< Mana drain from related object?
+        float _lifeDrain;  ///< Life drain from related object?
 
         ObjectRelation() :
             _stay(false), _manaDrain(0), _lifeDrain(0)

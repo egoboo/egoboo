@@ -44,10 +44,10 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
 
     _modifiers(),
 
-    _ownerManaSustain(FP8_TO_FLOAT(enchantmentProfile->_owner._manaDrain)),
-    _ownerLifeSustain(FP8_TO_FLOAT(enchantmentProfile->_owner._lifeDrain)),
-    _targetManaDrain(FP8_TO_FLOAT(enchantmentProfile->_target._manaDrain)),
-    _targetLifeDrain(FP8_TO_FLOAT(enchantmentProfile->_target._lifeDrain))
+    _ownerManaSustain(enchantmentProfile->_owner._manaDrain),
+    _ownerLifeSustain(enchantmentProfile->_owner._lifeDrain),
+    _targetManaDrain(enchantmentProfile->_target._manaDrain),
+    _targetLifeDrain(enchantmentProfile->_target._lifeDrain)
 {
     bool doMorph = false;
 
@@ -92,7 +92,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
             default: throw std::logic_error("Unhandled enchant set type");
         }
-        _modifiers.push_front(Ego::EnchantModifier(type, FP8_TO_FLOAT(_enchantProfile->_add[i].value)));
+        _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
     }
     for(size_t i = 0; i < eve_t::MAX_ENCHANT_ADD; ++i) {
         if(!_enchantProfile->_add[i].apply) continue;
@@ -127,7 +127,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::ADDZAPRESIST: type = Ego::Attribute::ZAP_RESIST; break;
             default: throw std::logic_error("Unhandled enchant add type");
         }
-        _modifiers.push_front(Ego::EnchantModifier(type, FP8_TO_FLOAT(_enchantProfile->_add[i].value)));
+        _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
     }
 
     if(_enchantProfile->seeKurses) {
@@ -137,8 +137,8 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
         _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::DARKVISION, 1.0f));        
     }
 
-    _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::LIFE_REGEN, FP8_TO_FLOAT(enchantmentProfile->_target._lifeDrain)));
-    _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MANA_REGEN, FP8_TO_FLOAT(enchantmentProfile->_target._manaDrain)));
+    _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::LIFE_REGEN, enchantmentProfile->_target._lifeDrain));
+    _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MANA_REGEN, enchantmentProfile->_target._manaDrain));
 
     if(doMorph) {
         _modifiers.push_front(Ego::EnchantModifier(Ego::Attribute::MORPH, _spawnerProfileID));
