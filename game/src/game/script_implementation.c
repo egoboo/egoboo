@@ -28,6 +28,7 @@
 #include "game/script_implementation.h"
 #include "game/game.h"
 #include "egolib/AI/AStar.h"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
@@ -702,7 +703,6 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
     /// @details This function searches the nearby vincinity for a melee weapon the character can use
 
     CHR_REF ichr;
-    MAD_REF imad;
     CHR_REF retval = INVALID_CHR_REF;
 
     CHR_REF best_target = INVALID_CHR_REF;
@@ -712,9 +712,6 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
 
     if ( nullptr == ( pchr ) ) return false;
     ichr = GET_INDEX_PCHR( pchr );
-
-    //get the model for this character
-    imad = chr_get_imad( ichr );
 
     // set up the target
     best_target = INVALID_CHR_REF;
@@ -742,7 +739,7 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
         if ( !find_ranged && weaponProfile->isRangedWeapon() ) continue;
 
         // see if the character can use this weapon (we assume everyone has a left grip here)
-        if ( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( weaponProfile->getWeaponAction(), SLOT_LEFT ) ) ) continue;
+        if ( ACTION_COUNT == pchr->getProfile()->getModel()->randomizeAction(weaponProfile->getWeaponAction(), SLOT_LEFT)) continue;
 
         // then check if a skill is needed
         if ( weaponProfile->requiresSkillIDToUse() )

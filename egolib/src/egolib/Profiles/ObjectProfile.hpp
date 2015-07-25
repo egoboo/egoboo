@@ -26,7 +26,6 @@
 #endif
 
 #include "egolib/Script/script.h"
-#include "egolib/Graphics/mad.h"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Logic/Gender.hpp"
 #include "egolib/Logic/Attribute.hpp"
@@ -36,7 +35,7 @@
 //Forward declarations
 typedef int SoundID;
 class Object;
-
+namespace Ego { class ModelDescriptor; }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -156,6 +155,9 @@ struct SkinInfo
 class ObjectProfile
 {
 public:
+    static CONSTEXPR uint16_t NO_SKIN_OVERRIDE = std::numeric_limits<uint16_t>::max();   ///< Means spawn.txt value is used
+
+public:
     /**
     * Default constructor
     **/
@@ -208,8 +210,9 @@ public:
         return _pathname;
     }
 
-    inline MAD_REF getModelRef() const {return _imad;}
     inline EVE_REF getEnchantRef() const {return _ieve;}
+
+    const std::shared_ptr<Ego::ModelDescriptor>& getModel() const { return _model; }
 
     /**
     * @return get which slot number this profile is loaded with
@@ -282,7 +285,11 @@ public:
 
     inline PIP_REF getAttackParticleProfile() const {return getParticleProfile(_attackParticle);}
 
-    inline bool spawnsAttackParticle() const {return _spawnsAttackParticle;}
+    /**
+    * @return
+    *   true if the attack particle that this Object spawns should be attached to this Object
+    **/
+    inline bool hasAttachParticleToWeapon() const {return _attachAttackParticleToWeapon;}
 
     inline uint8_t getKurseChance() const {return _kurseChance;}
 
@@ -306,7 +313,7 @@ public:
     inline bool isDontCullBackfaces() const {return _dontCullBackfaces;}
 
 
-    inline float getSizeGainPerLevel() const {return _sizeGainPerLevel;}
+    inline float getSizeGainPerMight() const {return _sizeGainPerLevel;}
 
     inline uint8_t getWeight() const {return _weight;}
 
@@ -384,6 +391,7 @@ public:
     inline int getSpellEffectType() const {return _spellEffectType;}
 
     inline bool isRangedWeapon() const {return  _isRanged;}
+    inline bool isMeleeWeapon() const {return !_isRanged && _idsz[IDSZ_SPECIAL] == MAKE_IDSZ('X','W','E','P');}
 
     inline bool isDrawIcon() const {return _drawIcon;}
 
@@ -470,8 +478,6 @@ public:
     inline float getIntelligenceDamageFactor() const  {return _intelligenceBonus;}
     inline float getDexterityDamageFactor() const     {return _dexterityBonus;}
 
-    inline const std::unordered_map<IDSZ, int>& getSkillMap() const {return _skills;}
-
     inline uint8_t getManaColor() const {return _manaColor;}
 
     inline uint8_t getLifeColor() const {return _lifeColor;}
@@ -535,6 +541,18 @@ public:
     **/
     const FRange& getAttributeBase(Ego::Attribute::AttributeType type) const;
 
+    bool canLearnPerk(const Ego::Perks::PerkID id) const;
+
+    bool beginsWithPerk(const Ego::Perks::PerkID id) const;
+
+    /**
+    * @return
+    *   Get the base block rating for this item if it is a shield. This is the
+    *   base percentage chance that this shield can block an incoming attack.
+    *   (before applying attributes, perks, magic, etc.)
+    **/
+    uint16_t getBaseBlockRating() const { return _blockRating; }
+
     /**
     * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
     * @param slotOverride Which slot number to load this profile in
@@ -584,7 +602,7 @@ private:
     std::string _pathname;                      ///< Usually the source filename
 
     // the sub-profiles
-    MAD_REF _imad;                             ///< the md2 model for this profile
+    std::shared_ptr<Ego::ModelDescriptor> _model;   ///< the md2 model for this profile
     EVE_REF _ieve;                             ///< the enchant profile for this profile
     int _slotNumber;
 
@@ -689,10 +707,11 @@ private:
     bool         _skinHasTransparency;          ///< The skin has transparent areas
 
     // attack blocking info
-    uint16_t       iframefacing;                  ///< Invincibility frame
+    uint16_t       iframefacing;                ///< Invincibility frame
     uint16_t       iframeangle;
-    uint16_t       nframefacing;                  ///< Normal frame
+    uint16_t       nframefacing;                ///< Normal frame
     uint16_t       nframeangle;
+    uint16_t      _blockRating;                 ///< Base block rating of this shield
 
     // defense
     bool           _resistBumpSpawn;             ///< Don't catch fire
@@ -701,8 +720,9 @@ private:
     std::array<uint32_t, MAXLEVEL> _experienceForLevel;  ///< Experience needed for next level
     FRange                          _startingExperience;  ///< Starting experience
     uint16_t                        _experienceWorth;     ///< Amount given to killer/user
-    float                           _experienceExchange;  ///< Adds to worth
-    std::array<float, XP_COUNT>     _experienceRate;
+    float                           _experienceExchange;  ///< How much of this Object's experience enemies get upon killing
+    std::array<float, XP_COUNT>     _experienceRate;      ///< How much experience this Object gains from various XP types
+    uint32_t                        _levelUpRandomSeedOverride;   ///< Random seed used for level ups (for save games)
 
     // flags
     bool       _isEquipment;                   ///< Behave in silly ways
@@ -732,7 +752,7 @@ private:
     // item usage
     bool         _needSkillIDToUse;              ///< Check IDSZ first?
     uint8_t      _weaponAction;                  ///< Animation needed to swing
-    bool         _spawnsAttackParticle;          ///< Do we have attack particles?
+    bool         _attachAttackParticleToWeapon;          ///< Do we have attack particles?
     LocalParticleProfileRef _attackParticle;     ///< What kind of attack particles?
     bool         _attackFast;                    ///< Ignores the default reload time?
 
@@ -754,10 +774,13 @@ private:
     LocalParticleProfileRef _bludParticle;   ///< What kind of blud?
 
     // skill system
-    std::unordered_map<IDSZ, int> _skills;        ///< Set of skills this character posesses
     int          _seeInvisibleLevel;              ///< Can it see invisible?
 
     // random stuff
     bool       _stickyButt;                       ///< Stick to the ground? (conform to hills like chair)
     float      _useManaCost;                      ///< Mana usage for unarmed attack
+
+    //Perks
+    std::bitset<Ego::Perks::NR_OF_PERKS> _startingPerks;    ///< Which perks this Object spawns with
+    std::bitset<Ego::Perks::NR_OF_PERKS> _perkPool;         ///< Pool of perks that the Object can learn by gaining experience levels
 };

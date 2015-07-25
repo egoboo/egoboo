@@ -31,6 +31,12 @@
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "game/char.h" //ZF> TODO: remove
+#include "egolib/Graphics/ModelDescriptor.hpp"
+
+//For the minimap
+#include "game/Core/GameEngine.hpp"
+#include "game/GameStates/PlayingState.hpp"
+#include "game/GUI/MiniMap.hpp"
 
 //Declare class static constants
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
@@ -85,7 +91,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     missilehandler(INVALID_CHR_REF),
     is_hidden(false),
     alive(true),
-    waskilled(false),
     is_which_player(INVALID_PLA_REF),
     islocalplayer(false),
     invictus(false),
@@ -124,7 +129,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     darkvision_level(0),
     see_kurse_level(0),
     see_invisible_level(0),
-    skills(),
 
     bump_stt(),
     bump(),
@@ -160,7 +164,11 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
     _baseAttribute(),
-    _inventory()
+    _inventory(),
+    _perks(),
+    _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
+    _hasBeenKilled(false),
+    _reallyDuration(0)
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -336,7 +344,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     }
 
     //We need a riding animation to be able to mount stuff
-    int action_mi = mad_get_action_ref( chr_get_imad( _characterID ), ACTION_MI );
+    int action_mi = getProfile()->getModel()->getAction(ACTION_MI);
     bool has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
 
     return has_ride_anim;
@@ -397,7 +405,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     // Lessen actual damage taken by resistance
     // This can also be used to lessen effectiveness of healing
     int base_damage = Random::next(damage.base, damage.base+damage.rand);
-    int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(DAMFX_ARMO, effects));
+    int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(effects, DAMFX_ARMO));
 
     // Increase electric damage when in water
     if ( damagetype == DAMAGE_ZAP && isInWater(false) )
@@ -484,7 +492,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 {
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
-                        ParticleHandler::get().spawnOneParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
+                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                             INVALID_CHR_REF, GRIP_LAST, team, _characterID);
                     }
                 }
@@ -513,11 +521,15 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     action = ACTION_HA;
                     if ( base_damage > HURTDAMAGE )
                     {
-                        action += Random::next(3);
-                        chr_play_action(this, action, false);
+                        //If we have Endurance perk, we have 1% chance per Might to resist hurt animation (which cause a minor delay)
+                        if(!hasPerk(Ego::Perks::ENDURANCE) || Random::getPercent() > getAttribute(Ego::Attribute::MIGHT))
+                        {
+                            action += Random::next(3);
+                            chr_play_action(this, action, false);                            
+                        }
 
                         // Make the character invincible for a limited time only
-                        if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
+                        if ( HAS_NO_BITS(effects, DAMFX_TIME) )
                         {
                             damage_timer = DAMAGETIME;
                         }
@@ -614,7 +626,6 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     // Don't let characters chase themselves...  That would be silly
     if ( this == attacker.get() ) return;
 
-
     // Don't alert the character too much if under constant fire
     if (0 != careful_timer) return;
 
@@ -658,7 +669,12 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
     if (!alive || (invictus && !ignoreInvincibility)) return false;
 
     //This actually heals the character
-    life = CLIP(static_cast<UFP8_T>(life), life + amount, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
+    life = Ego::Math::constrain(static_cast<UFP8_T>(life), life + amount, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
+
+    //With Magical Attunement perk 25% of healing effects also refills mana
+    if(hasPerk(Ego::Perks::MAGIC_ATTUNEMENT)) {
+        mana = Ego::Math::constrain(static_cast<UFP8_T>(mana), mana + (amount/4), FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
+    }
 
     // Set alerts, but don't alert that we healed ourselves
     if (healer && this != healer.get() && healer->attachedto != _characterID && amount > HURTDAMAGE)
@@ -726,7 +742,7 @@ void Object::update()
         if ( !enviro.inwater )
         {
             // Splash
-            ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( water._is_water )
             {
@@ -766,7 +782,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getCharacterID()) & ripand ))
                     {
-                        ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -815,7 +831,7 @@ void Object::update()
     if ( clock_chr_stat >= ONESECOND )
     {
         // check for a level up
-        giveLevelUp();
+        checkLevelUp();
 
         // do the mana and life regen for "living" characters
         if (isAlive())
@@ -844,13 +860,55 @@ void Object::update()
 
         // possibly gain/lose darkvision
         update_chr_darkvision( getCharacterID() );
+
+        // update some special skills (players and NPC's)
+        if(getShowStatus())
+        {
+            //Cartography perk reveals the minimap
+            if(hasPerk(Ego::Perks::CARTOGRAPHY)) {
+                _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
+            }
+
+            //Navigation reveals the players position on the minimap
+            if(hasPerk(Ego::Perks::NAVIGATION)) {
+                _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
+            }
+
+            //Danger Sense reveals enemies on the minimap
+            if(hasPerk(Ego::Perks::DANGER_SENSE)) {
+                local_stats.sense_enemies_team = this->team;
+                local_stats.sense_enemies_idsz = IDSZ_NONE;     //Reveal all
+            }
+
+            //Danger Sense reveals enemies on the minimap
+            else if(hasPerk(Ego::Perks::SENSE_UNDEAD)) {
+                local_stats.sense_enemies_team = this->team;
+                local_stats.sense_enemies_idsz = MAKE_IDSZ('U','N','D','E');     //Reveal only undead
+            }
+        }        
+
+        //Give Rally bonus to friends within 6 tiles
+        if(hasPerk(Ego::Perks::RALLY)) {
+            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(pos[kX], pos[kY], WIDE))
+            {
+                //Only valid objects that are on our team
+                if(object->isTerminated() || object->getTeam() != getTeam()) continue;
+
+                //Don't give bonus to ourselves!
+                if(object.get() == this) continue;
+
+                object->_reallyDuration = update_wld + GameEngine::GAME_TARGET_UPS*3;    //Apply bonus for 3 seconds
+            }
+        }
     }
 
     updateResize();
 
-    // update some special skills
-    see_kurse_level  = std::max(see_kurse_level,  chr_get_skill(this, MAKE_IDSZ( 'C', 'K', 'U', 'R' )));
-    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )));
+    //Update some special skills
+    if(hasPerk(Ego::Perks::SENSE_KURSES)) {
+        see_kurse_level = std::max(see_kurse_level, 1);
+    }
+    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )) ? 1 : 0);
 }
 
 void Object::updateResize()
@@ -1181,7 +1239,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
 
     //Too invisible?
     int alpha = target->inst.alpha;
-    if ( 0 != see_invisible_level )
+    if (canSeeInvisible())
     {
         alpha = get_alpha(alpha, expf(0.32f * static_cast<float>(see_invisible_level)));
     }
@@ -1226,7 +1284,7 @@ void Object::recalculateCollisionSize()
     chr_update_collision_size(this, true);
 }
 
-void Object::giveLevelUp()
+void Object::checkLevelUp()
 {
     int number;
 
@@ -1239,25 +1297,37 @@ void Object::giveLevelUp()
 
         if ( xpcurrent >= xpneeded )
         {
-            // do the level up
+            // The character is ready to advance...
+            if(isPlayer()) {
+                if(!PlaStack.get_ptr(is_which_player)->_unspentLevelUp) {
+                    PlaStack.get_ptr(is_which_player)->_unspentLevelUp = true;
+                    DisplayMsg_printf("%s gained a level!!!", getName().c_str());
+                    AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
+                }
+                return;
+            }
+
+            //Automatic level up for AI characters
             experiencelevel++;
             SET_BIT(ai.alert, ALERTIF_LEVELUP);
 
-            // The character is ready to advance...
-            if ( VALID_PLA(is_which_player) )
-            {
-                DisplayMsg_printf("%s gained a level!!!", getName().c_str());
-                AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
-            }
-
             // Size Increase
-            fat_goto += getProfile()->getSizeGainPerLevel() * 0.25f;  // Limit this?
+            fat_goto += getProfile()->getSizeGainPerMight() * 0.25f;  // Limit this?
             fat_goto_time += SIZETIME;
 
             //Attribute increase
             for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
                 _baseAttribute[i] += Random::next(getProfile()->getAttributeGain(static_cast<Ego::Attribute::AttributeType>(i)));
             }
+
+            //Grab random Perk? (ZF> just uncomment if we want to do this for AI characters as well)
+            //std::vector<Ego::Perks::PerkID> perkPool = getValidPerks();
+            //if(!perkPool.empty()) {
+            //    addPerk(Random::getRandomElement(perkPool));
+            //}
+            //else {
+            //    addPerk(Ego::Perks::TOUGHNESS); //Add TOUGHNESS as default perk if none other are available
+            //}
         }
     }
 }
@@ -1266,6 +1336,36 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
 {
     //No need to continue is there?
     if (!isAlive() || (isInvincible() && !ignoreInvincibility)) return;
+
+    //Too silly to Die perk?
+    if(hasPerk(Ego::Perks::TOO_SILLY_TO_DIE) && !ignoreInvincibility)
+    {
+        //1% per character level to simply not die
+        if(Random::getPercent() <= getExperienceLevel())
+        {
+            //Refill to full Life instead!
+            this->life = getAttribute(Ego::Attribute::MAX_LIFE);
+            chr_make_text_billboard(getCharacterID(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
+            DisplayMsg_printf("%s decided not to die after all!", getName(false, true, true).c_str());
+            AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_DRUMS));
+            return;
+        }
+    }
+
+    //Guardian Angel perk?
+    if(hasPerk(Ego::Perks::GUARDIAN_ANGEL) && !ignoreInvincibility)
+    {
+        //1% per character level to be rescued by your guardian angel
+        if(Random::getPercent() <= getExperienceLevel())
+        {
+            //Refill to full Life instead!
+            this->life = getAttribute(Ego::Attribute::MAX_LIFE);
+            chr_make_text_billboard(getCharacterID(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
+            DisplayMsg_printf("%s was saved by a Guardian Angel!", getName(false, true, true).c_str());
+            AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_ANGEL_CHOIR));
+            return;
+        }
+    }
 
     //Fix who is actually the killer if needed
     std::shared_ptr<Object> actualKiller = originalKiller;
@@ -1285,7 +1385,6 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     }
 
     alive = false;
-    waskilled = true;
 
     life            = -1;
     platform        = true;
@@ -1311,14 +1410,26 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         if ( actualKiller->getTeam().hatesTeam(getTeam()) )
         {
             //Check for special hatred
-            if ( chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_PARENT ) ||
-                 chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_TYPE ) )
+            if ( actualKiller->getProfile()->getIDSZ(IDSZ_HATE) == getProfile()->getIDSZ(IDSZ_PARENT) ||
+                 actualKiller->getProfile()->getIDSZ(IDSZ_HATE) == getProfile()->getIDSZ(IDSZ_TYPE) )
             {
                 actualKiller->giveExperience(experience, XP_KILLHATED, false);
             }
 
             // Nope, award direct kill experience instead
             else actualKiller->giveExperience(experience, XP_KILLENEMY, false);
+
+            //Mercenary Perk gives +1 Zenny per kill
+            if(actualKiller->hasPerk(Ego::Perks::MERCENARY) && !_hasBeenKilled && actualKiller->money < MAXMONEY) {
+                actualKiller->money += 1;
+                AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_COINGET));
+            }
+        
+            //Crusader Perk regains 1 mana per Undead kill
+            if(actualKiller->hasPerk(Ego::Perks::CRUSADER) && getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('U','N','D','E')) {
+                actualKiller->costMana(-1, actualKiller->getCharacterID());
+                chr_make_text_billboard(actualKiller->getCharacterID(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+            }
         }
     }
 
@@ -1359,6 +1470,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     }
 
     // Let it's AI script run one last time
+    _hasBeenKilled = true;
     ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
     scr_run_chr_script(this);
 }
@@ -1489,6 +1601,18 @@ void Object::giveExperience(const int amount, const XPType xptype, const bool ov
         {
             newamount *= 1.10f; // 10% extra on normal
         }
+
+
+        //Fast Learner Perk gives +20% XP gain
+        if(hasPerk(Ego::Perks::FAST_LEARNER)) {
+            newamount *= 1.20f;
+        }
+
+        //Bookworm Perk gives +10% XP gain
+        if(hasPerk(Ego::Perks::BOOKWORM)) {
+            newamount *= 1.10f;
+        }
+
         experience += newamount;
     }
 }
@@ -1779,6 +1903,32 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
 
     float resistance = damage_resistance[type];
 
+    //Stalwart perk increases CRUSH, SLASH and POKE by 1
+    if(type == DAMAGE_CRUSH || type == DAMAGE_POKE || type == DAMAGE_SLASH) {
+        if(hasPerk(Ego::Perks::STALWART)) {
+            resistance += 1.0f;
+        }
+    }
+
+    //Elemental Resistance perk increases FIRE, ICE and ZAP by 1
+    if(type == DAMAGE_FIRE || type == DAMAGE_ICE || type == DAMAGE_ZAP) {
+        if(hasPerk(Ego::Perks::ELEMENTAL_RESISTANCE)) {
+            resistance += 1.0f;
+        }
+    
+        //Ward perks increases it by further 3
+        if(type == DAMAGE_FIRE && hasPerk(Ego::Perks::FIRE_WARD)) {
+            resistance += 3.0f;
+        }
+        else if(type == DAMAGE_ZAP && hasPerk(Ego::Perks::ZAP_WARD)) {
+            resistance += 3.0f;
+        }
+        else if(type == DAMAGE_ICE && hasPerk(Ego::Perks::ICE_WARD)) {
+            resistance += 3.0f;
+        }
+
+    }
+
     //Negative armor means it's a weakness
     if(resistance < 0.0f) {
 
@@ -1824,6 +1974,16 @@ float Object::getDamageReduction(const DamageType type, const bool includeArmor)
 float Object::getAttribute(const Ego::Attribute::AttributeType type) const 
 { 
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
+
+    //Wolverine perk gives +0.25 Life Regeneration while holding a Claw weapon
+    if(type == Ego::Attribute::LIFE_REGEN && hasPerk(Ego::Perks::WOLVERINE)) {
+        if( (getLeftHandItem() && getLeftHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W'))
+         || (getRightHandItem() && getRightHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W')))
+         {
+            return _baseAttribute[type] + 0.25f;
+         }
+    }
+
     return _baseAttribute[type]; 
 }
 
@@ -1831,9 +1991,65 @@ void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, flo
 {
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
     _baseAttribute[type] = Ego::Math::constrain(_baseAttribute[type] + value, 0.0f, 255.0f);
+
+    //Handle current life and mana increase as well
+    if(type == Ego::Attribute::MAX_LIFE) {
+        life += FLOAT_TO_FP8(value);
+    }
+    else if(type == Ego::Attribute::MAX_MANA) {
+        mana += FLOAT_TO_FP8(value);
+    }
 }
 
 Inventory& Object::getInventory()
 {
     return _inventory;
+}
+
+bool Object::hasPerk(Ego::Perks::PerkID perk) const
+{
+    if(perk == Ego::Perks::NR_OF_PERKS) return true;
+
+    //@note ZF> We also have to check our profile in case we are polymorphed and gain new
+    //          skills from our new form (e.g Lumpkin form allows gunplay)
+    return _perks[perk] || getProfile()->beginsWithPerk(perk);
+}
+
+std::vector<Ego::Perks::PerkID> Object::getValidPerks() const
+{
+    //Build list of perks we can learn
+    std::vector<Ego::Perks::PerkID> result;
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i)
+    {
+        const Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
+
+        //Can we learn this perk?
+        if(!getProfile()->canLearnPerk(id)) {
+            continue;
+        }
+
+        //Cannot learn the same perk twice
+        if(hasPerk(id)) {
+            continue;
+        }
+
+        //Do we fulfill the requirements for this perk?
+        const Ego::Perks::Perk& perk = Ego::Perks::PerkHandler::get().getPerk(id);
+        if(perk.getRequirement() == Ego::Perks::NR_OF_PERKS || hasPerk(perk.getRequirement())) {
+            result.push_back(id);
+        }
+    }
+
+    return result;
+}
+
+void Object::addPerk(Ego::Perks::PerkID perk)
+{
+    if(perk == Ego::Perks::NR_OF_PERKS) return;
+    _perks[perk] = true;
+}
+
+float Object::getLife() const
+{
+    return FP8_TO_FLOAT(life);
 }

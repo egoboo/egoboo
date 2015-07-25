@@ -61,6 +61,11 @@ TextureManager::TextureManager()
 
 TextureManager::~TextureManager()
 {
+    for(auto& texture : _textureCache) {
+        texture.second->release();
+    }
+    _textureCache.clear();
+    
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
     {
         delete _lst[ref];

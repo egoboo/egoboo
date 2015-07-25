@@ -166,7 +166,17 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
         }
         };
         info->money = ctxt.readInt();
-        info->skin = ctxt.readInt();
+
+        //If the skin type is a '?' character then it means random skin else it's an integer
+        ctxt.skipWhiteSpaces();
+        if(ctxt.is('?')) {
+            info->skin = ObjectProfile::NO_SKIN_OVERRIDE;
+            ctxt.next();
+        }
+        else {
+            info->skin = ctxt.readInt();
+        }
+
         info->passage = ctxt.readInt();
         info->content = ctxt.readInt();
         info->level = ctxt.readInt();

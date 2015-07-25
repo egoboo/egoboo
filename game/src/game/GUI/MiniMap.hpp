@@ -42,6 +42,8 @@ public:
 
     bool notifyMouseMoved(const int x, const int y) override;
     bool notifyMouseClicked(const int InternalDebugWindow, const int x, const int y) override;
+    bool notifyKeyDown(const int keyCode) override;
+    bool notifyMouseReleased(const int button, const int x, const int y) override;
 
 private:
 
@@ -79,4 +81,5 @@ private:
     std::vector<Blip> _blips;
     bool _mouseOver;
     bool _isDragging;
+    Vector2f _mouseDragOffset;
 };

@@ -445,12 +445,6 @@ public:
     void recalculateCollisionSize();
 
     /**
-    * @brief
-    *   Gives this object 1 experience level, increasing it's stats and giving it new/improved abilities
-    **/
-    void giveLevelUp();
-
-    /**
     * @author BB
     * @details Handle a character death. Set various states, disconnect it from the world, etc.
     **/
@@ -513,7 +507,7 @@ public:
 
     /**
     * @brief
-    *   Get current mana
+    *   Get current mana in SPF8 format
     **/
     inline SFP8_T getMana() const { return mana; }
 
@@ -522,6 +516,12 @@ public:
     *   Get max allowed mana for this Object
     **/
     inline float getMaxMana() const { return getAttribute(Ego::Attribute::MAX_MANA); }
+
+    /**
+    * @return
+    *   current life remaining in float format
+    **/
+    float getLife() const;
 
     /**
     * @brief
@@ -584,6 +584,51 @@ public:
 
     uint16_t getAmmo() const { return ammo; }
 
+    /**
+    * @return
+    *   true if this Object has mastered the specified perk. Returns always true for NR_OF_PERKS
+    **/
+    bool hasPerk(Ego::Perks::PerkID perk) const;
+
+    /**
+    * @brief
+    *   Generates a list of all Perks that the character can currently learn
+    **/
+    std::vector<Ego::Perks::PerkID> getValidPerks() const;
+
+    /**
+    * @brief
+    *   permanently adds a new Perk to this character object
+    **/
+    void addPerk(Ego::Perks::PerkID perk);
+
+    /**
+    * @return
+    *   true if this Object can detect and see invisible objects
+    **/
+    bool canSeeInvisible() const { return see_invisible_level > 0 || getProfile()->canSeeInvisible() || hasPerk(Ego::Perks::SENSE_INVISIBLE); }
+
+    /**
+    * @return
+    *   The logic update frame when the rally bonus ends
+    **/
+    uint32_t getRallyDuration() const { return _reallyDuration; }
+
+
+    /**
+    * @brief
+    *   Get the random seed used for determining which perks will be available when leveling and
+    *   how much attributes get improved
+    **/
+    uint32_t getLevelUpSeed() const { return _levelUpSeed; }
+
+    /**
+    * @brief
+    *   Generates a new random level up seed. Should be called every time a level up is complete
+    *   or first time generating a character from scratch (not a save game)
+    **/
+    void randomizeLevelUpSeed() { _levelUpSeed = Random::next(Random::next<uint32_t>(numeric_limits<uint32_t>::max())); }
+
 private:
 
     /**
@@ -599,6 +644,12 @@ private:
     *   on their fat_goto and fat_goto_time. Spellbooks do not resize
     */
     void updateResize();
+    
+    /**
+    * @brief
+    *   Checks if this Object has attained enough experience to increase its Experience Level
+    **/
+    void checkLevelUp();
 
 public:
     BSP_leaf_t     bsp_leaf;
@@ -677,7 +728,6 @@ public:
     // "variable" properties
     bool         is_hidden;
     bool         alive;                         ///< Is it alive?
-    bool         waskilled;                     ///< Fix for network
     PLA_REF      is_which_player;               ///< true = player
     bool         islocalplayer;                 ///< true = local player
     bool         invictus;                      ///< Totally invincible?
@@ -726,7 +776,6 @@ public:
     int           darkvision_level;
     int           see_kurse_level;
     int           see_invisible_level;
-    IDSZ_node_t   skills[MAX_IDSZ_MAP_SIZE];
 
     // collision info
 
@@ -782,6 +831,12 @@ private:
     bool _showStatus;                                    ///< Display stats?
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
     Inventory _inventory;
+    std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
+    uint32_t _levelUpSeed;
+
+    //Non persistent variables. Once game ends these are not saved
+    bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)
+    uint32_t _reallyDuration;                            ///< Game Logic Update frame duration for rally bonus gained from the Perk
 
     friend class ObjectHandler;
 };

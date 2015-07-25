@@ -42,8 +42,6 @@
 struct Billboard;
 struct mesh_wall_data_t;
 
-struct prt_t;
-
 //--------------------------------------------------------------------------------------------
 // internal structs
 struct chr_environment_t;
@@ -84,10 +82,6 @@ struct chr_spawn_data_t;
 #define DISMOUNTZVEL        16
 #define DISMOUNTZVELFLY     4
 #define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.05f)          ///< time delay for full object-object interaction (approximately 0.05 second)
-
-//Knockbacks
-#define REEL                7600.0f     ///< Dampen for melee knock back
-#define REELBASE            0.35f
 
 //Water
 #define RIPPLETOLERANCE     60          ///< For deep water
@@ -184,7 +178,7 @@ void chr_set_grnshift( Object * pchr, const int gs );
 void chr_set_blushift( Object * pchr, const int bs );
 
 std::string chr_get_dir_name( const CHR_REF ichr );
-int chr_get_skill( Object * pchr, IDSZ whichskill );
+bool chr_get_skill( Object * pchr, IDSZ whichskill );
 
 bool update_chr_darkvision( const CHR_REF character );
 
@@ -219,15 +213,6 @@ void move_one_character_get_environment( Object * pchr );
 
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
 float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
-
-
-/**
- * @brief
- *	Spawn a character.
- * @return
- *	the index of the character on success success, #INVALID_CHR_REF on failure
- */
-CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
 
 /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
 ///    inventory ( Not hands ).

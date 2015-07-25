@@ -25,11 +25,11 @@
 /// The current code is about 3/4 of the way toward this goal.
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_functions.h"
 #include "game/script_implementation.h"
 #include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
-#include "egolib/Graphics/mad.h"
 #include "game/link.h"
 #include "game/input.h"
 #include "game/network.h"
@@ -952,7 +952,7 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( 0 != chr_get_skill( pself_target, ( IDSZ )pstate->argument ) );
+    returncode = chr_get_skill(pself_target, ( IDSZ )pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1035,7 +1035,7 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    action = mad_get_action_ref( pchr->inst.imad, pstate->argument );
+    action = pchr->getProfile()->getModel()->getAction( pstate->argument );
 
     returncode = false;
     if ( rv_success == chr_start_anim( pchr, action, false, false ) )
@@ -1133,7 +1133,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
 
         if ( pself_target->alive )
         {
-            int action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
+            int action = pself_target->getProfile()->getModel()->getAction( pstate->argument );
 
             if ( rv_success == chr_start_anim( pself_target, action, false, false ) )
             {
@@ -1309,7 +1309,7 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    action = mad_get_action_ref( pchr->inst.imad, pstate->argument );
+    action = pchr->getProfile()->getModel()->getAction(pstate->argument);
 
     returncode = false;
     if ( rv_success == chr_start_anim( pchr, action, false, true ) )
@@ -1893,30 +1893,23 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, 0);
 
-    ichr = spawn_one_character(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
-    returncode = _currentModule->getObjectHandler().exists( ichr );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
+    returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
-        }
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
     }
     else
     {
-        Object * pchild = _currentModule->getObjectHandler().get( ichr );
-
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe( pchild))
-        {
-            _currentModule->getObjectHandler().remove( ichr );
-            ichr = INVALID_CHR_REF;
+        if (!chr_get_safe( pchild.get())) {
+            pchild->requestTerminate();
         }
         else
         {
             TURN_T turn;
-            pself->child = ichr;
+            pself->child = pchild->getCharacterID();
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pchild->vel[kX] += turntocos[ turn ] * pstate->distance;
@@ -2156,7 +2149,6 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function spawns a particle, offset from the character's location
 
-    PRT_REF iprt;
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2173,40 +2165,39 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->holdingwhich[SLOT_LEFT];
     }
 
-    iprt = ParticleHandler::get().spawn_one_particle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
-                                                     LocalParticleProfileRef(pstate->argument), pself->index,
-                                                     pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                     INVALID_CHR_REF );
+    std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
+                                                    pchr->ori.facing_z, 
+                                                    pchr->profile_ref,
+                                                    LocalParticleProfileRef(pstate->argument), pself->index,
+                                                    pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                    INVALID_CHR_REF );
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = (particle != nullptr);
     if ( returncode )
     {
-        fvec3_t tmp_pos;
-        prt_t *pprt = ParticleHandler::get().get_ptr( iprt );
-
         // attach the particle
-        place_particle_at_vertex( pprt, pself->index, pstate->distance );
-        pprt->attachedto_ref = INVALID_CHR_REF;
+        particle->placeAtVertex(_currentModule->getObjectHandler()[pself->index], pstate->distance);
+        particle->attach(INVALID_CHR_REF);
 
-        tmp_pos = pprt->getPosition();
+        fvec3_t tmp_pos = particle->getPosition();
 
         // Correct X, Y, Z spacing
-        tmp_pos[kZ] += PipStack.get_ptr(pprt->pip_ref)->spacing_vrt_pair.base;
+        tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
 
         // Don't spawn in walls
         tmp_pos[kX] += pstate->x;
-        if (EMPTY_BIT_FIELD != pprt->test_wall(tmp_pos, nullptr))
+        if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
         {
-            tmp_pos[kX] = pprt->pos[kX];
+            tmp_pos[kX] = particle->pos[kX];
 
             tmp_pos[kY] += pstate->y;
-            if (EMPTY_BIT_FIELD != pprt->test_wall(tmp_pos, nullptr))
+            if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
             {
-                tmp_pos[kY] = pprt->pos[kY];
+                tmp_pos[kY] = particle->pos[kY];
             }
         }
 
-        pprt->setPosition(tmp_pos);
+        particle->setPosition(tmp_pos);
     }
 
     SCRIPT_FUNCTION_END();
@@ -2445,7 +2436,6 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     /// them too much
 
     PRO_REF  old_profile;
-    mad_t * pmad;
     int iskin;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2463,17 +2453,12 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     pself->content = REF_TO_INT( old_profile );
 
     // set the spellbook animations
-    pmad = chr_get_pmad(pself->index);
+    // Do dropped animation
+    int tmp_action = pchr->getProfile()->getModel()->getAction(ACTION_JB);
 
-    if ( NULL != pmad )
+    if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
     {
-        // Do dropped animation
-        int tmp_action = mad_get_action_ref(pchr->inst.imad, ACTION_JB);
-
-        if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
-        {
-            returncode = true;
-        }
+        returncode = true;
     }
 
     // have to do this every time pself->state is modified
@@ -4030,7 +4015,6 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     /// @details This function spawns a particle attached to the character
 
     CHR_REF ichr, iholder;
-    PRT_REF iprt;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4042,12 +4026,10 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = iholder;
     }
 
-    iprt = ParticleHandler::get().spawn_one_particle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
                                                      LocalParticleProfileRef(pstate->argument), pself->index,
                                                      pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
-    returncode = DEFINED_PRT( iprt );
-
     SCRIPT_FUNCTION_END();
 }
 
@@ -4058,7 +4040,6 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function spawns a particle at a specific x, y, z position
 
-    PRT_REF iprt;
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4078,13 +4059,11 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
             pstate->distance
             );
 
-        iprt = ParticleHandler::get().spawn_one_particle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
                                                          LocalParticleProfileRef(pstate->argument),
                                                          INVALID_CHR_REF, 0, pchr->team, ichr,
                                                          INVALID_PRT_REF, 0, INVALID_CHR_REF);
     }
-
-    returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4489,7 +4468,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
         Object * pchild = _currentModule->getObjectHandler().get( pself->child );
 
-        action = mad_get_action_ref( pchild->inst.imad, pstate->argument );
+        action = pchild->getProfile()->getModel()->getAction(pstate->argument);
 
         if ( rv_success == chr_start_anim( pchild, action, false, true ) )
         {
@@ -4574,7 +4553,6 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     /// @details This function spawns a particle of the specific size attached to the
     /// character. For spell charging effects
 
-    PRT_REF iprt;
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4585,16 +4563,16 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = ParticleHandler::get().spawn_one_particle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
-                                                     LocalParticleProfileRef(pstate->argument), pself->index,
+    std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, 
+                                                     pchr->profile_ref, LocalParticleProfileRef(pstate->argument), pself->index,
                                                      pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = (particle != nullptr);
 
     if ( returncode )
     {
-        returncode = ParticleHandler::get().get_ptr(iprt)->set_size(pstate->turn);
+        particle->setSize(pstate->turn);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4687,7 +4665,6 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     /// @details This function spawns a particle attached to the character, facing the
     /// same direction given by tmpturn
 
-    PRT_REF iprt;
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4698,12 +4675,10 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = ParticleHandler::get().spawn_one_particle(pchr->getPosition(), CLIP_TO_16BITS( pstate->turn ),
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( pstate->turn ),
                                                      pchr->profile_ref, LocalParticleProfileRef(pstate->argument),
                                                      pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF,
                                                      0, INVALID_CHR_REF);
-
-    returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5028,7 +5003,6 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
     /// @author ZZ
     /// @details This function spawns a particle attached to the character's holder, or to the character if no holder
 
-    PRT_REF iprt;
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5039,12 +5013,10 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
         ichr = pchr->attachedto;
     }
 
-    iprt = ParticleHandler::get().spawn_one_particle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
                                                      LocalParticleProfileRef(pstate->argument), ichr,
                                                      pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
-
-    returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5423,29 +5395,23 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    CHR_REF ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
-    returncode = _currentModule->getObjectHandler().exists( ichr );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
+    returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
-        }
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
     }
     else
     {
-        Object * pchild = _currentModule->getObjectHandler().get( ichr );
-
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe(pchild))
+        if (!chr_get_safe(pchild.get()))
         {
-            _currentModule->getObjectHandler().remove( ichr );
-            ichr = INVALID_CHR_REF;
+            pchild->requestTerminate();
         }
         else
         {
-            pself->child = ichr;
+            pself->child = pchild->getCharacterID();
 
             pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
@@ -5479,15 +5445,10 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         pstate->distance
         );
 
-    CHR_REF ichr = spawn_one_character(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
-    const std::shared_ptr<Object> &pchild = _currentModule->getObjectHandler()[ichr];
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
 
     if ( !pchild )
     {
-        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ppro->getClassName().c_str(), pstate->argument );
-        }
         returncode = false;
     }
     else
@@ -5500,7 +5461,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
         else
         {
-            pself->child = ichr;
+            pself->child = pchild->getCharacterID();
 
             pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
@@ -5556,7 +5517,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     /// @details This function spawns a particle at a specific x, y, z position,
     /// that will home in on the character's target
 
-    PRT_REF iprt;
+    std::shared_ptr<Ego::Particle> particle;
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5576,17 +5537,17 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
             pstate->distance
             );
 
-        iprt = ParticleHandler::get().spawn_one_particle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
                                                          LocalParticleProfileRef(pstate->argument),
                                                          INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
                                                          0, INVALID_CHR_REF);
     }
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = (particle != nullptr);
 
     if ( returncode )
     {
-        ParticleHandler::get().get_ptr(iprt)->target_ref = pself->target;
+        particle->setTarget(pself->target);
     }
 
     SCRIPT_FUNCTION_END();
@@ -5734,7 +5695,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         int action;
         Object * pself_target = _currentModule->getObjectHandler().get( pself->target );
 
-        action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
+        action = pself_target->getProfile()->getModel()->getAction(pstate->argument );
 
         if ( rv_success == chr_start_anim( pself_target, action, false, true ) )
         {
@@ -6734,7 +6695,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     /// When the particle ends, a character is spawned at its final location.
     /// The character is the same type of whatever spawned the particle.
 
-    PRT_REF iprt;
+    std::shared_ptr<Ego::Particle> particle;
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6754,17 +6715,17 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
             pstate->distance
             );
 
-        iprt = ParticleHandler::get().spawn_one_particle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
                                                          LocalParticleProfileRef(pstate->argument),
                                                          INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
                                                          0, INVALID_CHR_REF);
     }
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = (particle != nullptr);
 
     if ( returncode )
     {
-        ParticleHandler::get().get_ptr(iprt)->endspawn_characterstate = pstate->turn;
+        particle->endspawn_characterstate = pstate->turn;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7004,10 +6965,7 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     {
-        mad_t * pmad = chr_get_pmad( pself->index );
-
-        log_warning( "Depacrated script function used: EnableListenSkill! (%s)\n",
-                     ( NULL == pmad ) ? "UNKNOWN" : pmad->name );
+        log_warning("Deprecated script function used: EnableListenSkill! (%s)\n", pchr->getProfile()->getClassName().c_str());
     }
 
     returncode = false;
@@ -7151,7 +7109,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
         if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
         {
             //And require the backstab skill
-            if ( chr_get_skill( pattacker, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
+            if ( pattacker->hasPerk(Ego::Perks::BACKSTAB) )
             {
                 //Finally we require it to be physical damage!
                 if (DamageType_isPhysical(pself->damagetypelast))
@@ -7425,35 +7383,30 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    CHR_REF ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
-    returncode = _currentModule->getObjectHandler().exists( ichr );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
+    returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ProfileSystem::get().getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument);
-        }
+        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, pchr->getProfile()->getClassName().c_str(), pstate->argument);
     }
     else
     {
-        Object * pchild = _currentModule->getObjectHandler().get( ichr );
-
-        Uint8 grip = CLIP( pstate->distance, (int)ATTACH_INVENTORY, (int)ATTACH_RIGHT );
+        Uint8 grip = Ego::Math::constrain<int>(pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT);
 
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( Inventory::add_item( pself->target, ichr, pchr->getInventory().getFirstFreeSlotNumber(), true ) )
+            if ( Inventory::add_item( pself->target, pchild->getCharacterID(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work
-                scr_run_chr_script( ichr );  // Empty the grabbed messages
+                scr_run_chr_script( pchild->getCharacterID() );  // Empty the grabbed messages
 
                 pchild->attachedto = INVALID_CHR_REF;  // Fix grab
 
                 //Set some AI values
-                pself->child = ichr;
+                pself->child = pchild->getCharacterID();
                 pchild->ai.passage = pself->passage;
                 pchild->ai.owner   = pself->owner;
             }
@@ -7461,8 +7414,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //No more room!
             else
             {
-                _currentModule->getObjectHandler().remove( ichr );
-                ichr = INVALID_CHR_REF;
+                pchild->requestTerminate();
             }
         }
         else if ( grip == ATTACH_LEFT || grip == ATTACH_RIGHT )
@@ -7472,14 +7424,14 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
 
-                if ( rv_success == attach_character_to_mount( ichr, pself->target, grip_off ) )
+                if ( rv_success == attach_character_to_mount( pchild->getCharacterID(), pself->target, grip_off ) )
                 {
                     // Handle the "grabbed" messages
-                    scr_run_chr_script( ichr );
+                    scr_run_chr_script( pchild->getCharacterID() );
                 }
 
                 //Set some AI values
-                pself->child = ichr;
+                pself->child = pchild->getCharacterID();
                 pchild->ai.passage = pself->passage;
                 pchild->ai.owner   = pself->owner;
             }
@@ -7487,8 +7439,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //Grip is already used
             else
             {
-                _currentModule->getObjectHandler().remove( ichr );
-                ichr = INVALID_CHR_REF;
+                pchild->requestTerminate();
             }
         }
         else
@@ -7497,10 +7448,16 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // still allow the character to spawn if it is not in an invalid area
 
             // technically this should never occur since we are limiting the attachment points above
-            if (!chr_get_safe(pchild))
+            if (!chr_get_safe(pchild.get()))
             {
-                _currentModule->getObjectHandler().remove( ichr );
-                ichr = INVALID_CHR_REF;
+                pchild->requestTerminate();
+            }
+            else
+            {
+                //Set some AI values
+                pself->child = pchild->getCharacterID();
+                pchild->ai.passage = pself->passage;
+                pchild->ai.owner   = pself->owner;                
             }
         }
     }
@@ -8103,9 +8060,9 @@ Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
 {
-    // GiveSkillToTarget( tmpargument = "skill_IDSZ", tmpdistance = "skill_level" )
+    // GiveSkillToTarget( tmpargument = "skill_IDSZ" )
     /// @author ZF
-    /// @details This function permanently gives the target character a skill
+    /// @details This function permanently gives the target character a Perk
 
     Object *ptarget;
     egolib_rv rv;
@@ -8114,9 +8071,20 @@ Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( ptarget );
 
-    rv = idsz_map_add( ptarget->skills, SDL_arraysize( ptarget->skills ), pstate->argument, pstate->distance );
-
-    returncode = ( rv_success == rv );
+    //IDSZ to Perk
+    switch(pstate->argument)
+    {
+        case MAKE_IDSZ( 'A', 'W', 'E', 'P' ): ptarget->addPerk(Ego::Perks::WEAPON_PROFICIENCY); break;
+        case MAKE_IDSZ( 'P', 'O', 'I', 'S' ): ptarget->addPerk(Ego::Perks::POISONRY); break;
+        case MAKE_IDSZ( 'C', 'K', 'U', 'R' ): ptarget->addPerk(Ego::Perks::SENSE_KURSES); break;
+        case MAKE_IDSZ( 'R', 'E', 'A', 'D' ): ptarget->addPerk(Ego::Perks::LITERACY); break;
+        case MAKE_IDSZ( 'W', 'M', 'A', 'G' ): ptarget->addPerk(Ego::Perks::ARCANE_MAGIC); break;
+        case MAKE_IDSZ( 'H', 'M', 'A', 'G' ): ptarget->addPerk(Ego::Perks::DIVINE_MAGIC); break;
+        case MAKE_IDSZ( 'T', 'E', 'C', 'H' ): ptarget->addPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS); break;
+        case MAKE_IDSZ( 'D', 'I', 'S', 'A' ): ptarget->addPerk(Ego::Perks::TRAP_LORE); break;
+        case MAKE_IDSZ( 'S', 'T', 'A', 'B' ): ptarget->addPerk(Ego::Perks::BACKSTAB); break;
+        case MAKE_IDSZ( 'D', 'A', 'R', 'K' ): ptarget->addPerk(Ego::Perks::NIGHT_VISION); break;
+    }
 
     SCRIPT_FUNCTION_END();
 }

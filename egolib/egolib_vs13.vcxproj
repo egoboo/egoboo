@@ -282,6 +282,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Logic\Perk.cpp" />
+    <ClCompile Include="src\egolib\Logic\PerkHandler.cpp" />
+    <ClCompile Include="src\egolib\Renderer\DeferredOpenGLTexture.cpp" />
     <ClCompile Include="src\egolib\Time\LocalTime.cpp" />
     <ClCompile Include="src\egolib\Platform\file_win.c" />
     <ClCompile Include="src\egolib\Logic\Team.cpp" />
@@ -289,7 +292,7 @@
     <ClCompile Include="src\egolib\VFS\Pathname.cpp" />
     <ClCompile Include="src\egolib\AI\AStar.c" />
     <ClCompile Include="src\egolib\AI\WaypointList.c" />
-    <ClCompile Include="src\egolib\Graphics\mad.c" />
+    <ClCompile Include="src\egolib\Graphics\ModelDescriptor.cpp" />
     <ClCompile Include="src\egolib\Graphics\MD2Model.cpp" />
     <ClCompile Include="src\egolib\Profiles\ModuleProfile.cpp" />
     <ClCompile Include="src\egolib\Profiles\ObjectProfile.cpp" />
@@ -459,6 +462,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+ <ClInclude Include="src\egolib\Logic\Attribute.hpp" />
+    <ClInclude Include="src\egolib\Logic\Perk.hpp" />
+    <ClInclude Include="src\egolib\Logic\PerkHandler.hpp" />
+    <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp" />   
     <ClInclude Include="src\egolib\Math\Module.hpp" />
     <ClInclude Include="src\egolib\Math\Point.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedRing.hpp" />
@@ -482,7 +489,7 @@
     <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
     <ClInclude Include="src\egolib\AI\AStar.h" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
-    <ClInclude Include="src\egolib\Graphics\mad.h" />
+    <ClInclude Include="src\egolib\Graphics\ModelDescriptor.hpp" />
     <ClInclude Include="src\egolib\Graphics\MD2Model.hpp" />
     <ClInclude Include="src\egolib\Profiles\ModuleProfile.hpp" />
     <ClInclude Include="src\egolib\Profiles\ObjectProfile.hpp" />

@@ -8,17 +8,22 @@ class Image : public GUIComponent
 public:
     Image();
     Image(const std::string &filePath);
+    Image(const Ego::DeferredOpenGLTexture &image);
+
+    //TODO: remove
     Image(oglx_texture_t *texture);
-    ~Image();
 
     virtual void draw() override;
 
     void setImage(const std::string &filePath);
 
-    inline int getTextureWidth() const { return _image->getSourceWidth(); }
-    inline int getTextureHeight() const { return _image->getSourceHeight(); }
+    void setTint(const Ego::Math::Colour4f &colour);
+
+    int getTextureWidth();
+    int getTextureHeight();
 
 private:
+    Ego::DeferredOpenGLTexture _texture;
     oglx_texture_t *_image;
-    bool _freeOnDestroy;
+    Ego::Math::Colour4f _tint;
 };

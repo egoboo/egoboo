@@ -27,6 +27,25 @@
 
 class InternalWindow : public GUIComponent, public ComponentContainer
 {
+    protected:
+        class TitleBar : public GUIComponent
+        {
+        public:
+            TitleBar(const std::string &titleBar);
+
+            void draw() override;
+
+            int getTextHeight() const { return _textHeight; }
+
+        private:
+            Ego::DeferredOpenGLTexture _titleBarTexture;
+            Ego::DeferredOpenGLTexture _titleSkull;
+            std::shared_ptr<Ego::Font> _font;
+            std::string _title;
+            int _textWidth;
+            int _textHeight;
+        };
+
     public:
         InternalWindow(const std::string &title);
 
@@ -37,6 +56,7 @@ class InternalWindow : public GUIComponent, public ComponentContainer
         void draw() override;
 
         virtual void setPosition(const int x, const int y) override;
+        virtual void setSize(const int width, const int height) override;
 
         void setTransparency(float alpha);
 
@@ -46,12 +66,12 @@ class InternalWindow : public GUIComponent, public ComponentContainer
         void drawContainer() override;
 
     private:
-        std::unique_ptr<oglx_texture_t> _background;
+        std::unique_ptr<TitleBar> _titleBar;
+        Ego::DeferredOpenGLTexture _background;
         bool _mouseOver;
         bool _mouseOverCloseButton;
         bool _isDragging;
-        SDL_Point _mouseDragOffset;
-        std::string _title;
+        Vector2f _mouseDragOffset;
         float _transparency;
         bool _firstDraw;
 };

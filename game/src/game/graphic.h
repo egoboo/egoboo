@@ -24,7 +24,6 @@
 #include "game/egoboo_typedef.h"
 
 #include "game/mesh.h"
-#include "egolib/Graphics/mad.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
 #include "game/Graphics/TileList.hpp"
@@ -32,6 +31,7 @@
 #include "game/Graphics/Vertex.hpp"
 #include "egolib/DynamicArray.hpp"
 #include "game/Graphics/RenderPasses.hpp"
+#include "egolib/Graphics/MD2Model.hpp"
 
 
 

@@ -43,7 +43,7 @@ struct wawalite_fog_t;
 struct menu_process_t;
 
 class Object;
-struct prt_t;
+namespace Ego { class Particle; }
 struct prt_bundle_t;
 
 struct s_import_list;
@@ -431,7 +431,6 @@ void reset_end_text();
 /// Particles
 int     number_of_attached_particles( const CHR_REF character );
 int     spawn_bump_particles( const CHR_REF character, const PRT_REF particle );
-prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int vertex_offset );
 void    disaffirm_attached_particles( const CHR_REF character );
 int     reaffirm_attached_particles( const CHR_REF character );
 
@@ -442,7 +441,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
 /// AI targeting
 bool  chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const BIT_FIELD targeting_bits );
 CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
-CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
+CHR_REF prt_find_target( const fvec3_t& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget, FACING_T *targetAngle);
 
 /// object initialization
 void  free_all_objects();
@@ -474,10 +473,10 @@ void cleanup_character_enchants( Object * pchr );
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
 bool attach_Objecto_platform( Object * pchr, Object * pplat );
-bool attach_prt_to_platform( prt_t * pprt, Object * pplat );
+bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
 
 bool detach_character_from_platform( Object * pchr );
-bool detach_particle_from_platform( prt_t * pprt );
+bool detach_particle_from_platform( Ego::Particle * pprt );
 
 egolib_rv game_copy_imports( import_list_t * imp_lst );
 

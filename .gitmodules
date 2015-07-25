@@ -1,7 +1,6 @@
 [submodule "data"]
 	path = data
 	url = https://github.com/egoboo/egoboo-assets
-	ignore = all
 [submodule "external"]
 	path = external
 	url = https://github.com/egoboo/egoboo-external

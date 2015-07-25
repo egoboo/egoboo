@@ -1,48 +1,64 @@
 #include "game/GUI/Image.hpp"
 
 Image::Image() :
-    _image(new oglx_texture_t()),
-    _freeOnDestroy(true)
+    _texture(""),
+    _image(nullptr),
+    _tint(Ego::Colour4f::white())
 {
 
 }
 
 Image::Image(const std::string &filePath) : 
-    _image(new oglx_texture_t()),
-    _freeOnDestroy(true)
+    _texture(filePath),
+    _image(nullptr),
+    _tint(Ego::Colour4f::white())
 {
-    ego_texture_load_vfs(_image, filePath.c_str(), TRANSCOLOR);
 }
 
 Image::Image(oglx_texture_t *texture) :
+    _texture(""),
     _image(texture),
-    _freeOnDestroy(false)
+    _tint(Ego::Colour4f::white())
 {
 
 }
 
-
-Image::~Image()
+Image::Image(const Ego::DeferredOpenGLTexture &image) :
+    _texture(image),
+    _image(nullptr),
+    _tint(Ego::Colour4f::white())
 {
-    if(_freeOnDestroy) {
-        delete _image;
-        _image = nullptr;        
-    }
+
 }
 
 void Image::draw()
 {
-    _gameEngine->getUIManager()->drawImage(*_image, getX(), getY(), getWidth(), getHeight());
+    if(_image) {
+        _gameEngine->getUIManager()->drawImage(*_image, getX(), getY(), getWidth(), getHeight(), _tint);
+    }
+    else {
+        _gameEngine->getUIManager()->drawImage(_texture, getX(), getY(), getWidth(), getHeight(), _tint);
+    }
 }
 
 void Image::setImage(const std::string &filePath)
 {
-    // Unload any old image first
-    if(_freeOnDestroy) {
-        _image->release();
-    }
-    _freeOnDestroy = false;
+    _texture.setTextureSource(filePath);
+}
 
-    // Load new image
-    ego_texture_load_vfs(_image, filePath.c_str(), TRANSCOLOR);
+int Image::getTextureWidth() 
+{ 
+    if(_image) return _image->getSourceWidth(); 
+    return _texture.get().getSourceWidth();
+}
+
+int Image::getTextureHeight() 
+{ 
+    if(_image) return _image->getSourceHeight(); 
+    return _texture.get().getSourceHeight();
+}
+
+void Image::setTint(const Ego::Math::Colour4f &colour)
+{
+    _tint = colour;
 }

@@ -2,10 +2,6 @@
 
 #include "game/Entities/_Include.hpp"
 
-bool     chr_heal_mad( Object * pchr );
-MAD_REF  chr_get_imad( const CHR_REF ichr );
-mad_t   *chr_get_pmad( const CHR_REF ichr );
-
 uint32_t chr_get_framefx( Object * pchr );
 
 egolib_rv chr_set_action( Object * pchr, int action, bool action_ready, bool override_action );

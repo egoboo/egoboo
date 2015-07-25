@@ -26,7 +26,6 @@
 #include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
-#include "egolib/Graphics/mad.h"
 #include "game/player.h"
 #include "game/link.h"
 #include "game/graphic.h"
@@ -43,6 +42,7 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/Graphics/CameraSystem.hpp"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
 #include "game/physics.h"
@@ -59,8 +59,6 @@ char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
 
 pit_info_t g_pits;
-
-FACING_T glouseangle = 0;                                        // actually still used
 
 animtile_instance_t   animtile[2];
 damagetile_instance_t damagetile;
@@ -375,8 +373,7 @@ void log_madused_vfs( const char *savename )
             }
             lastSlotNumber = profile->getSlotNumber();
 
-            MAD_REF imad = profile->getModelRef();
-            vfs_printf( hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), profile->getClassName().c_str(), MadStack.lst[imad].name );
+            vfs_printf(hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), profile->getClassName().c_str(), profile->getModel()->getName().c_str());
         }
 
         vfs_close( hFileWrite );
@@ -391,18 +388,13 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
     ///    rotate Tank turrets
 
     Object * pchr;
-    MAD_REF imad;
     egolib_rv retval;
-    int action;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return rv_error;
     pchr = _currentModule->getObjectHandler().get( character );
 
-    imad = chr_get_imad( character );
-    if ( !LOADED_MAD( imad ) ) return rv_fail;
-
     // resolve the requested action to a action that is valid for this model (if possible)
-    action = mad_get_action_ref( imad, req_action );
+    int action = pchr->getProfile()->getModel()->getAction(req_action);
 
     // set the action
     retval = chr_set_action( pchr, action, true, true );
@@ -411,7 +403,7 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
         // the action is set. now set the frame info.
         // pass along the imad in case the pchr->inst is not using this same mad
         // (corrupted data?)
-        retval = (egolib_rv)chr_instance_t::set_frame_full(pchr->inst, frame_along, ilip, imad);
+        retval = (egolib_rv)chr_instance_t::set_frame_full(pchr->inst, frame_along, ilip, pchr->getProfile()->getModel());
     }
 
     return retval;
@@ -455,18 +447,17 @@ void activate_alliance_file_vfs()
 //--------------------------------------------------------------------------------------------
 void update_used_lists()
 {
-    ParticleHandler::get().update_used();
     EnchantHandler::get().update_used();
 }
 
 //--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
-    chr_stoppedby_tests = prt_stoppedby_tests = 0;
-    chr_pressure_tests  = prt_pressure_tests  = 0;
+    chr_stoppedby_tests = 0;
+    chr_pressure_tests  = 0;
 
     update_all_characters();
-    update_all_particles();
+    ParticleHandler::get().updateAllParticles();
     update_all_enchants();
 }
 
@@ -482,7 +473,7 @@ void move_all_objects()
 //--------------------------------------------------------------------------------------------
 void cleanup_all_objects()
 {
-    // Do poofing
+    // Do poofing       ZF> TODO: move to Object->update()
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
@@ -491,7 +482,6 @@ void cleanup_all_objects()
         object->requestTerminate();
     }
 
-    cleanup_all_particles();
     cleanup_all_enchants();
 }
 
@@ -543,6 +533,7 @@ int update_game()
     local_stats.seedark_level   = 0.0f;
     local_stats.grog_level      = 0.0f;
     local_stats.daze_level      = 0.0f;
+    AudioSystem::get().setMaxHearingDistance(AudioSystem::DEFAULT_MAX_DISTANCE);
 
     //status text for player stats
     check_stats();
@@ -581,6 +572,16 @@ int update_game()
             local_stats.seedark_level  += pchr->darkvision_level;
             local_stats.grog_level     += pchr->grog_timer;
             local_stats.daze_level     += pchr->daze_timer;
+
+            //See invisble through perk
+            if (pchr->hasPerk(Ego::Perks::SENSE_INVISIBLE)) {
+                local_stats.seeinvis_level += 1;
+            }
+
+            //Do they have the listening perk? (+100% hearing distance)
+            if (pchr->hasPerk(Ego::Perks::PERCEPTIVE)) {
+                AudioSystem::get().setMaxHearingDistance(AudioSystem::DEFAULT_MAX_DISTANCE*2);
+            }
         }
         else
         {
@@ -722,8 +723,8 @@ void game_reset_timers()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
-                         const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget )
+CHR_REF prt_find_target( const fvec3_t& pos, FACING_T facing,
+                         const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget, FACING_T *targetAngle )
 {
     /// @author ZF
     /// @details This is the new improved targeting system for particles. Also includes distance in the Z direction.
@@ -774,7 +775,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
 
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {
-                    glouseangle = angle;
+                    (*targetAngle) = angle;
                     besttarget = pchr->getCharacterID();
                     longdist2 = dist2;
                 }
@@ -824,7 +825,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     if ( !psrc->canSeeObject(ptst) ) return false;
 
     //Need specific skill? ([NONE] always passes)
-    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst.get(), idsz ) ) return false;
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && !chr_get_skill( ptst.get(), idsz ) ) return false;
 
     // Require player to have specific quest?
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
@@ -902,7 +903,13 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
 
             const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[ipla].index];
             if(player) {
-                searchList.push_back(player);
+
+                //Within range?
+                float distance = (player->getPosition() - psrc->getPosition()).length();
+                if(max_dist == NEAREST || distance < max_dist) {
+                    searchList.push_back(player);
+                }
+
             }
 
         }
@@ -1009,7 +1016,7 @@ void do_damage_tiles()
 
             if (( actual_damage > 0 ) && (LocalParticleProfileRef::Invalid != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
-                ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
+                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
             }
         }
     }
@@ -1032,14 +1039,13 @@ void update_pits()
             clock_pit = 20;
 
             // Kill any particles that fell in a pit, if they die in water...
-            PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
+            for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
             {
-                if ( prt_bdl._prt_ptr->pos[kZ] < PITDEPTH && prt_bdl._pip_ptr->end_water )
+                if ( particle->pos[kZ] < PITDEPTH && particle->getProfile()->end_water )
                 {
-                    end_one_particle_now( prt_bdl._prt_ref );
+                    particle->requestTerminate();
                 }
             }
-            PRT_END_LOOP();
 
             // Kill or teleport any characters that fell in a pit...
             for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
@@ -1103,72 +1109,51 @@ void update_pits()
 void do_weather_spawn_particles()
 {
     /// @author ZZ
-    /// @details This function drops snowflakes or rain or whatever, also swings the camera
+    /// @details This function drops snowflakes or rain or whatever
 
-    int    cnt;
-    bool foundone;
+    //Does this module have valid weather?
+    if(weather.time < 0 || weather.part_gpip == LocalParticleProfileRef::Invalid) {
+        return;
+    }
 
-    if ( weather.time > 0 && LocalParticleProfileRef::Invalid != weather.part_gpip)
+    weather.time--;
+    if ( 0 == weather.time )
     {
-        weather.time--;
-        if ( 0 == weather.time )
+        weather.time = weather.timer_reset;
+
+        // Find a valid player
+        bool foundone = false;
+        for ( int cnt = 0; cnt < MAX_PLAYER; cnt++ )
         {
-            weather.time = weather.timer_reset;
-
-            // Find a valid player
-            foundone = false;
-            for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+            // Yes, but is the character valid?
+            weather.iplayer = ( PLA_REF )(( REF_TO_INT( weather.iplayer ) + 1 ) % MAX_PLAYER );
+            if ( PlaStack.lst[weather.iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[weather.iplayer].index) )
             {
-                weather.iplayer = ( PLA_REF )(( REF_TO_INT( weather.iplayer ) + 1 ) % MAX_PLAYER );
-                if ( PlaStack.lst[weather.iplayer].valid )
-                {
-                    foundone = true;
-                    break;
-                }
+                foundone = true;
+                break;
             }
+        }
 
-            // Did we find one?
-            if ( foundone )
+        // Did we find one?
+        if ( foundone )
+        {
+            CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
+            if ( _currentModule->getObjectHandler().exists( ichr ) && !_currentModule->getObjectHandler().exists( _currentModule->getObjectHandler().get(ichr)->inwhich_inventory ) )
             {
-                // Yes, but is the character valid?
-                CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
-                if ( _currentModule->getObjectHandler().exists( ichr ) && !_currentModule->getObjectHandler().exists( _currentModule->getObjectHandler().get(ichr)->inwhich_inventory ) )
+                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[weather.iplayer].index];
+
+                // Yes, so spawn nearby that character
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0, weather.over_water);
+                if ( particle )
                 {
-                    Object * pchr = _currentModule->getObjectHandler().get( ichr );
-
-                    // Yes, so spawn over that character
-                    PRT_REF particle = ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
-                    if ( DEFINED_PRT( particle ) )
+                    // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
+                    if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
                     {
-                        prt_t * pprt = ParticleHandler::get().get_ptr( particle );
-
-                        bool destroy_particle = false;
-
-                        if ( weather.over_water && !prt_is_over_water( particle ) )
-                        {
-                            destroy_particle = true;
-                        }
-                        else if ( EMPTY_BIT_FIELD != pprt->test_wall( nullptr ) )
-                        {
-                            destroy_particle = true;
-                        }
-                        else
-                        {
-                            // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                            if ( pprt->pos[kX] < EDGE || pprt->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
-                            {
-                                destroy_particle = true;
-                            }
-                            else if ( pprt->pos[kY] < EDGE || pprt->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
-                            {
-                                destroy_particle = true;
-                            }
-                        }
-
-                        if ( destroy_particle )
-                        {
-                            ParticleHandler::get().free_one( particle );
-                        }
+                        particle->requestTerminate();
+                    }
+                    else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
+                    {
+                        particle->requestTerminate();
                     }
                 }
             }
@@ -2016,28 +2001,14 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
         if ( pchr->experiencelevel < pinfo->level )
         {
             pchr->experience = pchr->getProfile()->getXPNeededForLevel(pinfo->level);
-            pchr->giveLevelUp();
         }
     }
 
     // automatically identify and unkurse all player starting equipment? I think yes.
-    if ( !_currentModule->isImportValid() && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
+    if ( !_currentModule->isImportValid() && NULL != pparent && pparent->isPlayer() )
     {
-        Object *pitem;
         pchr->nameknown = true;
-
-        //Unkurse both inhand items
-        if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
-        {
-            pitem = _currentModule->getObjectHandler().get( pchr->holdingwhich[SLOT_LEFT] );
-            pitem->iskursed = false;
-        }
-        if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) )
-        {
-            pitem = _currentModule->getObjectHandler().get( pchr->holdingwhich[SLOT_RIGHT] );
-            pitem->iskursed = false;
-        }
-
+        pchr->iskursed = false;
     }
 
     return true;
@@ -2110,7 +2081,6 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 {
     int     local_index = 0;
-    CHR_REF new_object;
     PRO_REF iprofile;
 
     if ( NULL == psp_info || !psp_info->do_spawn || psp_info->slot < 0 ) return false;
@@ -2118,17 +2088,15 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    new_object = spawn_one_character(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);
-    
-    const std::shared_ptr<Object> &pobject = _currentModule->getObjectHandler()[new_object];
+    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);    
     if (!pobject) return false;
 
     // determine the attachment
     if (psp_info->attach == ATTACH_NONE)
     {
         // Free character
-        psp_info->parent = new_object;
-        make_one_character_matrix( new_object );
+        psp_info->parent = pobject->getCharacterID();
+        make_one_character_matrix( pobject->getCharacterID() );
     }
 
     chr_setup_apply(pobject, psp_info);
@@ -2148,7 +2116,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             bool player_added;
 
-            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
+            player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
 
             if ( _currentModule->getImportAmount() == 0 && player_added )
             {
@@ -2181,12 +2149,12 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
+                player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
             }
             else
             {
                 // It's a remote PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, NULL );
+                player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, NULL );
             }
         }
     }
@@ -2395,7 +2363,7 @@ void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
     AudioSystem::get().loadGlobalSounds();
-    ParticleHandler::get().reset_all();
+    ProfileSystem::get().loadGlobalParticleProfiles();
 
     if ( NULL == read_wawalite_vfs() )
     {
@@ -2485,14 +2453,15 @@ void disaffirm_attached_particles( const CHR_REF character )
     /// @author ZZ
     /// @details This function makes sure a character has no attached particles
 
-    PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if ( prt_bdl._prt_ptr->attachedto_ref == character )
+        if(!particle->isAttached() || particle->isTerminated()) continue;
+
+        if ( particle->getAttachedObject()->getCharacterID() == character )
         {
-            end_one_particle_in_game( prt_bdl._prt_ref );
+            particle->requestTerminate();
         }
     }
-    PRT_END_LOOP();
 
     if ( _currentModule->getObjectHandler().exists( character ) )
     {
@@ -2509,14 +2478,15 @@ int number_of_attached_particles( const CHR_REF character )
 
     int     cnt = 0;
 
-    PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if ( prt_bdl._prt_ptr->attachedto_ref == character )
+        if(!particle->isAttached() || particle->isTerminated()) continue;
+
+        if ( particle->getAttachedObject()->getCharacterID() == character )
         {
             cnt++;
         }
     }
-    PRT_END_LOOP();
 
     return cnt;
 }
@@ -2529,15 +2499,13 @@ int reaffirm_attached_particles( const CHR_REF character )
 
     int     number_added, number_attached;
     int     amount, attempts;
-    PRT_REF particle;
-    Object * pchr;
 
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return 0;
-    pchr = _currentModule->getObjectHandler().get( character );
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
+    if(!pchr) {
+        return 0;
+    }
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-    amount = profile->getAttachedParticleAmount();
+    amount = pchr->getProfile()->getAttachedParticleAmount();
     if ( 0 == amount ) return 0;
 
     number_attached = number_of_attached_particles( character );
@@ -2546,13 +2514,14 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = ParticleHandler::get().spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
-        if ( DEFINED_PRT( particle ) )
-        {
-            prt_t * pprt = ParticleHandler::get().get_ptr( particle );
+        std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
+                pchr->getPosition(), pchr->ori.facing_z, pchr->getProfile()->getSlotNumber(), 
+                pchr->getProfile()->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, 
+                chr_get_iteam(character), character, INVALID_PRT_REF, number_attached);
 
-            pprt = place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
-            if ( NULL == pprt ) continue;
+        if (particle)
+        {
+            particle->placeAtVertex(pchr, particle->attachedto_vrt_off);
 
             number_added++;
             number_attached++;
@@ -2692,45 +2661,17 @@ void game_release_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-bool attach_one_particle( prt_bundle_t * pbdl_prt )
-{
-    prt_t * pprt;
-    Object * pchr;
-
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr ) return false;
-    pprt = pbdl_prt->_prt_ptr;
-
-    if ( !_currentModule->getObjectHandler().exists( pbdl_prt->_prt_ptr->attachedto_ref ) ) return false;
-    pchr = _currentModule->getObjectHandler().get( pbdl_prt->_prt_ptr->attachedto_ref );
-
-    pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
-    if ( NULL == pprt ) return false;
-
-    // the previous function can inactivate a particle
-    if ( ACTIVE_PPRT( pprt ) )
-    {
-        // Correct facing so swords knock characters in the right direction...
-        if ( NULL != pbdl_prt->_pip_ptr && HAS_SOME_BITS( pbdl_prt->_pip_ptr->damfx, DAMFX_TURN ) )
-        {
-            pprt->facing = pchr->ori.facing_z;
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void attach_all_particles()
 {
     /// @author ZZ
     /// @details This function attaches particles to their characters so everything gets
     ///    drawn right
 
-    PRT_BEGIN_LOOP_DISPLAY( cnt, prt_bdl )
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        attach_one_particle( &prt_bdl );
+        if(particle->isTerminated() || !particle->isAttached()) continue;
+        particle->placeAtVertex(particle->getAttachedObject(), particle->attachedto_vrt_off);
     }
-    PRT_END_LOOP()
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2829,7 +2770,7 @@ void free_all_objects()
     /// @author BB
     /// @details free every instance of the three object types used in the game.
 
-    ParticleHandler::get().free_all();
+    ParticleHandler::get().clear();
     EnchantHandler::get().free_all();
     free_all_chraracters();
 }
@@ -2837,7 +2778,6 @@ void free_all_objects()
 //--------------------------------------------------------------------------------------------
 void reset_all_object_lists()
 {
-    ParticleHandler::get().reinit();
     EnchantHandler::get().reinit();
 }
 
@@ -4102,16 +4042,16 @@ bool detach_character_from_platform( Object * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
+bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
 {
     /// @author BB
     /// @details attach a particle to a platform
 
     // verify that we do not have two dud pointers
-    if ( !ACTIVE_PPRT( pprt ) ) return false;
+    if ( !pprt || pprt->isTerminated() ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    std::shared_ptr<pip_t> pprt_pip = pprt->get_ppip();
+    std::shared_ptr<pip_t> pprt_pip = pprt->getProfile();
     if ( NULL == pprt_pip ) return false;
 
     // check if they can be connected
@@ -4123,20 +4063,20 @@ bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    pprt->set_level( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] ) );
+    pprt->setElevation( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] ) );
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool detach_particle_from_platform( prt_t * pprt )
+bool detach_particle_from_platform( Ego::Particle * pprt )
 {
     /// @author BB
     /// @details attach a particle to a platform
 
 
     // verify that we do not have two dud pointers
-    if ( !DEFINED_PPRT( pprt ) ) return false;
+    if ( pprt == nullptr || pprt->isTerminated() ) return false;
 
     // grab all of the particle info
     prt_bundle_t bdl_prt(pprt);

@@ -31,6 +31,10 @@
 #include "game/GUI/Button.hpp"
 #include "game/Module/Module.hpp"
 
+#ifdef _DEBUG
+#include "game/GameStates/DebugParticlesScreen.hpp"
+#endif
+
 InGameMenuState::InGameMenuState(PlayingState *playingState) :
     _slidyButtons(),
     _playingState(playingState)
@@ -85,6 +89,20 @@ InGameMenuState::InGameMenuState(PlayingState *playingState) :
     _slidyButtons.push_front(newGameButton);
 
     yOffset -= newGameButton->getHeight() + 10;
+
+#ifdef _DEBUG
+    std::shared_ptr<Button> debugButton = std::make_shared<Button>("Debug Particles", SDLK_p);
+    debugButton->setPosition(20, yOffset);
+    debugButton->setSize(200, 30);
+    debugButton->setOnClickFunction(
+    [this]{
+        _gameEngine->pushGameState(std::make_shared<DebugParticlesScreen>());
+    });
+    addComponent(debugButton);
+    _slidyButtons.push_front(debugButton);
+
+    yOffset -= debugButton->getHeight() + 10;    
+#endif
 }
 
 void InGameMenuState::update()

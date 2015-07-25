@@ -35,7 +35,8 @@ MiniMap::MiniMap() :
     _showPlayerPosition(false),
     _blips(),
     _mouseOver(false),
-    _isDragging(false)
+    _isDragging(false),
+    _mouseDragOffset(0, 0)
 {
     //The minimap is by default not visible
     setVisible(false);
@@ -50,7 +51,7 @@ void MiniMap::draw()
     }
 
     //Draw the map image
-    _gameEngine->getUIManager()->drawImage(*miniMapTexture, getX(), getY(), getWidth(), getHeight());
+    _gameEngine->getUIManager()->drawImage(*miniMapTexture, getX(), getY(), getWidth(), getHeight(), Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
     // If one of the players can sense enemies via ESP, draw them as blips on the map
     if (Team::TEAM_MAX != local_stats.sense_enemies_team)
@@ -149,8 +150,8 @@ void MiniMap::addBlip(const float x, const float y, const std::shared_ptr<Object
 bool MiniMap::notifyMouseMoved(const int x, const int y)
 {
     if(_isDragging) {
-        setPosition( std::min(x, _gameEngine->getUIManager()->getScreenWidth()-getWidth()), 
-                     std::min(y, _gameEngine->getUIManager()->getScreenHeight()-getHeight()) );
+        setPosition( Ego::Math::constrain<int>(x+_mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth()-getWidth()), 
+                     Ego::Math::constrain<int>(y+_mouseDragOffset[1], 0, _gameEngine->getUIManager()->getScreenHeight()-getHeight()) );
     }
     else {
         _mouseOver = contains(x, y);
@@ -163,13 +164,59 @@ bool MiniMap::notifyMouseClicked(const int button, const int x, const int y)
 {
     if(_mouseOver && button == SDL_BUTTON_LEFT)
     {
-        _isDragging = !_isDragging;
-        return true;
-    }
+        //Bring the window in front of all other windows
+        bringToFront();
+
+        _isDragging = true;
+        _mouseDragOffset[0] = getX() - x;
+        _mouseDragOffset[1] = getY() - y;
+
+        //Move the window immediatly
+        return notifyMouseMoved(x, y);    }
     else if(button == SDL_BUTTON_RIGHT) {
         _isDragging = false;
         return true;
     }
 
+    return false;
+}
+
+bool MiniMap::notifyKeyDown(const int keyCode)
+{
+    //Enlarge minimap
+    if(keyCode == SDLK_m)
+    {
+        if(isVisible())
+        {
+            const float HALF_SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth() / 2;
+            const float HALF_SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight() / 2;
+
+            if(getWidth() > MiniMap::MAPSIZE) {
+                float offsetX = (getX() >= HALF_SCREEN_WIDTH) ? (getWidth()-MiniMap::MAPSIZE) : 0;
+                float offsetY = (getY() >= HALF_SCREEN_HEIGHT) ? (getHeight()-MiniMap::MAPSIZE) : 0;
+
+                //Shift position when becoming smaller towards one of the screen corners
+                setPosition(getX() + offsetX, getY() + offsetY);
+                setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
+            }
+            else {
+                setSize(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
+            }
+
+            //Keep minimap inside the screen
+            int xPos = Ego::Math::constrain<int>(getX(), 0, _gameEngine->getUIManager()->getScreenWidth() - getWidth());
+            int yPos = Ego::Math::constrain<int>(getY(), 0, _gameEngine->getUIManager()->getScreenHeight() - getHeight());
+            setPosition(xPos, yPos);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool MiniMap::notifyMouseReleased(const int button, const int x, const int y)
+{
+    _isDragging = false;
     return false;
 }

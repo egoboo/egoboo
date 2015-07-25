@@ -124,9 +124,9 @@ private:
 /// Pre defined global particle sounds
 enum GlobalSound : uint8_t
 {
-    GSND_GETCOIN = 0,	//Grab money
-    GSND_DEFEND,		//Immune clink
-    GSND_SPLISH,		//Raindrop
+    GSND_COINGET,       //Coin grabbed
+    GSND_DEFEND,        //Attack deflected clink
+    GSND_SPLISH,    	//Raindrop
     GSND_SPLOSH,		//Hit water
     GSND_COINFALL,		//Coin hits ground
     GSND_LEVELUP,		//Character gains level
@@ -134,6 +134,13 @@ enum GlobalSound : uint8_t
     GSND_SHIELDBLOCK,	//Shield block sound
     GSND_BUTTON_CLICK,	//GUI button clicked
     GSND_GAME_READY,	//Finished loading module
+    GSND_PERK_SELECT,   //Selected new perk
+    GSND_GUI_HOVER,     //Mouse over sound effect
+    GSND_DODGE,         //Dodged attack
+    GSND_CRITICAL_HIT,  //Critical Hit
+    GSND_DISINTEGRATE,  //Disintegrated
+    GSND_DRUMS,         //Used for "Too Silly to Die" perk
+    GSND_ANGEL_CHOIR,   //Angel Choir
     GSND_COUNT
 };
 
@@ -142,6 +149,11 @@ class AudioSystem : public Ego::Core::Singleton<AudioSystem>
 public:
     static CONSTEXPR int MIX_HIGH_QUALITY = 44100;
     static CONSTEXPR size_t MENU_SONG = 0;
+
+	// TODO: re-add constexpr when we drop VS 2013 support
+	// Workaround for compilers without constexpr support (VS 2013);
+	// only integral types can be initialized in-class for a const static member.
+	static const float DEFAULT_MAX_DISTANCE;    ///< Default max hearing distance (10 tiles)
 
 protected:
     // Befriend with the singleton to grant access to AudioSystem::~AudioSystem.
@@ -153,8 +165,6 @@ protected:
 
 public:
     void loadGlobalSounds();
-
-    void reset();
 
     /**
      * @brief
@@ -236,6 +246,18 @@ public:
         return _currentSongPlaying;
     }
 
+    /**
+    * @brief
+    *   sets the maximum distance from where sounds will be played.
+    *   Sounds played far away will have lower volume than those nearby
+    * @param distance
+    *    distance to hear the sound. Normally a multiple of GRID_FSIZE
+    *    e.g GRID_FSIZE*5 means 5 tiles.
+    * @remark
+    *   Default value is a the DEFAULT_MAX_DISTANCE constant found in this class
+    **/
+    void setMaxHearingDistance(const float distance);
+
 private:
     /**
     * @brief Loads one music track. Returns nullptr if it fails
@@ -280,5 +302,5 @@ private:
 
     std::forward_list<std::shared_ptr<LoopingSound>> _loopingSounds;
     MusicID _currentSongPlaying;
-
+    float _maxSoundDistance;                                            ///< How far away can we hear sound effects?
 };

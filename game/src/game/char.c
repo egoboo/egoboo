@@ -30,7 +30,7 @@
 #include "game/Module/Module.hpp"
 #include "game/GUI/UIManager.hpp"
 
-#include "egolib/Graphics/mad.h"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/player.h"
 #include "egolib/Script/script.h"
 #include "game/graphic_billboard.h"
@@ -112,14 +112,10 @@ egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
     Uint32 cnt;
     Sint16 z;
 
-    mad_t * pmad;
     chr_instance_t * pinst;
 
     pinst = chr_get_pinstance( character );
     if ( NULL == pinst ) return rv_error;
-
-    pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return rv_error;
 
     for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
     {
@@ -355,99 +351,6 @@ void make_one_character_matrix( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int vertex_offset )
-{
-    /// @author ZZ
-    /// @details This function sets one particle's position to be attached to a character.
-    ///    It will kill the particle if the character is no longer around
-
-    int     vertex;
-    fvec4_t point[1], nupoint[1];
-
-    Object * pchr;
-
-    if ( !DEFINED_PPRT( pprt ) ) return pprt;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) )
-    {
-        goto place_particle_at_vertex_fail;
-    }
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    // Check validity of attachment
-    if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
-    {
-        goto place_particle_at_vertex_fail;
-    }
-
-    // Do we have a matrix???
-    if ( !chr_matrix_valid( pchr ) )
-    {
-        chr_update_matrix( pchr, true );
-    }
-
-    // Do we have a matrix???
-    if ( chr_matrix_valid( pchr ) )
-    {
-        // Transform the weapon vertex_offset from model to world space
-        mad_t * pmad = chr_get_pmad( character );
-
-        if ( vertex_offset == GRIP_ORIGIN )
-        {
-            fvec3_t tmp_pos;
-
-            tmp_pos[kX] = pchr->inst.matrix( 0, 3 );
-            tmp_pos[kY] = pchr->inst.matrix( 1, 3 );
-            tmp_pos[kZ] = pchr->inst.matrix( 2, 3 );
-
-            pprt->setPosition(tmp_pos);
-
-            return pprt;
-        }
-
-        vertex = 0;
-        if ( NULL != pmad )
-        {
-            vertex = (( int )pchr->inst.vrt_count ) - vertex_offset;
-
-            // do the automatic update
-            chr_instance_t::update_vertices(pchr->inst, vertex, vertex, false );
-
-            // Calculate vertex_offset point locations with linear interpolation and other silly things
-            point[0][kX] = pchr->inst.vrt_lst[vertex].pos[XX];
-            point[0][kY] = pchr->inst.vrt_lst[vertex].pos[YY];
-            point[0][kZ] = pchr->inst.vrt_lst[vertex].pos[ZZ];
-            point[0][kW] = 1.0f;
-        }
-        else
-        {
-            point[0][kX] =
-                point[0][kY] =
-                    point[0][kZ] = 0.0f;
-            point[0][kW] = 1.0f;
-        }
-
-        // Do the transform
-        pchr->inst.matrix.transform(point, nupoint, 1);
-
-        pprt->setPosition(fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
-    }
-    else
-    {
-        // No matrix, so just wing it...
-        pprt->setPosition(pchr->getPosition());
-    }
-
-    return pprt;
-
-place_particle_at_vertex_fail:
-
-    pprt->requestTerminate();
-
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------
 #if 0
 void update_all_character_matrices()
 {
@@ -633,7 +536,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         // set tehis action to loop
         chr_instance_t::set_action_loop(prider->inst, true);
     }
-    else if ( prider->alive )
+    else if ( prider->isAlive() )
     {
         /// @note ZF@> hmm, here is the torch holding bug. Removing
         /// the interpolation seems to fix it...
@@ -642,7 +545,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         chr_instance_t::remove_interpolation(prider->inst);
 
         // set the action to keep for items
-        if ( prider->isitem )
+        if ( prider->isItem() )
         {
             // Item grab
             chr_instance_t::set_action_keep(prider->inst, true);
@@ -650,14 +553,21 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
     }
 
     // Set the team
-    if ( prider->isitem )
+    if ( prider->isItem() )
     {
         prider->team = pmount->team;
 
         // Set the alert
-        if ( prider->alive )
+        if ( prider->isAlive() )
         {
             SET_BIT( prider->ai.alert, ALERTIF_GRABBED );
+        }
+
+        //Lore Master perk identifies everything
+        if(pmount->hasPerk(Ego::Perks::LORE_MASTER)) {
+            prider->getProfile()->makeUsageKnown();
+            prider->nameknown = true;
+            prider->ammoknown = true;
         }
     }
 
@@ -666,7 +576,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         pmount->team = prider->team;
 
         // Set the alert
-        if ( !pmount->isitem && pmount->alive )
+        if ( !pmount->isItem() && pmount->isAlive() )
         {
             SET_BIT( pmount->ai.alert, ALERTIF_GRABBED );
         }
@@ -1184,11 +1094,9 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        CHR_REF ithrown = spawn_one_character(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
-        if (_currentModule->getObjectHandler().exists(ithrown))
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
+        if (pthrown)
         {
-            Object * pthrown = _currentModule->getObjectHandler().get( ithrown );
-
             pthrown->iskursed = false;
             pthrown->ammo = 1;
             SET_BIT( pthrown->ai.alert, ALERTIF_THROWN );
@@ -1203,20 +1111,20 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 velocity += FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT)) / ( pthrown->phys.weight * THROWFIX );
             }
-            velocity = CLIP( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
+            velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pthrown->vel[kX] += turntocos[ turn ] * velocity;
             pthrown->vel[kY] += turntosin[ turn ] * velocity;
             pthrown->vel[kZ] = DROPZVEL;
-            if ( pweapon->ammo <= 1 )
-            {
+
+            //Was that the last one?
+            if ( pweapon->ammo <= 1 ) {
                 // Poof the item
                 pweapon->requestTerminate();
                 return;
             }
-            else
-            {
+            else {
                 pweapon->ammo--;
             }
         }
@@ -1228,78 +1136,195 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
         {
             if ( pweapon->ammo > 0 && !weaponProfile->isStackable() )
             {
-                pweapon->ammo--;  // Ammo usage
+                //Is it a wand? (Wand Mastery perk has chance to not use charge)
+                if(pweapon->getProfile()->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('W','A','N','D')
+                    && pchr->hasPerk(Ego::Perks::WAND_MASTERY)) {
+
+                    //1% chance per Intellect
+                    if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::INTELLECT)) {
+                        chr_make_text_billboard(pchr->getCharacterID(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Billboard::Flags::All);
+                    }
+                    else {
+                        pweapon->ammo--;  // Ammo usage
+                    }
+                }
+                else {
+                    pweapon->ammo--;  // Ammo usage
+                }
             }
 
             PIP_REF attackParticle = weaponProfile->getAttackParticleProfile();
+            int NR_OF_ATTACK_PARTICLES = 1;
+
+            //Handle Double Shot perk
+            if(pchr->hasPerk(Ego::Perks::DOUBLE_SHOT) && weaponProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('L','B','O','W'))
+            {
+                //1% chance per Agility
+                if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::AGILITY) && pweapon->ammo > 0) {
+                    NR_OF_ATTACK_PARTICLES = 2;
+                    chr_make_text_billboard(pchr->getCharacterID(), "Double Shot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);                    
+
+                    //Spend one extra ammo
+                    pweapon->ammo--;
+                }
+            }
 
             // Spawn an attack particle
             if (INVALID_PIP_REF != attackParticle)
             {
-                // make the weapon's holder the owner of the attack particle?
-                // will this mess up wands?
-                PRT_REF iparticle = ParticleHandler::get().spawnOneParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
-
-                if ( DEFINED_PRT( iparticle ) )
+                for(int i = 0; i < NR_OF_ATTACK_PARTICLES; ++i)
                 {
-                    prt_t * pprt = ParticleHandler::get().get_ptr( iparticle );
+                    // make the weapon's holder the owner of the attack particle?
+                    // will this mess up wands?
+                    std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
+                        pchr->ori.facing_z, weaponProfile->getSlotNumber(), 
+                        attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : INVALID_CHR_REF,  
+                        spawn_vrt_offset, chr_get_iteam(iholder), iholder);
 
-                    fvec3_t tmp_pos = pprt->getPosition();
-
-                    if ( weaponProfile->spawnsAttackParticle() )
+                    if (particle)
                     {
-                        // attached particles get a strength bonus for reeling...
-                        // dampen = REELBASE + ( pchr->strength / REEL );
+                        fvec3_t tmp_pos = particle->getPosition();
 
-                        // this gives a factor of 10 increase in bumping
-                        // at a stat of 60, and a penalty for stats below about 10
-                        float bumpdampen = exp( -1.8e-4 * ( FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT)) - 2611 ) );
+                        if ( weaponProfile->hasAttachParticleToWeapon() )
+                        {
+                            particle->phys.weight     = pchr->phys.weight;
+                            particle->phys.bumpdampen = pweapon->phys.bumpdampen;
 
-                        pprt->phys.weight     = pweapon->phys.weight;
-                        pprt->phys.bumpdampen = pweapon->phys.bumpdampen * bumpdampen;
+                            particle->placeAtVertex(pweapon, spawn_vrt_offset);
+                        }
+                        else if ( particle->getProfile()->startontarget && particle->hasValidTarget() )
+                        {
+                            particle->placeAtVertex(particle->getTarget(), spawn_vrt_offset);
 
-                        pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
-                        if ( NULL == pprt ) return;
-                    }
-                    else if ( prt_get_ppip( iparticle )->startontarget && _currentModule->getObjectHandler().exists( pprt->target_ref ) )
-                    {
-                        pprt = place_particle_at_vertex( pprt, pprt->target_ref, spawn_vrt_offset );
-                        if ( NULL == pprt ) return;
+                            // Correct Z spacing base, but nothing else...
+                            tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
+                        }
+                        else
+                        {
+                            // NOT ATTACHED
 
-                        // Correct Z spacing base, but nothing else...
-                        tmp_pos[kZ] += prt_get_ppip( iparticle )->spacing_vrt_pair.base;
+                            // Don't spawn in walls
+                            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL))
+                            {
+                                tmp_pos[kX] = pweapon->getPosX();
+                                tmp_pos[kY] = pweapon->getPosY();
+                                if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL ) )
+                                {
+                                    tmp_pos[kX] = pchr->getPosX();
+                                    tmp_pos[kY] = pchr->getPosY();
+                                }
+                            }
+                        }
+
+                        // Initial particles get a bonus, which may be zero. Increases damage with +(factor)% per attribute point (e.g Might=10 and MightFactor=0.06 then damageBonus=0.6=60%)
+                        particle->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
+                        particle->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
+                        particle->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
+
+                        // Initial particles get an enchantment bonus
+                        particle->damage.base += pweapon->damage_boost;
+
+                        //Handle traits that increase weapon damage
+                        float damageBonus = 1.0f;
+                        switch(weaponProfile->getIDSZ(IDSZ_PARENT))
+                        {
+                            //Wolverine perk gives +100% Claw damage
+                            case MAKE_IDSZ('C','L','A','W'):
+                                if(pchr->hasPerk(Ego::Perks::WOLVERINE)) {
+                                    damageBonus += 1.0f;
+                                }
+                            break;
+
+                            //+20% damage with polearms
+                            case MAKE_IDSZ('P','O','L','E'):
+                                if(pchr->hasPerk(Ego::Perks::POLEARM_MASTERY)) {
+                                    damageBonus += 0.2f;
+                                }
+                            break;
+
+                            //+20% damage with swords
+                            case MAKE_IDSZ('S','W','O','R'):
+                                if(pchr->hasPerk(Ego::Perks::SWORD_MASTERY)) {
+                                    damageBonus += 0.2f;
+                                }
+                            break;
+
+                            //+20% damage with Axes
+                            case MAKE_IDSZ('A','X','E','E'):
+                                if(pchr->hasPerk(Ego::Perks::AXE_MASTERY)) {
+                                    damageBonus += 0.2f;
+                                }       
+                            break;
+
+                            //+20% damage with Longbows
+                            case MAKE_IDSZ('L','B','O','W'):
+                                if(pchr->hasPerk(Ego::Perks::BOW_MASTERY)) {
+                                    damageBonus += 0.2f;
+                                }
+                            break;
+
+                            //+100% damage with Whips
+                            case MAKE_IDSZ('W','H','I','P'):
+                                if(pchr->hasPerk(Ego::Perks::WHIP_MASTERY)) {
+                                    damageBonus += 1.0f;
+                                }
+                            break;
+                        }
+
+                        //Improvised Weapons perk gives +100% to some unusual weapons
+                        if(pchr->hasPerk(Ego::Perks::IMPROVISED_WEAPONS)) {
+                            if (weaponProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('T','O','R','C')    //Torch
+                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','H','O','V')      //Shovel
+                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('P','L','U','N')      //Toilet Plunger
+                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('C','R','O','W')      //Crowbar
+                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('P','I','C','K')) {   //Pick
+                                damageBonus += 1.0f;
+                            }
+                        }
+
+                        //Berserker perk deals +25% damage if you are below 25% life
+                        if(pchr->hasPerk(Ego::Perks::BERSERKER) && pchr->getLife() <= pchr->getAttribute(Ego::Attribute::MAX_LIFE)/4) {
+                            damageBonus += 0.25f;
+                        }
+    
+                        //If it is a ranged attack then Sharpshooter increases damage by 10%
+                        if(pchr->hasPerk(Ego::Perks::SHARPSHOOTER) && weaponProfile->isRangedWeapon() && DamageType_isPhysical(particle->damagetype)) {
+                            damageBonus += 0.1f;
+                        }
+
+                        //+25% damage with Blunt Weapons Mastery
+                        if(particle->damagetype == DAMAGE_CRUSH && pchr->hasPerk(Ego::Perks::BLUNT_WEAPONS_MASTERY) && weaponProfile->isMeleeWeapon()) {
+                            damageBonus += 0.25f;
+                        }
+
+                        //If it is a melee attack then Brute perk increases damage by 10%
+                        if(pchr->hasPerk(Ego::Perks::BRUTE) && weaponProfile->isMeleeWeapon()) {
+                            damageBonus += 0.1f;
+                        }
+
+                        //Rally Bonus? (+10%)
+                        if(pchr->hasPerk(Ego::Perks::RALLY) && update_wld < pchr->getRallyDuration()) {
+                            damageBonus += 0.1f;
+                        }
+
+                        //Apply damage bonus modifiers
+                        particle->damage.base *= damageBonus;
+                        particle->damage.rand *= damageBonus;                            
+
+                        //If this is a double shot particle, then add a little space between the arrows
+                        if(i > 0) {
+                            float x, y;
+                            facing_to_vec(particle->facing, &x, &y);
+                            tmp_pos[kX] -= x*32.0f;
+                            tmp_pos[kY] -= x*32.0f;
+                        }
+
+                        particle->setPosition(tmp_pos);
                     }
                     else
                     {
-                        // NOT ATTACHED
-                        pprt->attachedto_ref = INVALID_CHR_REF;
-
-                        // Don't spawn in walls
-                        if ( EMPTY_BIT_FIELD != pprt->test_wall( tmp_pos, NULL))
-                        {
-                            tmp_pos[kX] = pweapon->getPosX();
-                            tmp_pos[kY] = pweapon->getPosY();
-                            if ( EMPTY_BIT_FIELD != pprt->test_wall( tmp_pos, NULL ) )
-                            {
-                                tmp_pos[kX] = pchr->getPosX();
-                                tmp_pos[kY] = pchr->getPosY();
-                            }
-                        }
+                        log_debug("character_swipe() - unable to spawn attack particle for %s\n", weaponProfile->getClassName().c_str());
                     }
-
-                    // Initial particles get a bonus, which may be zero. Increases damage with +(factor)% per attribute point (e.g Might=10 and MightFactor=0.06 then damageBonus=0.6=60%)
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
-
-                    // Initial particles get an enchantment bonus
-                    pprt->damage.base += pweapon->damage_boost;
-
-                    pprt->setPosition(tmp_pos);
-                }
-                else
-                {
-                    log_debug("character_swipe() - unable to spawn attack particle for %s\n", weaponProfile->getClassName().c_str());
                 }
             }
             else
@@ -1335,18 +1360,14 @@ void drop_money( const CHR_REF character, int money )
 	fvec3_t loc_pos = pchr->getPosition();
 
     // limit the about of money to the character's actual money
-    if ( money > pchr->money )
-    {
-        money = pchr->money;
+    if (money > pchr->getMoney()) {
+        money = pchr->getMoney();
     }
 
     if ( money > 0 && loc_pos[kZ] > -2 )
     {
-        int cnt, tnc;
-        int count;
-
         // remove the money from inventory
-        pchr->money = ( int )pchr->money - money;
+        pchr->money = pchr->getMoney() - money;
 
         // make the particles emit from "waist high"
         loc_pos[kZ] += ( pchr->chr_min_cv._maxs[OCT_Z] + pchr->chr_min_cv._mins[OCT_Z] ) * 0.5f;
@@ -1356,14 +1377,14 @@ void drop_money( const CHR_REF character, int money )
         pchr->damage_timer = DAMAGETIME;
 
         // count and spawn the various denominations
-        for ( cnt = PIP_MONEY_COUNT - 1; cnt >= 0 && money >= 0; cnt-- )
+        for (int cnt = PIP_MONEY_COUNT - 1; cnt >= 0 && money >= 0; cnt-- )
         {
-            count = money / vals[cnt];
+            int count = money / vals[cnt];
             money -= count * vals[cnt];
 
-            for ( tnc = 0; tnc < count; tnc++ )
+            for ( int tnc = 0; tnc < count; tnc++)
             {
-                ParticleHandler::get().spawn_one_particle_global( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
+                ParticleHandler::get().spawnGlobalParticle( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
             }
         }
     }
@@ -1420,14 +1441,18 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
         pchr->iskursed = Random::getPercent() <= profile->getKurseChance();
     }
 
-    // Skillz
-    idsz_map_init(pchr->skills, SDL_arraysize(pchr->skills));
-    for(const auto &element : profile->getSkillMap())
-    {
-        idsz_map_add(pchr->skills, SDL_arraysize(pchr->skills), element.first, element.second);
+    // Starting Perks
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+        Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
+        if(profile->beginsWithPerk(id)) {
+            pchr->addPerk(id);
+        }
     }
 
-    pchr->darkvision_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
+    pchr->darkvision_level = 0;
+    if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
+        pchr->darkvision_level += 1;
+    }
     pchr->see_invisible_level = profile->canSeeInvisible();
 
     // Ammo
@@ -1455,13 +1480,8 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
 
     // Skin
     pchr->skin = profile->getSkinOverride();
-    if (pchr->skin >= SKINS_PEROBJECT_MAX)
-    {
-        int irnd = Random::next(std::numeric_limits<uint16_t>::max());
-        pchr->skin = irnd % SKINS_PEROBJECT_MAX;
-    }
 
-    // Damage
+    // Resistances
     const SkinInfo &skin = profile->getSkinInfo(pchr->skin);
     pchr->defense = skin.defence;
     pchr->damagetarget_damagetype = profile->getDamageTargetType();
@@ -1621,7 +1641,7 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
     /// @details Spawn a defend particle
     if ( 0 != pchr->damage_timer ) return;
 
-    ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
+    ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
 
     pchr->damage_timer    = DEFENDTIME;
     SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
@@ -1650,7 +1670,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
     {
-        ParticleHandler::get().spawnOneParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
+        ParticleHandler::get().spawnParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
                             INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt);
 
         facing_z += profile->getParticlePoofFacingAdd();
@@ -1731,18 +1751,18 @@ Object * chr_config_do_init( Object * pchr )
     }
 
     // Heal the spawn_ptr->skin, if needed
-    if ( spawn_ptr->skin < 0 )
+    if (spawn_ptr->skin < 0 || ppro->getSkinOverride() != ObjectProfile::NO_SKIN_OVERRIDE)
     {
         spawn_ptr->skin = ppro->getSkinOverride();
     }
 
-    // cap_get_skin_overide() can return NO_SKIN_OVERIDE or SKINS_PEROBJECT_MAX, so we need to check
+    // cap_get_skin_overide() can return NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX, so we need to check
     // for the "random skin marker" even if that function is called
-    if (spawn_ptr->skin >= SKINS_PEROBJECT_MAX)
+    if (spawn_ptr->skin == ObjectProfile::NO_SKIN_OVERRIDE)
     {
         // This is a "random" skin.
         // Force it to some specific value so it will go back to the same skin every respawn
-        // We are now ensuring that there are skin graphics for all skins up to SKINS_PEROBJECT_MAX, so there
+        // We are now ensuring that there are skin graphics for all skins, so there
         // is no need to count the skin graphics loaded into the profile.
         // Limiting the available skins to ones that had unique graphics may have been a mistake since
         // the skin-dependent properties in data.txt may exist even if there are no unique graphics.
@@ -1808,10 +1828,14 @@ Object * chr_config_do_init( Object * pchr )
         pchr->Name[tnc] = CSTR_END;
     }
 
+    // initalize the character instance
+    chr_instance_t::spawn(pchr->inst, spawn_ptr->profile, spawn_ptr->skin);
+    chr_update_matrix( pchr, true );
+
     // Particle attachments
     for ( tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
-        ParticleHandler::get().spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
+        ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc);
     }
 
@@ -1840,10 +1864,6 @@ Object * chr_config_do_init( Object * pchr )
     //    pchr->isshopitem = true;
     //}
 
-    // initalize the character instance
-    chr_instance_t::spawn(pchr->inst, spawn_ptr->profile, spawn_ptr->skin);
-    chr_update_matrix( pchr, true );
-
     // determine whether the object is hidden
     chr_update_hide( pchr );
 
@@ -1861,61 +1881,6 @@ Object * chr_config_do_init( Object * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team,
-                             const int skin, const FACING_T facing, const char *name, const CHR_REF override )
-{
-    // fix a "bad" name
-    if ( NULL == name ) name = "";
-
-    if (!ProfileSystem::get().isValidProfileID(profile))
-    {
-        if ( profile > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
-        {
-            log_warning( "spawn_one_character() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
-        }
-        return INVALID_CHR_REF;
-    }
-    std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(profile);
-
-    // count all the requests for this character type
-    ppro->_spawnRequestCount++;
-
-    // allocate a new character
-    std::shared_ptr<Object> pchr = _currentModule->getObjectHandler().insert(profile, override);
-    if (!pchr)
-    {
-        log_warning( "spawn_one_character() - failed to spawn character\n" );
-        return INVALID_CHR_REF;
-    }
-
-    // just set the spawn info
-	pchr->spawn_data.pos = pos;
-    pchr->spawn_data.profile  = profile;
-    pchr->spawn_data.team     = team;
-    pchr->spawn_data.skin     = skin;
-    pchr->spawn_data.facing   = facing;
-    strncpy( pchr->spawn_data.name, name, SDL_arraysize( pchr->spawn_data.name ) );
-    pchr->spawn_data.override = override;
-
-    chr_config_do_init(pchr.get());
-
-    // start the character out in the "dance" animation
-    chr_start_anim( pchr.get(), ACTION_DA, true, true );
-
-    // count all the successful spawns of this character
-    ppro->_spawnCount++;
-
-#if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
-    {
-        log_debug( "spawn_one_character() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( pchr->getCharacterID() ), name, ppro->getClassName().c_str() );
-    }
-#endif
-
-    return pchr->getCharacterID();
-}
-
-//--------------------------------------------------------------------------------------------
 int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 {
     TX_REF new_texture = (TX_REF)TX_WATER_TOP;
@@ -1926,25 +1891,18 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	chr_instance_t& pinst = pchr->inst;
 
-	mad_t *pmad = ProfileSystem::get().pro_get_pmad(pchr->profile_ref);
-    if (!pmad) {
-        // make sure that the instance has a valid imad
-        if (!LOADED_MAD(pinst.imad)) {
-            if (chr_instance_t::set_mad(pinst, pchr->getProfile()->getModelRef())) {
-                chr_update_collision_size(pchr, true);
-            }
-            pmad = chr_get_pmad(character);
+	const std::shared_ptr<Ego::ModelDescriptor> &model = pchr->getProfile()->getModel();
+
+    // make sure that the instance has a valid imad
+    if (!pinst.imad) {
+        if (chr_instance_t::set_mad(pinst, model)) {
+            chr_update_collision_size(pchr, true);
         }
     }
 
-    if (!pmad) {
-        pchr->skin = 0;
-        pinst.texture = TX_WATER_TOP;
-    } else {
-        // the normal thing to happen
-        new_texture = pchr->getProfile()->getSkin(skin);
-        pchr->skin = skin;
-    }
+    // the normal thing to happen
+    new_texture = pchr->getProfile()->getSkin(skin);
+    pchr->skin = skin;
 
     chr_instance_t::set_texture(pinst, new_texture);
 
@@ -2063,18 +2021,11 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
     /// @details This function polymorphs a character permanently so that it can be exported properly
     /// A character turned into a frog with this function will also export as a frog!
 
-    MAD_REF imad_old, imad_new;
-
-    if (!ProfileSystem::get().isValidProfileID(profile)) return;
-
-    imad_new = ProfileSystem::get().getProfile(profile)->getModelRef();
-    if ( !LOADED_MAD( imad_new ) ) return;
-
-    imad_old = chr_get_imad( ichr );
-    if ( !LOADED_MAD( imad_old ) ) return;
+    const std::shared_ptr<ObjectProfile>& newProfile = ProfileSystem::get().getProfile(profile);
+    if (!newProfile) return;
 
     // copy the new name
-    strncpy( MadStack.lst[imad_old].name, MadStack.lst[imad_new].name, SDL_arraysize( MadStack.lst[imad_old].name ) );
+    //strncpy( MadStack.lst[imad_old].name, MadStack.lst[imad_new].name, SDL_arraysize( MadStack.lst[imad_old].name ) );
 
     // change their model
     change_character( ichr, profile, skin, leavewhich );
@@ -2091,8 +2042,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     CHR_REF item;
     Object * pchr;
 
-    mad_t * pmad_new;
-
     int old_attached_prt_count, new_attached_prt_count;
 
     if (!ProfileSystem::get().isValidProfileID(profile_new) || !_currentModule->getObjectHandler().exists(ichr)) return;
@@ -2104,8 +2053,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     if(!newProfile) {
         return;
     }
-
-    pmad_new = ProfileSystem::get().pro_get_pmad(profile_new);
 
     // Drop left weapon
     const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
@@ -2205,12 +2152,10 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->jump_timer      = JUMPDELAY;
 
     // change the skillz, too, jack!
-    idsz_map_init(pchr->skills, SDL_arraysize(pchr->skills));
-    for(const auto &element : newProfile->getSkillMap())
-    {
-        idsz_map_add(pchr->skills, SDL_arraysize(pchr->skills), element.first, element.second);
+    pchr->darkvision_level = 0; 
+    if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
+        pchr->darkvision_level += 1;        
     }
-    pchr->darkvision_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
     pchr->see_invisible_level = newProfile->canSeeInvisible();
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
@@ -2483,53 +2428,71 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_get_skill( Object *pchr, IDSZ whichskill )
+bool chr_get_skill( Object *pchr, IDSZ whichskill )
 {
-    /// @author ZF
-    /// @details This returns the skill level for the specified skill or 0 if the character doesn't
-    ///                  have the skill. Also checks the skill IDSZ.
+    //Maps between old IDSZ skill system and new Perk system
     IDSZ_node_t *pskill;
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
     //Any [NONE] IDSZ returns always "true"
-    if ( IDSZ_NONE == whichskill ) return 1;
-
-    //Do not allow poison or backstab skill if we are restricted by code of conduct
-    if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill || MAKE_IDSZ( 's', 'T', 'A', 'B' ) == whichskill )
-    {
-        if ( NULL != idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), MAKE_IDSZ( 'C', 'O', 'D', 'E' ) ) )
-        {
-            return 0;
-        }
-    }
+    if ( IDSZ_NONE == whichskill ) return true;
 
     // First check the character Skill ID matches
     // Then check for expansion skills too.
-    if ( chr_get_idsz( pchr->ai.index, IDSZ_SKILL )  == whichskill )
-    {
-        return 1;
+    if ( chr_get_idsz( pchr->ai.index, IDSZ_SKILL )  == whichskill ) {
+        return true;
     }
 
-    // Simply return the skill level if we have the skill
-    pskill = idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), whichskill );
-    if ( pskill != NULL )
+    switch(whichskill)
     {
-        return pskill->level;
-    }
+        case MAKE_IDSZ('P', 'O', 'I', 'S'):
+            return pchr->hasPerk(Ego::Perks::POISONRY);
 
-    // Truesight allows reading
-    if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill )
-    {
-        pskill = idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), MAKE_IDSZ( 'C', 'K', 'U', 'R' ) );
-        if ( pskill != NULL && pchr->see_invisible_level > 0 )
-        {
-            return pchr->see_invisible_level + pskill->level;
-        }
+        case MAKE_IDSZ('C', 'K', 'U', 'R'):
+            return pchr->hasPerk(Ego::Perks::SENSE_KURSES);
+
+        case MAKE_IDSZ('D', 'A', 'R', 'K'):
+            return pchr->hasPerk(Ego::Perks::NIGHT_VISION) || pchr->hasPerk(Ego::Perks::PERCEPTIVE);
+
+        case MAKE_IDSZ('A', 'W', 'E', 'P'):
+            return pchr->hasPerk(Ego::Perks::WEAPON_PROFICIENCY);
+
+        case MAKE_IDSZ('W', 'M', 'A', 'G'):
+            return pchr->hasPerk(Ego::Perks::ARCANE_MAGIC);
+
+        case MAKE_IDSZ('D', 'M', 'A', 'G'):
+        case MAKE_IDSZ('H', 'M', 'A', 'G'):
+            return pchr->hasPerk(Ego::Perks::DIVINE_MAGIC);
+
+        case MAKE_IDSZ('D', 'I', 'S', 'A'):
+            return pchr->hasPerk(Ego::Perks::TRAP_LORE);
+
+        case MAKE_IDSZ('F', 'I', 'N', 'D'):
+            return pchr->hasPerk(Ego::Perks::PERCEPTIVE);
+
+        case MAKE_IDSZ('T', 'E', 'C', 'H'):
+            return pchr->hasPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS);
+
+        case MAKE_IDSZ('S', 'T', 'A', 'B'):
+            return pchr->hasPerk(Ego::Perks::BACKSTAB);
+
+        case MAKE_IDSZ('R', 'E', 'A', 'D'):
+            return pchr->hasPerk(Ego::Perks::LITERACY);
+
+        case MAKE_IDSZ('W', 'A', 'N', 'D'):
+            return pchr->hasPerk(Ego::Perks::THAUMATURGY);
+
+        case MAKE_IDSZ('J', 'O', 'U', 'S'):
+            return pchr->hasPerk(Ego::Perks::JOUSTING);            
+
+        case MAKE_IDSZ('T', 'E', 'L', 'E'):
+            return pchr->hasPerk(Ego::Perks::TELEPORT_MASTERY); 
+
     }
 
     //Skill not found
-    return 0;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2579,10 +2542,14 @@ bool update_chr_darkvision( const CHR_REF character )
     if ( life_regen < 0 )
     {
         int tmp_level  = ( 0 == pchr->getAttribute(Ego::Attribute::MAX_LIFE) ) ? 0 : ( 10 * -life_regen ) / FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));                      // Darkvision gained by poison
-        int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );     // Natural darkvision
 
         //Use the better of the two darkvision abilities
-        pchr->darkvision_level = std::max( base_level, tmp_level );
+        pchr->darkvision_level = tmp_level;
+
+        //Nightvision skill
+        if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
+            pchr->darkvision_level += 1;
+        }
     }
 
     return true;
@@ -2728,8 +2695,16 @@ void move_one_character_get_environment( Object * pchr )
     //---- the friction of the fluid we are in
     if ( penviro->is_watery )
     {
-        penviro->fluid_friction_vrt  = Physics::g_environment.waterfriction;
-        penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;
+        //Athletics perk halves penality for moving in water
+        if(pchr->hasPerk(Ego::Perks::ATHLETICS)) {
+            penviro->fluid_friction_vrt  = (Physics::g_environment.waterfriction + penviro->air_friction)*0.5f;
+            penviro->fluid_friction_hrz  = (Physics::g_environment.waterfriction + penviro->air_friction)*0.5f;
+        }
+        else {
+            penviro->fluid_friction_vrt  = Physics::g_environment.waterfriction;
+            penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;            
+        }
+
     }
     else
     {
@@ -2938,7 +2913,8 @@ void move_one_character_do_voluntary( Object * pchr )
     pchr->enviro.new_v[kX] = pchr->vel[kX];
     pchr->enviro.new_v[kY] = pchr->vel[kY];
 
-    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) ) return;
+    //Mounted?
+    if ( pchr->isBeingHeld() ) return;
 
     float new_ax = 0.0f, new_ay = 0.0f;
 
@@ -2961,12 +2937,47 @@ void move_one_character_do_voluntary( Object * pchr )
 
     // this is the maximum speed that a character could go under the v2.22 system
     float maxspeed = pchr->maxaccel * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
+    float speedBonus = 1.0f;
+
+    //Sprint perk gives +10% movement speed if above 75% life remaining
+    if(pchr->hasPerk(Ego::Perks::SPRINT) && pchr->getLife() >= pchr->getAttribute(Ego::Attribute::MAX_LIFE)*0.75f) {
+        speedBonus += 0.1f;
+
+        //Uninjured? (Dash perk can give another 10% extra speed)
+        if(pchr->hasPerk(Ego::Perks::DASH) && pchr->getAttribute(Ego::Attribute::MAX_LIFE)-pchr->getLife() < 1.0f) {
+            speedBonus += 0.1f;
+        }
+    }
+
+    //Rally Bonus? (+10%)
+    if(pchr->hasPerk(Ego::Perks::RALLY) && update_wld < pchr->getRallyDuration()) {
+        speedBonus += 0.1f;
+    }    
+
+    //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
+    speedBonus += (pchr->getAttribute(Ego::Attribute::AGILITY)-10.0f) * 0.01f;
+
+    //Now apply speed modifiers
+    maxspeed *= speedBonus;
 
     //Check animation frame freeze movement
     if ( chr_get_framefx( pchr ) & MADFX_STOP )
     {
-        //TODO: ZF> might want skill that allows movement while blocking and attacking
-        maxspeed = 0;
+        //Allow 50% movement while using Shield and have the Mobile Defence perk
+        if(pchr->hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(pchr->inst.action_which, P))
+        {
+            maxspeed *= 0.5f;
+        }
+        //Allow 50% movement with Mobility perk and attacking with a weapon
+        else if(pchr->hasPerk(Ego::Perks::MOBILITY) && pchr->isAttacking())
+        {
+            maxspeed *= 0.5f;
+        }
+        else
+        {
+            //No movement allowed
+            maxspeed = 0.0f;
+        }
     }
 
     bool sneak_mode_active = false;
@@ -2982,7 +2993,7 @@ void move_one_character_do_voluntary( Object * pchr )
     {
         float dv2 = dvx * dvx + dvy * dvy;
 
-        if ( VALID_PLA( pchr->is_which_player ) )
+        if (pchr->isPlayer())
         {
             float dv = std::pow( dv2, 0.25f );
 
@@ -3039,15 +3050,15 @@ void move_one_character_do_voluntary( Object * pchr )
     new_ay *= pchr->enviro.traction;
 
     //Limit movement to the max acceleration
-    new_ax = CLIP( new_ax, -pchr->maxaccel, pchr->maxaccel );
-    new_ay = CLIP( new_ay, -pchr->maxaccel, pchr->maxaccel );
+    new_ax = Ego::Math::constrain( new_ax, -pchr->maxaccel, pchr->maxaccel );
+    new_ay = Ego::Math::constrain( new_ay, -pchr->maxaccel, pchr->maxaccel );
 
     //Figure out how to turn around
     if ( 0 != pchr->maxaccel )
     {
         switch ( pchr->turnmode )
         {
-                // Get direction from ACTUAL change in velocity
+            // Get direction from ACTUAL change in velocity
             default:
             case TURNMODE_VELOCITY:
                 {
@@ -3067,7 +3078,7 @@ void move_one_character_do_voluntary( Object * pchr )
                 }
                 break;
 
-                // Get direction from the DESIRED change in velocity
+            // Get direction from the DESIRED change in velocity
             case TURNMODE_WATCH:
                 {
                     if (( std::abs( dvx ) > WATCHMIN || std::abs( dvy ) > WATCHMIN ) )
@@ -3077,7 +3088,7 @@ void move_one_character_do_voluntary( Object * pchr )
                 }
                 break;
 
-                // Face the target
+            // Face the target
             case TURNMODE_WATCHTARGET:
                 {
                     if ( ichr != pchr->ai.target )
@@ -3087,7 +3098,7 @@ void move_one_character_do_voluntary( Object * pchr )
                 }
                 break;
 
-                // Otherwise make it spin
+            // Otherwise make it spin
             case TURNMODE_SPIN:
                 {
                     pchr->ori.facing_z += SPINRATE;
@@ -3105,7 +3116,6 @@ void move_one_character_do_voluntary( Object * pchr )
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 {
     CHR_REF ichr, iweapon;
-    MAD_REF imad;
 
     int    base_action, hand_action, action;
     bool action_valid, allowedtoattack;
@@ -3115,7 +3125,6 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     ichr = GET_INDEX_PCHR( pchr );
 
-    imad = chr_get_imad( ichr );
 
     if (which_slot >= SLOT_COUNT) return false;
 
@@ -3134,10 +3143,10 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
     // grab the iweapon's action
     base_action = weaponProfile->getWeaponAction();
-    hand_action = randomize_action( base_action, which_slot );
+    hand_action = pchr->getProfile()->getModel()->randomizeAction( base_action, which_slot );
 
     // see if the character can play this action
-    action       = mad_get_action_ref( imad, hand_action );
+    action       = pchr->getProfile()->getModel()->getAction(hand_action);
     action_valid = TO_C_BOOL( ACTION_COUNT != action );
 
     // Can it do it?
@@ -3163,14 +3172,8 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     // Don't allow users with kursed weapon in the other hand to use longbows
     if ( allowedtoattack && ACTION_IS_TYPE( action, L ) )
     {
-        CHR_REF test_weapon;
-        test_weapon = pchr->holdingwhich[which_slot == SLOT_LEFT ? SLOT_RIGHT : SLOT_LEFT];
-        if ( _currentModule->getObjectHandler().exists( test_weapon ) )
-        {
-            Object * weapon;
-            weapon     = _currentModule->getObjectHandler().get( test_weapon );
-            if ( weapon->iskursed ) allowedtoattack = false;
-        }
+        const std::shared_ptr<Object> &offhandItem = which_slot == SLOT_LEFT ? pchr->getLeftHandItem() : pchr->getRightHandItem();
+        if(offhandItem && offhandItem->iskursed) allowedtoattack = false;
     }
 
     if ( !allowedtoattack )
@@ -3246,16 +3249,11 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
             if(allowedtoattack)
             {
-                Uint32 action_madfx = 0;
-
                 // randomize the action
-                action = randomize_action( action, which_slot );
+                action = pchr->getProfile()->getModel()->randomizeAction( action, which_slot );
 
                 // make sure it is valid
-                action = mad_get_action_ref( imad, action );
-
-                // grab the MADFX_* flags for this action
-                action_madfx = mad_get_action_ref( imad, action );
+                action = pchr->getProfile()->getModel()->getAction(action);
 
                 if ( ACTION_IS_TYPE( action, P ) )
                 {
@@ -3264,7 +3262,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 }
                 else
                 {
-                    const float chr_dex = pchr->getAttribute(Ego::Attribute::AGILITY);
+                    float agility = pchr->getAttribute(Ego::Attribute::AGILITY);
 
                     chr_play_action( pchr, action, false );
 
@@ -3274,27 +3272,39 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                         chr_play_action( pweapon, ACTION_MJ, false );
                     }
 
+                    //Crossbow Mastery increases XBow attack speed by 30%
+                    if(pchr->hasPerk(Ego::Perks::CROSSBOW_MASTERY) && 
+                       pweapon->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('X','B','O','W')) {
+                        agility *= 1.30f;
+                    }
+
                     //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.rate  = 0.35f;                                 //base attack speed
-                    pchr->inst.rate += std::min( 2.00f, chr_dex * 0.035f );         //every 10 dex increases base attack speed by 100%
+                    pchr->inst.rate  = 0.80f;                                 //base attack speed
+                    pchr->inst.rate += std::min(3.00f, agility * 0.02f);      //every Agility increases base attack speed by 2%
+
+                    //If Quick Strike perk triggers then we have fastest possible attack (10% chance)
+                    if(pchr->hasPerk(Ego::Perks::QUICK_STRIKE) && pweapon->getProfile()->isMeleeWeapon() && Random::getPercent() <= 10) {
+                        pchr->inst.rate = 3.00f;
+                        chr_make_text_billboard(pchr->getCharacterID(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                    }
 
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
                     //reduce reload time for spells or gonnes here.
-                    if ( !weaponProfile->hasFastAttack() )
+                    else if ( !weaponProfile->hasFastAttack() )
                     {
-                        int base_reload_time = -chr_dex;
+                        int base_reload_time = -agility;
                         if ( ACTION_IS_TYPE( action, U ) )      base_reload_time += 50;     //Unarmed  (Fists)
                         else if ( ACTION_IS_TYPE( action, T ) ) base_reload_time += 55;     //Thrust   (Spear)
                         else if ( ACTION_IS_TYPE( action, C ) ) base_reload_time += 85;     //Chop     (Axe)
                         else if ( ACTION_IS_TYPE( action, S ) ) base_reload_time += 65;     //Slice    (Sword)
                         else if ( ACTION_IS_TYPE( action, B ) ) base_reload_time += 70;     //Bash     (Mace)
                         else if ( ACTION_IS_TYPE( action, L ) ) base_reload_time += 60;     //Longbow  (Longbow)
-                        else if ( ACTION_IS_TYPE( action, X ) ) base_reload_time += 110;    //Xbow     (Crossbow)
+                        else if ( ACTION_IS_TYPE( action, X ) ) base_reload_time += 130;    //Xbow     (Crossbow)
                         else if ( ACTION_IS_TYPE( action, F ) ) base_reload_time += 60;     //Flinged  (Unused)
 
                         //it is possible to have so high dex to eliminate all reload time
-                        if ( base_reload_time > 0 ) pweapon->reload_timer = ( int )pweapon->reload_timer + base_reload_time;
+                        if ( base_reload_time > 0 ) pweapon->reload_timer += base_reload_time;
                     }
                 }
 
@@ -3302,6 +3312,8 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 pchr->ai.lastitemused = iweapon;
 
                 /// @note ZF@> why should there any reason the weapon should NOT be alerted when it is used?
+                // grab the MADFX_* flags for this action
+//                BIT_FIELD action_madfx = getProfile()->getModel()->getActionFX(action);
 //                if ( iweapon == ichr || HAS_NO_BITS( action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
                 {
                     SET_BIT( pweapon->ai.alert, ALERTIF_USED );
@@ -4104,15 +4116,11 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
     FACING_T left, right;
 
     Object * pchr;
-    mad_t * pmad;
 
     bool  is_invictus;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return true;
     pchr = _currentModule->getObjectHandler().get( character );
-
-    pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return true;
 
     // if the invictus flag is set, we are invictus
     if ( pchr->invictus ) return true;
@@ -4263,8 +4271,6 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     int cnt;
     oct_bb_t bsrc, bdst, bmin;
 
-    mad_t * pmad;
-
     if ( nullptr == ( pchr ) ) return rv_error;
 
     // re-initialize the collision volumes
@@ -4274,9 +4280,6 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     {
         oct_bb_t::ctor(pchr->slot_cv[cnt]);
     }
-
-    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
-    if ( NULL == pmad ) return rv_error;
 
     // make sure the matrix is updated properly
     if ( update_matrix )

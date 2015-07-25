@@ -89,7 +89,8 @@ void GameEngine::start()
     while(!_terminateRequested)
     {
         // Test the panic button
-        if ( SDL_KEYDOWN( keyb, SDLK_q ) && SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
+        const uint8_t *keyboardState = SDL_GetKeyboardState(nullptr);
+        if ( keyboardState[SDL_SCANCODE_Q] && keyboardState[SDL_SCANCODE_LCTRL] )
         {
             // Terminate the program
             shutdown();
@@ -327,18 +328,21 @@ bool GameEngine::initialize()
     // Initialize the console.
     egolib_console_handler_t::initialize();
 
+    // Initialize Perks
+    Ego::Perks::PerkHandler::initialize();
+
     // Initialize the profile system.
+    Ego::Core::Singleton<ParticleProfileSystem>::initialize(); //explicit static member call to avoid ambigious call
     ProfileSystem::initialize();
 
     // Initialize the collision system.
     CollisionSystem::initialize();
 
-    // Initialize the model system.
-    model_system_begin();
-
+    // Load all modules
     renderPreloadText("Loading modules...");
     ProfileSystem::get().loadModuleProfiles();
 
+    // Check savegame folder
     renderPreloadText("Loading save games...");
     ProfileSystem::get().loadAllSavedCharacters("mp_players");
 
@@ -377,9 +381,6 @@ void GameEngine::uninitialize()
 
     // Uninitialize the scripting system.
     scripting_system_end();
-
-    // Deallocate all dynamically allocated memory for characters, particles, enchants, and models.
-    model_system_end();
 
     // Uninitialize the profile system.
     ProfileSystem::uninitialize();

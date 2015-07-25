@@ -25,6 +25,8 @@
 #include "game/GUI/InternalWindow.hpp"
 
 class Object;
+class Button;
+class InternalWindow;
 
 namespace Ego
 {
@@ -36,6 +38,8 @@ class CharacterWindow : public InternalWindow
     public:
         CharacterWindow(const std::shared_ptr<Object> &object);
         ~CharacterWindow();
+
+        bool notifyMouseMoved(const int x, const int y) override;
         
     private:
         int addResistanceLabel(const int x, const int y, const DamageType type);
@@ -43,6 +47,8 @@ class CharacterWindow : public InternalWindow
 
     private:
         std::shared_ptr<Object> _character;
+        std::shared_ptr<Button> _levelUpButton;
+        std::weak_ptr<InternalWindow> _levelUpWindow;
 };
 
 } //GUI

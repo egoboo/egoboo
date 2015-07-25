@@ -182,28 +182,19 @@ bool PlayingState::notifyKeyDown(const int keyCode)
             }
         break;
 
-        //Enlarge minimap
-        case SDLK_m:
+        //Show character sheet
+        case SDLK_1:
+        case SDLK_2:
+        case SDLK_3:
+        case SDLK_4:
+        case SDLK_5:
+        case SDLK_6:
+        case SDLK_7:
+        case SDLK_8:
         {
-            if(getMiniMap()->isVisible())
-            {
-                float resizeX;
-                float resizeY;
-
-                if(getMiniMap()->getWidth() > MiniMap::MAPSIZE) {
-                    getMiniMap()->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
-                }
-                else {
-                    float resizeX = _gameEngine->getUIManager()->getScreenWidth() / 2;
-                    float resizeY = _gameEngine->getUIManager()->getScreenHeight() / 2;
-                    getMiniMap()->setSize(resizeX, resizeY);
-                }
-
-                //Keep minimap inside the screen
-                float xPos = Ego::Math::constrain<float>(getMiniMap()->getX(), 0, _gameEngine->getUIManager()->getScreenWidth() - getMiniMap()->getWidth());
-                float yPos = Ego::Math::constrain<float>(getMiniMap()->getY(), 0, _gameEngine->getUIManager()->getScreenHeight() - getMiniMap()->getHeight());
-                getMiniMap()->setPosition(xPos, yPos);
-            }
+            //Ensure that the same character cannot open more than 1 character window
+            const size_t statusNumber = keyCode - SDLK_1;
+            displayCharacterWindow(statusNumber);
         }
         return true;
 

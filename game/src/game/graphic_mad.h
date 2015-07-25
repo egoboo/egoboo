@@ -201,7 +201,7 @@ struct chr_instance_t
     SFP8_T         voffset;         ///< For moving textures (8.8 fixed point)
 
     // model info
-    MAD_REF        imad;            ///< Character's model
+    std::shared_ptr<Ego::ModelDescriptor> imad;            ///< Character's model
 
     // animation info
     Uint16         frame_nxt;       ///< Character's frame
@@ -255,7 +255,7 @@ struct chr_instance_t
 	static gfx_rv set_anim(chr_instance_t& self, int action, int frame, bool action_ready, bool override_action);
 
 	static gfx_rv set_texture(chr_instance_t& self, const TX_REF itex);
-	static gfx_rv set_mad(chr_instance_t& self, const MAD_REF imad);
+	static gfx_rv set_mad(chr_instance_t& self, const std::shared_ptr<Ego::ModelDescriptor> &imad);
 
 	static void update_ref(chr_instance_t& self, float grid_level, bool need_matrix);
 	static gfx_rv update_bbox(chr_instance_t& self);
@@ -267,9 +267,9 @@ struct chr_instance_t
 
 	static gfx_rv spawn(chr_instance_t& self, const PRO_REF profile, const int skin);
 
-	static gfx_rv increment_frame(chr_instance_t& self, mad_t *pmad, const CHR_REF imount, const int mount_action);
+	static gfx_rv increment_frame(chr_instance_t& self, const CHR_REF imount, const int mount_action);
 	static void remove_interpolation(chr_instance_t& self);
-	static gfx_rv set_frame_full(chr_instance_t& self, int frame_along, int ilip, const MAD_REF mad_override);
+	static gfx_rv set_frame_full(chr_instance_t& self, int frame_along, int ilip, const std::shared_ptr<Ego::ModelDescriptor> &mad_override);
 
 	static const MD2_Frame& get_frame_nxt(chr_instance_t& self);
 	static const MD2_Frame& get_frame_lst(chr_instance_t& self);

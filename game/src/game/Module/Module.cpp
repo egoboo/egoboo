@@ -24,6 +24,7 @@
 #include "game/Module/Module.hpp"
 #include "egolib/Math/Random.hpp"
 #include "egolib/Logic/Team.hpp"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
 #include "game/network.h"
@@ -223,6 +224,57 @@ bool GameModule::isInside(const float x, const float y) const
 {
      return x > 0 && x < _currentModule->getMeshPointer()->gmem.edge_x && y > 0 && y < _currentModule->getMeshPointer()->gmem.edge_y;
 }
+
+std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, 
+                                                const FACING_T facing, const char *name, const CHR_REF override)
+{
+    // fix a "bad" name
+    if ( NULL == name ) name = "";
+
+    const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(profile);
+    if (!ppro)
+    {
+        if ( profile > getImportAmount() * MAX_IMPORT_PER_PLAYER )
+        {
+            log_warning( "spawnObject() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
+        }
+        return Object::INVALID_OBJECT;
+    }
+
+    // count all the requests for this character type
+    ppro->_spawnRequestCount++;
+
+    // allocate a new character
+    std::shared_ptr<Object> pchr = getObjectHandler().insert(profile, override);
+    if (!pchr) {
+        log_warning( "spawnObject() - failed to spawn character\n" );
+        return Object::INVALID_OBJECT;
+    }
+
+    // just set the spawn info
+    pchr->spawn_data.pos = pos;
+    pchr->spawn_data.profile  = profile;
+    pchr->spawn_data.team     = team;
+    pchr->spawn_data.skin     = skin;
+    pchr->spawn_data.facing   = facing;
+    strncpy( pchr->spawn_data.name, name, SDL_arraysize( pchr->spawn_data.name ) );
+    pchr->spawn_data.override = override;
+
+    chr_config_do_init(pchr.get());
+
+    // start the character out in the "dance" animation
+    chr_start_anim(pchr.get(), ACTION_DA, true, true);
+
+    // count all the successful spawns of this character
+    ppro->_spawnCount++;
+
+#if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
+    log_debug( "spawnObject() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( pchr->getCharacterID() ), name, ppro->getClassName().c_str() );
+#endif
+
+    return pchr;
+}
+
 
 /// @todo Remove this global.
 std::unique_ptr<GameModule> _currentModule = nullptr;

@@ -33,7 +33,6 @@ class ModuleProfile;
 struct pip_t;
 struct eve_t;
 class LoadPlayerElement;
-struct mad_t;
 
 /// Placeholders used while importing profiles
 struct pro_import_t
@@ -76,7 +75,6 @@ public:
 
     //ZF> TODO: These C-like functions need to be removed
     EVE_REF pro_get_ieve(const PRO_REF iobj);
-    mad_t * pro_get_pmad(const PRO_REF iobj);
     std::shared_ptr<eve_t> pro_get_peve(const PRO_REF iobj);
     std::shared_ptr<pip_t> pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref);
 
@@ -142,6 +140,12 @@ public:
     const std::vector<std::shared_ptr<LoadPlayerElement>>& getSavedPlayers() const {
         return _loadPlayerList;
     }
+
+    /**
+     * @brief
+     *  This reads in global particles (e.g. money).
+     */
+    void loadGlobalParticleProfiles();
 
 private:
     std::unordered_map<size_t, TX_REF> _bookIcons; //List of all book icons loaded

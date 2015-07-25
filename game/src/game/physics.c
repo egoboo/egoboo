@@ -977,13 +977,12 @@ bool phys_expand_chr_bb(Object *pchr, float tmin, float tmax, oct_bb_t& dst)
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_expand_prt_bb(prt_t *pprt, float tmin, float tmax, oct_bb_t& dst)
+bool phys_expand_prt_bb(Ego::Particle *pprt, float tmin, float tmax, oct_bb_t& dst)
 {
     /// @author BB
     /// @details use the object velocity to figure out where the volume that the particle will
     ///               occupy during this update
-
-    if ( !ACTIVE_PPRT( pprt ) ) return false;
+    if(!pprt || pprt->isTerminated()) return false;
 
     // copy the volume
     oct_bb_t tmp_oct1 = pprt->prt_max_cv;
@@ -1040,7 +1039,7 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, Object *chr)
     return self;
 }
 
-breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, prt_t *particle)
+breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, Ego::Particle *particle)
 {
     if (!self)
     {
@@ -1050,7 +1049,8 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, prt_t *particle)
     {
         throw std::invalid_argument("nullptr == particle");
     }
-    std::shared_ptr<pip_t> profile = particle->get_ppip();
+    
+    const std::shared_ptr<pip_t> &profile = particle->getProfile();
     if (!profile)
     {
         throw std::invalid_argument("nullptr == prpfile");

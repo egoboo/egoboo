@@ -118,8 +118,8 @@ public:
 protected:
     gfx_rv test_obj(const Object& obj);
     gfx_rv add_obj_raw(Object& obj);
-    gfx_rv test_prt(const prt_t& prt);
-    gfx_rv add_prt_raw(prt_t& prt);
+    gfx_rv test_prt(const std::shared_ptr<Ego::Particle>& prt);
+    gfx_rv add_prt_raw(const std::shared_ptr<Ego::Particle>& prt);
 public:
     /// @brief Insert character or particle entities into this dolist.
     /// @param leaves

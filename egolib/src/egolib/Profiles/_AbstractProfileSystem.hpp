@@ -25,6 +25,7 @@
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
 #include <fstream>
+#include "egolib/log.h"
 
 /**
  * @brief
@@ -121,7 +122,7 @@ public:
      *  a null pointer otherwise
      */
     std::shared_ptr<TYPE> get_ptr(REFTYPE ref) {
-        if (!isValidRange(ref)) {
+        if (!isValidRange(ref) || !isLoaded(ref)) {
             return nullptr;
         }
         if (!_map[ref]) {
@@ -159,6 +160,10 @@ public:
     /// @return a reference to the profile on sucess, INVALIDREF on failure
     REFTYPE load_one(const std::string& pathname, const REFTYPE _override)
     {
+        if(isLoaded(_override)) {
+            log_warning("Loaded over existing profile\n");
+        }
+
         REFTYPE ref = INVALIDREF;
         if (isValidRange(_override)) {
             release_one(_override);
@@ -170,7 +175,9 @@ public:
         if (!isValidRange(ref)) {
             return INVALIDREF;
         }
-        std::shared_ptr<TYPE> profile = get_ptr(ref);
+
+        //Allocate memory for new profile
+        std::shared_ptr<TYPE> profile = _map[ref] = std::make_shared<TYPE>();
 
         if (!READER::read(profile, pathname)) {
             return INVALIDREF;

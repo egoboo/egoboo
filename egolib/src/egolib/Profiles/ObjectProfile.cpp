@@ -26,7 +26,7 @@
 #include "egolib/Profiles/ObjectProfile.hpp"
 #include "game/game.h"
 #include "game/Entities/_Include.hpp"
-#include "egolib/Graphics/mad.h"       //for loading md2
+#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/FileFormats/template.h"
 #include "egolib/Math/Random.hpp"
@@ -37,7 +37,7 @@ ObjectProfile::ObjectProfile() :
     _spawnRequestCount(0),
     _spawnCount(0),
     _pathname("*NONE*"),
-    _imad(INVALID_MAD_REF),
+    _model(nullptr),
     _ieve(INVALID_EVE_REF),
     _slotNumber(-1),
 
@@ -137,6 +137,7 @@ ObjectProfile::ObjectProfile() :
     iframeangle(0),
     nframefacing(0),
     nframeangle(0),
+    _blockRating(0),
 
     // defense
     _resistBumpSpawn(false),
@@ -147,6 +148,7 @@ ObjectProfile::ObjectProfile() :
     _experienceWorth(0),
     _experienceExchange(0.0f),
     _experienceRate(),
+    _levelUpRandomSeedOverride(0),
 
     // flags
     _isEquipment(false),
@@ -177,7 +179,7 @@ ObjectProfile::ObjectProfile() :
     // item usage
     _needSkillIDToUse(false),
     _weaponAction(0),
-    _spawnsAttackParticle(false),
+    _attachAttackParticleToWeapon(false),
     _attackParticle(-1),
     _attackFast(false),
 
@@ -199,12 +201,14 @@ ObjectProfile::ObjectProfile() :
     _bludParticle(-1),
 
     // skill system
-    _skills(),
     _seeInvisibleLevel(0),
 
     // random stuff
     _stickyButt(false),
-    _useManaCost(0.0f)
+    _useManaCost(0.0f),
+
+    _startingPerks(),
+    _perkPool()
 {
     _experienceRate.fill(0.0f);
     _idsz.fill(IDSZ_NONE);
@@ -213,10 +217,6 @@ ObjectProfile::ObjectProfile() :
 
 ObjectProfile::~ObjectProfile()
 {
-    // release all of the sub-profiles
-    MadStack_release_one( _imad );
-    //EveStack_release_one( pobj->ieve );
-
     //Release particle profiles
     for(const auto &element : _particleProfiles)
     {
@@ -418,41 +418,29 @@ PIP_REF ObjectProfile::getParticleProfile(const LocalParticleProfileRef& lppref)
 
 uint16_t ObjectProfile::getSkinOverride() const
 {
-    /// @details values of spelleffect_type or skin_override less than zero mean that the values are not valid.
-    ///          values >= mean that the value is random.
-    uint16_t retval = SKINS_PEROBJECT_MAX;
-
-    if ( _spellEffectType >= 0 )
-    {
-        if (_spellEffectType >= SKINS_PEROBJECT_MAX)
-        {
-            retval = getRandomSkinID();
+    //Are we actually a spell book?
+    if (_spellEffectType != NO_SKIN_OVERRIDE) {
+        if(_spellEffectType >= SKINS_PEROBJECT_MAX) {
+            return getRandomSkinID();
         }
-        else
-        {
-            retval = _spellEffectType % SKINS_PEROBJECT_MAX;
-        }
-    }
-    else if ( _skinOverride >= 0 )
-    {
-        if (_skinOverride >= SKINS_PEROBJECT_MAX)
-        {
-            retval = getRandomSkinID();
-        }
-        else
-        {
-            retval = _skinOverride % SKINS_PEROBJECT_MAX;
+        else {
+            return _spellEffectType;
         }
     }
 
-    return retval;
+    //No skin overriding?
+    if(_skinOverride == NO_SKIN_OVERRIDE) {
+        return NO_SKIN_OVERRIDE;
+    }
+
+    return _skinOverride;
 }
 
 void ObjectProfile::setupXPTable()
 {
     for (size_t level = MAXBASELEVEL; level < MAXLEVEL; level++ )
     {
-        Uint32 xpneeded = _experienceForLevel[MAXBASELEVEL - 1];
+        uint32_t xpneeded = _experienceForLevel[MAXBASELEVEL - 1];
         xpneeded += ( level * level * level * 15 );
         xpneeded -= (( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * 15 );
         _experienceForLevel[level] = xpneeded;
@@ -659,7 +647,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     // More item and damage stuff
     _damageTargetDamageType = vfs_get_next_damage_type(ctxt);
-    _weaponAction = action_which(vfs_get_next_printable(ctxt));
+    _weaponAction = Ego::ModelDescriptor::charToAction(vfs_get_next_printable(ctxt));
 
     // Particle attachments
     _attachedParticleAmount = vfs_get_next_int(ctxt);
@@ -671,7 +659,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _slotsValid[SLOT_RIGHT] = vfs_get_next_bool(ctxt);
 
     // Attack order ( weapon )
-    _spawnsAttackParticle = vfs_get_next_bool(ctxt);
+    _attachAttackParticleToWeapon = vfs_get_next_bool(ctxt);
     _attackParticle = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // GoPoof
@@ -804,7 +792,6 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 int iTmp = ctxt.readInt();
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
-                iTmp = (iTmp > SKINS_PEROBJECT_MAX) ? SKINS_PEROBJECT_MAX : iTmp;
                 _skinOverride = iTmp;  
             }          
             break;
@@ -912,9 +899,65 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             }
             break;
 
+            case MAKE_IDSZ('B', 'L', 'O', 'C'):
+            {
+                _blockRating = ctxt.readInt();
+            }
+            break;
+
+            //Random Seed for level ups
+            case  MAKE_IDSZ( 'S', 'E', 'E', 'D' ):
+                _levelUpRandomSeedOverride = ctxt.readInt();
+            break;
+
+            //Perks known
+            case MAKE_IDSZ( 'P', 'E', 'R', 'K' ):
+            {
+                std::string perkName = ctxt.readName();
+                std::replace(perkName.begin(), perkName.end(), '_', ' '); //replace underscore with spaces
+                Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
+                if(id != Ego::Perks::NR_OF_PERKS)
+                {
+                    _startingPerks[id] = true;
+                }
+                else
+                {
+                    log_warning("Unknown [PERK] parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
+                }
+            }
+            break;
+
+            //Perk Pool (perks that we can learn in the future)
+            case MAKE_IDSZ( 'P', 'O', 'O', 'L' ):
+            {
+                std::string perkName = ctxt.readName();
+                std::replace(perkName.begin(), perkName.end(), '_', ' '); //replace underscore with spaces
+                Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
+                if(id != Ego::Perks::NR_OF_PERKS)
+                {
+                    _perkPool[id] = true;
+                }
+                else
+                {
+                    log_warning("Unknown [POOL] perk parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
+                }
+            }
+            break;
+
+            //Backwards compatability with old skill system (for older data files)
+            case MAKE_IDSZ( 'A', 'W', 'E', 'P' ): _startingPerks[Ego::Perks::WEAPON_PROFICIENCY] = true; break;
+            case MAKE_IDSZ( 'P', 'O', 'I', 'S' ): _startingPerks[Ego::Perks::POISONRY] = true; break;
+            case MAKE_IDSZ( 'C', 'K', 'U', 'R' ): _startingPerks[Ego::Perks::SENSE_KURSES] = true; break;
+            case MAKE_IDSZ( 'R', 'E', 'A', 'D' ): _startingPerks[Ego::Perks::LITERACY] = true; break;
+            case MAKE_IDSZ( 'W', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::ARCANE_MAGIC] = true; break;
+            case MAKE_IDSZ( 'H', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::DIVINE_MAGIC] = true; break;
+            case MAKE_IDSZ( 'T', 'E', 'C', 'H' ): _startingPerks[Ego::Perks::USE_TECHNOLOGICAL_ITEMS] = true; break;
+            case MAKE_IDSZ( 'D', 'I', 'S', 'A' ): _startingPerks[Ego::Perks::TRAP_LORE] = true; break;
+            case MAKE_IDSZ( 'S', 'T', 'A', 'B' ): _startingPerks[Ego::Perks::BACKSTAB] = true; break;
+            case MAKE_IDSZ( 'D', 'A', 'R', 'K' ): _startingPerks[Ego::Perks::NIGHT_VISION] = true; break;
+
             default:
-                //If it is none of the predefined IDSZ extensions then add it as a new skill
-                _skills[idsz] = ctxt.readInt();
+                log_warning("Unknown IDSZ parsed: [%4s] (%s)\n", undo_idsz(idsz), filePath.c_str());
             break;
         }
     }
@@ -982,9 +1025,10 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     if(!lightWeight)
     {
         // Load the model for this profile
-        profile->_imad = load_one_model_profile_vfs(folderPath.c_str(), profile->_slotNumber);
-        if(profile->_imad == INVALID_MAD_REF)
-        {
+        try {
+            profile->_model = std::make_shared<Ego::ModelDescriptor>(folderPath.c_str());
+        }
+        catch (const std::runtime_error &ex) {
             log_warning("ObjectProfile::loadFromFile() - Unable to load model (%s)\n", folderPath.c_str());
             return nullptr;
         }
@@ -1044,7 +1088,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     // Fix lighting if need be
     if (profile->_uniformLit && egoboo_config_t::get().graphic_gouraudShading_enable.getValue())
     {
-        mad_make_equally_lit_ref(profile->_imad);
+        profile->getModel()->makeEquallyLit();
     }
 
     return profile;
@@ -1214,14 +1258,9 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_float( fileTemp, fileWrite, FLOAT_TO_FP8( character->experience ) );    //Note overriden by chr
     template_put_int( fileTemp, fileWrite, profile->_experienceWorth );
     template_put_float( fileTemp, fileWrite, profile->_experienceExchange );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[0] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[1] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[2] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[3] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[4] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[5] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[6] );
-    template_put_float( fileTemp, fileWrite, profile->_experienceRate[7] );
+    for(size_t i = 0; i < profile->_experienceRate.size(); ++i) {
+        template_put_float( fileTemp, fileWrite, profile->_experienceRate[i] );        
+    }
 
     // IDSZ identification tags
     template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_PARENT] );
@@ -1257,7 +1296,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_bool( fileTemp, fileWrite, profile->_slotsValid[SLOT_RIGHT] );
 
     // Particle spawning on attack
-    template_put_bool( fileTemp, fileWrite, 0 != profile->_spawnsAttackParticle );
+    template_put_bool( fileTemp, fileWrite, 0 != profile->_attachAttackParticleToWeapon );
     template_put_local_particle_profile_ref( fileTemp, fileWrite, profile->_attackParticle );
 
     // Particle spawning for GoPoof
@@ -1385,20 +1424,26 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), character->ai.content );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), character->ai.state );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), character->experiencelevel );
+    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'E', 'E', 'D' ), character->getLevelUpSeed() );
     vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( character->life ) );
     vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( character->mana ) );
 
-    // write down any skills that have been learned
-    IDSZ_node_t *pidsz;
-    int iterator = 0;
-    pidsz = idsz_map_iterate(character->skills, SDL_arraysize(character->skills), &iterator);
-    while ( pidsz != nullptr )
-    {
-        //Write that skill into the file
-        vfs_put_expansion(fileWrite, "", pidsz->id, pidsz->level);
+    // write down any perks that have been mastered
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+        const Ego::Perks::Perk& perk = Ego::Perks::PerkHandler::get().getPerk(static_cast<Ego::Perks::PerkID>(i));
+        if(!character->hasPerk(perk.getID())) continue;
+        std::string name = perk.getName();
+        std::replace(name.begin(), name.end(), ' ', '_'); //replace space with underscore
+        vfs_put_expansion_string(fileWrite, "", MAKE_IDSZ( 'P', 'E', 'R', 'K' ), name.c_str() );
+    }
 
-        //Get the next IDSZ from the map
-        pidsz = idsz_map_iterate(character->skills, SDL_arraysize(character->skills), &iterator);
+    // write down all perks that we can still learn
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+        const Ego::Perks::Perk& perk = Ego::Perks::PerkHandler::get().getPerk(static_cast<Ego::Perks::PerkID>(i));
+        if(!profile->_perkPool[i] || character->hasPerk(perk.getID())) continue;
+        std::string name = perk.getName();
+        std::replace(name.begin(), name.end(), ' ', '_'); //replace space with underscore
+        vfs_put_expansion_string(fileWrite, "", MAKE_IDSZ( 'P', 'O', 'O', 'L' ), name.c_str() );
     }
 
     // dump the rest of the template file
@@ -1418,7 +1463,7 @@ size_t ObjectProfile::getRandomSkinID() const
     }
 
     auto element = _skinInfo.begin();
-    std::advance(element, Random::next(_skinInfo.size()));
+    std::advance(element, Random::next(_skinInfo.size()-1));
     return element->first;
 }
 
@@ -1432,4 +1477,16 @@ const FRange& ObjectProfile::getAttributeBase(Ego::Attribute::AttributeType type
 {
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
     return _baseAttribute[type];    
+}
+
+bool ObjectProfile::canLearnPerk(const Ego::Perks::PerkID id) const
+{
+    if(id == Ego::Perks::NR_OF_PERKS) return false;
+    return _perkPool[id];
+}
+
+bool ObjectProfile::beginsWithPerk(const Ego::Perks::PerkID id) const
+{
+    if(id == Ego::Perks::NR_OF_PERKS) return false;
+    return _startingPerks[id];
 }

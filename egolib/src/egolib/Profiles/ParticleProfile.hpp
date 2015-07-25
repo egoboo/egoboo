@@ -43,6 +43,8 @@ enum e_global_pips
     PIP_GEM500,
     PIP_GEM1000,
     PIP_GEM2000,
+    PIP_DISINTEGRATE_START,                       ///< Disintegrate explosion start
+    PIP_DISINTEGRATE_PARTICLE,                    ///< Explosion particles spawned by PIP_DISINTEGRATE_START
     GLOBAL_PIP_COUNT,
 
     // aliases

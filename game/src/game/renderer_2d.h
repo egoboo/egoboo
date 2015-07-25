@@ -103,5 +103,5 @@ int draw_string_raw(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 
 int DisplayMsg_printf( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
 
 // graphics primitive functions
-void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
+void draw_quad_2d(const oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
 bool dump_screenshot();
