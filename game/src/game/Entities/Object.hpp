@@ -683,6 +683,8 @@ public:
 
     std::shared_ptr<Ego::Enchantment> getLastEnchantmentSpawned() const;
 
+    const std::shared_ptr<Object>& toSharedPointer() const;
+
 private:
 
     /**

@@ -758,7 +758,12 @@ void Object::update()
                 enchant->update();
 
                 //Remove all terminated enchants
-                return enchant->isTerminated(); 
+                if(enchant->isTerminated()) {
+                    enchant->playEndSound();
+                    return true;
+                }
+
+                return false; 
             });
     }
 
@@ -2018,7 +2023,7 @@ std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO
     }
 
     std::shared_ptr<Ego::Enchantment> enchant = std::make_shared<Ego::Enchantment>(enchantmentProfile, spawnerProfile, owner);
-    enchant->applyEnchantment(_currentModule->getObjectHandler()[getCharacterID()]);
+    enchant->applyEnchantment(this->toSharedPointer());
 
     //Succeeded to apply the enchantment to the target?
     if(!enchant->isTerminated() && spawner) {
@@ -2076,4 +2081,10 @@ bool Object::isFlying() const
 std::shared_ptr<Ego::Enchantment> Object::getLastEnchantmentSpawned() const
 {
     return _lastEnchantSpawned.lock();
+}
+
+
+const std::shared_ptr<Object>& Object::toSharedPointer() const 
+{ 
+    return _currentModule->getObjectHandler()[getCharacterID()]; 
 }

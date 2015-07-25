@@ -99,6 +99,12 @@ public:
 
     void setBoostValues(float ownerManaSustain, float ownerLifeSustain, float targetManaDrain, float targetLifeDrain);
 
+    /**
+    * @brief
+    *   Plays the ending sound of this enchant
+    **/
+    void playEndSound() const;
+
 private:
     bool _isTerminated;
 

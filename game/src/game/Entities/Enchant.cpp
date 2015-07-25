@@ -280,13 +280,14 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
 {
     //Invalid target?
     if( target->isTerminated() || (!target->isAlive() && !_enchantProfile->_target._stay) ) {
+        log_warning("Enchantment::applyEnchantment() - Invalid target");
         requestTerminate();
         return;
     }
 
     //Already added to a target?
     if(_target.lock()) {
-        throw std::logic_error("Enchantment::applyEnchantment - Already applied");
+        throw std::logic_error("Enchantment::applyEnchantment() - Already applied");
     }
 
     // do retargeting, if necessary
@@ -303,7 +304,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         }
         else {
             // No weapons to pick, make it fail
-            log_debug("applyEnchantment() failed because target has no valid items in hand\n");
+            log_debug("Enchantment::applyEnchantment() - failed because target has no valid items in hand\n");
             requestTerminate();
             return;
         }
@@ -315,7 +316,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     // Check damage type, 90% damage resistance is enough to resist the enchant
     if (_enchantProfile->required_damagetype < DAMAGE_COUNT) {
         if (target->getDamageReduction(_enchantProfile->required_damagetype) >= 0.90f) {
-            log_debug("spawn_one_enchant() - failed because the target is immune to the enchant.\n");
+            log_debug("Enchantment::applyEnchantment() - failed because the target is immune to the enchant.\n");
             requestTerminate();
             return;
         }
@@ -324,7 +325,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     // Check if target has the required damage type we need
     if (_enchantProfile->require_damagetarget_damagetype < DAMAGE_COUNT) {
         if (target->damagetarget_damagetype != _enchantProfile->require_damagetarget_damagetype) {
-            log_warning("spawn_one_enchant() - failed because the target not have the right damagetarget_damagetype.\n");
+            log_warning("Enchantment::applyEnchantment() - failed because the target not have the right damagetarget_damagetype.\n");
             requestTerminate();
             return;
         }
@@ -359,46 +360,60 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         }
     }
 
-    //Loop through all active enchants and see if there are any conflicts
-    for(const std::shared_ptr<Ego::Enchantment> &enchant : target->getActiveEnchants())
-    {
-        //Scan through all set modifiers of that active enchant
-        enchant->_modifiers.remove_if([this, &enchant](const EnchantModifier &modifier)
-            {
-                //Only set types can conflict
-                if(Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
-                    return false;
-                }
+    //Check if this enchant has any set modifiers that conflicts with another enchant
+    _modifiers.remove_if([this, &target](const EnchantModifier &modifier){
 
-                //Check if this enchant conflicts with any of our set values
-                bool removeModifier = false;
-                _modifiers.remove_if([this, &enchant, &removeModifier](const EnchantModifier &modifier){
-                    if(modifier._type == modifier._type) {
-                        //Does this enchant override the other one?
-                        if(getProfile()->_override) {
+        //Only set types can conflict
+        if(!Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
+            return false;
+        }
+
+        //Is there no conflict?
+        if(target->getTempAttributes().find(modifier._type) == target->getTempAttributes().end()) {
+            return false;
+        }
+
+        //Ok there exist a conflict, so now we have to resolve it somehow
+        //Does this enchant override other enchants?
+        if(getProfile()->_override) {
+            bool conflictResolved = false;
+
+            //Find the active enchant that conflicts with us
+            for(const std::shared_ptr<Ego::Enchantment> &conflictingEnchant : target->getActiveEnchants()) {
+                conflictingEnchant->_modifiers.remove_if([this, &conflictingEnchant, &modifier, &conflictResolved](const EnchantModifier &otherModifier)
+                    {
+                        //Is this the one?
+                        if(otherModifier._type == otherModifier._type) {
+                            conflictResolved = true;
 
                             //Remove Enchants that conflict with this one?
                             if(getProfile()->remove_overridden) {
-                                enchant->requestTerminate();
+                                conflictingEnchant->requestTerminate();
                             }
 
-                            //Remove old value and use new one instead
-                            removeModifier = true;
-                            return false;
-                        }
-                        else {
-                            removeModifier = false;
                             return true;
                         }
-                    }
-                    return false;
-                });
 
-                return removeModifier;
-            });
-    }
+                        //Nope, keep looking
+                        return false;
+                    });
 
-    //Now apply the values
+                //Has it been resolved?
+                if(conflictResolved) {
+                    break;
+                }
+            }
+
+            //We have higher priority than exiting enchants
+            return false;
+        }
+        else {
+            //The existing enchant has higher priority than ours
+            return true;
+        }
+    });
+
+    //Now actually apply the values to the target
     for(const EnchantModifier &modifier : _modifiers)
     {
         //These should never occur
@@ -483,6 +498,15 @@ void Enchantment::setBoostValues(float ownerManaSustain, float ownerLifeSustain,
     }  
     _targetManaDrain = targetManaDrain;
     _targetLifeDrain = targetLifeDrain;
+}
+
+void Enchantment::playEndSound() const
+{
+    std::shared_ptr<Object> target = _target.lock();
+    if(target) {
+        const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(_spawnerProfileID);
+        AudioSystem::get().playSound(target->getPosition(), spawnerProfile->getSoundID(getProfile()->endsound_index));
+    }
 }
 
 } //Ego

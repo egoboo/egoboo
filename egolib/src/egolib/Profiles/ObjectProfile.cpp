@@ -24,7 +24,7 @@
 
 #define EGOLIB_PROFILES_PRIVATE 1
 #include "egolib/Profiles/ObjectProfile.hpp"
-#include "game/game.h"
+#include "game/Core/GameEngine.hpp"
 #include "game/Entities/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
@@ -1149,7 +1149,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MAX_LIFE));
     template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::MAX_MANA) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MAX_MANA));
-    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::MANA_REGEN) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::MANA_REGEN)); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MANA_REGEN));
     template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::SPELL_POWER) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::SPELL_POWER));
@@ -1320,7 +1320,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     // More stuff
     template_put_float(fileTemp, fileWrite, 0); //unused
     template_put_float(fileTemp, fileWrite, profile->_useManaCost);
-    template_put_float(fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::LIFE_REGEN));   //Note: overridden by chr
+    template_put_float(fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::LIFE_REGEN) * GameEngine::GAME_TARGET_UPS);   //Note: overridden by chr
     template_put_int( fileTemp, fileWrite, character->stoppedby );   //Note: overridden by chr
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(0).name.c_str() );
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(1).name.c_str() );
