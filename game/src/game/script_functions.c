@@ -1887,8 +1887,6 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     /// tmpx and tmpy give the coodinates, tmpturn gives the new character's
     /// direction, and tmpdistance gives the new character's initial velocity
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, 0);
@@ -4744,7 +4742,6 @@ Uint8 scr_add_TargetStrength( script_state_t * pstate, ai_state_t * pself )
     // GiveStrengthToTarget()
     // Permanently boost the target's strength
 
-    int iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4765,7 +4762,6 @@ Uint8 scr_add_TargetIntelligence( script_state_t * pstate, ai_state_t * pself )
     // GiveIntelligenceToTarget()
     // Permanently boost the target's intelligence
 
-    int iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4786,7 +4782,6 @@ Uint8 scr_add_TargetDexterity( script_state_t * pstate, ai_state_t * pself )
     // GiveDexterityToTarget()
     // Permanently boost the target's dexterity
 
-    int iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4808,7 +4803,6 @@ Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details Permanently boost the target's life
 
-    int iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4831,7 +4825,6 @@ Uint8 scr_add_TargetMana( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details Permanently boost the target's mana
 
-    int iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4930,7 +4923,6 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details This function gives some mana back to the target.
     /// Values are 8.8 fixed point
 
-    int iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7722,7 +7714,6 @@ Uint8 scr_add_TargetManaFlow( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details Permanently boost the target's mana flow
 
-    int iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7744,7 +7735,6 @@ Uint8 scr_add_TargetManaReturn( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details Permanently boost the target's mana return
 
-    int iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -8065,7 +8055,6 @@ Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
     /// @details This function permanently gives the target character a Perk
 
     Object *ptarget;
-    egolib_rv rv;
 
     SCRIPT_FUNCTION_BEGIN();
 

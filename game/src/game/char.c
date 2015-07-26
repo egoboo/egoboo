@@ -2431,7 +2431,6 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
 bool chr_get_skill( Object *pchr, IDSZ whichskill )
 {
     //Maps between old IDSZ skill system and new Perk system
-    IDSZ_node_t *pskill;
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 

@@ -1577,9 +1577,6 @@ gfx_rv chr_instance_t::increment_action(chr_instance_t& self)
     /// @author BB
     /// @details This function starts the next action for a character
 
-	// save the old action
-	int action_old = self.action_which;
-
 	if (!self.imad) {
 		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;

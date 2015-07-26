@@ -351,7 +351,6 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
                     alpha *= pinst->falpha;
                 }
 
-                auto& renderer = Ego::Renderer::get();
                 // do not display the completely transparent portion
                 renderer.setAlphaTestEnabled(true);
 				renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT

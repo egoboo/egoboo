@@ -471,7 +471,6 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 
     if (NULL == this->_prt_ptr) return NULL;
     Ego::Particle *loc_pprt = this->_prt_ptr;
-    PRT_REF loc_iprt = this->_prt_ref;
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is not still in "display mode" there is no point in going on
@@ -546,7 +545,6 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     if (NULL == this->_prt_ptr) return NULL;
 
     Ego::Particle *loc_pprt = this->_prt_ptr;
-    PRT_REF loc_iprt = this->_prt_ref;
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is not still in "display mode" there is no point in going on

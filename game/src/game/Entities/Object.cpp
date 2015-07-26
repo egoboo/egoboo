@@ -1286,8 +1286,6 @@ void Object::recalculateCollisionSize()
 
 void Object::checkLevelUp()
 {
-    int number;
-
     // Do level ups and stat changes
     uint8_t curlevel = experiencelevel + 1;
     if ( curlevel < MAXLEVEL )
