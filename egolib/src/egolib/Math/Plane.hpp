@@ -41,8 +41,8 @@ namespace Math {
  *  Michael Heilmann
  */
 template <typename _ScalarType>
-struct Plane3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>,
-	            public Translatable<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>> {
+struct Plane3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>,
+	            public Translatable<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>> {
 
 public:
 
@@ -56,13 +56,13 @@ public:
      * @brief
      *  The scalar type.
      */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>::ScalarType ScalarType;
+	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>::ScalarType ScalarType;
 
     /**
      * @brief
      *  The vector type.
      */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>::VectorType VectorType;
+	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>::VectorType VectorType;
 
 private:
 

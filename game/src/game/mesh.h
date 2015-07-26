@@ -551,11 +551,12 @@ public:
 
     static fvec3_t get_diff(const ego_mesh_t *self, const fvec3_t& pos, float radius, float center_pressure, const BIT_FIELD bits);
     static float get_pressure(const ego_mesh_t *self, const fvec3_t& pos, float radius, const BIT_FIELD bits);
-    static bool remove_ambient(ego_mesh_t *self);
-    static bool recalc_twist(ego_mesh_t *self);
-    static bool make_texture(ego_mesh_t *self);
+	/// @brief Remove extra ambient light in the lightmap.
+    void remove_ambient();
+	void recalc_twist();
+	void make_texture();
     static ego_mesh_t *finalize(ego_mesh_t *self);
-    static bool test_one_corner(ego_mesh_t *self, GLXvector3f pos, float * pdelta);
+    void test_one_corner(GLXvector3f pos, float *pdelta);
     
     bool light_one_corner(ego_tile_info_t *ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
 
@@ -574,25 +575,25 @@ public:
     /// @param point the point (world coordinates)
     /// @return the block index of the block at the given point if there is a block at that point,
     ///         #INVALID_BLOCK otherwise
-    static BlockIndex get_block(const ego_mesh_t *self, const PointWorld& point);
+    BlockIndex get_block(const PointWorld& point) const;
 
     /// @brief Get the grid index of the grid at a given point (world coordinates).
     /// @param point the point (world coordinates)
     /// @return the grid index of the grid at the given point if there is a grid at that point,
     ///         #INVALID_TILE otherwise
-    static TileIndex get_grid(const ego_mesh_t *self, const PointWorld& point);
+    TileIndex get_grid(const PointWorld& point) const;
 
     /// @brief Get the block index of the block at a given point (block coordinates).
     /// @param point the point (block coordinates)
     /// @return the block index of the block at the given point if there is a block at that point,
     ///         #INVALID_BLOCK otherwise
-    static BlockIndex get_block_int(const ego_mesh_t *self, const PointBlock& point);
+    BlockIndex get_block_int(const PointBlock& point) const;
 
     /// @brief Get the tile index of the tile at a given point (grid coordinates).
     /// @param point the point (grid coordinates)
     /// @return the tile index of the tile at the given point if there is a tile at that point,
     ///         #INVALID_TILE otherwise
-    static TileIndex get_tile_int(const ego_mesh_t *self, const PointGrid& point);
+    TileIndex get_tile_int(const PointGrid& point) const;
 
     static bool grid_is_valid(const ego_mesh_t *self, const TileIndex& id);
 

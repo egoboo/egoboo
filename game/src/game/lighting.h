@@ -48,28 +48,30 @@ void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const fvec
 //--------------------------------------------------------------------------------------------
 struct lighting_cache_base_t
 {
-    float             max_light;  ///< max amplitude of direct light
-    float             max_delta;  ///< max change in the light amplitude
-    std::array<float, LIGHTING_VEC_SIZE> lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
+    float             _max_light;  ///< max amplitude of direct light
+    float             _max_delta;  ///< max change in the light amplitude
+    std::array<float, LIGHTING_VEC_SIZE> _lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
+
+	static lighting_cache_base_t *init(lighting_cache_base_t *self);
+	static bool max_light(lighting_cache_base_t *self);
 };
 
-lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * pdata );
-bool                  lighting_cache_base_max_light( lighting_cache_base_t * cache );
-bool                  lighting_cache_base_blend( lighting_cache_base_t * cache, const lighting_cache_base_t * cnew, float keep );
+
+bool lighting_cache_base_blend( lighting_cache_base_t * cache, const lighting_cache_base_t * cnew, float keep );
 
 //--------------------------------------------------------------------------------------------
 struct lighting_cache_t
 {
-    float                 max_light;              ///< max amplitude of direct light
-    float                 max_delta;              ///< max change in amplitude of all light
+    float                 _max_light;              ///< max amplitude of direct light
+    float                 _max_delta;              ///< max change in amplitude of all light
 
     lighting_cache_base_t low;
     lighting_cache_base_t hgh;
-};
 
-lighting_cache_t * lighting_cache_init( lighting_cache_t * pdata );
-bool             lighting_cache_max_light( lighting_cache_t * cache );
-bool             lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, float keep );
+	static lighting_cache_t *init(lighting_cache_t *self);
+	static bool max_light(lighting_cache_t *self);
+	static bool blend(lighting_cache_t * cache, lighting_cache_t * cnew, float keep);
+};
 
 //--------------------------------------------------------------------------------------------
 #define MAXDYNADIST                     2700        // Leeway for offscreen lights
@@ -82,9 +84,9 @@ struct dynalight_data_t
     fvec3_t pos;           ///< Light position
     float   level;         ///< Light intensity
     float   falloff;       ///< Light radius
-};
 
-dynalight_data_t * dynalight_data__init( dynalight_data_t * );
+	static dynalight_data_t *init(dynalight_data_t *self);
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -3527,7 +3527,7 @@ bool chr_update_safe_raw( Object * pchr )
         pchr->safe_valid = true;
         pchr->safe_pos = pchr->getPosition();
         pchr->safe_time  = update_wld;
-        pchr->safe_grid  = ego_mesh_t::get_grid( _currentModule->getMeshPointer(), PointWorld(pchr->getPosX(), pchr->getPosY())).getI();
+        pchr->safe_grid  = _currentModule->getMeshPointer()->get_grid(PointWorld(pchr->getPosX(), pchr->getPosY())).getI();
 
         retval = true;
     }
@@ -3549,7 +3549,7 @@ bool chr_update_safe( Object * pchr, bool force )
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex new_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(pchr->getPosX(), pchr->getPosY()));
 
         if (TileIndex::Invalid == new_grid )
         {
@@ -3663,7 +3663,7 @@ bool chr_update_breadcrumb( Object * object, bool force )
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(object->getPosX(), object->getPosY()));
+        TileIndex new_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(object->getPosX(), object->getPosY()));
 
         if (TileIndex::Invalid == new_grid )
         {

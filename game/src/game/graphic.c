@@ -418,14 +418,14 @@ int GFX::initializeOpenGL()
 
     // Enable depth test. Incoming fragment's depth value must be less.
     renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(CompareFunction::Less);
+    renderer.setDepthFunction(ComparisonFunction::Less);
 
     // Disable blending.
     renderer.setBlendingEnabled(false);
 
     // Enable alpha testing: Hide fully transparent parts.
     renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+	renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     /// backface culling
@@ -472,7 +472,7 @@ void GFX::initializeSDLGraphics()
     }
 
     // The flags to pass to SDL_SetVideoMode.
-    SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
+    SDLX_video_parameters_t::download(sdl_vparam, egoboo_config_t::get());
 
     sdl_vparam.flags.opengl = true;
     sdl_vparam.gl_att.doublebuffer = true;
@@ -482,7 +482,7 @@ void GFX::initializeSDLGraphics()
     sdl_vparam.gl_att.accum[2] = 8;
     sdl_vparam.gl_att.accum[3] = 8;
 
-    oglx_video_parameters_t::download(&ogl_vparam, &egoboo_config_t::get());
+    oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
 
     log_info("Opening SDL Video Mode...\n");
 
@@ -2120,10 +2120,10 @@ float grid_lighting_test(ego_mesh_t * mesh, GLXvector3f pos, float * low_diff, f
     iy = std::floor(pos[YY] / GRID_FSIZE);
 
     TileIndex fan[4];
-    fan[0] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
-    fan[1] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy));
-    fan[2] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy + 1));
-    fan[3] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy + 1));
+    fan[0] = mesh->get_tile_int(PointGrid(ix, iy));
+    fan[1] = mesh->get_tile_int(PointGrid(ix + 1, iy));
+    fan[2] = mesh->get_tile_int(PointGrid(ix, iy + 1));
+    fan[3] = mesh->get_tile_int(PointGrid(ix + 1, iy + 1));
 
     for (cnt = 0; cnt < 4; cnt++)
     {
@@ -2178,10 +2178,10 @@ bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, 
     iy = std::floor(tpos[YY]);
 
     // find the tile id for the surrounding tiles
-    fan[0] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
-    fan[1] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy));
-    fan[2] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy + 1));
-    fan[3] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy + 1));
+    fan[0] = mesh->get_tile_int(PointGrid(ix, iy));
+    fan[1] = mesh->get_tile_int(PointGrid(ix + 1, iy));
+    fan[2] = mesh->get_tile_int(PointGrid(ix, iy + 1));
+    fan[3] = mesh->get_tile_int(PointGrid(ix + 1, iy + 1));
 
     for (cnt = 0; cnt < 4; cnt++)
     {
@@ -2898,7 +2898,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     needs_dynalight = false;
 
     // assume no "extra help" for systems with only flat lighting
-    dynalight_data__init(&fake_dynalight);
+    dynalight_data_t::init(&fake_dynalight);
 
     // initialize the light_bound
     light_bound.xmin = pgmem->edge_x;
@@ -3043,13 +3043,13 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         lighting_cache_t *pcache_old = &(pgrid->cache);
 
         lighting_cache_t cache_new;
-        lighting_cache_init(&cache_new);
+        lighting_cache_t::init(&cache_new);
 
         // copy the global lighting
         for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
         {
-            cache_new.low.lighting[tnc] = global_lighting[tnc];
-            cache_new.hgh.lighting[tnc] = global_lighting[tnc];
+            cache_new.low._lighting[tnc] = global_lighting[tnc];
+            cache_new.hgh._lighting[tnc] = global_lighting[tnc];
         };
 
         // do we need any dynamic lighting at all?
@@ -3099,10 +3099,10 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
                         nrm[kX] = pdyna->pos[kX] - x0;
                         nrm[kY] = pdyna->pos[kY] - y0;
                         nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.getMin()[ZZ];
-                        sum_dyna_lighting(pdyna, cache_new.low.lighting, nrm);
+                        sum_dyna_lighting(pdyna, cache_new.low._lighting, nrm);
 
                         nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.getMax()[ZZ];
-                        sum_dyna_lighting(pdyna, cache_new.hgh.lighting, nrm);
+                        sum_dyna_lighting(pdyna, cache_new.hgh._lighting, nrm);
                     }
                 }
             }
@@ -3114,10 +3114,10 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 
         // blend in the global lighting every single time
         // average this in with the existing lighting
-        lighting_cache_blend(pcache_old, &cache_new, local_keep);
+        lighting_cache_t::blend(pcache_old, &cache_new, local_keep);
 
         // find the max intensity
-        lighting_cache_max_light(pcache_old);
+        lighting_cache_t::max_light(pcache_old);
 
         pgrid->cache_frame = game_frame_all;
     }

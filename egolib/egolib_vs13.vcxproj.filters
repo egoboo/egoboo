@@ -749,9 +749,6 @@
     <ClInclude Include="src\egolib\Math\Math.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Rectangle2.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -932,9 +929,6 @@
     <ClInclude Include="src\egolib\Math\Standard.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\ScalarField.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Logic\Team.hpp">
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
@@ -979,6 +973,24 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>    
+    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Field.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\OrderedRing.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Point.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Module.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

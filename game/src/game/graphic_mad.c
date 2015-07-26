@@ -626,7 +626,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 
             // get a speed-up by not displaying completely transparent portions of the skin
             renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
             renderer.setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
@@ -704,7 +704,7 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
         // which will enable the display of the partially transparent portion of the skin
 
         renderer.setAlphaTestEnabled(true);
-		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f); // GL_COLOR_BUFFER_BIT
+		renderer.setAlphaFunction(Ego::ComparisonFunction::Equal, 1.0f); // GL_COLOR_BUFFER_BIT
 
         // can I turn this off?
         renderer.setBlendingEnabled(true);
@@ -1025,7 +1025,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 	lighting_cache_t loc_light;
     lighting_project_cache(&loc_light, &global_light, self.matrix);
 
-    self.color_amb = 0.9f * self.color_amb + 0.1f * (loc_light.hgh.lighting[LVEC_AMB] + loc_light.low.lighting[LVEC_AMB]) * 0.5f;
+    self.color_amb = 0.9f * self.color_amb + 0.1f * (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
 
     self.max_light = -255;
     self.min_light =  255;

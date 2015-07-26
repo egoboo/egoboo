@@ -128,7 +128,7 @@ void line_list_draw_all(Camera& camera)
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+            renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();   // GL_ENABLE_BIT
@@ -149,7 +149,7 @@ void line_list_draw_all(Camera& camera)
                 }
 
                 const auto colour = Ego::Math::Colour4f(line.color[XX], line.color[YY], line.color[ZZ], line.color[WW]);
-                Ego::Renderer::get().setColour(colour); // GL_CURRENT_BIT
+                renderer.setColour(colour); // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_LINES );
                 {
                     GL_DEBUG(glVertex3f)( line.src[kX], line.src[kY], line.src[kZ] );
@@ -228,7 +228,7 @@ void point_list_draw_all(Camera& camera)
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+            renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();   // GL_ENABLE_BIT
@@ -248,7 +248,7 @@ void point_list_draw_all(Camera& camera)
                     continue;
                 }
                 const auto colour = Ego::Math::Colour4f(point.color[XX], point.color[YY], point.color[ZZ], point.color[WW]);
-                Ego::Renderer::get().setColour(colour); // GL_CURRENT_BIT
+                renderer.setColour(colour); // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_POINTS );
                 {
                     GL_DEBUG(glVertex3f)(point.src[kX], point.src[kY], point.src[kZ]);
@@ -341,20 +341,21 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
     {
+		auto& renderer = Ego::Renderer::get();
         // Do not write write into the depth buffer.
         // (disable glDepthMask for transparent objects)
         GL_DEBUG(glDepthMask)(GL_FALSE);
 
         // do not draw hidden surfaces
-        Ego::Renderer::get().setDepthTestEnabled(true);
-        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
 
         // fix the poorly chosen normals...
         // draw draw front and back faces of polygons
-        GL_DEBUG(glDisable)(GL_CULL_FACE);  // GL_ENABLE_BIT
+		renderer.setCullingMode(Ego::CullingMode::None); // GL_ENABLE_BIT
 
         // make them transparent
-        Ego::Renderer::get().setBlendingEnabled(true);
+        renderer.setBlendingEnabled(true);
         GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // choose a "white" texture
@@ -367,7 +368,7 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
             float p1_x, p1_y;
             float p2_x, p2_y;
 
-			Ego::Renderer::get().setColour(diamondColour);
+			renderer.setColour(diamondColour);
 
             p1_x = 0.5f * ( bb->_maxs[OCT_XY] - bb->_maxs[OCT_YX] );
             p1_y = 0.5f * ( bb->_maxs[OCT_XY] + bb->_maxs[OCT_YX] );
@@ -424,7 +425,7 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
         // SQUARE BBOX
         if (drawSquare)
         {
-			Ego::Renderer::get().setColour(squareColour);
+			renderer.setColour(squareColour);
 
             // XZ FACE, min Y
             GL_DEBUG( glBegin )( GL_QUADS );

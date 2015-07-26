@@ -128,13 +128,13 @@ bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
 }
 
 //--------------------------------------------------------------------------------------------
-void SDL_GL_report_mode(SDLX_video_parameters_t * retval)
+void SDL_GL_report_mode(SDLX_video_parameters_t& retval)
 {
-    SDL_Window * surface = (NULL == retval) ? NULL : retval->surface;
+	SDL_Window * surface = retval.surface;
 
     SDLX_report_mode(surface, retval);
 
-    if (NULL != retval && retval->flags.opengl)
+    if (retval.flags.opengl)
     {
         oglx_report_caps();
     }
@@ -154,7 +154,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     {
         if (NULL == v_old)
         {
-            SDLX_video_parameters_t::defaults(&param_old);
+            SDLX_video_parameters_t::defaults(param_old);
             v_old = &param_old;
         }
         else
@@ -173,7 +173,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     if (NULL != retval)
     {
         // report on the success or failure to set the mode
-        SDL_GL_report_mode(retval);
+        SDL_GL_report_mode(*retval);
 
         // set the opengl parameters
         gl_new->multisample = GL_FALSE;

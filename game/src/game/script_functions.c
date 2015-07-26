@@ -5241,7 +5241,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    TileIndex idx = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pstate->x, pstate->y));
+    TileIndex idx = _currentModule->getMeshPointer()->get_grid(PointWorld(pstate->x, pstate->y));
 
     ego_tile_info_t *ptr = _currentModule->getMeshPointer()->get_ptile(idx);
     if (ptr)
@@ -5262,7 +5262,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    TileIndex index = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pstate->x, pstate->y));
+    TileIndex index = _currentModule->getMeshPointer()->get_grid(PointWorld(pstate->x, pstate->y));
     returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), index, pstate->argument );
 
     SCRIPT_FUNCTION_END();

@@ -26,7 +26,7 @@
 #include "egolib/_math.h"
 #include "egolib/Math/Colour4f.hpp"
 #include "egolib/Math/Matrix44.hpp"
-#include "egolib/Renderer/CompareFunction.hpp"
+#include "egolib/Renderer/ComparisonFunction.hpp"
 #include "egolib/Renderer/RasterizationMode.hpp"
 #include "egolib/Renderer/CullingMode.hpp"
 #include "egolib/Renderer/WindingMode.hpp"
@@ -300,48 +300,48 @@ public:
 
 	/**
 	 * @brief
-	 *	Set the alpha compare function.
+	 *	Set the alpha comparison function.
 	 * @param function
-	 *	the alpha compare function
+	 *	the alpha comparison function
 	 * @param value
 	 *	the reference alpha value that incoming alpha values are compared to.
 	 *	Must be within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
 	 * @remark
-	 *	The alpha compare function is used to compare alpha value of an incoming fragment to a reference alpha value.
+	 *	The alpha comparison function is used to compare the alpha value of an incoming fragment to the reference alpha value.
 	 *	The outcome of this test is binary, either the incoming fragment passes or fails the comparison.
 	 *
-	 *	The alpha compare functions are as follows:
+	 *	The alpha comparison functions are as follows:
 	 *	<ul>
-	 *		<li>Ego::CompareFunction::AlwaysFail:
+	 *		<li>Ego::ComparisonFunction::AlwaysFail:
 	 *		The incoming alpha value never passes (regardless of the reference alpha value)</li>
-	 *		<li>Ego::CompareFunction::AlwaysPass:
+	 *		<li>Ego::ComparisonFunction::AlwaysPass:
 	 *		The incoming alpha value always passes (regardless of the reference alpha value)</li>
-	 *		<li>Ego::CompareFunction::Less:
+	 *		<li>Ego::ComparisonFunction::Less:
 	 *		The incoming alpha value passes if it is
 	 *		less than the reference alpha value</li>
-	 *		<li>Ego::CompareFunction::LessOrEqual:
+	 *		<li>Ego::ComparisonFunction::LessOrEqual:
 	 *		The incoming alpha value passes if it is
 	 *		less than or equal to the reference alpha value</li>
-	 *		<li>Ego::CompareFunction::Equal:
+	 *		<li>Ego::ComparisonFunction::Equal:
 	 *		The incoming alpha value passes if it is
 	 *		equal to the reference alpha value</li>
-	 *		<li>Ego::CompareFunction::NotEqual:
+	 *		<li>Ego::ComparisonFunction::NotEqual:
 	 *		The incoming alpha value passes if it is
 	 *		not equal to the reference alpha value</li>
-	 *		<li>Ego::CompareFunction::Greater:
+	 *		<li>Ego::ComparisonFunction::Greater:
 	 *		The incoming alpha value passes if it is
 	 *		greater than the reference alpha value</li>
-	 *		<li>Ego::CompareFunction::GreaterOrEqual:
+	 *		<li>Ego::ComparisonFunction::GreaterOrEqual:
 	 *		The incoming alpha value passes if it is
 	 *		greater than or equal to the reference alpha value</li>
 	 *	</ul>
 	 * @remark
-	 *	The initial alpha comparison function is Ego::CompareFunction::Always,
+	 *	The initial alpha comparison function is Ego::ComparisonFunction::Always,
 	 *	the initial reference alpha value is @a 0.
 	 * @throw std::invalid_argument
 	 *	if @a value is not within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
 	 */
-	virtual void setAlphaFunction(CompareFunction function, float value) = 0;
+	virtual void setAlphaFunction(ComparisonFunction function, float value) = 0;
 
     /**
      * @brief
@@ -370,35 +370,35 @@ public:
 
     /**
      * @brief
-     *  Set the depth compare function.
+     *  Set the depth comparison function.
      * @param function
-     *  the depth compare function
+     *  the depth comparison function
 	 * @remark
-	 *	The depth compare function is used to compare the depth value of an incoming pixel to the depth value present in the depth buffer.
+	 *	The depth comparison function is used to compare the depth value of an incoming pixel to the depth value present in the depth buffer.
 	 *	The outcome of this test is binary, either the incoming pixel passes or fails the comparison.
 	 *
-	 *	The depth compare functions are as follows:
+	 *	The depth comparison functions are as follows:
 	 *	<ul>
-	 *		<li>Ego::CompareFunction::AlwaysFail:
+	 *		<li>Ego::ComparisonFunction::AlwaysFail:
 	 *		The incoming pixel never passes</li>
-	 *		<li>Ego::CompareFunction::AlwaysPass:
+	 *		<li>Ego::ComparisonFunction::AlwaysPass:
 	 *		The incoming pixel always passes</li>
-	 *		<li>Ego::CompareFunction::Less:
+	 *		<li>Ego::ComparisonFunction::Less:
 	 *		The incoming pixel passes if it is depth value is
 	 *		less than the depth value present in the depth buffer</li>
-	 *		<li>Ego::CompareFunction::LessOrEqual:
+	 *		<li>Ego::ComparisonFunction::LessOrEqual:
 	 *		The incoming pixel passes if its depth value is
 	 *		less than or equal to the depth value present in the depth buffer</li>
-	 *		<li>Ego::CompareFunction::Equal:
+	 *		<li>Ego::ComparisonFunction::Equal:
 	 *		The incoming pixel passes if its depth value is
 	 *		equal to the depth value present in the depth buffer</li>
-	 *		<li>Ego::CompareFunction::NotEqual:
+	 *		<li>Ego::ComparisonFunction::NotEqual:
 	 *		The incoming pixel passes if its depth value is
 	 *		not equal to the depth value present in the depth buffer</li>
-	 *		<li>Ego::CompareFunction::Greater:
+	 *		<li>Ego::ComparisonFunction::Greater:
 	 *		The incoming pixel passes if its depth value is
 	 *		greater than the depth value present in the depth buffer</li>
-	 *		<li>Ego::CompareFunction::GreaterOrEqual:
+	 *		<li>Ego::ComparisonFunction::GreaterOrEqual:
 	 *		The incoming pixel passes if its depth value is
 	 *		greater than or equal to the depth value present in the depth buffer</li>
 	 *	</ul>
@@ -407,7 +407,7 @@ public:
 	 *	To unconditionally write to the depth buffer, depth testing should be set to enabled and the depth test
 	 *	function to always pass. 
      */
-    virtual void setDepthFunction(CompareFunction function) = 0;
+    virtual void setDepthFunction(ComparisonFunction function) = 0;
 
     /**
      * @brief

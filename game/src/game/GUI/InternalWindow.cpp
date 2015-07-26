@@ -193,7 +193,6 @@ void InternalWindow::addComponent(std::shared_ptr<GUIComponent> component)
     if(!_firstDraw) {
         component->setPosition(component->getX()+getX(), component->getY()+getY());
     }
-
     ComponentContainer::addComponent(component);
 }
 

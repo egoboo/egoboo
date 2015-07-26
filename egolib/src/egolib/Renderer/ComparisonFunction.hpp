@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/CompareFunction.hpp
-/// @brief  Enumeration of compare functions used for depth/stencil buffer operations and others.
+/// @file   egolib/Renderer/ComparisonFunction.hpp
+/// @brief  Enumeration of comparison functions used for depth/stencil buffer operations and others.
 /// @author Michael Heilmann
 
 namespace Ego
@@ -30,7 +30,7 @@ namespace Ego
  * @author
  *  Michael Heilmann
  */
-enum class CompareFunction
+enum class ComparisonFunction
 {
 
     /** @brief Always reject. */

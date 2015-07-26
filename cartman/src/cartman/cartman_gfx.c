@@ -1317,13 +1317,13 @@ void gfx_system_init_SDL_graphics()
     if (_sdl_initialized_graphics) return;
 
     // The flags to pass to SDL_SetVideoMode.
-    SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
+    SDLX_video_parameters_t::download(sdl_vparam, egoboo_config_t::get());
 
     sdl_vparam.flags.opengl = true;
     sdl_vparam.gl_att.doublebuffer = true;
     sdl_vparam.gl_att.accelerated_visual = true;
 
-    oglx_video_parameters_t::download(&ogl_vparam, &egoboo_config_t::get());
+    oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
 
     log_info("Opening SDL Video Mode...\n");
 
@@ -1383,14 +1383,14 @@ int gfx_init_ogl()
 
     // Enable depth testing: Incoming fragment's depth value must be less.
     renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(CompareFunction::Less);
+    renderer.setDepthFunction(ComparisonFunction::Less);
 
     // Disable blending.
     renderer.setBlendingEnabled(false);
 
     // do not display the completely transparent portion
     renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+	renderer.setAlphaFunction(ComparisonFunction::Greater, 0.0f);
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     /// backface culling
@@ -1400,7 +1400,7 @@ int gfx_init_ogl()
 	renderer.setLightingEnabled(false);
 
     // fill mode
-	renderer.setRasterizationMode(Ego::RasterizationMode::Solid);
+	renderer.setRasterizationMode(RasterizationMode::Solid);
 
     // set up environment mapping
     /// @todo: this isn't used anywhere

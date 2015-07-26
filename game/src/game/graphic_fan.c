@@ -430,7 +430,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
             v0->t = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            TileIndex jtile = ego_mesh_t::get_tile_int(mesh, PointGrid(jx, jy));
+            TileIndex jtile = mesh->get_tile_int(PointGrid(jx, jy));
             float dlight;
             if ( grid_light_one_corner(mesh, jtile, v0->z, nrm, &dlight) )
             {
@@ -482,7 +482,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
         auto& renderer = Ego::Renderer::get();
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
 
         // only use the depth mask if the tile is NOT transparent
         renderer.setDepthWriteEnabled(use_depth_mask);          // GL_DEPTH_BUFFER_BIT

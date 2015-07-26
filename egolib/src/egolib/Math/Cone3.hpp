@@ -35,7 +35,7 @@ namespace Math {
  *	Re-implement this crap.
  */
 template <typename _ScalarType>
-struct Cone3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>,3>> {
+struct Cone3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>,3>> {
     /**
      * @brief
      *  @a MyType is the type of this template/template specialization.
@@ -46,13 +46,13 @@ struct Cone3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarF
     * @brief
     *  The scalar type.
     */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>::ScalarType ScalarType;
+	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>::ScalarType ScalarType;
 
     /**
     * @brief
     *  The vector type.
     */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>::VectorType VectorType;
+	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>::VectorType VectorType;
 
     VectorType origin;
     VectorType axis;
