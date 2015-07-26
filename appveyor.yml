@@ -1,5 +1,7 @@
 os: Visual Studio 2015
 
+shallow_clone: true
+
 platform:
     - win32
     - x64
