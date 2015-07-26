@@ -1,4 +1,4 @@
-os: Visual Studio 2015
+clone_depth: 1
 
 platform:
     - win32
@@ -8,7 +8,7 @@ configuration:
     - Release
 
 install:
-    git submodule update --init --recursive
+    git submodule update --init --recursive --depth 1
 
 before_build:
     set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
