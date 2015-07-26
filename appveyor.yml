@@ -1,4 +1,4 @@
-shallow_clone: true
+clone_depth: 1
 
 platform:
     - win32
