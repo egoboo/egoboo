@@ -501,7 +501,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddWaypoint( &( pself->wp_lst ), pself->index, pstate->x, pstate->y );
+    returncode = AddWaypoint( pself->wp_lst, pself->index, pstate->x, pstate->y );
 
     if ( returncode )
     {
@@ -527,7 +527,7 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     //Too soon since last try?
     if ( pself->astar_timer > update_wld ) return false;
 
-    returncode = FindPath( &( pself->wp_lst ), pchr, pstate->x, pstate->y, &used_astar );
+    returncode = FindPath( pself->wp_lst, pchr, pstate->x, pstate->y, &used_astar );
 
     if ( used_astar )
     {

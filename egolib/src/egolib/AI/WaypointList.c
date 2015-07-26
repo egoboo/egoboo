@@ -23,40 +23,40 @@
 #include "egolib/AI/WaypointList.h"
 #include "egolib/Math/_Include.hpp"
 
-bool waypoint_list_peek(waypoint_list_t *plst, waypoint_t wp)
+bool waypoint_list_peek(waypoint_list_t *self, waypoint_t wp)
 {
 	int index;
 
 	// is the list valid?
-	if (NULL == plst || plst->tail >= MAXWAY) return false;
+	if (NULL == self || self->tail >= MAXWAY) return false;
 
 	// is the list is empty?
-	if (0 == plst->head) return false;
+	if (0 == self->head) return false;
 
-	if (plst->tail > plst->head)
+	if (self->tail > self->head)
 	{
 		// fix the tail
-		plst->tail = plst->head;
+		self->tail = self->head;
 
 		// we have passed the last waypoint
 		// just tell them the previous waypoint
-		index = plst->tail - 1;
+		index = self->tail - 1;
 	}
-	else if (plst->tail == plst->head)
+	else if (self->tail == self->head)
 	{
 		// we have passed the last waypoint
 		// just tell them the previous waypoint
-		index = plst->tail - 1;
+		index = self->tail - 1;
 	}
 	else
 	{
 		// tell them the current waypoint
-		index = plst->tail;
+		index = self->tail;
 	}
 
-	wp[kX] = plst->pos[index][kX];
-	wp[kY] = plst->pos[index][kY];
-	wp[kZ] = plst->pos[index][kZ];
+	wp[kX] = self->pos[index][kX];
+	wp[kY] = self->pos[index][kY];
+	wp[kZ] = self->pos[index][kZ];
 
 	return true;
 }
@@ -79,66 +79,66 @@ bool waypoint_list_push(waypoint_list_t *self, int x, int y)
 	return true;
 }
 
-bool waypoint_list_reset(waypoint_list_t * plst)
+bool waypoint_list_reset(waypoint_list_t *self)
 {
 	/// @author BB
 	/// @details reset the waypoint list to the beginning
 
-	if (NULL == plst) return false;
+	if (NULL == self) return false;
 
-	plst->tail = 0;
+	self->tail = 0;
 
 	return true;
 }
 
-bool waypoint_list_clear(waypoint_list_t * plst)
+bool waypoint_list_clear(waypoint_list_t *self)
 {
 	/// @author BB
 	/// @details Clear out all waypoints
 
-	if (NULL == plst) return false;
+	if (NULL == self) return false;
 
-	plst->tail = 0;
-	plst->head = 0;
+	self->tail = 0;
+	self->head = 0;
 
 	return true;
 }
 
-bool waypoint_list_empty(waypoint_list_t * plst)
+bool waypoint_list_empty(waypoint_list_t *self)
 {
-	if (NULL == plst) return true;
+	if (NULL == self) return true;
 
-	return 0 == plst->head;
+	return 0 == self->head;
 }
 
-bool waypoint_list_finished(waypoint_list_t * plst)
+bool waypoint_list_finished(waypoint_list_t *self)
 {
-	if (NULL == plst || 0 == plst->head) return true;
+	if (NULL == self || 0 == self->head) return true;
 
-	return plst->tail == plst->head;
+	return self->tail == self->head;
 }
 
-bool waypoint_list_advance(waypoint_list_t * plst)
+bool waypoint_list_advance(waypoint_list_t *self)
 {
 	bool retval;
 
-	if (NULL == plst) return false;
+	if (NULL == self) return false;
 
 	retval = false;
-	if (plst->tail > plst->head)
+	if (self->tail > self->head)
 	{
 		// fix the tail
-		plst->tail = plst->head;
+		self->tail = self->head;
 	}
-	else if (plst->tail < plst->head)
+	else if (self->tail < self->head)
 	{
 		// advance the tail
-		plst->tail++;
+		self->tail++;
 		retval = true;
 	}
 
 	// clamp the tail to valid values
-	if (plst->tail >= MAXWAY) plst->tail = MAXWAY - 1;
+	if (self->tail >= MAXWAY) self->tail = MAXWAY - 1;
 
 	return retval;
 }
