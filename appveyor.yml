@@ -10,6 +10,9 @@ configuration:
 install:
     git submodule update --init --recursive
 
+before_build:
+    set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
+    
 build:
     project: egoboo_vs13.sln
 
