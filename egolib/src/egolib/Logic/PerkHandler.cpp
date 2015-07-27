@@ -144,7 +144,7 @@ PerkHandler::PerkHandler() :
     initializePerk(PYROMANIAC, Attribute::INTELLECT, "mp_data/perks/dark_arts_mastery",
         "Pyromaniac", "+25% Fire damage.\n-10 Fire Resistance.");
     initializePerk(ROSEMARY, Attribute::INTELLECT, "mp_data/perks/rosemary",
-        "Rosemary", "+3 Evil resistance.");
+        "Rosemary", "+4 Evil resistance.");
     initializePerk(TELEKINETIC_STAFF, Attribute::INTELLECT, "mp_data/perks/telekinetic_staff",
         "Telekinetic Staff", "Chance to cause massive knockback when using staff.\nEffect is determined by your Intellect vs target Might.");
 

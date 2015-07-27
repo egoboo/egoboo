@@ -472,7 +472,7 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     // Proceed only if the character's target has just died or is already dead
-    returncode = ( HAS_SOME_BITS( pself->alert, ALERTIF_TARGETKILLED ) || !pself_target->alive );
+    returncode = ( HAS_SOME_BITS( pself->alert, ALERTIF_TARGETKILLED ) || !pself_target->isAlive() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1127,7 +1127,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     {
         Object * pself_target = _currentModule->getObjectHandler().get( pself->target );
 
-        if ( pself_target->alive )
+        if ( pself_target->isAlive() )
         {
             int action = pself_target->getProfile()->getModel()->getAction( pstate->argument );
 
@@ -1624,7 +1624,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && chr_get_iteam( pself->target ) != pchr->team );
+    returncode = ( pself_target->isAlive() && chr_get_iteam( pself->target ) != pchr->team );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1642,7 +1642,7 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && team_hates_team( pchr->team, chr_get_iteam( pself->target ) ) && !pself_target->invictus );
+    returncode = ( pself_target->isAlive() && team_hates_team( pchr->team, chr_get_iteam( pself->target ) ) && !pself_target->invictus );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2096,7 +2096,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - FP8_TO_FLOAT(HURTDAMAGE) )
+    if ( !pself_target->isAlive() || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - FP8_TO_FLOAT(HURTDAMAGE) )
         returncode = false;
 
     SCRIPT_FUNCTION_END();
@@ -2212,7 +2212,7 @@ Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = pself_target->alive;
+    returncode = pself_target->isAlive();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6935,7 +6935,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - FP8_TO_FLOAT(HURTDAMAGE) )
+    if ( !pself_target->isAlive() || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - FP8_TO_FLOAT(HURTDAMAGE) )
     {
         returncode = false;
     }
@@ -7347,7 +7347,7 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && pself->owner == pself->target );
+    returncode = ( pself_target->isAlive() && pself->owner == pself->target );
 
     SCRIPT_FUNCTION_END();
 }

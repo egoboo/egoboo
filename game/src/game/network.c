@@ -169,7 +169,7 @@ void net_unbuffer_player_latches()
 
         if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && pchr->latch.b[LATCHBUTTON_RESPAWN] && _currentModule->isRespawnValid())
         {
-            if ( !pchr->alive && 0 == local_stats.revivetimer )
+            if ( !pchr->isAlive() && 0 == local_stats.revivetimer )
             {
                 pchr->respawn();
                 _currentModule->getTeamList()[pchr->team].setLeader(pchr);

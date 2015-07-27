@@ -358,7 +358,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 	            if (!_currentModule->getObjectHandler().exists(ichr)) continue;
 	            Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
-	            if (!pchr->alive) continue;
+	            if (!pchr->isAlive()) continue;
 
                 sum_pos += pchr->getPosition() + fvec3_t(0.0f, 0.0f, pchr->chr_min_cv._maxs[OCT_Z] * 0.9f);
 	            sum_level += pchr->enviro.level;
@@ -388,7 +388,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 	            if (!_currentModule->getObjectHandler().exists(ichr)) continue;
 	            Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
-	            if (!pchr->alive) continue;
+	            if (!pchr->isAlive()) continue;
 
 	            local_chr_ptrs[local_chr_count] = pchr;
 	            local_chr_count++;

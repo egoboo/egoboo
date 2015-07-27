@@ -2019,7 +2019,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     chr_instance_t::set_action_ready(pchr->inst, false);
     chr_instance_t::set_action_keep(pchr->inst, false);
     chr_instance_t::set_action_loop(pchr->inst, false);
-    if ( pchr->alive )
+    if ( pchr->isAlive() )
     {
         chr_play_action( pchr, ACTION_DA, false );
     }
@@ -2078,7 +2078,7 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
     pchr = _currentModule->getObjectHandler().get( character );
 
     // do we count this character as being on a team?
-    can_have_team = !pchr->isitem && pchr->alive && !pchr->invictus;
+    can_have_team = !pchr->isitem && pchr->isAlive() && !pchr->invictus;
 
     // take the character off of its old team
     if ( VALID_TEAM_RANGE( pchr->team ) )
@@ -2543,7 +2543,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     {
         chr_getMatUp(platform.get(), vup);
     }
-    else if ( !pchr->alive || pchr->isitem )
+    else if ( !pchr->isAlive() || pchr->isitem )
     {
         temp_friction_xy = 0.5f;
 
@@ -2636,7 +2636,7 @@ void move_one_character_do_voluntary( Object * pchr )
 
     CHR_REF ichr = GET_INDEX_PCHR( pchr );
 
-    if ( !pchr->alive || pchr->maxaccel == 0.00f ) return;
+    if ( !pchr->isAlive() || pchr->maxaccel == 0.00f ) return;
 
     pchr->enviro.new_v[kX] = pchr->vel[kX];
     pchr->enviro.new_v[kY] = pchr->vel[kY];
@@ -2939,7 +2939,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
             if (!mountProfile->riderCanAttack()) allowedtoattack = false;
 
             // can the mount do anything?
-            if ( pmount->isMount() && pmount->alive )
+            if ( pmount->isMount() && pmount->isAlive() )
             {
                 // can the mount be told what to do?
                 if ( !VALID_PLA( pmount->is_which_player ) && pmount->inst.action_ready )
@@ -3076,7 +3076,7 @@ bool chr_do_latch_button( Object * pchr )
 
     pai = &( pchr->ai );
 
-    if ( !pchr->alive || pchr->latch.b.none() ) return true;
+    if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;
 
     const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
 
@@ -3798,7 +3798,7 @@ void move_one_character( Object * pchr )
     move_one_character_do_animation( pchr );
 
     // Characters with sticky butts lie on the surface of the mesh
-    if ( pchr->stickybutt || !pchr->alive )
+    if ( pchr->stickybutt || !pchr->isAlive() )
     {
         float fkeep = ( 7 + pchr->enviro.zlerp ) / 8.0f;
         float fnew  = ( 1 - pchr->enviro.zlerp ) / 8.0f;

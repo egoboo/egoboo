@@ -79,7 +79,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     missilecost(0),
     missilehandler(INVALID_CHR_REF),
     is_hidden(false),
-    alive(true),
     is_which_player(INVALID_PLA_REF),
     islocalplayer(false),
     invictus(false),
@@ -145,6 +144,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _characterID(id),
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
+    _isAlive(true),
 
     _currentLife(0.0f),
     _currentMana(0.0f),
@@ -341,13 +341,13 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     }
 
     //Make sure they are a mount and alive
-    if(!mount->isMount() || !mount->alive)
+    if(!mount->isMount() || !mount->isAlive())
     {
         return false;
     }
 
     //We must be alive and not an item to become a rider
-    if(!alive || isitem || isBeingHeld())
+    if(!isAlive() || isitem || isBeingHeld())
     {
         return false;
     }
@@ -684,7 +684,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
 bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, const bool ignoreInvincibility)
 {
     //Don't heal dead and invincible stuff
-    if (!alive || (invictus && !ignoreInvincibility)) return false;
+    if (!isAlive() || (invictus && !ignoreInvincibility)) return false;
 
     //This actually heals the character
     setLife(_currentLife + FP8_TO_FLOAT(amount));
@@ -1358,7 +1358,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         }
     }
 
-    alive = false;
+    _isAlive = false;
 
     _currentLife    = -1.0f;
     platform        = true;
@@ -1713,7 +1713,7 @@ void Object::respawn()
     spawn_poof( getCharacterID(), profile_ref );
     disaffirm_attached_particles( getCharacterID() );
 
-    alive = true;
+    _isAlive = true;
     bore_timer = BORETIME;
     careful_timer = CAREFULTIME;
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
@@ -1817,9 +1817,9 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
         }
     }
 
-    //Evil Ward perk
+    //Rosemary perk gives +4
     if(type == DAMAGE_EVIL && hasPerk(Ego::Perks::ROSEMARY)) {
-        resistance += 3.0f;
+        resistance += 4.0f;
     }
 
     //Pyromaniac and Troll Blood perks *reduces* FIRE resistance by 10 each

@@ -362,7 +362,7 @@ public:
     * @brief
     *   Returns true if this Object has not been killed by anything
     **/
-    bool isAlive() const {return alive;}
+    bool isAlive() const {return _isAlive;}
 
     bool isHidden() const {return is_hidden;}
 
@@ -783,7 +783,6 @@ public:
 
     // "variable" properties
     bool         is_hidden;
-    bool         alive;                         ///< Is it alive?
     PLA_REF      is_which_player;               ///< true = player
     bool         islocalplayer;                 ///< true = local player
     bool         invictus;                      ///< Totally invincible?
@@ -876,6 +875,7 @@ private:
     CHR_REF _characterID;                                ///< Our unique CHR_REF id
     std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
     bool _showStatus;                                    ///< Display stats?
+    bool _isAlive;                                       ///< Is this Object alive or dead?
 
     //Attributes
     float _currentLife;

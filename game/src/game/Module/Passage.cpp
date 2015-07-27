@@ -108,7 +108,7 @@ bool Passage::close()
             {
                 if ( objectIsInPassage( object->getPosX(), object->getPosY(), object->bump_1.size ) )
                 {
-                    if ( !object->canbecrushed || ( object->alive && object->openstuff ) )
+                    if ( !object->canbecrushed || ( object->isAlive() && object->openstuff ) )
                     {
                         // Someone is blocking who can open stuff, stop here
                         return false;
@@ -289,7 +289,8 @@ CHR_REF Passage::getShopOwner() const
 void Passage::makeShop(CHR_REF owner)
 {
     //Make sure owner is valid
-    if ( !_currentModule->getObjectHandler().exists( owner ) || !_currentModule->getObjectHandler().get(owner)->alive ) return;
+    const std::shared_ptr<Object> &powner = _currentModule->getObjectHandler()[owner];
+    if ( !powner || powner->isTerminated() || !powner->isAlive() ) return;
 
     //Mark as shop
     _isShop = true;
