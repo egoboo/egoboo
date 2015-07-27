@@ -259,10 +259,6 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
 grip_offset_t slot_to_grip_offset( slot_t slot );
 slot_t        grip_offset_to_slot( grip_offset_t grip );
 
-const char * describe_value( float value, float maxval, int * rank_ptr );
-const char* describe_damage( float value, float maxval, int * rank_ptr );
-const char* describe_wounds( float max, float current );
-
 std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 
 
