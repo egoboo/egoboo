@@ -109,7 +109,7 @@ void ModuleSelector::drawContainer()
 
         // Draw module Name first
         Ego::Renderer::get().setColour(Ego::Colour4f::white());
-        _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 20, 25);
+        _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 26, 25);
         
 
         // Now difficulty
@@ -117,12 +117,12 @@ void ModuleSelector::drawContainer()
         {
             int textWidth, textHeight;
             _gameEngine->getUIManager()->getDefaultFont()->getTextSize("Difficulty: ", &textWidth, &textHeight);
-            _gameEngine->getUIManager()->getDefaultFont()->drawTextBox("Difficulty: ", getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25);
+            _gameEngine->getUIManager()->getDefaultFont()->drawTextBox("Difficulty: ", getX() + 5, getY() + 30, getWidth() - 10, textHeight, 25);
 
             // Draw one skull per rated difficulty
             for (int i = 0; i < _selectedModule->getRank(); ++i)
             {
-                draw_icon_texture(TextureManager::get().get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY() + 28, 0xFF, 0, textHeight - 4, true);
+                draw_icon_texture(TextureManager::get().get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY() + 33, 0xFF, 0, textHeight - 4, true);
             }
         }
 
@@ -153,7 +153,7 @@ void ModuleSelector::drawContainer()
             buffer << line << '\n';;
         }
 
-        _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(buffer.str(), getX() + 5, getY() + 45, getWidth() - 10, getHeight() - 50, 25);
+        _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(buffer.str(), getX() + 5, getY() + 55, getWidth() - 10, getHeight() - 60, 25);
     }
 }
 
