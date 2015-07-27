@@ -45,5 +45,6 @@ public:
 private:
     std::string _text;
     std::shared_ptr<Ego::Font> _font;
+    std::shared_ptr<Ego::Font::LaidTextRenderer> _textRenderer;
     Ego::Math::Colour4f _color;
 };
