@@ -37,7 +37,7 @@ struct waypoint_list_t
 	waypoint_t   pos[MAXWAY];  ///< Waypoint
 };
 
-bool waypoint_list_peek(waypoint_list_t *self, waypoint_t wp);
+bool waypoint_list_peek(waypoint_list_t& self, waypoint_t wp);
 /**
  * @brief
  * Append a waypoint to a waypoint list.
@@ -47,9 +47,9 @@ bool waypoint_list_peek(waypoint_list_t *self, waypoint_t wp);
  * @param x, y
  *	the waypoint
  */
-bool waypoint_list_push(waypoint_list_t *self, int x, int y);
-bool waypoint_list_reset(waypoint_list_t *self);
-bool waypoint_list_clear(waypoint_list_t *self);
-bool waypoint_list_empty(waypoint_list_t *self);
-bool waypoint_list_finished(waypoint_list_t *self);
-bool waypoint_list_advance(waypoint_list_t *self);
+void waypoint_list_push(waypoint_list_t& self, int x, int y);
+void waypoint_list_reset(waypoint_list_t& self);
+void waypoint_list_clear(waypoint_list_t& self);
+bool waypoint_list_empty(waypoint_list_t& self);
+bool waypoint_list_finished(waypoint_list_t& self);
+bool waypoint_list_advance(waypoint_list_t& self);

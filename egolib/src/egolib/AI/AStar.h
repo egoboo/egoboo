@@ -49,4 +49,4 @@ struct AStar_Node_t
 //------------------------------------------------------------------------------
 //Public functions
 bool AStar_find_path( ego_mesh_t *mesh, Uint32 stoppedBy, const int src_ix, const int src_iy, int dst_ix, int dst_iy );
-bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst );
+bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst );

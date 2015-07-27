@@ -1520,7 +1520,7 @@ bool ai_state_get_wp( ai_state_t * pself )
 
     if ( NULL == pself || !_currentModule->getObjectHandler().exists( pself->index ) ) return false;
 
-    pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
+    pself->wp_valid = waypoint_list_peek( pself->wp_lst, pself->wp );
 
     return true;
 }
@@ -1553,7 +1553,7 @@ void set_alerts( const CHR_REF character )
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	ai_state_t& aiState = pchr->ai;
 
-	if (waypoint_list_empty(&(aiState.wp_lst))) {
+	if (waypoint_list_empty(aiState.wp_lst)) {
 		return;
 	}
 
@@ -1578,7 +1578,7 @@ void set_alerts( const CHR_REF character )
     {
 		SET_BIT(aiState.alert, ALERTIF_ATWAYPOINT);
 
-		if (waypoint_list_finished(&(aiState.wp_lst)))
+		if (waypoint_list_finished(aiState.wp_lst))
         {
             // we are now at the last waypoint
             // if the object can be alerted to last waypoint, do it
@@ -1590,12 +1590,12 @@ void set_alerts( const CHR_REF character )
             }
 
             // !!!!restart the waypoint list, do not clear them!!!!
-			waypoint_list_reset(&(aiState.wp_lst));
+			waypoint_list_reset(aiState.wp_lst);
 
             // load the top waypoint
 			ai_state_get_wp(&aiState);
         }
-		else if (waypoint_list_advance(&(aiState.wp_lst)))
+		else if (waypoint_list_advance(aiState.wp_lst))
         {
             // load the top waypoint
 			ai_state_get_wp(&aiState);

@@ -487,7 +487,8 @@ Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = waypoint_list_clear( &( pself->wp_lst ) );
+	returncode = true;
+	waypoint_list_clear(pself->wp_lst);
 
     SCRIPT_FUNCTION_END();
 }

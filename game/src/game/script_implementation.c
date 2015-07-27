@@ -329,13 +329,15 @@ bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y
     {
         if ( CAP_INFINITE_WEIGHT == profile->getWeight() || !ego_mesh_hit_wall( _currentModule->getMeshPointer(), loc_pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
         {
-            // yes it is safe. add it.
-            returncode = waypoint_list_push( &wplst, pos_x, pos_y );
+			// yes it is safe. add it.
+			returncode = true;
+            waypoint_list_push( wplst, pos_x, pos_y );
         }
         else
         {
             // no it is not safe. what to do? nothing, or add the current position?
-            //returncode = waypoint_list_push( &wplst, pchr->loc_pos.x, pchr->loc_pos.y );
+			//returncode = true;
+			//waypoint_list_push( wplst, pchr->loc_pos.x, pchr->loc_pos.y );
 
             log_warning( "%s - failed to add a waypoint because object was \"inside\" a wall.\n"
                          "\tcharacter %d (\"%s\", \"%s\")\n"
@@ -352,7 +354,8 @@ bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y
         }
     }
 #else
-    returncode = waypoint_list_push( &wplst, pos_x, pos_y );
+	returncode = true;
+    waypoint_list_push( wplst, pos_x, pos_y );
 #endif
 
     return returncode;
@@ -386,7 +389,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     dst_iy = dst_y / GRID_ISIZE;
 
     //Always clear any old waypoints
-    waypoint_list_clear( &wplst );
+    waypoint_list_clear( wplst );
 
     //Don't do need to do anything if there is no need to move
     if ( src_ix == dst_ix && src_iy == dst_iy ) return false;
@@ -415,7 +418,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
         //Try to find a path with the AStar algorithm
         if ( AStar_find_path( _currentModule->getMeshPointer(), pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
         {
-            returncode = AStar_get_path( dst_x, dst_y, &wplst);
+            returncode = AStar_get_path( dst_x, dst_y, wplst);
         }
 
         if ( NULL != used_astar_ptr )
@@ -428,7 +431,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     if ( !returncode )
     {
         // just use a straight line path
-        waypoint_list_push( &wplst, dst_x, dst_y );
+        waypoint_list_push( wplst, dst_x, dst_y );
     }
 
     return returncode;
