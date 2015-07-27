@@ -42,6 +42,8 @@ public:
     void setValue(const int value);
     int getValue() const;
 
+    bool isEnabled() const override;
+
     bool notifyMouseMoved(const int x, const int y) override;
     bool notifyMouseClicked(const int button, const int x, const int y) override;
     bool notifyMouseReleased(const int button, const int x, const int y) override;

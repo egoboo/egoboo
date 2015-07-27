@@ -146,6 +146,16 @@ public:
         return colour;
     }
 
+    /**
+     * @brief The colour "grey" (75, 75, 75).
+     * @return the colour "grey".
+     */
+    static const Colour3f& grey()
+    {
+        static const Colour3f colour = Colour3f::parse(75, 75, 75);
+        return colour;
+    }
+
 private:
 
     /**
