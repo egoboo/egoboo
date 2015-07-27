@@ -41,6 +41,8 @@ CollisionSystem *CollisionSystem::_singleton = nullptr;
 
 #define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
 
+static constexpr float MAX_KNOCKBACK_VELOCITY = 40.0f;
+static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
 
 
 //--------------------------------------------------------------------------------------------
@@ -3442,18 +3444,22 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
     //Apply knockback to the victim (limit between 0% and 300% knockback)
     Vector3f knockbackVelocity = pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
+    //knockbackVelocity[kX] = std::cos(pdata.pprt->vel[kX]) * DEFAULT_KNOCKBACK_VELOCITY;
+    //knockbackVelocity[kY] = std::sin(pdata.pprt->vel[kY]) * DEFAULT_KNOCKBACK_VELOCITY;
+    //knockbackVelocity[kZ] = DEFAULT_KNOCKBACK_VELOCITY / 2;
+    //knockbackVelocity *= Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 
-    //Limit horizontal knockback velocity to MAXTHROWVELOCITY
+    //Limit total horizontal knockback velocity to MAXTHROWVELOCITY
     const float magnitudeVelocityXY = std::sqrt(knockbackVelocity[kX]*knockbackVelocity[kX] + knockbackVelocity[kY]*knockbackVelocity[kY]);
-    if(magnitudeVelocityXY > MAXTHROWVELOCITY) {
-        knockbackVelocity[kX] *= MAXTHROWVELOCITY / magnitudeVelocityXY;
-        knockbackVelocity[kY] *= MAXTHROWVELOCITY / magnitudeVelocityXY;
+    if(magnitudeVelocityXY > MAX_KNOCKBACK_VELOCITY) {
+        knockbackVelocity[kX] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityXY;
+        knockbackVelocity[kY] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityXY;
     }
 
-    //Limit vertical knockback velocity to one third of MAXTHROWVELOCTIY
+    //Limit total vertical knockback velocity to one third of MAXTHROWVELOCTIY
     const float magnitudeVelocityZ = std::sqrt(knockbackVelocity[kZ]*knockbackVelocity[kZ]);
-    if(magnitudeVelocityZ > MAXTHROWVELOCITY) {
-        knockbackVelocity[kZ] *= MAXTHROWVELOCITY / magnitudeVelocityZ;
+    if(magnitudeVelocityZ > MAX_KNOCKBACK_VELOCITY) {
+        knockbackVelocity[kZ] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityZ;
     }
 
     //Apply knockback
