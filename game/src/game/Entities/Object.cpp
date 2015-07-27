@@ -934,6 +934,7 @@ void Object::update()
         }
     }
 
+    //Finally update model resizing effects
     updateResize();
 }
 
@@ -1823,6 +1824,11 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
         else if(type == DAMAGE_ICE && hasPerk(Ego::Perks::ICE_WARD)) {
             resistance += 3.0f;
         }
+    }
+
+    //Evil Ward perk
+    if(type == DAMAGE_EVIL && hasPerk(Ego::Perks::ROSEMARY)) {
+        resistance += 3.0f;
     }
 
     //Pyromaniac and Troll Blood perks *reduces* FIRE resistance by 10 each

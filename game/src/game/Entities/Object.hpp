@@ -876,6 +876,7 @@ private:
     bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)
     uint32_t _reallyDuration;                            ///< Game Logic Update frame duration for rally bonus gained from the Perk
 
+    //Enchantment stuff
     std::forward_list<std::shared_ptr<Ego::Enchantment>> _activeEnchants;    ///< List of all active enchants on this Object
     std::weak_ptr<Ego::Enchantment> _lastEnchantSpawned;    //< Last enchantment that his Object has spawned
 

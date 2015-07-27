@@ -105,6 +105,8 @@ enum PerkID : uint8_t
     RALLY,
     GUARDIAN_ANGEL,
     PYROMANIAC,
+    ROSEMARY,
+    TELEKINETIC_STAFF,
     
     //Agility perks
     ACROBATIC,

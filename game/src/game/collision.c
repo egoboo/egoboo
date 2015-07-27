@@ -3404,6 +3404,19 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
         else {
             knockbackFactor += attackerMight * 0.1f;
         }
+
+        //Telekinetic Staff perk can give +500% knockback
+        const std::shared_ptr<Object>& powner = _currentModule->getObjectHandler()[pdata.pprt->owner_ref];
+        if(powner->hasPerk(Ego::Perks::TELEKINETIC_STAFF) && 
+            pdata.pprt->getAttachedObject()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('S','T','A','F')) {
+
+            //+3% chance per owner Intellect and -1% per target Might
+            float chance = attacker->getAttribute(Ego::Attribute::INTELLECT) * 0.03f - pdata.pchr->getAttribute(Ego::Attribute::MIGHT)*0.01f;
+            if(Random::nextFloat() <= chance) {
+                knockbackFactor += 5.0f;
+                chr_make_text_billboard(attacker->getCharacterID(), "Telekinetic Staff!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 2, Billboard::Flags::All);
+            }
+        }
     }
 
     //Adjust knockback based on relative mass between particle and target
