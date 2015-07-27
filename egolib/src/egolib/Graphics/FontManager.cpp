@@ -56,6 +56,6 @@ namespace Ego
     std::shared_ptr<Font> FontManager::loadFont(const std::string &fileName, int pointSize)
     {
         if (!isInitialized()) throw std::runtime_error("font manager not initialized!");
-        return std::make_shared<Font>(fileName, pointSize);
+        return std::shared_ptr<Font>(new Font(fileName, pointSize));
     }    
 }
