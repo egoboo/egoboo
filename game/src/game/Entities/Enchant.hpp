@@ -69,6 +69,12 @@ public:
 
     bool isTerminated() const;
 
+    /**
+    * @brief
+    *   Update one game logic loop tick for this enchant. This will
+    *   check if this enchant can kill the owner or target through drains,
+    *   spawns any enchant particle effects and checks if the enchantment itself should die.
+    **/
     void update();
 
     const std::shared_ptr<eve_t>& getProfile() const;
@@ -108,7 +114,6 @@ public:
 private:
     bool _isTerminated;
 
-    ENC_REF _enchantProfileID;      ///< The enchant profile index
     std::shared_ptr<eve_t> _enchantProfile;
 
     PRO_REF _spawnerProfileID;        ///< The object  profile index that spawned this enchant
@@ -118,10 +123,7 @@ private:
 
     std::weak_ptr<Object> _target;  ///< Who it enchants
     std::weak_ptr<Object> _owner;   ///< Who cast the enchant
-
     std::weak_ptr<Object> _spawner; ///< The spellbook character
-    //PRO_REF spawnermodel_ref;         ///< The spellbook character's profile index
-
     std::weak_ptr<Object> _overlay; ///< The overlay character
 
     /// List to remember if properties were subjected to modifications by this enchant

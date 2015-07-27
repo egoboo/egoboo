@@ -30,7 +30,6 @@ namespace Ego
 
 Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object> &owner) :
     _isTerminated(false),
-    _enchantProfileID(INVALID_ENC_REF),
     _enchantProfile(enchantmentProfile),
     _spawnerProfileID(spawnerProfile),
 
