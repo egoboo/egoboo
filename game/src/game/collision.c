@@ -2908,40 +2908,34 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     }
 
     // Steal some life.
-    if ( pdata->pprt->lifedrain > 0 && pdata->pchr->life > 0)
+    if ( pdata->pprt->lifedrain > 0 && pdata->pchr->getLife() > 0)
     {
-		// As pdata->pchr->life > 0, we can safely cast to unsigned.
-		UFP8_T life = (UFP8_T)pdata->pchr->life;
-
 		// Drain as much as allowed and possible.
-		UFP8_T drain = std::min(life, pdata->pprt->lifedrain);
+		float drain = std::min(pdata->pchr->getLife(), FP8_TO_FLOAT(pdata->pprt->lifedrain));
 
 		// Remove the drain from the character that was hit ...
-		pdata->pchr->life = Ego::Math::constrain(pdata->pchr->life - drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_LIFE)));
+        pdata->pchr->setLife(pdata->pchr->getLife() - drain);
 
 		// ... and add it to the "caster".
 		if ( NULL != powner )
 		{
-			powner->life = Ego::Math::constrain(powner->life + drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_LIFE)));
+            powner->setLife(powner->getLife() + drain);
 		}
     }
 
     // Steal some mana.
-    if ( pdata->pprt->manadrain > 0 && pdata->pchr->mana > 0)
+    if ( pdata->pprt->manadrain > 0 && pdata->pchr->getMana() > 0)
     {
-		// As pdata->pchr->mana > 0, we can safely cast to unsigned.
-		UFP8_T mana = (UFP8_T)pdata->pchr->mana;
-
 		// Drain as much as allowed and possible.
-		UFP8_T drain = std::min(mana, pdata->pprt->manadrain);
+		float drain = std::min(pdata->pchr->getMana(), FP8_TO_FLOAT(pdata->pprt->manadrain));
 
         // Remove the drain from the character that was hit ...
-        pdata->pchr->mana = Ego::Math::constrain<uint32_t>(pdata->pchr->mana - drain, 0, FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_MANA)));
+        pdata->pchr->setMana(pdata->pchr->getMana() - drain);
 
         // add it to the "caster"
         if ( NULL != powner )
         {
-            powner->mana = Ego::Math::constrain<uint32_t>(powner->mana + drain, 0, FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_MANA)));
+            powner->setMana(powner->getMana() + drain);
         }
     }
 

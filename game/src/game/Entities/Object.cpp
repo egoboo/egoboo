@@ -48,8 +48,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     latch(),
     Name(),
     gender(GENDER_MALE),
-    life(0),
-    mana(0),
     experience(0),
     experiencelevel(0),
     money(0),
@@ -147,8 +145,12 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _characterID(id),
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
+
+    _currentLife(0.0f),
+    _currentMana(0.0f),
     _baseAttribute(),
     _tempAttribute(),
+
     _inventory(),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
@@ -435,21 +437,15 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     // Allow actual_damage to be dealt to mana (mana shield spell)
     if (HAS_SOME_BITS(damageModifier, DAMAGEMANA))
     {
-        int manadamage;
-        manadamage = std::max( mana - actual_damage, 0 );
-        mana = manadamage;
-        actual_damage -= manadamage;
+        setMana(getMana() - FP8_TO_FLOAT(actual_damage));
+        actual_damage -= std::max<int>(FLOAT_TO_FP8(getMana()) - actual_damage, 0);
         updateLastAttacker(attacker, false);
     }
 
     // Allow charging (Invert actual_damage to mana)
     if (HAS_SOME_BITS(damageModifier, DAMAGECHARGE))
     {
-        mana += actual_damage;
-        if ( mana > FLOAT_TO_FP8(getMaxMana()) )
-        {
-            mana = FLOAT_TO_FP8(getMaxMana());
-        }
+        setMana(getMana() + FP8_TO_FLOAT(actual_damage));
         return 0;
     }
 
@@ -504,7 +500,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
             if ( 0 != actual_damage )
             {
-                life -= actual_damage;
+                _currentLife -= FP8_TO_FLOAT(actual_damage);
 
                 // Spawn blud particles
                 if ( _profile->getBludType() )
@@ -530,7 +526,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 }
 
                 //Did we survive?
-                if (life <= 0)
+                if (_currentLife <= 0)
                 {
                     this->kill(attacker, ignore_invictus);
                 }
@@ -691,11 +687,11 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
     if (!alive || (invictus && !ignoreInvincibility)) return false;
 
     //This actually heals the character
-    life = Ego::Math::constrain(static_cast<UFP8_T>(life), life + amount, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
+    setLife(_currentLife + FP8_TO_FLOAT(amount));
 
     //With Magical Attunement perk 25% of healing effects also refills mana
     if(hasPerk(Ego::Perks::MAGIC_ATTUNEMENT)) {
-        mana = Ego::Math::constrain(static_cast<UFP8_T>(mana), mana + (amount/4), FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
+        setMana(_currentMana + FP8_TO_FLOAT(amount)*0.25f);
     }
 
     // Set alerts, but don't alert that we healed ourselves
@@ -851,8 +847,7 @@ void Object::update()
     // decrement the dismount timer
     if ( dismount_timer > 0 ) dismount_timer--;
 
-    if ( 0 == dismount_timer )
-    {
+    if ( 0 == dismount_timer ) {
         dismount_object = INVALID_CHR_REF;
     }
 
@@ -866,30 +861,27 @@ void Object::update()
     inst.uoffset += uoffvel;
     inst.voffset += voffvel;
 
+    // do the mana and life regeneration for "living" characters
+    if (isAlive()) {
+        _currentMana += getAttribute(Ego::Attribute::MANA_REGEN) / GameEngine::GAME_TARGET_UPS;
+        _currentMana = Ego::Math::constrain(_currentMana, 0.0f, getAttribute(Ego::Attribute::MAX_MANA));
+
+        _currentLife += getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS;
+        _currentLife = Ego::Math::constrain(_currentLife, 0.01f, getAttribute(Ego::Attribute::MAX_LIFE));
+    }
+
     // Do stats once every second
     if ( clock_chr_stat >= ONESECOND )
     {
         // check for a level up
         checkLevelUp();
 
-        // do the mana and life regen for "living" characters
-        if (isAlive())
-        {
-            mana += FLOAT_TO_FP8(getAttribute(Ego::Attribute::MANA_REGEN) / GameEngine::GAME_TARGET_UPS);
-            mana = Ego::Math::constrain<uint32_t>(mana, 0, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
-
-            life += FLOAT_TO_FP8(getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS);
-            life = Ego::Math::constrain<uint32_t>(life, 1, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
-        }
-
         // countdown confuse effects
-        if (grog_timer > 0)
-        {
+        if (grog_timer > 0) {
            grog_timer--;
         }
 
-        if (daze_timer > 0)
-        {
+        if (daze_timer > 0) {
            daze_timer--;
         }
 
@@ -1326,7 +1318,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         if(Random::getPercent() <= getExperienceLevel())
         {
             //Refill to full Life instead!
-            this->life = getAttribute(Ego::Attribute::MAX_LIFE);
+            _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
             chr_make_text_billboard(getCharacterID(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
             DisplayMsg_printf("%s decided not to die after all!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_DRUMS));
@@ -1341,7 +1333,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         if(Random::getPercent() <= getExperienceLevel())
         {
             //Refill to full Life instead!
-            this->life = getAttribute(Ego::Attribute::MAX_LIFE);
+            _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
             chr_make_text_billboard(getCharacterID(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
             DisplayMsg_printf("%s was saved by a Guardian Angel!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_ANGEL_CHOIR));
@@ -1368,7 +1360,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
 
     alive = false;
 
-    life            = -1;
+    _currentLife    = -1.0f;
     platform        = true;
     canuseplatforms = true;
     phys.bumpdampen = phys.bumpdampen * 0.5f;
@@ -1663,19 +1655,18 @@ bool Object::costMana(int amount, const CHR_REF killer)
     const std::shared_ptr<Object> &pkiller = _currentModule->getObjectHandler()[killer];
 
     bool manaPaid  = false;
-    int manaFinal = getMana() - amount;
+    int manaFinal = FLOAT_TO_FP8(getMana()) - amount;
 
     if (manaFinal < 0)
     {
         int manaDebt = -manaFinal;
-
-        mana = 0;
+        _currentMana = 0.0f;
 
         if ( getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 )
         {
-            life -= manaDebt;
+            _currentLife -= FP8_TO_FLOAT(manaDebt);
 
-            if (life <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
+            if (_currentLife <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
             {
                 kill(pkiller != nullptr ? pkiller : _currentModule->getObjectHandler()[this->getCharacterID()], false);
             }
@@ -1687,12 +1678,12 @@ bool Object::costMana(int amount, const CHR_REF killer)
     {
         int mana_surplus = 0;
 
-        mana = manaFinal;
+        _currentMana = FP8_TO_FLOAT(manaFinal);
 
         if ( manaFinal > FLOAT_TO_FP8(getMaxMana()) )
         {
             mana_surplus = manaFinal - FLOAT_TO_FP8(getMaxMana());
-            mana = FLOAT_TO_FP8(getMaxMana());
+            _currentMana = getMaxMana();
         }
 
         // allow surplus mana to go to health if you can channel?
@@ -1725,8 +1716,8 @@ void Object::respawn()
     alive = true;
     bore_timer = BORETIME;
     careful_timer = CAREFULTIME;
-    life = FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE));
-    mana = FLOAT_TO_FP8(getMaxMana());
+    _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
+    _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
     setPosition(pos_stt);
     vel = fvec3_t::zero();
     team = team_base;
@@ -1955,10 +1946,10 @@ void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, flo
 
     //Handle current life and mana increase as well
     if(type == Ego::Attribute::MAX_LIFE) {
-        life += FLOAT_TO_FP8(value);
+        _currentLife += value;
     }
     else if(type == Ego::Attribute::MAX_MANA) {
-        mana += FLOAT_TO_FP8(value);
+        _currentMana += value;
     }
 }
 
@@ -2012,7 +2003,12 @@ void Object::addPerk(Ego::Perks::PerkID perk)
 
 float Object::getLife() const
 {
-    return FP8_TO_FLOAT(life);
+    return _currentLife;
+}
+
+float Object::getMana() const
+{
+    return _currentMana;
 }
 
 std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner)
@@ -2094,3 +2090,14 @@ const std::shared_ptr<Object>& Object::toSharedPointer() const
 { 
     return _currentModule->getObjectHandler()[getCharacterID()]; 
 }
+
+void Object::setMana(const float value)
+{
+    _currentMana = Ego::Math::constrain(_currentMana+value, 0.00f, getAttribute(Ego::Attribute::MAX_MANA));
+}
+
+void Object::setLife(const float value)
+{
+    _currentLife = Ego::Math::constrain(_currentLife+value, 0.01f, getAttribute(Ego::Attribute::MAX_LIFE));
+}
+

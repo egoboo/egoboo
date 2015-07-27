@@ -511,10 +511,10 @@ public:
     bool costMana(int amount, const CHR_REF killer);
 
     /**
-    * @brief
-    *   Get current mana in SPF8 format
+    * @return
+    *   Get current mana
     **/
-    inline SFP8_T getMana() const { return mana; }
+    float getMana() const;
 
     /**
     * @brief
@@ -527,6 +527,22 @@ public:
     *   current life remaining in float format
     **/
     float getLife() const;
+
+    /**
+    * @brief
+    *   Set the current life of this Object to the specified value.
+    *   The value will automatically be clipped to a valid value between
+    *   0.01f and the maximum life of this Object. This cannot kill the Object.
+    **/
+    void setLife(const float value);
+
+    /**
+    * @brief
+    *   Set the current mana of this Object to the specified value.
+    *   The value will automatically be clipped to a valid value between
+    *   0.00f and the maximum mana of this Object
+    **/
+    void setMana(const float value);
 
     /**
     * @brief
@@ -720,10 +736,6 @@ public:
     STRING         Name;            ///< My name
     uint8_t        gender;          ///< Gender
 
-	SFP8_T         life;            ///< current life (signed 8.8 fixed point)
-
-	SFP8_T         mana;            ///< current mana (signed 8.8 fixed point)
-
     uint32_t       experience;      ///< Experience
     uint8_t        experiencelevel; ///< Experience Level
 
@@ -865,6 +877,9 @@ private:
     std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
     bool _showStatus;                                    ///< Display stats?
 
+    //Attributes
+    float _currentLife;
+    float _currentMana;
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
     std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>> _tempAttribute; ///< Character attributes with enchants
 

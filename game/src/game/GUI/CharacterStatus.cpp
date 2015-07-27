@@ -40,9 +40,9 @@ void CharacterStatus::draw()
         return;
     }
 
-    int life_pips = SFP8_TO_SINT(pchr->life);
+    int life_pips = pchr->getLife();
     int life_pips_max = pchr->getAttribute(Ego::Attribute::MAX_LIFE);
-    int mana_pips = SFP8_TO_SINT(pchr->getMana());
+    int mana_pips = pchr->getMana();
     int mana_pips_max = pchr->getAttribute(Ego::Attribute::MAX_MANA);
     int yOffset = getY();
 

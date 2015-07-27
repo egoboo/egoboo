@@ -950,7 +950,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARSELFLIFE:
                 varname = "SELFLIFE";
-                iTmp = pchr->life;
+                iTmp = FLOAT_TO_FP8(pchr->getLife());
                 break;
 
             case VARTARGETX:
@@ -1113,8 +1113,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARSELFMANA:
                 varname = "SELFMANA";
-                iTmp = pchr->mana;
-                if ( pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) )  iTmp += pchr->life;
+                iTmp = FLOAT_TO_FP8(pchr->getMana());
+                if ( pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) )  iTmp += FLOAT_TO_FP8(pchr->getLife());
 
                 break;
 
@@ -1135,7 +1135,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARTARGETLIFE:
                 varname = "TARGETLIFE";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->life;
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getLife());
                 break;
 
             case VARTARGETMANA:
@@ -1146,8 +1146,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
                 }
                 else
                 {
-                    iTmp = ptarget->mana;
-                    if ( ptarget->getAttribute(Ego::Attribute::CHANNEL_LIFE) ) iTmp += ptarget->life;
+                    iTmp = FLOAT_TO_FP8(ptarget->getMana());
+                    if ( ptarget->getAttribute(Ego::Attribute::CHANNEL_LIFE) ) iTmp += FLOAT_TO_FP8(ptarget->getLife());
                 }
 
                 break;

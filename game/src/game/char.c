@@ -1489,8 +1489,8 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     pchr->phys.dampen = profile->getBounciness();
 
     // Clamp life to [1,life_max] and mana to [0,life_max]. This may be overridden later
-	pchr->life = CLIP(profile->getSpawnLife(), UINT_TO_UFP8(1), FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE)));
-	pchr->mana = CLIP(profile->getSpawnMana(), UINT_TO_UFP8(0), FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_MANA)));
+    pchr->setLife(profile->getSpawnLife());
+    pchr->setMana(profile->getSpawnMana());
 
     pchr->phys.bumpdampen = profile->getBumpDampen();
     if ( CAP_INFINITE_WEIGHT == profile->getWeight() )
@@ -1715,8 +1715,8 @@ Object * chr_config_do_init( Object * pchr )
     // override the default behavior for an "easy" game
     if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal)
     {
-        pchr->life = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
-        pchr->mana = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
+        pchr->setLife(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
+        pchr->setMana(pchr->getAttribute(Ego::Attribute::MAX_MANA));
     }
 
     // Character size and bumping
@@ -2965,7 +2965,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
             //Check if we are attacking unarmed and cost mana to do so
             if(iweapon == pchr->getCharacterID())
             {
-                if(pchr->getProfile()->getUseManaCost() <= pchr->mana)
+                if(pchr->getProfile()->getUseManaCost() <= pchr->getMana())
                 {
                     pchr->costMana(pchr->getProfile()->getUseManaCost(), pchr->getCharacterID());
                 }

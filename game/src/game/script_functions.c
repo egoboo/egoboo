@@ -2096,7 +2096,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->life > FLOAT_TO_FP8(pself_target->getAttribute(Ego::Attribute::MAX_LIFE)) - HURTDAMAGE )
+    if ( !pself_target->alive || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - FP8_TO_FLOAT(HURTDAMAGE) )
         returncode = false;
 
     SCRIPT_FUNCTION_END();
@@ -6935,7 +6935,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->mana > FLOAT_TO_FP8(pself_target->getAttribute(Ego::Attribute::MAX_MANA)) - HURTDAMAGE )
+    if ( !pself_target->alive || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - FP8_TO_FLOAT(HURTDAMAGE) )
     {
         returncode = false;
     }

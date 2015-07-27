@@ -1430,8 +1430,8 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), character->ai.state );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), character->experiencelevel );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'E', 'E', 'D' ), character->getLevelUpSeed() );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( character->life ) );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( character->mana ) );
+    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), character->getLife() );
+    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), character->getMana() );
 
     // write down any perks that have been mastered
     for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {

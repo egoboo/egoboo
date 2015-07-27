@@ -239,7 +239,7 @@ void Enchantment::update()
 
     //Can we kill the target by draining life?
     if(target->isAlive()) {
-        if (FP8_TO_FLOAT(target->life) + _targetLifeDrain < 0.0f) {
+        if (target->getLife() + _targetLifeDrain < 0.0f) {
             target->kill(owner, false);
         }
     }
@@ -248,7 +248,7 @@ void Enchantment::update()
     if (owner && owner->isAlive()) {
 
         //Killed by sustaining life?
-        if(FP8_TO_FLOAT(owner->life) + _ownerLifeSustain < 0.0f) {
+        if(owner->getLife() + _ownerLifeSustain < 0.0f) {
             owner->kill(target, false);
             if(_enchantProfile->endIfCannotPay) {
                 requestTerminate();
@@ -257,7 +257,7 @@ void Enchantment::update()
 
         //Owner has no longer enough mana to sustain the enchant?
         if(_enchantProfile->endIfCannotPay) {
-            if(FP8_TO_FLOAT(owner->mana) + _ownerManaSustain < 0.0f) {
+            if(owner->getMana() + _ownerManaSustain < 0.0f) {
                 requestTerminate();
             }
         }
