@@ -84,6 +84,7 @@ bool Slider::notifyMouseClicked(const int button, const int x, const int y)
 {
     if(button == SDL_BUTTON_LEFT && contains(x, y)) {
         _isDragging = true;
+        notifyMouseMoved(x, y);
     }
     else {
         _isDragging = false;
