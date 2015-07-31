@@ -2376,10 +2376,9 @@ void disaffirm_attached_particles( const CHR_REF character )
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if(!particle->isAttached() || particle->isTerminated()) continue;
+        if(particle->isTerminated()) continue;
 
-        if ( particle->getAttachedObject()->getCharacterID() == character )
-        {
+        if (particle->getAttachedObjectID() == character) {
             particle->requestTerminate();
         }
     }

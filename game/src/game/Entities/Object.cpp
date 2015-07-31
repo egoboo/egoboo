@@ -748,7 +748,7 @@ void Object::update()
 
     //Update active enchantments on this Object
     if(!_activeEnchants.empty()) {
-        _activeEnchants.remove_if([](const std::shared_ptr<Ego::Enchantment> &enchant) 
+        _activeEnchants.remove_if([this](const std::shared_ptr<Ego::Enchantment> &enchant) 
             {
                 //Update enchantment 
                 enchant->update();
@@ -756,6 +756,11 @@ void Object::update()
                 //Remove all terminated enchants
                 if(enchant->isTerminated()) {
                     enchant->playEndSound();
+
+                    if(enchant->getProfile()->killtargetonend) {
+                        this->kill(enchant->getOwner(), true);
+                    }
+
                     return true;
                 }
 

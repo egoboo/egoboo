@@ -98,6 +98,12 @@ public:
     **/
     CHR_REF getOwnerID() const;
 
+    /**
+    * @return
+    *   The owner of this enchant, or nullptr if it no longer has a valid owner
+    **/
+    std::shared_ptr<Object> getOwner() const;
+
     float getOwnerManaSustain() const {return _ownerManaSustain;}
     float getOwnerLifeSustain() const {return _ownerLifeSustain;}
     float getTargetManaDrain()  const {return _targetManaDrain;}

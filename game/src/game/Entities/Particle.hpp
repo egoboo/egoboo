@@ -192,6 +192,12 @@ public:
 
     /**
     * @return
+    *   get the ID of the Object that this Particle is currently attached to (or INVALID_CHR_REF if not attached)
+    **/
+    CHR_REF getAttachedObjectID() const {return _attachedTo;}
+
+    /**
+    * @return
     *   true if this Particle has been terminated and will be removed from the game soon
     **/
     bool isTerminated() const;

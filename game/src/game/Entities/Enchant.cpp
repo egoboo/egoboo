@@ -457,6 +457,11 @@ std::shared_ptr<Object> Enchantment::getTarget() const
     return _target.lock();   
 }
 
+std::shared_ptr<Object> Enchantment::getOwner() const
+{
+    return _owner.lock();
+}
+
 CHR_REF Enchantment::getOwnerID() const
 {
     std::shared_ptr<Object> owner = _owner.lock();
