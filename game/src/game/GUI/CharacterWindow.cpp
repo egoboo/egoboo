@@ -80,7 +80,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     addComponent(attributeLabel);
 
     yPos = attributeLabel->getY() + attributeLabel->getHeight() - LINE_SPACING_OFFSET;
-    for(int i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    for(int i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         yPos += addAttributeLabel(attributeLabel->getX(), yPos, static_cast<Ego::Attribute::AttributeType>(i));
     }
 

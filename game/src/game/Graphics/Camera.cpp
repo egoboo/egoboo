@@ -358,7 +358,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 	            if (!_currentModule->getObjectHandler().exists(ichr)) continue;
 	            Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
-	            if (!pchr->alive) continue;
+	            if (!pchr->isAlive()) continue;
 
                 sum_pos += pchr->getPosition() + fvec3_t(0.0f, 0.0f, pchr->chr_min_cv._maxs[OCT_Z] * 0.9f);
 	            sum_level += pchr->enviro.level;
@@ -388,7 +388,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 	            if (!_currentModule->getObjectHandler().exists(ichr)) continue;
 	            Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
-	            if (!pchr->alive) continue;
+	            if (!pchr->isAlive()) continue;
 
 	            local_chr_ptrs[local_chr_count] = pchr;
 	            local_chr_count++;
@@ -741,8 +741,9 @@ void Camera::updateEffects()
     }
     
     // Apply motion blur
-    if ( local_stats.daze_level > 0 || local_stats.grog_level > 0 )
+    if ( local_stats.daze_level > 0 || local_stats.grog_level > 0 ) {
         _motionBlur = std::min( 0.95f, 0.5f + 0.03f * std::max( local_stats.daze_level, local_stats.grog_level ));
+    }
 
     //Apply camera swinging
     //mat_Multiply( _mView.v, mat_Translate( tmp1.v, pos[kX], -pos[kY], pos[kZ] ), _mViewSave.v );  // xgg

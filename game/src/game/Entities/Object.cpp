@@ -26,7 +26,6 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
@@ -49,10 +48,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     latch(),
     Name(),
     gender(GENDER_MALE),
-    life_color(0),
-    life(0),
-    mana_color(0),
-    mana(0),
     experience(0),
     experiencelevel(0),
     money(0),
@@ -62,17 +57,15 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     equipment(),
     team(Team::TEAM_NULL),
     team_base(Team::TEAM_NULL),
-    firstenchant(INVALID_ENC_REF),
-    undoenchant(INVALID_ENC_REF), 
     fat_stt(0.0f),
     fat(0.0f),
     fat_goto(0.0f),
     fat_goto_time(0),
-    jump_power(0.0f),
+
     jump_timer(JUMPDELAY),
     jumpnumber(0),
-    jumpnumberreset(0),
-    jumpready(0),
+    jumpready(false),
+
     attachedto(INVALID_CHR_REF),
     inwhich_slot(SLOT_LEFT),
     inwhich_inventory(INVALID_CHR_REF),
@@ -81,16 +74,11 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     holdingweight(0),
     damagetarget_damagetype(DamageType::DAMAGE_SLASH),
     reaffirm_damagetype(DamageType::DAMAGE_SLASH),
-    damage_modifier(),
-    damage_resistance(),
-    defense(0),
-    damage_boost(0),
     damage_threshold(0),
     missiletreatment(MISSILE_NORMAL),
     missilecost(0),
     missilehandler(INVALID_CHR_REF),
     is_hidden(false),
-    alive(true),
     is_which_player(INVALID_PLA_REF),
     islocalplayer(false),
     invictus(false),
@@ -105,7 +93,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     stickybutt(false),
     isshopitem(false),
     canbecrushed(false),
-    canchannel(false),
     grog_timer(0),
     daze_timer(0),
     bore_timer(BORETIME),
@@ -126,9 +113,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     profile_ref(profile),
     basemodel_ref(profile),
     inst(),
-    darkvision_level(0),
-    see_kurse_level(0),
-    see_invisible_level(0),
 
     bump_stt(),
     bump(),
@@ -144,16 +128,13 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     ori_old(),
     bumplist_next(INVALID_CHR_REF),
 
-    waterwalk(false),
     turnmode(TURNMODE_VELOCITY),
     movement_bits(( unsigned )(~0)),    // all movements valid
     anim_speed_sneak(0.0f),
     anim_speed_walk(0.0f),
     anim_speed_run(0.0f),
     maxaccel(0.0f),
-    maxaccel_reset(0.0f),
 
-    flyheight(0),
     enviro(),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     dismount_object(INVALID_CHR_REF),
@@ -163,22 +144,26 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _characterID(id),
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
+    _isAlive(true),
+
+    _currentLife(0.0f),
+    _currentMana(0.0f),
     _baseAttribute(),
+    _tempAttribute(),
+
     _inventory(),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
     _hasBeenKilled(false),
-    _reallyDuration(0)
+    _reallyDuration(0),
+    _activeEnchants(),
+    _lastEnchantSpawned()
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
 
-    //Damage resistance
-    for (size_t i = 0; i < DAMAGE_COUNT; i++ )
-    {
-        damage_modifier[i]   = getProfile()->getSkinInfo(skin).damageModifier[i];
-        damage_resistance[i] = getProfile()->getSkinInfo(skin).damageResistance[i];
-    }
+    //Clear initial base attributes
+    _baseAttribute.fill(0.0f);
 
     // pack/inventory info
     equipment.fill(INVALID_CHR_REF);
@@ -187,13 +172,11 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     ori.map_twist_facing_x = MAP_TURN_OFFSET;
 
-    //Initialize attributes
-    for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    //Initialize primary attributes
+    for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const FRange& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
-
-    //---- call the constructors of the "has a" classes
 
     // set the insance values to safe values
     chr_instance_t::ctor(inst);
@@ -233,6 +216,44 @@ Object::~Object()
 
     EGOBOO_ASSERT( nullptr == inst.vrt_lst );    
 }
+
+bool Object::setSkin(const size_t skinNumber)
+{
+    if(!getProfile()->isValidSkin(skinNumber)) {
+        return false;
+    }
+    const SkinInfo& newSkin = getProfile()->getSkinInfo(skinNumber);
+
+    //Damage resistance and modifiers from Armour
+    for(size_t i = 0; i < DAMAGE_COUNT; ++i) {
+        _baseAttribute[Ego::Attribute::resistFromDamageType(static_cast<DamageType>(i))] = newSkin.damageResistance[i];
+        _baseAttribute[Ego::Attribute::modifierFromDamageType(static_cast<DamageType>(i))] = newSkin.damageModifier[i];
+    }
+
+    //Armour movement speed
+    _baseAttribute[Ego::Attribute::ACCELERATION] = newSkin.maxAccel;
+
+    //Recalculate total movement speed
+    maxaccel = getAttribute(Ego::Attribute::ACCELERATION);
+
+    //Defence from Armour
+    _baseAttribute[Ego::Attribute::DEFENCE] = newSkin.defence;
+
+    //Set new skin
+    this->skin = skinNumber;
+
+    //Change the model texture
+    if (!this->inst.imad) {
+        const std::shared_ptr<Ego::ModelDescriptor> &model = getProfile()->getModel();
+        if (chr_instance_t::set_mad(this->inst, model)) {
+            chr_update_collision_size(this, true);
+        }
+    }
+    chr_instance_t::set_texture(this->inst, getProfile()->getSkin(this->skin));
+
+    return true;
+}
+
 
 bool Object::isOverWater(bool anyLiquid) const
 {
@@ -320,19 +341,19 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     }
 
     //Make sure they are a mount and alive
-    if(!mount->isMount() || !mount->alive)
+    if(!mount->isMount() || !mount->isAlive())
     {
         return false;
     }
 
     //We must be alive and not an item to become a rider
-    if(!alive || isitem || isBeingHeld())
+    if(!isAlive() || isitem || isBeingHeld())
     {
         return false;
     }
 
     //Cannot mount while flying
-    if(flyheight != 0)
+    if(isFlying())
     {
         return false;
     }
@@ -367,7 +388,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     if ( !isAlive() || 0 == max_damage ) return 0;
 
     // make a special exception for DAMAGE_DIRECT
-    uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : damage_modifier[damagetype];
+    uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : getAttribute(Ego::Attribute::resistFromDamageType(damagetype));
 
     // determine some optional behavior
     bool friendly_fire = false;
@@ -416,21 +437,15 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     // Allow actual_damage to be dealt to mana (mana shield spell)
     if (HAS_SOME_BITS(damageModifier, DAMAGEMANA))
     {
-        int manadamage;
-        manadamage = std::max( mana - actual_damage, 0 );
-        mana = manadamage;
-        actual_damage -= manadamage;
+        setMana(getMana() - FP8_TO_FLOAT(actual_damage));
+        actual_damage -= std::max<int>(FLOAT_TO_FP8(getMana()) - actual_damage, 0);
         updateLastAttacker(attacker, false);
     }
 
     // Allow charging (Invert actual_damage to mana)
     if (HAS_SOME_BITS(damageModifier, DAMAGECHARGE))
     {
-        mana += actual_damage;
-        if ( mana > FLOAT_TO_FP8(getMaxMana()) )
-        {
-            mana = FLOAT_TO_FP8(getMaxMana());
-        }
+        setMana(getMana() + FP8_TO_FLOAT(actual_damage));
         return 0;
     }
 
@@ -485,7 +500,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
             if ( 0 != actual_damage )
             {
-                life -= actual_damage;
+                _currentLife -= FP8_TO_FLOAT(actual_damage);
 
                 // Spawn blud particles
                 if ( _profile->getBludType() )
@@ -511,7 +526,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 }
 
                 //Did we survive?
-                if (life <= 0)
+                if (_currentLife <= 0)
                 {
                     this->kill(attacker, ignore_invictus);
                 }
@@ -580,6 +595,9 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
                     // write the string into the buffer
                     snprintf( text_buffer, SDL_arraysize( text_buffer ), "%.1f", static_cast<float>(actual_damage) / 256.0f );
+
+                    //Size depends on the amount of damage (more = bigger)
+                    //TODO: not implemented                    
 
                     chr_make_text_billboard(_characterID, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All );
                 }
@@ -666,14 +684,14 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
 bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, const bool ignoreInvincibility)
 {
     //Don't heal dead and invincible stuff
-    if (!alive || (invictus && !ignoreInvincibility)) return false;
+    if (!isAlive() || (invictus && !ignoreInvincibility)) return false;
 
     //This actually heals the character
-    life = Ego::Math::constrain(static_cast<UFP8_T>(life), life + amount, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
+    setLife(_currentLife + FP8_TO_FLOAT(amount));
 
     //With Magical Attunement perk 25% of healing effects also refills mana
     if(hasPerk(Ego::Perks::MAGIC_ATTUNEMENT)) {
-        mana = Ego::Math::constrain(static_cast<UFP8_T>(mana), mana + (amount/4), FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
+        setMana(_currentMana + FP8_TO_FLOAT(amount)*0.25f);
     }
 
     // Set alerts, but don't alert that we healed ourselves
@@ -727,6 +745,23 @@ void Object::update()
 {
     //then do status updates
     chr_update_hide(this);
+
+    //Update active enchantments on this Object
+    if(!_activeEnchants.empty()) {
+        _activeEnchants.remove_if([](const std::shared_ptr<Ego::Enchantment> &enchant) 
+            {
+                //Update enchantment 
+                enchant->update();
+
+                //Remove all terminated enchants
+                if(enchant->isTerminated()) {
+                    enchant->playEndSound();
+                    return true;
+                }
+
+                return false; 
+            });
+    }
 
     //Don't do items that are in inventory
     if (isInsideInventory()) {
@@ -790,7 +825,7 @@ void Object::update()
             if (water._is_water && HAS_NO_BITS(update_wld, 7))
             {
                 jumpready = true;
-                jumpnumber = 1;
+                jumpnumber = 1; //Limit to 1 jump while in water
             }
         }
 
@@ -812,8 +847,7 @@ void Object::update()
     // decrement the dismount timer
     if ( dismount_timer > 0 ) dismount_timer--;
 
-    if ( 0 == dismount_timer )
-    {
+    if ( 0 == dismount_timer ) {
         dismount_object = INVALID_CHR_REF;
     }
 
@@ -827,39 +861,29 @@ void Object::update()
     inst.uoffset += uoffvel;
     inst.voffset += voffvel;
 
+    // do the mana and life regeneration for "living" characters
+    if (isAlive()) {
+        _currentMana += getAttribute(Ego::Attribute::MANA_REGEN) / GameEngine::GAME_TARGET_UPS;
+        _currentMana = Ego::Math::constrain(_currentMana, 0.0f, getAttribute(Ego::Attribute::MAX_MANA));
+
+        _currentLife += getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS;
+        _currentLife = Ego::Math::constrain(_currentLife, 0.01f, getAttribute(Ego::Attribute::MAX_LIFE));
+    }
+
     // Do stats once every second
     if ( clock_chr_stat >= ONESECOND )
     {
         // check for a level up
         checkLevelUp();
 
-        // do the mana and life regen for "living" characters
-        if (isAlive())
-        {
-            int manaregen = 0;
-            int liferegen = 0;
-            get_chr_regeneration( this, &liferegen, &manaregen );
-
-            mana += manaregen;
-            mana = Ego::Math::constrain<uint32_t>(mana, 0, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
-
-            life += liferegen;
-            life = Ego::Math::constrain<uint32_t>(life, 1, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
-        }
-
         // countdown confuse effects
-        if (grog_timer > 0)
-        {
+        if (grog_timer > 0) {
            grog_timer--;
         }
 
-        if (daze_timer > 0)
-        {
+        if (daze_timer > 0) {
            daze_timer--;
         }
-
-        // possibly gain/lose darkvision
-        update_chr_darkvision( getCharacterID() );
 
         // update some special skills (players and NPC's)
         if(getShowStatus())
@@ -902,13 +926,8 @@ void Object::update()
         }
     }
 
+    //Finally update model resizing effects
     updateResize();
-
-    //Update some special skills
-    if(hasPerk(Ego::Perks::SENSE_KURSES)) {
-        see_kurse_level = std::max(see_kurse_level, 1);
-    }
-    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )) ? 1 : 0);
 }
 
 void Object::updateResize()
@@ -1136,51 +1155,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     // Reset transparency
     if ( isitem && pholder->transferblend )
     {
-        ENC_REF ienc_now, ienc_nxt;
-        size_t  ienc_count;
-
-        // cleanup the enchant list
-        cleanup_character_enchants( this );
-
-        // Okay, reset transparency
-        ienc_now = firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            enc_remove_set( ienc_now, eve_t::SETALPHABLEND );
-            enc_remove_set( ienc_now, eve_t::SETLIGHTBLEND );
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
         setAlpha(getProfile()->getAlpha());
         setLight(getProfile()->getLight());
-
-        // cleanup the enchant list
-        cleanup_character_enchants( this );
-
-        // apply the blend enchants
-        ienc_now = firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            PRO_REF ipro = enc_get_ipro( ienc_now );
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            if (ProfileSystem::get().isValidProfileID(ipro))
-            {
-                enc_apply_set( ienc_now, eve_t::SETALPHABLEND, ipro );
-                enc_apply_set( ienc_now, eve_t::SETLIGHTBLEND, ipro );
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Set twist
@@ -1230,9 +1206,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     int enviro_light = ( target->inst.alpha * target->inst.max_light ) * INV_FF;
     int self_light   = ( target->inst.light == 255 ) ? 0 : target->inst.light;
     int light        = std::max(enviro_light, self_light);
-    if (0 != darkvision_level) {
-        light *= expf(0.32f * static_cast<float>(darkvision_level));
-    }
+    light *= expf(0.32f * getAttribute(Ego::Attribute::DARKVISION));
     if(light < INVISIBLE) {
         return false;
     }
@@ -1241,7 +1215,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     int alpha = target->inst.alpha;
     if (canSeeInvisible())
     {
-        alpha = get_alpha(alpha, expf(0.32f * static_cast<float>(see_invisible_level)));
+        alpha = get_alpha(alpha, expf(0.32f * getAttribute(Ego::Attribute::SEE_INVISIBLE)));
     }
     alpha = Ego::Math::constrain(alpha, 0, 255);
     if(alpha < INVISIBLE) {
@@ -1315,8 +1289,8 @@ void Object::checkLevelUp()
             fat_goto += getProfile()->getSizeGainPerMight() * 0.25f;  // Limit this?
             fat_goto_time += SIZETIME;
 
-            //Attribute increase
-            for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+            //Primary Attribute increase
+            for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
                 _baseAttribute[i] += Random::next(getProfile()->getAttributeGain(static_cast<Ego::Attribute::AttributeType>(i)));
             }
 
@@ -1344,7 +1318,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         if(Random::getPercent() <= getExperienceLevel())
         {
             //Refill to full Life instead!
-            this->life = getAttribute(Ego::Attribute::MAX_LIFE);
+            _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
             chr_make_text_billboard(getCharacterID(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
             DisplayMsg_printf("%s decided not to die after all!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_DRUMS));
@@ -1359,7 +1333,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         if(Random::getPercent() <= getExperienceLevel())
         {
             //Refill to full Life instead!
-            this->life = getAttribute(Ego::Attribute::MAX_LIFE);
+            _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
             chr_make_text_billboard(getCharacterID(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
             DisplayMsg_printf("%s was saved by a Guardian Angel!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_ANGEL_CHOIR));
@@ -1384,9 +1358,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         }
     }
 
-    alive = false;
+    _isAlive = false;
 
-    life            = -1;
+    _currentLife    = -1.0f;
     platform        = true;
     canuseplatforms = true;
     phys.bumpdampen = phys.bumpdampen * 0.5f;
@@ -1485,93 +1459,9 @@ void Object::resetAlpha()
 
     if (isItem() && mount->transferblend)
     {
-        // cleanup the enchant list
-        cleanup_character_enchants(this);
-
-        // Okay, reset transparency
-        ENC_REF ienc_now = firstenchant;
-        ENC_REF ienc_nxt;
-        size_t ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            enc_remove_set(ienc_now, eve_t::SETALPHABLEND);
-            enc_remove_set(ienc_now, eve_t::SETLIGHTBLEND);
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
         setAlpha(getProfile()->getAlpha());
         setLight(getProfile()->getLight());
-
-        // cleanup the enchant list
-        cleanup_character_enchants(this);
-
-        ienc_now = firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            PRO_REF ipro = enc_get_ipro( ienc_now );
-
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            if (ProfileSystem::get().isValidProfileID(ipro))
-            {
-                enc_apply_set(ienc_now, eve_t::SETALPHABLEND, ipro);
-                enc_apply_set(ienc_now, eve_t::SETLIGHTBLEND, ipro);
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
-}
-
-void Object::resetAcceleration()
-{
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-
-    // cleanup the enchant list
-    cleanup_character_enchants(this);
-
-    // Okay, remove all acceleration enchants
-    ienc_now = firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_remove_add(ienc_now, eve_t::ADDACCEL);
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-    // Set the starting value
-    maxaccel = maxaccel_reset = getProfile()->getSkinInfo(skin).maxAccel;
-
-    // cleanup the enchant list
-    cleanup_character_enchants(this);
-
-    // Put the acceleration enchants back on
-    ienc_now = firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_apply_add(ienc_now, eve_t::ADDACCEL, enc_get_ieve(ienc_now));
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
 }
 
 void Object::giveExperience(const int amount, const XPType xptype, const bool overrideInvincibility)
@@ -1765,19 +1655,18 @@ bool Object::costMana(int amount, const CHR_REF killer)
     const std::shared_ptr<Object> &pkiller = _currentModule->getObjectHandler()[killer];
 
     bool manaPaid  = false;
-    int manaFinal = getMana() - amount;
+    int manaFinal = FLOAT_TO_FP8(getMana()) - amount;
 
     if (manaFinal < 0)
     {
         int manaDebt = -manaFinal;
+        _currentMana = 0.0f;
 
-        mana = 0;
-
-        if ( canchannel )
+        if ( getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 )
         {
-            life -= manaDebt;
+            _currentLife -= FP8_TO_FLOAT(manaDebt);
 
-            if (life <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
+            if (_currentLife <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
             {
                 kill(pkiller != nullptr ? pkiller : _currentModule->getObjectHandler()[this->getCharacterID()], false);
             }
@@ -1789,16 +1678,16 @@ bool Object::costMana(int amount, const CHR_REF killer)
     {
         int mana_surplus = 0;
 
-        mana = manaFinal;
+        _currentMana = FP8_TO_FLOAT(manaFinal);
 
         if ( manaFinal > FLOAT_TO_FP8(getMaxMana()) )
         {
             mana_surplus = manaFinal - FLOAT_TO_FP8(getMaxMana());
-            mana = FLOAT_TO_FP8(getMaxMana());
+            _currentMana = getMaxMana();
         }
 
         // allow surplus mana to go to health if you can channel?
-        if ( canchannel && mana_surplus > 0 )
+        if ( getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 && mana_surplus > 0 )
         {
             // use some factor, divide by 2
             heal(pkiller, mana_surplus / 2, true);
@@ -1824,11 +1713,11 @@ void Object::respawn()
     spawn_poof( getCharacterID(), profile_ref );
     disaffirm_attached_particles( getCharacterID() );
 
-    alive = true;
+    _isAlive = true;
     bore_timer = BORETIME;
     careful_timer = CAREFULTIME;
-    life = FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE));
-    mana = FLOAT_TO_FP8(getMaxMana());
+    _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
+    _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
     setPosition(pos_stt);
     vel = fvec3_t::zero();
     team = team_base;
@@ -1859,7 +1748,7 @@ void Object::respawn()
 
     platform        = profile->isPlatform();
     canuseplatforms = profile->canUsePlatforms();
-    flyheight       = profile->getFlyHeight();
+    _baseAttribute[Ego::Attribute::FLY_TO_HEIGHT] = profile->getFlyHeight();
     phys.bumpdampen = profile->getBumpDampen();
 
     ai.alert = ALERTIF_CLEANEDUP;
@@ -1901,7 +1790,7 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
         return 0.0f;
     }
 
-    float resistance = damage_resistance[type];
+    float resistance = getAttribute(Ego::Attribute::resistFromDamageType(type));
 
     //Stalwart perk increases CRUSH, SLASH and POKE by 1
     if(type == DAMAGE_CRUSH || type == DAMAGE_POKE || type == DAMAGE_SLASH) {
@@ -1926,7 +1815,21 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
         else if(type == DAMAGE_ICE && hasPerk(Ego::Perks::ICE_WARD)) {
             resistance += 3.0f;
         }
+    }
 
+    //Rosemary perk gives +4
+    if(type == DAMAGE_EVIL && hasPerk(Ego::Perks::ROSEMARY)) {
+        resistance += 4.0f;
+    }
+
+    //Pyromaniac and Troll Blood perks *reduces* FIRE resistance by 10 each
+    if(type == DAMAGE_FIRE) {
+        if(hasPerk(Ego::Perks::PYROMANIAC)) {
+            resistance -= 10.0f;
+        }
+        if(hasPerk(Ego::Perks::TROLL_BLOOD)) {
+            resistance -= 10.0f;
+        }
     }
 
     //Negative armor means it's a weakness
@@ -1934,15 +1837,15 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
 
         //Defence reduces weakness, but cannot eliminate it completely (50% weakness reduction at 255 defence)
         if(includeArmor) {
-            resistance *= 1.0f - (static_cast<float>(this->defense) / 512.0f);
+            resistance *= 1.0f - (getAttribute(Ego::Attribute::DEFENCE) / 512.0f);
         }
         return resistance;
     }
 
     //Defence bonus increases all damage type resistances (every 14 points gives +1.0 resistance)
     //This means at 255 defence and 0% resistance results in 52% damage reduction
-    if(includeArmor && HAS_NO_BITS(damage_modifier[type], DAMAGEINVERT)) {
-        resistance += static_cast<float>(this->defense) / 14.0f;
+    if(includeArmor && HAS_NO_BITS( static_cast<int>(getAttribute(Ego::Attribute::modifierFromDamageType(type))), DAMAGEINVERT)) {
+        resistance += getAttribute(Ego::Attribute::DEFENCE) / 14.0f;
     }
 
     return resistance;
@@ -1956,7 +1859,7 @@ float Object::getDamageReduction(const DamageType type, const bool includeArmor)
     }
 
     //Immunity to damage type?
-    if(HAS_SOME_BITS(DAMAGEINVICTUS, damage_modifier[type])) {
+    if( HAS_SOME_BITS(static_cast<int>(getAttribute(Ego::Attribute::modifierFromDamageType(type))), DAMAGEINVICTUS) ) {
         return 1.0f;
     }
 
@@ -1971,33 +1874,82 @@ float Object::getDamageReduction(const DamageType type, const bool includeArmor)
     return ((resistance*0.06f) / (1.0f + resistance*0.06f));
 }
 
+float Object::getBaseAttribute(const Ego::Attribute::AttributeType type) const
+{
+    EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
+    return _baseAttribute[type];
+}
+
+void Object::setBaseAttribute(const Ego::Attribute::AttributeType type, float value)
+{
+    EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
+    _baseAttribute[type] = value;
+}
+
 float Object::getAttribute(const Ego::Attribute::AttributeType type) const 
 { 
-    EGOBOO_ASSERT(type < _baseAttribute.size()); 
+    EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
 
-    //Wolverine perk gives +0.25 Life Regeneration while holding a Claw weapon
-    if(type == Ego::Attribute::LIFE_REGEN && hasPerk(Ego::Perks::WOLVERINE)) {
-        if( (getLeftHandItem() && getLeftHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W'))
-         || (getRightHandItem() && getRightHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W')))
-         {
-            return _baseAttribute[type] + 0.25f;
-         }
+    float attributeValue = _baseAttribute[type];
+
+    //Try to find temp value in map, but don't create it if it doesn't already exist
+    const auto& result = _tempAttribute.find(type);
+    if(result != _tempAttribute.end()) {
+
+        //Is this a SET type attribute or a cumulative ADD type attribute?
+        if(isOverrideSetAttribute(type)) {
+            return (*result).second;
+        }
+        else {
+            //Total value is base plus temp bonuses from enchants
+            attributeValue += (*result).second;
+        }
     }
 
-    return _baseAttribute[type]; 
+    switch(type) {
+
+        //Wolverine perk gives +0.25 Life Regeneration while holding a Claw weapon
+        case Ego::Attribute::LIFE_REGEN:
+            if(hasPerk(Ego::Perks::WOLVERINE)) {
+                if( (getLeftHandItem() && getLeftHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W'))
+                 || (getRightHandItem() && getRightHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W')))
+                 {
+                    attributeValue += 0.25f;
+                 }                
+            }
+        break;
+
+        case Ego::Attribute::JUMP_POWER:
+            //Special value for flying Objects
+            if(getAttribute(Ego::Attribute::FLY_TO_HEIGHT) > 0.0f) {
+                return JUMPINFINITE;
+            }
+
+            //Athletics Perks gives +25% jump power
+            if(hasPerk(Ego::Perks::ATHLETICS)) {
+                attributeValue *= 1.25f;
+            }
+        break;
+
+        default:
+            //nothing, keep default case to quench GCC warnings
+        break;
+    }
+
+    return attributeValue; 
 }
 
 void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, float value)
 {
-    EGOBOO_ASSERT(type < _baseAttribute.size()); 
+    EGOBOO_ASSERT(type < _baseAttribute.size() && type != Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES);
     _baseAttribute[type] = Ego::Math::constrain(_baseAttribute[type] + value, 0.0f, 255.0f);
 
     //Handle current life and mana increase as well
     if(type == Ego::Attribute::MAX_LIFE) {
-        life += FLOAT_TO_FP8(value);
+        _currentLife += value;
     }
     else if(type == Ego::Attribute::MAX_MANA) {
-        mana += FLOAT_TO_FP8(value);
+        _currentMana += value;
     }
 }
 
@@ -2051,5 +2003,101 @@ void Object::addPerk(Ego::Perks::PerkID perk)
 
 float Object::getLife() const
 {
-    return FP8_TO_FLOAT(life);
+    return _currentLife;
 }
+
+float Object::getMana() const
+{
+    return _currentMana;
+}
+
+std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner)
+{
+    if (enchantProfile >= ENCHANTPROFILES_MAX || !EveStack.get_ptr(enchantProfile)->_loaded) {
+        log_warning("Object::addEnchant() - Cannot add enchant with invalid enchant profile %d\n", enchantProfile);        
+        return nullptr;
+    }
+    const std::shared_ptr<eve_t> &enchantmentProfile = EveStack.get_ptr(enchantProfile);
+
+    if(!ProfileSystem::get().isValidProfileID(spawnerProfile)) {
+        log_warning("Object::addEnchant() - Cannot add enchant with invalid spawner profile %d\n", spawnerProfile);
+        return nullptr;
+    }
+
+    std::shared_ptr<Ego::Enchantment> enchant = std::make_shared<Ego::Enchantment>(enchantmentProfile, spawnerProfile, owner);
+    enchant->applyEnchantment(this->toSharedPointer());
+
+    //Succeeded to apply the enchantment to the target?
+    if(!enchant->isTerminated() && spawner) {
+        spawner->_lastEnchantSpawned = enchant;
+        return enchant;
+    }
+
+    return nullptr;
+}
+
+void Object::removeEnchantsWithIDSZ(const IDSZ idsz)
+{
+    //Nothing to do?
+    if(idsz == IDSZ_NONE) return;
+
+    //Remove all active enchants that have the corresponding IDSZ
+    _activeEnchants.remove_if([idsz](const std::shared_ptr<Ego::Enchantment> &enchant)
+    {
+        if(idsz == enchant->getProfile()->removedByIDSZ) {
+            enchant->requestTerminate();
+            return true;
+        }
+        return false;
+    });
+}
+
+std::forward_list<std::shared_ptr<Ego::Enchantment>>& Object::getActiveEnchants()
+{
+    return _activeEnchants;
+}
+
+bool Object::disenchant()
+{
+    bool oneRemoved = false;
+
+    for(const std::shared_ptr<Ego::Enchantment> &enchant : _activeEnchants) {
+        if(enchant->isTerminated()) continue;
+        enchant->requestTerminate();
+        oneRemoved = true;
+    }
+
+    return oneRemoved;
+}
+
+std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>>& Object::getTempAttributes()
+{
+    return _tempAttribute;
+}
+
+bool Object::isFlying() const
+{
+    return getAttribute(Ego::Attribute::FLY_TO_HEIGHT) > 0.0f;
+}
+
+std::shared_ptr<Ego::Enchantment> Object::getLastEnchantmentSpawned() const
+{
+    return _lastEnchantSpawned.lock();
+}
+
+
+const std::shared_ptr<Object>& Object::toSharedPointer() const 
+{ 
+    return _currentModule->getObjectHandler()[getCharacterID()]; 
+}
+
+void Object::setMana(const float value)
+{
+    _currentMana = Ego::Math::constrain(_currentMana+value, 0.00f, getAttribute(Ego::Attribute::MAX_MANA));
+}
+
+void Object::setLife(const float value)
+{
+    _currentLife = Ego::Math::constrain(_currentLife+value, 0.01f, getAttribute(Ego::Attribute::MAX_LIFE));
+}
+

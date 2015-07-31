@@ -170,8 +170,6 @@ bool chr_update_safe_raw( Object * pchr );
 bool chr_update_safe( Object * pchr, bool force );
 bool chr_get_safe( Object * pchr);
 
-bool chr_set_maxaccel( Object * pchr, float new_val );
-
 void chr_set_floor_level( Object * pchr, const float level );
 void chr_set_redshift( Object * pchr, const int rs );
 void chr_set_grnshift( Object * pchr, const int gs );
@@ -179,8 +177,6 @@ void chr_set_blushift( Object * pchr, const int bs );
 
 std::string chr_get_dir_name( const CHR_REF ichr );
 bool chr_get_skill( Object * pchr, IDSZ whichskill );
-
-bool update_chr_darkvision( const CHR_REF character );
 
 // this function is needed because the "hidden" state of an ai is determined by
 // whether  ai.state == cap.hidestate
@@ -262,10 +258,6 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
 
 grip_offset_t slot_to_grip_offset( slot_t slot );
 slot_t        grip_offset_to_slot( grip_offset_t grip );
-
-const char * describe_value( float value, float maxval, int * rank_ptr );
-const char* describe_damage( float value, float maxval, int * rank_ptr );
-const char* describe_wounds( float max, float current );
 
 std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 

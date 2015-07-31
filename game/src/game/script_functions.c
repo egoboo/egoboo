@@ -472,7 +472,7 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     // Proceed only if the character's target has just died or is already dead
-    returncode = ( HAS_SOME_BITS( pself->alert, ALERTIF_TARGETKILLED ) || !pself_target->alive );
+    returncode = ( HAS_SOME_BITS( pself->alert, ALERTIF_TARGETKILLED ) || !pself_target->isAlive() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -981,7 +981,7 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->resetAcceleration();
+    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION);
 
     SCRIPT_FUNCTION_END();
 }
@@ -996,9 +996,7 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->resetAcceleration();
-
-    pchr->maxaccel      = pchr->maxaccel_reset * 0.66f;
+    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.66f;
     pchr->movement_bits = CHR_MOVEMENT_BITS_WALK;
 
     SCRIPT_FUNCTION_END();
@@ -1014,9 +1012,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->resetAcceleration();
-
-    pchr->maxaccel      = pchr->maxaccel_reset * 0.33f;
+    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
     pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
 
     SCRIPT_FUNCTION_END();
@@ -1131,7 +1127,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     {
         Object * pself_target = _currentModule->getObjectHandler().get( pself->target );
 
-        if ( pself_target->alive )
+        if ( pself_target->isAlive() )
         {
             int action = pself_target->getProfile()->getModel()->getAction( pstate->argument );
 
@@ -1628,7 +1624,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && chr_get_iteam( pself->target ) != pchr->team );
+    returncode = ( pself_target->isAlive() && chr_get_iteam( pself->target ) != pchr->team );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1646,7 +1642,7 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && team_hates_team( pchr->team, chr_get_iteam( pself->target ) ) && !pself_target->invictus );
+    returncode = ( pself_target->isAlive() && team_hates_team( pchr->team, chr_get_iteam( pself->target ) ) && !pself_target->invictus );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2100,7 +2096,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->life > FLOAT_TO_FP8(pself_target->getAttribute(Ego::Attribute::MAX_LIFE)) - HURTDAMAGE )
+    if ( !pself_target->isAlive() || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - FP8_TO_FLOAT(HURTDAMAGE) )
         returncode = false;
 
     SCRIPT_FUNCTION_END();
@@ -2216,7 +2212,7 @@ Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = pself_target->alive;
+    returncode = pself_target->isAlive();
 
     SCRIPT_FUNCTION_END();
 }
@@ -2824,12 +2820,15 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details This function enchants the target with the enchantment given
     /// in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = EnchantHandler::get().spawn_one_enchant( pself->owner, pself->target, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = DEFINED_ENC( iTmp );
+    const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[pself->target];
+    if(target) {
+        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref, _currentModule->getObjectHandler()[pself->owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
+    }   
+    else {
+        returncode = false;
+    } 
 
     SCRIPT_FUNCTION_END();
 }
@@ -2843,12 +2842,15 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
     /// newly spawned character with the enchantment
     /// given in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = EnchantHandler::get().spawn_one_enchant( pself->owner, pself->child, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = DEFINED_ENC( iTmp );
+    const std::shared_ptr<Object> child = _currentModule->getObjectHandler()[pself->child];
+    if(child) {
+        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref, _currentModule->getObjectHandler()[pself->owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
+    }   
+    else {
+        returncode = false;
+    } 
 
     SCRIPT_FUNCTION_END();
 }
@@ -3247,14 +3249,13 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( INGAME_ENC( pchr->undoenchant ) )
-    {
-        returncode = remove_enchant( pchr->undoenchant, NULL );
-    }
-    else
-    {
-        pchr->undoenchant = INVALID_ENC_REF;
+    std::shared_ptr<Ego::Enchantment> lastEnchant = pchr->getLastEnchantmentSpawned();
+    if(lastEnchant == nullptr || lastEnchant->isTerminated()) {
         returncode = false;
+    }
+    else {
+        returncode = true;
+        lastEnchant->requestTerminate();
     }
 
     SCRIPT_FUNCTION_END();
@@ -3362,7 +3363,7 @@ Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->flyheight = std::max( 0, pstate->argument );
+    pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, std::max(0, pstate->argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -4502,16 +4503,12 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
     /// @details This function acts like Run or Walk, except it allows the explicit
     /// setting of the speed
 
-    float fvalue;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->resetAcceleration();
-
-    fvalue = pstate->argument / 100.0f;
+    float fvalue = pstate->argument / 100.0f;
     fvalue = std::max( 0.0f, fvalue );
 
-    pchr->maxaccel = pchr->maxaccel_reset * fvalue;
+    pchr->maxaccel = pchr->getAttribute(Ego::Attribute::ACCELERATION) * fvalue;
 
     if ( pchr->maxaccel < 0.33f )
     {
@@ -4916,7 +4913,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
     if ( target->heal(_currentModule->getObjectHandler()[pself->index], pstate->argument, false) )
     {
         returncode = true;
-        remove_all_enchants_with_idsz(pself->target, MAKE_IDSZ('H', 'E', 'A', 'L'));
+        target->removeEnchantsWithIDSZ(MAKE_IDSZ('H', 'E', 'A', 'L'));
     }
 
     SCRIPT_FUNCTION_END();
@@ -5364,21 +5361,15 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     /// spawned by this character.
     /// Values are 8.8 fixed point
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = pchr->undoenchant;
-
     returncode = false;
-    if ( INGAME_ENC( iTmp ) )
-    {
-        EnchantHandler::get().get_ptr(iTmp)->owner_mana = pstate->argument;
-        EnchantHandler::get().get_ptr(iTmp)->owner_life = pstate->distance;
-        EnchantHandler::get().get_ptr(iTmp)->target_mana = pstate->x;
-        EnchantHandler::get().get_ptr(iTmp)->target_life = pstate->y;
-
-        returncode = true;
+    if(!pchr->getActiveEnchants().empty()) {
+        const std::shared_ptr<Ego::Enchantment> &enchant = pchr->getActiveEnchants().front();
+        if(!enchant->isTerminated()) {
+            enchant->setBoostValues(FP8_TO_FLOAT(pstate->argument), FP8_TO_FLOAT(pstate->distance), FP8_TO_FLOAT(pstate->x), FP8_TO_FLOAT(pstate->y));
+            returncode = true;            
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -5722,7 +5713,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->see_invisible_level > 0 );
+    returncode = pself_target->canSeeInvisible();
 
     SCRIPT_FUNCTION_END();
 }
@@ -5951,7 +5942,7 @@ Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->flyheight > 0 );
+    returncode = pself_target->isFlying();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6451,9 +6442,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( INVALID_ENC_REF != pself_target->firstenchant );
-
-    disenchant_character( pself->target );
+    returncode = pself_target->disenchant();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6465,13 +6454,12 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function removes all enchantments in the game
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    for ( iTmp = 0; iTmp < ENCHANTS_MAX; iTmp++ )
-    {
-        remove_enchant( iTmp, NULL );
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator()) {
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : object->getActiveEnchants()) {
+            enchant->requestTerminate();
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -6947,7 +6935,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->mana > FLOAT_TO_FP8(pself_target->getAttribute(Ego::Attribute::MAX_MANA)) - HURTDAMAGE )
+    if ( !pself_target->isAlive() || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - FP8_TO_FLOAT(HURTDAMAGE) )
     {
         returncode = false;
     }
@@ -7359,7 +7347,7 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && pself->owner == pself->target );
+    returncode = ( pself_target->isAlive() && pself->owner == pself->target );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7786,7 +7774,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->see_kurse_level > 0 );
+    returncode = ( pself_target->getAttribute(Ego::Attribute::SENSE_KURSES) > 0 );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7805,10 +7793,11 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = false;
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
         // Check all enchants to see if they are removed
-        returncode = remove_all_enchants_with_idsz( pself->target, pstate->argument );
+        pself_target->removeEnchantsWithIDSZ(pstate->argument);
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();

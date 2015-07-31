@@ -116,7 +116,7 @@ void GameModule::checkPassageMusic()
         if (IS_ATTACHED_CHR(character)) continue;
 
         Object *pchr = _currentModule->getObjectHandler().get(character);
-        if (!pchr->alive || !VALID_PLA(pchr->is_which_player)) continue;
+        if (!pchr->isAlive() || !VALID_PLA(pchr->is_which_player)) continue;
 
         //Loop through every passage
         for (const std::shared_ptr<Passage>& passage : _passages)

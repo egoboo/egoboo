@@ -36,7 +36,6 @@
 #include "game/Graphics/CameraSystem.hpp"
 
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 
 //--------------------------------------------------------------------------------------------

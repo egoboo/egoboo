@@ -46,7 +46,6 @@
 #include "game/Module/Module.hpp"
 
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/mesh.h"
 
@@ -84,7 +83,6 @@ static void chr_set_enviro_grid_level( Object * pchr, const float level );
 static bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 Object * chr_config_do_init( Object * pchr );
-static int chr_change_skin( const CHR_REF character, const SKIN_T skin );
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
 
 static void move_one_character_do_floor_friction( Object * pchr );
@@ -370,12 +368,6 @@ void free_all_chraracters()
 {
     /// @author ZZ
     /// @details This function resets the character allocation list
-
-    //Remove all enchants
-    for (ENC_REF ref = 0; ref < ENCHANTS_MAX; ++ref)
-    {
-        remove_enchant(ref, nullptr);
-    }
 
     // free all the characters
     if(_currentModule) {
@@ -1222,7 +1214,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         particle->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
 
                         // Initial particles get an enchantment bonus
-                        particle->damage.base += pweapon->damage_boost;
+                        particle->damage.base += pweapon->getAttribute(Ego::Attribute::DAMAGE_BONUS);
 
                         //Handle traits that increase weapon damage
                         float damageBonus = 1.0f;
@@ -1449,12 +1441,6 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
         }
     }
 
-    pchr->darkvision_level = 0;
-    if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
-        pchr->darkvision_level += 1;
-    }
-    pchr->see_invisible_level = profile->canSeeInvisible();
-
     // Ammo
     pchr->ammomax = profile->getMaxAmmo();
     pchr->ammo = profile->getAmmo();
@@ -1475,27 +1461,18 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     }
 
     // Life and Mana bars
-    pchr->life_color = profile->getLifeColor();
-    pchr->mana_color = profile->getManaColor();
+    pchr->setBaseAttribute(Ego::Attribute::LIFE_BARCOLOR, profile->getLifeColor());
+    pchr->setBaseAttribute(Ego::Attribute::MANA_BARCOLOR, profile->getManaColor());
 
     // Skin
-    pchr->skin = profile->getSkinOverride();
-
-    // Resistances
-    const SkinInfo &skin = profile->getSkinInfo(pchr->skin);
-    pchr->defense = skin.defence;
-    pchr->damagetarget_damagetype = profile->getDamageTargetType();
-    for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
-    {
-        pchr->damage_modifier[tnc] = skin.damageModifier[tnc];
-        pchr->damage_resistance[tnc] = skin.damageResistance[tnc];
-    }
+    pchr->setSkin(profile->getSkinOverride());
 
     // Flags
+    pchr->damagetarget_damagetype = profile->getDamageTargetType();
     pchr->stickybutt      = profile->hasStickyButt();
     pchr->openstuff       = profile->canOpenStuff();
     pchr->transferblend   = profile->transferBlending();
-    pchr->waterwalk       = profile->canWalkOnWater();
+    pchr->setBaseAttribute(Ego::Attribute::WALK_ON_WATER, profile->canWalkOnWater() ? 1.0f : 0.0f);
     pchr->platform        = profile->isPlatform();
     pchr->canuseplatforms = profile->canUsePlatforms();
     pchr->isitem          = profile->isItem();
@@ -1503,18 +1480,17 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     pchr->cangrabmoney    = profile->canGrabMoney();
 
     // Jumping
-    pchr->jump_power = profile->getJumpPower();
-    pchr->jumpnumberreset = profile->getJumpNumber();
+    pchr->setBaseAttribute(Ego::Attribute::JUMP_POWER, profile->getJumpPower());
+    pchr->setBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, profile->getJumpNumber());
 
     // Other junk
-    pchr->flyheight   = profile->getFlyHeight();
-    pchr->maxaccel    = pchr->maxaccel_reset = skin.maxAccel;
+    pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, profile->getFlyHeight());
     pchr->flashand    = profile->getFlashAND();
     pchr->phys.dampen = profile->getBounciness();
 
     // Clamp life to [1,life_max] and mana to [0,life_max]. This may be overridden later
-	pchr->life = CLIP(profile->getSpawnLife(), UINT_TO_UFP8(1), FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE)));
-	pchr->mana = CLIP(profile->getSpawnMana(), UINT_TO_UFP8(0), FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_MANA)));
+    pchr->setLife(profile->getSpawnLife());
+    pchr->setMana(profile->getSpawnMana());
 
     pchr->phys.bumpdampen = profile->getBumpDampen();
     if ( CAP_INFINITE_WEIGHT == profile->getWeight() )
@@ -1592,42 +1568,6 @@ void cleanup_one_character( Object * pchr )
     const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
     if(rightItem && rightItem->isItem()) {
         rightItem->detatchFromHolder(true, false);
-    }
-
-    // start with a clean list
-    cleanup_character_enchants( pchr );
-
-    // remove enchants from the character
-    if ( pchr->life >= 0 )
-    {
-        disenchant_character( ichr );
-    }
-    else
-    {
-        std::shared_ptr<eve_t> peve;
-        ENC_REF ienc_now, ienc_nxt;
-        size_t  ienc_count;
-
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
-        // remove all invalid enchants
-        ienc_now = pchr->firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            peve = enc_get_peve( ienc_now );
-            if ( NULL != peve && !peve->_target._stay )
-            {
-                remove_enchant( ienc_now, NULL );
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Stop all sound loops for this object
@@ -1770,27 +1710,13 @@ Object * chr_config_do_init( Object * pchr )
     }
 
     // actually set the character skin
-    pchr->skin = spawn_ptr->skin;
-
-    // fix the spawn_ptr->skin-related parameters, in case there was some funny business with overriding
-    // the spawn_ptr->skin from the data.txt file
-    {
-        const SkinInfo &skin = ppro->getSkinInfo(pchr->skin);
-        pchr->defense = skin.defence;
-        for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
-        {
-            pchr->damage_modifier[tnc] = skin.damageModifier[tnc];
-            pchr->damage_resistance[tnc] = skin.damageResistance[tnc];
-        }
-
-        chr_set_maxaccel( pchr, skin.maxAccel );
-    }
+    pchr->setSkin(spawn_ptr->skin);
 
     // override the default behavior for an "easy" game
     if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal)
     {
-        pchr->life = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
-        pchr->mana = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
+        pchr->setLife(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
+        pchr->setMana(pchr->getAttribute(Ego::Attribute::MAX_MANA));
     }
 
     // Character size and bumping
@@ -1881,137 +1807,20 @@ Object * chr_config_do_init( Object * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_change_skin( const CHR_REF character, const SKIN_T skin )
-{
-    TX_REF new_texture = (TX_REF)TX_WATER_TOP;
-
-	if (!_currentModule->getObjectHandler().exists(character)) {
-		return 0;
-	}
-	Object *pchr = _currentModule->getObjectHandler().get(character);
-	chr_instance_t& pinst = pchr->inst;
-
-	const std::shared_ptr<Ego::ModelDescriptor> &model = pchr->getProfile()->getModel();
-
-    // make sure that the instance has a valid imad
-    if (!pinst.imad) {
-        if (chr_instance_t::set_mad(pinst, model)) {
-            chr_update_collision_size(pchr, true);
-        }
-    }
-
-    // the normal thing to happen
-    new_texture = pchr->getProfile()->getSkin(skin);
-    pchr->skin = skin;
-
-    chr_instance_t::set_texture(pinst, new_texture);
-
-    return pchr->skin;
-}
-
-//--------------------------------------------------------------------------------------------
 int change_armor( const CHR_REF character, const SKIN_T skin )
 {
     /// @author ZZ
     /// @details This function changes the armor of the character
 
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-    int     loc_skin = skin;
-
-    int     iTmp;
     Object * pchr;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return 0;
     pchr = _currentModule->getObjectHandler().get( character );
 
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // Remove armor enchantments
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_remove_set(ienc_now, eve_t::SETSLASHMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETCRUSHMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETPOKEMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETHOLYMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETEVILMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETFIREMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETICEMODIFIER);
-        enc_remove_set(ienc_now, eve_t::SETZAPMODIFIER);
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
     // Change the skin
-    std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-    loc_skin = chr_change_skin( character, loc_skin );
+    pchr->setSkin(skin);
 
-    const SkinInfo &skinInfo = profile->getSkinInfo(loc_skin);
-
-    // Change stats associated with skin
-    pchr->defense = skinInfo.defence;
-
-    for ( iTmp = 0; iTmp < DAMAGE_COUNT; iTmp++ )
-    {
-        pchr->damage_modifier[iTmp] = skinInfo.damageModifier[iTmp];
-        pchr->damage_resistance[iTmp] = skinInfo.damageResistance[iTmp];
-    }
-
-    // set the character's maximum acceleration
-    chr_set_maxaccel( pchr, skinInfo.maxAccel );
-
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // Reset armor enchantments
-    /// @todo These should really be done in reverse order ( Start with last enchant ), but
-    /// I don't care at this point !!!BAD!!!
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        PRO_REF ipro = enc_get_ipro( ienc_now );
-
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        if (ProfileSystem::get().isValidProfileID(ipro))
-        {
-            EVE_REF ieve = ProfileSystem::get().pro_get_ieve(ipro);
-
-            enc_apply_set(ienc_now, eve_t::SETSLASHMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETCRUSHMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETPOKEMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETHOLYMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETEVILMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETFIREMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETICEMODIFIER, ipro);
-            enc_apply_set(ienc_now, eve_t::SETZAPMODIFIER, ipro);
-
-            enc_apply_add(ienc_now, eve_t::ADDACCEL, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDDEFENSE, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDSLASHRESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDCRUSHRESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDPOKERESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDHOLYRESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDEVILRESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDFIRERESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDICERESIST, ieve);
-            enc_apply_add(ienc_now, eve_t::ADDZAPRESIST, ieve);
-        }
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-    return loc_skin;
+    return pchr->skin;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2024,7 +1833,7 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
     const std::shared_ptr<ObjectProfile>& newProfile = ProfileSystem::get().getProfile(profile);
     if (!newProfile) return;
 
-    // copy the new name
+    // copy the new name (TODO: not implemented)
     //strncpy( MadStack.lst[imad_old].name, MadStack.lst[imad_new].name, SDL_arraysize( MadStack.lst[imad_old].name ) );
 
     // change their model
@@ -2087,36 +1896,22 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     // Remove particles
     disaffirm_attached_particles( ichr );
 
-    // clean up the enchant list before doing anything
-    cleanup_character_enchants( pchr );
-
     // Remove enchantments
     if ( leavewhich == ENC_LEAVE_FIRST )
     {
-        // Remove all enchantments except top one
-        if ( INVALID_ENC_REF != pchr->firstenchant )
-        {
-            ENC_REF ienc_now, ienc_nxt;
-            size_t  ienc_count;
-
-            ienc_now = EnchantHandler::get().get_ptr(pchr->firstenchant)->nextenchant_ref;
-            ienc_count = 0;
-            while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-            {
-                ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-                remove_enchant( ienc_now, NULL );
-
-                ienc_now = ienc_nxt;
-                ienc_count++;
-            }
-            if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        //Leave only the first enchant
+        bool first = true;
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : pchr->getActiveEnchants()) {
+            if(!first) {
+                enchant->requestTerminate();
+            } 
+            first = false;
         }
     }
     else if ( ENC_LEAVE_NONE == leavewhich )
     {
         // Remove all enchantments
-        disenchant_character( ichr );
+        pchr->disenchant();
     }
 
     // Stuff that must be set
@@ -2150,13 +1945,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->invictus        = newProfile->isInvincible();
     pchr->cangrabmoney    = newProfile->canGrabMoney();
     pchr->jump_timer      = JUMPDELAY;
-
-    // change the skillz, too, jack!
-    pchr->darkvision_level = 0; 
-    if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
-        pchr->darkvision_level += 1;        
-    }
-    pchr->see_invisible_level = newProfile->canSeeInvisible();
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
     /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
@@ -2231,7 +2019,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     chr_instance_t::set_action_ready(pchr->inst, false);
     chr_instance_t::set_action_keep(pchr->inst, false);
     chr_instance_t::set_action_loop(pchr->inst, false);
-    if ( pchr->alive )
+    if ( pchr->isAlive() )
     {
         chr_play_action( pchr, ACTION_DA, false );
     }
@@ -2290,7 +2078,7 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
     pchr = _currentModule->getObjectHandler().get( character );
 
     // do we count this character as being on a team?
-    can_have_team = !pchr->isitem && pchr->alive && !pchr->invictus;
+    can_have_team = !pchr->isitem && pchr->isAlive() && !pchr->invictus;
 
     // take the character off of its old team
     if ( VALID_TEAM_RANGE( pchr->team ) )
@@ -2496,66 +2284,6 @@ bool chr_get_skill( Object *pchr, IDSZ whichskill )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool update_chr_darkvision( const CHR_REF character )
-{
-    /// @author BB
-    /// @details as an offset to negative status effects like things like poisoning, a
-    ///               character gains darkvision ability the more they are "poisoned".
-    ///               True poisoning can be removed by [HEAL] and tints the character green
-
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-
-    std::shared_ptr<eve_t> peve;
-    int life_regen = 0;
-
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // grab the life loss due poison to determine how much darkvision a character has earned, he he he!
-    // clean up the enchant list before doing anything
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-        peve = enc_get_peve( ienc_now );
-
-        //Is it true poison?
-        if ( NULL != peve && MAKE_IDSZ( 'H', 'E', 'A', 'L' ) == peve->removedByIDSZ )
-        {
-            life_regen += EnchantHandler::get().get_ptr(ienc_now)->target_life;
-            if (EnchantHandler::get().get_ptr(ienc_now)->owner_ref == pchr->ai.index ) life_regen += EnchantHandler::get().get_ptr(ienc_now)->owner_life;
-        }
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-    if ( life_regen < 0 )
-    {
-        int tmp_level  = ( 0 == pchr->getAttribute(Ego::Attribute::MAX_LIFE) ) ? 0 : ( 10 * -life_regen ) / FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));                      // Darkvision gained by poison
-
-        //Use the better of the two darkvision abilities
-        pchr->darkvision_level = tmp_level;
-
-        //Nightvision skill
-        if(pchr->hasPerk(Ego::Perks::NIGHT_VISION)) {
-            pchr->darkvision_level += 1;
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void update_all_characters()
 {
     /// @author ZZ
@@ -2621,7 +2349,7 @@ void move_one_character_get_environment( Object * pchr )
     }
     else
     {
-        penviro->floor_level = pchr->waterwalk ? water_level : grid_level;
+        penviro->floor_level = pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) ? water_level : grid_level;
     }
 
     //---- The actual level of the characer.
@@ -2648,7 +2376,7 @@ void move_one_character_get_environment( Object * pchr )
     penviro->zlerp = ( pchr->getPosZ() - penviro->level ) / PLATTOLERANCE;
     penviro->zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
-    penviro->grounded = (( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
+    penviro->grounded = (!pchr->isFlying() && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
     penviro->grid_twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), pchr->getTile() );
@@ -2659,7 +2387,7 @@ void move_one_character_get_environment( Object * pchr )
 
     //---- traction
     penviro->traction = 1.0f;
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         // any traction factor here
         /* traction = ??; */
@@ -2714,7 +2442,7 @@ void move_one_character_get_environment( Object * pchr )
 
     //---- friction
     penviro->friction_hrz       = 1.0f;
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         if ( pchr->platform )
         {
@@ -2737,7 +2465,7 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     //---- jump stuff
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         // Flying
         pchr->jumpready = false;
@@ -2765,14 +2493,14 @@ void move_one_character_get_environment( Object * pchr )
                 // Reset jumping on flat areas of slippiness
                 if ( penviro->grounded && 0 == pchr->jump_timer )
                 {
-                    pchr->jumpnumber = pchr->jumpnumberreset;
+                    pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
                 }
             }
         }
         else if ( penviro->grounded && 0 == pchr->jump_timer )
         {
             // Reset jumping
-            pchr->jumpnumber = pchr->jumpnumberreset;
+            pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
         }
     }
 
@@ -2801,7 +2529,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
     penviro = &( pchr->enviro );
 
-    if ( 0 != pchr->flyheight ) return;
+    if ( pchr->isFlying() ) return;
 
     // assume the best
 	floor_acc = fvec3_t::zero();
@@ -2815,7 +2543,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     {
         chr_getMatUp(platform.get(), vup);
     }
-    else if ( !pchr->alive || pchr->isitem )
+    else if ( !pchr->isAlive() || pchr->isitem )
     {
         temp_friction_xy = 0.5f;
 
@@ -2908,7 +2636,7 @@ void move_one_character_do_voluntary( Object * pchr )
 
     CHR_REF ichr = GET_INDEX_PCHR( pchr );
 
-    if ( !pchr->alive || pchr->maxaccel == 0.00f ) return;
+    if ( !pchr->isAlive() || pchr->maxaccel == 0.00f ) return;
 
     pchr->enviro.new_v[kX] = pchr->vel[kX];
     pchr->enviro.new_v[kY] = pchr->vel[kY];
@@ -3022,14 +2750,14 @@ void move_one_character_do_voluntary( Object * pchr )
     if ( sneak_mode_active )
     {
         // sneak mode
-        pchr->maxaccel      = pchr->maxaccel_reset * 0.33f;
+        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
         pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
     }
     else
     {
         // non-sneak mode
         pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-        pchr->maxaccel      = pchr->maxaccel_reset;
+        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION);
     }
 
     // do platform friction
@@ -3211,7 +2939,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
             if (!mountProfile->riderCanAttack()) allowedtoattack = false;
 
             // can the mount do anything?
-            if ( pmount->isMount() && pmount->alive )
+            if ( pmount->isMount() && pmount->isAlive() )
             {
                 // can the mount be told what to do?
                 if ( !VALID_PLA( pmount->is_which_player ) && pmount->inst.action_ready )
@@ -3237,7 +2965,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
             //Check if we are attacking unarmed and cost mana to do so
             if(iweapon == pchr->getCharacterID())
             {
-                if(pchr->getProfile()->getUseManaCost() <= pchr->mana)
+                if(pchr->getProfile()->getUseManaCost() <= pchr->getMana())
                 {
                     pchr->costMana(pchr->getProfile()->getUseManaCost(), pchr->getCharacterID());
                 }
@@ -3348,7 +3076,7 @@ bool chr_do_latch_button( Object * pchr )
 
     pai = &( pchr->ai );
 
-    if ( !pchr->alive || pchr->latch.b.none() ) return true;
+    if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;
 
     const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
 
@@ -3362,7 +3090,7 @@ bool chr_do_latch_button( Object * pchr )
             detach_character_from_platform( pchr );
 
             pchr->jump_timer = JUMPDELAY;
-            if ( 0 != pchr->flyheight )
+            if ( pchr->isFlying() )
             {
                 pchr->vel[kZ] += DISMOUNTZVELFLY;
             }
@@ -3373,7 +3101,7 @@ bool chr_do_latch_button( Object * pchr )
 
             pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel[kZ]);
 
-            if ( pchr->jumpnumberreset != JUMPINFINITE && 0 != pchr->jumpnumber )
+            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE && 0 != pchr->jumpnumber )
                 pchr->jumpnumber--;
 
             // Play the jump sound
@@ -3381,9 +3109,9 @@ bool chr_do_latch_button( Object * pchr )
         }
 
         //Normal jump
-        else if ( 0 != pchr->jumpnumber && 0 == pchr->flyheight )
+        else if ( 0 != pchr->jumpnumber && !pchr->isFlying() )
         {
-            if ( 1 != pchr->jumpnumberreset || pchr->jumpready )
+            if ( 1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready )
             {
 
                 // Make the character jump
@@ -3396,11 +3124,11 @@ bool chr_do_latch_button( Object * pchr )
                 else
                 {
                     pchr->jump_timer = JUMPDELAY;
-                    pchr->vel[kZ] += pchr->jump_power * 1.5f;
+                    pchr->vel[kZ] += pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
                 }
 
                 pchr->jumpready = false;
-                if ( pchr->jumpnumberreset != JUMPINFINITE ) pchr->jumpnumber--;
+                if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE ) pchr->jumpnumber--;
 
                 // Set to jump animation if not doing anything better
                 if ( pchr->inst.action_ready )
@@ -3479,9 +3207,9 @@ void move_one_character_do_z_motion( Object * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     //---- do z acceleration
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
-        pchr->vel[kZ] += ( pchr->enviro.fly_level + pchr->flyheight - pchr->getPosZ() ) * FLYDAMPEN;
+        pchr->vel[kZ] += ( pchr->enviro.fly_level + pchr->getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - pchr->getPosZ() ) * FLYDAMPEN;
     }
 
     else if (
@@ -3780,7 +3508,7 @@ bool move_one_character_integrate_motion( Object * pchr )
     }
 
     // fixes to the z-position
-    if ( 0.0f != pchr->flyheight )
+    if (pchr->isFlying())
     {
         if ( tmp_pos[kZ] < 0.0f ) tmp_pos[kZ] = 0.0f;  // Don't fall in pits...
     }
@@ -4070,7 +3798,7 @@ void move_one_character( Object * pchr )
     move_one_character_do_animation( pchr );
 
     // Characters with sticky butts lie on the surface of the mesh
-    if ( pchr->stickybutt || !pchr->alive )
+    if ( pchr->stickybutt || !pchr->isAlive() )
     {
         float fkeep = ( 7 + pchr->enviro.zlerp ) / 8.0f;
         float fnew  = ( 1 - pchr->enviro.zlerp ) / 8.0f;
@@ -4365,122 +4093,6 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 }
 
 //--------------------------------------------------------------------------------------------
-const char* describe_value( float value, float maxval, int * rank_ptr )
-{
-    /// @author ZF
-    /// @details This converts a stat number into a more descriptive word
-
-    static STRING retval;
-
-    int local_rank;
-
-    if ( NULL == rank_ptr ) rank_ptr = &local_rank;
-
-    if (egoboo_config_t::get().hud_feedback.getValue() == Ego::FeedbackType::Number)
-    {
-        snprintf( retval, SDL_arraysize( retval ), "%2.1f", value );
-        return retval;
-    }
-
-    float fval = ( 0 == maxval ) ? 1.0f : value / maxval;
-
-    *rank_ptr = -5;
-    strcpy( retval, "Unknown" );
-
-    if ( fval >= .83 )        { strcpy( retval, "Godlike!" );   *rank_ptr =  8; }
-    else if ( fval >= .66 ) { strcpy( retval, "Ultimate" );   *rank_ptr =  7; }
-    else if ( fval >= .56 ) { strcpy( retval, "Epic" );       *rank_ptr =  6; }
-    else if ( fval >= .50 ) { strcpy( retval, "Powerful" );   *rank_ptr =  5; }
-    else if ( fval >= .43 ) { strcpy( retval, "Heroic" );     *rank_ptr =  4; }
-    else if ( fval >= .36 ) { strcpy( retval, "Very High" );  *rank_ptr =  3; }
-    else if ( fval >= .30 ) { strcpy( retval, "High" );       *rank_ptr =  2; }
-    else if ( fval >= .23 ) { strcpy( retval, "Good" );       *rank_ptr =  1; }
-    else if ( fval >= .17 ) { strcpy( retval, "Average" );    *rank_ptr =  0; }
-    else if ( fval >= .11 ) { strcpy( retval, "Pretty Low" ); *rank_ptr = -1; }
-    else if ( fval >= .07 ) { strcpy( retval, "Bad" );        *rank_ptr = -2; }
-    else if ( fval >  .00 ) { strcpy( retval, "Terrible" );   *rank_ptr = -3; }
-    else                    { strcpy( retval, "None" );       *rank_ptr = -4; }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-const char* describe_damage( float value, float maxval, int * rank_ptr )
-{
-    /// @author ZF
-    /// @details This converts a damage value into a more descriptive word
-
-    static STRING retval;
-
-    float fval;
-    int local_rank;
-
-    if ( NULL == rank_ptr ) rank_ptr = &local_rank;
-
-    if (egoboo_config_t::get().hud_feedback.getValue() == Ego::FeedbackType::Number)
-    {
-        snprintf( retval, SDL_arraysize( retval ), "%2.1f", FP8_TO_FLOAT( value ) );
-        return retval;
-    }
-
-    fval = ( 0 == maxval ) ? 1.0f : value / maxval;
-
-    *rank_ptr = -5;
-    strcpy( retval, "Unknown" );
-
-    if ( fval >= 1.50f )      { strcpy( retval, "Annihilation!" ); *rank_ptr =  5; }
-    else if ( fval >= 1.00f ) { strcpy( retval, "Overkill!" );     *rank_ptr =  4; }
-    else if ( fval >= 0.80f ) { strcpy( retval, "Deadly" );        *rank_ptr =  3; }
-    else if ( fval >= 0.70f ) { strcpy( retval, "Crippling" );     *rank_ptr =  2; }
-    else if ( fval >= 0.50f ) { strcpy( retval, "Devastating" );   *rank_ptr =  1; }
-    else if ( fval >= 0.25f ) { strcpy( retval, "Hurtful" );       *rank_ptr =  0; }
-    else if ( fval >= 0.10f ) { strcpy( retval, "A Scratch" );     *rank_ptr = -1; }
-    else if ( fval >= 0.05f ) { strcpy( retval, "Ticklish" );      *rank_ptr = -2; }
-    else if ( fval >= 0.00f ) { strcpy( retval, "Meh..." );        *rank_ptr = -3; }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-const char* describe_wounds( float max, float current )
-{
-    /// @author ZF
-    /// @details This tells us how badly someone is injured
-
-    static STRING retval;
-    float fval;
-
-    //Is it already dead?
-    if ( current <= 0 )
-    {
-        strcpy( retval, "Dead!" );
-        return retval;
-    }
-
-    //Calculate the percentage
-    if ( 0 == max ) return NULL;
-    fval = ( current / max ) * 100;
-
-    if (egoboo_config_t::get().hud_feedback.getValue() == Ego::FeedbackType::Number)
-    {
-        snprintf( retval, SDL_arraysize( retval ), "%2.1f", FP8_TO_FLOAT( current ) );
-        return retval;
-    }
-
-    strcpy( retval, "Uninjured" );
-    if ( fval <= 5 )            strcpy( retval, "Almost Dead!" );
-    else if ( fval <= 10 )        strcpy( retval, "Near Death" );
-    else if ( fval <= 25 )        strcpy( retval, "Mortally Wounded" );
-    else if ( fval <= 40 )        strcpy( retval, "Badly Wounded" );
-    else if ( fval <= 60 )        strcpy( retval, "Injured" );
-    else if ( fval <= 75 )        strcpy( retval, "Hurt" );
-    else if ( fval <= 90 )        strcpy( retval, "Bruised" );
-    else if ( fval < 100 )        strcpy( retval, "Scratched" );
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 {
     /// @author BB
@@ -4694,29 +4306,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     }
 
     return object;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_set_maxaccel( Object * pchr, float new_val )
-{
-    bool retval = false;
-    float ftmp;
-
-    if ( nullptr == ( pchr ) ) return retval;
-
-    if ( 0.0f == pchr->maxaccel_reset )
-    {
-        pchr->maxaccel_reset = new_val;
-        pchr->maxaccel       = new_val;
-    }
-    else
-    {
-        ftmp = pchr->maxaccel / pchr->maxaccel_reset;
-        pchr->maxaccel_reset = new_val;
-        pchr->maxaccel = ftmp * pchr->maxaccel_reset;
-    }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------

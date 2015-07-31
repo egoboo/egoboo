@@ -36,6 +36,9 @@
 #include "game/Module/Module.hpp"
 #include "game/Inventory.hpp"
 
+//Forward declarations
+namespace Ego { class Enchantment; }
+
 /// The possible methods for characters to determine what direction they are facing
 enum turn_mode_t : uint8_t
 {
@@ -181,6 +184,12 @@ public:
     *   True if this Object is a item that can be grabbed
     **/
     inline bool isItem() const {return isitem;}
+
+    /**
+    * @return
+    *   true if this Object is currently levitating above the ground
+    **/
+    bool isFlying() const;
 
     /**
     * @brief
@@ -353,7 +362,7 @@ public:
     * @brief
     *   Returns true if this Object has not been killed by anything
     **/
-    bool isAlive() const {return alive;}
+    bool isAlive() const {return _isAlive;}
 
     bool isHidden() const {return is_hidden;}
 
@@ -454,10 +463,6 @@ public:
     /// @details This function fixes an item's transparency
     void resetAlpha();
 
-    /// @author ZZ
-    /// @details This function fixes a character's max acceleration
-    void resetAcceleration();
-
     /**
     * @brief
     *   Awards some experience points to this object, potentionally allowing it to reach another
@@ -506,10 +511,10 @@ public:
     bool costMana(int amount, const CHR_REF killer);
 
     /**
-    * @brief
-    *   Get current mana in SPF8 format
+    * @return
+    *   Get current mana
     **/
-    inline SFP8_T getMana() const { return mana; }
+    float getMana() const;
 
     /**
     * @brief
@@ -522,6 +527,22 @@ public:
     *   current life remaining in float format
     **/
     float getLife() const;
+
+    /**
+    * @brief
+    *   Set the current life of this Object to the specified value.
+    *   The value will automatically be clipped to a valid value between
+    *   0.01f and the maximum life of this Object. This cannot kill the Object.
+    **/
+    void setLife(const float value);
+
+    /**
+    * @brief
+    *   Set the current mana of this Object to the specified value.
+    *   The value will automatically be clipped to a valid value between
+    *   0.00f and the maximum mana of this Object
+    **/
+    void setMana(const float value);
 
     /**
     * @brief
@@ -566,15 +587,28 @@ public:
 
     /**
     * @brief
-    *   Get total value for the specified attribute
+    *   Get total value for the specified attribute. Includes bonuses from Enchants, Perks
+    *   and other active boni or penalties.
     **/
     float getAttribute(const Ego::Attribute::AttributeType type) const;
+
+    /**
+    * @brief
+    *   Get base value for the specified attribute (without applying effects from Enchants and Perks)
+    **/
+    float getBaseAttribute(const Ego::Attribute::AttributeType type) const;
 
     /**
     * @brief
     *   Permanently increases or decreases an attribute of this Object
     **/
     void increaseBaseAttribute(const Ego::Attribute::AttributeType type, float value);
+
+    /**
+    * @brief
+    *   Permanently changes the base attribute of this character to something else
+    **/
+    void setBaseAttribute(const Ego::Attribute::AttributeType type, float value);
 
     /**
     * @return
@@ -606,7 +640,7 @@ public:
     * @return
     *   true if this Object can detect and see invisible objects
     **/
-    bool canSeeInvisible() const { return see_invisible_level > 0 || getProfile()->canSeeInvisible() || hasPerk(Ego::Perks::SENSE_INVISIBLE); }
+    bool canSeeInvisible() const { return getAttribute(Ego::Attribute::SEE_INVISIBLE); }
 
     /**
     * @return
@@ -628,6 +662,44 @@ public:
     *   or first time generating a character from scratch (not a save game)
     **/
     void randomizeLevelUpSeed() { _levelUpSeed = Random::next(Random::next<uint32_t>(numeric_limits<uint32_t>::max())); }
+
+    /**
+    * @brief
+    *   Applies an enchantment to this object
+    * @param enchantProfile
+    *   The unique profile ID for the Enchantment (ENC_REF)
+    * @param spawnerProfile
+    *   The unique ObjectProfile ID for the object that creates this enchant
+    * @brief
+    *   pointer to the enchant that was added (or nullptr if it failed)
+    **/
+    std::shared_ptr<Ego::Enchantment> addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner);
+
+    void removeEnchantsWithIDSZ(const IDSZ idsz);
+
+    std::forward_list<std::shared_ptr<Ego::Enchantment>>& getActiveEnchants();
+
+    /**
+    * @brief
+    *   Removes all enchantments from character
+    **/
+    bool disenchant();
+
+    /**
+    * @brief
+    *   Changes the skin of this Object to the specified skin number.
+    *   This changes this Objects damage resistances and movement speed accordingly to the new
+    *   armor of the skin.
+    * @return
+    *   true if the skin could be changed into the specified number or false if it fails
+    **/
+    bool setSkin(const size_t skinNumber);
+
+    std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>>& getTempAttributes();
+
+    std::shared_ptr<Ego::Enchantment> getLastEnchantmentSpawned() const;
+
+    const std::shared_ptr<Object>& toSharedPointer() const;
 
 private:
 
@@ -664,12 +736,6 @@ public:
     STRING         Name;            ///< My name
     uint8_t        gender;          ///< Gender
 
-    uint8_t        life_color;      ///< Bar color
-	SFP8_T         life;            ///< current life (signed 8.8 fixed point)
-
-    uint8_t        mana_color;      ///< Bar color
-	SFP8_T         mana;            ///< current mana (signed 8.8 fixed point)
-
     uint32_t       experience;      ///< Experience
     uint8_t        experiencelevel; ///< Experience Level
 
@@ -685,21 +751,15 @@ public:
     TEAM_REF       team;            ///< Character's team
     TEAM_REF       team_base;        ///< Character's starting team
 
-    // enchant data
-    ENC_REF        firstenchant;                  ///< Linked list for enchants
-    ENC_REF        undoenchant;                   ///< Last enchantment spawned
-
     float          fat_stt;                       ///< Character's initial size
     float          fat;                           ///< Character's size
     float          fat_goto;                      ///< Character's size goto
     int16_t         fat_goto_time;                 ///< Time left in size change
 
     // jump stuff
-    float          jump_power;                    ///< Jump power
     uint8_t          jump_timer;                      ///< Delay until next jump
     uint8_t          jumpnumber;                    ///< Number of jumps remaining
-    uint8_t          jumpnumberreset;               ///< Number of jumps total, 255=Flying
-    uint8_t          jumpready;                     ///< For standing on a platform character
+    bool             jumpready;                     ///< For standing on a platform character
 
     // attachments
     CHR_REF        attachedto;                    ///< != INVALID_CHR_REF if character is a held weapon
@@ -714,10 +774,6 @@ public:
     // combat stuff
     DamageType          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
     DamageType          reaffirm_damagetype;           ///< For relighting torches
-    std::array<uint8_t, DAMAGE_COUNT> damage_modifier; ///< Damage inversion
-    std::array<float, DAMAGE_COUNT> damage_resistance; ///< Damage Resistances
-    uint8_t          defense;                       ///< Base defense rating
-    SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
     // missle handling
@@ -727,7 +783,6 @@ public:
 
     // "variable" properties
     bool         is_hidden;
-    bool         alive;                         ///< Is it alive?
     PLA_REF      is_which_player;               ///< true = player
     bool         islocalplayer;                 ///< true = local player
     bool         invictus;                      ///< Totally invincible?
@@ -744,7 +799,6 @@ public:
     bool         stickybutt;                    ///< Rests on floor
     bool         isshopitem;                    ///< Spawned in a shop?
     bool         canbecrushed;                  ///< Crush in a door?
-    bool         canchannel;                    ///< Can it convert life to mana?
 
     // misc timers
     int16_t         grog_timer;                    ///< Grog timer
@@ -754,7 +808,7 @@ public:
     uint16_t         reload_timer;                  ///< Time before another shot
     uint8_t          damage_timer;                  ///< Invincibility timer
 
-    // graphica info
+    // graphical info
     uint8_t          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
     bool         transferblend;   ///< Give transparency to weapons?
     bool         draw_icon;       ///< Show the icon?
@@ -771,11 +825,6 @@ public:
     PRO_REF        profile_ref;                      ///< Character's profile
     PRO_REF        basemodel_ref;                     ///< The true form
     chr_instance_t inst;                          ///< the render data
-
-    // Skills
-    int           darkvision_level;
-    int           see_kurse_level;
-    int           see_invisible_level;
 
     // collision info
 
@@ -804,16 +853,13 @@ public:
     CHR_REF        bumplist_next;                 ///< Next character on fanblock
 
     // movement properties
-    bool         waterwalk;                     ///< Always above watersurfacelevel?
     turn_mode_t  turnmode;                      ///< Turning mode
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
     float          anim_speed_sneak;              ///< Movement rate of the sneak animation
     float          anim_speed_walk;               ///< Walking if above this speed
     float          anim_speed_run;                ///< Running if above this speed
-    float          maxaccel;                      ///< The actual maximum acelleration
-    float          maxaccel_reset;                ///< The current maxaccel_reset
-    uint8_t          flyheight;                     ///< Height to stabilize at
+    float          maxaccel;                      ///< Current maximum acceleration
 
     // data for doing the physics in bump_all_objects()
 
@@ -829,7 +875,14 @@ private:
     CHR_REF _characterID;                                ///< Our unique CHR_REF id
     std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
     bool _showStatus;                                    ///< Display stats?
+    bool _isAlive;                                       ///< Is this Object alive or dead?
+
+    //Attributes
+    float _currentLife;
+    float _currentMana;
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
+    std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>> _tempAttribute; ///< Character attributes with enchants
+
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
     uint32_t _levelUpSeed;
@@ -837,6 +890,10 @@ private:
     //Non persistent variables. Once game ends these are not saved
     bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)
     uint32_t _reallyDuration;                            ///< Game Logic Update frame duration for rally bonus gained from the Perk
+
+    //Enchantment stuff
+    std::forward_list<std::shared_ptr<Ego::Enchantment>> _activeEnchants;    ///< List of all active enchants on this Object
+    std::weak_ptr<Ego::Enchantment> _lastEnchantSpawned;    //< Last enchantment that his Object has spawned
 
     friend class ObjectHandler;
 };

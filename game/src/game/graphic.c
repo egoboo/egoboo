@@ -1313,14 +1313,14 @@ float draw_debug(float y)
         {
             ichr = PlaStack.lst[ipla].index;
             y = draw_string_raw(0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_SLASH],
-                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_CRUSH],
-                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_POKE],
-                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_HOLY],
-                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_EVIL],
-                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_FIRE],
-                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_ICE],
-                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_ZAP]);
+                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_SLASH),
+                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_CRUSH),
+                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_POKE),
+                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_HOLY),
+                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_EVIL),
+                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_FIRE),
+                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_ICE),
+                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_ZAP));
 
             ichr = PlaStack.lst[ipla].index;
             y = draw_string_raw(0, y, "~~PLA0 %5.1f %5.1f", _currentModule->getObjectHandler().get(ichr)->getPosX() / GRID_FSIZE, _currentModule->getObjectHandler().get(ichr)->getPosY() / GRID_FSIZE);

@@ -47,7 +47,6 @@
 #include "game/char.h"
 #include "game/physics.h"
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -104,9 +103,6 @@ static void   game_reset_players();
 // Model stuff
 static void log_madused_vfs( const char *savename );
 
-// place the object lists in the initial state
-void reset_all_object_lists();
-
 // implementing wawalite data
 static bool upload_light_data(const wawalite_data_t *data);
 static bool upload_phys_data(const wawalite_physics_t *data);
@@ -138,11 +134,9 @@ static void game_load_module_profiles( const char *modname );
 static void initialize_all_objects();
 static void finalize_all_objects();
 
-static void update_used_lists();
 static void update_all_objects();
 static void move_all_objects();
 static void cleanup_all_objects();
-static void bump_all_update_counters();
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -157,9 +151,6 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     STRING tofile;
     STRING todirname;
     STRING todirfullname;
-
-    // Don't export enchants
-    disenchant_character( character );
 
     const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[character];
     if(!object) {
@@ -445,12 +436,6 @@ void activate_alliance_file_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void update_used_lists()
-{
-    EnchantHandler::get().update_used();
-}
-
-//--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
     chr_stoppedby_tests = 0;
@@ -458,7 +443,6 @@ void update_all_objects()
 
     update_all_characters();
     ParticleHandler::get().updateAllParticles();
-    update_all_enchants();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -481,16 +465,6 @@ void cleanup_all_objects()
 
         object->requestTerminate();
     }
-
-    cleanup_all_enchants();
-}
-
-//--------------------------------------------------------------------------------------------
-void bump_all_update_counters()
-{
-    //bump_all_characters_update_counters();
-    //bump_all_particles_update_counters();
-    bump_all_enchants_update_counters();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -501,9 +475,6 @@ void initialize_all_objects()
 
     // update all object timers etc.
     update_all_objects();
-
-    // fix the list optimization, in case update_all_objects() turned some objects off.
-    update_used_lists();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -511,9 +482,6 @@ void finalize_all_objects()
 {
     /// @author BB
     /// @details end the code for updating in-game objects
-
-    // update the object's update counter for every active object
-    bump_all_update_counters();
 
     // do end-of-life care for all objects
     cleanup_all_objects();
@@ -567,9 +535,9 @@ int update_game()
         {
             numalive++;
 
-            local_stats.seeinvis_level += pchr->see_invisible_level;
-            local_stats.seekurse_level += pchr->see_kurse_level;
-            local_stats.seedark_level  += pchr->darkvision_level;
+            local_stats.seeinvis_level += pchr->getAttribute(Ego::Attribute::SEE_INVISIBLE);
+            local_stats.seekurse_level += pchr->getAttribute(Ego::Attribute::SENSE_KURSES);
+            local_stats.seedark_level  += pchr->getAttribute(Ego::Attribute::DARKVISION);
             local_stats.grog_level     += pchr->grog_timer;
             local_stats.daze_level     += pchr->daze_timer;
 
@@ -1687,55 +1655,16 @@ void show_armor( int statindex )
 
     // jumps
     tmps[0] = CSTR_END;
-    switch ( profile->getJumpNumber() )
+    switch ( static_cast<int>(pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS)) )
     {
-        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%d)", pchr->jumpnumberreset ); break;
-        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%d)", pchr->jumpnumberreset ); break;
-        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%d)", pchr->jumpnumberreset ); break;
-        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%d)", pchr->jumpnumberreset ); break;
-        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", pchr->jumpnumberreset ); break;
+        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
     };
 
     DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", skinInfo.maxAccel*80, tmps );
-}
-
-//--------------------------------------------------------------------------------------------
-bool get_chr_regeneration( Object * pchr, int * pliferegen, int * pmanaregen )
-{
-    /// @author ZF
-    /// @details Get a character's life and mana regeneration, considering all sources
-
-    int local_liferegen, local_manaregen;
-    CHR_REF ichr;
-
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
-    ichr = GET_INDEX_PCHR( pchr );
-
-    if ( NULL == pliferegen ) pliferegen = &local_liferegen;
-    if ( NULL == pmanaregen ) pmanaregen = &local_manaregen;
-
-    // set the base values
-    ( *pmanaregen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MANA_REGEN) / GameEngine::GAME_TARGET_UPS);
-    ( *pliferegen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS);
-
-    // Don't forget to add gains and costs from enchants
-    ENC_BEGIN_LOOP_ACTIVE( enchant, penc )
-    {
-        if ( penc->target_ref == ichr )
-        {
-            ( *pliferegen ) += penc->target_life;
-            ( *pmanaregen ) += penc->target_mana;
-        }
-
-        if ( penc->owner_ref == ichr )
-        {
-            ( *pliferegen ) += penc->owner_life;
-            ( *pmanaregen ) += penc->owner_mana;
-        }
-    }
-    ENC_END_LOOP();
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1754,11 +1683,8 @@ void show_full_status( int statindex )
 
     SKIN_T skinlevel = pchr->skin;
 
-    // clean up the enchant list
-    cleanup_character_enchants( pchr.get() );
-
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", pchr->getProfile()->getSkinInfo(skinlevel).defence,
@@ -1773,9 +1699,7 @@ void show_full_status( int statindex )
                        pchr->getDamageReduction(DAMAGE_ICE) *100.0f,
                        pchr->getDamageReduction(DAMAGE_ZAP) *100.0f );
 
-    get_chr_regeneration( pchr.get(), &liferegen, &manaregen );
-
-    DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT( manaregen ), FP8_TO_FLOAT( liferegen ) );
+    DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", pchr->getAttribute(Ego::Attribute::MANA_REGEN), pchr->getAttribute(Ego::Attribute::LIFE_REGEN) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1792,20 +1716,17 @@ void show_magic_status( int statindex )
         return;
     }
 
-    // clean up the enchant list
-    cleanup_character_enchants( pchr.get() );
-
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
-                       pchr->see_invisible_level ? "Yes" : "No",
-                       pchr->see_kurse_level ? "Yes" : "No" );
+                       pchr->getAttribute(Ego::Attribute::SEE_INVISIBLE) > 0 ? "Yes" : "No",
+                       pchr->getAttribute(Ego::Attribute::SENSE_KURSES) > 0 ? "Yes" : "No" );
 
     DisplayMsg_printf( "~Channel Life: %s~~Waterwalking: %s",
-                       pchr->canchannel ? "Yes" : "No",
-                       pchr->waterwalk ? "Yes" : "No" );
+                       pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 ? "Yes" : "No",
+                       pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? "Yes" : "No" );
 
     switch ( pchr->missiletreatment )
     {
@@ -1816,7 +1737,7 @@ void show_magic_status( int statindex )
         case MISSILE_NORMAL : missile_str = "None";    break;
     }
 
-    DisplayMsg_printf( "~Flying: %s~~Missile Protection: %s", ( pchr->flyheight > 0 ) ? "Yes" : "No", missile_str );
+    DisplayMsg_printf( "~Flying: %s~~Missile Protection: %s", pchr->isFlying() ? "Yes" : "No", missile_str );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2568,9 +2489,6 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // set up the virtual file system for the module (Do before loading the module)
     if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
 
-    // make sure that the object lists are in a good state
-    reset_all_object_lists();
-
     // start the module
     _currentModule = std::unique_ptr<GameModule>(new GameModule(module, time(NULL)));
 
@@ -2771,14 +2689,7 @@ void free_all_objects()
     /// @details free every instance of the three object types used in the game.
 
     ParticleHandler::get().clear();
-    EnchantHandler::get().free_all();
     free_all_chraracters();
-}
-
-//--------------------------------------------------------------------------------------------
-void reset_all_object_lists()
-{
-    EnchantHandler::get().reinit();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3794,10 +3705,10 @@ float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
         pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->waterwalk );
+    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
+        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         zmax = std::max( zmax, fval );
     }
 
@@ -3822,7 +3733,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == pchr->bump_stt.size )
     {
-        return get_mesh_level( mesh, pchr->getPosX(), pchr->getPosY(), pchr->waterwalk );
+        return get_mesh_level(mesh, pchr->getPosX(), pchr->getPosY(), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
@@ -3880,10 +3791,10 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->waterwalk );
+        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->waterwalk );
+            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
             zmax = std::max( zmax, fval );
         }
     }
@@ -3891,41 +3802,6 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     if ( zmax == -1e6 ) zmax = 0.0f;
 
     return zmax;
-}
-
-//--------------------------------------------------------------------------------------------
-void disenchant_character( const CHR_REF cnt )
-{
-    /// @author ZZ
-    /// @details This function removes all enchantments from a character
-
-    Object * pchr;
-    size_t ienc_count;
-
-    if ( !_currentModule->getObjectHandler().exists( cnt ) ) return;
-    pchr = _currentModule->getObjectHandler().get( cnt );
-
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        // do not let disenchant_character() get stuck in an infinite loop if there is an error
-        if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
-        {
-            break;
-        }
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-}
-
-//--------------------------------------------------------------------------------------------
-void cleanup_character_enchants( Object * pchr )
-{
-    if ( NULL == pchr ) return;
-
-    // clean up the enchant list
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &( pchr->firstenchant ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3947,7 +3823,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
     // check if they can be connected
-    if ( !profile->canUsePlatforms() || ( 0 != pchr->flyheight ) ) return false;
+    if ( !profile->canUsePlatforms() || pchr->isFlying() ) return false;
     if ( !pplat->platform ) return false;
 
     // do the attachment
@@ -3959,10 +3835,10 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     pchr->enviro.level     = std::max( pchr->enviro.floor_level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] );
     pchr->enviro.zlerp     = ( pchr->getPosZ() - pchr->enviro.level ) / PLATTOLERANCE;
     pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0.0f, 1.0f );
-    pchr->enviro.grounded  = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
+    pchr->enviro.grounded  = !pchr->isFlying() && ( pchr->enviro.zlerp < 0.25f );
 
     pchr->enviro.fly_level = std::max( pchr->enviro.fly_level, pchr->enviro.level );
-    if ( 0 != pchr->flyheight )
+    if ( !pchr->isFlying() )
     {
         if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
     }
@@ -3974,7 +3850,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
     {
-        pchr->jumpnumber = pchr->jumpnumberreset;
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
 
     // what to do about traction if the platform is tilted... hmmm?
@@ -4035,7 +3911,7 @@ bool detach_character_from_platform( Object * pchr )
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
     {
-        pchr->jumpnumber = pchr->jumpnumberreset;
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
 
     return true;

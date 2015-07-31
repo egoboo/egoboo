@@ -41,6 +41,8 @@ CollisionSystem *CollisionSystem::_singleton = nullptr;
 
 #define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
 
+static constexpr float MAX_KNOCKBACK_VELOCITY = 40.0f;
+static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
 
 
 //--------------------------------------------------------------------------------------------
@@ -2887,62 +2889,55 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
     //Get the Profile of the Object that spawned this particle (i.e the weapon itself, not the holder)
     const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pdata->pprt->getSpawnerProfile());
+    if(spawnerProfile != nullptr) { //global particles do not have a spawner profile, so this is possible
+        // Check all enchants to see if they are removed
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
+            if(enchant->isTerminated()) {
+                continue;
+            }
 
-    // clean up the enchant list before doing anything
-    cleanup_character_enchants( pdata->pchr );
+            // if nothing can remove it, just go on with your business
+            if(enchant->getProfile()->removedByIDSZ == IDSZ_NONE) {
+                continue;
+            }
 
-    // Check all enchants to see if they are removed
-    ienc_now = pdata->pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        if ( enc_is_removed( ienc_now, pdata->pprt->getSpawnerProfile() ) )
-        {
-            remove_enchant( ienc_now, NULL );
-        }
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
+            // check vs. every IDSZ that could have something to do with cancelling the enchant
+            if ( enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_TYPE) ||
+                 enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_PARENT) ) {
+                enchant->requestTerminate();
+            }
+        }        
     }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Steal some life.
-    if ( pdata->pprt->lifedrain > 0 && pdata->pchr->life > 0)
+    if ( pdata->pprt->lifedrain > 0 && pdata->pchr->getLife() > 0)
     {
-		// As pdata->pchr->life > 0, we can safely cast to unsigned.
-		UFP8_T life = (UFP8_T)pdata->pchr->life;
-
 		// Drain as much as allowed and possible.
-		UFP8_T drain = std::min(life, pdata->pprt->lifedrain);
+		float drain = std::min(pdata->pchr->getLife(), FP8_TO_FLOAT(pdata->pprt->lifedrain));
 
 		// Remove the drain from the character that was hit ...
-		pdata->pchr->life = Ego::Math::constrain(pdata->pchr->life - drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_LIFE)));
+        pdata->pchr->setLife(pdata->pchr->getLife() - drain);
 
 		// ... and add it to the "caster".
 		if ( NULL != powner )
 		{
-			powner->life = Ego::Math::constrain(powner->life + drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_LIFE)));
+            powner->setLife(powner->getLife() + drain);
 		}
     }
 
     // Steal some mana.
-    if ( pdata->pprt->manadrain > 0 && pdata->pchr->mana > 0)
+    if ( pdata->pprt->manadrain > 0 && pdata->pchr->getMana() > 0)
     {
-		// As pdata->pchr->mana > 0, we can safely cast to unsigned.
-		UFP8_T mana = (UFP8_T)pdata->pchr->mana;
-
 		// Drain as much as allowed and possible.
-		UFP8_T drain = std::min(mana, pdata->pprt->manadrain);
+		float drain = std::min(pdata->pchr->getMana(), FP8_TO_FLOAT(pdata->pprt->manadrain));
 
         // Remove the drain from the character that was hit ...
-        pdata->pchr->mana = Ego::Math::constrain<uint32_t>(pdata->pchr->mana - drain, 0, FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_MANA)));
+        pdata->pchr->setMana(pdata->pchr->getMana() - drain);
 
         // add it to the "caster"
         if ( NULL != powner )
         {
-            powner->mana = Ego::Math::constrain<uint32_t>(powner->mana + drain, 0, FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_MANA)));
+            powner->setMana(powner->getMana() + drain);
         }
     }
 
@@ -3084,7 +3079,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     if(spawnerProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','C','Y','T') && Random::getPercent() <= 5) {
 
                         //Make sure they can be damaged by EVIL first
-                        if(pdata->pchr->damage_modifier[DAMAGE_EVIL] == NONE) {
+                        if(pdata->pchr->getAttribute(Ego::Attribute::EVIL_MODIFIER) == NONE) {
                             IPair grimReaperDamage;
                             grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
                             grimReaperDamage.rand = 0.0f;
@@ -3405,6 +3400,19 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
         else {
             knockbackFactor += attackerMight * 0.1f;
         }
+
+        //Telekinetic Staff perk can give +500% knockback
+        const std::shared_ptr<Object>& powner = _currentModule->getObjectHandler()[pdata.pprt->owner_ref];
+        if(powner->hasPerk(Ego::Perks::TELEKINETIC_STAFF) && 
+            pdata.pprt->getAttachedObject()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('S','T','A','F')) {
+
+            //+3% chance per owner Intellect and -1% per target Might
+            float chance = attacker->getAttribute(Ego::Attribute::INTELLECT) * 0.03f - pdata.pchr->getAttribute(Ego::Attribute::MIGHT)*0.01f;
+            if(Random::nextFloat() <= chance) {
+                knockbackFactor += 5.0f;
+                chr_make_text_billboard(attacker->getCharacterID(), "Telekinetic Staff!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 2, Billboard::Flags::All);
+            }
+        }
     }
 
     //Adjust knockback based on relative mass between particle and target
@@ -3436,18 +3444,22 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
     //Apply knockback to the victim (limit between 0% and 300% knockback)
     Vector3f knockbackVelocity = pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
+    //knockbackVelocity[kX] = std::cos(pdata.pprt->vel[kX]) * DEFAULT_KNOCKBACK_VELOCITY;
+    //knockbackVelocity[kY] = std::sin(pdata.pprt->vel[kY]) * DEFAULT_KNOCKBACK_VELOCITY;
+    //knockbackVelocity[kZ] = DEFAULT_KNOCKBACK_VELOCITY / 2;
+    //knockbackVelocity *= Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 
-    //Limit horizontal knockback velocity to MAXTHROWVELOCITY
+    //Limit total horizontal knockback velocity to MAXTHROWVELOCITY
     const float magnitudeVelocityXY = std::sqrt(knockbackVelocity[kX]*knockbackVelocity[kX] + knockbackVelocity[kY]*knockbackVelocity[kY]);
-    if(magnitudeVelocityXY > MAXTHROWVELOCITY) {
-        knockbackVelocity[kX] *= MAXTHROWVELOCITY / magnitudeVelocityXY;
-        knockbackVelocity[kY] *= MAXTHROWVELOCITY / magnitudeVelocityXY;
+    if(magnitudeVelocityXY > MAX_KNOCKBACK_VELOCITY) {
+        knockbackVelocity[kX] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityXY;
+        knockbackVelocity[kY] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityXY;
     }
 
-    //Limit vertical knockback velocity to one third of MAXTHROWVELOCTIY
+    //Limit total vertical knockback velocity to one third of MAXTHROWVELOCTIY
     const float magnitudeVelocityZ = std::sqrt(knockbackVelocity[kZ]*knockbackVelocity[kZ]);
-    if(magnitudeVelocityZ > MAXTHROWVELOCITY) {
-        knockbackVelocity[kZ] *= MAXTHROWVELOCITY / magnitudeVelocityZ;
+    if(magnitudeVelocityZ > MAX_KNOCKBACK_VELOCITY) {
+        knockbackVelocity[kZ] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityZ;
     }
 
     //Apply knockback

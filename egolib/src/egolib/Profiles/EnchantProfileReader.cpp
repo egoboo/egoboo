@@ -56,11 +56,11 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     profile->endmessage = vfs_get_next_int(ctxt);
 
     // Drain stuff
-    profile->_owner._manaDrain = vfs_get_next_sfp8(ctxt);
-    profile->_target._manaDrain = vfs_get_next_sfp8(ctxt);
+    profile->_owner._manaDrain = vfs_get_next_float(ctxt);
+    profile->_target._manaDrain = vfs_get_next_float(ctxt);
     profile->endIfCannotPay = vfs_get_next_bool(ctxt);
-    profile->_owner._lifeDrain = vfs_get_next_sfp8(ctxt);
-    profile->_target._lifeDrain = vfs_get_next_sfp8(ctxt);
+    profile->_owner._lifeDrain = vfs_get_next_float(ctxt);
+    profile->_target._lifeDrain = vfs_get_next_float(ctxt);
 
     // Specifics
     profile->required_damagetype = vfs_get_next_damage_type(ctxt);
@@ -152,19 +152,19 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     profile->_add[eve_t::ADDJUMPPOWER].value = vfs_get_next_float(ctxt);
     profile->_add[eve_t::ADDBUMPDAMPEN].value = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
     profile->_add[eve_t::ADDBOUNCINESS].value = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
-    profile->_add[eve_t::ADDDAMAGE].value = vfs_get_next_sfp8(ctxt);            // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDDAMAGE].value = vfs_get_next_float(ctxt);            // Stored as float, used as 8.8-fixed
     profile->_add[eve_t::ADDSIZE].value = vfs_get_next_float(ctxt);           // Stored as float, used as float
     profile->_add[eve_t::ADDACCEL].value = vfs_get_next_int(ctxt) / 80.0f;   // Stored as int, used as float
     profile->_add[eve_t::ADDRED].value = vfs_get_next_int(ctxt);
     profile->_add[eve_t::ADDGRN].value = vfs_get_next_int(ctxt);
     profile->_add[eve_t::ADDBLU].value = vfs_get_next_int(ctxt);
     profile->_add[eve_t::ADDDEFENSE].value = -vfs_get_next_int(ctxt);    // Defense is backwards
-    profile->_add[eve_t::ADDMANA].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDLIFE].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDSTRENGTH].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDWISDOM].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDINTELLIGENCE].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDDEXTERITY].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDMANA].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDLIFE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDSTRENGTH].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDWISDOM].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDINTELLIGENCE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDDEXTERITY].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
 
     // Determine which entries are not important
     for (size_t cnt = 0; cnt < eve_t::MAX_ENCHANT_ADD; cnt++)
