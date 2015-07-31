@@ -1749,7 +1749,7 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = pself_target->skin;
-    pstate->x = change_armor( pself->target, pstate->argument );
+    pstate->x = pself_target->setSkin(pstate->argument);
 
     pstate->argument = iTmp;  // The character's old armor
 
@@ -4589,7 +4589,8 @@ Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
 
     pstate->x = pstate->argument;
     iTmp = pchr->skin;
-    pstate->x = change_armor( pself->index, pstate->argument );
+    pchr->setSkin(pstate->argument);
+    pstate->x = pchr->skin;
     pstate->argument = iTmp;  // The character's old armor
 
     SCRIPT_FUNCTION_END();

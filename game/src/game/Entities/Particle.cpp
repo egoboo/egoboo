@@ -380,10 +380,16 @@ void Particle::update()
     }
 
     //Clear invalid attachements incase Object have been removed from the game
-    if(!isAttached() && _attachedTo != INVALID_CHR_REF) {
-        _attachedTo = INVALID_CHR_REF;
-        requestTerminate();
-        return;
+    if(_attachedTo != INVALID_CHR_REF) {
+        if(isAttached()) {
+            //keep particles with whomever they are attached to
+            placeAtVertex(getAttachedObject(), attachedto_vrt_off);
+        }
+        else {
+            _attachedTo = INVALID_CHR_REF;
+            requestTerminate();
+            return;
+        }
     }
 
     // Determine if a "homing" particle still has something to "home":

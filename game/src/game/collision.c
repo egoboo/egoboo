@@ -1348,19 +1348,6 @@ void bump_all_objects()
         // handle all the collisions
         bump_all_collisions(&CollisionSystem::get()->_coll_node_lst);
     }
-
-#if 0
-    // The following functions need to be called any time you actually change a charcter's position
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        keep_weapons_with_holder(object);
-        chr_update_matrix(object.get(), true);
-    }
-
-    //keep_weapons_with_holders();
-    attach_all_particles();
-    //update_all_character_matrices();
-#endif
 }
 
 //--------------------------------------------------------------------------------------------

@@ -46,6 +46,7 @@
 #include "game/Module/Module.hpp"
 #include "game/char.h"
 #include "game/physics.h"
+#include "game/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 
@@ -2509,8 +2510,6 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // initialize the game objects
     initialize_all_objects();
     input_cursor_reset();
-    //update_all_character_matrices();
-    attach_all_particles();
 
     // log debug info for every object loaded into the module
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
@@ -2575,20 +2574,6 @@ void game_release_module_data()
     mesh_BSP_system_end();
     obj_BSP_system_end();
     CollisionSystem::get()->reset();    
-}
-
-//--------------------------------------------------------------------------------------------
-void attach_all_particles()
-{
-    /// @author ZZ
-    /// @details This function attaches particles to their characters so everything gets
-    ///    drawn right
-
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-    {
-        if(particle->isTerminated() || !particle->isAttached()) continue;
-        particle->placeAtVertex(particle->getAttachedObject(), particle->attachedto_vrt_off);
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2687,8 +2672,18 @@ void free_all_objects()
     /// @author BB
     /// @details free every instance of the three object types used in the game.
 
+    //free all particles
     ParticleHandler::get().clear();
-    free_all_chraracters();
+
+    // free all the characters
+    if(_currentModule) {
+        _currentModule->getObjectHandler().clear();
+    }
+
+    //free all players
+    PlaStack.count = 0;
+    local_stats.player_count = 0;
+    local_stats.noplayers = true;
 }
 
 //--------------------------------------------------------------------------------------------

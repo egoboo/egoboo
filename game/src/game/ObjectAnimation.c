@@ -1,5 +1,6 @@
 #include "ObjectAnimation.h"
 #include "CharacterMatrix.h"
+#include "ObjectPhysics.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game.h"
 

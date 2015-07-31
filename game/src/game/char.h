@@ -198,13 +198,11 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 void update_all_characters();
-void move_all_characters();
 void bump_all_characters_update_counters();
 void free_all_chraracters();
 
 void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr);
 
-void make_one_character_matrix( const CHR_REF cnt );
 void move_one_character_get_environment( Object * pchr );
 
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
@@ -224,8 +222,6 @@ void character_swipe( const CHR_REF cnt, slot_t slot );
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
 CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 
-bool chr_copy_enviro( Object * chr_psrc, Object * chr_pdst );
-
 bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin );
 
 // character state machine functions
@@ -239,7 +235,6 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
-int     change_armor( const CHR_REF character, const SKIN_T skin );
 void    change_character( const CHR_REF cnt, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 void    change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
@@ -249,7 +244,6 @@ egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF moun
 
 
 bool  drop_all_items( const CHR_REF character );
-bool  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool people );
 
 //--------------------------------------------------------------------------------------------
 // generic helper functions

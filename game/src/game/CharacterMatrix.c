@@ -950,3 +950,75 @@ bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off 
 
     return true;
 }
+
+//--------------------------------------------------------------------------------------------
+void make_one_character_matrix( const CHR_REF ichr )
+{
+    /// @author ZZ
+    /// @details This function sets one character's matrix
+
+    Object * pchr;
+    chr_instance_t * pinst;
+
+    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return;
+    pchr = _currentModule->getObjectHandler().get( ichr );
+    pinst = &( pchr->inst );
+
+    // invalidate this matrix
+    pinst->matrix_cache.matrix_valid = false;
+
+    if ( pchr->is_overlay )
+    {
+        // This character is an overlay and its ai.target points to the object it is overlaying
+        // Overlays are kept with their target...
+        if ( _currentModule->getObjectHandler().exists( pchr->ai.target ) )
+        {
+            Object * ptarget = _currentModule->getObjectHandler().get( pchr->ai.target );
+
+            pchr->setPosition(ptarget->getPosition());
+
+            // copy the matrix
+            pinst->matrix = ptarget->inst.matrix;
+
+            // copy the matrix data
+            pinst->matrix_cache = ptarget->inst.matrix_cache;
+        }
+    }
+    else
+    {
+        if ( pchr->stickybutt )
+        {
+            mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
+                pinst->matrix,
+                fvec3_t(pchr->fat, pchr->fat, pchr->fat),
+                TO_TURN( pchr->ori.facing_z ),
+                TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
+                TO_TURN( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET ),
+                pchr->getPosition());
+        }
+        else
+        {
+            mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
+                pinst->matrix,
+                fvec3_t(pchr->fat, pchr->fat, pchr->fat),
+                TO_TURN( pchr->ori.facing_z ),
+                TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
+                TO_TURN( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET ),
+                pchr->getPosition());
+        }
+
+        pinst->matrix_cache.valid        = true;
+        pinst->matrix_cache.matrix_valid = true;
+        pinst->matrix_cache.type_bits    = MAT_CHARACTER;
+
+        pinst->matrix_cache.self_scale[kX] = pchr->fat;
+        pinst->matrix_cache.self_scale[kY] = pchr->fat;
+        pinst->matrix_cache.self_scale[kZ] = pchr->fat;
+
+        pinst->matrix_cache.rotate[kX] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate[kY] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate[kZ] = pchr->ori.facing_z;
+
+        pinst->matrix_cache.pos = pchr->getPosition();
+    }
+}
