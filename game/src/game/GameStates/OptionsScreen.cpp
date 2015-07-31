@@ -23,6 +23,7 @@
 
 #include "game/GameStates/OptionsScreen.hpp"
 #include "game/GameStates/VideoOptionsScreen.hpp"
+#include "game/GameStates/AudioOptionsScreen.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Image.hpp"
@@ -78,6 +79,10 @@ OptionsScreen::OptionsScreen() :
 	std::shared_ptr<Button> audioOptions = std::make_shared<Button>("Audio Settings", SDLK_a);
 	audioOptions->setPosition(20, yOffset);
 	audioOptions->setSize(200, 30);
+	audioOptions->setOnClickFunction(
+	[this]{
+		_gameEngine->pushGameState(std::make_shared<AudioOptionsScreen>());
+	});
 	addComponent(audioOptions);
 	_slidyButtons.push_front(audioOptions);
 

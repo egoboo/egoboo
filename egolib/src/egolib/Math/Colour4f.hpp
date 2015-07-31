@@ -142,6 +142,17 @@ public:
         return colour;
     }
 
+    /**
+     * @brief The colour "grey".
+     * @return the colour "grey"
+     * @see Ego::Math::Colour3f::grey()
+     */
+    static const Colour4f grey()
+    {
+        static const Colour4f colour(Colour3f::grey(), 1.0f);
+        return colour;
+    }
+
 private:
 
     /**

@@ -30,7 +30,7 @@ namespace GUI
 
 Slider::Slider(int minValue, int maxValue) :
     _sliderBarTexture("mp_data/gui-slider_bar"),
-    _sliderTexture("mp_data/gui-slider"),
+    _sliderTexture("mp_data/gui_slider"),
     _onChangeFunction(),
     _minValue(minValue),
     _maxValue(maxValue),
@@ -50,7 +50,12 @@ void Slider::setOnChangeFunction(const std::function<void(int)> onChange)
 
 void Slider::draw()
 {
+    //Draw the bar
+    _gameEngine->getUIManager()->drawImage(_sliderBarTexture, getX(), getY(), getWidth(), getHeight(), isEnabled() ? Ego::Math::Colour4f::white() : Ego::Math::Colour4f::grey());
 
+    //Draw the moveable slider on top
+    const int SLIDER_WIDTH = getWidth()/10;
+    _gameEngine->getUIManager()->drawImage(_sliderTexture, getX() + SLIDER_WIDTH + (getWidth()-SLIDER_WIDTH*2)*_sliderPosition - SLIDER_WIDTH/2, getY(), SLIDER_WIDTH, getHeight(), isEnabled() ? Ego::Math::Colour4f::white() : Ego::Math::Colour4f::grey());
 }
 
 void Slider::setValue(const int value)
@@ -79,6 +84,7 @@ bool Slider::notifyMouseClicked(const int button, const int x, const int y)
 {
     if(button == SDL_BUTTON_LEFT && contains(x, y)) {
         _isDragging = true;
+        notifyMouseMoved(x, y);
     }
     else {
         _isDragging = false;
@@ -91,10 +97,17 @@ bool Slider::notifyMouseReleased(const int button, const int x, const int y)
 {
     if(_isDragging && button == SDL_BUTTON_LEFT) {
         _isDragging = false;
-        _onChangeFunction(getValue());
+        if(_onChangeFunction) {
+            _onChangeFunction(getValue());
+        }
         return true;        
     }
     return false;
+}
+
+bool Slider::isEnabled() const
+{
+    return _onChangeFunction != nullptr && GUIComponent::isEnabled();
 }
 
 } //GUI
