@@ -48,9 +48,16 @@ AudioOptionsScreen::AudioOptionsScreen()
     addComponent(musicVolumeLable);
     yPos += musicVolumeLable->getHeight() + 5;
 
-    std::shared_ptr<Ego::GUI::Slider> musicVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, 255);
+    std::shared_ptr<Ego::GUI::Slider> musicVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
     musicVolumeSlider->setSize(SCREEN_WIDTH/3, 35);
     musicVolumeSlider->setPosition(xPos, yPos);
+    musicVolumeSlider->setOnChangeFunction(
+        [](int value) { 
+        egoboo_config_t::get().sound_music_volume.setValue(value);
+        egoboo_config_t::get().sound_music_enable.setValue(value > 0);
+        AudioSystem::get().setMusicVolume(value);
+    });
+    musicVolumeSlider->setValue(egoboo_config_t::get().sound_music_volume.getValue());
     addComponent(musicVolumeSlider);
     yPos += musicVolumeSlider->getHeight() + 20;
 
@@ -60,11 +67,53 @@ AudioOptionsScreen::AudioOptionsScreen()
     addComponent(soundEffectLabel);
     yPos += soundEffectLabel->getHeight() + 5;
 
-    std::shared_ptr<Ego::GUI::Slider> soundEffectVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, 255);
+    std::shared_ptr<Ego::GUI::Slider> soundEffectVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
     soundEffectVolumeSlider->setSize(SCREEN_WIDTH/3, 35);
     soundEffectVolumeSlider->setPosition(xPos, yPos);
+    soundEffectVolumeSlider->setOnChangeFunction(
+        [](int value) { 
+        egoboo_config_t::get().sound_effects_volume.setValue(value);
+        egoboo_config_t::get().sound_effects_enable.setValue(value > 0);
+        AudioSystem::get().setSoundEffectVolume(value);
+        AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
+    });
+    soundEffectVolumeSlider->setValue(egoboo_config_t::get().sound_effects_volume.getValue());
     addComponent(soundEffectVolumeSlider);
     yPos += soundEffectVolumeSlider->getHeight() + 20;
+
+    //Sound channels slider
+    std::shared_ptr<Label> soundChannelsLabel = std::make_shared<Label>("Sound Channels:");
+    soundChannelsLabel->setPosition(xPos, yPos);
+    addComponent(soundChannelsLabel);
+    yPos += soundChannelsLabel->getHeight() + 5;
+
+    std::shared_ptr<Ego::GUI::Slider> soundChannelsSlider = std::make_shared<Ego::GUI::Slider>(8, 128);
+    soundChannelsSlider->setSize(SCREEN_WIDTH/3, 35);
+    soundChannelsSlider->setPosition(xPos, yPos);
+    soundChannelsSlider->setOnChangeFunction(
+        [](int value) { 
+        egoboo_config_t::get().sound_channel_count.setValue(value);
+        Mix_AllocateChannels(egoboo_config_t::get().sound_channel_count.getValue());
+    });
+    soundChannelsSlider->setValue(egoboo_config_t::get().sound_channel_count.getValue());
+    addComponent(soundChannelsSlider);
+    yPos += soundChannelsSlider->getHeight() + 20;
+
+    //Footstep button
+    std::shared_ptr<Label> footstepLabel = std::make_shared<Label>("Play Footsteps:");
+    footstepLabel->setPosition(xPos, yPos);
+    addComponent(footstepLabel);
+    yPos += footstepLabel->getHeight() + 5;
+
+    std::shared_ptr<Button> footstepButton = std::make_shared<Button>(egoboo_config_t::get().sound_footfallEffects_enable.getValue() ? "Yes" : "No");
+    footstepButton->setPosition(xPos + footstepLabel->getWidth() + 10, footstepLabel->getY());
+    footstepButton->setSize(100, 30);
+    footstepButton->setOnClickFunction(
+    [footstepButton]{
+        egoboo_config_t::get().sound_footfallEffects_enable.setValue(!egoboo_config_t::get().sound_footfallEffects_enable.getValue());
+        footstepButton->setText(egoboo_config_t::get().sound_footfallEffects_enable.getValue() ? "Yes" : "No");
+    });
+    addComponent(footstepButton);
 
     //Back button
     std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
