@@ -24,6 +24,7 @@
 #include "game/game.h"
 #include "game/char.h"
 
+//Compatability fix for older versions of SDL
 #if SDL_VERSIONNUM(SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL) < SDL_VERSIONNUM(1, 2, 12)
 Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *rw, Mix_MusicType, int freesrc) {
     Mix_Music *ret = Mix_LoadMUS_RW(rw);
@@ -58,7 +59,6 @@ static const std::array<const char*, GSND_COUNT> wavenames =
 };
 
 AudioSystem::AudioSystem() :
-    _audioConfig(),
     _musicLoaded(),
     _soundsLoaded(),
     _globalSounds(),
@@ -67,15 +67,13 @@ AudioSystem::AudioSystem() :
     _maxSoundDistance(DEFAULT_MAX_DISTANCE)
 {
     _globalSounds.fill(INVALID_SOUND_ID);
-    // Set the configuration first.
-    _audioConfig.download(egoboo_config_t::get());
 
     // Initialize SDL mixer.
-    if (_audioConfig.enableMusic || _audioConfig.enableSound)
+    if (egoboo_config_t::get().sound_effects_enable.getValue() || egoboo_config_t::get().sound_music_enable.getValue())
     {
         const SDL_version* link_version = Mix_Linked_Version();
         log_info("initializing SDL mixer audio services version %d.%d.%d ... ", link_version->major, link_version->minor, link_version->patch);
-        if (Mix_OpenAudio(_audioConfig.highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, _audioConfig.buffersize) < 0)
+        if (Mix_OpenAudio(egoboo_config_t::get().sound_highQuality_enable.getValue() ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, egoboo_config_t::get().sound_outputBuffer_size.getValue()) < 0)
         {
             log_message(" failure!\n");
             log_warning("unable to initialize audio: \"%s\"\n", Mix_GetError());
@@ -83,8 +81,8 @@ AudioSystem::AudioSystem() :
         }
         else
         {
-            Mix_VolumeMusic(_audioConfig.musicVolume);
-            Mix_AllocateChannels(_audioConfig.maxsoundchannel);
+            setMusicVolume(egoboo_config_t::get().sound_music_volume.getValue());
+            Mix_AllocateChannels(egoboo_config_t::get().sound_channel_count.getValue());
 
             //Check if we can load OGG Vorbis music (this is non-fatal, game runs fine without music)
             if (!Mix_Init(MIX_INIT_OGG)) {
@@ -95,6 +93,16 @@ AudioSystem::AudioSystem() :
             }
         }
     }
+}
+
+void AudioSystem::setMusicVolume(int value)
+{
+    Mix_VolumeMusic(Ego::Math::constrain(value, 0, MIX_MAX_VOLUME));
+}
+
+void AudioSystem::setSoundEffectVolume(int value)
+{
+    Mix_Volume(-1, Ego::Math::constrain(value, 0, MIX_MAX_VOLUME));
 }
 
 void AudioSystem::loadGlobalSounds()
@@ -136,15 +144,12 @@ void AudioSystem::reconfigure(egoboo_config_t& cfg)
     // Clear all data.
     _loopingSounds.clear();
 
-    // Set the configuration first.
-    _audioConfig.download(cfg);
-
     // Restore audio if needed
-    if (_audioConfig.enableMusic || _audioConfig.enableSound)
+    if (egoboo_config_t::get().sound_effects_enable.getValue() || egoboo_config_t::get().sound_music_enable.getValue())
     {
-        if (-1 != Mix_OpenAudio(_audioConfig.highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, _audioConfig.buffersize))
+        if (-1 != Mix_OpenAudio(egoboo_config_t::get().sound_highQuality_enable.getValue() ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, egoboo_config_t::get().sound_outputBuffer_size.getValue()))
         {
-            Mix_AllocateChannels(_audioConfig.maxsoundchannel);
+            Mix_AllocateChannels(egoboo_config_t::get().sound_channel_count.getValue());
         }
         else
         {
@@ -156,7 +161,7 @@ void AudioSystem::reconfigure(egoboo_config_t& cfg)
     _maxSoundDistance = DEFAULT_MAX_DISTANCE;
 
     // Do we restart the music?
-    if (_audioConfig.enableMusic)
+    if (egoboo_config_t::get().sound_music_enable.getValue())
     {
         // Load music if required.
         loadAllMusic();
@@ -164,6 +169,7 @@ void AudioSystem::reconfigure(egoboo_config_t& cfg)
         // Start playing queued/paused song.
         if (_currentSongPlaying >= 0 && _currentSongPlaying < _musicLoaded.size())
         {
+            Mix_HaltMusic();
             Mix_FadeInMusic(_musicLoaded[_currentSongPlaying], -1, 500);
         }
     }
@@ -171,7 +177,7 @@ void AudioSystem::reconfigure(egoboo_config_t& cfg)
 
 void AudioSystem::stopMusic()
 {
-    if (_audioConfig.enableMusic)
+    if (egoboo_config_t::get().sound_music_enable.getValue())
     {
         Mix_FadeOutMusic(2000);
         //Mix_HaltMusic();
@@ -259,7 +265,7 @@ void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
     // Remember desired music.
     _currentSongPlaying = musicID;
 
-    if (!_audioConfig.enableMusic)
+    if (!egoboo_config_t::get().sound_music_enable.getValue())
     {
         return;
     }
@@ -270,7 +276,7 @@ void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
     }
 
     //Set music volume
-    Mix_VolumeMusic(_audioConfig.musicVolume);
+    Mix_VolumeMusic(egoboo_config_t::get().sound_music_volume.getValue());
 
     // Mix_FadeOutMusic(fadetime);      // Stops the game too
     if (Mix_FadeInMusic(_musicLoaded[musicID], -1, fadetime) == -1) {
@@ -280,7 +286,7 @@ void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
 
 void AudioSystem::loadAllMusic()
 {
-    if (!_musicLoaded.empty() || !_audioConfig.enableMusic) return;
+    if (!_musicLoaded.empty() || !egoboo_config_t::get().sound_music_enable.getValue()) return;
 
     // Open the playlist listing all music files
     ReadContext ctxt("mp_data/music/playlist.txt");
@@ -432,7 +438,7 @@ int AudioSystem::playSoundFull(SoundID soundID)
         return INVALID_SOUND_CHANNEL;
     }
 
-    if (!_audioConfig.enableSound)
+    if (!egoboo_config_t::get().sound_effects_enable.getValue())
     {
         return INVALID_SOUND_CHANNEL;
     }
@@ -441,8 +447,11 @@ int AudioSystem::playSoundFull(SoundID soundID)
     int channel = Mix_PlayChannel(-1, _soundsLoaded[soundID], 0);
 
     if (channel != INVALID_SOUND_CHANNEL) {
+        //remove any 3D positional mixing effects
+        Mix_SetPosition(channel, 0, 0);
+
         // we are still limited by the global sound volume
-        Mix_Volume(channel, (128 * _audioConfig.soundVolume) / 100);
+        Mix_Volume(channel, (128 * egoboo_config_t::get().sound_effects_volume.getValue()) / 100);
     }
 
     return channel;
@@ -477,7 +486,7 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fv
     angle += CameraSystem::get()->getMainCamera()->getTurnZOne() * Ego::Math::twoPi<float>();
 
     //limited global sound volume
-    Mix_Volume(channel, (128 * _audioConfig.soundVolume) / 100);
+    Mix_Volume(channel, (128 * egoboo_config_t::get().sound_effects_volume.getValue()) / 100);
 
     //Do 3D sound mixing
     Mix_SetPosition(channel, angle, distance);
@@ -523,7 +532,7 @@ int AudioSystem::playSound(const fvec3_t& snd_pos, const SoundID soundID)
     }
 
     // If sound is not enabled ...
-    if (!_audioConfig.enableSound)
+    if (!egoboo_config_t::get().sound_effects_enable.getValue())
     {
         // ... return invalid channel.
         return INVALID_SOUND_CHANNEL;
