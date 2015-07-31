@@ -221,7 +221,7 @@ void LoadingState::loadModuleData()
     AudioSystem::get().stopMusic();
 
     // Must wait until music has finished fading out or else update loop will lag first few updates
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     // Complete!
     singleThreadRedrawHack("Finished!");
