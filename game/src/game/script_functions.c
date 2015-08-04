@@ -2049,7 +2049,17 @@ Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_clean( pself->index );
+    for(const std::shared_ptr<Object> &listener : _currentModule->getObjectHandler().iterator())
+    {
+        if ( pchr->getTeam() != listener->getTeam() ) continue;
+
+        if ( !listener->isAlive() )
+        {
+            listener->ai.timer  = update_wld + 2;  // Don't let it think too much...
+        }
+
+        SET_BIT( listener->ai.alert, ALERTIF_CLEANEDUP );
+    }
 
     SCRIPT_FUNCTION_END();
 }

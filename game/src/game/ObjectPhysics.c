@@ -14,6 +14,10 @@ static bool move_one_character_integrate_motion_attached( Object * pchr );
 static bool chr_do_latch_button( Object * pchr );
 static bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
 static breadcrumb_t * chr_get_last_breadcrumb( Object * pchr );
+static fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
+static float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
+
+static void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1674,6 +1678,89 @@ void move_one_character( Object * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
+void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
+{
+    /// @author ZZ
+    /// @details This function keeps weapons near their holders
+
+    CHR_REF iattached = pchr->attachedto;
+    if ( _currentModule->getObjectHandler().exists( iattached ) )
+    {
+        Object * pattached = _currentModule->getObjectHandler().get( iattached );
+
+        // Keep in hand weapons with iattached
+        if ( chr_matrix_valid( pchr.get() ) )
+        {
+            pchr->setPosition(mat_getTranslate(pchr->inst.matrix));
+        }
+        else
+        {
+            //TODO: ZF> should this be the other way around?
+            pchr->setPosition(pattached->getPosition());
+        }
+
+        pchr->ori.facing_z = pattached->ori.facing_z;
+
+        // Copy this stuff ONLY if it's a weapon, not for mounts
+        if ( pattached->transferblend && pchr->isitem )
+        {
+
+            // Items become partially invisible in hands of players
+            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.alpha )
+            {
+                pchr->setAlpha(SEEINVISIBLE);
+            }
+            else
+            {
+                // Only if not naturally transparent
+                if ( 255 == pchr->getProfile()->getAlpha() )
+                {
+                    pchr->setAlpha(pattached->inst.alpha);
+                }
+                else
+                {
+                    pchr->setAlpha(pchr->getProfile()->getAlpha());
+                }
+            }
+
+            // Do light too
+            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.light )
+            {
+                pchr->setLight(SEEINVISIBLE);
+            }
+            else
+            {
+                // Only if not naturally transparent
+                if ( 255 == pchr->getProfile()->getLight())
+                {
+                    pchr->setLight(pattached->inst.light);
+                }
+                else
+                {
+                    pchr->setLight(pchr->getProfile()->getLight());
+                }
+            }
+        }
+    }
+    else
+    {
+        pchr->attachedto = INVALID_CHR_REF;
+
+        // Keep inventory with iattached
+        if ( !_currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
+        {
+            for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
+            {
+                pitem->setPosition(pchr->getPosition());
+
+                // Copy olds to make SendMessageNear work
+                pitem->pos_old = pchr->pos_old;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void move_all_characters()
 {
     /// @author ZZ
@@ -1693,4 +1780,72 @@ void move_all_characters()
         chr_update_matrix( object.get(), true );
         keep_weapons_with_holder(object);
     }
+}
+
+//--------------------------------------------------------------------------------------------
+fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure)
+{
+    if (!chr)
+    {
+        return fvec3_t::zero();
+    }
+
+    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
+    {
+        return fvec3_t::zero();
+    }
+
+    // Calculate the radius based on whether the character is on camera.
+    float radius = 0.0f;
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
+    {
+        ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(chr->getTile());
+
+        if (nullptr != tile && tile->inrenderlist)
+        {
+            radius = chr->bump_1.size;
+        }
+    }
+
+    mesh_mpdfx_tests = 0;
+    mesh_bound_tests = 0;
+    mesh_pressure_tests = 0;
+    fvec3_t result = ego_mesh_t::get_diff(_currentModule->getMeshPointer(), pos, radius, center_pressure, chr->stoppedby);
+    chr_stoppedby_tests += mesh_mpdfx_tests;
+    chr_pressure_tests += mesh_pressure_tests;
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------
+float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
+{
+    if (!chr)
+    {
+        return 0.0f;
+    }
+
+    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
+    {
+        return 0.0f;
+    }
+
+    // Calculate the radius based on whether the character is on camera.
+    float radius = 0.0f;
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
+    {
+        ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(chr->getTile());
+
+        if (nullptr != tile && tile->inrenderlist)
+        {
+            radius = chr->bump_1.size;
+        }
+    }
+
+    mesh_mpdfx_tests = 0;
+    mesh_bound_tests = 0;
+    mesh_pressure_tests = 0;
+    float result = ego_mesh_t::get_pressure( _currentModule->getMeshPointer(), pos, radius, chr->stoppedby);
+    chr_stoppedby_tests += mesh_mpdfx_tests;
+    chr_pressure_tests += mesh_pressure_tests;
+    return result;
 }

@@ -47,6 +47,7 @@
 
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
+#include "game/ObjectPhysics.h"
 #include "game/mesh.h"
 
 //--------------------------------------------------------------------------------------------
@@ -57,12 +58,7 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
-
-Object * chr_config_do_init( Object * pchr );
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
-
-static void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 //--------------------------------------------------------------------------------------------
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
@@ -117,157 +113,6 @@ egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
     }
 
     return rv_success;
-}
-
-//--------------------------------------------------------------------------------------------
-void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
-{
-    /// @author ZZ
-    /// @details This function keeps weapons near their holders
-
-    CHR_REF iattached = pchr->attachedto;
-    if ( _currentModule->getObjectHandler().exists( iattached ) )
-    {
-        Object * pattached = _currentModule->getObjectHandler().get( iattached );
-
-        // Keep in hand weapons with iattached
-        if ( chr_matrix_valid( pchr.get() ) )
-        {
-            pchr->setPosition(mat_getTranslate(pchr->inst.matrix));
-        }
-        else
-        {
-            //TODO: ZF> should this be the other way around?
-            pchr->setPosition(pattached->getPosition());
-        }
-
-        pchr->ori.facing_z = pattached->ori.facing_z;
-
-        // Copy this stuff ONLY if it's a weapon, not for mounts
-        if ( pattached->transferblend && pchr->isitem )
-        {
-
-            // Items become partially invisible in hands of players
-            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.alpha )
-            {
-                pchr->setAlpha(SEEINVISIBLE);
-            }
-            else
-            {
-                // Only if not naturally transparent
-                if ( 255 == pchr->getProfile()->getAlpha() )
-                {
-                    pchr->setAlpha(pattached->inst.alpha);
-                }
-                else
-                {
-                    pchr->setAlpha(pchr->getProfile()->getAlpha());
-                }
-            }
-
-            // Do light too
-            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.light )
-            {
-                pchr->setLight(SEEINVISIBLE);
-            }
-            else
-            {
-                // Only if not naturally transparent
-                if ( 255 == pchr->getProfile()->getLight())
-                {
-                    pchr->setLight(pattached->inst.light);
-                }
-                else
-                {
-                    pchr->setLight(pchr->getProfile()->getLight());
-                }
-            }
-        }
-    }
-    else
-    {
-        pchr->attachedto = INVALID_CHR_REF;
-
-        // Keep inventory with iattached
-        if ( !_currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
-        {
-            for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
-            {
-                pitem->setPosition(pchr->getPosition());
-
-                // Copy olds to make SendMessageNear work
-                pitem->pos_old = pchr->pos_old;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
-{
-    if (!chr)
-    {
-        return 0.0f;
-    }
-
-    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
-    {
-        return 0.0f;
-    }
-
-    // Calculate the radius based on whether the character is on camera.
-    float radius = 0.0f;
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
-    {
-        ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(chr->getTile());
-
-        if (nullptr != tile && tile->inrenderlist)
-        {
-            radius = chr->bump_1.size;
-        }
-    }
-
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    float result = ego_mesh_t::get_pressure( _currentModule->getMeshPointer(), pos, radius, chr->stoppedby);
-    chr_stoppedby_tests += mesh_mpdfx_tests;
-    chr_pressure_tests += mesh_pressure_tests;
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------
-fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure)
-{
-    if (!chr)
-    {
-        return fvec3_t::zero();
-    }
-
-    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
-    {
-        return fvec3_t::zero();
-    }
-
-    // Calculate the radius based on whether the character is on camera.
-    float radius = 0.0f;
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
-    {
-        ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(chr->getTile());
-
-        if (nullptr != tile && tile->inrenderlist)
-        {
-            radius = chr->bump_1.size;
-        }
-    }
-
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    fvec3_t result = ego_mesh_t::get_diff(_currentModule->getMeshPointer(), pos, radius, center_pressure, chr->stoppedby);
-    chr_stoppedby_tests += mesh_mpdfx_tests;
-    chr_pressure_tests += mesh_pressure_tests;
-    return result;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -922,124 +767,6 @@ bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF charac
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
-{
-    /// @author BB
-    /// @details grab all of the data from the data.txt file
-
-    int iTmp, tnc;
-
-    if (nullptr == ( pchr ) || !profile ) return false;
-
-    // Set up model stuff
-    pchr->stoppedby = profile->getStoppedByMask();
-    pchr->nameknown = profile->isNameKnown();
-    pchr->ammoknown = profile->isNameKnown();
-    pchr->draw_icon = profile->isDrawIcon();
-
-    // calculate a base kurse state. this may be overridden later
-    if ( profile->isItem() )
-    {
-        pchr->iskursed = Random::getPercent() <= profile->getKurseChance();
-    }
-
-    // Starting Perks
-    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
-        Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
-        if(profile->beginsWithPerk(id)) {
-            pchr->addPerk(id);
-        }
-    }
-
-    // Ammo
-    pchr->ammomax = profile->getMaxAmmo();
-    pchr->ammo = profile->getAmmo();
-
-    // Gender
-    pchr->gender = profile->getGender();
-    if ( pchr->gender == GENDER_RANDOM )
-    {
-        //50% male or female
-        if(Random::nextBool())
-        {
-            pchr->gender = GENDER_FEMALE;
-        }
-        else
-        {
-            pchr->gender = GENDER_MALE;
-        }
-    }
-
-    // Life and Mana bars
-    pchr->setBaseAttribute(Ego::Attribute::LIFE_BARCOLOR, profile->getLifeColor());
-    pchr->setBaseAttribute(Ego::Attribute::MANA_BARCOLOR, profile->getManaColor());
-
-    // Skin
-    pchr->setSkin(profile->getSkinOverride());
-
-    // Flags
-    pchr->damagetarget_damagetype = profile->getDamageTargetType();
-    pchr->stickybutt      = profile->hasStickyButt();
-    pchr->openstuff       = profile->canOpenStuff();
-    pchr->transferblend   = profile->transferBlending();
-    pchr->setBaseAttribute(Ego::Attribute::WALK_ON_WATER, profile->canWalkOnWater() ? 1.0f : 0.0f);
-    pchr->platform        = profile->isPlatform();
-    pchr->canuseplatforms = profile->canUsePlatforms();
-    pchr->isitem          = profile->isItem();
-    pchr->invictus        = profile->isInvincible();
-    pchr->cangrabmoney    = profile->canGrabMoney();
-
-    // Jumping
-    pchr->setBaseAttribute(Ego::Attribute::JUMP_POWER, profile->getJumpPower());
-    pchr->setBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, profile->getJumpNumber());
-
-    // Other junk
-    pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, profile->getFlyHeight());
-    pchr->flashand    = profile->getFlashAND();
-    pchr->phys.dampen = profile->getBounciness();
-
-    // Clamp life to [1,life_max] and mana to [0,life_max]. This may be overridden later
-    pchr->setLife(profile->getSpawnLife());
-    pchr->setMana(profile->getSpawnMana());
-
-    pchr->phys.bumpdampen = profile->getBumpDampen();
-    if ( CAP_INFINITE_WEIGHT == profile->getWeight() )
-    {
-        pchr->phys.weight = CHR_INFINITE_WEIGHT;
-    }
-    else
-    {
-        Uint32 itmp = profile->getWeight() * profile->getSize() * profile->getSize() * profile->getSize();
-        pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
-    }
-
-    // Image rendering
-    pchr->uoffvel = profile->getTextureMovementRateX();
-    pchr->voffvel = profile->getTextureMovementRateY();
-
-    // Movement
-    pchr->anim_speed_sneak = profile->getSneakAnimationSpeed();
-    pchr->anim_speed_walk = profile->getWalkAnimationSpeed();
-    pchr->anim_speed_run = profile->getRunAnimationSpeed();
-
-    // Money is added later
-    pchr->money = profile->getStartingMoney();
-
-    // Experience
-    iTmp = Random::next( profile->getStartingExperience() );
-    pchr->experience      = std::min( iTmp, MAXXP );
-    pchr->experiencelevel = profile->getStartingLevel();
-
-    // Particle attachments
-    pchr->reaffirm_damagetype = profile->getReaffirmDamageType();
-
-    // Character size and bumping
-    chr_init_size(pchr, profile);
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void cleanup_one_character( Object * pchr )
 {
     /// @author BB
@@ -1151,167 +878,6 @@ Object * chr_config_do_init( Object * pchr )
 
         return NULL;
     }
-
-    // make a copy of the data in spawn_ptr->pos
-    pos_tmp = spawn_ptr->pos;
-
-    // download all the values from the character spawn_ptr->profile
-    chr_download_profile( pchr, ppro );
-
-    // Make sure the spawn_ptr->team is valid
-    loc_team = spawn_ptr->team;
-    iteam = REF_TO_INT( loc_team );
-    iteam = CLIP( iteam, 0, (int)Team::TEAM_MAX );
-    loc_team = ( TEAM_REF )iteam;
-
-    // IMPORTANT!!!
-    pchr->missilehandler = ichr;
-
-    // Set up model stuff
-    pchr->profile_ref   = spawn_ptr->profile;
-    pchr->basemodel_ref = spawn_ptr->profile;
-
-    // Kurse state
-    if ( ppro->isItem() )
-    {
-        kursechance = ppro->getKurseChance();
-        if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
-        {
-            kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
-        }
-        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal && kursechance != 100)
-        {
-            kursechance *= 0.5f;  // Easy mode halves chance for Kurses
-        }
-        pchr->iskursed = Random::getPercent() <= kursechance;
-    }
-
-    // AI stuff
-    ai_state_spawn( &( pchr->ai ), ichr, pchr->profile_ref, _currentModule->getTeamList()[loc_team].getMorale() );
-
-    // Team stuff
-    pchr->team     = loc_team;
-    pchr->team_base = loc_team;
-    if ( !pchr->isInvincible() )  _currentModule->getTeamList()[loc_team].increaseMorale();
-
-    // Firstborn becomes the leader
-    if ( !_currentModule->getTeamList()[loc_team].getLeader() )
-    {
-        _currentModule->getTeamList()[loc_team].setLeader(_currentModule->getObjectHandler()[ichr]);
-    }
-
-    // Heal the spawn_ptr->skin, if needed
-    if (spawn_ptr->skin < 0 || ppro->getSkinOverride() != ObjectProfile::NO_SKIN_OVERRIDE)
-    {
-        spawn_ptr->skin = ppro->getSkinOverride();
-    }
-
-    // cap_get_skin_overide() can return NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX, so we need to check
-    // for the "random skin marker" even if that function is called
-    if (spawn_ptr->skin == ObjectProfile::NO_SKIN_OVERRIDE)
-    {
-        // This is a "random" skin.
-        // Force it to some specific value so it will go back to the same skin every respawn
-        // We are now ensuring that there are skin graphics for all skins, so there
-        // is no need to count the skin graphics loaded into the profile.
-        // Limiting the available skins to ones that had unique graphics may have been a mistake since
-        // the skin-dependent properties in data.txt may exist even if there are no unique graphics.
-        spawn_ptr->skin = ppro->getRandomSkinID();
-    }
-
-    // actually set the character skin
-    pchr->setSkin(spawn_ptr->skin);
-
-    // override the default behavior for an "easy" game
-    if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal)
-    {
-        pchr->setLife(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
-        pchr->setMana(pchr->getAttribute(Ego::Attribute::MAX_MANA));
-    }
-
-    // Character size and bumping
-    pchr->fat_goto      = pchr->fat;
-    pchr->fat_goto_time = 0;
-
-    // grab all of the environment information
-    move_one_character_get_environment( pchr );
-
-    pchr->setPosition(pos_tmp);
-
-    pchr->pos_stt  = pos_tmp;
-    pchr->pos_old  = pos_tmp;
-
-    pchr->ori.facing_z     = spawn_ptr->facing;
-    pchr->ori_old.facing_z = pchr->ori.facing_z;
-
-    // Name the character
-    if ( CSTR_END == spawn_ptr->name[0] )
-    {
-        // Generate a random spawn_ptr->name
-        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", ppro->generateRandomName().c_str() );
-    }
-    else
-    {
-        // A spawn_ptr->name has been given
-        tnc = 0;
-
-        while ( spawn_ptr->name[tnc] != '\0' ) //ZF> TODO: dangerous copy here! no bounds check
-        {
-            pchr->Name[tnc] = spawn_ptr->name[tnc];
-            tnc++;
-        }
-
-        pchr->Name[tnc] = CSTR_END;
-    }
-
-    // initalize the character instance
-    chr_instance_t::spawn(pchr->inst, spawn_ptr->profile, spawn_ptr->skin);
-    chr_update_matrix( pchr, true );
-
-    // Particle attachments
-    for ( tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
-    {
-        ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
-                            ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc);
-    }
-
-    // is the object part of a shop's inventory?
-    if ( pchr->isitem )
-    {
-        // Items that are spawned inside shop passages are more expensive than normal
-
-        CHR_REF shopOwner = _currentModule->getShopOwner(pchr->getPosX(), pchr->getPosY());
-        if(shopOwner != Passage::SHOP_NOOWNER) {
-            pchr->isshopitem = true;               // Full value
-            pchr->iskursed   = false;              // Shop items are never kursed
-            pchr->nameknown  = true;               // identified
-        }
-        else {
-            pchr->isshopitem = false;
-        }
-    }
-
-    /// @author ZF
-    /// @details override the shopitem flag if the item is known to be valuable
-    /// @author BB
-    /// @details this prevents (essentially) all books from being able to be burned
-    //if ( pcap->isvaluable )
-    //{
-    //    pchr->isshopitem = true;
-    //}
-
-    // determine whether the object is hidden
-    chr_update_hide( pchr );
-
-    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
-
-#if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
-    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
-    {
-        log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
-                     pchr->getPosX(), pchr->getPosY(), nrm[kX], nrm[kY] );
-    }
-#endif
 
     return pchr;
 }
@@ -1651,29 +1217,6 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
     if ( VALID_CHR_RANGE( tmp_ref ) )
     {
         switch_team_base( tmp_ref, team, false );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void issue_clean( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function issues a clean up order to all teammates
-
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
-
-    if ( !pchr ) return;
-
-    for(const std::shared_ptr<Object> &listener : _currentModule->getObjectHandler().iterator())
-    {
-        if ( pchr->getTeam() != listener->getTeam() ) continue;
-
-        if ( !listener->isAlive() )
-        {
-            listener->ai.timer  = update_wld + 2;  // Don't let it think too much...
-        }
-
-        SET_BIT( listener->ai.alert, ALERTIF_CLEANEDUP );
     }
 }
 
@@ -2569,7 +2112,7 @@ bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 }
 
 //--------------------------------------------------------------------------------------------
-static void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
+void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
 {
     /// @author BB
     /// @details initalize the character size info

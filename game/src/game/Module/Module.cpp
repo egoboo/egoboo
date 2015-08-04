@@ -32,6 +32,11 @@
 #include "game/mesh.h"
 #include "game/char.h"
 
+#include "game/ObjectPhysics.h" //only for move_one_character_get_environment()
+
+static void chr_download_profile(std::shared_ptr<Object> &pchr, const std::shared_ptr<ObjectProfile> &profile);
+
+
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
     _gameObjects(),
@@ -260,7 +265,144 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
     strncpy( pchr->spawn_data.name, name, SDL_arraysize( pchr->spawn_data.name ) );
     pchr->spawn_data.override = override;
 
-    chr_config_do_init(pchr.get());
+    // download all the values from the character spawn_ptr->profile
+    chr_download_profile(pchr, ppro);
+
+    // Set up model stuff
+    pchr->missilehandler = pchr->getCharacterID();
+    pchr->profile_ref   = profile;
+    pchr->basemodel_ref = profile;
+
+    // Kurse state
+    if ( ppro->isItem() )
+    {
+        uint16_t kursechance = ppro->getKurseChance();
+        if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
+        {
+            kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
+        }
+        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal && kursechance != 100)
+        {
+            kursechance *= 0.5f;  // Easy mode halves chance for Kurses
+        }
+        pchr->iskursed = Random::getPercent() <= kursechance;
+    }
+
+    // AI stuff
+    ai_state_spawn( &( pchr->ai ), pchr->getCharacterID(), pchr->profile_ref, getTeamList()[team].getMorale() );
+
+    // Team stuff
+    pchr->team     = team;
+    pchr->team_base = team;
+    if ( !pchr->isInvincible() )  getTeamList()[team].increaseMorale();
+
+    // Firstborn becomes the leader
+    if ( !getTeamList()[team].getLeader() )
+    {
+        getTeamList()[team].setLeader(pchr);
+    }
+
+    // Heal the skin number, if needed
+    if (skin < 0 || ppro->getSkinOverride() != ObjectProfile::NO_SKIN_OVERRIDE)
+    {
+        pchr->spawn_data.skin = ppro->getSkinOverride();
+    }
+
+    // cap_get_skin_overide() can return NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX, so we need to check
+    // for the "random skin marker" even if that function is called
+    if (pchr->spawn_data.skin == ObjectProfile::NO_SKIN_OVERRIDE)
+    {
+        // This is a "random" skin.
+        // Force it to some specific value so it will go back to the same skin every respawn
+        // We are now ensuring that there are skin graphics for all skins, so there
+        // is no need to count the skin graphics loaded into the profile.
+        // Limiting the available skins to ones that had unique graphics may have been a mistake since
+        // the skin-dependent properties in data.txt may exist even if there are no unique graphics.
+        pchr->spawn_data.skin = ppro->getRandomSkinID();
+    }
+
+    // actually set the character skin
+    pchr->setSkin(pchr->spawn_data.skin);
+
+    // override the default behavior for an "easy" game
+    if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal)
+    {
+        pchr->setLife(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
+        pchr->setMana(pchr->getAttribute(Ego::Attribute::MAX_MANA));
+    }
+    else {
+        pchr->setLife(ppro->getSpawnLife());
+        pchr->setMana(ppro->getSpawnMana());        
+    }
+
+    // Character size and bumping
+    pchr->fat_goto      = pchr->fat;
+    pchr->fat_goto_time = 0;
+
+    // grab all of the environment information
+    move_one_character_get_environment( pchr.get() );
+
+    pchr->setPosition(pos);
+
+    pchr->pos_stt  = pos;
+    pchr->pos_old  = pos;
+
+    pchr->ori.facing_z     = facing;
+    pchr->ori_old.facing_z = pchr->ori.facing_z;
+
+    // Name the character
+    if ( CSTR_END == name )
+    {
+        // Generate a random name
+        strncpy(pchr->Name, ppro->generateRandomName().c_str(), SDL_arraysize(pchr->Name));
+    }
+    else
+    {
+        // A name has been given
+        strncpy(pchr->Name, name, SDL_arraysize(pchr->Name));
+    }
+
+    // initalize the character instance
+    chr_instance_t::spawn(pchr->inst, profile, pchr->spawn_data.skin);
+    chr_update_matrix( pchr.get(), true );
+
+    // Particle attachments
+    for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
+    {
+        ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
+                            pchr->getCharacterID(), GRIP_LAST + tnc, pchr->team, pchr->getCharacterID(), INVALID_PRT_REF, tnc);
+    }
+
+    // is the object part of a shop's inventory?
+    if ( pchr->isItem() )
+    {
+        // Items that are spawned inside shop passages are more expensive than normal
+
+        CHR_REF shopOwner = getShopOwner(pchr->getPosX(), pchr->getPosY());
+        if(shopOwner != Passage::SHOP_NOOWNER) {
+            pchr->isshopitem = true;               // Full value
+            pchr->iskursed   = false;              // Shop items are never kursed
+            pchr->nameknown  = true;               // identified
+            pchr->ammoknown  = true;
+        }
+        else {
+            pchr->isshopitem = false;
+        }
+    }
+
+    /// @author ZF
+    /// @details override the shopitem flag if the item is known to be valuable
+    /// @author BB
+    /// @details this prevents (essentially) all books from being able to be burned
+    //if ( pcap->isvaluable )
+    //{
+    //    pchr->isshopitem = true;
+    //}
+
+    // determine whether the object is hidden
+    chr_update_hide( pchr.get() );
+
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
 
     // start the character out in the "dance" animation
     chr_start_anim(pchr.get(), ACTION_DA, true, true);
@@ -272,9 +414,115 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
     log_debug( "spawnObject() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( pchr->getCharacterID() ), name, ppro->getClassName().c_str() );
 #endif
 
+#if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
+    if ( _gameObjects.exists( pchr->attachedto ) && CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
+    {
+        log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
+                     pchr->getPosX(), pchr->getPosY(), nrm[kX], nrm[kY] );
+    }
+#endif
+
     return pchr;
 }
 
+//--------------------------------------------------------------------------------------------
+void chr_download_profile(const std::shared_ptr<Object> &pchr, const std::shared_ptr<ObjectProfile> &profile)
+{
+    /// @author BB
+    /// @details grab all of the data from the data.txt file
+
+    // Set up model stuff
+    pchr->stoppedby = profile->getStoppedByMask();
+    pchr->nameknown = profile->isNameKnown();
+    pchr->ammoknown = profile->isNameKnown();
+    pchr->draw_icon = profile->isDrawIcon();
+
+    // Starting Perks
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+        Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
+        if(profile->beginsWithPerk(id)) {
+            pchr->addPerk(id);
+        }
+    }
+
+    // Ammo
+    pchr->ammomax = profile->getMaxAmmo();
+    pchr->ammo = profile->getAmmo();
+
+    // Gender
+    pchr->gender = profile->getGender();
+    if ( pchr->gender == GENDER_RANDOM )
+    {
+        //50% male or female
+        if(Random::nextBool())
+        {
+            pchr->gender = GENDER_FEMALE;
+        }
+        else
+        {
+            pchr->gender = GENDER_MALE;
+        }
+    }
+
+    // Life and Mana bars
+    pchr->setBaseAttribute(Ego::Attribute::LIFE_BARCOLOR, profile->getLifeColor());
+    pchr->setBaseAttribute(Ego::Attribute::MANA_BARCOLOR, profile->getManaColor());
+
+    // Flags
+    pchr->damagetarget_damagetype = profile->getDamageTargetType();
+    pchr->stickybutt      = profile->hasStickyButt();
+    pchr->openstuff       = profile->canOpenStuff();
+    pchr->transferblend   = profile->transferBlending();
+    pchr->setBaseAttribute(Ego::Attribute::WALK_ON_WATER, profile->canWalkOnWater() ? 1.0f : 0.0f);
+    pchr->platform        = profile->isPlatform();
+    pchr->canuseplatforms = profile->canUsePlatforms();
+    pchr->isitem          = profile->isItem();
+    pchr->invictus        = profile->isInvincible();
+    pchr->cangrabmoney    = profile->canGrabMoney();
+
+    // Jumping
+    pchr->setBaseAttribute(Ego::Attribute::JUMP_POWER, profile->getJumpPower());
+    pchr->setBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, profile->getJumpNumber());
+
+    // Other junk
+    pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, profile->getFlyHeight());
+    pchr->flashand    = profile->getFlashAND();
+    pchr->phys.dampen = profile->getBounciness();
+
+    pchr->phys.bumpdampen = profile->getBumpDampen();
+    if ( CAP_INFINITE_WEIGHT == profile->getWeight() )
+    {
+        pchr->phys.weight = CHR_INFINITE_WEIGHT;
+    }
+    else
+    {
+        uint32_t itmp = profile->getWeight() * profile->getSize() * profile->getSize() * profile->getSize();
+        pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
+    }
+
+    // Image rendering
+    pchr->uoffvel = profile->getTextureMovementRateX();
+    pchr->voffvel = profile->getTextureMovementRateY();
+
+    // Movement
+    pchr->anim_speed_sneak = profile->getSneakAnimationSpeed();
+    pchr->anim_speed_walk = profile->getWalkAnimationSpeed();
+    pchr->anim_speed_run = profile->getRunAnimationSpeed();
+
+    // Money is added later
+    pchr->money = profile->getStartingMoney();
+
+    // Experience
+    int iTmp = Random::next( profile->getStartingExperience() );
+    pchr->experience      = std::min( iTmp, MAXXP );
+    pchr->experiencelevel = profile->getStartingLevel();
+
+    // Particle attachments
+    pchr->reaffirm_damagetype = profile->getReaffirmDamageType();
+
+    // Character size and bumping
+    chr_init_size(pchr.get(), profile);
+}
 
 /// @todo Remove this global.
 std::unique_ptr<GameModule> _currentModule = nullptr;

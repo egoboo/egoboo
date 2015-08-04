@@ -198,15 +198,6 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 void update_all_characters();
-void bump_all_characters_update_counters();
-void free_all_chraracters();
-
-void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr);
-
-void move_one_character_get_environment( Object * pchr );
-
-fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
-float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
 
 /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
 ///    inventory ( Not hands ).
@@ -217,7 +208,6 @@ bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF char
 bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
-
 
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
 CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
@@ -238,12 +228,13 @@ egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
 void    change_character( const CHR_REF cnt, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 void    change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
-void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
 
 bool  drop_all_items( const CHR_REF character );
+
+void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 //--------------------------------------------------------------------------------------------
 // generic helper functions
