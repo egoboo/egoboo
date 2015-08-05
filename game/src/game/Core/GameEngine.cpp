@@ -104,6 +104,13 @@ void GameEngine::start()
             _updateTimeout += DELAY_PER_UPDATE_FRAME;
         }
 
+        //Prevent accumalating more than 1 second of game updates (can happen in severe frame drops or breakpoints while debugging)
+        const uint32_t now = SDL_GetTicks();
+        if(now - GAME_TARGET_UPS*DELAY_PER_UPDATE_FRAME > _updateTimeout) {
+            _updateTimeout = now + DELAY_PER_UPDATE_FRAME;
+            _renderTimeout = now;
+        }
+
         // Check if it is time to draw everything
         if(SDL_GetTicks() >= _renderTimeout)
         {
@@ -139,7 +146,8 @@ void GameEngine::start()
 
 void GameEngine::estimateFrameRate()
 {
-    const float dt = (SDL_GetTicks()-_lastFrameEstimation) * 0.001f;
+    const uint32_t now = SDL_GetTicks();
+    const float dt = (now-_lastFrameEstimation) * 0.001f;
 
     //Throttle estimations to four times per second
     if(dt < 0.25f) {
@@ -151,7 +159,7 @@ void GameEngine::estimateFrameRate()
 
     _lastFPSCount = game_frame_all;
     _lastUPSCount = update_wld;
-    _lastFrameEstimation = SDL_GetTicks();
+    _lastFrameEstimation = now;
 }
 
 void GameEngine::updateOneFrame()
