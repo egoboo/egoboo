@@ -164,7 +164,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // TWINK_BO.OBJ
-    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler().get(owner)->Name ).c_str() );
+    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler()[owner]->getName() ).c_str() );
 
     // Is it a character or an item?
     if ( chr_obj_index < 0 )
@@ -2010,7 +2010,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);    
+    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname == nullptr ? "" : psp_info->pname, INVALID_CHR_REF);
     if (!pobject) return false;
 
     // determine the attachment
@@ -4081,16 +4081,16 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		import_ptr->slot = REF_TO_INT(player) * MAX_IMPORT_PER_PLAYER;
 		import_ptr->srcDir[0] = CSTR_END;
 		import_ptr->dstDir[0] = CSTR_END;
-		strncpy(import_ptr->name, pchr->Name, SDL_arraysize(import_ptr->name));
+		strncpy(import_ptr->name, pchr->getName().c_str(), SDL_arraysize(import_ptr->name));
 
 		// only copy the "source" directory if the player is local
 		if (is_local)
 		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->Name).c_str());
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->getName()).c_str());
 		}
 		else
 		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->Name).c_str());
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->getName()).c_str());
 		}
 
 		player++;

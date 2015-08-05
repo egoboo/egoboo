@@ -338,7 +338,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     // Create an overlay character?
     if (_enchantProfile->spawn_overlay)
     {
-        std::shared_ptr<Object> overlay = _currentModule->spawnObject(target->getPosition(), _spawnerProfileID, target->team, 0, target->ori.facing_z, NULL, INVALID_CHR_REF );
+        std::shared_ptr<Object> overlay = _currentModule->spawnObject(target->getPosition(), _spawnerProfileID, target->team, 0, target->ori.facing_z, "", INVALID_CHR_REF );
         if (overlay)
         {
             _overlay = overlay;                             //Kill this character on end...

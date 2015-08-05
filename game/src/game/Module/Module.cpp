@@ -231,11 +231,8 @@ bool GameModule::isInside(const float x, const float y) const
 }
 
 std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, 
-                                                const FACING_T facing, const char *name, const CHR_REF override)
+                                                const FACING_T facing, const std::string &name, const CHR_REF override)
 {
-    // fix a "bad" name
-    if ( NULL == name ) name = "";
-
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(profile);
     if (!ppro)
     {
@@ -351,15 +348,15 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
     // Name the character
-    if ( CSTR_END == name )
+    if (name.empty())
     {
         // Generate a random name
-        strncpy(pchr->Name, ppro->generateRandomName().c_str(), SDL_arraysize(pchr->Name));
+        pchr->setName(ppro->generateRandomName());
     }
     else
     {
         // A name has been given
-        strncpy(pchr->Name, name, SDL_arraysize(pchr->Name));
+        pchr->setName(name);
     }
 
     // initalize the character instance
@@ -411,7 +408,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
     ppro->_spawnCount++;
 
 #if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
-    log_debug( "spawnObject() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( pchr->getCharacterID() ), name, ppro->getClassName().c_str() );
+    log_debug( "spawnObject() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( pchr->getCharacterID() ), name.c_str(), ppro->getClassName().c_str() );
 #endif
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)

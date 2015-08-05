@@ -787,7 +787,7 @@ void Particle::destroy()
     //Spawn an Object on particle end? (happens through a special script function)
     if (SPAWNNOCHARACTER != endspawn_characterstate)
     {
-        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, NULL, INVALID_CHR_REF);
+        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, "", INVALID_CHR_REF);
         if (child)
         {
             chr_set_ai_state(child.get(), endspawn_characterstate);

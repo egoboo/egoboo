@@ -1889,12 +1889,12 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, 0);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
@@ -5397,12 +5397,12 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), "", INVALID_CHR_REF );
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
@@ -5447,7 +5447,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         pstate->distance
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), "", INVALID_CHR_REF);
 
     if ( !pchild )
     {
@@ -7007,7 +7007,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
     returncode = link_follow_modname( ppro->getMessage(pstate->argument).c_str(), true );
     if ( !returncode )
     {
-        DisplayMsg_printf( "That's too scary for %s", pchr->Name );
+        DisplayMsg_printf( "That's too scary for %s", pchr->getName().c_str() );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7382,12 +7382,12 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, pchr->getProfile()->getClassName().c_str(), pstate->argument);
+        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->getName().c_str(), pchr->getProfile()->getClassName().c_str(), pstate->argument);
     }
     else
     {

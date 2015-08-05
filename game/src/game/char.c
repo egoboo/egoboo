@@ -441,7 +441,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -763,7 +763,7 @@ bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF charac
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
 
-    return RandomName::exportName(_currentModule->getObjectHandler().get(character)->Name, szSaveName);
+    return RandomName::exportName(_currentModule->getObjectHandler()[character]->getName(), szSaveName);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -919,7 +919,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         return;
     }
 
-    // Drop left weapon
+    // Drop left weapon if we have no left grip
     const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
     if ( leftItem && ( !newProfile->isSlotValid(SLOT_LEFT) || newProfile->isMount() ) )
     {
@@ -934,7 +934,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         }
     }
 
-    // Drop right weapon
+    // Drop right weapon if we have no right grip
     const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
     if ( rightItem && !newProfile->isSlotValid(SLOT_RIGHT) )
     {

@@ -701,6 +701,12 @@ public:
 
     const std::shared_ptr<Object>& toSharedPointer() const;
 
+    /**
+    * @brief
+    *   changes the name of this Object
+    **/
+    void setName(const std::string &name);
+
 private:
 
     /**
@@ -733,7 +739,6 @@ public:
     latch_t        latch;
 
     // character stats
-    STRING         Name;            ///< My name
     uint8_t        gender;          ///< Gender
 
     uint32_t       experience;      ///< Experience
@@ -871,11 +876,12 @@ public:
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 private:
-    bool _terminateRequested;                            ///< True if this character no longer exists in the game and should be destructed
-    CHR_REF _characterID;                                ///< Our unique CHR_REF id
-    std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
-    bool _showStatus;                                    ///< Display stats?
-    bool _isAlive;                                       ///< Is this Object alive or dead?
+    bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
+    CHR_REF _characterID;                            ///< Our unique CHR_REF id
+    std::shared_ptr<ObjectProfile> _profile;         ///< Our Profile
+    bool _showStatus;                                ///< Display stats?
+    bool _isAlive;                                   ///< Is this Object alive or dead?
+    std::string _name;                               ///< Name of the Object
 
     //Attributes
     float _currentLife;

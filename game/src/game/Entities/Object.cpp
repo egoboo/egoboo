@@ -46,7 +46,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     spawn_data(),
     ai(),
     latch(),
-    Name(),
     gender(GENDER_MALE),
     experience(0),
     experiencelevel(0),
@@ -145,6 +144,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
     _isAlive(true),
+    _name("*NONE*"),
 
     _currentLife(0.0f),
     _currentMana(0.0f),
@@ -995,7 +995,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
 
     if (isNameKnown())
     {
-        result = Name;
+        result = _name;
 
         // capitalize the name ?
         if (capitalLetter)
@@ -1022,7 +1022,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
 
             if (prefixDefinite)
             {
-                result = std::string("the ") + result;
+                result.insert(0, "the ");
             }
             else
             {
@@ -1030,11 +1030,11 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
 
                 if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                 {
-                    result = std::string("an ") + result;
+                    result.insert(0, "an ");
                 }
                 else
                 {
-                    result = std::string("a ") + result;
+                    result.insert(0, "a ");
                 }
             }
         }
@@ -2106,3 +2106,7 @@ void Object::setLife(const float value)
     _currentLife = Ego::Math::constrain(_currentLife+value, 0.01f, getAttribute(Ego::Attribute::MAX_LIFE));
 }
 
+void Object::setName(const std::string &name)
+{
+    _name = name;
+}
