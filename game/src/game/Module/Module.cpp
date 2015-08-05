@@ -34,9 +34,6 @@
 
 #include "game/ObjectPhysics.h" //only for move_one_character_get_environment()
 
-static void chr_download_profile(std::shared_ptr<Object> &pchr, const std::shared_ptr<ObjectProfile> &profile);
-
-
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
     _gameObjects(),
@@ -259,11 +256,101 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
     pchr->spawn_data.team     = team;
     pchr->spawn_data.skin     = skin;
     pchr->spawn_data.facing   = facing;
-    strncpy( pchr->spawn_data.name, name, SDL_arraysize( pchr->spawn_data.name ) );
+    strncpy( pchr->spawn_data.name, name.c_str(), SDL_arraysize( pchr->spawn_data.name ) );
     pchr->spawn_data.override = override;
 
     // download all the values from the character spawn_ptr->profile
-    chr_download_profile(pchr, ppro);
+    // Set up model stuff
+    pchr->stoppedby = ppro->getStoppedByMask();
+    pchr->nameknown = ppro->isNameKnown();
+    pchr->ammoknown = ppro->isNameKnown();
+    pchr->draw_icon = ppro->isDrawIcon();
+
+    // Starting Perks
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
+        Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
+        if(ppro->beginsWithPerk(id)) {
+            pchr->addPerk(id);
+        }
+    }
+
+    // Ammo
+    pchr->ammomax = ppro->getMaxAmmo();
+    pchr->ammo = ppro->getAmmo();
+
+    // Gender
+    pchr->gender = ppro->getGender();
+    if ( pchr->gender == GENDER_RANDOM )
+    {
+        //50% male or female
+        if(Random::nextBool())
+        {
+            pchr->gender = GENDER_FEMALE;
+        }
+        else
+        {
+            pchr->gender = GENDER_MALE;
+        }
+    }
+
+    // Life and Mana bars
+    pchr->setBaseAttribute(Ego::Attribute::LIFE_BARCOLOR, ppro->getLifeColor());
+    pchr->setBaseAttribute(Ego::Attribute::MANA_BARCOLOR, ppro->getManaColor());
+
+    // Flags
+    pchr->damagetarget_damagetype = ppro->getDamageTargetType();
+    pchr->stickybutt      = ppro->hasStickyButt();
+    pchr->openstuff       = ppro->canOpenStuff();
+    pchr->transferblend   = ppro->transferBlending();
+    pchr->setBaseAttribute(Ego::Attribute::WALK_ON_WATER, ppro->canWalkOnWater() ? 1.0f : 0.0f);
+    pchr->platform        = ppro->isPlatform();
+    pchr->canuseplatforms = ppro->canUsePlatforms();
+    pchr->isitem          = ppro->isItem();
+    pchr->invictus        = ppro->isInvincible();
+    pchr->cangrabmoney    = ppro->canGrabMoney();
+
+    // Jumping
+    pchr->setBaseAttribute(Ego::Attribute::JUMP_POWER, ppro->getJumpPower());
+    pchr->setBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, ppro->getJumpNumber());
+
+    // Other junk
+    pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, ppro->getFlyHeight());
+    pchr->flashand    = ppro->getFlashAND();
+    pchr->phys.dampen = ppro->getBounciness();
+
+    pchr->phys.bumpdampen = ppro->getBumpDampen();
+    if ( CAP_INFINITE_WEIGHT == ppro->getWeight() )
+    {
+        pchr->phys.weight = CHR_INFINITE_WEIGHT;
+    }
+    else
+    {
+        uint32_t itmp = ppro->getWeight() * ppro->getSize() * ppro->getSize() * ppro->getSize();
+        pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
+    }
+
+    // Image rendering
+    pchr->uoffvel = ppro->getTextureMovementRateX();
+    pchr->voffvel = ppro->getTextureMovementRateY();
+
+    // Movement
+    pchr->anim_speed_sneak = ppro->getSneakAnimationSpeed();
+    pchr->anim_speed_walk = ppro->getWalkAnimationSpeed();
+    pchr->anim_speed_run = ppro->getRunAnimationSpeed();
+
+    // Money is added later
+    pchr->money = ppro->getStartingMoney();
+
+    // Experience
+    int iTmp = Random::next( ppro->getStartingExperience() );
+    pchr->experience      = std::min( iTmp, MAXXP );
+    pchr->experiencelevel = ppro->getStartingLevel();
+
+    // Particle attachments
+    pchr->reaffirm_damagetype = ppro->getReaffirmDamageType();
+
+    // Character size and bumping
+    chr_init_size(pchr.get(), ppro);
 
     // Set up model stuff
     pchr->missilehandler = pchr->getCharacterID();
@@ -420,105 +507,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
 #endif
 
     return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_download_profile(const std::shared_ptr<Object> &pchr, const std::shared_ptr<ObjectProfile> &profile)
-{
-    /// @author BB
-    /// @details grab all of the data from the data.txt file
-
-    // Set up model stuff
-    pchr->stoppedby = profile->getStoppedByMask();
-    pchr->nameknown = profile->isNameKnown();
-    pchr->ammoknown = profile->isNameKnown();
-    pchr->draw_icon = profile->isDrawIcon();
-
-    // Starting Perks
-    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
-        Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
-        if(profile->beginsWithPerk(id)) {
-            pchr->addPerk(id);
-        }
-    }
-
-    // Ammo
-    pchr->ammomax = profile->getMaxAmmo();
-    pchr->ammo = profile->getAmmo();
-
-    // Gender
-    pchr->gender = profile->getGender();
-    if ( pchr->gender == GENDER_RANDOM )
-    {
-        //50% male or female
-        if(Random::nextBool())
-        {
-            pchr->gender = GENDER_FEMALE;
-        }
-        else
-        {
-            pchr->gender = GENDER_MALE;
-        }
-    }
-
-    // Life and Mana bars
-    pchr->setBaseAttribute(Ego::Attribute::LIFE_BARCOLOR, profile->getLifeColor());
-    pchr->setBaseAttribute(Ego::Attribute::MANA_BARCOLOR, profile->getManaColor());
-
-    // Flags
-    pchr->damagetarget_damagetype = profile->getDamageTargetType();
-    pchr->stickybutt      = profile->hasStickyButt();
-    pchr->openstuff       = profile->canOpenStuff();
-    pchr->transferblend   = profile->transferBlending();
-    pchr->setBaseAttribute(Ego::Attribute::WALK_ON_WATER, profile->canWalkOnWater() ? 1.0f : 0.0f);
-    pchr->platform        = profile->isPlatform();
-    pchr->canuseplatforms = profile->canUsePlatforms();
-    pchr->isitem          = profile->isItem();
-    pchr->invictus        = profile->isInvincible();
-    pchr->cangrabmoney    = profile->canGrabMoney();
-
-    // Jumping
-    pchr->setBaseAttribute(Ego::Attribute::JUMP_POWER, profile->getJumpPower());
-    pchr->setBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, profile->getJumpNumber());
-
-    // Other junk
-    pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, profile->getFlyHeight());
-    pchr->flashand    = profile->getFlashAND();
-    pchr->phys.dampen = profile->getBounciness();
-
-    pchr->phys.bumpdampen = profile->getBumpDampen();
-    if ( CAP_INFINITE_WEIGHT == profile->getWeight() )
-    {
-        pchr->phys.weight = CHR_INFINITE_WEIGHT;
-    }
-    else
-    {
-        uint32_t itmp = profile->getWeight() * profile->getSize() * profile->getSize() * profile->getSize();
-        pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
-    }
-
-    // Image rendering
-    pchr->uoffvel = profile->getTextureMovementRateX();
-    pchr->voffvel = profile->getTextureMovementRateY();
-
-    // Movement
-    pchr->anim_speed_sneak = profile->getSneakAnimationSpeed();
-    pchr->anim_speed_walk = profile->getWalkAnimationSpeed();
-    pchr->anim_speed_run = profile->getRunAnimationSpeed();
-
-    // Money is added later
-    pchr->money = profile->getStartingMoney();
-
-    // Experience
-    int iTmp = Random::next( profile->getStartingExperience() );
-    pchr->experience      = std::min( iTmp, MAXXP );
-    pchr->experiencelevel = profile->getStartingLevel();
-
-    // Particle attachments
-    pchr->reaffirm_damagetype = profile->getReaffirmDamageType();
-
-    // Character size and bumping
-    chr_init_size(pchr.get(), profile);
 }
 
 /// @todo Remove this global.
