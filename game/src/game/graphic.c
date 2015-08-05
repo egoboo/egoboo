@@ -1202,15 +1202,13 @@ float draw_character_xp_bar(const CHR_REF character, float x, float y)
     //Draw the small XP progress bar
     if (pchr->experiencelevel < MAXLEVEL - 1)
     {
-        std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
         uint8_t  curlevel = pchr->experiencelevel + 1;
-        uint32_t xplastlevel = profile->getXPNeededForLevel(curlevel - 1);
-        uint32_t xpneed = profile->getXPNeededForLevel(curlevel);
+        uint32_t xplastlevel = pchr->getProfile()->getXPNeededForLevel(curlevel - 1);
+        uint32_t xpneed = pchr->getProfile()->getXPNeededForLevel(curlevel);
 
         while (pchr->experience < xplastlevel && curlevel > 1) {
             curlevel--;
-            xplastlevel = profile->getXPNeededForLevel(curlevel - 1);
+            xplastlevel = pchr->getProfile()->getXPNeededForLevel(curlevel - 1);
         }
 
         float fraction = ((float)(pchr->experience - xplastlevel)) / (float)std::max<uint32_t>(xpneed - xplastlevel, 1);
@@ -3323,9 +3321,9 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
         chr_instance_t& pinst = pchr->inst;
 
         // Do flashing
-        if (DONTFLASH != pchr->flashand)
+        if (DONTFLASH != pchr->getProfile()->getFlashAND())
         {
-            if (HAS_NO_BITS(game_frame_all, pchr->flashand))
+            if (HAS_NO_BITS(game_frame_all, pchr->getProfile()->getFlashAND()))
             {
 				chr_instance_flash(pinst, 255);
             }

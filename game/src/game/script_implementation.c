@@ -457,17 +457,6 @@ bool Compass( fvec2_t& pos, int facing, float distance )
 }
 
 //--------------------------------------------------------------------------------------------
-int GetArmorPrice( Object * pchr, const int skin )
-{
-    // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-    /// @author ZZ
-    /// @details This function returns the cost of the desired skin upgrade, setting
-    /// tmpx to the price
-
-    return ProfileSystem::get().getProfile(pchr->profile_ref)->getSkinInfo(skin).cost;
-}
-
-//--------------------------------------------------------------------------------------------
 Uint32 UpdateTime( Uint32 time_val, int delay )
 {
     // UpdateTime( tmpargument = "time" )
@@ -586,17 +575,16 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
 
     if ( nullptr == ( pchr ) ) return false;
 
-    const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(pchr->profile_ref);
-    if ( !ppro->isValidMessageID( message_index ) ) return false;
+    if ( !pchr->getProfile()->isValidMessageID( message_index ) ) return false;
 
     ichr           = GET_INDEX_PCHR( pchr );
-    length = ppro->getMessage(message_index).length();
+    length = pchr->getProfile()->getMessage(message_index).length();
 
     dst     = endtext + endtext_carat;
     dst_end = endtext + MAXENDTEXT - 1;
 
     char buffer[256];
-    strncpy(buffer, ppro->getMessage(message_index).c_str(), 256);
+    strncpy(buffer, pchr->getProfile()->getMessage(message_index).c_str(), 256);
 
     expand_escape_codes( ichr, pstate, buffer, buffer + length, dst, dst_end );
     endtext_carat = strlen( endtext );

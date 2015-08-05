@@ -666,7 +666,7 @@ bool chr_handle_madfx( Object * pchr )
     //Do footfall sound effect
     if (egoboo_config_t::get().sound_footfallEffects_enable.getValue() && HAS_SOME_BITS(framefx, MADFX_FOOTFALL))
     {
-        AudioSystem::get().playSound(pchr->getPosition(), ProfileSystem::get().getProfile(pchr->profile_ref)->getFootFallSound());
+        AudioSystem::get().playSound(pchr->getPosition(), pchr->getProfile()->getFootFallSound());
     }
 
     return true;

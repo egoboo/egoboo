@@ -27,6 +27,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/Logic/Attribute.hpp"
+#include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/_Include.hpp"
 
 //Macros? eww...
@@ -35,7 +36,6 @@
 #define ENC_LEAVE_NONE          2
 
 //Forward declarations
-class eve_t;
 class Object;
 
 namespace Ego
@@ -117,6 +117,21 @@ public:
     **/
     void playEndSound() const;
 
+    /**
+    * @brief
+    *   Returns what kind of deflection handling this enchantment provides.
+    * @return
+    *   not MISSILE_NORMAL if it provides some special kind of missile protection
+    **/
+    MissileTreatmentType getMissileTreatment() const;
+
+    /**
+    * @return
+    *   How much the owner of the enchant must pay in mana for each missile deflected or reflected.
+    *   If the owner cannot pay the cost, then the enchantment provides no special missile protection
+    **/
+    float getMissileTreatmentCost() const;
+
 private:
     bool _isTerminated;
 
@@ -131,6 +146,10 @@ private:
     std::weak_ptr<Object> _owner;   ///< Who cast the enchant
     std::weak_ptr<Object> _spawner; ///< The spellbook character
     std::weak_ptr<Object> _overlay; ///< The overlay character
+
+    //Missile deflection enchant?
+    MissileTreatmentType _missileTreatment;
+    float _missileTreatmentCost;
 
     /// List to remember if properties were subjected to modifications by this enchant
     std::forward_list<EnchantModifier> _modifiers;

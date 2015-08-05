@@ -128,7 +128,7 @@ void scr_run_chr_script(Object *pchr) {
 
 	// Make life easier
 	script_error_classname = "UNKNOWN";
-	script_error_model = pchr->profile_ref;
+	script_error_model = pchr->getProfileID();
 	if (script_error_model < INVALID_PRO_REF)
 	{
 		script_error_classname = ProfileSystem::get().getProfile(script_error_model)->getClassName().c_str();

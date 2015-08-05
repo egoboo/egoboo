@@ -108,7 +108,7 @@ bool Passage::close()
             {
                 if ( objectIsInPassage( object->getPosX(), object->getPosY(), object->bump_1.size ) )
                 {
-                    if ( !object->canbecrushed || ( object->isAlive() && object->openstuff ) )
+                    if ( !object->canbecrushed || ( object->isAlive() && object->getProfile()->canOpenStuff() ) )
                     {
                         // Someone is blocking who can open stuff, stop here
                         return false;

@@ -1710,7 +1710,6 @@ void show_magic_status( int statindex )
     /// @details Displays special enchantment effects for the character
 
     CHR_REF character;
-    const char * missile_str;
 
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
     if(!pchr) {
@@ -1729,16 +1728,7 @@ void show_magic_status( int statindex )
                        pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 ? "Yes" : "No",
                        pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? "Yes" : "No" );
 
-    switch ( pchr->missiletreatment )
-    {
-        case MISSILE_REFLECT: missile_str = "Reflect"; break;
-        case MISSILE_DEFLECT: missile_str = "Deflect"; break;
-
-        default:
-        case MISSILE_NORMAL : missile_str = "None";    break;
-    }
-
-    DisplayMsg_printf( "~Flying: %s~~Missile Protection: %s", pchr->isFlying() ? "Yes" : "No", missile_str );
+    DisplayMsg_printf( "~Flying: %s", pchr->isFlying() ? "Yes" : "No");
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1754,7 +1744,7 @@ void tilt_characters_to_terrain()
     {
         if ( object->isTerminated() ) continue;
 
-        if ( object->stickybutt )
+        if ( object->getProfile()->hasStickyButt() )
         {
             twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
@@ -2055,9 +2045,9 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
-                if (pobject->profile_ref <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->profile_ref))
+                if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->getProfileID()))
                 {
-                    int islot = REF_TO_INT( pobject->profile_ref );
+                    int islot = REF_TO_INT( pobject->getProfileID() );
 
                     if ( import_data.slot_lst[islot] == g_importList.lst[tnc].slot )
                     {
@@ -3814,10 +3804,8 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
     // check if they can be connected
-    if ( !profile->canUsePlatforms() || pchr->isFlying() ) return false;
+    if ( !pchr->canuseplatforms || pchr->isFlying() ) return false;
     if ( !pplat->platform ) return false;
 
     // do the attachment

@@ -441,7 +441,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -919,35 +919,8 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         return;
     }
 
-    // Drop left weapon if we have no left grip
-    const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
-    if ( leftItem && ( !newProfile->isSlotValid(SLOT_LEFT) || newProfile->isMount() ) )
-    {
-        leftItem->detatchFromHolder(true, true);
-        detach_character_from_platform(leftItem.get());
-
-        if ( pchr->isMount() )
-        {
-            leftItem->vel[kZ]    = DISMOUNTZVEL;
-            leftItem->jump_timer = JUMPDELAY;
-            leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
-        }
-    }
-
-    // Drop right weapon if we have no right grip
-    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
-    if ( rightItem && !newProfile->isSlotValid(SLOT_RIGHT) )
-    {
-        rightItem->detatchFromHolder(true, true);
-        detach_character_from_platform(rightItem.get());
-
-        if ( pchr->isMount() )
-        {
-            rightItem->vel[kZ]    = DISMOUNTZVEL;
-            rightItem->jump_timer = JUMPDELAY;
-            rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
-        }
-    }
+    //Actually polymorph the object
+    pchr->polymorphObject(profile_new);
 
     // Remove particles
     disaffirm_attached_particles( ichr );
@@ -971,7 +944,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     }
 
     // Stuff that must be set
-    pchr->profile_ref  = profile_new;
     pchr->stoppedby = newProfile->getStoppedByMask();
 
     // Ammo
@@ -992,14 +964,10 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->latch.clear();
 
     // Flags
-    pchr->stickybutt      = newProfile->hasStickyButt();
-    pchr->openstuff       = newProfile->canOpenStuff();
-    pchr->transferblend   = newProfile->transferBlending();
     pchr->platform        = newProfile->isPlatform();
     pchr->canuseplatforms = newProfile->canUsePlatforms();
     pchr->isitem          = newProfile->isItem();
     pchr->invictus        = newProfile->isInvincible();
-    pchr->cangrabmoney    = newProfile->canGrabMoney();
     pchr->jump_timer      = JUMPDELAY;
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
@@ -1025,7 +993,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         }
 
         // Spellbooks should stay the same size, even if their spell effect cause changes in size
-        if ( pchr->profile_ref == SPELLBOOK ) new_fat = old_fat = 1.00f;
+        if ( pchr->getProfileID() == SPELLBOOK ) new_fat = old_fat = 1.00f;
 
         // copy all the cap size info over, as normal
         chr_init_size( pchr, newProfile );
@@ -1054,13 +1022,9 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     }
     else
     {
-        Uint32 itmp = newProfile->getWeight() * pchr->fat * pchr->fat * pchr->fat;
+        uint32_t itmp = newProfile->getWeight() * pchr->fat * pchr->fat * pchr->fat;
         pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
     }
-
-    // Image rendering
-    pchr->uoffvel = newProfile->getTextureMovementRateX();
-    pchr->voffvel = newProfile->getTextureMovementRateY();
 
     // Movement
     pchr->anim_speed_sneak = newProfile->getSneakAnimationSpeed();
@@ -1648,13 +1612,7 @@ std::string chr_get_dir_name( const CHR_REF ichr )
     if (!_currentModule->getObjectHandler().exists(ichr)) {
         return "*INVALID*";
     }
-    Object *pchr = _currentModule->getObjectHandler().get( ichr );
-    if (!ProfileSystem::get().isValidProfileID(pchr->profile_ref)) {
-        return "*INVALID*";
-    } else {
-        std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(pchr->profile_ref);
-        return ppro->getPathname();
-    }
+    return _currentModule->getObjectHandler()[ichr]->getProfile()->getPathname();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1787,7 +1745,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 
     // what do we need to draw?
     // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
-    bool is_book = (SPELLBOOK == pitem->profile_ref) || (itemProfile->getSpellEffectType() >= 0 && !pitem->draw_icon);
+    bool is_book = (SPELLBOOK == pitem->getProfileID()) || (itemProfile->getSpellEffectType() >= 0 && !pitem->draw_icon);
 
     //bool is_spell_fx = ( itemProfile->getSpellEffectType() >= 0 );     
     //bool draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ); /// ZF@> uncommented a part because this caused a icon bug when you were morphed and mounted
@@ -1809,10 +1767,10 @@ Object * chr_update_hide( Object * pchr )
     /// @details Update the hide state of the character. Should be called every time that
     ///               the state variable in an ai_state_t structure is updated
 
-    if ( nullptr == ( pchr ) ) return pchr;
+    if ( nullptr == pchr ) return pchr;
 
     pchr->is_hidden = false;
-    int8_t hideState = ProfileSystem::get().getProfile(pchr->profile_ref)->getHideState();
+    int8_t hideState = pchr->getProfile()->getHideState();
     if ( hideState != NOHIDE && hideState == pchr->ai.state )
     {
         pchr->is_hidden = true;

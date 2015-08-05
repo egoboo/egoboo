@@ -42,6 +42,8 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
     _overlay(),
 
     _modifiers(),
+    _missileTreatment(MISSILE_NORMAL),
+    _missileTreatmentCost(0.0f),
 
     _ownerManaSustain(enchantmentProfile->_owner._manaDrain),
     _ownerLifeSustain(enchantmentProfile->_owner._lifeDrain),
@@ -86,9 +88,12 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::SETFLYTOHEIGHT: type = Ego::Attribute::FLY_TO_HEIGHT; break;
             case eve_t::SETWALKONWATER: type = Ego::Attribute::WALK_ON_WATER; break;
             case eve_t::SETCANSEEINVISIBLE: type = Ego::Attribute::SEE_INVISIBLE; break;
-            case eve_t::SETMISSILETREATMENT: type = Ego::Attribute::MISSILE_TREATMENT; break;
-            case eve_t::SETCOSTFOREACHMISSILE: type = Ego::Attribute::COST_FOR_EACH_MISSILE; break;
             case eve_t::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
+
+            //These are not object attributes but enchant attributes
+            case eve_t::SETMISSILETREATMENT:    _missileTreatment = static_cast<MissileTreatmentType>(_enchantProfile->_add[i].value); continue;
+            case eve_t::SETCOSTFOREACHMISSILE:  _missileTreatmentCost = _enchantProfile->_add[i].value; continue;
+
             default: throw std::logic_error("Unhandled enchant set type");
         }
         _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
@@ -511,6 +516,16 @@ void Enchantment::playEndSound() const
         const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(_spawnerProfileID);
         AudioSystem::get().playSound(target->getPosition(), spawnerProfile->getSoundID(getProfile()->endsound_index));
     }
+}
+
+MissileTreatmentType Enchantment::getMissileTreatment() const
+{
+    return _missileTreatment;
+}
+
+float Enchantment::getMissileTreatmentCost() const
+{
+    return _missileTreatmentCost;
 }
 
 } //Ego

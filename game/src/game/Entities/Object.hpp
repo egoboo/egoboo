@@ -95,7 +95,7 @@ struct chr_environment_t
 
     float  zlerp;
 
-    fvec3_t floor_speed;
+    Vector3f floor_speed;
 
     // friction stuff
     bool is_slipping;
@@ -109,9 +109,9 @@ struct chr_environment_t
     bool grounded;              ///< standing on something?
 
     // various motion parameters
-    fvec3_t  new_v;
-    fvec3_t  acc;
-    fvec3_t  vel;
+    Vector3f  new_v;
+    Vector3f  acc;
+    Vector3f  vel;
 };
 
 /// the data used to define the spawning of a character
@@ -129,7 +129,7 @@ struct chr_spawn_data_t
         //ctor
     }
 
-    fvec3_t     pos;
+    Vector3f     pos;
     PRO_REF     profile;
     TEAM_REF    team;
     int         skin;
@@ -165,9 +165,7 @@ public:
     * @brief Gets a shared_ptr to the current ObjectProfile associated with this character.
     *        The ObjectProfile can change for polymorphing objects.
     **/
-    std::shared_ptr<ObjectProfile> getProfile() const {
-        return ProfileSystem::get().getProfile(profile_ref);
-    }
+    const std::shared_ptr<ObjectProfile>& getProfile() const;
 
     /**
     * @return the unique CHR_REF associated with this character
@@ -177,13 +175,13 @@ public:
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
     **/
-    inline Team& getTeam() const {return _currentModule->getTeamList()[team];}
+    Team& getTeam() const {return _currentModule->getTeamList()[team];}
 
     /**
     * @brief
     *   True if this Object is a item that can be grabbed
     **/
-    inline bool isItem() const {return isitem;}
+    bool isItem() const {return isitem;}
 
     /**
     * @return
@@ -252,13 +250,13 @@ public:
     * @brief Set current X, Y, Z position of this Object
     * @return true if the position of this object has changed
     **/
-    bool setPosition(const fvec3_t &position);
+    bool setPosition(const Vector3f &position);
 
     /**
     * @brief Set current X, Y, Z position of this Object
     * @return true if the position of this object has changed
     **/
-    inline bool setPosition(const float x, const float y, const float z) {return setPosition(fvec3_t(x, y, z));}
+    inline bool setPosition(const float x, const float y, const float z) {return setPosition(Vector3f(x, y, z));}
 
     /**
     * @brief Translate the current X, Y, Z position of this object by the specified values
@@ -376,7 +374,7 @@ public:
     * @result
     *   Success returns true, failure returns false;
     **/
-    bool teleport(const fvec3_t& position, const FACING_T facing_z);
+    bool teleport(const Vector3f& position, const FACING_T facing_z);
 
     /**
     * @brief
@@ -485,11 +483,11 @@ public:
 	/** @override */
 	BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
 	/** @override */
-	BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+	BIT_FIELD hit_wall(const Vector3f& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
 	/** @override */
 	BIT_FIELD test_wall(mesh_wall_data_t *data) override;
 	/** @override */
-	BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
+	BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) override;
 
     inline AABB_2D getAABB2D() const
     {
@@ -707,6 +705,14 @@ public:
     **/
     void setName(const std::string &name);
 
+    /**
+    * @brief
+    *   Changes this Object into a different type. This effect is reversible (base profile is not changed)
+    **/
+    void polymorphObject(const PRO_REF profileID);
+
+    PRO_REF getProfileID() const {return _profileID;}
+
 private:
 
     /**
@@ -781,11 +787,6 @@ public:
     DamageType          reaffirm_damagetype;           ///< For relighting torches
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
-    // missle handling
-    uint8_t          missiletreatment;              ///< For deflection, etc.
-    uint8_t          missilecost;                   ///< Mana cost for each one
-    CHR_REF        missilehandler;                ///< Who pays the bill for each one...
-
     // "variable" properties
     bool         is_hidden;
     PLA_REF      is_which_player;               ///< true = player
@@ -799,9 +800,6 @@ public:
 
     // "constant" properties
     bool         isitem;                        ///< Is it grabbable?
-    bool         cangrabmoney;                  ///< Picks up coins?
-    bool         openstuff;                     ///< Can it open chests/doors?
-    bool         stickybutt;                    ///< Rests on floor
     bool         isshopitem;                    ///< Spawned in a shop?
     bool         canbecrushed;                  ///< Crush in a door?
 
@@ -814,12 +812,8 @@ public:
     uint8_t          damage_timer;                  ///< Invincibility timer
 
     // graphical info
-    uint8_t          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
-    bool         transferblend;   ///< Give transparency to weapons?
     bool         draw_icon;       ///< Show the icon?
     uint8_t          sparkle;         ///< Sparkle color or 0 for off
-    SFP8_T         uoffvel;         ///< Moving texture speed (8.8 fixed point)
-    SFP8_T         voffvel;          ///< Moving texture speed (8.8 fixed point)
     float          shadow_size_stt;  ///< Initial shadow size
     uint32_t         shadow_size;      ///< Size of shadow
     uint32_t         shadow_size_save; ///< Without size modifiers
@@ -827,7 +821,6 @@ public:
     // model info
     bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
     SKIN_T         skin;                          ///< Character's skin
-    PRO_REF        profile_ref;                      ///< Character's profile
     PRO_REF        basemodel_ref;                     ///< The true form
     chr_instance_t inst;                          ///< the render data
 
@@ -878,6 +871,7 @@ public:
 private:
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
     CHR_REF _characterID;                            ///< Our unique CHR_REF id
+    PRO_REF _profileID;                              ///< The ID of our profile
     std::shared_ptr<ObjectProfile> _profile;         ///< Our Profile
     bool _showStatus;                                ///< Display stats?
     bool _isAlive;                                   ///< Is this Object alive or dead?

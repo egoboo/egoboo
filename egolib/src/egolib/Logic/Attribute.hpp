@@ -80,8 +80,6 @@ namespace Attribute
         FLY_TO_HEIGHT,      //Object levitates this high
         WALK_ON_WATER,      //Object walks on top of water
         SEE_INVISIBLE,      //Can see other invisible Objects?
-        MISSILE_TREATMENT,  //Incoming projectiles are NORMAL, DEFLECTED or REFLECTED
-        COST_FOR_EACH_MISSILE, //Mana cost for each projectile DEFLECTED or REFLECTED
         CHANNEL_LIFE,       //Can spend life as mana?
 
         //Cumulative attributes
@@ -172,8 +170,6 @@ namespace Attribute
             case FLY_TO_HEIGHT:
             case WALK_ON_WATER:
             case SEE_INVISIBLE:
-            case MISSILE_TREATMENT:
-            case COST_FOR_EACH_MISSILE:
             case CHANNEL_LIFE:
             case SLASH_MODIFIER:
             case CRUSH_MODIFIER:

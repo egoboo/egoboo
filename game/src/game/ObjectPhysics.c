@@ -921,7 +921,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                     {
                         float loc_bumpdampen;
    
-                        loc_bumpdampen = ProfileSystem::get().getProfile(pchr->profile_ref)->getBumpDampen();
+                        loc_bumpdampen = pchr->getProfile()->getBumpDampen();
 
                         v_perp = fvec2_t::zero();
                         if ( 0.0f != nrm2 )
@@ -1664,7 +1664,7 @@ void move_one_character( Object * pchr )
     move_one_character_do_animation( pchr );
 
     // Characters with sticky butts lie on the surface of the mesh
-    if ( pchr->stickybutt || !pchr->isAlive() )
+    if ( pchr->getProfile()->hasStickyButt() || !pchr->isAlive() )
     {
         float fkeep = ( 7 + pchr->enviro.zlerp ) / 8.0f;
         float fnew  = ( 1 - pchr->enviro.zlerp ) / 8.0f;
@@ -1702,7 +1702,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
         pchr->ori.facing_z = pattached->ori.facing_z;
 
         // Copy this stuff ONLY if it's a weapon, not for mounts
-        if ( pattached->transferblend && pchr->isitem )
+        if ( pattached->getProfile()->transferBlending() && pchr->isitem )
         {
 
             // Items become partially invisible in hands of players

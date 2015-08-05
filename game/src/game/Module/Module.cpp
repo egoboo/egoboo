@@ -299,15 +299,11 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
 
     // Flags
     pchr->damagetarget_damagetype = ppro->getDamageTargetType();
-    pchr->stickybutt      = ppro->hasStickyButt();
-    pchr->openstuff       = ppro->canOpenStuff();
-    pchr->transferblend   = ppro->transferBlending();
     pchr->setBaseAttribute(Ego::Attribute::WALK_ON_WATER, ppro->canWalkOnWater() ? 1.0f : 0.0f);
     pchr->platform        = ppro->isPlatform();
     pchr->canuseplatforms = ppro->canUsePlatforms();
     pchr->isitem          = ppro->isItem();
     pchr->invictus        = ppro->isInvincible();
-    pchr->cangrabmoney    = ppro->canGrabMoney();
 
     // Jumping
     pchr->setBaseAttribute(Ego::Attribute::JUMP_POWER, ppro->getJumpPower());
@@ -315,7 +311,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
 
     // Other junk
     pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, ppro->getFlyHeight());
-    pchr->flashand    = ppro->getFlashAND();
     pchr->phys.dampen = ppro->getBounciness();
 
     pchr->phys.bumpdampen = ppro->getBumpDampen();
@@ -328,10 +323,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
         uint32_t itmp = ppro->getWeight() * ppro->getSize() * ppro->getSize() * ppro->getSize();
         pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
     }
-
-    // Image rendering
-    pchr->uoffvel = ppro->getTextureMovementRateX();
-    pchr->voffvel = ppro->getTextureMovementRateY();
 
     // Movement
     pchr->anim_speed_sneak = ppro->getSneakAnimationSpeed();
@@ -352,11 +343,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
     // Character size and bumping
     chr_init_size(pchr.get(), ppro);
 
-    // Set up model stuff
-    pchr->missilehandler = pchr->getCharacterID();
-    pchr->profile_ref   = profile;
-    pchr->basemodel_ref = profile;
-
     // Kurse state
     if ( ppro->isItem() )
     {
@@ -373,7 +359,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
     }
 
     // AI stuff
-    ai_state_spawn( &( pchr->ai ), pchr->getCharacterID(), pchr->profile_ref, getTeamList()[team].getMorale() );
+    ai_state_spawn( &( pchr->ai ), pchr->getCharacterID(), pchr->getProfileID(), getTeamList()[team].getMorale() );
 
     // Team stuff
     pchr->team     = team;

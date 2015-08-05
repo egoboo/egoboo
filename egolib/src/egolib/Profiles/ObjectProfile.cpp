@@ -1187,15 +1187,15 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_float( fileTemp, fileWrite, character->anim_speed_walk );           //Note: overriden by chr
     template_put_float( fileTemp, fileWrite, character->anim_speed_run );            //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT) ); //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->flashand );                     //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, profile->_alpha);
-    template_put_int( fileTemp, fileWrite, profile->_light );
-    template_put_bool( fileTemp, fileWrite, character->transferblend  );              //Note: overriden by chr
+    template_put_int(fileTemp, fileWrite, profile->_flashAND);
+    template_put_int(fileTemp, fileWrite, profile->_alpha);
+    template_put_int(fileTemp, fileWrite, profile->_light);
+    template_put_bool(fileTemp, fileWrite, profile->_transferBlending);
     template_put_int( fileTemp, fileWrite, profile->_sheen );
     template_put_bool( fileTemp, fileWrite, profile->_phongMapping );
     template_put_float( fileTemp, fileWrite, FFFF_TO_FLOAT( profile->_textureMovementRateX ) );
     template_put_float( fileTemp, fileWrite, FFFF_TO_FLOAT( profile->_textureMovementRateY ) );
-    template_put_bool( fileTemp, fileWrite, character->stickybutt );                  //Note: overridden by chr
+    template_put_bool(fileTemp, fileWrite, profile->_stickyButt);
 
     // Invulnerability data
     template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->invictus) );
@@ -1284,8 +1284,8 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_bool( fileTemp, fileWrite, profile->_canCarryToNextModule );
     template_put_bool( fileTemp, fileWrite, profile->_needSkillIDToUse );
     template_put_bool( fileTemp, fileWrite, character->platform );       //Note overriden by chr
-    template_put_bool( fileTemp, fileWrite, character->cangrabmoney );   //Note overriden by chr
-    template_put_bool( fileTemp, fileWrite, character->openstuff );   //Note overriden by chr
+    template_put_bool(fileTemp, fileWrite, profile->_canGrabMoney);
+    template_put_bool(fileTemp, fileWrite, profile->_canOpenStuff);
 
     // Other item and damage stuff
     template_put_damage_type( fileTemp, fileWrite, character->damagetarget_damagetype ); //Note overriden by chr

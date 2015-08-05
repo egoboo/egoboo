@@ -74,9 +74,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     damagetarget_damagetype(DamageType::DAMAGE_SLASH),
     reaffirm_damagetype(DamageType::DAMAGE_SLASH),
     damage_threshold(0),
-    missiletreatment(MISSILE_NORMAL),
-    missilecost(0),
-    missilehandler(INVALID_CHR_REF),
     is_hidden(false),
     is_which_player(INVALID_PLA_REF),
     islocalplayer(false),
@@ -87,9 +84,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     hitready(true),
     isequipped(false),
     isitem(false),
-    cangrabmoney(false),
-    openstuff(false),
-    stickybutt(false),
     isshopitem(false),
     canbecrushed(false),
     grog_timer(0),
@@ -98,18 +92,13 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     careful_timer(CAREFULTIME),
     reload_timer(0),
     damage_timer(0),
-    flashand(0),
-    transferblend(false),
     draw_icon(false),
     sparkle(NOSPARKLE),
-    uoffvel(0),
-    voffvel(0),
     shadow_size_stt(0.0f),
     shadow_size(0),
     shadow_size_save(0),
     is_overlay(false),
     skin(0),
-    profile_ref(profile),
     basemodel_ref(profile),
     inst(),
 
@@ -141,7 +130,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     _terminateRequested(false),
     _characterID(id),
-    _profile(ProfileSystem::get().getProfile(profile)),
+    _profileID(profile),
+    _profile(ProfileSystem::get().getProfile(_profileID)),
     _showStatus(false),
     _isAlive(true),
     _name("*NONE*"),
@@ -863,8 +853,8 @@ void Object::update()
     if ( careful_timer > 0 ) careful_timer--;
 
     // Texture movement
-    inst.uoffset += uoffvel;
-    inst.voffset += voffvel;
+    inst.uoffset += getProfile()->getTextureMovementRateX();
+    inst.voffset += getProfile()->getTextureMovementRateY();
 
     // do the mana and life regeneration for "living" characters
     if (isAlive()) {
@@ -1158,7 +1148,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     SET_BIT( ai.alert, ALERTIF_DROPPED );
 
     // Reset transparency
-    if ( isitem && pholder->transferblend )
+    if ( isitem && pholder->getProfile()->transferBlending() )
     {
         setAlpha(getProfile()->getAlpha());
         setLight(getProfile()->getLight());
@@ -1462,7 +1452,7 @@ void Object::resetAlpha()
         return;
     }
 
-    if (isItem() && mount->transferblend)
+    if (isItem() && mount->getProfile()->transferBlending())
     {
         setAlpha(getProfile()->getAlpha());
         setLight(getProfile()->getLight());
@@ -1522,14 +1512,14 @@ int Object::getPrice() const
 
     // Make sure spell books are priced according to their spell and not the book itself
     PRO_REF slotNumber = INVALID_PRO_REF;
-    if (profile_ref == SPELLBOOK)
+    if (_profileID == SPELLBOOK)
     {
         slotNumber = basemodel_ref;
         iskin = 0;
     }
     else
     {
-        slotNumber  = profile_ref;
+        slotNumber  = _profileID;
         iskin = skin;
     }
 
@@ -1715,7 +1705,7 @@ void Object::respawn()
 
     int old_attached_prt_count = number_of_attached_particles( getCharacterID() );
 
-    spawn_poof( getCharacterID(), profile_ref );
+    spawn_poof( getCharacterID(), _profileID );
     disaffirm_attached_particles( getCharacterID() );
 
     _isAlive = true;
@@ -1774,7 +1764,7 @@ void Object::respawn()
     }
 
     // re-initialize the instance
-    chr_instance_t::spawn(inst, profile_ref, skin);
+    chr_instance_t::spawn(inst, _profileID, skin);
     chr_update_matrix( this, true );
 
     // determine whether the object is hidden
@@ -2109,4 +2099,50 @@ void Object::setLife(const float value)
 void Object::setName(const std::string &name)
 {
     _name = name;
+}
+
+const std::shared_ptr<ObjectProfile>& Object::getProfile() const 
+{
+    return _profile;
+}
+
+void Object::polymorphObject(const PRO_REF profileID)
+{
+    if(!ProfileSystem::get().isValidProfileID(profileID)) {
+        log_warning("Tried to polymorph object (%s) into an invalid profile ID: %d\n", getProfile()->getClassName().c_str(), profileID);
+        return;
+    }
+
+    _profileID = profileID;
+    _profile = ProfileSystem::get().getProfile(_profileID);
+
+    // Drop left weapon if we have no left grip
+    const std::shared_ptr<Object> &leftItem = getLeftHandItem();
+    if ( leftItem && ( !_profile->isSlotValid(SLOT_LEFT) || _profile->isMount() ) )
+    {
+        leftItem->detatchFromHolder(true, true);
+        detach_character_from_platform(leftItem.get());
+
+        if ( isMount() )
+        {
+            leftItem->vel[kZ]    = DISMOUNTZVEL;
+            leftItem->jump_timer = JUMPDELAY;
+            leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+        }
+    }
+
+    // Drop right weapon if we have no right grip
+    const std::shared_ptr<Object> &rightItem = getRightHandItem();
+    if ( rightItem && !_profile->isSlotValid(SLOT_RIGHT) )
+    {
+        rightItem->detatchFromHolder(true, true);
+        detach_character_from_platform(rightItem.get());
+
+        if ( isMount() )
+        {
+            rightItem->vel[kZ]    = DISMOUNTZVEL;
+            rightItem->jump_timer = JUMPDELAY;
+            rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+        }
+    }
 }

@@ -169,12 +169,6 @@ bool FindPath( waypoint_list_t * plst, Object * pchr, float dst_x, float dst_y, 
 bool Compass( fvec2_t& pos, int facing, float distance );
 
 /// @author ZZ
-/// @details This function returns the cost of the desired skin upgrade
-//
-/// @lua tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-int GetArmorPrice( Object * pchr, const int skin );
-
-/// @author ZZ
 /// @details This function sets the character's ai timer.  50 clicks per second.
 /// Used in conjunction with IfTimeOut
 ///

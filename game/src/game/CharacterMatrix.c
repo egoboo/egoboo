@@ -352,7 +352,7 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mc_tmp )
 
     if ( nullptr == ( pchr ) ) return false;
 
-    if ( pchr->stickybutt )
+    if ( pchr->getProfile()->hasStickyButt() )
     {
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
             pchr->inst.matrix,
@@ -986,7 +986,7 @@ void make_one_character_matrix( const CHR_REF ichr )
     }
     else
     {
-        if ( pchr->stickybutt )
+        if ( pchr->getProfile()->hasStickyButt() )
         {
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
                 pinst->matrix,
