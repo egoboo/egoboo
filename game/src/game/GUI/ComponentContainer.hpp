@@ -59,11 +59,12 @@ public:
             }
 
             // Copy constructor
-            ComponentIterator(const ComponentIterator &other) :
+            ComponentIterator(const ComponentIterator &other) : NonCopyable(),
                 _container(other._container)
             {
                 _container.lock();
             }
+
                 
         private:
             ComponentIterator(ComponentContainer &container) :

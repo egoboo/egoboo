@@ -80,7 +80,7 @@ struct dynalist_t
 static gfx_rv dynalist_init(dynalist_t *self);
 static gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& cam);
 
-#define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
+#define DYNALIST_INIT { -1 /* frame */, 0 /* count */, {} }
 
 //--------------------------------------------------------------------------------------------
 
@@ -1733,7 +1733,7 @@ gfx_rv render_fans_by_list(const ego_mesh_t * mesh, const Ego::Graphics::renderl
     }
 
     // insert the rlst values into lst_vals
-    by_list_t lst_vals = { 0 };
+    by_list_t lst_vals = {};
     lst_vals.count = rlst->size;
     for (Uint32 cnt = 0; cnt < rlst->size; cnt++)
     {

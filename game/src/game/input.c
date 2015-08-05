@@ -34,7 +34,7 @@
 mouse_data_t    mous = MOUSE_INIT;
 keyboard_data_t keyb = KEYBOARD_INIT;
 joystick_data_t joy_lst[MAX_JOYSTICK];
-input_cursor_t  input_cursor = {0, 0, false, false, false, false};
+input_cursor_t  input_cursor = {0, 0, 0, false, false, false, false};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
