@@ -9,7 +9,6 @@ SOURCES += $(wildcard ./src/egolib/*.cpp) $(wildcard ./src/egolib/*/*.cpp) $(wil
 
 #Exclude these files
 SOURCES := $(filter-out ./src/egolib/bsp_leaf.c, $(SOURCES))
-SOURCES := $(filter-out ./src/egolib/Platform/sys_win32.c, $(SOURCES))
 SOURCES := $(filter-out ./src/egolib/Platform/file_win.c, $(SOURCES))
 SOURCES := $(filter-out ./src/egolib/Lua/lua_console.c, $(SOURCES))
 
@@ -24,20 +23,7 @@ OBJECTS += $(SOURCES:.cpp=.o)
 INCLUDES := -I./src -I../game/src -I../idlib/src
 INCLUDES += $(shell sdl2-config --cflags)
 
-CXXFLAGS  := $(INCLUDES) -std=c++11 -Og -Wall -Werror -Wfatal-errors -D_DEBUG
-
-#Disable specific warnings
-CXXFLAGS += -Wno-sign-compare -Wno-reorder
-
-#Debug options
-CXXFLAGS += -ggdb -fdiagnostics-color=always -pg
-CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
-CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift
-CXXFLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr -fsanitize-undefined-trap-on-error
-#-fsanitize=bounds-strict -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow
-
-#Release
-#-D_NDEBUG 
+CXXFLAGS  := $(COMPILE_FLAGS) $(INCLUDES) $(COMPILE_OPTIMIZE) $(COMPILE_WARNINGS) $(COMPILE_DEBUG_FLAGS) $(SANITIZER_FLAGS)
 
 #------------------------------------
 # definitions of the target projects
