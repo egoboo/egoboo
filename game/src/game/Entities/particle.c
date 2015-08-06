@@ -883,8 +883,6 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     if (!_currentModule->getObjectHandler().exists(character)) return 0;
     Object *pchr = _currentModule->getObjectHandler().get(character);
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
     bs_count = 0;
 
     // Only damage if hitting from proper direction
@@ -892,7 +890,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     direction = ATK_BEHIND + (pchr->ori.facing_z - direction);
 
     // Check that direction
-    if (!is_invictus_direction(direction, character, ppip->damfx))
+    if (!pchr->isInvictusDirection(direction, ppip->damfx))
     {
         // Spawn new enchantments
         if (ppip->spawnenchant) 
@@ -915,14 +913,14 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
             if (Random::nextFloat() <= pchr->getDamageReduction(pprt->damagetype)) amount--;
         }
 
-        if (amount > 0 && !profile->hasResistBumpSpawn() && !pchr->invictus)
+        if (amount > 0 && !pchr->getProfile()->hasResistBumpSpawn() && !pchr->invictus)
         {
             int grip_verts, vertices;
             int slot_count;
 
             slot_count = 0;
-            if (profile->isSlotValid(SLOT_LEFT)) slot_count++;
-            if (profile->isSlotValid(SLOT_RIGHT)) slot_count++;
+            if (pchr->getProfile()->isSlotValid(SLOT_LEFT)) slot_count++;
+            if (pchr->getProfile()->isSlotValid(SLOT_RIGHT)) slot_count++;
 
             if (0 == slot_count)
             {

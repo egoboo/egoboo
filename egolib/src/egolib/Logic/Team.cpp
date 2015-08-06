@@ -45,6 +45,10 @@ Team::Team(const uint8_t teamID) :
         //Make the team like itself
         _hatesTeam[_teamID] = false;
     }
+    else {
+        //TEAM_NULL likes everybody
+        _hatesTeam.fill(false);
+    }
 
 }
 

@@ -27,7 +27,7 @@
 #undef EGBOLIB_PROFILES_PRIVATE
 
 /// Special modes for particle reflections from characters
-enum e_missle_treatment
+enum MissileTreatmentType
 {
     MISSILE_NORMAL = 0,                           ///< Treat missiles normally
     MISSILE_DEFLECT,                                ///< Deflect incoming missiles

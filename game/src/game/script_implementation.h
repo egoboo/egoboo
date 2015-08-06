@@ -169,12 +169,6 @@ bool FindPath( waypoint_list_t * plst, Object * pchr, float dst_x, float dst_y, 
 bool Compass( fvec2_t& pos, int facing, float distance );
 
 /// @author ZZ
-/// @details This function returns the cost of the desired skin upgrade
-//
-/// @lua tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-int GetArmorPrice( Object * pchr, const int skin );
-
-/// @author ZZ
 /// @details This function sets the character's ai timer.  50 clicks per second.
 /// Used in conjunction with IfTimeOut
 ///
@@ -203,6 +197,11 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
 /// @author ZZ
 /// @details This function sets an object's lighting
 bool FlashObject( Object * pchr, Uint8 value );
+
+/// @details This function restocks the characters ammo, if it needs ammo and if
+///    either its parent or type idsz match the given idsz.  This
+///    function returns the amount of ammo given.
+int RestockAmmo(const CHR_REF character, IDSZ idsz);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

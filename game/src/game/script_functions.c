@@ -62,7 +62,7 @@
     Uint8 returncode = true; \
     if( NULL == pstate || NULL == pself || !_currentModule->getObjectHandler().exists(pself->index) ) return false; \
     pchr = _currentModule->getObjectHandler().get( pself->index ); \
-    const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile( pchr->profile_ref ); \
+    const std::shared_ptr<ObjectProfile> &ppro = pchr->getProfile(); \
     if(!ppro) return false;
 
 #define SCRIPT_FUNCTION_END() \
@@ -577,14 +577,13 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
     /// @details This function returns the cost of the desired skin upgrade, setting
     /// tmpx to the price
 
-    int value;
     Object *ptarget;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( ptarget );
 
-    value = GetArmorPrice( ptarget, pstate->argument );
+    int value = ptarget->getProfile()->getSkinInfo(pstate->argument).cost;
 
     if ( value > 0 )
     {
@@ -662,15 +661,14 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function sets the target to a nearby enemy, failing if there are none
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES );
+    CHR_REF ichr = chr_find_target(pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES);
 
-    if ( _currentModule->getObjectHandler().exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists(ichr) )
     {
-        SET_TARGET_0( ichr );
+        pself->target = ichr;
+        returncode = true;
     }
     else
     {
@@ -1340,7 +1338,7 @@ Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _display_message( pself->index, pchr->profile_ref, pstate->argument, pstate );
+    returncode = _display_message( pself->index, pchr->getProfileID(), pstate->argument, pstate );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1441,19 +1439,19 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isMount() )
     {
-        CHR_REF iheld = pself_target->holdingwhich[SLOT_LEFT];
+        const std::shared_ptr<Object> &rider = pself_target->getLeftHandItem();
 
-        if ( _currentModule->getObjectHandler().exists( iheld ) )
+        if (rider)
         {
-            // can the rider open the
-            returncode = _currentModule->getObjectHandler().get(iheld)->openstuff;
+            // can the rider open stuff
+            returncode = rider->getProfile()->canOpenStuff();
         }
     }
 
     if ( !returncode )
     {
         // if a rider can't openstuff, can the target openstuff?
-        returncode = pself_target->openstuff;
+        returncode = pself_target->getProfile()->canOpenStuff();
     }
 
     SCRIPT_FUNCTION_END();
@@ -1749,7 +1747,7 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = pself_target->skin;
-    pstate->x = change_armor( pself->target, pstate->argument );
+    pstate->x = pself_target->setSkin(pstate->argument);
 
     pstate->argument = iTmp;  // The character's old armor
 
@@ -1889,12 +1887,12 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, 0);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
@@ -2049,7 +2047,17 @@ Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_clean( pself->index );
+    for(const std::shared_ptr<Object> &listener : _currentModule->getObjectHandler().iterator())
+    {
+        if ( pchr->getTeam() != listener->getTeam() ) continue;
+
+        if ( !listener->isAlive() )
+        {
+            listener->ai.timer  = update_wld + 2;  // Don't let it think too much...
+        }
+
+        SET_BIT( listener->ai.alert, ALERTIF_CLEANEDUP );
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -2163,7 +2171,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
                                                     pchr->ori.facing_z, 
-                                                    pchr->profile_ref,
+                                                    pchr->getProfileID(),
                                                     LocalParticleProfileRef(pstate->argument), pself->index,
                                                     pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                     INVALID_CHR_REF );
@@ -2388,35 +2396,15 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     /// content.
     /// TOO COMPLICATED TO EXPLAIN.  SHOULDN'T EVER BE NEEDED BY YOU.
 
-    int iskin;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    // get the spellbook's skin
-    iskin = pchr->skin;
-
     // change the spellbook to a spell effect
-    change_character( pself->index, ( PRO_REF )pself->content, 0, ENC_LEAVE_NONE );
+    pchr->disenchant();
+    pchr->polymorphObject(pself->content, 0);
 
     // set the spell effect parameters
     pself->content = 0;
     chr_set_ai_state( pchr, 0 );
-
-    // have to do this every time pself->state is modified
-    chr_update_hide( pchr );
-
-    // set the book icon of the spell effect if it is not already set
-    /*
-    //ZF> TODO: is this needed? what does it actually do?
-    pcap = chr_get_pcap( pself->index );
-    if ( NULL != pcap )
-    {
-        iskin = ( iskin < 0 ) ? NO_SKIN_OVERRIDE : iskin;
-        iskin = ( iskin > SKINS_PEROBJECT_MAX ) ? SKINS_PEROBJECT_MAX : iskin;
-
-        pcap->spelleffect_type = iskin;
-    }
-    */
 
     SCRIPT_FUNCTION_END();
 }
@@ -2431,7 +2419,6 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     /// TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
     /// them too much
 
-    PRO_REF  old_profile;
     int iskin;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2441,8 +2428,9 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     if ( iskin < 0 ) iskin = 0;
 
     // convert the spell effect to a spellbook
-    old_profile = pchr->profile_ref;
-    change_character( pself->index, (PRO_REF)SPELLBOOK, iskin, ENC_LEAVE_NONE );
+    PRO_REF old_profile = pchr->getProfileID();
+    pchr->disenchant();
+    pchr->polymorphObject(SPELLBOOK, 0);
 
     // Reset the spellbook state so it doesn't burn up
     chr_set_ai_state(pchr, 0);
@@ -2450,15 +2438,10 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     // set the spellbook animations
     // Do dropped animation
-    int tmp_action = pchr->getProfile()->getModel()->getAction(ACTION_JB);
-
-    if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
+    if (rv_success == chr_start_anim(pchr, pchr->getProfile()->getModel()->getAction(ACTION_JB), false, true))
     {
         returncode = true;
     }
-
-    // have to do this every time pself->state is modified
-    chr_update_hide(pchr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2824,7 +2807,7 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[pself->target];
     if(target) {
-        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref, _currentModule->getObjectHandler()[pself->owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
+        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[pself->owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
     }   
     else {
         returncode = false;
@@ -2846,7 +2829,7 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
 
     const std::shared_ptr<Object> child = _currentModule->getObjectHandler()[pself->child];
     if(child) {
-        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->profile_ref, _currentModule->getObjectHandler()[pself->owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
+        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[pself->owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
     }   
     else {
         returncode = false;
@@ -2978,14 +2961,14 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     iTmp = 0;  // Amount of ammo given
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo( ichr, pstate->argument );
+    iTmp += RestockAmmo( ichr, pstate->argument );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    iTmp += restock_ammo( ichr, pstate->argument );
+    iTmp += RestockAmmo( ichr, pstate->argument );
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += restock_ammo( pitem->getCharacterID(), pstate->argument );
+        iTmp += RestockAmmo( pitem->getCharacterID(), pstate->argument );
     }
 
     pstate->argument = iTmp;
@@ -3013,19 +2996,19 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     iTmp = 0;  // Amount of ammo given
     
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo(ichr, pstate->argument);
+    iTmp += RestockAmmo(ichr, pstate->argument);
     
     if (iTmp == 0)
     {
         ichr = pself_target->holdingwhich[SLOT_RIGHT];
-        iTmp += restock_ammo(ichr, pstate->argument);
+        iTmp += RestockAmmo(ichr, pstate->argument);
     }
 
     if (iTmp == 0)
     {
         for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += restock_ammo( pitem->getCharacterID(), pstate->argument );
+            iTmp += RestockAmmo( pitem->getCharacterID(), pstate->argument );
             if ( 0 != iTmp ) break;
         }
     }
@@ -3064,7 +3047,7 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_redshift( pchr, pstate->argument );
+    pchr->setBaseAttribute(Ego::Attribute::RED_SHIFT, Ego::Math::constrain(pstate->argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3075,11 +3058,11 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
     // SetGreenShift( tmpargument = "green darkening" )
     /// @author ZZ
     /// @details This function sets the character's green shift ( 0 - 3 ), higher values
-    /// making the character less red and darker
+    /// making the character less green and darker
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_grnshift( pchr, pstate->argument );
+    pchr->setBaseAttribute(Ego::Attribute::GREEN_SHIFT, Ego::Math::constrain(pstate->argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3090,11 +3073,11 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
     // SetBlueShift( tmpargument = "blue darkening" )
     /// @author ZZ
     /// @details This function sets the character's blue shift ( 0 - 3 ), higher values
-    /// making the character less red and darker
+    /// making the character less blue and darker
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_grnshift( pchr, pstate->argument );
+    pchr->setBaseAttribute(Ego::Attribute::BLUE_SHIFT, Ego::Math::constrain(pstate->argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3615,7 +3598,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 
     if ( min_distance < MSGDISTANCE )
     {
-        returncode = _display_message( pself->index, pchr->profile_ref, pstate->argument, pstate );
+        returncode = _display_message( pself->index, pchr->getProfileID(), pstate->argument, pstate );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4027,7 +4010,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = iholder;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
                                                      LocalParticleProfileRef(pstate->argument), pself->index,
                                                      pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
@@ -4060,7 +4043,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
             pstate->distance
             );
 
-        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                          LocalParticleProfileRef(pstate->argument),
                                                          INVALID_CHR_REF, 0, pchr->team, ichr,
                                                          INVALID_PRT_REF, 0, INVALID_CHR_REF);
@@ -4490,7 +4473,7 @@ Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    spawn_poof( pself->index, pchr->profile_ref );
+    spawn_poof( pself->index, pchr->getProfileID() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4561,7 +4544,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, 
-                                                     pchr->profile_ref, LocalParticleProfileRef(pstate->argument), pself->index,
+                                                     pchr->getProfileID(), LocalParticleProfileRef(pstate->argument), pself->index,
                                                      pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
 
@@ -4589,7 +4572,8 @@ Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
 
     pstate->x = pstate->argument;
     iTmp = pchr->skin;
-    pstate->x = change_armor( pself->index, pstate->argument );
+    pchr->setSkin(pstate->argument);
+    pstate->x = pchr->skin;
     pstate->argument = iTmp;  // The character's old armor
 
     SCRIPT_FUNCTION_END();
@@ -4673,7 +4657,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( pstate->turn ),
-                                                     pchr->profile_ref, LocalParticleProfileRef(pstate->argument),
+                                                     pchr->getProfileID(), LocalParticleProfileRef(pstate->argument),
                                                      pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF,
                                                      0, INVALID_CHR_REF);
 
@@ -5010,7 +4994,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
         ichr = pchr->attachedto;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
                                                      LocalParticleProfileRef(pstate->argument), ichr,
                                                      pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
@@ -5347,7 +5331,7 @@ Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = ( pchr->basemodel_ref == SPELLBOOK ||
-                   pchr->basemodel_ref == pchr->profile_ref );
+                   pchr->basemodel_ref == pchr->getProfileID() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5386,12 +5370,12 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), "", INVALID_CHR_REF );
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
@@ -5436,7 +5420,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         pstate->distance
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), "", INVALID_CHR_REF);
 
     if ( !pchild )
     {
@@ -5480,7 +5464,23 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    change_character_full( pself->target, ( PRO_REF )pstate->argument, 0, ENC_LEAVE_ALL );
+    const PRO_REF profileID = static_cast<PRO_REF>(pstate->argument);
+
+    /// @details This function polymorphs a character permanently so that it can be exported properly
+    /// A character turned into a frog with this function will also export as a frog!
+    if(ProfileSystem::get().isValidProfileID(profileID)) 
+    {
+        //Change the object
+        pchr->polymorphObject(profileID, 0);
+
+        // set the base model to the new model, too
+        pchr->basemodel_ref = profileID;
+
+        returncode = true;
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -5528,7 +5528,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
             pstate->distance
             );
 
-        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                          LocalParticleProfileRef(pstate->argument),
                                                          INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
                                                          0, INVALID_CHR_REF);
@@ -6276,10 +6276,52 @@ Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
     // FlashVariableHeight( tmpturn = "intensity bottom", tmpx = "bottom", tmpdistance = "intensity top", tmpy = "top" )
     /// @author ZZ
     /// @details This function makes the character flash, feet one color, head another.
+    ///          This function sets a character's lighting depending on vertex height...
+    ///          Can make feet dark and head light...
 
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_character_height( pself->index, CLIP_TO_16BITS( pstate->turn ), pstate->x, pstate->distance, pstate->y );
+    const uint8_t valuelow = CLIP_TO_16BITS(pstate->turn);
+    const int16_t low = pstate->x;
+    const uint8_t valuehigh = pstate->distance;
+    const int16_t high = pstate->y;
+
+    chr_instance_t *pinst = chr_get_pinstance( pchr->getCharacterID() );
+    for (size_t cnt = 0; cnt < pinst->vrt_count; cnt++)
+    {
+        int16_t z = pinst->vrt_lst[cnt].pos[ZZ];
+
+        if ( z < low )
+        {
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] = valuelow;
+        }
+        else if ( z > high )
+        {
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] = valuehigh;
+        }
+        else if ( high != low )
+        {
+            uint8_t valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
+                             ( valuelow * ( high - z ) / ( high - low ) );
+
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+        }
+        else
+        {
+            // z == high == low
+            uint8_t valuemid = ( valuehigh + valuelow ) * 0.5f;
+
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+        }
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6496,7 +6538,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     volume = -distance;
     volume = volume<<VOLSHIFT;
     if(volume < VOLMIN) volume = VOLMIN;
-    iTmp = CapStack.lst[pro_get_icap(pchr->profile_ref)].wavelist[pstate->argument];
+    iTmp = CapStack.lst[pro_get_icap(pchr->getProfileID())].wavelist[pstate->argument];
     if(iTmp < numsound && iTmp >= 0 && soundon)
     {
     lpDSBuffer[iTmp]->SetVolume(volume);
@@ -6703,7 +6745,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
             pstate->distance
             );
 
-        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                          LocalParticleProfileRef(pstate->argument),
                                                          INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
                                                          0, INVALID_CHR_REF);
@@ -6757,7 +6799,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
         ppip->damage.from           = FP8_TO_FLOAT( pstate->argument );
         ppip->damage.to             = ppip->damage.from + damage_rand;
 
-        spawn_poof( pself->index, pchr->profile_ref );
+        spawn_poof( pself->index, pchr->getProfileID() );
 
         // Restore the saved values
         ppip->vel_hrz_pair.base     = iTmp;
@@ -6996,7 +7038,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
     returncode = link_follow_modname( ppro->getMessage(pstate->argument).c_str(), true );
     if ( !returncode )
     {
-        DisplayMsg_printf( "That's too scary for %s", pchr->Name );
+        DisplayMsg_printf( "That's too scary for %s", pchr->getName().c_str() );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7062,7 +7104,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     for (LocalParticleProfileRef iTmp(0); iTmp.get() < MAX_PIP_PER_PROFILE; ++iTmp)
     {
-        std::shared_ptr<pip_t> ppip = ProfileSystem::get().pro_get_ppip(pchr->profile_ref, iTmp);
+        std::shared_ptr<pip_t> ppip = ProfileSystem::get().pro_get_ppip(pchr->getProfileID(), iTmp);
         if (!ppip) continue;
 
         if ( ppip->_intellectDamageBonus )
@@ -7371,12 +7413,12 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, pchr->getProfile()->getClassName().c_str(), pstate->argument);
+        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->getName().c_str(), pchr->getProfile()->getClassName().c_str(), pstate->argument);
     }
     else
     {
@@ -7691,13 +7733,13 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     if ( !_currentModule->getObjectHandler().exists( pself->target ) ) return false;
 
-    change_character( pself->index, pself_target->basemodel_ref, pself_target->skin, ENC_LEAVE_ALL );
+    pchr->polymorphObject(pself_target->basemodel_ref, pself_target->skin);
 
     // let the resizing take some time
     pchr->fat_goto      = pself_target->fat;
     pchr->fat_goto_time = SIZETIME;
 
-    // change back to our original AI
+    // change back to our original AI (keep our old AI script)
 //    pself->type      = ProList.lst[pchr->basemodel_ref].iai;      //TODO: this no longer works (is it even needed?)
 
     SCRIPT_FUNCTION_END();

@@ -43,7 +43,7 @@ Particle::Particle() :
     _particleProfile(nullptr),
     _isTerminated(true),
     _target(INVALID_CHR_REF),
-    _spawnerProfile(INVALID_CHR_REF),
+    _spawnerProfile(INVALID_PRO_REF),
     _isHoming(false)
 {
     reset(INVALID_PRT_REF);
@@ -380,10 +380,16 @@ void Particle::update()
     }
 
     //Clear invalid attachements incase Object have been removed from the game
-    if(!isAttached() && _attachedTo != INVALID_CHR_REF) {
-        _attachedTo = INVALID_CHR_REF;
-        requestTerminate();
-        return;
+    if(_attachedTo != INVALID_CHR_REF) {
+        if(isAttached()) {
+            //keep particles with whomever they are attached to
+            placeAtVertex(getAttachedObject(), attachedto_vrt_off);
+        }
+        else {
+            _attachedTo = INVALID_CHR_REF;
+            requestTerminate();
+            return;
+        }
     }
 
     // Determine if a "homing" particle still has something to "home":
@@ -781,7 +787,7 @@ void Particle::destroy()
     //Spawn an Object on particle end? (happens through a special script function)
     if (SPAWNNOCHARACTER != endspawn_characterstate)
     {
-        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, NULL, INVALID_CHR_REF);
+        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, "", INVALID_CHR_REF);
         if (child)
         {
             chr_set_ai_state(child.get(), endspawn_characterstate);

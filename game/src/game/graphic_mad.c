@@ -1880,7 +1880,7 @@ gfx_rv chr_instance_t::spawn(chr_instance_t& self, const PRO_REF profileID, cons
     return gfx_success;
 }
 
-BIT_FIELD chr_instance_t::get_framefx(chr_instance_t& self)
+BIT_FIELD chr_instance_t::get_framefx(const chr_instance_t& self)
 {
     return chr_instance_t::get_frame_nxt(self).framefx;
 }
@@ -1968,7 +1968,7 @@ void chr_instance_t::remove_interpolation(chr_instance_t& self)
     }
 }
 
-const MD2_Frame& chr_instance_t::get_frame_nxt(chr_instance_t& self)
+const MD2_Frame& chr_instance_t::get_frame_nxt(const chr_instance_t& self)
 {
 	if (self.frame_nxt > self.imad->getMD2()->getFrames().size())
     {

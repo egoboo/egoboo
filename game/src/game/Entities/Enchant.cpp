@@ -42,6 +42,8 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
     _overlay(),
 
     _modifiers(),
+    _missileTreatment(MISSILE_NORMAL),
+    _missileTreatmentCost(0.0f),
 
     _ownerManaSustain(enchantmentProfile->_owner._manaDrain),
     _ownerLifeSustain(enchantmentProfile->_owner._lifeDrain),
@@ -86,12 +88,16 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::SETFLYTOHEIGHT: type = Ego::Attribute::FLY_TO_HEIGHT; break;
             case eve_t::SETWALKONWATER: type = Ego::Attribute::WALK_ON_WATER; break;
             case eve_t::SETCANSEEINVISIBLE: type = Ego::Attribute::SEE_INVISIBLE; break;
-            case eve_t::SETMISSILETREATMENT: type = Ego::Attribute::MISSILE_TREATMENT; break;
-            case eve_t::SETCOSTFOREACHMISSILE: type = Ego::Attribute::COST_FOR_EACH_MISSILE; break;
             case eve_t::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
+
+            //These are not object attributes but enchant attributes
+            case eve_t::SETMISSILETREATMENT:    _missileTreatment = static_cast<MissileTreatmentType>(_enchantProfile->_set[i].value); continue;
+            case eve_t::SETCOSTFOREACHMISSILE:  _missileTreatmentCost = _enchantProfile->_set[i].value; continue;
+
             default: throw std::logic_error("Unhandled enchant set type");
         }
-        _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
+
+        _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_set[i].value));
     }
     for(size_t i = 0; i < eve_t::MAX_ENCHANT_ADD; ++i) {
         if(!_enchantProfile->_add[i].apply) continue;
@@ -159,7 +165,7 @@ Enchantment::~Enchantment()
         {
             if(modifier._type == Ego::Attribute::MORPH) {
                 //change back into original form
-                change_character(target->getCharacterID(), target->basemodel_ref, modifier._value, ENC_LEAVE_ALL);
+                target->polymorphObject(target->basemodel_ref, modifier._value);
             }
             else if(Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
                 //remove effect completely
@@ -227,7 +233,7 @@ void Enchantment::update()
             {
                 ParticleHandler::get().spawnLocalParticle(target->getPosition(), facing, _spawnerProfileID, _enchantProfile->contspawn._lpip,
                                                           INVALID_CHR_REF, GRIP_LAST, 
-                                                          owner != nullptr ? owner->getTeam().toRef() : Team::TEAM_DAMAGE, 
+                                                          owner != nullptr ? owner->getTeam().toRef() : static_cast<TEAM_REF>(Team::TEAM_DAMAGE), 
                                                           owner != nullptr ? owner->getCharacterID() : INVALID_CHR_REF,
                                                           INVALID_PRT_REF, i, INVALID_CHR_REF);
 
@@ -279,14 +285,14 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
 {
     //Invalid target?
     if( target->isTerminated() || (!target->isAlive() && !_enchantProfile->_target._stay) ) {
-        log_warning("Enchantment::applyEnchantment() - Invalid target");
+        log_warning("Enchantment::applyEnchantment() - Invalid target\n");
         requestTerminate();
         return;
     }
 
     //Already added to a target?
     if(_target.lock()) {
-        throw std::logic_error("Enchantment::applyEnchantment() - Already applied");
+        throw std::logic_error("Enchantment::applyEnchantment() - Already applied\n");
     }
 
     // do retargeting, if necessary
@@ -338,7 +344,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     // Create an overlay character?
     if (_enchantProfile->spawn_overlay)
     {
-        std::shared_ptr<Object> overlay = _currentModule->spawnObject(target->getPosition(), _spawnerProfileID, target->team, 0, target->ori.facing_z, NULL, INVALID_CHR_REF );
+        std::shared_ptr<Object> overlay = _currentModule->spawnObject(target->getPosition(), _spawnerProfileID, target->team, 0, target->ori.facing_z, "", INVALID_CHR_REF );
         if (overlay)
         {
             _overlay = overlay;                             //Kill this character on end...
@@ -424,10 +430,11 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
 
         //Morph is special and handled differently than others
         if(modifier._type == Ego::Attribute::MORPH) {
-            change_character(target->getCharacterID(), _spawnerProfileID, 0, ENC_LEAVE_ALL);
-
             //Store target's original armor
             target->getTempAttributes()[Ego::Attribute::MORPH] = target->skin;
+
+            //Transform the object
+            target->polymorphObject(_spawnerProfileID, 0);
         }
 
         //Is it a set type?
@@ -511,6 +518,16 @@ void Enchantment::playEndSound() const
         const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(_spawnerProfileID);
         AudioSystem::get().playSound(target->getPosition(), spawnerProfile->getSoundID(getProfile()->endsound_index));
     }
+}
+
+MissileTreatmentType Enchantment::getMissileTreatment() const
+{
+    return _missileTreatment;
+}
+
+float Enchantment::getMissileTreatmentCost() const
+{
+    return _missileTreatmentCost;
 }
 
 } //Ego

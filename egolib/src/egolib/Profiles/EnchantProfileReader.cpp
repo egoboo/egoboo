@@ -82,35 +82,35 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
 
     profile->_set[eve_t::SETSLASHMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETSLASHMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDSLASHRESIST].value = vfs_get_damage_resist(ctxt);
+    profile->_add[eve_t::ADDSLASHRESIST].value = ctxt.readReal();
 
     profile->_set[eve_t::SETCRUSHMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETCRUSHMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDCRUSHRESIST].value = vfs_get_damage_resist(ctxt);
+    profile->_add[eve_t::ADDCRUSHRESIST].value = ctxt.readReal();
 
     profile->_set[eve_t::SETPOKEMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETPOKEMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDPOKERESIST].value = vfs_get_damage_resist(ctxt);
+    profile->_add[eve_t::ADDPOKERESIST].value = ctxt.readReal();
 
     profile->_set[eve_t::SETHOLYMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETHOLYMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDHOLYRESIST].value = vfs_get_damage_resist(ctxt);
+    profile->_add[eve_t::ADDHOLYRESIST].value = ctxt.readReal();
 
     profile->_set[eve_t::SETEVILMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETEVILMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDEVILRESIST].value = vfs_get_damage_resist(ctxt);
+    profile->_add[eve_t::ADDEVILRESIST].value = ctxt.readReal();
 
     profile->_set[eve_t::SETFIREMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETFIREMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDFIRERESIST].value = vfs_get_damage_resist(ctxt);
+    profile->_add[eve_t::ADDFIRERESIST].value = ctxt.readReal();
 
     profile->_set[eve_t::SETICEMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETICEMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDICERESIST].value = vfs_get_damage_resist(ctxt);
+    profile->_add[eve_t::ADDICERESIST].value = ctxt.readReal();
 
     profile->_set[eve_t::SETZAPMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETZAPMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDZAPRESIST].value = vfs_get_damage_resist(ctxt);
+    profile->_add[eve_t::ADDZAPRESIST].value = ctxt.readReal();
 
     profile->_set[eve_t::SETFLASHINGAND].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETFLASHINGAND].value = ctxt.readInt();
@@ -162,7 +162,7 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     profile->_add[eve_t::ADDMANA].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
     profile->_add[eve_t::ADDLIFE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
     profile->_add[eve_t::ADDSTRENGTH].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDWISDOM].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDWISDOM].value = vfs_get_next_float(ctxt);    // Deprecated (not used)
     profile->_add[eve_t::ADDINTELLIGENCE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
     profile->_add[eve_t::ADDDEXTERITY].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
 
@@ -171,6 +171,14 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     {
         profile->_add[cnt].apply = (0.0f != profile->_add[cnt].value);
     }
+    profile->_add[eve_t::ADDFIRERESIST].apply = profile->_set[eve_t::SETFIREMODIFIER].apply;
+    profile->_add[eve_t::ADDEVILRESIST].apply = profile->_set[eve_t::SETEVILMODIFIER].apply;
+    profile->_add[eve_t::ADDZAPRESIST].apply = profile->_set[eve_t::SETZAPMODIFIER].apply;
+    profile->_add[eve_t::ADDICERESIST].apply = profile->_set[eve_t::SETICEMODIFIER].apply;
+    profile->_add[eve_t::ADDHOLYRESIST].apply = profile->_set[eve_t::SETHOLYMODIFIER].apply;
+    profile->_add[eve_t::ADDPOKERESIST].apply = profile->_set[eve_t::SETPOKEMODIFIER].apply;
+    profile->_add[eve_t::ADDSLASHRESIST].apply = profile->_set[eve_t::SETSLASHMODIFIER].apply;
+    profile->_add[eve_t::ADDCRUSHRESIST].apply = profile->_set[eve_t::SETCRUSHMODIFIER].apply;
 
     // Read expansions
     while (ctxt.skipToColon(true))

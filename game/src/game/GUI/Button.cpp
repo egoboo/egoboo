@@ -9,7 +9,8 @@ Button::Button(int hotkey) :
     _buttonText(),
     _onClickFunction(nullptr),
     _hotkey(hotkey),
-    _slidyButtonTargetX(0.0f)
+    _slidyButtonTargetX(0.0f),
+    _slidyButtonCurrentX(0.0f)
 {
 }
 
@@ -26,8 +27,9 @@ void Button::setText(const std::string &text)
 void Button::updateSlidyButtonEffect()
 {
     if(getX() < _slidyButtonTargetX) {
-        const float SLIDY_LERP = 2*getWidth() / GameEngine::GAME_TARGET_FPS;
-        setX(getX() + SLIDY_LERP);
+        const float SLIDY_LERP = 2.0f*getWidth() / GameEngine::GAME_TARGET_FPS;
+        _slidyButtonCurrentX += SLIDY_LERP;
+        setX(_slidyButtonCurrentX);
     }
     else if(_slidyButtonTargetX > 0.0f) {
         setX(_slidyButtonTargetX);
@@ -142,6 +144,7 @@ void Button::beginSlidyButtonEffect(float offset)
 
     _slidyButtonTargetX = getX();
     setX(getX() - offset);
+    _slidyButtonCurrentX = getX();
 }
 
 bool Button::isEnabled() const

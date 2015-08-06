@@ -30,6 +30,7 @@
 #include "egolib/Logic/Gender.hpp"
 #include "egolib/Logic/Attribute.hpp"
 #include "egolib/Logic/Perk.hpp"
+#include "egolib/Logic/ObjectSlot.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -236,6 +237,7 @@ public:
 
     /**
     * @brief
+    *   returns the ID of the skin that this profile should use or NO_SKIN_OVERRIDE if none is specified
     **/
     uint16_t getSkinOverride() const;
 

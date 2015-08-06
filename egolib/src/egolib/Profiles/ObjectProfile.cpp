@@ -57,7 +57,7 @@ ObjectProfile::ObjectProfile() :
     _className("*NONE*"),
 
     // skins
-     _skinInfo(),
+    _skinInfo(),
 
     // overrides
     _skinOverride(NO_SKIN_OVERRIDE),
@@ -420,17 +420,7 @@ uint16_t ObjectProfile::getSkinOverride() const
 {
     //Are we actually a spell book?
     if (_spellEffectType != NO_SKIN_OVERRIDE) {
-        if(_spellEffectType >= SKINS_PEROBJECT_MAX) {
-            return getRandomSkinID();
-        }
-        else {
-            return _spellEffectType;
-        }
-    }
-
-    //No skin overriding?
-    if(_skinOverride == NO_SKIN_OVERRIDE) {
-        return NO_SKIN_OVERRIDE;
+        return _spellEffectType;
     }
 
     return _skinOverride;
@@ -1187,15 +1177,15 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_float( fileTemp, fileWrite, character->anim_speed_walk );           //Note: overriden by chr
     template_put_float( fileTemp, fileWrite, character->anim_speed_run );            //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT) ); //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->flashand );                     //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, profile->_alpha);
-    template_put_int( fileTemp, fileWrite, profile->_light );
-    template_put_bool( fileTemp, fileWrite, character->transferblend  );              //Note: overriden by chr
+    template_put_int(fileTemp, fileWrite, profile->_flashAND);
+    template_put_int(fileTemp, fileWrite, profile->_alpha);
+    template_put_int(fileTemp, fileWrite, profile->_light);
+    template_put_bool(fileTemp, fileWrite, profile->_transferBlending);
     template_put_int( fileTemp, fileWrite, profile->_sheen );
     template_put_bool( fileTemp, fileWrite, profile->_phongMapping );
     template_put_float( fileTemp, fileWrite, FFFF_TO_FLOAT( profile->_textureMovementRateX ) );
     template_put_float( fileTemp, fileWrite, FFFF_TO_FLOAT( profile->_textureMovementRateY ) );
-    template_put_bool( fileTemp, fileWrite, character->stickybutt );                  //Note: overridden by chr
+    template_put_bool(fileTemp, fileWrite, profile->_stickyButt);
 
     // Invulnerability data
     template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->invictus) );
@@ -1212,10 +1202,12 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(0).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(1).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(2).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(3).damageResistance[damagetype] );
+        //TODO: add support for more than 4
+        for(int i = 0; i < 4; ++i) {
+            //ZF> Another small hack to prevent 0 damage resist to be parsed as 0 damage shift
+            float damageResist = profile->getSkinInfo(i).damageResistance[damagetype];
+            template_put_float( fileTemp, fileWrite, damageResist == 0.0f ? 1 : damageResist);
+        }
     }
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
@@ -1284,8 +1276,8 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_bool( fileTemp, fileWrite, profile->_canCarryToNextModule );
     template_put_bool( fileTemp, fileWrite, profile->_needSkillIDToUse );
     template_put_bool( fileTemp, fileWrite, character->platform );       //Note overriden by chr
-    template_put_bool( fileTemp, fileWrite, character->cangrabmoney );   //Note overriden by chr
-    template_put_bool( fileTemp, fileWrite, character->openstuff );   //Note overriden by chr
+    template_put_bool(fileTemp, fileWrite, profile->_canGrabMoney);
+    template_put_bool(fileTemp, fileWrite, profile->_canOpenStuff);
 
     // Other item and damage stuff
     template_put_damage_type( fileTemp, fileWrite, character->damagetarget_damagetype ); //Note overriden by chr
@@ -1391,7 +1383,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     if ( -1 != profile->_isValuable )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), profile->_isValuable );
 
-    if ( profile->_spellEffectType >= 0 )
+    if ( profile->_spellEffectType >= 0 && profile->_spellEffectType != NO_SKIN_OVERRIDE )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), profile->_spellEffectType );
 
     if ( profile->_attackFast )

@@ -46,6 +46,7 @@
 #include "game/Module/Module.hpp"
 #include "game/char.h"
 #include "game/physics.h"
+#include "game/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 
@@ -131,12 +132,8 @@ static void import_dir_profiles_vfs(const std::string &importDirectory);
 static void game_load_global_profiles();
 static void game_load_module_profiles( const char *modname );
 
-static void initialize_all_objects();
-static void finalize_all_objects();
-
 static void update_all_objects();
 static void move_all_objects();
-static void cleanup_all_objects();
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -163,7 +160,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // TWINK_BO.OBJ
-    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler().get(owner)->Name ).c_str() );
+    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler()[owner]->getName() ).c_str() );
 
     // Is it a character or an item?
     if ( chr_obj_index < 0 )
@@ -455,39 +452,6 @@ void move_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_objects()
-{
-    // Do poofing       ZF> TODO: move to Object->update()
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if ( !time_out || object->isTerminated() ) continue;
-
-        object->requestTerminate();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void initialize_all_objects()
-{
-    /// @author BB
-    /// @details begin the code for updating in-game objects
-
-    // update all object timers etc.
-    update_all_objects();
-}
-
-//--------------------------------------------------------------------------------------------
-void finalize_all_objects()
-{
-    /// @author BB
-    /// @details end the code for updating in-game objects
-
-    // do end-of-life care for all objects
-    cleanup_all_objects();
-}
-
-//--------------------------------------------------------------------------------------------
 int update_game()
 {
     /// @author ZZ
@@ -617,7 +581,7 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*256.0f, _currentModule->getMeshPointer()->info.tiles_y*256.0f);
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*GRID_FSIZE, _currentModule->getMeshPointer()->info.tiles_y*GRID_FSIZE);
 
     //---- begin the code for updating misc. game stuff
     {
@@ -639,12 +603,11 @@ int update_game()
     //---- end the code object I/O
 
     //---- begin the code for updating in-game objects
-    initialize_all_objects();
+    update_all_objects();
     {
         move_all_objects();                   // clears some latches
         bump_all_objects();                   // do the actual object interaction
     }
-    finalize_all_objects();
     //---- end the code for updating in-game objects
 
     // put the camera movement inside here
@@ -778,7 +741,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return false;
 
     // Skip held objects
-    if ( IS_ATTACHED_CHR( iObjectest ) ) return false;
+    if ( ptst->isBeingHeld() ) return false;
 
     // Allow to target ourselves?
     if ( psrc == ptst.get() && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
@@ -879,7 +842,6 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
                 }
 
             }
-
         }
     }
 
@@ -903,18 +865,18 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     los_info.stopped_by = psrc->stoppedby;
 
     CHR_REF best_target = INVALID_CHR_REF;
-    float best_dist2  = max_dist * max_dist;
+    float best_dist2  = (max_dist == NEAREST) ? std::numeric_limits<float>::max() : max_dist*max_dist + 1.0f;
     for(const std::shared_ptr<Object> &ptst : searchList)
     {
+        if(ptst->isTerminated()) continue;
+
         if ( !chr_check_target( psrc, ptst->getCharacterID(), idsz, targeting_bits ) ) continue;
 
-        fvec3_t diff = psrc->getPosition() - ptst->getPosition();
-		float dist2 = diff.length_2();
-
-        if (( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
+		float dist2 = (psrc->getPosition() - ptst->getPosition()).length_2();
+        if (dist2 < best_dist2)
         {
             //Invictus chars do not need a line of sight
-            if ( !psrc->invictus )
+            if ( !psrc->isInvincible() )
             {
                 // set the line-of-sight source
                 los_info.x1 = ptst->getPosition()[kX];
@@ -929,9 +891,6 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
             best_dist2  = dist2;
         }
     }
-
-    // make sure the target is valid
-    if ( !_currentModule->getObjectHandler().exists( best_target ) ) best_target = INVALID_CHR_REF;
 
     return best_target;
 }
@@ -1019,8 +978,8 @@ void update_pits()
             for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
             {
                 // Is it a valid character?
-                if ( pchr->invictus || !pchr->isAlive() ) continue;
-                if ( IS_ATTACHED_CHR( pchr->getCharacterID() ) ) continue;
+                if ( pchr->isInvincible() || !pchr->isAlive() ) continue;
+                if ( pchr->isBeingHeld() ) continue;
 
                 // Do we kill it?
                 if ( g_pits.kill && pchr->getPosZ() < PITDEPTH )
@@ -1709,7 +1668,6 @@ void show_magic_status( int statindex )
     /// @details Displays special enchantment effects for the character
 
     CHR_REF character;
-    const char * missile_str;
 
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
     if(!pchr) {
@@ -1728,16 +1686,7 @@ void show_magic_status( int statindex )
                        pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 ? "Yes" : "No",
                        pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? "Yes" : "No" );
 
-    switch ( pchr->missiletreatment )
-    {
-        case MISSILE_REFLECT: missile_str = "Reflect"; break;
-        case MISSILE_DEFLECT: missile_str = "Deflect"; break;
-
-        default:
-        case MISSILE_NORMAL : missile_str = "None";    break;
-    }
-
-    DisplayMsg_printf( "~Flying: %s~~Missile Protection: %s", pchr->isFlying() ? "Yes" : "No", missile_str );
+    DisplayMsg_printf( "~Flying: %s", pchr->isFlying() ? "Yes" : "No");
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1753,7 +1702,7 @@ void tilt_characters_to_terrain()
     {
         if ( object->isTerminated() ) continue;
 
-        if ( object->stickybutt )
+        if ( object->getProfile()->hasStickyButt() )
         {
             twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
@@ -2009,7 +1958,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);    
+    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname == nullptr ? "" : psp_info->pname, INVALID_CHR_REF);
     if (!pobject) return false;
 
     // determine the attachment
@@ -2054,9 +2003,9 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
-                if (pobject->profile_ref <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->profile_ref))
+                if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->getProfileID()))
                 {
-                    int islot = REF_TO_INT( pobject->profile_ref );
+                    int islot = REF_TO_INT( pobject->getProfileID() );
 
                     if ( import_data.slot_lst[islot] == g_importList.lst[tnc].slot )
                     {
@@ -2507,10 +2456,7 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     config_synch(&egoboo_config_t::get(), true, false);
 
     // initialize the game objects
-    initialize_all_objects();
     input_cursor_reset();
-    //update_all_character_matrices();
-    attach_all_particles();
 
     // log debug info for every object loaded into the module
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
@@ -2575,20 +2521,6 @@ void game_release_module_data()
     mesh_BSP_system_end();
     obj_BSP_system_end();
     CollisionSystem::get()->reset();    
-}
-
-//--------------------------------------------------------------------------------------------
-void attach_all_particles()
-{
-    /// @author ZZ
-    /// @details This function attaches particles to their characters so everything gets
-    ///    drawn right
-
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-    {
-        if(particle->isTerminated() || !particle->isAttached()) continue;
-        particle->placeAtVertex(particle->getAttachedObject(), particle->attachedto_vrt_off);
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2687,8 +2619,18 @@ void free_all_objects()
     /// @author BB
     /// @details free every instance of the three object types used in the game.
 
+    //free all particles
     ParticleHandler::get().clear();
-    free_all_chraracters();
+
+    // free all the characters
+    if(_currentModule) {
+        _currentModule->getObjectHandler().clear();
+    }
+
+    //free all players
+    PlaStack.count = 0;
+    local_stats.player_count = 0;
+    local_stats.noplayers = true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3819,10 +3761,8 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
     // check if they can be connected
-    if ( !profile->canUsePlatforms() || pchr->isFlying() ) return false;
+    if ( !pchr->canuseplatforms || pchr->isFlying() ) return false;
     if ( !pplat->platform ) return false;
 
     // do the attachment
@@ -4086,16 +4026,16 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		import_ptr->slot = REF_TO_INT(player) * MAX_IMPORT_PER_PLAYER;
 		import_ptr->srcDir[0] = CSTR_END;
 		import_ptr->dstDir[0] = CSTR_END;
-		strncpy(import_ptr->name, pchr->Name, SDL_arraysize(import_ptr->name));
+		strncpy(import_ptr->name, pchr->getName().c_str(), SDL_arraysize(import_ptr->name));
 
 		// only copy the "source" directory if the player is local
 		if (is_local)
 		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->Name).c_str());
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->getName()).c_str());
 		}
 		else
 		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->Name).c_str());
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->getName()).c_str());
 		}
 
 		player++;

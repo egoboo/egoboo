@@ -228,7 +228,7 @@ void template_put_float( vfs_FILE* filetemp, vfs_FILE* filewrite, float fval )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        vfs_printf( filewrite, "%f", fval );
+        vfs_printf( filewrite, "%.2f", fval );
     }
 }
 

@@ -93,7 +93,7 @@ void PlayingState::updateStatusBarPosition()
     static uint32_t recalculateStatusBarPosition = 0;
     if(SDL_GetTicks() > recalculateStatusBarPosition) 
     {
-        //Apply throttle... no need to do every update frame
+        //Apply throttle... no need to do every update frame (5 Hz)
         recalculateStatusBarPosition = SDL_GetTicks() + 200;
 
         std::unordered_map<std::shared_ptr<Camera>, float> maxY;
@@ -102,13 +102,17 @@ void PlayingState::updateStatusBarPosition()
             std::shared_ptr<CharacterStatus> status = weakStatus.lock();
             if(status)
             {
-                const std::shared_ptr<Camera> &camera = _cameraSystem->getCameraByChrID(status->getObject()->getCharacterID());
+                std::shared_ptr<Object> object = status->getObject();
+                if(object)
+                {
+                    const std::shared_ptr<Camera> &camera = _cameraSystem->getCameraByChrID(object->getCharacterID());
 
-                //Shift component down a bit if required
-                status->setPosition(status->getX(), maxY[camera] + 10.0f);
+                    //Shift component down a bit if required
+                    status->setPosition(status->getX(), maxY[camera] + 10.0f);
 
-                //Calculate bottom Y coordinate for this component
-                maxY[camera] = std::max<float>(maxY[camera], status->getY() + status->getHeight());
+                    //Calculate bottom Y coordinate for this component
+                    maxY[camera] = std::max<float>(maxY[camera], status->getY() + status->getHeight());                    
+                }
             }
         }
 

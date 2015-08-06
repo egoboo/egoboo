@@ -1,5 +1,6 @@
 #include "ObjectAnimation.h"
 #include "CharacterMatrix.h"
+#include "ObjectPhysics.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game.h"
 
@@ -186,15 +187,6 @@ egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-uint32_t chr_get_framefx(Object *pchr)
-{
-    if (!pchr) {
-        return 0;
-    }
-    return chr_instance_t::get_framefx(pchr->inst);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -605,9 +597,9 @@ bool chr_handle_madfx( Object * pchr )
     CHR_REF ichr;
     Uint32 framefx;
 
-    if ( NULL == pchr ) return false;
+    if ( nullptr == pchr ) return false;
 
-    framefx = chr_get_framefx( pchr );
+    framefx = chr_instance_t::get_framefx(pchr->inst);
     if ( 0 == framefx ) return true;
 
     ichr    = GET_INDEX_PCHR( pchr );
@@ -665,7 +657,7 @@ bool chr_handle_madfx( Object * pchr )
     //Do footfall sound effect
     if (egoboo_config_t::get().sound_footfallEffects_enable.getValue() && HAS_SOME_BITS(framefx, MADFX_FOOTFALL))
     {
-        AudioSystem::get().playSound(pchr->getPosition(), ProfileSystem::get().getProfile(pchr->profile_ref)->getFootFallSound());
+        AudioSystem::get().playSound(pchr->getPosition(), pchr->getProfile()->getFootFallSound());
     }
 
     return true;

@@ -930,7 +930,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     if ( loc_needs_bump )
                     {
                         // the valid bump interactions
-                        bool end_money  = TO_C_BOOL(( particle->getProfile()->bump_money > 0 ) && pchr_a->cangrabmoney );
+                        bool end_money  = TO_C_BOOL(( particle->getProfile()->bump_money > 0 ) && pchr_a->getProfile()->canGrabMoney() );
                         bool end_bump   = TO_C_BOOL(( particle->getProfile()->end_bump ) && ( 0 != pchr_a->bump_stt.size ) );
                         bool end_ground = TO_C_BOOL(( particle->getProfile()->end_ground ) && (( 0 != pchr_a->bump_stt.size ) || pchr_a->platform ) );
 
@@ -1348,19 +1348,6 @@ void bump_all_objects()
         // handle all the collisions
         bump_all_collisions(&CollisionSystem::get()->_coll_node_lst);
     }
-
-#if 0
-    // The following functions need to be called any time you actually change a charcter's position
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        keep_weapons_with_holder(object);
-        chr_update_matrix(object.get(), true);
-    }
-
-    //keep_weapons_with_holders();
-    attach_all_particles();
-    //update_all_character_matrices();
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2605,11 +2592,10 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
     direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
-    chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR( pdata->pchr ), pdata->ppip->damfx );
+    chr_is_invictus = pdata->pchr->isInvictusDirection(direction, pdata->ppip->damfx);
 
     // determine whether the character is magically protected from missile attacks
-    prt_wants_deflection  = TO_C_BOOL(( MISSILE_NORMAL != pdata->pchr->missiletreatment ) &&
-                                      ( pdata->pprt->owner_ref != GET_INDEX_PCHR( pdata->pchr ) ) && !pdata->ppip->bump_money );
+    prt_wants_deflection  = TO_C_BOOL( ( pdata->pprt->owner_ref != GET_INDEX_PCHR( pdata->pchr ) ) && !pdata->ppip->bump_money );
 
     chr_can_deflect = TO_C_BOOL(( 0 != pdata->pchr->damage_timer ) && ( pdata->max_damage > 0 ) );
 
@@ -2619,18 +2605,31 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
     if ( chr_is_invictus || ( prt_wants_deflection && chr_can_deflect ) )
     {
         // magically deflect the particle or make a ricochet if the character is invictus
-        int treatment;
-
-        treatment     = MISSILE_DEFLECT;
+        MissileTreatmentType treatment = chr_is_invictus ? MISSILE_DEFLECT : MISSILE_NORMAL;
         prt_deflected = true;
-        if ( prt_wants_deflection )
-        {
-            treatment = pdata->pchr->missiletreatment;
-            const std::shared_ptr<Object> &missileHandler = _currentModule->getObjectHandler()[pdata->pchr->missilehandler];
-            if(missileHandler) {
-                pdata->mana_paid = missileHandler->costMana(pdata->pchr->missilecost << 8, pdata->pprt->owner_ref);
+
+        //Check if the target has any enchantment that can deflect missiles
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
+            if(enchant->isTerminated()) continue;
+
+            //Does this enchant provide special missile protection?
+            if(enchant->getMissileTreatment() != MISSILE_NORMAL) {
+                if(enchant->getOwner() != nullptr) {
+                    if(enchant->getOwner()->costMana(enchant->getMissileTreatmentCost(), pdata->pprt->owner_ref)) {
+                        pdata->mana_paid = true;
+                        treatment = enchant->getMissileTreatment();
+                        break;
+                    }
+                }
             }
-            prt_deflected = pdata->mana_paid;
+        }
+
+        if(treatment == MISSILE_NORMAL) {
+            prt_wants_deflection = false;
+            prt_deflected = false;
+        }
+        else {
+            prt_deflected = pdata->mana_paid;            
         }
 
         if ( prt_deflected )
@@ -3301,12 +3300,12 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
             {
                 // if the mount's rider can't get money, the mount gets to keep the money!
                 const std::shared_ptr<Object> &rider = pdata->pchr->getLeftHandItem();
-                if (rider != nullptr && rider->cangrabmoney) {
+                if (rider != nullptr && rider->getProfile()->canGrabMoney()) {
                     pcollector = rider.get();
                 }
             }
 
-            if ( pcollector->cangrabmoney && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
+            if ( pcollector->getProfile()->canGrabMoney() && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
             {
                 pcollector->money += pdata->pprt->getProfile()->bump_money;
                 pcollector->money = Ego::Math::constrain<int>(pcollector->money, 0, MAXMONEY);
