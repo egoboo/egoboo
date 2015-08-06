@@ -43,7 +43,7 @@ Particle::Particle() :
     _particleProfile(nullptr),
     _isTerminated(true),
     _target(INVALID_CHR_REF),
-    _spawnerProfile(INVALID_CHR_REF),
+    _spawnerProfile(INVALID_PRO_REF),
     _isHoming(false)
 {
     reset(INVALID_PRT_REF);

@@ -18,11 +18,11 @@ set_debug_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -pg -D_DEBUG)
 	$(eval COMPILE_OPTIMIZE :=-Og)
 
-#$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
-#$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)
-#$(eval SANITIZER_FLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr)
-#$(eval SANITIZER_FLAGS += -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow -fsanitize=bool -fsanitize=alignment)
-#-fsanitize=bounds-strict -fsanitize-undefined-trap-on-error
+	$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
+	$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)
+	$(eval SANITIZER_FLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr)
+	$(eval SANITIZER_FLAGS += -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow -fsanitize=bool -fsanitize=alignment)
+	#-fsanitize=bounds-strict -fsanitize-undefined-trap-on-error
 
 set_release_flags:
 	$(eval COMPILE_DEBUG_FLAGS+=-DNDEBUG)

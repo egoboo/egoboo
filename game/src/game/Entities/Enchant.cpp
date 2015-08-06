@@ -284,14 +284,14 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
 {
     //Invalid target?
     if( target->isTerminated() || (!target->isAlive() && !_enchantProfile->_target._stay) ) {
-        log_warning("Enchantment::applyEnchantment() - Invalid target");
+        log_warning("Enchantment::applyEnchantment() - Invalid target\n");
         requestTerminate();
         return;
     }
 
     //Already added to a target?
     if(_target.lock()) {
-        throw std::logic_error("Enchantment::applyEnchantment() - Already applied");
+        throw std::logic_error("Enchantment::applyEnchantment() - Already applied\n");
     }
 
     // do retargeting, if necessary

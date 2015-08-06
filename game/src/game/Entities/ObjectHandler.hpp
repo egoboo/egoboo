@@ -201,9 +201,8 @@ private:
 private:
 	Ego::QuadTree<Object> _dynamicObjects;
 
-    std::vector<std::shared_ptr<Object>> _internalCharacterList;        ///< Indexes in this character list match CHR_REF
+	std::unordered_map<CHR_REF, std::shared_ptr<Object>> _internalCharacterList; ///< Maps CHR_REF to Objects
 	std::vector<std::shared_ptr<Object>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
-	std::stack<CHR_REF> _unusedChrRefs;						                ///< Stack of unused CHR_REF
 
 	std::vector<std::shared_ptr<Object>> _allocateList;					///< List of all objects that should be added
 

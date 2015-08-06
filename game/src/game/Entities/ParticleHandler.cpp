@@ -113,7 +113,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const fvec3_t& spa
 
     if(!particle) {
         log_debug("spawn_one_particle() - cannot allocate a particle!    owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-                  spawnOrigin, _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->getName().c_str() : "INVALID",
+                  static_cast<int>(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->getName().c_str() : "INVALID",
                   spawnProfile, LOADED_PIP(spawnProfile) ? PipStack.get_ptr(spawnProfile)->_name.c_str() : "INVALID",
                   particleProfile, ProfileSystem::get().isValidProfileID(particleProfile) ? ProfileSystem::get().getProfile(particleProfile)->getPathname().c_str() : "INVALID");        
     }
