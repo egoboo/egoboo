@@ -102,7 +102,7 @@ bool Passage::close()
             }
 
             //Don't do held items
-            if ( IS_ATTACHED_CHR( object->getCharacterID() ) ) continue;
+            if (object->isBeingHeld()) continue;
 
             if ( 0.0f != object->bump_stt.size )
             {

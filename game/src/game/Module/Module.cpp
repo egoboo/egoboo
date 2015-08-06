@@ -114,11 +114,11 @@ void GameModule::checkPassageMusic()
         CHR_REF character = PlaStack.lst[ipla].index;
         if (!_currentModule->getObjectHandler().exists(character)) continue;
 
-        // Don't do items in hands or inventory.
-        if (IS_ATTACHED_CHR(character)) continue;
-
         Object *pchr = _currentModule->getObjectHandler().get(character);
         if (!pchr->isAlive() || !VALID_PLA(pchr->is_which_player)) continue;
+
+        // Don't do items in hands or inventory.
+        if(pchr->isBeingHeld()) continue;
 
         //Loop through every passage
         for (const std::shared_ptr<Passage>& passage : _passages)

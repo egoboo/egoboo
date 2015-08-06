@@ -38,8 +38,8 @@ std::unique_ptr<GameEngine> _gameEngine;
 const uint32_t GameEngine::GAME_TARGET_FPS;
 const uint32_t GameEngine::GAME_TARGET_UPS;
 
-const uint32_t GameEngine::DELAY_PER_RENDER_FRAME;
-const uint32_t GameEngine::DELAY_PER_UPDATE_FRAME;
+const uint64_t GameEngine::DELAY_PER_RENDER_FRAME;
+const uint64_t GameEngine::DELAY_PER_UPDATE_FRAME;
 
 const uint32_t GameEngine::MAX_FRAMESKIP;
 
@@ -77,14 +77,19 @@ void GameEngine::shutdown()
     _terminateRequested = true;
 }
 
+uint64_t GameEngine::getMicros() const
+{
+    return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - _startupTimestamp).count();
+}
+
 void GameEngine::start()
 {    
     initialize();
 
     //Initialize clock timeout	
     _startupTimestamp = std::chrono::high_resolution_clock::now();
-    _updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
-    _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
+    _updateTimeout = getMicros() + DELAY_PER_UPDATE_FRAME;
+    _renderTimeout = getMicros() + DELAY_PER_RENDER_FRAME;
 
     while(!_terminateRequested)
     {
@@ -98,21 +103,21 @@ void GameEngine::start()
         }
 
         // Check if it is time to update everything
-        for(_frameSkip = 0; _frameSkip < MAX_FRAMESKIP && SDL_GetTicks() >= _updateTimeout; ++_frameSkip)
+        for(_frameSkip = 0; _frameSkip < MAX_FRAMESKIP && getMicros() >= _updateTimeout; ++_frameSkip)
         {
             updateOneFrame();
             _updateTimeout += DELAY_PER_UPDATE_FRAME;
         }
 
         //Prevent accumalating more than 1 second of game updates (can happen in severe frame drops or breakpoints while debugging)
-        const uint32_t now = SDL_GetTicks();
+        const uint64_t now = getMicros();
         if(now - GAME_TARGET_UPS*DELAY_PER_UPDATE_FRAME > _updateTimeout) {
             _updateTimeout = now + DELAY_PER_UPDATE_FRAME;
             _renderTimeout = now;
         }
 
         // Check if it is time to draw everything
-        if(SDL_GetTicks() >= _renderTimeout)
+        if(getMicros() >= _renderTimeout)
         {
             // Calculate estimations for FPS and UPS
             estimateFrameRate();
@@ -123,7 +128,7 @@ void GameEngine::start()
             // Stabilize FPS throttle every so often in case rendering is lagging behind
             if(game_frame_all % GAME_TARGET_FPS == 0)
             {
-                _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
+                _renderTimeout = getMicros() + DELAY_PER_RENDER_FRAME;
             }
             else
             {
@@ -133,10 +138,10 @@ void GameEngine::start()
         else
         {
             //Don't hog CPU if we have nothing to do
-            int delay = std::min<int>(_renderTimeout-SDL_GetTicks(), _updateTimeout-SDL_GetTicks());
+            int delay = std::min<int64_t>(_renderTimeout-getMicros(), _updateTimeout-getMicros());
             if(delay > 1)
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+                std::this_thread::sleep_for(std::chrono::microseconds(delay));
             }
         }
     }
@@ -146,11 +151,11 @@ void GameEngine::start()
 
 void GameEngine::estimateFrameRate()
 {
-    const uint32_t now = SDL_GetTicks();
-    const float dt = (now-_lastFrameEstimation) * 0.001f;
+    const uint64_t now = getMicros();
+    const float dt = (now-_lastFrameEstimation) * 0.000001f;
 
     //Throttle estimations to four times per second
-    if(dt < 0.25f) {
+    if(dt < 0.1f) {
         return;
     }
 
@@ -188,8 +193,8 @@ void GameEngine::updateOneFrame()
         {
             _currentGameState = _gameStateStack.front();
             _currentGameState->beginState();
-            _updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
-            _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
+            _updateTimeout = getMicros() + DELAY_PER_UPDATE_FRAME;
+            _renderTimeout = getMicros() + DELAY_PER_RENDER_FRAME;
         }
     }
 
@@ -420,8 +425,8 @@ void GameEngine::pushGameState(std::shared_ptr<GameState> gameState)
     _gameStateStack.push_front(gameState);
     _currentGameState = _gameStateStack.front();
     _currentGameState->beginState();
-    _updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
-    _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
+    _updateTimeout = getMicros() + DELAY_PER_UPDATE_FRAME;
+    _renderTimeout = getMicros() + DELAY_PER_RENDER_FRAME;
 }
 
 void GameEngine::pollEvents()

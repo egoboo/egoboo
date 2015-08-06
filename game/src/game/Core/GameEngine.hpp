@@ -39,8 +39,8 @@ public:
     static const uint32_t GAME_TARGET_FPS = 60;	///< Desired frame renders per second
     static const uint32_t GAME_TARGET_UPS = 50;	///< Desired game logic updates per second
 
-    static const uint32_t DELAY_PER_RENDER_FRAME = 1000 / GAME_TARGET_FPS; ///< milliseconds between each render
-    static const uint32_t DELAY_PER_UPDATE_FRAME = 1000 / GAME_TARGET_UPS; ///< milliseconds between each update
+    static const uint64_t DELAY_PER_RENDER_FRAME = 1000000ULL / GAME_TARGET_FPS; ///< microseconds between each render
+    static const uint64_t DELAY_PER_UPDATE_FRAME = 1000000ULL / GAME_TARGET_UPS; ///< microseconds between each update
 
     static const uint32_t MAX_FRAMESKIP = 10;	///< Maximum render frames to skip if logic updates are lagging behind
 
@@ -112,6 +112,12 @@ public:
     *	and is never higher than MAX_FRAMESKIP.
     **/
     int getFrameSkip() const;
+
+    /**
+    * @return
+    *   Number of microseconds since the GameEngine began running
+    **/
+    uint64_t getMicros() const;
 
     /**
     * @brief
@@ -213,8 +219,8 @@ private:
     std::chrono::high_resolution_clock::time_point _startupTimestamp;
     bool _isInitialized;
     bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
-    uint32_t _updateTimeout;		///< Timestamp when updateOneFrame() should be run again
-    uint32_t _renderTimeout;		///< Timestamp when renderOneFrame() should be run again
+    uint64_t _updateTimeout;		///< Timestamp when updateOneFrame() should be run again
+    uint64_t _renderTimeout;		///< Timestamp when renderOneFrame() should be run again
     
     std::forward_list<std::shared_ptr<GameState>> _gameStateStack;
     std::shared_ptr<GameState> _currentGameState;
@@ -226,7 +232,7 @@ private:
     bool _screenshotRequested;
 
     //For estimating frame rates
-    uint32_t _lastFrameEstimation;
+    uint64_t _lastFrameEstimation;
     int _frameSkip;
     uint32_t _lastFPSCount;
     uint32_t _lastUPSCount;
