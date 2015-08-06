@@ -372,15 +372,15 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
         getTeamList()[team].setLeader(pchr);
     }
 
-    // Heal the skin number, if needed
-    if (skin < 0 || ppro->getSkinOverride() != ObjectProfile::NO_SKIN_OVERRIDE)
+    // getSkinOverride() can return NO_SKIN_OVERRIDE, so we need to check
+    // for the "random skin marker" even if that function is called
+    if (ppro->getSkinOverride() != ObjectProfile::NO_SKIN_OVERRIDE)
     {
         pchr->spawn_data.skin = ppro->getSkinOverride();
     }
 
-    // cap_get_skin_overide() can return NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX, so we need to check
-    // for the "random skin marker" even if that function is called
-    if (pchr->spawn_data.skin == ObjectProfile::NO_SKIN_OVERRIDE)
+    //Negative skin number means random skin
+    else if (pchr->spawn_data.skin < 0)
     {
         // This is a "random" skin.
         // Force it to some specific value so it will go back to the same skin every respawn

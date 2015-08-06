@@ -842,7 +842,6 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
                 }
 
             }
-
         }
     }
 

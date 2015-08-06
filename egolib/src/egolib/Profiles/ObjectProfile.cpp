@@ -57,7 +57,7 @@ ObjectProfile::ObjectProfile() :
     _className("*NONE*"),
 
     // skins
-     _skinInfo(),
+    _skinInfo(),
 
     // overrides
     _skinOverride(NO_SKIN_OVERRIDE),
@@ -420,17 +420,7 @@ uint16_t ObjectProfile::getSkinOverride() const
 {
     //Are we actually a spell book?
     if (_spellEffectType != NO_SKIN_OVERRIDE) {
-        if(_spellEffectType >= SKINS_PEROBJECT_MAX) {
-            return getRandomSkinID();
-        }
-        else {
-            return _spellEffectType;
-        }
-    }
-
-    //No skin overriding?
-    if(_skinOverride == NO_SKIN_OVERRIDE) {
-        return NO_SKIN_OVERRIDE;
+        return _spellEffectType;
     }
 
     return _skinOverride;
@@ -1391,7 +1381,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     if ( -1 != profile->_isValuable )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), profile->_isValuable );
 
-    if ( profile->_spellEffectType >= 0 )
+    if ( profile->_spellEffectType >= 0 && profile->_spellEffectType != NO_SKIN_OVERRIDE )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), profile->_spellEffectType );
 
     if ( profile->_attackFast )
