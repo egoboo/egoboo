@@ -2962,14 +2962,14 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     iTmp = 0;  // Amount of ammo given
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo( ichr, pstate->argument );
+    iTmp += RestockAmmo( ichr, pstate->argument );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    iTmp += restock_ammo( ichr, pstate->argument );
+    iTmp += RestockAmmo( ichr, pstate->argument );
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += restock_ammo( pitem->getCharacterID(), pstate->argument );
+        iTmp += RestockAmmo( pitem->getCharacterID(), pstate->argument );
     }
 
     pstate->argument = iTmp;
@@ -2997,19 +2997,19 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     iTmp = 0;  // Amount of ammo given
     
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo(ichr, pstate->argument);
+    iTmp += RestockAmmo(ichr, pstate->argument);
     
     if (iTmp == 0)
     {
         ichr = pself_target->holdingwhich[SLOT_RIGHT];
-        iTmp += restock_ammo(ichr, pstate->argument);
+        iTmp += RestockAmmo(ichr, pstate->argument);
     }
 
     if (iTmp == 0)
     {
         for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += restock_ammo( pitem->getCharacterID(), pstate->argument );
+            iTmp += RestockAmmo( pitem->getCharacterID(), pstate->argument );
             if ( 0 != iTmp ) break;
         }
     }
@@ -6277,10 +6277,52 @@ Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
     // FlashVariableHeight( tmpturn = "intensity bottom", tmpx = "bottom", tmpdistance = "intensity top", tmpy = "top" )
     /// @author ZZ
     /// @details This function makes the character flash, feet one color, head another.
+    ///          This function sets a character's lighting depending on vertex height...
+    ///          Can make feet dark and head light...
 
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_character_height( pself->index, CLIP_TO_16BITS( pstate->turn ), pstate->x, pstate->distance, pstate->y );
+    const uint8_t valuelow = CLIP_TO_16BITS(pstate->turn);
+    const int16_t low = pstate->x;
+    const uint8_t valuehigh = pstate->distance;
+    const int16_t high = pstate->y;
+
+    chr_instance_t *pinst = chr_get_pinstance( pchr->getCharacterID() );
+    for (size_t cnt = 0; cnt < pinst->vrt_count; cnt++)
+    {
+        int16_t z = pinst->vrt_lst[cnt].pos[ZZ];
+
+        if ( z < low )
+        {
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] = valuelow;
+        }
+        else if ( z > high )
+        {
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] = valuehigh;
+        }
+        else if ( high != low )
+        {
+            uint8_t valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
+                             ( valuelow * ( high - z ) / ( high - low ) );
+
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+        }
+        else
+        {
+            // z == high == low
+            uint8_t valuemid = ( valuehigh + valuelow ) * 0.5f;
+
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+        }
+    }
 
     SCRIPT_FUNCTION_END();
 }

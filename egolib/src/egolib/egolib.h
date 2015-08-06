@@ -31,6 +31,7 @@
 #include "egolib/Math/_Include.hpp"
 #include "egolib/Logic/Attribute.hpp"
 #include "egolib/Logic/PerkHandler.hpp"
+#include "egolib/Logic/ObjectSlot.hpp"
 #include "egolib/Renderer/DeferredOpenGLTexture.hpp"
 #include "egolib/bsp.h"
 #include "egolib/bbox.h"

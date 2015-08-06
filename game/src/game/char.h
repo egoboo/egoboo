@@ -115,45 +115,9 @@ struct chr_spawn_data_t;
 #define DAMAGETILETIME      32                            ///< Invincibility time
 #define DAMAGETIME          32                            ///< Invincibility time
 #define DEFENDTIME          24                            ///< Invincibility time
-#define BORETIME            ((Uint16)Random::next(255, 255 + 511)) ///< IfBored timer
+#define BORETIME            (Random::next<uint16_t>(255, 255 + 511)) ///< IfBored timer
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
-/// The vertex offsets for the various grips
-enum grip_offset_t
-{
-    GRIP_ORIGIN    =               0,                ///< Spawn attachments at the center
-    GRIP_LAST      =               1,                ///< Spawn particles at the last vertex
-    GRIP_LEFT      = ( 1 * GRIP_VERTS ),             ///< Left weapon grip starts  4 from last
-    GRIP_RIGHT     = ( 2 * GRIP_VERTS ),             ///< Right weapon grip starts 8 from last
-
-    // aliases
-    GRIP_INVENTORY =               GRIP_ORIGIN,
-    GRIP_ONLY      =               GRIP_LEFT
-};
-
-enum e_chr_movement_idx
-{
-    CHR_MOVEMENT_STOP  = 0,
-    CHR_MOVEMENT_SNEAK,
-    CHR_MOVEMENT_WALK,
-    CHR_MOVEMENT_RUN,
-    CHR_MOVEMENT_COUNT
-};
-
-enum e_chr_movement_bits
-{
-    CHR_MOVEMENT_NONE  = 0,
-    CHR_MOVEMENT_BITS_STOP  = 1 << CHR_MOVEMENT_STOP,
-    CHR_MOVEMENT_BITS_SNEAK = 1 << CHR_MOVEMENT_SNEAK,
-    CHR_MOVEMENT_BITS_WALK  = 1 << CHR_MOVEMENT_WALK,
-    CHR_MOVEMENT_BITS_RUN   = 1 << CHR_MOVEMENT_RUN
-};
-
 
 //--------------------------------------------------------------------------------------------
 
@@ -223,10 +187,7 @@ void drop_money( const CHR_REF character, int money );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
 void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 
-egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
-
 void    switch_team( const CHR_REF character, const TEAM_REF team );
-int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
 
@@ -238,9 +199,6 @@ void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile
 // generic helper functions
 
 bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects );
-
-grip_offset_t slot_to_grip_offset( slot_t slot );
-slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 

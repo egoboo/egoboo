@@ -61,61 +61,6 @@ int chr_pressure_tests = 0;
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
 
 //--------------------------------------------------------------------------------------------
-egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
-                                  Uint8 valuehigh, Sint16 high )
-{
-    /// @author ZZ
-    /// @details This function sets a character's lighting depending on vertex height...
-    ///    Can make feet dark and head light...
-
-    Uint32 cnt;
-    Sint16 z;
-
-    chr_instance_t * pinst;
-
-    pinst = chr_get_pinstance( character );
-    if ( NULL == pinst ) return rv_error;
-
-    for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
-    {
-        z = pinst->vrt_lst[cnt].pos[ZZ];
-
-        if ( z < low )
-        {
-            pinst->vrt_lst[cnt].col[RR] =
-                pinst->vrt_lst[cnt].col[GG] =
-                    pinst->vrt_lst[cnt].col[BB] = valuelow;
-        }
-        else if ( z > high )
-        {
-            pinst->vrt_lst[cnt].col[RR] =
-                pinst->vrt_lst[cnt].col[GG] =
-                    pinst->vrt_lst[cnt].col[BB] = valuehigh;
-        }
-        else if ( high != low )
-        {
-            Uint8 valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
-                             ( valuelow * ( high - z ) / ( high - low ) );
-
-            pinst->vrt_lst[cnt].col[RR] =
-                pinst->vrt_lst[cnt].col[GG] =
-                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
-        }
-        else
-        {
-            // z == high == low
-            Uint8 valuemid = ( valuehigh + valuelow ) * 0.5f;
-
-            pinst->vrt_lst[cnt].col[RR] =
-                pinst->vrt_lst[cnt].col[GG] =
-                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
-        }
-    }
-
-    return rv_success;
-}
-
-//--------------------------------------------------------------------------------------------
 egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
 {
     /// @author ZZ
@@ -979,32 +924,6 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
 }
 
 //--------------------------------------------------------------------------------------------
-int restock_ammo( const CHR_REF character, IDSZ idsz )
-{
-    /// @author ZZ
-    /// @details This function restocks the characters ammo, if it needs ammo and if
-    ///    either its parent or type idsz match the given idsz.  This
-    ///    function returns the amount of ammo given.
-
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
-    if(!pchr) {
-        return 0;
-    }
-
-    int amount = 0;
-    if (pchr->getProfile()->hasTypeIDSZ(idsz))
-    {
-        if (pchr->ammo < pchr->ammomax)
-        {
-            amount = pchr->ammomax - pchr->ammo;
-            pchr->ammo = pchr->ammomax;
-        }
-    }
-
-    return amount;
-}
-
-//--------------------------------------------------------------------------------------------
 bool chr_get_skill( Object *pchr, IDSZ whichskill )
 {
     //Maps between old IDSZ skill system and new Perk system
@@ -1336,37 +1255,6 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
 
     return is_invictus;
 }
-
-//--------------------------------------------------------------------------------------------
-grip_offset_t slot_to_grip_offset( slot_t slot )
-{
-    return static_cast<grip_offset_t>((slot+1) * GRIP_VERTS);
-}
-
-//--------------------------------------------------------------------------------------------
-slot_t grip_offset_to_slot( grip_offset_t grip_off )
-{
-    slot_t retval = SLOT_LEFT;
-
-    if ( 0 != grip_off % GRIP_VERTS )
-    {
-        // this does not correspond to a valid slot
-        // coerce it to the "default" slot
-        retval = SLOT_LEFT;
-    }
-    else
-    {
-        int islot = (( int )grip_off / GRIP_VERTS ) - 1;
-
-        // coerce the slot number to fit within the valid range
-        islot = CLIP( islot, 0, (int)SLOT_COUNT );
-
-        retval = ( slot_t ) islot;
-    }
-
-    return retval;
-}
-
 
 //--------------------------------------------------------------------------------------------
 std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
