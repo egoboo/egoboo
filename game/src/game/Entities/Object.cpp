@@ -933,9 +933,7 @@ void Object::updateResize()
 
     if (fat_goto != fat)
     {
-        int bump_increase;
-
-        bump_increase = ( fat_goto - fat ) * 0.10f * bump.size;
+        int bump_increase = ( fat_goto - fat ) * 0.10f * bump.size;
 
         // Make sure it won't get caught in a wall
         bool willgetcaught = false;
@@ -972,8 +970,7 @@ void Object::updateResize()
             }
             else
             {
-                Uint32 itmp = getProfile()->getWeight() * fat * fat * fat;
-                phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
+                phys.weight = std::min<uint32_t>(getProfile()->getWeight() * fat * fat * fat, CHR_MAX_WEIGHT);
             }
         }
     }
@@ -2116,8 +2113,11 @@ void Object::polymorphObject(const PRO_REF profileID)
     _profileID = profileID;
     _profile = ProfileSystem::get().getProfile(_profileID);
 
-    // Drop left weapon if we have no left grip
+    //Get any items we are holding
     const std::shared_ptr<Object> &leftItem = getLeftHandItem();
+    const std::shared_ptr<Object> &rightItem = getRightHandItem();
+
+    // Drop left weapon if we have no left grip
     if ( leftItem && ( !_profile->isSlotValid(SLOT_LEFT) || _profile->isMount() ) )
     {
         leftItem->detatchFromHolder(true, true);
@@ -2132,7 +2132,6 @@ void Object::polymorphObject(const PRO_REF profileID)
     }
 
     // Drop right weapon if we have no right grip
-    const std::shared_ptr<Object> &rightItem = getRightHandItem();
     if ( rightItem && !_profile->isSlotValid(SLOT_RIGHT) )
     {
         rightItem->detatchFromHolder(true, true);
@@ -2145,4 +2144,138 @@ void Object::polymorphObject(const PRO_REF profileID)
             rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
     }
+
+    // Stuff that must be set
+    stoppedby = _profile->getStoppedByMask();
+
+    // Ammo
+    ammomax = _profile->getMaxAmmo();
+    ammo    = _profile->getAmmo();
+
+    // Gender
+    if(_profile->getGender() != GENDER_RANDOM)  // GENDER_RANDOM means keep old gender
+    {
+        gender = _profile->getGender();
+    }
+
+    // AI stuff
+    chr_set_ai_state(this, 0);
+    ai.timer          = 0;
+    turnmode          = TURNMODE_VELOCITY;
+    latch.clear();
+
+    // Flags
+    platform        = _profile->isPlatform();
+    canuseplatforms = _profile->canUsePlatforms();
+    isitem          = _profile->isItem();
+    invictus        = _profile->isInvincible();
+    jump_timer      = JUMPDELAY;
+    reaffirm_damagetype = _profile->getReaffirmDamageType();
+
+    //Physics
+    phys.bumpdampen = _profile->getBumpDampen();
+
+    if (CAP_INFINITE_WEIGHT == _profile->getWeight())
+    {
+        phys.weight = CHR_INFINITE_WEIGHT;
+    }
+    else
+    {
+        phys.weight = std::min<uint32_t>(_profile->getWeight() * fat * fat * fat, CHR_MAX_WEIGHT);
+    }
+
+    // Movement
+    anim_speed_sneak = _profile->getSneakAnimationSpeed();
+    anim_speed_walk  = _profile->getWalkAnimationSpeed();
+    anim_speed_run   = _profile->getRunAnimationSpeed();
+
+    /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
+    /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
+    /// even if you cannot cast arcane spells. Some morph spells specifically morph the player
+    /// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
+    // pchr->canusearcane          = pcap_new->canusearcane;
+
+    // Character size and bumping
+    // set the character size so that the new model is the same size as the old model
+    // the model will then morph its size to the correct size over time
+    {
+        float oldFat = fat;
+        float newFat;
+
+        if ( 0.0f == bump.size ) {
+            newFat = _profile->getSize();
+        }
+        else {
+            newFat = ( _profile->getBumpSize() * _profile->getSize() ) / bump.size;
+        }
+
+        // Spellbooks should stay the same size, even if their spell effect cause changes in size
+        if (getProfileID() == SPELLBOOK) newFat = oldFat = 1.00f;
+
+        // copy all the cap size info over, as normal
+        chr_init_size(this, _profile);
+
+        // make the model's size congruent
+        if (0.0f != newFat && newFat != oldFat)
+        {
+            setFat(newFat);
+            fat_goto      = oldFat;
+            fat_goto_time = SIZETIME;
+        }
+        else
+        {
+            setFat(oldFat);
+            fat_goto      = oldFat;
+            fat_goto_time = 0;
+        }
+    }
+
+    //Actually change the model
+    chr_instance_t::spawn(inst, profileID, skin);
+    chr_update_matrix(this, true);
+
+    // Action stuff that must be down after chr_instance_spawn()
+    chr_instance_t::set_action_ready(inst, false);
+    chr_instance_t::set_action_keep(inst, false);
+    chr_instance_t::set_action_loop(inst, false);
+    if (isAlive())
+    {
+        chr_play_action(this, ACTION_DA, false);
+    }
+    else
+    {
+        chr_play_action(this, Random::next<int>(ACTION_KA, ACTION_KA + 3), false);
+        chr_instance_t::set_action_keep(inst, true);
+    }
+
+    // Set the skin after changing the model in chr_instance_spawn()
+    setSkin(skin);
+
+    // Must set the wepon grip AFTER the model is changed in chr_instance_spawn()
+    if (isBeingHeld())
+    {
+        set_weapongrip(getCharacterID(), attachedto, slot_to_grip_offset(inwhich_slot) );
+    }
+
+    if (leftItem)
+    {
+        EGOBOO_ASSERT(leftItem->attachedto == getCharacterID());
+        set_weapongrip(leftItem->getCharacterID(), getCharacterID(), GRIP_LEFT);
+    }
+
+    if (rightItem)
+    {
+        EGOBOO_ASSERT(rightItem->attachedto == getCharacterID());
+        set_weapongrip(rightItem->getCharacterID(), getCharacterID(), GRIP_RIGHT);
+    }
+
+    // determine whether the object is hidden
+    chr_update_hide(this);
+
+    /// @note ZF@> disabled so that books dont burn when dropped
+    //reaffirm_attached_particles( ichr );
+
+    ai_state_set_changed(ai);
+
+    chr_instance_t::update_ref(inst, enviro.grid_level, true );
 }

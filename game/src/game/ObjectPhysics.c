@@ -1695,7 +1695,6 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
         }
         else
         {
-            //TODO: ZF> should this be the other way around?
             pchr->setPosition(pattached->getPosition());
         }
 

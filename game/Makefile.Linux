@@ -29,10 +29,10 @@ CXXFLAGS  := $(COMPILE_FLAGS) $(INCLUDES) $(COMPILE_OPTIMIZE) $(COMPILE_WARNINGS
 
 #---------------------
 #Linker options
-LINKER_LIBS := $(shell sdl2-config --static-libs)
+LINKER_LIBS := -pg $(shell sdl2-config --static-libs)
 LINKER_LIBS += -L../egolib/ -legoboo
 LINKER_LIBS += -L../idlib/ -lid
-LINKER_LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lphysfs -lGL -Q
+LINKER_LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lphysfs -lGL
 LINKER_LIBS += $(SANITIZER_FLAGS)
 
 #------------------------------------

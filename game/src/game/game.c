@@ -132,7 +132,6 @@ static void import_dir_profiles_vfs(const std::string &importDirectory);
 static void game_load_global_profiles();
 static void game_load_module_profiles( const char *modname );
 
-static void initialize_all_objects();
 static void finalize_all_objects();
 
 static void update_all_objects();
@@ -469,16 +468,6 @@ void cleanup_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void initialize_all_objects()
-{
-    /// @author BB
-    /// @details begin the code for updating in-game objects
-
-    // update all object timers etc.
-    update_all_objects();
-}
-
-//--------------------------------------------------------------------------------------------
 void finalize_all_objects()
 {
     /// @author BB
@@ -640,7 +629,7 @@ int update_game()
     //---- end the code object I/O
 
     //---- begin the code for updating in-game objects
-    initialize_all_objects();
+    update_all_objects();
     {
         move_all_objects();                   // clears some latches
         bump_all_objects();                   // do the actual object interaction
@@ -2498,7 +2487,6 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     config_synch(&egoboo_config_t::get(), true, false);
 
     // initialize the game objects
-    initialize_all_objects();
     input_cursor_reset();
 
     // log debug info for every object loaded into the module
