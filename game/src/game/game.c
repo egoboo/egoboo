@@ -581,7 +581,7 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*256.0f, _currentModule->getMeshPointer()->info.tiles_y*256.0f);
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*GRID_FSIZE, _currentModule->getMeshPointer()->info.tiles_y*GRID_FSIZE);
 
     //---- begin the code for updating misc. game stuff
     {
@@ -865,18 +865,18 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     los_info.stopped_by = psrc->stoppedby;
 
     CHR_REF best_target = INVALID_CHR_REF;
-    float best_dist2  = max_dist * max_dist;
+    float best_dist2  = (max_dist == NEAREST) ? std::numeric_limits<float>::max() : max_dist*max_dist + 1.0f;
     for(const std::shared_ptr<Object> &ptst : searchList)
     {
+        if(ptst->isTerminated()) continue;
+
         if ( !chr_check_target( psrc, ptst->getCharacterID(), idsz, targeting_bits ) ) continue;
 
-        fvec3_t diff = psrc->getPosition() - ptst->getPosition();
-		float dist2 = diff.length_2();
-
-        if (( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
+		float dist2 = (psrc->getPosition() - ptst->getPosition()).length_2();
+        if (dist2 < best_dist2)
         {
             //Invictus chars do not need a line of sight
-            if ( !psrc->invictus )
+            if ( !psrc->isInvincible() )
             {
                 // set the line-of-sight source
                 los_info.x1 = ptst->getPosition()[kX];
@@ -891,9 +891,6 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
             best_dist2  = dist2;
         }
     }
-
-    // make sure the target is valid
-    if ( !_currentModule->getObjectHandler().exists( best_target ) ) best_target = INVALID_CHR_REF;
 
     return best_target;
 }

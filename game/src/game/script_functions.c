@@ -661,15 +661,14 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function sets the target to a nearby enemy, failing if there are none
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES );
+    CHR_REF ichr = chr_find_target(pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES);
 
-    if ( _currentModule->getObjectHandler().exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists(ichr) )
     {
-        SET_TARGET_0( ichr );
+        pself->target = ichr;
+        returncode = true;
     }
     else
     {
