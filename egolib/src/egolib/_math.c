@@ -55,7 +55,6 @@ void make_turntosin( void )
     int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight );
 
 // limiting functions
-    void getadd_int( const int min, const int value, const int max, int* valuetoadd );
     void getadd_flt( const float min, const float value, const float max, float* valuetoadd );
 
 // random functions
@@ -118,32 +117,6 @@ int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight
 
 //--------------------------------------------------------------------------------------------
 // LIMITING FUNCTIONS
-//--------------------------------------------------------------------------------------------
-void getadd_int( const int min, const int value, const int max, int* valuetoadd )
-{
-    /// @author ZZ
-    /// @details This function figures out what value to add should be in order
-    ///    to not overflow the min and max bounds
-
-    int newvalue;
-
-    newvalue = value + ( *valuetoadd );
-    if ( newvalue < min )
-    {
-        // Increase valuetoadd to fit
-        *valuetoadd = min - value;
-        if ( *valuetoadd > 0 )  *valuetoadd = 0;
-
-        return;
-    }
-    if ( newvalue > max )
-    {
-        // Decrease valuetoadd to fit
-        *valuetoadd = max - value;
-        if ( *valuetoadd < 0 )  *valuetoadd = 0;
-    }
-}
-
 //--------------------------------------------------------------------------------------------
 void getadd_flt( const float min, const float value, const float max, float* valuetoadd )
 {

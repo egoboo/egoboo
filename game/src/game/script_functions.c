@@ -3047,8 +3047,7 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.redshift = Ego::Math::constrain(pstate->argument, 0, 9);
-    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
+    pchr->setBaseAttribute(Ego::Attribute::RED_SHIFT, Ego::Math::constrain(pstate->argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3059,12 +3058,11 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
     // SetGreenShift( tmpargument = "green darkening" )
     /// @author ZZ
     /// @details This function sets the character's green shift ( 0 - 3 ), higher values
-    /// making the character less red and darker
+    /// making the character less green and darker
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.grnshift = Ego::Math::constrain(pstate->argument, 0, 9);
-    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
+    pchr->setBaseAttribute(Ego::Attribute::GREEN_SHIFT, Ego::Math::constrain(pstate->argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3075,12 +3073,11 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
     // SetBlueShift( tmpargument = "blue darkening" )
     /// @author ZZ
     /// @details This function sets the character's blue shift ( 0 - 3 ), higher values
-    /// making the character less red and darker
+    /// making the character less blue and darker
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.blushift = Ego::Math::constrain(pstate->argument, 0, 9);
-    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
+    pchr->setBaseAttribute(Ego::Attribute::BLUE_SHIFT, Ego::Math::constrain(pstate->argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }

@@ -96,6 +96,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
 
             default: throw std::logic_error("Unhandled enchant set type");
         }
+
         _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
     }
     for(size_t i = 0; i < eve_t::MAX_ENCHANT_ADD; ++i) {

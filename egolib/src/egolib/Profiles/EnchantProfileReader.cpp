@@ -162,7 +162,7 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     profile->_add[eve_t::ADDMANA].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
     profile->_add[eve_t::ADDLIFE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
     profile->_add[eve_t::ADDSTRENGTH].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDWISDOM].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDWISDOM].value = vfs_get_next_float(ctxt);    // Deprecated (not used)
     profile->_add[eve_t::ADDINTELLIGENCE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
     profile->_add[eve_t::ADDDEXTERITY].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
 

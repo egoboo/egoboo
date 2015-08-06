@@ -189,9 +189,9 @@ struct chr_instance_t
     bool         skin_has_transparency; ///< The object skin has partial transparency
 
     // color info
-    Uint8          redshift;        ///< Color channel shifting
-    Uint8          grnshift;
-    Uint8          blushift;
+    uint8_t          redshift;        ///< Color channel shifting
+    uint8_t          grnshift;
+    uint8_t          blushift;
 
     // texture info
     TX_REF         texture;         ///< The texture id of the character's skin
@@ -231,12 +231,6 @@ struct chr_instance_t
     bool                 indolist;               ///< Has it been added yet?
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
-
-    // OBSOLETE
-    // lighting
-    // FACING_T       light_turn_z;    ///< Character's light rotation 0 to 0xFFFF
-    // Uint8          lightlevel_amb;  ///< 0-255, terrain light
-    // Uint8          lightlevel_dir;  ///< 0-255, terrain light
 
 	static chr_instance_t *ctor(chr_instance_t& self);
 	static chr_instance_t *dtor(chr_instance_t& self);
