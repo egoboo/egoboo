@@ -1202,10 +1202,12 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(0).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(1).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(2).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(3).damageResistance[damagetype] );
+        //TODO: add support for more than 4
+        for(int i = 0; i < 4; ++i) {
+            //ZF> Another small hack to prevent 0 damage resist to be parsed as 0 damage shift
+            float damageResist = profile->getSkinInfo(i).damageResistance[damagetype];
+            template_put_float( fileTemp, fileWrite, damageResist == 0.0f ? 1 : damageResist);
+        }
     }
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
