@@ -709,7 +709,7 @@ public:
     * @brief
     *   Changes this Object into a different type. This effect is reversible (base profile is not changed)
     **/
-    void polymorphObject(const PRO_REF profileID);
+    void polymorphObject(const PRO_REF profileID, const SKIN_T skin);
 
     PRO_REF getProfileID() const {return _profileID;}
 

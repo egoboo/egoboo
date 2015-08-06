@@ -164,7 +164,7 @@ Enchantment::~Enchantment()
         {
             if(modifier._type == Ego::Attribute::MORPH) {
                 //change back into original form
-                change_character(target->getCharacterID(), target->basemodel_ref, modifier._value, ENC_LEAVE_ALL);
+                target->polymorphObject(target->basemodel_ref, modifier._value);
             }
             else if(Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
                 //remove effect completely
@@ -429,10 +429,11 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
 
         //Morph is special and handled differently than others
         if(modifier._type == Ego::Attribute::MORPH) {
-            change_character(target->getCharacterID(), _spawnerProfileID, 0, ENC_LEAVE_ALL);
-
             //Store target's original armor
             target->getTempAttributes()[Ego::Attribute::MORPH] = target->skin;
+
+            //Transform the object
+            target->polymorphObject(_spawnerProfileID, 0);
         }
 
         //Is it a set type?

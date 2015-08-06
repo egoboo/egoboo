@@ -883,61 +883,6 @@ Object * chr_config_do_init( Object * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich )
-{
-    /// @author ZF
-    /// @details This function polymorphs a character permanently so that it can be exported properly
-    /// A character turned into a frog with this function will also export as a frog!
-
-    const std::shared_ptr<ObjectProfile>& newProfile = ProfileSystem::get().getProfile(profile);
-    if (!newProfile) return;
-
-    // change their model
-    change_character( ichr, profile, skin, leavewhich );
-
-    // set the base model to the new model, too
-    _currentModule->getObjectHandler().get(ichr)->basemodel_ref = profile;
-}
-
-//--------------------------------------------------------------------------------------------
-void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int skin, const Uint8 leavewhich )
-{
-    /// @author ZZ
-    /// @details This function polymorphs a character, changing stats, dropping weapons
-    if (!ProfileSystem::get().isValidProfileID(profile_new) || !_currentModule->getObjectHandler().exists(ichr)) return;
-    Object * pchr = _currentModule->getObjectHandler().get( ichr );
-
-    std::shared_ptr<ObjectProfile> newProfile = ProfileSystem::get().getProfile(profile_new);
-    if(!newProfile) {
-        return;
-    }
-
-    //Actually polymorph the object
-    pchr->polymorphObject(profile_new);
-
-    // Remove particles
-    disaffirm_attached_particles( ichr );
-
-    // Remove enchantments
-    if ( leavewhich == ENC_LEAVE_FIRST )
-    {
-        //Leave only the first enchant
-        bool first = true;
-        for(const std::shared_ptr<Ego::Enchantment> &enchant : pchr->getActiveEnchants()) {
-            if(!first) {
-                enchant->requestTerminate();
-            } 
-            first = false;
-        }
-    }
-    else if ( ENC_LEAVE_NONE == leavewhich )
-    {
-        // Remove all enchantments
-        pchr->disenchant();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent )
 {
     Object  * pchr;
@@ -1041,20 +986,18 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
     ///    either its parent or type idsz match the given idsz.  This
     ///    function returns the amount of ammo given.
 
-    int amount;
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
+    if(!pchr) {
+        return 0;
+    }
 
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return 0;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    amount = 0;
-    if ( chr_is_type_idsz( character, idsz ) )
+    int amount = 0;
+    if (pchr->getProfile()->hasTypeIDSZ(idsz))
     {
-        if ( _currentModule->getObjectHandler().get(character)->ammo < _currentModule->getObjectHandler().get(character)->ammomax )
+        if (pchr->ammo < pchr->ammomax)
         {
-            amount = _currentModule->getObjectHandler().get(character)->ammomax - _currentModule->getObjectHandler().get(character)->ammo;
-            _currentModule->getObjectHandler().get(character)->ammo = _currentModule->getObjectHandler().get(character)->ammomax;
+            amount = pchr->ammomax - pchr->ammo;
+            pchr->ammo = pchr->ammomax;
         }
     }
 

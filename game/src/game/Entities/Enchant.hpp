@@ -30,11 +30,6 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/_Include.hpp"
 
-//Macros? eww...
-#define ENC_LEAVE_ALL           0
-#define ENC_LEAVE_FIRST         1
-#define ENC_LEAVE_NONE          2
-
 //Forward declarations
 class Object;
 

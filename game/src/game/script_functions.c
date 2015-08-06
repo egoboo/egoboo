@@ -2397,35 +2397,15 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     /// content.
     /// TOO COMPLICATED TO EXPLAIN.  SHOULDN'T EVER BE NEEDED BY YOU.
 
-    int iskin;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    // get the spellbook's skin
-    iskin = pchr->skin;
-
     // change the spellbook to a spell effect
-    change_character( pself->index, ( PRO_REF )pself->content, 0, ENC_LEAVE_NONE );
+    pchr->disenchant();
+    pchr->polymorphObject(pself->content, 0);
 
     // set the spell effect parameters
     pself->content = 0;
     chr_set_ai_state( pchr, 0 );
-
-    // have to do this every time pself->state is modified
-    chr_update_hide( pchr );
-
-    // set the book icon of the spell effect if it is not already set
-    /*
-    //ZF> TODO: is this needed? what does it actually do?
-    pcap = chr_get_pcap( pself->index );
-    if ( NULL != pcap )
-    {
-        iskin = ( iskin < 0 ) ? NO_SKIN_OVERRIDE : iskin;
-        iskin = ( iskin > SKINS_PEROBJECT_MAX ) ? SKINS_PEROBJECT_MAX : iskin;
-
-        pcap->spelleffect_type = iskin;
-    }
-    */
 
     SCRIPT_FUNCTION_END();
 }
@@ -2450,7 +2430,8 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     // convert the spell effect to a spellbook
     PRO_REF old_profile = pchr->getProfileID();
-    change_character( pself->index, (PRO_REF)SPELLBOOK, iskin, ENC_LEAVE_NONE );
+    pchr->disenchant();
+    pchr->polymorphObject(SPELLBOOK, 0);
 
     // Reset the spellbook state so it doesn't burn up
     chr_set_ai_state(pchr, 0);
@@ -2458,15 +2439,10 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     // set the spellbook animations
     // Do dropped animation
-    int tmp_action = pchr->getProfile()->getModel()->getAction(ACTION_JB);
-
-    if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
+    if (rv_success == chr_start_anim(pchr, pchr->getProfile()->getModel()->getAction(ACTION_JB), false, true))
     {
         returncode = true;
     }
-
-    // have to do this every time pself->state is modified
-    chr_update_hide(pchr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5489,7 +5465,23 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    change_character_full( pself->target, ( PRO_REF )pstate->argument, 0, ENC_LEAVE_ALL );
+    const PRO_REF profileID = static_cast<PRO_REF>(pstate->argument);
+
+    /// @details This function polymorphs a character permanently so that it can be exported properly
+    /// A character turned into a frog with this function will also export as a frog!
+    if(ProfileSystem::get().isValidProfileID(profileID)) 
+    {
+        //Change the object
+        pchr->polymorphObject(profileID, 0);
+
+        // set the base model to the new model, too
+        pchr->basemodel_ref = profileID;
+
+        returncode = true;
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -7700,13 +7692,13 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     if ( !_currentModule->getObjectHandler().exists( pself->target ) ) return false;
 
-    change_character( pself->index, pself_target->basemodel_ref, pself_target->skin, ENC_LEAVE_ALL );
+    pchr->polymorphObject(pself_target->basemodel_ref, pself_target->skin);
 
     // let the resizing take some time
     pchr->fat_goto      = pself_target->fat;
     pchr->fat_goto_time = SIZETIME;
 
-    // change back to our original AI
+    // change back to our original AI (keep our old AI script)
 //    pself->type      = ProList.lst[pchr->basemodel_ref].iai;      //TODO: this no longer works (is it even needed?)
 
     SCRIPT_FUNCTION_END();

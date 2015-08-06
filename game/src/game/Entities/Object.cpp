@@ -2103,7 +2103,7 @@ const std::shared_ptr<ObjectProfile>& Object::getProfile() const
     return _profile;
 }
 
-void Object::polymorphObject(const PRO_REF profileID)
+void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 {
     if(!ProfileSystem::get().isValidProfileID(profileID)) {
         log_warning("Tried to polymorph object (%s) into an invalid profile ID: %d\n", getProfile()->getClassName().c_str(), profileID);
@@ -2230,11 +2230,14 @@ void Object::polymorphObject(const PRO_REF profileID)
         }
     }
 
+    //Remove attached particles before changing our model
+    disaffirm_attached_particles(getCharacterID());
+
     //Actually change the model
-    chr_instance_t::spawn(inst, profileID, skin);
+    chr_instance_t::spawn(inst, profileID, newSkin);
     chr_update_matrix(this, true);
 
-    // Action stuff that must be down after chr_instance_spawn()
+    // Action stuff that must be down after chr_instance_t::spawn()
     chr_instance_t::set_action_ready(inst, false);
     chr_instance_t::set_action_keep(inst, false);
     chr_instance_t::set_action_loop(inst, false);
@@ -2248,10 +2251,10 @@ void Object::polymorphObject(const PRO_REF profileID)
         chr_instance_t::set_action_keep(inst, true);
     }
 
-    // Set the skin after changing the model in chr_instance_spawn()
-    setSkin(skin);
+    // Set the skin after changing the model in chr_instance_t::spawn()
+    setSkin(newSkin);
 
-    // Must set the wepon grip AFTER the model is changed in chr_instance_spawn()
+    // Must set the wepon grip AFTER the model is changed in chr_instance_t::spawn()
     if (isBeingHeld())
     {
         set_weapongrip(getCharacterID(), attachedto, slot_to_grip_offset(inwhich_slot) );

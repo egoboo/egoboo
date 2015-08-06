@@ -225,8 +225,6 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
-void    change_character( const CHR_REF cnt, const PRO_REF profile, const int skin, const Uint8 leavewhich );
-void    change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
