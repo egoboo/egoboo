@@ -2592,7 +2592,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
     direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
-    chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR( pdata->pchr ), pdata->ppip->damfx );
+    chr_is_invictus = pdata->pchr->isInvictusDirection(direction, pdata->ppip->damfx);
 
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = TO_C_BOOL( ( pdata->pprt->owner_ref != GET_INDEX_PCHR( pdata->pchr ) ) && !pdata->ppip->bump_money );

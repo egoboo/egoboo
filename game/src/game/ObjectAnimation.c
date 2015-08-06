@@ -190,15 +190,6 @@ egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
 }
 
 //--------------------------------------------------------------------------------------------
-uint32_t chr_get_framefx(Object *pchr)
-{
-    if (!pchr) {
-        return 0;
-    }
-    return chr_instance_t::get_framefx(pchr->inst);
-}
-
-//--------------------------------------------------------------------------------------------
 void move_one_character_do_animation( Object * pchr )
 {
     // Animate the character.
@@ -606,9 +597,9 @@ bool chr_handle_madfx( Object * pchr )
     CHR_REF ichr;
     Uint32 framefx;
 
-    if ( NULL == pchr ) return false;
+    if ( nullptr == pchr ) return false;
 
-    framefx = chr_get_framefx( pchr );
+    framefx = chr_instance_t::get_framefx(pchr->inst);
     if ( 0 == framefx ) return true;
 
     ichr    = GET_INDEX_PCHR( pchr );

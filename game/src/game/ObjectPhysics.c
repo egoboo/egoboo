@@ -110,7 +110,7 @@ void move_one_character_do_voluntary( Object * pchr )
     maxspeed *= speedBonus;
 
     //Check animation frame freeze movement
-    if ( chr_get_framefx( pchr ) & MADFX_STOP )
+    if ( chr_instance_t::get_framefx(pchr->inst) & MADFX_STOP )
     {
         //Allow 50% movement while using Shield and have the Mobile Defence perk
         if(pchr->hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(pchr->inst.action_which, P))

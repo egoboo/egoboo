@@ -269,9 +269,9 @@ struct chr_instance_t
 	static void remove_interpolation(chr_instance_t& self);
 	static gfx_rv set_frame_full(chr_instance_t& self, int frame_along, int ilip, const std::shared_ptr<Ego::ModelDescriptor> &mad_override);
 
-	static const MD2_Frame& get_frame_nxt(chr_instance_t& self);
+	static const MD2_Frame& get_frame_nxt(const chr_instance_t& self);
 	static const MD2_Frame& get_frame_lst(chr_instance_t& self);
-	static BIT_FIELD get_framefx(chr_instance_t& self);
+	static BIT_FIELD get_framefx(const chr_instance_t& self);
 
 	static float get_remaining_flip(chr_instance_t& self);
 	static void get_tint(chr_instance_t& self, GLfloat *tint, const BIT_FIELD bits);

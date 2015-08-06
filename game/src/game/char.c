@@ -799,34 +799,6 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     }
 }
 
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-Object * chr_config_do_init( Object * pchr )
-{
-    CHR_REF  ichr;
-    TEAM_REF loc_team;
-    int      tnc, iteam, kursechance;
-
-    chr_spawn_data_t * spawn_ptr;
-    fvec3_t pos_tmp;
-
-    if ( NULL == pchr ) return NULL;
-    ichr = GET_INDEX_PCHR( pchr );
-    spawn_ptr = &( pchr->spawn_data );
-
-    // get a pointer to the character profile
-    std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(spawn_ptr->profile);
-    if ( NULL == ppro )
-    {
-        log_debug( "chr_config_do_init() - cannot initialize character.\n" );
-
-        return NULL;
-    }
-
-    return pchr;
-}
-
 //--------------------------------------------------------------------------------------------
 void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent )
 {
@@ -1190,70 +1162,6 @@ bool chr_update_breadcrumb( Object * object, bool force )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects )
-{
-    FACING_T left, right;
-
-    Object * pchr;
-
-    bool  is_invictus;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return true;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    // if the invictus flag is set, we are invictus
-    if ( pchr->invictus ) return true;
-
-    // if the effect is shield piercing, ignore shielding
-    if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return false;
-
-    // if the character's frame is invictus, then check the angles
-    if ( HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
-    {
-        //I Frame
-        direction -= pchr->getProfile()->getInvictusFrameFacing();
-        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(pchr->getProfile()->getInvictusFrameAngle()) );
-        right      = pchr->getProfile()->getInvictusFrameAngle();
-
-        // If using shield, use the shield invictus instead
-        if ( ACTION_IS_TYPE( pchr->inst.action_which, P ) )
-        {
-            bool parry_left = ( pchr->inst.action_which < ACTION_PC );
-
-            // Using a shield?
-            if ( parry_left && pchr->getLeftHandItem() )
-            {
-                // Check left hand
-                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(pchr->getLeftHandItem()->getProfile()->getInvictusFrameAngle()) );
-                right = pchr->getLeftHandItem()->getProfile()->getInvictusFrameAngle();
-            }
-            else if(pchr->getRightHandItem())
-            {
-                // Check right hand
-                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(pchr->getRightHandItem()->getProfile()->getInvictusFrameAngle()) );
-                right = pchr->getRightHandItem()->getProfile()->getInvictusFrameAngle();
-            }
-        }
-    }
-    else
-    {
-        // N Frame
-        direction -= pchr->getProfile()->getNormalFrameFacing();
-        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(pchr->getProfile()->getNormalFrameAngle()) );
-        right      = pchr->getProfile()->getNormalFrameAngle();
-    }
-
-    // Check that direction
-    is_invictus = false;
-    if ( direction <= left && direction <= right )
-    {
-        is_invictus = true;
-    }
-
-    return is_invictus;
 }
 
 //--------------------------------------------------------------------------------------------

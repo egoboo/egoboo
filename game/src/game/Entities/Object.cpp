@@ -2282,3 +2282,58 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     chr_instance_t::update_ref(inst, enviro.grid_level, true );
 }
+
+bool Object::isInvictusDirection(FACING_T direction, const BIT_FIELD effects) const
+{
+    FACING_T left;
+    FACING_T right;
+
+    // if the invictus flag is set, we are invictus
+    if (isInvincible()) return true;
+
+    // if the effect is shield piercing, ignore shielding
+    if (HAS_SOME_BITS(effects, DAMFX_NBLOC)) return false;
+
+    // if the character's frame is invictus, then check the angles
+    if (HAS_SOME_BITS(chr_instance_t::get_framefx(inst), MADFX_INVICTUS))
+    {
+        //I Frame
+        direction -= getProfile()->getInvictusFrameFacing();
+        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getProfile()->getInvictusFrameAngle()) );
+        right      = getProfile()->getInvictusFrameAngle();
+
+        // If using shield, use the shield invictus instead
+        if (ACTION_IS_TYPE(inst.action_which, P))
+        {
+            bool parry_left = ( inst.action_which < ACTION_PC );
+
+            // Using a shield?
+            if (parry_left && getLeftHandItem())
+            {
+                // Check left hand
+                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getLeftHandItem()->getProfile()->getInvictusFrameAngle()) );
+                right = getLeftHandItem()->getProfile()->getInvictusFrameAngle();
+            }
+            else if(getRightHandItem())
+            {
+                // Check right hand
+                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getRightHandItem()->getProfile()->getInvictusFrameAngle()) );
+                right = getRightHandItem()->getProfile()->getInvictusFrameAngle();
+            }
+        }
+    }
+    else
+    {
+        // N Frame
+        direction -= getProfile()->getNormalFrameFacing();
+        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getProfile()->getNormalFrameAngle()) );
+        right      = getProfile()->getNormalFrameAngle();
+    }
+
+    // Check that direction
+    if (direction <= left && direction <= right) {
+        return true;
+    }
+
+    return false;
+}

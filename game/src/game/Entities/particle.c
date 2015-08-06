@@ -890,7 +890,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     direction = ATK_BEHIND + (pchr->ori.facing_z - direction);
 
     // Check that direction
-    if (!is_invictus_direction(direction, character, ppip->damfx))
+    if (!pchr->isInvictusDirection(direction, ppip->damfx))
     {
         // Spawn new enchantments
         if (ppip->spawnenchant) 

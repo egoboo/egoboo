@@ -178,9 +178,6 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 
 bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin );
 
-// character state machine functions
-Object * chr_config_do_init( Object * pchr );
-
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
 void drop_money( const CHR_REF character, int money );
@@ -197,9 +194,6 @@ void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile
 
 //--------------------------------------------------------------------------------------------
 // generic helper functions
-
-bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects );
-
 std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 
 

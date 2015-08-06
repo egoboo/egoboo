@@ -713,6 +713,12 @@ public:
 
     PRO_REF getProfileID() const {return _profileID;}
 
+    /**
+    * @return
+    *   true if this Object is immune to damage from the specified direction
+    **/
+    bool isInvictusDirection(FACING_T direction, const BIT_FIELD effects) const;
+
 private:
 
     /**
