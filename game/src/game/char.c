@@ -976,7 +976,14 @@ void update_all_characters()
             continue;
         }
 
+        //Update object logic
         object->update();
+
+        //Check if this object should be poofed (destroyed)
+        bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
+        if (timeOut) {
+            object->requestTerminate();
+        }
     }
 
     // fix the stat timer
@@ -1453,36 +1460,6 @@ void chr_set_floor_level( Object * pchr, const float level )
     {
         pchr->enviro.floor_level = level;
     }
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_set_redshift( Object * pchr, const int rs )
-{
-    if ( nullptr == ( pchr ) ) return;
-
-    pchr->inst.redshift = CLIP( rs, 0, 9 );
-
-    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_set_grnshift( Object * pchr, const int gs )
-{
-    if ( nullptr == ( pchr ) ) return;
-
-    pchr->inst.grnshift = CLIP( gs, 0, 9 );
-
-    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_set_blushift( Object * pchr, const int bs )
-{
-    if ( nullptr == ( pchr ) ) return;
-
-    pchr->inst.blushift = CLIP( bs, 0, 9 );
-
-    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
 }
 
 //--------------------------------------------------------------------------------------------

@@ -508,7 +508,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
         float lerp_z;
 
         // nothing in packs
-        if ( IS_ATTACHED_CHR( pchr->ai.index ) ) continue;
+        if (pchr->isBeingHeld()) continue;
 
         // nothing flying
         if (pchr->isFlying()) continue;

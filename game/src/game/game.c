@@ -132,11 +132,8 @@ static void import_dir_profiles_vfs(const std::string &importDirectory);
 static void game_load_global_profiles();
 static void game_load_module_profiles( const char *modname );
 
-static void finalize_all_objects();
-
 static void update_all_objects();
 static void move_all_objects();
-static void cleanup_all_objects();
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -455,29 +452,6 @@ void move_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_objects()
-{
-    // Do poofing       ZF> TODO: move to Object->update()
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if ( !time_out || object->isTerminated() ) continue;
-
-        object->requestTerminate();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void finalize_all_objects()
-{
-    /// @author BB
-    /// @details end the code for updating in-game objects
-
-    // do end-of-life care for all objects
-    cleanup_all_objects();
-}
-
-//--------------------------------------------------------------------------------------------
 int update_game()
 {
     /// @author ZZ
@@ -634,7 +608,6 @@ int update_game()
         move_all_objects();                   // clears some latches
         bump_all_objects();                   // do the actual object interaction
     }
-    finalize_all_objects();
     //---- end the code for updating in-game objects
 
     // put the camera movement inside here
@@ -768,7 +741,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return false;
 
     // Skip held objects
-    if ( IS_ATTACHED_CHR( iObjectest ) ) return false;
+    if ( ptst->isBeingHeld() ) return false;
 
     // Allow to target ourselves?
     if ( psrc == ptst.get() && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
@@ -1009,8 +982,8 @@ void update_pits()
             for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
             {
                 // Is it a valid character?
-                if ( pchr->invictus || !pchr->isAlive() ) continue;
-                if ( IS_ATTACHED_CHR( pchr->getCharacterID() ) ) continue;
+                if ( pchr->isInvincible() || !pchr->isAlive() ) continue;
+                if ( pchr->isBeingHeld() ) continue;
 
                 // Do we kill it?
                 if ( g_pits.kill && pchr->getPosZ() < PITDEPTH )

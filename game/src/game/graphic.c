@@ -133,9 +133,6 @@ static oglx_video_parameters_t ogl_vparam;
 static bool _sdl_initialized_graphics = false;
 static bool _ogl_initialized = false;
 
-//static float sinlut[MAXLIGHTROTATION];
-//static float coslut[MAXLIGHTROTATION];
-
 // Interface stuff
 static irect_t tabrect[NUMBAR];            // The tab rectangles
 static irect_t barrect[NUMBAR];            // The bar rectangles
@@ -213,7 +210,6 @@ static float draw_debug(float y);
 static float draw_timer(float y);
 static float draw_game_status(float y);
 static void  draw_hud();
-//static void  draw_inventory();
 
 static gfx_rv update_one_chr_instance(Object * pchr);
 static gfx_rv gfx_update_all_chr_instance();
@@ -1431,8 +1427,6 @@ void draw_hud()
 
     gfx_begin_2d();
     {
-        //draw_inventory();
-
         y = draw_fps(0);
         y = draw_help(y);
         y = draw_debug(y);
@@ -1454,146 +1448,6 @@ void draw_hud()
     }
     gfx_end_2d();
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-void draw_inventory()
-{
-    /// @author ZF
-    /// @details This renders the open inventories of all local players
-
-    PLA_REF ipla;
-    player_t * ppla;
-    Ego::Colour4f background_color(0.66f, 0.0f, 0.0f, 0.95f);
-
-    CHR_REF ichr;
-    Object *pchr;
-
-    PLA_REF draw_list[MAX_LOCAL_PLAYERS];
-    size_t cnt, draw_list_length = 0;
-
-    float sttx, stty;
-    int width, height;
-
-    static int lerp_time[MAX_LOCAL_PLAYERS] = { 0 };
-
-    //figure out what we have to draw
-    for (ipla = 0; ipla < MAX_PLAYER; ipla++)
-    {
-        //valid player?
-        ppla = PlaStack.get_ptr(ipla);
-        if (!ppla->valid) continue;
-
-        //draw inventory?
-        if (!ppla->draw_inventory) continue;
-        ichr = ppla->index;
-
-        //valid character?
-        if (!_currentModule->getObjectHandler().exists(ichr)) continue;
-        pchr = _currentModule->getObjectHandler().get(ichr);
-
-        //don't draw inventories of network players
-        if (!pchr->islocalplayer) continue;
-
-        draw_list[draw_list_length++] = ipla;
-    }
-
-    //figure out size and position of the inventory
-    width = 180;
-    height = 140;
-
-    sttx = 0;
-    stty = GFX_HEIGHT / 2 - height / 2;
-    stty -= height * (draw_list_length - 1);
-    stty = std::max(0.0f, stty);
-
-    //now draw each inventory
-    for (cnt = 0; cnt < draw_list_length; cnt++)
-    {
-        size_t i;
-        STRING buffer;
-        int icon_count, item_count, weight_sum, max_weight;
-        float x, y, edgex;
-
-        //Figure out who this is
-        ipla = draw_list[cnt];
-        ppla = PlaStack.get_ptr(ipla);
-
-        ichr = ppla->index;
-        pchr = _currentModule->getObjectHandler().get(ichr);
-
-        //handle inventories sliding into view
-        ppla->inventory_lerp = std::min(ppla->inventory_lerp, width);
-        if (ppla->inventory_lerp > 0 && lerp_time[cnt] < SDL_GetTicks())
-        {
-            lerp_time[cnt] = SDL_GetTicks() + 1;
-            ppla->inventory_lerp = std::max(0, ppla->inventory_lerp - 16);
-        }
-
-        //set initial positions
-        x = sttx - ppla->inventory_lerp;
-        y = stty;
-
-        //threshold to start a new row
-        edgex = sttx + width + 5 - 32;
-
-        //calculate max carry weight
-        max_weight = 200 + pchr->getAttribute(Ego::Attribute::MIGHT) * pchr->getAttribute(Ego::Attribute::MIGHT);
-
-        //draw the backdrop
-        const Ego::Math::Colour4f INVENTORY_COLOUR(0.6f, 0.0f, 0.0f, 0.6f);
-        Ego::Renderer::get().setColour(INVENTORY_COLOUR);
-        GL_DEBUG(glBegin)(GL_QUADS);
-        {
-            GL_DEBUG(glVertex2f)(x, y);
-            GL_DEBUG(glVertex2f)(x, y + height);
-            GL_DEBUG(glVertex2f)(x + width, y + height);
-            GL_DEBUG(glVertex2f)(x + width, y);
-        }
-        GL_DEBUG_END();
-        x += 5;
-
-        //draw title
-        draw_wrap_string(pchr->getName(false, false, true).c_str(), x, y, x + width);
-        y += 32;
-
-        //draw each inventory icon
-        weight_sum = 0;
-        icon_count = 0;
-        item_count = 0;
-        for(size_t i = 0; i < pchr->getInventory().getMaxItems(); ++i)
-        {
-            std::shared_ptr<Object> item = pchr->getInventory().getItem(i);
-            
-            //calculate the sum of the weight of all items in inventory
-            if (item) weight_sum += item->getProfile()->getWeight();
-
-            //draw icon
-            draw_one_character_icon(item != nullptr ? item->getCharacterID() : INVALID_CHR_REF, x, y, true, (item_count == ppla->inventory_slot) ? COLOR_WHITE : NOSPARKLE);
-            icon_count++;
-            item_count++;
-            x += 32 + 5;
-
-            //new row?
-            if (x >= edgex || icon_count >= pchr->getInventory().getMaxItems() / 2)
-            {
-                x = sttx + 5 - ppla->inventory_lerp;
-                y += 32 + 5;
-                icon_count = 0;
-            }
-        }
-
-        //Draw weight
-        x = sttx + 5 - ppla->inventory_lerp;
-        y = stty + height - 42;
-        snprintf(buffer, SDL_arraysize(buffer), "Weight: %d/%d", weight_sum, max_weight);
-        draw_wrap_string(buffer, x, y, sttx + width + 5);
-
-        //prepare drawing the next inventory
-        stty += height + 10;
-    }
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 void draw_mouse_cursor()

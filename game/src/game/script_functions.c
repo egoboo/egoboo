@@ -3048,7 +3048,8 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_redshift( pchr, pstate->argument );
+    pchr->inst.redshift = Ego::Math::constrain(pstate->argument, 0, 9);
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3063,7 +3064,8 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_grnshift( pchr, pstate->argument );
+    pchr->inst.grnshift = Ego::Math::constrain(pstate->argument, 0, 9);
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3078,7 +3080,8 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_grnshift( pchr, pstate->argument );
+    pchr->inst.blushift = Ego::Math::constrain(pstate->argument, 0, 9);
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
 
     SCRIPT_FUNCTION_END();
 }

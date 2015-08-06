@@ -1554,6 +1554,11 @@ bool Object::isBeingHeld() const
         return false;
     }
 
+    //If we are inside an inventory then we are being "held"
+    if(isInsideInventory()) {
+        return true;
+    }
+
     return true;
 }
 

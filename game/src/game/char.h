@@ -135,9 +135,6 @@ bool chr_update_safe( Object * pchr, bool force );
 bool chr_get_safe( Object * pchr);
 
 void chr_set_floor_level( Object * pchr, const float level );
-void chr_set_redshift( Object * pchr, const int rs );
-void chr_set_grnshift( Object * pchr, const int gs );
-void chr_set_blushift( Object * pchr, const int bs );
 
 std::string chr_get_dir_name( const CHR_REF ichr );
 bool chr_get_skill( Object * pchr, IDSZ whichskill );
@@ -147,12 +144,6 @@ bool chr_get_skill( Object * pchr, IDSZ whichskill );
 Object * chr_set_ai_state( Object * pchr, int state );
 
 void cleanup_one_character( Object * pchr );
-
-//--------------------------------------------------------------------------------------------
-// list definitions
-//--------------------------------------------------------------------------------------------
-#define IS_ATTACHED_CHR_RAW(ICHR) ( (_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ICHR)->attachedto) || _currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ICHR)->inwhich_inventory)) )
-#define IS_ATTACHED_CHR(ICHR) LAMBDA( !_currentModule->getObjectHandler().exists(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;
