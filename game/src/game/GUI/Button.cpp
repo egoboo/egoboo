@@ -6,6 +6,9 @@ const Ego::Math::Colour4f Button::DISABLED_BUTTON_COLOUR = {0.25f, 0.25f, 0.25f,
 
 Button::Button(int hotkey) :
     _mouseOver(false),
+    _buttonTextRenderer(),
+    _buttonTextWidth(),
+    _buttonTextHeight(),
     _buttonText(),
     _onClickFunction(nullptr),
     _hotkey(hotkey),
@@ -16,12 +19,18 @@ Button::Button(int hotkey) :
 
 Button::Button(const std::string &buttonText, int hotkey) : Button(hotkey)
 {
-    _buttonText = buttonText;
+    setText(buttonText);
 }
 
 void Button::setText(const std::string &text)
 {
     _buttonText = text;
+    if (_buttonText.empty()) {
+        _buttonTextRenderer = nullptr;
+    } else {
+        auto font = _gameEngine->getUIManager()->getFont(UIManager::UIFontType::FONT_DEFAULT);
+        _buttonTextRenderer = font->layoutText(_buttonText, &_buttonTextWidth, &_buttonTextHeight);
+    }
 }
 
 void Button::updateSlidyButtonEffect()
@@ -78,12 +87,9 @@ void Button::draw()
     renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw centered text in button
-    if(!_buttonText.empty())
+    if(_buttonTextRenderer)
     {
-        int textWidth, textHeight;
-        _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_buttonText, &textWidth, &textHeight);
-
-        _gameEngine->getUIManager()->getDefaultFont()->drawText(_buttonText, getX() + (getWidth()-textWidth)/2, getY() + (getHeight()-textHeight)/2);
+        _buttonTextRenderer->render(getX() + (getWidth() - _buttonTextWidth) / 2, getY() + (getHeight() - _buttonTextHeight) / 2);
     }
 }
 
