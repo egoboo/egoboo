@@ -153,7 +153,7 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
 
     //Level
     buffer << std::to_string(_character->getExperienceLevel() + 1);
-    switch(_character->getExperienceLevel())
+    switch(_character->getExperienceLevel() + 1)
     {
         case 1:
             buffer << "st";
@@ -523,7 +523,7 @@ void LevelUpWindow::setHoverPerk(Ego::Perks::PerkID id)
     }
 
     _perkIncreaseLabel->setCenterPosition(getX() + getWidth()/2, getY() + _desciptionLabelOffset + 10, true);        
-    _descriptionLabel->setCenterPosition(getX() + getWidth()/2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight()-10, true);
+    _descriptionLabel->setCenterPosition(getX() + getWidth()/2, _perkIncreaseLabel->getY() + _perkIncreaseLabel->getHeight()-3, true);
 }
 
 Ego::Perks::PerkID LevelUpWindow::getCurrentPerk() const

@@ -12,7 +12,7 @@ namespace Ego
 namespace GUI
 {
 
-static const int LINE_SPACING_OFFSET = 5; //To make space between lines less
+static const int LINE_SPACING_OFFSET = -2; //To make space between lines less
 
 CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : InternalWindow(object->getName()),
     _character(object),
