@@ -130,49 +130,28 @@ void move_one_character_do_voluntary( Object * pchr )
     }
 
     bool sneak_mode_active = pchr->isStealthed();
+
+    //Reduce speed while stealthed
+    if(pchr->isStealthed()) {
+        maxspeed *= 0.33f;        
+    }
     
     pchr->enviro.new_v[kX] = pchr->enviro.new_v[kY] = 0.0f;
     if (std::abs(dvx) + std::abs(dvy) > 0.05f)
     {
-        float dv2 = dvx * dvx + dvy * dvy;
-
-        if (pchr->isPlayer())
-        {
-            float dv = std::pow( dv2, 0.25f );
-
-            // determine whether the character is sneaking
-            sneak_mode_active = TO_C_BOOL( dv2 < 1.0f / 9.0f );
-
-            pchr->enviro.new_v[kX] = maxspeed * dvx / dv;
-            pchr->enviro.new_v[kY] = maxspeed * dvy / dv;
-        }
-        else
-        {
-            float scale = 1.0f;
-
-            if ( dv2 < 1.0f )
-            {
-                scale = std::pow( dv2, 0.25f );
-            }
-
-            scale /= std::pow( dv2, 0.5f );
-
-            pchr->enviro.new_v[kX] = dvx * maxspeed * scale;
-            pchr->enviro.new_v[kY] = dvy * maxspeed * scale;
-        }
+        pchr->enviro.new_v[kX] = dvx * maxspeed;
+        pchr->enviro.new_v[kY] = dvy * maxspeed;
     }
 
     if ( sneak_mode_active )
     {
         // sneak mode
         pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
-        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
     }
     else
     {
         // non-sneak mode
         pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION);
     }
 
     // do platform friction
@@ -193,11 +172,14 @@ void move_one_character_do_voluntary( Object * pchr )
     new_ay *= pchr->enviro.traction;
 
     //Limit movement to the max acceleration
-    new_ax = Ego::Math::constrain( new_ax, -pchr->maxaccel, pchr->maxaccel );
-    new_ay = Ego::Math::constrain( new_ay, -pchr->maxaccel, pchr->maxaccel );
+    float accelerationMagnitude = std::sqrt(new_ax*new_ax + new_ay*new_ay);
+    if(accelerationMagnitude > pchr->getAttribute(Ego::Attribute::ACCELERATION)) {
+        new_ax *= pchr->getAttribute(Ego::Attribute::ACCELERATION) / accelerationMagnitude;
+        new_ay *= pchr->getAttribute(Ego::Attribute::ACCELERATION) / accelerationMagnitude;
+    }
 
     //Figure out how to turn around
-    if ( 0 != pchr->maxaccel )
+    if ( 0 != pchr->getAttribute(Ego::Attribute::ACCELERATION) )
     {
         switch ( pchr->turnmode )
         {
@@ -1003,6 +985,8 @@ bool chr_do_latch_button( Object * pchr )
         {
             if ( 1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready )
             {
+                //Exit stealth
+                pchr->deactivateStealth();
 
                 // Make the character jump
                 pchr->hitready = true;
@@ -1210,6 +1194,9 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     // Attack button
     if ( allowedtoattack )
     {
+        //Attacking or using an item disables stealth
+        pchr->deactivateStealth();
+
         if ( pchr->inst.action_ready && action_valid )
         {
             //Check if we are attacking unarmed and cost mana to do so

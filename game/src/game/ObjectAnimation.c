@@ -417,7 +417,7 @@ float set_character_animation_rate( Object * pchr )
     {
         // For non-flying objects, we use the intended speed.
         // new_v[kX], new_v[kY] is the speed before any latches are applied.
-        speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length_abs();
+        speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length();
         if ( pchr->enviro.is_slipping )
         {
             // The character is slipping as on ice.
@@ -427,6 +427,7 @@ float set_character_animation_rate( Object * pchr )
 
     }
 
+    //Make bigger Objects have slower animations
     if ( pchr->fat != 0.0f ) speed /= pchr->fat;
 
     // handle a special case
@@ -489,15 +490,18 @@ float set_character_animation_rate( Object * pchr )
         pchr->bore_timer--;
         if ( pchr->bore_timer < 0 )
         {
-            int tmp_action, rand_val;
-
-            SET_BIT( pchr->ai.alert, ALERTIF_BORED );
             pchr->bore_timer = BORETIME;
 
-            // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
-            rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
-            tmp_action = pinst.imad->getAction(ACTION_DB + ( rand_val % 3 ));
-            chr_start_anim( pchr, tmp_action, true, true );
+            //Don't yell "im bored!" while stealthed!
+            if(!pchr->isStealthed())
+            {
+                SET_BIT( pchr->ai.alert, ALERTIF_BORED );
+
+                // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
+                int rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
+                int tmp_action = pinst.imad->getAction(ACTION_DB + ( rand_val % 3 ));
+                chr_start_anim( pchr, tmp_action, true, true );
+            }
         }
         else
         {
