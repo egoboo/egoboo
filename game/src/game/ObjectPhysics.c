@@ -129,14 +129,8 @@ void move_one_character_do_voluntary( Object * pchr )
         }
     }
 
-    bool sneak_mode_active = false;
-    if ( VALID_PLA( pchr->is_which_player ) )
-    {
-        // determine whether the user is hitting the "sneak button"
-        player_t * ppla = PlaStack.get_ptr( pchr->is_which_player );
-        sneak_mode_active = input_device_control_active( ppla->pdevice, CONTROL_SNEAK );
-    }
-
+    bool sneak_mode_active = pchr->isStealthed();
+    
     pchr->enviro.new_v[kX] = pchr->enviro.new_v[kY] = 0.0f;
     if (std::abs(dvx) + std::abs(dvy) > 0.05f)
     {
@@ -171,8 +165,8 @@ void move_one_character_do_voluntary( Object * pchr )
     if ( sneak_mode_active )
     {
         // sneak mode
-        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
         pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
+        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
     }
     else
     {

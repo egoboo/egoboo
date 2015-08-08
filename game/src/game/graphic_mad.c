@@ -606,7 +606,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 	Object *pchr = _currentModule->getObjectHandler().get(ichr);
 	chr_instance_t& pinst = pchr->inst;
 
-    if ( pchr->is_hidden ) return gfx_fail;
+    if ( pchr->isHidden() ) return gfx_fail;
 
     // there is an outside chance the object will not be rendered
     rendered = false;
@@ -2117,7 +2117,6 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 	if (HAS_SOME_BITS(bits, CHR_ALPHA))
 	{
 		// alpha characters are blended onto the canvas using the alpha channel
-		// the alpha channel is not important
 		weight_sum += 1.0f;
 
 		tint[RR] += 1.0f / (1 << local_redshift);

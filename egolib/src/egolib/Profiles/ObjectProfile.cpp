@@ -1173,9 +1173,9 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
     template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::JUMP_POWER) );    //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_sneak );          //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_walk );           //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_run );            //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedSneak);
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedWalk);
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedRun);
     template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT) ); //Note: overriden by chr
     template_put_int(fileTemp, fileWrite, profile->_flashAND);
     template_put_int(fileTemp, fileWrite, profile->_alpha);

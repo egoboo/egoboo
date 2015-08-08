@@ -1312,6 +1312,16 @@ void set_one_player_latch( const PLA_REF ipla )
         _gameEngine->getActivePlayingState()->displayCharacterWindow(ipla);
          ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
     }
+
+    //Enter or exit stealth mode?
+    if(input_device_control_active(pdevice, CONTROL_SNEAK)) {
+        if(!_currentModule->getObjectHandler()[ppla->index]->isStealthed()) {
+            _currentModule->getObjectHandler()[ppla->index]->activateStealth();
+        }
+        else {
+          //  _currentModule->getObjectHandler()[ppla->index]->deactivateStealth();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------

@@ -94,6 +94,8 @@ enum GlobalSound : uint8_t
     GSND_DISINTEGRATE,  //Disintegrated
     GSND_DRUMS,         //Used for "Too Silly to Die" perk
     GSND_ANGEL_CHOIR,   //Angel Choir
+    GSND_STEALTH,       //Enter stealth
+    GSND_STEALTH_END,   //Exit stealth
     GSND_COUNT
 };
 

@@ -324,11 +324,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
         pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
     }
 
-    // Movement
-    pchr->anim_speed_sneak = ppro->getSneakAnimationSpeed();
-    pchr->anim_speed_walk = ppro->getWalkAnimationSpeed();
-    pchr->anim_speed_run = ppro->getRunAnimationSpeed();
-
     // Money is added later
     pchr->money = ppro->getStartingMoney();
 
