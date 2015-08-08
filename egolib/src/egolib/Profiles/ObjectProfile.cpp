@@ -530,9 +530,9 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _weight = vfs_get_next_int(ctxt);
     _jumpPower = vfs_get_next_float(ctxt);
     _jumpNumber = vfs_get_next_int(ctxt);
-    _animationSpeedSneak = vfs_get_next_float(ctxt);
-    _animationSpeedWalk = vfs_get_next_float(ctxt);
-    _animationSpeedRun = vfs_get_next_float(ctxt);
+    _animationSpeedSneak = 2.0f * vfs_get_next_float(ctxt);
+    _animationSpeedWalk = 2.0f * vfs_get_next_float(ctxt);
+    _animationSpeedRun = 2.0f * vfs_get_next_float(ctxt);
     _flyHeight = vfs_get_next_int(ctxt);
     _flashAND = vfs_get_next_int(ctxt);
     _alpha = vfs_get_next_int(ctxt);
