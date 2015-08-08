@@ -973,8 +973,8 @@ void Object::update()
                     continue;
                 }
 
-                //Check for detection chance, Base chance 50%
-                int chance = 50;
+                //Check for detection chance, Base chance 20%
+                int chance = 20;
 
                 //+0.5% per Intellect
                 chance += getAttribute(Ego::Attribute::INTELLECT)*0.5f;
