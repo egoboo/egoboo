@@ -2434,7 +2434,7 @@ void Object::deactivateStealth()
 
     chr_make_text_billboard(getCharacterID(), "Revealed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
     AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
-    setLight(0xFF);
+    setAlpha(0xFF);
 }
 
 bool Object::activateStealth()
