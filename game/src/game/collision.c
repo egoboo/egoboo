@@ -2365,8 +2365,8 @@ bool do_chr_chr_collision( CoNode_t * d )
 
         //Destroy stealth for both objects if they are not friendly
         if(!pchr_a->isScenery() && !pchr_b->isScenery() && pchr_a->getTeam().hatesTeam(pchr_b->getTeam())) {
-            pchr_a->deactivateStealth();
-            pchr_b->deactivateStealth();
+            if(!pchr_a->hasPerk(Ego::Perks::SHADE)) pchr_a->deactivateStealth();
+            if(!pchr_a->hasPerk(Ego::Perks::SHADE)) pchr_b->deactivateStealth();
         }
     }
 

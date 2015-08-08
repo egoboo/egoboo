@@ -969,6 +969,13 @@ void Object::update()
                     continue;
                 }
 
+                //Sense Invisible = automatic detection
+                if(target->canSeeInvisible()) {
+                    target->deactivateStealth();
+                    target->_stealthTimer = ONESECOND * 6; //6 second timeout
+                    break;
+                }
+
                 //Check for detection chance, Base chance 20%
                 int chance = 20;
 
@@ -978,13 +985,24 @@ void Object::update()
                 //-0.5% per target Agility
                 chance -= target->getAttribute(Ego::Attribute::AGILITY)*0.5f;
 
-                //-1% per tile distance
-                chance -= (getPosition()-target->getPosition()).length() / GRID_FSIZE;
+                //-5% per tile distance
+                chance -= 5 * ((getPosition()-target->getPosition()).length() / GRID_FSIZE);
+
+                //Perceptive Perk doubles chance
+                if(target->hasPerk(Ego::Perks::PERCEPTIVE)) {
+                    chance *= 2;
+                }
+
+                //If they are not looking towards us, then halve detection chance
+                if(!target->isFacingLocation(getPosX(), getPosY())) {
+                    chance /= 2;
+                }
 
                 //Were they detected by us?
                 if(Random::getPercent() <= chance) {
                     target->deactivateStealth();
                     target->_stealthTimer = ONESECOND * 6; //6 second timeout
+                    break;
                 }
             }
         }
@@ -2449,6 +2467,14 @@ bool Object::activateStealth()
     //Limit stealth atttempts to once per second
     _stealthTimer = ONESECOND;
 
+    //Do they have the required stealth Perk?
+    if(!hasPerk(Ego::Perks::STEALTH)) {
+        if(isPlayer()) {
+            DisplayMsg_printf("%s does not know how to stealth...", getName().c_str());
+        }
+        return false;
+    }
+
     //Setup line of sight data
     line_of_sight_info_t lineOfSightInfo;
     lineOfSightInfo.x1 = getPosX();
@@ -2479,8 +2505,11 @@ bool Object::activateStealth()
         if (line_of_sight_blocked(&lineOfSightInfo)) {
             continue;
         }
-
-        //TODO: maybe allow Stealthing if objects at least NEARBY units away is facing their back towards us?
+        
+        //Camouflage Perk allows us to hide as long as enemies aren't directly looking at us
+        if(hasPerk(Ego::Perks::CAMOUFLAGE) && !object->isFacingLocation(getPosX(), getPosY())) {
+            continue;
+        }
 
         //We can't stealth while an enemy is nearby
         chr_make_text_billboard(getCharacterID(), "Hide Failed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);

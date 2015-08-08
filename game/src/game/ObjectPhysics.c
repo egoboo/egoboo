@@ -133,7 +133,15 @@ void move_one_character_do_voluntary( Object * pchr )
 
     //Reduce speed while stealthed
     if(pchr->isStealthed()) {
-        maxspeed *= 0.33f;        
+        if(pchr->hasPerk(Ego::Perks::SHADE)) {
+            maxspeed *= 0.75f;  //Shade allows 75% movement speed while stealthed
+        }
+        else if(pchr->hasPerk(Ego::Perks::STALKER)) {
+            maxspeed *= 0.50f;  //Stalker allows 50% movement speed while stealthed
+        }
+        else {
+            maxspeed *= 0.33f;  //Can only move at 33% speed while stealthed
+        }
     }
     
     pchr->enviro.new_v[kX] = pchr->enviro.new_v[kY] = 0.0f;
@@ -985,8 +993,10 @@ bool chr_do_latch_button( Object * pchr )
         {
             if ( 1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready )
             {
-                //Exit stealth
-                pchr->deactivateStealth();
+                //Exit stealth unless character has Stalker Perk
+                if(!pchr->hasPerk(Ego::Perks::STALKER)) {
+                    pchr->deactivateStealth();
+                }
 
                 // Make the character jump
                 pchr->hitready = true;
