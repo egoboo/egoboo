@@ -2071,8 +2071,10 @@ bool do_chr_chr_collision( CoNode_t * d )
     if ( 0.0f == pchr_a->bump_stt.size || 0.0f == pchr_b->bump_stt.size ) return false;
 
     interaction_strength = 1.0f;
-    interaction_strength *= pchr_a->inst.alpha * INV_FF;
-    interaction_strength *= pchr_b->inst.alpha * INV_FF;
+    
+    //ZF> This was supposed to make ghosts more insubstantial, but it also affects invisible characters
+    //interaction_strength *= pchr_a->inst.alpha * INV_FF;
+    //interaction_strength *= pchr_b->inst.alpha * INV_FF;
 
     // reduce your interaction strength if you have just detached from an object
     if ( pchr_a->dismount_object == ichr_b )
