@@ -1065,7 +1065,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
     }
     else
     {
-        if(getProfile()->getSpellEffectType() >= 0) {
+        if(getProfile()->getSpellEffectType() >= 0 && getProfile()->getSpellEffectType() != ObjectProfile::NO_SKIN_OVERRIDE) {
             result = ProfileSystem::get().getProfile(SPELLBOOK)->getClassName();
         }
         else {
