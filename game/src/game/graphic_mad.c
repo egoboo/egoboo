@@ -628,7 +628,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
             renderer.setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
 
             chr_instance_t::get_tint( pinst, tint, CHR_ALPHA );
 
