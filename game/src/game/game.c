@@ -1314,13 +1314,14 @@ void set_one_player_latch( const PLA_REF ipla )
     }
 
     //Enter or exit stealth mode?
-    if(input_device_control_active(pdevice, CONTROL_SNEAK)) {
+    if(input_device_control_active(pdevice, CONTROL_SNEAK) && update_wld > ppla->inventory_cooldown) {
         if(!_currentModule->getObjectHandler()[ppla->index]->isStealthed()) {
             _currentModule->getObjectHandler()[ppla->index]->activateStealth();
         }
         else {
-          //  _currentModule->getObjectHandler()[ppla->index]->deactivateStealth();
+            _currentModule->getObjectHandler()[ppla->index]->deactivateStealth();
         }
+        ppla->inventory_cooldown = update_wld + ONESECOND;
     }
 }
 
