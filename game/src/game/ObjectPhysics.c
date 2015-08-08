@@ -57,7 +57,7 @@ void move_one_character_do_voluntary( Object * pchr )
 
     CHR_REF ichr = GET_INDEX_PCHR( pchr );
 
-    if ( !pchr->isAlive() || pchr->maxaccel == 0.00f ) return;
+    if ( !pchr->isAlive() || pchr->getAttribute(Ego::Attribute::ACCELERATION) == 0.00f ) return;
 
     pchr->enviro.new_v[kX] = pchr->vel[kX];
     pchr->enviro.new_v[kY] = pchr->vel[kY];
@@ -85,7 +85,7 @@ void move_one_character_do_voluntary( Object * pchr )
     }
 
     // this is the maximum speed that a character could go under the v2.22 system
-    float maxspeed = pchr->maxaccel * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
+    float maxspeed = pchr->getAttribute(Ego::Attribute::ACCELERATION) * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
     float speedBonus = 1.0f;
 
     //Sprint perk gives +10% movement speed if above 75% life remaining

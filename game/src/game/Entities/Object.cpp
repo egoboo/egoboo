@@ -122,7 +122,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     turnmode(TURNMODE_VELOCITY),
     movement_bits(( unsigned )(~0)),    // all movements valid
-    maxaccel(0.0f),
 
     enviro(),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
@@ -230,9 +229,6 @@ bool Object::setSkin(const size_t skinNumber)
 
     //Armour movement speed
     _baseAttribute[Ego::Attribute::ACCELERATION] = newSkin.maxAccel;
-
-    //Recalculate total movement speed
-    maxaccel = getAttribute(Ego::Attribute::ACCELERATION);
 
     //Defence from Armour
     _baseAttribute[Ego::Attribute::DEFENCE] = newSkin.defence;

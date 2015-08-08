@@ -979,7 +979,7 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION);
+    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, pchr->getBaseAttribute(Ego::Attribute::ACCELERATION));
 
     SCRIPT_FUNCTION_END();
 }
@@ -994,7 +994,7 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.66f;
+    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, pchr->getBaseAttribute(Ego::Attribute::ACCELERATION) * 0.66f);
     pchr->movement_bits = CHR_MOVEMENT_BITS_WALK;
 
     SCRIPT_FUNCTION_END();
@@ -1010,7 +1010,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
+    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, pchr->getBaseAttribute(Ego::Attribute::ACCELERATION) * 0.33f);
     pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
 
     SCRIPT_FUNCTION_END();
@@ -2235,7 +2235,7 @@ Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = 0;
+    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, 0.0f);
     pchr->movement_bits = CHR_MOVEMENT_BITS_STOP;
 
     SCRIPT_FUNCTION_END();
@@ -4491,9 +4491,9 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
     float fvalue = pstate->argument / 100.0f;
     fvalue = std::max( 0.0f, fvalue );
 
-    pchr->maxaccel = pchr->getAttribute(Ego::Attribute::ACCELERATION) * fvalue;
+    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, pchr->getAttribute(Ego::Attribute::ACCELERATION) * fvalue);
 
-    if ( pchr->maxaccel < 0.33f )
+    if ( pchr->getAttribute(Ego::Attribute::ACCELERATION) < 0.33f )
     {
         // only sneak
         pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;

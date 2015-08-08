@@ -893,7 +893,6 @@ public:
     turn_mode_t  turnmode;                      ///< Turning mode
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
-    float          maxaccel;                      ///< Current maximum acceleration
 
     // data for doing the physics in bump_all_objects()
 
