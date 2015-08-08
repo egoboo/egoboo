@@ -2198,6 +2198,9 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     _profileID = profileID;
     _profile = ProfileSystem::get().getProfile(_profileID);
 
+    //Exit stealth if we change form
+    deactivateStealth();
+
     //Get any items we are holding
     const std::shared_ptr<Object> &leftItem = getLeftHandItem();
     const std::shared_ptr<Object> &rightItem = getRightHandItem();
