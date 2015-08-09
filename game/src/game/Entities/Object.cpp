@@ -493,7 +493,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             }
 
             // Easy mode deals 25% extra actual damage by players and 50% less to players
-            if (egoboo_config_t::get().game_difficulty.getValue() <= Ego::GameDifficulty::Easy)
+            if (attacker && egoboo_config_t::get().game_difficulty.getValue() <= Ego::GameDifficulty::Easy)
             {
                 if ( VALID_PLA( attacker->is_which_player )  && !VALID_PLA(is_which_player) ) actual_damage *= 1.25f;
                 if ( !VALID_PLA( attacker->is_which_player ) &&  VALID_PLA(is_which_player) ) actual_damage *= 0.5f;
