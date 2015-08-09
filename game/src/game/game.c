@@ -594,12 +594,12 @@ int update_game()
     }
     //---- end the code for updating misc. game stuff
 
-    //---- begin the code object I/O
+    //---- Run AI (but not on first update frame)
+    if(update_wld > 0)
     {
         let_all_characters_think();           // sets the non-player latches
         net_unbuffer_player_latches();            // sets the player latches
     }
-    //---- end the code object I/O
 
     //---- begin the code for updating in-game objects
     update_all_objects();
