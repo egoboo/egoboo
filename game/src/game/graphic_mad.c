@@ -472,9 +472,9 @@ gfx_rv render_one_mad( Camera& cam, const CHR_REF character, GLXvector4f tint, c
     }
     pchr = _currentModule->getObjectHandler().get( character );
 
-    if ( pchr->is_hidden || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return gfx_fail;
+    if ( pchr->is_hidden || tint[AA] <= 0.0f || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return gfx_fail;
 
-    if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
+    if ( pchr->inst.enviro || HAS_SOME_BITS(bits, CHR_PHONG) )
     {
         retval = render_one_mad_enviro( cam, character, tint, bits );
     }
