@@ -1092,7 +1092,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    const std::shared_ptr<Object> &rightItem = pchr->getLeftHandItem();
+    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
     if (rightItem)
     {
         rightItem->detatchFromHolder(true, true);
