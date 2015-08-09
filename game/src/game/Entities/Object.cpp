@@ -304,6 +304,13 @@ void Object::movePosition(const float x, const float y, const float z)
 void Object::setAlpha(const int alpha)
 {
     inst.alpha = Ego::Math::constrain(alpha, 0, 0xFF);
+
+    //This prevents players from becoming completely invisible
+    if (isPlayer())
+    {
+        inst.alpha = std::max<uint8_t>(128, inst.alpha);
+    }
+
     chr_instance_t::update_ref(inst, enviro.grid_level, false);
 }
 

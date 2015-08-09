@@ -349,7 +349,7 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
                 v.t = cmd.t + voffset;
 
                 // Perform lighting.
-                if (HAS_NO_BITS(bits, CHR_LIGHT))
+                if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA))
                 {
                     // The directional lighting.
                     float fcol = pvrt->color_dir * INV_FF;
