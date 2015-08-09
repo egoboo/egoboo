@@ -2519,8 +2519,10 @@ bool Object::activateStealth()
         }
 
         //We can't stealth while an enemy is nearby
-        chr_make_text_billboard(getCharacterID(), "Hide Failed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
-        AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
+        if(isPlayer()) {
+            chr_make_text_billboard(getCharacterID(), "Hide Failed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+            AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
+        }
         return false;
     }
 
