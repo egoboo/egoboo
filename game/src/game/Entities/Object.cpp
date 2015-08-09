@@ -941,8 +941,8 @@ void Object::update()
         }
     }
 
-    //Try to detect any hidden objects every so often (unless we are scenery object)
-    if(!isScenery() && isAlive() && !isBeingHeld()) {
+    //Try to detect any hidden objects every so often (unless we are scenery object) 
+    if(!isScenery() && isAlive() && !isBeingHeld() && inst.action_which != ACTION_MK) {  //ACTION_MK = sleeping
         if(update_wld > _observationTimer) 
         {
             _observationTimer = update_wld + ONESECOND;
@@ -2496,6 +2496,11 @@ bool Object::activateStealth()
 
         //Skip scenery objects
         if (object->isScenery()) {
+            continue;
+        }
+
+        //Ignore objects that are doing the sleep animation
+        if(object->inst.action_which == ACTION_MK) {
             continue;
         }
 
