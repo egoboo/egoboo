@@ -461,7 +461,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     ai.directionlast  = direction;
 
     // Check for characters who are immune to this damage, no need to continue if they have
-    bool immune_to_damage = (actual_damage > 0 && actual_damage <= damage_threshold) || HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS);
+    bool immune_to_damage = HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || (actual_damage > 0 && actual_damage < damage_threshold);
     if ( immune_to_damage && !ignore_invictus )
     {
         actual_damage = 0;
@@ -471,12 +471,12 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         if ( !isMount() && 0 == damage_timer )
         {
             //Dark green text
-            const float lifetime = 3;
-            const auto text_color = Ego::Math::Colour4f::parse(0xff, 0xff, 0xff, 0xff);
-            const auto tint = Ego::Math::Colour4f(0, 0.5, 0, 1);
-
             spawn_defense_ping(this, attacker ? attacker->getCharacterID() : INVALID_CHR_REF);
-            chr_make_text_billboard(_characterID, "Immune!", text_color, tint, lifetime, Billboard::Flags::All);
+
+            //Only draw "Immune!" if we are truly completely immune and it was not simply a weak attack
+            if(HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || damage.base + damage.rand <= damage_threshold) {
+                chr_make_text_billboard(_characterID, "Immune!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(0, 0.5, 0, 1), 3, Billboard::Flags::All);
+            }
         }
     }
 
