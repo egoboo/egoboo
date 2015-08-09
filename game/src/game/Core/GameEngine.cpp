@@ -111,7 +111,7 @@ void GameEngine::start()
 
         //Prevent accumalating more than 1 second of game updates (can happen in severe frame drops or breakpoints while debugging)
         const uint64_t now = getMicros();
-        if(now - GAME_TARGET_UPS*DELAY_PER_UPDATE_FRAME > _updateTimeout) {
+        if(now > _updateTimeout + GAME_TARGET_UPS*DELAY_PER_UPDATE_FRAME) {
             _updateTimeout = now + DELAY_PER_UPDATE_FRAME;
             _renderTimeout = now;
         }

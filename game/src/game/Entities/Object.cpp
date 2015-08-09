@@ -461,7 +461,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     ai.directionlast  = direction;
 
     // Check for characters who are immune to this damage, no need to continue if they have
-    bool immune_to_damage = HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || (actual_damage > 0 && actual_damage < damage_threshold);
+    bool immune_to_damage = HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || (actual_damage > 0 && actual_damage <= damage_threshold);
     if ( immune_to_damage && !ignore_invictus )
     {
         actual_damage = 0;
