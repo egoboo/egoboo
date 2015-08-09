@@ -979,7 +979,7 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, pchr->getBaseAttribute(Ego::Attribute::ACCELERATION));
+    pself->maxSpeed = 1.0f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -994,8 +994,7 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, pchr->getBaseAttribute(Ego::Attribute::ACCELERATION) * 0.66f);
-    pchr->movement_bits = CHR_MOVEMENT_BITS_WALK;
+    pself->maxSpeed = 0.66f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1010,8 +1009,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, pchr->getBaseAttribute(Ego::Attribute::ACCELERATION) * 0.33f);
-    pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
+    pself->maxSpeed = 0.33f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4488,21 +4486,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    float fvalue = pstate->argument / 100.0f;
-    fvalue = std::max( 0.0f, fvalue );
-
-    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, pchr->getAttribute(Ego::Attribute::ACCELERATION) * fvalue);
-
-    if ( pchr->getAttribute(Ego::Attribute::ACCELERATION) < 0.33f )
-    {
-        // only sneak
-        pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
-    }
-    else
-    {
-        // everything but sneak
-        pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-    }
+    pself->maxSpeed = std::max(0.0f, pstate->argument / 100.0f);
 
     SCRIPT_FUNCTION_END();
 }

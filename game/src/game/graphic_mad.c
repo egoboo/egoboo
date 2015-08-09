@@ -2244,8 +2244,6 @@ matrix_cache_t *matrix_cache_t::init(matrix_cache_t& self)
     return &self;
 }
 
-
-
 void chr_instance_flash(chr_instance_t& self, Uint8 value)
 {
 	/// @details This function sets a character's lighting

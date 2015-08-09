@@ -1723,6 +1723,7 @@ ai_state_t *ai_state_reset(ai_state_t *self)
 		self->x[i] = 0;
 		self->y[i] = 0;
 	}
+    self->maxSpeed = 1.0f;
 
 	// ai memory from the last event
 	self->bumplast = INVALID_CHR_REF;
@@ -1823,6 +1824,7 @@ void ai_state_spawn(ai_state_t *self, const CHR_REF index, const PRO_REF iobj, U
 	self->owner = index;
 	self->child = index;
 	self->target_old = index;
+    self->maxSpeed = 1.0f;
 
 	self->bumplast = index;
 	self->hitlast = index;

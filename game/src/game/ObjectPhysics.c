@@ -129,6 +129,12 @@ void move_one_character_do_voluntary( Object * pchr )
         }
     }
 
+    //Check if AI has limited movement rate
+    else if(!pchr->isPlayer())
+    {
+        maxspeed *= pchr->ai.maxSpeed;
+    }
+
     bool sneak_mode_active = pchr->isStealthed();
 
     //Reduce speed while stealthed
