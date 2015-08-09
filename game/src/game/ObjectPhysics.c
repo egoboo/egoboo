@@ -1046,10 +1046,16 @@ bool chr_do_latch_button( Object * pchr )
     if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = GRABDELAY;
-        if ( !_currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
+        if ( !pchr->getLeftHandItem() )
         {
             // Grab left
-            chr_play_action( pchr, ACTION_ME, false );
+            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_ME)) {
+                //No grab animation valid
+                character_grab_stuff( ichr, GRIP_LEFT, false );
+            }
+            else {
+                chr_play_action( pchr, ACTION_ME, false );
+            }
         }
         else
         {
@@ -1062,10 +1068,16 @@ bool chr_do_latch_button( Object * pchr )
         //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
 
         pchr->reload_timer = GRABDELAY;
-        if ( !_currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) )
+        if ( !pchr->getRightHandItem() )
         {
             // Grab right
-            chr_play_action( pchr, ACTION_MF, false );
+            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_MF)) {
+                //No grab animation valid
+                character_grab_stuff( ichr, GRIP_RIGHT, false );
+            }
+            else {
+                chr_play_action( pchr, ACTION_MF, false );
+            }
         }
         else
         {

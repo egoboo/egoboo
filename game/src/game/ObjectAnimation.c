@@ -278,23 +278,19 @@ float set_character_animation_rate( Object * pchr )
     /// @author BB
     /// @details added automatic calculation of variable animation rates for movement animations
 
-    float  speed;
-    bool can_be_interrupted;
     bool is_walk_type;
     int    cnt, anim_count;
     int    action, lip;
     bool found;
 
     // set the character speed to zero
-    speed = 0;
+    float speed = 0;
 
     if ( NULL == pchr ) return 1.0f;
     chr_instance_t& pinst = pchr->inst;
-    CHR_REF ichr = GET_INDEX_PCHR(pchr);
-
+    
     // if the action is set to keep then do nothing
-    can_be_interrupted = !pinst.action_keep;
-    if ( !can_be_interrupted ) return pinst.rate = 1.0f;
+    if ( pinst.action_keep ) return pinst.rate = 1.0f;
 
     // dont change the rate if it is an attack animation
     if ( pchr->isAttacking() )  return pinst.rate;

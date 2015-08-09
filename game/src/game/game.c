@@ -69,7 +69,6 @@ fog_instance_t        fog;
 import_list_t g_importList;
 
 Sint32          clock_wld        = 0;
-Uint32          clock_enc_stat   = 0;
 Uint32          clock_chr_stat   = 0;
 Uint32          clock_pit        = 0;
 Uint32          update_wld       = 0;
@@ -615,7 +614,6 @@ int update_game()
 
     // Timers
     clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
-    clock_enc_stat++;
     clock_chr_stat++;
 
     // Reset the respawn timer
@@ -648,7 +646,6 @@ void game_reset_timers()
     update_wld = 0;
 
     // reset some special clocks
-    clock_enc_stat = 0;
     clock_chr_stat = 0;
 }
 
