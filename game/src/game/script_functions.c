@@ -2233,8 +2233,7 @@ Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setBaseAttribute(Ego::Attribute::ACCELERATION, 0.0f);
-    pchr->movement_bits = CHR_MOVEMENT_BITS_STOP;
+    pself->maxSpeed = 0.0f;
 
     SCRIPT_FUNCTION_END();
 }
