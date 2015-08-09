@@ -8138,3 +8138,51 @@ Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * p
 
     SCRIPT_FUNCTION_END();
 }
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_EnableStealth( script_state_t * pstate, ai_state_t * pself )
+{
+    // EnableStealth()
+    /// @author ZF
+    /// @details Makes the object enter stealth mode. Returns true if it is now hidden from others.
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    if(pchr->isStealthed()) {
+        returncode = false;
+    }
+    else {
+        returncode = pchr->activateStealth();
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_DisableStealth( script_state_t * pstate, ai_state_t * pself )
+{
+    // DisableStealth()
+    /// @author ZF
+    /// @details Makes the object exit stealth mode. Returns true if it exited stealth mode.
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    returncode = pchr->isStealthed();
+    pchr->deactivateStealth();
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_Stealthed( script_state_t * pstate, ai_state_t * pself )
+{
+    // IfStealthed()
+    /// @author ZF
+    /// @details Returns true if the Object is currently in stealth mode and not detected
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    returncode = pchr->isStealthed();
+
+    SCRIPT_FUNCTION_END();
+}

@@ -434,3 +434,6 @@ Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * pself );
+Uint8 scr_EnableStealth( script_state_t * pstate, ai_state_t * pself );
+Uint8 scr_DisableStealth( script_state_t * pstate, ai_state_t * pself );
+Uint8 scr_Stealthed( script_state_t * pstate, ai_state_t * pself );

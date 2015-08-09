@@ -793,6 +793,10 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t& aiState, script_inf
 				case FGIVESKILLTOTARGET:             returncode = scr_add_TargetSkill(pstate, &aiState); break;
 				case FSETTARGETTONEARBYMELEEWEAPON:  returncode = scr_set_TargetToNearbyMeleeWeapon(pstate, &aiState); break;
 
+                case FENABLESTEALTH:    returncode = scr_EnableStealth(pstate, &aiState); break;
+                case FDISABLESTEALTH:   returncode = scr_DisableStealth(pstate, &aiState); break;
+                case FIFSTEALTHED:      returncode = scr_Stealthed(pstate, &aiState); break;
+
                     // if none of the above, skip the line and log an error
                 default:
                     log_message( "SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", pscript->name, valuecode );

@@ -3349,7 +3349,7 @@ bool write_wawalite_vfs(const wawalite_data_t *data)
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 get_alpha( int alpha, float seeinvis_mag )
+uint8_t get_alpha( int alpha, float seeinvis_mag )
 {
     // This is a bit of a kludge, but it should allow the characters to see
     // completely invisible objects as SEEINVISIBLE if their level is high enough.
@@ -3377,7 +3377,7 @@ Uint8 get_alpha( int alpha, float seeinvis_mag )
         }
     }
 
-    return CLIP( alpha, 0, 255 );
+    return Ego::Math::constrain(alpha, 0, 0xFF);
 }
 
 //--------------------------------------------------------------------------------------------

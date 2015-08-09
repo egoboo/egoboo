@@ -334,7 +334,7 @@ float set_character_animation_rate( Object * pchr )
     //---- set up the anim_info structure
     chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
     anim_info[CHR_MOVEMENT_STOP ].speed = 0;
-    anim_info[CHR_MOVEMENT_SNEAK].speed = 1; //pchr->getProfile()->getSneakAnimationSpeed();
+    anim_info[CHR_MOVEMENT_SNEAK].speed = pchr->getProfile()->getSneakAnimationSpeed();
     anim_info[CHR_MOVEMENT_WALK ].speed = pchr->getProfile()->getWalkAnimationSpeed();
     anim_info[CHR_MOVEMENT_RUN  ].speed = pchr->getProfile()->getRunAnimationSpeed();
 

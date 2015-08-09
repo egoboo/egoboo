@@ -438,6 +438,9 @@ static const aicode_t AICODES[] =
     { 'F', 386, "IfLevelUp" },
     { 'F', 387, "GiveSkillToTarget" },
     { 'F', 388, "SetTargetToNearbyMeleeWeapon" },
+    { 'F', 389, "EnableStealth" },
+    { 'F', 390, "DisableStealth" },
+    { 'F', 391, "IfStealthed" },
     { 'C', 1, "BLAHDEAD" },
     { 'C', 2, "BLAHENEMIES" },
     { 'C', 4, "BLAHFRIENDS" },
@@ -1207,6 +1210,11 @@ const char *script_function_names[SCRIPT_FUNCTIONS_COUNT] =
     "FIFLEVELUP",                    // == 386
     "FGIVESKILLTOTARGET",            // == 387
     "FSETTARGETTONEARBYMELEEWEAPON", // == 388
+
+    //Scripted AI functions (v1.30)
+    "FENABLESTEALTH",
+    "FDISABLESTEALTH",
+    "FIFSTEALTHED",
 };
 
 //--------------------------------------------------------------------------------------------
