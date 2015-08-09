@@ -8186,3 +8186,27 @@ Uint8 scr_Stealthed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_END();
 }
+
+//--------------------------------------------------------------------------------------------
+uint8_t scr_set_TargetToDistantFriend( script_state_t * pstate, ai_state_t * pself )
+{
+    // SetTargetToDistantFriend( tmpdistance = "distance" )
+    /// @author ZF
+    /// @details This function finds a character within a certain distance of the
+    /// character, failing if there are none
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    CHR_REF ichr = chr_find_target(pchr, pstate->distance, IDSZ_NONE, TARGET_FRIENDS);
+
+    if (_currentModule->getObjectHandler().exists(ichr))
+    {
+        SET_TARGET_0( ichr );
+    }
+    else
+    {
+        returncode = false;
+    }
+
+    SCRIPT_FUNCTION_END();
+}

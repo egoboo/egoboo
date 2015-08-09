@@ -495,6 +495,7 @@ enum e_script_functions
     FENABLESTEALTH,                     // == 389
     FDISABLESTEALTH,                    // == 390
     FIFSTEALTHED,                       // == 391
+    FSETTARGETTODISTANTFRIEND,          // == 392
 
     SCRIPT_FUNCTIONS_COUNT
 };

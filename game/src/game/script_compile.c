@@ -441,6 +441,7 @@ static const aicode_t AICODES[] =
     { 'F', 389, "EnableStealth" },
     { 'F', 390, "DisableStealth" },
     { 'F', 391, "IfStealthed" },
+    { 'F', 392, "SetTargetToDistantFriend" },
     { 'C', 1, "BLAHDEAD" },
     { 'C', 2, "BLAHENEMIES" },
     { 'C', 4, "BLAHFRIENDS" },
