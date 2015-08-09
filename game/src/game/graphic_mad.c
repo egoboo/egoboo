@@ -569,7 +569,8 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
             Ego::OpenGL::Utilities::isError();
         }
 
-        if ( gfx.phongon && pinst.sheen > 0 )
+        //Render shining effect on top of model
+        if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
         {
             renderer.setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
@@ -656,7 +657,8 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
             }
         }
 
-        if ( gfx.phongon && pinst.sheen > 0 )
+        //Render shining effect on top of model
+        if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
         {
             renderer.setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );    // GL_COLOR_BUFFER_BIT
