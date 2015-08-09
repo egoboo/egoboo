@@ -1452,13 +1452,11 @@ void draw_hud()
 //--------------------------------------------------------------------------------------------
 void draw_mouse_cursor()
 {
-    if (!mous.on)
-    {
-        SDL_ShowCursor(SDL_DISABLE);
-        return;
-    }
-
-    gfx_begin_2d();
+    //if (!mous.on)
+    //{
+    //    SDL_ShowCursor(SDL_DISABLE);
+    //    return;
+    //}
 
     oglx_texture_t *pcursor = TextureManager::get().get_valid_ptr(TX_CURSOR);
 
@@ -1470,33 +1468,18 @@ void draw_mouse_cursor()
     }
     else
     {
-        ego_frect_t sc_rect;
-        ego_frect_t tx_rect;
+        // Hide the system mouse cursor.
+        SDL_ShowCursor(SDL_DISABLE);
 
         //Get current mouse position
         int x, y;
         SDL_GetMouseState(&x, &y);
 
-        // Compute the texture coordinate rectangle (in texture coordinates).
-        tx_rect.xmin = 0.0f;
-        tx_rect.ymin = 0.0f;
-        auto textureWidth = pcursor->getWidth();
-        auto textureHeight = pcursor->getHeight();
-        tx_rect.xmax = (0 == textureWidth) ? 1.0f :
-                       (float)pcursor->getSourceWidth() / (float)textureWidth;
-        tx_rect.ymax = (0 == textureHeight) ? 1.0f :
-                       (float)pcursor->getSourceHeight() / (float)textureHeight;
-        // Compute the target coordinate rectangle (in pixels).
-        sc_rect.xmin = x;
-        sc_rect.ymin = y;
-        sc_rect.xmax = x + pcursor->getSourceWidth();
-        sc_rect.ymax = y + pcursor->getSourceHeight();
-        // Hide the system mouse cursor.
-        SDL_ShowCursor(SDL_DISABLE);
-        // Draw the cursor.
-        draw_quad_2d(pcursor, sc_rect, tx_rect, true);
+        //Draw cursor
+        gfx_begin_2d();
+            _gameEngine->getUIManager()->drawImage(*pcursor, x, y, pcursor->getWidth(), pcursor->getHeight(), Ego::Colour4f::white());
+        gfx_end_2d();
     }
-    gfx_end_2d();
 }
 
 //--------------------------------------------------------------------------------------------
