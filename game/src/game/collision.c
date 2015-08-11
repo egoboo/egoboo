@@ -2062,7 +2062,7 @@ bool do_chr_chr_collision( CoNode_t * d )
     }
 
     // items can interact with platforms but not with other characters/objects
-    if ( pchr_a->isitem || pchr_b->isitem ) return false;
+    if ( pchr_a->isItem() || pchr_b->isItem() ) return false;
 
     // don't interact with your mount, or your held items
     if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return false;
@@ -2071,8 +2071,10 @@ bool do_chr_chr_collision( CoNode_t * d )
     if ( 0.0f == pchr_a->bump_stt.size || 0.0f == pchr_b->bump_stt.size ) return false;
 
     interaction_strength = 1.0f;
-    interaction_strength *= pchr_a->inst.alpha * INV_FF;
-    interaction_strength *= pchr_b->inst.alpha * INV_FF;
+    
+    //ZF> This was supposed to make ghosts more insubstantial, but it also affects invisible characters
+    //interaction_strength *= pchr_a->inst.alpha * INV_FF;
+    //interaction_strength *= pchr_b->inst.alpha * INV_FF;
 
     // reduce your interaction strength if you have just detached from an object
     if ( pchr_a->dismount_object == ichr_b )
@@ -2189,7 +2191,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
     // make a special exception for immovable scenery objects
     // they can collide, but cannot push each other apart... that might mess up the scenery ;)
-    if ( !collision && ( wta < 0.0f && 0.0f == pchr_a->maxaccel ) && ( wtb < 0.0f && 0.0f == pchr_b->maxaccel ) )
+    if ( !collision && pchr_a->isScenery() && pchr_b->isScenery() )
     {
         return false;
     }
@@ -2360,6 +2362,12 @@ bool do_chr_chr_collision( CoNode_t * d )
     {
         ai_state_set_bumplast(pchr_a->ai, ichr_b);
         ai_state_set_bumplast(pchr_b->ai, ichr_a);
+
+        //Destroy stealth for both objects if they are not friendly
+        if(!pchr_a->isScenery() && !pchr_b->isScenery() && pchr_a->getTeam().hatesTeam(pchr_b->getTeam())) {
+            if(!pchr_a->hasPerk(Ego::Perks::SHADE)) pchr_a->deactivateStealth();
+            if(!pchr_a->hasPerk(Ego::Perks::SHADE)) pchr_b->deactivateStealth();
+        }
     }
 
     return true;

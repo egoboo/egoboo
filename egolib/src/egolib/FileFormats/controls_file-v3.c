@@ -61,6 +61,7 @@ bool input_settings_load_vfs_3( const char* szFilename )
         log_warning("unable to read input settings file `%s`\n", szFilename);
         return false;
     }
+
     // Read input for each player
     for ( size_t idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {

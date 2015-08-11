@@ -438,7 +438,7 @@ public:
     * @return true if this object should transfer its blending effect upon any
     *         items it might be holding or its rider (if it is a mount)
     **/ 
-    inline bool transferBlending() const {return _isEquipment;}
+    inline bool transferBlending() const {return true; } //isEquipment;}
 
     /**
     * @brief If this character should spawn blood particles when it gets hurt

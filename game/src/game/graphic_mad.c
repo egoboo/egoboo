@@ -349,7 +349,7 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
                 v.t = cmd.t + voffset;
 
                 // Perform lighting.
-                if (HAS_NO_BITS(bits, CHR_LIGHT))
+                if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA))
                 {
                     // The directional lighting.
                     float fcol = pvrt->color_dir * INV_FF;
@@ -472,9 +472,9 @@ gfx_rv render_one_mad( Camera& cam, const CHR_REF character, GLXvector4f tint, c
     }
     pchr = _currentModule->getObjectHandler().get( character );
 
-    if ( pchr->is_hidden || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return gfx_fail;
+    if ( pchr->is_hidden || tint[AA] <= 0.0f || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return gfx_fail;
 
-    if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
+    if ( pchr->inst.enviro || HAS_SOME_BITS(bits, CHR_PHONG) )
     {
         retval = render_one_mad_enviro( cam, character, tint, bits );
     }
@@ -569,7 +569,8 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
             Ego::OpenGL::Utilities::isError();
         }
 
-        if ( gfx.phongon && pinst.sheen > 0 )
+        //Render shining effect on top of model
+        if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
         {
             renderer.setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
@@ -606,7 +607,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 	Object *pchr = _currentModule->getObjectHandler().get(ichr);
 	chr_instance_t& pinst = pchr->inst;
 
-    if ( pchr->is_hidden ) return gfx_fail;
+    if ( pchr->isHidden() ) return gfx_fail;
 
     // there is an outside chance the object will not be rendered
     rendered = false;
@@ -628,7 +629,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
             renderer.setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
 
             chr_instance_t::get_tint( pinst, tint, CHR_ALPHA );
 
@@ -656,7 +657,8 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
             }
         }
 
-        if ( gfx.phongon && pinst.sheen > 0 )
+        //Render shining effect on top of model
+        if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
         {
             renderer.setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );    // GL_COLOR_BUFFER_BIT
@@ -2117,7 +2119,6 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 	if (HAS_SOME_BITS(bits, CHR_ALPHA))
 	{
 		// alpha characters are blended onto the canvas using the alpha channel
-		// the alpha channel is not important
 		weight_sum += 1.0f;
 
 		tint[RR] += 1.0f / (1 << local_redshift);
@@ -2242,8 +2243,6 @@ matrix_cache_t *matrix_cache_t::init(matrix_cache_t& self)
 
     return &self;
 }
-
-
 
 void chr_instance_flash(chr_instance_t& self, Uint8 value)
 {

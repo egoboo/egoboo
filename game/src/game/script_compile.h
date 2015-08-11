@@ -491,6 +491,12 @@ enum e_script_functions
     FGIVESKILLTOTARGET,                 // == 387
     FSETTARGETTONEARBYMELEEWEAPON,      // == 388
 
+    // Scripted AI functions (v1.30)
+    FENABLESTEALTH,                     // == 389
+    FDISABLESTEALTH,                    // == 390
+    FIFSTEALTHED,                       // == 391
+    FSETTARGETTODISTANTFRIEND,          // == 392
+
     SCRIPT_FUNCTIONS_COUNT
 };
 

@@ -530,9 +530,9 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _weight = vfs_get_next_int(ctxt);
     _jumpPower = vfs_get_next_float(ctxt);
     _jumpNumber = vfs_get_next_int(ctxt);
-    _animationSpeedSneak = vfs_get_next_float(ctxt);
-    _animationSpeedWalk = vfs_get_next_float(ctxt);
-    _animationSpeedRun = vfs_get_next_float(ctxt);
+    _animationSpeedSneak = 2.0f * vfs_get_next_float(ctxt);
+    _animationSpeedWalk = 2.0f * vfs_get_next_float(ctxt);
+    _animationSpeedRun = 2.0f * vfs_get_next_float(ctxt);
     _flyHeight = vfs_get_next_int(ctxt);
     _flashAND = vfs_get_next_int(ctxt);
     _alpha = vfs_get_next_int(ctxt);
@@ -1173,9 +1173,9 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
     template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::JUMP_POWER) );    //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_sneak );          //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_walk );           //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_run );            //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedSneak);
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedWalk);
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedRun);
     template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT) ); //Note: overriden by chr
     template_put_int(fileTemp, fileWrite, profile->_flashAND);
     template_put_int(fileTemp, fileWrite, profile->_alpha);

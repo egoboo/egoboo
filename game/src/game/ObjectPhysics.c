@@ -57,7 +57,7 @@ void move_one_character_do_voluntary( Object * pchr )
 
     CHR_REF ichr = GET_INDEX_PCHR( pchr );
 
-    if ( !pchr->isAlive() || pchr->maxaccel == 0.00f ) return;
+    if ( !pchr->isAlive() || pchr->getAttribute(Ego::Attribute::ACCELERATION) == 0.00f ) return;
 
     pchr->enviro.new_v[kX] = pchr->vel[kX];
     pchr->enviro.new_v[kY] = pchr->vel[kY];
@@ -85,7 +85,7 @@ void move_one_character_do_voluntary( Object * pchr )
     }
 
     // this is the maximum speed that a character could go under the v2.22 system
-    float maxspeed = pchr->maxaccel * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
+    float maxspeed = pchr->getAttribute(Ego::Attribute::ACCELERATION) * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
     float speedBonus = 1.0f;
 
     //Sprint perk gives +10% movement speed if above 75% life remaining
@@ -129,56 +129,43 @@ void move_one_character_do_voluntary( Object * pchr )
         }
     }
 
-    bool sneak_mode_active = false;
-    if ( VALID_PLA( pchr->is_which_player ) )
+    //Check if AI has limited movement rate
+    else if(!pchr->isPlayer())
     {
-        // determine whether the user is hitting the "sneak button"
-        player_t * ppla = PlaStack.get_ptr( pchr->is_which_player );
-        sneak_mode_active = input_device_control_active( ppla->pdevice, CONTROL_SNEAK );
+        maxspeed *= pchr->ai.maxSpeed;
     }
 
+    bool sneak_mode_active = pchr->isStealthed();
+
+    //Reduce speed while stealthed
+    if(pchr->isStealthed()) {
+        if(pchr->hasPerk(Ego::Perks::SHADE)) {
+            maxspeed *= 0.75f;  //Shade allows 75% movement speed while stealthed
+        }
+        else if(pchr->hasPerk(Ego::Perks::STALKER)) {
+            maxspeed *= 0.50f;  //Stalker allows 50% movement speed while stealthed
+        }
+        else {
+            maxspeed *= 0.33f;  //Can only move at 33% speed while stealthed
+        }
+    }
+    
     pchr->enviro.new_v[kX] = pchr->enviro.new_v[kY] = 0.0f;
     if (std::abs(dvx) + std::abs(dvy) > 0.05f)
     {
-        float dv2 = dvx * dvx + dvy * dvy;
-
-        if (pchr->isPlayer())
-        {
-            float dv = std::pow( dv2, 0.25f );
-
-            // determine whether the character is sneaking
-            sneak_mode_active = TO_C_BOOL( dv2 < 1.0f / 9.0f );
-
-            pchr->enviro.new_v[kX] = maxspeed * dvx / dv;
-            pchr->enviro.new_v[kY] = maxspeed * dvy / dv;
-        }
-        else
-        {
-            float scale = 1.0f;
-
-            if ( dv2 < 1.0f )
-            {
-                scale = std::pow( dv2, 0.25f );
-            }
-
-            scale /= std::pow( dv2, 0.5f );
-
-            pchr->enviro.new_v[kX] = dvx * maxspeed * scale;
-            pchr->enviro.new_v[kY] = dvy * maxspeed * scale;
-        }
+        pchr->enviro.new_v[kX] = dvx * maxspeed;
+        pchr->enviro.new_v[kY] = dvy * maxspeed;
     }
 
     if ( sneak_mode_active )
     {
         // sneak mode
-        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
         pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
     }
     else
     {
         // non-sneak mode
         pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-        pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION);
     }
 
     // do platform friction
@@ -199,11 +186,14 @@ void move_one_character_do_voluntary( Object * pchr )
     new_ay *= pchr->enviro.traction;
 
     //Limit movement to the max acceleration
-    new_ax = Ego::Math::constrain( new_ax, -pchr->maxaccel, pchr->maxaccel );
-    new_ay = Ego::Math::constrain( new_ay, -pchr->maxaccel, pchr->maxaccel );
+    float accelerationMagnitude = std::sqrt(new_ax*new_ax + new_ay*new_ay);
+    if(accelerationMagnitude > pchr->getAttribute(Ego::Attribute::ACCELERATION)) {
+        new_ax *= pchr->getAttribute(Ego::Attribute::ACCELERATION) / accelerationMagnitude;
+        new_ay *= pchr->getAttribute(Ego::Attribute::ACCELERATION) / accelerationMagnitude;
+    }
 
     //Figure out how to turn around
-    if ( 0 != pchr->maxaccel )
+    if ( 0 != pchr->getAttribute(Ego::Attribute::ACCELERATION) )
     {
         switch ( pchr->turnmode )
         {
@@ -1009,6 +999,10 @@ bool chr_do_latch_button( Object * pchr )
         {
             if ( 1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready )
             {
+                //Exit stealth unless character has Stalker Perk
+                if(!pchr->hasPerk(Ego::Perks::STALKER)) {
+                    pchr->deactivateStealth();
+                }
 
                 // Make the character jump
                 pchr->hitready = true;
@@ -1052,10 +1046,16 @@ bool chr_do_latch_button( Object * pchr )
     if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = GRABDELAY;
-        if ( !_currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
+        if ( !pchr->getLeftHandItem() )
         {
             // Grab left
-            chr_play_action( pchr, ACTION_ME, false );
+            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_ME)) {
+                //No grab animation valid
+                character_grab_stuff( ichr, GRIP_LEFT, false );
+            }
+            else {
+                chr_play_action( pchr, ACTION_ME, false );
+            }
         }
         else
         {
@@ -1068,10 +1068,16 @@ bool chr_do_latch_button( Object * pchr )
         //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
 
         pchr->reload_timer = GRABDELAY;
-        if ( !_currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) )
+        if ( !pchr->getRightHandItem() )
         {
             // Grab right
-            chr_play_action( pchr, ACTION_MF, false );
+            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_MF)) {
+                //No grab animation valid
+                character_grab_stuff( ichr, GRIP_RIGHT, false );
+            }
+            else {
+                chr_play_action( pchr, ACTION_MF, false );
+            }
         }
         else
         {
@@ -1216,6 +1222,9 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     // Attack button
     if ( allowedtoattack )
     {
+        //Attacking or using an item disables stealth
+        pchr->deactivateStealth();
+
         if ( pchr->inst.action_ready && action_valid )
         {
             //Check if we are attacking unarmed and cost mana to do so

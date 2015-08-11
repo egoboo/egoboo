@@ -278,23 +278,19 @@ float set_character_animation_rate( Object * pchr )
     /// @author BB
     /// @details added automatic calculation of variable animation rates for movement animations
 
-    float  speed;
-    bool can_be_interrupted;
     bool is_walk_type;
     int    cnt, anim_count;
     int    action, lip;
     bool found;
 
     // set the character speed to zero
-    speed = 0;
+    float speed = 0;
 
     if ( NULL == pchr ) return 1.0f;
     chr_instance_t& pinst = pchr->inst;
-    CHR_REF ichr = GET_INDEX_PCHR(pchr);
-
+    
     // if the action is set to keep then do nothing
-    can_be_interrupted = !pinst.action_keep;
-    if ( !can_be_interrupted ) return pinst.rate = 1.0f;
+    if ( pinst.action_keep ) return pinst.rate = 1.0f;
 
     // dont change the rate if it is an attack animation
     if ( pchr->isAttacking() )  return pinst.rate;
@@ -334,9 +330,9 @@ float set_character_animation_rate( Object * pchr )
     //---- set up the anim_info structure
     chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
     anim_info[CHR_MOVEMENT_STOP ].speed = 0;
-    anim_info[CHR_MOVEMENT_SNEAK].speed = pchr->anim_speed_sneak;
-    anim_info[CHR_MOVEMENT_WALK ].speed = pchr->anim_speed_walk;
-    anim_info[CHR_MOVEMENT_RUN  ].speed = pchr->anim_speed_run;
+    anim_info[CHR_MOVEMENT_SNEAK].speed = pchr->getProfile()->getSneakAnimationSpeed();
+    anim_info[CHR_MOVEMENT_WALK ].speed = pchr->getProfile()->getWalkAnimationSpeed();
+    anim_info[CHR_MOVEMENT_RUN  ].speed = pchr->getProfile()->getRunAnimationSpeed();
 
     if ( pchr->isFlying() )
     {
@@ -417,7 +413,7 @@ float set_character_animation_rate( Object * pchr )
     {
         // For non-flying objects, we use the intended speed.
         // new_v[kX], new_v[kY] is the speed before any latches are applied.
-        speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length_abs();
+        speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length();
         if ( pchr->enviro.is_slipping )
         {
             // The character is slipping as on ice.
@@ -427,6 +423,7 @@ float set_character_animation_rate( Object * pchr )
 
     }
 
+    //Make bigger Objects have slower animations
     if ( pchr->fat != 0.0f ) speed /= pchr->fat;
 
     // handle a special case
@@ -489,15 +486,18 @@ float set_character_animation_rate( Object * pchr )
         pchr->bore_timer--;
         if ( pchr->bore_timer < 0 )
         {
-            int tmp_action, rand_val;
-
-            SET_BIT( pchr->ai.alert, ALERTIF_BORED );
             pchr->bore_timer = BORETIME;
 
-            // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
-            rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
-            tmp_action = pinst.imad->getAction(ACTION_DB + ( rand_val % 3 ));
-            chr_start_anim( pchr, tmp_action, true, true );
+            //Don't yell "im bored!" while stealthed!
+            if(!pchr->isStealthed())
+            {
+                SET_BIT( pchr->ai.alert, ALERTIF_BORED );
+
+                // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
+                int rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
+                int tmp_action = pinst.imad->getAction(ACTION_DB + ( rand_val % 3 ));
+                chr_start_anim( pchr, tmp_action, true, true );
+            }
         }
         else
         {

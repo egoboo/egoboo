@@ -31,6 +31,7 @@
 #include "game/renderer_2d.h"
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
+#include "game/script_implementation.h" //for stealth
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -86,12 +87,15 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     isitem(false),
     isshopitem(false),
     canbecrushed(false),
+    
+    //Misc timers
     grog_timer(0),
     daze_timer(0),
     bore_timer(BORETIME),
     careful_timer(CAREFULTIME),
     reload_timer(0),
     damage_timer(0),
+
     draw_icon(false),
     sparkle(NOSPARKLE),
     shadow_size_stt(0.0f),
@@ -118,10 +122,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     turnmode(TURNMODE_VELOCITY),
     movement_bits(( unsigned )(~0)),    // all movements valid
-    anim_speed_sneak(0.0f),
-    anim_speed_walk(0.0f),
-    anim_speed_run(0.0f),
-    maxaccel(0.0f),
 
     enviro(),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
@@ -144,8 +144,15 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _inventory(),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
+
+    //Non-persistent variables
     _hasBeenKilled(false),
     _reallyDuration(0),
+    _stealth(false),
+    _stealthTimer(0),
+    _observationTimer((id % ONESECOND) + update_wld), //spread observations so all characters don't happen at the same time
+
+    //Enchants
     _activeEnchants(),
     _lastEnchantSpawned()
 {
@@ -223,9 +230,6 @@ bool Object::setSkin(const size_t skinNumber)
     //Armour movement speed
     _baseAttribute[Ego::Attribute::ACCELERATION] = newSkin.maxAccel;
 
-    //Recalculate total movement speed
-    maxaccel = getAttribute(Ego::Attribute::ACCELERATION);
-
     //Defence from Armour
     _baseAttribute[Ego::Attribute::DEFENCE] = newSkin.defence;
 
@@ -268,7 +272,7 @@ bool Object::isInWater(bool anyLiquid) const
 }
 
 
-bool Object::setPosition(const fvec3_t& position)
+bool Object::setPosition(const Vector3f& position)
 {
     EGO_DEBUG_VALIDATE(position);
 
@@ -294,12 +298,19 @@ bool Object::setPosition(const fvec3_t& position)
 
 void Object::movePosition(const float x, const float y, const float z)
 {
-    pos += fvec3_t(x, y, z);
+    pos += Vector3f(x, y, z);
 }
 
 void Object::setAlpha(const int alpha)
 {
     inst.alpha = Ego::Math::constrain(alpha, 0, 0xFF);
+
+    //This prevents players from becoming completely invisible
+    if (isPlayer())
+    {
+        inst.alpha = std::max<uint8_t>(128, inst.alpha);
+    }
+
     chr_instance_t::update_ref(inst, enviro.grid_level, false);
 }
 
@@ -308,7 +319,7 @@ void Object::setLight(const int light)
     inst.light = Ego::Math::constrain(light, 0, 0xFF);
 
     //This prevents players from becoming completely invisible
-    if (VALID_PLA(is_which_player))  
+    if (isPlayer())
     {
         inst.light = std::max<uint8_t>(128, inst.light);
     }
@@ -450,7 +461,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     ai.directionlast  = direction;
 
     // Check for characters who are immune to this damage, no need to continue if they have
-    bool immune_to_damage = (actual_damage > 0 && actual_damage <= damage_threshold) || HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS);
+    bool immune_to_damage = HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || (actual_damage > 0 && actual_damage <= damage_threshold);
     if ( immune_to_damage && !ignore_invictus )
     {
         actual_damage = 0;
@@ -460,12 +471,12 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         if ( !isMount() && 0 == damage_timer )
         {
             //Dark green text
-            const float lifetime = 3;
-            const auto text_color = Ego::Math::Colour4f::parse(0xff, 0xff, 0xff, 0xff);
-            const auto tint = Ego::Math::Colour4f(0, 0.5, 0, 1);
-
             spawn_defense_ping(this, attacker ? attacker->getCharacterID() : INVALID_CHR_REF);
-            chr_make_text_billboard(_characterID, "Immune!", text_color, tint, lifetime, Billboard::Flags::All);
+
+            //Only draw "Immune!" if we are truly completely immune and it was not simply a weak attack
+            if(HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || damage.base + damage.rand <= damage_threshold) {
+                chr_make_text_billboard(_characterID, "Immune!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(0, 0.5, 0, 1), 3, Billboard::Flags::All);
+            }
         }
     }
 
@@ -482,7 +493,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             }
 
             // Easy mode deals 25% extra actual damage by players and 50% less to players
-            if (egoboo_config_t::get().game_difficulty.getValue() <= Ego::GameDifficulty::Easy)
+            if (attacker && egoboo_config_t::get().game_difficulty.getValue() <= Ego::GameDifficulty::Easy)
             {
                 if ( VALID_PLA( attacker->is_which_player )  && !VALID_PLA(is_which_player) ) actual_damage *= 1.25f;
                 if ( !VALID_PLA( attacker->is_which_player ) &&  VALID_PLA(is_which_player) ) actual_damage *= 0.5f;
@@ -698,12 +709,12 @@ bool Object::isAttacking() const
     return inst.action_which >= ACTION_UA && inst.action_which <= ACTION_FD;
 }
 
-bool Object::teleport(const fvec3_t& position, const FACING_T facing_z)
+bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
 {
     //Cannot teleport outside the level
     if(!_currentModule->isInside(position[kX], position[kY])) return false;
 
-    fvec3_t newPosition = position;
+    Vector3f newPosition = position;
 
     //Cannot teleport inside a wall
     fvec2_t nrm;
@@ -772,7 +783,7 @@ void Object::update()
         if ( !enviro.inwater )
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( water._is_water )
             {
@@ -812,7 +823,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getCharacterID()) & ripand ))
                     {
-                        ParticleHandler::get().spawnGlobalParticle(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -851,6 +862,9 @@ void Object::update()
 
     // Do "Be careful!" delay
     if ( careful_timer > 0 ) careful_timer--;
+
+    //Reduce stealth timeout
+    if(_stealthTimer > 0) _stealthTimer--;
 
     // Texture movement
     inst.uoffset += getProfile()->getTextureMovementRateX();
@@ -927,6 +941,80 @@ void Object::update()
         }
     }
 
+    //Try to detect any hidden objects every so often (unless we are scenery object) 
+    if(!isScenery() && isAlive() && !isBeingHeld() && inst.action_which != ACTION_MK) {  //ACTION_MK = sleeping
+        if(update_wld > _observationTimer) 
+        {
+            _observationTimer = update_wld + ONESECOND;
+
+            //Setup line of sight data
+            line_of_sight_info_t lineOfSightInfo;
+            lineOfSightInfo.x0         = getPosX();
+            lineOfSightInfo.y0         = getPosY();
+            lineOfSightInfo.z0         = getPosZ() + std::max(1.0f, bump.height);
+            lineOfSightInfo.stopped_by = stoppedby;
+
+            //Check for nearby enemies
+            std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE);
+            for(const std::shared_ptr<Object> &target : nearbyObjects) {
+                //Valid objects only
+                if(target->isTerminated() || target->isHidden()) continue;
+
+                //Only look for stealthed objects
+                if(!target->isStealthed()) continue;
+
+                //Are they a enemy of us?
+                if(!target->getTeam().hatesTeam(getTeam())) {
+                    continue;
+                }
+
+                //Can we see them?
+                lineOfSightInfo.x1 = target->getPosX();
+                lineOfSightInfo.y1 = target->getPosY();
+                lineOfSightInfo.z1 = target->getPosZ() + std::max(1.0f, target->bump.height);
+                if (line_of_sight_blocked(&lineOfSightInfo)) {
+                    continue;
+                }
+
+                //Sense Invisible = automatic detection
+                if(target->canSeeInvisible()) {
+                    target->deactivateStealth();
+                    target->_stealthTimer = ONESECOND * 6; //6 second timeout
+                    break;
+                }
+
+                //Check for detection chance, Base chance 20%
+                int chance = 20;
+
+                //+0.5% per Intellect
+                chance += getAttribute(Ego::Attribute::INTELLECT)*0.5f;
+
+                //-0.5% per target Agility
+                chance -= target->getAttribute(Ego::Attribute::AGILITY)*0.5f;
+
+                //-5% per tile distance
+                chance -= 5 * ((getPosition()-target->getPosition()).length() / GRID_FSIZE);
+
+                //Perceptive Perk doubles chance
+                if(target->hasPerk(Ego::Perks::PERCEPTIVE)) {
+                    chance *= 2;
+                }
+
+                //If they are not looking towards us, then halve detection chance
+                if(!target->isFacingLocation(getPosX(), getPosY())) {
+                    chance /= 2;
+                }
+
+                //Were they detected by us?
+                if(Random::getPercent() <= chance) {
+                    target->deactivateStealth();
+                    target->_stealthTimer = ONESECOND * 6; //6 second timeout
+                    break;
+                }
+            }
+        }
+    }
+
     //Finally update model resizing effects
     updateResize();
 }
@@ -998,7 +1086,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
     }
     else
     {
-        if(getProfile()->getSpellEffectType() >= 0) {
+        if(getProfile()->getSpellEffectType() >= 0 && getProfile()->getSpellEffectType() != ObjectProfile::NO_SKIN_OVERRIDE) {
             result = ProfileSystem::get().getProfile(SPELLBOOK)->getClassName();
         }
         else {
@@ -1071,7 +1159,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     dismount_object = holder;
 
     // Figure out which hand it's in
-    Uint16 hand = inwhich_slot;
+    uint16_t hand = inwhich_slot;
 
     // Rip 'em apart
     attachedto = INVALID_CHR_REF;
@@ -1106,7 +1194,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     // Make sure it's not dropped in a wall...
     if (EMPTY_BIT_FIELD != test_wall(NULL))
     {
-        fvec3_t pos_tmp = pholder->getPosition();
+        Vector3f pos_tmp = pholder->getPosition();
         pos_tmp[kZ] = getPosZ();
 
         setPosition(pos_tmp);
@@ -1194,8 +1282,8 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
 {
     /// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
     // Scenery, spells and quest objects can always see through darkness
-    // Checking invictus is not enough, since that could be temporary
-    // and not indicate the appropriate objects
+    // Checking Object invictus is not enough, since that could be temporary
+    // and not indicate the appropriate objects so we check the profile instead
     if (getProfile()->isInvincible()) {
         return true;
     }
@@ -1209,10 +1297,14 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
         return false;
     }
 
+    //Is target stealthed?
+    if(!canSeeInvisible() && target->isStealthed()) {
+        return false;
+    }
+
     //Too invisible?
     int alpha = target->inst.alpha;
-    if (canSeeInvisible())
-    {
+    if (canSeeInvisible()) {
         alpha = get_alpha(alpha, expf(0.32f * getAttribute(Ego::Attribute::SEE_INVISIBLE)));
     }
     alpha = Ego::Math::constrain(alpha, 0, 255);
@@ -1362,6 +1454,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     platform        = true;
     canuseplatforms = true;
     phys.bumpdampen = phys.bumpdampen * 0.5f;
+
+    //End stealth if we were hidden
+    deactivateStealth();
 
     // Play the death animation
     int action = Random::next((int)ACTION_KA, ACTION_KA + 3);
@@ -1584,7 +1679,7 @@ BIT_FIELD Object::hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data
 	return hit_wall(getPosition(), nrm, pressure, data);
 }
 
-BIT_FIELD Object::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float * pressure, mesh_wall_data_t *data)
+BIT_FIELD Object::hit_wall(const Vector3f& pos, fvec2_t& nrm, float * pressure, mesh_wall_data_t *data)
 {
 	if (CHR_INFINITE_WEIGHT == phys.weight)
 	{
@@ -1621,7 +1716,7 @@ BIT_FIELD Object::test_wall(mesh_wall_data_t *data)
 	return test_wall(getPosition(), data);
 }
 
-BIT_FIELD Object::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
+BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 {
 	if (isTerminated()) {
 		return EMPTY_BIT_FIELD;
@@ -1722,7 +1817,7 @@ void Object::respawn()
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
     setPosition(pos_stt);
-    vel = fvec3_t::zero();
+    vel = Vector3f::zero();
     team = team_base;
     canbecrushed = false;
     ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
@@ -2124,6 +2219,9 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     _profileID = profileID;
     _profile = ProfileSystem::get().getProfile(_profileID);
 
+    //Exit stealth if we change form
+    deactivateStealth();
+
     //Get any items we are holding
     const std::shared_ptr<Object> &leftItem = getLeftHandItem();
     const std::shared_ptr<Object> &rightItem = getRightHandItem();
@@ -2194,11 +2292,6 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     {
         phys.weight = std::min<uint32_t>(_profile->getWeight() * fat * fat * fat, CHR_MAX_WEIGHT);
     }
-
-    // Movement
-    anim_speed_sneak = _profile->getSneakAnimationSpeed();
-    anim_speed_walk  = _profile->getWalkAnimationSpeed();
-    anim_speed_run   = _profile->getRunAnimationSpeed();
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
     /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
@@ -2347,4 +2440,124 @@ bool Object::isInvictusDirection(FACING_T direction, const BIT_FIELD effects) co
     }
 
     return false;
+}
+
+bool Object::isStealthed() const
+{
+    return _stealth;
+}
+
+void Object::deactivateStealth()
+{
+    //Not in stealth?
+    if(!isStealthed()) return;
+
+    //Reset stealth timer
+    _stealthTimer = std::max<uint16_t>(_stealthTimer, ONESECOND);
+    _stealth = false;
+
+    chr_make_text_billboard(getCharacterID(), "Revealed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+    AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
+    setAlpha(0xFF);
+}
+
+bool Object::activateStealth()
+{
+    //Already in stealth?
+    if(isStealthed()) return true;
+
+    //Not allowed to stealth yet?
+    if(_stealthTimer > 0) {
+        return false;
+    }
+
+    //Limit stealth atttempts to once per second
+    _stealthTimer = ONESECOND;
+
+    //Do they have the required stealth Perk?
+    if(!hasPerk(Ego::Perks::STEALTH)) {
+        if(isPlayer()) {
+            DisplayMsg_printf("%s does not know how to stealth...", getName().c_str());
+        }
+        return false;
+    }
+
+    //Setup line of sight data
+    line_of_sight_info_t lineOfSightInfo;
+    lineOfSightInfo.x1 = getPosX();
+    lineOfSightInfo.y1 = getPosY();
+    lineOfSightInfo.z1 = getPosZ() + std::max(1.0f, bump.height);
+
+    //Check if there are any nearby Objects disrupting our stealth attempt
+    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE);
+    for(const std::shared_ptr<Object> &object : nearbyObjects) {
+        //Valid objects only
+        if(object->isTerminated() || !object->isAlive() || object->isBeingHeld()) continue;
+
+        //Skip scenery objects
+        if (object->isScenery()) {
+            continue;
+        }
+
+        //Ignore objects that are doing the sleep animation
+        if(object->inst.action_which == ACTION_MK) {
+            continue;
+        }
+
+        //Do they consider us an enemy?
+        if(!object->getTeam().hatesTeam(getTeam())) {
+            continue;
+        }
+
+        //Can they see us?
+        lineOfSightInfo.x0         = object->getPosX();
+        lineOfSightInfo.y0         = object->getPosY();
+        lineOfSightInfo.z0         = object->getPosZ() + std::max(1.0f, object->bump.height);
+        lineOfSightInfo.stopped_by = object->stoppedby;
+        if (line_of_sight_blocked(&lineOfSightInfo)) {
+            continue;
+        }
+        
+        //Camouflage Perk allows us to hide as long as enemies aren't directly looking at us
+        if(hasPerk(Ego::Perks::CAMOUFLAGE) && !object->isFacingLocation(getPosX(), getPosY())) {
+            continue;
+        }
+
+        //We can't stealth while an enemy is nearby
+        if(isPlayer()) {
+            chr_make_text_billboard(getCharacterID(), "Hide Failed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+            AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
+        }
+        return false;
+    }
+
+    //All good, we are now stealthed!
+    _stealth = true;
+    setAlpha(0);
+    chr_make_text_billboard(getCharacterID(), "Hidden!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+    AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH));
+   
+    return true;
+}
+
+bool Object::isScenery() const
+{
+    //If it can be grabbed then it is not really a scenery object
+    if(isItem()) {
+        return false;
+    }
+
+    //Everything on team NULL that is not an item is neutral by definition
+    if(getTeam() == Team::TEAM_NULL) {
+        return true;
+    }
+    
+    //Can it move?
+    if(getBaseAttribute(Ego::Attribute::ACCELERATION) > 0) {
+        return false;
+    }
+
+    //Objects on other teams than TEAM_NULL can still be scenery, such as destructable tents or idols
+    //These are scenery objects if they are either invincible or have infinite weight
+    return getProfile()->isInvincible() || getProfile()->getWeight() == CAP_INFINITE_WEIGHT;
 }

@@ -719,6 +719,39 @@ public:
     **/
     bool isInvictusDirection(FACING_T direction, const BIT_FIELD effects) const;
 
+    /**
+    * @return 
+    *   true if this Object is actively trying to hide from others
+    **/
+    bool isStealthed() const;
+
+    /**
+    * @brief
+    *  makes this creature enter Stealth mode. It will try to stay hidden from other Objects.
+    *  It will only work if there are no enemies nearby. Depending on the skill level of the
+    *  Object, it movement may or may not be restricted. Enemies try to detect stealthed objects
+    *  once every second.
+    * @return
+    *   true if this object is now stealthed from other Objects
+    **/
+    bool activateStealth();
+
+    /**
+    * @brief
+    *   This ends the stealth effect on this Object and reveals it to everyone else
+    **/
+    void deactivateStealth();
+
+    /**
+    * @return
+    *   true if this Object is a scenery object like furniture, trees, plants, carpets, pillars or a well.
+    *   A scenery object is defined by the following attributes:
+    *    * cannot move by itself
+    *    * is not an item
+    *    * objects on team NULL
+    **/
+    bool isScenery() const;
+
 private:
 
     /**
@@ -813,9 +846,9 @@ public:
     int16_t         grog_timer;                    ///< Grog timer
     int16_t         daze_timer;                    ///< Daze timer
     int16_t         bore_timer;                    ///< Boredom timer
-    uint8_t          careful_timer;                 ///< "You hurt me!" timer
-    uint16_t         reload_timer;                  ///< Time before another shot
-    uint8_t          damage_timer;                  ///< Invincibility timer
+    uint8_t         careful_timer;                 ///< "You hurt me!" timer
+    uint16_t        reload_timer;                  ///< Time before another shot
+    uint8_t         damage_timer;                  ///< Invincibility timer
 
     // graphical info
     bool         draw_icon;       ///< Show the icon?
@@ -860,10 +893,6 @@ public:
     turn_mode_t  turnmode;                      ///< Turning mode
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
-    float          anim_speed_sneak;              ///< Movement rate of the sneak animation
-    float          anim_speed_walk;               ///< Walking if above this speed
-    float          anim_speed_run;                ///< Running if above this speed
-    float          maxaccel;                      ///< Current maximum acceleration
 
     // data for doing the physics in bump_all_objects()
 
@@ -894,8 +923,11 @@ private:
     uint32_t _levelUpSeed;
 
     //Non persistent variables. Once game ends these are not saved
-    bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)
-    uint32_t _reallyDuration;                            ///< Game Logic Update frame duration for rally bonus gained from the Perk
+    bool _hasBeenKilled;                              ///< If this Object has been killed at least once this module (many can respawn)
+    uint32_t _reallyDuration;                         ///< Game Logic Update frame duration for rally bonus gained from the Perk
+    bool _stealth;                                    ///< Is this Object actively trying to hide from others?
+    uint16_t _stealthTimer;                           ///< Time before we can enter stealth again
+    uint32_t _observationTimer;                       ///< Next update frame we are going to scan for hidden objects
 
     //Enchantment stuff
     std::forward_list<std::shared_ptr<Ego::Enchantment>> _activeEnchants;    ///< List of all active enchants on this Object

@@ -778,7 +778,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t& aiState, script_inf
 				case FKURSETARGET:           returncode = scr_KurseTarget(pstate, &aiState);            break;
 				case FSETCHILDCONTENT:       returncode = scr_set_ChildContent(pstate, &aiState);    break;
 				case FSETTARGETTOCHILD:      returncode = scr_set_TargetToChild(pstate, &aiState);   break;
-				case FSETDAMAGETHRESHOLD:     returncode = scr_set_DamageThreshold(pstate, &aiState);   break;
+				case FSETDAMAGETHRESHOLD:    returncode = scr_set_DamageThreshold(pstate, &aiState);   break;
 				case FACCELERATETARGETUP:    returncode = scr_AccelerateTargetUp(pstate, &aiState); break;
 				case FSETTARGETAMMO:         returncode = scr_set_TargetAmmo(pstate, &aiState); break;
 				case FENABLEINVICTUS:        returncode = scr_EnableInvictus(pstate, &aiState); break;
@@ -792,6 +792,11 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t& aiState, script_inf
 				case FIFLEVELUP:                     returncode = scr_LevelUp(pstate, &aiState); break;
 				case FGIVESKILLTOTARGET:             returncode = scr_add_TargetSkill(pstate, &aiState); break;
 				case FSETTARGETTONEARBYMELEEWEAPON:  returncode = scr_set_TargetToNearbyMeleeWeapon(pstate, &aiState); break;
+
+                case FENABLESTEALTH:                 returncode = scr_EnableStealth(pstate, &aiState); break;
+                case FDISABLESTEALTH:                returncode = scr_DisableStealth(pstate, &aiState); break;
+                case FIFSTEALTHED:                   returncode = scr_Stealthed(pstate, &aiState); break;
+                case FSETTARGETTODISTANTFRIEND:      returncode = scr_set_TargetToDistantFriend(pstate, &aiState); break;
 
                     // if none of the above, skip the line and log an error
                 default:
@@ -1718,6 +1723,7 @@ ai_state_t *ai_state_reset(ai_state_t *self)
 		self->x[i] = 0;
 		self->y[i] = 0;
 	}
+    self->maxSpeed = 1.0f;
 
 	// ai memory from the last event
 	self->bumplast = INVALID_CHR_REF;
@@ -1818,6 +1824,7 @@ void ai_state_spawn(ai_state_t *self, const CHR_REF index, const PRO_REF iobj, U
 	self->owner = index;
 	self->child = index;
 	self->target_old = index;
+    self->maxSpeed = 1.0f;
 
 	self->bumplast = index;
 	self->hitlast = index;

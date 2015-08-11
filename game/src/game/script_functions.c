@@ -979,7 +979,7 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION);
+    pself->maxSpeed = 1.0f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -994,8 +994,7 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.66f;
-    pchr->movement_bits = CHR_MOVEMENT_BITS_WALK;
+    pself->maxSpeed = 0.66f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1010,8 +1009,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = pchr->getAttribute(Ego::Attribute::ACCELERATION) * 0.33f;
-    pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
+    pself->maxSpeed = 0.33f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1094,7 +1092,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    const std::shared_ptr<Object> &rightItem = pchr->getLeftHandItem();
+    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
     if (rightItem)
     {
         rightItem->detatchFromHolder(true, true);
@@ -2235,8 +2233,7 @@ Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = 0;
-    pchr->movement_bits = CHR_MOVEMENT_BITS_STOP;
+    pself->maxSpeed = 0.0f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4488,21 +4485,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    float fvalue = pstate->argument / 100.0f;
-    fvalue = std::max( 0.0f, fvalue );
-
-    pchr->maxaccel = pchr->getAttribute(Ego::Attribute::ACCELERATION) * fvalue;
-
-    if ( pchr->maxaccel < 0.33f )
-    {
-        // only sneak
-        pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
-    }
-    else
-    {
-        // everything but sneak
-        pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-    }
+    pself->maxSpeed = std::max(0.0f, pstate->argument / 100.0f);
 
     SCRIPT_FUNCTION_END();
 }
@@ -8134,6 +8117,78 @@ Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * p
     {
         pself->target = best_target;
         returncode = true;
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_EnableStealth( script_state_t * pstate, ai_state_t * pself )
+{
+    // EnableStealth()
+    /// @author ZF
+    /// @details Makes the object enter stealth mode. Returns true if it is now hidden from others.
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    if(pchr->isStealthed()) {
+        returncode = false;
+    }
+    else {
+        returncode = pchr->activateStealth();
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_DisableStealth( script_state_t * pstate, ai_state_t * pself )
+{
+    // DisableStealth()
+    /// @author ZF
+    /// @details Makes the object exit stealth mode. Returns true if it exited stealth mode.
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    returncode = pchr->isStealthed();
+    pchr->deactivateStealth();
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_Stealthed( script_state_t * pstate, ai_state_t * pself )
+{
+    // IfStealthed()
+    /// @author ZF
+    /// @details Returns true if the Object is currently in stealth mode and not detected
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    returncode = pchr->isStealthed();
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+uint8_t scr_set_TargetToDistantFriend( script_state_t * pstate, ai_state_t * pself )
+{
+    // SetTargetToDistantFriend( tmpdistance = "distance" )
+    /// @author ZF
+    /// @details This function finds a character within a certain distance of the
+    /// character, failing if there are none
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    CHR_REF ichr = chr_find_target(pchr, pstate->distance, IDSZ_NONE, TARGET_FRIENDS);
+
+    if (_currentModule->getObjectHandler().exists(ichr))
+    {
+        SET_TARGET_0( ichr );
+    }
+    else
+    {
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();

@@ -128,6 +128,10 @@ enum PerkID : uint8_t
     WHIP_MASTERY,
     DOUBLE_SHOT,
     IMPROVISED_WEAPONS,
+    STEALTH,
+    STALKER,
+    SHADE,
+    CAMOUFLAGE,
 
     NR_OF_PERKS    //Always last
 };

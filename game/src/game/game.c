@@ -69,7 +69,6 @@ fog_instance_t        fog;
 import_list_t g_importList;
 
 Sint32          clock_wld        = 0;
-Uint32          clock_enc_stat   = 0;
 Uint32          clock_chr_stat   = 0;
 Uint32          clock_pit        = 0;
 Uint32          update_wld       = 0;
@@ -595,12 +594,12 @@ int update_game()
     }
     //---- end the code for updating misc. game stuff
 
-    //---- begin the code object I/O
+    //---- Run AI (but not on first update frame)
+    if(update_wld > 0)
     {
         let_all_characters_think();           // sets the non-player latches
         net_unbuffer_player_latches();            // sets the player latches
     }
-    //---- end the code object I/O
 
     //---- begin the code for updating in-game objects
     update_all_objects();
@@ -615,7 +614,6 @@ int update_game()
 
     // Timers
     clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
-    clock_enc_stat++;
     clock_chr_stat++;
 
     // Reset the respawn timer
@@ -648,7 +646,6 @@ void game_reset_timers()
     update_wld = 0;
 
     // reset some special clocks
-    clock_enc_stat = 0;
     clock_chr_stat = 0;
 }
 
@@ -1311,6 +1308,17 @@ void set_one_player_latch( const PLA_REF ipla )
     {
         _gameEngine->getActivePlayingState()->displayCharacterWindow(ipla);
          ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
+    }
+
+    //Enter or exit stealth mode?
+    if(input_device_control_active(pdevice, CONTROL_SNEAK) && update_wld > ppla->inventory_cooldown) {
+        if(!_currentModule->getObjectHandler()[ppla->index]->isStealthed()) {
+            _currentModule->getObjectHandler()[ppla->index]->activateStealth();
+        }
+        else {
+            _currentModule->getObjectHandler()[ppla->index]->deactivateStealth();
+        }
+        ppla->inventory_cooldown = update_wld + ONESECOND;
     }
 }
 
@@ -3338,7 +3346,7 @@ bool write_wawalite_vfs(const wawalite_data_t *data)
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 get_alpha( int alpha, float seeinvis_mag )
+uint8_t get_alpha( int alpha, float seeinvis_mag )
 {
     // This is a bit of a kludge, but it should allow the characters to see
     // completely invisible objects as SEEINVISIBLE if their level is high enough.
@@ -3366,7 +3374,7 @@ Uint8 get_alpha( int alpha, float seeinvis_mag )
         }
     }
 
-    return CLIP( alpha, 0, 255 );
+    return Ego::Math::constrain(alpha, 0, 0xFF);
 }
 
 //--------------------------------------------------------------------------------------------
