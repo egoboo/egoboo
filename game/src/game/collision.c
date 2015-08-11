@@ -21,6 +21,8 @@
 /// @brief The code that handles collisions between in-game objects
 /// @details
 
+#include <set>
+
 #include "game/collision.h"
 #include "game/obj_BSP.h"
 #include "game/bsp.h"
@@ -43,6 +45,13 @@ CollisionSystem *CollisionSystem::_singleton = nullptr;
 
 static constexpr float MAX_KNOCKBACK_VELOCITY = 40.0f;
 static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
+
+
+struct CollisionCmp {
+   size_t operator() (const CoNode_t &lhs, const CoNode_t &rhs) const {
+        return CoNode_t::cmp(lhs ,rhs);
+   }
+};
 
 
 //--------------------------------------------------------------------------------------------
@@ -159,60 +168,39 @@ static bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_RE
 static bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
-static bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry);
+static bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet);
 static bool fill_bumplists();
 
-static bool bump_all_platforms( const std::vector<CoNode_t> &collisionNodes );
-static bool bump_all_mounts( const std::vector<CoNode_t> &collisionNodes );
-static bool bump_all_collisions( std::vector<CoNode_t> &collisionNodes );
+static bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes );
+static bool bump_all_mounts( const std::set<CoNode_t, CollisionCmp> &collisionNodes );
+static bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes );
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_chr_platform_physics( Object * pitem, Object * pplat );
 //static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
-static bool do_chr_chr_collision( CoNode_t * d );
+static bool do_chr_chr_collision( const CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
 
-static bool do_chr_prt_collision( CoNode_t * d );
+static bool do_chr_prt_collision( const CoNode_t * d );
 
 //static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
-static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * pdata );
+static bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_data_t * pdata );
 //static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 CollisionSystem::CollisionSystem() :
-    _hn_ary_2(), 
-    _cn_ary_2(),
-    _hash(nullptr),
     _coll_leaf_lst()
 {
     if (!_coll_leaf_lst.ctor(COLLISION_LIST_SIZE))
     {
-        goto Fail;
+        throw std::runtime_error("unable to initialize collision system\n");
     }
-    try
-    {
-        _hash = new CoHashList_t(512); /** @todo Why is this not factored out to a named constant? */
-    }
-    catch (std::bad_alloc& ex)
-    {
-        _coll_leaf_lst.dtor();
-        goto Fail;
-    }
-    return;
-Fail:
-    throw std::runtime_error("unable to initialize collision system\n");
 }
 
 CollisionSystem::~CollisionSystem()
 {
-    reset();
-    if (_hash)
-    {
-        delete _hash;
-        _hash = nullptr;
-    }
     _coll_leaf_lst.dtor();
 }
 
@@ -243,23 +231,6 @@ void CollisionSystem::uninitialize()
     }
     delete CollisionSystem::_singleton;
     CollisionSystem::_singleton = nullptr;
-}
-
-void CollisionSystem::reset()
-{
-    if (!CollisionSystem::_singleton)
-    {
-        log_warning("%s:%d: collision system not initialized - ignoring\n", __FILE__, __LINE__);
-        return;
-    }
-    // Reset the collision node magazine.
-    _cn_ary_2.reset();
-
-    // Reset the hash node magazine.
-    _hn_ary_2.reset();
-
-    // Clear the collision hash.
-    _hash->clear();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -299,32 +270,32 @@ CoNode_t *CoNode_t::ctor(CoNode_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 CoNode_t::generate_hash(const CoNode_t *self)
+uint8_t CoNode_t::generate_hash(const CoNode_t &self)
 {
-    Uint32 AA, BB;
+    uint32_t AA, BB;
 
     AA = UINT32_MAX;
-    if ( VALID_CHR_RANGE( self->chra ) )
+    if ( VALID_CHR_RANGE( self.chra ) )
     {
-        AA = REF_TO_INT( self->chra );
+        AA = REF_TO_INT( self.chra );
     }
-    else if ( self->prta != INVALID_PRT_REF )
+    else if ( self.prta != INVALID_PRT_REF )
     {
-        AA = REF_TO_INT( self->prta );
+        AA = REF_TO_INT( self.prta );
     }
 
     BB = UINT32_MAX;
-    if ( VALID_CHR_RANGE( self->chrb ) )
+    if ( VALID_CHR_RANGE( self.chrb ) )
     {
-        BB = REF_TO_INT( self->chrb );
+        BB = REF_TO_INT( self.chrb );
     }
-    else if ( self->prtb != INVALID_PRT_REF )
+    else if ( self.prtb != INVALID_PRT_REF )
     {
-        BB = REF_TO_INT( self->prtb );
+        BB = REF_TO_INT( self.prtb );
     }
-    else if ( MAP_FANOFF != self->tileb )
+    else if ( MAP_FANOFF != self.tileb )
     {
-        BB = self->tileb;
+        BB = self.tileb;
     }
 
     return MAKE_HASH( AA, BB );
@@ -392,71 +363,6 @@ int CoNode_t::matches(const CoNode_t *self, const CoNode_t *other)
 	if (0 == CoNode_t::cmp_unique(*self,reversed)) return true;
 
     return false;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry)
-{
-	if (NULL == coHashList || NULL == data)
-	{
-		return false;
-	}
-    // Compute the hash for this collision.
-	Uint32 hash = CoNode_t::generate_hash(data);
-    if (hash >= coHashList->getCapacity())
-    {
-        throw std::runtime_error("hash out of bounds");
-    }
-	// Get the number of entries in this bucket.
-    size_t bucketSize = hash_list_t::get_count(coHashList,hash);
-    // If the bucket is not empty ...
-	if (bucketSize > 0)
-    {
-		// ... search the bucket for an entry for this collision.
-        for (hash_node_t *node = coHashList->sublist[hash]; nullptr != node; node = node->next)
-        {
-            if (CoNode_t::matches((CoNode_t *)(node->data), data))
-            {
-                return false;
-            }
-        }
-    }
-
-    // If no entry for this collision was found ...
-    {
-		// ... add it:
-        // Pick a free collision data ...
-        CoNode_t *cnode = collNodeAry.acquire();
-        if (!cnode)
-        {
-            throw std::runtime_error("no more free collision nodes");
-        }
-		// ... and store the data in that.
-		*cnode = *data;
-
-        // Generate a new hash node.
-		hash_node_t *hnode = hashNodeAry.acquire();
-        if (!hnode)
-        {
-            throw std::runtime_error("no more free hash nodes");
-        }
-
-        // link the hash node to the free CoNode
-        hnode->data = cnode;
-
-        // insert the node at the front of the collision list for this hash
-        hash_node_t *old_head = hash_list_get_node(coHashList, hash);
-        hash_node_t *new_head = hash_node_insert_before(old_head, hnode);
-        hash_list_set_node(coHashList, hash, new_head);
-
-        // add 1 to the count at this hash
-        size_t old_count = hash_list_t::get_count(coHashList, hash);
-        hash_list_set_count(coHashList, hash, old_count + 1);
-    }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -666,17 +572,12 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 }
 
 //--------------------------------------------------------------------------------------------
-bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry)
+bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 {
     int              cnt;
     int              reaffirmation_count;
     int              reaffirmation_list[DAMAGE_COUNT];
     aabb_t           tmp_aabb;
-
-    if ( NULL == coHashList) return false;
-
-    // Clear the collision hash.
-	coHashList->clear();
 
     // initialize the reaffirmation counters
     reaffirmation_count = 0;
@@ -771,7 +672,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
                 if ( do_insert )
                 {
-					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
+                    collisionSet.insert(tmp_codata);
                 }
             }
         }
@@ -825,7 +726,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
                 if ( do_insert )
                 {
-					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
+                    collisionSet.insert(tmp_codata);
                 }
             }
         }
@@ -971,7 +872,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
                 if ( do_insert )
                 {
-					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
+                    collisionSet.insert(tmp_codata);
                 }
             }
         }
@@ -1280,51 +1181,17 @@ void bump_all_objects()
     /// @author ZZ
     /// @details This function sets handles characters hitting other characters or particles
 
-    // Get the collision hash table.
-    CoHashList_t *hash = CollisionSystem::get()->_hash;
-    if (!hash)
-    {
-        log_error( "bump_all_objects() - cannot access the CoHashList_t singleton" );
-		return;
-    }
-
-    // Reset the collision node magazine.
-    CollisionSystem::get()->_cn_ary_2.reset();
-
-    // Reset the hash node magazine.
-    CollisionSystem::get()->_hn_ary_2.reset();
-
     // fill up the BSP structures
     fill_bumplists();
 
     // use the BSP structures to detect possible binary interactions
-    fill_interaction_list(hash, CollisionSystem::get()->_cn_ary_2, CollisionSystem::get()->_hn_ary_2);
+    //nodes are sorted by time order
+    std::set<CoNode_t, CollisionCmp> collisionNodes;
+    fill_interaction_list(collisionNodes);
 
     // convert the CHashList_t into a CoNode_ary_t and sort
-    size_t co_node_count = hash->getSize();
-
-    if ( co_node_count > 0 )
+    if ( !collisionNodes.empty() )
     {
-        hash_list_iterator_t it;
-
-        //Build list of collisions
-		it.ctor();
-        hash_list_iterator_set_begin(&it, hash);
-        std::vector<CoNode_t> collisionNodes;
-        for (/* Nothing. */; !hash_list_iterator_done(&it, hash); hash_list_iterator_next(&it, hash))
-        {
-            CoNode_t *coNode = (CoNode_t *)hash_list_iterator_ptr(&it);
-            if (NULL == coNode) break;
-
-            collisionNodes.push_back(*coNode);
-        }
-
-        if (!collisionNodes.empty())
-        {
-            // arrange the actual nodes by time order
-            std::sort(collisionNodes.begin(), collisionNodes.end(), CoNode_t::cmp);
-        }
-
         // handle interaction with mounts
         // put this before platforms, otherwise pointing is just too hard
         bump_all_mounts(collisionNodes);
@@ -1338,7 +1205,7 @@ void bump_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_platforms( const std::vector<CoNode_t> &collisionNodes )
+bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character and particle interactions with platforms, then attach them.
@@ -1444,7 +1311,7 @@ bool bump_all_platforms( const std::vector<CoNode_t> &collisionNodes )
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_mounts( const std::vector<CoNode_t> &collisionNodes )
+bool bump_all_mounts( const std::set<CoNode_t, CollisionCmp> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character interactions with mounts, then attach them.
@@ -1462,7 +1329,7 @@ bool bump_all_mounts( const std::vector<CoNode_t> &collisionNodes )
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_collisions( std::vector<CoNode_t> &collisionNodes )
+bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character-character and character-particle collsions (with exclusions
@@ -1480,7 +1347,7 @@ bool bump_all_collisions( std::vector<CoNode_t> &collisionNodes )
     }
 
     // do all interactions
-    for(CoNode_t &node : collisionNodes)
+    for(const CoNode_t &node : collisionNodes)
     {
         bool handled = false;
 
@@ -1979,7 +1846,7 @@ bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pc
 #endif
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_chr_collision( CoNode_t * d )
+bool do_chr_chr_collision( const CoNode_t * d )
 {
     CHR_REF ichr_a, ichr_b;
     Object * pchr_a, * pchr_b;
@@ -2354,7 +2221,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * pdata )
+bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_data_t * pdata )
 {
     // Get details about the character-particle interaction
     //
@@ -3452,7 +3319,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision( CoNode_t * d )
+bool do_chr_prt_collision( const CoNode_t * d )
 {
     /// @author BB
     /// @details this funciton goes through all of the steps to handle character-particle

@@ -177,8 +177,7 @@ void LoadingState::loadModuleData()
     else log_message( "Failure!\n" );
 
     // initialize the collision system
-    singleThreadRedrawHack("Preparing collisions...");
-    CollisionSystem::get()->reset();
+    singleThreadRedrawHack("Beautifying graphics...");
 
     //Ready message display
     DisplayMsg_reset();

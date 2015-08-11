@@ -70,8 +70,12 @@ public:
 	/** @todo This test is broken or has dead code. */
 	static bool cmp(const CoNode_t &self, const CoNode_t &other);
 	static int cmp_unique(const CoNode_t &self, const CoNode_t &other);
-	static Uint8 generate_hash(const CoNode_t *self);
+	static uint8_t generate_hash(const CoNode_t &self);
 };
+
+static inline bool operator == (const CoNode_t &lhs, const CoNode_t &rhs) {
+    return CoNode_t::cmp_unique(lhs, rhs);
+}
 
 //--------------------------------------------------------------------------------------------
 
@@ -147,10 +151,6 @@ private:
 
 struct CollisionSystem : public Id::NonCopyable
 {
-public:
-    typedef Magazine < hash_node_t, COLLISION_HASH_NODES > HashNodeAry;
-    typedef Magazine < CoNode_t, CHR_MAX_COLLISIONS > CollNodeAry;
-
 protected:
     /**
      * @brief
@@ -173,14 +173,6 @@ protected:
     virtual ~CollisionSystem();
 
 public:
-    /// Magazine of hash nodes.
-    HashNodeAry _hn_ary_2;
-    
-    /// Magazine of collision nodes.
-    CollNodeAry _cn_ary_2;
-
-public:
-    CoHashList_t *_hash;
     Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
 
     static bool initialize();
@@ -194,16 +186,6 @@ public:
     }
     static void uninitialize();
 
-    void reset();
-
 };
-
-/// Insert a collision into a collision hash list if it does not exist yet.
-/// @param self the collision hash list
-/// @param collision the collision
-/// @param collisions the list of collisions
-/// @param hashNodes the list of hash nodes
-bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *coNode, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry);
-
 
 void bump_all_objects();
