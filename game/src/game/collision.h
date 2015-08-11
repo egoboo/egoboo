@@ -68,8 +68,8 @@ public:
     static CoNode_t *ctor(CoNode_t *self);
 	static int matches(const CoNode_t *self, const CoNode_t *other);
 	/** @todo This test is broken or has dead code. */
-	static int cmp(const CoNode_t *self, const CoNode_t *other);
-	static int cmp_unique(const CoNode_t *self, const CoNode_t *other);
+	static bool cmp(const CoNode_t &self, const CoNode_t &other);
+	static int cmp_unique(const CoNode_t &self, const CoNode_t &other);
 	static Uint8 generate_hash(const CoNode_t *self);
 };
 
@@ -182,8 +182,6 @@ public:
 public:
     CoHashList_t *_hash;
     Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
-    Ego::DynamicArray<CoNode_t> _coll_node_lst;
-
 
     static bool initialize();
     static CollisionSystem *get()

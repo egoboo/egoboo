@@ -162,9 +162,9 @@ static bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_
 static bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry);
 static bool fill_bumplists();
 
-static bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary );
-static bool bump_all_mounts( Ego::DynamicArray<CoNode_t> *pcn_ary );
-static bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary );
+static bool bump_all_platforms( const std::vector<CoNode_t> &collisionNodes );
+static bool bump_all_mounts( const std::vector<CoNode_t> &collisionNodes );
+static bool bump_all_collisions( std::vector<CoNode_t> &collisionNodes );
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_chr_platform_physics( Object * pitem, Object * pplat );
@@ -185,16 +185,10 @@ CollisionSystem::CollisionSystem() :
     _hn_ary_2(), 
     _cn_ary_2(),
     _hash(nullptr),
-    _coll_leaf_lst(),
-    _coll_node_lst()
+    _coll_leaf_lst()
 {
     if (!_coll_leaf_lst.ctor(COLLISION_LIST_SIZE))
     {
-        goto Fail;
-    }
-    if (!_coll_node_lst.ctor(COLLISION_LIST_SIZE))
-    {
-        _coll_leaf_lst.dtor();
         goto Fail;
     }
     try
@@ -203,7 +197,6 @@ CollisionSystem::CollisionSystem() :
     }
     catch (std::bad_alloc& ex)
     {
-        _coll_node_lst.dtor();
         _coll_leaf_lst.dtor();
         goto Fail;
     }
@@ -221,7 +214,6 @@ CollisionSystem::~CollisionSystem()
         _hash = nullptr;
     }
     _coll_leaf_lst.dtor();
-    _coll_node_lst.dtor();
 }
 
 bool CollisionSystem::initialize()
@@ -268,9 +260,6 @@ void CollisionSystem::reset()
 
     // Clear the collision hash.
     _hash->clear();
-
-    // Clear the collisions.
-    _coll_node_lst.clear();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -342,43 +331,43 @@ Uint8 CoNode_t::generate_hash(const CoNode_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-int CoNode_t::cmp(const CoNode_t *self, const CoNode_t *other)
+bool CoNode_t::cmp(const CoNode_t &self, const CoNode_t &other)
 {
     float ftmp;
 
     // Sort by initial time first.
-    ftmp = self->tmin - other->tmin;
-    if (ftmp <= 0.0f) return -1;
-    else if (ftmp >= 0.0f) return 1;
+    ftmp = self.tmin - other.tmin;
+    if (ftmp <= 0.0f) return false;
+    else if (ftmp >= 0.0f) return true;
 
     // Sort by final time second.
-    ftmp = self->tmax - other->tmax;
-    if (ftmp <= 0.0f) return -1;
-    else if (ftmp >= 0.0f) return 1;
+    ftmp = self.tmax - other.tmax;
+    if (ftmp <= 0.0f) return false;
+    else if (ftmp >= 0.0f) return true;
 
-    return CoNode_t::cmp_unique(self, other);
+    return CoNode_t::cmp_unique(self, other) > 0;
 }
 
 //--------------------------------------------------------------------------------------------
-int CoNode_t::cmp_unique(const CoNode_t *self, const CoNode_t *other)
+int CoNode_t::cmp_unique(const CoNode_t &self, const CoNode_t &other)
 {
     int   itmp;
 
     // Don't compare the times.
 
-    itmp = (signed)REF_TO_INT(self->chra) - (signed)REF_TO_INT(other->chra);
+    itmp = (signed)REF_TO_INT(self.chra) - (signed)REF_TO_INT(other.chra);
     if (0 != itmp) return itmp;
 
-    itmp = (signed)REF_TO_INT(self->prta) - (signed)REF_TO_INT(other->prta);
+    itmp = (signed)REF_TO_INT(self.prta) - (signed)REF_TO_INT(other.prta);
     if (0 != itmp) return itmp;
 
-    itmp = (signed)REF_TO_INT(self->chrb) - (signed)REF_TO_INT(other->chrb);
+    itmp = (signed)REF_TO_INT(self.chrb) - (signed)REF_TO_INT(other.chrb);
     if (0 != itmp) return itmp;
 
-    itmp = (signed)REF_TO_INT(self->prtb) - (signed)REF_TO_INT(other->prtb);
+    itmp = (signed)REF_TO_INT(self.prtb) - (signed)REF_TO_INT(other.prtb);
     if (0 != itmp) return itmp;
 
-    itmp = (signed)self->tileb            - (signed)other->tileb;
+    itmp = (signed)self.tileb            - (signed)other.tileb;
     if (0 != itmp) return itmp;
 
     return 0;
@@ -389,7 +378,7 @@ int CoNode_t::matches(const CoNode_t *self, const CoNode_t *other)
 {
     CoNode_t reversed;
 
-	if (0 == CoNode_t::cmp_unique(self, other)) return true;
+	if (0 == CoNode_t::cmp_unique(*self, *other)) return true;
 
     // Make a reversed version of other.
 	reversed.tmin = other->tmin;
@@ -400,7 +389,7 @@ int CoNode_t::matches(const CoNode_t *self, const CoNode_t *other)
 	reversed.prtb = other->prta;
 	reversed.tileb = other->tileb;
 
-	if (0 == CoNode_t::cmp_unique(self,&reversed)) return true;
+	if (0 == CoNode_t::cmp_unique(*self,reversed)) return true;
 
     return false;
 }
@@ -1290,7 +1279,6 @@ void bump_all_objects()
 {
     /// @author ZZ
     /// @details This function sets handles characters hitting other characters or particles
-    size_t        co_node_count;
 
     // Get the collision hash table.
     CoHashList_t *hash = CollisionSystem::get()->_hash;
@@ -1313,45 +1301,44 @@ void bump_all_objects()
     fill_interaction_list(hash, CollisionSystem::get()->_cn_ary_2, CollisionSystem::get()->_hn_ary_2);
 
     // convert the CHashList_t into a CoNode_ary_t and sort
-    co_node_count = hash->getSize();
+    size_t co_node_count = hash->getSize();
 
     if ( co_node_count > 0 )
     {
         hash_list_iterator_t it;
 
-        CollisionSystem::get()->_coll_node_lst.clear();
-
+        //Build list of collisions
 		it.ctor();
         hash_list_iterator_set_begin(&it, hash);
+        std::vector<CoNode_t> collisionNodes;
         for (/* Nothing. */; !hash_list_iterator_done(&it, hash); hash_list_iterator_next(&it, hash))
         {
             CoNode_t *coNode = (CoNode_t *)hash_list_iterator_ptr(&it);
             if (NULL == coNode) break;
 
-            CollisionSystem::get()->_coll_node_lst.push_back(*coNode);
+            collisionNodes.push_back(*coNode);
         }
 
-        if (CollisionSystem::get()->_coll_node_lst.size() > 1)
+        if (!collisionNodes.empty())
         {
             // arrange the actual nodes by time order
-            qsort(CollisionSystem::get()->_coll_node_lst.ary, CollisionSystem::get()->_coll_node_lst.size(),
-                  sizeof(CoNode_t),(int (*)(const void *,const void *))(&CoNode_t::cmp));
+            std::sort(collisionNodes.begin(), collisionNodes.end(), CoNode_t::cmp);
         }
 
         // handle interaction with mounts
         // put this before platforms, otherwise pointing is just too hard
-        bump_all_mounts(&CollisionSystem::get()->_coll_node_lst);
+        bump_all_mounts(collisionNodes);
 
         // handle interaction with platforms
-        bump_all_platforms(&CollisionSystem::get()->_coll_node_lst);
+        bump_all_platforms(collisionNodes);
 
         // handle all the collisions
-        bump_all_collisions(&CollisionSystem::get()->_coll_node_lst);
+        bump_all_collisions(collisionNodes);
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
+bool bump_all_platforms( const std::vector<CoNode_t> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character and particle interactions with platforms, then attach them.
@@ -1362,27 +1349,23 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
-	if ( NULL == pcn_ary ) return false;
-
     //---- Detect all platform attachments
-    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
+    for(const CoNode_t &d : collisionNodes)
     {
-		CoNode_t *d = pcn_ary->ary + cnt;
-
         // only look at character-platform or particle-platform interactions interactions
-        if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
+        if ( INVALID_PRT_REF != d.prta && INVALID_PRT_REF != d.prtb ) continue;
 
-        if ( INVALID_CHR_REF != d->chra && INVALID_CHR_REF != d->chrb )
+        if ( INVALID_CHR_REF != d.chra && INVALID_CHR_REF != d.chrb )
         {
-            do_chr_platform_detection( d->chra, d->chrb );
+            do_chr_platform_detection( d.chra, d.chrb );
         }
-        else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
+        else if ( INVALID_CHR_REF != d.chra && INVALID_PRT_REF != d.prtb )
         {
-            do_prt_platform_detection( d->chra, d->prtb );
+            do_prt_platform_detection( d.chra, d.prtb );
         }
-        if ( INVALID_PRT_REF != d->prta && INVALID_CHR_REF != d->chrb )
+        if ( INVALID_PRT_REF != d.prta && INVALID_CHR_REF != d.chrb )
         {
-            do_prt_platform_detection( d->chrb, d->prta );
+            do_prt_platform_detection( d.chrb, d.prta );
         }
     }
 
@@ -1391,45 +1374,43 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     // Doing the attachments after detecting the best platform
     // prevents an object from attaching it to multiple platforms as it
     // is still trying to find the best one
-    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
+    for(const CoNode_t &d : collisionNodes)
     {
-		CoNode_t *d = pcn_ary->ary + cnt;
-
         // only look at character-character interactions
         //if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
 
-        if ( INVALID_CHR_REF != d->chra && INVALID_CHR_REF != d->chrb )
+        if ( INVALID_CHR_REF != d.chra && INVALID_CHR_REF != d.chrb )
         {
-            if ( _currentModule->getObjectHandler().exists( d->chra ) && _currentModule->getObjectHandler().exists( d->chrb ) )
+            if ( _currentModule->getObjectHandler().exists( d.chra ) && _currentModule->getObjectHandler().exists( d.chrb ) )
             {
-                if ( _currentModule->getObjectHandler().get(d->chra)->targetplatform_ref == d->chrb )
+                if ( _currentModule->getObjectHandler().get(d.chra)->targetplatform_ref == d.chrb )
                 {
-                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d->chra ), _currentModule->getObjectHandler().get( d->chrb ) );
+                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d.chra ), _currentModule->getObjectHandler().get( d.chrb ) );
                 }
-                else if ( _currentModule->getObjectHandler().get(d->chrb)->targetplatform_ref == d->chra )
+                else if ( _currentModule->getObjectHandler().get(d.chrb)->targetplatform_ref == d.chra )
                 {
-                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d->chrb ), _currentModule->getObjectHandler().get( d->chra ) );
+                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d.chrb ), _currentModule->getObjectHandler().get( d.chra ) );
                 }
 
             }
         }
-        else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
+        else if ( INVALID_CHR_REF != d.chra && INVALID_PRT_REF != d.prtb )
         {
-            if ( _currentModule->getObjectHandler().exists( d->chra ) && ParticleHandler::get()[d->prtb] != nullptr )
+            if ( _currentModule->getObjectHandler().exists( d.chra ) && ParticleHandler::get()[d.prtb] != nullptr )
             {
-                if ( ParticleHandler::get()[d->prtb]->targetplatform_ref == d->chra )
+                if ( ParticleHandler::get()[d.prtb]->targetplatform_ref == d.chra )
                 {
-                    attach_prt_to_platform( ParticleHandler::get()[d->prtb].get(), _currentModule->getObjectHandler().get( d->chra ) );
+                    attach_prt_to_platform( ParticleHandler::get()[d.prtb].get(), _currentModule->getObjectHandler().get( d.chra ) );
                 }
             }
         }
-        else if ( INVALID_CHR_REF != d->chrb && INVALID_PRT_REF != d->prta )
+        else if ( INVALID_CHR_REF != d.chrb && INVALID_PRT_REF != d.prta )
         {
-            if ( _currentModule->getObjectHandler().exists( d->chrb ) && ParticleHandler::get()[d->prta] != nullptr )
+            if ( _currentModule->getObjectHandler().exists( d.chrb ) && ParticleHandler::get()[d.prta] != nullptr )
             {
-                if ( ParticleHandler::get()[d->prta]->targetplatform_ref == d->chrb )
+                if ( ParticleHandler::get()[d.prta]->targetplatform_ref == d.chrb )
                 {
-                    attach_prt_to_platform(ParticleHandler::get()[d->prta].get(), _currentModule->getObjectHandler().get(d->chrb));
+                    attach_prt_to_platform(ParticleHandler::get()[d.prta].get(), _currentModule->getObjectHandler().get(d.chrb));
                 }
             }
         }
@@ -1463,28 +1444,25 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_mounts( Ego::DynamicArray<CoNode_t> *pcn_ary )
+bool bump_all_mounts( const std::vector<CoNode_t> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character interactions with mounts, then attach them.
-    if ( NULL == pcn_ary ) return false;
 
     // Do mounts
-    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++)
+    for(const CoNode_t &node : collisionNodes)
     {
-		CoNode_t *d = pcn_ary->ary + cnt;
-
         // only look at character-character interactions
-        if ( INVALID_CHR_REF == d->chra || INVALID_CHR_REF == d->chrb ) continue;
+        if ( INVALID_CHR_REF == node.chra || INVALID_CHR_REF == node.chrb ) continue;
 
-        bump_one_mount( d->chra, d->chrb );
+        bump_one_mount( node.chra, node.chrb );
     }
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
+bool bump_all_collisions( std::vector<CoNode_t> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character-character and character-particle collsions (with exclusions
@@ -1502,7 +1480,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     }
 
     // do all interactions
-    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
+    for(CoNode_t &node : collisionNodes)
     {
         bool handled = false;
 
@@ -1510,12 +1488,12 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         // rearrange them without needing to change anything
         if ( !handled )
         {
-            handled = do_chr_chr_collision( pcn_ary->ary + cnt );
+            handled = do_chr_chr_collision( &node );
         }
 
         if ( !handled )
         {
-            handled = do_chr_prt_collision( pcn_ary->ary + cnt );
+            handled = do_chr_prt_collision( &node );
         }
     }
 
