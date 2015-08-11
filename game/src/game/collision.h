@@ -23,30 +23,10 @@
 
 #include "game/egoboo_typedef.h"
 
-//--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-
-#define CHR_MAX_COLLISIONS       (OBJECTS_MAX*8 + PARTICLES_MAX)
-#define COLLISION_HASH_NODES     (CHR_MAX_COLLISIONS*2)
-#define COLLISION_LIST_SIZE      256
-
+//Forward declarations
 class Object;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct CoNode_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 /// element for storing pair-wise "collision" data
-/// @note this does not use the "standard" method of inheritance from hash_node_t, where an
-/// instance of hash_node_t is embedded inside CoNode_t as CoNode_t::base or something.
-/// Instead, a separate lists of free hash_nodes and free CoNodes are kept, and they are
-/// associated through the hash_node_t::data pointer when the hash node is added to the
-/// hash_list_t
 struct CoNode_t
 {
 public:
@@ -59,7 +39,7 @@ public:
     // The "collided with" objects.
     CHR_REF chrb;
     PRT_REF prtb;
-    Uint32  tileb;
+    uint32_t  tileb;
 
     // Some information about the estimated collision.
     float tmin, tmax;
@@ -70,7 +50,6 @@ public:
 	/** @todo This test is broken or has dead code. */
 	static bool cmp(const CoNode_t &self, const CoNode_t &other);
 	static int cmp_unique(const CoNode_t &self, const CoNode_t &other);
-	static uint8_t generate_hash(const CoNode_t &self);
 };
 
 static inline bool operator == (const CoNode_t &lhs, const CoNode_t &rhs) {
@@ -78,77 +57,7 @@ static inline bool operator == (const CoNode_t &lhs, const CoNode_t &rhs) {
 }
 
 //--------------------------------------------------------------------------------------------
-
-struct CoHashList_t : public hash_list_t
-{
-	CoHashList_t(size_t initialCapacity)
-		: hash_list_t(initialCapacity)
-	{}
-};
-
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// global functions
-
-// A temporary magazine allocator supporting the operations "acquire" and "refill".
-template <typename Type,size_t Capacity>
-struct Magazine : public Id::NonCopyable
-{
-public:
-
-    void reset()
-    {
-        _size = Capacity;
-    }
-
-    Type *acquire()
-    {
-        if (!_size) throw std::underflow_error("magazine underflow");
-        return _elements[--_size];
-    }
-
-    Magazine() :
-        _size(Capacity),
-        _elements()
-    {
-        size_t index;
-        try
-        {
-            for (index = 0; index < Capacity; ++index)
-            {
-                _elements[index] = new Type();
-            }
-        }
-        catch (std::exception& ex)
-        {
-            while (index > 0)
-            {
-                delete _elements[--index];
-                _elements[index] = nullptr;
-            }
-            _size = 0;
-        }
-    }
-
-    virtual ~Magazine()
-    {
-        if (_size != Capacity)
-        {
-            throw std::runtime_error("invalid magazine state");
-        }
-        for (size_t index = 0; index < Capacity; ++index)
-        {
-            delete _elements[index];
-            _elements[index] = nullptr;
-        }
-    }
-
-private:
-    size_t _size;
-    std::array<Type*, Capacity> _elements;
-};
-
 struct CollisionSystem : public Id::NonCopyable
 {
 protected:

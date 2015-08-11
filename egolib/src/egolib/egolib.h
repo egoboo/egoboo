@@ -42,7 +42,6 @@
 #include "egolib/fileutil.h"
 #include "egolib/font_bmp.h"
 #include "egolib/frustum.h"
-#include "egolib/hash.h"
 #include "egolib/_math.h"
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/input_device.h"

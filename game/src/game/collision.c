@@ -41,10 +41,10 @@ CollisionSystem *CollisionSystem::_singleton = nullptr;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
-
+//Constants
 static constexpr float MAX_KNOCKBACK_VELOCITY = 40.0f;
 static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
+static constexpr size_t COLLISION_LIST_SIZE = 256;
 
 
 struct CollisionCmp {
@@ -267,38 +267,6 @@ CoNode_t *CoNode_t::ctor(CoNode_t *self)
     oct_bb_t::ctor(self->cv);
 
     return self;
-}
-
-//--------------------------------------------------------------------------------------------
-uint8_t CoNode_t::generate_hash(const CoNode_t &self)
-{
-    uint32_t AA, BB;
-
-    AA = UINT32_MAX;
-    if ( VALID_CHR_RANGE( self.chra ) )
-    {
-        AA = REF_TO_INT( self.chra );
-    }
-    else if ( self.prta != INVALID_PRT_REF )
-    {
-        AA = REF_TO_INT( self.prta );
-    }
-
-    BB = UINT32_MAX;
-    if ( VALID_CHR_RANGE( self.chrb ) )
-    {
-        BB = REF_TO_INT( self.chrb );
-    }
-    else if ( self.prtb != INVALID_PRT_REF )
-    {
-        BB = REF_TO_INT( self.prtb );
-    }
-    else if ( MAP_FANOFF != self.tileb )
-    {
-        BB = self.tileb;
-    }
-
-    return MAKE_HASH( AA, BB );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1189,7 +1157,6 @@ void bump_all_objects()
     std::set<CoNode_t, CollisionCmp> collisionNodes;
     fill_interaction_list(collisionNodes);
 
-    // convert the CHashList_t into a CoNode_ary_t and sort
     if ( !collisionNodes.empty() )
     {
         // handle interaction with mounts
