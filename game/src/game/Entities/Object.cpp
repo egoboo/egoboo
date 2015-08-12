@@ -2027,6 +2027,22 @@ float Object::getAttribute(const Ego::Attribute::AttributeType type) const
             }
         break;
 
+        //Limit lowest acceleration to zero
+        case Ego::Attribute::ACCELERATION:
+        {
+            if(attributeValue < 0.0f) return 0.0f;
+        }
+        break;
+
+        //Limit lowest base attribute to 1
+        case Ego::Attribute::MIGHT:
+        case Ego::Attribute::AGILITY:
+        case Ego::Attribute::INTELLECT:
+        {
+            if(attributeValue < 1.0f) return 1.0f;
+        }
+        break;
+
         default:
             //nothing, keep default case to quench GCC warnings
         break;
