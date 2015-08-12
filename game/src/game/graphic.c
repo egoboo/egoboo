@@ -3030,7 +3030,13 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
     el.reset();
 
     // collide the characters with the frustum
-    std::vector<std::shared_ptr<Object>> visibleObjects = _currentModule->getObjectHandler().findObjects(cam.getFrustum()._origin[kX], cam.getFrustum()._origin[kY], cam.getFrustum()._sphere.getRadius());
+    std::vector<std::shared_ptr<Object>> visibleObjects = 
+        _currentModule->getObjectHandler().findObjects(
+            cam.getCenter()[kX], 
+            cam.getCenter()[kY], 
+            GRID_FSIZE*10,  //@todo: use camera view size here instead
+            true);
+
     for(const std::shared_ptr<Object> object : visibleObjects) {
         if (!el.test_obj(*object.get())) continue;
 

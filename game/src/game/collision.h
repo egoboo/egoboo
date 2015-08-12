@@ -45,9 +45,6 @@ public:
     float tmin, tmax;
     oct_bb_t cv;
 
-    static CoNode_t *ctor(CoNode_t *self);
-	static int matches(const CoNode_t *self, const CoNode_t *other);
-	/** @todo This test is broken or has dead code. */
 	static bool cmp(const CoNode_t &self, const CoNode_t &other);
 	static int cmp_unique(const CoNode_t &self, const CoNode_t &other);
 };

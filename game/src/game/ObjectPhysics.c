@@ -1377,7 +1377,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     slot_pos += pchr_a->getPosition();
 
     // Go through all characters to find the best match
-    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(slot_pos[kX], slot_pos[kY], MAX_SEARCH_DIST);
+    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(slot_pos[kX], slot_pos[kY], MAX_SEARCH_DIST, false);
     for(const std::shared_ptr<Object> &pchr_c : nearbyObjects)
     {
         grab_data_t grabData;

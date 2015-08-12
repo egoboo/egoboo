@@ -928,7 +928,7 @@ void Object::update()
 
         //Give Rally bonus to friends within 6 tiles
         if(hasPerk(Ego::Perks::RALLY)) {
-            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(pos[kX], pos[kY], WIDE))
+            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(pos[kX], pos[kY], WIDE, false))
             {
                 //Only valid objects that are on our team
                 if(object->isTerminated() || object->getTeam() != getTeam()) continue;
@@ -955,7 +955,7 @@ void Object::update()
             lineOfSightInfo.stopped_by = stoppedby;
 
             //Check for nearby enemies
-            std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE);
+            std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false);
             for(const std::shared_ptr<Object> &target : nearbyObjects) {
                 //Valid objects only
                 if(target->isTerminated() || target->isHidden()) continue;
@@ -2503,7 +2503,7 @@ bool Object::activateStealth()
     lineOfSightInfo.z1 = getPosZ() + std::max(1.0f, bump.height);
 
     //Check if there are any nearby Objects disrupting our stealth attempt
-    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE);
+    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false);
     for(const std::shared_ptr<Object> &object : nearbyObjects) {
         //Valid objects only
         if(object->isTerminated() || !object->isAlive() || object->isBeingHeld()) continue;

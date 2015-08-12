@@ -36,7 +36,7 @@ class PlayingState;
 class GameEngine
 {
 public:
-    static const uint32_t GAME_TARGET_FPS = 60;	///< Desired frame renders per second
+    static const uint32_t GAME_TARGET_FPS = 660;	///< Desired frame renders per second
     static const uint32_t GAME_TARGET_UPS = 50;	///< Desired game logic updates per second
 
     static const uint64_t DELAY_PER_RENDER_FRAME = 1000000ULL / GAME_TARGET_FPS; ///< microseconds between each render

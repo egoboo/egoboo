@@ -238,25 +238,6 @@ CoNode_t::CoNode_t() :
     //ctor
 }
 
-CoNode_t *CoNode_t::ctor(CoNode_t *self)
-{
-    if (!self) return nullptr;
-
-    // The "colliding" objects.
-    self->chra = INVALID_CHR_REF;
-    self->prta = INVALID_PRT_REF;
-
-    // The "collided with" objects.
-    self->chrb  = INVALID_CHR_REF;
-    self->prtb  = INVALID_PRT_REF;
-    self->tileb = MAP_FANOFF;
-
-    // The time.
-    self->tmin = self->tmax = -1.0f;
-    oct_bb_t::ctor(self->cv);
-
-    return self;
-}
 
 //--------------------------------------------------------------------------------------------
 bool CoNode_t::cmp(const CoNode_t &self, const CoNode_t &other)
@@ -299,27 +280,6 @@ int CoNode_t::cmp_unique(const CoNode_t &self, const CoNode_t &other)
     if (0 != itmp) return itmp;
 
     return 0;
-}
-
-//--------------------------------------------------------------------------------------------
-int CoNode_t::matches(const CoNode_t *self, const CoNode_t *other)
-{
-    CoNode_t reversed;
-
-	if (0 == CoNode_t::cmp_unique(*self, *other)) return true;
-
-    // Make a reversed version of other.
-	reversed.tmin = other->tmin;
-	reversed.tmax = other->tmax;
-	reversed.chra = other->chrb;
-	reversed.prta = other->prtb;
-	reversed.chrb = other->chra;
-	reversed.prtb = other->prta;
-	reversed.tileb = other->tileb;
-
-	if (0 == CoNode_t::cmp_unique(*self,reversed)) return true;
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -547,9 +507,9 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
         // convert the oct_bb_t to a correct BSP_aabb_t
         const AABB_2D aabb2d = AABB_2D(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
-        // Check collisions between Objects
+        // Check collisions between Objects (but do not collide scenery with other scenery objects)
         std::vector<std::shared_ptr<Object>> possibleCollisions;
-         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions);
+         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, !pchr_a->isScenery());
         for (const std::shared_ptr<Object> &pchr_b : possibleCollisions)
         {
             //Ignore invalid collisions
@@ -559,9 +519,8 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
             if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), pchr_b->getCharacterID() ) )
             {
                 CoNode_t    tmp_codata;
-                CoNode_t::ctor( &tmp_codata );
 
-                // do a simple test, since I do not want to resolve the ObjectPRofile for these objects here
+                // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
                 BIT_FIELD test_platform = EMPTY_BIT_FIELD;
                 if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
                 if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
@@ -603,7 +562,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 
         // find all collisions with characters
         std::vector<std::shared_ptr<Object>> possibleCollisions;
-         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions);
+         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, true);
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
@@ -646,7 +605,6 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
             if ( interaction_valid )
             {
                 CoNode_t tmp_codata;
-                CoNode_t::ctor( &tmp_codata );
 
                 // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
                 BIT_FIELD test_platform = EMPTY_BIT_FIELD;

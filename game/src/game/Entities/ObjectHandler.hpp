@@ -154,9 +154,35 @@ public:
 	 */
 	Object* get(const CHR_REF index) const;
 
-	std::vector<std::shared_ptr<Object>> findObjects(const float x, const float y, const float distance) const;
 
-	void findObjects(const AABB_2D &searchArea, std::vector<std::shared_ptr<Object>> &result) const;
+	/**
+	* @brief
+	*	Find all elements that are within range of a specified point in this QuadTree's
+	*	bounding box
+	* @param x
+	*	x position of point to search from
+	* @param y
+	*	y position of point to search from
+	* @param distance
+	*	range of search from point
+	* @param includeSceneryObjects
+	*	if true, it will also include Scenery objects in the search as defined by Object::isScenery()
+	* @return
+	*	A vector containing all elements that fit the search
+	**/
+	std::vector<std::shared_ptr<Object>> findObjects(const float x, const float y, const float distance, bool includeSceneryObjects = true) const;
+
+	/**
+	* @brief
+	*	Find all elements that collide with a 2D bounding box area
+	* @param searchArea
+	*	The bounding box to scan
+	* @param result
+	*	reference to the vector where the result is stored
+	* @param includeSceneryObjects
+	*	if true, it will also include Scenery objects in the search as defined by Object::isScenery()
+	**/
+	void findObjects(const AABB_2D &searchArea, std::vector<std::shared_ptr<Object>> &result, bool includeSceneryObjects = true) const;
 
 	/**
 	* @brief
@@ -201,7 +227,9 @@ private:
 #endif
 
 private:
-	Ego::QuadTree<Object> _dynamicObjects;
+	Ego::QuadTree<Object> _dynamicObjects;			//Objects that can move (Creatures, moving platforms, etc.)
+	Ego::QuadTree<Object> _staticObjects;			//Objects that rarely move - if ever (Trees, pillars, chairs)
+	int _updateStaticTreeClock;
 
 	std::unordered_map<CHR_REF, std::shared_ptr<Object>> _internalCharacterList; ///< Maps CHR_REF to Objects
 	std::vector<std::shared_ptr<Object>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
