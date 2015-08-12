@@ -21,8 +21,10 @@
 /// @brief Global mesh, character and particle BSPs.
 #pragma once
 
-#include "game/obj_BSP.h"
 #include "game/mesh_BSP.h"
+
+//Forward declarations
+namespace Ego {class Particle;}
 
 /**
  * @brief
@@ -64,67 +66,5 @@ bool mesh_BSP_system_started();
 
 //--------------------------------------------------------------------------------------------
 
-/**
- * @brief
- *	Get the global BSP for the characters.
- * @return
- *	the BSP
- * @pre
- *	the global character BSP was initialized
- */
-obj_BSP_t *getChrBSP();
-
-/**
- * @brief
- *	Get the global BSP for the particles.
- * @return
- *	the BSP
- * @pre
- *	the global particle BSP was initialized 
- */
-obj_BSP_t *getPrtBSP();
-
-/**
- * @brief
- *	Initialize the (global) object (i.e. character and particle) BSPs.
- * @param mesh_bsp
- *	the mesh BSP used in initialization
- * @return
- *	@a true on success, @a false on failure
- * @post
- *	The object BSP is initialized.
- * @remark
- *	If the BSPs were already initialized, they are re-initialized.
- */
-bool obj_BSP_system_begin(mesh_BSP_t * mesh_bsp);
-
-/**
- * @brief
- *	Uninitialize the (global) object (i.e. character and particle) BSPs if they are initialized.
- * @remark
- *	If the object BSPs are not initialized, this function is a noop.
- * @post
- *	The object BSP is initialized.
- */
-void obj_BSP_system_end();
-
-/**
- * @brief
- *	Get if the (global) object (i.e. character and particle) BSPs are initialized.
- * @return
- *	@a true if the object BSPs are initialized, @a false otherwise
- */
-bool obj_BSP_system_started();
-
-
-bool chr_BSP_insert(Object * pchr);
-bool chr_BSP_fill();
-bool chr_BSP_removeAllLeaves();
-bool chr_BSP_can_collide(BSP_leaf_t * pleaf);
-bool chr_BSP_is_visible(BSP_leaf_t * pleaf);
-
-bool prt_BSP_insert(prt_bundle_t * pbdl_prt);
-bool prt_BSP_fill();
-bool prt_BSP_removeAllLeaves();
-bool prt_BSP_can_collide(BSP_leaf_t * pleaf);
-bool prt_BSP_is_visible(BSP_leaf_t * pleaf);
+bool prt_BSP_can_collide(const std::shared_ptr<Ego::Particle> &pprt);
+bool chr_BSP_can_collide(const std::shared_ptr<Object> &pobj);

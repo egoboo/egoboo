@@ -24,7 +24,6 @@
 #include <set>
 
 #include "game/collision.h"
-#include "game/obj_BSP.h"
 #include "game/bsp.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
@@ -554,7 +553,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
         for (const std::shared_ptr<Object> &pchr_b : possibleCollisions)
         {
             //Ignore invalid collisions
-            if(pchr_b->isTerminated() || !chr_BSP_can_collide(&pchr_b->bsp_leaf)) continue;
+            if(pchr_b->isTerminated() || !chr_BSP_can_collide(pchr_b)) continue;
 
             // do some logic on this to determine whether the collision is valid
             if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), pchr_b->getCharacterID() ) )
@@ -585,12 +584,12 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 		if (particle->isTerminated()) continue;
 
         //Valid collision radius?
-        if(particle->bump_real.size <= 0.0f) continue;
+        if(particle->getProfile()->bump_size <= 0) continue;
 
         // does the particle end_bump or end_ground?
         bool needs_bump = TO_C_BOOL( particle->getProfile()->end_bump || particle->getProfile()->end_ground );
 
-        bool can_collide = prt_BSP_can_collide(&particle->getBSPLeaf());
+        bool can_collide = prt_BSP_can_collide(particle);
 
         if ( !needs_bump && !can_collide ) continue;
 
@@ -610,7 +609,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
         // and sort them by their initial times
         for (const std::shared_ptr<Object> &object : possibleCollisions)
         {
-            if(!chr_BSP_can_collide(&object->bsp_leaf)) continue;
+            if(!chr_BSP_can_collide(object)) continue;
 
             // collided with a character
             bool loc_needs_bump    = needs_bump;

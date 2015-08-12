@@ -156,7 +156,7 @@ public:
 
 	std::vector<std::shared_ptr<Object>> findObjects(const float x, const float y, const float distance) const;
 
-	void findObjects(const AABB_2D &searchArea, std::vector<std::shared_ptr<Object>> &result) const {return _dynamicObjects.find(searchArea, result);}
+	void findObjects(const AABB_2D &searchArea, std::vector<std::shared_ptr<Object>> &result) const;
 
 	/**
 	* @brief

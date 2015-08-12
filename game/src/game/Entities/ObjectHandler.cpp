@@ -326,3 +326,8 @@ void ObjectHandler::updateQuadTree(float minX, float minY, float maxX, float max
 std::vector<std::shared_ptr<Object>> ObjectHandler::findObjects(const float x, const float y, const float distance) const { 
     return _dynamicObjects.find(x, y, distance);
 }
+
+void ObjectHandler::findObjects(const AABB_2D &searchArea, std::vector<std::shared_ptr<Object>> &result) const 
+{
+    return _dynamicObjects.find(searchArea, result);
+}

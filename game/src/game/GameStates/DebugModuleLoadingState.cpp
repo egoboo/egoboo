@@ -297,8 +297,6 @@ void DebugModuleLoadingState::loadModuleData()
         // and camera_system_begin() will not set up thte correct view
         CameraSystem::request(local_stats.player_count);
 
-        obj_BSP_system_begin(getMeshBSP()); 
-
         //Fade out music when finished loading
         AudioSystem::get().stopMusic();
 

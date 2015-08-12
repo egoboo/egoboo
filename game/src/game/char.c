@@ -39,7 +39,6 @@
 #include "game/input.h"
 #include "game/game.h"
 #include "game/collision.h"                  //Only or detach_character_from_platform()
-#include "game/obj_BSP.h"
 #include "game/egoboo.h"
 #include "game/Module/Passage.hpp"
 #include "egolib/Profiles/_Include.hpp"

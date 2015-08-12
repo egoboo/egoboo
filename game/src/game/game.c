@@ -2525,7 +2525,6 @@ void game_release_module_data()
 
     // deallocate any dynamically allocated collision memory
     mesh_BSP_system_end();
-    obj_BSP_system_end();
 }
 
 //--------------------------------------------------------------------------------------------

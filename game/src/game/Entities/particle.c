@@ -26,7 +26,6 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
-#include "game/obj_BSP.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"

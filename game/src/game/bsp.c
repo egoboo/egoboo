@@ -78,246 +78,129 @@ void mesh_BSP_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
+/**
+ * @brief
+ *	A test function passed to BSP_*_collide_* functions to determine whether a leaf can be added to a collision list.
+ * @author
+ *	BB
+ */
+bool chr_BSP_is_visible(BSP_leaf_t * pchr_leaf)
+{
+    // make sure we have a character leaf
+    if (NULL == pchr_leaf || NULL == pchr_leaf->_data || BSP_LEAF_CHR != pchr_leaf->_type)
+    {
+        return false;
+    }
+	Object *pchr = (Object *)(pchr_leaf->_data);
 
-static bool _obj_BSP_system_initialized = false;
+    if (pchr->isTerminated()) return false;
+
+    // no interactions with hidden objects
+    if (pchr->isHidden()) return false;
+
+    // no interactions with packed objects
+    if (pchr->isInsideInventory()) return false;
+
+    return true;
+}
 
 /**
  * @brief
- *	Global BSP for the characters.
+ *	A test function passed to BSP_*_collide_* functions to determine whether a leaf can be added to a collision list.
+ * @author
+ *	BB
  */
-static obj_BSP_t *chr_BSP_root = NULL;
-
-/**
- * @brief
- *	Global BSP for the particles.
- */
-static obj_BSP_t *prt_BSP_root = NULL;
-
-obj_BSP_t *getChrBSP()
+bool prt_BSP_is_visible(BSP_leaf_t * pprt_leaf)
 {
-	EGOBOO_ASSERT(true == _obj_BSP_system_initialized && NULL != chr_BSP_root);
-	return chr_BSP_root;
+    // make sure we have a character leaf
+    if (NULL == pprt_leaf || NULL == pprt_leaf->_data || BSP_LEAF_PRT != pprt_leaf->_type)
+    {
+        return false;
+    }
+	Ego::Particle *pprt = (Ego::Particle *)(pprt_leaf->_data);
+
+    // is the particle in-game?
+    if (pprt->isTerminated() || pprt->isHidden()) return false;
+
+    // zero sized particles are not visible
+    if (0 == pprt->size)
+    {
+        return false;
+    }
+    else if (pprt->inst.valid && pprt->inst.size <= 0.0f)
+    {
+        return false;
+    }
+
+    return true;
 }
 
-obj_BSP_t *getPrtBSP()
+bool chr_BSP_can_collide(const std::shared_ptr<Object> &pchr)
 {
-	EGOBOO_ASSERT(true == _obj_BSP_system_initialized && NULL != prt_BSP_root);
-	return prt_BSP_root;
+    if ( pchr->isTerminated() ) return false;
+
+    // no interactions with hidden objects
+    if ( pchr->isHidden() ) return false;
+
+    // no interactions with packed or held objects
+    if ( pchr->isBeingHeld() ) return false;
+
+    // generic flags for character interaction
+    bool can_be_reaffirmed = ( pchr->reaffirm_damagetype < DAMAGE_COUNT );
+    //bool can_use_platforms = pchr->canuseplatforms;
+    bool can_collide       = pchr->bump_stt.size > 0;
+
+    // conditions for normal chr-chr interaction
+    // platform tests are done elsewhere
+    bool requires_chr_chr = can_collide /* || can_use_platforms */;
+
+    // conditions for chr-prt interaction
+    bool requires_chr_prt = can_be_reaffirmed;
+
+    // even if an object does not interact with other characters,
+    // it must still be inserted if it might interact with a particle
+    if ( !requires_chr_chr && !requires_chr_prt ) return false;
+
+    if (oct_bb_empty(pchr->chr_max_cv)) return false;
+
+    return true;
 }
 
-bool obj_BSP_system_begin(mesh_BSP_t *mesh_bsp)
+bool prt_BSP_can_collide(const std::shared_ptr<Ego::Particle> &pprt)
 {
-	if (_obj_BSP_system_initialized)
-	{
-		obj_BSP_system_end();
-	}
+    // Each one of these tests allows one MORE reason to include the particle, not one less.
+    // Removed bump particles. We have another loop that can detect these, and there
+    // is no reason to fill up the BSP with particles like coins.
 
-	// use 2D BSPs for the moment
-	chr_BSP_root = new obj_BSP_t(obj_BSP_t::Parameters(2,mesh_bsp));
-	if (!chr_BSP_root)
-	{
-		return false;
-	}
-	prt_BSP_root = new obj_BSP_t(obj_BSP_t::Parameters(2, mesh_bsp));
-	if (!prt_BSP_root)
-	{
-		delete chr_BSP_root;
-		chr_BSP_root = nullptr;
-		return false;
-	}
-	// Let the code know that everything is initialized.
-	_obj_BSP_system_initialized = true;
-	return true;
-}
+    // is the particle in-game?
+    if ( pprt->isTerminated() || pprt->isHidden() ) return false;
 
-void obj_BSP_system_end()
-{
-	/// @author BB
-	/// @details initialize the obj_BSP list and load up some intialization files
-	///     necessary for the the obj_BSP loading code to work
+    // Make this optional? Is there any reason to fail if the particle has no profile reference?
+    bool has_enchant = false;
+    if ( pprt->getProfile()->spawnenchant )
+    {
+        has_enchant = LOADED_EVE(ProfileSystem::get().getProfile(pprt->getSpawnerProfile())->getEnchantRef());
+    }
 
-	if (_obj_BSP_system_initialized)
-	{
-		// delete the object BSP data
-		delete chr_BSP_root;
-		chr_BSP_root = nullptr;
-		delete prt_BSP_root;
-		prt_BSP_root = nullptr;
+    // any possible damage?
+    bool does_damage = (std::abs(pprt->damage.base) + std::abs(pprt->damage.rand)) > 0;
 
-		_obj_BSP_system_initialized = false;
-	}
-}
+    // the other possible status effects
+    // do not require damage
+    bool does_status_effect  = ( 0 != pprt->getProfile()->grogTime ) || ( 0 != pprt->getProfile()->dazeTime ) || ( 0 != pprt->getProfile()->lifeDrain ) || ( 0 != pprt->getProfile()->manaDrain );
 
-bool obj_BSP_system_started()
-{
-	return _obj_BSP_system_initialized;
-}
+    // these are not implemented yet
+    bool does_special_effect = pprt->getProfile()->cause_pancake || pprt->getProfile()->cause_roll;
 
-//--------------------------------------------------------------------------------------------
-bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
-{
-	/// @author BB
-	/// @details insert a particle's BSP_leaf_t into the BSP_tree_t
+    // according to v1.0, only particles that cause damage can push
+    bool can_push = does_damage && pprt->getProfile()->allowpush;
+    
+    /// @todo this is a stopgap solution, figure out if this is the correct place or
+    ///       we need to fix the loop in fill_interaction_list instead
+    bool has_bump = pprt->getProfile()->bump_height > 0 && pprt->getProfile()->bump_size > 0;
 
-	bool       retval;
+    // particles with no effect
+    if ( !can_push && !has_enchant && !does_damage && !does_status_effect && !does_special_effect && !has_bump ) return false;
 
-	Ego::Particle *loc_pprt;
-
-	oct_bb_t tmp_oct;
-
-	if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return false;
-	loc_pprt = pbdl_prt->_prt_ptr;
-
-	// is the particle in-game?
-	if (loc_pprt == nullptr || loc_pprt->isTerminated() || loc_pprt->isHidden()) return false;
-
-	// heal the leaf if necessary
-	BSP_leaf_t *pleaf = &loc_pprt->getBSPLeaf();
-	if (loc_pprt != (Ego::Particle *)(pleaf->_data))
-	{
-		// some kind of error. re-initialize the data.
-		pleaf->_data = loc_pprt;
-		pleaf->_index = loc_pprt->getParticleID();
-		pleaf->_type = BSP_LEAF_PRT;
-	};
-
-	// use the object velocity to figure out where the volume that the object will occupy during this
-	// update
-	phys_expand_prt_bb(loc_pprt, 0.0f, 1.0f, tmp_oct);
-
-	// convert the bounding box
-    pleaf->_bbox = tmp_oct.toBV();
-
-	retval = prt_BSP_root->insert_leaf(pleaf);
-	if (retval)
-	{
-		prt_BSP_root->count++;
-	}
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_BSP_removeAllLeaves()
-{
-	// Remove all leaves from the character BSP.
-	chr_BSP_root->removeAllLeaves();
-	chr_BSP_root->count = 0;
-
-	// Unlink all used character nodes.
-	for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-	{
-		BSP_leaf_t::remove_link(&object->bsp_leaf);
-	}
-
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool prt_BSP_removeAllLeaves()
-{
-	// Remove all leave from the particle BSP.
-	prt_BSP_root->removeAllLeaves();
-	prt_BSP_root->count = 0;
-
-	// Unlink all used particle nodes.
-	for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-	{
-		BSP_leaf_t::remove_link(&particle->getBSPLeaf());
-	}
-
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_BSP_insert(Object * pchr)
-{
-	/// @author BB
-	/// @details insert a character's BSP_leaf_t into the BSP_tree_t
-
-	bool       retval;
-	BSP_leaf_t * pleaf;
-
-	if (!ACTIVE_PCHR(pchr)) return false;
-
-	// no interactions with hidden objects
-	if (pchr->is_hidden) return false;
-
-	// heal the leaf if it needs it
-	pleaf = &pchr->bsp_leaf;
-	if (pchr != (Object *)(pleaf->_data))
-	{
-		// some kind of error. re-initialize the data.
-		pleaf->_data = pchr;
-		pleaf->_index = GET_INDEX_PCHR(pchr);
-		pleaf->_type = BSP_LEAF_CHR;
-	}
-
-	// do the insert
-	retval = false;
-	if (!oct_bb_empty(pchr->chr_max_cv))
-	{
-		oct_bb_t tmp_oct;
-
-		// use the object velocity to figure out where the volume that the object will occupy during this
-		// update
-		phys_expand_chr_bb(pchr, 0.0f, 1.0f, tmp_oct);
-
-		// convert the bounding box
-        pleaf->_bbox = tmp_oct.toBV();
-
-		// insert the leaf
-		retval = chr_BSP_root->insert_leaf(pleaf);
-	}
-
-	if (retval)
-	{
-		chr_BSP_root->count++;
-	}
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_BSP_fill()
-{
-	// insert the characters
-	chr_BSP_root->count = 0;
-	for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
-	{
-		// reset a couple of things here
-		pchr->holdingweight = 0;
-		pchr->onwhichplatform_ref = INVALID_CHR_REF;
-		pchr->targetplatform_ref = INVALID_CHR_REF;
-		pchr->targetplatform_level = -1e32;
-
-		// try to insert the character
-		chr_BSP_insert(pchr.get());
-	}
-
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool prt_BSP_fill()
-{
-	// insert the particles
-	prt_BSP_root->count = 0;
-
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-	{
-        if(particle->isTerminated()) continue;
-        
-		// reset a couple of things here
-		particle->onwhichplatform_ref = INVALID_CHR_REF;
-		particle->targetplatform_ref = INVALID_CHR_REF;
-		particle->targetplatform_level = -1e32;
-
-		prt_bundle_t prt_bdl = prt_bundle_t(particle.get());
-
-		// try to insert the particle
-		prt_BSP_insert(&prt_bdl);
-	}
-
-	return true;
+    return true;
 }

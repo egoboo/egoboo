@@ -24,7 +24,6 @@
 #include "egolib/_math.h"
 #include "egolib/bsp.h"
 #include "egolib/bbox.h"
-#include "game/obj_BSP.h"
 #include "game/mesh.h"
 
 
