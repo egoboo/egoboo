@@ -26,73 +26,8 @@
 #include "game/Entities/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
-
-static bool _mesh_BSP_system_initialized = false;
-
-/**
- * @brief
- *	Global BSP for the mesh.
- */
-static mesh_BSP_t *mesh_BSP_root = NULL;
-
-mesh_BSP_t *getMeshBSP()
+bool chr_BSP_is_visible(const std::shared_ptr<Object> &pchr)
 {
-	EGOBOO_ASSERT(true == _mesh_BSP_system_initialized && NULL != mesh_BSP_root);
-	return mesh_BSP_root;
-}
-
-bool mesh_BSP_system_started()
-{
-	return _mesh_BSP_system_initialized;
-}
-
-bool mesh_BSP_system_begin(ego_mesh_t *mesh)
-{
-	EGOBOO_ASSERT(NULL != mesh);
-
-	// If the system is already started, do a reboot.
-	if (_mesh_BSP_system_initialized)
-	{
-		mesh_BSP_system_end();
-	}
-
-	// Start the system using the given mesh.
-	mesh_BSP_root = new mesh_BSP_t(mesh_BSP_t::Parameters(mesh));
-	if (!mesh_BSP_root)
-	{
-		return false;
-	}
-	// Let the code know that everything is initialized.
-	_mesh_BSP_system_initialized = true;
-	return true;
-}
-
-void mesh_BSP_system_end()
-{
-	if (_mesh_BSP_system_initialized)
-	{
-		delete mesh_BSP_root;
-		mesh_BSP_root = nullptr;
-	}
-	_mesh_BSP_system_initialized = false;
-}
-
-//--------------------------------------------------------------------------------------------
-/**
- * @brief
- *	A test function passed to BSP_*_collide_* functions to determine whether a leaf can be added to a collision list.
- * @author
- *	BB
- */
-bool chr_BSP_is_visible(BSP_leaf_t * pchr_leaf)
-{
-    // make sure we have a character leaf
-    if (NULL == pchr_leaf || NULL == pchr_leaf->_data || BSP_LEAF_CHR != pchr_leaf->_type)
-    {
-        return false;
-    }
-	Object *pchr = (Object *)(pchr_leaf->_data);
-
     if (pchr->isTerminated()) return false;
 
     // no interactions with hidden objects
@@ -104,21 +39,8 @@ bool chr_BSP_is_visible(BSP_leaf_t * pchr_leaf)
     return true;
 }
 
-/**
- * @brief
- *	A test function passed to BSP_*_collide_* functions to determine whether a leaf can be added to a collision list.
- * @author
- *	BB
- */
-bool prt_BSP_is_visible(BSP_leaf_t * pprt_leaf)
+bool prt_BSP_is_visible(const std::shared_ptr<Ego::Particle> &pprt)
 {
-    // make sure we have a character leaf
-    if (NULL == pprt_leaf || NULL == pprt_leaf->_data || BSP_LEAF_PRT != pprt_leaf->_type)
-    {
-        return false;
-    }
-	Ego::Particle *pprt = (Ego::Particle *)(pprt_leaf->_data);
-
     // is the particle in-game?
     if (pprt->isTerminated() || pprt->isHidden()) return false;
 

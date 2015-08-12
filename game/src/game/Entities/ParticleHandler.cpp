@@ -22,7 +22,6 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/ParticleHandler.hpp"
-#include "game/egoboo_object.h"
 #include "game/Entities/Particle.hpp"
 
 

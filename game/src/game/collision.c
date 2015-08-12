@@ -21,8 +21,6 @@
 /// @brief The code that handles collisions between in-game objects
 /// @details
 
-#include <set>
-
 #include "game/collision.h"
 #include "game/bsp.h"
 #include "game/game.h"
@@ -179,18 +177,12 @@ static bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collis
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CollisionSystem::CollisionSystem() :
-    _coll_leaf_lst()
+CollisionSystem::CollisionSystem()
 {
-    if (!_coll_leaf_lst.ctor(COLLISION_LIST_SIZE))
-    {
-        throw std::runtime_error("unable to initialize collision system\n");
-    }
 }
 
 CollisionSystem::~CollisionSystem()
 {
-    _coll_leaf_lst.dtor();
 }
 
 bool CollisionSystem::initialize()
@@ -564,8 +556,6 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
         std::vector<std::shared_ptr<Object>> possibleCollisions;
          _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, true);
 
-        // transfer valid _coll_leaf_lst entries to pchlst entries
-        // and sort them by their initial times
         for (const std::shared_ptr<Object> &object : possibleCollisions)
         {
             if(!chr_BSP_can_collide(object)) continue;

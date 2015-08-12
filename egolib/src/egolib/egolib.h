@@ -33,7 +33,6 @@
 #include "egolib/Logic/PerkHandler.hpp"
 #include "egolib/Logic/ObjectSlot.hpp"
 #include "egolib/Renderer/DeferredOpenGLTexture.hpp"
-#include "egolib/bsp.h"
 #include "egolib/bbox.h"
 #include "egolib/clock.h"
 #include "egolib/egoboo_setup.h"

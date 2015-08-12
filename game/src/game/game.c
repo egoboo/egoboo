@@ -2312,13 +2312,8 @@ bool game_load_module_data( const char *smallname )
     //Load passage.txt
     _currentModule->loadAllPassages();
 
-    // start the mesh_BSP_system
-    if (!mesh_BSP_system_begin(pmesh_rv))
-    {
-        return false;
-    }
-    // if it is started, populate the map_BSP
-    mesh_BSP_fill(getMeshBSP(), pmesh_rv);
+    //Initialize mesh quad tree space partitioning for fast tile lookup
+    _currentModule->initializeMeshQuadTree();
 
     return true;
 }
@@ -2522,9 +2517,6 @@ void game_release_module_data()
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
     ProfileSystem::get().reset();
-
-    // deallocate any dynamically allocated collision memory
-    mesh_BSP_system_end();
 }
 
 //--------------------------------------------------------------------------------------------

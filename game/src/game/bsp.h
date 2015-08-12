@@ -21,50 +21,11 @@
 /// @brief Global mesh, character and particle BSPs.
 #pragma once
 
-#include "game/mesh_BSP.h"
+#include "egolib/typedef.h"
 
 //Forward declarations
 namespace Ego {class Particle;}
-
-/**
- * @brief
- *	Get the (global) mesh BSP.
- * @return
- *	the BSP
- * @pre
- *	the (global) mesh BSP was initialized
- */
-mesh_BSP_t *getMeshBSP();
-
-/**
- * @brief
- *	Initialize the (global) mesh BSP.
- * @param mesh
- *	the mesh used in initialization
- * @return
- *	@a true on success, @a false on failure
- * @remark
- *	If the BSPs were already initialized, they are re-initialized.
- */
-bool mesh_BSP_system_begin(ego_mesh_t *mesh);
-
-/**
- * @brief
- *	Uninitialize the (global) mesh BSP.
- * @remark
- *	If the mesh BSP is not initialized, this function is a noop.
- */
-void mesh_BSP_system_end();
-
-/**
- * @brief
- *	Get if the (global) mesh BSP is initialized.
- * @return
- *	@a true if the mesh BSP is initialized, @a false otherwise
- */
-bool mesh_BSP_system_started();
-
-//--------------------------------------------------------------------------------------------
+class Object;
 
 bool prt_BSP_can_collide(const std::shared_ptr<Ego::Particle> &pprt);
 bool chr_BSP_can_collide(const std::shared_ptr<Object> &pobj);

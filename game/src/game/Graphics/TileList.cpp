@@ -118,15 +118,13 @@ gfx_rv TileList::reset()
 	}
 
 	// Clear out the "in render list" flag for the old mesh.
-	ego_tile_info_t *tlist = tile_mem_t::get(&(_mesh->tmem), 0);
-
 	for (size_t i = 0; i < _all.size; ++i)
 	{
 		Uint32 fan = _all.lst[i].index;
 		if (fan < _mesh->info.tiles_count)
 		{
-			tlist[fan].inrenderlist = false;
-			tlist[fan].inrenderlist_frame = 0;
+			_mesh->tmem.getTileList()[fan]->inrenderlist = false;
+			_mesh->tmem.getTileList()[fan]->inrenderlist_frame = 0;
 		}
 	}
 
@@ -210,80 +208,41 @@ void TileList::setMesh(ego_mesh_t *mesh)
 	_mesh = mesh;
 }
 
-gfx_rv TileList::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera)
+gfx_rv TileList::add(const std::vector<std::shared_ptr<ego_tile_info_t>> &tiles, Camera& camera)
 {
-	size_t colst_cp, colst_sz;
-	ego_mesh_t *mesh = NULL;
-	gfx_rv retval = gfx_error;
-
-	if (NULL == leaves)
-	{
-		return gfx_error;
-	}
-
-	colst_cp = leaves->capacity();
-	if (0 == colst_cp)
-	{
-		return gfx_error;
-	}
-
-	colst_sz = leaves->size();
-	if (0 == colst_sz)
-	{
+	if (tiles.empty()) {
 		return gfx_fail;
 	}
 
-	mesh = getMesh();
+	ego_mesh_t *mesh = getMesh();
 	if (NULL == mesh)
 	{
 		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
 
-	// assume the best
-	retval = gfx_success;
-
 	// transfer valid pcolst entries to the renderlist
-	for (size_t j = 0; j < colst_sz; j++)
+	for (size_t j = 0; j < tiles.size(); j++)
 	{
-		BSP_leaf_t *leaf = leaves->ary[j];
+		// Get fan index.
+		TileIndex itile = tiles[j]->itile;
 
-		if (!leaf) continue;
-		if (!leaf->valid()) continue;
+		// Get grid for tile index.
+		ego_grid_info_t *pgrid = mesh->get_pgrid(itile);
+		if (!pgrid) continue;
 
-		if (BSP_LEAF_TILE == leaf->_type)
+		if (gfx_error == gfx_capture_mesh_tile(tiles[j].get()))
 		{
-			// Get fan index.
-			TileIndex itile = leaf->_index;
-
-			// Get tile for tile index.
-			ego_tile_info_t *ptile = mesh->get_ptile(itile);
-			if (!ptile) continue;
-
-			// Get grid for tile index.
-			ego_grid_info_t *pgrid = mesh->get_pgrid(itile);
-			if (!pgrid) continue;
-
-			if (gfx_error == gfx_capture_mesh_tile(ptile))
-			{
-				retval = gfx_error;
-				break;
-			}
-
-			if (gfx_error == insert(itile, camera))
-			{
-				retval = gfx_error;
-				break;
-			}
+			return gfx_error;
 		}
-		else
+
+		if (gfx_error == insert(itile, camera))
 		{
-			// how did we get here?
-			log_warning("%s-%s-%d- found non-tile in the mpd BSP\n", __FILE__, __FUNCTION__, __LINE__);
+			return gfx_error;
 		}
 	}
 
-	return retval;
+	return gfx_success;
 }
 
 }

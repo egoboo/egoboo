@@ -23,7 +23,6 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/lighting.h"
-#include "egolib/bsp.h"
 
 //--------------------------------------------------------------------------------------------
 // external types
@@ -281,9 +280,10 @@ typedef Index<Uint32, IndexSystem::Block,UINT32_MAX> BlockIndex;
 struct ego_tile_info_t
 {
     // the "inherited" tile info
-    Uint8   type;                              ///< Tile type
-    Uint16  img;                               ///< Get texture from this
-    size_t  vrtstart;                          ///< Which vertex to start at
+    size_t    itile;
+    uint8_t   type;                              ///< Tile type
+    uint16_t  img;                               ///< Get texture from this
+    size_t    vrtstart;                          ///< Which vertex to start at
 
     // some extra flags
     bool  fanoff;                            ///< display this tile?
@@ -306,7 +306,9 @@ struct ego_tile_info_t
 
     // the bounding boc of this tile
     oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
-    BSP_leaf_t     bsp_leaf;                   ///< the octree node for this object
+    AABB_2D        aabb;
+
+    const AABB_2D& getAABB2D() const { return aabb; }
 
     static ego_tile_info_t *ctor(ego_tile_info_t *self, int index);
     static ego_tile_info_t *dtor(ego_tile_info_t *self);
@@ -417,10 +419,6 @@ struct tile_mem_t
 {
     aabb_t           bbox;                             ///< bounding box for the entire mesh
 
-    // the per-tile info
-    size_t           tile_count;                       ///< number of tiles
-protected:
-    ego_tile_info_t* tile_list;                        ///< tile command info
 public:
     // the per-vertex info to be presented to OpenGL
     size_t vert_count;                        ///< number of vertices
@@ -433,21 +431,28 @@ public:
     static tile_mem_t *dtor(tile_mem_t *self);
     static bool free(tile_mem_t *self);
     static bool alloc(tile_mem_t *self, const ego_mesh_info_t *info);
-    static ego_tile_info_t *get(const tile_mem_t *self,const TileIndex& index)
+
+    const std::vector<std::shared_ptr<ego_tile_info_t>>& getTileList() const { return _tileList; }
+
+    static const std::shared_ptr<ego_tile_info_t>& get(const tile_mem_t *self,const TileIndex& index)
     {
+        static const std::shared_ptr<ego_tile_info_t> NULL_TILE = nullptr;
+
         // Validate arguments.
         if (!self || TileIndex::Invalid == index)
         {
-            return nullptr;
+            return NULL_TILE;
         }
-        // Assert that the tiles are allocated and the index is within bounds.
-        if (!self->tile_list || index.getI() >= self->tile_count)
+        // Assert that the index is within bounds.
+        if (index.getI() >= self->_tileList.size())
         {
-            return nullptr;
+            return NULL_TILE;
         }
-        return self->tile_list + index.getI();
+        return self->_tileList[index.getI()];
     }
 
+private:
+    std::vector<std::shared_ptr<ego_tile_info_t>> _tileList;                        ///< tile command info
 };
 
 
@@ -652,7 +657,7 @@ struct mesh_wall_data_t
     float fx_min, fx_max, fy_min, fy_max;
 
     ego_mesh_info_t  * pinfo;
-    ego_tile_info_t * tlist;
+    const std::shared_ptr<ego_tile_info_t> *tlist;
     ego_grid_info_t * glist;
 };
 

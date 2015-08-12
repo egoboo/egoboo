@@ -79,8 +79,6 @@ protected:
     virtual ~CollisionSystem();
 
 public:
-    Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
-
     static bool initialize();
     static CollisionSystem *get()
     {

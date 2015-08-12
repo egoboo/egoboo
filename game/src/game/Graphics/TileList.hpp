@@ -132,7 +132,7 @@ struct TileList
 	/// @param leaves a list of tile BSP leaves
 	/// @param camera the camera
 	/// @remark A tile
-	gfx_rv add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera);
+	gfx_rv add(const std::vector<std::shared_ptr<ego_tile_info_t>> &tiles, Camera& camera);
 };
 
 }
