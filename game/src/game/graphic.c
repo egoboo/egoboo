@@ -3020,12 +3020,6 @@ gfx_make_renderlist_exit:
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
 {
-    gfx_rv retval;
-    bool local_allocation;
-
-    // assume the best
-    retval = gfx_success;
-
 	if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
@@ -3035,50 +3029,32 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
     // Remove all entities from the entity list.
     el.reset();
 
-    // has the colst been allocated?
-    local_allocation = false;
-    if (0 == _dolist_colst.capacity())
-    {
-        // allocate a BSP leaf pointer array to return the detected nodes
-        local_allocation = true;
-		if (!_dolist_colst.ctor(Ego::Graphics::EntityList::CAPACITY))
+    // collide the characters with the frustum
+    std::vector<std::shared_ptr<Object>> visibleObjects = _currentModule->getObjectHandler().findObjects(cam.getFrustum()._origin[kX], cam.getFrustum()._origin[kY], cam.getFrustum()._sphere.getRadius());
+    for(const std::shared_ptr<Object> object : visibleObjects) {
+        if (!el.test_obj(*object.get())) continue;
+
+        if (gfx_error == el.add_obj_raw(*object.get()))
         {
-            gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list");
             return gfx_error;
         }
     }
 
-    // collide the characters with the frustum
-    _dolist_colst.clear();
-    getChrBSP()->collide(cam.getFrustum(), chr_BSP_is_visible, _dolist_colst);
-
-    // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == el.add_colst(&_dolist_colst))
-    {
-        retval = gfx_error;
-        goto Exit;
-    }
-
     // collide the particles with the frustum
-    _dolist_colst.clear();
-    getPrtBSP()->collide(cam.getFrustum(), prt_BSP_is_visible, _dolist_colst);
-
-    // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == el.add_colst(&_dolist_colst))
+    for(const std::shared_ptr<Ego::Particle> particle : ParticleHandler::get().iterator())
     {
-        retval = gfx_error;
-        goto Exit;
+        if (!el.test_prt(particle)) continue;
+
+        if(Ego::Math::Relation::outside != cam.getFrustum().intersects_sphere(sphere_t(particle->getPosition(), particle->bump_real.size_big), false))
+        {
+            if (gfx_error == el.add_prt_raw(particle))
+            {
+                return gfx_error;
+            }
+        }
     }
 
-Exit:
-
-    // if there was a local allocation, make sure to deallocate
-    if (local_allocation)
-    {
-        _dolist_colst.dtor();
-    }
-
-    return retval;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------

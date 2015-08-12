@@ -115,11 +115,13 @@ public:
     }
     gfx_rv reset();
     gfx_rv sort(Camera& camera, const bool reflect);
-protected:
+
     gfx_rv test_obj(const Object& obj);
     gfx_rv add_obj_raw(Object& obj);
+
     gfx_rv test_prt(const std::shared_ptr<Ego::Particle>& prt);
     gfx_rv add_prt_raw(const std::shared_ptr<Ego::Particle>& prt);
+    
 public:
     /// @brief Insert character or particle entities into this dolist.
     /// @param leaves

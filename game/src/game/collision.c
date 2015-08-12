@@ -152,15 +152,6 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
 }
 
 //--------------------------------------------------------------------------------------------
-
-/// one element of the data for partitioning character and particle positions
-struct bumplist_t
-{
-    CHR_REF chr;                    // For character collisions
-    CHR_REF prt;                    // For particle collisions
-};
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
@@ -169,7 +160,6 @@ static bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_
 static bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
 static bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet);
-static bool fill_bumplists();
 
 static bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes );
 static bool bump_all_mounts( const std::set<CoNode_t, CollisionCmp> &collisionNodes );
@@ -542,358 +532,138 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 //--------------------------------------------------------------------------------------------
 bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 {
-    int              cnt;
-    int              reaffirmation_count;
-    int              reaffirmation_list[DAMAGE_COUNT];
-    aabb_t           tmp_aabb;
-
-    // initialize the reaffirmation counters
-    reaffirmation_count = 0;
-    for ( cnt = 0; cnt < DAMAGE_COUNT; cnt++ )
-    {
-        reaffirmation_list[cnt] = 0;
-    }
-
     //---- find the character/particle interactions
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
     for(const std::shared_ptr<Object> &pchr_a : _currentModule->getObjectHandler().iterator())
     {
-        oct_bb_t   tmp_oct;
-
         // ignore in-accessible objects
-        if ( _currentModule->getObjectHandler().exists( pchr_a->inwhich_inventory ) || pchr_a->is_hidden ) continue;
-
-        // keep track of how many objects use reaffirmation, and what kinds of reaffirmation
-        if ( pchr_a->reaffirm_damagetype < DAMAGE_COUNT )
-        {
-            if ( pchr_a->getProfile()->getAttachedParticleAmount() > 0 )
-            {
-                // we COULD use number_of_attached_particles() to determin if the
-                // character is full of particles, BUT since it scans through the
-                // entire particle list I don't think it's worth it
-
-                reaffirmation_count++;
-                reaffirmation_list[pchr_a->reaffirm_damagetype]++;
-            }
-        }
+        if ( pchr_a->isInsideInventory() || pchr_a->is_hidden || pchr_a->isTerminated() ) continue;
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
+        oct_bb_t   tmp_oct;
         phys_expand_chr_bb(pchr_a.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
-        tmp_aabb = tmp_oct.toAABB();
+        const AABB_2D aabb2d = AABB_2D(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
-        // find all collisions with other characters and particles
-        CollisionSystem::get()->_coll_leaf_lst.clear();
-        getChrBSP()->collide(tmp_aabb, chr_BSP_can_collide, CollisionSystem::get()->_coll_leaf_lst);
-
-        // transfer valid _coll_leaf_lst entries to pchlst entries
-        // and sort them by their initial times
-        if (!CollisionSystem::get()->_coll_leaf_lst.empty())
+        // Check collisions between Objects
+        std::vector<std::shared_ptr<Object>> possibleCollisions;
+         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions);
+        for (const std::shared_ptr<Object> &pchr_b : possibleCollisions)
         {
-            for (size_t j = 0; j < CollisionSystem::get()->_coll_leaf_lst.size(); j++)
+            //Ignore invalid collisions
+            if(pchr_b->isTerminated() || !chr_BSP_can_collide(&pchr_b->bsp_leaf)) continue;
+
+            // do some logic on this to determine whether the collision is valid
+            if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), pchr_b->getCharacterID() ) )
             {
-                BSP_leaf_t * pleaf;
                 CoNode_t    tmp_codata;
-                bool      do_insert;
-                BIT_FIELD   test_platform;
+                CoNode_t::ctor( &tmp_codata );
 
-                pleaf = CollisionSystem::get()->_coll_leaf_lst.ary[j];
-                if ( NULL == pleaf ) continue;
+                // do a simple test, since I do not want to resolve the ObjectPRofile for these objects here
+                BIT_FIELD test_platform = EMPTY_BIT_FIELD;
+                if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+                if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
-                do_insert = false;
-
-                if ( BSP_LEAF_CHR == pleaf->_type )
+                // detect a when the possible collision occurred
+                if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pchr_b->chr_max_cv, pchr_b->getPosition(), pchr_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
                 {
-                    // collided with a character
-                    CHR_REF ichr_b = ( CHR_REF )( pleaf->_index );
+                    tmp_codata.chra = pchr_a->getCharacterID();
+                    tmp_codata.chrb = pchr_b->getCharacterID();
 
-                    // do some logic on this to determine whether the collision is valid
-                    if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), ichr_b ) )
-                    {
-                        Object * pchr_b = _currentModule->getObjectHandler().get( ichr_b );
-
-                        CoNode_t::ctor( &tmp_codata );
-
-                        // do a simple test, since I do not want to resolve the ObjectPRofile for these objects here
-                        test_platform = EMPTY_BIT_FIELD;
-                        if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
-                        if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
-
-                        // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pchr_b->chr_max_cv, pchr_b->getPosition(), pchr_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
-                        {
-                            tmp_codata.chra = pchr_a->getCharacterID();
-                            tmp_codata.chrb = ichr_b;
-
-                            do_insert = true;
-                        }
-                    }
-                }
-                else
-                {
-                    // how did we get here?
-                    log_warning( "fill_interaction_list() - found non-character in the character BSP\n" );
-                }
-
-                if ( do_insert )
-                {
-                    collisionSet.insert(tmp_codata);
-                }
-            }
-        }
-
-        CollisionSystem::get()->_coll_leaf_lst.clear();
-        getPrtBSP()->collide(tmp_aabb, prt_BSP_can_collide, CollisionSystem::get()->_coll_leaf_lst);
-        if (!CollisionSystem::get()->_coll_leaf_lst.empty())
-        {
-            for (size_t j = 0; j < CollisionSystem::get()->_coll_leaf_lst.size(); j++)
-            {
-                BSP_leaf_t * pleaf;
-                CoNode_t    tmp_codata;
-                bool      do_insert;
-                BIT_FIELD   test_platform;
-
-                pleaf = CollisionSystem::get()->_coll_leaf_lst.ary[j];
-                if ( NULL == pleaf ) continue;
-
-                do_insert = false;
-
-                if ( BSP_LEAF_PRT == pleaf->_type )
-                {
-                    // collided with a particle
-                    PRT_REF iprt_b = ( PRT_REF )( pleaf->_index );
-
-                    // do some logic on this to determine whether the collision is valid
-                    if ( detect_chr_prt_interaction_valid( pchr_a->getCharacterID(), iprt_b ) )
-                    {
-                        const std::shared_ptr<Ego::Particle> &pprt_b = ParticleHandler::get()[iprt_b];
-
-                        CoNode_t::ctor( &tmp_codata );
-
-                        // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
-                        test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
-
-                        // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pprt_b->prt_max_cv, pprt_b->getPosition(), pprt_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
-                        {
-                            tmp_codata.chra = pchr_a->getCharacterID();
-                            tmp_codata.prtb = iprt_b;
-
-                            do_insert = true;
-                        }
-                    }
-                }
-                else
-                {
-                    // how did we get here?
-                    log_warning( "fill_interaction_list() - found non-particle in the particle BSP\n" );
-                }
-
-                if ( do_insert )
-                {
                     collisionSet.insert(tmp_codata);
                 }
             }
         }
     }
 
-    //---- find some specialized character-particle interactions
-    //     namely particles that end-bump or particles that reaffirm characters
-
+    //Check collisions with particles
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        oct_bb_t   tmp_oct;
-        bool     can_reaffirm, needs_bump;
-
 		if (particle->isTerminated()) continue;
 
-        BSP_leaf_t *pleaf = &particle->getBSPLeaf();
-
-        // if the particle is in the BSP, then it has already had it's chance to collide
-        if (pleaf->isInList()) continue;
-
-        // does the particle potentially reaffirm a character?
-        can_reaffirm = TO_C_BOOL(( particle->damagetype < DAMAGE_COUNT ) && ( 0 != reaffirmation_list[particle->damagetype] ) );
+        //Valid collision radius?
+        if(particle->bump_real.size <= 0.0f) continue;
 
         // does the particle end_bump or end_ground?
-        needs_bump = TO_C_BOOL( particle->getProfile()->end_bump || particle->getProfile()->end_ground );
+        bool needs_bump = TO_C_BOOL( particle->getProfile()->end_bump || particle->getProfile()->end_ground );
 
-        if ( !can_reaffirm && !needs_bump ) continue;
+        bool can_collide = prt_BSP_can_collide(&particle->getBSPLeaf());
+
+        if ( !needs_bump && !can_collide ) continue;
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
+        oct_bb_t   tmp_oct;
         phys_expand_prt_bb(particle.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
-        tmp_aabb = tmp_oct.toAABB();
+        AABB_2D aabb2d = AABB_2D(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         // find all collisions with characters
-        CollisionSystem::get()->_coll_leaf_lst.clear();
-        getChrBSP()->collide(tmp_aabb, chr_BSP_can_collide, CollisionSystem::get()->_coll_leaf_lst);
+        std::vector<std::shared_ptr<Object>> possibleCollisions;
+         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions);
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
-        if (!CollisionSystem::get()->_coll_leaf_lst.empty())
+        for (const std::shared_ptr<Object> &object : possibleCollisions)
         {
-            CoNode_t     tmp_codata;
-            BIT_FIELD    test_platform;
-            CHR_REF      ichr_a = INVALID_CHR_REF;
-            BSP_leaf_t * pleaf = NULL;
-            bool       do_insert = false;
+            if(!chr_BSP_can_collide(&object->bsp_leaf)) continue;
 
-            for (size_t j = 0; j < CollisionSystem::get()->_coll_leaf_lst.size(); j++)
+            // collided with a character
+            bool loc_needs_bump    = needs_bump;
+
+            // you can't be bumped by items that you are attached to
+            if ( loc_needs_bump && particle->getAttachedObject().get() == object.get() )
             {
-                pleaf = CollisionSystem::get()->_coll_leaf_lst.ary[j];
-                if ( NULL == pleaf ) continue;
+                loc_needs_bump = false;
+            }
 
-                ichr_a = ( CHR_REF )( pleaf->_index );
+            // can this character affect this particle through bumping?
+            if ( loc_needs_bump )
+            {
+                // the valid bump interactions
+                bool end_money  = TO_C_BOOL(( particle->getProfile()->bump_money > 0 ) && object->getProfile()->canGrabMoney() );
+                bool end_bump   = TO_C_BOOL(( particle->getProfile()->end_bump ) && ( 0 != object->bump_stt.size ) );
+                bool end_ground = TO_C_BOOL(( particle->getProfile()->end_ground ) && (( 0 != object->bump_stt.size ) || object->platform ) );
 
-                do_insert = false;
-
-                if ( BSP_LEAF_CHR == pleaf->_type && VALID_CHR_RANGE( ichr_a ) )
+                if ( !end_money && !end_bump && !end_ground )
                 {
-                    // collided with a character
-                    bool loc_reaffirms     = can_reaffirm;
-                    bool loc_needs_bump    = needs_bump;
-                    bool interaction_valid = false;
-
-                    Object * pchr_a = _currentModule->getObjectHandler().get( ichr_a );
-
-                    // can this particle affect the character through reaffirmation
-                    if ( loc_reaffirms )
-                    {
-                        // does this interaction support affirmation?
-                        if ( particle->damagetype != pchr_a->reaffirm_damagetype )
-                        {
-                            loc_reaffirms = false;
-                        }
-
-                        // if it is already attached to this character, no more reaffirmation
-                        if ( particle->getAttachedObject().get() == pchr_a )
-                        {
-                            loc_reaffirms = false;
-                        }
-                    }
-
-                    // you can't be bumped by items that you are attached to
-                    if ( loc_needs_bump && particle->getAttachedObject().get() == pchr_a )
-                    {
-                        loc_needs_bump = false;
-                    }
-
-                    // can this character affect this particle through bumping?
-                    if ( loc_needs_bump )
-                    {
-                        // the valid bump interactions
-                        bool end_money  = TO_C_BOOL(( particle->getProfile()->bump_money > 0 ) && pchr_a->getProfile()->canGrabMoney() );
-                        bool end_bump   = TO_C_BOOL(( particle->getProfile()->end_bump ) && ( 0 != pchr_a->bump_stt.size ) );
-                        bool end_ground = TO_C_BOOL(( particle->getProfile()->end_ground ) && (( 0 != pchr_a->bump_stt.size ) || pchr_a->platform ) );
-
-                        if ( !end_money && !end_bump && !end_ground )
-                        {
-                            loc_needs_bump = false;
-                        }
-                    }
-
-                    // do a little more logic on this to determine whether the collision is valid
-                    interaction_valid = false;
-                    if ( loc_reaffirms || loc_needs_bump )
-                    {
-                        if ( detect_chr_prt_interaction_valid( ichr_a, particle->getParticleID() ) )
-                        {
-                            interaction_valid = true;
-                        }
-                        else
-                        {
-                            interaction_valid = false;
-                        }
-                    }
-
-                    // only do the more expensive calculation if the
-                    // particle can interact with the object
-                    if ( interaction_valid )
-                    {
-                        CoNode_t::ctor( &tmp_codata );
-
-                        // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
-                        test_platform = EMPTY_BIT_FIELD;
-                        if ( pchr_a->platform && ( SPRITE_SOLID == particle->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
-
-                        // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(pchr_a->chr_min_cv, pchr_a->getPosition(), pchr_a->vel, particle->prt_max_cv, particle->getPosition(), particle->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
-                        {
-
-                            tmp_codata.chra = ichr_a;
-                            tmp_codata.prtb = particle->getParticleID();
-
-                            do_insert = true;
-                        }
-                    }
+                    loc_needs_bump = false;
                 }
-                else if ( BSP_LEAF_PRT == pleaf->_type )
-                {
-                    // this should never happen
-                }
+            }
 
-                if ( do_insert )
+            // do a little more logic on this to determine whether the collision is valid
+            bool interaction_valid = false;
+            if ( loc_needs_bump || can_collide)
+            {
+                interaction_valid = detect_chr_prt_interaction_valid(object->getCharacterID(), particle->getParticleID());
+            }
+
+            // only do the more expensive calculation if the
+            // particle can interact with the object
+            if ( interaction_valid )
+            {
+                CoNode_t tmp_codata;
+                CoNode_t::ctor( &tmp_codata );
+
+                // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
+                BIT_FIELD test_platform = EMPTY_BIT_FIELD;
+                if ( object->platform && ( SPRITE_SOLID == particle->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+
+                // detect a when the possible collision occurred
+                if (phys_intersect_oct_bb(object->chr_min_cv, object->getPosition(), object->vel, particle->prt_max_cv, particle->getPosition(), particle->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
                 {
+
+                    tmp_codata.chra = object->getCharacterID();
+                    tmp_codata.prtb = particle->getParticleID();
+
                     collisionSet.insert(tmp_codata);
                 }
             }
         }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool fill_bumplists()
-{
-    /// @brief Clear, then fill the chr and prt (aka obj) BSPs for this frame.
-    ///
-    /// @note Do not use BSP_tree_t::prune every frame, because the number of pre-allocated branches can be quite
-	/// large. Instead, just remove the leaves from the tree, fill the tree, and then prune any empty branches.
-
-    // empty out the BSP node lists
-    chr_BSP_removeAllLeaves();
-    prt_BSP_removeAllLeaves();
-
-    // fill up the BSP list based on the current locations
-    chr_BSP_fill();
-    prt_BSP_fill();
-
-    // Remove empty branches from the tree.
-    if (63 == ( game_frame_all & 63))
-    {
-		size_t pruned;
-		log_info("begin pruning\n");
-        pruned = getChrBSP()->prune();
-		/*if (pruned)*/
-		{
-			size_t free, used;
-			getChrBSP()->getStats(free, used);
-			std::ostringstream msg;
-			msg << __FILE__ << ":" << __LINE__ << ": "
-				<< "pruned: " << pruned << ", "
-			    << "free:   " << free << ", "
-				<< "used:   " << used << std::endl;
-			log_info("%s", msg.str().c_str());
-		}
-        pruned = getPrtBSP()->prune();
-		/*if (pruned)*/
-		{
-			size_t numFree, used;
-			getPrtBSP()->getStats(numFree, used);
-			std::ostringstream msg;
-			msg << __FILE__ << ":" << __LINE__ << ": "
-				<< "pruned: " << pruned << ", "
-				<< "free:   " << numFree << ", "
-				<< "used:   " << used << std::endl;
-			log_info("%s", msg.str().c_str());
-		}
     }
 
     return true;
@@ -1148,9 +918,6 @@ void bump_all_objects()
 {
     /// @author ZZ
     /// @details This function sets handles characters hitting other characters or particles
-
-    // fill up the BSP structures
-    fill_bumplists();
 
     // use the BSP structures to detect possible binary interactions
     //nodes are sorted by time order
