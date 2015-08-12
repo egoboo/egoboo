@@ -193,6 +193,7 @@
 
 #undef  DEBUG_ASTAR           ///< Debug AStar pathfinding
 
+#undef DRAW_PRT_GRIP_ATTACH   ///< display which grip a particle is attached to
 #define DRAW_CHR_BBOX         ///< display selected character bounding boxes
 #define DRAW_PRT_BBOX         ///< display selected particle bounding boxes
 #define DRAW_LISTS            ///< display any lines or points that have been added to various lists

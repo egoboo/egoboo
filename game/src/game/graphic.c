@@ -1793,7 +1793,8 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 	Ego::Graphics::RenderPasses::g_water.run(cam, tl, el);
 	// Render transparent entities.
 	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
-#if defined(_DEBUG)
+
+#if defined(DRAW_PRT_GRIP_ATTACH)
     render_all_prt_attachment();
 #endif
 
