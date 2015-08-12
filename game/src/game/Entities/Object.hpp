@@ -775,8 +775,6 @@ private:
     void checkLevelUp();
 
 public:
-    BSP_leaf_t     bsp_leaf;
-
     chr_spawn_data_t  spawn_data;
 
     // character state

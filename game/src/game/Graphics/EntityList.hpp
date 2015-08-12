@@ -120,12 +120,7 @@ public:
     gfx_rv add_obj_raw(Object& obj);
 
     gfx_rv test_prt(const std::shared_ptr<Ego::Particle>& prt);
-    gfx_rv add_prt_raw(const std::shared_ptr<Ego::Particle>& prt);
-    
-public:
-    /// @brief Insert character or particle entities into this dolist.
-    /// @param leaves
-    gfx_rv add_colst(const Ego::DynamicArray<BSP_leaf_t *> *collisions);
+    gfx_rv add_prt_raw(const std::shared_ptr<Ego::Particle>& prt);    
 };
 
 } // namespace Graphics

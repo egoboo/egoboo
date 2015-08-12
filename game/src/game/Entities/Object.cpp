@@ -43,7 +43,6 @@ const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
 
 Object::Object(const PRO_REF profile, const CHR_REF id) : 
-    bsp_leaf(this, BSP_LEAF_CHR, id),
     spawn_data(),
     ai(),
     latch(),

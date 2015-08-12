@@ -215,10 +215,6 @@ void ParticleHandler::unlock()
                 return false;
             }
 
-            if (particle->getBSPLeaf().isInList()) {
-                return false;
-            }
-
             //Play end sound, trigger end spawn, etc.
             particle->destroy();
 

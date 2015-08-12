@@ -227,8 +227,6 @@ public:
     **/
     void setTarget(const CHR_REF target);
 
-    BSP_leaf_t& getBSPLeaf() { return _bspLeaf; }
-
     PRO_REF getSpawnerProfile() const { return _spawnerProfile; }
 
     /**
@@ -450,7 +448,6 @@ private:
     PRT_REF       _particleID;                 ///< Unique identifier
 
     //Collisions
-    BSP_leaf_t    _bspLeaf;
     std::forward_list<CHR_REF> _collidedObjects;    ///< List of the ID's of all Object this particle has collided with
 
     //Profile

@@ -36,7 +36,6 @@ const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 
 Particle::Particle() :
     _particleID(INVALID_PRT_REF),
-    _bspLeaf(this, BSP_LEAF_PRT, INVALID_PRT_REF),
     _collidedObjects(),
     _attachedTo(INVALID_CHR_REF),
     _particleProfileID(INVALID_PIP_REF),
@@ -56,7 +55,6 @@ void Particle::reset(PRT_REF ref)
 
     _particleID = ref;
     frame_count = 0;
-    _bspLeaf = BSP_leaf_t(this, BSP_LEAF_PRT, ref); //because we have a new ref
     _collidedObjects.clear();
 
     _particleProfileID = INVALID_PIP_REF;

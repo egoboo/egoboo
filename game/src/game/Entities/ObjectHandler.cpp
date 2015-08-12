@@ -252,7 +252,6 @@ void ObjectHandler::maybeRunDeferred()
             [this](const std::shared_ptr<Object>& element)
             {
                 EGOBOO_ASSERT(nullptr != element);
-                if (element->bsp_leaf.isInList()) return false;
 
                 if (element->isTerminated())
                 {

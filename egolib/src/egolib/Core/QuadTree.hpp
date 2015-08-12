@@ -109,7 +109,7 @@ public:
 			std::shared_ptr<T> element = weakElement.lock();
 
 			//Make sure element still exists
-			if(element != nullptr && !element->isTerminated()) {
+			if(element != nullptr) {
 
 				//Check if element is within search area
 				if(element->getAABB2D().overlaps(searchArea)) {
