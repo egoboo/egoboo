@@ -16,7 +16,7 @@ COMPILE_WARNINGS += -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-v
 
 set_debug_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -pg -D_DEBUG)
-	$(eval COMPILE_OPTIMIZE :=-Og)
+	$(eval COMPILE_OPTIMIZE :=-O0)
 
 #$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
 #$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)

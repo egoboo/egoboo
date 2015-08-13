@@ -277,8 +277,14 @@ typedef Index<Uint32, IndexSystem::Block,UINT32_MAX> BlockIndex;
 //--------------------------------------------------------------------------------------------
 
 /// The data describing an Egoboo tile
-struct ego_tile_info_t
+class ego_tile_info_t
 {
+public:
+    ego_tile_info_t();
+
+    const AABB_2D& getAABB2D() const { return aabb; }
+
+public:
     // the "inherited" tile info
     size_t    itile;
     uint8_t   type;                              ///< Tile type
@@ -307,22 +313,7 @@ struct ego_tile_info_t
     // the bounding boc of this tile
     oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
     AABB_2D        aabb;
-
-    const AABB_2D& getAABB2D() const { return aabb; }
-
-    static ego_tile_info_t *ctor(ego_tile_info_t *self, int index);
-    static ego_tile_info_t *dtor(ego_tile_info_t *self);
-    static ego_tile_info_t *free(ego_tile_info_t *self);
-    static ego_tile_info_t *create(int index);
-    static ego_tile_info_t *destroy(ego_tile_info_t *self);
 };
-
-
-
-ego_tile_info_t *ego_tile_info_ctor_ary(ego_tile_info_t *self, size_t count);
-ego_tile_info_t *ego_tile_info_dtor_ary(ego_tile_info_t *self, size_t count);
-ego_tile_info_t *ego_tile_info_create_ary(size_t count);
-ego_tile_info_t *ego_tile_info_destroy_ary(ego_tile_info_t *self, size_t count);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

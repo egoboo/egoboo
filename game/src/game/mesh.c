@@ -849,6 +849,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
         const std::shared_ptr<ego_tile_info_t> &ptile = ptmem->getTileList()[cnt.getI()];
         oct_bb_t& poct = ptile->oct;
 
+        ptile->itile = cnt.getI();
 		type = ptile->type;
 		type &= 0x3F;
 
@@ -861,8 +862,10 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
 		// initialize the bounding box
 	    ovec = oct_vec_v2_t(fvec3_t(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
         poct = oct_bb_t(ovec);
-        ptile->aabb = AABB_2D(Vector2f(poct._mins[OCT_X], poct._mins[OCT_Y]), Vector2f(poct._maxs[OCT_X], poct._maxs[OCT_Y]));
         mesh_vrt++;
+
+        ptile->aabb._min = Vector2f(GRID_FSIZE * (ptile->itile % mesh->info.tiles_x), GRID_FSIZE * (ptile->itile % mesh->info.tiles_y));
+        ptile->aabb._max = Vector2f(ptile->aabb._min[OCT_X] + GRID_FSIZE, ptile->aabb._min[OCT_Y] + GRID_FSIZE);
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
@@ -1921,127 +1924,26 @@ float ego_mesh_get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point
 //--------------------------------------------------------------------------------------------
 // ego_tile_info_t
 //--------------------------------------------------------------------------------------------
-ego_tile_info_t *ego_tile_info_t::ctor(ego_tile_info_t *self, int index)
+ego_tile_info_t::ego_tile_info_t() :
+    itile(),
+    type(0),
+    img(0),
+    vrtstart(0),
+    fanoff(true),
+    inrenderlist(false),
+    inrenderlist_frame(-1),
+    ncache(),
+    lcache(),
+    request_lcache_update(true),
+    lcache_frame(-1),
+    request_clst_update(true),
+    clst_frame(-1),
+    d1_cache(),
+    d2_cache(),
+    oct(),
+    aabb()
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    BLANK_STRUCT_PTR(self);
-
-    // Set the non-zero, non-null, non-false values.
-    self->itile = index;
-    self->fanoff = true;
-    self->inrenderlist_frame = -1;
-
-    self->request_lcache_update = true;
-    self->lcache_frame = -1;
-
-    self->request_clst_update = false;
-    self->clst_frame = -1;
-
-    return self;
-}
-
-ego_tile_info_t *ego_tile_info_t::dtor(ego_tile_info_t * self)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-
-    self = ego_tile_info_t::free(self);
-
-    BLANK_STRUCT_PTR(self);
-
-    return self;
-}
-
-ego_tile_info_t *ego_tile_info_t::free(ego_tile_info_t * self)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-
-    // Delete any dynamically allocated data.
-
-    return self;
-}
-
-ego_tile_info_t *ego_tile_info_t::create(int index)
-{
-    ego_tile_info_t *self = EGOBOO_NEW(ego_tile_info_t);
-    if (!self)
-    {
-        return nullptr;
-    }
-    return ego_tile_info_t::ctor(self, index);
-}
-
-ego_tile_info_t *ego_tile_info_t::destroy(ego_tile_info_t * self)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-    self = ego_tile_info_t::dtor(self);
-
-    EGOBOO_DELETE(self);
-
-    return self;
-}
-
-//--------------------------------------------------------------------------------------------
-ego_tile_info_t *ego_tile_info_ctor_ary(ego_tile_info_t *self, size_t size)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-    for (size_t i = 0; i < size; i++)
-    {
-        ego_tile_info_t::ctor(self + i, i);
-    }
-
-    return self;
-}
-
-ego_tile_info_t * ego_tile_info_dtor_ary(ego_tile_info_t *self, size_t size)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-    for (size_t i = 0; i < size; ++i)
-    {
-        ego_tile_info_t::dtor(self + i);
-    }
-
-    return self;
-}
-
-ego_tile_info_t * ego_tile_info_create_ary(size_t size)
-{
-    ego_tile_info_t *self = EGOBOO_NEW_ARY(ego_tile_info_t, size);
-    if (!self)
-    {
-        return nullptr;
-    }
-    return ego_tile_info_ctor_ary(self, size);
-}
-
-ego_tile_info_t *ego_tile_info_destroy_ary(ego_tile_info_t *self, size_t size)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-    ego_tile_info_ctor_ary(self, size);
-
-    EGOBOO_DELETE_ARY(self);
-
-    return self;
+    //ctor
 }
 
 //--------------------------------------------------------------------------------------------

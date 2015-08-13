@@ -495,12 +495,14 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
 void GameModule::initializeMeshQuadTree()
 {
     //Initialize QuadTree
-    _meshQuadTree.clear(0.0f, _mesh.info.tiles_x*GRID_FSIZE, 0.0f, _mesh.info.tiles_y*GRID_FSIZE);
+    _meshQuadTree.clear(0.0f, 0.0f, _mesh.info.tiles_x*GRID_FSIZE, _mesh.info.tiles_y*GRID_FSIZE);
 
     // insert each tile
     for (const std::shared_ptr<ego_tile_info_t> &tile : _mesh.tmem.getTileList())
     {
-        _meshQuadTree.insert(tile);
+        if(!_meshQuadTree.insert(tile)) {
+            log_error("Unable to add mesh tile to QuadTree\n");
+        }
     }
 }
 

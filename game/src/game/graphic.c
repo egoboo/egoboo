@@ -2962,14 +2962,8 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 
     // get the tiles in the center of the view
     std::vector<std::shared_ptr<ego_tile_info_t>> tiles;
-    //_currentModule->getTiles(cam.getPosition()[kX], cam.getPosition()[kY], cam.getPosition()[kX]+GRID_FSIZE*5, cam.getPosition()[kY]+GRID_FSIZE*5, tiles);
-    _currentModule->getTiles(
-            cam.getCenter()[kX] - GRID_FSIZE*5, 
-            cam.getCenter()[kY] - GRID_FSIZE*5, 
-            cam.getCenter()[kX] + GRID_FSIZE*5, 
-            cam.getCenter()[kY] + GRID_FSIZE*5, 
-            tiles);  //@todo: use camera view size here instead
-
+    _currentModule->getTiles(cam.getPosition()[kX], cam.getPosition()[kY], cam.getPosition()[kX]+GRID_FSIZE*5, cam.getPosition()[kY]+GRID_FSIZE*5, tiles);
+   
     // transfer valid entries to the dolist
     if (gfx_error == tl.add(tiles, cam))
     {
