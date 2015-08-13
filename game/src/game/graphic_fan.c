@@ -45,7 +45,7 @@ void animate_all_tiles( ego_mesh_t * mesh )
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
 
-    size_t tile_count = mesh->tmem.getTileList().size();
+    size_t tile_count = mesh->tmem.getTileCount();
     size_t anim_count = mesh->fxlists.anm.idx;
 
     // Scan through all the animated tiles.

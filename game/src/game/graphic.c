@@ -1534,7 +1534,7 @@ gfx_rv render_fans_by_list(const ego_mesh_t * mesh, const Ego::Graphics::renderl
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
         return gfx_error;
     }
-    size_t tcnt = mesh->tmem.getTileList().size();
+    size_t tcnt = mesh->tmem.getTileCount();
 
     if (!rlst)
     {
@@ -1561,7 +1561,7 @@ gfx_rv render_fans_by_list(const ego_mesh_t * mesh, const Ego::Graphics::renderl
         }
         else
         {
-            const std::shared_ptr<ego_tile_info_t> &ptile = mesh->tmem.getTileList()[rlst->lst[cnt].index];
+            const std::shared_ptr<ego_tile_info_t> &ptile = mesh->tmem.getTile(rlst->lst[cnt].index);
 
             int img = TILE_GET_LOWER_BITS(ptile->img);
             if (ptile->type >= tile_dict.offset)
@@ -2941,8 +2941,6 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 {
-    gfx_rv      retval;
-
     // because the main loop of the program will always flip the
     // page before rendering the 1st frame of the actual game,
     // game_frame_all will always start at 1
@@ -2957,20 +2955,22 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
         return gfx_error;
     }
 
-    // assume the best
-    retval = gfx_success;
+    // get the tiles in the center of the view (TODO: calculate actual tile view from camera frustrum)
+    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / GRID_FSIZE - 5, 0, _currentModule->getMeshPointer()->info.tiles_x);
+    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / GRID_FSIZE - 5, 0, _currentModule->getMeshPointer()->info.tiles_y);
+    int endX = Ego::Math::constrain<int>(startX + 10, 0, _currentModule->getMeshPointer()->info.tiles_x);
+    int endY = Ego::Math::constrain<int>(startY + 10, 0, _currentModule->getMeshPointer()->info.tiles_y);
 
-    // get the tiles in the center of the view
-    std::vector<std::shared_ptr<ego_tile_info_t>> tiles;
-    _currentModule->getTiles(cam.getPosition()[kX], cam.getPosition()[kY], cam.getPosition()[kX]+GRID_FSIZE*5, cam.getPosition()[kY]+GRID_FSIZE*5, tiles);
-   
-    // transfer valid entries to the dolist
-    if (gfx_error == tl.add(tiles, cam))
-    {
-        return gfx_error;
-    }        
+    for(size_t x = startX; x < endX; ++x) {
+        for(size_t y = startY; y < endY; ++y) {
+            if (gfx_error == tl.add(x*y, cam))
+            {
+                return gfx_error;
+            }        
+        }
+    }
 
-    return retval;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------

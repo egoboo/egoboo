@@ -280,6 +280,8 @@ typedef Index<Uint32, IndexSystem::Block,UINT32_MAX> BlockIndex;
 class ego_tile_info_t
 {
 public:
+    static const std::shared_ptr<ego_tile_info_t> NULL_TILE;
+
     ego_tile_info_t();
 
     const AABB_2D& getAABB2D() const { return aabb; }
@@ -408,9 +410,9 @@ public:
 /// A wrapper for the dynamically allocated mesh memory
 struct tile_mem_t
 {
+public:
     aabb_t           bbox;                             ///< bounding box for the entire mesh
 
-public:
     // the per-vertex info to be presented to OpenGL
     size_t vert_count;                        ///< number of vertices
     GLXvector3f *plst;                        ///< the position list
@@ -423,27 +425,45 @@ public:
     static bool free(tile_mem_t *self);
     static bool alloc(tile_mem_t *self, const ego_mesh_info_t *info);
 
-    const std::vector<std::shared_ptr<ego_tile_info_t>>& getTileList() const { return _tileList; }
-
     static const std::shared_ptr<ego_tile_info_t>& get(const tile_mem_t *self,const TileIndex& index)
     {
-        static const std::shared_ptr<ego_tile_info_t> NULL_TILE = nullptr;
-
-        // Validate arguments.
-        if (!self || TileIndex::Invalid == index)
-        {
-            return NULL_TILE;
-        }
         // Assert that the index is within bounds.
-        if (index.getI() >= self->_tileList.size())
+        if (TileIndex::Invalid == index || !self)
         {
-            return NULL_TILE;
+            return ego_tile_info_t::NULL_TILE;
         }
-        return self->_tileList[index.getI()];
+        return self->getTile(index.getI());
     }
 
+    const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y) const
+    {
+        if(x >= _tileList.size()) return ego_tile_info_t::NULL_TILE;
+        if(y >= _tileList[x].size()) return ego_tile_info_t::NULL_TILE;
+
+        //Retrieve the tile and return it
+        return _tileList[x][y];
+    }
+
+
+    const std::shared_ptr<ego_tile_info_t>& getTile(const size_t index) const
+    {
+        if(index >= _tileCount) return ego_tile_info_t::NULL_TILE;
+
+        //Extract X and Y positions
+        size_t x = index % _tileList.size();
+        size_t y = index / _tileList[x].size();
+
+        //Retrieve the tile and return it
+        return getTile(x, y);
+    }
+
+    size_t getTileCount() const {return _tileCount;}
+
+    std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>>& getAllTiles() { return _tileList; }
+
 private:
-    std::vector<std::shared_ptr<ego_tile_info_t>> _tileList;                        ///< tile command info
+    std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>> _tileList;   ///< tile command info
+    size_t _tileCount;
 };
 
 
@@ -648,7 +668,6 @@ struct mesh_wall_data_t
     float fx_min, fx_max, fy_min, fy_max;
 
     ego_mesh_info_t  * pinfo;
-    const std::shared_ptr<ego_tile_info_t> *tlist;
     ego_grid_info_t * glist;
 };
 

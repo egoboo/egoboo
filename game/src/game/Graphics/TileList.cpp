@@ -42,9 +42,9 @@ gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile)
 	}
 	else
 	{
-		Uint32 last_frame = (game_frame_all > 0) ? game_frame_all - 1 : 0;
+		uint32_t last_frame = (game_frame_all > 0) ? game_frame_all - 1 : 0;
 
-		if ((Uint32)ptile->inrenderlist_frame < last_frame)
+		if (static_cast<uint32_t>(ptile->inrenderlist_frame) < last_frame)
 		{
 			ptile->request_lcache_update = true;
 		}
@@ -120,11 +120,11 @@ gfx_rv TileList::reset()
 	// Clear out the "in render list" flag for the old mesh.
 	for (size_t i = 0; i < _all.size; ++i)
 	{
-		Uint32 fan = _all.lst[i].index;
+		uint32_t fan = _all.lst[i].index;
 		if (fan < _mesh->info.tiles_count)
 		{
-			_mesh->tmem.getTileList()[fan]->inrenderlist = false;
-			_mesh->tmem.getTileList()[fan]->inrenderlist_frame = 0;
+			_mesh->tmem.getTile(fan)->inrenderlist = false;
+			_mesh->tmem.getTile(fan)->inrenderlist_frame = 0;
 		}
 	}
 
@@ -143,14 +143,13 @@ gfx_rv TileList::insert(const TileIndex& index, const Camera &cam)
 		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
-	ego_mesh_t *mesh = _mesh;
 
 	// check for a valid tile
-	if (index >= mesh->gmem.grid_count)
+	if (index >= _mesh->gmem.grid_count)
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t *pgrid = grid_mem_t::get(&(mesh->gmem), index);
+	ego_grid_info_t *pgrid = grid_mem_t::get(&(_mesh->gmem), index);
 	if (!pgrid)
 	{
 		return gfx_fail;
@@ -162,8 +161,8 @@ gfx_rv TileList::insert(const TileIndex& index, const Camera &cam)
 		return gfx_fail;
 	}
 
-	int ix = index.getI() % mesh->info.tiles_x;
-	int iy = index.getI() / mesh->info.tiles_x;
+	int ix = index.getI() % _mesh->info.tiles_x;
+	int iy = index.getI() / _mesh->info.tiles_y;
 	float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter()[kX];
 	float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
@@ -208,38 +207,18 @@ void TileList::setMesh(ego_mesh_t *mesh)
 	_mesh = mesh;
 }
 
-gfx_rv TileList::add(const std::vector<std::shared_ptr<ego_tile_info_t>> &tiles, Camera& camera)
+gfx_rv TileList::add(const size_t index, Camera& camera)
 {
-	if (tiles.empty()) {
-		return gfx_fail;
-	}
+	if(!tile) return gfx_error;
 
-	ego_mesh_t *mesh = getMesh();
-	if (NULL == mesh)
+	if (gfx_error == gfx_capture_mesh_tile(_mesh->tmem.getTile(index).get()))
 	{
-		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
 
-	// transfer valid pcolst entries to the renderlist
-	for (size_t j = 0; j < tiles.size(); j++)
+	if (gfx_error == insert(index, camera))
 	{
-		// Get fan index.
-		TileIndex itile = tiles[j]->itile;
-
-		// Get grid for tile index.
-		ego_grid_info_t *pgrid = mesh->get_pgrid(itile);
-		if (!pgrid) continue;
-
-		if (gfx_error == gfx_capture_mesh_tile(tiles[j].get()))
-		{
-			return gfx_error;
-		}
-
-		if (gfx_error == insert(itile, camera))
-		{
-			return gfx_error;
-		}
+		return gfx_error;
 	}
 
 	return gfx_success;

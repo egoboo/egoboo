@@ -2312,9 +2312,6 @@ bool game_load_module_data( const char *smallname )
     //Load passage.txt
     _currentModule->loadAllPassages();
 
-    //Initialize mesh quad tree space partitioning for fast tile lookup
-    _currentModule->initializeMeshQuadTree();
-
     return true;
 }
 

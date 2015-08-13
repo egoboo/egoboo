@@ -46,8 +46,7 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _isBeaten(false),
     _seed(seed),
     _passages(),
-    _mesh(),
-    _meshQuadTree()
+    _mesh()
 {
     srand( _seed );
     Random::setSeed(_seed);
@@ -490,25 +489,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
 #endif
 
     return pchr;
-}
-
-void GameModule::initializeMeshQuadTree()
-{
-    //Initialize QuadTree
-    _meshQuadTree.clear(0.0f, 0.0f, _mesh.info.tiles_x*GRID_FSIZE, _mesh.info.tiles_y*GRID_FSIZE);
-
-    // insert each tile
-    for (const std::shared_ptr<ego_tile_info_t> &tile : _mesh.tmem.getTileList())
-    {
-        if(!_meshQuadTree.insert(tile)) {
-            log_error("Unable to add mesh tile to QuadTree\n");
-        }
-    }
-}
-
-void GameModule::getTiles(float minX, float minY, float maxX, float maxY, std::vector<std::shared_ptr<ego_tile_info_t>> &result) const
-{
-    _meshQuadTree.find(AABB_2D(Vector2f(minX, minY), Vector2f(maxX, maxY)), result);
 }
 
 /// @todo Remove this global.

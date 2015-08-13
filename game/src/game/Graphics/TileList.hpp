@@ -128,11 +128,10 @@ struct TileList
 	/// @post If @a mesh is not a null pointer, then this render list is attached to that mesh.
 	///       Otherwise it is detached.
 	void setMesh(ego_mesh_t *mesh);
-	/// @brief Insert tiles into this render list.
-	/// @param leaves a list of tile BSP leaves
+	/// @brief Insert a tile into this render list.
+	/// @param the tile to insert
 	/// @param camera the camera
-	/// @remark A tile
-	gfx_rv add(const std::vector<std::shared_ptr<ego_tile_info_t>> &tiles, Camera& camera);
+	gfx_rv add(const std::shared_ptr<ego_tile_info_t> &tile, Camera& camera);
 };
 
 }

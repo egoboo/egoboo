@@ -175,10 +175,6 @@ public:
     **/
     ego_mesh_t* getMeshPointer() { return &_mesh; }
 
-    void initializeMeshQuadTree();
-
-    void getTiles(float minX, float minY, float maxX, float maxY, std::vector<std::shared_ptr<ego_tile_info_t>> &result) const;
-
     /**
      * @brief
      *  Spawn an Object into the game.
@@ -204,7 +200,6 @@ private:
     uint32_t  _seed;                          ///< The module seed
 
     ego_mesh_t _mesh;                       ///< Module mesh
-    Ego::QuadTree<ego_tile_info_t> _meshQuadTree;
 };
 
 /// @todo Remove this global.
