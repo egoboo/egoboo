@@ -2963,7 +2963,7 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 
     for(size_t x = startX; x < endX; ++x) {
         for(size_t y = startY; y < endY; ++y) {
-            if (gfx_error == tl.add(x*y, cam))
+            if (gfx_error == tl.add(x + y*_currentModule->getMeshPointer()->info.tiles_y, cam))
             {
                 return gfx_error;
             }        
