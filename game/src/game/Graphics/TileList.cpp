@@ -24,38 +24,6 @@
 #include "game/Graphics/TileList.hpp"
 #include "game/graphic.h"
 
-gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile)
-{
-	if (NULL == ptile)
-	{
-		return gfx_fail;
-	}
-
-	// Flag the tile as in the renderlist
-	ptile->inrenderlist = true;
-
-	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
-	if (ptile->inrenderlist_frame < 0)
-	{
-		ptile->request_lcache_update = true;
-		ptile->lcache_frame = -1;
-	}
-	else
-	{
-		uint32_t last_frame = (game_frame_all > 0) ? game_frame_all - 1 : 0;
-
-		if (static_cast<uint32_t>(ptile->inrenderlist_frame) < last_frame)
-		{
-			ptile->request_lcache_update = true;
-		}
-	}
-
-	// make sure to cache the frame number of this update
-	ptile->inrenderlist_frame = game_frame_all;
-
-	return gfx_success;
-}
-
 namespace Ego {
 namespace Graphics {
 
@@ -91,8 +59,19 @@ gfx_rv renderlist_lst_t::push(renderlist_lst_t *self, const TileIndex& index, fl
 }
 
 TileList::TileList() :
-	_mesh(nullptr), _all(), _ref(), _sha(), _reflective(), _nonReflective(), _water()
-{}
+	_mesh(nullptr), 
+	_all(), 
+	_ref(), 
+	_sha(), 
+	_reflective(), 
+	_nonReflective(), 
+	_water(),
+
+	_renderTiles(),
+	_lastRenderTiles()
+{
+	//ctor
+}
 
 TileList *TileList::init()
 {
@@ -118,15 +97,8 @@ gfx_rv TileList::reset()
 	}
 
 	// Clear out the "in render list" flag for the old mesh.
-	for (size_t i = 0; i < _all.size; ++i)
-	{
-		uint32_t fan = _all.lst[i].index;
-		if (fan < _mesh->info.tiles_count)
-		{
-			_mesh->tmem.getTile(fan)->inrenderlist = false;
-			_mesh->tmem.getTile(fan)->inrenderlist_frame = 0;
-		}
-	}
+	_lastRenderTiles = _renderTiles;
+	_renderTiles.reset();
 
 	// Re-initialize the renderlist.
 	auto *mesh = _mesh;
@@ -209,11 +181,13 @@ void TileList::setMesh(ego_mesh_t *mesh)
 
 gfx_rv TileList::add(const size_t index, Camera& camera)
 {
-	if(!tile) return gfx_error;
+	_renderTiles[index] = true;
 
-	if (gfx_error == gfx_capture_mesh_tile(_mesh->tmem.getTile(index).get()))
-	{
-		return gfx_error;
+	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
+	if(!_lastRenderTiles[index]) {
+		const std::shared_ptr<ego_tile_info_t> &tile = _mesh->tmem.getTile(index);
+		tile->request_lcache_update = true;
+		tile->lcache_frame = -1;
 	}
 
 	if (gfx_error == insert(index, camera))
@@ -222,6 +196,12 @@ gfx_rv TileList::add(const size_t index, Camera& camera)
 	}
 
 	return gfx_success;
+}
+
+bool TileList::inRenderList(const TileIndex &index) const
+{
+	if(index == TileIndex::Invalid) return false;
+	return _renderTiles[index.getI()];
 }
 
 }

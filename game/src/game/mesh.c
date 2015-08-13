@@ -1932,8 +1932,6 @@ ego_tile_info_t::ego_tile_info_t() :
     img(0),
     vrtstart(0),
     fanoff(true),
-    inrenderlist(false),
-    inrenderlist_frame(-1),
     ncache(),
     lcache(),
     request_lcache_update(true),

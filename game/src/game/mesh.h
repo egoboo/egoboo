@@ -296,10 +296,6 @@ public:
     // some extra flags
     bool  fanoff;                            ///< display this tile?
 
-    // some info about the renderlist
-    bool  inrenderlist;                      ///< Is the tile going to be rendered this frame?
-    int   inrenderlist_frame;                ///< What was the frame number the last time this tile was rendered?
-
     // tile corner lighting parameters
     normal_cache_t ncache;                     ///< the normals at the corners of this tile
     light_cache_t  lcache;                     ///< the light at the corners of this tile
@@ -541,7 +537,7 @@ struct ego_mesh_info_t
      * @todo
      *  Rename to @a size. The type should be @a size_t.
      */
-    Uint32 tiles_count;
+    uint32_t tiles_count;
 
     static ego_mesh_info_t *ctor(ego_mesh_info_t *self);
     static ego_mesh_info_t *dtor(ego_mesh_info_t *self);

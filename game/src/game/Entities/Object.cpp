@@ -1687,9 +1687,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, fvec2_t& nrm, float * pressure, 
 	float radius = 0.0f;
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(getTile());
-
-		if (nullptr != tile && tile->inrenderlist)
+		if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
 		{
 			radius = bump_1.size;
 		}
@@ -1727,8 +1725,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 	float radius = 0.0f;
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(getTile());
-		if (nullptr != tile && tile->inrenderlist)
+        if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
 		{
 			radius = bump_1.size;
 		}
