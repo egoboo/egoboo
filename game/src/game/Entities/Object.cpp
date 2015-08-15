@@ -43,7 +43,6 @@ const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
 
 Object::Object(const PRO_REF profile, const CHR_REF id) : 
-    bsp_leaf(this, BSP_LEAF_CHR, id),
     spawn_data(),
     ai(),
     latch(),
@@ -928,7 +927,7 @@ void Object::update()
 
         //Give Rally bonus to friends within 6 tiles
         if(hasPerk(Ego::Perks::RALLY)) {
-            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(pos[kX], pos[kY], WIDE))
+            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(pos[kX], pos[kY], WIDE, false))
             {
                 //Only valid objects that are on our team
                 if(object->isTerminated() || object->getTeam() != getTeam()) continue;
@@ -955,7 +954,7 @@ void Object::update()
             lineOfSightInfo.stopped_by = stoppedby;
 
             //Check for nearby enemies
-            std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE);
+            std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false);
             for(const std::shared_ptr<Object> &target : nearbyObjects) {
                 //Valid objects only
                 if(target->isTerminated() || target->isHidden()) continue;
@@ -1688,9 +1687,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, fvec2_t& nrm, float * pressure, 
 	float radius = 0.0f;
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(getTile());
-
-		if (nullptr != tile && tile->inrenderlist)
+		if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
 		{
 			radius = bump_1.size;
 		}
@@ -1728,8 +1725,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 	float radius = 0.0f;
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(getTile());
-		if (nullptr != tile && tile->inrenderlist)
+        if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
 		{
 			radius = bump_1.size;
 		}
@@ -2025,6 +2021,22 @@ float Object::getAttribute(const Ego::Attribute::AttributeType type) const
             if(hasPerk(Ego::Perks::ATHLETICS)) {
                 attributeValue *= 1.25f;
             }
+        break;
+
+        //Limit lowest acceleration to zero
+        case Ego::Attribute::ACCELERATION:
+        {
+            if(attributeValue < 0.0f) return 0.0f;
+        }
+        break;
+
+        //Limit lowest base attribute to 1
+        case Ego::Attribute::MIGHT:
+        case Ego::Attribute::AGILITY:
+        case Ego::Attribute::INTELLECT:
+        {
+            if(attributeValue < 1.0f) return 1.0f;
+        }
         break;
 
         default:
@@ -2487,7 +2499,7 @@ bool Object::activateStealth()
     lineOfSightInfo.z1 = getPosZ() + std::max(1.0f, bump.height);
 
     //Check if there are any nearby Objects disrupting our stealth attempt
-    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE);
+    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false);
     for(const std::shared_ptr<Object> &object : nearbyObjects) {
         //Valid objects only
         if(object->isTerminated() || !object->isAlive() || object->isBeingHeld()) continue;

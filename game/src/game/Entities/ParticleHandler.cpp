@@ -22,7 +22,6 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/ParticleHandler.hpp"
-#include "game/egoboo_object.h"
 #include "game/Entities/Particle.hpp"
 
 
@@ -212,10 +211,6 @@ void ParticleHandler::unlock()
         auto condition = [this](const std::shared_ptr<Ego::Particle> &particle) 
         {
             if(!particle->isTerminated()) {
-                return false;
-            }
-
-            if (particle->getBSPLeaf().isInList()) {
                 return false;
             }
 

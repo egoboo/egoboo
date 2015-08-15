@@ -1377,7 +1377,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     slot_pos += pchr_a->getPosition();
 
     // Go through all characters to find the best match
-    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(slot_pos[kX], slot_pos[kY], MAX_SEARCH_DIST);
+    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(slot_pos[kX], slot_pos[kY], MAX_SEARCH_DIST, false);
     for(const std::shared_ptr<Object> &pchr_c : nearbyObjects)
     {
         grab_data_t grabData;
@@ -1807,9 +1807,7 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(chr->getTile());
-
-        if (nullptr != tile && tile->inrenderlist)
+        if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(chr->getTile()))
         {
             radius = chr->bump_1.size;
         }
@@ -1841,9 +1839,7 @@ float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(chr->getTile());
-
-        if (nullptr != tile && tile->inrenderlist)
+        if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(chr->getTile()))
         {
             radius = chr->bump_1.size;
         }

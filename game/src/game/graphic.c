@@ -24,7 +24,6 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/MiniMap.hpp"
 #include "egolib/egolib.h"
-#include "egolib/bsp.h"
 #include "game/graphic.h"
 #include "game/graphic_prt.h"
 #include "game/graphic_mad.h"
@@ -149,11 +148,6 @@ static dynalist_t _dynalist = DYNALIST_INIT;
 
 renderlist_mgr_t *renderlist_mgr_t::_singleton = nullptr;
 dolist_mgr_t *dolist_mgr_t::_singleton = nullptr;
-
-/// @todo Rename to _tileList_colst.
-static Ego::DynamicArray<BSP_leaf_t *> _renderlist_colst = DYNAMIC_ARY_INIT_VALS;
-/// @todo Rename to _entityList colst.
-static Ego::DynamicArray<BSP_leaf_t *> _dolist_colst = DYNAMIC_ARY_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
 
@@ -347,17 +341,6 @@ void GFX::initialize()
     // initialize the profiling variables.
     gfx_clear_loops = 0;
 
-    // allocate the specailized "collision lists"
-    if (!_dolist_colst.ctor(Ego::Graphics::EntityList::CAPACITY))
-    {
-        log_error("%s-%s-%d - Could not allocate entity collision list", __FILE__, __FUNCTION__, __LINE__);
-    }
-
-    if (!_renderlist_colst.ctor(Ego::Graphics::renderlist_lst_t::CAPACITY))
-    {
-        log_error("%s-%s-%d - Could not allocate tile collision list", __FILE__, __FUNCTION__, __LINE__);
-    }
-
     egolib_timer__init(&gfx_update_timer);
 }
 
@@ -378,10 +361,6 @@ void GFX::uninitialize()
 	// Uninitialize the profiling variables.
     gfx_clear_loops = 0;
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
-
-    // deallocate the specailized "collistion lists"
-    _dolist_colst.dtor();
-    _renderlist_colst.dtor();
 
     Ego::FontManager::uninitialize();
     TextureManager::get().release_all(); ///< @todo Remove this.
@@ -1555,8 +1534,7 @@ gfx_rv render_fans_by_list(const ego_mesh_t * mesh, const Ego::Graphics::renderl
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
         return gfx_error;
     }
-    size_t tcnt = mesh->tmem.tile_count;
-    const ego_tile_info_t *tlst = tile_mem_t::get(&(mesh->tmem), 0);
+    size_t tcnt = mesh->tmem.getTileCount();
 
     if (!rlst)
     {
@@ -1583,7 +1561,7 @@ gfx_rv render_fans_by_list(const ego_mesh_t * mesh, const Ego::Graphics::renderl
         }
         else
         {
-            const ego_tile_info_t * ptile = tlst + rlst->lst[cnt].index;
+            const std::shared_ptr<ego_tile_info_t> &ptile = mesh->tmem.getTile(rlst->lst[cnt].index);
 
             int img = TILE_GET_LOWER_BITS(ptile->img);
             if (ptile->type >= tile_dict.offset)
@@ -1793,7 +1771,8 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 	Ego::Graphics::RenderPasses::g_water.run(cam, tl, el);
 	// Render transparent entities.
 	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
-#if defined(_DEBUG)
+
+#if defined(DRAW_PRT_GRIP_ATTACH)
     render_all_prt_attachment();
 #endif
 
@@ -2962,9 +2941,6 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 {
-    gfx_rv      retval;
-    bool      local_allocation;
-
     // because the main loop of the program will always flip the
     // page before rendering the 1st frame of the actual game,
     // game_frame_all will always start at 1
@@ -2979,53 +2955,27 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
         return gfx_error;
     }
 
-    // has the colst been allocated?
-    local_allocation = false;
-    if (0 == _renderlist_colst.capacity())
-    {
-        // allocate a BSP leaf pointer array to return the detected nodes
-        local_allocation = true;
-        if (NULL == _renderlist_colst.ctor(Ego::Graphics::renderlist_lst_t::CAPACITY))
-        {
-            gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list");
-            return gfx_error;
+    // get the tiles in the center of the view (TODO: calculate actual tile view from camera frustrum)
+    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / GRID_FSIZE - 5, 0, _currentModule->getMeshPointer()->info.tiles_x);
+    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / GRID_FSIZE - 5, 0, _currentModule->getMeshPointer()->info.tiles_y);
+    int endX = Ego::Math::constrain<int>(startX + 10, 0, _currentModule->getMeshPointer()->info.tiles_x);
+    int endY = Ego::Math::constrain<int>(startY + 10, 0, _currentModule->getMeshPointer()->info.tiles_y);
+
+    for(size_t x = startX; x < endX; ++x) {
+        for(size_t y = startY; y < endY; ++y) {
+            if (gfx_error == tl.add(x + y*_currentModule->getMeshPointer()->info.tiles_y, cam))
+            {
+                return gfx_error;
+            }        
         }
     }
 
-    // assume the best
-    retval = gfx_success;
-
-    // get the tiles in the center of the view
-    _renderlist_colst.clear();
-    getMeshBSP()->collide(cam.getFrustum(), _renderlist_colst);
-
-    // transfer valid _renderlist_colst entries to the dolist
-    if (gfx_error == tl.add(&_renderlist_colst, cam))
-    {
-        retval = gfx_error;
-        goto gfx_make_renderlist_exit;
-    }
-
-gfx_make_renderlist_exit:
-
-    // if there was a local allocation, make sure to deallocate
-    if (local_allocation)
-    {
-        _renderlist_colst.dtor();
-    }
-
-    return retval;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
 {
-    gfx_rv retval;
-    bool local_allocation;
-
-    // assume the best
-    retval = gfx_success;
-
 	if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
@@ -3035,50 +2985,38 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
     // Remove all entities from the entity list.
     el.reset();
 
-    // has the colst been allocated?
-    local_allocation = false;
-    if (0 == _dolist_colst.capacity())
-    {
-        // allocate a BSP leaf pointer array to return the detected nodes
-        local_allocation = true;
-		if (!_dolist_colst.ctor(Ego::Graphics::EntityList::CAPACITY))
+    // collide the characters with the frustum
+    std::vector<std::shared_ptr<Object>> visibleObjects = 
+        _currentModule->getObjectHandler().findObjects(
+            cam.getCenter()[kX], 
+            cam.getCenter()[kY], 
+            GRID_FSIZE*10,  //@todo: use camera view size here instead
+            true);
+
+    for(const std::shared_ptr<Object> object : visibleObjects) {
+        if (!el.test_obj(*object.get())) continue;
+
+        if (gfx_error == el.add_obj_raw(*object.get()))
         {
-            gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list");
             return gfx_error;
         }
     }
 
-    // collide the characters with the frustum
-    _dolist_colst.clear();
-    getChrBSP()->collide(cam.getFrustum(), chr_BSP_is_visible, _dolist_colst);
-
-    // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == el.add_colst(&_dolist_colst))
-    {
-        retval = gfx_error;
-        goto Exit;
-    }
-
     // collide the particles with the frustum
-    _dolist_colst.clear();
-    getPrtBSP()->collide(cam.getFrustum(), prt_BSP_is_visible, _dolist_colst);
-
-    // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == el.add_colst(&_dolist_colst))
+    for(const std::shared_ptr<Ego::Particle> particle : ParticleHandler::get().iterator())
     {
-        retval = gfx_error;
-        goto Exit;
+        if (!el.test_prt(particle)) continue;
+
+        if(Ego::Math::Relation::outside != cam.getFrustum().intersects_sphere(sphere_t(particle->getPosition(), particle->bump_real.size_big), false))
+        {
+            if (gfx_error == el.add_prt_raw(particle))
+            {
+                return gfx_error;
+            }
+        }
     }
 
-Exit:
-
-    // if there was a local allocation, make sure to deallocate
-    if (local_allocation)
-    {
-        _dolist_colst.dtor();
-    }
-
-    return retval;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------

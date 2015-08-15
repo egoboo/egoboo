@@ -23,7 +23,6 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
-#include "game/egoboo_object.h"
 #include "game/graphic_prt.h"
 #include "game/physics.h"
 #include "egolib/_math.h"

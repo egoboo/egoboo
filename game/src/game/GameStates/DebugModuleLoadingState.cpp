@@ -263,8 +263,7 @@ void DebugModuleLoadingState::loadModuleData()
         else log_message( "Failure!\n" );
 
         // initialize the collision system
-        singleThreadRedrawHack("Preparing collisions...");
-        CollisionSystem::get()->reset();
+        singleThreadRedrawHack("Beautifying graphics...");
 
         //Ready message display
         DisplayMsg_reset();
@@ -297,8 +296,6 @@ void DebugModuleLoadingState::loadModuleData()
         // set up the cameras *after* game_begin_module() or the player devices will not be initialized
         // and camera_system_begin() will not set up thte correct view
         CameraSystem::request(local_stats.player_count);
-
-        obj_BSP_system_begin(getMeshBSP()); 
 
         //Fade out music when finished loading
         AudioSystem::get().stopMusic();

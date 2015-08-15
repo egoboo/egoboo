@@ -27,13 +27,13 @@
 #endif
 
 #include "game/egoboo_typedef.h"
+#include "game/Module/Module.hpp"
 #include "game/physics.h"
 #include "egolib/Script/script.h"
 #include "game/graphic_mad.h"
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"
 #include "egolib/IDSZ_map.h"
-#include "game/Module/Module.hpp"
 #include "game/Inventory.hpp"
 
 //Forward declarations
@@ -775,8 +775,6 @@ private:
     void checkLevelUp();
 
 public:
-    BSP_leaf_t     bsp_leaf;
-
     chr_spawn_data_t  spawn_data;
 
     // character state

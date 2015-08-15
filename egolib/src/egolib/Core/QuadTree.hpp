@@ -91,27 +91,6 @@ public:
 	/**
 	* @brief
 	*	Find all elements that are within range of a specified point in this QuadTree's
-	*	bounding box
-	* @param x
-	*	x position of point to search from
-	* @param y
-	*	y position of point to search from
-	* @param distance
-	*	range of search from point
-	* @return
-	*	A vector containing all elements that fit the search
-	**/
-	std::vector<std::shared_ptr<T>> find(const float x, const float y, const float distance) const
-	{
-		std::vector<std::shared_ptr<T>> result;
-		AABB_2D searchArea = AABB_2D(Vector2f(x-distance, y-distance), Vector2f(x+distance, y+distance));
-		find(searchArea, result);
-		return result;
-	}
-
-	/**
-	* @brief
-	*	Find all elements that are within range of a specified point in this QuadTree's
 	*	bounding box.
 	* @param searchArea
 	*	The bounding box which is used for finding elements
@@ -130,7 +109,7 @@ public:
 			std::shared_ptr<T> element = weakElement.lock();
 
 			//Make sure element still exists
-			if(element != nullptr && !element->isTerminated()) {
+			if(element != nullptr) {
 
 				//Check if element is within search area
 				if(element->getAABB2D().overlaps(searchArea)) {
@@ -207,7 +186,7 @@ private:
 	}
 
 private:
-	static const size_t QUAD_TREE_NODE_CAPACITY = 4;	//< Maximum number of nodes in tree before subdivision
+	static const size_t QUAD_TREE_NODE_CAPACITY = 8;	//< Maximum number of nodes in tree before subdivision
 
 	AABB_2D _bounds;									//< 2D AABB
 

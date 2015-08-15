@@ -23,8 +23,6 @@
 
 #include "game/Graphics/RenderPasses.hpp"
 #include "game/graphic.h"
-#include "egolib/bsp.h"
-#include "game/graphic.h"
 #include "game/graphic_prt.h"
 #include "game/graphic_mad.h"
 #include "game/graphic_fan.h"

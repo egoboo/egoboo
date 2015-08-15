@@ -43,7 +43,9 @@ ObjectHandler::ObjectHandler() :
     _semaphore(0),
     _deletedCharacters(0),
     _totalCharactersSpawned(0),
-    _dynamicObjects()
+    _dynamicObjects(),
+    _staticObjects(),
+    _updateStaticTreeClock(0)
 {
     _iteratorList.reserve(OBJECTS_MAX);
 }
@@ -182,6 +184,7 @@ void ObjectHandler::clear()
 {
 	_internalCharacterList.clear();
 	_iteratorList.clear();
+    _dynamicObjects.clear(0, 0, 0, 0);
     _deletedCharacters = 0;
     _totalCharactersSpawned = 0;
 }
@@ -249,7 +252,6 @@ void ObjectHandler::maybeRunDeferred()
             [this](const std::shared_ptr<Object>& element)
             {
                 EGOBOO_ASSERT(nullptr != element);
-                if (element->bsp_leaf.isInList()) return false;
 
                 if (element->isTerminated())
                 {
@@ -317,12 +319,43 @@ void ObjectHandler::updateQuadTree(float minX, float minY, float maxX, float max
     //Reset quad-tree
     _dynamicObjects.clear(minX, minY, maxX, maxY);
 
+    //Rebuild the static quad tree only once per second
+    bool updateStaticQuadTree = false;
+    if(_updateStaticTreeClock <= 0) {
+        _updateStaticTreeClock = ONESECOND;
+        updateStaticQuadTree = true;
+        _staticObjects.clear(minX, minY, maxX, maxY);
+    }
+    else {
+        _updateStaticTreeClock--;
+    }
+
     //Rebuild quad-tree
     for(const std::shared_ptr<Object> &object : _iteratorList) {
-        _dynamicObjects.insert(object);
+        //Do not add objects that cannot interact with the rest of the world
+        if(object->isTerminated() || object->isHidden()) continue;
+
+        if(object->isScenery()) {
+            if(updateStaticQuadTree) {
+                _staticObjects.insert(object);
+            }
+        }
+        else {
+            _dynamicObjects.insert(object);
+        }
     }
 }
 
-std::vector<std::shared_ptr<Object>> ObjectHandler::findObjects(const float x, const float y, const float distance) const { 
-    return _dynamicObjects.find(x, y, distance);
+std::vector<std::shared_ptr<Object>> ObjectHandler::findObjects(const float x, const float y, const float distance, bool includeSceneryObjects) const { 
+    std::vector<std::shared_ptr<Object>> result;
+    AABB_2D searchArea = AABB_2D(Vector2f(x-distance, y-distance), Vector2f(x+distance, y+distance));
+    _dynamicObjects.find(searchArea, result);
+    if(includeSceneryObjects) _staticObjects.find(searchArea, result);
+    return result;
+}
+
+void ObjectHandler::findObjects(const AABB_2D &searchArea, std::vector<std::shared_ptr<Object>> &result, bool includeSceneryObjects) const 
+{
+    if(includeSceneryObjects) _staticObjects.find(searchArea, result);
+    return _dynamicObjects.find(searchArea, result);
 }
