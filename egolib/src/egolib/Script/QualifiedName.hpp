@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file   egolib/Script/QualifiedName.hpp
+/// @brief  A qualified names i.e. a name of the form @code{<name>('.'<name>)*}.
+/// @author Michael Heilmann
+
 #pragma once
 
 #include "egolib/Script/Errors.hpp"

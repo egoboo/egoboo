@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file   egolib/Script/Buffer.hpp
+/// @brief  A text buffer.
+/// @author Michael Heilmann
+
 #pragma once
 
 #include "egolib/platform.h"

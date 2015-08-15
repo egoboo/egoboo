@@ -973,14 +973,11 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp">
       <Filter>Header Files\Renderer</Filter>
-    </ClInclude>    
+    </ClInclude>
     <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Field.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\OrderedRing.hpp">
@@ -990,6 +987,9 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Module.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\OrderedField.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
