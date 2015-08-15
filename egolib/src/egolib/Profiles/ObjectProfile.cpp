@@ -675,6 +675,8 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _useManaCost = vfs_get_next_float(ctxt);
     vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::LIFE_REGEN]);
     _attributeGain[Ego::Attribute::LIFE_REGEN].from = _attributeGain[Ego::Attribute::LIFE_REGEN].to = 0;    //ZF> TODO: regen gain per level not implemented
+    _baseAttribute[Ego::Attribute::LIFE_REGEN].from /= 256.0f;
+    _baseAttribute[Ego::Attribute::LIFE_REGEN].to /= 256.0f;
     _stoppedBy |= vfs_get_next_int(ctxt);
 
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
@@ -1312,7 +1314,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     // More stuff
     template_put_float(fileTemp, fileWrite, 0); //unused
     template_put_float(fileTemp, fileWrite, profile->_useManaCost);
-    template_put_float(fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::LIFE_REGEN) * GameEngine::GAME_TARGET_UPS);   //Note: overridden by chr
+    template_put_float(fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::LIFE_REGEN) * 256.0f);   //Note: overridden by chr
     template_put_int( fileTemp, fileWrite, character->stoppedby );   //Note: overridden by chr
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(0).name.c_str() );
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(1).name.c_str() );
