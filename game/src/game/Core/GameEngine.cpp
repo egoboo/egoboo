@@ -561,7 +561,8 @@ int SDL_main(int argc, char **argv)
         {
             Ego::Core::System::uninitialize();
             std::rethrow_exception(std::current_exception());
-        }
+		}
+		Ego::Core::System::uninitialize();
     }
     catch (const Ego::Core::Exception& ex)
     {
