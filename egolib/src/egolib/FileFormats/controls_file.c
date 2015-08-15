@@ -62,15 +62,6 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
     int file_version;
 	bool retval = false;
 
-    // Make sure the file exists, if not copy it from the default folder
-    // should be unneeded, need to test on linux
-#if 0
-    if ( !fs_ensureUserFile( "controls.txt", true ) )
-    {
-        return false;
-    }
-#endif
-
     // get the file version
     file_version     = -1;
 
@@ -107,7 +98,7 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
             break;
 
         default:
-            log_warning( "Cannot load the given setting.txt file because required_version %d is not supported.\n", file_version );
+            log_warning( "Cannot load the given controls.txt file because required version %d is not supported.\n", file_version );
             retval = false;
             break;
     }

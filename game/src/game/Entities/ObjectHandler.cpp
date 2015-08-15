@@ -38,7 +38,6 @@ bool INGAME_PCHR(const Object *pobj)
 ObjectHandler::ObjectHandler() :
 	_internalCharacterList(),
     _iteratorList(),
-    _unusedChrRefs(),
     _allocateList(),
 
     _semaphore(0),
@@ -46,7 +45,6 @@ ObjectHandler::ObjectHandler() :
     _totalCharactersSpawned(0),
     _dynamicObjects()
 {
-	_internalCharacterList.reserve(OBJECTS_MAX);
     _iteratorList.reserve(OBJECTS_MAX);
 }
 
@@ -70,19 +68,24 @@ bool ObjectHandler::remove(const CHR_REF ichr)
     _deletedCharacters++;
 
     // We can safely modify the map, it is not iterable from the outside.
-    _internalCharacterList[ichr] = nullptr;
+    _internalCharacterList.erase(ichr);
     
     return true;
 }
 
 bool ObjectHandler::exists(const CHR_REF character) const
 {
-    if(character == INVALID_CHR_REF || character >= _internalCharacterList.size()) 
-    {
+    if(character == INVALID_CHR_REF || character >= _totalCharactersSpawned) {
         return false;
     }
 
-    return _internalCharacterList[character] != nullptr && !_internalCharacterList[character]->isTerminated();
+    //Check if object exists in map
+    const auto& result = _internalCharacterList.find(character);
+    if(result == _internalCharacterList.end()) {
+        return false;
+    }
+
+    return !(*result).second->isTerminated();
 }
 
 
@@ -117,21 +120,11 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_R
 		}
     }
 
-    //No override specified, get first free slot
+    //No override specified, generate new ID
     else
     {
-        if(!_unusedChrRefs.empty())
-        {
-            ichr = _unusedChrRefs.top();
-            _unusedChrRefs.pop();
-        }
-        else
-        {
-            ichr = _internalCharacterList.size() + 1;
-        }
-
         // Increment counter.
-        _totalCharactersSpawned++;
+        ichr = _totalCharactersSpawned++;
     }
 
     if (ichr != INVALID_CHR_REF)
@@ -144,13 +137,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_R
             return nullptr;
         }
 
-        //Ensure character list is big enough to hold new object
-        if(_internalCharacterList.size() < ichr)
-        {
-            _internalCharacterList.resize(ichr+1);
-        }
-
-        // Allocate the new one (we can safely modify the internal list, it isn't iterable from outside).
+        // Allocate the new one (we can safely modify the internal map, it isn't iterable from outside).
         _internalCharacterList[ichr] = object;
 
         // Wait to adding it to the iterable list.
@@ -163,27 +150,36 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_R
 
 Object* ObjectHandler::get(const CHR_REF index) const
 {
-    if(index == INVALID_CHR_REF || index >= _internalCharacterList.size())
-	{
+    if(index == INVALID_CHR_REF || index >= _totalCharactersSpawned) {
         return nullptr;
     }
 
-    return _internalCharacterList[index].get();
+    //Check if object exists in map
+    const auto& result = _internalCharacterList.find(index);
+    if(result == _internalCharacterList.end()) {
+        return nullptr;
+    }
+
+    return (*result).second.get();
 }
 
 const std::shared_ptr<Object>& ObjectHandler::operator[] (const CHR_REF index)
 {
-    if(index == INVALID_CHR_REF || index >= _internalCharacterList.size())
-    {
+    if(index == INVALID_CHR_REF || index >= _totalCharactersSpawned) {
         return Object::INVALID_OBJECT;
     }
 
-    return _internalCharacterList[index];
+    //Check if object exists in map
+    const auto& result = _internalCharacterList.find(index);
+    if(result == _internalCharacterList.end()) {
+        return Object::INVALID_OBJECT;
+    }
+
+    return (*result).second;
 }
 
 void ObjectHandler::clear()
 {
-    while(!_unusedChrRefs.empty()) _unusedChrRefs.pop();
 	_internalCharacterList.clear();
 	_iteratorList.clear();
     _deletedCharacters = 0;
@@ -258,7 +254,6 @@ void ObjectHandler::maybeRunDeferred()
                 if (element->isTerminated())
                 {
                     //Delete this character
-                    _unusedChrRefs.push(element->getCharacterID());
                     _deletedCharacters--;
 
                     // Make sure everyone knows it died

@@ -3,6 +3,7 @@
 #include "egolib/strutil.h"
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/fileutil.h"
+#include "egolib/Logic/ObjectSlot.hpp"
 
 namespace Ego
 {

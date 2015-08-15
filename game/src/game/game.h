@@ -451,8 +451,6 @@ int    game_do_menu( struct menu_process_t * mproc );
 
 void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
-void attach_all_particles();
-
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );
 
@@ -462,13 +460,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF ichr );
 bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem );
 bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
-bool get_chr_regeneration( Object * pchr, int *pliferegen, int * pmanaregen );
-
 float get_chr_level( ego_mesh_t * mesh, Object * pchr );
-
-void disenchant_character( const CHR_REF ichr );
-
-void cleanup_character_enchants( Object * pchr );
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 

@@ -55,6 +55,8 @@ PerkHandler::PerkHandler() :
         "Wolverine", "+100% damage with Claws.\nGain +0.25 Life Regeneration while holding Claws.");
     initializePerk(BERSERKER, Attribute::MIGHT, "mp_data/perks/berserker", 
         "Berserker", "Deal +25% damage if you are below 25% health.", BRUTE);
+    initializePerk(TROLL_BLOOD, Attribute::MIGHT, "mp_data/perks/troll_blood", 
+        "Troll Blood", "+0.25 Life Regeneration.\n-10 Fire Resistance.", BRUTE);
 
     //Intellectual
     initializePerk(CARTOGRAPHY, Attribute::INTELLECT, "mp_data/perks/cartography",
@@ -88,7 +90,7 @@ PerkHandler::PerkHandler() :
     initializePerk(SENSE_UNDEAD, Attribute::INTELLECT, "mp_data/perks/sense_undead",
         "Sense Undead", "Reveals undead monsters on the minimap.");
     initializePerk(PERCEPTIVE, Attribute::INTELLECT, "mp_data/perks/perceptive",
-        "Perceptive", "Can find traps and hidden treasure.\n+100% listening range\n10% minimum ambient light.");
+        "Perceptive", "Can find traps and hidden treasure.\n+100% listening range\nDouble chance to detect stealthed enemies.");
     initializePerk(DANGER_SENSE, Attribute::INTELLECT, "mp_data/perks/danger_sense",
         "Danger Sense", "Reveals enemies on the minimap.", PERCEPTIVE);
     initializePerk(SENSE_INVISIBLE, Attribute::INTELLECT, "mp_data/perks/sense_invisible",
@@ -139,6 +141,12 @@ PerkHandler::PerkHandler() :
         "Rally", "Nearby allies gain +10% Movement Speed and Attack Damage.");
     initializePerk(GUARDIAN_ANGEL, Attribute::INTELLECT, "mp_data/perks/guardian_angel",
         "Guardian Angel", "1% chance per Experience Level to gain full health when suffering a killing blow.");
+    initializePerk(PYROMANIAC, Attribute::INTELLECT, "mp_data/perks/dark_arts_mastery",
+        "Pyromaniac", "+25% Fire damage.\n-10 Fire Resistance.");
+    initializePerk(ROSEMARY, Attribute::INTELLECT, "mp_data/perks/rosemary",
+        "Rosemary", "+4 Evil resistance.");
+    initializePerk(TELEKINETIC_STAFF, Attribute::INTELLECT, "mp_data/perks/telekinetic_staff",
+        "Telekinetic Staff", "Chance to cause massive knockback when using staff.\nEffect is determined by your Intellect vs target Might.");
 
     //Agility
     initializePerk(ACROBATIC, Attribute::AGILITY, "mp_data/perks/acrobatics",
@@ -156,7 +164,7 @@ PerkHandler::PerkHandler() :
     initializePerk(MASTERFUL_DODGE, Attribute::AGILITY, "mp_data/perks/masterful_dodge",
         "Masterful Dodge", "+10% Dodge chance.", DODGE);
     initializePerk(BACKSTAB, Attribute::AGILITY, "mp_data/perks/backstab",
-        "Backstab", "Attacking enemies from behind deals +10% damage per Agility. Instantly kills sleeping creatures.");
+        "Backstab", "Attacking enemies from behind deals +10% damage per Agility. Instantly kills sleeping creatures.", STEALTH);
     initializePerk(CRACKSHOT, Attribute::AGILITY, "mp_data/perks/crackshot",
         "Crackshot", "1% chance per Intellect to Daze enemies for 3 seconds\nwho are hit by your fireweapons.");
     initializePerk(SHARPSHOOTER, Attribute::AGILITY, "mp_data/perks/sharpshooter",
@@ -178,7 +186,15 @@ PerkHandler::PerkHandler() :
     initializePerk(DOUBLE_SHOT, Attribute::AGILITY, "mp_data/perks/double_shot", 
         "Double Shot", "+1% chance per Agility to fire 1 extra arrow with Longbows.", BOW_MASTERY);
     initializePerk(IMPROVISED_WEAPONS, Attribute::AGILITY, "mp_data/perks/improvised_weapons", 
-        "Improvised Weapons", "+100% damage with Shovel, Crowbar, Pick, Torch and Toilet Plunger.");
+        "Improvised Weapons", "+100% damage with Shovel, Crowbar, Pick,\nTorch and Toilet Plunger.");
+    initializePerk(STEALTH, Attribute::AGILITY, "mp_data/perks/stealth", 
+        "Stealth", "Can hide from other creatures while moving at 33% speed.");
+    initializePerk(STALKER, Attribute::AGILITY, "mp_data/perks/stalker", 
+        "Stalker", "Can stealth while moving at 50% speed.\nCan jump while stealthing.", STEALTH);
+    initializePerk(SHADE, Attribute::AGILITY, "mp_data/perks/shade", 
+        "Shade", "Can stealth while moving at 75% speed.\nBumping enemies does not break stealth.", STALKER);
+    initializePerk(CAMOUFLAGE, Attribute::AGILITY, "mp_data/perks/camouflage", 
+        "Camouflage", "Can attempt to hide while nearby enemies\nare not facing you.", STALKER);
 
     //Make sure all perks have been initialized properly
     for(size_t i = 0; i < _perkList.size(); ++i) {

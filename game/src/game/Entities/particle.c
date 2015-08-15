@@ -31,7 +31,6 @@
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
 #include "game/mesh.h"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 
@@ -882,8 +881,6 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     if (!_currentModule->getObjectHandler().exists(character)) return 0;
     Object *pchr = _currentModule->getObjectHandler().get(character);
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
     bs_count = 0;
 
     // Only damage if hitting from proper direction
@@ -891,12 +888,13 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     direction = ATK_BEHIND + (pchr->ori.facing_z - direction);
 
     // Check that direction
-    if (!is_invictus_direction(direction, character, ppip->damfx))
+    if (!pchr->isInvictusDirection(direction, ppip->damfx))
     {
         // Spawn new enchantments
-        if (ppip->spawnenchant)
+        if (ppip->spawnenchant) 
         {
-            EnchantHandler::get().spawn_one_enchant(pprt->owner_ref, character, INVALID_CHR_REF, INVALID_ENC_REF, pprt->getSpawnerProfile());
+            const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pprt->getSpawnerProfile());
+            pchr->addEnchant(spawnerProfile->getEnchantRef(), pprt->getSpawnerProfile(), _currentModule->getObjectHandler()[pprt->owner_ref], Object::INVALID_OBJECT);
         }
 
         // Spawn particles - this has been modded to maximize the visual effect
@@ -913,14 +911,14 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
             if (Random::nextFloat() <= pchr->getDamageReduction(pprt->damagetype)) amount--;
         }
 
-        if (amount > 0 && !profile->hasResistBumpSpawn() && !pchr->invictus)
+        if (amount > 0 && !pchr->getProfile()->hasResistBumpSpawn() && !pchr->invictus)
         {
             int grip_verts, vertices;
             int slot_count;
 
             slot_count = 0;
-            if (profile->isSlotValid(SLOT_LEFT)) slot_count++;
-            if (profile->isSlotValid(SLOT_RIGHT)) slot_count++;
+            if (pchr->getProfile()->isSlotValid(SLOT_LEFT)) slot_count++;
+            if (pchr->getProfile()->isSlotValid(SLOT_RIGHT)) slot_count++;
 
             if (0 == slot_count)
             {

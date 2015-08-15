@@ -36,6 +36,9 @@
 #include "game/Module/Module.hpp"
 #include "game/Inventory.hpp"
 
+//Forward declarations
+namespace Ego { class Enchantment; }
+
 /// The possible methods for characters to determine what direction they are facing
 enum turn_mode_t : uint8_t
 {
@@ -92,7 +95,7 @@ struct chr_environment_t
 
     float  zlerp;
 
-    fvec3_t floor_speed;
+    Vector3f floor_speed;
 
     // friction stuff
     bool is_slipping;
@@ -106,9 +109,9 @@ struct chr_environment_t
     bool grounded;              ///< standing on something?
 
     // various motion parameters
-    fvec3_t  new_v;
-    fvec3_t  acc;
-    fvec3_t  vel;
+    Vector3f  new_v;
+    Vector3f  acc;
+    Vector3f  vel;
 };
 
 /// the data used to define the spawning of a character
@@ -126,7 +129,7 @@ struct chr_spawn_data_t
         //ctor
     }
 
-    fvec3_t     pos;
+    Vector3f     pos;
     PRO_REF     profile;
     TEAM_REF    team;
     int         skin;
@@ -162,9 +165,7 @@ public:
     * @brief Gets a shared_ptr to the current ObjectProfile associated with this character.
     *        The ObjectProfile can change for polymorphing objects.
     **/
-    std::shared_ptr<ObjectProfile> getProfile() const {
-        return ProfileSystem::get().getProfile(profile_ref);
-    }
+    const std::shared_ptr<ObjectProfile>& getProfile() const;
 
     /**
     * @return the unique CHR_REF associated with this character
@@ -174,13 +175,19 @@ public:
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
     **/
-    inline Team& getTeam() const {return _currentModule->getTeamList()[team];}
+    Team& getTeam() const {return _currentModule->getTeamList()[team];}
 
     /**
     * @brief
     *   True if this Object is a item that can be grabbed
     **/
-    inline bool isItem() const {return isitem;}
+    bool isItem() const {return isitem;}
+
+    /**
+    * @return
+    *   true if this Object is currently levitating above the ground
+    **/
+    bool isFlying() const;
 
     /**
     * @brief
@@ -243,13 +250,13 @@ public:
     * @brief Set current X, Y, Z position of this Object
     * @return true if the position of this object has changed
     **/
-    bool setPosition(const fvec3_t &position);
+    bool setPosition(const Vector3f &position);
 
     /**
     * @brief Set current X, Y, Z position of this Object
     * @return true if the position of this object has changed
     **/
-    inline bool setPosition(const float x, const float y, const float z) {return setPosition(fvec3_t(x, y, z));}
+    inline bool setPosition(const float x, const float y, const float z) {return setPosition(Vector3f(x, y, z));}
 
     /**
     * @brief Translate the current X, Y, Z position of this object by the specified values
@@ -353,7 +360,7 @@ public:
     * @brief
     *   Returns true if this Object has not been killed by anything
     **/
-    bool isAlive() const {return alive;}
+    bool isAlive() const {return _isAlive;}
 
     bool isHidden() const {return is_hidden;}
 
@@ -367,7 +374,7 @@ public:
     * @result
     *   Success returns true, failure returns false;
     **/
-    bool teleport(const fvec3_t& position, const FACING_T facing_z);
+    bool teleport(const Vector3f& position, const FACING_T facing_z);
 
     /**
     * @brief
@@ -454,10 +461,6 @@ public:
     /// @details This function fixes an item's transparency
     void resetAlpha();
 
-    /// @author ZZ
-    /// @details This function fixes a character's max acceleration
-    void resetAcceleration();
-
     /**
     * @brief
     *   Awards some experience points to this object, potentionally allowing it to reach another
@@ -480,11 +483,11 @@ public:
 	/** @override */
 	BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
 	/** @override */
-	BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+	BIT_FIELD hit_wall(const Vector3f& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
 	/** @override */
 	BIT_FIELD test_wall(mesh_wall_data_t *data) override;
 	/** @override */
-	BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
+	BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) override;
 
     inline AABB_2D getAABB2D() const
     {
@@ -506,10 +509,10 @@ public:
     bool costMana(int amount, const CHR_REF killer);
 
     /**
-    * @brief
-    *   Get current mana in SPF8 format
+    * @return
+    *   Get current mana
     **/
-    inline SFP8_T getMana() const { return mana; }
+    float getMana() const;
 
     /**
     * @brief
@@ -522,6 +525,22 @@ public:
     *   current life remaining in float format
     **/
     float getLife() const;
+
+    /**
+    * @brief
+    *   Set the current life of this Object to the specified value.
+    *   The value will automatically be clipped to a valid value between
+    *   0.01f and the maximum life of this Object. This cannot kill the Object.
+    **/
+    void setLife(const float value);
+
+    /**
+    * @brief
+    *   Set the current mana of this Object to the specified value.
+    *   The value will automatically be clipped to a valid value between
+    *   0.00f and the maximum mana of this Object
+    **/
+    void setMana(const float value);
 
     /**
     * @brief
@@ -566,15 +585,28 @@ public:
 
     /**
     * @brief
-    *   Get total value for the specified attribute
+    *   Get total value for the specified attribute. Includes bonuses from Enchants, Perks
+    *   and other active boni or penalties.
     **/
     float getAttribute(const Ego::Attribute::AttributeType type) const;
+
+    /**
+    * @brief
+    *   Get base value for the specified attribute (without applying effects from Enchants and Perks)
+    **/
+    float getBaseAttribute(const Ego::Attribute::AttributeType type) const;
 
     /**
     * @brief
     *   Permanently increases or decreases an attribute of this Object
     **/
     void increaseBaseAttribute(const Ego::Attribute::AttributeType type, float value);
+
+    /**
+    * @brief
+    *   Permanently changes the base attribute of this character to something else
+    **/
+    void setBaseAttribute(const Ego::Attribute::AttributeType type, float value);
 
     /**
     * @return
@@ -606,7 +638,7 @@ public:
     * @return
     *   true if this Object can detect and see invisible objects
     **/
-    bool canSeeInvisible() const { return see_invisible_level > 0 || getProfile()->canSeeInvisible() || hasPerk(Ego::Perks::SENSE_INVISIBLE); }
+    bool canSeeInvisible() const { return getAttribute(Ego::Attribute::SEE_INVISIBLE); }
 
     /**
     * @return
@@ -628,6 +660,97 @@ public:
     *   or first time generating a character from scratch (not a save game)
     **/
     void randomizeLevelUpSeed() { _levelUpSeed = Random::next(Random::next<uint32_t>(numeric_limits<uint32_t>::max())); }
+
+    /**
+    * @brief
+    *   Applies an enchantment to this object
+    * @param enchantProfile
+    *   The unique profile ID for the Enchantment (ENC_REF)
+    * @param spawnerProfile
+    *   The unique ObjectProfile ID for the object that creates this enchant
+    * @brief
+    *   pointer to the enchant that was added (or nullptr if it failed)
+    **/
+    std::shared_ptr<Ego::Enchantment> addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner);
+
+    void removeEnchantsWithIDSZ(const IDSZ idsz);
+
+    std::forward_list<std::shared_ptr<Ego::Enchantment>>& getActiveEnchants();
+
+    /**
+    * @brief
+    *   Removes all enchantments from character
+    **/
+    bool disenchant();
+
+    /**
+    * @brief
+    *   Changes the skin of this Object to the specified skin number.
+    *   This changes this Objects damage resistances and movement speed accordingly to the new
+    *   armor of the skin.
+    * @return
+    *   true if the skin could be changed into the specified number or false if it fails
+    **/
+    bool setSkin(const size_t skinNumber);
+
+    std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>>& getTempAttributes();
+
+    std::shared_ptr<Ego::Enchantment> getLastEnchantmentSpawned() const;
+
+    const std::shared_ptr<Object>& toSharedPointer() const;
+
+    /**
+    * @brief
+    *   changes the name of this Object
+    **/
+    void setName(const std::string &name);
+
+    /**
+    * @brief
+    *   Changes this Object into a different type. This effect is reversible (base profile is not changed)
+    **/
+    void polymorphObject(const PRO_REF profileID, const SKIN_T skin);
+
+    PRO_REF getProfileID() const {return _profileID;}
+
+    /**
+    * @return
+    *   true if this Object is immune to damage from the specified direction
+    **/
+    bool isInvictusDirection(FACING_T direction, const BIT_FIELD effects) const;
+
+    /**
+    * @return 
+    *   true if this Object is actively trying to hide from others
+    **/
+    bool isStealthed() const;
+
+    /**
+    * @brief
+    *  makes this creature enter Stealth mode. It will try to stay hidden from other Objects.
+    *  It will only work if there are no enemies nearby. Depending on the skill level of the
+    *  Object, it movement may or may not be restricted. Enemies try to detect stealthed objects
+    *  once every second.
+    * @return
+    *   true if this object is now stealthed from other Objects
+    **/
+    bool activateStealth();
+
+    /**
+    * @brief
+    *   This ends the stealth effect on this Object and reveals it to everyone else
+    **/
+    void deactivateStealth();
+
+    /**
+    * @return
+    *   true if this Object is a scenery object like furniture, trees, plants, carpets, pillars or a well.
+    *   A scenery object is defined by the following attributes:
+    *    * cannot move by itself
+    *    * is not an item
+    *    * objects on team NULL
+    **/
+    bool isScenery() const;
 
 private:
 
@@ -661,14 +784,7 @@ public:
     latch_t        latch;
 
     // character stats
-    STRING         Name;            ///< My name
     uint8_t        gender;          ///< Gender
-
-    uint8_t        life_color;      ///< Bar color
-	SFP8_T         life;            ///< current life (signed 8.8 fixed point)
-
-    uint8_t        mana_color;      ///< Bar color
-	SFP8_T         mana;            ///< current mana (signed 8.8 fixed point)
 
     uint32_t       experience;      ///< Experience
     uint8_t        experiencelevel; ///< Experience Level
@@ -685,21 +801,15 @@ public:
     TEAM_REF       team;            ///< Character's team
     TEAM_REF       team_base;        ///< Character's starting team
 
-    // enchant data
-    ENC_REF        firstenchant;                  ///< Linked list for enchants
-    ENC_REF        undoenchant;                   ///< Last enchantment spawned
-
     float          fat_stt;                       ///< Character's initial size
     float          fat;                           ///< Character's size
     float          fat_goto;                      ///< Character's size goto
     int16_t         fat_goto_time;                 ///< Time left in size change
 
     // jump stuff
-    float          jump_power;                    ///< Jump power
     uint8_t          jump_timer;                      ///< Delay until next jump
     uint8_t          jumpnumber;                    ///< Number of jumps remaining
-    uint8_t          jumpnumberreset;               ///< Number of jumps total, 255=Flying
-    uint8_t          jumpready;                     ///< For standing on a platform character
+    bool             jumpready;                     ///< For standing on a platform character
 
     // attachments
     CHR_REF        attachedto;                    ///< != INVALID_CHR_REF if character is a held weapon
@@ -714,20 +824,10 @@ public:
     // combat stuff
     DamageType          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
     DamageType          reaffirm_damagetype;           ///< For relighting torches
-    std::array<uint8_t, DAMAGE_COUNT> damage_modifier; ///< Damage inversion
-    std::array<float, DAMAGE_COUNT> damage_resistance; ///< Damage Resistances
-    uint8_t          defense;                       ///< Base defense rating
-    SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
-
-    // missle handling
-    uint8_t          missiletreatment;              ///< For deflection, etc.
-    uint8_t          missilecost;                   ///< Mana cost for each one
-    CHR_REF        missilehandler;                ///< Who pays the bill for each one...
 
     // "variable" properties
     bool         is_hidden;
-    bool         alive;                         ///< Is it alive?
     PLA_REF      is_which_player;               ///< true = player
     bool         islocalplayer;                 ///< true = local player
     bool         invictus;                      ///< Totally invincible?
@@ -739,28 +839,20 @@ public:
 
     // "constant" properties
     bool         isitem;                        ///< Is it grabbable?
-    bool         cangrabmoney;                  ///< Picks up coins?
-    bool         openstuff;                     ///< Can it open chests/doors?
-    bool         stickybutt;                    ///< Rests on floor
     bool         isshopitem;                    ///< Spawned in a shop?
     bool         canbecrushed;                  ///< Crush in a door?
-    bool         canchannel;                    ///< Can it convert life to mana?
 
     // misc timers
     int16_t         grog_timer;                    ///< Grog timer
     int16_t         daze_timer;                    ///< Daze timer
     int16_t         bore_timer;                    ///< Boredom timer
-    uint8_t          careful_timer;                 ///< "You hurt me!" timer
-    uint16_t         reload_timer;                  ///< Time before another shot
-    uint8_t          damage_timer;                  ///< Invincibility timer
+    uint8_t         careful_timer;                 ///< "You hurt me!" timer
+    uint16_t        reload_timer;                  ///< Time before another shot
+    uint8_t         damage_timer;                  ///< Invincibility timer
 
-    // graphica info
-    uint8_t          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
-    bool         transferblend;   ///< Give transparency to weapons?
+    // graphical info
     bool         draw_icon;       ///< Show the icon?
     uint8_t          sparkle;         ///< Sparkle color or 0 for off
-    SFP8_T         uoffvel;         ///< Moving texture speed (8.8 fixed point)
-    SFP8_T         voffvel;          ///< Moving texture speed (8.8 fixed point)
     float          shadow_size_stt;  ///< Initial shadow size
     uint32_t         shadow_size;      ///< Size of shadow
     uint32_t         shadow_size_save; ///< Without size modifiers
@@ -768,14 +860,8 @@ public:
     // model info
     bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
     SKIN_T         skin;                          ///< Character's skin
-    PRO_REF        profile_ref;                      ///< Character's profile
     PRO_REF        basemodel_ref;                     ///< The true form
     chr_instance_t inst;                          ///< the render data
-
-    // Skills
-    int           darkvision_level;
-    int           see_kurse_level;
-    int           see_invisible_level;
 
     // collision info
 
@@ -804,16 +890,9 @@ public:
     CHR_REF        bumplist_next;                 ///< Next character on fanblock
 
     // movement properties
-    bool         waterwalk;                     ///< Always above watersurfacelevel?
     turn_mode_t  turnmode;                      ///< Turning mode
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
-    float          anim_speed_sneak;              ///< Movement rate of the sneak animation
-    float          anim_speed_walk;               ///< Walking if above this speed
-    float          anim_speed_run;                ///< Running if above this speed
-    float          maxaccel;                      ///< The actual maximum acelleration
-    float          maxaccel_reset;                ///< The current maxaccel_reset
-    uint8_t          flyheight;                     ///< Height to stabilize at
 
     // data for doing the physics in bump_all_objects()
 
@@ -825,18 +904,34 @@ public:
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 private:
-    bool _terminateRequested;                            ///< True if this character no longer exists in the game and should be destructed
-    CHR_REF _characterID;                                ///< Our unique CHR_REF id
-    std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
-    bool _showStatus;                                    ///< Display stats?
+    bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
+    CHR_REF _characterID;                            ///< Our unique CHR_REF id
+    PRO_REF _profileID;                              ///< The ID of our profile
+    std::shared_ptr<ObjectProfile> _profile;         ///< Our Profile
+    bool _showStatus;                                ///< Display stats?
+    bool _isAlive;                                   ///< Is this Object alive or dead?
+    std::string _name;                               ///< Name of the Object
+
+    //Attributes
+    float _currentLife;
+    float _currentMana;
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
+    std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>> _tempAttribute; ///< Character attributes with enchants
+
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
     uint32_t _levelUpSeed;
 
     //Non persistent variables. Once game ends these are not saved
-    bool _hasBeenKilled;                                 ///< If this Object has been killed at least once this module (many can respawn)
-    uint32_t _reallyDuration;                            ///< Game Logic Update frame duration for rally bonus gained from the Perk
+    bool _hasBeenKilled;                              ///< If this Object has been killed at least once this module (many can respawn)
+    uint32_t _reallyDuration;                         ///< Game Logic Update frame duration for rally bonus gained from the Perk
+    bool _stealth;                                    ///< Is this Object actively trying to hide from others?
+    uint16_t _stealthTimer;                           ///< Time before we can enter stealth again
+    uint32_t _observationTimer;                       ///< Next update frame we are going to scan for hidden objects
+
+    //Enchantment stuff
+    std::forward_list<std::shared_ptr<Ego::Enchantment>> _activeEnchants;    ///< List of all active enchants on this Object
+    std::weak_ptr<Ego::Enchantment> _lastEnchantSpawned;    //< Last enchantment that his Object has spawned
 
     friend class ObjectHandler;
 };

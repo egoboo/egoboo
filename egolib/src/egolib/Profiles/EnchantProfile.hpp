@@ -27,7 +27,7 @@
 #undef EGBOLIB_PROFILES_PRIVATE
 
 /// Special modes for particle reflections from characters
-enum e_missle_treatment
+enum MissileTreatmentType
 {
     MISSILE_NORMAL = 0,                           ///< Treat missiles normally
     MISSILE_DEFLECT,                                ///< Deflect incoming missiles
@@ -42,6 +42,7 @@ enum e_missle_treatment
 */
 struct eve_t : public AbstractProfile
 {
+
     /**
      * @brief
      *  A list of all the properties to which an enchant (of this enchant profile) can apply the "set" modifier to.
@@ -122,7 +123,6 @@ struct eve_t : public AbstractProfile
         //these are only for parsing the enchant file
         ENC_ADD_FIRST = ADDJUMPPOWER,
         ENC_ADD_LAST = ADDZAPRESIST
-
     };
 
     /// An enchant maintains relations to its "owner" object (if any) and its "target" object (if any).
@@ -131,8 +131,8 @@ struct eve_t : public AbstractProfile
     {
 
         bool _stay;         ///< Stay even the related object has died?
-        SFP8_T _manaDrain;  ///< Mana drain from related object?
-        SFP8_T _lifeDrain;  ///< Life drain from related object?
+        float _manaDrain;  ///< Mana drain from related object?
+        float _lifeDrain;  ///< Life drain from related object?
 
         ObjectRelation() :
             _stay(false), _manaDrain(0), _lifeDrain(0)
@@ -191,10 +191,10 @@ struct eve_t : public AbstractProfile
     };
 
     // The "set" modifiers of this enchant.
-    Modifier _set[MAX_ENCHANT_SET];
+    std::array<Modifier, MAX_ENCHANT_SET> _set;
 
     // The "add" modifiers of this enchant.
-    Modifier _add[MAX_ENCHANT_ADD];
+    std::array<Modifier, MAX_ENCHANT_ADD> _add;
 
     // special modifications
     int seeKurses;                       ///< Allows target to see kurses.

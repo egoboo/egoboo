@@ -80,7 +80,7 @@ extern "C"
         tile_definition_t def_lst[MAP_FAN_TYPE_MAX];
     };
 
-#   define TILE_DICTIONARY_INIT { false, 0, 0 }
+#   define TILE_DICTIONARY_INIT { false, 0, 0, {} }
 
 inline tile_definition_t* TILE_DICT_PTR(tile_dictionary_t& pdict, const uint8_t type)
 {

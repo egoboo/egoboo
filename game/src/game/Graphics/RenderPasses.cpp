@@ -503,11 +503,8 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	float   size, x, y;
 	float   level, height, height_factor, alpha;
 
-	if (IS_ATTACHED_CHR(character))
-	{
-		return;
-	}
 	Object *pchr = _currentModule->getObjectHandler().get(character);
+	if(pchr->isBeingHeld()) return;
 
 	// If the object is hidden it is not drawn at all, so it has no shadow.
 	// If the object's shadow size is qa 0, then it has no shadow.
@@ -605,8 +602,8 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	float   height, size_umbra, size_penumbra;
 	float   alpha, alpha_umbra, alpha_penumbra;
 
-	if (IS_ATTACHED_CHR(character)) return;
 	Object *pchr = _currentModule->getObjectHandler().get(character);
+	if(pchr->isBeingHeld()) return;
 
 	// if the character is hidden, not drawn at all, so no shadow
 	if (pchr->is_hidden || 0 == pchr->shadow_size) return;

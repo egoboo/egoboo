@@ -43,7 +43,7 @@ Particle::Particle() :
     _particleProfile(nullptr),
     _isTerminated(true),
     _target(INVALID_CHR_REF),
-    _spawnerProfile(INVALID_CHR_REF),
+    _spawnerProfile(INVALID_PRO_REF),
     _isHoming(false)
 {
     reset(INVALID_PRT_REF);
@@ -380,8 +380,16 @@ void Particle::update()
     }
 
     //Clear invalid attachements incase Object have been removed from the game
-    if(!isAttached()) {
-        _attachedTo = INVALID_CHR_REF;
+    if(_attachedTo != INVALID_CHR_REF) {
+        if(isAttached()) {
+            //keep particles with whomever they are attached to
+            placeAtVertex(getAttachedObject(), attachedto_vrt_off);
+        }
+        else {
+            _attachedTo = INVALID_CHR_REF;
+            requestTerminate();
+            return;
+        }
     }
 
     // Determine if a "homing" particle still has something to "home":
@@ -779,7 +787,7 @@ void Particle::destroy()
     //Spawn an Object on particle end? (happens through a special script function)
     if (SPAWNNOCHARACTER != endspawn_characterstate)
     {
-        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, NULL, INVALID_CHR_REF);
+        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, "", INVALID_CHR_REF);
         if (child)
         {
             chr_set_ai_state(child.get(), endspawn_characterstate);
@@ -1110,6 +1118,13 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
 
     // Damage stuff
     range_to_pair(getProfile()->damage, &(damage));
+
+    //If it is a FIRE particle spawned by a Pyromaniac, increase damage by 25%
+    const std::shared_ptr<Object> &owner = _currentModule->getObjectHandler()[owner_ref];
+    if(owner != nullptr && owner->hasPerk(Ego::Perks::PYROMANIAC)) {
+        damage.base *= 1.25f;
+        damage.rand *= 1.25f;
+    }
 
     // Spawning data
     if (0 != getProfile()->contspawn._delay)

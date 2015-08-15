@@ -46,8 +46,8 @@
 #include "game/Module/Module.hpp"
 #include "game/char.h"
 #include "game/physics.h"
+#include "game/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -69,7 +69,6 @@ fog_instance_t        fog;
 import_list_t g_importList;
 
 Sint32          clock_wld        = 0;
-Uint32          clock_enc_stat   = 0;
 Uint32          clock_chr_stat   = 0;
 Uint32          clock_pit        = 0;
 Uint32          update_wld       = 0;
@@ -104,9 +103,6 @@ static void   game_reset_players();
 // Model stuff
 static void log_madused_vfs( const char *savename );
 
-// place the object lists in the initial state
-void reset_all_object_lists();
-
 // implementing wawalite data
 static bool upload_light_data(const wawalite_data_t *data);
 static bool upload_phys_data(const wawalite_physics_t *data);
@@ -135,14 +131,8 @@ static void import_dir_profiles_vfs(const std::string &importDirectory);
 static void game_load_global_profiles();
 static void game_load_module_profiles( const char *modname );
 
-static void initialize_all_objects();
-static void finalize_all_objects();
-
-static void update_used_lists();
 static void update_all_objects();
 static void move_all_objects();
-static void cleanup_all_objects();
-static void bump_all_update_counters();
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -158,9 +148,6 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     STRING todirname;
     STRING todirfullname;
 
-    // Don't export enchants
-    disenchant_character( character );
-
     const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[character];
     if(!object) {
         return rv_error;
@@ -172,7 +159,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // TWINK_BO.OBJ
-    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler().get(owner)->Name ).c_str() );
+    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler()[owner]->getName() ).c_str() );
 
     // Is it a character or an item?
     if ( chr_obj_index < 0 )
@@ -445,12 +432,6 @@ void activate_alliance_file_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void update_used_lists()
-{
-    EnchantHandler::get().update_used();
-}
-
-//--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
     chr_stoppedby_tests = 0;
@@ -458,7 +439,6 @@ void update_all_objects()
 
     update_all_characters();
     ParticleHandler::get().updateAllParticles();
-    update_all_enchants();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -468,55 +448,6 @@ void move_all_objects()
 
     move_all_particles();
     move_all_characters();
-}
-
-//--------------------------------------------------------------------------------------------
-void cleanup_all_objects()
-{
-    // Do poofing       ZF> TODO: move to Object->update()
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if ( !time_out || object->isTerminated() ) continue;
-
-        object->requestTerminate();
-    }
-
-    cleanup_all_enchants();
-}
-
-//--------------------------------------------------------------------------------------------
-void bump_all_update_counters()
-{
-    //bump_all_characters_update_counters();
-    //bump_all_particles_update_counters();
-    bump_all_enchants_update_counters();
-}
-
-//--------------------------------------------------------------------------------------------
-void initialize_all_objects()
-{
-    /// @author BB
-    /// @details begin the code for updating in-game objects
-
-    // update all object timers etc.
-    update_all_objects();
-
-    // fix the list optimization, in case update_all_objects() turned some objects off.
-    update_used_lists();
-}
-
-//--------------------------------------------------------------------------------------------
-void finalize_all_objects()
-{
-    /// @author BB
-    /// @details end the code for updating in-game objects
-
-    // update the object's update counter for every active object
-    bump_all_update_counters();
-
-    // do end-of-life care for all objects
-    cleanup_all_objects();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -567,9 +498,9 @@ int update_game()
         {
             numalive++;
 
-            local_stats.seeinvis_level += pchr->see_invisible_level;
-            local_stats.seekurse_level += pchr->see_kurse_level;
-            local_stats.seedark_level  += pchr->darkvision_level;
+            local_stats.seeinvis_level += pchr->getAttribute(Ego::Attribute::SEE_INVISIBLE);
+            local_stats.seekurse_level += pchr->getAttribute(Ego::Attribute::SENSE_KURSES);
+            local_stats.seedark_level  += pchr->getAttribute(Ego::Attribute::DARKVISION);
             local_stats.grog_level     += pchr->grog_timer;
             local_stats.daze_level     += pchr->daze_timer;
 
@@ -649,7 +580,7 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*256.0f, _currentModule->getMeshPointer()->info.tiles_y*256.0f);
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*GRID_FSIZE, _currentModule->getMeshPointer()->info.tiles_y*GRID_FSIZE);
 
     //---- begin the code for updating misc. game stuff
     {
@@ -663,20 +594,19 @@ int update_game()
     }
     //---- end the code for updating misc. game stuff
 
-    //---- begin the code object I/O
+    //---- Run AI (but not on first update frame)
+    if(update_wld > 0)
     {
         let_all_characters_think();           // sets the non-player latches
         net_unbuffer_player_latches();            // sets the player latches
     }
-    //---- end the code object I/O
 
     //---- begin the code for updating in-game objects
-    initialize_all_objects();
+    update_all_objects();
     {
         move_all_objects();                   // clears some latches
         bump_all_objects();                   // do the actual object interaction
     }
-    finalize_all_objects();
     //---- end the code for updating in-game objects
 
     // put the camera movement inside here
@@ -684,7 +614,6 @@ int update_game()
 
     // Timers
     clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
-    clock_enc_stat++;
     clock_chr_stat++;
 
     // Reset the respawn timer
@@ -717,7 +646,6 @@ void game_reset_timers()
     update_wld = 0;
 
     // reset some special clocks
-    clock_enc_stat = 0;
     clock_chr_stat = 0;
 }
 
@@ -810,7 +738,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return false;
 
     // Skip held objects
-    if ( IS_ATTACHED_CHR( iObjectest ) ) return false;
+    if ( ptst->isBeingHeld() ) return false;
 
     // Allow to target ourselves?
     if ( psrc == ptst.get() && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
@@ -911,7 +839,6 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
                 }
 
             }
-
         }
     }
 
@@ -935,18 +862,18 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     los_info.stopped_by = psrc->stoppedby;
 
     CHR_REF best_target = INVALID_CHR_REF;
-    float best_dist2  = max_dist * max_dist;
+    float best_dist2  = (max_dist == NEAREST) ? std::numeric_limits<float>::max() : max_dist*max_dist + 1.0f;
     for(const std::shared_ptr<Object> &ptst : searchList)
     {
+        if(ptst->isTerminated()) continue;
+
         if ( !chr_check_target( psrc, ptst->getCharacterID(), idsz, targeting_bits ) ) continue;
 
-        fvec3_t diff = psrc->getPosition() - ptst->getPosition();
-		float dist2 = diff.length_2();
-
-        if (( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
+		float dist2 = (psrc->getPosition() - ptst->getPosition()).length_2();
+        if (dist2 < best_dist2)
         {
             //Invictus chars do not need a line of sight
-            if ( !psrc->invictus )
+            if ( !psrc->isInvincible() )
             {
                 // set the line-of-sight source
                 los_info.x1 = ptst->getPosition()[kX];
@@ -961,9 +888,6 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
             best_dist2  = dist2;
         }
     }
-
-    // make sure the target is valid
-    if ( !_currentModule->getObjectHandler().exists( best_target ) ) best_target = INVALID_CHR_REF;
 
     return best_target;
 }
@@ -1051,8 +975,8 @@ void update_pits()
             for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
             {
                 // Is it a valid character?
-                if ( pchr->invictus || !pchr->isAlive() ) continue;
-                if ( IS_ATTACHED_CHR( pchr->getCharacterID() ) ) continue;
+                if ( pchr->isInvincible() || !pchr->isAlive() ) continue;
+                if ( pchr->isBeingHeld() ) continue;
 
                 // Do we kill it?
                 if ( g_pits.kill && pchr->getPosZ() < PITDEPTH )
@@ -1385,6 +1309,17 @@ void set_one_player_latch( const PLA_REF ipla )
         _gameEngine->getActivePlayingState()->displayCharacterWindow(ipla);
          ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
     }
+
+    //Enter or exit stealth mode?
+    if(input_device_control_active(pdevice, CONTROL_SNEAK) && update_wld > ppla->inventory_cooldown) {
+        if(!_currentModule->getObjectHandler()[ppla->index]->isStealthed()) {
+            _currentModule->getObjectHandler()[ppla->index]->activateStealth();
+        }
+        else {
+            _currentModule->getObjectHandler()[ppla->index]->deactivateStealth();
+        }
+        ppla->inventory_cooldown = update_wld + ONESECOND;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1686,55 +1621,16 @@ void show_armor( int statindex )
 
     // jumps
     tmps[0] = CSTR_END;
-    switch ( profile->getJumpNumber() )
+    switch ( static_cast<int>(pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS)) )
     {
-        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%d)", pchr->jumpnumberreset ); break;
-        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%d)", pchr->jumpnumberreset ); break;
-        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%d)", pchr->jumpnumberreset ); break;
-        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%d)", pchr->jumpnumberreset ); break;
-        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", pchr->jumpnumberreset ); break;
+        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
+        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
     };
 
     DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", skinInfo.maxAccel*80, tmps );
-}
-
-//--------------------------------------------------------------------------------------------
-bool get_chr_regeneration( Object * pchr, int * pliferegen, int * pmanaregen )
-{
-    /// @author ZF
-    /// @details Get a character's life and mana regeneration, considering all sources
-
-    int local_liferegen, local_manaregen;
-    CHR_REF ichr;
-
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
-    ichr = GET_INDEX_PCHR( pchr );
-
-    if ( NULL == pliferegen ) pliferegen = &local_liferegen;
-    if ( NULL == pmanaregen ) pmanaregen = &local_manaregen;
-
-    // set the base values
-    ( *pmanaregen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MANA_REGEN) / GameEngine::GAME_TARGET_UPS);
-    ( *pliferegen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS);
-
-    // Don't forget to add gains and costs from enchants
-    ENC_BEGIN_LOOP_ACTIVE( enchant, penc )
-    {
-        if ( penc->target_ref == ichr )
-        {
-            ( *pliferegen ) += penc->target_life;
-            ( *pmanaregen ) += penc->target_mana;
-        }
-
-        if ( penc->owner_ref == ichr )
-        {
-            ( *pliferegen ) += penc->owner_life;
-            ( *pmanaregen ) += penc->owner_mana;
-        }
-    }
-    ENC_END_LOOP();
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1752,11 +1648,8 @@ void show_full_status( int statindex )
 
     SKIN_T skinlevel = pchr->skin;
 
-    // clean up the enchant list
-    cleanup_character_enchants( pchr.get() );
-
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", pchr->getProfile()->getSkinInfo(skinlevel).defence,
@@ -1771,9 +1664,7 @@ void show_full_status( int statindex )
                        pchr->getDamageReduction(DAMAGE_ICE) *100.0f,
                        pchr->getDamageReduction(DAMAGE_ZAP) *100.0f );
 
-    get_chr_regeneration( pchr.get(), &liferegen, &manaregen );
-
-    DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT( manaregen ), FP8_TO_FLOAT( liferegen ) );
+    DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", pchr->getAttribute(Ego::Attribute::MANA_REGEN), pchr->getAttribute(Ego::Attribute::LIFE_REGEN) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1782,38 +1673,26 @@ void show_magic_status( int statindex )
     /// @author ZF
     /// @details Displays special enchantment effects for the character
 
-    const char * missile_str;
+    CHR_REF character;
 
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
     if(!pchr) {
         return;
     }
 
-    // clean up the enchant list
-    cleanup_character_enchants( pchr.get() );
-
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
-                       pchr->see_invisible_level ? "Yes" : "No",
-                       pchr->see_kurse_level ? "Yes" : "No" );
+                       pchr->getAttribute(Ego::Attribute::SEE_INVISIBLE) > 0 ? "Yes" : "No",
+                       pchr->getAttribute(Ego::Attribute::SENSE_KURSES) > 0 ? "Yes" : "No" );
 
     DisplayMsg_printf( "~Channel Life: %s~~Waterwalking: %s",
-                       pchr->canchannel ? "Yes" : "No",
-                       pchr->waterwalk ? "Yes" : "No" );
+                       pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 ? "Yes" : "No",
+                       pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? "Yes" : "No" );
 
-    switch ( pchr->missiletreatment )
-    {
-        case MISSILE_REFLECT: missile_str = "Reflect"; break;
-        case MISSILE_DEFLECT: missile_str = "Deflect"; break;
-
-        default:
-        case MISSILE_NORMAL : missile_str = "None";    break;
-    }
-
-    DisplayMsg_printf( "~Flying: %s~~Missile Protection: %s", ( pchr->flyheight > 0 ) ? "Yes" : "No", missile_str );
+    DisplayMsg_printf( "~Flying: %s", pchr->isFlying() ? "Yes" : "No");
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1829,7 +1708,7 @@ void tilt_characters_to_terrain()
     {
         if ( object->isTerminated() ) continue;
 
-        if ( object->stickybutt )
+        if ( object->getProfile()->hasStickyButt() )
         {
             twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
@@ -2085,7 +1964,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);    
+    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname == nullptr ? "" : psp_info->pname, INVALID_CHR_REF);
     if (!pobject) return false;
 
     // determine the attachment
@@ -2130,9 +2009,9 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
-                if (pobject->profile_ref <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->profile_ref))
+                if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->getProfileID()))
                 {
-                    int islot = REF_TO_INT( pobject->profile_ref );
+                    int islot = REF_TO_INT( pobject->getProfileID() );
 
                     if ( import_data.slot_lst[islot] == g_importList.lst[tnc].slot )
                     {
@@ -2452,10 +2331,9 @@ void disaffirm_attached_particles( const CHR_REF character )
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if(!particle->isAttached() || particle->isTerminated()) continue;
+        if(particle->isTerminated()) continue;
 
-        if ( particle->getAttachedObject()->getCharacterID() == character )
-        {
+        if (particle->getAttachedObjectID() == character) {
             particle->requestTerminate();
         }
     }
@@ -2565,9 +2443,6 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // set up the virtual file system for the module (Do before loading the module)
     if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
 
-    // make sure that the object lists are in a good state
-    reset_all_object_lists();
-
     // start the module
     _currentModule = std::unique_ptr<GameModule>(new GameModule(module, time(NULL)));
 
@@ -2587,10 +2462,7 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     config_synch(&egoboo_config_t::get(), true, false);
 
     // initialize the game objects
-    initialize_all_objects();
     input_cursor_reset();
-    //update_all_character_matrices();
-    attach_all_particles();
 
     // log debug info for every object loaded into the module
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
@@ -2655,20 +2527,6 @@ void game_release_module_data()
     mesh_BSP_system_end();
     obj_BSP_system_end();
     CollisionSystem::get()->reset();    
-}
-
-//--------------------------------------------------------------------------------------------
-void attach_all_particles()
-{
-    /// @author ZZ
-    /// @details This function attaches particles to their characters so everything gets
-    ///    drawn right
-
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-    {
-        if(particle->isTerminated() || !particle->isAttached()) continue;
-        particle->placeAtVertex(particle->getAttachedObject(), particle->attachedto_vrt_off);
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2767,15 +2625,18 @@ void free_all_objects()
     /// @author BB
     /// @details free every instance of the three object types used in the game.
 
+    //free all particles
     ParticleHandler::get().clear();
-    EnchantHandler::get().free_all();
-    free_all_chraracters();
-}
 
-//--------------------------------------------------------------------------------------------
-void reset_all_object_lists()
-{
-    EnchantHandler::get().reinit();
+    // free all the characters
+    if(_currentModule) {
+        _currentModule->getObjectHandler().clear();
+    }
+
+    //free all players
+    PlaStack.count = 0;
+    local_stats.player_count = 0;
+    local_stats.noplayers = true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3483,7 +3344,7 @@ bool write_wawalite_vfs(const wawalite_data_t *data)
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 get_alpha( int alpha, float seeinvis_mag )
+uint8_t get_alpha( int alpha, float seeinvis_mag )
 {
     // This is a bit of a kludge, but it should allow the characters to see
     // completely invisible objects as SEEINVISIBLE if their level is high enough.
@@ -3511,7 +3372,7 @@ Uint8 get_alpha( int alpha, float seeinvis_mag )
         }
     }
 
-    return CLIP( alpha, 0, 255 );
+    return Ego::Math::constrain(alpha, 0, 0xFF);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3791,10 +3652,10 @@ float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
         pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->waterwalk );
+    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
+        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         zmax = std::max( zmax, fval );
     }
 
@@ -3819,7 +3680,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == pchr->bump_stt.size )
     {
-        return get_mesh_level( mesh, pchr->getPosX(), pchr->getPosY(), pchr->waterwalk );
+        return get_mesh_level(mesh, pchr->getPosX(), pchr->getPosY(), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
@@ -3877,10 +3738,10 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->waterwalk );
+        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->waterwalk );
+            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
             zmax = std::max( zmax, fval );
         }
     }
@@ -3888,41 +3749,6 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     if ( zmax == -1e6 ) zmax = 0.0f;
 
     return zmax;
-}
-
-//--------------------------------------------------------------------------------------------
-void disenchant_character( const CHR_REF cnt )
-{
-    /// @author ZZ
-    /// @details This function removes all enchantments from a character
-
-    Object * pchr;
-    size_t ienc_count;
-
-    if ( !_currentModule->getObjectHandler().exists( cnt ) ) return;
-    pchr = _currentModule->getObjectHandler().get( cnt );
-
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        // do not let disenchant_character() get stuck in an infinite loop if there is an error
-        if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
-        {
-            break;
-        }
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-}
-
-//--------------------------------------------------------------------------------------------
-void cleanup_character_enchants( Object * pchr )
-{
-    if ( NULL == pchr ) return;
-
-    // clean up the enchant list
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &( pchr->firstenchant ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3941,10 +3767,8 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
     // check if they can be connected
-    if ( !profile->canUsePlatforms() || ( 0 != pchr->flyheight ) ) return false;
+    if ( !pchr->canuseplatforms || pchr->isFlying() ) return false;
     if ( !pplat->platform ) return false;
 
     // do the attachment
@@ -3956,10 +3780,10 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     pchr->enviro.level     = std::max( pchr->enviro.floor_level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] );
     pchr->enviro.zlerp     = ( pchr->getPosZ() - pchr->enviro.level ) / PLATTOLERANCE;
     pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0.0f, 1.0f );
-    pchr->enviro.grounded  = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
+    pchr->enviro.grounded  = !pchr->isFlying() && ( pchr->enviro.zlerp < 0.25f );
 
     pchr->enviro.fly_level = std::max( pchr->enviro.fly_level, pchr->enviro.level );
-    if ( 0 != pchr->flyheight )
+    if ( !pchr->isFlying() )
     {
         if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
     }
@@ -3971,7 +3795,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
     {
-        pchr->jumpnumber = pchr->jumpnumberreset;
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
 
     // what to do about traction if the platform is tilted... hmmm?
@@ -4032,7 +3856,7 @@ bool detach_character_from_platform( Object * pchr )
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
     {
-        pchr->jumpnumber = pchr->jumpnumberreset;
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
 
     return true;
@@ -4208,16 +4032,16 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		import_ptr->slot = REF_TO_INT(player) * MAX_IMPORT_PER_PLAYER;
 		import_ptr->srcDir[0] = CSTR_END;
 		import_ptr->dstDir[0] = CSTR_END;
-		strncpy(import_ptr->name, pchr->Name, SDL_arraysize(import_ptr->name));
+		strncpy(import_ptr->name, pchr->getName().c_str(), SDL_arraysize(import_ptr->name));
 
 		// only copy the "source" directory if the player is local
 		if (is_local)
 		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->Name).c_str());
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->getName()).c_str());
 		}
 		else
 		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->Name).c_str());
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->getName()).c_str());
 		}
 
 		player++;

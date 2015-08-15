@@ -115,45 +115,9 @@ struct chr_spawn_data_t;
 #define DAMAGETILETIME      32                            ///< Invincibility time
 #define DAMAGETIME          32                            ///< Invincibility time
 #define DEFENDTIME          24                            ///< Invincibility time
-#define BORETIME            ((Uint16)Random::next(255, 255 + 511)) ///< IfBored timer
+#define BORETIME            (Random::next<uint16_t>(255, 255 + 511)) ///< IfBored timer
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
-/// The vertex offsets for the various grips
-enum grip_offset_t
-{
-    GRIP_ORIGIN    =               0,                ///< Spawn attachments at the center
-    GRIP_LAST      =               1,                ///< Spawn particles at the last vertex
-    GRIP_LEFT      = ( 1 * GRIP_VERTS ),             ///< Left weapon grip starts  4 from last
-    GRIP_RIGHT     = ( 2 * GRIP_VERTS ),             ///< Right weapon grip starts 8 from last
-
-    // aliases
-    GRIP_INVENTORY =               GRIP_ORIGIN,
-    GRIP_ONLY      =               GRIP_LEFT
-};
-
-enum e_chr_movement_idx
-{
-    CHR_MOVEMENT_STOP  = 0,
-    CHR_MOVEMENT_SNEAK,
-    CHR_MOVEMENT_WALK,
-    CHR_MOVEMENT_RUN,
-    CHR_MOVEMENT_COUNT
-};
-
-enum e_chr_movement_bits
-{
-    CHR_MOVEMENT_NONE  = 0,
-    CHR_MOVEMENT_BITS_STOP  = 1 << CHR_MOVEMENT_STOP,
-    CHR_MOVEMENT_BITS_SNEAK = 1 << CHR_MOVEMENT_SNEAK,
-    CHR_MOVEMENT_BITS_WALK  = 1 << CHR_MOVEMENT_WALK,
-    CHR_MOVEMENT_BITS_RUN   = 1 << CHR_MOVEMENT_RUN
-};
-
 
 //--------------------------------------------------------------------------------------------
 
@@ -170,29 +134,16 @@ bool chr_update_safe_raw( Object * pchr );
 bool chr_update_safe( Object * pchr, bool force );
 bool chr_get_safe( Object * pchr);
 
-bool chr_set_maxaccel( Object * pchr, float new_val );
-
 void chr_set_floor_level( Object * pchr, const float level );
-void chr_set_redshift( Object * pchr, const int rs );
-void chr_set_grnshift( Object * pchr, const int gs );
-void chr_set_blushift( Object * pchr, const int bs );
 
 std::string chr_get_dir_name( const CHR_REF ichr );
 bool chr_get_skill( Object * pchr, IDSZ whichskill );
-
-bool update_chr_darkvision( const CHR_REF character );
 
 // this function is needed because the "hidden" state of an ai is determined by
 // whether  ai.state == cap.hidestate
 Object * chr_set_ai_state( Object * pchr, int state );
 
 void cleanup_one_character( Object * pchr );
-
-//--------------------------------------------------------------------------------------------
-// list definitions
-//--------------------------------------------------------------------------------------------
-#define IS_ATTACHED_CHR_RAW(ICHR) ( (_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ICHR)->attachedto) || _currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ICHR)->inwhich_inventory)) )
-#define IS_ATTACHED_CHR(ICHR) LAMBDA( !_currentModule->getObjectHandler().exists(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;
@@ -202,17 +153,6 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 void update_all_characters();
-void move_all_characters();
-void bump_all_characters_update_counters();
-void free_all_chraracters();
-
-void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr);
-
-void make_one_character_matrix( const CHR_REF cnt );
-void move_one_character_get_environment( Object * pchr );
-
-fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
-float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
 
 /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
 ///    inventory ( Not hands ).
@@ -224,16 +164,10 @@ bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF chara
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
-
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
 CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 
-bool chr_copy_enviro( Object * chr_psrc, Object * chr_pdst );
-
 bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin );
-
-// character state machine functions
-Object * chr_config_do_init( Object * pchr );
 
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
@@ -241,32 +175,16 @@ void drop_money( const CHR_REF character, int money );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
 void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 
-egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
-
-int     change_armor( const CHR_REF character, const SKIN_T skin );
-void    change_character( const CHR_REF cnt, const PRO_REF profile, const int skin, const Uint8 leavewhich );
-void    change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
-void    issue_clean( const CHR_REF character );
-int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
 
 bool  drop_all_items( const CHR_REF character );
-bool  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool people );
+
+void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 //--------------------------------------------------------------------------------------------
 // generic helper functions
-
-bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects );
-
-grip_offset_t slot_to_grip_offset( slot_t slot );
-slot_t        grip_offset_to_slot( grip_offset_t grip );
-
-const char * describe_value( float value, float maxval, int * rank_ptr );
-const char* describe_damage( float value, float maxval, int * rank_ptr );
-const char* describe_wounds( float max, float current );
-
 std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 
 

@@ -24,7 +24,7 @@
 
 #define EGOLIB_PROFILES_PRIVATE 1
 #include "egolib/Profiles/ObjectProfile.hpp"
-#include "game/game.h"
+#include "game/Core/GameEngine.hpp"
 #include "game/Entities/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
@@ -57,7 +57,7 @@ ObjectProfile::ObjectProfile() :
     _className("*NONE*"),
 
     // skins
-     _skinInfo(),
+    _skinInfo(),
 
     // overrides
     _skinOverride(NO_SKIN_OVERRIDE),
@@ -420,17 +420,7 @@ uint16_t ObjectProfile::getSkinOverride() const
 {
     //Are we actually a spell book?
     if (_spellEffectType != NO_SKIN_OVERRIDE) {
-        if(_spellEffectType >= SKINS_PEROBJECT_MAX) {
-            return getRandomSkinID();
-        }
-        else {
-            return _spellEffectType;
-        }
-    }
-
-    //No skin overriding?
-    if(_skinOverride == NO_SKIN_OVERRIDE) {
-        return NO_SKIN_OVERRIDE;
+        return _spellEffectType;
     }
 
     return _skinOverride;
@@ -540,9 +530,9 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _weight = vfs_get_next_int(ctxt);
     _jumpPower = vfs_get_next_float(ctxt);
     _jumpNumber = vfs_get_next_int(ctxt);
-    _animationSpeedSneak = vfs_get_next_float(ctxt);
-    _animationSpeedWalk = vfs_get_next_float(ctxt);
-    _animationSpeedRun = vfs_get_next_float(ctxt);
+    _animationSpeedSneak = 2.0f * vfs_get_next_float(ctxt);
+    _animationSpeedWalk = 2.0f * vfs_get_next_float(ctxt);
+    _animationSpeedRun = 2.0f * vfs_get_next_float(ctxt);
     _flyHeight = vfs_get_next_int(ctxt);
     _flashAND = vfs_get_next_int(ctxt);
     _alpha = vfs_get_next_int(ctxt);
@@ -974,6 +964,11 @@ const SkinInfo& ObjectProfile::getSkinInfo(size_t index) const
     return (*result).second;
 }
 
+bool ObjectProfile::isValidSkin(size_t index) const
+{
+    return _skinInfo.find(index) != _skinInfo.end();
+}
+
 float ObjectProfile::getExperienceRate(XPType type) const
 {
     if(type >= _experienceRate.size()) {
@@ -1138,23 +1133,23 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_gender( fileTemp, fileWrite, character->gender );   //Note: overridden by chr
 
      //Attributes (TODO: can be easily converted into a for loop if order does not matter)
-    template_put_int( fileTemp, fileWrite, character->life_color );              //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->mana_color );              //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MAX_LIFE)*0.5f ); //Note: overriden by chr (ZF> Halved hp because it is doubled on parse)
+    template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::LIFE_BARCOLOR) );              //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::MANA_BARCOLOR) );              //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::MAX_LIFE)*0.5f ); //Note: overriden by chr (ZF> Halved hp because it is doubled on parse)
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MAX_LIFE));
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MAX_MANA) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::MAX_MANA) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MAX_MANA));
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MANA_REGEN) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::MANA_REGEN)); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MANA_REGEN));
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::SPELL_POWER) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::SPELL_POWER) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::SPELL_POWER));
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MIGHT) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::MIGHT) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MIGHT));
     template_put_float( fileTemp, fileWrite, 0.0f); //Note: deprecated
     template_put_float( fileTemp, fileWrite, 0.0f); //Note: deprecated
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::INTELLECT) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::INTELLECT) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::INTELLECT));
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::AGILITY) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::AGILITY) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::AGILITY));
 
     // More physical attributes
@@ -1176,21 +1171,21 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
         template_put_int( fileTemp, fileWrite, std::min(weight, static_cast<uint32_t>(CAP_MAX_WEIGHT)) );   //Note: overriden by chr
     }
 
-    template_put_float( fileTemp, fileWrite, character->jump_power );                 //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->jumpnumberreset );              //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_sneak );          //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_walk );           //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->anim_speed_run );            //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->flyheight );                    //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->flashand );                     //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, profile->_alpha);
-    template_put_int( fileTemp, fileWrite, profile->_light );
-    template_put_bool( fileTemp, fileWrite, character->transferblend  );              //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::JUMP_POWER) );    //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedSneak);
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedWalk);
+    template_put_float( fileTemp, fileWrite, profile->_animationSpeedRun);
+    template_put_int( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT) ); //Note: overriden by chr
+    template_put_int(fileTemp, fileWrite, profile->_flashAND);
+    template_put_int(fileTemp, fileWrite, profile->_alpha);
+    template_put_int(fileTemp, fileWrite, profile->_light);
+    template_put_bool(fileTemp, fileWrite, profile->_transferBlending);
     template_put_int( fileTemp, fileWrite, profile->_sheen );
     template_put_bool( fileTemp, fileWrite, profile->_phongMapping );
     template_put_float( fileTemp, fileWrite, FFFF_TO_FLOAT( profile->_textureMovementRateX ) );
     template_put_float( fileTemp, fileWrite, FFFF_TO_FLOAT( profile->_textureMovementRateY ) );
-    template_put_bool( fileTemp, fileWrite, character->stickybutt );                  //Note: overridden by chr
+    template_put_bool(fileTemp, fileWrite, profile->_stickyButt);
 
     // Invulnerability data
     template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->invictus) );
@@ -1207,10 +1202,12 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(0).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(1).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(2).damageResistance[damagetype] );
-        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(3).damageResistance[damagetype] );
+        //TODO: add support for more than 4
+        for(int i = 0; i < 4; ++i) {
+            //ZF> Another small hack to prevent 0 damage resist to be parsed as 0 damage shift
+            float damageResist = profile->getSkinInfo(i).damageResistance[damagetype];
+            template_put_float( fileTemp, fileWrite, damageResist == 0.0f ? 1 : damageResist);
+        }
     }
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
@@ -1279,8 +1276,8 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_bool( fileTemp, fileWrite, profile->_canCarryToNextModule );
     template_put_bool( fileTemp, fileWrite, profile->_needSkillIDToUse );
     template_put_bool( fileTemp, fileWrite, character->platform );       //Note overriden by chr
-    template_put_bool( fileTemp, fileWrite, character->cangrabmoney );   //Note overriden by chr
-    template_put_bool( fileTemp, fileWrite, character->openstuff );   //Note overriden by chr
+    template_put_bool(fileTemp, fileWrite, profile->_canGrabMoney);
+    template_put_bool(fileTemp, fileWrite, profile->_canOpenStuff);
 
     // Other item and damage stuff
     template_put_damage_type( fileTemp, fileWrite, character->damagetarget_damagetype ); //Note overriden by chr
@@ -1309,13 +1306,13 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_local_particle_profile_ref( fileTemp, fileWrite, profile->_bludParticle );
 
     // Extra stuff
-    template_put_bool( fileTemp, fileWrite, TO_C_BOOL( character->waterwalk ) ); //Note: overriden by chr
+    template_put_bool(fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::WALK_ON_WATER) > 0); //Note: overriden by chr
     template_put_float( fileTemp, fileWrite, character->phys.dampen );   //Note: overriden by chr
 
     // More stuff
     template_put_float(fileTemp, fileWrite, 0); //unused
     template_put_float(fileTemp, fileWrite, profile->_useManaCost);
-    template_put_float(fileTemp, fileWrite, character->getAttribute(Ego::Attribute::LIFE_REGEN));   //Note: overridden by chr
+    template_put_float(fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::LIFE_REGEN) * GameEngine::GAME_TARGET_UPS);   //Note: overridden by chr
     template_put_int( fileTemp, fileWrite, character->stoppedby );   //Note: overridden by chr
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(0).name.c_str() );
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(1).name.c_str() );
@@ -1333,7 +1330,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_bool( fileTemp, fileWrite, profile->_canBeGrogged );
     template_put_int( fileTemp, fileWrite, 0 );
     template_put_int( fileTemp, fileWrite, 0 );
-    template_put_bool( fileTemp, fileWrite, character->see_invisible_level > 0 ); //Note: Overridden by chr
+    template_put_bool( fileTemp, fileWrite, character->getBaseAttribute(Ego::Attribute::SEE_INVISIBLE) > 0 ); //Note: Overridden by chr
     template_put_int( fileTemp, fileWrite, character->iskursed ? 100 : 0 );  //Note: overridden by chr
     template_put_int( fileTemp, fileWrite, profile->_footFallSound);
     template_put_int( fileTemp, fileWrite, profile->_jumpSound);
@@ -1386,7 +1383,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     if ( -1 != profile->_isValuable )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), profile->_isValuable );
 
-    if ( profile->_spellEffectType >= 0 )
+    if ( profile->_spellEffectType >= 0 && profile->_spellEffectType != NO_SKIN_OVERRIDE )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), profile->_spellEffectType );
 
     if ( profile->_attackFast )
@@ -1425,8 +1422,8 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), character->ai.state );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), character->experiencelevel );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'E', 'E', 'D' ), character->getLevelUpSeed() );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( character->life ) );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( character->mana ) );
+    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), character->getLife() );
+    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), character->getMana() );
 
     // write down any perks that have been mastered
     for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {

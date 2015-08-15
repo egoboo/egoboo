@@ -172,8 +172,9 @@ struct ai_state_t
     int            content;       ///< More short term memory
     int            passage;       ///< The passage associated with this character
     Uint32         timer;         ///< AI Timer
-    int            x[STOR_COUNT];    ///< Temporary values...  SetXY
+    int            x[STOR_COUNT]; ///< Temporary values...  SetXY
     int            y[STOR_COUNT];
+    float          maxSpeed;      ///< Artificial movement speed limit for AI
 
     // ai memory from the last event
     CHR_REF        bumplast;        ///< Last character it was bumped by

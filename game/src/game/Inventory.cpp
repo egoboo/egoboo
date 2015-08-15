@@ -285,7 +285,7 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
 
         // you can still stack something even if the profiles don't match exactly,
         // but they have to have all the same IDSZ properties
-        if ( found && ( pstack->getProfile()->getSlotNumber() != pitem->profile_ref ) )
+        if ( found && ( pstack->getProfile()->getSlotNumber() != pitem->getProfileID() ) )
         {
             for ( Uint16 id = 0; id < IDSZ_COUNT && found; id++ )
             {

@@ -57,7 +57,7 @@ public:
     REF_T      team;
     FACING_T   facing;
     REF_T      attach;
-    REF_T      parent;
+    CHR_REF    parent;
 };
 /**
  * @brief

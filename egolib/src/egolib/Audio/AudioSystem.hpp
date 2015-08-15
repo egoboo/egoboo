@@ -31,53 +31,6 @@ typedef int SoundID;
 CONSTEXPR int INVALID_SOUND_CHANNEL = -1;
 CONSTEXPR SoundID INVALID_SOUND_ID = -1;
 
-//Sound settings
-struct SoundConfiguration
-{
-public:
-    /**
-     * @brief
-     *  Enable/disable playing of sounds.
-     */
-    bool enableSound;
-    uint8_t soundVolume;          ///< Volume of sounds.
-
-    /**
-     * @brief
-     *  Enable/disable playing of music and loops.
-     * @todo
-     *  Music and loops should be seperated.
-     */
-    bool enableMusic;
-    uint8_t musicVolume;         ///< The volume of music.
-
-    int maxsoundchannel;      ///< Max number of sounds playing at the same time
-    int buffersize;           ///< Buffer size set in setup.txt
-    bool highquality;          ///< Allow CD quality frequency sounds?
-
-    SoundConfiguration() :
-        enableSound(false),
-        soundVolume(75),
-        enableMusic(false),
-        musicVolume(50),
-        maxsoundchannel(16),
-        buffersize(2048),
-        highquality(false)
-    {
-        /* Nothing do to. */
-    }
-    void download(egoboo_config_t& cfg)
-    {
-        enableSound = cfg.sound_effects_enable.getValue();
-        soundVolume = cfg.sound_effects_volume.getValue();
-        enableMusic = cfg.sound_music_enable.getValue();
-        musicVolume = cfg.sound_music_volume.getValue();
-        maxsoundchannel = CLIP<uint16_t>(cfg.sound_channel_count.getValue(), 8, 128);
-        buffersize = CLIP<uint16_t>(cfg.sound_outputBuffer_size.getValue(), 512, 8196);
-        highquality = cfg.sound_highQuality_enable.getValue();
-    }
-};
-
 /// Data needed to store and manipulate a looped sound
 class LoopingSound
 {
@@ -141,6 +94,8 @@ enum GlobalSound : uint8_t
     GSND_DISINTEGRATE,  //Disintegrated
     GSND_DRUMS,         //Used for "Too Silly to Die" perk
     GSND_ANGEL_CHOIR,   //Angel Choir
+    GSND_STEALTH,       //Enter stealth
+    GSND_STEALTH_END,   //Exit stealth
     GSND_COUNT
 };
 
@@ -258,6 +213,22 @@ public:
     **/
     void setMaxHearingDistance(const float distance);
 
+    /**
+    * @brief
+    *   Sets how loud music should be played
+    * @param value
+    *   between 0 (none) and 128 (max volume)
+    **/
+    void setMusicVolume(int value);
+
+    /**
+    * @brief
+    *   Sets how all current and future sound effects will be played
+    * @param value
+    *   between 0 (none) and 128 (max volume)
+    **/
+    void setSoundEffectVolume(int value);
+
 private:
     /**
     * @brief Loads one music track. Returns nullptr if it fails
@@ -294,8 +265,6 @@ private:
     void updateLoopingSound(const std::shared_ptr<LoopingSound>& sound);
 
 private:
-
-    SoundConfiguration _audioConfig;
     std::vector<Mix_Music*> _musicLoaded;
     std::vector<Mix_Chunk*> _soundsLoaded;
     std::array<SoundID, GSND_COUNT> _globalSounds;

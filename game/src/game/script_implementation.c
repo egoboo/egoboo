@@ -458,17 +458,6 @@ bool Compass( fvec2_t& pos, int facing, float distance )
 }
 
 //--------------------------------------------------------------------------------------------
-int GetArmorPrice( Object * pchr, const int skin )
-{
-    // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-    /// @author ZZ
-    /// @details This function returns the cost of the desired skin upgrade, setting
-    /// tmpx to the price
-
-    return ProfileSystem::get().getProfile(pchr->profile_ref)->getSkinInfo(skin).cost;
-}
-
-//--------------------------------------------------------------------------------------------
 Uint32 UpdateTime( Uint32 time_val, int delay )
 {
     // UpdateTime( tmpargument = "time" )
@@ -520,10 +509,10 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
         float lerp_z;
 
         // nothing in packs
-        if ( IS_ATTACHED_CHR( pchr->ai.index ) ) continue;
+        if (pchr->isBeingHeld()) continue;
 
         // nothing flying
-        if ( 0 != pchr->flyheight ) continue;
+        if (pchr->isFlying()) continue;
 
         lerp_z = ( pchr->getPosZ() - pchr->enviro.floor_level ) / DAMAGERAISE;
         lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );
@@ -587,17 +576,16 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
 
     if ( nullptr == ( pchr ) ) return false;
 
-    const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(pchr->profile_ref);
-    if ( !ppro->isValidMessageID( message_index ) ) return false;
+    if ( !pchr->getProfile()->isValidMessageID( message_index ) ) return false;
 
     ichr           = GET_INDEX_PCHR( pchr );
-    length = ppro->getMessage(message_index).length();
+    length = pchr->getProfile()->getMessage(message_index).length();
 
     dst     = endtext + endtext_carat;
     dst_end = endtext + MAXENDTEXT - 1;
 
     char buffer[256];
-    strncpy(buffer, ppro->getMessage(message_index).c_str(), 256);
+    strncpy(buffer, pchr->getProfile()->getMessage(message_index).c_str(), 256);
 
     expand_escape_codes( ichr, pstate, buffer, buffer + length, dst, dst_end );
     endtext_carat = strlen( endtext );
@@ -789,3 +777,28 @@ bool FlashObject( Object * pchr, Uint8 value )
 	return true;
 }
 
+//--------------------------------------------------------------------------------------------
+int RestockAmmo( const CHR_REF character, IDSZ idsz )
+{
+    /// @author ZZ
+    /// @details This function restocks the characters ammo, if it needs ammo and if
+    ///    either its parent or type idsz match the given idsz.  This
+    ///    function returns the amount of ammo given.
+
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
+    if(!pchr) {
+        return 0;
+    }
+
+    int amount = 0;
+    if (pchr->getProfile()->hasTypeIDSZ(idsz))
+    {
+        if (pchr->ammo < pchr->ammomax)
+        {
+            amount = pchr->ammomax - pchr->ammo;
+            pchr->ammo = pchr->ammomax;
+        }
+    }
+
+    return amount;
+}

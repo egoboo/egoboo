@@ -126,7 +126,7 @@ bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
 
     // generic flags for character interaction
     can_be_reaffirmed = ( pchr->reaffirm_damagetype < DAMAGE_COUNT );
-    can_grab_money    = pchr->cangrabmoney;
+    can_grab_money    = pchr->getProfile()->canGrabMoney();
     can_use_platforms = pchr->canuseplatforms;
     can_collide       = ( 0 != pchr->bump_stt.size ) && ( INVALID_CHR_REF == pchr->attachedto );
 
@@ -180,7 +180,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     has_enchant = false;
     if ( ppip->spawnenchant )
     {
-        has_enchant = LOADED_EVE(ProfileSystem::get().pro_get_ieve(pprt->getSpawnerProfile()));
+        has_enchant = LOADED_EVE(ProfileSystem::get().getProfile(pprt->getSpawnerProfile())->getEnchantRef());
     }
 
     // any possible damage?

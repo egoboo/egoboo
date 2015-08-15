@@ -73,9 +73,7 @@ public:
      */
     void reset();
 
-    //ZF> TODO: These C-like functions need to be removed
-    EVE_REF pro_get_ieve(const PRO_REF iobj);
-    std::shared_ptr<eve_t> pro_get_peve(const PRO_REF iobj);
+    //ZF> TODO: This C-like function needs to be removed
     std::shared_ptr<pip_t> pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref);
 
     /**

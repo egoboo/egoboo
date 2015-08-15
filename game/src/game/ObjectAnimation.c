@@ -1,5 +1,6 @@
 #include "ObjectAnimation.h"
 #include "CharacterMatrix.h"
+#include "ObjectPhysics.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game.h"
 
@@ -189,15 +190,6 @@ egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
 }
 
 //--------------------------------------------------------------------------------------------
-uint32_t chr_get_framefx(Object *pchr)
-{
-    if (!pchr) {
-        return 0;
-    }
-    return chr_instance_t::get_framefx(pchr->inst);
-}
-
-//--------------------------------------------------------------------------------------------
 void move_one_character_do_animation( Object * pchr )
 {
     // Animate the character.
@@ -285,22 +277,19 @@ float set_character_animation_rate( Object * pchr )
     /// @author BB
     /// @details added automatic calculation of variable animation rates for movement animations
 
-    float  speed;
-    bool can_be_interrupted;
     bool is_walk_type;
     int    cnt, anim_count;
     int    action, lip;
     bool found;
 
     // set the character speed to zero
-    speed = 0;
+    float speed = 0;
 
     if ( NULL == pchr ) return 1.0f;
     chr_instance_t& pinst = pchr->inst;
 
     // if the action is set to keep then do nothing
-    can_be_interrupted = !pinst.action_keep;
-    if ( !can_be_interrupted ) return pinst.rate = 1.0f;
+    if ( pinst.action_keep ) return pinst.rate = 1.0f;
 
     // dont change the rate if it is an attack animation
     if ( pchr->isAttacking() )  return pinst.rate;
@@ -332,7 +321,7 @@ float set_character_animation_rate( Object * pchr )
     pinst.rate = 1.0f;
 
     // for non-flying objects, you have to be touching the ground
-    if ( !pchr->enviro.grounded && 0 == pchr->flyheight ) return pinst.rate;
+    if ( !pchr->enviro.grounded && !pchr->isFlying() ) return pinst.rate;
 
     // get the model
     const std::shared_ptr<Ego::ModelDescriptor> pmad = pchr->getProfile()->getModel();
@@ -340,11 +329,11 @@ float set_character_animation_rate( Object * pchr )
     //---- set up the anim_info structure
     chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
     anim_info[CHR_MOVEMENT_STOP ].speed = 0;
-    anim_info[CHR_MOVEMENT_SNEAK].speed = pchr->anim_speed_sneak;
-    anim_info[CHR_MOVEMENT_WALK ].speed = pchr->anim_speed_walk;
-    anim_info[CHR_MOVEMENT_RUN  ].speed = pchr->anim_speed_run;
+    anim_info[CHR_MOVEMENT_SNEAK].speed = pchr->getProfile()->getSneakAnimationSpeed();
+    anim_info[CHR_MOVEMENT_WALK ].speed = pchr->getProfile()->getWalkAnimationSpeed();
+    anim_info[CHR_MOVEMENT_RUN  ].speed = pchr->getProfile()->getRunAnimationSpeed();
 
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         // for flying characters, you have to flap like crazy to stand still and
         // do nothing to move quickly
@@ -414,7 +403,7 @@ float set_character_animation_rate( Object * pchr )
     }
 
     // estimate our speed
-    if ( 0 != pchr->flyheight )
+    if ( pchr->isFlying() )
     {
         // for flying objects, the speed is the actual speed
         speed = pchr->vel.length_abs();
@@ -423,7 +412,7 @@ float set_character_animation_rate( Object * pchr )
     {
         // For non-flying objects, we use the intended speed.
         // new_v[kX], new_v[kY] is the speed before any latches are applied.
-        speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length_abs();
+        speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length();
         if ( pchr->enviro.is_slipping )
         {
             // The character is slipping as on ice.
@@ -433,6 +422,7 @@ float set_character_animation_rate( Object * pchr )
 
     }
 
+    //Make bigger Objects have slower animations
     if ( pchr->fat != 0.0f ) speed /= pchr->fat;
 
     // handle a special case
@@ -495,15 +485,18 @@ float set_character_animation_rate( Object * pchr )
         pchr->bore_timer--;
         if ( pchr->bore_timer < 0 )
         {
-            int tmp_action, rand_val;
-
-            SET_BIT( pchr->ai.alert, ALERTIF_BORED );
             pchr->bore_timer = BORETIME;
 
-            // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
-            rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
-            tmp_action = pinst.imad->getAction(ACTION_DB + ( rand_val % 3 ));
-            chr_start_anim( pchr, tmp_action, true, true );
+            //Don't yell "im bored!" while stealthed!
+            if(!pchr->isStealthed())
+            {
+                SET_BIT( pchr->ai.alert, ALERTIF_BORED );
+
+                // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
+                int rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
+                int tmp_action = pinst.imad->getAction(ACTION_DB + ( rand_val % 3 ));
+                chr_start_anim( pchr, tmp_action, true, true );
+            }
         }
         else
         {
@@ -603,9 +596,9 @@ bool chr_handle_madfx( Object * pchr )
     CHR_REF ichr;
     Uint32 framefx;
 
-    if ( NULL == pchr ) return false;
+    if ( nullptr == pchr ) return false;
 
-    framefx = chr_get_framefx( pchr );
+    framefx = chr_instance_t::get_framefx(pchr->inst);
     if ( 0 == framefx ) return true;
 
     ichr    = GET_INDEX_PCHR( pchr );
@@ -663,7 +656,7 @@ bool chr_handle_madfx( Object * pchr )
     //Do footfall sound effect
     if (egoboo_config_t::get().sound_footfallEffects_enable.getValue() && HAS_SOME_BITS(framefx, MADFX_FOOTFALL))
     {
-        AudioSystem::get().playSound(pchr->getPosition(), ProfileSystem::get().getProfile(pchr->profile_ref)->getFootFallSound());
+        AudioSystem::get().playSound(pchr->getPosition(), pchr->getProfile()->getFootFallSound());
     }
 
     return true;

@@ -240,8 +240,8 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
     Random::setSeed(_character->getLevelUpSeed());
 
     //Calculate attribute improvements
-    std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> increase;
-    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    std::array<float, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> increase;
+    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const Ego::Attribute::AttributeType type = static_cast<Ego::Attribute::AttributeType>(i);
         increase[i] = Random::next(_character->getProfile()->getAttributeGain(type));
     }
@@ -263,6 +263,10 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
             increase[Ego::Attribute::LIFE_REGEN] += 0.15f;
         break;
 
+        case Ego::Perks::TROLL_BLOOD:
+            increase[Ego::Attribute::LIFE_REGEN] += 0.25f;
+        break;        
+
         case Ego::Perks::GIGANTISM:
             increase[Ego::Attribute::MIGHT] += 2.00f;
             increase[Ego::Attribute::AGILITY] -= 2.00f;
@@ -278,11 +282,11 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         break;
 
         case Ego::Perks::ACROBATIC:
-            _character->jumpnumberreset += 1;
+            _character->increaseBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, 1.0f);
         break;
 
         case Ego::Perks::MASTER_ACROBAT:
-            _character->jumpnumberreset += 1;
+            _character->increaseBaseAttribute(Ego::Attribute::NUMBER_OF_JUMPS, 1.0f);
         break;
 
         case Ego::Perks::POWER:
@@ -292,10 +296,6 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         case Ego::Perks::PERFECTION:
             increase[Ego::Attribute::INTELLECT] += 1.00f;
             increase[Ego::Attribute::AGILITY] += 1.00f;
-        break;
-
-        case Ego::Perks::ATHLETICS:
-            _character->jump_power += _character->getProfile()->getJumpPower()*0.25f; //+25% jump power
         break;
 
         case Ego::Perks::ANCIENT_BLUD:
@@ -318,6 +318,18 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         case Ego::Perks::BOOKWORM:
             increase[Ego::Attribute::INTELLECT] += 2.00f;
             increase[Ego::Attribute::MIGHT] -= 2.00f;
+        break;
+
+        case Ego::Perks::NIGHT_VISION:
+            _character->increaseBaseAttribute(Ego::Attribute::DARKVISION, 1.0f);
+        break;
+
+        case Ego::Perks::SENSE_KURSES:
+            _character->increaseBaseAttribute(Ego::Attribute::SENSE_KURSES, 1.0f);
+        break;
+
+        case Ego::Perks::SENSE_INVISIBLE:
+            _character->increaseBaseAttribute(Ego::Attribute::SEE_INVISIBLE, 1.0f);
         break;
 
         default:
@@ -381,14 +393,14 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
 
     //Figure out the widest attribute name width
     int attributeWidthSpacing = 0;
-    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         int width;
         _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->getTextSize(Ego::Attribute::toString(static_cast<Ego::Attribute::AttributeType>(i)), &width, nullptr);
         attributeWidthSpacing = std::max(attributeWidthSpacing, width+10);
     }
 
     //Attributes
-    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+    for(uint8_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const Ego::Attribute::AttributeType type = static_cast<Ego::Attribute::AttributeType>(i);
 
         //Name
@@ -396,13 +408,13 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
         attributeLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
 
         float x, y;
-        if(i < Ego::Attribute::NR_OF_ATTRIBUTES/2) {
+        if(i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES/2) {
             x = 20;
             y = 40 + attributeIncrease->getHeight() + i * 25;
         }
         else {
             x = 10 + getWidth()/2;
-            y = 40 + attributeIncrease->getHeight() + (i-Ego::Attribute::NR_OF_ATTRIBUTES/2) * 25;
+            y = 40 + attributeIncrease->getHeight() + (i-Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES/2) * 25;
         }
         attributeLabel->setPosition(x, y);
         attributeLabel->setAlpha(0.0f);

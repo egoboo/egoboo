@@ -68,8 +68,6 @@ enum e_chr_render_bits
     CHR_REFLECT  = ( 1 << 4 )
 };
 
-#define GRIP_VERTS             4
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -191,9 +189,9 @@ struct chr_instance_t
     bool         skin_has_transparency; ///< The object skin has partial transparency
 
     // color info
-    Uint8          redshift;        ///< Color channel shifting
-    Uint8          grnshift;
-    Uint8          blushift;
+    uint8_t          redshift;        ///< Color channel shifting
+    uint8_t          grnshift;
+    uint8_t          blushift;
 
     // texture info
     TX_REF         texture;         ///< The texture id of the character's skin
@@ -234,12 +232,6 @@ struct chr_instance_t
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 
-    // OBSOLETE
-    // lighting
-    // FACING_T       light_turn_z;    ///< Character's light rotation 0 to 0xFFFF
-    // Uint8          lightlevel_amb;  ///< 0-255, terrain light
-    // Uint8          lightlevel_dir;  ///< 0-255, terrain light
-
 	static chr_instance_t *ctor(chr_instance_t& self);
 	static chr_instance_t *dtor(chr_instance_t& self);
 
@@ -271,9 +263,9 @@ struct chr_instance_t
 	static void remove_interpolation(chr_instance_t& self);
 	static gfx_rv set_frame_full(chr_instance_t& self, int frame_along, int ilip, const std::shared_ptr<Ego::ModelDescriptor> &mad_override);
 
-	static const MD2_Frame& get_frame_nxt(chr_instance_t& self);
+	static const MD2_Frame& get_frame_nxt(const chr_instance_t& self);
 	static const MD2_Frame& get_frame_lst(chr_instance_t& self);
-	static BIT_FIELD get_framefx(chr_instance_t& self);
+	static BIT_FIELD get_framefx(const chr_instance_t& self);
 
 	static float get_remaining_flip(chr_instance_t& self);
 	static void get_tint(chr_instance_t& self, GLfloat *tint, const BIT_FIELD bits);

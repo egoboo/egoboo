@@ -41,6 +41,8 @@ CollisionSystem *CollisionSystem::_singleton = nullptr;
 
 #define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
 
+static constexpr float MAX_KNOCKBACK_VELOCITY = 40.0f;
+static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
 
 
 //--------------------------------------------------------------------------------------------
@@ -928,7 +930,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     if ( loc_needs_bump )
                     {
                         // the valid bump interactions
-                        bool end_money  = TO_C_BOOL(( particle->getProfile()->bump_money > 0 ) && pchr_a->cangrabmoney );
+                        bool end_money  = TO_C_BOOL(( particle->getProfile()->bump_money > 0 ) && pchr_a->getProfile()->canGrabMoney() );
                         bool end_bump   = TO_C_BOOL(( particle->getProfile()->end_bump ) && ( 0 != pchr_a->bump_stt.size ) );
                         bool end_ground = TO_C_BOOL(( particle->getProfile()->end_ground ) && (( 0 != pchr_a->bump_stt.size ) || pchr_a->platform ) );
 
@@ -1346,19 +1348,6 @@ void bump_all_objects()
         // handle all the collisions
         bump_all_collisions(&CollisionSystem::get()->_coll_node_lst);
     }
-
-#if 0
-    // The following functions need to be called any time you actually change a charcter's position
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        keep_weapons_with_holder(object);
-        chr_update_matrix(object.get(), true);
-    }
-
-    //keep_weapons_with_holders();
-    attach_all_particles();
-    //update_all_character_matrices();
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2073,7 +2062,7 @@ bool do_chr_chr_collision( CoNode_t * d )
     }
 
     // items can interact with platforms but not with other characters/objects
-    if ( pchr_a->isitem || pchr_b->isitem ) return false;
+    if ( pchr_a->isItem() || pchr_b->isItem() ) return false;
 
     // don't interact with your mount, or your held items
     if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return false;
@@ -2082,8 +2071,10 @@ bool do_chr_chr_collision( CoNode_t * d )
     if ( 0.0f == pchr_a->bump_stt.size || 0.0f == pchr_b->bump_stt.size ) return false;
 
     interaction_strength = 1.0f;
-    interaction_strength *= pchr_a->inst.alpha * INV_FF;
-    interaction_strength *= pchr_b->inst.alpha * INV_FF;
+    
+    //ZF> This was supposed to make ghosts more insubstantial, but it also affects invisible characters
+    //interaction_strength *= pchr_a->inst.alpha * INV_FF;
+    //interaction_strength *= pchr_b->inst.alpha * INV_FF;
 
     // reduce your interaction strength if you have just detached from an object
     if ( pchr_a->dismount_object == ichr_b )
@@ -2200,7 +2191,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
     // make a special exception for immovable scenery objects
     // they can collide, but cannot push each other apart... that might mess up the scenery ;)
-    if ( !collision && ( wta < 0.0f && 0.0f == pchr_a->maxaccel ) && ( wtb < 0.0f && 0.0f == pchr_b->maxaccel ) )
+    if ( !collision && pchr_a->isScenery() && pchr_b->isScenery() )
     {
         return false;
     }
@@ -2371,6 +2362,12 @@ bool do_chr_chr_collision( CoNode_t * d )
     {
         ai_state_t::set_bumplast(pchr_a->ai, ichr_b);
         ai_state_t::set_bumplast(pchr_b->ai, ichr_a);
+
+        //Destroy stealth for both objects if they are not friendly
+        if(!pchr_a->isScenery() && !pchr_b->isScenery() && pchr_a->getTeam().hatesTeam(pchr_b->getTeam())) {
+            if(!pchr_a->hasPerk(Ego::Perks::SHADE)) pchr_a->deactivateStealth();
+            if(!pchr_a->hasPerk(Ego::Perks::SHADE)) pchr_b->deactivateStealth();
+        }
     }
 
     return true;
@@ -2603,11 +2600,10 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
     direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
-    chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR( pdata->pchr ), pdata->ppip->damfx );
+    chr_is_invictus = pdata->pchr->isInvictusDirection(direction, pdata->ppip->damfx);
 
     // determine whether the character is magically protected from missile attacks
-    prt_wants_deflection  = TO_C_BOOL(( MISSILE_NORMAL != pdata->pchr->missiletreatment ) &&
-                                      ( pdata->pprt->owner_ref != GET_INDEX_PCHR( pdata->pchr ) ) && !pdata->ppip->bump_money );
+    prt_wants_deflection  = TO_C_BOOL( ( pdata->pprt->owner_ref != GET_INDEX_PCHR( pdata->pchr ) ) && !pdata->ppip->bump_money );
 
     chr_can_deflect = TO_C_BOOL(( 0 != pdata->pchr->damage_timer ) && ( pdata->max_damage > 0 ) );
 
@@ -2617,18 +2613,31 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
     if ( chr_is_invictus || ( prt_wants_deflection && chr_can_deflect ) )
     {
         // magically deflect the particle or make a ricochet if the character is invictus
-        int treatment;
-
-        treatment     = MISSILE_DEFLECT;
+        MissileTreatmentType treatment = chr_is_invictus ? MISSILE_DEFLECT : MISSILE_NORMAL;
         prt_deflected = true;
-        if ( prt_wants_deflection )
-        {
-            treatment = pdata->pchr->missiletreatment;
-            const std::shared_ptr<Object> &missileHandler = _currentModule->getObjectHandler()[pdata->pchr->missilehandler];
-            if(missileHandler) {
-                pdata->mana_paid = missileHandler->costMana(pdata->pchr->missilecost << 8, pdata->pprt->owner_ref);
+
+        //Check if the target has any enchantment that can deflect missiles
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
+            if(enchant->isTerminated()) continue;
+
+            //Does this enchant provide special missile protection?
+            if(enchant->getMissileTreatment() != MISSILE_NORMAL) {
+                if(enchant->getOwner() != nullptr) {
+                    if(enchant->getOwner()->costMana(enchant->getMissileTreatmentCost(), pdata->pprt->owner_ref)) {
+                        pdata->mana_paid = true;
+                        treatment = enchant->getMissileTreatment();
+                        break;
+                    }
+                }
             }
-            prt_deflected = pdata->mana_paid;
+        }
+
+        if(treatment == MISSILE_NORMAL) {
+            prt_wants_deflection = false;
+            prt_deflected = false;
+        }
+        else {
+            prt_deflected = pdata->mana_paid;            
         }
 
         if ( prt_deflected )
@@ -2887,62 +2896,55 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
     //Get the Profile of the Object that spawned this particle (i.e the weapon itself, not the holder)
     const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pdata->pprt->getSpawnerProfile());
+    if(spawnerProfile != nullptr) { //global particles do not have a spawner profile, so this is possible
+        // Check all enchants to see if they are removed
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
+            if(enchant->isTerminated()) {
+                continue;
+            }
 
-    // clean up the enchant list before doing anything
-    cleanup_character_enchants( pdata->pchr );
+            // if nothing can remove it, just go on with your business
+            if(enchant->getProfile()->removedByIDSZ == IDSZ_NONE) {
+                continue;
+            }
 
-    // Check all enchants to see if they are removed
-    ienc_now = pdata->pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        if ( enc_is_removed( ienc_now, pdata->pprt->getSpawnerProfile() ) )
-        {
-            remove_enchant( ienc_now, NULL );
-        }
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
+            // check vs. every IDSZ that could have something to do with cancelling the enchant
+            if ( enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_TYPE) ||
+                 enchant->getProfile()->removedByIDSZ == spawnerProfile->getIDSZ(IDSZ_PARENT) ) {
+                enchant->requestTerminate();
+            }
+        }        
     }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Steal some life.
-    if ( pdata->pprt->lifedrain > 0 && pdata->pchr->life > 0)
+    if ( pdata->pprt->lifedrain > 0 && pdata->pchr->getLife() > 0)
     {
-		// As pdata->pchr->life > 0, we can safely cast to unsigned.
-		UFP8_T life = (UFP8_T)pdata->pchr->life;
-
 		// Drain as much as allowed and possible.
-		UFP8_T drain = std::min(life, pdata->pprt->lifedrain);
+		float drain = std::min(pdata->pchr->getLife(), FP8_TO_FLOAT(pdata->pprt->lifedrain));
 
 		// Remove the drain from the character that was hit ...
-		pdata->pchr->life = Ego::Math::constrain(pdata->pchr->life - drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_LIFE)));
+        pdata->pchr->setLife(pdata->pchr->getLife() - drain);
 
 		// ... and add it to the "caster".
 		if ( NULL != powner )
 		{
-			powner->life = Ego::Math::constrain(powner->life + drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_LIFE)));
+            powner->setLife(powner->getLife() + drain);
 		}
     }
 
     // Steal some mana.
-    if ( pdata->pprt->manadrain > 0 && pdata->pchr->mana > 0)
+    if ( pdata->pprt->manadrain > 0 && pdata->pchr->getMana() > 0)
     {
-		// As pdata->pchr->mana > 0, we can safely cast to unsigned.
-		UFP8_T mana = (UFP8_T)pdata->pchr->mana;
-
 		// Drain as much as allowed and possible.
-		UFP8_T drain = std::min(mana, pdata->pprt->manadrain);
+		float drain = std::min(pdata->pchr->getMana(), FP8_TO_FLOAT(pdata->pprt->manadrain));
 
         // Remove the drain from the character that was hit ...
-        pdata->pchr->mana = Ego::Math::constrain<uint32_t>(pdata->pchr->mana - drain, 0, FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_MANA)));
+        pdata->pchr->setMana(pdata->pchr->getMana() - drain);
 
         // add it to the "caster"
         if ( NULL != powner )
         {
-            powner->mana = Ego::Math::constrain<uint32_t>(powner->mana + drain, 0, FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_MANA)));
+            powner->setMana(powner->getMana() + drain);
         }
     }
 
@@ -3084,7 +3086,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     if(spawnerProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','C','Y','T') && Random::getPercent() <= 5) {
 
                         //Make sure they can be damaged by EVIL first
-                        if(pdata->pchr->damage_modifier[DAMAGE_EVIL] == NONE) {
+                        if(pdata->pchr->getAttribute(Ego::Attribute::EVIL_MODIFIER) == NONE) {
                             IPair grimReaperDamage;
                             grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
                             grimReaperDamage.rand = 0.0f;
@@ -3306,12 +3308,12 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
             {
                 // if the mount's rider can't get money, the mount gets to keep the money!
                 const std::shared_ptr<Object> &rider = pdata->pchr->getLeftHandItem();
-                if (rider != nullptr && rider->cangrabmoney) {
+                if (rider != nullptr && rider->getProfile()->canGrabMoney()) {
                     pcollector = rider.get();
                 }
             }
 
-            if ( pcollector->cangrabmoney && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
+            if ( pcollector->getProfile()->canGrabMoney() && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
             {
                 pcollector->money += pdata->pprt->getProfile()->bump_money;
                 pcollector->money = Ego::Math::constrain<int>(pcollector->money, 0, MAXMONEY);
@@ -3405,6 +3407,19 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
         else {
             knockbackFactor += attackerMight * 0.1f;
         }
+
+        //Telekinetic Staff perk can give +500% knockback
+        const std::shared_ptr<Object>& powner = _currentModule->getObjectHandler()[pdata.pprt->owner_ref];
+        if(powner->hasPerk(Ego::Perks::TELEKINETIC_STAFF) && 
+            pdata.pprt->getAttachedObject()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('S','T','A','F')) {
+
+            //+3% chance per owner Intellect and -1% per target Might
+            float chance = attacker->getAttribute(Ego::Attribute::INTELLECT) * 0.03f - pdata.pchr->getAttribute(Ego::Attribute::MIGHT)*0.01f;
+            if(Random::nextFloat() <= chance) {
+                knockbackFactor += 5.0f;
+                chr_make_text_billboard(attacker->getCharacterID(), "Telekinetic Staff!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 2, Billboard::Flags::All);
+            }
+        }
     }
 
     //Adjust knockback based on relative mass between particle and target
@@ -3436,18 +3451,22 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
     //Apply knockback to the victim (limit between 0% and 300% knockback)
     Vector3f knockbackVelocity = pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
+    //knockbackVelocity[kX] = std::cos(pdata.pprt->vel[kX]) * DEFAULT_KNOCKBACK_VELOCITY;
+    //knockbackVelocity[kY] = std::sin(pdata.pprt->vel[kY]) * DEFAULT_KNOCKBACK_VELOCITY;
+    //knockbackVelocity[kZ] = DEFAULT_KNOCKBACK_VELOCITY / 2;
+    //knockbackVelocity *= Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 
-    //Limit horizontal knockback velocity to MAXTHROWVELOCITY
+    //Limit total horizontal knockback velocity to MAXTHROWVELOCITY
     const float magnitudeVelocityXY = std::sqrt(knockbackVelocity[kX]*knockbackVelocity[kX] + knockbackVelocity[kY]*knockbackVelocity[kY]);
-    if(magnitudeVelocityXY > MAXTHROWVELOCITY) {
-        knockbackVelocity[kX] *= MAXTHROWVELOCITY / magnitudeVelocityXY;
-        knockbackVelocity[kY] *= MAXTHROWVELOCITY / magnitudeVelocityXY;
+    if(magnitudeVelocityXY > MAX_KNOCKBACK_VELOCITY) {
+        knockbackVelocity[kX] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityXY;
+        knockbackVelocity[kY] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityXY;
     }
 
-    //Limit vertical knockback velocity to one third of MAXTHROWVELOCTIY
+    //Limit total vertical knockback velocity to one third of MAXTHROWVELOCTIY
     const float magnitudeVelocityZ = std::sqrt(knockbackVelocity[kZ]*knockbackVelocity[kZ]);
-    if(magnitudeVelocityZ > MAXTHROWVELOCITY) {
-        knockbackVelocity[kZ] *= MAXTHROWVELOCITY / magnitudeVelocityZ;
+    if(magnitudeVelocityZ > MAX_KNOCKBACK_VELOCITY) {
+        knockbackVelocity[kZ] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityZ;
     }
 
     //Apply knockback

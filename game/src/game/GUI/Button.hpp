@@ -40,4 +40,5 @@ class Button : public GUIComponent
         std::function<void()> _onClickFunction;
         int _hotkey;
         float _slidyButtonTargetX;
+        float _slidyButtonCurrentX;
 };

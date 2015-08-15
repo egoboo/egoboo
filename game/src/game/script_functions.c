@@ -58,11 +58,11 @@
 #endif
 
 #define SCRIPT_FUNCTION_BEGIN() \
+    Uint8 returncode = true; \
     if( !_currentModule->getObjectHandler().exists(self.index) ) return false; \
     Object *pchr = _currentModule->getObjectHandler().get( self.index ); \
-    const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile( pchr->profile_ref ); \
-    if(!ppro) return false; \
-	Uint8 returncode = true;
+    const std::shared_ptr<ObjectProfile> &ppro = pchr->getProfile(); \
+    if(!ppro) return false;
 
 #define SCRIPT_FUNCTION_END() \
     return returncode;
@@ -471,7 +471,7 @@ Uint8 scr_TargetKilled( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     // Proceed only if the character's target has just died or is already dead
-    returncode = ( HAS_SOME_BITS( self.alert, ALERTIF_TARGETKILLED ) || !pself_target->alive );
+    returncode = ( HAS_SOME_BITS( self.alert, ALERTIF_TARGETKILLED ) || !pself_target->isAlive() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -577,14 +577,13 @@ Uint8 scr_get_TargetArmorPrice( script_state_t& state, ai_state_t& self )
     /// @details This function returns the cost of the desired skin upgrade, setting
     /// tmpx to the price
 
-    int value;
     Object *ptarget;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( ptarget );
 
-    value = GetArmorPrice( ptarget, state.argument );
+    int value = ptarget->getProfile()->getSkinInfo(state.argument).cost;
 
     if ( value > 0 )
     {
@@ -662,15 +661,14 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function sets the target to a nearby enemy, failing if there are none
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES );
+    CHR_REF ichr = chr_find_target(pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES);
 
-    if ( _currentModule->getObjectHandler().exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists(ichr) )
     {
-        SET_TARGET_0( ichr );
+        self.target = ichr;
+        returncode = true;
     }
     else
     {
@@ -981,7 +979,7 @@ Uint8 scr_Run( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->resetAcceleration();
+    self.maxSpeed = 1.0f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -996,10 +994,7 @@ Uint8 scr_Walk( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->resetAcceleration();
-
-    pchr->maxaccel      = pchr->maxaccel_reset * 0.66f;
-    pchr->movement_bits = CHR_MOVEMENT_BITS_WALK;
+    self.maxSpeed = 0.66f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1014,10 +1009,7 @@ Uint8 scr_Sneak( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->resetAcceleration();
-
-    pchr->maxaccel      = pchr->maxaccel_reset * 0.33f;
-    pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
+    self.maxSpeed = 0.33f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1100,7 +1092,7 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         }
     }
 
-    const std::shared_ptr<Object> &rightItem = pchr->getLeftHandItem();
+    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
     if (rightItem)
     {
         rightItem->detatchFromHolder(true, true);
@@ -1131,7 +1123,7 @@ Uint8 scr_TargetDoAction( script_state_t& state, ai_state_t& self )
     {
         Object * pself_target = _currentModule->getObjectHandler().get( self.target );
 
-        if ( pself_target->alive )
+        if ( pself_target->isAlive() )
         {
             int action = pself_target->getProfile()->getModel()->getAction( state.argument );
 
@@ -1344,7 +1336,7 @@ Uint8 scr_SendPlayerMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _display_message( self.index, pchr->profile_ref, state.argument, &state );
+    returncode = _display_message( self.index, pchr->getProfileID(), state.argument, &state );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1445,19 +1437,19 @@ Uint8 scr_TargetCanOpenStuff( script_state_t& state, ai_state_t& self )
 
     if ( pself_target->isMount() )
     {
-        CHR_REF iheld = pself_target->holdingwhich[SLOT_LEFT];
+        const std::shared_ptr<Object> &rider = pself_target->getLeftHandItem();
 
-        if ( _currentModule->getObjectHandler().exists( iheld ) )
+        if (rider)
         {
-            // can the rider open the
-            returncode = _currentModule->getObjectHandler().get(iheld)->openstuff;
+            // can the rider open stuff
+            returncode = rider->getProfile()->canOpenStuff();
         }
     }
 
     if ( !returncode )
     {
         // if a rider can't openstuff, can the target openstuff?
-        returncode = pself_target->openstuff;
+        returncode = pself_target->getProfile()->canOpenStuff();
     }
 
     SCRIPT_FUNCTION_END();
@@ -1628,7 +1620,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && chr_get_iteam( self.target ) != pchr->team );
+    returncode = ( pself_target->isAlive() && chr_get_iteam( self.target ) != pchr->team );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1646,7 +1638,7 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && team_hates_team( pchr->team, chr_get_iteam( self.target ) ) && !pself_target->invictus );
+    returncode = ( pself_target->isAlive() && team_hates_team( pchr->team, chr_get_iteam( self.target ) ) && !pself_target->invictus );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1753,7 +1745,7 @@ Uint8 scr_ChangeTargetArmor( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = pself_target->skin;
-    state.x = change_armor( self.target, state.argument );
+    state.x = pself_target->setSkin(state.argument);
 
     state.argument = iTmp;  // The character's old armor
 
@@ -1891,12 +1883,12 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
     fvec3_t pos = fvec3_t(state.x, state.y, 0);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( state.turn ), NULL, INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
@@ -2051,7 +2043,17 @@ Uint8 scr_CleanUp( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_clean( self.index );
+    for(const std::shared_ptr<Object> &listener : _currentModule->getObjectHandler().iterator())
+    {
+        if ( pchr->getTeam() != listener->getTeam() ) continue;
+
+        if ( !listener->isAlive() )
+        {
+            listener->ai.timer  = update_wld + 2;  // Don't let it think too much...
+        }
+
+        SET_BIT( listener->ai.alert, ALERTIF_CLEANEDUP );
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -2098,7 +2100,7 @@ Uint8 scr_TargetIsHurt( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->life > FLOAT_TO_FP8(pself_target->getAttribute(Ego::Attribute::MAX_LIFE)) - HURTDAMAGE )
+    if ( !pself_target->isAlive() || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - FP8_TO_FLOAT(HURTDAMAGE) )
         returncode = false;
 
     SCRIPT_FUNCTION_END();
@@ -2162,11 +2164,11 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
-                                                    pchr->ori.facing_z, 
-                                                    pchr->profile_ref,
-                                                    LocalParticleProfileRef(state.argument), self.index,
-                                                    state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                    INVALID_CHR_REF );
+                                                                                        pchr->ori.facing_z, 
+                                                                                        pchr->getProfileID(),
+                                                                                        LocalParticleProfileRef(state.argument), self.index,
+                                                                                        state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                                                        INVALID_CHR_REF );
 
     returncode = (particle != nullptr);
     if ( returncode )
@@ -2211,7 +2213,7 @@ Uint8 scr_TargetIsAlive( script_state_t& state, ai_state_t& self )
 	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = pself_target->alive;
+    returncode = pself_target->isAlive();
 
     SCRIPT_FUNCTION_END();
 }
@@ -2226,8 +2228,7 @@ Uint8 scr_Stop( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel      = 0;
-    pchr->movement_bits = CHR_MOVEMENT_BITS_STOP;
+    self.maxSpeed = 0.0f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2386,35 +2387,15 @@ Uint8 scr_BecomeSpell( script_state_t& state, ai_state_t& self )
     /// content.
     /// TOO COMPLICATED TO EXPLAIN.  SHOULDN'T EVER BE NEEDED BY YOU.
 
-    int iskin;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    // get the spellbook's skin
-    iskin = pchr->skin;
-
     // change the spellbook to a spell effect
-    change_character( self.index, ( PRO_REF )self.content, 0, ENC_LEAVE_NONE );
+    pchr->disenchant();
+    pchr->polymorphObject(self.content, 0);
 
     // set the spell effect parameters
     self.content = 0;
     chr_set_ai_state( pchr, 0 );
-
-    // have to do this every time pself->state is modified
-    chr_update_hide( pchr );
-
-    // set the book icon of the spell effect if it is not already set
-    /*
-    //ZF> TODO: is this needed? what does it actually do?
-    pcap = chr_get_pcap( pself->index );
-    if ( NULL != pcap )
-    {
-        iskin = ( iskin < 0 ) ? NO_SKIN_OVERRIDE : iskin;
-        iskin = ( iskin > SKINS_PEROBJECT_MAX ) ? SKINS_PEROBJECT_MAX : iskin;
-
-        pcap->spelleffect_type = iskin;
-    }
-    */
 
     SCRIPT_FUNCTION_END();
 }
@@ -2429,7 +2410,6 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
     /// TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
     /// them too much
 
-    PRO_REF  old_profile;
     int iskin;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2439,8 +2419,9 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
     if ( iskin < 0 ) iskin = 0;
 
     // convert the spell effect to a spellbook
-    old_profile = pchr->profile_ref;
-    change_character( self.index, (PRO_REF)SPELLBOOK, iskin, ENC_LEAVE_NONE );
+    PRO_REF old_profile = pchr->getProfileID();
+    pchr->disenchant();
+    pchr->polymorphObject(SPELLBOOK, 0);
 
     // Reset the spellbook state so it doesn't burn up
     chr_set_ai_state(pchr, 0);
@@ -2448,15 +2429,10 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
 
     // set the spellbook animations
     // Do dropped animation
-    int tmp_action = pchr->getProfile()->getModel()->getAction(ACTION_JB);
-
-    if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
+    if (rv_success == chr_start_anim(pchr, pchr->getProfile()->getModel()->getAction(ACTION_JB), false, true))
     {
         returncode = true;
     }
-
-    // have to do this every time pself->state is modified
-    chr_update_hide(pchr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2818,12 +2794,15 @@ Uint8 scr_EnchantTarget( script_state_t& state, ai_state_t& self )
     /// @details This function enchants the target with the enchantment given
     /// in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = EnchantHandler::get().spawn_one_enchant( self.owner, self.target, self.index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = DEFINED_ENC( iTmp );
+    const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[self.target];
+    if(target) {
+        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
+    }   
+    else {
+        returncode = false;
+    } 
 
     SCRIPT_FUNCTION_END();
 }
@@ -2837,12 +2816,15 @@ Uint8 scr_EnchantChild( script_state_t& state, ai_state_t& self )
     /// newly spawned character with the enchantment
     /// given in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = EnchantHandler::get().spawn_one_enchant( self.owner, self.child, self.index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = DEFINED_ENC( iTmp );
+    const std::shared_ptr<Object> child = _currentModule->getObjectHandler()[self.child];
+    if(child) {
+        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
+    }   
+    else {
+        returncode = false;
+    } 
 
     SCRIPT_FUNCTION_END();
 }
@@ -2970,14 +2952,14 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t& state, ai_state_t& self )
     iTmp = 0;  // Amount of ammo given
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo( ichr, state.argument );
+    iTmp += RestockAmmo( ichr, state.argument );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    iTmp += restock_ammo( ichr, state.argument );
+    iTmp += RestockAmmo( ichr, state.argument );
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += restock_ammo( pitem->getCharacterID(), state.argument );
+        iTmp += RestockAmmo( pitem->getCharacterID(), state.argument );
     }
 
     state.argument = iTmp;
@@ -3005,19 +2987,19 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t& state, ai_state_t& self )
     iTmp = 0;  // Amount of ammo given
     
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo(ichr, state.argument);
+    iTmp += RestockAmmo(ichr, state.argument);
     
     if (iTmp == 0)
     {
         ichr = pself_target->holdingwhich[SLOT_RIGHT];
-        iTmp += restock_ammo(ichr, state.argument);
+        iTmp += RestockAmmo(ichr, state.argument);
     }
 
     if (iTmp == 0)
     {
         for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += restock_ammo( pitem->getCharacterID(), state.argument );
+            iTmp += RestockAmmo( pitem->getCharacterID(), state.argument );
             if ( 0 != iTmp ) break;
         }
     }
@@ -3056,7 +3038,7 @@ Uint8 scr_set_RedShift( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_redshift( pchr, state.argument );
+    pchr->setBaseAttribute(Ego::Attribute::RED_SHIFT, Ego::Math::constrain(state.argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3067,11 +3049,11 @@ Uint8 scr_set_GreenShift( script_state_t& state, ai_state_t& self )
     // SetGreenShift( tmpargument = "green darkening" )
     /// @author ZZ
     /// @details This function sets the character's green shift ( 0 - 3 ), higher values
-    /// making the character less red and darker
+    /// making the character less green and darker
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_grnshift( pchr, state.argument );
+    pchr->setBaseAttribute(Ego::Attribute::GREEN_SHIFT, Ego::Math::constrain(state.argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3082,11 +3064,11 @@ Uint8 scr_set_BlueShift( script_state_t& state, ai_state_t& self )
     // SetBlueShift( tmpargument = "blue darkening" )
     /// @author ZZ
     /// @details This function sets the character's blue shift ( 0 - 3 ), higher values
-    /// making the character less red and darker
+    /// making the character less blue and darker
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_grnshift( pchr, state.argument );
+    pchr->setBaseAttribute(Ego::Attribute::BLUE_SHIFT, Ego::Math::constrain(state.argument, 0, 6));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3239,14 +3221,13 @@ Uint8 scr_UndoEnchant( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( INGAME_ENC( pchr->undoenchant ) )
-    {
-        returncode = remove_enchant( pchr->undoenchant, NULL );
-    }
-    else
-    {
-        pchr->undoenchant = INVALID_ENC_REF;
+    std::shared_ptr<Ego::Enchantment> lastEnchant = pchr->getLastEnchantmentSpawned();
+    if(lastEnchant == nullptr || lastEnchant->isTerminated()) {
         returncode = false;
+    }
+    else {
+        returncode = true;
+        lastEnchant->requestTerminate();
     }
 
     SCRIPT_FUNCTION_END();
@@ -3354,7 +3335,7 @@ Uint8 scr_set_FlyHeight( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->flyheight = std::max( 0, state.argument );
+    pchr->setBaseAttribute(Ego::Attribute::FLY_TO_HEIGHT, std::max(0, state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3606,7 +3587,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
 
     if ( min_distance < MSGDISTANCE )
     {
-        returncode = _display_message( self.index, pchr->profile_ref, state.argument, &state );
+        returncode = _display_message( self.index, pchr->getProfileID(), state.argument, &state );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4014,10 +3995,10 @@ Uint8 scr_SpawnAttachedParticle( script_state_t& state, ai_state_t& self )
         ichr = iholder;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
-                                                     LocalParticleProfileRef(state.argument), self.index,
-                                                     state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                     INVALID_CHR_REF);
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
+                                                                      LocalParticleProfileRef(state.argument), self.index,
+                                                                      state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                                      INVALID_CHR_REF);
     SCRIPT_FUNCTION_END();
 }
 
@@ -4047,7 +4028,7 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
             state.distance
             );
 
-        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                          LocalParticleProfileRef(state.argument),
                                                          INVALID_CHR_REF, 0, pchr->team, ichr,
                                                          INVALID_PRT_REF, 0, INVALID_CHR_REF);
@@ -4473,7 +4454,7 @@ Uint8 scr_SpawnPoof( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    spawn_poof( self.index, pchr->profile_ref );
+    spawn_poof( self.index, pchr->getProfileID() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4486,27 +4467,9 @@ Uint8 scr_set_SpeedPercent( script_state_t& state, ai_state_t& self )
     /// @details This function acts like Run or Walk, except it allows the explicit
     /// setting of the speed
 
-    float fvalue;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->resetAcceleration();
-
-    fvalue = state.argument / 100.0f;
-    fvalue = std::max( 0.0f, fvalue );
-
-    pchr->maxaccel = pchr->maxaccel_reset * fvalue;
-
-    if ( pchr->maxaccel < 0.33f )
-    {
-        // only sneak
-        pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
-    }
-    else
-    {
-        // everything but sneak
-        pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-    }
+    self.maxSpeed = std::max(0.0f, state.argument / 100.0f);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4548,9 +4511,9 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t& state, ai_state_t& self )
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, 
-                                                     pchr->profile_ref, LocalParticleProfileRef(state.argument), self.index,
-                                                     state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                     INVALID_CHR_REF);
+                                                                                        pchr->getProfileID(), LocalParticleProfileRef(state.argument), self.index,
+                                                                                        state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                                                        INVALID_CHR_REF);
 
     returncode = (particle != nullptr);
 
@@ -4576,7 +4539,8 @@ Uint8 scr_ChangeArmor( script_state_t& state, ai_state_t& self )
 
     state.x = state.argument;
     iTmp = pchr->skin;
-    state.x = change_armor( self.index, state.argument );
+    pchr->setSkin(state.argument);
+    state.x = pchr->skin;
     state.argument = iTmp;  // The character's old armor
 
     SCRIPT_FUNCTION_END();
@@ -4658,9 +4622,9 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( state.turn ),
-                                                     pchr->profile_ref, LocalParticleProfileRef(state.argument),
-                                                     self.index, state.distance, pchr->team, ichr, INVALID_PRT_REF,
-                                                     0, INVALID_CHR_REF);
+                                                                      pchr->getProfileID(), LocalParticleProfileRef(state.argument),
+                                                                      self.index, state.distance, pchr->team, ichr, INVALID_PRT_REF,
+                                                                      0, INVALID_CHR_REF);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4893,7 +4857,7 @@ Uint8 scr_HealTarget( script_state_t& state, ai_state_t& self )
     if ( target->heal(_currentModule->getObjectHandler()[self.index], state.argument, false) )
     {
         returncode = true;
-        remove_all_enchants_with_idsz(self.target, MAKE_IDSZ('H', 'E', 'A', 'L'));
+        target->removeEnchantsWithIDSZ(MAKE_IDSZ('H', 'E', 'A', 'L'));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4989,10 +4953,10 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
         ichr = pchr->attachedto;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
-                                                     LocalParticleProfileRef(state.argument), ichr,
-                                                     state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                     INVALID_CHR_REF);
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
+                                                                      LocalParticleProfileRef(state.argument), ichr,
+                                                                      state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                                      INVALID_CHR_REF);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5326,7 +5290,7 @@ Uint8 scr_CharacterWasABook( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = ( pchr->basemodel_ref == SPELLBOOK ||
-                   pchr->basemodel_ref == pchr->profile_ref );
+                   pchr->basemodel_ref == pchr->getProfileID() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5340,21 +5304,15 @@ Uint8 scr_set_EnchantBoostValues( script_state_t& state, ai_state_t& self )
     /// spawned by this character.
     /// Values are 8.8 fixed point
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = pchr->undoenchant;
-
     returncode = false;
-    if ( INGAME_ENC( iTmp ) )
-    {
-        EnchantHandler::get().get_ptr(iTmp)->owner_mana = state.argument;
-        EnchantHandler::get().get_ptr(iTmp)->owner_life = state.distance;
-        EnchantHandler::get().get_ptr(iTmp)->target_mana = state.x;
-        EnchantHandler::get().get_ptr(iTmp)->target_life = state.y;
-
-        returncode = true;
+    if(!pchr->getActiveEnchants().empty()) {
+        const std::shared_ptr<Ego::Enchantment> &enchant = pchr->getActiveEnchants().front();
+        if(!enchant->isTerminated()) {
+            enchant->setBoostValues(FP8_TO_FLOAT(state.argument), FP8_TO_FLOAT(state.distance), FP8_TO_FLOAT(state.x), FP8_TO_FLOAT(state.y));
+            returncode = true;            
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -5371,12 +5329,12 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
     fvec3_t pos = fvec3_t(state.x, state.y, state.distance);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( state.turn ), NULL, INVALID_CHR_REF );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF );
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
+        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
@@ -5421,7 +5379,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
         state.distance
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), nullptr, INVALID_CHR_REF);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), "", INVALID_CHR_REF);
 
     if ( !pchild )
     {
@@ -5465,7 +5423,23 @@ Uint8 scr_ChangeTargetClass( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    change_character_full( self.target, ( PRO_REF )state.argument, 0, ENC_LEAVE_ALL );
+    const PRO_REF profileID = static_cast<PRO_REF>(state.argument);
+
+    /// @details This function polymorphs a character permanently so that it can be exported properly
+    /// A character turned into a frog with this function will also export as a frog!
+    if(ProfileSystem::get().isValidProfileID(profileID)) 
+    {
+        //Change the object
+        pchr->polymorphObject(profileID, 0);
+
+        // set the base model to the new model, too
+        pchr->basemodel_ref = profileID;
+
+        returncode = true;
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -5513,7 +5487,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
             state.distance
             );
 
-        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
                                                              INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
                                                              0, INVALID_CHR_REF);
@@ -5696,7 +5670,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->see_invisible_level > 0 );
+    returncode = pself_target->canSeeInvisible();
 
     SCRIPT_FUNCTION_END();
 }
@@ -5922,7 +5896,7 @@ Uint8 scr_TargetIsFlying( script_state_t& state, ai_state_t& self )
 	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->flyheight > 0 );
+    returncode = pself_target->isFlying();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6254,10 +6228,52 @@ Uint8 scr_FlashVariableHeight( script_state_t& state, ai_state_t& self )
     // FlashVariableHeight( tmpturn = "intensity bottom", tmpx = "bottom", tmpdistance = "intensity top", tmpy = "top" )
     /// @author ZZ
     /// @details This function makes the character flash, feet one color, head another.
+    ///          This function sets a character's lighting depending on vertex height...
+    ///          Can make feet dark and head light...
 
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_character_height( self.index, CLIP_TO_16BITS( state.turn ), state.x, state.distance, state.y );
+    const uint8_t valuelow = CLIP_TO_16BITS(state.turn);
+    const int16_t low = state.x;
+    const uint8_t valuehigh = state.distance;
+    const int16_t high = state.y;
+
+    chr_instance_t *pinst = chr_get_pinstance( pchr->getCharacterID() );
+    for (size_t cnt = 0; cnt < pinst->vrt_count; cnt++)
+    {
+        int16_t z = pinst->vrt_lst[cnt].pos[ZZ];
+
+        if ( z < low )
+        {
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] = valuelow;
+        }
+        else if ( z > high )
+        {
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] = valuehigh;
+        }
+        else if ( high != low )
+        {
+            uint8_t valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
+                             ( valuelow * ( high - z ) / ( high - low ) );
+
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+        }
+        else
+        {
+            // z == high == low
+            uint8_t valuemid = ( valuehigh + valuelow ) * 0.5f;
+
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+        }
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6420,9 +6436,7 @@ Uint8 scr_DisenchantTarget( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( INVALID_ENC_REF != pself_target->firstenchant );
-
-    disenchant_character( self.target );
+    returncode = pself_target->disenchant();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6434,13 +6448,12 @@ Uint8 scr_DisenchantAll( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function removes all enchantments in the game
 
-    ENC_REF iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    for ( iTmp = 0; iTmp < ENCHANTS_MAX; iTmp++ )
-    {
-        remove_enchant( iTmp, NULL );
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator()) {
+        for(const std::shared_ptr<Ego::Enchantment> &enchant : object->getActiveEnchants()) {
+            enchant->requestTerminate();
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -6477,7 +6490,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t& state, ai_state_t& self )
     volume = -distance;
     volume = volume<<VOLSHIFT;
     if(volume < VOLMIN) volume = VOLMIN;
-    iTmp = CapStack.lst[pro_get_icap(pchr->profile_ref)].wavelist[state.argument];
+    iTmp = CapStack.lst[pro_get_icap(pchr->getProfileID())].wavelist[pstate->argument];
     if(iTmp < numsound && iTmp >= 0 && soundon)
     {
     lpDSBuffer[iTmp]->SetVolume(volume);
@@ -6683,7 +6696,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
             state.distance
             );
 
-        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
                                                              INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
                                                              0, INVALID_CHR_REF);
@@ -6737,7 +6750,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
         ppip->damage.from           = FP8_TO_FLOAT( state.argument );
         ppip->damage.to             = ppip->damage.from + damage_rand;
 
-        spawn_poof( self.index, pchr->profile_ref );
+        spawn_poof( self.index, pchr->getProfileID() );
 
         // Restore the saved values
         ppip->vel_hrz_pair.base     = iTmp;
@@ -6915,7 +6928,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->mana > FLOAT_TO_FP8(pself_target->getAttribute(Ego::Attribute::MAX_MANA)) - HURTDAMAGE )
+    if ( !pself_target->isAlive() || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - FP8_TO_FLOAT(HURTDAMAGE) )
     {
         returncode = false;
     }
@@ -6976,7 +6989,7 @@ Uint8 scr_FollowLink( script_state_t& state, ai_state_t& self )
     returncode = link_follow_modname( ppro->getMessage(state.argument).c_str(), true );
     if ( !returncode )
     {
-        DisplayMsg_printf( "That's too scary for %s", pchr->Name );
+        DisplayMsg_printf( "That's too scary for %s", pchr->getName().c_str() );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7042,7 +7055,7 @@ Uint8 scr_TargetIsASpell( script_state_t& state, ai_state_t& self )
     returncode = false;
     for (LocalParticleProfileRef iTmp(0); iTmp.get() < MAX_PIP_PER_PROFILE; ++iTmp)
     {
-        std::shared_ptr<pip_t> ppip = ProfileSystem::get().pro_get_ppip(pchr->profile_ref, iTmp);
+        std::shared_ptr<pip_t> ppip = ProfileSystem::get().pro_get_ppip(pchr->getProfileID(), iTmp);
         if (!ppip) continue;
 
         if ( ppip->_intellectDamageBonus )
@@ -7327,7 +7340,7 @@ Uint8 scr_TargetIsOwner( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && self.owner == self.target );
+    returncode = ( pself_target->isAlive() && self.owner == self.target );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7351,12 +7364,12 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
     fvec3_t pos = fvec3_t(state.x, state.y, state.distance);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, pchr->getProfile()->getClassName().c_str(), state.argument);
+        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->getName().c_str(), pchr->getProfile()->getClassName().c_str(), state.argument);
     }
     else
     {
@@ -7671,13 +7684,13 @@ Uint8 scr_MorphToTarget( script_state_t& state, ai_state_t& self )
 
     if ( !_currentModule->getObjectHandler().exists( self.target ) ) return false;
 
-    change_character( self.index, pself_target->basemodel_ref, pself_target->skin, ENC_LEAVE_ALL );
+    pchr->polymorphObject(pself_target->basemodel_ref, pself_target->skin);
 
     // let the resizing take some time
     pchr->fat_goto      = pself_target->fat;
     pchr->fat_goto_time = SIZETIME;
 
-    // change back to our original AI
+    // change back to our original AI (keep our old AI script)
 //    pself->type      = ProList.lst[pchr->basemodel_ref].iai;      //TODO: this no longer works (is it even needed?)
 
     SCRIPT_FUNCTION_END();
@@ -7752,7 +7765,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->see_kurse_level > 0 );
+    returncode = ( pself_target->getAttribute(Ego::Attribute::SENSE_KURSES) > 0 );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7771,10 +7784,11 @@ Uint8 scr_DispelTargetEnchantID( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = false;
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
         // Check all enchants to see if they are removed
-        returncode = remove_all_enchants_with_idsz( self.target, state.argument );
+        pself_target->removeEnchantsWithIDSZ(state.argument);
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -8067,6 +8081,78 @@ Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t& state, ai_state_t& self
     {
         self.target = best_target;
         returncode = true;
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_EnableStealth( script_state_t& state, ai_state_t& self )
+{
+    // EnableStealth()
+    /// @author ZF
+    /// @details Makes the object enter stealth mode. Returns true if it is now hidden from others.
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    if(pchr->isStealthed()) {
+        returncode = false;
+    }
+    else {
+        returncode = pchr->activateStealth();
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_DisableStealth( script_state_t& state, ai_state_t& self )
+{
+    // DisableStealth()
+    /// @author ZF
+    /// @details Makes the object exit stealth mode. Returns true if it exited stealth mode.
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    returncode = pchr->isStealthed();
+    pchr->deactivateStealth();
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_Stealthed( script_state_t& state, ai_state_t& self )
+{
+    // IfStealthed()
+    /// @author ZF
+    /// @details Returns true if the Object is currently in stealth mode and not detected
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    returncode = pchr->isStealthed();
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+uint8_t scr_set_TargetToDistantFriend( script_state_t& state, ai_state_t& self )
+{
+    // SetTargetToDistantFriend( tmpdistance = "distance" )
+    /// @author ZF
+    /// @details This function finds a character within a certain distance of the
+    /// character, failing if there are none
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    CHR_REF ichr = chr_find_target(pchr, state.distance, IDSZ_NONE, TARGET_FRIENDS);
+
+    if (_currentModule->getObjectHandler().exists(ichr))
+    {
+        SET_TARGET_0( ichr );
+    }
+    else
+    {
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();

@@ -119,7 +119,7 @@ void scr_run_chr_script(Object *pchr) {
 
 	// Make life easier
 	script_error_classname = "UNKNOWN";
-	script_error_model = pchr->profile_ref;
+	script_error_model = pchr->getProfileID();
 	if (script_error_model < INVALID_PRO_REF)
 	{
 		script_error_classname = ProfileSystem::get().getProfile(script_error_model)->getClassName().c_str();
@@ -781,6 +781,11 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
 				case FGIVESKILLTOTARGET: returncode = scr_add_TargetSkill(self, aiState); break;
 				case FSETTARGETTONEARBYMELEEWEAPON: returncode = scr_set_TargetToNearbyMeleeWeapon(self, aiState); break;
 
+                case FENABLESTEALTH: returncode = scr_EnableStealth(self, aiState); break;
+                case FDISABLESTEALTH: returncode = scr_DisableStealth(self, aiState); break;
+                case FIFSTEALTHED: returncode = scr_Stealthed(self, aiState); break;
+                case FSETTARGETTODISTANTFRIEND: returncode = scr_set_TargetToDistantFriend(self, aiState); break;
+
                     // if none of the above, skip the line and log an error
                 default:
                     log_message( "SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", pscript->name, valuecode );
@@ -938,7 +943,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFLIFE:
                 varname = "SELFLIFE";
-                iTmp = pchr->life;
+                iTmp = FLOAT_TO_FP8(pchr->getLife());
                 break;
 
             case VARTARGETX:
@@ -1101,8 +1106,8 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFMANA:
                 varname = "SELFMANA";
-                iTmp = pchr->mana;
-                if ( pchr->canchannel )  iTmp += pchr->life;
+                iTmp = FLOAT_TO_FP8(pchr->getMana());
+                if ( pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) )  iTmp += FLOAT_TO_FP8(pchr->getLife());
 
                 break;
 
@@ -1123,7 +1128,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARTARGETLIFE:
                 varname = "TARGETLIFE";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->life;
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getLife());
                 break;
 
             case VARTARGETMANA:
@@ -1134,8 +1139,8 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 }
                 else
                 {
-                    iTmp = ptarget->mana;
-                    if ( ptarget->canchannel ) iTmp += ptarget->life;
+                    iTmp = FLOAT_TO_FP8(ptarget->getMana());
+                    if ( ptarget->getAttribute(Ego::Attribute::CHANNEL_LIFE) ) iTmp += FLOAT_TO_FP8(ptarget->getLife());
                 }
 
                 break;
@@ -1302,7 +1307,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFACCEL:
                 varname = "SELFACCEL";
-                iTmp = ( pchr->maxaccel_reset * 100.0f );
+                iTmp = ( pchr->getAttribute(Ego::Attribute::ACCELERATION) * 100.0f );
                 break;
 
             case VARTARGETEXP:
@@ -1704,6 +1709,7 @@ void ai_state_t::reset(ai_state_t& self)
 		self.x[i] = 0;
 		self.y[i] = 0;
 	}
+    self.maxSpeed = 1.0f;
 
 	// ai memory from the last event
 	self.bumplast = INVALID_CHR_REF;
@@ -1798,6 +1804,7 @@ void ai_state_t::spawn(ai_state_t& self, const CHR_REF index, const PRO_REF iobj
 	self.owner = index;
 	self.child = index;
 	self.target_old = index;
+    self.maxSpeed = 1.0f;
 
 	self.bumplast = index;
 	self.hitlast = index;

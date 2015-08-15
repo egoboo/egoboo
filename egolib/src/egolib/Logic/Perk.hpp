@@ -59,6 +59,7 @@ enum PerkID : uint8_t
     GRIM_REAPER,
     WOLVERINE,
     BERSERKER,
+    TROLL_BLOOD,
 
     //Intellect perks
     CARTOGRAPHY,
@@ -103,6 +104,9 @@ enum PerkID : uint8_t
     //DARKVISION,
     RALLY,
     GUARDIAN_ANGEL,
+    PYROMANIAC,
+    ROSEMARY,
+    TELEKINETIC_STAFF,
     
     //Agility perks
     ACROBATIC,
@@ -124,6 +128,10 @@ enum PerkID : uint8_t
     WHIP_MASTERY,
     DOUBLE_SHOT,
     IMPROVISED_WEAPONS,
+    STEALTH,
+    STALKER,
+    SHADE,
+    CAMOUFLAGE,
 
     NR_OF_PERKS    //Always last
 };

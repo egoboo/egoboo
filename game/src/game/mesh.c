@@ -507,8 +507,7 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
         pgrid_dst->twist   = ptile_src.twist;
 
         // set the local fx flags
-        pgrid_dst->wall_fx = pgrid_dst->base_fx;
-        pgrid_dst->pass_fx = 0;
+        pgrid_dst->pass_fx = pgrid_dst->base_fx;
 
         // lcache is set in the constructor
         // nlst is set in the constructor
@@ -2769,7 +2768,7 @@ GRID_FX_BITS ego_grid_info_t::get_all_fx(const ego_grid_info_t *self)
 {
     if (!self) return MAPFX_WALL | MAPFX_IMPASS;
 
-    return self->wall_fx | self->pass_fx;
+    return self->pass_fx;
 }
 
 GRID_FX_BITS ego_grid_info_t::test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits)

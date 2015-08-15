@@ -40,9 +40,9 @@ void CharacterStatus::draw()
         return;
     }
 
-    int life_pips = SFP8_TO_SINT(pchr->life);
+    int life_pips = pchr->getLife();
     int life_pips_max = pchr->getAttribute(Ego::Attribute::MAX_LIFE);
-    int mana_pips = SFP8_TO_SINT(pchr->getMana());
+    int mana_pips = pchr->getMana();
     int mana_pips_max = pchr->getAttribute(Ego::Attribute::MAX_MANA);
     int yOffset = getY();
 
@@ -75,7 +75,7 @@ void CharacterStatus::draw()
     // Draw the life bar
     if (pchr->isAlive())
     {
-        yOffset = draw_one_bar(pchr->life_color, getX(), yOffset, life_pips, life_pips_max);
+        yOffset = draw_one_bar(pchr->getAttribute(Ego::Attribute::LIFE_BARCOLOR), getX(), yOffset, life_pips, life_pips_max);
     }
     else
     {
@@ -86,7 +86,7 @@ void CharacterStatus::draw()
     // Draw the mana bar
     if (mana_pips_max > 0)
     {
-        yOffset = draw_one_bar(pchr->mana_color, getX(), yOffset, mana_pips, mana_pips_max);
+        yOffset = draw_one_bar(pchr->getAttribute(Ego::Attribute::MANA_BARCOLOR), getX(), yOffset, mana_pips, mana_pips_max);
     }
 
     //After rendering we know how high this GUI component actually is

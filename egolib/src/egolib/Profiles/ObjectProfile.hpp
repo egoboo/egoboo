@@ -30,6 +30,7 @@
 #include "egolib/Logic/Gender.hpp"
 #include "egolib/Logic/Attribute.hpp"
 #include "egolib/Logic/Perk.hpp"
+#include "egolib/Logic/ObjectSlot.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -236,6 +237,7 @@ public:
 
     /**
     * @brief
+    *   returns the ID of the skin that this profile should use or NO_SKIN_OVERRIDE if none is specified
     **/
     uint16_t getSkinOverride() const;
 
@@ -436,7 +438,7 @@ public:
     * @return true if this object should transfer its blending effect upon any
     *         items it might be holding or its rider (if it is a mount)
     **/ 
-    inline bool transferBlending() const {return _isEquipment;}
+    inline bool transferBlending() const {return true; } //isEquipment;}
 
     /**
     * @brief If this character should spawn blood particles when it gets hurt
@@ -555,6 +557,14 @@ public:
     uint16_t getBaseBlockRating() const { return _blockRating; }
 
     /**
+    * @return
+    *   true if the specified skin number is valid and can be used for this profile
+    * @see
+    *   getSkinInfo()
+    **/
+    bool isValidSkin(size_t index) const;
+
+    /**
     * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
     * @param slotOverride Which slot number to load this profile in
     * @param lightWeight If true, then no 3D model, sounds, particle or enchant will be loaded (for menu)
@@ -655,8 +665,8 @@ private:
     UFP8_T       _spawnLife;                    ///< Life left from last module (8.8 fixed point)
     UFP8_T       _spawnMana;                    ///< Mana left from last module (8.8 fixed point)
 
-    std::array<FRange, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Base attributes
-    std::array<FRange, Ego::Attribute::NR_OF_ATTRIBUTES> _attributeGain; ///< Attribute increase each level
+    std::array<FRange, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _baseAttribute; ///< Base attributes
+    std::array<FRange, Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES> _attributeGain; ///< Attribute increase each level
 
     // physics
     uint8_t      _weight;                        ///< Weight

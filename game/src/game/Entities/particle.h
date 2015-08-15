@@ -32,10 +32,6 @@
 #include "egolib/Graphics/Animation2D.hpp"
 #include "game/char.h"
 
-// Forward declarations.
-struct mesh_wall_data_t;
-class ParticleHandler;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Particles
@@ -56,8 +52,6 @@ struct prt_bundle_t
 	prt_bundle_t();
 	prt_bundle_t(Ego::Particle *prt);
 
-	prt_bundle_t *do_bump_damage();
-    prt_bundle_t *update();
     /**
      * @brief
      *  Spawn new particles if continually spawning
