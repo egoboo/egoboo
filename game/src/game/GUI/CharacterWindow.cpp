@@ -73,7 +73,6 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     addComponent(classLevelLabel);
 
     //Attributes
-    int maxWidth = 0;
     std::shared_ptr<Label> attributeLabel = std::make_shared<Label>("ATTRIBUTES");
     attributeLabel->setPosition(characterIcon->getX(), characterIcon->getY() + characterIcon->getHeight() + 5);
     attributeLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));

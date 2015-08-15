@@ -198,7 +198,6 @@ void move_one_character_do_animation( Object * pchr )
     float flip_diff, flip_next;
 
     if ( NULL == pchr ) return;
-    CHR_REF ichr  = GET_INDEX_PCHR( pchr );
     chr_instance_t& pinst = pchr->inst;
 
     flip_diff  = 0.25f * pinst.rate;
@@ -288,7 +287,7 @@ float set_character_animation_rate( Object * pchr )
 
     if ( NULL == pchr ) return 1.0f;
     chr_instance_t& pinst = pchr->inst;
-    
+
     // if the action is set to keep then do nothing
     if ( pinst.action_keep ) return pinst.rate = 1.0f;
 

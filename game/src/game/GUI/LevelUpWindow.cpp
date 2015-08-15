@@ -133,8 +133,6 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
     _animationPos(0, 0),
     _attributeRevealTime(0)
 {
-    int yPos = 0;
-
     setSize(510, 340);
 
     //Place us in the center of the screen

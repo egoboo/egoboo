@@ -64,7 +64,6 @@ void Background::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 
 	
 
-	ego_mesh_info_t *pinfo = &(_currentModule->getMeshPointer()->info);
 	grid_mem_t     *pgmem = &(_currentModule->getMeshPointer()->gmem);
 
 	// which layer

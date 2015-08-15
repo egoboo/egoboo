@@ -153,12 +153,12 @@ bool    BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits );
 /// @details This function tells the character where to move next
 ///
 /// @lua AddWaypoint( tmpx = "x position", tmpy = "y position" )
-bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y );
+bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y );
 
 /// @author ZF
 /// @details Ported the A* path finding algorithm by birdsey and heavily modified it
 /// This function adds enough waypoints to get from one point to another
-bool FindPath( waypoint_list_t * plst, Object * pchr, float dst_x, float dst_y, bool * used_astar_ptr );
+bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, bool * used_astar_ptr );
 
 /// @author ZZ
 /// @details This function modifies tmpx and tmpy, depending on the setting of

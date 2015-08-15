@@ -160,9 +160,6 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
 
 bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse )
 {
-    bool success = false;
-    bool inventory_rv;
-
     //valid character?
     const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[ichr];
     if(!pchr) {

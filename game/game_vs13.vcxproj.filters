@@ -21,12 +21,6 @@
     <Filter Include="Game Header Files\Graphics">
       <UniqueIdentifier>{7af9834c-1fa2-416f-8bce-52ab1a6b566a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game Header Files\Audio">
-      <UniqueIdentifier>{77452109-c555-43f5-83ea-a0791849bbd8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game Sources\Audio">
-      <UniqueIdentifier>{abe11988-e20e-4cef-8451-8404aadadc8e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Sources\Module">
       <UniqueIdentifier>{5463cfca-f30f-407c-8ff2-ae1aa2e51c75}</UniqueIdentifier>
     </Filter>
@@ -60,14 +54,8 @@
     <Filter Include="Game Sources\Script">
       <UniqueIdentifier>{b2ff720c-993f-4c5b-9e22-a5e598e8d566}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game Header Files\Script">
-      <UniqueIdentifier>{f505190e-bdea-4737-9ff4-47d789358e21}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Sources\Physics">
       <UniqueIdentifier>{3ab75b78-5396-498d-973c-77cd68b6228a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game Header Files\Physics">
-      <UniqueIdentifier>{ef5e71a0-09a8-4d6b-ad8b-2b53b8b6e52b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -227,9 +215,6 @@
     <ClCompile Include="src\game\entities\Particle.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\entities\EnchantHandler.cpp">
-      <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\entities\ParticleHandler.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
@@ -303,6 +288,15 @@
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\game\GameStates\DebugParticlesScreen.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\ObjectPhysics.c">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GUI\Slider.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GameStates\AudioOptionsScreen.cpp">
       <Filter>Game Sources\GameStates</Filter>
     </ClCompile>
   </ItemGroup>
@@ -481,9 +475,6 @@
     <ClInclude Include="src\game\entities\ParticleHandler.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\entities\EnchantHandler.hpp">
-      <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\entities\_Include.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
@@ -560,6 +551,15 @@
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="src\game\GameStates\DebugParticlesScreen.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\ObjectPhysics.h">
+      <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\Slider.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\AudioOptionsScreen.hpp">
       <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
   </ItemGroup>

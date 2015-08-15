@@ -385,6 +385,9 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\GameStates\AudioOptionsScreen.cpp" />
+    <ClCompile Include="src\game\GUI\Slider.cpp" />
+    <ClCompile Include="src\game\ObjectPhysics.c" />
     <ClCompile Include="src\game\Entities\particle.c">
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)particle-c.asm</AssemblerListingLocation>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)particle-c.obj</ObjectFileName>
@@ -418,7 +421,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\gui\OptionsButton.cpp" />
     <ClCompile Include="src\game\gui\InternalDebugWindow.cpp" />
     <ClCompile Include="src\game\entities\Enchant.cpp" />
-    <ClCompile Include="src\game\entities\EnchantHandler.cpp" />
     <ClCompile Include="src\game\entities\ObjectHandler.cpp" />
     <ClCompile Include="src\game\entities\Particle.cpp" />
     <ClCompile Include="src\game\entities\ParticleHandler.cpp" />
@@ -474,6 +476,9 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\GameStates\AudioOptionsScreen.hpp" />
+    <ClInclude Include="src\game\GUI\Slider.hpp" />
+    <ClInclude Include="src\game\ObjectPhysics.h" />
     <ClInclude Include="src\game\Entities\particle.h" />
     <ClInclude Include="src\game\GameStates\DebugParticlesScreen.hpp" />
     <ClInclude Include="src\game\GUI\CharacterWindow.hpp" />
@@ -500,7 +505,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\gui\InternalDebugWindow.hpp" />
     <ClInclude Include="src\game\entities\Enchant.hpp" />
     <ClInclude Include="src\game\entities\_Include.hpp" />
-    <ClInclude Include="src\game\entities\EnchantHandler.hpp" />
     <ClInclude Include="src\game\entities\Object.hpp" />
     <ClInclude Include="src\game\entities\ObjectHandler.hpp" />
     <ClInclude Include="src\game\entities\Particle.hpp" />

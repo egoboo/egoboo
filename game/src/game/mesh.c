@@ -358,7 +358,6 @@ void ego_mesh_t::remove_ambient()
 void ego_mesh_t::recalc_twist()
 {
 	ego_mesh_info_t *pinfo = &(this->info);
-	tile_mem_t *ptmem = &(this->tmem);
 	grid_mem_t *pgmem = &(this->gmem);
 
     // recalculate the twist

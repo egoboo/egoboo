@@ -10,8 +10,9 @@ namespace Math {
  * @brief
  *  An field (based on the mathematical ideal of a "field": http://mathworld.wolfram.com/Field.html).
  *	A field subsumes essential properties of arithmetic types. A field F is an integral domain such
- *	that any non-zero element a != 0 has a multiplicative inverse a^-1 such that a a^-1 = 1. This
- *	way, division can be defined as a / b = a b^-1 where the denominator b must be non-zero.
+ *	that any non-zero element \f$a \neq 0\f$ has a multiplicative inverse \f$a^-1\f$ such that a \f$a^-1
+ *  = 1\f$. This way, division can be defined as \f$a / b = a b^-1\f$ where the denominator \f$b\f$ must
+ *	be non-zero.
  * @author
  *  Michael Heilmann
  * @remark

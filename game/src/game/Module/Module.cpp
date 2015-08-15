@@ -354,7 +354,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_RE
     }
 
     // AI stuff
-    ai_state_spawn( &( pchr->ai ), pchr->getCharacterID(), pchr->getProfileID(), getTeamList()[team].getMorale() );
+    ai_state_t::spawn( pchr->ai, pchr->getCharacterID(), pchr->getProfileID(), getTeamList()[team].getMorale() );
 
     // Team stuff
     pchr->team     = team;

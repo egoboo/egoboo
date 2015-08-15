@@ -91,7 +91,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
 
             //These are not object attributes but enchant attributes
-            case eve_t::SETMISSILETREATMENT:    _missileTreatment = static_cast<MissileTreatmentType>(_enchantProfile->_set[i].value); continue;
+            case eve_t::SETMISSILETREATMENT:    _missileTreatment = (MissileTreatmentType)(long)(_enchantProfile->_set[i].value); continue;
             case eve_t::SETCOSTFOREACHMISSILE:  _missileTreatmentCost = _enchantProfile->_set[i].value; continue;
 
             default: throw std::logic_error("Unhandled enchant set type");

@@ -1350,8 +1350,6 @@ void Object::recalculateCollisionSize()
 
 void Object::checkLevelUp()
 {
-    int number;
-
     // Do level ups and stat changes
     uint8_t curlevel = experiencelevel + 1;
     if ( curlevel < MAXLEVEL )
@@ -2382,7 +2380,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     /// @note ZF@> disabled so that books dont burn when dropped
     //reaffirm_attached_particles( ichr );
 
-    ai_state_set_changed(ai);
+    ai_state_t::set_changed(ai);
 
     chr_instance_t::update_ref(inst, enviro.grid_level, true );
 }

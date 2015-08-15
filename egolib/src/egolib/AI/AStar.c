@@ -267,7 +267,7 @@ flexible_destination:
 }
 
 //------------------------------------------------------------------------------
-bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst )
+bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
 {
     /// @author ZF
     /// @details Fills a waypoint list with sensible waypoints. It will return false if it failed to add at least one waypoint.
@@ -355,7 +355,7 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst )
 
             // add the node to the waypoint list
             last_waypoint = safe_waypoint;
-            waypoint_list_push( plst, way_x, way_y );
+            waypoint_list_push( wplst, way_x, way_y );
             waypoint_num++;
 
             //This one is now safe
