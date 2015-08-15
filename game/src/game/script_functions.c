@@ -58,12 +58,11 @@
 #endif
 
 #define SCRIPT_FUNCTION_BEGIN() \
-    Object * pchr; \
-    Uint8 returncode = true; \
-    if( NULL == pstate || NULL == pself || !_currentModule->getObjectHandler().exists(pself->index) ) return false; \
-    pchr = _currentModule->getObjectHandler().get( pself->index ); \
+    if( !_currentModule->getObjectHandler().exists(self.index) ) return false; \
+    Object *pchr = _currentModule->getObjectHandler().get( self.index ); \
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile( pchr->profile_ref ); \
-    if(!ppro) return false;
+    if(!ppro) return false; \
+	Uint8 returncode = true;
 
 #define SCRIPT_FUNCTION_END() \
     return returncode;
@@ -75,13 +74,13 @@
 #define FUNCTION_END() \
     return returncode;
 
-#define SET_TARGET_0(ITARGET)         pself->target = ITARGET;
+#define SET_TARGET_0(ITARGET)         self.target = ITARGET;
 #define SET_TARGET_1(ITARGET,PTARGET) if( NULL != PTARGET ) { PTARGET = _currentModule->getObjectHandler().get(ITARGET); }
 #define SET_TARGET(ITARGET,PTARGET)   SET_TARGET_0( ITARGET ); SET_TARGET_1(ITARGET,PTARGET)
 
 #define SCRIPT_REQUIRE_TARGET(PTARGET) \
-    if( !_currentModule->getObjectHandler().exists(pself->target) ) return false; \
-    PTARGET = _currentModule->getObjectHandler().get( pself->target );
+    if( !_currentModule->getObjectHandler().exists(self.target) ) return false; \
+    PTARGET = _currentModule->getObjectHandler().get( self.target );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -93,17 +92,17 @@
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_AlertBit( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
-    /// @details Sets the bit in the 32-bit integer self.alert indexed by pstate->argument
+    /// @details Sets the bit in the 32-bit integer self.alert indexed by state.argument
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pstate->argument >= 0 && pstate->argument < 32 )
+    if ( state.argument >= 0 && state.argument < 32 )
     {
-        SET_BIT( pself->alert, 1 << pstate->argument );
+        SET_BIT( self.alert, 1 << state.argument );
         returncode = true;
     }
 
@@ -113,17 +112,17 @@ Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ClearAlertBit( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
-    /// @details Clears the bit in the 32-bit integer self.alert indexed by pstate->argument
+    /// @details Clears the bit in the 32-bit integer self.alert indexed by state.argument
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pstate->argument >= 0 && pstate->argument < 32 )
+    if ( state.argument >= 0 && state.argument < 32 )
     {
-        UNSET_BIT( pself->alert, 1 << pstate->argument );
+        UNSET_BIT( self.alert, 1 << state.argument );
         returncode = true;
     }
 
@@ -133,17 +132,17 @@ Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TestAlertBit( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
-    /// @details Tests to see if the the bit in the 32-bit integer self.alert indexed by pstate->argument is non-zero
+    /// @details Tests to see if the the bit in the 32-bit integer self.alert indexed by state.argument is non-zero
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pstate->argument >= 0 && pstate->argument < 32 )
+    if ( state.argument >= 0 && state.argument < 32 )
     {
-        returncode = HAS_SOME_BITS( pself->alert,  1 << pstate->argument );
+        returncode = HAS_SOME_BITS( self.alert,  1 << state.argument );
     }
 
     SCRIPT_FUNCTION_END();
@@ -152,14 +151,14 @@ Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Alert( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Sets one or more bits of the self.alert variable given by the bitmask in tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_BIT( pself->alert, pstate->argument );
+    SET_BIT( self.alert, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -167,14 +166,14 @@ Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ClearAlert( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Clears one or more bits of the self.alert variable given by the bitmask in tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
-    UNSET_BIT( pself->alert, pstate->argument );
+    UNSET_BIT( self.alert, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -182,14 +181,14 @@ Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_TestAlert( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TestAlert( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Tests one or more bits of the self.alert variable given by the bitmask in tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, pstate->argument );
+    returncode = HAS_SOME_BITS( self.alert, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -197,7 +196,7 @@ Uint8 scr_TestAlert( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Bit( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Sets the bit in the 32-bit tmpx variable with the offset given in tmpy
@@ -205,9 +204,9 @@ Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pstate->y >= 0 && pstate->y < 32 )
+    if ( state.y >= 0 && state.y < 32 )
     {
-        SET_BIT( pstate->x, 1 << pstate->y );
+        SET_BIT( state.x, 1 << state.y );
         returncode = true;
     }
 
@@ -217,7 +216,7 @@ Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ClearBit( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Clears the bit in the 32-bit tmpx variable with the offset given in tmpy
@@ -225,9 +224,9 @@ Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pstate->y >= 0 && pstate->y < 32 )
+    if ( state.y >= 0 && state.y < 32 )
     {
-        UNSET_BIT( pstate->x, 1 << pstate->y );
+        UNSET_BIT( state.x, 1 << state.y );
         returncode = true;
     }
 
@@ -237,7 +236,7 @@ Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TestBit( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Tests the bit in the 32-bit tmpx variable with the offset given in tmpy
@@ -245,9 +244,9 @@ Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pstate->y >= 0 && pstate->y < 32 )
+    if ( state.y >= 0 && state.y < 32 )
     {
-        returncode = HAS_SOME_BITS( pstate->x, 1 << pstate->y );
+        returncode = HAS_SOME_BITS( state.x, 1 << state.y );
     }
 
     SCRIPT_FUNCTION_END();
@@ -256,14 +255,14 @@ Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Bits( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Adds the bits in the 32-bit tmpx based on the bitmask in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_BIT( pstate->x, pstate->y );
+    SET_BIT( state.x, state.y );
 
     SCRIPT_FUNCTION_END();
 }
@@ -271,14 +270,14 @@ Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ClearBits( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Clears the bits in the 32-bit tmpx based on the bitmask in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
-    UNSET_BIT( pstate->x, pstate->y );
+    UNSET_BIT( state.x, state.y );
 
     SCRIPT_FUNCTION_END();
 }
@@ -286,21 +285,21 @@ Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_TestBits( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TestBits( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Tests the bits in the 32-bit tmpx based on the bitmask in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pstate->x, pstate->y );
+    returncode = HAS_SOME_BITS( state.x, state.y );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Spawned( script_state_t& state, ai_state_t& self )
 {
     // IfSpawned()
     /// @author ZZ
@@ -309,13 +308,13 @@ Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if it's a new character
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_SPAWNED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_SPAWNED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TimeOut( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TimeOut( script_state_t& state, ai_state_t& self )
 {
     // IfTimeOut()
     /// @author ZZ
@@ -325,13 +324,13 @@ Uint8 scr_TimeOut( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if time alert is set
-    returncode = ( update_wld > pself->timer );
+    returncode = ( update_wld > self.timer );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AtWaypoint( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AtWaypoint( script_state_t& state, ai_state_t& self )
 {
     // IfAtWaypoint()
     /// @author ZZ
@@ -341,13 +340,13 @@ Uint8 scr_AtWaypoint( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character reached a waypoint
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_ATWAYPOINT );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_ATWAYPOINT );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AtLastWaypoint( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AtLastWaypoint( script_state_t& state, ai_state_t& self )
 {
     // IfAtLastWaypoint()
     /// @author ZZ
@@ -357,13 +356,13 @@ Uint8 scr_AtLastWaypoint( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character reached its last waypoint
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_ATLASTWAYPOINT );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_ATLASTWAYPOINT );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Attacked( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Attacked( script_state_t& state, ai_state_t& self )
 {
     // IfAttacked()
     /// @author ZZ
@@ -373,13 +372,13 @@ Uint8 scr_Attacked( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character was damaged
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_ATTACKED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Bumped( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Bumped( script_state_t& state, ai_state_t& self )
 {
     // IfBumped()
     /// @author ZZ
@@ -389,13 +388,13 @@ Uint8 scr_Bumped( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character was bumped
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_BUMPED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_BUMPED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Ordered( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Ordered( script_state_t& state, ai_state_t& self )
 {
     // IfOrdered()
     /// @author ZZ
@@ -405,13 +404,13 @@ Uint8 scr_Ordered( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character was ordered
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_ORDERED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_ORDERED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CalledForHelp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CalledForHelp( script_state_t& state, ai_state_t& self )
 {
     // IfCalledForHelp()
     /// @author ZZ
@@ -421,13 +420,13 @@ Uint8 scr_CalledForHelp( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character was called for help
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_CALLEDFORHELP );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_CALLEDFORHELP );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Content( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Content( script_state_t& state, ai_state_t& self )
 {
     // SetContent( tmpargument )
     /// @author ZZ
@@ -437,13 +436,13 @@ Uint8 scr_set_Content( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Set the content
-    pself->content = pstate->argument;
+    self.content = state.argument;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Killed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Killed( script_state_t& state, ai_state_t& self )
 {
     // IfKilled()
     /// @author ZZ
@@ -452,13 +451,13 @@ Uint8 scr_Killed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character's been killed
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_KILLED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_KILLED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetKilled( script_state_t& state, ai_state_t& self )
 {
     // IfTargetKilled()
     /// @author ZZ
@@ -472,13 +471,13 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     // Proceed only if the character's target has just died or is already dead
-    returncode = ( HAS_SOME_BITS( pself->alert, ALERTIF_TARGETKILLED ) || !pself_target->alive );
+    returncode = ( HAS_SOME_BITS( self.alert, ALERTIF_TARGETKILLED ) || !pself_target->alive );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ClearWaypoints( script_state_t& state, ai_state_t& self )
 {
     // ClearWaypoints()
     /// @author ZZ
@@ -488,13 +487,13 @@ Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
 	returncode = true;
-	waypoint_list_clear(pself->wp_lst);
+	waypoint_list_clear(self.wp_lst);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddWaypoint( script_state_t& state, ai_state_t& self )
 {
     // AddWaypoint( tmpx = "x position", tmpy = "y position" )
     /// @author ZZ
@@ -502,19 +501,19 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddWaypoint( pself->wp_lst, pself->index, pstate->x, pstate->y );
+    returncode = AddWaypoint( self.wp_lst, self.index, state.x, state.y );
 
     if ( returncode )
     {
         // make sure we update the waypoint, since the list changed
-        ai_state_get_wp( pself );
+        ai_state_t::get_wp( self );
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_FindPath( script_state_t& state, ai_state_t& self )
 {
     // FindPath
     /// @author ZF
@@ -526,24 +525,24 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     //Too soon since last try?
-    if ( pself->astar_timer > update_wld ) return false;
+    if ( self.astar_timer > update_wld ) return false;
 
-    returncode = FindPath( pself->wp_lst, pchr, pstate->x, pstate->y, &used_astar );
+    returncode = FindPath( self.wp_lst, pchr, state.x, state.y, &used_astar );
 
     if ( used_astar )
     {
         // limit the rate of AStar calculations to be once every half second.
-        pself->astar_timer = update_wld + ( ONESECOND / 2 );
+        self.astar_timer = update_wld + ( ONESECOND / 2 );
     }
 
     //Make sure the waypoint list is updated
-    ai_state_get_wp( pself );
+	ai_state_t::get_wp( self );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Compass( script_state_t& state, ai_state_t& self )
 {
     // Compass( tmpturn = "rotation", tmpdistance = "radius" )
     /// @author ZZ
@@ -555,23 +554,23 @@ Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    loc_pos[XX] = pstate->x;
-    loc_pos[YY] = pstate->y;
+    loc_pos[XX] = state.x;
+    loc_pos[YY] = state.y;
 
-    returncode = Compass( loc_pos, pstate->turn, pstate->distance );
+    returncode = Compass( loc_pos, state.turn, state.distance );
 
     // update the position
     if ( returncode )
     {
-        pstate->x = loc_pos[XX];
-        pstate->y = loc_pos[YY];
+        state.x = loc_pos[XX];
+        state.y = loc_pos[YY];
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_TargetArmorPrice( script_state_t& state, ai_state_t& self )
 {
     // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
     /// @author ZZ
@@ -585,16 +584,16 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( ptarget );
 
-    value = GetArmorPrice( ptarget, pstate->argument );
+    value = GetArmorPrice( ptarget, state.argument );
 
     if ( value > 0 )
     {
-        pstate->x  = value;
+        state.x  = value;
         returncode = true;
     }
     else
     {
-        pstate->x  = 0;
+        state.x  = 0;
         returncode = false;
     }
 
@@ -602,7 +601,7 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Time( script_state_t& state, ai_state_t& self )
 {
     // SetTime( tmpargument = "time" )
     /// @author ZZ
@@ -611,13 +610,13 @@ Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->timer = UpdateTime( pself->timer, pstate->argument );
+    self.timer = UpdateTime( self.timer, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_Content( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_Content( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetContent()
     /// @author ZZ
@@ -627,13 +626,13 @@ Uint8 scr_get_Content( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Get the content
-    pstate->argument = pself->content;
+    state.argument = self.content;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_JoinTargetTeam( script_state_t& state, ai_state_t& self )
 {
     // JoinTargetTeam()
     /// @author ZZ
@@ -647,9 +646,9 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = false;
-    if ( _currentModule->getObjectHandler().exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( self.target ) )
     {
-        switch_team( pself->index, pself_target->team );
+        switch_team( self.index, pself_target->team );
         returncode = true;
     }
 
@@ -657,7 +656,7 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToNearbyEnemy( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearbyEnemy()
     /// @author ZZ
@@ -682,7 +681,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToTargetLeftHand( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToTargetLeftHand()
     /// @author ZZ
@@ -708,7 +707,7 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToTargetRightHand( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToTargetRightHand()
     /// @author ZZ
@@ -734,7 +733,7 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToWhoeverAttacked( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverAttacked()
     /// @author ZZ
@@ -742,9 +741,9 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _currentModule->getObjectHandler().exists( pself->attacklast ) )
+    if ( _currentModule->getObjectHandler().exists( self.attacklast ) )
     {
-        SET_TARGET_0( pself->attacklast );
+        SET_TARGET_0( self.attacklast );
     }
     else
     {
@@ -755,7 +754,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToWhoeverBumped( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverBumped()
     /// @author ZZ
@@ -763,9 +762,9 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _currentModule->getObjectHandler().exists( pself->bumplast ) )
+    if ( _currentModule->getObjectHandler().exists( self.bumplast ) )
     {
-        SET_TARGET_0( pself->bumplast );
+        SET_TARGET_0( self.bumplast );
     }
     else
     {
@@ -776,7 +775,7 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverCalledForHelp()
     /// @author ZZ
@@ -806,7 +805,7 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToOldTarget( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToOldTarget()
     /// @author ZZ
@@ -815,9 +814,9 @@ Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _currentModule->getObjectHandler().exists( pself->target_old ) )
+    if ( _currentModule->getObjectHandler().exists( self.target_old ) )
     {
-        SET_TARGET_0( pself->target_old );
+        SET_TARGET_0( self.target_old );
     }
     else
     {
@@ -828,7 +827,7 @@ Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TurnModeToVelocity( script_state_t& state, ai_state_t& self )
 {
     // SetTurnModeToVelocity()
     /// @author ZZ
@@ -842,7 +841,7 @@ Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TurnModeToWatch( script_state_t& state, ai_state_t& self )
 {
     // SetTurnModeToWatch()
     /// @author ZZ
@@ -857,7 +856,7 @@ Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TurnModeToSpin( script_state_t& state, ai_state_t& self )
 {
     // SetTurnModeToSpin()
     /// @author ZZ
@@ -872,7 +871,7 @@ Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_BumpHeight( script_state_t& state, ai_state_t& self )
 {
     // SetBumpHeight( tmpargument = "height" )
     /// @author ZZ
@@ -881,13 +880,13 @@ Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setBumpHeight(pstate->argument);
+    pchr->setBumpHeight(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasID( tmpargument = "idsz" )
     /// @author ZZ
@@ -896,13 +895,13 @@ Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = chr_is_type_idsz( pself->target, pstate->argument );
+    returncode = chr_is_type_idsz( self.target, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasItemID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasItemID( tmpargument = "idsz" )
     /// @author ZZ
@@ -913,7 +912,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, false );
+    item = chr_has_item_idsz( self.target, ( IDSZ ) state.argument, false );
 
     returncode = _currentModule->getObjectHandler().exists( item );
 
@@ -921,7 +920,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHoldingItemID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHoldingItemID( tmpargument = "idsz" )
     /// @author ZZ
@@ -933,7 +932,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_holding_idsz( pself->target, pstate->argument );
+    item = chr_holding_idsz( self.target, state.argument );
 
     returncode = _currentModule->getObjectHandler().exists( item );
 
@@ -941,7 +940,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasSkillID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasSkillID( tmpargument = "skill idsz" )
     /// @author ZZ
@@ -953,13 +952,13 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = chr_get_skill(pself_target, ( IDSZ )pstate->argument);
+    returncode = chr_get_skill(pself_target, ( IDSZ )state.argument);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Else( script_state_t& state, ai_state_t& self )
 {
     // Else
     /// @author ZZ
@@ -973,7 +972,7 @@ Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Run( script_state_t& state, ai_state_t& self )
 {
     // Run()
     /// @author ZZ
@@ -988,7 +987,7 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Walk( script_state_t& state, ai_state_t& self )
 {
     // Walk()
     /// @author ZZ
@@ -1006,7 +1005,7 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Sneak( script_state_t& state, ai_state_t& self )
 {
     // Sneak()
     /// @author ZZ
@@ -1024,7 +1023,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DoAction( script_state_t& state, ai_state_t& self )
 {
     // DoAction( tmpargument = "action" )
     /// @author ZZ
@@ -1036,7 +1035,7 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    action = pchr->getProfile()->getModel()->getAction( pstate->argument );
+    action = pchr->getProfile()->getModel()->getAction( state.argument );
 
     returncode = false;
     if ( rv_success == chr_start_anim( pchr, action, false, false ) )
@@ -1048,7 +1047,7 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_KeepAction( script_state_t& state, ai_state_t& self )
 {
     // KeepAction()
     /// @author ZZ
@@ -1063,7 +1062,7 @@ Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_IssueOrder( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_IssueOrder( script_state_t& state, ai_state_t& self )
 {
     // IssueOrder( tmpargument = "order"  )
     /// @author ZZ
@@ -1073,13 +1072,13 @@ Uint8 scr_IssueOrder( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_order( pself->index, pstate->argument );
+    issue_order( self.index, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
 {
     // DropWeapons()
     /// @author ZZ
@@ -1117,7 +1116,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetDoAction( script_state_t& state, ai_state_t& self )
 {
     // TargetDoAction( tmpargument = "action" )
     /// @author ZZ
@@ -1128,13 +1127,13 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( _currentModule->getObjectHandler().exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( self.target ) )
     {
-        Object * pself_target = _currentModule->getObjectHandler().get( pself->target );
+        Object * pself_target = _currentModule->getObjectHandler().get( self.target );
 
         if ( pself_target->alive )
         {
-            int action = pself_target->getProfile()->getModel()->getAction( pstate->argument );
+            int action = pself_target->getProfile()->getModel()->getAction( state.argument );
 
             if ( rv_success == chr_start_anim( pself_target, action, false, false ) )
             {
@@ -1147,7 +1146,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_OpenPassage( script_state_t& state, ai_state_t& self )
 {
     // OpenPassage( tmpargument = "passage" )
 
@@ -1158,7 +1157,7 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     
     returncode = false;
     if(passage) {
@@ -1170,7 +1169,7 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ClosePassage( script_state_t& state, ai_state_t& self )
 {
     // ClosePassage( tmpargument = "passage" )
     /// @author ZZ
@@ -1180,7 +1179,7 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
 
     returncode = false;
     if(passage) {
@@ -1191,7 +1190,7 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PassageOpen( script_state_t& state, ai_state_t& self )
 {
     // IfPassageOpen( tmpargument = "passage" )
     /// @author ZZ
@@ -1200,7 +1199,7 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
 
     returncode = false;
     if(passage) {
@@ -1211,7 +1210,7 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_GoPoof( script_state_t& state, ai_state_t& self )
 {
     // GoPoof()
     /// @author ZZ
@@ -1224,14 +1223,14 @@ Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
     if ( !VALID_PLA( pchr->is_which_player ) )
     {
         returncode = true;
-        pself->poof_time = update_wld;
+        self.poof_time = update_wld;
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CostTargetItemID( script_state_t& state, ai_state_t& self )
 {
     // CostTargetItemID( tmpargument = "idsz" )
     /// @author ZZ
@@ -1249,8 +1248,8 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( ptarget );
 
     //first check both hands
-    idsz = ( IDSZ ) pstate->argument;
-    item = chr_holding_idsz( pself->target, idsz );
+    idsz = ( IDSZ ) state.argument;
+    item = chr_holding_idsz( self.target, idsz );
 
     //need to search inventory as well?
     if ( !_currentModule->getObjectHandler().exists( item ) )
@@ -1299,7 +1298,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DoActionOverride( script_state_t& state, ai_state_t& self )
 {
     // DoActionOverride( tmpargument = "action" )
     /// @author ZZ
@@ -1310,7 +1309,7 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    action = pchr->getProfile()->getModel()->getAction(pstate->argument);
+    action = pchr->getProfile()->getModel()->getAction(state.argument);
 
     returncode = false;
     if ( rv_success == chr_start_anim( pchr, action, false, true ) )
@@ -1322,7 +1321,7 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Healed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Healed( script_state_t& state, ai_state_t& self )
 {
     // IfHealed()
     /// @author ZZ
@@ -1331,13 +1330,13 @@ Uint8 scr_Healed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character was healed
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_HEALED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_HEALED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SendPlayerMessage( script_state_t& state, ai_state_t& self )
 {
     // SendPlayerMessage( tmpargument = "message number" )
     /// @author ZZ
@@ -1345,13 +1344,13 @@ Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _display_message( pself->index, pchr->profile_ref, pstate->argument, pstate );
+    returncode = _display_message( self.index, pchr->profile_ref, state.argument, &state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CallForHelp( script_state_t& state, ai_state_t& self )
 {
     // CallForHelp()
     /// @author ZZ
@@ -1360,13 +1359,13 @@ Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->getTeam().callForHelp(_currentModule->getObjectHandler()[pself->index]);
+    pchr->getTeam().callForHelp(_currentModule->getObjectHandler()[self.index]);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddIDSZ( script_state_t& state, ai_state_t& self )
 {
     // AddIDSZ( tmpargument = "idsz" )
     /// @author ZZ
@@ -1375,7 +1374,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath().c_str(), pstate->argument, 0, NULL) )
+    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath().c_str(), state.argument, 0, NULL) )
     {
         // invalidate any module list so that we will reload them
         //module_list_valid = false;
@@ -1385,7 +1384,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_State( script_state_t& state, ai_state_t& self )
 {
     // SetState( tmpargument = "state" )
     /// @author ZZ
@@ -1395,13 +1394,13 @@ Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // set the state - this function updates the is_hidden
-    chr_set_ai_state( pchr, pstate->argument );
+    chr_set_ai_state( pchr, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_State( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetState()
     /// @author ZZ
@@ -1409,13 +1408,13 @@ Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = pself->state;
+    state.argument = self.state;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs( script_state_t& state, ai_state_t& self )
 {
     // IfStateIs( tmpargument = "state" )
     /// @author ZZ
@@ -1423,13 +1422,13 @@ Uint8 scr_StateIs( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pstate->argument == pself->state );
+    returncode = ( state.argument == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetCanOpenStuff( script_state_t& state, ai_state_t& self )
 {
     // IfTargetCanOpenStuff()
     /// @author ZZ
@@ -1465,7 +1464,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Grabbed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Grabbed( script_state_t& state, ai_state_t& self )
 {
     // IfGrabbed()
     /// @author ZZ
@@ -1474,13 +1473,13 @@ Uint8 scr_Grabbed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_GRABBED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_GRABBED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Dropped( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Dropped( script_state_t& state, ai_state_t& self )
 {
     // IfDropped()
     /// @author ZZ
@@ -1489,13 +1488,13 @@ Uint8 scr_Dropped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_DROPPED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_DROPPED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverIsHolding()
     /// @author ZZ
@@ -1517,7 +1516,7 @@ Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * ps
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DamageTarget( script_state_t& state, ai_state_t& self )
 {
     // DamageTarget( tmpargument = "damage" )
     /// @author ZZ
@@ -1528,22 +1527,22 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
     if(!target) {
         return false;
     }
 
-    tmp_damage.base = pstate->argument;
+    tmp_damage.base = state.argument;
     tmp_damage.rand = 1;
 
     target->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pchr->damagetarget_damagetype), 
-        pchr->team, _currentModule->getObjectHandler()[pself->index], DAMFX_NBLOC, true);
+        pchr->team, _currentModule->getObjectHandler()[self.index], DAMFX_NBLOC, true);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_XIsLessThanY( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_XIsLessThanY( script_state_t& state, ai_state_t& self )
 {
     // IfXIsLessThanY( tmpx, tmpy )
     /// @author ZZ
@@ -1551,13 +1550,13 @@ Uint8 scr_XIsLessThanY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pstate->x < pstate->y );
+    returncode = ( state.x < state.y );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_WeatherTime( script_state_t& state, ai_state_t& self )
 {
     // SetWeatherTime( tmpargument = "time" )
     /// @author ZZ
@@ -1567,14 +1566,14 @@ Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Set the weather timer
-    weather.timer_reset = pstate->argument;
-    weather.time = pstate->argument;
+    weather.timer_reset = state.argument;
+    weather.time = state.argument;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_BumpHeight( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_BumpHeight( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetBumpHeight()
     /// @author ZZ
@@ -1582,13 +1581,13 @@ Uint8 scr_get_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = pchr->bump.height;
+    state.argument = pchr->bump.height;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Reaffirmed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Reaffirmed( script_state_t& state, ai_state_t& self )
 {
     // IfReaffirmed()
     /// @author ZZ
@@ -1597,13 +1596,13 @@ Uint8 scr_Reaffirmed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_REAFFIRMED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_REAFFIRMED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_UnkeepAction( script_state_t& state, ai_state_t& self )
 {
     // UnkeepAction()
     /// @author ZZ
@@ -1617,7 +1616,7 @@ Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsOnOtherTeam( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOnOtherTeam()
     /// @author ZZ
@@ -1629,13 +1628,13 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && chr_get_iteam( pself->target ) != pchr->team );
+    returncode = ( pself_target->alive && chr_get_iteam( self.target ) != pchr->team );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsOnHatedTeam( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOnHatedTeam()
     /// @author ZZ
@@ -1647,13 +1646,13 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && team_hates_team( pchr->team, chr_get_iteam( pself->target ) ) && !pself_target->invictus );
+    returncode = ( pself_target->alive && team_hates_team( pchr->team, chr_get_iteam( self.target ) ) && !pself_target->invictus );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PressLatchButton( script_state_t& state, ai_state_t& self )
 {
     // PressLatchButton( tmpargument = "latch bits" )
     /// @author ZZ
@@ -1661,16 +1660,16 @@ Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if(pstate->argument >= LATCHBUTTON_LEFT && pstate->argument < LATCHBUTTON_RESPAWN)
+    if(state.argument >= LATCHBUTTON_LEFT && state.argument < LATCHBUTTON_RESPAWN)
     {
-        pchr->latch.b[pstate->argument] = true;
+        pchr->latch.b[state.argument] = true;
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToTargetOfLeader( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToTargetOfLeader()
     /// @author ZZ
@@ -1710,7 +1709,7 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_LeaderKilled( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_LeaderKilled( script_state_t& state, ai_state_t& self )
 {
     // IfLeaderKilled()
     /// @author ZZ
@@ -1718,13 +1717,13 @@ Uint8 scr_LeaderKilled( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_LEADERKILLED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_LEADERKILLED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_BecomeLeader( script_state_t& state, ai_state_t& self )
 {
     // BecomeLeader()
     /// @author ZZ
@@ -1732,13 +1731,13 @@ Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _currentModule->getTeamList()[pchr->team].setLeader(_currentModule->getObjectHandler()[pself->index]);
+    _currentModule->getTeamList()[pchr->team].setLeader(_currentModule->getObjectHandler()[self.index]);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ChangeTargetArmor( script_state_t& state, ai_state_t& self )
 {
     // ChangeTargetArmor( tmpargument = "armor" )
 
@@ -1754,15 +1753,15 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = pself_target->skin;
-    pstate->x = change_armor( pself->target, pstate->argument );
+    state.x = change_armor( self.target, state.argument );
 
-    pstate->argument = iTmp;  // The character's old armor
+    state.argument = iTmp;  // The character's old armor
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_GiveMoneyToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveMoneyToTarget( tmpargument = "money" )
     /// @author ZZ
@@ -1782,35 +1781,35 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
     pself_target->money = CLIP( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
 
     // limit the range of the character's money
-    iTmp = pchr->money - pstate->argument;
+    iTmp = pchr->money - state.argument;
     iTmp = CLIP( iTmp, 0, MAXMONEY );
 
     // limit the range of the target's money
-    tTmp = pself_target->money + pstate->argument;
+    tTmp = pself_target->money + state.argument;
     tTmp = CLIP( tTmp, 0, MAXMONEY );
 
     // recover the possible transfer values
-    iTmp = iTmp + pstate->argument;
-    tTmp = tTmp - pstate->argument;
+    iTmp = iTmp + state.argument;
+    tTmp = tTmp - state.argument;
 
     // limit the transfer values
-    if ( pstate->argument < 0 )
+    if ( state.argument < 0 )
     {
-        pstate->argument = std::max( iTmp, tTmp );
+        state.argument = std::max( iTmp, tTmp );
     }
     else
     {
-        pstate->argument = std::min( iTmp, tTmp );
+        state.argument = std::min( iTmp, tTmp );
     }
 
-    pchr->money         = pchr->money + pstate->argument;
-    pself_target->money = pself_target->money + pstate->argument;
+    pchr->money         = pchr->money + state.argument;
+    pself_target->money = pself_target->money + state.argument;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DropKeys( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DropKeys( script_state_t& state, ai_state_t& self )
 {
     // DropKeys()
     /// @author ZZ
@@ -1819,13 +1818,13 @@ Uint8 scr_DropKeys( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_keys( pself->index );
+    drop_keys( self.index );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_LeaderIsAlive( script_state_t& state, ai_state_t& self )
 {
     // IfLeaderIsAlive()
     /// @author ZZ
@@ -1839,7 +1838,7 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOldTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsOldTarget( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOldTarget()
     /// @author ZZ
@@ -1847,13 +1846,13 @@ Uint8 scr_TargetIsOldTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pself->target == pself->target_old );
+    returncode = ( self.target == self.target_old );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToLeader( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToLeader()
     /// @author ZZ
@@ -1877,7 +1876,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 {
     // SpawnCharacter( tmpx = "x", tmpy = "y", tmpturn = "turn", tmpdistance = "speed" )
 
@@ -1890,9 +1889,9 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fvec3_t pos = fvec3_t(pstate->x, pstate->y, 0);
+    fvec3_t pos = fvec3_t(state.x, state.y, 0);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( state.turn ), NULL, INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -1908,18 +1907,18 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         else
         {
             TURN_T turn;
-            pself->child = pchild->getCharacterID();
+            self.child = pchild->getCharacterID();
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
-            pchild->vel[kX] += turntocos[ turn ] * pstate->distance;
-            pchild->vel[kY] += turntosin[ turn ] * pstate->distance;
+            pchild->vel[kX] += turntocos[ turn ] * state.distance;
+            pchild->vel[kY] += turntosin[ turn ] * state.distance;
 
             pchild->iskursed = pchr->iskursed;  /// @note BB@> inherit this from your spawner
-            pchild->ai.passage = pself->passage;
-            pchild->ai.owner   = pself->owner;
+            pchild->ai.passage = self.passage;
+            pchild->ai.owner   = self.owner;
 
             pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-            pchild->dismount_object = pself->index;
+            pchild->dismount_object = self.index;
         }
     }
 
@@ -1927,7 +1926,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_RespawnCharacter( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_RespawnCharacter( script_state_t& state, ai_state_t& self )
 {
     // RespawnCharacter()
     /// @author ZZ
@@ -1942,7 +1941,7 @@ Uint8 scr_RespawnCharacter( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ChangeTile( script_state_t& state, ai_state_t& self )
 {
     // ChangeTile( tmpargument = "tile type")
     /// @author ZZ
@@ -1951,13 +1950,13 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), pchr->getTile(), pstate->argument );
+    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), pchr->getTile(), state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Used( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Used( script_state_t& state, ai_state_t& self )
 {
     // IfUsed()
     /// @author ZZ
@@ -1966,13 +1965,13 @@ Uint8 scr_Used( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_USED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_USED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DropMoney( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DropMoney( script_state_t& state, ai_state_t& self )
 {
     // DropMoney( tmpargument = "money" )
     /// @author ZZ
@@ -1981,13 +1980,13 @@ Uint8 scr_DropMoney( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_money( pself->index, pstate->argument );
+    drop_money( self.index, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_OldTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_OldTarget( script_state_t& state, ai_state_t& self )
 {
     // SetOldTarget()
     /// @author ZZ
@@ -1996,13 +1995,13 @@ Uint8 scr_set_OldTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->target_old = pself->target;
+    self.target_old = self.target;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DetachFromHolder( script_state_t& state, ai_state_t& self )
 {
     // DetachFromHolder()
     /// @author ZZ
@@ -2025,7 +2024,7 @@ Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasVulnerabilityID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasVulnerabilityID( tmpargument = "vulnerability idsz" )
     /// @author ZZ
@@ -2037,13 +2036,13 @@ Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself 
     
     SCRIPT_REQUIRE_TARGET(pself_target);
     
-    returncode = pself_target->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == static_cast<IDSZ>(pstate->argument);
+    returncode = pself_target->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == static_cast<IDSZ>(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CleanUp( script_state_t& state, ai_state_t& self )
 {
     // CleanUp()
     /// @author ZZ
@@ -2052,13 +2051,13 @@ Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_clean( pself->index );
+    issue_clean( self.index );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CleanedUp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CleanedUp( script_state_t& state, ai_state_t& self )
 {
     // IfCleanedUp()
     /// @author ZZ
@@ -2067,13 +2066,13 @@ Uint8 scr_CleanedUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_CLEANEDUP );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_CLEANEDUP );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Sitting( script_state_t& state, ai_state_t& self )
 {
     // IfSitting()
     /// @author ZZ
@@ -2087,7 +2086,7 @@ Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsHurt( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsHurt()
     /// @author ZZ
@@ -2106,7 +2105,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsAPlayer( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAPlayer()
     /// @author ZZ
@@ -2124,7 +2123,7 @@ Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PlaySound( script_state_t& state, ai_state_t& self )
 {
     // PlaySound( tmpargument = "sound" )
     /// @author ZZ
@@ -2135,24 +2134,22 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 
     if ( pchr->pos_old[kZ] > PITNOSOUND )
     {
-        AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
+        AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(state.argument));
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
 {
     // SpawnParticle(tmpargument = "particle", tmpdistance = "character vertex", tmpx = "offset x", tmpy = "offset y" )
     /// @author ZZ
     /// @details This function spawns a particle, offset from the character's location
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
+	CHR_REF ichr = self.index;
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -2167,15 +2164,15 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
                                                     pchr->ori.facing_z, 
                                                     pchr->profile_ref,
-                                                    LocalParticleProfileRef(pstate->argument), pself->index,
-                                                    pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                    LocalParticleProfileRef(state.argument), self.index,
+                                                    state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                     INVALID_CHR_REF );
 
     returncode = (particle != nullptr);
     if ( returncode )
     {
         // attach the particle
-        particle->placeAtVertex(_currentModule->getObjectHandler()[pself->index], pstate->distance);
+        particle->placeAtVertex(_currentModule->getObjectHandler()[self.index], state.distance);
         particle->attach(INVALID_CHR_REF);
 
         fvec3_t tmp_pos = particle->getPosition();
@@ -2184,12 +2181,12 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
 
         // Don't spawn in walls
-        tmp_pos[kX] += pstate->x;
+        tmp_pos[kX] += state.x;
         if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
         {
             tmp_pos[kX] = particle->pos[kX];
 
-            tmp_pos[kY] += pstate->y;
+            tmp_pos[kY] += state.y;
             if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
             {
                 tmp_pos[kY] = particle->pos[kY];
@@ -2203,16 +2200,15 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsAlive( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAlive()
     /// @author ZZ
     /// @details This function proceeds if the target is alive
 
-    Object * pself_target;
-
     SCRIPT_FUNCTION_BEGIN();
 
+	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = pself_target->alive;
@@ -2221,7 +2217,7 @@ Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Stop( script_state_t& state, ai_state_t& self )
 {
     // Stop()
     /// @author ZZ
@@ -2237,7 +2233,7 @@ Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DisaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DisaffirmCharacter( script_state_t& state, ai_state_t& self )
 {
     // DisaffirmCharacter()
     /// @author ZZ
@@ -2246,13 +2242,13 @@ Uint8 scr_DisaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    disaffirm_attached_particles( pself->index );
+    disaffirm_attached_particles( self.index );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ReaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ReaffirmCharacter( script_state_t& state, ai_state_t& self )
 {
     // ReaffirmCharacter()
     /// @author ZZ
@@ -2261,13 +2257,13 @@ Uint8 scr_ReaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reaffirm_attached_particles( pself->index );
+    reaffirm_attached_particles( self.index );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsSelf( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsSelf( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsSelf()
     /// @author ZZ
@@ -2275,22 +2271,21 @@ Uint8 scr_TargetIsSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pself->target == pself->index );
+    returncode = ( self.target == self.index );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsMale( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsMale()
     /// @author ZZ
     /// @details This function proceeds only if the target is male
 
-    Object * pself_target;
-
     SCRIPT_FUNCTION_BEGIN();
 
+	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->gender == GENDER_MALE );
@@ -2299,7 +2294,7 @@ Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsFemale( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsFemale()
     /// @author ZZ
@@ -2317,7 +2312,7 @@ Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToSelf( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToSelf()
     /// @author ZZ
@@ -2325,13 +2320,13 @@ Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_TARGET_0( pself->index );
+    SET_TARGET_0( self.index );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToRider( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToRider()
     /// @author ZZ
@@ -2353,7 +2348,7 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_AttackTurn( script_state_t& state, ai_state_t& self )
 {
     // tmpturn = GetAttackTurn()
     /// @author ZZ
@@ -2362,13 +2357,13 @@ Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->turn = pself->directionlast;
+    state.turn = self.directionlast;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_DamageType( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_DamageType( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetDamageType()
     /// @author ZZ
@@ -2377,13 +2372,13 @@ Uint8 scr_get_DamageType( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = pself->damagetypelast;
+    state.argument = self.damagetypelast;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_BecomeSpell( script_state_t& state, ai_state_t& self )
 {
     // BecomeSpell()
     /// @author ZZ
@@ -2399,10 +2394,10 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     iskin = pchr->skin;
 
     // change the spellbook to a spell effect
-    change_character( pself->index, ( PRO_REF )pself->content, 0, ENC_LEAVE_NONE );
+    change_character( self.index, ( PRO_REF )self.content, 0, ENC_LEAVE_NONE );
 
     // set the spell effect parameters
-    pself->content = 0;
+    self.content = 0;
     chr_set_ai_state( pchr, 0 );
 
     // have to do this every time pself->state is modified
@@ -2425,7 +2420,7 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
 {
     // BecomeSpellbook()
     //
@@ -2445,11 +2440,11 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     // convert the spell effect to a spellbook
     old_profile = pchr->profile_ref;
-    change_character( pself->index, (PRO_REF)SPELLBOOK, iskin, ENC_LEAVE_NONE );
+    change_character( self.index, (PRO_REF)SPELLBOOK, iskin, ENC_LEAVE_NONE );
 
     // Reset the spellbook state so it doesn't burn up
     chr_set_ai_state(pchr, 0);
-    pself->content = REF_TO_INT( old_profile );
+    self.content = REF_TO_INT( old_profile );
 
     // set the spellbook animations
     // Do dropped animation
@@ -2467,7 +2462,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ScoredAHit( script_state_t& state, ai_state_t& self )
 {
     // IfScoredAHit()
     /// @author ZZ
@@ -2479,7 +2474,7 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     // Proceed only if the character scored a hit
 //    if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) || _currentModule->getObjectHandler().get(pchr->attachedto).ismount )
 //    {
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_SCOREDAHIT );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_SCOREDAHIT );
 //    }
 
     // Proceed only if the holder scored a hit with the character
@@ -2493,7 +2488,7 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Disaffirmed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Disaffirmed( script_state_t& state, ai_state_t& self )
 {
     // IfDisaffirmed()
     /// @author ZZ
@@ -2502,13 +2497,13 @@ Uint8 scr_Disaffirmed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_DISAFFIRMED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_DISAFFIRMED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TranslateOrder( script_state_t& state, ai_state_t& self )
 {
     // tmpx,tmpy,tmpargument = TranslateOrder()
     /// @author ZZ
@@ -2520,15 +2515,15 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = CLIP_TO_16BITS( pself->order_value >> 24 );
+    ichr = CLIP_TO_16BITS( self.order_value >> 24 );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
 
-        pstate->x        = (( pself->order_value >> 14 ) & 0x03FF ) << 6;
-        pstate->y        = (( pself->order_value >>  4 ) & 0x03FF ) << 6;
-        pstate->argument = (( pself->order_value >>  0 ) & 0x000F );
+        state.x        = (( self.order_value >> 14 ) & 0x03FF ) << 6;
+        state.y        = (( self.order_value >>  4 ) & 0x03FF ) << 6;
+        state.argument = (( self.order_value >>  0 ) & 0x000F );
     }
     else
     {
@@ -2539,7 +2534,7 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToWhoeverWasHit( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverWasHit()
     /// @author ZZ
@@ -2547,9 +2542,9 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _currentModule->getObjectHandler().exists( pself->hitlast ) )
+    if ( _currentModule->getObjectHandler().exists( self.hitlast ) )
     {
-        SET_TARGET_0( pself->hitlast );
+        SET_TARGET_0( self.hitlast );
     }
     else
     {
@@ -2560,7 +2555,7 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToWideEnemy( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWideEnemy()
     /// @author ZZ
@@ -2585,7 +2580,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Changed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Changed( script_state_t& state, ai_state_t& self )
 {
     // IfChanged()
     /// @author ZZ
@@ -2594,13 +2589,13 @@ Uint8 scr_Changed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_CHANGED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_CHANGED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_InWater( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_InWater( script_state_t& state, ai_state_t& self )
 {
     // IfInWater()
     /// @author ZZ
@@ -2609,13 +2604,13 @@ Uint8 scr_InWater( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_INWATER );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_INWATER );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Bored( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Bored( script_state_t& state, ai_state_t& self )
 {
     // IfBored()
     /// @author ZZ
@@ -2623,13 +2618,13 @@ Uint8 scr_Bored( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_BORED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_BORED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TooMuchBaggage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TooMuchBaggage( script_state_t& state, ai_state_t& self )
 {
     // IfTooMuchBaggage()
     /// @author ZZ
@@ -2639,13 +2634,13 @@ Uint8 scr_TooMuchBaggage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_TOOMUCHBAGGAGE );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_TOOMUCHBAGGAGE );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Grogged( script_state_t& state, ai_state_t& self )
 {
     // IfGrogged()
     /// @author ZZ
@@ -2654,13 +2649,13 @@ Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _currentModule->getObjectHandler().get(pself->index)->grog_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+    returncode = _currentModule->getObjectHandler().get(self.index)->grog_timer > 0 && HAS_SOME_BITS( self.alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Dazed( script_state_t& state, ai_state_t& self )
 {
     // IfDazed()
     /// @author ZZ
@@ -2669,13 +2664,13 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _currentModule->getObjectHandler().get(pself->index)->daze_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+    returncode = _currentModule->getObjectHandler().get(self.index)->daze_timer > 0 && HAS_SOME_BITS( self.alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasSpecialID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasSpecialID( tmpargument = "special idsz" )
     /// @author ZZ
@@ -2687,13 +2682,13 @@ Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
     
     SCRIPT_REQUIRE_TARGET(pself_target);
 
-    returncode = pself_target->getProfile()->getIDSZ(IDSZ_SPECIAL) == static_cast<IDSZ>(pstate->argument);
+    returncode = pself_target->getProfile()->getIDSZ(IDSZ_SPECIAL) == static_cast<IDSZ>(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PressTargetLatchButton( script_state_t& state, ai_state_t& self )
 {
     // PressTargetLatchButton( tmpargument = "latch bits" )
     /// @author ZZ
@@ -2706,16 +2701,16 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if(pstate->argument >= LATCHBUTTON_LEFT && pstate->argument < LATCHBUTTON_RESPAWN)
+    if(state.argument >= LATCHBUTTON_LEFT && state.argument < LATCHBUTTON_RESPAWN)
     {
-        pself_target->latch.b[pstate->argument] = true;
+        pself_target->latch.b[state.argument] = true;
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Invisible( script_state_t& state, ai_state_t& self )
 {
     // IfInvisible()
     /// @author ZZ
@@ -2729,7 +2724,7 @@ Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ArmorIs( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ArmorIs( script_state_t& state, ai_state_t& self )
 {
     // IfArmorIs( tmpargument = "skin" )
     /// @author ZZ
@@ -2740,13 +2735,13 @@ Uint8 scr_ArmorIs( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     tTmp = pchr->skin;
-    returncode = ( tTmp == pstate->argument );
+    returncode = ( tTmp == state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_TargetGrogTime( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetGrogTime()
     /// @author ZZ
@@ -2759,15 +2754,15 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pstate->argument = pself_target->grog_timer;
+    state.argument = pself_target->grog_timer;
 
-    returncode = ( 0 != pstate->argument );
+    returncode = ( 0 != state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_TargetDazeTime( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetDazeTime()
     /// @author ZZ
@@ -2780,15 +2775,15 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pstate->argument = pself_target->daze_timer;
+    state.argument = pself_target->daze_timer;
 
-    returncode = ( 0 != pstate->argument );
+    returncode = ( 0 != state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_DamageType( script_state_t& state, ai_state_t& self )
 {
     // SetDamageType( tmpargument = "damage type" )
     /// @author ZZ
@@ -2796,13 +2791,13 @@ Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->damagetarget_damagetype = static_cast<DamageType>(pstate->argument % DAMAGE_COUNT);
+    pchr->damagetarget_damagetype = static_cast<DamageType>(state.argument % DAMAGE_COUNT);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_WaterLevel( script_state_t& state, ai_state_t& self )
 {
     // SetWaterLevel( tmpargument = "level" )
     /// @author ZZ
@@ -2810,13 +2805,13 @@ Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    water.set_douse_level(pstate->argument / 10.0f);
+    water.set_douse_level(state.argument / 10.0f);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_EnchantTarget( script_state_t& state, ai_state_t& self )
 {
     // EnchantTarget()
     /// @author ZZ
@@ -2827,14 +2822,14 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = EnchantHandler::get().spawn_one_enchant( pself->owner, pself->target, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
+    iTmp = EnchantHandler::get().spawn_one_enchant( self.owner, self.target, self.index, INVALID_ENC_REF, INVALID_PRO_REF );
     returncode = DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_EnchantChild( script_state_t& state, ai_state_t& self )
 {
     // EnchantChild()
     /// @author ZZ
@@ -2846,14 +2841,14 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = EnchantHandler::get().spawn_one_enchant( pself->owner, pself->child, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
+    iTmp = EnchantHandler::get().spawn_one_enchant( self.owner, self.child, self.index, INVALID_ENC_REF, INVALID_PRO_REF );
     returncode = DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TeleportTarget( script_state_t& state, ai_state_t& self )
 {
     // TeleportTarget( tmpx = "x", tmpy = "y" )
     /// @author ZZ
@@ -2862,18 +2857,18 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
     if(!target) {
         return false;
     }
 
-    returncode = target->teleport(fvec3_t(pstate->x, pstate->y, pstate->distance), pstate->turn);
+    returncode = target->teleport(fvec3_t(state.x, state.y, state.distance), state.turn);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetExperience( script_state_t& state, ai_state_t& self )
 {
     // GiveExperienceToTarget( tmpargument = "amount", tmpdistance = "type" )
     /// @author ZZ
@@ -2882,18 +2877,18 @@ Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
     if(!target) {
         return false;
     }
 
-    target->giveExperience(pstate->argument, static_cast<XPType>(pstate->distance), false);
+    target->giveExperience(state.argument, static_cast<XPType>(state.distance), false);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_IncreaseAmmo( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_IncreaseAmmo( script_state_t& state, ai_state_t& self )
 {
     // IncreaseAmmo()
     /// @author ZZ
@@ -2909,7 +2904,7 @@ Uint8 scr_IncreaseAmmo( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_UnkurseTarget( script_state_t& state, ai_state_t& self )
 {
     // UnkurseTarget()
     /// @author ZZ
@@ -2927,7 +2922,7 @@ Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetTeamExperience( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetTeamExperience( script_state_t& state, ai_state_t& self )
 {
     // GiveExperienceToTargetTeam( tmpargument = "amount", tmpdistance = "type" )
     /// @author ZZ
@@ -2935,15 +2930,15 @@ Uint8 scr_add_TargetTeamExperience( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if(pstate->distance < XP_COUNT && pstate->distance >= 0) {
-        pchr->getTeam().giveTeamExperience(pstate->argument, static_cast<XPType>(pstate->distance));
+    if(state.distance < XP_COUNT && state.distance >= 0) {
+        pchr->getTeam().giveTeamExperience(state.argument, static_cast<XPType>(state.distance));
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Unarmed( script_state_t& state, ai_state_t& self )
 {
     // IfUnarmed()
     /// @author ZZ
@@ -2957,7 +2952,7 @@ Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_RestockTargetAmmoIDAll( script_state_t& state, ai_state_t& self )
 {
     // RestockTargetAmmoIDAll( tmpargument = "idsz" )
     /// @author ZZ
@@ -2975,24 +2970,24 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     iTmp = 0;  // Amount of ammo given
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo( ichr, pstate->argument );
+    iTmp += restock_ammo( ichr, state.argument );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    iTmp += restock_ammo( ichr, pstate->argument );
+    iTmp += restock_ammo( ichr, state.argument );
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += restock_ammo( pitem->getCharacterID(), pstate->argument );
+        iTmp += restock_ammo( pitem->getCharacterID(), state.argument );
     }
 
-    pstate->argument = iTmp;
+    state.argument = iTmp;
     returncode = ( iTmp != 0 );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_RestockTargetAmmoIDFirst( script_state_t& state, ai_state_t& self )
 {
     // RestockTargetAmmoIDFirst( tmpargument = "idsz" )
     /// @author ZZ
@@ -3010,31 +3005,31 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     iTmp = 0;  // Amount of ammo given
     
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo(ichr, pstate->argument);
+    iTmp += restock_ammo(ichr, state.argument);
     
     if (iTmp == 0)
     {
         ichr = pself_target->holdingwhich[SLOT_RIGHT];
-        iTmp += restock_ammo(ichr, pstate->argument);
+        iTmp += restock_ammo(ichr, state.argument);
     }
 
     if (iTmp == 0)
     {
         for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += restock_ammo( pitem->getCharacterID(), pstate->argument );
+            iTmp += restock_ammo( pitem->getCharacterID(), state.argument );
             if ( 0 != iTmp ) break;
         }
     }
 
-    pstate->argument = iTmp;
+    state.argument = iTmp;
     returncode = ( iTmp != 0 );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_FlashTarget( script_state_t& state, ai_state_t& self )
 {
     // FlashTarget()
     /// @author ZZ
@@ -3052,7 +3047,7 @@ Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_RedShift( script_state_t& state, ai_state_t& self )
 {
     // SetRedShift( tmpargument = "red darkening" )
     /// @author ZZ
@@ -3061,13 +3056,13 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_redshift( pchr, pstate->argument );
+    chr_set_redshift( pchr, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_GreenShift( script_state_t& state, ai_state_t& self )
 {
     // SetGreenShift( tmpargument = "green darkening" )
     /// @author ZZ
@@ -3076,13 +3071,13 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_grnshift( pchr, pstate->argument );
+    chr_set_grnshift( pchr, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_BlueShift( script_state_t& state, ai_state_t& self )
 {
     // SetBlueShift( tmpargument = "blue darkening" )
     /// @author ZZ
@@ -3091,13 +3086,13 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_grnshift( pchr, pstate->argument );
+    chr_set_grnshift( pchr, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Light( script_state_t& state, ai_state_t& self )
 {
     // SetLight( tmpargument = "lighness" )
     /// @author ZZ
@@ -3106,13 +3101,13 @@ Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setLight(pstate->argument);
+    pchr->setLight(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Alpha( script_state_t& state, ai_state_t& self )
 {
     // SetAlpha( tmpargument = "alpha" )
     /// @author ZZ
@@ -3121,13 +3116,13 @@ Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setAlpha(pstate->argument);
+    pchr->setAlpha(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HitFromBehind( script_state_t& state, ai_state_t& self )
 {
     // IfHitFromBehind()
     /// @author ZZ
@@ -3136,14 +3131,14 @@ Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
+    if ( self.directionlast >= ATK_BEHIND - 8192 && self.directionlast < ATK_BEHIND + 8192 )
         returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HitFromFront( script_state_t& state, ai_state_t& self )
 {
     // IfHitFromFront()
     /// @author ZZ
@@ -3153,14 +3148,14 @@ Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pself->directionlast >= ATK_LEFT + 8192 || pself->directionlast < ATK_FRONT + 8192 )
+    if ( self.directionlast >= ATK_LEFT + 8192 || self.directionlast < ATK_FRONT + 8192 )
         returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HitFromLeft( script_state_t& state, ai_state_t& self )
 {
     // IfHitFromLeft()
     /// @author ZZ
@@ -3170,14 +3165,14 @@ Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pself->directionlast >= ATK_LEFT - 8192 && pself->directionlast < ATK_LEFT + 8192 )
+    if ( self.directionlast >= ATK_LEFT - 8192 && self.directionlast < ATK_LEFT + 8192 )
         returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HitFromRight( script_state_t& state, ai_state_t& self )
 {
     // IfHitFromRight()
     /// @author ZZ
@@ -3187,14 +3182,14 @@ Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( pself->directionlast >= ATK_RIGHT - 8192 && pself->directionlast < ATK_RIGHT + 8192 )
+    if ( self.directionlast >= ATK_RIGHT - 8192 && self.directionlast < ATK_RIGHT + 8192 )
         returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsOnSameTeam( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOnSameTeam()
     /// @author ZZ
@@ -3203,24 +3198,22 @@ Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( chr_get_iteam( pself->target ) == pchr->team )
+    if ( chr_get_iteam( self.target ) == pchr->team )
         returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_KillTarget( script_state_t& state, ai_state_t& self )
 {
     // KillTarget()
     /// @author ZZ
     /// @details This function kills the target
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
+	CHR_REF ichr = self.index;
 
     //Weapons don't kill people, people kill people...
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && !_currentModule->getObjectHandler().get(pchr->attachedto)->isMount() )
@@ -3228,7 +3221,7 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->attachedto;
     }
 
-    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
     if(target) {
         target->kill(_currentModule->getObjectHandler()[ichr], false);
     }
@@ -3237,7 +3230,7 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_UndoEnchant( script_state_t& state, ai_state_t& self )
 {
     // UndoEnchant()
     /// @author ZZ
@@ -3260,7 +3253,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_WaterLevel( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetWaterLevel()
     /// @author ZZ
@@ -3269,13 +3262,13 @@ Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = water._douse_level * 10;
+    state.argument = water._douse_level * 10;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CostTargetMana( script_state_t& state, ai_state_t& self )
 {
     // CostTargetMana( tmpargument = "amount" )
     /// @author ZZ
@@ -3284,9 +3277,9 @@ Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[pself->target];
+    const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[self.target];
     if(target) {
-        returncode = target->costMana(pstate->argument, pself->index);
+        returncode = target->costMana(state.argument, self.index);
     }
     else {
         returncode = false;
@@ -3296,7 +3289,7 @@ Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasAnyID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasAnyID( tmpargument = "idsz" )
     /// @author ZZ
@@ -3304,13 +3297,13 @@ Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = chr_has_idsz( pself->target, pstate->argument );
+    returncode = chr_has_idsz( self.target, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_BumpSize( script_state_t& state, ai_state_t& self )
 {
     // SetBumpSize( tmpargument = "size" )
     /// @author ZZ
@@ -3318,13 +3311,13 @@ Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->setBumpWidth(pstate->argument);
+    pchr->setBumpWidth(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_NotDropped( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_NotDropped( script_state_t& state, ai_state_t& self )
 {
     // IfNotDropped()
     /// @author ZZ
@@ -3333,13 +3326,13 @@ Uint8 scr_NotDropped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_NOTDROPPED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_NOTDROPPED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_YIsLessThanX( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_YIsLessThanX( script_state_t& state, ai_state_t& self )
 {
     // IfYIsLessThanX()
     /// @author ZZ
@@ -3347,13 +3340,13 @@ Uint8 scr_YIsLessThanX( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pstate->y < pstate->x );
+    returncode = ( state.y < state.x );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_FlyHeight( script_state_t& state, ai_state_t& self )
 {
     // SetFlyHeight( tmpargument = "height" )
     /// @author ZZ
@@ -3361,13 +3354,13 @@ Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->flyheight = std::max( 0, pstate->argument );
+    pchr->flyheight = std::max( 0, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Blocked( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Blocked( script_state_t& state, ai_state_t& self )
 {
     // IfBlocked()
     /// @author ZZ
@@ -3376,13 +3369,13 @@ Uint8 scr_Blocked( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_BLOCKED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_BLOCKED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsDefending( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsDefending()
     /// @author ZZ
@@ -3401,7 +3394,7 @@ Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsAttacking( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAttacking()
     /// @author ZZ
@@ -3419,87 +3412,87 @@ Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs0( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs0( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 0 == pself->state );
+    returncode = ( 0 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs1( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs1( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 1 == pself->state );
+    returncode = ( 1 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs2( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs2( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 2 == pself->state );
+    returncode = ( 2 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs3( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs3( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 3 == pself->state );
+    returncode = ( 3 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs4( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs4( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 4 == pself->state );
+    returncode = ( 4 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs5( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs5( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 5 == pself->state );
+    returncode = ( 5 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs6( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs6( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 6 == pself->state );
+    returncode = ( 6 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs7( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs7( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 7 == pself->state );
+    returncode = ( 7 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ContentIs( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ContentIs( script_state_t& state, ai_state_t& self )
 {
     // IfContentIs( tmpargument = "test" )
     /// @author ZZ
@@ -3507,13 +3500,13 @@ Uint8 scr_ContentIs( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pstate->argument == pself->content );
+    returncode = ( state.argument == self.content );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TurnModeToWatchTarget( script_state_t& state, ai_state_t& self )
 {
     // SetTurnModeToWatchTarget()
     /// @author ZZ
@@ -3528,7 +3521,7 @@ Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIsNot( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIsNot( script_state_t& state, ai_state_t& self )
 {
     // IfStateIsNot( tmpargument = "test" )
     /// @author ZZ
@@ -3536,25 +3529,25 @@ Uint8 scr_StateIsNot( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pstate->argument != pself->state );
+    returncode = ( state.argument != self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_XIsEqualToY( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_XIsEqualToY( script_state_t& state, ai_state_t& self )
 {
     // These functions proceed if tmpx and tmpy are the same
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pstate->x == pstate->y );
+    returncode = ( state.x == state.y );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DebugMessage( script_state_t& state, ai_state_t& self )
 {
     // DebugMessage()
     /// @author ZZ
@@ -3562,16 +3555,16 @@ Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    DisplayMsg_printf( "aistate %d, aicontent %d, target %d", pself->state, pself->content, REF_TO_INT( pself->target ) );
-    DisplayMsg_printf( "tmpx %d, tmpy %d", pstate->x, pstate->y );
-    DisplayMsg_printf( "tmpdistance %d, tmpturn %d", pstate->distance, pstate->turn );
-    DisplayMsg_printf( "tmpargument %d, selfturn %d", pstate->argument, pchr->ori.facing_z );
+    DisplayMsg_printf( "aistate %d, aicontent %d, target %d", self.state, self.content, REF_TO_INT( self.target ) );
+    DisplayMsg_printf( "tmpx %d, tmpy %d", state.x, state.y );
+    DisplayMsg_printf( "tmpdistance %d, tmpturn %d", state.distance, state.turn );
+    DisplayMsg_printf( "tmpargument %d, selfturn %d", state.argument, pchr->ori.facing_z );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_BlackTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_BlackTarget( script_state_t& state, ai_state_t& self )
 {
     // BlackTarget()
     /// @author ZZ
@@ -3589,7 +3582,7 @@ Uint8 scr_BlackTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
 {
     // SendMessageNear( tmpargument = "message" )
     /// @author ZZ
@@ -3613,14 +3606,14 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 
     if ( min_distance < MSGDISTANCE )
     {
-        returncode = _display_message( pself->index, pchr->profile_ref, pstate->argument, pstate );
+        returncode = _display_message( self.index, pchr->profile_ref, state.argument, &state );
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitGround( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HitGround( script_state_t& state, ai_state_t& self )
 {
     // IfHitGround()
     /// @author ZZ
@@ -3629,13 +3622,13 @@ Uint8 scr_HitGround( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_HITGROUND );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_HITGROUND );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_NameIsKnown( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_NameIsKnown( script_state_t& state, ai_state_t& self )
 {
     // IfNameIsKnown()
     /// @author ZZ
@@ -3649,7 +3642,7 @@ Uint8 scr_NameIsKnown( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_UsageIsKnown( script_state_t& state, ai_state_t& self )
 {
     // IfUsageIsKnown()
     /// @author ZZ
@@ -3663,18 +3656,16 @@ Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HoldingItemID( script_state_t& state, ai_state_t& self )
 {
     // IfHoldingItemID( tmpargument = "idsz" )
     /// @author ZZ
     /// @details This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it
 
-    CHR_REF item;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_holding_idsz( pself->index, pstate->argument );
+	CHR_REF item = chr_holding_idsz( self.index, state.argument );
 
     returncode = _currentModule->getObjectHandler().exists( item );
 
@@ -3682,7 +3673,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HoldingRangedWeapon( script_state_t& state, ai_state_t& self )
 {
     // IfHoldingRangedWeapon()
     /// @author ZZ
@@ -3692,7 +3683,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    pstate->argument = 0;
+    state.argument = 0;
 
     // Check right hand
     const std::shared_ptr<Object> &rightHandItem = _currentModule->getObjectHandler()[pchr->holdingwhich[SLOT_RIGHT]];
@@ -3701,7 +3692,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     {
         if ( rightHandItem->getProfile()->isRangedWeapon() && (0 == rightHandItem->ammomax || (0 != rightHandItem->ammo)))
         {
-            pstate->argument = LATCHBUTTON_RIGHT;
+            state.argument = LATCHBUTTON_RIGHT;
             returncode = true;
         }
     }
@@ -3715,7 +3706,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
         {
             if ( leftHandItem->getProfile()->isRangedWeapon() && (0 == leftHandItem->ammomax || (0 != leftHandItem->ammo)))
             {
-                pstate->argument = LATCHBUTTON_LEFT;
+                state.argument = LATCHBUTTON_LEFT;
                 returncode = true;
             }
         }
@@ -3726,7 +3717,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HoldingMeleeWeapon( script_state_t& state, ai_state_t& self )
 {
     // IfHoldingMeleeWeapon()
     /// @author ZZ
@@ -3736,7 +3727,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    pstate->argument = 0;
+    state.argument = 0;
 
     if ( !returncode )
     {
@@ -3746,9 +3737,9 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
         {
             if ( !rightItem->getProfile()->isRangedWeapon() && rightItem->getProfile()->getWeaponAction() != ACTION_PA )
             {
-                if ( 0 == pstate->argument || ( update_wld & 1 ) )
+                if ( 0 == state.argument || ( update_wld & 1 ) )
                 {
-                    pstate->argument = LATCHBUTTON_RIGHT;
+                    state.argument = LATCHBUTTON_RIGHT;
                     returncode = true;
                 }
             }
@@ -3763,7 +3754,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
         {
             if ( !leftItem->getProfile()->isRangedWeapon() && leftItem->getProfile()->getWeaponAction() != ACTION_PA )
             {
-                pstate->argument = LATCHBUTTON_LEFT;
+                state.argument = LATCHBUTTON_LEFT;
                 returncode = true;
             }
         }
@@ -3773,7 +3764,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HoldingShield( script_state_t& state, ai_state_t& self )
 {
     // IfHoldingShield()
     /// @author ZZ
@@ -3783,7 +3774,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    pstate->argument = 0;
+    state.argument = 0;
 
     if ( !returncode )
     {
@@ -3793,7 +3784,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
         {
             if ( rightItem->getProfile()->getWeaponAction() == ACTION_PA )
             {
-                pstate->argument = LATCHBUTTON_RIGHT;
+                state.argument = LATCHBUTTON_RIGHT;
                 returncode = true;
             }
         }
@@ -3807,7 +3798,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
         {     
             if ( leftItem->getProfile()->getWeaponAction() == ACTION_PA )
             {
-                pstate->argument = LATCHBUTTON_LEFT;
+                state.argument = LATCHBUTTON_LEFT;
                 returncode = true;
             }
         }
@@ -3817,7 +3808,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Kursed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Kursed( script_state_t& state, ai_state_t& self )
 {
     // IfKursed()
     /// @author ZZ
@@ -3831,7 +3822,7 @@ Uint8 scr_Kursed( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsKursed( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsKursed()
     /// @author ZZ
@@ -3849,7 +3840,7 @@ Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsDressedUp( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsDressedUp()
     /// @author ZZ
@@ -3863,7 +3854,7 @@ Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_OverWater( script_state_t& state, ai_state_t& self )
 {
     // IfOverWater()
     /// @author ZZ
@@ -3877,7 +3868,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Thrown( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Thrown( script_state_t& state, ai_state_t& self )
 {
     // IfThrown()
     /// @author ZZ
@@ -3885,13 +3876,13 @@ Uint8 scr_Thrown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_THROWN );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_THROWN );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_MakeNameKnown( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_MakeNameKnown( script_state_t& state, ai_state_t& self )
 {
     // MakeNameKnown()
     /// @author ZZ
@@ -3907,7 +3898,7 @@ Uint8 scr_MakeNameKnown( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_MakeUsageKnown( script_state_t& state, ai_state_t& self )
 {
     // MakeUsageKnown()
     /// @author ZZ
@@ -3922,7 +3913,7 @@ Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StopTargetMovement( script_state_t& state, ai_state_t& self )
 {
     // StopTargetMovement()
     /// @author ZZ
@@ -3945,7 +3936,7 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_XY( script_state_t& state, ai_state_t& self )
 {
     // SetXY( tmpargument = "index", tmpx = "x", tmpy = "y" )
     /// @author ZZ
@@ -3954,14 +3945,14 @@ Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->x[pstate->argument&STOR_AND] = pstate->x;
-    pself->y[pstate->argument&STOR_AND] = pstate->y;
+    self.x[state.argument&STOR_AND] = state.x;
+    self.y[state.argument&STOR_AND] = state.y;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_XY( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_XY( script_state_t& state, ai_state_t& self )
 {
     // tmpx,tmpy = GetXY( tmpargument = "index" )
     /// @author ZZ
@@ -3970,14 +3961,14 @@ Uint8 scr_get_XY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->x = pself->x[pstate->argument&STOR_AND];
-    pstate->y = pself->y[pstate->argument&STOR_AND];
+    state.x = self.x[state.argument&STOR_AND];
+    state.y = self.y[state.argument&STOR_AND];
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddXY( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddXY( script_state_t& state, ai_state_t& self )
 {
     // AddXY( tmpargument = "index", tmpx = "x", tmpy = "y" )
     /// @author ZZ
@@ -3986,14 +3977,14 @@ Uint8 scr_AddXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->x[pstate->argument&STOR_AND] += pstate->x;
-    pself->y[pstate->argument&STOR_AND] += pstate->y;
+    self.x[state.argument&STOR_AND] += state.x;
+    self.y[state.argument&STOR_AND] += state.y;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_MakeAmmoKnown( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_MakeAmmoKnown( script_state_t& state, ai_state_t& self )
 {
     // MakeAmmoKnown()
     /// @author ZZ
@@ -4007,33 +3998,31 @@ Uint8 scr_MakeAmmoKnown( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnAttachedParticle( script_state_t& state, ai_state_t& self )
 {
     // SpawnAttachedParticle( tmpargument = "particle", tmpdistance = "vertex" )
     /// @author ZZ
     /// @details This function spawns a particle attached to the character
 
-    CHR_REF ichr, iholder;
-
     SCRIPT_FUNCTION_BEGIN();
 
     //If we are a weapon, our holder is the owner of this particle
-    ichr    = pself->index;
-    iholder = chr_get_lowest_attachment( ichr, true );
+	CHR_REF ichr = self.index;
+	CHR_REF iholder = chr_get_lowest_attachment( ichr, true );
     if ( _currentModule->getObjectHandler().exists( iholder ) )
     {
         ichr = iholder;
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
-                                                     LocalParticleProfileRef(pstate->argument), pself->index,
-                                                     pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                     LocalParticleProfileRef(state.argument), self.index,
+                                                     state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 {
     // SpawnExactParticle( tmpargument = "particle", tmpx = "x", tmpy = "y", tmpdistance = "z" )
     /// @author ZZ
@@ -4043,7 +4032,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
+    ichr = self.index;
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -4053,13 +4042,13 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
         fvec3_t vtmp =
             fvec3_t
             (
-            pstate->x,
-            pstate->y,
-            pstate->distance
+            state.x,
+            state.y,
+            state.distance
             );
 
         returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
-                                                         LocalParticleProfileRef(pstate->argument),
+                                                         LocalParticleProfileRef(state.argument),
                                                          INVALID_CHR_REF, 0, pchr->team, ichr,
                                                          INVALID_PRT_REF, 0, INVALID_CHR_REF);
     }
@@ -4068,7 +4057,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AccelerateTarget( script_state_t& state, ai_state_t& self )
 {
     // AccelerateTarget( tmpx = "acc x", tmpy = "acc y" )
     /// @author ZZ
@@ -4080,14 +4069,14 @@ Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel[kX] += pstate->x;
-    pself_target->vel[kY] += pstate->y;
+    pself_target->vel[kX] += state.x;
+    pself_target->vel[kY] += state.y;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_distanceIsMoreThanTurn( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_distanceIsMoreThanTurn( script_state_t& state, ai_state_t& self )
 {
     // IfdistanceIsMoreThanTurn()
     /// @author ZZ
@@ -4095,13 +4084,13 @@ Uint8 scr_distanceIsMoreThanTurn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pstate->distance > pstate->turn );
+    returncode = ( state.distance > state.turn );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Crushed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Crushed( script_state_t& state, ai_state_t& self )
 {
     // IfCrushed()
     /// @author ZZ
@@ -4110,13 +4099,13 @@ Uint8 scr_Crushed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_CRUSHED );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_CRUSHED );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_MakeCrushValid( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_MakeCrushValid( script_state_t& state, ai_state_t& self )
 {
     // MakeCrushValid()
     /// @author ZZ
@@ -4131,7 +4120,7 @@ Uint8 scr_MakeCrushValid( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToLowestTarget( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToLowestTarget()
     /// @author ZZ
@@ -4139,11 +4128,9 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
     /// The holder of the target, or the holder of the holder of the target, or
     /// the holder of the holder of ther holder of the target, etc.   This function never fails
 
-    CHR_REF itarget;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    itarget = chr_get_lowest_attachment( pself->target, false );
+	CHR_REF itarget = chr_get_lowest_attachment( self.target, false );
 
     if ( _currentModule->getObjectHandler().exists( itarget ) )
     {
@@ -4158,7 +4145,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_NotPutAway( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_NotPutAway( script_state_t& state, ai_state_t& self )
 {
     // IfNotPutAway()
     /// @author ZZ
@@ -4168,13 +4155,13 @@ Uint8 scr_NotPutAway( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_NOTPUTAWAY );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_NOTPUTAWAY );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TakenOut( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TakenOut( script_state_t& state, ai_state_t& self )
 {
     // IfTakenOut()
     /// @author ZZ
@@ -4184,13 +4171,13 @@ Uint8 scr_TakenOut( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_TAKENOUT );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_TAKENOUT );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AmmoOut( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AmmoOut( script_state_t& state, ai_state_t& self )
 {
     // IfAmmoOut()
     /// @author ZZ
@@ -4205,7 +4192,7 @@ Uint8 scr_AmmoOut( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PlaySoundLooped( script_state_t& state, ai_state_t& self )
 {
     // PlaySoundLooped( tmpargument = "sound", tmpdistance = "frequency" )
 
@@ -4214,25 +4201,25 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SoundID sound = ppro->getSoundID(pstate->argument);
+    SoundID sound = ppro->getSoundID(state.argument);
     
     if ( INVALID_SOUND_ID == sound )
     {
         // Stop existing sound loop (if any)
-        AudioSystem::get().stopObjectLoopingSounds(pself->index);
+        AudioSystem::get().stopObjectLoopingSounds(self.index);
     }
     else
     {
         // check whatever might be playing on the channel now
         //ZF> TODO: check if character is already playing a looped sound first!
-        AudioSystem::get().playSoundLooped(sound, pself->index);
+        AudioSystem::get().playSoundLooped(sound, self.index);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StopSound( script_state_t& state, ai_state_t& self )
 {
     // StopSound( tmpargument = "sound" )
     /// @author ZZ
@@ -4240,13 +4227,13 @@ Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    AudioSystem::get().stopObjectLoopingSounds(pself->index, ppro->getSoundID(pstate->argument));
+    AudioSystem::get().stopObjectLoopingSounds(self.index, ppro->getSoundID(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HealSelf( script_state_t& state, ai_state_t& self )
 {
     // HealSelf()
     /// @author ZZ
@@ -4257,13 +4244,13 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->heal(_currentModule->getObjectHandler()[pchr->getCharacterID()], pstate->argument, true);
+    pchr->heal(_currentModule->getObjectHandler()[pchr->getCharacterID()], state.argument, true);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Equip( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Equip( script_state_t& state, ai_state_t& self )
 {
     // Equip()
     /// @author ZZ
@@ -4278,7 +4265,7 @@ Uint8 scr_Equip( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasItemIDEquipped( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasItemIDEquipped( tmpargument = "item idsz" )
     /// @author ZZ
@@ -4288,7 +4275,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = Inventory::findItem( pself->target, pstate->argument, true );
+    item = Inventory::findItem( self.target, state.argument, true );
 
     returncode = _currentModule->getObjectHandler().exists( item );
 
@@ -4296,7 +4283,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_OwnerToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_OwnerToTarget( script_state_t& state, ai_state_t& self )
 {
     // SetOwnerToTarget()
     /// @author ZZ
@@ -4305,13 +4292,13 @@ Uint8 scr_set_OwnerToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->owner = pself->target;
+    self.owner = self.target;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToOwner( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToOwner()
     /// @author ZZ
@@ -4320,9 +4307,9 @@ Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _currentModule->getObjectHandler().exists( pself->owner ) )
+    if ( _currentModule->getObjectHandler().exists( self.owner ) )
     {
-        SET_TARGET_0( pself->owner );
+        SET_TARGET_0( self.owner );
     }
     else
     {
@@ -4333,7 +4320,7 @@ Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Frame( script_state_t& state, ai_state_t& self )
 {
     // SetFrame( tmpargument = "frame" )
     /// @author ZZ
@@ -4344,15 +4331,15 @@ Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ilip        = pstate->argument & 3;
-    frame_along = pstate->argument >> 2;
-    chr_set_frame( pself->index, ACTION_DA, frame_along, ilip );
+    ilip        = state.argument & 3;
+    frame_along = state.argument >> 2;
+    chr_set_frame( self.index, ACTION_DA, frame_along, ilip );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_BreakPassage( script_state_t& state, ai_state_t& self )
 {
     // BreakPassage( tmpargument = "passage", tmpturn = "tile type", tmpdistance = "number of frames", tmpx = "borken tile", tmpy = "tile fx bits" )
 
@@ -4364,13 +4351,13 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = BreakPassage( pstate->y, pstate->x, pstate->distance, pstate->turn, ( PASS_REF )pstate->argument, &( pstate->x ), &( pstate->y ) );
+    returncode = BreakPassage( state.y, state.x, state.distance, state.turn, ( PASS_REF )state.argument, &( state.x ), &( state.y ) );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_ReloadTime( script_state_t& state, ai_state_t& self )
 {
     // SetReloadTime( tmpargument = "time" )
     /// @author ZZ
@@ -4379,13 +4366,13 @@ Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->reload_timer = std::max( 0, pstate->argument );
+    pchr->reload_timer = std::max( 0, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToWideBlahID( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWideBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
     /// @author ZZ
@@ -4397,7 +4384,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Try to find one
-    ichr = chr_find_target( pchr, WIDE, pstate->argument, pstate->distance );
+    ichr = chr_find_target( pchr, WIDE, state.argument, state.distance );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -4413,7 +4400,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PoofTarget( script_state_t& state, ai_state_t& self )
 {
     // PoofTarget()
     /// @author ZZ
@@ -4430,17 +4417,17 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
     if ( INVALID_PLA( pself_target->is_which_player ) )             //Do not poof players
     {
         returncode = true;
-        if ( pself->target == pself->index )
+        if ( self.target == self.index )
         {
             // Poof self later
-            pself->poof_time = update_wld + 1;
+            self.poof_time = update_wld + 1;
         }
         else
         {
             // Poof others now
             pself_target->ai.poof_time = update_wld;
 
-            SET_TARGET( pself->index, pself_target );
+            SET_TARGET( self.index, pself_target );
         }
     }
 
@@ -4448,7 +4435,7 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ChildDoActionOverride( script_state_t& state, ai_state_t& self )
 {
     // ChildDoActionOverride( tmpargument = action )
 
@@ -4461,13 +4448,11 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( _currentModule->getObjectHandler().exists( pself->child ) )
+    if ( _currentModule->getObjectHandler().exists( self.child ) )
     {
-        int action;
+        Object * pchild = _currentModule->getObjectHandler().get( self.child );
 
-        Object * pchild = _currentModule->getObjectHandler().get( pself->child );
-
-        action = pchild->getProfile()->getModel()->getAction(pstate->argument);
+        int action = pchild->getProfile()->getModel()->getAction(state.argument);
 
         if ( rv_success == chr_start_anim( pchild, action, false, true ) )
         {
@@ -4479,7 +4464,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnPoof( script_state_t& state, ai_state_t& self )
 {
     // SpawnPoof
     /// @author ZZ
@@ -4488,13 +4473,13 @@ Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    spawn_poof( pself->index, pchr->profile_ref );
+    spawn_poof( self.index, pchr->profile_ref );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_SpeedPercent( script_state_t& state, ai_state_t& self )
 {
     // SetSpeedPercent( tmpargument = "percent" )
     /// @author ZZ
@@ -4507,7 +4492,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 
     pchr->resetAcceleration();
 
-    fvalue = pstate->argument / 100.0f;
+    fvalue = state.argument / 100.0f;
     fvalue = std::max( 0.0f, fvalue );
 
     pchr->maxaccel = pchr->maxaccel_reset * fvalue;
@@ -4527,7 +4512,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_ChildState( script_state_t& state, ai_state_t& self )
 {
     // SetChildState( tmpargument = "state" )
     /// @author ZZ
@@ -4536,16 +4521,16 @@ Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( VALID_CHR_RANGE( pself->child ) )
+    if ( VALID_CHR_RANGE( self.child ) )
     {
-        chr_set_ai_state( _currentModule->getObjectHandler().get( pself->child ), pstate->argument );
+        chr_set_ai_state( _currentModule->getObjectHandler().get( self.child ), state.argument );
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnAttachedSizedParticle( script_state_t& state, ai_state_t& self )
 {
     // SpawnAttachedSizedParticle( tmpargument = "particle", tmpdistance = "vertex", tmpturn = "size" )
     /// @author ZZ
@@ -4556,29 +4541,29 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
+    ichr = self.index;
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, 
-                                                     pchr->profile_ref, LocalParticleProfileRef(pstate->argument), pself->index,
-                                                     pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                     pchr->profile_ref, LocalParticleProfileRef(state.argument), self.index,
+                                                     state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
 
     returncode = (particle != nullptr);
 
     if ( returncode )
     {
-        particle->setSize(pstate->turn);
+        particle->setSize(state.turn);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ChangeArmor( script_state_t& state, ai_state_t& self )
 {
     // ChangeArmor( tmpargument = "time" )
     /// @author ZZ
@@ -4589,16 +4574,16 @@ Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->x = pstate->argument;
+    state.x = state.argument;
     iTmp = pchr->skin;
-    pstate->x = change_armor( pself->index, pstate->argument );
-    pstate->argument = iTmp;  // The character's old armor
+    state.x = change_armor( self.index, state.argument );
+    state.argument = iTmp;  // The character's old armor
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ShowTimer( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ShowTimer( script_state_t& state, ai_state_t& self )
 {
     // ShowTimer( tmpargument = "time" )
     /// @author ZZ
@@ -4608,13 +4593,13 @@ Uint8 scr_ShowTimer( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     timeron = true;
-    timervalue = pstate->argument;
+    timervalue = state.argument;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_FacingTarget( script_state_t& state, ai_state_t& self )
 {
     // IfFacingTarget()
     /// @author ZZ
@@ -4634,7 +4619,7 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PlaySoundVolume( script_state_t& state, ai_state_t& self )
 {
     // PlaySoundVolume( argument = "sound", distance = "volume" )
     /// @author ZZ
@@ -4642,13 +4627,13 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->distance > 0 )
+    if ( state.distance > 0 )
     {
-        int channel = AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
+        int channel = AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(state.argument));
 
         if ( channel != INVALID_SOUND_CHANNEL )
         {
-            Mix_Volume( channel, ( 128*pstate->distance ) / 100 );
+            Mix_Volume( channel, ( 128*state.distance ) / 100 );
         }
     }
 
@@ -4656,7 +4641,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
 {
     // SpawnAttachedFacedParticle(  tmpargument = "particle", tmpdistance = "vertex", tmpturn = "turn" )
 
@@ -4664,26 +4649,24 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     /// @details This function spawns a particle attached to the character, facing the
     /// same direction given by tmpturn
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
+	CHR_REF ichr = self.index;
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( pstate->turn ),
-                                                     pchr->profile_ref, LocalParticleProfileRef(pstate->argument),
-                                                     pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF,
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( state.turn ),
+                                                     pchr->profile_ref, LocalParticleProfileRef(state.argument),
+                                                     self.index, state.distance, pchr->team, ichr, INVALID_PRT_REF,
                                                      0, INVALID_CHR_REF);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIsOdd( script_state_t& state, ai_state_t& self )
 {
     // IfStateIsOdd()
     /// @author ZZ
@@ -4691,13 +4674,13 @@ Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pself->state & 1 );
+    returncode = ( self.state & 1 );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToDistantEnemy( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToDistantEnemy( tmpdistance = "distance" )
     /// @author ZZ
@@ -4708,7 +4691,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, pstate->distance, IDSZ_NONE, TARGET_ENEMIES );
+    ichr = chr_find_target( pchr, state.distance, IDSZ_NONE, TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -4723,7 +4706,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Teleport( script_state_t& state, ai_state_t& self )
 {
     // Teleport( tmpx = "x", tmpy = "y" )
     /// @author ZZ
@@ -4732,13 +4715,13 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->teleport(fvec3_t(pstate->x, pstate->y, pchr->getPosZ()), pchr->ori.facing_z);
+    returncode = pchr->teleport(fvec3_t(state.x, state.y, pchr->getPosZ()), pchr->ori.facing_z);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetStrength( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetStrength( script_state_t& state, ai_state_t& self )
 {
     // GiveStrengthToTarget()
     // Permanently boost the target's strength
@@ -4751,14 +4734,14 @@ Uint8 scr_add_TargetStrength( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isAlive() )
     {
-        pself_target->increaseBaseAttribute(Ego::Attribute::MIGHT, FP8_TO_FLOAT(pstate->argument));
+        pself_target->increaseBaseAttribute(Ego::Attribute::MIGHT, FP8_TO_FLOAT(state.argument));
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetIntelligence( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetIntelligence( script_state_t& state, ai_state_t& self )
 {
     // GiveIntelligenceToTarget()
     // Permanently boost the target's intelligence
@@ -4771,14 +4754,14 @@ Uint8 scr_add_TargetIntelligence( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isAlive() )
     {
-        pself_target->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(pstate->argument));
+        pself_target->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(state.argument));
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetDexterity( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetDexterity( script_state_t& state, ai_state_t& self )
 {
     // GiveDexterityToTarget()
     // Permanently boost the target's dexterity
@@ -4791,14 +4774,14 @@ Uint8 scr_add_TargetDexterity( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isAlive() )
     {
-        pself_target->increaseBaseAttribute(Ego::Attribute::AGILITY, FP8_TO_FLOAT(pstate->argument));
+        pself_target->increaseBaseAttribute(Ego::Attribute::AGILITY, FP8_TO_FLOAT(state.argument));
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetLife( script_state_t& state, ai_state_t& self )
 {
     // GiveLifeToTarget()
     /// @author ZZ
@@ -4812,15 +4795,15 @@ Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isAlive() )
     {
-        pself_target->increaseBaseAttribute(Ego::Attribute::MAX_LIFE, FP8_TO_FLOAT(pstate->argument));
-        pself_target->heal(_currentModule->getObjectHandler()[pchr->getCharacterID()], pstate->argument, true);
+        pself_target->increaseBaseAttribute(Ego::Attribute::MAX_LIFE, FP8_TO_FLOAT(state.argument));
+        pself_target->heal(_currentModule->getObjectHandler()[pchr->getCharacterID()], state.argument, true);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetMana( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetMana( script_state_t& state, ai_state_t& self )
 {
     // GiveManaToTarget()
     /// @author ZZ
@@ -4834,15 +4817,15 @@ Uint8 scr_add_TargetMana( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isAlive() )
     {
-        pself_target->increaseBaseAttribute(Ego::Attribute::MAX_MANA, FP8_TO_FLOAT(pstate->argument));
-        pself_target->costMana(-pstate->argument, INVALID_CHR_REF);
+        pself_target->increaseBaseAttribute(Ego::Attribute::MAX_MANA, FP8_TO_FLOAT(state.argument));
+        pself_target->costMana(-state.argument, INVALID_CHR_REF);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ShowMap( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ShowMap( script_state_t& state, ai_state_t& self )
 {
     // ShowMap()
     /// @author ZZ
@@ -4858,7 +4841,7 @@ Uint8 scr_ShowMap( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ShowYouAreHere( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ShowYouAreHere( script_state_t& state, ai_state_t& self )
 {
     // ShowYouAreHere()
     /// @author ZZ
@@ -4873,7 +4856,7 @@ Uint8 scr_ShowYouAreHere( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ShowBlipXY( script_state_t& state, ai_state_t& self )
 {
     // ShowBlipXY( tmpx = "x", tmpy = "y", tmpargument = "color" )
 
@@ -4882,17 +4865,17 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Add a blip
-    if ( pstate->argument >= 0 )
+    if ( state.argument >= 0 )
     {
-        //_gameEngine->getActivePlayingState()->getMiniMap()->addBlip(pstate->x, pstate->y, static_cast<HUDColors>(pstate->argument % COLOR_MAX));
-        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(pstate->x, pstate->y, _currentModule->getObjectHandler()[pchr->getCharacterID()]);
+        //_gameEngine->getActivePlayingState()->getMiniMap()->addBlip(state.x, state.y, static_cast<HUDColors>(state.argument % COLOR_MAX));
+        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(state.x, state.y, _currentModule->getObjectHandler()[pchr->getCharacterID()]);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HealTarget( script_state_t& state, ai_state_t& self )
 {
     // HealTarget( tmpargument = "amount" )
     /// @author ZZ
@@ -4901,23 +4884,23 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
     if(!target) {
         return false;
     }
 
     returncode = false;
-    if ( target->heal(_currentModule->getObjectHandler()[pself->index], pstate->argument, false) )
+    if ( target->heal(_currentModule->getObjectHandler()[self.index], state.argument, false) )
     {
         returncode = true;
-        remove_all_enchants_with_idsz(pself->target, MAKE_IDSZ('H', 'E', 'A', 'L'));
+        remove_all_enchants_with_idsz(self.target, MAKE_IDSZ('H', 'E', 'A', 'L'));
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PumpTarget( script_state_t& state, ai_state_t& self )
 {
     // PumpTarget( tmpargument = "amount" )
     /// @author ZZ
@@ -4930,16 +4913,16 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->isAlive() && pstate->argument > 0)
+    if ( pself_target->isAlive() && state.argument > 0)
     {
-        pself_target->costMana(-pstate->argument, pchr->getCharacterID());
+        pself_target->costMana(-state.argument, pchr->getCharacterID());
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CostAmmo( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CostAmmo( script_state_t& state, ai_state_t& self )
 {
     // CostAmmo()
     /// @author ZZ
@@ -4955,7 +4938,7 @@ Uint8 scr_CostAmmo( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_MakeSimilarNamesKnown( script_state_t& state, ai_state_t& self )
 {
     // MakeSimilarNamesKnown()
     /// @author ZZ
@@ -4989,7 +4972,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
 {
     // SpawnAttachedHolderParticle( tmpargument = "particle", tmpdistance = "vertex" )
 
@@ -5000,22 +4983,22 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
+    ichr = self.index;
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref,
-                                                     LocalParticleProfileRef(pstate->argument), ichr,
-                                                     pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                     LocalParticleProfileRef(state.argument), ichr,
+                                                     state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
                                                      INVALID_CHR_REF);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetReloadTime( script_state_t& state, ai_state_t& self )
 {
     // SetTargetReloadTime( tmpargument = "time" )
 
@@ -5029,9 +5012,9 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pstate->argument > 0 )
+    if ( state.argument > 0 )
     {
-        pself_target->reload_timer = CLIP( pstate->argument, 0, 0xFFFF );
+        pself_target->reload_timer = CLIP( state.argument, 0, 0xFFFF );
     }
     else
     {
@@ -5042,7 +5025,7 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_FogLevel( script_state_t& state, ai_state_t& self )
 {
     // SetFogLevel( tmpargument = "level" )
     /// @author ZZ
@@ -5054,7 +5037,7 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fTmp = ( pstate->argument / 10.0f ) - fog._top;
+    fTmp = ( state.argument / 10.0f ) - fog._top;
     fog._top += fTmp;
     fog._distance += fTmp;
     fog._on = egoboo_config_t::get().graphic_fog_enable.getValue();
@@ -5064,7 +5047,7 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_FogLevel( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetFogLevel()
     /// @author ZZ
@@ -5073,13 +5056,13 @@ Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = fog._top * 10;
+    state.argument = fog._top * 10;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_FogTAD( script_state_t& state, ai_state_t& self )
 {
     /// @author ZZ
     /// @details This function sets the color of the module's fog.
@@ -5089,15 +5072,15 @@ Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	fog._red = CLIP(pstate->turn, 0, 0xFF);
-	fog._grn = CLIP(pstate->argument, 0, 0xFF);
-	fog._blu = CLIP(pstate->distance, 0, 0xFF);
+	fog._red = CLIP(state.turn, 0, 0xFF);
+	fog._grn = CLIP(state.argument, 0, 0xFF);
+	fog._blu = CLIP(state.distance, 0, 0xFF);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_FogBottomLevel( script_state_t& state, ai_state_t& self )
 {
     // SetFogBottomLevel( tmpargument = "level" )
 
@@ -5109,7 +5092,7 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	fTmp = (pstate->argument / 10.0f) - fog._bottom;
+	fTmp = (state.argument / 10.0f) - fog._bottom;
     fog._bottom += fTmp;
     fog._distance -= fTmp;
     fog._on = egoboo_config_t::get().graphic_fog_enable.getValue();
@@ -5119,7 +5102,7 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_FogBottomLevel( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetFogBottomLevel()
 
@@ -5129,13 +5112,13 @@ Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = fog._bottom * 10;
+    state.argument = fog._bottom * 10;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CorrectActionForHand( script_state_t& state, ai_state_t& self )
 {
     // CorrectActionForHand( tmpargument = "action" )
     /// @author ZZ
@@ -5149,12 +5132,12 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
         if ( pchr->inwhich_slot == SLOT_LEFT )
         {
             // A or B
-            pstate->argument += Random::next(1);
+            state.argument += Random::next(1);
         }
         else
         {
             // C or D
-            pstate->argument += 2 + Random::next(1);
+            state.argument += 2 + Random::next(1);
         }
     }
 
@@ -5162,7 +5145,7 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsMounted( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsMounted()
     /// @author ZZ
@@ -5187,22 +5170,22 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SparkleIcon( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SparkleIcon( script_state_t& state, ai_state_t& self )
 {
     // SparkleIcon( tmpargument = "color" )
     /// @author ZZ
     /// @details This function starts little sparklies going around the character's icon
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( pstate->argument < COLOR_MAX )
+    if ( state.argument < COLOR_MAX )
     {
-        if ( pstate->argument < -1 )
+        if ( state.argument < -1 )
         {
             pchr->sparkle = NOSPARKLE;
         }
         else
         {
-            pchr->sparkle = pstate->argument % COLOR_MAX;
+            pchr->sparkle = state.argument % COLOR_MAX;
         }
     }
 
@@ -5210,7 +5193,7 @@ Uint8 scr_SparkleIcon( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_UnsparkleIcon( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_UnsparkleIcon( script_state_t& state, ai_state_t& self )
 {
     // UnsparkleIcon()
     /// @author ZZ
@@ -5224,7 +5207,7 @@ Uint8 scr_UnsparkleIcon( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_TileXY( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTileXY( tmpx = "x", tmpy = "y" )
     /// @author ZZ
@@ -5234,20 +5217,20 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    TileIndex idx = _currentModule->getMeshPointer()->get_grid(PointWorld(pstate->x, pstate->y));
+    TileIndex idx = _currentModule->getMeshPointer()->get_grid(PointWorld(state.x, state.y));
 
     ego_tile_info_t *ptr = _currentModule->getMeshPointer()->get_ptile(idx);
     if (ptr)
     {
         returncode = true;
-        pstate->argument = ptr->img & TILE_LOWER_MASK;
+        state.argument = ptr->img & TILE_LOWER_MASK;
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TileXY( script_state_t& state, ai_state_t& self )
 {
     // scr_set_TileXY( tmpargument = "tile type", tmpx = "x", tmpy = "y" )
     /// @author ZZ
@@ -5255,14 +5238,14 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    TileIndex index = _currentModule->getMeshPointer()->get_grid(PointWorld(pstate->x, pstate->y));
-    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), index, pstate->argument );
+    TileIndex index = _currentModule->getMeshPointer()->get_grid(PointWorld(state.x, state.y));
+    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), index, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_ShadowSize( script_state_t& state, ai_state_t& self )
 {
     // SetShadowSize( tmpargument = "size" )
     /// @author ZZ
@@ -5270,14 +5253,14 @@ Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->shadow_size     = pstate->argument * pchr->fat;
-    pchr->shadow_size_save = pstate->argument;
+    pchr->shadow_size     = state.argument * pchr->fat;
+    pchr->shadow_size_save = state.argument;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_OrderTarget( script_state_t& state, ai_state_t& self )
 {
     // OrderTarget( tmpargument = "order" )
     /// @author ZZ
@@ -5290,20 +5273,20 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !_currentModule->getObjectHandler().exists( pself->target ) )
+    if ( !_currentModule->getObjectHandler().exists( self.target ) )
     {
         returncode = false;
     }
     else
     {
-        returncode = ai_state_add_order(pself_target->ai, pstate->argument, 0);
+        returncode = ai_state_t::add_order(pself_target->ai, state.argument, 0);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverIsInPassage()
     /// @author ZZ
@@ -5314,12 +5297,12 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
 
     returncode = false;
     if(passage)
     {
-        ichr = passage->whoIsBlockingPassage(pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE);
+        ichr = passage->whoIsBlockingPassage(self.index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE);
 
         if ( _currentModule->getObjectHandler().exists( ichr ) )
         {
@@ -5332,7 +5315,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CharacterWasABook( script_state_t& state, ai_state_t& self )
 {
     // IfCharacterWasABook()
     /// @author ZZ
@@ -5349,7 +5332,7 @@ Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_EnchantBoostValues( script_state_t& state, ai_state_t& self )
 {
     // SetEnchantBoostValues( tmpargument = "owner mana regen", tmpdistance = "owner life regen", tmpx = "target mana regen", tmpy = "target life regen" )
     /// @author ZZ
@@ -5366,10 +5349,10 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     if ( INGAME_ENC( iTmp ) )
     {
-        EnchantHandler::get().get_ptr(iTmp)->owner_mana = pstate->argument;
-        EnchantHandler::get().get_ptr(iTmp)->owner_life = pstate->distance;
-        EnchantHandler::get().get_ptr(iTmp)->target_mana = pstate->x;
-        EnchantHandler::get().get_ptr(iTmp)->target_life = pstate->y;
+        EnchantHandler::get().get_ptr(iTmp)->owner_mana = state.argument;
+        EnchantHandler::get().get_ptr(iTmp)->owner_life = state.distance;
+        EnchantHandler::get().get_ptr(iTmp)->target_mana = state.x;
+        EnchantHandler::get().get_ptr(iTmp)->target_life = state.y;
 
         returncode = true;
     }
@@ -5378,7 +5361,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 {
     // SpawnCharacterXYZ( tmpx = "x", tmpy = "y", tmpdistance = "z", tmpturn = "turn" )
     /// @author ZZ
@@ -5386,9 +5369,9 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
+    fvec3_t pos = fvec3_t(state.x, state.y, state.distance);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( state.turn ), NULL, INVALID_CHR_REF );
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -5404,14 +5387,14 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
         else
         {
-            pself->child = pchild->getCharacterID();
+            self.child = pchild->getCharacterID();
 
             pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
-            pchild->ai.passage = pself->passage;
-            pchild->ai.owner   = pself->owner;
+            pchild->ai.passage = self.passage;
+            pchild->ai.owner   = self.owner;
 
             pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-            pchild->dismount_object = pself->index;
+            pchild->dismount_object = self.index;
         }
     }
 
@@ -5419,7 +5402,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 {
     // SpawnCharacterXYZ( tmpargument = "slot", tmpx = "x", tmpy = "y", tmpdistance = "z", tmpturn = "turn" )
     /// @author ZZ
@@ -5433,12 +5416,12 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     fvec3_t pos =
         fvec3_t
         (
-        pstate->x,
-        pstate->y,
-        pstate->distance
+        state.x,
+        state.y,
+        state.distance
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), nullptr, INVALID_CHR_REF);
 
     if ( !pchild )
     {
@@ -5454,14 +5437,14 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
         else
         {
-            pself->child = pchild->getCharacterID();
+            self.child = pchild->getCharacterID();
 
             pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
-            pchild->ai.passage = pself->passage;
-            pchild->ai.owner   = pself->owner;
+            pchild->ai.passage = self.passage;
+            pchild->ai.owner   = self.owner;
 
             pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-            pchild->dismount_object = pself->index;
+            pchild->dismount_object = self.index;
             returncode = true;
         }
     }
@@ -5470,7 +5453,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ChangeTargetClass( script_state_t& state, ai_state_t& self )
 {
     // ChangeTargetClass( tmpargument = "slot" )
 
@@ -5482,13 +5465,13 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    change_character_full( pself->target, ( PRO_REF )pstate->argument, 0, ENC_LEAVE_ALL );
+    change_character_full( self.target, ( PRO_REF )state.argument, 0, ENC_LEAVE_ALL );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PlayFullSound( script_state_t& state, ai_state_t& self )
 {
     // PlayFullSound( tmpargument = "sound", tmpdistance = "frequency" )
     /// @author ZZ
@@ -5497,13 +5480,13 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    AudioSystem::get().playSoundFull(ppro->getSoundID(pstate->argument));
+    AudioSystem::get().playSoundFull(ppro->getSoundID(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 {
     // SpawnExactChaseParticle( tmpargument = "particle", tmpx = "x", tmpy = "y", tmpdistance = "z" )
     /// @author ZZ
@@ -5515,7 +5498,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
+    ichr = self.index;
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -5525,29 +5508,29 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
         fvec3_t vtmp =
             fvec3_t
             (
-            pstate->x,
-            pstate->y,
-            pstate->distance
+            state.x,
+            state.y,
+            state.distance
             );
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
-                                                         LocalParticleProfileRef(pstate->argument),
-                                                         INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
-                                                         0, INVALID_CHR_REF);
+                                                             LocalParticleProfileRef(state.argument),
+                                                             INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
+                                                             0, INVALID_CHR_REF);
     }
 
     returncode = (particle != nullptr);
 
     if ( returncode )
     {
-        particle->setTarget(pself->target);
+        particle->setTarget(self.target);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CreateOrder( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_CreateOrder( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = CreateOrder( tmpx = "value1", tmpy = "value2", tmpargument = "order" )
 
@@ -5561,17 +5544,17 @@ Uint8 scr_CreateOrder( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = ( REF_TO_INT( pself->target ) & 0x00FF ) << 24;
-    sTmp |= (( pstate->x >> 6 ) & 0x03FF ) << 14;
-    sTmp |= (( pstate->y >> 6 ) & 0x03FF ) << 4;
-    sTmp |= ( pstate->argument & 0x000F );
-    pstate->argument = sTmp;
+    sTmp = ( REF_TO_INT( self.target ) & 0x00FF ) << 24;
+    sTmp |= (( state.x >> 6 ) & 0x03FF ) << 14;
+    sTmp |= (( state.y >> 6 ) & 0x03FF ) << 4;
+    sTmp |= ( state.argument & 0x000F );
+    state.argument = sTmp;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OrderSpecialID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_OrderSpecialID( script_state_t& state, ai_state_t& self )
 {
     // OrderSpecialID( tmpargument = "compressed order", tmpdistance = "idsz" )
     /// @author ZZ
@@ -5579,13 +5562,13 @@ Uint8 scr_OrderSpecialID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_special_order( pstate->argument, pstate->distance );
+    issue_special_order( state.argument, state.distance );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_UnkurseTargetInventory( script_state_t& state, ai_state_t& self )
 {
     // UnkurseTargetInventory()
     /// @author ZZ
@@ -5619,7 +5602,7 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsSneaking( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsSneaking()
     /// @author ZZ
@@ -5637,7 +5620,7 @@ Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DropItems( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DropItems( script_state_t& state, ai_state_t& self )
 {
     // DropItems()
     /// @author ZZ
@@ -5645,25 +5628,23 @@ Uint8 scr_DropItems( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_all_items( pself->index );
+    drop_all_items( self.index );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_RespawnTarget( script_state_t& state, ai_state_t& self )
 {
     // RespawnTarget()
     /// @author ZZ
     /// @details This function respawns the target at its current location
 
-    Object * pself_target;
-    fvec3_t save_pos;
-
     SCRIPT_FUNCTION_BEGIN();
 
+	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
-    save_pos = pself_target->getPosition();
+	fvec3_t save_pos = pself_target->getPosition();
     pself_target->respawn();
     pself_target->setPosition(save_pos);
 
@@ -5671,7 +5652,7 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetDoActionSetFrame( script_state_t& state, ai_state_t& self )
 {
     // TargetDoActionSetFrame( tmpargument = "action" )
     /// @author ZZ
@@ -5683,12 +5664,12 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( _currentModule->getObjectHandler().exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( self.target ) )
     {
         int action;
-        Object * pself_target = _currentModule->getObjectHandler().get( pself->target );
+        Object * pself_target = _currentModule->getObjectHandler().get( self.target );
 
-        action = pself_target->getProfile()->getModel()->getAction(pstate->argument );
+        action = pself_target->getProfile()->getModel()->getAction(state.argument );
 
         if ( rv_success == chr_start_anim( pself_target, action, false, true ) )
         {
@@ -5703,7 +5684,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetCanSeeInvisible( script_state_t& state, ai_state_t& self )
 {
     // IfTargetCanSeeInvisible()
     /// @author ZZ
@@ -5721,7 +5702,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToNearestBlahID( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearestBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
 
@@ -5734,7 +5715,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_BEGIN();
 
     // Try to find one
-    ichr = chr_find_target( pchr, NEAREST, pstate->argument, pstate->distance );
+    ichr = chr_find_target( pchr, NEAREST, state.argument, state.distance );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -5749,7 +5730,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToNearestEnemy( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearestEnemy()
     /// @author ZZ
@@ -5774,7 +5755,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToNearestFriend( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearestFriend()
     /// @author ZZ
@@ -5799,7 +5780,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToNearestLifeform( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearestLifeform()
 
@@ -5826,7 +5807,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_FlashPassage( script_state_t& state, ai_state_t& self )
 {
     // FlashPassage( tmpargument = "passage", tmpdistance = "color" )
 
@@ -5836,16 +5817,16 @@ Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     if(passage) {
-        passage->flashColor(pstate->distance);
+        passage->flashColor(state.distance);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_FindTileInPassage( script_state_t& state, ai_state_t& self )
 {
     // tmpx, tmpy = FindTileInPassage( tmpargument = "passage", tmpdistance = "tile type", tmpx, tmpy )
 
@@ -5858,13 +5839,13 @@ Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = FindTileInPassage( pstate->x, pstate->y, pstate->distance, ( PASS_REF )pstate->argument, &( pstate->x ), &( pstate->y ) );
+    returncode = FindTileInPassage( state.x, state.y, state.distance, ( PASS_REF )state.argument, &( state.x ), &( state.y ) );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HeldInLeftHand( script_state_t& state, ai_state_t& self )
 {
     // IfHeldInLeftHand()
     /// @author ZZ
@@ -5872,22 +5853,20 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
     /// left hand.
     /// Usage: Used mostly by enchants that target the item of the other hand
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    ichr = pchr->attachedto;
+	CHR_REF ichr = pchr->attachedto;
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
-        returncode = ( _currentModule->getObjectHandler().get(ichr)->holdingwhich[SLOT_LEFT] == pself->index );
+        returncode = ( _currentModule->getObjectHandler().get(ichr)->holdingwhich[SLOT_LEFT] == self.index );
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_NotAnItem( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_NotAnItem( script_state_t& state, ai_state_t& self )
 {
     // NotAnItem()
     /// @author ZZ
@@ -5902,7 +5881,7 @@ Uint8 scr_NotAnItem( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_ChildAmmo( script_state_t& state, ai_state_t& self )
 {
     // SetChildAmmo( tmpargument = "none" )
     /// @author ZZ
@@ -5910,13 +5889,13 @@ Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _currentModule->getObjectHandler().get(pself->child)->ammo = CLIP( pstate->argument, 0, 0xFFFF );
+    _currentModule->getObjectHandler().get(self.child)->ammo = CLIP( state.argument, 0, 0xFFFF );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitVulnerable( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HitVulnerable( script_state_t& state, ai_state_t& self )
 {
     // IfHitVulnerable()
     /// @author ZZ
@@ -5926,22 +5905,21 @@ Uint8 scr_HitVulnerable( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_HITVULNERABLE );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_HITVULNERABLE );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsFlying( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsFlying()
     /// @author ZZ
     /// @details This function proceeds if the character target is flying
 
-    Object * pself_target;
-
     SCRIPT_FUNCTION_BEGIN();
 
+	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->flyheight > 0 );
@@ -5950,19 +5928,17 @@ Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_IdentifyTarget( script_state_t& state, ai_state_t& self )
 {
     // IdentifyTarget()
     /// @author ZZ
     /// @details This function reveals the target's name, ammo, and usage
     /// Proceeds if the target was unknown
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    ichr = pself->target;
+	CHR_REF ichr = self.target;
     if ( _currentModule->getObjectHandler().get(ichr)->ammomax != 0 )  _currentModule->getObjectHandler().get(ichr)->ammoknown = true;
 
 
@@ -5974,7 +5950,7 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_BeatModule( script_state_t& state, ai_state_t& self )
 {
     // BeatModule()
     /// @author ZZ
@@ -5988,7 +5964,7 @@ Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_EndModule( script_state_t& state, ai_state_t& self )
 {
     // EndModule()
     /// @author ZZ
@@ -6003,7 +5979,7 @@ Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DisableExport( script_state_t& state, ai_state_t& self )
 {
     // DisableExport()
     /// @author ZZ
@@ -6017,7 +5993,7 @@ Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_EnableExport( script_state_t& state, ai_state_t& self )
 {
     // EnableExport()
     /// @author ZZ
@@ -6031,7 +6007,7 @@ Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_TargetState( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetState()
     /// @author ZZ
@@ -6043,13 +6019,13 @@ Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pstate->argument = pself_target->ai.state;
+    state.argument = pself_target->ai.state;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Equipped( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Equipped( script_state_t& state, ai_state_t& self )
 {
     // This proceeds if the character is equipped
 
@@ -6061,7 +6037,7 @@ Uint8 scr_Equipped( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DropTargetMoney( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DropTargetMoney( script_state_t& state, ai_state_t& self )
 {
     // DropTargetMoney( tmpargument = "amount" )
     /// @author ZZ
@@ -6069,13 +6045,13 @@ Uint8 scr_DropTargetMoney( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_money( pself->target, pstate->argument );
+    drop_money( self.target, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_TargetContent( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetContent()
     // This sets tmpargument to the current Target's content value
@@ -6086,13 +6062,13 @@ Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pstate->argument = pself_target->ai.content;
+    state.argument = pself_target->ai.content;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DropTargetKeys( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DropTargetKeys( script_state_t& state, ai_state_t& self )
 {
     // DropTargetKeys()
     /// @author ZZ
@@ -6100,13 +6076,13 @@ Uint8 scr_DropTargetKeys( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_keys( pself->target );
+    drop_keys( self.target );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_JoinTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_JoinTeam( script_state_t& state, ai_state_t& self )
 {
     // JoinTeam( tmpargument = "team" )
     /// @author ZZ
@@ -6114,13 +6090,13 @@ Uint8 scr_JoinTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, ( TEAM_REF )pstate->argument );
+    switch_team( self.index, ( TEAM_REF )state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetJoinTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetJoinTeam( script_state_t& state, ai_state_t& self )
 {
     // TargetJoinTeam( tmpargument = "team" )
     /// @author ZZ
@@ -6128,13 +6104,13 @@ Uint8 scr_TargetJoinTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->target, ( TEAM_REF )pstate->argument );
+    switch_team( self.target, ( TEAM_REF )state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ClearMusicPassage( script_state_t& state, ai_state_t& self )
 {
     // ClearMusicPassage( tmpargument = "passage" )
     /// @author ZZ
@@ -6142,7 +6118,7 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     if(passage) {
         passage->setMusic(Passage::NO_MUSIC);
     }
@@ -6151,7 +6127,7 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ClearEndMessage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ClearEndMessage( script_state_t& state, ai_state_t& self )
 {
     // ClearEndMessage()
     /// @author ZZ
@@ -6166,7 +6142,7 @@ Uint8 scr_ClearEndMessage( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddEndMessage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddEndMessage( script_state_t& state, ai_state_t& self )
 {
     // AddEndMessage( tmpargument = "message" )
     /// @author ZZ
@@ -6174,13 +6150,13 @@ Uint8 scr_AddEndMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddEndMessage( pchr,  pstate->argument, pstate );
+    returncode = AddEndMessage( pchr,  state.argument, &state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PlayMusic( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PlayMusic( script_state_t& state, ai_state_t& self )
 {
     // PlayMusic( tmpargument = "song number", tmpdistance = "fade time (msec)" )
     /// @author ZZ
@@ -6188,16 +6164,16 @@ Uint8 scr_PlayMusic( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    int fadeTime = pstate->distance;
+    int fadeTime = state.distance;
     if(fadeTime < 0) fadeTime = 0;
 
-    AudioSystem::get().playMusic(pstate->argument, fadeTime);
+    AudioSystem::get().playMusic(state.argument, fadeTime);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_MusicPassage( script_state_t& state, ai_state_t& self )
 {
     // SetMusicPassage( tmpargument = "passage", tmpturn = "type", tmpdistance = "repetitions" )
 
@@ -6207,16 +6183,16 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     if(passage) {
-        passage->setMusic(pstate->distance);
+        passage->setMusic(state.distance);
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_MakeCrushInvalid( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_MakeCrushInvalid( script_state_t& state, ai_state_t& self )
 {
     // MakeCrushInvalid()
     /// @author ZZ
@@ -6230,7 +6206,7 @@ Uint8 scr_MakeCrushInvalid( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StopMusic( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StopMusic( script_state_t& state, ai_state_t& self )
 {
     // StopMusic()
     /// @author ZZ
@@ -6244,7 +6220,7 @@ Uint8 scr_StopMusic( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FlashVariable( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_FlashVariable( script_state_t& state, ai_state_t& self )
 {
     // FlashVariable( tmpargument = "amount" )
 
@@ -6253,13 +6229,13 @@ Uint8 scr_FlashVariable( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    FlashObject( pchr, pstate->argument );
+    FlashObject( pchr, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AccelerateUp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AccelerateUp( script_state_t& state, ai_state_t& self )
 {
     // AccelerateUp( tmpargument = "acc z" )
     /// @author ZZ
@@ -6267,13 +6243,13 @@ Uint8 scr_AccelerateUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->vel[kZ] += pstate->argument / 100.0f;
+    pchr->vel[kZ] += state.argument / 100.0f;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_FlashVariableHeight( script_state_t& state, ai_state_t& self )
 {
     // FlashVariableHeight( tmpturn = "intensity bottom", tmpx = "bottom", tmpdistance = "intensity top", tmpy = "top" )
     /// @author ZZ
@@ -6281,13 +6257,13 @@ Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_character_height( pself->index, CLIP_TO_16BITS( pstate->turn ), pstate->x, pstate->distance, pstate->y );
+    flash_character_height( self.index, CLIP_TO_16BITS( state.turn ), state.x, state.distance, state.y );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_DamageTime( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_DamageTime( script_state_t& state, ai_state_t& self )
 {
     // SetDamageTime( tmpargument = "time" )
     /// @author ZZ
@@ -6295,93 +6271,93 @@ Uint8 scr_set_DamageTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->damage_timer = CLIP( pstate->argument, 0, 0xFFFF );
+    pchr->damage_timer = CLIP( state.argument, 0, 0xFFFF );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs8( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs8( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 8 == pself->state );
+    returncode = ( 8 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs9( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs9( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 9 == pself->state );
+    returncode = ( 9 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs10( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs10( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 10 == pself->state );
+    returncode = ( 10 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs11( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs11( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 11 == pself->state );
+    returncode = ( 11 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs12( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs12( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 12 == pself->state );
+    returncode = ( 12 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs13( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs13( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 13 == pself->state );
+    returncode = ( 13 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs14( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs14( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 14 == pself->state );
+    returncode = ( 14 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs15( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_StateIs15( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 15 == pself->state );
+    returncode = ( 15 == self.state );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsAMount( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAMount()
     /// @author ZZ
@@ -6399,7 +6375,7 @@ Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsAPlatform( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAPlatform()
     /// @author ZZ
@@ -6417,7 +6393,7 @@ Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddStat( script_state_t& state, ai_state_t& self )
 {
     // AddStat()
     /// @author ZZ
@@ -6425,13 +6401,13 @@ Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _gameEngine->getActivePlayingState()->addStatusMonitor( _currentModule->getObjectHandler()[pself->index] );
+    _gameEngine->getActivePlayingState()->addStatusMonitor( _currentModule->getObjectHandler()[self.index] );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DisenchantTarget( script_state_t& state, ai_state_t& self )
 {
     // DisenchantTarget()
     /// @author ZZ
@@ -6446,13 +6422,13 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     returncode = ( INVALID_ENC_REF != pself_target->firstenchant );
 
-    disenchant_character( pself->target );
+    disenchant_character( self.target );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DisenchantAll( script_state_t& state, ai_state_t& self )
 {
     // DisenchantAll()
     /// @author ZZ
@@ -6471,7 +6447,7 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_VolumeNearestTeammate( script_state_t& state, ai_state_t& self )
 {
     // SetVolumeNearestTeammate( tmpargument = "sound", tmpdistance = "distance" )
     /// @author ZZ
@@ -6483,7 +6459,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     //ZF> TODO: Not implemented
 
     /*PORT
-    if(moduleactive && pstate->distance >= 0)
+    if(moduleactive && state.distance >= 0)
     {
     // Find the closest Teammate
     iTmp = 10000;
@@ -6497,11 +6473,11 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     }
     sTmp++;
     }
-    distance=iTmp+pstate->distance;
+    distance=iTmp+state.distance;
     volume = -distance;
     volume = volume<<VOLSHIFT;
     if(volume < VOLMIN) volume = VOLMIN;
-    iTmp = CapStack.lst[pro_get_icap(pchr->profile_ref)].wavelist[pstate->argument];
+    iTmp = CapStack.lst[pro_get_icap(pchr->profile_ref)].wavelist[state.argument];
     if(iTmp < numsound && iTmp >= 0 && soundon)
     {
     lpDSBuffer[iTmp]->SetVolume(volume);
@@ -6513,7 +6489,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddShopPassage( script_state_t& state, ai_state_t& self )
 {
     // AddShopPassage( tmpargument = "passage" )
     /// @author ZZ
@@ -6522,9 +6498,9 @@ Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     if(passage) {
-        passage->makeShop(pself->index);
+        passage->makeShop(self.index);
         returncode = true;
     }
     else {
@@ -6535,7 +6511,7 @@ Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetPayForArmor( script_state_t& state, ai_state_t& self )
 {
     // tmpx, tmpy = TargetPayForArmor( tmpargument = "skin" )
 
@@ -6552,20 +6528,20 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !_currentModule->getObjectHandler().exists( pself->target ) ) return false;
+    if ( !_currentModule->getObjectHandler().exists( self.target ) ) return false;
 
-    pself_target = _currentModule->getObjectHandler().get( pself->target );
+    pself_target = _currentModule->getObjectHandler().get( self.target );
 
 
-    iTmp = ppro->getSkinInfo(pstate->argument).cost;
-    pstate->y = iTmp;                                       // Cost of new skin
+    iTmp = ppro->getSkinInfo(state.argument).cost;
+    state.y = iTmp;                                       // Cost of new skin
 
     iTmp -= ppro->getSkinInfo(pself_target->skin).cost;     // Refund for old skin
 
     if ( iTmp > pself_target->money )
     {
         // Not enough.
-        pstate->x = iTmp - pself_target->money;        // Amount needed
+        state.x = iTmp - pself_target->money;        // Amount needed
         returncode = false;
     }
     else
@@ -6574,7 +6550,7 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
         pself_target->money = pself_target->money - iTmp;
         pself_target->money = CLIP( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
 
-        pstate->x = 0;
+        state.x = 0;
         returncode = true;
     }
 
@@ -6582,7 +6558,7 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_JoinEvilTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_JoinEvilTeam( script_state_t& state, ai_state_t& self )
 {
     // JoinEvilTeam()
     /// @author ZZ
@@ -6590,13 +6566,13 @@ Uint8 scr_JoinEvilTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, ( TEAM_REF )Team::TEAM_EVIL );
+    switch_team( self.index, ( TEAM_REF )Team::TEAM_EVIL );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_JoinNullTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_JoinNullTeam( script_state_t& state, ai_state_t& self )
 {
     // JoinNullTeam()
     /// @author ZZ
@@ -6604,13 +6580,13 @@ Uint8 scr_JoinNullTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, ( TEAM_REF )Team::TEAM_NULL );
+    switch_team( self.index, ( TEAM_REF )Team::TEAM_NULL );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_JoinGoodTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_JoinGoodTeam( script_state_t& state, ai_state_t& self )
 {
     // JoinGoodTeam()
     /// @author ZZ
@@ -6618,13 +6594,13 @@ Uint8 scr_JoinGoodTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, ( TEAM_REF )Team::TEAM_GOOD );
+    switch_team( self.index, ( TEAM_REF )Team::TEAM_GOOD );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PitsKill( script_state_t& state, ai_state_t& self )
 {
     // PitsKill()
     /// @author ZZ
@@ -6639,7 +6615,7 @@ Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToPassageID( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToPassageID( tmpargument = "passage", tmpdistance = "idsz" )
     /// @author ZZ
@@ -6648,11 +6624,11 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
 
     returncode = false;
     if(passage) {
-        CHR_REF ichr = passage->whoIsBlockingPassage(pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance);
+        CHR_REF ichr = passage->whoIsBlockingPassage(self.index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, state.distance);
         if ( _currentModule->getObjectHandler().exists( ichr ) )
         {
             SET_TARGET_0( ichr );
@@ -6664,7 +6640,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_MakeNameUnknown( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_MakeNameUnknown( script_state_t& state, ai_state_t& self )
 {
     // MakeNameUnknown()
     /// @author ZZ
@@ -6679,7 +6655,7 @@ Uint8 scr_MakeNameUnknown( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 {
     // SpawnExactParticleEndSpawn( tmpargument = "particle", tmpturn = "state", tmpx = "x", tmpy = "y", tmpdistance = "z" )
 
@@ -6689,11 +6665,10 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     /// The character is the same type of whatever spawned the particle.
 
     std::shared_ptr<Ego::Particle> particle;
-    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
+	CHR_REF ichr = self.index;
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -6703,29 +6678,29 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
         fvec3_t vtmp =
             fvec3_t
             (
-            pstate->x,
-            pstate->y,
-            pstate->distance
+            state.x,
+            state.y,
+            state.distance
             );
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->profile_ref,
-                                                         LocalParticleProfileRef(pstate->argument),
-                                                         INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
-                                                         0, INVALID_CHR_REF);
+                                                             LocalParticleProfileRef(state.argument),
+                                                             INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
+                                                             0, INVALID_CHR_REF);
     }
 
     returncode = (particle != nullptr);
 
     if ( returncode )
     {
-        particle->endspawn_characterstate = pstate->turn;
+        particle->endspawn_characterstate = state.turn;
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 {
     // SpawnPoofSpeedSpacingDamage( tmpx = "xy speed", tmpy = "xy spacing", tmpargument = "damage" )
 
@@ -6757,12 +6732,12 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
         fTmp = ppip->damage.from;
 
         // set some values
-        ppip->vel_hrz_pair.base     = pstate->x;
-        ppip->spacing_hrz_pair.base = pstate->y;
-        ppip->damage.from           = FP8_TO_FLOAT( pstate->argument );
+        ppip->vel_hrz_pair.base     = state.x;
+        ppip->spacing_hrz_pair.base = state.y;
+        ppip->damage.from           = FP8_TO_FLOAT( state.argument );
         ppip->damage.to             = ppip->damage.from + damage_rand;
 
-        spawn_poof( pself->index, pchr->profile_ref );
+        spawn_poof( self.index, pchr->profile_ref );
 
         // Restore the saved values
         ppip->vel_hrz_pair.base     = iTmp;
@@ -6777,7 +6752,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_GoodTeamExperience( script_state_t& state, ai_state_t& self )
 {
     // GiveExperienceToGoodTeam(  tmpargument = "amount", tmpdistance = "type" )
     /// @author ZZ
@@ -6785,10 +6760,10 @@ Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if(pstate->distance < XP_COUNT)
+    if(state.distance < XP_COUNT)
     {
 
-        _currentModule->getTeamList()[Team::TEAM_GOOD].giveTeamExperience(pstate->argument, static_cast<XPType>(pstate->distance) );
+        _currentModule->getTeamList()[Team::TEAM_GOOD].giveTeamExperience(state.argument, static_cast<XPType>(state.distance) );
     }
 
 
@@ -6796,7 +6771,7 @@ Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DoNothing( script_state_t& state, ai_state_t& self )
 {
     // DoNothing()
     /// @author ZF
@@ -6807,7 +6782,7 @@ Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_GrogTarget( script_state_t& state, ai_state_t& self )
 {
     // GrogTarget( tmpargument = "amount" )
     /// @author ZF
@@ -6822,7 +6797,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     if ( pself_target->getProfile()->canBeGrogged() )
     {
-        int timer_val = pself_target->grog_timer + pstate->argument;
+        int timer_val = pself_target->grog_timer + state.argument;
         pself_target->grog_timer = std::max( 0, timer_val );
         returncode = true;
     }
@@ -6831,7 +6806,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DazeTarget( script_state_t& state, ai_state_t& self )
 {
     // DazeTarget( tmpargument = "amount" )
     /// @author ZF
@@ -6845,9 +6820,9 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 
     // Characters who manage to daze themselves are to ignore their daze immunity
     returncode = false;
-    if ( pself_target->getProfile()->canBeDazed() || pself->index == pself->target )
+    if ( pself_target->getProfile()->canBeDazed() || self.index == self.target )
     {
-        int timer_val = pself_target->daze_timer + pstate->argument;
+        int timer_val = pself_target->daze_timer + state.argument;
         pself_target->daze_timer = std::max( 0, timer_val );
 
         returncode = true;
@@ -6857,7 +6832,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_EnableRespawn( script_state_t& state, ai_state_t& self )
 {
     // EnableRespawn()
     /// @author ZF
@@ -6871,7 +6846,7 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DisableRespawn( script_state_t& state, ai_state_t& self )
 {
     // DisableRespawn()
     /// @author ZF
@@ -6885,7 +6860,7 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_HolderBlocked( script_state_t& state, ai_state_t& self )
 {
     // IfHolderBlocked()
     /// @author ZF
@@ -6928,7 +6903,7 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasNotFullMana( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasNotFullMana()
     /// @author ZF
@@ -6949,7 +6924,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_EnableListenSkill( script_state_t& state, ai_state_t& self )
 {
     // EnableListenSkill()
     /// @author ZF
@@ -6967,7 +6942,7 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToLastItemUsed( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToLastItemUsed()
     /// @author ZF
@@ -6975,9 +6950,9 @@ Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pself->lastitemused != pself->index && _currentModule->getObjectHandler().exists( pself->lastitemused ) )
+    if ( self.lastitemused != self.index && _currentModule->getObjectHandler().exists( self.lastitemused ) )
     {
-        SET_TARGET_0( pself->lastitemused );
+        SET_TARGET_0( self.lastitemused );
     }
     else
     {
@@ -6988,7 +6963,7 @@ Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_FollowLink( script_state_t& state, ai_state_t& self )
 {
     // FollowLink( tmpargument = "index of next module name" )
     /// @author BB
@@ -6996,9 +6971,9 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !ppro->isValidMessageID(pstate->argument) ) return false;
+    if ( !ppro->isValidMessageID(state.argument) ) return false;
 
-    returncode = link_follow_modname( ppro->getMessage(pstate->argument).c_str(), true );
+    returncode = link_follow_modname( ppro->getMessage(state.argument).c_str(), true );
     if ( !returncode )
     {
         DisplayMsg_printf( "That's too scary for %s", pchr->Name );
@@ -7008,7 +6983,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_OperatorIsLinux( script_state_t& state, ai_state_t& self )
 {
     // IfOperatorIsLinux()
     /// @author ZF
@@ -7026,7 +7001,7 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsAWeapon( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAWeapon()
     /// @author ZF
@@ -7034,15 +7009,15 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !_currentModule->getObjectHandler().exists( pself->target ) ) return false;
+    if ( !_currentModule->getObjectHandler().exists( self.target ) ) return false;
 
-    returncode = _currentModule->getObjectHandler()[pself->target]->getProfile()->isRangedWeapon() || chr_has_idsz(pself->target, MAKE_IDSZ('X', 'W', 'E', 'P'));
+    returncode = _currentModule->getObjectHandler()[self.target]->getProfile()->isRangedWeapon() || chr_has_idsz(self.target, MAKE_IDSZ('X', 'W', 'E', 'P'));
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SomeoneIsStealing( script_state_t& state, ai_state_t& self )
 {
     // IfSomeoneIsStealing()
     /// @author ZF
@@ -7050,13 +7025,13 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pself->order_value == Passage::SHOP_STOLEN && pself->order_counter == Passage::SHOP_THEFT );
+    returncode = ( self.order_value == Passage::SHOP_STOLEN && self.order_counter == Passage::SHOP_THEFT );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsASpell( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsASpell()
     /// @author ZF
@@ -7081,7 +7056,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_Backstabbed( script_state_t& state, ai_state_t& self )
 {
     // IfBackstabbed()
     /// @author ZF
@@ -7092,20 +7067,20 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 
     //Now check if it really was backstabbed
     returncode = false;
-    if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
+    if ( HAS_SOME_BITS( self.alert, ALERTIF_ATTACKED ) )
     {
         //Who is the dirty backstabber?
-        Object * pattacker = _currentModule->getObjectHandler().get( pself->attacklast );
+        Object * pattacker = _currentModule->getObjectHandler().get( self.attacklast );
         if ( !ACTIVE_PCHR( pattacker ) ) return false;
 
         //Only if hit from behind
-        if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
+        if ( self.directionlast >= ATK_BEHIND - 8192 && self.directionlast < ATK_BEHIND + 8192 )
         {
             //And require the backstab skill
             if ( pattacker->hasPerk(Ego::Perks::BACKSTAB) )
             {
                 //Finally we require it to be physical damage!
-                if (DamageType_isPhysical(pself->damagetypelast))
+                if (DamageType_isPhysical(self.damagetypelast))
                 {
                     returncode = true;
                 }
@@ -7117,7 +7092,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_get_TargetDamageType( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetDamageType()
     /// @author ZF
@@ -7129,13 +7104,13 @@ Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pstate->argument = pself_target->ai.damagetypelast;
+    state.argument = pself_target->ai.damagetypelast;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddQuest( script_state_t& state, ai_state_t& self )
 {
     // AddQuest( tmpargument = "quest idsz" )
     /// @author ZF
@@ -7154,7 +7129,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     {
         player_t * ppla = PlaStack.get_ptr( ipla );
 
-        result = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        result = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), state.argument, state.distance );
     }
 
     returncode = ( rv_success == result );
@@ -7163,7 +7138,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
 {
     // BeatQuestAllPlayers()
     /// @author ZF
@@ -7185,7 +7160,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         ichr = ppla->index;
         if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
 
-        if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )pstate->argument, QUEST_MAXVAL ) )
+        if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )state.argument, QUEST_MAXVAL ) )
         {
             returncode = true;
         }
@@ -7195,7 +7170,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetHasQuest( script_state_t& state, ai_state_t& self )
 {
     // tmpdistance = IfTargetHasQuest( tmpargument = "quest idsz )
     /// @author ZF
@@ -7217,13 +7192,13 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     {
         player_t * ppla = PlaStack.get_ptr( ipla );
 
-        quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument );
+        quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), state.argument );
     }
 
     // only find active quests
     if ( quest_level >= 0 )
     {
-        pstate->distance = quest_level;
+        state.distance = quest_level;
         returncode       = true;
     }
 
@@ -7231,7 +7206,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_QuestLevel( script_state_t& state, ai_state_t& self )
 {
     // SetQuestLevel( tmpargument = "idsz", distance = "adjustment" )
     /// @author ZF
@@ -7247,11 +7222,11 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 
     returncode = false;
     ipla = pself_target->is_which_player;
-    if ( VALID_PLA( ipla ) && 0 != pstate->distance )
+    if ( VALID_PLA( ipla ) && 0 != state.distance )
     {
         player_t * ppla        = PlaStack.get_ptr( ipla );
 
-        int quest_level = quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        int quest_level = quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), state.argument, state.distance );
 
         returncode = QUEST_NONE != quest_level;
     }
@@ -7260,7 +7235,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddQuestAllPlayers( script_state_t& state, ai_state_t& self )
 {
     // AddQuestAllPlayers( tmpargument = "quest idsz" )
     /// @author ZF
@@ -7282,7 +7257,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         player_count++;
 
         // Try to add it or replace it if this one is higher
-        quest_level = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        quest_level = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), state.argument, state.distance );
         if ( QUEST_NONE != quest_level ) success_count++;
     }
 
@@ -7292,7 +7267,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AddBlipAllEnemies( script_state_t& state, ai_state_t& self )
 {
     // AddBlipAllEnemies()
     /// @author ZF
@@ -7301,10 +7276,10 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _currentModule->getObjectHandler().exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( self.target ) )
     {
-        local_stats.sense_enemies_team = chr_get_iteam( pself->target );
-        local_stats.sense_enemies_idsz = pstate->argument;
+        local_stats.sense_enemies_team = chr_get_iteam( self.target );
+        local_stats.sense_enemies_idsz = state.argument;
     }
     else
     {
@@ -7316,7 +7291,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_PitsFall( script_state_t& state, ai_state_t& self )
 {
     // PitsFall( tmpx = "teleprt x", tmpy = "teleprt y", tmpdistance = "teleprt z" )
     /// @author ZF
@@ -7324,12 +7299,12 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < _currentModule->getMeshPointer()->gmem.edge_x - EDGE && pstate->y < _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
+    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->gmem.edge_x - EDGE && state.y < _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
     {
         g_pits.teleport = true;
-        g_pits.teleport_pos[kX] = pstate->x;
-        g_pits.teleport_pos[kY] = pstate->y;
-        g_pits.teleport_pos[kZ] = pstate->distance;
+        g_pits.teleport_pos[kX] = state.x;
+        g_pits.teleport_pos[kY] = state.y;
+        g_pits.teleport_pos[kZ] = state.distance;
     }
     else
     {
@@ -7340,7 +7315,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsOwner( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOwner()
     /// @author ZF
@@ -7352,13 +7327,13 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->alive && pself->owner == pself->target );
+    returncode = ( pself_target->alive && self.owner == self.target );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 {
     // SpawnAttachedCharacter( tmpargument = "profile", tmpx = "x", tmpy = "y", tmpdistance = "z" )
 
@@ -7374,34 +7349,34 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
+    fvec3_t pos = fvec3_t(state.x, state.y, state.distance);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, pchr->getProfile()->getClassName().c_str(), pstate->argument);
+        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, pchr->getProfile()->getClassName().c_str(), state.argument);
     }
     else
     {
-        Uint8 grip = Ego::Math::constrain<int>(pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT);
+        Uint8 grip = Ego::Math::constrain<int>(state.distance, ATTACH_INVENTORY, ATTACH_RIGHT);
 
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( Inventory::add_item( pself->target, pchild->getCharacterID(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
+            if ( Inventory::add_item( self.target, pchild->getCharacterID(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
-                pchild->attachedto = pself->target;  // Make grab work
+                pchild->attachedto = self.target;  // Make grab work
                 scr_run_chr_script( pchild->getCharacterID() );  // Empty the grabbed messages
 
                 pchild->attachedto = INVALID_CHR_REF;  // Fix grab
 
                 //Set some AI values
-                pself->child = pchild->getCharacterID();
-                pchild->ai.passage = pself->passage;
-                pchild->ai.owner   = pself->owner;
+                self.child = pchild->getCharacterID();
+                pchild->ai.passage = self.passage;
+                pchild->ai.owner   = self.owner;
             }
 
             //No more room!
@@ -7417,16 +7392,16 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
 
-                if ( rv_success == attach_character_to_mount( pchild->getCharacterID(), pself->target, grip_off ) )
+                if ( rv_success == attach_character_to_mount( pchild->getCharacterID(), self.target, grip_off ) )
                 {
                     // Handle the "grabbed" messages
                     scr_run_chr_script( pchild->getCharacterID() );
                 }
 
                 //Set some AI values
-                pself->child = pchild->getCharacterID();
-                pchild->ai.passage = pself->passage;
-                pchild->ai.owner   = pself->owner;
+                self.child = pchild->getCharacterID();
+                pchild->ai.passage = self.passage;
+                pchild->ai.owner   = self.owner;
             }
 
             //Grip is already used
@@ -7448,9 +7423,9 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             else
             {
                 //Set some AI values
-                pself->child = pchild->getCharacterID();
-                pchild->ai.passage = pself->passage;
-                pchild->ai.owner   = pself->owner;                
+                self.child = pchild->getCharacterID();
+                pchild->ai.passage = self.passage;
+                pchild->ai.owner   = self.owner;                
             }
         }
     }
@@ -7459,7 +7434,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToChild( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToChild()
     /// @author ZF
@@ -7467,9 +7442,9 @@ Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _currentModule->getObjectHandler().exists( pself->child ) )
+    if ( _currentModule->getObjectHandler().exists( self.child ) )
     {
-        SET_TARGET_0( pself->child );
+        SET_TARGET_0( self.child );
     }
     else
     {
@@ -7480,7 +7455,7 @@ Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_DamageThreshold( script_state_t& state, ai_state_t& self )
 {
     // SetDamageThreshold()
     /// @author ZF
@@ -7488,13 +7463,13 @@ Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->argument > 0 ) pchr->damage_threshold = pstate->argument;
+    if ( state.argument > 0 ) pchr->damage_threshold = state.argument;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_End( script_state_t& state, ai_state_t& self )
 {
     // End()
     /// @author ZZ
@@ -7502,14 +7477,14 @@ Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->terminate = true;
-    returncode       = false;
+    self.terminate = true;
+    returncode = false;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TakePicture( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TakePicture( script_state_t& state, ai_state_t& self )
 {
     // TakePicture()
     /// @author ZF
@@ -7523,7 +7498,7 @@ Uint8 scr_TakePicture( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Speech( script_state_t& state, ai_state_t& self )
 {
     // SetSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7536,7 +7511,7 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
     Uint16 sTmp = 0;
     for ( sTmp = SPEECH_BEGIN; sTmp <= SPEECH_END; sTmp++ )
     {
-        pchr->sound_index[sTmp] = pstate->argument;
+        pchr->sound_index[sTmp] = state.argument;
     }
 #endif
 
@@ -7544,7 +7519,7 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_MoveSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetMoveSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7554,14 +7529,14 @@ Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
 
     //ZF> no longer supported
 #if 0
-    pchr->sound_index[SPEECH_MOVE] = pstate->argument;
+    pchr->sound_index[SPEECH_MOVE] = state.argument;
 #endif
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_SecondMoveSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetSecondMoveSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7570,14 +7545,14 @@ Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
     //ZF> no longer supported
 #if 0
-    pchr->sound_index[SPEECH_MOVEALT] = pstate->argument;
+    pchr->sound_index[SPEECH_MOVEALT] = state.argument;
 #endif
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_AttackSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetAttacksSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7586,14 +7561,14 @@ Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
     //ZF> no longer supported
 #if 0
-    pchr->sound_index[SPEECH_ATTACK] = pstate->argument;
+    pchr->sound_index[SPEECH_ATTACK] = state.argument;
 #endif
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_AssistSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetAssistSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7602,14 +7577,14 @@ Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
     //ZF> no longer supported
 #if 0
-    pchr->sound_index[SPEECH_ASSIST] = pstate->argument;
+    pchr->sound_index[SPEECH_ASSIST] = state.argument;
 #endif
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TerrainSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetTerrainSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7618,14 +7593,14 @@ Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
     //ZF> no longer supported
 #if 0
-    pchr->sound_index[SPEECH_TERRAIN] = pstate->argument;
+    pchr->sound_index[SPEECH_TERRAIN] = state.argument;
 #endif
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_SelectSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetSelectSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7634,14 +7609,14 @@ Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
     //ZF> no longer supported
 #if 0
-    pchr->sound_index[SPEECH_SELECT] = pstate->argument;
+    pchr->sound_index[SPEECH_SELECT] = state.argument;
 #endif
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_OperatorIsMacintosh( script_state_t& state, ai_state_t& self )
 {
     // IfOperatorIsMacintosh()
     /// @author ZF
@@ -7659,7 +7634,7 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ModuleHasIDSZ( script_state_t& state, ai_state_t& self )
 {
     // IfModuleHasIDSZ( tmpargument = "message number with module name", tmpdistance = "idsz" )
 
@@ -7670,18 +7645,18 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ///use message.txt to send the module name
-    if ( !ppro->isValidMessageID(pstate->argument) ) return false;
+    if ( !ppro->isValidMessageID(state.argument) ) return false;
 
     STRING buffer;
-    strncpy(buffer, ppro->getMessage(pstate->argument).c_str(), SDL_arraysize(buffer));
+    strncpy(buffer, ppro->getMessage(state.argument).c_str(), SDL_arraysize(buffer));
 
-    returncode = ModuleProfile::moduleHasIDSZ( _currentModule->getName().c_str(), pstate->distance, 0, buffer);
+    returncode = ModuleProfile::moduleHasIDSZ( _currentModule->getName().c_str(), state.distance, 0, buffer);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_MorphToTarget( script_state_t& state, ai_state_t& self )
 {
     // MorphToTarget()
     /// @author ZF
@@ -7694,9 +7669,9 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !_currentModule->getObjectHandler().exists( pself->target ) ) return false;
+    if ( !_currentModule->getObjectHandler().exists( self.target ) ) return false;
 
-    change_character( pself->index, pself_target->basemodel_ref, pself_target->skin, ENC_LEAVE_ALL );
+    change_character( self.index, pself_target->basemodel_ref, pself_target->skin, ENC_LEAVE_ALL );
 
     // let the resizing take some time
     pchr->fat_goto      = pself_target->fat;
@@ -7709,7 +7684,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetManaFlow( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetManaFlow( script_state_t& state, ai_state_t& self )
 {
     // GiveManaFlowToTarget()
     /// @author ZF
@@ -7723,14 +7698,14 @@ Uint8 scr_add_TargetManaFlow( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isAlive() )
     {
-        pself_target->increaseBaseAttribute(Ego::Attribute::SPELL_POWER, FP8_TO_FLOAT(pstate->argument));
+        pself_target->increaseBaseAttribute(Ego::Attribute::SPELL_POWER, FP8_TO_FLOAT(state.argument));
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetManaReturn( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetManaReturn( script_state_t& state, ai_state_t& self )
 {
     // GiveManaReturnToTarget()
     /// @author ZF
@@ -7744,14 +7719,14 @@ Uint8 scr_add_TargetManaReturn( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isAlive() )
     {
-        pself_target->increaseBaseAttribute(Ego::Attribute::MANA_REGEN, FP8_TO_FLOAT(pstate->argument));
+        pself_target->increaseBaseAttribute(Ego::Attribute::MANA_REGEN, FP8_TO_FLOAT(state.argument));
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Money( script_state_t& state, ai_state_t& self )
 {
     // SetMoney()
     /// @author ZF
@@ -7759,13 +7734,13 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->money = CLIP( pstate->argument, 0, MAXMONEY );
+    pchr->money = CLIP( state.argument, 0, MAXMONEY );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetCanSeeKurses( script_state_t& state, ai_state_t& self )
 {
     // IfTargetCanSeeKurses()
     /// @author ZF
@@ -7783,7 +7758,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DispelTargetEnchantID( script_state_t& state, ai_state_t& self )
 {
     // DispelEnchantID( tmpargument = "idsz" )
     /// @author ZF
@@ -7799,14 +7774,14 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
     if ( pself_target->alive )
     {
         // Check all enchants to see if they are removed
-        returncode = remove_all_enchants_with_idsz( pself->target, pstate->argument );
+        returncode = remove_all_enchants_with_idsz( self.target, state.argument );
     }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_KurseTarget( script_state_t& state, ai_state_t& self )
 {
     // KurseTarget()
     /// @author ZF
@@ -7829,7 +7804,7 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_ChildContent( script_state_t& state, ai_state_t& self )
 {
     // SetChildContent( tmpargument = "content" )
     /// @author ZF
@@ -7838,13 +7813,13 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _currentModule->getObjectHandler().get(pself->child)->ai.content = pstate->argument;
+    _currentModule->getObjectHandler().get(self.child)->ai.content = state.argument;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_AccelerateTargetUp( script_state_t& state, ai_state_t& self )
 {
     // AccelerateTargetUp( tmpargument = "acc z" )
     /// @author ZF
@@ -7856,13 +7831,13 @@ Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel[kZ] += pstate->argument / 100.0f;
+    pself_target->vel[kZ] += state.argument / 100.0f;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetAmmo( script_state_t& state, ai_state_t& self )
 {
     // SetTargetAmmo( tmpargument = "ammo" )
     /// @author ZF
@@ -7874,13 +7849,13 @@ Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->ammo = std::min( pstate->argument, (int)pself_target->ammomax );
+    pself_target->ammo = std::min( state.argument, (int)pself_target->ammomax );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_EnableInvictus( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_EnableInvictus( script_state_t& state, ai_state_t& self )
 {
     // EnableInvictus()
     /// @author ZF
@@ -7894,7 +7869,7 @@ Uint8 scr_EnableInvictus( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DisableInvictus( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DisableInvictus( script_state_t& state, ai_state_t& self )
 {
     // DisableInvictus()
     /// @author ZF
@@ -7908,7 +7883,7 @@ Uint8 scr_DisableInvictus( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetDamageSelf( script_state_t& state, ai_state_t& self )
 {
     // TargetDamageSelf( tmpargument = "damage" )
     /// @author ZF
@@ -7919,21 +7894,21 @@ Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
     if(!target) {
         return false;
     }
 
-    tmp_damage.base = pstate->argument;
+    tmp_damage.base = state.argument;
     tmp_damage.rand = 1;
 
-    pchr->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pstate->distance), target->getTeam().toRef(), target, DAMFX_NBLOC, true);
+    pchr->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(state.distance), target->getTeam().toRef(), target, DAMFX_NBLOC, true);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetSize( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetSize( script_state_t& state, ai_state_t& self )
 {
     // SetSize( tmpargument = "percent" )
     /// @author ZF
@@ -7945,14 +7920,14 @@ Uint8 scr_set_TargetSize( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->fat_goto *= pstate->argument / 100.0f;
+    pself_target->fat_goto *= state.argument / 100.0f;
     pself_target->fat_goto_time += SIZETIME;
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
 {
     // DrawBillboard( tmpargument = "message", tmpdistance = "duration", tmpturn = "color" )
     /// @author ZF
@@ -7970,11 +7945,11 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !ppro->isValidMessageID(pstate->argument) ) return false;
+    if ( !ppro->isValidMessageID(state.argument) ) return false;
 
     auto* tint = &tint_white;
     //Figure out which color to use
-    switch ( pstate->turn )
+    switch ( state.turn )
     {
         default:
         case COLOR_WHITE:   tint = &tint_white;   break;
@@ -7985,13 +7960,13 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
         case COLOR_BLUE:    tint = &tint_blue;    break;
     }
 
-    returncode = NULL != chr_make_text_billboard(pself->index, ppro->getMessage(pstate->argument).c_str(), text_color, *tint, pstate->distance, Billboard::Flags::Fade);
+    returncode = NULL != chr_make_text_billboard(self.index, ppro->getMessage(state.argument).c_str(), text_color, *tint, state.distance, Billboard::Flags::Fade);
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToBlahInPassage( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToBlahInPassage()
     /// @author ZF
@@ -8000,10 +7975,10 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     returncode = false;
     if(passage) {
-        CHR_REF ichr = passage->whoIsBlockingPassage(pself->index, pstate->turn, TARGET_SELF | pstate->distance, IDSZ_NONE );
+        CHR_REF ichr = passage->whoIsBlockingPassage(self.index, state.turn, TARGET_SELF | state.distance, IDSZ_NONE );
 
         if ( _currentModule->getObjectHandler().exists( ichr ) )
         {
@@ -8016,18 +7991,18 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_TargetIsFacingSelf( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsFacingSelf()
     /// @author ZF
     /// @details This function proceeds if the target is more or less facing the character
-    FACING_T sTmp = 0;
-    Object *  pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
+	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
 
+	FACING_T sTmp = 0;
     sTmp = vec_to_facing( pchr->getPosX() - pself_target->getPosX() , pchr->getPosY() - pself_target->getPosY() );
     sTmp -= pself_target->ori.facing_z;
     returncode = ( sTmp > 55535 || sTmp < 10000 );
@@ -8036,33 +8011,32 @@ Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_LevelUp( script_state_t& state, ai_state_t& self )
 {
     // IfLevelUp()
     /// @author ZF
     /// @details This function proceeds if the character gained a new level this update
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_LEVELUP );
+    returncode = HAS_SOME_BITS( self.alert, ALERTIF_LEVELUP );
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetSkill( script_state_t& state, ai_state_t& self )
 {
     // GiveSkillToTarget( tmpargument = "skill_IDSZ" )
     /// @author ZF
     /// @details This function permanently gives the target character a Perk
 
-    Object *ptarget;
-
     SCRIPT_FUNCTION_BEGIN();
 
+	Object *ptarget;
     SCRIPT_REQUIRE_TARGET( ptarget );
 
     //IDSZ to Perk
-    switch(pstate->argument)
+    switch(state.argument)
     {
         case MAKE_IDSZ( 'A', 'W', 'E', 'P' ): ptarget->addPerk(Ego::Perks::WEAPON_PROFICIENCY); break;
         case MAKE_IDSZ( 'P', 'O', 'I', 'S' ): ptarget->addPerk(Ego::Perks::POISONRY); break;
@@ -8080,7 +8054,7 @@ Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t& state, ai_state_t& self )
 {
     CHR_REF best_target;
 
@@ -8091,7 +8065,7 @@ Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * p
     //Did we find anything good?
     if ( _currentModule->getObjectHandler().exists( best_target ) )
     {
-        pself->target = best_target;
+        self.target = best_target;
         returncode = true;
     }
 

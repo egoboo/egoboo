@@ -1022,7 +1022,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 // (ignore vertical displacement)
                 if (grabData.isFacingObject && grabData.horizontalDistance < MAX_DIST_GRAB)
                 {
-                    ai_state_set_bumplast(grabData.object->ai, ichr_a);
+                    ai_state_t::set_bumplast(grabData.object->ai, ichr_a);
                     break;
                 }
             }
@@ -1737,7 +1737,7 @@ Object * chr_config_do_init( Object * pchr )
     }
 
     // AI stuff
-    ai_state_spawn( &( pchr->ai ), ichr, pchr->profile_ref, _currentModule->getTeamList()[loc_team].getMorale() );
+    ai_state_t::spawn(pchr->ai, ichr, pchr->profile_ref, _currentModule->getTeamList()[loc_team].getMorale() );
 
     // Team stuff
     pchr->team     = loc_team;
@@ -2275,7 +2275,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
     new_attached_prt_count = number_of_attached_particles( ichr );
 
-    ai_state_set_changed(pchr->ai);
+    ai_state_t::set_changed(pchr->ai);
 
     chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
 }

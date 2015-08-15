@@ -142,6 +142,10 @@ public:
     size_t          position;                        // Our current position in the script
 
     uint32_t        data[MAXAICOMPILESIZE];          // Compiled script data
+
+	static bool increment_pos(script_info_t *self);
+	static bool set_pos(script_info_t *self, size_t position);
+
 };
 
 //--------------------------------------------------------------------------------------------
@@ -197,15 +201,16 @@ struct ai_state_t
 
 	ai_state_t();
 	~ai_state_t();
-};
 
-ai_state_t *ai_state_reset(ai_state_t *self);
-bool ai_state_set_bumplast(ai_state_t& self, const CHR_REF  ichr);
-bool ai_state_get_wp(ai_state_t *self);
-bool ai_state_ensure_wp(ai_state_t& self);
-bool ai_state_add_order(ai_state_t& self, Uint32 value, Uint16 counter);
-bool ai_state_set_changed(ai_state_t& self);
-void ai_state_spawn(ai_state_t *self, const CHR_REF index, const PRO_REF iobj, Uint16 rank);
+	static void reset(ai_state_t& self);
+	static bool set_bumplast(ai_state_t& self, const CHR_REF  ichr);
+	static bool get_wp(ai_state_t& self);
+	static bool ensure_wp(ai_state_t& self);
+	static bool add_order(ai_state_t& self, Uint32 value, Uint16 counter);
+	static bool set_changed(ai_state_t& self);
+	static void spawn(ai_state_t& self, const CHR_REF index, const PRO_REF iobj, Uint16 rank);
+
+};
 
 //--------------------------------------------------------------------------------------------
 // struct script_state_t
@@ -221,9 +226,16 @@ struct script_state_t
     int     distance;
     int     argument;
     int     operationsum;
-};
 
-void script_state_init(script_state_t& self);
+	// public
+	static void init(script_state_t& self);
+	// protected
+	static Uint8 run_function(script_state_t& self, ai_state_t& aiState, script_info_t *pscript);
+	static void set_operand(script_state_t& self, Uint8 variable);
+	static void run_operand(script_state_t& self, ai_state_t& aiState, script_info_t * pscript);
+	static bool run_operation(script_state_t& self, ai_state_t& aiState, script_info_t *pscript);
+	static bool run_function_call(script_state_t& self, ai_state_t& aiState, script_info_t *pscript);
+};
 
 //--------------------------------------------------------------------------------------------
 // FUNCTION PROTOTYPES

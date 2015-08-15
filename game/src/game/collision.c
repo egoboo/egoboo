@@ -2369,8 +2369,8 @@ bool do_chr_chr_collision( CoNode_t * d )
 
     if ( bump )
     {
-        ai_state_set_bumplast(pchr_a->ai, ichr_b);
-        ai_state_set_bumplast(pchr_b->ai, ichr_a);
+        ai_state_t::set_bumplast(pchr_a->ai, ichr_b);
+        ai_state_t::set_bumplast(pchr_b->ai, ichr_a);
     }
 
     return true;

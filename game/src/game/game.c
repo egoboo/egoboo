@@ -3564,7 +3564,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
             // Are they are trying to sell junk or quest items?
             if ( 0 == price )
             {
-                ai_state_add_order(powner->ai, (Uint32)price, Passage::SHOP_BUY);
+                ai_state_t::add_order(powner->ai, (Uint32)price, Passage::SHOP_BUY);
             }
             else
             {
@@ -3574,7 +3574,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
                 powner->money  = powner->money - price;
                 powner->money  = CLIP( powner->money, (Sint16)0, (Sint16)MAXMONEY );
 
-                ai_state_add_order(powner->ai, ( Uint32 ) price, Passage::SHOP_BUY);
+                ai_state_t::add_order(powner->ai, ( Uint32 ) price, Passage::SHOP_BUY);
             }
         }
     }
@@ -3615,7 +3615,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
             if ( ppicker->money >= price )
             {
                 // Okay to sell
-                ai_state_add_order(powner->ai, ( Uint32 ) price, Passage::SHOP_SELL);
+                ai_state_t::add_order(powner->ai, ( Uint32 ) price, Passage::SHOP_SELL);
 
                 ppicker->money  = ppicker->money - price;
                 ppicker->money  = CLIP( (int)ppicker->money, 0, MAXMONEY );
@@ -3629,7 +3629,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
             else
             {
                 // Don't allow purchase
-                ai_state_add_order(powner->ai, price, Passage::SHOP_NOAFFORD);
+                ai_state_t::add_order(powner->ai, price, Passage::SHOP_NOAFFORD);
                 can_grab = false;
                 can_pay  = false;
             }
@@ -3691,7 +3691,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
             can_steal = true;
             if ( powner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + powner->getAttribute(Ego::Attribute::INTELLECT) ) > 50 )
             {
-                ai_state_add_order(powner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
+                ai_state_t::add_order(powner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
                 powner->ai.target = ithief;
                 can_steal = false;
             }
@@ -3982,7 +3982,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
-    ai_state_set_bumplast(pplat->ai, GET_INDEX_PCHR(pchr));
+    ai_state_t::set_bumplast(pplat->ai, GET_INDEX_PCHR(pchr));
 
     return true;
 }
