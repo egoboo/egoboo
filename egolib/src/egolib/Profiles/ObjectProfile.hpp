@@ -503,7 +503,7 @@ public:
     /**
     * @return How much mana the object spends when doing an unarmed attack (used for Healers and Paladins)
     **/
-    inline float getUseManaCost() const {return _useManaCost*256.0f;}
+    inline float getUseManaCost() const {return _useManaCost;}
 
     /**
     * @brief ZF> I'm not sure what this is. 
