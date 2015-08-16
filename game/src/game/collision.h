@@ -93,3 +93,4 @@ public:
 };
 
 void bump_all_objects();
+bool detach_character_from_platform( Object * pchr );

@@ -464,12 +464,6 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr );
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
-bool attach_Objecto_platform( Object * pchr, Object * pplat );
-bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
-
-bool detach_character_from_platform( Object * pchr );
-bool detach_particle_from_platform( Ego::Particle * pprt );
-
 egolib_rv game_copy_imports( import_list_t * imp_lst );
 
 bool check_time( Uint32 check );

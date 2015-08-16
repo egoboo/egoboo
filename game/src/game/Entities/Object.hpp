@@ -66,7 +66,6 @@ struct chr_environment_t
         is_slipping(false),
         is_slippy(false),
         is_watery(false),
-        air_friction(0.0f),
         ice_friction(0.0f),
         fluid_friction_hrz(0.0f),
         fluid_friction_vrt(0.0f),
@@ -100,7 +99,7 @@ struct chr_environment_t
     // friction stuff
     bool is_slipping;
     bool is_slippy,    is_watery;
-    float  air_friction, ice_friction;
+    float  ice_friction;
     float  fluid_friction_hrz, fluid_friction_vrt;
     float  traction, friction_hrz;
 

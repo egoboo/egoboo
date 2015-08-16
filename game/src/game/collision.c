@@ -22,6 +22,7 @@
 /// @details
 
 #include "game/collision.h"
+#include "game/ObjectPhysics.h"
 #include "game/bsp.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
@@ -174,6 +175,11 @@ static bool do_chr_prt_collision( const CoNode_t * d );
 //static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_data_t * pdata );
 //static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
+
+static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform);
+static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
+
+static bool detach_particle_from_platform( Ego::Particle * pprt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -619,10 +625,6 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 //--------------------------------------------------------------------------------------------
 bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    Object * pchr_a, * pchr_b;
-
-    bool platform_a, platform_b;
-
     oct_vec_v2_t odepth;
     bool collide_x  = false;
     bool collide_y  = false;
@@ -632,19 +634,19 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool chara_on_top;
 
     // make sure that A is valid
-    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
-    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
+    const std::shared_ptr<Object> &pchr_a = _currentModule->getObjectHandler()[ichr_a];
+    if(!pchr_a) return false;
 
     // make sure that B is valid
-    if ( !_currentModule->getObjectHandler().exists( ichr_b ) ) return false;
-    pchr_b = _currentModule->getObjectHandler().get( ichr_b );
+    const std::shared_ptr<Object> &pchr_b = _currentModule->getObjectHandler()[ichr_b];
+    if(!pchr_b) return false;
 
     // if you are mounted, only your mount is affected by platforms
-    if ( _currentModule->getObjectHandler().exists( pchr_a->attachedto ) || _currentModule->getObjectHandler().exists( pchr_b->attachedto ) ) return false;
+    if (pchr_a->isBeingHeld() || pchr_b->isBeingHeld()) return false;
 
     // only check possible object-platform interactions
-    platform_a = TO_C_BOOL( pchr_b->canuseplatforms && pchr_a->platform );
-    platform_b = TO_C_BOOL( pchr_a->canuseplatforms && pchr_b->platform );
+    bool platform_a = TO_C_BOOL( pchr_b->canuseplatforms && !_currentModule->getObjectHandler().exists(pchr_b->onwhichplatform_ref) && pchr_a->platform );
+    bool platform_b = TO_C_BOOL( pchr_a->canuseplatforms && !_currentModule->getObjectHandler().exists(pchr_a->onwhichplatform_ref) && pchr_b->platform );
     if ( !platform_a && !platform_b ) return false;
 
     //---- since we are doing bump_all_mounts() before bump_all_platforms()
@@ -894,20 +896,41 @@ bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes 
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
+    //First check if objects should be detached from their platforms
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+    {
+        if(object->isTerminated()) continue;
+
+        const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[object->onwhichplatform_ref];
+        if(platform)
+        {
+            //If we are no longer colliding in the horizontal plane, then we are disconnected
+            if(!object->getAABB2D().overlaps(platform->getAABB2D()))
+            {
+                detach_character_from_platform(object.get());
+            }
+        }
+    }
+
     //---- Detect all platform attachments
     for(const CoNode_t &d : collisionNodes)
     {
         // only look at character-platform or particle-platform interactions interactions
         if ( INVALID_PRT_REF != d.prta && INVALID_PRT_REF != d.prtb ) continue;
 
+        //Object -> Object
         if ( INVALID_CHR_REF != d.chra && INVALID_CHR_REF != d.chrb )
         {
             do_chr_platform_detection( d.chra, d.chrb );
         }
+
+        //Particle -> Object
         else if ( INVALID_CHR_REF != d.chra && INVALID_PRT_REF != d.prtb )
         {
             do_prt_platform_detection( d.chra, d.prtb );
         }
+
+        //Particle -> Object
         if ( INVALID_PRT_REF != d.prta && INVALID_CHR_REF != d.chrb )
         {
             do_prt_platform_detection( d.chrb, d.prta );
@@ -921,60 +944,41 @@ bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes 
     // is still trying to find the best one
     for(const CoNode_t &d : collisionNodes)
     {
-        // only look at character-character interactions
-        //if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
+        const std::shared_ptr<Object> &chra = _currentModule->getObjectHandler()[d.chra];
+        const std::shared_ptr<Object> &chrb = _currentModule->getObjectHandler()[d.chrb];
 
-        if ( INVALID_CHR_REF != d.chra && INVALID_CHR_REF != d.chrb )
+        //Object -> Object
+        if ( chra && chrb )
         {
-            if ( _currentModule->getObjectHandler().exists( d.chra ) && _currentModule->getObjectHandler().exists( d.chrb ) )
-            {
-                if ( _currentModule->getObjectHandler().get(d.chra)->targetplatform_ref == d.chrb )
-                {
-                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d.chra ), _currentModule->getObjectHandler().get( d.chrb ) );
-                }
-                else if ( _currentModule->getObjectHandler().get(d.chrb)->targetplatform_ref == d.chra )
-                {
-                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d.chrb ), _currentModule->getObjectHandler().get( d.chra ) );
-                }
-
+            if(chra->targetplatform_ref == chrb->getCharacterID()) {
+                attachObjectToPlatform(chra, chrb);
+            }
+            else if(chrb->targetplatform_ref == chra->getCharacterID()) {
+                attachObjectToPlatform(chrb, chra);
             }
         }
-        else if ( INVALID_CHR_REF != d.chra && INVALID_PRT_REF != d.prtb )
+
+        //Particle -> Object
+        else
         {
-            if ( _currentModule->getObjectHandler().exists( d.chra ) && ParticleHandler::get()[d.prtb] != nullptr )
-            {
-                if ( ParticleHandler::get()[d.prtb]->targetplatform_ref == d.chra )
-                {
-                    attach_prt_to_platform( ParticleHandler::get()[d.prtb].get(), _currentModule->getObjectHandler().get( d.chra ) );
+            const std::shared_ptr<Ego::Particle> &prtb = ParticleHandler::get()[d.prtb];
+            if(chra && prtb) {
+                if (prtb->targetplatform_ref == chra->getCharacterID()) {
+                    attach_prt_to_platform(prtb.get(), chra.get());
                 }
             }
-        }
-        else if ( INVALID_CHR_REF != d.chrb && INVALID_PRT_REF != d.prta )
-        {
-            if ( _currentModule->getObjectHandler().exists( d.chrb ) && ParticleHandler::get()[d.prta] != nullptr )
-            {
-                if ( ParticleHandler::get()[d.prta]->targetplatform_ref == d.chrb )
-                {
-                    attach_prt_to_platform(ParticleHandler::get()[d.prta].get(), _currentModule->getObjectHandler().get(d.chrb));
+            else {
+                const std::shared_ptr<Ego::Particle> &prta = ParticleHandler::get()[d.prta];
+                if (chrb && prta) {
+                    if (prta->targetplatform_ref == d.chrb) {
+                        attach_prt_to_platform(prta.get(), chrb.get());
+                    }
                 }
             }
         }
     }
 
     //---- remove any bad platforms
-
-    // attach_prt_to_platform() erases targetplatform_ref, so any character with
-    // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        if(object->isTerminated()) continue;
-
-        if ( object->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(object->onwhichplatform_ref) )
-        {
-            detach_character_from_platform( object.get() );
-        }
-    }
-
     // attach_prt_to_platform() erases targetplatform_ref, so any particle with
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
@@ -1386,42 +1390,43 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_platform_physics( Object * pitem, Object * pplat )
+static bool do_chr_platform_physics( Object * object, Object * platform )
 {
     // we know that ichr_a is a platform and ichr_b is on it
     Sint16 rot_a, rot_b;
     float lerp_z, vlerp_z;
 
-    if ( !ACTIVE_PCHR( pitem ) ) return false;
-    if ( !ACTIVE_PCHR( pplat ) ) return false;
+    if ( !ACTIVE_PCHR( object ) ) return false;
+    if ( !ACTIVE_PCHR( platform ) ) return false;
 
-    if ( pitem->onwhichplatform_ref != GET_INDEX_PCHR( pplat ) ) return false;
+    //Are we attached to this platform?
+    if ( object->onwhichplatform_ref != platform->getCharacterID() ) return false;
 
     // grab the pre-computed zlerp value, and map it to our needs
-    lerp_z = 1.0f - pitem->enviro.zlerp;
+    lerp_z = 1.0f - object->enviro.zlerp;
 
     // if your velocity is going up much faster then the
     // platform, there is no need to suck you to the level of the platform
     // this was one of the things preventing you from jumping from platforms
     // properly
-    vlerp_z = std::abs(pitem->vel[kZ] - pplat->vel[kZ]) / 5;
+    vlerp_z = std::abs(object->vel[kZ] - platform->vel[kZ]) / 5;
     vlerp_z  = 1.0f - CLIP( vlerp_z, 0.0f, 1.0f );
 
     // determine the rotation rates
-    rot_b = pitem->ori.facing_z - pitem->ori_old.facing_z;
-    rot_a = pplat->ori.facing_z - pplat->ori_old.facing_z;
+    rot_b = object->ori.facing_z - object->ori_old.facing_z;
+    rot_a = platform->ori.facing_z - platform->ori_old.facing_z;
 
     if ( lerp_z == 1.0f )
     {
-        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f, kZ );
-        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel[kZ]  - pitem->vel[kZ] ) * 0.25f, kZ );
-        pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
+        phys_data_sum_aplat_index( &( object->phys ), ( object->enviro.level - object->getPosZ() ) * 0.125f, kZ );
+        phys_data_sum_avel_index( &( object->phys ), ( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f, kZ );
+        object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
     }
     else
     {
-        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
-        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel[kZ]  - pitem->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
-        pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
+        phys_data_sum_aplat_index( &( object->phys ), ( object->enviro.level - object->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
+        phys_data_sum_avel_index( &( object->phys ), ( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
+        object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
     };
 
     return true;
@@ -3280,4 +3285,145 @@ chr_prt_collision_data_t * chr_prt_collision_data_t::init( chr_prt_collision_dat
     ptr->prt_damages_chr = false;
 
     return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform)
+{
+    /// @author BB
+    /// @details attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    // check if they can be connected
+    if ( !object->canuseplatforms || object->isFlying() ) return false;
+    if ( !platform->platform ) return false;
+
+    // do the attachment
+    object->onwhichplatform_ref    = platform->getCharacterID();
+    object->onwhichplatform_update = update_wld;
+    object->targetplatform_ref     = INVALID_CHR_REF;
+
+    // update the character's relationship to the ground
+    object->enviro.level     = std::max(object->enviro.floor_level, platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z]);
+    object->enviro.zlerp     = (object->getPosZ() - object->enviro.level) / PLATTOLERANCE;
+    object->enviro.zlerp     = Ego::Math::constrain(object->enviro.zlerp, 0.0f, 1.0f);
+    object->enviro.grounded  = !object->isFlying() && ( object->enviro.zlerp < 0.25f );
+
+    object->enviro.fly_level = std::max(object->enviro.fly_level, object->enviro.level);
+    if (object->enviro.fly_level < 0) object->enviro.fly_level = 0;  // fly above pits...
+
+    // add the weight to the platform based on the new zlerp
+    platform->holdingweight += object->phys.weight * ( 1.0f - object->enviro.zlerp );
+
+    // update the character jumping
+    if (object->enviro.grounded)
+    {
+        object->jumpready = true;
+        object->jumpnumber = object->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
+    }
+
+    // what to do about traction if the platform is tilted... hmmm?
+    Vector3f platformUp = Vector3f( 0.0f, 0.0f, 1.0f );
+    chr_getMatUp(platform.get(), platformUp);
+    platformUp.normalize();
+
+    object->enviro.traction = std::abs(platformUp[kZ]) * (1.0f - object->enviro.zlerp) + 0.25f * object->enviro.zlerp;
+
+    // tell the platform that we bumped into it
+    // this is necessary for key buttons to work properly, for instance
+    ai_state_t::set_bumplast(platform->ai, object->getCharacterID());
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool detach_character_from_platform( Object * pchr )
+{
+    /// @author BB
+    /// @details attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    // verify that we do not have two dud pointers
+    if ( !ACTIVE_PCHR( pchr ) ) return false;
+
+    // save some values
+    float old_zlerp        = pchr->enviro.zlerp;
+    const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
+
+    // undo the attachment
+    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
+    pchr->onwhichplatform_update = 0;
+    pchr->targetplatform_ref     = INVALID_CHR_REF;
+    pchr->targetplatform_level   = -1e32;
+
+    // adjust the platform weight, if necessary
+    if (oldPlatform) {
+        oldPlatform->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
+    }
+
+    // update the character-platform properties
+    move_one_character_get_environment( pchr );
+
+    // update the character jumping
+    pchr->jumpready = pchr->enviro.grounded;
+    if ( pchr->jumpready )
+    {
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------
+static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
+{
+    /// @author BB
+    /// @details attach a particle to a platform
+
+    // verify that we do not have two dud pointers
+    if ( !pprt || pprt->isTerminated() ) return false;
+    if ( !ACTIVE_PCHR( pplat ) ) return false;
+
+    // check if they can be connected
+    if ( !pplat->platform ) return false;
+
+    // do the attachment
+    pprt->onwhichplatform_ref    = pplat->getCharacterID();
+    pprt->onwhichplatform_update = update_wld;
+    pprt->targetplatform_ref     = INVALID_CHR_REF;
+
+    // update the character's relationship to the ground
+    pprt->setElevation( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] ) );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------
+static bool detach_particle_from_platform( Ego::Particle * pprt )
+{
+    /// @author BB
+    /// @details attach a particle to a platform
+
+
+    // verify that we do not have two dud pointers
+    if ( pprt == nullptr || pprt->isTerminated() ) return false;
+
+    // grab all of the particle info
+    prt_bundle_t bdl_prt(pprt);
+
+    // undo the attachment
+    pprt->onwhichplatform_ref    = INVALID_CHR_REF;
+    pprt->onwhichplatform_update = 0;
+    pprt->targetplatform_ref     = INVALID_CHR_REF;
+    pprt->targetplatform_level   = -1e32;
+
+    // get the correct particle environment
+    bdl_prt.move_one_particle_get_environment();
+
+    return true;
 }

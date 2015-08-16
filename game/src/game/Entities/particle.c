@@ -119,8 +119,8 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     }
     else
     {
-        penviro->fluid_friction_hrz = penviro->air_friction;       // like real-life air friction
-        penviro->fluid_friction_vrt = penviro->air_friction;
+        penviro->fluid_friction_hrz = Physics::g_environment.airfriction;       // like real-life air friction
+        penviro->fluid_friction_vrt = Physics::g_environment.airfriction;
     }
 
     //---- friction
@@ -854,7 +854,6 @@ void move_all_particles()
         if(particle->isTerminated()) continue;
 
         // prime the environment
-        particle->enviro.air_friction = Physics::g_environment.airfriction;
         particle->enviro.ice_friction = Physics::g_environment.icefriction;
 
         prt_bundle_t prt_bdl = prt_bundle_t(particle.get());

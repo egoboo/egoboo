@@ -1,4 +1,5 @@
 #include "ObjectPhysics.h"
+#include "game/collision.h"                  //Only for detach_character_from_platform()
 #include "game/game.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
@@ -365,27 +366,32 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     //---- the friction of the fluid we are in
-    if ( penviro->is_watery )
+    if (penviro->is_watery)
     {
         //Athletics perk halves penality for moving in water
         if(pchr->hasPerk(Ego::Perks::ATHLETICS)) {
-            penviro->fluid_friction_vrt  = (Physics::g_environment.waterfriction + penviro->air_friction)*0.5f;
-            penviro->fluid_friction_hrz  = (Physics::g_environment.waterfriction + penviro->air_friction)*0.5f;
+            penviro->fluid_friction_vrt  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
+            penviro->fluid_friction_hrz  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
         }
         else {
-            penviro->fluid_friction_vrt  = Physics::g_environment.waterfriction;
+            penviro->fluid_friction_vrt = Physics::g_environment.waterfriction;
             penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;            
         }
 
     }
+    else if ( NULL != pplatform )
+    {
+        penviro->fluid_friction_hrz = 1.0f;
+        penviro->fluid_friction_vrt = 1.0f;
+    }
     else
     {
-        penviro->fluid_friction_hrz = penviro->air_friction;       // like real-life air friction
-        penviro->fluid_friction_vrt  = penviro->air_friction;
+        penviro->fluid_friction_hrz = Physics::g_environment.airfriction;       // like real-life air friction
+        penviro->fluid_friction_vrt = Physics::g_environment.airfriction;
     }
 
     //---- friction
-    penviro->friction_hrz       = 1.0f;
+    penviro->friction_hrz = 1.0f;
     if ( pchr->isFlying() )
     {
         if ( pchr->platform )
@@ -466,30 +472,28 @@ void move_one_character_do_floor_friction( Object * pchr )
     /// @author BB
     /// @details Friction is complicated when you want to have sliding characters :P
 
-    float temp_friction_xy;
-    fvec3_t   vup, floor_acc, fric, fric_floor;
-    chr_environment_t * penviro;
-
     if ( !ACTIVE_PCHR( pchr ) ) return;
-    penviro = &( pchr->enviro );
+    chr_environment_t * penviro = &( pchr->enviro );
 
     if ( pchr->isFlying() ) return;
 
     // assume the best
-    floor_acc = fvec3_t::zero();
-    temp_friction_xy = 1.0f;
-    vup = fvec3_t(0.0f, 0.0f, 1.0f);
-
-    const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
+    Vector3f floor_acc = Vector3f::zero();
+    float temp_friction_xy = 1.0f;
+    Vector3f vup = Vector3f(0.0f, 0.0f, 1.0f);
 
     // figure out the acceleration due to the current "floor"
+    const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
     if (platform != nullptr)
     {
         chr_getMatUp(platform.get(), vup);
+        temp_friction_xy = std::min(1.0f, penviro->friction_hrz - PLATFORM_STICKINESS);
+        floor_acc = platform->vel - pchr->vel;
     }
-    else if ( !pchr->isAlive() || pchr->isitem )
+    else if (!pchr->isAlive() || pchr->isItem())
     {
         temp_friction_xy = 0.5f;
+        floor_acc = -pchr->vel;
 
         if ( TWIST_FLAT != penviro->grid_twist )
         {
@@ -500,6 +504,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     else
     {
         temp_friction_xy = penviro->friction_hrz;
+        floor_acc = -pchr->vel;
 
         if ( TWIST_FLAT != penviro->grid_twist )
         {
@@ -507,7 +512,6 @@ void move_one_character_do_floor_friction( Object * pchr )
         }
     }
 
-    floor_acc = penviro->floor_speed - pchr->vel;
     floor_acc *= 1.0f - penviro->zlerp;
 
     // reduce the volountary acceleration peopendicular to the direction of motion?
@@ -529,13 +533,13 @@ void move_one_character_do_floor_friction( Object * pchr )
     }
 
     // the first guess about the floor friction
-    fric_floor = floor_acc * (penviro->traction *(1.0f - temp_friction_xy));
+    Vector3f fric_floor = floor_acc * (penviro->traction * (1.0f - temp_friction_xy));
 
     // the total "friction" with to the floor
-    fric = fric_floor + penviro->acc;
+    Vector3f fric = fric_floor + penviro->acc;
 
     // limit the friction to whatever is horizontal to the mesh
-    if (1.0f == std::abs(vup[kZ]))
+    if (std::abs(vup[kZ]) >= 1.0f)
     {
         fric[kZ] = 0.0f;
         floor_acc[kZ] = 0.0f;
@@ -549,27 +553,27 @@ void move_one_character_do_floor_friction( Object * pchr )
 
         fvec3_decompose(floor_acc, vup, acc_perp, acc_para);
         floor_acc = acc_para;
-    }
+    }        
 
     // test to see if the player has any more friction left?
-    penviro->is_slipping = ( fric.length_abs() > penviro->friction_hrz );
+    penviro->is_slipping = (fric.length_abs() > penviro->friction_hrz);
 
-    if ( penviro->is_slipping )
+    if (penviro->is_slipping)
     {
         penviro->traction *= 0.5f;
         temp_friction_xy = std::sqrt( temp_friction_xy );
 
         // the first guess about the floor friction
-        fric_floor = floor_acc *  (penviro->traction * (1.0f - temp_friction_xy));
+        fric_floor = floor_acc * (penviro->traction * (1.0f - temp_friction_xy));
     }
 
     // Apply the floor friction
     pchr->vel += fric_floor;
 
     // Apply fluid friction from last time
-    pchr->vel[kX] += -pchr->vel[kX] * ( 1.0f - penviro->fluid_friction_hrz );
-    pchr->vel[kY] += -pchr->vel[kY] * ( 1.0f - penviro->fluid_friction_hrz );
-    pchr->vel[kZ] += -pchr->vel[kZ] * ( 1.0f - penviro->fluid_friction_vrt );
+    pchr->vel[kX] -= pchr->vel[kX] * (1.0f - penviro->fluid_friction_hrz);
+    pchr->vel[kY] -= pchr->vel[kY] * (1.0f - penviro->fluid_friction_hrz);
+    pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - penviro->fluid_friction_vrt);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1780,7 +1784,6 @@ void move_all_characters()
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         // prime the environment
-        object->enviro.air_friction = Physics::g_environment.airfriction;
         object->enviro.ice_friction = Physics::g_environment.icefriction;
 
         move_one_character( object.get() );
