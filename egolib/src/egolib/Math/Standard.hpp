@@ -32,6 +32,7 @@ typedef Ego::Math::Sphere<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> sp
 
 /// A 3D AABB.
 typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> aabb_t;
+typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> AABB_3D;
 
 /// A 2D AABB.
 typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 2>> AABB_2D;

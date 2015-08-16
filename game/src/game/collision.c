@@ -625,10 +625,6 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 //--------------------------------------------------------------------------------------------
 bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    Object * pchr_a, * pchr_b;
-
-    bool platform_a, platform_b;
-
     oct_vec_v2_t odepth;
     bool collide_x  = false;
     bool collide_y  = false;
@@ -638,19 +634,19 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool chara_on_top;
 
     // make sure that A is valid
-    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
-    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
+    const std::shared_ptr<Object> &pchr_a = _currentModule->getObjectHandler()[ichr_a];
+    if(!pchr_a) return false;
 
     // make sure that B is valid
-    if ( !_currentModule->getObjectHandler().exists( ichr_b ) ) return false;
-    pchr_b = _currentModule->getObjectHandler().get( ichr_b );
+    const std::shared_ptr<Object> &pchr_b = _currentModule->getObjectHandler()[ichr_b];
+    if(!pchr_b) return false;
 
     // if you are mounted, only your mount is affected by platforms
-    if ( _currentModule->getObjectHandler().exists( pchr_a->attachedto ) || _currentModule->getObjectHandler().exists( pchr_b->attachedto ) ) return false;
+    if (pchr_a->isBeingHeld() || pchr_b->isBeingHeld()) return false;
 
     // only check possible object-platform interactions
-    platform_a = TO_C_BOOL( pchr_b->canuseplatforms && pchr_a->platform );
-    platform_b = TO_C_BOOL( pchr_a->canuseplatforms && pchr_b->platform );
+    bool platform_a = TO_C_BOOL( pchr_b->canuseplatforms && !_currentModule->getObjectHandler().exists(pchr_b->onwhichplatform_ref) && pchr_a->platform );
+    bool platform_b = TO_C_BOOL( pchr_a->canuseplatforms && !_currentModule->getObjectHandler().exists(pchr_a->onwhichplatform_ref) && pchr_b->platform );
     if ( !platform_a && !platform_b ) return false;
 
     //---- since we are doing bump_all_mounts() before bump_all_platforms()
@@ -900,20 +896,41 @@ bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes 
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
+    //First check if objects should be detached from their platforms
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+    {
+        if(object->isTerminated()) continue;
+
+        const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[object->onwhichplatform_ref];
+        if(platform)
+        {
+            //If we are no longer colliding in the horizontal plane, then we are disconnected
+            if(!object->getAABB2D().overlaps(platform->getAABB2D()))
+            {
+                detach_character_from_platform(object.get());
+            }
+        }
+    }
+
     //---- Detect all platform attachments
     for(const CoNode_t &d : collisionNodes)
     {
         // only look at character-platform or particle-platform interactions interactions
         if ( INVALID_PRT_REF != d.prta && INVALID_PRT_REF != d.prtb ) continue;
 
+        //Object -> Object
         if ( INVALID_CHR_REF != d.chra && INVALID_CHR_REF != d.chrb )
         {
             do_chr_platform_detection( d.chra, d.chrb );
         }
+
+        //Particle -> Object
         else if ( INVALID_CHR_REF != d.chra && INVALID_PRT_REF != d.prtb )
         {
             do_prt_platform_detection( d.chra, d.prtb );
         }
+
+        //Particle -> Object
         if ( INVALID_PRT_REF != d.prta && INVALID_CHR_REF != d.chrb )
         {
             do_prt_platform_detection( d.chrb, d.prta );
@@ -962,19 +979,6 @@ bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes 
     }
 
     //---- remove any bad platforms
-
-    // attach_prt_to_platform() erases targetplatform_ref, so any character with
-    // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        if(object->isTerminated()) continue;
-
-        if ( object->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(object->onwhichplatform_ref) )
-        {
-            detach_character_from_platform( object.get() );
-        }
-    }
-
     // attach_prt_to_platform() erases targetplatform_ref, so any particle with
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
@@ -3344,22 +3348,12 @@ bool detach_character_from_platform( Object * pchr )
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
-    CHR_REF old_platform_ref;
-    Object * old_platform_ptr;
-    float   old_level, old_zlerp;
-
     // verify that we do not have two dud pointers
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
     // save some values
-    old_platform_ref = pchr->onwhichplatform_ref;
-    old_level        = pchr->enviro.level;
-    old_platform_ptr = NULL;
-    old_zlerp        = pchr->enviro.zlerp;
-    if ( _currentModule->getObjectHandler().exists( old_platform_ref ) )
-    {
-        old_platform_ptr = _currentModule->getObjectHandler().get( old_platform_ref );
-    }
+    float old_zlerp        = pchr->enviro.zlerp;
+    const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
 
     // undo the attachment
     pchr->onwhichplatform_ref    = INVALID_CHR_REF;
@@ -3368,9 +3362,8 @@ bool detach_character_from_platform( Object * pchr )
     pchr->targetplatform_level   = -1e32;
 
     // adjust the platform weight, if necessary
-    if ( NULL != old_platform_ptr )
-    {
-        old_platform_ptr->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
+    if (oldPlatform) {
+        oldPlatform->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
     }
 
     // update the character-platform properties
