@@ -14,9 +14,6 @@ static bool move_one_character_integrate_motion_attached( Object * pchr );
 
 static bool chr_do_latch_button( Object * pchr );
 static bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
-static breadcrumb_t * chr_get_last_breadcrumb( Object * pchr );
-static fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
-static float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
 
 static void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr);
 
@@ -40,16 +37,6 @@ struct grab_data_t
     bool visible;
     bool isFacingObject;
 };
-
-//--------------------------------------------------------------------------------------------
-breadcrumb_t * chr_get_last_breadcrumb( Object * pchr )
-{
-    if ( nullptr == ( pchr ) ) return NULL;
-
-    if ( 0 == pchr->crumbs.count ) return NULL;
-
-    return breadcrumb_list_t::last_valid( &( pchr->crumbs ) );
-}
 
 void move_one_character_do_voluntary( Object * pchr )
 {
@@ -709,13 +696,11 @@ bool move_one_character_integrate_motion( Object * pchr )
     {
         mesh_wall_data_t wdata;
 
-        float old_x, old_y, new_x, new_y;
+        float old_x = tmp_pos[kX]; LOG_NAN( old_x );
+        float old_y = tmp_pos[kY]; LOG_NAN( old_y );
 
-        old_x = tmp_pos[kX]; LOG_NAN( old_x );
-        old_y = tmp_pos[kY]; LOG_NAN( old_y );
-
-        new_x = old_x + pchr->vel[kX]; LOG_NAN( new_x );
-        new_y = old_y + pchr->vel[kY]; LOG_NAN( new_y );
+        float new_x = old_x + pchr->vel[kX]; LOG_NAN( new_x );
+        float new_y = old_y + pchr->vel[kY]; LOG_NAN( new_y );
 
         tmp_pos[kX] = new_x;
         tmp_pos[kY] = new_y;
@@ -726,207 +711,46 @@ bool move_one_character_integrate_motion( Object * pchr )
         }
         else
         {
-            fvec2_t nrm;
+            Vector2f nrm;
             float   pressure;
             bool diff_function_called = false;
 
-            pchr->hit_wall( tmp_pos, nrm, &pressure, &wdata );
+            pchr->hit_wall(tmp_pos, nrm, &pressure, &wdata);
 
             // how is the character hitting the wall?
-            if ( 0.0f != pressure )
+            if (pressure > 0.0f)
             {
-                bool         found_nrm  = false;
-                bool         found_safe = false;
-                fvec3_t      safe_pos   = fvec3_t::zero();
-
-                bool         found_diff = false;
-                fvec2_t      diff       = fvec2_t::zero();
-
-                breadcrumb_t * bc         = NULL;
-
-                // try to get the correct "outward" pressure from nrm
-                if (!found_nrm && nrm.length_abs() > 0.0f)
-                {
-                    found_nrm = true;
+                //Figure out last safe position
+                Vector2f safePos; 
+                if(!pchr->getBreadcrumbList().empty()) {
+                    safePos[kX] = pchr->getBreadcrumbList().back()[kX];
+                    safePos[kY] = pchr->getBreadcrumbList().back()[kY];
+                }
+                else {
+                    safePos[kX] = pchr->pos_stt[kX];
+                    safePos[kY] = pchr->pos_stt[kY];
                 }
 
-                if ( !found_diff && pchr->safe_valid )
-                {
-                    if ( !found_safe )
-                    {
-                        found_safe = true;
-                        safe_pos   = pchr->safe_pos;
-                    }
-
-                    diff[XX] = pchr->safe_pos[kX] - pchr->getPosX();
-                    diff[YY] = pchr->safe_pos[kY] - pchr->getPosY();
-
-                    if (diff.length_abs() > 0.0f)
-                    {
-                        found_diff = true;
-                    }
+                //Calculate velocity vector perpendicular from wall normal
+                Vector2f v_perp = Vector2f::zero();
+                float nrm2 = nrm.dot(nrm);
+                if (0.0f != nrm2) {
+                    float dot = Vector2f(pchr->vel[kX], pchr->vel[kY]).dot(nrm);
+                    v_perp = nrm * (dot / nrm2);
                 }
 
-                // try to get a diff from a breadcrumb
-                if ( !found_diff )
-                {
-                    bc = chr_get_last_breadcrumb( pchr );
+                //Bounce velocity of normal
+                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * (1.0f-pchr->getProfile()->getBumpDampen());
+                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * (1.0f-pchr->getProfile()->getBumpDampen());
 
-                    if ( NULL != bc && bc->valid )
-                    {
-                        if ( !found_safe )
-                        {
-                            found_safe = true;
-                            safe_pos   = pchr->safe_pos;
-                        }
+                //Add additional pressure perpendicular from wall depending on how far inside wall we are
+                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length();
+                pchr->vel[kX] += safeDistance * nrm[kX] * pressure;
+                pchr->vel[kY] += safeDistance * nrm[kY] * pressure;
 
-                        diff[XX] = bc->pos[kX] - pchr->getPosX();
-                        diff[YY] = bc->pos[kY] - pchr->getPosY();
-
-                        if (diff.length_abs() > 0.0f )
-                        {
-                            found_diff = true;
-                        }
-                    }
-                }
-
-                // try to get a normal from the ego_mesh_get_diff() function
-                if ( !found_nrm )
-                {
-                    fvec3_t tmp_diff;
-
-                    tmp_diff = chr_get_mesh_diff(pchr, tmp_pos, pressure);
-                    diff_function_called = true;
-
-                    nrm[XX] = tmp_diff[kX];
-                    nrm[YY] = tmp_diff[kY];
-
-                    if (nrm.length_abs() > 0.0f)
-                    {
-                        found_nrm = true;
-                    }
-                }
-
-                if ( !found_diff )
-                {
-                    // try to get the diff from the character velocity
-                    diff[XX] = pchr->vel[XX];
-                    diff[YY] = pchr->vel[YY];
-
-                    // make sure that the diff is in the same direction as the velocity
-                    if ( diff.dot(nrm) < 0.0f )
-                    {
-                        diff = -diff;
-                    }
-
-                    if (diff.length_abs() > 0.0f)
-                    {
-                        found_diff = true;
-                    }
-                }
-
-                if ( !found_nrm )
-                {
-                    // After all of our best efforts, we can't generate a normal to the wall.
-                    // This can happen if the object is completely inside a wall,
-                    // (like if it got pushed in there) or if a passage closed around it.
-                    // Just teleport the character to a "safe" position.
-
-                    if ( !found_safe && NULL == bc )
-                    {
-                        bc = chr_get_last_breadcrumb( pchr );
-
-                        if ( NULL != bc && bc->valid )
-                        {
-                            found_safe = true;
-                            safe_pos   = pchr->safe_pos;
-                        }
-                    }
-
-                    if ( !found_safe )
-                    {
-                        // the only safe position is the spawn point???
-                        found_safe = true;
-                        safe_pos = pchr->pos_stt;
-                    }
-
-                    tmp_pos = safe_pos;
-                }
-                else if ( found_diff && found_nrm )
-                {
-                    const float tile_fraction = 0.1f;
-                    float ftmp, dot, pressure_old, pressure_new;
-                    fvec3_t save_pos;
-                    float nrm2;
-
-                    fvec2_t v_perp = fvec2_t::zero();
-                    fvec2_t diff_perp = fvec2_t::zero();
-
-                    nrm2 = nrm.dot(nrm);
-
-                    save_pos = tmp_pos;
-
-                    // make the diff point "out"
-                    dot = diff.dot(nrm);
-                    if ( dot < 0.0f )
-                    {
-                        diff = -diff;
-                        dot    *= -1.0f;
-                    }
-
-                    // find the part of the diff that is parallel to the normal
-                    diff_perp = fvec2_t::zero();
-                    if ( nrm2 > 0.0f )
-                    {
-                        diff_perp = nrm * (dot / nrm2);
-                    }
-
-                    // normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
-                    ftmp = diff_perp.length_max();
-
-                    // protect us from a virtual divide by zero
-                    if (ftmp < 1e-6) ftmp = 1.00f;
-
-                    diff_perp *= tile_fraction * GRID_FSIZE / ftmp;
-
-                    // scale the diff_perp by the pressure
-                    diff_perp *= pressure;
-
-                    // try moving the character
-                    tmp_pos += fvec3_t(diff_perp[kX],diff_perp[kY], 0.0f);
-
-                    // determine whether the pressure is less at this location
-                    pressure_old = chr_get_mesh_pressure(pchr, save_pos);
-                    pressure_new = chr_get_mesh_pressure(pchr, tmp_pos);
-
-                    if ( pressure_new < pressure_old )
-                    {
-                        // !!success!!
-                        needs_test = ( tmp_pos[kX] != save_pos[kX] ) || ( tmp_pos[kY] != save_pos[kY] );
-                    }
-                    else
-                    {
-                        // !!failure!! restore the saved position
-                        tmp_pos = save_pos;
-                    }
-
-                    dot = fvec2_t(pchr->vel[kX],pchr->vel[kY]).dot(nrm);
-                    if ( dot < 0.0f )
-                    {
-                        float loc_bumpdampen;
-   
-                        loc_bumpdampen = pchr->getProfile()->getBumpDampen();
-
-                        v_perp = fvec2_t::zero();
-                        if ( 0.0f != nrm2 )
-                        {
-                            v_perp = nrm * (dot / nrm2);
-                        }
-
-                        pchr->vel[XX] += - ( 1.0f + loc_bumpdampen ) * v_perp[XX] * pressure;
-                        pchr->vel[YY] += - ( 1.0f + loc_bumpdampen ) * v_perp[YY] * pressure;
-                    }
-                }
+                //Apply correction
+                tmp_pos[kX] += pchr->vel[kX];
+                tmp_pos[kY] += pchr->vel[kY];
             }
         }
     }
@@ -1791,68 +1615,4 @@ void move_all_characters()
         chr_update_matrix( object.get(), true );
         keep_weapons_with_holder(object);
     }
-}
-
-//--------------------------------------------------------------------------------------------
-fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure)
-{
-    if (!chr)
-    {
-        return fvec3_t::zero();
-    }
-
-    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
-    {
-        return fvec3_t::zero();
-    }
-
-    // Calculate the radius based on whether the character is on camera.
-    float radius = 0.0f;
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
-    {
-        if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(chr->getTile()))
-        {
-            radius = chr->bump_1.size;
-        }
-    }
-
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    fvec3_t result = ego_mesh_t::get_diff(_currentModule->getMeshPointer(), pos, radius, center_pressure, chr->stoppedby);
-    chr_stoppedby_tests += mesh_mpdfx_tests;
-    chr_pressure_tests += mesh_pressure_tests;
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------
-float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
-{
-    if (!chr)
-    {
-        return 0.0f;
-    }
-
-    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
-    {
-        return 0.0f;
-    }
-
-    // Calculate the radius based on whether the character is on camera.
-    float radius = 0.0f;
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
-    {
-        if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(chr->getTile()))
-        {
-            radius = chr->bump_1.size;
-        }
-    }
-
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    float result = ego_mesh_t::get_pressure( _currentModule->getMeshPointer(), pos, radius, chr->stoppedby);
-    chr_stoppedby_tests += mesh_mpdfx_tests;
-    chr_pressure_tests += mesh_pressure_tests;
-    return result;
 }

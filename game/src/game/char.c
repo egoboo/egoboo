@@ -1085,11 +1085,7 @@ bool chr_get_safe(Object * pchr)
 
     if ( !found )
     {
-        breadcrumb_t * bc;
-
-        bc = breadcrumb_list_t::last_valid( &( pchr->crumbs ) );
-
-        if ( NULL != bc )
+        if(!pchr->getBreadcrumbList().empty())
         {
             found = true;
         }
@@ -1102,71 +1098,6 @@ bool chr_get_safe(Object * pchr)
     }
 
     return found;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_update_breadcrumb_raw(Object * object)
-{
-    breadcrumb_t bc;
-    bool retval = false;
-
-    if (nullptr == object) return false;
-
-    breadcrumb_t::init(&bc, object);
-
-    if (bc.valid)
-    {
-        retval = breadcrumb_list_t::add(&(object->crumbs), &bc);
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_update_breadcrumb( Object * object, bool force )
-{
-    bool retval = false;
-    bool needs_update = false;
-    breadcrumb_t * bc_ptr, bc;
-
-    if (nullptr == (object)) return false;
-
-    bc_ptr = breadcrumb_list_t::last_valid(&(object->crumbs));
-    if ( NULL == bc_ptr )
-    {
-        force  = true;
-        bc_ptr = &bc;
-        breadcrumb_t::init(bc_ptr, object);
-    }
-
-    if ( force )
-    {
-        needs_update = true;
-    }
-    else
-    {
-        TileIndex new_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(object->getPosX(), object->getPosY()));
-
-        if (TileIndex::Invalid == new_grid )
-        {
-            if (std::abs(object->getPosX() - bc_ptr->pos[kX]) > GRID_FSIZE ||
-                std::abs(object->getPosY() - bc_ptr->pos[kY]) > GRID_FSIZE)
-            {
-                needs_update = true;
-            }
-        }
-        else if ( new_grid != bc_ptr->grid )
-        {
-            needs_update = true;
-        }
-    }
-
-    if ( needs_update )
-    {
-        retval = chr_update_breadcrumb_raw(object);
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
