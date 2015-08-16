@@ -871,18 +871,15 @@ void bump_all_objects()
     std::set<CoNode_t, CollisionCmp> collisionNodes;
     fill_interaction_list(collisionNodes);
 
-    if ( !collisionNodes.empty() )
-    {
-        // handle interaction with mounts
-        // put this before platforms, otherwise pointing is just too hard
-        bump_all_mounts(collisionNodes);
+    // handle interaction with mounts
+    // put this before platforms, otherwise pointing is just too hard
+    bump_all_mounts(collisionNodes);
 
-        // handle interaction with platforms
-        bump_all_platforms(collisionNodes);
+    // handle interaction with platforms
+    bump_all_platforms(collisionNodes);
 
-        // handle all the collisions
-        bump_all_collisions(collisionNodes);
-    }
+    // handle all the collisions
+    bump_all_collisions(collisionNodes);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -970,6 +967,8 @@ bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes 
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
+        if(object->isTerminated()) continue;
+
         if ( object->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(object->onwhichplatform_ref) )
         {
             detach_character_from_platform( object.get() );
@@ -982,7 +981,7 @@ bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes 
     {
         if(particle->isTerminated()) continue;
 
-        if ( INVALID_CHR_REF != particle->onwhichplatform_ref && particle->onwhichplatform_update < update_wld )
+        if (particle->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(particle->onwhichplatform_ref))
         {
             detach_particle_from_platform( particle.get() );
         }
@@ -1340,7 +1339,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
                 if ( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
                 {
-                    mounted = _currentModule->getObjectHandler().exists( pchr_a->attachedto );
+                    mounted = pchr_a->isBeingHeld();
                 }
             }
         }
@@ -1377,7 +1376,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
                 if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
                 {
-                    mounted = _currentModule->getObjectHandler().exists( pchr_b->attachedto );
+                    mounted = pchr_b->isBeingHeld();
                 }
             }
         }

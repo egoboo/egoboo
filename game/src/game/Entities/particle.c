@@ -236,7 +236,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
     const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[loc_pprt->onwhichplatform_ref];
     if (platform)
     {
-        temp_friction_xy = PLATFORM_STICKINESS;
+        temp_friction_xy = 1.0f - PLATFORM_STICKINESS;
 
         floor_acc = platform->vel - platform->vel_old;
 
@@ -244,9 +244,21 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
     }
     else
     {
-        temp_friction_xy = 0.5f;
+        //Is the floor slippery?
+        if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), loc_pprt->getTile()) && penviro->is_slippy)
+        {
+            // It's slippy all right...
+            temp_friction_xy = 1.0f - Physics::g_environment.slippyfriction;
+        }
+        else 
+        {
+            temp_friction_xy = 1.0f - Physics::g_environment.noslipfriction;
+        }
+
+
         floor_acc = -loc_pprt->vel;
 
+        //Is floor flat or sloped?
         if (TWIST_FLAT == penviro->twist)
         {
             vup = fvec3_t(0, 0, 1);
@@ -258,7 +270,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
     }
 
     // the first guess about the floor friction
-    Vector3f fric_floor = floor_acc * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
+    Vector3f fric_floor = floor_acc * (1.0f - penviro->zlerp) * temp_friction_xy * penviro->traction;
 
     // the total "friction" due to the floor
     Vector3f fric = fric_floor + penviro->acc;
@@ -280,7 +292,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
 
     // test to see if the particle has any more friction left?
     penviro->is_slipping = fric.length_abs() > penviro->friction_hrz;
-    if (penviro->is_slipping && false)
+    if (penviro->is_slipping)
     {
         penviro->traction *= 0.5f;
         temp_friction_xy = std::sqrt(temp_friction_xy);
@@ -291,7 +303,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
     }
 
     // Apply the floor friction
-    loc_pprt->vel += fric_floor*0.25f;
+    loc_pprt->vel += fric_floor * 0.25f;
 
     return this;
 }
@@ -613,6 +625,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         {
             // the particle is in the "stop bouncing zone"
             tmp_pos[kZ] = penviro->adj_level + 0.1f;
+            loc_pprt->vel[kZ] = 0.0f;
             //loc_pprt->vel = vel_para;
         }
     }

@@ -3859,14 +3859,11 @@ bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
     if ( !pprt || pprt->isTerminated() ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    std::shared_ptr<pip_t> pprt_pip = pprt->getProfile();
-    if ( NULL == pprt_pip ) return false;
-
     // check if they can be connected
     if ( !pplat->platform ) return false;
 
     // do the attachment
-    pprt->onwhichplatform_ref    = GET_INDEX_PCHR( pplat );
+    pprt->onwhichplatform_ref    = pplat->getCharacterID();
     pprt->onwhichplatform_update = update_wld;
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
@@ -3888,9 +3885,6 @@ bool detach_particle_from_platform( Ego::Particle * pprt )
 
     // grab all of the particle info
     prt_bundle_t bdl_prt(pprt);
-
-    // check if they can be connected
-    if ( _currentModule->getObjectHandler().exists( pprt->onwhichplatform_ref ) ) return false;
 
     // undo the attachment
     pprt->onwhichplatform_ref    = INVALID_CHR_REF;
