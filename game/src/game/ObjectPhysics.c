@@ -1,4 +1,5 @@
 #include "ObjectPhysics.h"
+#include "game/collision.h"                  //Only for detach_character_from_platform()
 #include "game/game.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"

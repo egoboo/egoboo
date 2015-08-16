@@ -32,6 +32,7 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
+#include "game/collision.h"                  //Only for detach_character_from_platform()
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
