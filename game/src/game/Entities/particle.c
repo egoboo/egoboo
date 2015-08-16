@@ -217,10 +217,9 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
 prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
 {
     float temp_friction_xy;
-    fvec3_t   vup, fric, fric_floor;
+    fvec3_t   vup;
     fvec3_t   floor_acc;
 
-    if (NULL == this->_prt_ptr) return NULL;
     Ego::Particle *loc_pprt = this->_prt_ptr;
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
 
@@ -228,20 +227,20 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
     if (loc_pprt->isHoming()) return this;
 
     // limit floor friction effects to solid objects
-    if (SPRITE_SOLID != loc_pprt->type)  return this;
+    if (SPRITE_SOLID != loc_pprt->type) return this;
 
     // figure out the acceleration due to the current "floor"
     floor_acc[kX] = floor_acc[kY] = floor_acc[kZ] = 0.0f;
     temp_friction_xy = 1.0f;
-    if (_currentModule->getObjectHandler().exists(loc_pprt->onwhichplatform_ref))
-    {
-        Object * pplat = _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref);
 
+    const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[loc_pprt->onwhichplatform_ref];
+    if (platform)
+    {
         temp_friction_xy = PLATFORM_STICKINESS;
 
-        floor_acc = pplat->vel - pplat->vel_old;
+        floor_acc = platform->vel - platform->vel_old;
 
-        chr_getMatUp(pplat, vup);
+        chr_getMatUp(platform.get(), vup);
     }
     else
     {
@@ -259,10 +258,10 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
     }
 
     // the first guess about the floor friction
-    fric_floor = floor_acc * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
+    Vector3f fric_floor = floor_acc * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
 
     // the total "friction" due to the floor
-    fric = fric_floor + penviro->acc;
+    Vector3f fric = fric_floor + penviro->acc;
 
     //---- limit the friction to whatever is horizontal to the mesh
     if (std::abs(vup[kZ]) > 0.9999f)
@@ -279,10 +278,9 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
         fric -= vup * ftmp;
     }
 
-    // test to see if the player has any more friction left?
+    // test to see if the particle has any more friction left?
     penviro->is_slipping = fric.length_abs() > penviro->friction_hrz;
-
-    if (penviro->is_slipping)
+    if (penviro->is_slipping && false)
     {
         penviro->traction *= 0.5f;
         temp_friction_xy = std::sqrt(temp_friction_xy);
@@ -372,8 +370,7 @@ prt_bundle_t *prt_bundle_t::updateParticleSimpleGravity()
     //Only do gravity for solid particles
     if (!this->_prt_ptr->no_gravity && this->_prt_ptr->type == SPRITE_SOLID && !this->_prt_ptr->isHoming() && !this->_prt_ptr->isAttached())
     {
-        this->_prt_ptr->vel[kZ] += Physics::g_environment.gravity 
-                                  * Physics::g_environment.airfriction;
+        this->_prt_ptr->vel[kZ] += Physics::g_environment.gravity * Physics::g_environment.airfriction;
     }
     return this;
 }

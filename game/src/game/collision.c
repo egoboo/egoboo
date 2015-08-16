@@ -598,7 +598,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 
                 // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
                 BIT_FIELD test_platform = EMPTY_BIT_FIELD;
-                if ( object->platform && ( SPRITE_SOLID == particle->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+                if ( object->platform /*&& ( SPRITE_SOLID == particle->type )*/ ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
                 // detect a when the possible collision occurred
                 if (phys_intersect_oct_bb(object->chr_min_cv, object->getPosition(), object->vel, particle->prt_max_cv, particle->getPosition(), particle->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
