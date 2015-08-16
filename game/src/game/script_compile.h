@@ -620,12 +620,27 @@ struct token_t;
 // the current state of the parser
 struct parser_state_t
 {
+private:
     /**
      * @brief
      *  A pointer to the singleton instance of the parser.
      */
     static parser_state_t *_singleton;
-
+	/**
+	 * @brief
+	 *	Construct this parser.
+	 * @remark
+	 *	Intentionally protected.
+	 */
+	parser_state_t();
+	/**
+	 * @brief
+	 *	Destruct this parser.
+	 * @remark
+	 *	Intentionally protected.
+	 */
+	virtual ~parser_state_t();
+public:
     bool error;
     token_t token;
     int line_count;
@@ -655,25 +670,29 @@ struct parser_state_t
     /**
      * @brief
      *  Get a pointer to the singleton.
-     * @return
-     *  a pointer to the singleton on success, @a nullptr on failure
+     * @throw std::logic_error
+	 *	if the parser singleton is not initialized
      */
-    static parser_state_t *get();
+    static parser_state_t& get();
 
-    static parser_state_t *ctor(parser_state_t *self);
-    static void dtor(parser_state_t *self);
+
     /**
     * @brief
     *  Get the error variable value.
     * @return
     *  the error variable value
     */
-    static bool get_error(parser_state_t *self);
+    static bool get_error(parser_state_t& self);
     /**
     * @brief
     *  Clear the error variable.
     */
-    static void clear_error(parser_state_t *self);
+    static void clear_error(parser_state_t& self);
+
+	static size_t parse_token(parser_state_t& self, token_t& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read);
+	static size_t load_one_line(parser_state_t& self, size_t read, script_info_t *pscript);
+	static int get_indentation(parser_state_t& self, script_info_t *pscript);
+	static void parse_line_by_line(parser_state_t& self, ObjectProfile *ppro, script_info_t *pscript);
 
 };
 
@@ -683,4 +702,10 @@ struct parser_state_t
 // function prototypes
 
 
-egolib_rv load_ai_script_vfs(parser_state_t *ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript);
+/**
+ * @brief
+ *	Load an AI script.
+ * @param parser
+ *	the parser
+ */
+egolib_rv load_ai_script_vfs(parser_state_t& ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript);

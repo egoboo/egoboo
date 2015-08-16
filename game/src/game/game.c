@@ -1779,7 +1779,7 @@ void game_load_profile_ai()
     /// @details load the AI for each profile, done last so that all reserved slot numbers are already set
     /// since AI scripts can dynamically load new objects if they require it
     // ensure that the script parser exists
-    parser_state_t *ps = parser_state_t::get();
+    parser_state_t& ps = parser_state_t::get();
 
     for (const auto &element : ProfileSystem::get().getLoadedProfiles())
     {
@@ -2279,7 +2279,7 @@ bool game_load_module_data( const char *smallname )
     log_info( "Loading module \"%s\"\n", smallname );
 
     // ensure that the script parser exists
-    parser_state_t * ps = parser_state_t::get();
+    parser_state_t& ps = parser_state_t::get();
     parser_state_t::clear_error(ps);
     if ( load_ai_script_vfs( ps, "mp_data/script.txt", NULL, NULL ) != rv_success )
     {

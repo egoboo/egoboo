@@ -1221,7 +1221,7 @@ float draw_fps(float y)
 {
     // FPS text
 
-    parser_state_t * ps = parser_state_t::get();
+    parser_state_t& ps = parser_state_t::get();
 
     if (outofsync)
     {
