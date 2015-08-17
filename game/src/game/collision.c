@@ -2934,10 +2934,13 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
     //Adjust knockback based on relative mass between particle and target
     if(pdata.pchr->phys.bumpdampen != 0.0f && CHR_INFINITE_WEIGHT != pdata.pchr->phys.weight) {
-        float targetMass, particleMass;
+        float targetMass = 0.0f;
+        float particleMass = 0.0f;
         get_chr_mass(pdata.pchr, &targetMass);
         get_prt_mass(pdata.pprt.get(), pdata.pchr, &particleMass);
-        knockbackFactor *= Ego::Math::constrain(particleMass / targetMass, 0.0f, 1.0f);
+        if(targetMass >= 0.0f) {
+            knockbackFactor *= Ego::Math::constrain(particleMass / targetMass, 0.0f, 1.0f);
+        }
     }
 
     //Amount of knockback is affected by damage type
