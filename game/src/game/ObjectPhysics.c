@@ -628,7 +628,6 @@ bool move_one_character_integrate_motion( Object * pchr )
     CHR_REF  ichr;
     ai_state_t * pai;
 
-    float   bumpdampen;
     bool  needs_test, updated_2d;
 
     fvec3_t tmp_pos;
@@ -645,8 +644,8 @@ bool move_one_character_integrate_motion( Object * pchr )
     pai = &( pchr->ai );
     ichr = pai->index;
 
-    bumpdampen = CLIP( pchr->phys.bumpdampen, 0.0f, 1.0f );
-    bumpdampen = ( bumpdampen + 1.0f ) * 0.5f;
+    //float bumpdampen = Ego::Math::constrain(pchr->phys.bumpdampen, 0.0f, 1.0f);
+    //bumpdampen = (bumpdampen + 1.0f) * 0.5f;
 
     // interaction with the mesh
     //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
@@ -740,8 +739,8 @@ bool move_one_character_integrate_motion( Object * pchr )
                 }
 
                 //Bounce velocity of normal
-                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * (1.0f-pchr->getProfile()->getBumpDampen());
-                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * (1.0f-pchr->getProfile()->getBumpDampen());
+                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * (1.0f-pchr->phys.bumpdampen);
+                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * (1.0f-pchr->phys.bumpdampen);
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
                 float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length();
