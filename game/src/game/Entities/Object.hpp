@@ -751,6 +751,8 @@ public:
     **/
     bool isScenery() const;
 
+    const std::list<Vector3f>& getBreadcrumbList() const {return _breadcrumbList;}
+
 private:
 
     /**
@@ -891,14 +893,12 @@ public:
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
 
-    // data for doing the physics in bump_all_objects()
+    // data for doing the physics in bump_all_objects()|
 
     chr_environment_t enviro;
 
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     CHR_REF           dismount_object;               ///< the object that you were dismounting from
-
-    breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 private:
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
@@ -908,6 +908,7 @@ private:
     bool _showStatus;                                ///< Display stats?
     bool _isAlive;                                   ///< Is this Object alive or dead?
     std::string _name;                               ///< Name of the Object
+    std::list<Vector3f> _breadcrumbList;             ///< a list of previous valid positions that the object has passed through
 
     //Attributes
     float _currentLife;

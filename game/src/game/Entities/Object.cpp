@@ -126,8 +126,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     enviro(),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     dismount_object(INVALID_CHR_REF),
-    crumbs(),
-
+    
     _terminateRequested(false),
     _characterID(id),
     _profileID(profile),
@@ -257,18 +256,12 @@ bool Object::isOverWater(bool anyLiquid) const
 		return false;
 	}
 
-	//Check if we are on a valid tile
-    if (!ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), getTile()))
-    {
-    	return false;
-    }
-
     return 0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), getTile(), MAPFX_WATER);
 }
 
 bool Object::isInWater(bool anyLiquid) const
 {
-    return isOverWater(anyLiquid) && getPosZ() < water.get_level();
+    return isOverWater(anyLiquid) && getPosZ() <= water.get_level();
 }
 
 
@@ -285,10 +278,21 @@ bool Object::setPosition(const Vector3f& position)
         _block = _currentModule->getMeshPointer()->get_block(PointWorld(pos[kX], pos[kY]));
 
         // Update whether the current object position is safe.
-        chr_update_safe( this, false );
+        //chr_update_safe(this, false);
 
         // Update the breadcrumb list.
-        chr_update_breadcrumb( this, false );
+        fvec2_t nrm;
+        float pressure = 0.0f;
+        BIT_FIELD hit_a_wall = hit_wall(nrm, &pressure, NULL);
+        if (0 == hit_a_wall && 0.0f == pressure)
+        {
+            //This is a safe position
+            _breadcrumbList.push_back(position);
+            if(_breadcrumbList.size() > 32) {
+                _breadcrumbList.pop_front();
+            }
+        }
+
 
         return true;
     }
@@ -769,6 +773,9 @@ void Object::update()
             });
     }
 
+    // the following functions should not be done the first time through the update loop
+    if (0 == update_wld) return;
+
     //Don't do items that are in inventory
     if (isInsideInventory()) {
         return;
@@ -777,10 +784,10 @@ void Object::update()
     const float WATER_LEVEL = water.get_level();
 
     // do the character interaction with water
-    if (!isHidden() && isInWater(true))
+    if (!isHidden() && isInWater(true) && !isScenery())
     {
-        // do splash and ripple
-        if ( !enviro.inwater )
+        // do splash when entering water the first time
+        if (!enviro.inwater)
         {
             // Splash
             ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
@@ -835,15 +842,12 @@ void Object::update()
             }
         }
 
-        enviro.inwater  = true;
+        enviro.inwater = true;
     }
     else
     {
         enviro.inwater = false;
     }
-
-    // the following functions should not be done the first time through the update loop
-    if (0 == update_wld) return;
 
     //---- Do timers and such
 
@@ -1198,8 +1202,6 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         pos_tmp[kZ] = getPosZ();
 
         setPosition(pos_tmp);
-
-        chr_update_breadcrumb(this, true);
     }
 
     // Check for shop passages

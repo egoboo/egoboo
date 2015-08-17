@@ -1564,10 +1564,7 @@ bool do_chr_chr_collision( const CoNode_t * d )
     pchr_b = _currentModule->getObjectHandler().get( ichr_b );
 
     // skip objects that are inside inventories
-    if ( _currentModule->getObjectHandler().exists( pchr_a->inwhich_inventory ) || _currentModule->getObjectHandler().exists( pchr_b->inwhich_inventory ) ) return false;
-
-    // skip all objects that are mounted or attached to something
-    if ( _currentModule->getObjectHandler().exists( pchr_a->attachedto ) || _currentModule->getObjectHandler().exists( pchr_b->attachedto ) ) return false;
+    if (pchr_a->isBeingHeld() || pchr_b->isBeingHeld()) return false;
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
@@ -1592,7 +1589,7 @@ bool do_chr_chr_collision( const CoNode_t * d )
     }
 
     // items can interact with platforms but not with other characters/objects
-    if ( pchr_a->isItem() || pchr_b->isItem() ) return false;
+    if ( (pchr_a->isItem() && !pchr_a->platform) || (pchr_b->isItem() && !pchr_b->platform) ) return false;
 
     // don't interact with your mount, or your held items
     if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return false;
@@ -1731,7 +1728,7 @@ bool do_chr_chr_collision( const CoNode_t * d )
 
     //---- calculate the character-character interactions
     {
-        const float max_pressure_strength = 0.125f;
+        const float max_pressure_strength = 0.25f;//1.0f - std::min(pchr_a->phys.dampen, pchr_b->phys.dampen);
         const float pressure_strength     = max_pressure_strength * interaction_strength;
 
         fvec3_t   pdiff_a;
@@ -1798,8 +1795,6 @@ bool do_chr_chr_collision( const CoNode_t * d )
                 // this was definitely a bump
                 bump = true;
             }
-            // ignore the case of both objects having infinite mass
-            // this is normally due to two scenery objects being too close to each other
             else
             {
                 // !!!! PRESSURE !!!!
@@ -1812,29 +1807,17 @@ bool do_chr_chr_collision( const CoNode_t * d )
 
                 // use pressure to push them appart. reduce their relative velocities.
 
-                float     vdot;
-
-                // are the objects moving towards each other, or appart?
-                vdot = vdiff_a.dot(nrm);
-
-                if ( vdot < 0.0f )
+                float distance = (pchr_a->getPosition() - pchr_b->getPosition()).length();
+                distance /= std::max(pchr_a->bump.size, pchr_b->bump.size);
+                if(distance > 0.0f)
                 {
-                    if (recoil_a > 0.0f)
-                    {
-                        fvec3_t vimp_a = vdiff_a * +(recoil_a * pressure_strength);
-                        phys_data_sum_avel(&(pchr_a->phys), vimp_a);
-                    }
+                    phys_data_sum_avel(&(pchr_a->phys),  nrm * distance * recoil_a * interaction_strength);
+                    phys_data_sum_avel(&(pchr_b->phys), -nrm * distance * recoil_b * interaction_strength);
 
-                    if (recoil_b > 0.0f)
-                    {
-						fvec3_t vimp_b = vdiff_a * -(recoil_b * pressure_strength);
-                        phys_data_sum_avel(&(pchr_b->phys), vimp_b);
-                    }
+                    // you could "bump" something if you changed your velocity, even if you were still touching
+                    bump = TO_C_BOOL(( pchr_a->vel.dot(nrm) * pchr_a->vel_old.dot(nrm) < 0 ) ||
+                                     ( pchr_b->vel.dot(nrm) * pchr_b->vel_old.dot(nrm) < 0 ) );   
                 }
-
-                // you could "bump" something if you changed your velocity, even if you were still touching
-                bump = TO_C_BOOL(( pchr_a->vel.dot(nrm) * pchr_a->vel_old.dot(nrm) < 0 ) ||
-                                 ( pchr_b->vel.dot(nrm) * pchr_b->vel_old.dot(nrm) < 0 ) );
             }
 
         }
