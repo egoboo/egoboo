@@ -30,13 +30,16 @@ class Button : public GUIComponent
 
     protected:
         bool _mouseOver;
-        std::string _buttonText;
+        std::shared_ptr<Ego::Font::LaidTextRenderer> _buttonTextRenderer;
+        int _buttonTextWidth;
+        int _buttonTextHeight;
 
         static const Ego::Math::Colour4f DEFAULT_BUTTON_COLOUR;
         static const Ego::Math::Colour4f HOVER_BUTTON_COLOUR;
         static const Ego::Math::Colour4f DISABLED_BUTTON_COLOUR;
 
     private:
+        std::string _buttonText;
         std::function<void()> _onClickFunction;
         int _hotkey;
         float _slidyButtonTargetX;
