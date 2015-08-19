@@ -29,7 +29,7 @@
 struct aicode_t
 {
     /// The type.
-    uint8_t _type;
+    Token::Type _type;
     /// The value of th constant.
     uint32_t _value;
     /// The name.
@@ -38,693 +38,691 @@ struct aicode_t
 
 static const aicode_t AICODES[] =
 {
-    { 'F', 0, "IfSpawned" },
-    { 'F', 1, "IfTimeOut" },
-    { 'F', 2, "IfAtWaypoint" },
-    { 'F', 3, "IfAtLastWaypoint" },
-    { 'F', 3, "IfPutAway" },
-    { 'F', 4, "IfAttacked" },
-    { 'F', 5, "IfBumped" },
-    { 'F', 6, "IfOrdered" },
-    { 'F', 7, "IfCalledForHelp" },
-    { 'F', 8, "SetContent" },
-    { 'F', 9, "IfKilled" },
-    { 'F', 10, "IfTargetKilled" },
-    { 'F', 11, "ClearWaypoints" },
-    { 'F', 12, "AddWaypoint" },
-    { 'F', 13, "FindPath" },
-    { 'F', 14, "Compass" },
-    { 'F', 15, "GetTargetArmorPrice" },
-    { 'F', 16, "SetTime" },
-    { 'F', 17, "GetContent" },
-    { 'F', 18, "JoinTargetTeam" },
-    { 'F', 19, "SetTargetToNearbyEnemy" },
-    { 'F', 20, "SetTargetToTargetLeftHand" },
-    { 'F', 21, "SetTargetToTargetRightHand" },
-    { 'F', 22, "SetTargetToWhoeverAttacked" },
-    { 'F', 22, "SetTargetToWhoeverHealed" },
-    { 'F', 23, "SetTargetToWhoeverBumped" },
-    { 'F', 24, "SetTargetToWhoeverCalledForHelp" },
-    { 'F', 25, "SetTargetToOldTarget" },
-    { 'F', 26, "SetTurnModeToVelocity" },
-    { 'F', 27, "SetTurnModeToWatch" },
-    { 'F', 28, "SetTurnModeToSpin" },
-    { 'F', 29, "SetBumpHeight" },
-    { 'F', 30, "IfTargetHasID" },
-    { 'F', 31, "IfTargetHasItemID" },
-    { 'F', 32, "IfTargetHoldingItemID" },
-    { 'F', 33, "IfTargetHasSkillID" },
-    { 'F', 34, "Else" },
-    { 'F', 35, "Run" },
-    { 'F', 36, "Walk" },
-    { 'F', 37, "Sneak" },
-    { 'F', 38, "DoAction" },
-    { 'F', 39, "KeepAction" },
-    { 'F', 40, "IssueOrder" },
-    { 'F', 41, "DropWeapons" },
-    { 'F', 42, "TargetDoAction" },
-    { 'F', 43, "OpenPassage" },
-    { 'F', 44, "ClosePassage" },
-    { 'F', 45, "IfPassageOpen" },
-    { 'F', 46, "GoPoof" },
-    { 'F', 47, "CostTargetItemID" },
-    { 'F', 48, "DoActionOverride" },
-    { 'F', 49, "IfHealed" },
-    { 'F', 50, "SendMessage" },
-    { 'F', 51, "CallForHelp" },
-    { 'F', 52, "AddIDSZ" },
-    { 'F', 53, "End" },
-    { 'F', 54, "SetState" },
-    { 'F', 55, "GetState" },
-    { 'F', 56, "IfStateIs" },
-    { 'F', 57, "IfTargetCanOpenStuff" },
-    { 'F', 58, "IfGrabbed" },
-    { 'F', 58, "IfMounted" },
-    { 'F', 59, "IfDropped" },
-    { 'F', 59, "IfDismounted" },
-    { 'F', 60, "SetTargetToWhoeverIsHolding" },
-    { 'F', 61, "DamageTarget" },
-    { 'F', 62, "IfXIsLessThanY" },
-    { 'F', 62, "IfYIsMoreThanX" },
-    { 'F', 63, "SetWeatherTime" },
-    { 'F', 64, "GetBumpHeight" },
-    { 'F', 65, "IfReaffirmed" },
-    { 'F', 66, "UnkeepAction" },
-    { 'F', 67, "IfTargetIsOnOtherTeam" },
-    { 'F', 68, "IfTargetIsOnHatedTeam" },
-    { 'F', 69, "PressLatchButton" },
-    { 'F', 70, "SetTargetToTargetOfLeader" },
-    { 'F', 71, "IfLeaderKilled" },
-    { 'F', 72, "BecomeLeader" },
-    { 'F', 73, "ChangeTargetArmor" },
-    { 'F', 74, "GiveMoneyToTarget" },
-    { 'F', 75, "DropKeys" },
-    { 'F', 76, "IfLeaderIsAlive" },
-    { 'F', 77, "IfTargetIsOldTarget" },
-    { 'F', 78, "SetTargetToLeader" },
-    { 'F', 79, "SpawnCharacter" },
-    { 'F', 80, "RespawnCharacter" },
-    { 'F', 81, "ChangeTile" },
-    { 'F', 82, "IfUsed" },
-    { 'F', 83, "DropMoney" },
-    { 'F', 84, "SetOldTarget" },
-    { 'F', 85, "DetachFromHolder" },
-    { 'F', 86, "IfTargetHasVulnerabilityID" },
-    { 'F', 87, "CleanUp" },
-    { 'F', 88, "IfCleanedUp" },
-    { 'F', 89, "IfSitting" },
-    { 'F', 89, "IfHeld" },
-    { 'F', 90, "IfTargetIsHurt" },
-    { 'F', 91, "IfTargetIsAPlayer" },
-    { 'F', 92, "PlaySound" },
-    { 'F', 93, "SpawnParticle" },
-    { 'F', 94, "IfTargetIsAlive" },
-    { 'F', 95, "Stop" },
-    { 'F', 96, "DisaffirmCharacter" },
-    { 'F', 97, "ReaffirmCharacter" },
-    { 'F', 98, "IfTargetIsSelf" },
-    { 'F', 99, "IfTargetIsMale" },
-    { 'F', 100, "IfTargetIsFemale" },
-    { 'F', 101, "SetTargetToSelf" },
-    { 'F', 102, "SetTargetToRider" },
-    { 'F', 103, "GetAttackTurn" },
-    { 'F', 104, "GetDamageType" },
-    { 'F', 105, "BecomeSpell" },
-    { 'F', 106, "BecomeSpellbook" },
-    { 'F', 107, "IfScoredAHit" },
-    { 'F', 108, "IfDisaffirmed" },
-    { 'F', 109, "TranslateOrder" },
-    { 'F', 110, "SetTargetToWhoeverWasHit" },
-    { 'F', 111, "SetTargetToWideEnemy" },
-    { 'F', 112, "IfChanged" },
-    { 'F', 113, "IfInWater" },
-    { 'F', 114, "IfBored" },
-    { 'F', 115, "IfTooMuchBaggage" },
-    { 'F', 116, "IfGrogged" },
-    { 'F', 117, "IfDazed" },
-    { 'F', 118, "IfTargetHasSpecialID" },
-    { 'F', 119, "PressTargetLatchButton" },
-    { 'F', 120, "IfInvisible" },
-    { 'F', 121, "IfArmorIs" },
-    { 'F', 122, "GetTargetGrogTime" },
-    { 'F', 123, "GetTargetDazeTime" },
-    { 'F', 124, "SetDamageType" },
-    { 'F', 125, "SetWaterLevel" },
-    { 'F', 126, "EnchantTarget" },
-    { 'F', 127, "EnchantChild" },
-    { 'F', 128, "TeleportTarget" },
-    { 'F', 129, "GiveExperienceToTarget" },
-    { 'F', 130, "IncreaseAmmo" },
-    { 'F', 131, "UnkurseTarget" },
-    { 'F', 132, "GiveExperienceToTargetTeam" },
-    { 'F', 133, "IfUnarmed" },
-    { 'F', 134, "RestockTargetAmmoIDAll" },
-    { 'F', 135, "RestockTargetAmmoIDFirst" },
-    { 'F', 136, "FlashTarget" },
-    { 'F', 137, "SetRedShift" },
-    { 'F', 138, "SetGreenShift" },
-    { 'F', 139, "SetBlueShift" },
-    { 'F', 140, "SetLight" },
-    { 'F', 141, "SetAlpha" },
-    { 'F', 142, "IfHitFromBehind" },
-    { 'F', 143, "IfHitFromFront" },
-    { 'F', 144, "IfHitFromLeft" },
-    { 'F', 145, "IfHitFromRight" },
-    { 'F', 146, "IfTargetIsOnSameTeam" },
-    { 'F', 147, "KillTarget" },
-    { 'F', 148, "UndoEnchant" },
-    { 'F', 149, "GetWaterLevel" },
-    { 'F', 150, "CostTargetMana" },
-    { 'F', 151, "IfTargetHasAnyID" },
-    { 'F', 152, "SetBumpSize" },
-    { 'F', 153, "IfNotDropped" },
-    { 'F', 154, "IfYIsLessThanX" },
-    { 'F', 154, "IfXIsMoreThanY" },
-    { 'F', 155, "SetFlyHeight" },
-    { 'F', 156, "IfBlocked" },
-    { 'F', 157, "IfTargetIsDefending" },
-    { 'F', 158, "IfTargetIsAttacking" },
-    { 'F', 159, "IfStateIs0" },
-    { 'F', 159, "IfStateIsParry" },
-    { 'F', 160, "IfStateIs1" },
-    { 'F', 160, "IfStateIsWander" },
-    { 'F', 161, "IfStateIs2" },
-    { 'F', 161, "IfStateIsGuard" },
-    { 'F', 162, "IfStateIs3" },
-    { 'F', 162, "IfStateIsFollow" },
-    { 'F', 163, "IfStateIs4" },
-    { 'F', 163, "IfStateIsSurround" },
-    { 'F', 164, "IfStateIs5" },
-    { 'F', 164, "IfStateIsRetreat" },
-    { 'F', 165, "IfStateIs6" },
-    { 'F', 165, "IfStateIsCharge" },
-    { 'F', 166, "IfStateIs7" },
-    { 'F', 166, "IfStateIsCombat" },
-    { 'F', 167, "IfContentIs" },
-    { 'F', 168, "SetTurnModeToWatchTarget" },
-    { 'F', 169, "IfStateIsNot" },
-    { 'F', 170, "IfXIsEqualToY" },
-    { 'F', 170, "IfYIsEqualToX" },
-    { 'F', 171, "DebugMessage" },
-    { 'F', 172, "BlackTarget" },
-    { 'F', 173, "SendMessageNear" },
-    { 'F', 174, "IfHitGround" },
-    { 'F', 175, "IfNameIsKnown" },
-    { 'F', 176, "IfUsageIsKnown" },
-    { 'F', 177, "IfHoldingItemID" },
-    { 'F', 178, "IfHoldingRangedWeapon" },
-    { 'F', 179, "IfHoldingMeleeWeapon" },
-    { 'F', 180, "IfHoldingShield" },
-    { 'F', 181, "IfKursed" },
-    { 'F', 182, "IfTargetIsKursed" },
-    { 'F', 183, "IfTargetIsDressedUp" },
-    { 'F', 184, "IfOverWater" },
-    { 'F', 185, "IfThrown" },
-    { 'F', 186, "MakeNameKnown" },
-    { 'F', 187, "MakeUsageKnown" },
-    { 'F', 188, "StopTargetMovement" },
-    { 'F', 189, "SetXY" },
-    { 'F', 190, "GetXY" },
-    { 'F', 191, "AddXY" },
-    { 'F', 192, "MakeAmmoKnown" },
-    { 'F', 193, "SpawnAttachedParticle" },
-    { 'F', 194, "SpawnExactParticle" },
-    { 'F', 195, "AccelerateTarget" },
-    { 'F', 196, "IfDistanceIsMoreThanTurn" },
-    { 'F', 197, "IfCrushed" },
-    { 'F', 198, "MakeCrushValid" },
-    { 'F', 199, "SetTargetToLowestTarget" },
-    { 'F', 200, "IfNotPutAway" },
-    { 'F', 200, "IfNotTakenOut" },
-    { 'F', 201, "IfTakenOut" },
-    { 'F', 202, "IfAmmoOut" },
-    { 'F', 203, "PlaySoundLooped" },
-    { 'F', 204, "StopSound" },
-    { 'F', 205, "HealSelf" },
-    { 'F', 206, "Equip" },
-    { 'F', 207, "IfTargetHasItemIDEquipped" },
-    { 'F', 208, "SetOwnerToTarget" },
-    { 'F', 209, "SetTargetToOwner" },
-    { 'F', 210, "SetFrame" },
-    { 'F', 211, "BreakPassage" },
-    { 'F', 212, "SetReloadTime" },
-    { 'F', 213, "SetTargetToWideBlahID" },
-    { 'F', 214, "PoofTarget" },
-    { 'F', 215, "ChildDoActionOverride" },
-    { 'F', 216, "SpawnPoof" },
-    { 'F', 217, "SetSpeedPercent" },
-    { 'F', 218, "SetChildState" },
-    { 'F', 219, "SpawnAttachedSizedParticle" },
-    { 'F', 220, "ChangeArmor" },
-    { 'F', 221, "ShowTimer" },
-    { 'F', 222, "IfFacingTarget" },
-    { 'F', 223, "PlaySoundVolume" },
-    { 'F', 224, "SpawnAttachedFacedParticle" },
-    { 'F', 225, "IfStateIsOdd" },
-    { 'F', 226, "SetTargetToDistantEnemy" },
-    { 'F', 227, "Teleport" },
-    { 'F', 228, "GiveStrengthToTarget" },
-    { 'F', 229, "GiveIntellectToTarget" },
-    { 'F', 230, "GiveIntelligenceToTarget" },
-    { 'F', 231, "GiveDexterityToTarget" },
-    { 'F', 232, "GiveLifeToTarget" },
-    { 'F', 233, "GiveManaToTarget" },
-    { 'F', 234, "ShowMap" },
-    { 'F', 235, "ShowYouAreHere" },
-    { 'F', 236, "ShowBlipXY" },
-    { 'F', 237, "HealTarget" },
-    { 'F', 238, "PumpTarget" },
-    { 'F', 239, "CostAmmo" },
-    { 'F', 240, "MakeSimilarNamesKnown" },
-    { 'F', 241, "SpawnAttachedHolderParticle" },
-    { 'F', 242, "SetTargetReloadTime" },
-    { 'F', 243, "SetFogLevel" },
-    { 'F', 244, "GetFogLevel" },
-    { 'F', 245, "SetFogTAD" },
-    { 'F', 246, "SetFogBottomLevel" },
-    { 'F', 247, "GetFogBottomLevel" },
-    { 'F', 248, "CorrectActionForHand" },
-    { 'F', 249, "IfTargetIsMounted" },
-    { 'F', 250, "SparkleIcon" },
-    { 'F', 251, "UnsparkleIcon" },
-    { 'F', 252, "GetTileXY" },
-    { 'F', 253, "SetTileXY" },
-    { 'F', 254, "SetShadowSize" },
-    { 'F', 255, "OrderTarget" },
-    { 'F', 256, "SetTargetToWhoeverIsInPassage" },
-    { 'F', 257, "IfCharacterWasABook" },
-    { 'F', 258, "SetEnchantBoostValues" },
-    { 'F', 259, "SpawnCharacterXYZ" },
-    { 'F', 260, "SpawnExactCharacterXYZ" },
-    { 'F', 261, "ChangeTargetClass" },
-    { 'F', 262, "PlayFullSound" },
-    { 'F', 263, "SpawnExactChaseParticle" },
-    { 'F', 264, "CreateOrder" },
-    { 'F', 265, "OrderSpecialID" },
-    { 'F', 266, "UnkurseTargetInventory" },
-    { 'F', 267, "IfTargetIsSneaking" },
-    { 'F', 268, "DropItems" },
-    { 'F', 269, "RespawnTarget" },
-    { 'F', 270, "TargetDoActionSetFrame" },
-    { 'F', 271, "IfTargetCanSeeInvisible" },
-    { 'F', 272, "SetTargetToNearestBlahID" },
-    { 'F', 273, "SetTargetToNearestEnemy" },
-    { 'F', 274, "SetTargetToNearestFriend" },
-    { 'F', 275, "SetTargetToNearestLifeform" },
-    { 'F', 276, "FlashPassage" },
-    { 'F', 277, "FindTileInPassage" },
-    { 'F', 278, "IfHeldInLeftHand" },
-    { 'F', 279, "NotAnItem" },
-    { 'F', 280, "SetChildAmmo" },
-    { 'F', 281, "IfHitVulnerable" },
-    { 'F', 282, "IfTargetIsFlying" },
-    { 'F', 283, "IdentifyTarget" },
-    { 'F', 284, "BeatModule" },
-    { 'F', 285, "EndModule" },
-    { 'F', 286, "DisableExport" },
-    { 'F', 287, "EnableExport" },
-    { 'F', 288, "GetTargetState" },
-    { 'F', 289, "IfEquipped" },
-    { 'F', 290, "DropTargetMoney" },
-    { 'F', 291, "GetTargetContent" },
-    { 'F', 292, "DropTargetKeys" },
-    { 'F', 293, "JoinTeam" },
-    { 'F', 294, "TargetJoinTeam" },
-    { 'F', 295, "ClearMusicPassage" },
-    { 'F', 296, "ClearEndMessage" },
-    { 'F', 297, "AddEndMessage" },
-    { 'F', 298, "PlayMusic" },
-    { 'F', 299, "SetMusicPassage" },
-    { 'F', 300, "MakeCrushInvalid" },
-    { 'F', 301, "StopMusic" },
-    { 'F', 302, "FlashVariable" },
-    { 'F', 303, "AccelerateUp" },
-    { 'F', 304, "FlashVariableHeight" },
-    { 'F', 305, "SetDamageTime" },
-    { 'F', 306, "IfStateIs8" },
-    { 'F', 307, "IfStateIs9" },
-    { 'F', 308, "IfStateIs10" },
-    { 'F', 309, "IfStateIs11" },
-    { 'F', 310, "IfStateIs12" },
-    { 'F', 311, "IfStateIs13" },
-    { 'F', 312, "IfStateIs14" },
-    { 'F', 313, "IfStateIs15" },
-    { 'F', 314, "IfTargetIsAMount" },
-    { 'F', 315, "IfTargetIsAPlatform" },
-    { 'F', 316, "AddStat" },
-    { 'F', 317, "DisenchantTarget" },
-    { 'F', 318, "DisenchantAll" },
-    { 'F', 319, "SetVolumeNearestTeammate" },
-    { 'F', 320, "AddShopPassage" },
-    { 'F', 321, "TargetPayForArmor" },
-    { 'F', 322, "JoinEvilTeam" },
-    { 'F', 323, "JoinNullTeam" },
-    { 'F', 324, "JoinGoodTeam" },
-    { 'F', 325, "PitsKill" },
-    { 'F', 326, "SetTargetToPassageID" },
-    { 'F', 327, "MakeNameUnknown" },
-    { 'F', 328, "SpawnExactParticleEndSpawn" },
-    { 'F', 329, "SpawnPoofSpeedSpacingDamage" },
-    { 'F', 330, "GiveExperienceToGoodTeam" },
-    { 'F', 331, "DoNothing" },
-    { 'F', 332, "GrogTarget" },
-    { 'F', 333, "DazeTarget" },
-    { 'F', 334, "EnableRespawn" },
-    { 'F', 335, "DisableRespawn" },
-    { 'F', 336, "DispelTargetEnchantID" },
-    { 'F', 337, "IfHolderBlocked" },
-    { 'F', 338, "GetTargetShieldProfiency" },
-    { 'F', 339, "IfTargetHasNotFullMana" },
-    { 'F', 340, "EnableListenSkill" },
-    { 'F', 341, "SetTargetToLastItemUsed" },
-    { 'F', 342, "FollowLink" },
-    { 'F', 343, "IfOperatorIsLinux" },
-    { 'F', 344, "IfTargetIsAWeapon" },
-    { 'F', 345, "IfSomeoneIsStealing" },
-    { 'F', 346, "IfTargetIsASpell" },
-    { 'F', 347, "IfBackstabbed" },
-    { 'F', 348, "GetTargetDamageType" },
-    { 'F', 349, "AddTargetQuest" },
-    { 'F', 350, "BeatQuestAllPlayers" },
-    { 'F', 351, "IfTargetHasQuest" },
-    { 'F', 352, "SetTargetQuestLevel" },
-    { 'F', 353, "AddQuestAllPlayers" },
-    { 'F', 354, "AddBlipAllEnemies" },
-    { 'F', 355, "PitsFall" },
-    { 'F', 356, "IfTargetIsOwner" },
-    { 'F', 357, "SetSpeech" },
-    { 'F', 364, "TakePicture" },
-    { 'F', 365, "IfOperatorIsMacintosh" },
-    { 'F', 366, "IfModuleHasIDSZ" },
-    { 'F', 367, "MorphToTarget" },
-    { 'F', 368, "GiveManaFlowToTarget" },
-    { 'F', 369, "GiveManaReturnToTarget" },
-    { 'F', 370, "SetMoney" },
-    { 'F', 371, "IfTargetCanSeeKurses" },
-    { 'F', 372, "SpawnAttachedCharacter" },
-    { 'F', 373, "KurseTarget" },
-    { 'F', 374, "SetChildContent" },
-    { 'F', 375, "SetTargetToChild" },
-    { 'F', 376, "SetDamageThreshold" },
-    { 'F', 377, "AccelerateTargetUp" },
-    { 'F', 378, "SetTargetAmmo" },
-    { 'F', 379, "EnableInvictus" },
-    { 'F', 380, "DisableInvictus" },
-    { 'F', 381, "TargetDamageSelf" },
-    { 'F', 382, "SetTargetSize" },
-    { 'F', 383, "IfTargetIsFacingSelf" },
-    { 'F', 384, "DrawBillboard" },
-    { 'F', 385, "SetTargetToBlahInPassage" },
-    { 'F', 386, "IfLevelUp" },
-    { 'F', 387, "GiveSkillToTarget" },
-    { 'F', 388, "SetTargetToNearbyMeleeWeapon" },
-    { 'F', 389, "EnableStealth" },
-    { 'F', 390, "DisableStealth" },
-    { 'F', 391, "IfStealthed" },
-    { 'F', 392, "SetTargetToDistantFriend" },
-    { 'C', 1, "BLAHDEAD" },
-    { 'C', 2, "BLAHENEMIES" },
-    { 'C', 4, "BLAHFRIENDS" },
-    { 'C', 8, "BLAHITEMS" },
-    { 'C', 16, "BLAHINVERTID" },
-    { 'C', 32, "BLAHPLAYERS" },
-    { 'C', 64, "BLAHSKILL" },
-    { 'C', 128, "BLAHQUEST" },
-    { 'C', 0, "STATEPARRY" },
-    { 'C', 1, "STATEWANDER" },
-    { 'C', 2, "STATEGUARD" },
-    { 'C', 3, "STATEFOLLOW" },
-    { 'C', 4, "STATESURROUND" },
-    { 'C', 5, "STATERETREAT" },
-    { 'C', 6, "STATECHARGE" },
-    { 'C', 7, "STATECOMBAT" },
-    { 'C', 4, "GRIPONLY" },
-    { 'C', 4, "GRIPLEFT" },
-    { 'C', 8, "GRIPRIGHT" },
-    { 'C', 0, "SPAWNORIGIN" },
-    { 'C', 1, "SPAWNLAST" },
-    { 'C', 0, "LATCHLEFT" },
-    { 'C', 1, "LATCHRIGHT" },
-    { 'C', 2, "LATCHJUMP" },
-    { 'C', 3, "LATCHALTLEFT" },
-    { 'C', 4, "LATCHALTRIGHT" },
-    { 'C', 5, "LATCHPACKLEFT" },
-    { 'C', 6, "LATCHPACKRIGHT" },
-    { 'C', 0, "DAMAGESLASH" },
-    { 'C', 1, "DAMAGECRUSH" },
-    { 'C', 2, "DAMAGEPOKE" },
-    { 'C', 3, "DAMAGEHOLY" },
-    { 'C', 4, "DAMAGEEVIL" },
-    { 'C', 5, "DAMAGEFIRE" },
-    { 'C', 6, "DAMAGEICE" },
-    { 'C', 7, "DAMAGEZAP" },
-    { 'C', 0, "ACTIONDA" },
-    { 'C', 1, "ACTIONDB" },
-    { 'C', 2, "ACTIONDC" },
-    { 'C', 3, "ACTIONDD" },
-    { 'C', 4, "ACTIONUA" },
-    { 'C', 5, "ACTIONUB" },
-    { 'C', 6, "ACTIONUC" },
-    { 'C', 7, "ACTIONUD" },
-    { 'C', 8, "ACTIONTA" },
-    { 'C', 9, "ACTIONTB" },
-    { 'C', 10, "ACTIONTC" },
-    { 'C', 11, "ACTIONTD" },
-    { 'C', 12, "ACTIONCA" },
-    { 'C', 13, "ACTIONCB" },
-    { 'C', 14, "ACTIONCC" },
-    { 'C', 15, "ACTIONCD" },
-    { 'C', 16, "ACTIONSA" },
-    { 'C', 17, "ACTIONSB" },
-    { 'C', 18, "ACTIONSC" },
-    { 'C', 19, "ACTIONSD" },
-    { 'C', 20, "ACTIONBA" },
-    { 'C', 21, "ACTIONBB" },
-    { 'C', 22, "ACTIONBC" },
-    { 'C', 23, "ACTIONBD" },
-    { 'C', 24, "ACTIONLA" },
-    { 'C', 25, "ACTIONLB" },
-    { 'C', 26, "ACTIONLC" },
-    { 'C', 27, "ACTIONLD" },
-    { 'C', 28, "ACTIONXA" },
-    { 'C', 29, "ACTIONXB" },
-    { 'C', 30, "ACTIONXC" },
-    { 'C', 31, "ACTIONXD" },
-    { 'C', 32, "ACTIONFA" },
-    { 'C', 33, "ACTIONFB" },
-    { 'C', 34, "ACTIONFC" },
-    { 'C', 35, "ACTIONFD" },
-    { 'C', 36, "ACTIONPA" },
-    { 'C', 37, "ACTIONPB" },
-    { 'C', 38, "ACTIONPC" },
-    { 'C', 39, "ACTIONPD" },
-    { 'C', 40, "ACTIONEA" },
-    { 'C', 41, "ACTIONEB" },
-    { 'C', 42, "ACTIONRA" },
-    { 'C', 43, "ACTIONZA" },
-    { 'C', 44, "ACTIONZB" },
-    { 'C', 45, "ACTIONZC" },
-    { 'C', 46, "ACTIONZD" },
-    { 'C', 47, "ACTIONWA" },
-    { 'C', 48, "ACTIONWB" },
-    { 'C', 49, "ACTIONWC" },
-    { 'C', 50, "ACTIONWD" },
-    { 'C', 51, "ACTIONJA" },
-    { 'C', 52, "ACTIONJB" },
-    { 'C', 53, "ACTIONJC" },
-    { 'C', 54, "ACTIONHA" },
-    { 'C', 55, "ACTIONHB" },
-    { 'C', 56, "ACTIONHC" },
-    { 'C', 57, "ACTIONHD" },
-    { 'C', 58, "ACTIONKA" },
-    { 'C', 59, "ACTIONKB" },
-    { 'C', 60, "ACTIONKC" },
-    { 'C', 61, "ACTIONKD" },
-    { 'C', 62, "ACTIONMA" },
-    { 'C', 63, "ACTIONMB" },
-    { 'C', 64, "ACTIONMC" },
-    { 'C', 65, "ACTIONMD" },
-    { 'C', 66, "ACTIONME" },
-    { 'C', 67, "ACTIONMF" },
-    { 'C', 68, "ACTIONMG" },
-    { 'C', 69, "ACTIONMH" },
-    { 'C', 70, "ACTIONMI" },
-    { 'C', 71, "ACTIONMJ" },
-    { 'C', 72, "ACTIONMK" },
-    { 'C', 73, "ACTIONML" },
-    { 'C', 74, "ACTIONMM" },
-    { 'C', 75, "ACTIONMN" },
-    { 'C', 0, "EXPSECRET" },
-    { 'C', 1, "EXPQUEST" },
-    { 'C', 2, "EXPDARE" },
-    { 'C', 3, "EXPKILL" },
-    { 'C', 4, "EXPMURDER" },
-    { 'C', 5, "EXPREVENGE" },
-    { 'C', 6, "EXPTEAMWORK" },
-    { 'C', 7, "EXPROLEPLAY" },
-    { 'C', 0, "MESSAGEDEATH" },
-    { 'C', 1, "MESSAGEHATE" },
-    { 'C', 2, "MESSAGEOUCH" },
-    { 'C', 3, "MESSAGEFRAG" },
-    { 'C', 4, "MESSAGEACCIDENT" },
-    { 'C', 5, "MESSAGECOSTUME" },
-    { 'C', 0, "ORDERMOVE" },
-    { 'C', 1, "ORDERATTACK" },
-    { 'C', 2, "ORDERASSIST" },
-    { 'C', 3, "ORDERSTAND" },
-    { 'C', 4, "ORDERTERRAIN" },
-    { 'C', 0, "WHITE" },
-    { 'C', 1, "RED" },
-    { 'C', 2, "YELLOW" },
-    { 'C', 3, "GREEN" },
-    { 'C', 4, "BLUE" },
-    { 'C', 5, "PURPLE" },
-    { 'C', 1, "FXNOREFLECT" },
-    { 'C', 2, "FXDRAWREFLECT" },
-    { 'C', 4, "FXANIM" },
-    { 'C', 8, "FXWATER" },
-    { 'C', 16, "FXBARRIER" },
-    { 'C', 32, "FXIMPASS" },
-    { 'C', 64, "FXDAMAGE" },
-    { 'C', 128, "FXSLIPPY" },
-    { 'C', 0, "TEAMA" },
-    { 'C', 1, "TEAMB" },
-    { 'C', 2, "TEAMC" },
-    { 'C', 3, "TEAMD" },
-    { 'C', 4, "TEAME" },
-    { 'C', 5, "TEAMF" },
-    { 'C', 6, "TEAMG" },
-    { 'C', 7, "TEAMH" },
-    { 'C', 8, "TEAMI" },
-    { 'C', 9, "TEAMJ" },
-    { 'C', 10, "TEAMK" },
-    { 'C', 11, "TEAML" },
-    { 'C', 12, "TEAMM" },
-    { 'C', 13, "TEAMN" },
-    { 'C', 14, "TEAMO" },
-    { 'C', 15, "TEAMP" },
-    { 'C', 16, "TEAMQ" },
-    { 'C', 17, "TEAMR" },
-    { 'C', 18, "TEAMS" },
-    { 'C', 19, "TEAMT" },
-    { 'C', 20, "TEAMU" },
-    { 'C', 21, "TEAMV" },
-    { 'C', 22, "TEAMW" },
-    { 'C', 23, "TEAMX" },
-    { 'C', 24, "TEAMY" },
-    { 'C', 25, "TEAMZ" },
-    { 'C', 1, "INVENTORY" },
-    { 'C', 2, "LEFT" },
-    { 'C', 3, "RIGHT" },
-    { 'C', 0, "EASY" },
-    { 'C', 1, "NORMAL" },
-    { 'C', 2, "HARD" },
-    { 'V', 0, "tmpx" },
-    { 'V', 1, "tmpy" },
-    { 'V', 2, "tmpdist" },
-    { 'V', 2, "tmpdistance" },
-    { 'V', 3, "tmpturn" },
-    { 'V', 4, "tmpargument" },
-    { 'V', 5, "rand" },
-    { 'V', 6, "selfx" },
-    { 'V', 7, "selfy" },
-    { 'V', 8, "selfturn" },
-    { 'V', 9, "selfcounter" },
-    { 'V', 10, "selforder" },
-    { 'V', 11, "selfmorale" },
-    { 'V', 12, "selflife" },
-    { 'V', 13, "targetx" },
-    { 'V', 14, "targety" },
-    { 'V', 15, "targetdistance" },
-    { 'V', 16, "targetturn" },
-    { 'V', 17, "leaderx" },
-    { 'V', 18, "leadery" },
-    { 'V', 19, "leaderdistance" },
-    { 'V', 20, "leaderturn" },
-    { 'V', 21, "gotox" },
-    { 'V', 22, "gotoy" },
-    { 'V', 23, "gotodistance" },
-    { 'V', 24, "targetturnto" },
-    { 'V', 25, "passage" },
-    { 'V', 26, "weight" },
-    { 'V', 27, "selfaltitude" },
-    { 'V', 28, "selfid" },
-    { 'V', 29, "selfhateid" },
-    { 'V', 30, "selfmana" },
-    { 'V', 31, "targetstr" },
-    { 'V', 32, "targetwis" },   //deprecated
-    { 'V', 33, "targetint" },
-    { 'V', 34, "targetdex" },
-    { 'V', 35, "targetlife" },
-    { 'V', 36, "targetmana" },
-    { 'V', 37, "targetlevel" },
-    { 'V', 38, "targetspeedx" },
-    { 'V', 39, "targetspeedy" },
-    { 'V', 40, "targetspeedz" },
-    { 'V', 41, "selfspawnx" },
-    { 'V', 42, "selfspawny" },
-    { 'V', 43, "selfstate" },
-    { 'V', 44, "selfstr" },
-    { 'V', 45, "selfwis" },
-    { 'V', 46, "selfint" },
-    { 'V', 47, "selfdex" },
-    { 'V', 48, "selfmanaflow" },
-    { 'V', 49, "targetmanaflow" },
-    { 'V', 50, "selfattached" },
-    { 'V', 51, "swingturn" },
-    { 'V', 52, "xydistance" },
-    { 'V', 53, "selfz" },
-    { 'V', 54, "targetaltitude" },
-    { 'V', 55, "targetz" },
-    { 'V', 56, "selfindex" },
-    { 'V', 57, "ownerx" },
-    { 'V', 58, "ownery" },
-    { 'V', 59, "ownerturn" },
-    { 'V', 60, "ownerdistance" },
-    { 'V', 61, "ownerturnto" },
-    { 'V', 62, "xyturnto" },
-    { 'V', 63, "selfmoney" },
-    { 'V', 64, "selfaccel" },
-    { 'V', 65, "targetexp" },
-    { 'V', 66, "selfammo" },
-    { 'V', 67, "targetammo" },
-    { 'V', 68, "targetmoney" },
-    { 'V', 69, "targetturnfrom" },
-    { 'V', 70, "selflevel" },
-    { 'V', 71, "targetreloadtime" },
-    { 'V', 72, "selfcontent" },
-    { 'V', 73, "spawndistance" },
-    { 'V', 74, "targetmaxlife" },
-    { 'V', 75, "targetteam" },
-    { 'V', 76, "targetarmor" },
-    { 'V', 77, "difficulty" },
-    { 'V', 78, "timehours" },
-    { 'V', 79, "timeminutes" },
-    { 'V', 80, "timeseconds" },
-    { 'V', 81, "datemonth" },
-    { 'V', 82, "dateday" },
-    { 'O', 0, "+" },
-    { 'O', 1, "-" },
-    { 'O', 2, "&" },
-    { 'O', 3, ">" },
-    { 'O', 4, "<" },
-    { 'O', 5, "*" },
-    { 'O', 6, "/" },
-    { 'O', 7, "%" },
+    { Token::Type::Function, 0, "IfSpawned" },
+    { Token::Type::Function, 1, "IfTimeOut" },
+    { Token::Type::Function, 2, "IfAtWaypoint" },
+    { Token::Type::Function, 3, "IfAtLastWaypoint" },
+    { Token::Type::Function, 3, "IfPutAway" },
+    { Token::Type::Function, 4, "IfAttacked" },
+    { Token::Type::Function, 5, "IfBumped" },
+    { Token::Type::Function, 6, "IfOrdered" },
+    { Token::Type::Function, 7, "IfCalledForHelp" },
+    { Token::Type::Function, 8, "SetContent" },
+    { Token::Type::Function, 9, "IfKilled" },
+    { Token::Type::Function, 10, "IfTargetKilled" },
+    { Token::Type::Function, 11, "ClearWaypoints" },
+    { Token::Type::Function, 12, "AddWaypoint" },
+    { Token::Type::Function, 13, "FindPath" },
+    { Token::Type::Function, 14, "Compass" },
+    { Token::Type::Function, 15, "GetTargetArmorPrice" },
+    { Token::Type::Function, 16, "SetTime" },
+    { Token::Type::Function, 17, "GetContent" },
+    { Token::Type::Function, 18, "JoinTargetTeam" },
+    { Token::Type::Function, 19, "SetTargetToNearbyEnemy" },
+    { Token::Type::Function, 20, "SetTargetToTargetLeftHand" },
+    { Token::Type::Function, 21, "SetTargetToTargetRightHand" },
+    { Token::Type::Function, 22, "SetTargetToWhoeverAttacked" },
+    { Token::Type::Function, 22, "SetTargetToWhoeverHealed" },
+    { Token::Type::Function, 23, "SetTargetToWhoeverBumped" },
+    { Token::Type::Function, 24, "SetTargetToWhoeverCalledForHelp" },
+    { Token::Type::Function, 25, "SetTargetToOldTarget" },
+    { Token::Type::Function, 26, "SetTurnModeToVelocity" },
+    { Token::Type::Function, 27, "SetTurnModeToWatch" },
+    { Token::Type::Function, 28, "SetTurnModeToSpin" },
+    { Token::Type::Function, 29, "SetBumpHeight" },
+    { Token::Type::Function, 30, "IfTargetHasID" },
+    { Token::Type::Function, 31, "IfTargetHasItemID" },
+    { Token::Type::Function, 32, "IfTargetHoldingItemID" },
+    { Token::Type::Function, 33, "IfTargetHasSkillID" },
+    { Token::Type::Function, 34, "Else" },
+    { Token::Type::Function, 35, "Run" },
+    { Token::Type::Function, 36, "Walk" },
+    { Token::Type::Function, 37, "Sneak" },
+    { Token::Type::Function, 38, "DoAction" },
+    { Token::Type::Function, 39, "KeepAction" },
+    { Token::Type::Function, 40, "IssueOrder" },
+    { Token::Type::Function, 41, "DropWeapons" },
+    { Token::Type::Function, 42, "TargetDoAction" },
+    { Token::Type::Function, 43, "OpenPassage" },
+    { Token::Type::Function, 44, "ClosePassage" },
+    { Token::Type::Function, 45, "IfPassageOpen" },
+    { Token::Type::Function, 46, "GoPoof" },
+    { Token::Type::Function, 47, "CostTargetItemID" },
+    { Token::Type::Function, 48, "DoActionOverride" },
+    { Token::Type::Function, 49, "IfHealed" },
+    { Token::Type::Function, 50, "SendMessage" },
+    { Token::Type::Function, 51, "CallForHelp" },
+    { Token::Type::Function, 52, "AddIDSZ" },
+    { Token::Type::Function, 53, "End" },
+    { Token::Type::Function, 54, "SetState" },
+    { Token::Type::Function, 55, "GetState" },
+    { Token::Type::Function, 56, "IfStateIs" },
+    { Token::Type::Function, 57, "IfTargetCanOpenStuff" },
+    { Token::Type::Function, 58, "IfGrabbed" },
+    { Token::Type::Function, 58, "IfMounted" },
+    { Token::Type::Function, 59, "IfDropped" },
+    { Token::Type::Function, 59, "IfDismounted" },
+    { Token::Type::Function, 60, "SetTargetToWhoeverIsHolding" },
+    { Token::Type::Function, 61, "DamageTarget" },
+    { Token::Type::Function, 62, "IfXIsLessThanY" },
+    { Token::Type::Function, 62, "IfYIsMoreThanX" },
+    { Token::Type::Function, 63, "SetWeatherTime" },
+    { Token::Type::Function, 64, "GetBumpHeight" },
+    { Token::Type::Function, 65, "IfReaffirmed" },
+    { Token::Type::Function, 66, "UnkeepAction" },
+    { Token::Type::Function, 67, "IfTargetIsOnOtherTeam" },
+    { Token::Type::Function, 68, "IfTargetIsOnHatedTeam" },
+    { Token::Type::Function, 69, "PressLatchButton" },
+    { Token::Type::Function, 70, "SetTargetToTargetOfLeader" },
+    { Token::Type::Function, 71, "IfLeaderKilled" },
+    { Token::Type::Function, 72, "BecomeLeader" },
+    { Token::Type::Function, 73, "ChangeTargetArmor" },
+    { Token::Type::Function, 74, "GiveMoneyToTarget" },
+    { Token::Type::Function, 75, "DropKeys" },
+    { Token::Type::Function, 76, "IfLeaderIsAlive" },
+    { Token::Type::Function, 77, "IfTargetIsOldTarget" },
+    { Token::Type::Function, 78, "SetTargetToLeader" },
+    { Token::Type::Function, 79, "SpawnCharacter" },
+    { Token::Type::Function, 80, "RespawnCharacter" },
+    { Token::Type::Function, 81, "ChangeTile" },
+    { Token::Type::Function, 82, "IfUsed" },
+    { Token::Type::Function, 83, "DropMoney" },
+    { Token::Type::Function, 84, "SetOldTarget" },
+    { Token::Type::Function, 85, "DetachFromHolder" },
+    { Token::Type::Function, 86, "IfTargetHasVulnerabilityID" },
+    { Token::Type::Function, 87, "CleanUp" },
+    { Token::Type::Function, 88, "IfCleanedUp" },
+    { Token::Type::Function, 89, "IfSitting" },
+    { Token::Type::Function, 89, "IfHeld" },
+    { Token::Type::Function, 90, "IfTargetIsHurt" },
+    { Token::Type::Function, 91, "IfTargetIsAPlayer" },
+    { Token::Type::Function, 92, "PlaySound" },
+    { Token::Type::Function, 93, "SpawnParticle" },
+    { Token::Type::Function, 94, "IfTargetIsAlive" },
+    { Token::Type::Function, 95, "Stop" },
+    { Token::Type::Function, 96, "DisaffirmCharacter" },
+    { Token::Type::Function, 97, "ReaffirmCharacter" },
+    { Token::Type::Function, 98, "IfTargetIsSelf" },
+    { Token::Type::Function, 99, "IfTargetIsMale" },
+    { Token::Type::Function, 100, "IfTargetIsFemale" },
+    { Token::Type::Function, 101, "SetTargetToSelf" },
+    { Token::Type::Function, 102, "SetTargetToRider" },
+    { Token::Type::Function, 103, "GetAttackTurn" },
+    { Token::Type::Function, 104, "GetDamageType" },
+    { Token::Type::Function, 105, "BecomeSpell" },
+    { Token::Type::Function, 106, "BecomeSpellbook" },
+    { Token::Type::Function, 107, "IfScoredAHit" },
+    { Token::Type::Function, 108, "IfDisaffirmed" },
+    { Token::Type::Function, 109, "TranslateOrder" },
+    { Token::Type::Function, 110, "SetTargetToWhoeverWasHit" },
+    { Token::Type::Function, 111, "SetTargetToWideEnemy" },
+    { Token::Type::Function, 112, "IfChanged" },
+    { Token::Type::Function, 113, "IfInWater" },
+    { Token::Type::Function, 114, "IfBored" },
+    { Token::Type::Function, 115, "IfTooMuchBaggage" },
+    { Token::Type::Function, 116, "IfGrogged" },
+    { Token::Type::Function, 117, "IfDazed" },
+    { Token::Type::Function, 118, "IfTargetHasSpecialID" },
+    { Token::Type::Function, 119, "PressTargetLatchButton" },
+    { Token::Type::Function, 120, "IfInvisible" },
+    { Token::Type::Function, 121, "IfArmorIs" },
+    { Token::Type::Function, 122, "GetTargetGrogTime" },
+    { Token::Type::Function, 123, "GetTargetDazeTime" },
+    { Token::Type::Function, 124, "SetDamageType" },
+    { Token::Type::Function, 125, "SetWaterLevel" },
+    { Token::Type::Function, 126, "EnchantTarget" },
+    { Token::Type::Function, 127, "EnchantChild" },
+    { Token::Type::Function, 128, "TeleportTarget" },
+    { Token::Type::Function, 129, "GiveExperienceToTarget" },
+    { Token::Type::Function, 130, "IncreaseAmmo" },
+    { Token::Type::Function, 131, "UnkurseTarget" },
+    { Token::Type::Function, 132, "GiveExperienceToTargetTeam" },
+    { Token::Type::Function, 133, "IfUnarmed" },
+    { Token::Type::Function, 134, "RestockTargetAmmoIDAll" },
+    { Token::Type::Function, 135, "RestockTargetAmmoIDFirst" },
+    { Token::Type::Function, 136, "FlashTarget" },
+    { Token::Type::Function, 137, "SetRedShift" },
+    { Token::Type::Function, 138, "SetGreenShift" },
+    { Token::Type::Function, 139, "SetBlueShift" },
+    { Token::Type::Function, 140, "SetLight" },
+    { Token::Type::Function, 141, "SetAlpha" },
+    { Token::Type::Function, 142, "IfHitFromBehind" },
+    { Token::Type::Function, 143, "IfHitFromFront" },
+    { Token::Type::Function, 144, "IfHitFromLeft" },
+    { Token::Type::Function, 145, "IfHitFromRight" },
+    { Token::Type::Function, 146, "IfTargetIsOnSameTeam" },
+    { Token::Type::Function, 147, "KillTarget" },
+    { Token::Type::Function, 148, "UndoEnchant" },
+    { Token::Type::Function, 149, "GetWaterLevel" },
+    { Token::Type::Function, 150, "CostTargetMana" },
+    { Token::Type::Function, 151, "IfTargetHasAnyID" },
+    { Token::Type::Function, 152, "SetBumpSize" },
+    { Token::Type::Function, 153, "IfNotDropped" },
+    { Token::Type::Function, 154, "IfYIsLessThanX" },
+    { Token::Type::Function, 154, "IfXIsMoreThanY" },
+    { Token::Type::Function, 155, "SetFlyHeight" },
+    { Token::Type::Function, 156, "IfBlocked" },
+    { Token::Type::Function, 157, "IfTargetIsDefending" },
+    { Token::Type::Function, 158, "IfTargetIsAttacking" },
+    { Token::Type::Function, 159, "IfStateIs0" },
+    { Token::Type::Function, 159, "IfStateIsParry" },
+    { Token::Type::Function, 160, "IfStateIs1" },
+    { Token::Type::Function, 160, "IfStateIsWander" },
+    { Token::Type::Function, 161, "IfStateIs2" },
+    { Token::Type::Function, 161, "IfStateIsGuard" },
+    { Token::Type::Function, 162, "IfStateIs3" },
+    { Token::Type::Function, 162, "IfStateIsFollow" },
+    { Token::Type::Function, 163, "IfStateIs4" },
+    { Token::Type::Function, 163, "IfStateIsSurround" },
+    { Token::Type::Function, 164, "IfStateIs5" },
+    { Token::Type::Function, 164, "IfStateIsRetreat" },
+    { Token::Type::Function, 165, "IfStateIs6" },
+    { Token::Type::Function, 165, "IfStateIsCharge" },
+    { Token::Type::Function, 166, "IfStateIs7" },
+    { Token::Type::Function, 166, "IfStateIsCombat" },
+    { Token::Type::Function, 167, "IfContentIs" },
+    { Token::Type::Function, 168, "SetTurnModeToWatchTarget" },
+    { Token::Type::Function, 169, "IfStateIsNot" },
+    { Token::Type::Function, 170, "IfXIsEqualToY" },
+    { Token::Type::Function, 170, "IfYIsEqualToX" },
+    { Token::Type::Function, 171, "DebugMessage" },
+    { Token::Type::Function, 172, "BlackTarget" },
+    { Token::Type::Function, 173, "SendMessageNear" },
+    { Token::Type::Function, 174, "IfHitGround" },
+    { Token::Type::Function, 175, "IfNameIsKnown" },
+    { Token::Type::Function, 176, "IfUsageIsKnown" },
+    { Token::Type::Function, 177, "IfHoldingItemID" },
+    { Token::Type::Function, 178, "IfHoldingRangedWeapon" },
+    { Token::Type::Function, 179, "IfHoldingMeleeWeapon" },
+    { Token::Type::Function, 180, "IfHoldingShield" },
+    { Token::Type::Function, 181, "IfKursed" },
+    { Token::Type::Function, 182, "IfTargetIsKursed" },
+    { Token::Type::Function, 183, "IfTargetIsDressedUp" },
+    { Token::Type::Function, 184, "IfOverWater" },
+    { Token::Type::Function, 185, "IfThrown" },
+    { Token::Type::Function, 186, "MakeNameKnown" },
+    { Token::Type::Function, 187, "MakeUsageKnown" },
+    { Token::Type::Function, 188, "StopTargetMovement" },
+    { Token::Type::Function, 189, "SetXY" },
+    { Token::Type::Function, 190, "GetXY" },
+    { Token::Type::Function, 191, "AddXY" },
+    { Token::Type::Function, 192, "MakeAmmoKnown" },
+    { Token::Type::Function, 193, "SpawnAttachedParticle" },
+    { Token::Type::Function, 194, "SpawnExactParticle" },
+    { Token::Type::Function, 195, "AccelerateTarget" },
+    { Token::Type::Function, 196, "IfDistanceIsMoreThanTurn" },
+    { Token::Type::Function, 197, "IfCrushed" },
+    { Token::Type::Function, 198, "MakeCrushValid" },
+    { Token::Type::Function, 199, "SetTargetToLowestTarget" },
+    { Token::Type::Function, 200, "IfNotPutAway" },
+    { Token::Type::Function, 200, "IfNotTakenOut" },
+    { Token::Type::Function, 201, "IfTakenOut" },
+    { Token::Type::Function, 202, "IfAmmoOut" },
+    { Token::Type::Function, 203, "PlaySoundLooped" },
+    { Token::Type::Function, 204, "StopSound" },
+    { Token::Type::Function, 205, "HealSelf" },
+    { Token::Type::Function, 206, "Equip" },
+    { Token::Type::Function, 207, "IfTargetHasItemIDEquipped" },
+    { Token::Type::Function, 208, "SetOwnerToTarget" },
+    { Token::Type::Function, 209, "SetTargetToOwner" },
+    { Token::Type::Function, 210, "SetFrame" },
+    { Token::Type::Function, 211, "BreakPassage" },
+    { Token::Type::Function, 212, "SetReloadTime" },
+    { Token::Type::Function, 213, "SetTargetToWideBlahID" },
+    { Token::Type::Function, 214, "PoofTarget" },
+    { Token::Type::Function, 215, "ChildDoActionOverride" },
+    { Token::Type::Function, 216, "SpawnPoof" },
+    { Token::Type::Function, 217, "SetSpeedPercent" },
+    { Token::Type::Function, 218, "SetChildState" },
+    { Token::Type::Function, 219, "SpawnAttachedSizedParticle" },
+    { Token::Type::Function, 220, "ChangeArmor" },
+    { Token::Type::Function, 221, "ShowTimer" },
+    { Token::Type::Function, 222, "IfFacingTarget" },
+    { Token::Type::Function, 223, "PlaySoundVolume" },
+    { Token::Type::Function, 224, "SpawnAttachedFacedParticle" },
+    { Token::Type::Function, 225, "IfStateIsOdd" },
+    { Token::Type::Function, 226, "SetTargetToDistantEnemy" },
+    { Token::Type::Function, 227, "Teleport" },
+    { Token::Type::Function, 228, "GiveStrengthToTarget" },
+    { Token::Type::Function, 229, "GiveIntellectToTarget" },
+    { Token::Type::Function, 230, "GiveIntelligenceToTarget" },
+    { Token::Type::Function, 231, "GiveDexterityToTarget" },
+    { Token::Type::Function, 232, "GiveLifeToTarget" },
+    { Token::Type::Function, 233, "GiveManaToTarget" },
+    { Token::Type::Function, 234, "ShowMap" },
+    { Token::Type::Function, 235, "ShowYouAreHere" },
+    { Token::Type::Function, 236, "ShowBlipXY" },
+    { Token::Type::Function, 237, "HealTarget" },
+    { Token::Type::Function, 238, "PumpTarget" },
+    { Token::Type::Function, 239, "CostAmmo" },
+    { Token::Type::Function, 240, "MakeSimilarNamesKnown" },
+    { Token::Type::Function, 241, "SpawnAttachedHolderParticle" },
+    { Token::Type::Function, 242, "SetTargetReloadTime" },
+    { Token::Type::Function, 243, "SetFogLevel" },
+    { Token::Type::Function, 244, "GetFogLevel" },
+    { Token::Type::Function, 245, "SetFogTAD" },
+    { Token::Type::Function, 246, "SetFogBottomLevel" },
+    { Token::Type::Function, 247, "GetFogBottomLevel" },
+    { Token::Type::Function, 248, "CorrectActionForHand" },
+    { Token::Type::Function, 249, "IfTargetIsMounted" },
+    { Token::Type::Function, 250, "SparkleIcon" },
+    { Token::Type::Function, 251, "UnsparkleIcon" },
+    { Token::Type::Function, 252, "GetTileXY" },
+    { Token::Type::Function, 253, "SetTileXY" },
+    { Token::Type::Function, 254, "SetShadowSize" },
+    { Token::Type::Function, 255, "OrderTarget" },
+    { Token::Type::Function, 256, "SetTargetToWhoeverIsInPassage" },
+    { Token::Type::Function, 257, "IfCharacterWasABook" },
+    { Token::Type::Function, 258, "SetEnchantBoostValues" },
+    { Token::Type::Function, 259, "SpawnCharacterXYZ" },
+    { Token::Type::Function, 260, "SpawnExactCharacterXYZ" },
+    { Token::Type::Function, 261, "ChangeTargetClass" },
+    { Token::Type::Function, 262, "PlayFullSound" },
+    { Token::Type::Function, 263, "SpawnExactChaseParticle" },
+    { Token::Type::Function, 264, "CreateOrder" },
+    { Token::Type::Function, 265, "OrderSpecialID" },
+    { Token::Type::Function, 266, "UnkurseTargetInventory" },
+    { Token::Type::Function, 267, "IfTargetIsSneaking" },
+    { Token::Type::Function, 268, "DropItems" },
+    { Token::Type::Function, 269, "RespawnTarget" },
+    { Token::Type::Function, 270, "TargetDoActionSetFrame" },
+    { Token::Type::Function, 271, "IfTargetCanSeeInvisible" },
+    { Token::Type::Function, 272, "SetTargetToNearestBlahID" },
+    { Token::Type::Function, 273, "SetTargetToNearestEnemy" },
+    { Token::Type::Function, 274, "SetTargetToNearestFriend" },
+    { Token::Type::Function, 275, "SetTargetToNearestLifeform" },
+    { Token::Type::Function, 276, "FlashPassage" },
+    { Token::Type::Function, 277, "FindTileInPassage" },
+    { Token::Type::Function, 278, "IfHeldInLeftHand" },
+    { Token::Type::Function, 279, "NotAnItem" },
+    { Token::Type::Function, 280, "SetChildAmmo" },
+    { Token::Type::Function, 281, "IfHitVulnerable" },
+    { Token::Type::Function, 282, "IfTargetIsFlying" },
+    { Token::Type::Function, 283, "IdentifyTarget" },
+    { Token::Type::Function, 284, "BeatModule" },
+    { Token::Type::Function, 285, "EndModule" },
+    { Token::Type::Function, 286, "DisableExport" },
+    { Token::Type::Function, 287, "EnableExport" },
+    { Token::Type::Function, 288, "GetTargetState" },
+    { Token::Type::Function, 289, "IfEquipped" },
+    { Token::Type::Function, 290, "DropTargetMoney" },
+    { Token::Type::Function, 291, "GetTargetContent" },
+    { Token::Type::Function, 292, "DropTargetKeys" },
+    { Token::Type::Function, 293, "JoinTeam" },
+    { Token::Type::Function, 294, "TargetJoinTeam" },
+    { Token::Type::Function, 295, "ClearMusicPassage" },
+    { Token::Type::Function, 296, "ClearEndMessage" },
+    { Token::Type::Function, 297, "AddEndMessage" },
+    { Token::Type::Function, 298, "PlayMusic" },
+    { Token::Type::Function, 299, "SetMusicPassage" },
+    { Token::Type::Function, 300, "MakeCrushInvalid" },
+    { Token::Type::Function, 301, "StopMusic" },
+    { Token::Type::Function, 302, "FlashVariable" },
+    { Token::Type::Function, 303, "AccelerateUp" },
+    { Token::Type::Function, 304, "FlashVariableHeight" },
+    { Token::Type::Function, 305, "SetDamageTime" },
+    { Token::Type::Function, 306, "IfStateIs8" },
+    { Token::Type::Function, 307, "IfStateIs9" },
+    { Token::Type::Function, 308, "IfStateIs10" },
+    { Token::Type::Function, 309, "IfStateIs11" },
+    { Token::Type::Function, 310, "IfStateIs12" },
+    { Token::Type::Function, 311, "IfStateIs13" },
+    { Token::Type::Function, 312, "IfStateIs14" },
+    { Token::Type::Function, 313, "IfStateIs15" },
+    { Token::Type::Function, 314, "IfTargetIsAMount" },
+    { Token::Type::Function, 315, "IfTargetIsAPlatform" },
+    { Token::Type::Function, 316, "AddStat" },
+    { Token::Type::Function, 317, "DisenchantTarget" },
+    { Token::Type::Function, 318, "DisenchantAll" },
+    { Token::Type::Function, 319, "SetVolumeNearestTeammate" },
+    { Token::Type::Function, 320, "AddShopPassage" },
+    { Token::Type::Function, 321, "TargetPayForArmor" },
+    { Token::Type::Function, 322, "JoinEvilTeam" },
+    { Token::Type::Function, 323, "JoinNullTeam" },
+    { Token::Type::Function, 324, "JoinGoodTeam" },
+    { Token::Type::Function, 325, "PitsKill" },
+    { Token::Type::Function, 326, "SetTargetToPassageID" },
+    { Token::Type::Function, 327, "MakeNameUnknown" },
+    { Token::Type::Function, 328, "SpawnExactParticleEndSpawn" },
+    { Token::Type::Function, 329, "SpawnPoofSpeedSpacingDamage" },
+    { Token::Type::Function, 330, "GiveExperienceToGoodTeam" },
+    { Token::Type::Function, 331, "DoNothing" },
+    { Token::Type::Function, 332, "GrogTarget" },
+    { Token::Type::Function, 333, "DazeTarget" },
+    { Token::Type::Function, 334, "EnableRespawn" },
+    { Token::Type::Function, 335, "DisableRespawn" },
+    { Token::Type::Function, 336, "DispelTargetEnchantID" },
+    { Token::Type::Function, 337, "IfHolderBlocked" },
+    { Token::Type::Function, 338, "GetTargetShieldProfiency" },
+    { Token::Type::Function, 339, "IfTargetHasNotFullMana" },
+    { Token::Type::Function, 340, "EnableListenSkill" },
+    { Token::Type::Function, 341, "SetTargetToLastItemUsed" },
+    { Token::Type::Function, 342, "FollowLink" },
+    { Token::Type::Function, 343, "IfOperatorIsLinux" },
+    { Token::Type::Function, 344, "IfTargetIsAWeapon" },
+    { Token::Type::Function, 345, "IfSomeoneIsStealing" },
+    { Token::Type::Function, 346, "IfTargetIsASpell" },
+    { Token::Type::Function, 347, "IfBackstabbed" },
+    { Token::Type::Function, 348, "GetTargetDamageType" },
+    { Token::Type::Function, 349, "AddTargetQuest" },
+    { Token::Type::Function, 350, "BeatQuestAllPlayers" },
+    { Token::Type::Function, 351, "IfTargetHasQuest" },
+    { Token::Type::Function, 352, "SetTargetQuestLevel" },
+    { Token::Type::Function, 353, "AddQuestAllPlayers" },
+    { Token::Type::Function, 354, "AddBlipAllEnemies" },
+    { Token::Type::Function, 355, "PitsFall" },
+    { Token::Type::Function, 356, "IfTargetIsOwner" },
+    { Token::Type::Function, 357, "SetSpeech" },
+    { Token::Type::Function, 364, "TakePicture" },
+    { Token::Type::Function, 365, "IfOperatorIsMacintosh" },
+    { Token::Type::Function, 366, "IfModuleHasIDSZ" },
+    { Token::Type::Function, 367, "MorphToTarget" },
+    { Token::Type::Function, 368, "GiveManaFlowToTarget" },
+    { Token::Type::Function, 369, "GiveManaReturnToTarget" },
+    { Token::Type::Function, 370, "SetMoney" },
+    { Token::Type::Function, 371, "IfTargetCanSeeKurses" },
+    { Token::Type::Function, 372, "SpawnAttachedCharacter" },
+    { Token::Type::Function, 373, "KurseTarget" },
+    { Token::Type::Function, 374, "SetChildContent" },
+    { Token::Type::Function, 375, "SetTargetToChild" },
+    { Token::Type::Function, 376, "SetDamageThreshold" },
+    { Token::Type::Function, 377, "AccelerateTargetUp" },
+    { Token::Type::Function, 378, "SetTargetAmmo" },
+    { Token::Type::Function, 379, "EnableInvictus" },
+    { Token::Type::Function, 380, "DisableInvictus" },
+    { Token::Type::Function, 381, "TargetDamageSelf" },
+    { Token::Type::Function, 382, "SetTargetSize" },
+    { Token::Type::Function, 383, "IfTargetIsFacingSelf" },
+    { Token::Type::Function, 384, "DrawBillboard" },
+    { Token::Type::Function, 385, "SetTargetToBlahInPassage" },
+    { Token::Type::Function, 386, "IfLevelUp" },
+    { Token::Type::Function, 387, "GiveSkillToTarget" },
+    { Token::Type::Function, 388, "SetTargetToNearbyMeleeWeapon" },
+    { Token::Type::Function, 389, "EnableStealth" },
+    { Token::Type::Function, 390, "DisableStealth" },
+    { Token::Type::Function, 391, "IfStealthed" },
+    { Token::Type::Function, 392, "SetTargetToDistantFriend" },
+    { Token::Type::Constant, 1, "BLAHDEAD" },
+    { Token::Type::Constant, 2, "BLAHENEMIES" },
+    { Token::Type::Constant, 4, "BLAHFRIENDS" },
+    { Token::Type::Constant, 8, "BLAHITEMS" },
+    { Token::Type::Constant, 16, "BLAHINVERTID" },
+    { Token::Type::Constant, 32, "BLAHPLAYERS" },
+    { Token::Type::Constant, 64, "BLAHSKILL" },
+    { Token::Type::Constant, 128, "BLAHQUEST" },
+    { Token::Type::Constant, 0, "STATEPARRY" },
+    { Token::Type::Constant, 1, "STATEWANDER" },
+    { Token::Type::Constant, 2, "STATEGUARD" },
+    { Token::Type::Constant, 3, "STATEFOLLOW" },
+    { Token::Type::Constant, 4, "STATESURROUND" },
+    { Token::Type::Constant, 5, "STATERETREAT" },
+    { Token::Type::Constant, 6, "STATECHARGE" },
+    { Token::Type::Constant, 7, "STATECOMBAT" },
+    { Token::Type::Constant, 4, "GRIPONLY" },
+    { Token::Type::Constant, 4, "GRIPLEFT" },
+    { Token::Type::Constant, 8, "GRIPRIGHT" },
+    { Token::Type::Constant, 0, "SPAWNORIGIN" },
+    { Token::Type::Constant, 1, "SPAWNLAST" },
+    { Token::Type::Constant, 0, "LATCHLEFT" },
+    { Token::Type::Constant, 1, "LATCHRIGHT" },
+    { Token::Type::Constant, 2, "LATCHJUMP" },
+    { Token::Type::Constant, 3, "LATCHALTLEFT" },
+    { Token::Type::Constant, 4, "LATCHALTRIGHT" },
+    { Token::Type::Constant, 5, "LATCHPACKLEFT" },
+    { Token::Type::Constant, 6, "LATCHPACKRIGHT" },
+    { Token::Type::Constant, 0, "DAMAGESLASH" },
+    { Token::Type::Constant, 1, "DAMAGECRUSH" },
+    { Token::Type::Constant, 2, "DAMAGEPOKE" },
+    { Token::Type::Constant, 3, "DAMAGEHOLY" },
+    { Token::Type::Constant, 4, "DAMAGEEVIL" },
+    { Token::Type::Constant, 5, "DAMAGEFIRE" },
+    { Token::Type::Constant, 6, "DAMAGEICE" },
+    { Token::Type::Constant, 7, "DAMAGEZAP" },
+    { Token::Type::Constant, 0, "ACTIONDA" },
+    { Token::Type::Constant, 1, "ACTIONDB" },
+    { Token::Type::Constant, 2, "ACTIONDC" },
+    { Token::Type::Constant, 3, "ACTIONDD" },
+    { Token::Type::Constant, 4, "ACTIONUA" },
+    { Token::Type::Constant, 5, "ACTIONUB" },
+    { Token::Type::Constant, 6, "ACTIONUC" },
+    { Token::Type::Constant, 7, "ACTIONUD" },
+    { Token::Type::Constant, 8, "ACTIONTA" },
+    { Token::Type::Constant, 9, "ACTIONTB" },
+    { Token::Type::Constant, 10, "ACTIONTC" },
+    { Token::Type::Constant, 11, "ACTIONTD" },
+    { Token::Type::Constant, 12, "ACTIONCA" },
+    { Token::Type::Constant, 13, "ACTIONCB" },
+    { Token::Type::Constant, 14, "ACTIONCC" },
+    { Token::Type::Constant, 15, "ACTIONCD" },
+    { Token::Type::Constant, 16, "ACTIONSA" },
+    { Token::Type::Constant, 17, "ACTIONSB" },
+    { Token::Type::Constant, 18, "ACTIONSC" },
+    { Token::Type::Constant, 19, "ACTIONSD" },
+    { Token::Type::Constant, 20, "ACTIONBA" },
+    { Token::Type::Constant, 21, "ACTIONBB" },
+    { Token::Type::Constant, 22, "ACTIONBC" },
+    { Token::Type::Constant, 23, "ACTIONBD" },
+    { Token::Type::Constant, 24, "ACTIONLA" },
+    { Token::Type::Constant, 25, "ACTIONLB" },
+    { Token::Type::Constant, 26, "ACTIONLC" },
+    { Token::Type::Constant, 27, "ACTIONLD" },
+    { Token::Type::Constant, 28, "ACTIONXA" },
+    { Token::Type::Constant, 29, "ACTIONXB" },
+    { Token::Type::Constant, 30, "ACTIONXC" },
+    { Token::Type::Constant, 31, "ACTIONXD" },
+    { Token::Type::Constant, 32, "ACTIONFA" },
+    { Token::Type::Constant, 33, "ACTIONFB" },
+    { Token::Type::Constant, 34, "ACTIONFC" },
+    { Token::Type::Constant, 35, "ACTIONFD" },
+    { Token::Type::Constant, 36, "ACTIONPA" },
+    { Token::Type::Constant, 37, "ACTIONPB" },
+    { Token::Type::Constant, 38, "ACTIONPC" },
+    { Token::Type::Constant, 39, "ACTIONPD" },
+    { Token::Type::Constant, 40, "ACTIONEA" },
+    { Token::Type::Constant, 41, "ACTIONEB" },
+    { Token::Type::Constant, 42, "ACTIONRA" },
+    { Token::Type::Constant, 43, "ACTIONZA" },
+    { Token::Type::Constant, 44, "ACTIONZB" },
+    { Token::Type::Constant, 45, "ACTIONZC" },
+    { Token::Type::Constant, 46, "ACTIONZD" },
+    { Token::Type::Constant, 47, "ACTIONWA" },
+    { Token::Type::Constant, 48, "ACTIONWB" },
+    { Token::Type::Constant, 49, "ACTIONWC" },
+    { Token::Type::Constant, 50, "ACTIONWD" },
+    { Token::Type::Constant, 51, "ACTIONJA" },
+    { Token::Type::Constant, 52, "ACTIONJB" },
+    { Token::Type::Constant, 53, "ACTIONJC" },
+    { Token::Type::Constant, 54, "ACTIONHA" },
+    { Token::Type::Constant, 55, "ACTIONHB" },
+    { Token::Type::Constant, 56, "ACTIONHC" },
+    { Token::Type::Constant, 57, "ACTIONHD" },
+    { Token::Type::Constant, 58, "ACTIONKA" },
+    { Token::Type::Constant, 59, "ACTIONKB" },
+    { Token::Type::Constant, 60, "ACTIONKC" },
+    { Token::Type::Constant, 61, "ACTIONKD" },
+    { Token::Type::Constant, 62, "ACTIONMA" },
+    { Token::Type::Constant, 63, "ACTIONMB" },
+    { Token::Type::Constant, 64, "ACTIONMC" },
+    { Token::Type::Constant, 65, "ACTIONMD" },
+    { Token::Type::Constant, 66, "ACTIONME" },
+    { Token::Type::Constant, 67, "ACTIONMF" },
+    { Token::Type::Constant, 68, "ACTIONMG" },
+    { Token::Type::Constant, 69, "ACTIONMH" },
+    { Token::Type::Constant, 70, "ACTIONMI" },
+    { Token::Type::Constant, 71, "ACTIONMJ" },
+    { Token::Type::Constant, 72, "ACTIONMK" },
+    { Token::Type::Constant, 73, "ACTIONML" },
+    { Token::Type::Constant, 74, "ACTIONMM" },
+    { Token::Type::Constant, 75, "ACTIONMN" },
+    { Token::Type::Constant, 0, "EXPSECRET" },
+    { Token::Type::Constant, 1, "EXPQUEST" },
+    { Token::Type::Constant, 2, "EXPDARE" },
+    { Token::Type::Constant, 3, "EXPKILL" },
+    { Token::Type::Constant, 4, "EXPMURDER" },
+    { Token::Type::Constant, 5, "EXPREVENGE" },
+    { Token::Type::Constant, 6, "EXPTEAMWORK" },
+    { Token::Type::Constant, 7, "EXPROLEPLAY" },
+    { Token::Type::Constant, 0, "MESSAGEDEATH" },
+    { Token::Type::Constant, 1, "MESSAGEHATE" },
+    { Token::Type::Constant, 2, "MESSAGEOUCH" },
+    { Token::Type::Constant, 3, "MESSAGEFRAG" },
+    { Token::Type::Constant, 4, "MESSAGEACCIDENT" },
+    { Token::Type::Constant, 5, "MESSAGECOSTUME" },
+    { Token::Type::Constant, 0, "ORDERMOVE" },
+    { Token::Type::Constant, 1, "ORDERATTACK" },
+    { Token::Type::Constant, 2, "ORDERASSIST" },
+    { Token::Type::Constant, 3, "ORDERSTAND" },
+    { Token::Type::Constant, 4, "ORDERTERRAIN" },
+    { Token::Type::Constant, 0, "WHITE" },
+    { Token::Type::Constant, 1, "RED" },
+    { Token::Type::Constant, 2, "YELLOW" },
+    { Token::Type::Constant, 3, "GREEN" },
+    { Token::Type::Constant, 4, "BLUE" },
+    { Token::Type::Constant, 5, "PURPLE" },
+    { Token::Type::Constant, 1, "FXNOREFLECT" },
+    { Token::Type::Constant, 2, "FXDRAWREFLECT" },
+    { Token::Type::Constant, 4, "FXANIM" },
+    { Token::Type::Constant, 8, "FXWATER" },
+    { Token::Type::Constant, 16, "FXBARRIER" },
+    { Token::Type::Constant, 32, "FXIMPASS" },
+    { Token::Type::Constant, 64, "FXDAMAGE" },
+    { Token::Type::Constant, 128, "FXSLIPPY" },
+    { Token::Type::Constant, 0, "TEAMA" },
+    { Token::Type::Constant, 1, "TEAMB" },
+    { Token::Type::Constant, 2, "TEAMC" },
+    { Token::Type::Constant, 3, "TEAMD" },
+    { Token::Type::Constant, 4, "TEAME" },
+    { Token::Type::Constant, 5, "TEAMF" },
+    { Token::Type::Constant, 6, "TEAMG" },
+    { Token::Type::Constant, 7, "TEAMH" },
+    { Token::Type::Constant, 8, "TEAMI" },
+    { Token::Type::Constant, 9, "TEAMJ" },
+    { Token::Type::Constant, 10, "TEAMK" },
+    { Token::Type::Constant, 11, "TEAML" },
+    { Token::Type::Constant, 12, "TEAMM" },
+    { Token::Type::Constant, 13, "TEAMN" },
+    { Token::Type::Constant, 14, "TEAMO" },
+    { Token::Type::Constant, 15, "TEAMP" },
+    { Token::Type::Constant, 16, "TEAMQ" },
+    { Token::Type::Constant, 17, "TEAMR" },
+    { Token::Type::Constant, 18, "TEAMS" },
+    { Token::Type::Constant, 19, "TEAMT" },
+    { Token::Type::Constant, 20, "TEAMU" },
+    { Token::Type::Constant, 21, "TEAMV" },
+    { Token::Type::Constant, 22, "TEAMW" },
+    { Token::Type::Constant, 23, "TEAMX" },
+    { Token::Type::Constant, 24, "TEAMY" },
+    { Token::Type::Constant, 25, "TEAMZ" },
+    { Token::Type::Constant, 1, "INVENTORY" },
+    { Token::Type::Constant, 2, "LEFT" },
+    { Token::Type::Constant, 3, "RIGHT" },
+    { Token::Type::Constant, 0, "EASY" },
+    { Token::Type::Constant, 1, "NORMAL" },
+    { Token::Type::Constant, 2, "HARD" },
+    { Token::Type::Variable, 0, "tmpx" },
+    { Token::Type::Variable, 1, "tmpy" },
+    { Token::Type::Variable, 2, "tmpdist" },
+    { Token::Type::Variable, 2, "tmpdistance" },
+    { Token::Type::Variable, 3, "tmpturn" },
+    { Token::Type::Variable, 4, "tmpargument" },
+    { Token::Type::Variable, 5, "rand" },
+    { Token::Type::Variable, 6, "selfx" },
+    { Token::Type::Variable, 7, "selfy" },
+    { Token::Type::Variable, 8, "selfturn" },
+    { Token::Type::Variable, 9, "selfcounter" },
+    { Token::Type::Variable, 10, "selforder" },
+    { Token::Type::Variable, 11, "selfmorale" },
+    { Token::Type::Variable, 12, "selflife" },
+    { Token::Type::Variable, 13, "targetx" },
+    { Token::Type::Variable, 14, "targety" },
+    { Token::Type::Variable, 15, "targetdistance" },
+    { Token::Type::Variable, 16, "targetturn" },
+    { Token::Type::Variable, 17, "leaderx" },
+    { Token::Type::Variable, 18, "leadery" },
+    { Token::Type::Variable, 19, "leaderdistance" },
+    { Token::Type::Variable, 20, "leaderturn" },
+    { Token::Type::Variable, 21, "gotox" },
+    { Token::Type::Variable, 22, "gotoy" },
+    { Token::Type::Variable, 23, "gotodistance" },
+    { Token::Type::Variable, 24, "targetturnto" },
+    { Token::Type::Variable, 25, "passage" },
+    { Token::Type::Variable, 26, "weight" },
+    { Token::Type::Variable, 27, "selfaltitude" },
+    { Token::Type::Variable, 28, "selfid" },
+    { Token::Type::Variable, 29, "selfhateid" },
+    { Token::Type::Variable, 30, "selfmana" },
+    { Token::Type::Variable, 31, "targetstr" },
+    { Token::Type::Variable, 32, "targetwis" },   //deprecated
+    { Token::Type::Variable, 33, "targetint" },
+    { Token::Type::Variable, 34, "targetdex" },
+    { Token::Type::Variable, 35, "targetlife" },
+    { Token::Type::Variable, 36, "targetmana" },
+    { Token::Type::Variable, 37, "targetlevel" },
+    { Token::Type::Variable, 38, "targetspeedx" },
+    { Token::Type::Variable, 39, "targetspeedy" },
+    { Token::Type::Variable, 40, "targetspeedz" },
+    { Token::Type::Variable, 41, "selfspawnx" },
+    { Token::Type::Variable, 42, "selfspawny" },
+    { Token::Type::Variable, 43, "selfstate" },
+    { Token::Type::Variable, 44, "selfstr" },
+    { Token::Type::Variable, 45, "selfwis" },
+    { Token::Type::Variable, 46, "selfint" },
+    { Token::Type::Variable, 47, "selfdex" },
+    { Token::Type::Variable, 48, "selfmanaflow" },
+    { Token::Type::Variable, 49, "targetmanaflow" },
+    { Token::Type::Variable, 50, "selfattached" },
+    { Token::Type::Variable, 51, "swingturn" },
+    { Token::Type::Variable, 52, "xydistance" },
+    { Token::Type::Variable, 53, "selfz" },
+    { Token::Type::Variable, 54, "targetaltitude" },
+    { Token::Type::Variable, 55, "targetz" },
+    { Token::Type::Variable, 56, "selfindex" },
+    { Token::Type::Variable, 57, "ownerx" },
+    { Token::Type::Variable, 58, "ownery" },
+    { Token::Type::Variable, 59, "ownerturn" },
+    { Token::Type::Variable, 60, "ownerdistance" },
+    { Token::Type::Variable, 61, "ownerturnto" },
+    { Token::Type::Variable, 62, "xyturnto" },
+    { Token::Type::Variable, 63, "selfmoney" },
+    { Token::Type::Variable, 64, "selfaccel" },
+    { Token::Type::Variable, 65, "targetexp" },
+    { Token::Type::Variable, 66, "selfammo" },
+    { Token::Type::Variable, 67, "targetammo" },
+    { Token::Type::Variable, 68, "targetmoney" },
+    { Token::Type::Variable, 69, "targetturnfrom" },
+    { Token::Type::Variable, 70, "selflevel" },
+    { Token::Type::Variable, 71, "targetreloadtime" },
+    { Token::Type::Variable, 72, "selfcontent" },
+    { Token::Type::Variable, 73, "spawndistance" },
+    { Token::Type::Variable, 74, "targetmaxlife" },
+    { Token::Type::Variable, 75, "targetteam" },
+    { Token::Type::Variable, 76, "targetarmor" },
+    { Token::Type::Variable, 77, "difficulty" },
+    { Token::Type::Variable, 78, "timehours" },
+    { Token::Type::Variable, 79, "timeminutes" },
+    { Token::Type::Variable, 80, "timeseconds" },
+    { Token::Type::Variable, 81, "datemonth" },
+    { Token::Type::Variable, 82, "dateday" },
+    { Token::Type::Operator, 0, "+" },
+    { Token::Type::Operator, 1, "-" },
+    { Token::Type::Operator, 2, "&" },
+    { Token::Type::Operator, 3, ">" },
+    { Token::Type::Operator, 4, "<" },
+    { Token::Type::Operator, 5, "*" },
+    { Token::Type::Operator, 6, "/" },
+    { Token::Type::Operator, 7, "%" },
 };
 
 static bool load_ai_codes_vfs();
 
 parser_state_t::parser_state_t()
+	: token()
 {
 	this->line_count = 0;
 	this->line_buffer_count = 0;
 	this->line_buffer[0] = '\0';
 	this->load_buffer_count = 0;
 	this->load_buffer[0] = '\0';
-
-    // Construct the token.
-    token_t::ctor(&(this->token));
 
     load_ai_codes_vfs();
     debug_script_file = vfs_openWrite("/debug/script_debug.txt");
@@ -740,9 +738,6 @@ parser_state_t::~parser_state_t()
 	this->line_buffer[0] = '\0';
 	this->load_buffer_count = 0;
 	this->load_buffer[0] = '\0';
-
-    // Destruct the token.
-    token_t::dtor(&(this->token));
 
     vfs_close(debug_script_file);
     debug_script_file = nullptr;
@@ -1216,7 +1211,7 @@ static size_t       insert_space( size_t position, char buffer[], size_t buffer_
 static size_t       fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max );
 
 
-static void         emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscript );
+static void         emit_opcode( token_t& tok, const BIT_FIELD highbits, script_info_t *pscript );
 
 static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
 static void         parse_jumps( script_info_t *pscript );
@@ -1438,7 +1433,7 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
 
     if ( ps.line_buffer_count > 0  && tabs_warning_needed )
     {
-        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
     }
 
     // scan to the beginning of the next line
@@ -1494,14 +1489,14 @@ int parser_state_t::get_indentation( parser_state_t& ps, script_info_t *pscript 
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
         ps.error = true;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
         ps.error = true;
         cnt = 15;
     }
@@ -1547,7 +1542,7 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read)
+size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read)
 {
     /// @author ZZ
     /// @details This function tells what code is being indexed by read, it
@@ -1568,7 +1563,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectPro
     szWord_length_max = SDL_arraysize( tok.szWord );
 
     // Reset the token
-    token_t::ctor( &tok );
+	tok = Token();
 
     // Check bounds
 	if ( read >= self.line_buffer_count )
@@ -1656,7 +1651,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectPro
     if (!parsed && Ego::isdigit(tok.szWord[0]))
     {
         sscanf( tok.szWord, "%d", &tok.iValue );
-        tok.cType  = 'C';
+        tok.setType(Token::Type::Constant);
         tok.iIndex = MAX_OPCODE;
 
         // move on to the next thing
@@ -1669,7 +1664,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectPro
         idsz = MAKE_IDSZ( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
 
         tok.iValue = idsz;
-        tok.cType  = 'C';
+        tok.setType(Token::Type::Constant);
         tok.iIndex = MAX_OPCODE;
 
         // move on to the next thing
@@ -1679,7 +1674,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectPro
     if ( !parsed && ( 0 == strcmp( tok.szWord, "=" ) ) )
     {
         tok.iValue = -1;
-        tok.cType  = 'O';
+        tok.setType(Token::Type::Operator);
         tok.iIndex = MAX_OPCODE;
 
         // move on to the next thing
@@ -1743,10 +1738,10 @@ size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectPro
             // Failed to load object!
             if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.iValue))
             {
-                log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, tok.szWord, pscript->name, tok.iLine );
+                log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, tok.szWord, pscript->_name.c_str(), tok.iLine );
             }
 
-            tok.cType = 'C';
+            tok.setType(Token::Type::Constant);
             tok.iIndex = MAX_OPCODE;
 
             parsed = true;
@@ -1757,7 +1752,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectPro
             // if this is a new string, add this message to the avalible messages of the object
             tok.iValue = ppro->addMessage(str, true);
 
-            tok.cType = 'C';
+            tok.setType(Token::Type::Constant);
             tok.iIndex = MAX_OPCODE;
 
             parsed = true;
@@ -1772,7 +1767,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectPro
             if ( 0 == strncmp( tok.szWord, OpList.ary[cnt].cName, MAXCODENAMESIZE ) )
             {
                 tok.iValue = OpList.ary[cnt].iValue;
-                tok.cType  = OpList.ary[cnt].cType;
+                tok.setType(OpList.ary[cnt]._type);
                 tok.iIndex = cnt;
 
                 // move on to the next thing
@@ -1786,11 +1781,11 @@ size_t parser_state_t::parse_token(parser_state_t& self, token_t& tok, ObjectPro
     // We couldn't figure out what this is, throw out an error code
     if ( !parsed )
     {
-        log_message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->name, tok.iLine, tok.szWord );
+        log_message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), tok.iLine, tok.szWord );
 
         // put the token in an error state
         tok.iValue = -1;
-        tok.cType  = '?';
+        tok.setType(Token::Type::Unknown);
         tok.iIndex = MAX_OPCODE;
 
         self.error = true;
@@ -1803,27 +1798,20 @@ parse_token_end:
 }
 
 //--------------------------------------------------------------------------------------------
-void emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscript )
+void emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t *pscript )
 {
     BIT_FIELD loc_highbits = highbits;
 
-    if ( NULL == ptok )
+    // emit constant or a function
+    if ( Token::Type::Constant == tok.getType() || Token::Type::Function == tok.getType() )
     {
-        log_message( "SCRIPT ERROR: %s() - emit_opcode() - Invalid token.\n", __FUNCTION__ );
-        return;
-    }
-
-    // detect a constant value
-    if ( 'C' == ptok->cType || 'F' == ptok->cType )
-    {
-        SET_BIT( loc_highbits, FUNCTION_BIT );
+        SET_BIT( loc_highbits, Instruction::FUNCTIONBITS );
     }
 
     // emit the opcode
-    if ( pscript->length < MAXAICOMPILESIZE )
+    if (!pscript->_instructions.isFull())
     {
-        pscript->data[pscript->length] = loc_highbits | ptok->iValue;
-        pscript->length++;
+		pscript->_instructions.append(Instruction(loc_highbits | tok.iValue));
     }
     else
     {
@@ -1860,7 +1848,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
 
         highbits = SET_DATA_BITS( get_indentation( ps, pscript ) );
         parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
-        if ( 'F' == ps.token.cType )
+        if ( Token::Type::Function == ps.token.getType() )
         {
             if ( FEND == ps.token.iValue && 0 == highbits )
             {
@@ -1872,14 +1860,14 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             // the code type is a function
 
             // save the opcode
-            emit_opcode( &( ps.token ), highbits, pscript );
+            emit_opcode( ps.token, highbits, pscript );
 
             // leave a space for the control code
             ps.token.iValue = 0;
-            emit_opcode( &( ps.token ), 0, pscript );
+            emit_opcode( ps.token, 0, pscript );
 
         }
-        else if ( 'V' == ps.token.cType )
+        else if ( Token::Type::Variable == ps.token.getType() )
         {
             //------------------------------
             // the code type is a math operation
@@ -1888,39 +1876,39 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             int operands = 0;
 
             // save in the value's opcode
-            emit_opcode( &( ps.token ), highbits, pscript );
+            emit_opcode( ps.token, highbits, pscript );
 
             // save a position for the operand count
             ps.token.iValue = 0;
-            operand_index = pscript->length;    //AisCompiled_offset;
-            emit_opcode( &( ps.token ), 0, pscript );
+            operand_index = pscript->_instructions.getLength();    //AisCompiled_offset;
+            emit_opcode( ps.token, 0, pscript );
 
             // handle the "="
             highbits = 0;
             parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );  // EQUALS
-            if ( 'O' != ps.token.cType || 0 != strcmp( ps.token.szWord, "=" ) )
+            if ( Token::Type::Operator != ps.token.getType() || 0 != strcmp( ps.token.szWord, "=" ) )
             {
-                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.line_buffer );
+                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
             }
 
             //------------------------------
             // grab the next opcode
 
             parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
-            if ( 'V' == ps.token.cType || 'C' == ps.token.cType )
+            if ( Token::Type::Variable == ps.token.getType() || Token::Type::Constant == ps.token.getType() )
             {
                 // this is a value or a constant
-                emit_opcode( &( ps.token ), 0, pscript );
+                emit_opcode( ps.token, 0, pscript );
                 operands++;
 
                 parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
             }
-            else if ( 'O' != ps.token.cType )
+            else if ( Token::Type::Operator != ps.token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.token.szWord );
+                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
 
-                emit_opcode( &( ps.token ), 0, pscript );
+                emit_opcode( ps.token, 0, pscript );
                 operands++;
 
                 parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
@@ -1930,10 +1918,10 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             while ( parseposition < ps.line_buffer_count )
             {
                 // the current token should be an operator
-                if ( 'O' != ps.token.cType )
+                if ( Token::Type::Operator != ps.token.getType() )
                 {
                     // problem with the loop
-                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.line_buffer );
+                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
                     break;
                 }
 
@@ -1942,42 +1930,42 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
 
                 // VALUE
                 parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
-                if ( 'C' != ps.token.cType && 'V' != ps.token.cType )
+                if ( Token::Type::Constant != ps.token.getType() && Token::Type::Variable != ps.token.getType() )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.token.szWord );
+                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
                     break;
                 }
 
-                emit_opcode( &( ps.token ), highbits, pscript );
+                emit_opcode( ps.token, highbits, pscript );
                 operands++;
 
                 // OPERATOR
                 parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
             }
-            pscript->data[operand_index] = operands;
+            pscript->_instructions[operand_index]._value = operands;
         }
-        else if ( 'C' == ps.token.cType )
+        else if ( Token::Type::Constant == ps.token.getType() )
         {
-            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
         }
-        else if ( '?' == ps.token.cType )
+        else if ( Token::Type::Unknown == ps.token.getType() )
         {
             // unknown opcode, do not process this line
-            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
         }
         else
         {
-            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
             break;
         }
     }
 
     ps.token.iValue = FEND;
-    ps.token.cType  = 'F';
-    emit_opcode( &( ps.token ), 0, pscript );
-    ps.token.iValue = pscript->length + 1;
-    emit_opcode( &( ps.token ), 0, pscript );
+    ps.token.setType(Token::Type::Function);
+    emit_opcode( ps.token, 0, pscript );
+    ps.token.iValue = pscript->_instructions.getLength() + 1;
+    emit_opcode( ps.token, 0, pscript );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1988,21 +1976,20 @@ Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
     ///    starting location and the following code.  The starting location
     ///    should always be a function code with indentation
 
-    Uint32 value;
     int targetindent, indent;
 
-    value = pscript->data[index]; /*AisCompiled_buffer[index];*/  index += 2;
-    targetindent = GET_DATA_BITS( value );
+    auto value = pscript->_instructions[index]; /*AisCompiled_buffer[index];*/  index += 2;
+    targetindent = GET_DATA_BITS( value._value );
     indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
-        value = pscript->data[index]; //AisCompiled_buffer[index];
-        indent = GET_DATA_BITS( value );
+        value = pscript->_instructions[index]; //AisCompiled_buffer[index];
+        indent = GET_DATA_BITS( value._value );
         if ( indent > targetindent )
         {
             // Was it a function
-            if ( HAS_SOME_BITS( value, FUNCTION_BIT ) )
+            if ( value.isInv() )
             {
                 // Each function needs a jump
                 index++;
@@ -2012,9 +1999,9 @@ Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
             {
                 // Operations cover each operand
                 index++;
-                value = pscript->data[index]; //AisCompiled_buffer[index];
+                value = pscript->_instructions[index]; //AisCompiled_buffer[index];
                 index++;
-                index += ( value & 255 );
+                index += ( value._value & 255 );
             }
         }
     }
@@ -2029,32 +2016,31 @@ void parse_jumps( script_info_t *pscript )
     /// @details This function sets up the fail jumps for the down and dirty code
 
     Uint32 index, index_end;
-    Uint32 value, iTmp;
 
     index     = 0;                    //AisStorage.ary[ainumber].iStartPosition;
-    index_end = pscript->length;   //AisStorage.ary[ainumber].iEndPosition;
+    index_end = pscript->_instructions.getLength();   //AisStorage.ary[ainumber].iEndPosition;
 
-    value = pscript->data[index];             //AisCompiled_buffer[index];
+    auto value = pscript->_instructions[index];             //AisCompiled_buffer[index];
     while ( index < index_end )
     {
-        value = pscript->data[index];         //AisCompiled_buffer[index];
+        value = pscript->_instructions[index];         //AisCompiled_buffer[index];
 
         // Was it a function
-        if ( HAS_SOME_BITS( value, FUNCTION_BIT ) )
+        if (value.isInv())
         {
             // Each function needs a jump
-            iTmp = jump_goto( index, index_end, pscript );
+            auto iTmp = jump_goto( index, index_end, pscript );
             index++;
-            pscript->data[index] = iTmp;              //AisCompiled_buffer[index] = iTmp;
+            pscript->_instructions[index]._value = iTmp;              //AisCompiled_buffer[index] = iTmp;
             index++;
         }
         else
         {
             // Operations cover each operand
             index++;
-            iTmp = pscript->data[index];              //AisCompiled_buffer[index];
+            auto iTmp = pscript->_instructions[index];              //AisCompiled_buffer[index];
             index++;
-            index += CLIP_TO_08BITS( iTmp );
+			index += CLIP_TO_08BITS( iTmp._value );
         }
     }
 }
@@ -2069,7 +2055,7 @@ bool load_ai_codes_vfs()
     for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)
     {
         strncpy(OpList.ary[OpList.count].cName, AICODES[i]._name, SDL_arraysize(OpList.ary[OpList.count].cName));
-        OpList.ary[OpList.count].cType = AICODES[i]._type;
+        OpList.ary[OpList.count]._type = AICODES[i]._type;
         OpList.ary[OpList.count].iValue = AICODES[i]._value;
         OpList.count++;
     }
@@ -2081,24 +2067,22 @@ egolib_rv ai_script_upload_default( script_info_t * pscript )
 {
     /// @author ZF
     /// @details This loads the default AI script into a character profile ai
-    //              It's not optimal since it duplicates the AI script data with memcpy
+    //           It's not optimal since it duplicates the AI script data.
 
     if ( NULL == pscript ) return rv_error;
 
-    strncpy( pscript->name, default_ai_script.name, sizeof( STRING ) );
-    memcpy( pscript->data, default_ai_script.data, sizeof( pscript->data ) );
+	pscript->_name = default_ai_script._name;
+	pscript->_instructions = default_ai_script._instructions;
 
     pscript->indent = 0;
     pscript->indent_last = 0;
-
-    pscript->length = default_ai_script.length;
-    pscript->position = 0;
+    pscript->set_pos(0);
 
     return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv load_ai_script_vfs( parser_state_t& ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript )
+egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript )
 {
     /// @author ZZ
     /// @details This function loads a script to memory
@@ -2110,12 +2094,12 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const char *loadname, ObjectPr
     if ( NULL == pscript ) pscript = &( default_ai_script );
 
     ps.line_count = 0;
-    fileread = vfs_openRead( loadname );
+    fileread = vfs_openRead( loadname.c_str() );
 
     // No such file
     if ( NULL == fileread )
     {
-        log_message( "SCRIPT ERROR: %s() - I am missing a AI script (%s)\n", __FUNCTION__, loadname );
+        log_message( "SCRIPT ERROR: %s() - I am missing a AI script (%s)\n", __FUNCTION__, loadname.c_str() );
         log_message( "              Using the default AI script instead (\"mp_data/script.txt\")\n" );
 
         ai_script_upload_default( pscript );
@@ -2130,17 +2114,17 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const char *loadname, ObjectPr
     // if the file is empty, use the default script
     if ( 0 == ps.load_buffer_count )
     {
-        log_message( "SCRIPT ERROR: %s() - Script file is empty. \"%s\"\n", __FUNCTION__, loadname );
+        log_message( "SCRIPT ERROR: %s() - Script file is empty. \"%s\"\n", __FUNCTION__, loadname.c_str() );
 
         ai_script_upload_default( pscript );
         return rv_fail;
     }
 
     // save the filename for error logging
-    strncpy( pscript->name, loadname, sizeof( STRING ) );
+	pscript->_name = loadname;
 
     // we have parsed nothing yet
-    pscript->length = 0;
+    pscript->_instructions._length = 0;
 
     // parse/compile the scripts
     parser_state_t::parse_line_by_line( ps, ppro, pscript );

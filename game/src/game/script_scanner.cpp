@@ -18,37 +18,16 @@
 //********************************************************************************************
 #include "game/script_scanner.hpp"
 
-token_t *token_t::ctor(token_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-
-    // to be explicit
-    self->iLine = 0;
-    self->iIndex = MAX_OPCODE;
-    self->iValue = 0;
-    self->cType = '?';
-
-    self->szWord_length = 0;
-    self->szWord[0] = CSTR_END;
-
-    return self;
+Token::Token()
+	: szWord{ '\0' }, szWord_length(0),
+	  iLine(0), iIndex(MAX_OPCODE), iValue(0), _type(Type::Unknown) {
 }
 
-void token_t::dtor(token_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
+Token::Token(const Token& other)
+	: szWord{ '\0' }, szWord_length(other.szWord_length),
+	  iLine(other.iLine), iIndex(other.iIndex), iValue(other.iValue), _type(other._type) {
+	strcpy(szWord, other.szWord);
+}
 
-    self->szWord[0] = CSTR_END;
-    self->szWord_length = 0;
-
-    self->cType = '?';
-    self->iValue = 0;
-    self->iIndex = MAX_OPCODE;
-    self->iLine = 0;
+Token::~Token() {
 }

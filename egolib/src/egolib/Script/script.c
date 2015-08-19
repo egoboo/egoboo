@@ -96,7 +96,7 @@ void scr_run_chr_script(Object *pchr) {
 		return;
 	}
 	ai_state_t& aiState = pchr->ai;
-	script_info_t *pscript = &pchr->getProfile()->getAIScript();
+	script_info_t& script = pchr->getProfile()->getAIScript();
 
 	// Has the time for this character to die come and gone?
 	if (aiState.poof_time >= 0 && aiState.poof_time <= (Sint32)update_wld) {
@@ -128,7 +128,7 @@ void scr_run_chr_script(Object *pchr) {
 	if (debug_scripts && debug_script_file) {
 		vfs_FILE * scr_file = debug_script_file;
 
-		vfs_printf(scr_file, "\n\n--------\n%s\n", pscript->name);
+		vfs_printf(scr_file, "\n\n--------\n%s\n", script._name.c_str());
 		vfs_printf(scr_file, "%d - %s\n", REF_TO_INT(script_error_model), script_error_classname);
 
 		// who are we related to?
@@ -177,28 +177,27 @@ void scr_run_chr_script(Object *pchr) {
 
 	// Reset the script state.
 	script_state_t my_state;
-	script_state_t::init(my_state);
 
 	// Reset the ai.
 	aiState.terminate = false;
-	pscript->indent = 0;
+	script.indent = 0;
 
 	// Run the AI Script.
-	script_info_t::set_pos(pscript, 0);
-	while (!aiState.terminate && pscript->position < pscript->length) {
+	script.set_pos(0);
+	while (!aiState.terminate && script.get_pos() < script._instructions.getLength()) {
 		// This is used by the Else function
 		// it only keeps track of functions.
-		pscript->indent_last = pscript->indent;
-		pscript->indent = GET_DATA_BITS(pscript->data[pscript->position]);
+		script.indent_last = script.indent;
+		script.indent = script._instructions[script.get_pos()].getDataBits();
 
 		// Was it a function.
-		if (HAS_SOME_BITS(pscript->data[pscript->position], FUNCTION_BIT)) {
-			if (!script_state_t::run_function_call(my_state, aiState, pscript)) {
+		if (script._instructions[script.get_pos()].isInv()) {
+			if (!script_state_t::run_function_call(my_state, aiState, script)) {
 				break;
 			}
 		}
 		else {
-			if (!script_state_t::run_operation(my_state, aiState, pscript)) {
+			if (!script_state_t::run_operation(my_state, aiState, script)) {
 				break;
 			}
 		}
@@ -253,62 +252,61 @@ void scr_run_chr_script( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiState, script_info_t *pscript )
+bool script_state_t::run_function_call( script_state_t& state, ai_state_t& aiState, script_info_t& script )
 {
     Uint8  functionreturn;
 
     // check for valid execution pointer
-    if ( pscript->position >= pscript->length ) return false;
+    if ( script.get_pos() >= script._instructions.getLength() ) return false;
 
     // Run the function
-	functionreturn = script_state_t::run_function(state, aiState, pscript);
+	functionreturn = script_state_t::run_function(state, aiState, script);
 
     // move the execution pointer to the jump code
-    script_info_t::increment_pos( pscript );
+    script.increment_pos();
     if ( functionreturn )
     {
         // move the execution pointer to the next opcode
-        script_info_t::increment_pos( pscript );
+		script.increment_pos();
     }
     else
     {
         // use the jump code to jump to the right location
-        size_t new_index = pscript->data[pscript->position];
+        size_t new_index = script._instructions[script.get_pos()]._value;
 
         // make sure the value is valid
-        EGOBOO_ASSERT( new_index <= pscript->length );
+        EGOBOO_ASSERT( new_index <= script._instructions.getLength() );
 
         // actually do the jump
-        script_info_t::set_pos( pscript, new_index );
+		script.set_pos(new_index);
     }
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, script_info_t * pscript )
+/// @todo Merge with caller.
+bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, script_info_t& script )
 {
     const char * variable;
     Uint32 var_value, operand_count, i;
 
-    // check for valid pointers
-    if ( NULL == pscript ) return false;
 
     // check for valid execution pointer
-    if ( pscript->position >= pscript->length ) return false;
+    if ( script.get_pos() >= script._instructions.getLength() ) return false;
 
-    var_value = pscript->data[pscript->position] & VALUE_BITS;
+    var_value = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
 
     // debug stuff
     variable = "UNKNOWN";
     if ( debug_scripts && debug_script_file )
     {
 
-        for ( i = 0; i < pscript->indent; i++ ) { vfs_printf( debug_script_file, "  " ); }
+        for ( i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file, "  " ); }
 
         for ( i = 0; i < MAX_OPCODE; i++ )
         {
-            if ( 'V' == OpList.ary[i].cType && var_value == OpList.ary[i].iValue )
+            if ( Token::Type::Variable == OpList.ary[i]._type && var_value == OpList.ary[i].iValue )
             {
                 variable = OpList.ary[i].cName;
                 break;
@@ -319,15 +317,15 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     }
 
     // Get the number of operands
-    script_info_t::increment_pos( pscript );
-    operand_count = pscript->data[pscript->position];
+	script.increment_pos();
+    operand_count = script._instructions[script.get_pos()]._value;
 
     // Now run the operation
     state.operationsum = 0;
-    for ( i = 0; i < operand_count && pscript->position < pscript->length; i++ )
+    for ( i = 0; i < operand_count && script.get_pos() < script._instructions.getLength(); ++i )
     {
-        script_info_t::increment_pos( pscript );
-		script_state_t::run_operand(state, aiState, pscript);
+		script.increment_pos();
+		script_state_t::run_operand(state, aiState, &script);
     }
     if ( debug_scripts && debug_script_file )
     {
@@ -338,19 +336,19 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     script_state_t::set_operand( state, var_value );
 
     // go to the next opcode
-    script_info_t::increment_pos( pscript );
+	script.increment_pos();
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, script_info_t *pscript)
+Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, script_info_t& script)
 {
     /// @author BB
     /// @details This is about half-way to what is needed for Lua integration
 
     // Mask out the indentation
-    Uint32 valuecode = pscript->data[pscript->position] & VALUE_BITS;
+    Uint32 valuecode = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
 
     // Assume that the function will pass, as most do
     Uint8 returncode = true;
@@ -365,11 +363,11 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     {
         Uint32 i;
 
-        for ( i = 0; i < pscript->indent; i++ ) { vfs_printf( debug_script_file,  "  " ); }
+        for ( i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file,  "  " ); }
 
         for ( i = 0; i < MAX_OPCODE; i++ )
         {
-            if ( 'F' == OpList.ary[i].cType && valuecode == OpList.ary[i].iValue )
+            if ( Token::Type::Function == OpList.ary[i]._type && valuecode == OpList.ary[i].iValue )
             {
                 vfs_printf( debug_script_file,  "%s\n", OpList.ary[i].cName );
                 break;
@@ -788,7 +786,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
 
                     // if none of the above, skip the line and log an error
                 default:
-                    log_message( "SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", pscript->name, valuecode );
+                    log_message( "SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", script._name.c_str(), valuecode );
                     returncode = false;
                     break;
             }
@@ -867,17 +865,17 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     // get the operator
     iTmp      = 0;
     varname   = buffer;
-    operation = GET_DATA_BITS( pscript->data[pscript->position] );
-    if ( HAS_SOME_BITS( pscript->data[pscript->position], FUNCTION_BIT ) )
+    operation = pscript->_instructions[pscript->get_pos()].getDataBits();
+    if ( pscript->_instructions[pscript->get_pos()].isLdc() )
     {
         // Get the working opcode from a constant, constants are all but high 5 bits
-        iTmp = pscript->data[pscript->position] & VALUE_BITS;
+        iTmp = pscript->_instructions[pscript->get_pos()] & Instruction::VALUEBITS;
         if ( debug_scripts ) snprintf( buffer, SDL_arraysize( buffer ), "%d", iTmp );
     }
     else
     {
         // Get the variable opcode from a register
-        variable = pscript->data[pscript->position] & VALUE_BITS;
+        variable = pscript->_instructions[pscript->get_pos()] & Instruction::VALUEBITS;
 
         switch ( variable )
         {
@@ -1484,23 +1482,24 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 }
 
 //--------------------------------------------------------------------------------------------
-bool script_info_t::increment_pos(script_info_t *self)
-{
-    if (NULL == self) return false;
-    if (self->position >= self->length) return false;
 
-	self->position++;
-
+bool script_info_t::increment_pos() {
+	if (_position >= _instructions.getLength()) {
+		return false;
+	}
+	_position++;
     return true;
 }
 
-bool script_info_t::set_pos(script_info_t *self, size_t position)
-{
-    if (NULL == self) return false;
-    if (position >= self->length) return false;
+size_t script_info_t::get_pos() const {
+	return _position;
+}
 
-	self->position = position;
-
+bool script_info_t::set_pos(size_t position) {
+	if (position >= _instructions.getLength()) {
+		return false;
+	}
+	_position = position;
     return true;
 }
 
@@ -1815,12 +1814,14 @@ void ai_state_t::spawn(ai_state_t& self, const CHR_REF index, const PRO_REF iobj
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void script_state_t::init(script_state_t& self)
+script_state_t::script_state_t()
+	: x(0), y(0), turn(0), distance(0),
+	  argument(0), operationsum(0)
 {
-	self.x = 0;
-	self.y = 0;
-	self.turn = 0;
-	self.distance = 0;
-	self.argument = 0;
-	self.operationsum = 0;
+}
+
+script_state_t::script_state_t(const script_state_t& other)
+	: x(other.x), y(other.y), turn(other.turn), distance(other.distance),
+	  argument(other.argument), operationsum(other.operationsum)
+{
 }

@@ -40,10 +40,7 @@ struct opcode_data_t;
 #define MAX_OPCODE          1024                ///< Number of lines in AICODES.TXT
 #define MAXCODENAMESIZE     64
 
-#define FUNCTION_BIT 0x80000000
-#define DATA_BITS    0x78000000
-#define VALUE_BITS   0x07FFFFFF
-#define END_VALUE    (FUNCTION_BIT | FEND)
+#define END_VALUE    (script_t::Instruction::FUNCTIONBIT | FEND)
 
 #define GET_DATA_BITS(X) ( ( (X) >>   27 ) &  0x0F )
 #define SET_DATA_BITS(X) ( ( (X) &  0x0F ) <<   27 )
@@ -57,7 +54,7 @@ extern vfs_FILE * debug_script_file;
 /// temporary data describing a single egoscript opcode
 struct opcode_data_t
 {
-    uint8_t cType;
+    Token::Type _type;
     uint32_t iValue;
     char cName[MAXCODENAMESIZE];
 };
@@ -642,7 +639,7 @@ private:
 	virtual ~parser_state_t();
 public:
     bool error;
-    token_t token;
+    Token token;
     int line_count;
 
     size_t line_buffer_count;
@@ -689,7 +686,7 @@ public:
     */
     static void clear_error(parser_state_t& self);
 
-	static size_t parse_token(parser_state_t& self, token_t& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read);
+	static size_t parse_token(parser_state_t& self, Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read);
 	static size_t load_one_line(parser_state_t& self, size_t read, script_info_t *pscript);
 	static int get_indentation(parser_state_t& self, script_info_t *pscript);
 	static void parse_line_by_line(parser_state_t& self, ObjectProfile *ppro, script_info_t *pscript);
@@ -708,4 +705,4 @@ public:
  * @param parser
  *	the parser
  */
-egolib_rv load_ai_script_vfs(parser_state_t& ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript);
+egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript);

@@ -151,6 +151,13 @@ public:
 	 */
 	void insert(char byte, size_t index);
 
+	/**
+	 * @brief
+	 *	Get if the buffer is empty.
+	 * @return
+	 *	@a true if the buffer is empty
+	 */
+	bool isEmpty() const;
 };
 
 } // namespace Script

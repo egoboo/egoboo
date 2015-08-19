@@ -118,5 +118,9 @@ void Buffer::insert(char byte, size_t index) {
 	_elements[index] = byte;
 }
 
+bool Buffer::isEmpty() const {
+	return 0 == getSize();
+}
+
 } // namespace Script
 } // namespace Ego

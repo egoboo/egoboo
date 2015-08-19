@@ -22,17 +22,68 @@
 
 #define MAX_OPCODE 1024 ///< Number of lines in AICODES.TXT
 
-/// The description of a single pre-defined egoscript token
-struct token_t
-{
+/**
+ * @brief
+ *	A token.
+ */
+struct Token {
+	enum class Type {
+		Unknown = '?',
+		Function = 'F',
+		Variable = 'V',
+		Constant = 'C',
+		Operator = 'O',
+	};
+
+private:
+	/**
+	 * @brief
+	 *	The type of this token.
+	 */
+	Type _type;
+
+public:
+
     int iLine;                       ///< Line number
     int iIndex;
-    char cType;                      ///< Constant, Variable, Function, etc.
+
     int iValue;                      ///< Integer value
 
     size_t szWord_length;
     STRING szWord;                   ///< The text representation
 
-    static token_t *ctor(token_t *self);
-    static void dtor(token_t *self);
+	/**
+	 * @brief
+	 *	Get the type of this token.
+	 * @return
+	 *	the type of this token
+	 */
+	Type getType() const {
+		return _type;
+	}
+
+	/**
+	 * @brief
+	 *	Set the type of this token.
+	 * @param type
+	 *	the type of this token
+	 */
+	void setType(Type type) {
+		_type = type;
+	}
+
+	/**
+	 * @brief
+	 *	Get the length of the lexeme of this token.
+	 * @return
+	 *	the length of the lexeme of this token
+	 */
+	size_t length() const {
+		return szWord_length;
+	}
+
+	Token();
+	Token(const Token& other);
+	~Token();
+
 };
