@@ -438,3 +438,4 @@ uint8_t scr_EnableStealth(script_state_t& state, ai_state_t& self);
 uint8_t scr_DisableStealth(script_state_t& state, ai_state_t& self);
 uint8_t scr_Stealthed(script_state_t& state, ai_state_t& self);
 uint8_t scr_set_TargetToDistantFriend(script_state_t& state, ai_state_t& self);
+uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self);

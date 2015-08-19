@@ -493,6 +493,7 @@ enum e_script_functions
     FDISABLESTEALTH,                    // == 390
     FIFSTEALTHED,                       // == 391
     FSETTARGETTODISTANTFRIEND,          // == 392
+    FDISPLAYCHARGE,                     // == 393
 
     SCRIPT_FUNCTIONS_COUNT
 };

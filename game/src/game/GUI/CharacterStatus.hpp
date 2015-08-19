@@ -25,6 +25,7 @@
 #include "game/GUI/GUIComponent.hpp"
 
 class Object;
+namespace GUI { class ProgressBar; }
 
 class CharacterStatus : public GUIComponent
 {
@@ -37,4 +38,5 @@ public:
 
 private:
     std::weak_ptr<Object> _object;
+    std::shared_ptr<GUI::ProgressBar> _chargeBar;
 };

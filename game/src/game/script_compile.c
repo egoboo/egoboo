@@ -442,6 +442,7 @@ static const aicode_t AICODES[] =
     { Token::Type::Function, 390, "DisableStealth" },
     { Token::Type::Function, 391, "IfStealthed" },
     { Token::Type::Function, 392, "SetTargetToDistantFriend" },
+    { 'F', 393, "DisplayCharge" },
     { Token::Type::Constant, 1, "BLAHDEAD" },
     { Token::Type::Constant, 2, "BLAHENEMIES" },
     { Token::Type::Constant, 4, "BLAHFRIENDS" },
@@ -1199,6 +1200,8 @@ const char *script_function_names[SCRIPT_FUNCTIONS_COUNT] =
     "FENABLESTEALTH",
     "FDISABLESTEALTH",
     "FIFSTEALTHED",
+    "FSETTARGETTODISTANTFRIEND",
+    "FDISPLAYCHARGE",
 };
 
 //--------------------------------------------------------------------------------------------

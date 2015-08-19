@@ -28,7 +28,6 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_functions.h"
 #include "game/script_implementation.h"
-#include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/link.h"
 #include "game/input.h"
@@ -49,6 +48,7 @@
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Entities/_Include.hpp"
 
+#include "game/GUI/MiniMap.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -8153,6 +8153,45 @@ uint8_t scr_set_TargetToDistantFriend( script_state_t& state, ai_state_t& self )
     else
     {
         returncode = false;
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self)
+{
+    // DisplayCharge( tmpargument = "progress", tmpdistance = "max progress", tmpturn = "pip width" )
+    /// @author ZF
+    /// @details Draws a special progress bar this update frame
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    //We ourselves must be a player or our holder must be one
+    std::shared_ptr<Object> player = _currentModule->getObjectHandler()[pchr->getCharacterID()];
+    if(!player->isPlayer() && player->isBeingHeld()) {
+        player = _currentModule->getObjectHandler()[pchr->attachedto];
+    }
+
+    //Only do this for players
+    if(!player->isPlayer()) {
+        returncode = false;
+    }
+
+    //Validate arguments
+    else if(state.distance <= 0 || state.distance < state.argument)  {
+        returncode = false;
+    }
+
+    //Render it!
+    else {        
+        returncode = true;
+
+        player_t * ppla = PlaStack.get_ptr(player->is_which_player);
+        ppla->_currentCharge = state.argument;
+        ppla->_maxCharge = state.distance;
+        ppla->_chargeTick = state.turn;
+        ppla->_chargeBarFrame = update_wld + 10;
     }
 
     SCRIPT_FUNCTION_END();

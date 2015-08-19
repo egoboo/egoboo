@@ -43,6 +43,12 @@ struct player_t
     CHR_REF                 index;                    ///< Which character?
     bool                    _unspentLevelUp;        ///< Has gained new experience level?
 
+    //Charge bar
+    uint32_t _currentCharge;
+    uint32_t _maxCharge;
+    uint32_t _chargeBarFrame;
+    uint32_t _chargeTick;
+
     /// the buffered input from the local input devices
     input_device_t          *pdevice;
 
