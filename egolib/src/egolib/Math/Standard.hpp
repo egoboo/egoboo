@@ -17,34 +17,46 @@ enum {
 
 
 /// A 2D vector.
-typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 2>> fvec2_t;
 typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 2>> Vector2f;
 
 /// A 3D vector.
-typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> fvec3_t;
 typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Vector3f;
 
 /// A 4D vector.
-typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 4>> fvec4_t;
+typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 4>> Vector4f;
 
 /// A 3D sphere.
-typedef Ego::Math::Sphere<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> sphere_t;
+typedef Ego::Math::Sphere<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Sphere3f;
 
 /// A 3D AABB.
-typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> aabb_t;
-typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> AABB_3D;
+typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> AABB3f;
 
 /// A 2D AABB.
-typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 2>> AABB_2D;
+typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 2>> AABB2f;
 
 /// A 3D cone.
-typedef Ego::Math::Cone3<float> cone_t;
+typedef Ego::Math::Cone3<float> Cone3f;
 
 /// A 3D cube.
-typedef Ego::Math::Cube<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> cube_t;
+typedef Ego::Math::Cube<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Cube3f;
 
 /// A 3D plane.
-typedef Ego::Math::Plane3<float> plane_t;
+typedef Ego::Math::Plane3<float> Plane3f;
+
+/** @deprecated Use Vector2f. */
+typedef Vector2f fvec2_t;
+/** @deprecated Use Vector3f */
+typedef Vector3f fvec3_t;
+/** @deprecated Use Vector4f. */
+typedef Vector4f fvec4_t;
+/** @deprecated Use AABB3f. */
+typedef AABB3f AABB_3D;
+/** @deprecated Use AABB3f. */
+typedef AABB3f aabb_t;
+/** @deprecated Use AABB2f. */
+typedef AABB2f AABB_2D;
+/** @deprecated Use Plane3f. */
+typedef Plane3f plane_t;
 
 #ifdef _DEBUG
 namespace Ego {
@@ -54,29 +66,29 @@ template <>
 void validate<float>(const char *file, int line, const float& object);
 
 template <>
-void validate<::fvec2_t>(const char *file, int line, const ::fvec2_t& object);
+void validate<::Vector2f>(const char *file, int line, const ::Vector2f& object);
 
 template <>
-void validate<::fvec3_t>(const char *file, int line, const ::fvec3_t& object);
+void validate<::Vector3f>(const char *file, int line, const ::Vector3f& object);
 
 template <>
-void validate<::fvec4_t>(const char *file, int line, const ::fvec4_t& object);
+void validate<::Vector4f>(const char *file, int line, const ::Vector4f& object);
 
 template <>
 void validate<::aabb_t>(const char *file, int line, const ::aabb_t& object);
 
 template <>
-void validate<::sphere_t>(const char *file, int line, const ::sphere_t& object);
+void validate<::Sphere3f>(const char *file, int line, const ::Sphere3f& object);
 
 template <>
-void validate<::cube_t>(const char *file, int line, const ::cube_t& object);
+void validate<::Cube3f>(const char *file, int line, const ::Cube3f& object);
 
 } // namespace Debug
 } // namespace Ego
 #endif
 
 /// @todo Remove this.
-float fvec3_decompose(const fvec3_t& src, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp);
+float fvec3_decompose(const Vector3f& src, const Vector3f& vnrm, Vector3f& vpara, Vector3f& vperp);
 
 
 

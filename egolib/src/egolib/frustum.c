@@ -188,7 +188,7 @@ Ego::Math::Relation egolib_frustum_t::intersects_point(const fvec3_t& point, con
 	return inside ? Ego::Math::Relation::inside : Ego::Math::Relation::outside;
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_sphere(const Sphere3f& sphere, const bool doEnds) const
 {
 	/// @todo The radius of a sphere shall preserve the invariant to be non-negative.
 	/// The test below would then reduce to radius == 0.0f. In that case, the simple

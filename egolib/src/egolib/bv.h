@@ -38,14 +38,14 @@ private:
      *  Update the sphere from the AABB.
      */
     void updateSphere() {
-        _sphere = Ego::Math::convexHull<aabb_t,sphere_t>(_aabb);
+        _sphere = Ego::Math::convexHull<aabb_t,Sphere3f>(_aabb);
     }
 
     /**
      * @brief
      *  The sphere.
      */
-    sphere_t _sphere;
+    Sphere3f _sphere;
 
     /**
      * @brief
@@ -61,7 +61,7 @@ public:
      * @return
      *  the sphere
      */
-    const sphere_t& getSphere() const {
+    const Sphere3f& getSphere() const {
         return _sphere;
     }
 
@@ -93,7 +93,7 @@ public:
      *  the aabb
      */
     bv_t(const aabb_t& aabb)
-        : _sphere(Ego::Math::convexHull<aabb_t,sphere_t>(aabb)), _aabb(aabb) {
+        : _sphere(Ego::Math::convexHull<aabb_t,Sphere3f>(aabb)), _aabb(aabb) {
         /* Intentionally empty. */
     }
 
