@@ -62,9 +62,6 @@
     <ClCompile Include="src\game\egoboo.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\egoboo_object.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\game.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -93,9 +90,6 @@
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\mesh.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\mesh_BSP.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\network.c">

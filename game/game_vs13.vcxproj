@@ -453,7 +453,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\char.c" />
     <ClCompile Include="src\game\collision.c" />
     <ClCompile Include="src\game\egoboo.c" />
-    <ClCompile Include="src\game\egoboo_object.c" />
     <ClCompile Include="src\game\game.c" />
     <ClCompile Include="src\game\graphic.c" />
     <ClCompile Include="src\game\graphic_billboard.c" />
@@ -464,7 +463,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\lighting.c" />
     <ClCompile Include="src\game\link.c" />
     <ClCompile Include="src\game\mesh.c" />
-    <ClCompile Include="src\game\mesh_BSP.c" />
     <ClCompile Include="src\game\network.c" />
     <ClCompile Include="src\game\physics.c" />
     <ClCompile Include="src\game\player.c" />
