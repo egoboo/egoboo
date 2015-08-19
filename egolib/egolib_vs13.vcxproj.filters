@@ -117,9 +117,6 @@
     <ClCompile Include="src\egolib\bbox.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\bsp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\clock.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -145,9 +142,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\geometry.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\hash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\IDSZ_map.c">
@@ -491,9 +485,6 @@
     <ClInclude Include="src\egolib\IDSZ_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\hash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -525,9 +516,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\clock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\bsp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\bbox.h">
