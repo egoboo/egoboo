@@ -1639,8 +1639,6 @@ void show_full_status( int statindex )
     /// @author ZF
     /// @details This function shows detailed armor information for the character including magic
 
-    int manaregen, liferegen;
-
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
     if(!pchr) {
         return;
@@ -1672,8 +1670,6 @@ void show_magic_status( int statindex )
 {
     /// @author ZF
     /// @details Displays special enchantment effects for the character
-
-    CHR_REF character;
 
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
     if(!pchr) {

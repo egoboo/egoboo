@@ -896,9 +896,6 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
 //--------------------------------------------------------------------------------------------
 bool chr_get_skill( Object *pchr, IDSZ whichskill )
 {
-    //Maps between old IDSZ skill system and new Perk system
-    IDSZ_node_t *pskill;
-
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
     //Any [NONE] IDSZ returns always "true"

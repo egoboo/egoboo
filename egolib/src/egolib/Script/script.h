@@ -198,7 +198,7 @@ public:
 	 *	@a false otherwise.
 	 */
 	bool hasNoBits(uint32_t bitmask) const {
-		return 0 == getBits() & bitmask;
+		return 0 == (getBits() & bitmask);
 	}
 	/**
 	 * @brief
@@ -209,7 +209,7 @@ public:
 	 *	@a true if this instruction has any of the bits in the bitmask set, @a false otherwise
 	 */
 	bool hasSomeBits(uint32_t bitmask) const {
-		return 0 != getBits() & bitmask;
+		return 0 != (getBits() & bitmask);
 	}
 	/**
 	 * @brief
@@ -220,7 +220,7 @@ public:
 	 *	@a true if this instruction has all of the bits in the bitmask set, @a false otherwise.
 	 */
 	bool hasAllBitsSet(uint32_t bitmask) const {
-		return bitmask == getBits() & bitmask;
+		return bitmask == (getBits() & bitmask);
 	}
 };
 

@@ -2393,9 +2393,6 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 {
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-
     bool prt_needs_impact;
 
     Object * powner = NULL;

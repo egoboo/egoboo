@@ -3007,7 +3007,7 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
     {
         if (!el.test_prt(particle)) continue;
 
-        if(Ego::Math::Relation::outside != cam.getFrustum().intersects_sphere(sphere_t(particle->getPosition(), particle->bump_real.size_big), false))
+        if(Ego::Math::Relation::outside != cam.getFrustum().intersects_sphere(Sphere3f(particle->getPosition(), particle->bump_real.size_big), false))
         {
             if (gfx_error == el.add_prt_raw(particle))
             {

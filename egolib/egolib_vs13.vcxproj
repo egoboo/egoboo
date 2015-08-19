@@ -591,9 +591,7 @@
     <ClInclude Include="src\egolib\math\Sphere.h" />
     <ClInclude Include="src\egolib\math\Plane.hpp" />
     <ClInclude Include="src\egolib\math\Random.hpp" />
-    <ClInclude Include="src\egolib\bsp_aabb.h" />
     <ClInclude Include="src\egolib\bv.h" />
-    <ClInclude Include="src\egolib\DynamicArray.hpp" />
     <ClInclude Include="src\egolib\bbox.h" />
     <ClInclude Include="src\egolib\clock.h" />
     <ClInclude Include="src\egolib\console.h" />
