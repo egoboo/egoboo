@@ -27,13 +27,13 @@
 #endif
 
 #include "game/egoboo_typedef.h"
+#include "game/Module/Module.hpp"
 #include "game/physics.h"
 #include "egolib/Script/script.h"
 #include "game/graphic_mad.h"
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"
 #include "egolib/IDSZ_map.h"
-#include "game/Module/Module.hpp"
 #include "game/Inventory.hpp"
 
 //Forward declarations
@@ -66,7 +66,6 @@ struct chr_environment_t
         is_slipping(false),
         is_slippy(false),
         is_watery(false),
-        air_friction(0.0f),
         ice_friction(0.0f),
         fluid_friction_hrz(0.0f),
         fluid_friction_vrt(0.0f),
@@ -100,7 +99,7 @@ struct chr_environment_t
     // friction stuff
     bool is_slipping;
     bool is_slippy,    is_watery;
-    float  air_friction, ice_friction;
+    float  ice_friction;
     float  fluid_friction_hrz, fluid_friction_vrt;
     float  traction, friction_hrz;
 
@@ -752,6 +751,8 @@ public:
     **/
     bool isScenery() const;
 
+    const std::list<Vector3f>& getBreadcrumbList() const {return _breadcrumbList;}
+
 private:
 
     /**
@@ -775,8 +776,6 @@ private:
     void checkLevelUp();
 
 public:
-    BSP_leaf_t     bsp_leaf;
-
     chr_spawn_data_t  spawn_data;
 
     // character state
@@ -894,14 +893,12 @@ public:
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
 
-    // data for doing the physics in bump_all_objects()
+    // data for doing the physics in bump_all_objects()|
 
     chr_environment_t enviro;
 
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     CHR_REF           dismount_object;               ///< the object that you were dismounting from
-
-    breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 private:
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
@@ -911,6 +908,7 @@ private:
     bool _showStatus;                                ///< Display stats?
     bool _isAlive;                                   ///< Is this Object alive or dead?
     std::string _name;                               ///< Name of the Object
+    std::list<Vector3f> _breadcrumbList;             ///< a list of previous valid positions that the object has passed through
 
     //Attributes
     float _currentLife;

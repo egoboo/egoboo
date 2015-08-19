@@ -128,11 +128,24 @@ struct TileList
 	/// @post If @a mesh is not a null pointer, then this render list is attached to that mesh.
 	///       Otherwise it is detached.
 	void setMesh(ego_mesh_t *mesh);
-	/// @brief Insert tiles into this render list.
-	/// @param leaves a list of tile BSP leaves
+	/// @brief Insert a tile into this render list.
+	/// @param the index of the tile to insert
 	/// @param camera the camera
-	/// @remark A tile
-	gfx_rv add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera);
+	gfx_rv add(const size_t index, Camera& camera);
+
+	/**
+	* @brief
+	*	check wheter a tile was rendered this render frame
+	* @param index
+	*	the index number of the tile
+	* @return
+	*	true if the specified tile is currently in the render list for this render frame
+	**/
+	bool inRenderList(const TileIndex &index) const;
+
+private:
+	std::bitset<MAP_TILE_MAX> _renderTiles;		//index of all tiles to be rendered
+	std::bitset<MAP_TILE_MAX> _lastRenderTiles; //index of all tiles that were rendered last frame
 };
 
 }

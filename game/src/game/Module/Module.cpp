@@ -45,7 +45,8 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _isRespawnValid(profile->isRespawnValid()),
     _isBeaten(false),
     _seed(seed),
-    _passages()
+    _passages(),
+    _mesh()
 {
     srand( _seed );
     Random::setSeed(_seed);

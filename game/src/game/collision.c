@@ -22,7 +22,7 @@
 /// @details
 
 #include "game/collision.h"
-#include "game/obj_BSP.h"
+#include "game/ObjectPhysics.h"
 #include "game/bsp.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
@@ -39,10 +39,17 @@ CollisionSystem *CollisionSystem::_singleton = nullptr;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
-
+//Constants
 static constexpr float MAX_KNOCKBACK_VELOCITY = 40.0f;
 static constexpr float DEFAULT_KNOCKBACK_VELOCITY = 10.0f;
+static constexpr size_t COLLISION_LIST_SIZE = 256;
+
+
+struct CollisionCmp {
+   size_t operator() (const CoNode_t &lhs, const CoNode_t &rhs) const {
+        return CoNode_t::cmp(lhs ,rhs);
+   }
+};
 
 
 //--------------------------------------------------------------------------------------------
@@ -143,15 +150,6 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
 }
 
 //--------------------------------------------------------------------------------------------
-
-/// one element of the data for partitioning character and particle positions
-struct bumplist_t
-{
-    CHR_REF chr;                    // For character collisions
-    CHR_REF prt;                    // For particle collisions
-};
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
@@ -159,69 +157,38 @@ static bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_RE
 static bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
-static bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry);
-static bool fill_bumplists();
+static bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet);
 
-static bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary );
-static bool bump_all_mounts( Ego::DynamicArray<CoNode_t> *pcn_ary );
-static bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary );
+static bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes );
+static bool bump_all_mounts( const std::set<CoNode_t, CollisionCmp> &collisionNodes );
+static bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes );
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_chr_platform_physics( Object * pitem, Object * pplat );
 //static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
-static bool do_chr_chr_collision( CoNode_t * d );
+static bool do_chr_chr_collision( const CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
 
-static bool do_chr_prt_collision( CoNode_t * d );
+static bool do_chr_prt_collision( const CoNode_t * d );
 
 //static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
-static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * pdata );
+static bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_data_t * pdata );
 //static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
+
+static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform);
+static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
+
+static bool detach_particle_from_platform( Ego::Particle * pprt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CollisionSystem::CollisionSystem() :
-    _hn_ary_2(), 
-    _cn_ary_2(),
-    _hash(nullptr),
-    _coll_leaf_lst(),
-    _coll_node_lst()
+CollisionSystem::CollisionSystem()
 {
-    if (!_coll_leaf_lst.ctor(COLLISION_LIST_SIZE))
-    {
-        goto Fail;
-    }
-    if (!_coll_node_lst.ctor(COLLISION_LIST_SIZE))
-    {
-        _coll_leaf_lst.dtor();
-        goto Fail;
-    }
-    try
-    {
-        _hash = new CoHashList_t(512); /** @todo Why is this not factored out to a named constant? */
-    }
-    catch (std::bad_alloc& ex)
-    {
-        _coll_node_lst.dtor();
-        _coll_leaf_lst.dtor();
-        goto Fail;
-    }
-    return;
-Fail:
-    throw std::runtime_error("unable to initialize collision system\n");
 }
 
 CollisionSystem::~CollisionSystem()
 {
-    reset();
-    if (_hash)
-    {
-        delete _hash;
-        _hash = nullptr;
-    }
-    _coll_leaf_lst.dtor();
-    _coll_node_lst.dtor();
 }
 
 bool CollisionSystem::initialize()
@@ -253,26 +220,6 @@ void CollisionSystem::uninitialize()
     CollisionSystem::_singleton = nullptr;
 }
 
-void CollisionSystem::reset()
-{
-    if (!CollisionSystem::_singleton)
-    {
-        log_warning("%s:%d: collision system not initialized - ignoring\n", __FILE__, __LINE__);
-        return;
-    }
-    // Reset the collision node magazine.
-    _cn_ary_2.reset();
-
-    // Reset the hash node magazine.
-    _hn_ary_2.reset();
-
-    // Clear the collision hash.
-    _hash->clear();
-
-    // Clear the collisions.
-    _coll_node_lst.clear();
-}
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 CoNode_t::CoNode_t() :
@@ -289,185 +236,48 @@ CoNode_t::CoNode_t() :
     //ctor
 }
 
-CoNode_t *CoNode_t::ctor(CoNode_t *self)
-{
-    if (!self) return nullptr;
-
-    // The "colliding" objects.
-    self->chra = INVALID_CHR_REF;
-    self->prta = INVALID_PRT_REF;
-
-    // The "collided with" objects.
-    self->chrb  = INVALID_CHR_REF;
-    self->prtb  = INVALID_PRT_REF;
-    self->tileb = MAP_FANOFF;
-
-    // The time.
-    self->tmin = self->tmax = -1.0f;
-    oct_bb_t::ctor(self->cv);
-
-    return self;
-}
 
 //--------------------------------------------------------------------------------------------
-Uint8 CoNode_t::generate_hash(const CoNode_t *self)
-{
-    Uint32 AA, BB;
-
-    AA = UINT32_MAX;
-    if ( VALID_CHR_RANGE( self->chra ) )
-    {
-        AA = REF_TO_INT( self->chra );
-    }
-    else if ( self->prta != INVALID_PRT_REF )
-    {
-        AA = REF_TO_INT( self->prta );
-    }
-
-    BB = UINT32_MAX;
-    if ( VALID_CHR_RANGE( self->chrb ) )
-    {
-        BB = REF_TO_INT( self->chrb );
-    }
-    else if ( self->prtb != INVALID_PRT_REF )
-    {
-        BB = REF_TO_INT( self->prtb );
-    }
-    else if ( MAP_FANOFF != self->tileb )
-    {
-        BB = self->tileb;
-    }
-
-    return MAKE_HASH( AA, BB );
-}
-
-//--------------------------------------------------------------------------------------------
-int CoNode_t::cmp(const CoNode_t *self, const CoNode_t *other)
+bool CoNode_t::cmp(const CoNode_t &self, const CoNode_t &other)
 {
     float ftmp;
 
     // Sort by initial time first.
-    ftmp = self->tmin - other->tmin;
-    if (ftmp <= 0.0f) return -1;
-    else if (ftmp >= 0.0f) return 1;
+    ftmp = self.tmin - other.tmin;
+    if (ftmp <= 0.0f) return false;
+    else if (ftmp >= 0.0f) return true;
 
     // Sort by final time second.
-    ftmp = self->tmax - other->tmax;
-    if (ftmp <= 0.0f) return -1;
-    else if (ftmp >= 0.0f) return 1;
+    ftmp = self.tmax - other.tmax;
+    if (ftmp <= 0.0f) return false;
+    else if (ftmp >= 0.0f) return true;
 
-    return CoNode_t::cmp_unique(self, other);
+    return CoNode_t::cmp_unique(self, other) > 0;
 }
 
 //--------------------------------------------------------------------------------------------
-int CoNode_t::cmp_unique(const CoNode_t *self, const CoNode_t *other)
+int CoNode_t::cmp_unique(const CoNode_t &self, const CoNode_t &other)
 {
     int   itmp;
 
     // Don't compare the times.
 
-    itmp = (signed)REF_TO_INT(self->chra) - (signed)REF_TO_INT(other->chra);
+    itmp = (signed)REF_TO_INT(self.chra) - (signed)REF_TO_INT(other.chra);
     if (0 != itmp) return itmp;
 
-    itmp = (signed)REF_TO_INT(self->prta) - (signed)REF_TO_INT(other->prta);
+    itmp = (signed)REF_TO_INT(self.prta) - (signed)REF_TO_INT(other.prta);
     if (0 != itmp) return itmp;
 
-    itmp = (signed)REF_TO_INT(self->chrb) - (signed)REF_TO_INT(other->chrb);
+    itmp = (signed)REF_TO_INT(self.chrb) - (signed)REF_TO_INT(other.chrb);
     if (0 != itmp) return itmp;
 
-    itmp = (signed)REF_TO_INT(self->prtb) - (signed)REF_TO_INT(other->prtb);
+    itmp = (signed)REF_TO_INT(self.prtb) - (signed)REF_TO_INT(other.prtb);
     if (0 != itmp) return itmp;
 
-    itmp = (signed)self->tileb            - (signed)other->tileb;
+    itmp = (signed)self.tileb            - (signed)other.tileb;
     if (0 != itmp) return itmp;
 
     return 0;
-}
-
-//--------------------------------------------------------------------------------------------
-int CoNode_t::matches(const CoNode_t *self, const CoNode_t *other)
-{
-    CoNode_t reversed;
-
-	if (0 == CoNode_t::cmp_unique(self, other)) return true;
-
-    // Make a reversed version of other.
-	reversed.tmin = other->tmin;
-	reversed.tmax = other->tmax;
-	reversed.chra = other->chrb;
-	reversed.prta = other->prtb;
-	reversed.chrb = other->chra;
-	reversed.prtb = other->prta;
-	reversed.tileb = other->tileb;
-
-	if (0 == CoNode_t::cmp_unique(self,&reversed)) return true;
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry)
-{
-	if (NULL == coHashList || NULL == data)
-	{
-		return false;
-	}
-    // Compute the hash for this collision.
-	Uint32 hash = CoNode_t::generate_hash(data);
-    if (hash >= coHashList->getCapacity())
-    {
-        throw std::runtime_error("hash out of bounds");
-    }
-	// Get the number of entries in this bucket.
-    size_t bucketSize = hash_list_t::get_count(coHashList,hash);
-    // If the bucket is not empty ...
-	if (bucketSize > 0)
-    {
-		// ... search the bucket for an entry for this collision.
-        for (hash_node_t *node = coHashList->sublist[hash]; nullptr != node; node = node->next)
-        {
-            if (CoNode_t::matches((CoNode_t *)(node->data), data))
-            {
-                return false;
-            }
-        }
-    }
-
-    // If no entry for this collision was found ...
-    {
-		// ... add it:
-        // Pick a free collision data ...
-        CoNode_t *cnode = collNodeAry.acquire();
-        if (!cnode)
-        {
-            throw std::runtime_error("no more free collision nodes");
-        }
-		// ... and store the data in that.
-		*cnode = *data;
-
-        // Generate a new hash node.
-		hash_node_t *hnode = hashNodeAry.acquire();
-        if (!hnode)
-        {
-            throw std::runtime_error("no more free hash nodes");
-        }
-
-        // link the hash node to the free CoNode
-        hnode->data = cnode;
-
-        // insert the node at the front of the collision list for this hash
-        hash_node_t *old_head = hash_list_get_node(coHashList, hash);
-        hash_node_t *new_head = hash_node_insert_before(old_head, hnode);
-        hash_list_set_node(coHashList, hash, new_head);
-
-        // add 1 to the count at this hash
-        size_t old_count = hash_list_t::get_count(coHashList, hash);
-        hash_list_set_count(coHashList, hash, old_count + 1);
-    }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -677,365 +487,136 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 }
 
 //--------------------------------------------------------------------------------------------
-bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry)
+bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 {
-    int              cnt;
-    int              reaffirmation_count;
-    int              reaffirmation_list[DAMAGE_COUNT];
-    aabb_t           tmp_aabb;
-
-    if ( NULL == coHashList) return false;
-
-    // Clear the collision hash.
-	coHashList->clear();
-
-    // initialize the reaffirmation counters
-    reaffirmation_count = 0;
-    for ( cnt = 0; cnt < DAMAGE_COUNT; cnt++ )
-    {
-        reaffirmation_list[cnt] = 0;
-    }
-
     //---- find the character/particle interactions
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
     for(const std::shared_ptr<Object> &pchr_a : _currentModule->getObjectHandler().iterator())
     {
-        oct_bb_t   tmp_oct;
-
         // ignore in-accessible objects
-        if ( _currentModule->getObjectHandler().exists( pchr_a->inwhich_inventory ) || pchr_a->is_hidden ) continue;
-
-        // keep track of how many objects use reaffirmation, and what kinds of reaffirmation
-        if ( pchr_a->reaffirm_damagetype < DAMAGE_COUNT )
-        {
-            if ( pchr_a->getProfile()->getAttachedParticleAmount() > 0 )
-            {
-                // we COULD use number_of_attached_particles() to determin if the
-                // character is full of particles, BUT since it scans through the
-                // entire particle list I don't think it's worth it
-
-                reaffirmation_count++;
-                reaffirmation_list[pchr_a->reaffirm_damagetype]++;
-            }
-        }
+        if ( pchr_a->isInsideInventory() || pchr_a->is_hidden || pchr_a->isTerminated() ) continue;
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
+        oct_bb_t   tmp_oct;
         phys_expand_chr_bb(pchr_a.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
-        tmp_aabb = tmp_oct.toAABB();
+        const AABB_2D aabb2d = AABB_2D(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
-        // find all collisions with other characters and particles
-        CollisionSystem::get()->_coll_leaf_lst.clear();
-        getChrBSP()->collide(tmp_aabb, chr_BSP_can_collide, CollisionSystem::get()->_coll_leaf_lst);
-
-        // transfer valid _coll_leaf_lst entries to pchlst entries
-        // and sort them by their initial times
-        if (!CollisionSystem::get()->_coll_leaf_lst.empty())
+        // Check collisions between Objects (but do not collide scenery with other scenery objects)
+        std::vector<std::shared_ptr<Object>> possibleCollisions;
+         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, !pchr_a->isScenery());
+        for (const std::shared_ptr<Object> &pchr_b : possibleCollisions)
         {
-            for (size_t j = 0; j < CollisionSystem::get()->_coll_leaf_lst.size(); j++)
+            //Ignore invalid collisions
+            if(pchr_b->isTerminated() || !chr_BSP_can_collide(pchr_b)) continue;
+
+            // do some logic on this to determine whether the collision is valid
+            if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), pchr_b->getCharacterID() ) )
             {
-                BSP_leaf_t * pleaf;
                 CoNode_t    tmp_codata;
-                bool      do_insert;
-                BIT_FIELD   test_platform;
 
-                pleaf = CollisionSystem::get()->_coll_leaf_lst.ary[j];
-                if ( NULL == pleaf ) continue;
+                // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
+                BIT_FIELD test_platform = EMPTY_BIT_FIELD;
+                if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+                if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
-                do_insert = false;
-
-                if ( BSP_LEAF_CHR == pleaf->_type )
+                // detect a when the possible collision occurred
+                if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pchr_b->chr_max_cv, pchr_b->getPosition(), pchr_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
                 {
-                    // collided with a character
-                    CHR_REF ichr_b = ( CHR_REF )( pleaf->_index );
+                    tmp_codata.chra = pchr_a->getCharacterID();
+                    tmp_codata.chrb = pchr_b->getCharacterID();
 
-                    // do some logic on this to determine whether the collision is valid
-                    if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), ichr_b ) )
-                    {
-                        Object * pchr_b = _currentModule->getObjectHandler().get( ichr_b );
-
-                        CoNode_t::ctor( &tmp_codata );
-
-                        // do a simple test, since I do not want to resolve the ObjectPRofile for these objects here
-                        test_platform = EMPTY_BIT_FIELD;
-                        if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
-                        if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
-
-                        // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pchr_b->chr_max_cv, pchr_b->getPosition(), pchr_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
-                        {
-                            tmp_codata.chra = pchr_a->getCharacterID();
-                            tmp_codata.chrb = ichr_b;
-
-                            do_insert = true;
-                        }
-                    }
-                }
-                else
-                {
-                    // how did we get here?
-                    log_warning( "fill_interaction_list() - found non-character in the character BSP\n" );
-                }
-
-                if ( do_insert )
-                {
-					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
-                }
-            }
-        }
-
-        CollisionSystem::get()->_coll_leaf_lst.clear();
-        getPrtBSP()->collide(tmp_aabb, prt_BSP_can_collide, CollisionSystem::get()->_coll_leaf_lst);
-        if (!CollisionSystem::get()->_coll_leaf_lst.empty())
-        {
-            for (size_t j = 0; j < CollisionSystem::get()->_coll_leaf_lst.size(); j++)
-            {
-                BSP_leaf_t * pleaf;
-                CoNode_t    tmp_codata;
-                bool      do_insert;
-                BIT_FIELD   test_platform;
-
-                pleaf = CollisionSystem::get()->_coll_leaf_lst.ary[j];
-                if ( NULL == pleaf ) continue;
-
-                do_insert = false;
-
-                if ( BSP_LEAF_PRT == pleaf->_type )
-                {
-                    // collided with a particle
-                    PRT_REF iprt_b = ( PRT_REF )( pleaf->_index );
-
-                    // do some logic on this to determine whether the collision is valid
-                    if ( detect_chr_prt_interaction_valid( pchr_a->getCharacterID(), iprt_b ) )
-                    {
-                        const std::shared_ptr<Ego::Particle> &pprt_b = ParticleHandler::get()[iprt_b];
-
-                        CoNode_t::ctor( &tmp_codata );
-
-                        // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
-                        test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
-
-                        // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pprt_b->prt_max_cv, pprt_b->getPosition(), pprt_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
-                        {
-                            tmp_codata.chra = pchr_a->getCharacterID();
-                            tmp_codata.prtb = iprt_b;
-
-                            do_insert = true;
-                        }
-                    }
-                }
-                else
-                {
-                    // how did we get here?
-                    log_warning( "fill_interaction_list() - found non-particle in the particle BSP\n" );
-                }
-
-                if ( do_insert )
-                {
-					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
+                    collisionSet.insert(tmp_codata);
                 }
             }
         }
     }
 
-    //---- find some specialized character-particle interactions
-    //     namely particles that end-bump or particles that reaffirm characters
-
+    //Check collisions with particles
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        oct_bb_t   tmp_oct;
-        bool     can_reaffirm, needs_bump;
-
 		if (particle->isTerminated()) continue;
 
-        BSP_leaf_t *pleaf = &particle->getBSPLeaf();
-
-        // if the particle is in the BSP, then it has already had it's chance to collide
-        if (pleaf->isInList()) continue;
-
-        // does the particle potentially reaffirm a character?
-        can_reaffirm = TO_C_BOOL(( particle->damagetype < DAMAGE_COUNT ) && ( 0 != reaffirmation_list[particle->damagetype] ) );
+        //Valid collision radius?
+        if(particle->getProfile()->bump_size <= 0) continue;
 
         // does the particle end_bump or end_ground?
-        needs_bump = TO_C_BOOL( particle->getProfile()->end_bump || particle->getProfile()->end_ground );
+        bool needs_bump = TO_C_BOOL( particle->getProfile()->end_bump || particle->getProfile()->end_ground );
 
-        if ( !can_reaffirm && !needs_bump ) continue;
+        bool can_collide = prt_BSP_can_collide(particle);
+
+        if ( !needs_bump && !can_collide ) continue;
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
+        oct_bb_t   tmp_oct;
         phys_expand_prt_bb(particle.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
-        tmp_aabb = tmp_oct.toAABB();
+        AABB_2D aabb2d = AABB_2D(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         // find all collisions with characters
-        CollisionSystem::get()->_coll_leaf_lst.clear();
-        getChrBSP()->collide(tmp_aabb, chr_BSP_can_collide, CollisionSystem::get()->_coll_leaf_lst);
+        std::vector<std::shared_ptr<Object>> possibleCollisions;
+         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, true);
 
-        // transfer valid _coll_leaf_lst entries to pchlst entries
-        // and sort them by their initial times
-        if (!CollisionSystem::get()->_coll_leaf_lst.empty())
+        for (const std::shared_ptr<Object> &object : possibleCollisions)
         {
-            CoNode_t     tmp_codata;
-            BIT_FIELD    test_platform;
-            CHR_REF      ichr_a = INVALID_CHR_REF;
-            BSP_leaf_t * pleaf = NULL;
-            bool       do_insert = false;
+            if(!chr_BSP_can_collide(object)) continue;
 
-            for (size_t j = 0; j < CollisionSystem::get()->_coll_leaf_lst.size(); j++)
+            // collided with a character
+            bool loc_needs_bump    = needs_bump;
+
+            // you can't be bumped by items that you are attached to
+            if ( loc_needs_bump && particle->getAttachedObject().get() == object.get() )
             {
-                pleaf = CollisionSystem::get()->_coll_leaf_lst.ary[j];
-                if ( NULL == pleaf ) continue;
+                loc_needs_bump = false;
+            }
 
-                ichr_a = ( CHR_REF )( pleaf->_index );
+            // can this character affect this particle through bumping?
+            if ( loc_needs_bump )
+            {
+                // the valid bump interactions
+                bool end_money  = TO_C_BOOL(( particle->getProfile()->bump_money > 0 ) && object->getProfile()->canGrabMoney() );
+                bool end_bump   = TO_C_BOOL(( particle->getProfile()->end_bump ) && ( 0 != object->bump_stt.size ) );
+                bool end_ground = TO_C_BOOL(( particle->getProfile()->end_ground ) && (( 0 != object->bump_stt.size ) || object->platform ) );
 
-                do_insert = false;
-
-                if ( BSP_LEAF_CHR == pleaf->_type && VALID_CHR_RANGE( ichr_a ) )
+                if ( !end_money && !end_bump && !end_ground )
                 {
-                    // collided with a character
-                    bool loc_reaffirms     = can_reaffirm;
-                    bool loc_needs_bump    = needs_bump;
-                    bool interaction_valid = false;
-
-                    Object * pchr_a = _currentModule->getObjectHandler().get( ichr_a );
-
-                    // can this particle affect the character through reaffirmation
-                    if ( loc_reaffirms )
-                    {
-                        // does this interaction support affirmation?
-                        if ( particle->damagetype != pchr_a->reaffirm_damagetype )
-                        {
-                            loc_reaffirms = false;
-                        }
-
-                        // if it is already attached to this character, no more reaffirmation
-                        if ( particle->getAttachedObject().get() == pchr_a )
-                        {
-                            loc_reaffirms = false;
-                        }
-                    }
-
-                    // you can't be bumped by items that you are attached to
-                    if ( loc_needs_bump && particle->getAttachedObject().get() == pchr_a )
-                    {
-                        loc_needs_bump = false;
-                    }
-
-                    // can this character affect this particle through bumping?
-                    if ( loc_needs_bump )
-                    {
-                        // the valid bump interactions
-                        bool end_money  = TO_C_BOOL(( particle->getProfile()->bump_money > 0 ) && pchr_a->getProfile()->canGrabMoney() );
-                        bool end_bump   = TO_C_BOOL(( particle->getProfile()->end_bump ) && ( 0 != pchr_a->bump_stt.size ) );
-                        bool end_ground = TO_C_BOOL(( particle->getProfile()->end_ground ) && (( 0 != pchr_a->bump_stt.size ) || pchr_a->platform ) );
-
-                        if ( !end_money && !end_bump && !end_ground )
-                        {
-                            loc_needs_bump = false;
-                        }
-                    }
-
-                    // do a little more logic on this to determine whether the collision is valid
-                    interaction_valid = false;
-                    if ( loc_reaffirms || loc_needs_bump )
-                    {
-                        if ( detect_chr_prt_interaction_valid( ichr_a, particle->getParticleID() ) )
-                        {
-                            interaction_valid = true;
-                        }
-                        else
-                        {
-                            interaction_valid = false;
-                        }
-                    }
-
-                    // only do the more expensive calculation if the
-                    // particle can interact with the object
-                    if ( interaction_valid )
-                    {
-                        CoNode_t::ctor( &tmp_codata );
-
-                        // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
-                        test_platform = EMPTY_BIT_FIELD;
-                        if ( pchr_a->platform && ( SPRITE_SOLID == particle->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
-
-                        // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(pchr_a->chr_min_cv, pchr_a->getPosition(), pchr_a->vel, particle->prt_max_cv, particle->getPosition(), particle->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
-                        {
-
-                            tmp_codata.chra = ichr_a;
-                            tmp_codata.prtb = particle->getParticleID();
-
-                            do_insert = true;
-                        }
-                    }
+                    loc_needs_bump = false;
                 }
-                else if ( BSP_LEAF_PRT == pleaf->_type )
-                {
-                    // this should never happen
-                }
+            }
 
-                if ( do_insert )
+            // do a little more logic on this to determine whether the collision is valid
+            bool interaction_valid = false;
+            if ( loc_needs_bump || can_collide)
+            {
+                interaction_valid = detect_chr_prt_interaction_valid(object->getCharacterID(), particle->getParticleID());
+            }
+
+            // only do the more expensive calculation if the
+            // particle can interact with the object
+            if ( interaction_valid )
+            {
+                CoNode_t tmp_codata;
+
+                // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
+                BIT_FIELD test_platform = EMPTY_BIT_FIELD;
+                if ( object->platform /*&& ( SPRITE_SOLID == particle->type )*/ ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+
+                // detect a when the possible collision occurred
+                if (phys_intersect_oct_bb(object->chr_min_cv, object->getPosition(), object->vel, particle->prt_max_cv, particle->getPosition(), particle->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
                 {
-					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
+
+                    tmp_codata.chra = object->getCharacterID();
+                    tmp_codata.prtb = particle->getParticleID();
+
+                    collisionSet.insert(tmp_codata);
                 }
             }
         }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool fill_bumplists()
-{
-    /// @brief Clear, then fill the chr and prt (aka obj) BSPs for this frame.
-    ///
-    /// @note Do not use BSP_tree_t::prune every frame, because the number of pre-allocated branches can be quite
-	/// large. Instead, just remove the leaves from the tree, fill the tree, and then prune any empty branches.
-
-    // empty out the BSP node lists
-    chr_BSP_removeAllLeaves();
-    prt_BSP_removeAllLeaves();
-
-    // fill up the BSP list based on the current locations
-    chr_BSP_fill();
-    prt_BSP_fill();
-
-    // Remove empty branches from the tree.
-    if (63 == ( game_frame_all & 63))
-    {
-		size_t pruned;
-		log_info("begin pruning\n");
-        pruned = getChrBSP()->prune();
-		/*if (pruned)*/
-		{
-			size_t free, used;
-			getChrBSP()->getStats(free, used);
-			std::ostringstream msg;
-			msg << __FILE__ << ":" << __LINE__ << ": "
-				<< "pruned: " << pruned << ", "
-			    << "free:   " << free << ", "
-				<< "used:   " << used << std::endl;
-			log_info("%s", msg.str().c_str());
-		}
-        pruned = getPrtBSP()->prune();
-		/*if (pruned)*/
-		{
-			size_t numFree, used;
-			getPrtBSP()->getStats(numFree, used);
-			std::ostringstream msg;
-			msg << __FILE__ << ":" << __LINE__ << ": "
-				<< "pruned: " << pruned << ", "
-				<< "free:   " << numFree << ", "
-				<< "used:   " << used << std::endl;
-			log_info("%s", msg.str().c_str());
-		}
     }
 
     return true;
@@ -1044,10 +625,6 @@ bool fill_bumplists()
 //--------------------------------------------------------------------------------------------
 bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    Object * pchr_a, * pchr_b;
-
-    bool platform_a, platform_b;
-
     oct_vec_v2_t odepth;
     bool collide_x  = false;
     bool collide_y  = false;
@@ -1057,19 +634,19 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool chara_on_top;
 
     // make sure that A is valid
-    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
-    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
+    const std::shared_ptr<Object> &pchr_a = _currentModule->getObjectHandler()[ichr_a];
+    if(!pchr_a) return false;
 
     // make sure that B is valid
-    if ( !_currentModule->getObjectHandler().exists( ichr_b ) ) return false;
-    pchr_b = _currentModule->getObjectHandler().get( ichr_b );
+    const std::shared_ptr<Object> &pchr_b = _currentModule->getObjectHandler()[ichr_b];
+    if(!pchr_b) return false;
 
     // if you are mounted, only your mount is affected by platforms
-    if ( _currentModule->getObjectHandler().exists( pchr_a->attachedto ) || _currentModule->getObjectHandler().exists( pchr_b->attachedto ) ) return false;
+    if (pchr_a->isBeingHeld() || pchr_b->isBeingHeld()) return false;
 
     // only check possible object-platform interactions
-    platform_a = TO_C_BOOL( pchr_b->canuseplatforms && pchr_a->platform );
-    platform_b = TO_C_BOOL( pchr_a->canuseplatforms && pchr_b->platform );
+    bool platform_a = TO_C_BOOL( pchr_b->canuseplatforms && !_currentModule->getObjectHandler().exists(pchr_b->onwhichplatform_ref) && pchr_a->platform );
+    bool platform_b = TO_C_BOOL( pchr_a->canuseplatforms && !_currentModule->getObjectHandler().exists(pchr_a->onwhichplatform_ref) && pchr_b->platform );
     if ( !platform_a && !platform_b ) return false;
 
     //---- since we are doing bump_all_mounts() before bump_all_platforms()
@@ -1290,68 +867,25 @@ void bump_all_objects()
 {
     /// @author ZZ
     /// @details This function sets handles characters hitting other characters or particles
-    size_t        co_node_count;
-
-    // Get the collision hash table.
-    CoHashList_t *hash = CollisionSystem::get()->_hash;
-    if (!hash)
-    {
-        log_error( "bump_all_objects() - cannot access the CoHashList_t singleton" );
-		return;
-    }
-
-    // Reset the collision node magazine.
-    CollisionSystem::get()->_cn_ary_2.reset();
-
-    // Reset the hash node magazine.
-    CollisionSystem::get()->_hn_ary_2.reset();
-
-    // fill up the BSP structures
-    fill_bumplists();
 
     // use the BSP structures to detect possible binary interactions
-    fill_interaction_list(hash, CollisionSystem::get()->_cn_ary_2, CollisionSystem::get()->_hn_ary_2);
+    //nodes are sorted by time order
+    std::set<CoNode_t, CollisionCmp> collisionNodes;
+    fill_interaction_list(collisionNodes);
 
-    // convert the CHashList_t into a CoNode_ary_t and sort
-    co_node_count = hash->getSize();
+    // handle interaction with mounts
+    // put this before platforms, otherwise pointing is just too hard
+    bump_all_mounts(collisionNodes);
 
-    if ( co_node_count > 0 )
-    {
-        hash_list_iterator_t it;
+    // handle interaction with platforms
+    bump_all_platforms(collisionNodes);
 
-        CollisionSystem::get()->_coll_node_lst.clear();
-
-		it.ctor();
-        hash_list_iterator_set_begin(&it, hash);
-        for (/* Nothing. */; !hash_list_iterator_done(&it, hash); hash_list_iterator_next(&it, hash))
-        {
-            CoNode_t *coNode = (CoNode_t *)hash_list_iterator_ptr(&it);
-            if (NULL == coNode) break;
-
-            CollisionSystem::get()->_coll_node_lst.push_back(*coNode);
-        }
-
-        if (CollisionSystem::get()->_coll_node_lst.size() > 1)
-        {
-            // arrange the actual nodes by time order
-            qsort(CollisionSystem::get()->_coll_node_lst.ary, CollisionSystem::get()->_coll_node_lst.size(),
-                  sizeof(CoNode_t),(int (*)(const void *,const void *))(&CoNode_t::cmp));
-        }
-
-        // handle interaction with mounts
-        // put this before platforms, otherwise pointing is just too hard
-        bump_all_mounts(&CollisionSystem::get()->_coll_node_lst);
-
-        // handle interaction with platforms
-        bump_all_platforms(&CollisionSystem::get()->_coll_node_lst);
-
-        // handle all the collisions
-        bump_all_collisions(&CollisionSystem::get()->_coll_node_lst);
-    }
+    // handle all the collisions
+    bump_all_collisions(collisionNodes);
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
+bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character and particle interactions with platforms, then attach them.
@@ -1362,27 +896,44 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
-	if ( NULL == pcn_ary ) return false;
+    //First check if objects should be detached from their platforms
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+    {
+        if(object->isTerminated()) continue;
+
+        const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[object->onwhichplatform_ref];
+        if(platform)
+        {
+            //If we are no longer colliding in the horizontal plane, then we are disconnected
+            if(!object->getAABB2D().overlaps(platform->getAABB2D()))
+            {
+                detach_character_from_platform(object.get());
+            }
+        }
+    }
 
     //---- Detect all platform attachments
-    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
+    for(const CoNode_t &d : collisionNodes)
     {
-		CoNode_t *d = pcn_ary->ary + cnt;
-
         // only look at character-platform or particle-platform interactions interactions
-        if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
+        if ( INVALID_PRT_REF != d.prta && INVALID_PRT_REF != d.prtb ) continue;
 
-        if ( INVALID_CHR_REF != d->chra && INVALID_CHR_REF != d->chrb )
+        //Object -> Object
+        if ( INVALID_CHR_REF != d.chra && INVALID_CHR_REF != d.chrb )
         {
-            do_chr_platform_detection( d->chra, d->chrb );
+            do_chr_platform_detection( d.chra, d.chrb );
         }
-        else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
+
+        //Particle -> Object
+        else if ( INVALID_CHR_REF != d.chra && INVALID_PRT_REF != d.prtb )
         {
-            do_prt_platform_detection( d->chra, d->prtb );
+            do_prt_platform_detection( d.chra, d.prtb );
         }
-        if ( INVALID_PRT_REF != d->prta && INVALID_CHR_REF != d->chrb )
+
+        //Particle -> Object
+        if ( INVALID_PRT_REF != d.prta && INVALID_CHR_REF != d.chrb )
         {
-            do_prt_platform_detection( d->chrb, d->prta );
+            do_prt_platform_detection( d.chrb, d.prta );
         }
     }
 
@@ -1391,69 +942,50 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     // Doing the attachments after detecting the best platform
     // prevents an object from attaching it to multiple platforms as it
     // is still trying to find the best one
-    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
+    for(const CoNode_t &d : collisionNodes)
     {
-		CoNode_t *d = pcn_ary->ary + cnt;
+        const std::shared_ptr<Object> &chra = _currentModule->getObjectHandler()[d.chra];
+        const std::shared_ptr<Object> &chrb = _currentModule->getObjectHandler()[d.chrb];
 
-        // only look at character-character interactions
-        //if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
-
-        if ( INVALID_CHR_REF != d->chra && INVALID_CHR_REF != d->chrb )
+        //Object -> Object
+        if ( chra && chrb )
         {
-            if ( _currentModule->getObjectHandler().exists( d->chra ) && _currentModule->getObjectHandler().exists( d->chrb ) )
-            {
-                if ( _currentModule->getObjectHandler().get(d->chra)->targetplatform_ref == d->chrb )
-                {
-                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d->chra ), _currentModule->getObjectHandler().get( d->chrb ) );
-                }
-                else if ( _currentModule->getObjectHandler().get(d->chrb)->targetplatform_ref == d->chra )
-                {
-                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d->chrb ), _currentModule->getObjectHandler().get( d->chra ) );
-                }
-
+            if(chra->targetplatform_ref == chrb->getCharacterID()) {
+                attachObjectToPlatform(chra, chrb);
+            }
+            else if(chrb->targetplatform_ref == chra->getCharacterID()) {
+                attachObjectToPlatform(chrb, chra);
             }
         }
-        else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
+
+        //Particle -> Object
+        else
         {
-            if ( _currentModule->getObjectHandler().exists( d->chra ) && ParticleHandler::get()[d->prtb] != nullptr )
-            {
-                if ( ParticleHandler::get()[d->prtb]->targetplatform_ref == d->chra )
-                {
-                    attach_prt_to_platform( ParticleHandler::get()[d->prtb].get(), _currentModule->getObjectHandler().get( d->chra ) );
+            const std::shared_ptr<Ego::Particle> &prtb = ParticleHandler::get()[d.prtb];
+            if(chra && prtb) {
+                if (prtb->targetplatform_ref == chra->getCharacterID()) {
+                    attach_prt_to_platform(prtb.get(), chra.get());
                 }
             }
-        }
-        else if ( INVALID_CHR_REF != d->chrb && INVALID_PRT_REF != d->prta )
-        {
-            if ( _currentModule->getObjectHandler().exists( d->chrb ) && ParticleHandler::get()[d->prta] != nullptr )
-            {
-                if ( ParticleHandler::get()[d->prta]->targetplatform_ref == d->chrb )
-                {
-                    attach_prt_to_platform(ParticleHandler::get()[d->prta].get(), _currentModule->getObjectHandler().get(d->chrb));
+            else {
+                const std::shared_ptr<Ego::Particle> &prta = ParticleHandler::get()[d.prta];
+                if (chrb && prta) {
+                    if (prta->targetplatform_ref == d.chrb) {
+                        attach_prt_to_platform(prta.get(), chrb.get());
+                    }
                 }
             }
         }
     }
 
     //---- remove any bad platforms
-
-    // attach_prt_to_platform() erases targetplatform_ref, so any character with
-    // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        if ( object->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(object->onwhichplatform_ref) )
-        {
-            detach_character_from_platform( object.get() );
-        }
-    }
-
     // attach_prt_to_platform() erases targetplatform_ref, so any particle with
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
         if(particle->isTerminated()) continue;
 
-        if ( INVALID_CHR_REF != particle->onwhichplatform_ref && particle->onwhichplatform_update < update_wld )
+        if (particle->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(particle->onwhichplatform_ref))
         {
             detach_particle_from_platform( particle.get() );
         }
@@ -1463,28 +995,25 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_mounts( Ego::DynamicArray<CoNode_t> *pcn_ary )
+bool bump_all_mounts( const std::set<CoNode_t, CollisionCmp> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character interactions with mounts, then attach them.
-    if ( NULL == pcn_ary ) return false;
 
     // Do mounts
-    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++)
+    for(const CoNode_t &node : collisionNodes)
     {
-		CoNode_t *d = pcn_ary->ary + cnt;
-
         // only look at character-character interactions
-        if ( INVALID_CHR_REF == d->chra || INVALID_CHR_REF == d->chrb ) continue;
+        if ( INVALID_CHR_REF == node.chra || INVALID_CHR_REF == node.chrb ) continue;
 
-        bump_one_mount( d->chra, d->chrb );
+        bump_one_mount( node.chra, node.chrb );
     }
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
+bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
 {
     /// @author BB
     /// @details Detect all character-character and character-particle collsions (with exclusions
@@ -1502,7 +1031,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     }
 
     // do all interactions
-    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
+    for(const CoNode_t &node : collisionNodes)
     {
         bool handled = false;
 
@@ -1510,12 +1039,12 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         // rearrange them without needing to change anything
         if ( !handled )
         {
-            handled = do_chr_chr_collision( pcn_ary->ary + cnt );
+            handled = do_chr_chr_collision( &node );
         }
 
         if ( !handled )
         {
-            handled = do_chr_prt_collision( pcn_ary->ary + cnt );
+            handled = do_chr_prt_collision( &node );
         }
     }
 
@@ -1814,7 +1343,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
                 if ( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
                 {
-                    mounted = _currentModule->getObjectHandler().exists( pchr_a->attachedto );
+                    mounted = pchr_a->isBeingHeld();
                 }
             }
         }
@@ -1851,7 +1380,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
                 if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
                 {
-                    mounted = _currentModule->getObjectHandler().exists( pchr_b->attachedto );
+                    mounted = pchr_b->isBeingHeld();
                 }
             }
         }
@@ -1861,42 +1390,43 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_platform_physics( Object * pitem, Object * pplat )
+static bool do_chr_platform_physics( Object * object, Object * platform )
 {
     // we know that ichr_a is a platform and ichr_b is on it
     Sint16 rot_a, rot_b;
     float lerp_z, vlerp_z;
 
-    if ( !ACTIVE_PCHR( pitem ) ) return false;
-    if ( !ACTIVE_PCHR( pplat ) ) return false;
+    if ( !ACTIVE_PCHR( object ) ) return false;
+    if ( !ACTIVE_PCHR( platform ) ) return false;
 
-    if ( pitem->onwhichplatform_ref != GET_INDEX_PCHR( pplat ) ) return false;
+    //Are we attached to this platform?
+    if ( object->onwhichplatform_ref != platform->getCharacterID() ) return false;
 
     // grab the pre-computed zlerp value, and map it to our needs
-    lerp_z = 1.0f - pitem->enviro.zlerp;
+    lerp_z = 1.0f - object->enviro.zlerp;
 
     // if your velocity is going up much faster then the
     // platform, there is no need to suck you to the level of the platform
     // this was one of the things preventing you from jumping from platforms
     // properly
-    vlerp_z = std::abs(pitem->vel[kZ] - pplat->vel[kZ]) / 5;
+    vlerp_z = std::abs(object->vel[kZ] - platform->vel[kZ]) / 5;
     vlerp_z  = 1.0f - CLIP( vlerp_z, 0.0f, 1.0f );
 
     // determine the rotation rates
-    rot_b = pitem->ori.facing_z - pitem->ori_old.facing_z;
-    rot_a = pplat->ori.facing_z - pplat->ori_old.facing_z;
+    rot_b = object->ori.facing_z - object->ori_old.facing_z;
+    rot_a = platform->ori.facing_z - platform->ori_old.facing_z;
 
     if ( lerp_z == 1.0f )
     {
-        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f, kZ );
-        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel[kZ]  - pitem->vel[kZ] ) * 0.25f, kZ );
-        pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
+        phys_data_sum_aplat_index( &( object->phys ), ( object->enviro.level - object->getPosZ() ) * 0.125f, kZ );
+        phys_data_sum_avel_index( &( object->phys ), ( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f, kZ );
+        object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
     }
     else
     {
-        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
-        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel[kZ]  - pitem->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
-        pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
+        phys_data_sum_aplat_index( &( object->phys ), ( object->enviro.level - object->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
+        phys_data_sum_avel_index( &( object->phys ), ( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
+        object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
     };
 
     return true;
@@ -2001,7 +1531,7 @@ bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pc
 #endif
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_chr_collision( CoNode_t * d )
+bool do_chr_chr_collision( const CoNode_t * d )
 {
     CHR_REF ichr_a, ichr_b;
     Object * pchr_a, * pchr_b;
@@ -2034,10 +1564,7 @@ bool do_chr_chr_collision( CoNode_t * d )
     pchr_b = _currentModule->getObjectHandler().get( ichr_b );
 
     // skip objects that are inside inventories
-    if ( _currentModule->getObjectHandler().exists( pchr_a->inwhich_inventory ) || _currentModule->getObjectHandler().exists( pchr_b->inwhich_inventory ) ) return false;
-
-    // skip all objects that are mounted or attached to something
-    if ( _currentModule->getObjectHandler().exists( pchr_a->attachedto ) || _currentModule->getObjectHandler().exists( pchr_b->attachedto ) ) return false;
+    if (pchr_a->isBeingHeld() || pchr_b->isBeingHeld()) return false;
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
@@ -2062,7 +1589,7 @@ bool do_chr_chr_collision( CoNode_t * d )
     }
 
     // items can interact with platforms but not with other characters/objects
-    if ( pchr_a->isItem() || pchr_b->isItem() ) return false;
+    if ( (pchr_a->isItem() && !pchr_a->platform) || (pchr_b->isItem() && !pchr_b->platform) ) return false;
 
     // don't interact with your mount, or your held items
     if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return false;
@@ -2201,7 +1728,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
     //---- calculate the character-character interactions
     {
-        const float max_pressure_strength = 0.125f;
+        const float max_pressure_strength = 0.25f;//1.0f - std::min(pchr_a->phys.dampen, pchr_b->phys.dampen);
         const float pressure_strength     = max_pressure_strength * interaction_strength;
 
         fvec3_t   pdiff_a;
@@ -2268,8 +1795,6 @@ bool do_chr_chr_collision( CoNode_t * d )
                 // this was definitely a bump
                 bump = true;
             }
-            // ignore the case of both objects having infinite mass
-            // this is normally due to two scenery objects being too close to each other
             else
             {
                 // !!!! PRESSURE !!!!
@@ -2282,29 +1807,17 @@ bool do_chr_chr_collision( CoNode_t * d )
 
                 // use pressure to push them appart. reduce their relative velocities.
 
-                float     vdot;
-
-                // are the objects moving towards each other, or appart?
-                vdot = vdiff_a.dot(nrm);
-
-                if ( vdot < 0.0f )
+                float distance = (pchr_a->getPosition() - pchr_b->getPosition()).length();
+                distance /= std::max(pchr_a->bump.size, pchr_b->bump.size);
+                if(distance > 0.0f)
                 {
-                    if (recoil_a > 0.0f)
-                    {
-                        fvec3_t vimp_a = vdiff_a * +(recoil_a * pressure_strength);
-                        phys_data_sum_avel(&(pchr_a->phys), vimp_a);
-                    }
+                    phys_data_sum_avel(&(pchr_a->phys),  nrm * distance * recoil_a * interaction_strength);
+                    phys_data_sum_avel(&(pchr_b->phys), -nrm * distance * recoil_b * interaction_strength);
 
-                    if (recoil_b > 0.0f)
-                    {
-						fvec3_t vimp_b = vdiff_a * -(recoil_b * pressure_strength);
-                        phys_data_sum_avel(&(pchr_b->phys), vimp_b);
-                    }
+                    // you could "bump" something if you changed your velocity, even if you were still touching
+                    bump = TO_C_BOOL(( pchr_a->vel.dot(nrm) * pchr_a->vel_old.dot(nrm) < 0 ) ||
+                                     ( pchr_b->vel.dot(nrm) * pchr_b->vel_old.dot(nrm) < 0 ) );   
                 }
-
-                // you could "bump" something if you changed your velocity, even if you were still touching
-                bump = TO_C_BOOL(( pchr_a->vel.dot(nrm) * pchr_a->vel_old.dot(nrm) < 0 ) ||
-                                 ( pchr_b->vel.dot(nrm) * pchr_b->vel_old.dot(nrm) < 0 ) );
             }
 
         }
@@ -2376,7 +1889,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * pdata )
+bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_data_t * pdata )
 {
     // Get details about the character-particle interaction
     //
@@ -3474,7 +2987,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision( CoNode_t * d )
+bool do_chr_prt_collision( const CoNode_t * d )
 {
     /// @author BB
     /// @details this funciton goes through all of the steps to handle character-particle
@@ -3755,4 +3268,145 @@ chr_prt_collision_data_t * chr_prt_collision_data_t::init( chr_prt_collision_dat
     ptr->prt_damages_chr = false;
 
     return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform)
+{
+    /// @author BB
+    /// @details attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    // check if they can be connected
+    if ( !object->canuseplatforms || object->isFlying() ) return false;
+    if ( !platform->platform ) return false;
+
+    // do the attachment
+    object->onwhichplatform_ref    = platform->getCharacterID();
+    object->onwhichplatform_update = update_wld;
+    object->targetplatform_ref     = INVALID_CHR_REF;
+
+    // update the character's relationship to the ground
+    object->enviro.level     = std::max(object->enviro.floor_level, platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z]);
+    object->enviro.zlerp     = (object->getPosZ() - object->enviro.level) / PLATTOLERANCE;
+    object->enviro.zlerp     = Ego::Math::constrain(object->enviro.zlerp, 0.0f, 1.0f);
+    object->enviro.grounded  = !object->isFlying() && ( object->enviro.zlerp < 0.25f );
+
+    object->enviro.fly_level = std::max(object->enviro.fly_level, object->enviro.level);
+    if (object->enviro.fly_level < 0) object->enviro.fly_level = 0;  // fly above pits...
+
+    // add the weight to the platform based on the new zlerp
+    platform->holdingweight += object->phys.weight * ( 1.0f - object->enviro.zlerp );
+
+    // update the character jumping
+    if (object->enviro.grounded)
+    {
+        object->jumpready = true;
+        object->jumpnumber = object->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
+    }
+
+    // what to do about traction if the platform is tilted... hmmm?
+    Vector3f platformUp = Vector3f( 0.0f, 0.0f, 1.0f );
+    chr_getMatUp(platform.get(), platformUp);
+    platformUp.normalize();
+
+    object->enviro.traction = std::abs(platformUp[kZ]) * (1.0f - object->enviro.zlerp) + 0.25f * object->enviro.zlerp;
+
+    // tell the platform that we bumped into it
+    // this is necessary for key buttons to work properly, for instance
+    ai_state_t::set_bumplast(platform->ai, object->getCharacterID());
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool detach_character_from_platform( Object * pchr )
+{
+    /// @author BB
+    /// @details attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    // verify that we do not have two dud pointers
+    if ( !ACTIVE_PCHR( pchr ) ) return false;
+
+    // save some values
+    float old_zlerp        = pchr->enviro.zlerp;
+    const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
+
+    // undo the attachment
+    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
+    pchr->onwhichplatform_update = 0;
+    pchr->targetplatform_ref     = INVALID_CHR_REF;
+    pchr->targetplatform_level   = -1e32;
+
+    // adjust the platform weight, if necessary
+    if (oldPlatform) {
+        oldPlatform->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
+    }
+
+    // update the character-platform properties
+    move_one_character_get_environment( pchr );
+
+    // update the character jumping
+    pchr->jumpready = pchr->enviro.grounded;
+    if ( pchr->jumpready )
+    {
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------
+static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
+{
+    /// @author BB
+    /// @details attach a particle to a platform
+
+    // verify that we do not have two dud pointers
+    if ( !pprt || pprt->isTerminated() ) return false;
+    if ( !ACTIVE_PCHR( pplat ) ) return false;
+
+    // check if they can be connected
+    if ( !pplat->platform ) return false;
+
+    // do the attachment
+    pprt->onwhichplatform_ref    = pplat->getCharacterID();
+    pprt->onwhichplatform_update = update_wld;
+    pprt->targetplatform_ref     = INVALID_CHR_REF;
+
+    // update the character's relationship to the ground
+    pprt->setElevation( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] ) );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------
+static bool detach_particle_from_platform( Ego::Particle * pprt )
+{
+    /// @author BB
+    /// @details attach a particle to a platform
+
+
+    // verify that we do not have two dud pointers
+    if ( pprt == nullptr || pprt->isTerminated() ) return false;
+
+    // grab all of the particle info
+    prt_bundle_t bdl_prt(pprt);
+
+    // undo the attachment
+    pprt->onwhichplatform_ref    = INVALID_CHR_REF;
+    pprt->onwhichplatform_update = 0;
+    pprt->targetplatform_ref     = INVALID_CHR_REF;
+    pprt->targetplatform_level   = -1e32;
+
+    // get the correct particle environment
+    bdl_prt.move_one_particle_get_environment();
+
+    return true;
 }

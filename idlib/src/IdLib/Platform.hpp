@@ -174,6 +174,7 @@
 #include <unordered_set>
 #include <vector>
 #include <chrono>
+#include <set>
 
 /**
 * @ingroup IdLib

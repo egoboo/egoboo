@@ -24,38 +24,6 @@
 #include "game/Graphics/TileList.hpp"
 #include "game/graphic.h"
 
-gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile)
-{
-	if (NULL == ptile)
-	{
-		return gfx_fail;
-	}
-
-	// Flag the tile as in the renderlist
-	ptile->inrenderlist = true;
-
-	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
-	if (ptile->inrenderlist_frame < 0)
-	{
-		ptile->request_lcache_update = true;
-		ptile->lcache_frame = -1;
-	}
-	else
-	{
-		Uint32 last_frame = (game_frame_all > 0) ? game_frame_all - 1 : 0;
-
-		if ((Uint32)ptile->inrenderlist_frame < last_frame)
-		{
-			ptile->request_lcache_update = true;
-		}
-	}
-
-	// make sure to cache the frame number of this update
-	ptile->inrenderlist_frame = game_frame_all;
-
-	return gfx_success;
-}
-
 namespace Ego {
 namespace Graphics {
 
@@ -91,8 +59,19 @@ gfx_rv renderlist_lst_t::push(renderlist_lst_t *self, const TileIndex& index, fl
 }
 
 TileList::TileList() :
-	_mesh(nullptr), _all(), _ref(), _sha(), _reflective(), _nonReflective(), _water()
-{}
+	_mesh(nullptr), 
+	_all(), 
+	_ref(), 
+	_sha(), 
+	_reflective(), 
+	_nonReflective(), 
+	_water(),
+
+	_renderTiles(),
+	_lastRenderTiles()
+{
+	//ctor
+}
 
 TileList *TileList::init()
 {
@@ -118,17 +97,8 @@ gfx_rv TileList::reset()
 	}
 
 	// Clear out the "in render list" flag for the old mesh.
-	ego_tile_info_t *tlist = tile_mem_t::get(&(_mesh->tmem), 0);
-
-	for (size_t i = 0; i < _all.size; ++i)
-	{
-		Uint32 fan = _all.lst[i].index;
-		if (fan < _mesh->info.tiles_count)
-		{
-			tlist[fan].inrenderlist = false;
-			tlist[fan].inrenderlist_frame = 0;
-		}
-	}
+	_lastRenderTiles = _renderTiles;
+	_renderTiles.reset();
 
 	// Re-initialize the renderlist.
 	auto *mesh = _mesh;
@@ -145,14 +115,13 @@ gfx_rv TileList::insert(const TileIndex& index, const Camera &cam)
 		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
-	ego_mesh_t *mesh = _mesh;
 
 	// check for a valid tile
-	if (index >= mesh->gmem.grid_count)
+	if (index >= _mesh->gmem.grid_count)
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t *pgrid = grid_mem_t::get(&(mesh->gmem), index);
+	ego_grid_info_t *pgrid = grid_mem_t::get(&(_mesh->gmem), index);
 	if (!pgrid)
 	{
 		return gfx_fail;
@@ -164,8 +133,8 @@ gfx_rv TileList::insert(const TileIndex& index, const Camera &cam)
 		return gfx_fail;
 	}
 
-	int ix = index.getI() % mesh->info.tiles_x;
-	int iy = index.getI() / mesh->info.tiles_x;
+	int ix = index.getI() % _mesh->info.tiles_x;
+	int iy = index.getI() / _mesh->info.tiles_y;
 	float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter()[kX];
 	float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
@@ -210,80 +179,29 @@ void TileList::setMesh(ego_mesh_t *mesh)
 	_mesh = mesh;
 }
 
-gfx_rv TileList::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera)
+gfx_rv TileList::add(const size_t index, Camera& camera)
 {
-	size_t colst_cp, colst_sz;
-	ego_mesh_t *mesh = NULL;
-	gfx_rv retval = gfx_error;
+	_renderTiles[index] = true;
 
-	if (NULL == leaves)
+	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
+	if(!_lastRenderTiles[index]) {
+		const std::shared_ptr<ego_tile_info_t> &tile = _mesh->tmem.getTile(index);
+		tile->request_lcache_update = true;
+		tile->lcache_frame = -1;
+	}
+
+	if (gfx_error == insert(index, camera))
 	{
 		return gfx_error;
 	}
 
-	colst_cp = leaves->capacity();
-	if (0 == colst_cp)
-	{
-		return gfx_error;
-	}
+	return gfx_success;
+}
 
-	colst_sz = leaves->size();
-	if (0 == colst_sz)
-	{
-		return gfx_fail;
-	}
-
-	mesh = getMesh();
-	if (NULL == mesh)
-	{
-		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
-		return gfx_error;
-	}
-
-	// assume the best
-	retval = gfx_success;
-
-	// transfer valid pcolst entries to the renderlist
-	for (size_t j = 0; j < colst_sz; j++)
-	{
-		BSP_leaf_t *leaf = leaves->ary[j];
-
-		if (!leaf) continue;
-		if (!leaf->valid()) continue;
-
-		if (BSP_LEAF_TILE == leaf->_type)
-		{
-			// Get fan index.
-			TileIndex itile = leaf->_index;
-
-			// Get tile for tile index.
-			ego_tile_info_t *ptile = mesh->get_ptile(itile);
-			if (!ptile) continue;
-
-			// Get grid for tile index.
-			ego_grid_info_t *pgrid = mesh->get_pgrid(itile);
-			if (!pgrid) continue;
-
-			if (gfx_error == gfx_capture_mesh_tile(ptile))
-			{
-				retval = gfx_error;
-				break;
-			}
-
-			if (gfx_error == insert(itile, camera))
-			{
-				retval = gfx_error;
-				break;
-			}
-		}
-		else
-		{
-			// how did we get here?
-			log_warning("%s-%s-%d- found non-tile in the mpd BSP\n", __FILE__, __FUNCTION__, __LINE__);
-		}
-	}
-
-	return retval;
+bool TileList::inRenderList(const TileIndex &index) const
+{
+	if(index == TileIndex::Invalid) return false;
+	return _renderTiles[index.getI()];
 }
 
 }

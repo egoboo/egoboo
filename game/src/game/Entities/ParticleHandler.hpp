@@ -26,8 +26,6 @@
 #endif
 
 #include "game/egoboo_typedef.h"
-#include "game/egoboo_object.h"
-#include "game/LockableList.hpp"
 #include "game/Entities/Particle.hpp"
 #include "game/Entities/particle.h"
 

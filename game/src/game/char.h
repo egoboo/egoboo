@@ -128,8 +128,6 @@ TX_REF   chr_get_txtexture_icon_ref( const CHR_REF item );
 
 egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
 
-bool chr_update_breadcrumb_raw( Object * pchr );
-bool chr_update_breadcrumb( Object * pchr, bool force );
 bool chr_update_safe_raw( Object * pchr );
 bool chr_update_safe( Object * pchr, bool force );
 bool chr_get_safe( Object * pchr);
