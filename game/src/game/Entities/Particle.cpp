@@ -541,12 +541,12 @@ void Particle::updateAnimation()
     // what do you do about an image overflow?
     if (image_overflow)
     {
-        if (getProfile()->end_lastframe /*&& getProfile()->end_time > 0*/) //ZF> I don't think the second statement is needed
-        {
-            // freeze it at the last frame
-            _image._offset = std::max(0, _image._count - 1);
-        }
-        else
+        //if (getProfile()->end_lastframe /*&& getProfile()->end_time > 0*/) //ZF> I don't think the second statement is needed
+        //{
+        //    // freeze it at the last frame
+        //    _image._offset = std::max(0, _image._count - 1);
+        //}
+        //else
         {
             // the animation is looped. set the value to image_overflow_amount
             // so that we get the exact number of image updates called for
