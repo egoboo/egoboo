@@ -1262,22 +1262,14 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
         return static_cast<TX_REF>(TX_ICON_NULL);
     }
 
-    const std::shared_ptr<ObjectProfile> &itemProfile = pitem->getProfile();
-
-    // what do we need to draw?
-    // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
-    bool is_book = (SPELLBOOK == pitem->getProfileID()) || (itemProfile->getSpellEffectType() >= 0 && !pitem->draw_icon);
-
-    //bool is_spell_fx = ( itemProfile->getSpellEffectType() >= 0 );     
-    //bool draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ); /// ZF@> uncommented a part because this caused a icon bug when you were morphed and mounted
-
-    if (!is_book)
+    //Is it a spellbook?
+    if (pitem->getProfile()->getSpellEffectType() == ObjectProfile::NO_SKIN_OVERRIDE)
     {
-        return itemProfile->getIcon(pitem->skin);
+        return pitem->getProfile()->getIcon(pitem->skin);
     }
     else
     {
-        return ProfileSystem::get().getSpellBookIcon(itemProfile->getSpellEffectType());
+        return ProfileSystem::get().getSpellBookIcon(pitem->getProfile()->getSpellEffectType());
     }
 }
 

@@ -2410,18 +2410,12 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
     /// TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
     /// them too much
 
-    int iskin;
-
     SCRIPT_FUNCTION_BEGIN();
-
-    // Figure out what this spellbook looks like
-    iskin = ppro->getSpellEffectType();
-    if ( iskin < 0 ) iskin = 0;
 
     // convert the spell effect to a spellbook
     PRO_REF old_profile = pchr->getProfileID();
     pchr->disenchant();
-    pchr->polymorphObject(SPELLBOOK, 0);
+    pchr->polymorphObject(SPELLBOOK, ppro->getSpellEffectType());
 
     // Reset the spellbook state so it doesn't burn up
     chr_set_ai_state(pchr, 0);
