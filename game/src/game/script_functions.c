@@ -5824,10 +5824,10 @@ Uint8 scr_HeldInLeftHand( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-	CHR_REF ichr = pchr->attachedto;
-    if ( _currentModule->getObjectHandler().exists( ichr ) )
+    const std::shared_ptr<Object> holder = _currentModule->getObjectHandler()[pchr->attachedto];
+    if (holder)
     {
-        returncode = ( _currentModule->getObjectHandler().get(ichr)->holdingwhich[SLOT_LEFT] == self.index );
+        returncode = holder->holdingwhich[SLOT_LEFT] == pchr->getCharacterID();
     }
 
     SCRIPT_FUNCTION_END();
@@ -8173,7 +8173,7 @@ uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self)
     }
 
     //Validate arguments
-    else if(state.distance <= 0 || state.distance < state.argument)  {
+    else if(state.distance <= 0)  {
         returncode = false;
     }
 
@@ -8182,7 +8182,7 @@ uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self)
         returncode = true;
 
         player_t * ppla = PlaStack.get_ptr(player->is_which_player);
-        ppla->_currentCharge = state.argument;
+        ppla->_currentCharge = std::min(state.argument, state.argument);
         ppla->_maxCharge = state.distance;
         ppla->_chargeTick = state.turn;
         ppla->_chargeBarFrame = update_wld + 10;

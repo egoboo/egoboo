@@ -274,7 +274,7 @@ float Particle::getScale() const
 void Particle::setSize(int size)
 {
     // set the graphical size
-    this->size = size;
+    this->size = Ego::Math::constrain(size, 0, 0xFFFF);
 
     // set the bumper size, if available
     if (0 == bump_size_stt)
