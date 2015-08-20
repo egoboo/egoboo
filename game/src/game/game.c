@@ -1639,8 +1639,6 @@ void show_full_status( int statindex )
     /// @author ZF
     /// @details This function shows detailed armor information for the character including magic
 
-    int manaregen, liferegen;
-
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
     if(!pchr) {
         return;
@@ -1672,8 +1670,6 @@ void show_magic_status( int statindex )
 {
     /// @author ZF
     /// @details Displays special enchantment effects for the character
-
-    CHR_REF character;
 
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
     if(!pchr) {
@@ -1779,7 +1775,7 @@ void game_load_profile_ai()
     /// @details load the AI for each profile, done last so that all reserved slot numbers are already set
     /// since AI scripts can dynamically load new objects if they require it
     // ensure that the script parser exists
-    parser_state_t *ps = parser_state_t::get();
+    parser_state_t& ps = parser_state_t::get();
 
     for (const auto &element : ProfileSystem::get().getLoadedProfiles())
     {
@@ -2279,7 +2275,7 @@ bool game_load_module_data( const char *smallname )
     log_info( "Loading module \"%s\"\n", smallname );
 
     // ensure that the script parser exists
-    parser_state_t * ps = parser_state_t::get();
+    parser_state_t& ps = parser_state_t::get();
     parser_state_t::clear_error(ps);
     if ( load_ai_script_vfs( ps, "mp_data/script.txt", NULL, NULL ) != rv_success )
     {

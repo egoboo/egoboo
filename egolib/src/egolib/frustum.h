@@ -66,8 +66,8 @@ struct egolib_frustum_t
     plane_t _planes2[Planes::COUNT];
 
     // data for intersection optimization
-    fvec3_t _origin;
-    sphere_t _sphere;
+    Vector3f _origin;
+    Sphere3f _sphere;
 
 public:
 
@@ -115,7 +115,7 @@ public:
 	 * @remark
 	 *	If a the sphere is outside one plane farther than its radius, it is outside the frustum.
 	 */
-	Ego::Math::Relation intersects_sphere(const sphere_t& sphere, const bool doEnds) const;
+	Ego::Math::Relation intersects_sphere(const Sphere3f& sphere, const bool doEnds) const;
 
     /**
      * @brief
@@ -135,7 +135,7 @@ public:
      *      <li>geometry_inside    - the cube is completely inside the frustum</li>
      *  </ul>
      * @todo
-     *  Replace <tt>const fvec3_t& position</tt> and <tt>const float size</tt> by <tt>const cube_t& cube</tt>.
+     *  Replace <tt>const fvec3_t& position</tt> and <tt>const float size</tt> by <tt>const Cube3f& cube</tt>.
      */
 	Ego::Math::Relation intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const;
 

@@ -129,7 +129,7 @@ public:
 
     /**
      * @brief
-     *  Append a byte to the buffer growing the buffer if necessary.
+     *  Append a byte to this buffer growing this buffer if necessary.
      * @param byte
      *  the byte
      * @throw std::bad_alloc
@@ -137,6 +137,27 @@ public:
      */
     void append(char byte);
 
+	/**
+	 * @brief
+	 *	Insert a byte into the buffer at the specified index.
+	 * @param byte
+	 *	the byte
+	 * @param index
+	 *	the index
+	 * @throw std::bad_alloc
+	 *	if not enough memory is available
+	 * @throw std::out_of_range
+	 *	if @a index greater than the size of the buffer
+	 */
+	void insert(char byte, size_t index);
+
+	/**
+	 * @brief
+	 *	Get if the buffer is empty.
+	 * @return
+	 *	@a true if the buffer is empty
+	 */
+	bool isEmpty() const;
 };
 
 } // namespace Script

@@ -92,7 +92,7 @@ Ego::Math::Relation plane_intersects_aabb(const plane_t& plane, const fvec3_t& m
  * @param rhs
  *  the other sphere
  */
-Ego::Math::Relation sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs);
+Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f& rhs);
 
 /**
  * @brief
@@ -102,7 +102,7 @@ Ego::Math::Relation sphere_intersects_sphere(const sphere_t& lhs, const sphere_t
  * @param rhs
  *	a point
  */
-Ego::Math::Relation cone_intersects_point(const cone_t * lhs, const fvec3_t& rhs);
+Ego::Math::Relation cone_intersects_point(const Cone3f * lhs, const fvec3_t& rhs);
 
 /**
  * @brief
@@ -114,7 +114,7 @@ Ego::Math::Relation cone_intersects_point(const cone_t * lhs, const fvec3_t& rhs
  * @todo
  *  Document return value.
  */
-Ego::Math::Relation cone_intersects_sphere(const cone_t * lhs, const sphere_t * rhs);
+Ego::Math::Relation cone_intersects_sphere(const Cone3f * lhs, const Sphere3f * rhs);
 
 /**
  * @brief

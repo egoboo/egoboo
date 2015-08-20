@@ -51,12 +51,6 @@
     <Filter Include="Game Header Files\Entities">
       <UniqueIdentifier>{1c38aee5-f243-43d6-ad79-52a8428b883b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game Sources\Script">
-      <UniqueIdentifier>{b2ff720c-993f-4c5b-9e22-a5e598e8d566}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game Sources\Physics">
-      <UniqueIdentifier>{3ab75b78-5396-498d-973c-77cd68b6228a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\char.c">
@@ -66,9 +60,6 @@
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\egoboo.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\egoboo_object.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\game.c">
@@ -101,13 +92,7 @@
     <ClCompile Include="src\game\mesh.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\mesh_BSP.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\network.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\obj_BSP.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\physics.c">
@@ -316,9 +301,6 @@
     <ClInclude Include="src\game\egoboo_doxygen.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\egoboo_object.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\egoboo_typedef.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -355,13 +337,7 @@
     <ClInclude Include="src\game\mesh.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\mesh_BSP.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\network.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\obj_BSP.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\physics.h">
@@ -459,9 +435,6 @@
     </ClInclude>
     <ClInclude Include="src\game\gui\UIManager.hpp">
       <Filter>Game Header Files\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\LockableList.hpp">
-      <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\entities\Enchant.hpp">
       <Filter>Game Header Files\Entities</Filter>

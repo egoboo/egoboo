@@ -37,12 +37,6 @@
     <Filter Include="Header Files\Renderer\OpenGL">
       <UniqueIdentifier>{64b06b6c-4104-43af-8294-33f28825a826}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Scene">
-      <UniqueIdentifier>{e088fafe-0da3-45d0-933c-4514b9375e76}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Scene">
-      <UniqueIdentifier>{a3c65541-0927-4dda-a50d-adf37e0ce2ac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Profiles">
       <UniqueIdentifier>{ce11e196-0290-4d44-a551-726131e40d5a}</UniqueIdentifier>
     </Filter>
@@ -117,9 +111,6 @@
     <ClCompile Include="src\egolib\bbox.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\bsp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\clock.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -145,9 +136,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\geometry.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\hash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\IDSZ_map.c">
@@ -201,9 +189,6 @@
     <ClCompile Include="src\egolib\mem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\bsp_aabb.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\math\Random.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
@@ -218,15 +203,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Renderer\OpenGL\Renderer.cpp">
       <Filter>Source Files\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Scene\Tree.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Scene\Branch.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Scene\LeafList.cpp">
-      <Filter>Source Files\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Float.cpp">
       <Filter>Source Files</Filter>
@@ -491,9 +467,6 @@
     <ClInclude Include="src\egolib\IDSZ_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\hash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -527,9 +500,6 @@
     <ClInclude Include="src\egolib\clock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\bsp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\bbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -560,12 +530,6 @@
     <ClInclude Include="src\egolib\bv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\DynamicArray.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\bsp_aabb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\math\Random.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -589,24 +553,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\math\Plane.hpp">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Scene\Element.hpp">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Scene\Bounds.hpp">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Scene\LeafHolder.hpp">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Scene\Tree.hpp">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Scene\Branch.hpp">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Scene\LeafList.hpp">
-      <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp">
       <Filter>Header Files\Renderer</Filter>

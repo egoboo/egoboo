@@ -29,7 +29,6 @@
 #include "game/Graphics/TileList.hpp"
 #include "game/Graphics/EntityList.hpp"
 #include "game/Graphics/Vertex.hpp"
-#include "egolib/DynamicArray.hpp"
 #include "game/Graphics/RenderPasses.hpp"
 #include "egolib/Graphics/MD2Model.hpp"
 

@@ -375,9 +375,6 @@
     <ClCompile Include="src\egolib\Profiles\ParticleProfile.cpp" />
     <ClCompile Include="src\egolib\Profiles\RandomName.cpp" />
     <ClCompile Include="src\egolib\Float.cpp" />
-    <ClCompile Include="src\egolib\Scene\Branch.cpp" />
-    <ClCompile Include="src\egolib\Scene\LeafList.cpp" />
-    <ClCompile Include="src\egolib\Scene\Tree.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\Renderer.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\Renderer.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\Renderer.o</ObjectFileName>
@@ -424,10 +421,8 @@
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Random.asm</AssemblerListingLocation>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Random.o</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="src\egolib\bsp_aabb.c" />
     <ClCompile Include="src\egolib\mem.c" />
     <ClCompile Include="src\egolib\bbox.c" />
-    <ClCompile Include="src\egolib\bsp.c" />
     <ClCompile Include="src\egolib\clock.c" />
     <ClCompile Include="src\egolib\console.c" />
     <ClCompile Include="src\egolib\egoboo_setup.c" />
@@ -442,7 +437,6 @@
     <ClCompile Include="src\egolib\font_bmp.c" />
     <ClCompile Include="src\egolib\frustum.c" />
     <ClCompile Include="src\egolib\geometry.c" />
-    <ClCompile Include="src\egolib\hash.c" />
     <ClCompile Include="src\egolib\IDSZ_map.c" />
     <ClCompile Include="src\egolib\input_device.c" />
     <ClCompile Include="src\egolib\log.c" />
@@ -587,12 +581,6 @@
     <ClInclude Include="src\egolib\Debug.hpp" />
     <ClInclude Include="src\egolib\Float.hpp" />
     <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp" />
-    <ClInclude Include="src\egolib\Scene\Bounds.hpp" />
-    <ClInclude Include="src\egolib\Scene\Branch.hpp" />
-    <ClInclude Include="src\egolib\Scene\LeafHolder.hpp" />
-    <ClInclude Include="src\egolib\Scene\LeafList.hpp" />
-    <ClInclude Include="src\egolib\Scene\Tree.hpp" />
-    <ClInclude Include="src\egolib\Scene\Element.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
@@ -603,11 +591,8 @@
     <ClInclude Include="src\egolib\math\Sphere.h" />
     <ClInclude Include="src\egolib\math\Plane.hpp" />
     <ClInclude Include="src\egolib\math\Random.hpp" />
-    <ClInclude Include="src\egolib\bsp_aabb.h" />
     <ClInclude Include="src\egolib\bv.h" />
-    <ClInclude Include="src\egolib\DynamicArray.hpp" />
     <ClInclude Include="src\egolib\bbox.h" />
-    <ClInclude Include="src\egolib\bsp.h" />
     <ClInclude Include="src\egolib\clock.h" />
     <ClInclude Include="src\egolib\console.h" />
     <ClInclude Include="src\egolib\egoboo_setup.h" />
@@ -624,7 +609,6 @@
     <ClInclude Include="src\egolib\font_bmp.h" />
     <ClInclude Include="src\egolib\frustum.h" />
     <ClInclude Include="src\egolib\geometry.h" />
-    <ClInclude Include="src\egolib\hash.h" />
     <ClInclude Include="src\egolib\IDSZ_map.h" />
     <ClInclude Include="src\egolib\input_device.h" />
     <ClInclude Include="src\egolib\log.h" />

@@ -105,46 +105,240 @@ enum chr_alert_bits
 };
 
 // swig chokes on the definition below
-#if defined(SWIG)
-#   define STOR_BITS            4
-#   define STOR_COUNT          16                      ///< Storage data (Used in SetXY)
-#   define STOR_AND            15                      ///< Storage data bitmask
-#else
-#   define STOR_BITS            4
-#   define STOR_COUNT          (1 << STOR_BITS)        ///< Storage data (Used in SetXY)
-#   define STOR_AND            (STOR_COUNT - 1)        ///< Storage data bitmask
-#endif
+#define STOR_BITS            4
+#define STOR_COUNT          (1 << STOR_BITS)        ///< Storage data (Used in SetXY)
+#define STOR_AND            (STOR_COUNT - 1)        ///< Storage data bitmask
 
 //--------------------------------------------------------------------------------------------
 // struct script_info_t
 //--------------------------------------------------------------------------------------------
+
+struct Instruction
+{
+public:
+	// 10000000.00000000.00000000.00000000
+	static const uint32_t FUNCTIONBITS = 0x80000000;
+	// 00000111.111111.111111111.111111111
+	static const uint32_t VALUEBITS = 0x07FFFFFF;
+	// 01111000.00000000.00000000.00000000
+	static const uint32_t DATABITS = 0x78000000;
+	uint32_t _value;
+	Instruction()
+		: _value() {
+	}
+	Instruction(uint32_t value)
+		: _value(value) {
+	}
+	Instruction(const Instruction& other)
+		: _value(other._value) {
+	}
+	uint32_t operator&(uint32_t bitmask) {
+		return _value & bitmask;
+	}
+	size_t getIndex() const {
+		static_assert(std::numeric_limits<size_t>::max() >= std::numeric_limits<uint32_t>::max(),
+			          "maximum value of size_t is smaller than maximum value of uint32_t");
+		return (size_t)_value;
+	}
+	/**
+	 * @brief
+	 *	Get if this instruction is an "inv" (~"invoke") instruction.
+	 * @return
+	 *	@a true if this instruction is an "inv" instruction,
+	 *	@a false otherwise
+	 * @todo
+	 *	Rename to "isInv".
+	 * @todo
+	 *	EgoScript has some decision logic built-in if an instruction is an
+	 *	"inv" or "ldc" instruction. Clean up this mess.
+	 */
+	bool isInv() const {
+		return hasSomeBits(FUNCTIONBITS);
+	}
+	/**
+	 * @brief
+	 *	Get if this instruction is a "ldc" (~"load constant") instruction.
+	 * @return
+	 *	@a true if this instruction is a "ldc" instruction,
+	 *	@a false otherwise
+	 * @todo
+	 *	Rename to "isLdc".
+	 * @todo
+	 *	EgoScript has some decision logic built-in if an instruction is an
+	 *	"inv" or "ldc" instruction. Clean up this mess.
+	 */
+	bool isLdc() const {
+		return hasSomeBits(FUNCTIONBITS);
+	}
+	uint32_t getBits() const {
+		return _value;
+	}
+	void setBits(uint32_t bits) {
+		_value = bits;
+	}
+	/**
+	 * @brief
+	 *	Get the data bits.
+	 * @return
+	 *	the data bits
+	 * @remark
+	 *	the data bits are the upper 5 Bits of the 32 value bits
+	 */
+	uint8_t getDataBits() const {
+		return (getBits() >> 27) & 0x0f;
+	}
+
+	/**
+	 * @brief
+	 *	Get if this instruction has none of the bits in the specified bitmask set.
+	 * @param bitmask
+	 *	the bitmask
+	 * @return
+	 *	@a true if this instruction has none of the bits in the bitmask set,
+	 *	@a false otherwise.
+	 */
+	bool hasNoBits(uint32_t bitmask) const {
+		return 0 == (getBits() & bitmask);
+	}
+	/**
+	 * @brief
+	 *	Get if this instruction has some of the bits set in the specified bitmask set.
+	 * @param bitmask
+	 *	the bitmask
+	 * @return
+	 *	@a true if this instruction has any of the bits in the bitmask set, @a false otherwise
+	 */
+	bool hasSomeBits(uint32_t bitmask) const {
+		return 0 != (getBits() & bitmask);
+	}
+	/**
+	 * @brief
+	 *	Get if this instruction has all of the bits in the specified bitmask set.
+	 * @param bitmask
+	 *	the bitmask
+	 * @return
+	 *	@a true if this instruction has all of the bits in the bitmask set, @a false otherwise.
+	 */
+	bool hasAllBitsSet(uint32_t bitmask) const {
+		return bitmask == (getBits() & bitmask);
+	}
+};
+
+struct InstructionList
+{
+	InstructionList()
+		: _length(0)
+	{
+	}
+	InstructionList(const InstructionList& other)
+		: _length(other._length)
+	{
+		for (size_t i = 0; i < _length; ++i) {
+			_instructions[i] = other._instructions[i];
+		}
+	}
+	InstructionList operator=(const InstructionList& other)
+	{
+		_length = other._length;
+		for (size_t i = 0; i < _length; ++i) {
+			_instructions[i] = other._instructions[i];
+		}
+		return *this;
+	}
+	/**
+	 * @brief
+	 *	The actual length of the instruction list.
+	 *	The first @a length entries in the instruction array are used.
+	 */
+	uint32_t _length;
+	/**
+	 * @brief
+	 *	Get the length of this instruction list.
+	 * @return
+	 *	the length of this instruciton list
+	 */
+	uint32_t getLength() const {
+		return _length;
+	}
+	/**
+	 * @brief
+	 *	Get if this instruction list is full.
+	 * @return
+	 *	@a true if this instruction list is full,
+	 *	@a false otherwise
+	 */
+	bool isFull() const {
+		return MAXAICOMPILESIZE == getLength();
+	}
+	/**
+	 * @brief
+	 *	The instructions.
+	 */
+	Instruction _instructions[MAXAICOMPILESIZE];          // Compiled script data
+
+	void append(const Instruction& instruction) {
+		if (_length == MAXAICOMPILESIZE) {
+			throw std::overflow_error("instruction list overflow");
+		}
+		_instructions[_length++] = instruction;
+	}
+	const Instruction& operator[](size_t index) const {
+		return _instructions[index];
+	}
+	Instruction& operator[](size_t index) {
+		return _instructions[index];
+	}
+};
+
 struct script_info_t
 {
 public:
     script_info_t() :
-        name(),
+        _name(),
         indent(0),
         indent_last(0),
-        length(0),
-        position(0),
-        data{}
+        _position(0),
+        _instructions()
     {
         //ctor
     }
 
 public:
-    STRING          name;                            // Name of the script file
+	/**
+	 * @brief
+	 *	The name of the script file.
+	 */
+	std::string _name;
+
+	/**
+	 * @brief
+	 *	Get the name of this script file.
+	 * @return
+	 *	the name of this script file
+	 */
+	const std::string& getName() const {
+		return _name;
+	}
 
     uint32_t        indent;
     uint32_t        indent_last;
 
-    uint32_t        length;                          // Actual length of the compiled ai buffer
-    size_t          position;                        // Our current position in the script
 
-    uint32_t        data[MAXAICOMPILESIZE];          // Compiled script data
+	/**
+	 * @brief
+	 *	The instruction index.
+	 */
+    size_t _position;
 
-	static bool increment_pos(script_info_t *self);
-	static bool set_pos(script_info_t *self, size_t position);
+	/**
+	 * @brief
+	 *	The instruction list.
+	 */
+	InstructionList _instructions;
+
+	bool increment_pos();
+	size_t get_pos() const;
+	bool set_pos(size_t position);
 
 };
 
@@ -221,21 +415,22 @@ struct ai_state_t
 /// @details It is not persistent between one evaluation of a script and another
 struct script_state_t
 {
-    int     x;
-    int     y;
-    int     turn;
-    int     distance;
-    int     argument;
-    int     operationsum;
+    int x;
+    int y;
+    int turn;
+    int distance;
+    int argument;
+    int operationsum;
 
 	// public
-	static void init(script_state_t& self);
+	script_state_t();
+	script_state_t(const script_state_t& self);
 	// protected
-	static Uint8 run_function(script_state_t& self, ai_state_t& aiState, script_info_t *pscript);
+	static Uint8 run_function(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 	static void set_operand(script_state_t& self, Uint8 variable);
 	static void run_operand(script_state_t& self, ai_state_t& aiState, script_info_t * pscript);
-	static bool run_operation(script_state_t& self, ai_state_t& aiState, script_info_t *pscript);
-	static bool run_function_call(script_state_t& self, ai_state_t& aiState, script_info_t *pscript);
+	static bool run_operation(script_state_t& self, ai_state_t& aiState, script_info_t& script);
+	static bool run_function_call(script_state_t& self, ai_state_t& aiState, script_info_t& script);
 };
 
 //--------------------------------------------------------------------------------------------

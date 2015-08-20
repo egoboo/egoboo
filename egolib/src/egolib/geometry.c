@@ -250,12 +250,12 @@ bool three_plane_intersection(fvec3_t& dst_pos, const plane_t& p0, const plane_t
 // sphere functions
 //--------------------------------------------------------------------------------------------
 
-Ego::Math::Relation sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs)
+Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f& rhs)
 {
 	Ego::Math::Relation retval = Ego::Math::Relation::error;
 
     // Get the separating axis
-    fvec3_t vdiff = lhs.getCenter() - rhs.getCenter();
+    Vector3f vdiff = lhs.getCenter() - rhs.getCenter();
 
     // Get the distance squared.
     float dist2 = vdiff.length_2();
@@ -292,7 +292,7 @@ Ego::Math::Relation sphere_intersects_sphere(const sphere_t& lhs, const sphere_t
 // cone functions
 //--------------------------------------------------------------------------------------------
 
-Ego::Math::Relation cone_intersects_point(const cone_t *K, const fvec3_t& P)
+Ego::Math::Relation cone_intersects_point(const Cone3f *K, const fvec3_t& P)
 {
     /// @brief determine whether a point is inside a cone
 	Ego::Math::Relation retval = Ego::Math::Relation::error;
@@ -373,7 +373,7 @@ Ego::Math::Relation cone_intersects_point(const cone_t *K, const fvec3_t& P)
 }
 
 //--------------------------------------------------------------------------------------------
-Ego::Math::Relation cone_intersects_sphere(const cone_t * K, const sphere_t * S)
+Ego::Math::Relation cone_intersects_sphere(const Cone3f * K, const Sphere3f * S)
 {
     /// @author BB
     ///
@@ -428,7 +428,7 @@ Ego::Math::Relation cone_intersects_sphere(const cone_t * K, const sphere_t * S)
     // completely inside the original cone
     if ( !done )
     {
-        cone_t  K_new;
+        Cone3f  K_new;
 
         // Shift the origin by the offset in the positive sense.
         memcpy( &K_new, K, sizeof( K_new ) );
@@ -459,7 +459,7 @@ Ego::Math::Relation cone_intersects_sphere(const cone_t * K, const sphere_t * S)
     // test for intersection with the back cone.
     if ( !done )
     {
-        cone_t K_new;
+        Cone3f K_new;
 
         // Shift the origin by the offset in the negative sense.
 		K_new = *K;
