@@ -22,8 +22,9 @@
 /// @author Michael Heilmann et al.
 
 #include "egolib/Math/Matrix44.hpp"
+#include "egolib/_math.h"
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_t& DST, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate)
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate)
 {
     float cx = turntocos[turn_x & TRIG_TABLE_MASK];
     float sx = turntosin[turn_x & TRIG_TABLE_MASK];
@@ -53,7 +54,7 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_t& DST, const Vecto
     DST(3,3) = 1.0f;
 }
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_t& DST, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate)
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& DST, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate)
 {
     /// @details Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
 
@@ -85,7 +86,7 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_t& DST, const Vector
     DST(3,3) = 1.0f;
 }
 
-void mat_FourPoints(fmat_4x4_t& dst, const Vector3f& ori, const Vector3f& wid, const Vector3f& frw, const Vector3f& up, const float scale)
+void mat_FourPoints(Matrix4f4f& dst, const Vector3f& ori, const Vector3f& wid, const Vector3f& frw, const Vector3f& up, const float scale)
 {
 	Vector3f vWid = wid - ori;
 	Vector3f vUp = up - ori;
@@ -116,27 +117,27 @@ void mat_FourPoints(fmat_4x4_t& dst, const Vector3f& ori, const Vector3f& wid, c
 	dst(3, 3) = 1.0f;
 }
 
-Vector3f mat_getTranslate(const fmat_4x4_t& mat)
+Vector3f mat_getTranslate(const Matrix4f4f& mat)
 {
     return Vector3f(mat(0, 3), mat(1, 3), mat(2, 3));
 }
 
-Vector3f mat_getChrUp(const fmat_4x4_t& mat)
+Vector3f mat_getChrUp(const Matrix4f4f& mat)
 {
     return Vector3f(mat(0, 2), mat(1, 2), mat(2, 2));
 }
 
-Vector3f mat_getChrForward(const fmat_4x4_t& mat)
+Vector3f mat_getChrForward(const Matrix4f4f& mat)
 {
     return Vector3f(-mat(0, 0), -mat(1, 0), -mat(2, 0));
 }
 
-Vector3f mat_getChrRight(const fmat_4x4_t& mat)
+Vector3f mat_getChrRight(const Matrix4f4f& mat)
 {
     return Vector3f(mat(0, 1), mat(1, 1), mat(2, 1));
 }
 
-bool mat_getCamUp(const fmat_4x4_t& mat, Vector3f& up)
+bool mat_getCamUp(const Matrix4f4f& mat, Vector3f& up)
 {
     up[kX] = mat(1,0);
     up[kY] = mat(1,1);
@@ -145,7 +146,7 @@ bool mat_getCamUp(const fmat_4x4_t& mat, Vector3f& up)
     return true;
 }
 
-bool mat_getCamRight(const fmat_4x4_t& mat, Vector3f& right)
+bool mat_getCamRight(const Matrix4f4f& mat, Vector3f& right)
 {
     right[kX] = -mat(0,0);
     right[kY] = -mat(0,1);
@@ -154,7 +155,7 @@ bool mat_getCamRight(const fmat_4x4_t& mat, Vector3f& right)
     return true;
 }
 
-bool mat_getCamForward(const fmat_4x4_t& mat, Vector3f& forward)
+bool mat_getCamForward(const Matrix4f4f& mat, Vector3f& forward)
 {
     forward[kX] = -mat(2,0);
     forward[kY] = -mat(2,1);
@@ -163,7 +164,7 @@ bool mat_getCamForward(const fmat_4x4_t& mat, Vector3f& forward)
     return true;
 }
 
-void dump_matrix(const fmat_4x4_t& a)
+void dump_matrix(const Matrix4f4f& a)
 {
     for (size_t i = 0; i < 4; ++i)
     {

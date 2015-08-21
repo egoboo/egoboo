@@ -105,7 +105,7 @@ static void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset);
 static void prt_draw_attached_point(prt_bundle_t *pbdl_prt);
 static void render_prt_bbox(prt_bundle_t *pbdl_prt);
 static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t * pinst, Ego::Particle * pprt);
-static fmat_4x4_t prt_instance_make_matrix(prt_instance_t *pinst);
+static Matrix4f4f prt_instance_make_matrix(prt_instance_t *pinst);
 static gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
 
 //--------------------------------------------------------------------------------------------
@@ -882,9 +882,9 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
     return gfx_success;
 }
 
-fmat_4x4_t prt_instance_make_matrix(prt_instance_t *pinst)
+Matrix4f4f prt_instance_make_matrix(prt_instance_t *pinst)
 {
-    fmat_4x4_t mat = fmat_4x4_t::identity();
+	Matrix4f4f mat = Matrix4f4f::identity();
 
     mat(1, 0) = -pinst->up[kX];
     mat(1, 1) = -pinst->up[kY];
@@ -922,7 +922,7 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, 
     grid_lighting_interpolate(_currentModule->getMeshPointer(), &global_light, Vector2f(pinst->pos[kX], pinst->pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
-    fmat_4x4_t mat = prt_instance_make_matrix(pinst);
+	Matrix4f4f mat = prt_instance_make_matrix(pinst);
     lighting_cache_t loc_light;
     lighting_project_cache(&loc_light, &global_light, mat);
 

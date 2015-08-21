@@ -134,8 +134,8 @@ struct matrix_cache_t
 /// some pre-computed parameters for reflection
 struct chr_reflection_cache_t
 {
-    fmat_4x4_t matrix;
-    bool     matrix_valid;
+	Matrix4f4f matrix;
+    bool       matrix_valid;
     Uint8      alpha;
     Uint8      light;
     Uint8      sheen;
@@ -175,7 +175,7 @@ struct chr_instance_t
     int update_frame;                ///< the last frame that the instance was calculated in
 
     // position info
-    fmat_4x4_t     matrix;           ///< Character's matrix
+	Matrix4f4f     matrix;           ///< Character's matrix
     matrix_cache_t matrix_cache;     ///< Did we make one yet?
 
     FACING_T       facing_z;

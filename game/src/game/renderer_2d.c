@@ -273,13 +273,13 @@ void gfx_begin_2d()
     // Set up an orthogonal projection
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	fmat_4x4_t projection = fmat_4x4_t::ortho(0.0, sdl_scr.x, sdl_scr.y, 0.0, -1.0f, +1.0f);
+	Matrix4f4f projection = Matrix4f4f::ortho(0.0, sdl_scr.x, sdl_scr.y, 0.0, -1.0f, +1.0f);
 	Ego::Renderer::get().loadMatrix(projection);
 
     // Reset the Modelview Matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
+	Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
 
     // remove any scissor test
 	Ego::Renderer::get().setScissorTestEnabled(false);

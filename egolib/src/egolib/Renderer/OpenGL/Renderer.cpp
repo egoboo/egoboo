@@ -360,7 +360,7 @@ void Renderer::setWindingMode(WindingMode mode)
     Utilities::isError();
 }
 
-void Renderer::loadMatrix(const fmat_4x4_t& matrix)
+void Renderer::loadMatrix(const Matrix4f4f& matrix)
 {
     // fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
     // to the OpenGL API. However, currently this code is redundant.
@@ -376,7 +376,7 @@ void Renderer::loadMatrix(const fmat_4x4_t& matrix)
     Utilities::isError();
 }
 
-void Renderer::multiplyMatrix(const fmat_4x4_t& matrix)
+void Renderer::multiplyMatrix(const Matrix4f4f& matrix)
 {
     // fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
     // to the OpenGL API. However, currently this code is redundant.

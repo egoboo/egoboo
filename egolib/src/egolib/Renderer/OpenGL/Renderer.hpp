@@ -184,10 +184,10 @@ public:
     virtual void setWindingMode(WindingMode mode) override;
 
     /** @copydoc Ego::Renderer::loadMatrix */
-    virtual void loadMatrix(const fmat_4x4_t& matrix) override;
+    virtual void loadMatrix(const Matrix4f4f& matrix) override;
 
     /** @copydoc Ego::Renderer::multMatrix */
-    virtual void multiplyMatrix(const fmat_4x4_t& matrix) override;
+    virtual void multiplyMatrix(const Matrix4f4f& matrix) override;
 
     /** @copydoc Ego::Renderer::setPerspectiveCorrectionEnabled */
     virtual void setPerspectiveCorrectionEnabled(bool enabled) override;

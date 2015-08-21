@@ -1720,7 +1720,7 @@ chr_instance_t *chr_instance_t::ctor(chr_instance_t& self)
 
     // the matrix should never be referenced if the cache is not valid,
     // but it never pays to have a 0 matrix...
-	self.matrix = fmat_4x4_t::identity();
+	self.matrix = Matrix4f4f::identity();
 
     // set the animation state
 	self.rate = 1.0f;

@@ -506,7 +506,7 @@ public:
      * @param matrix
      *  the matrix
      */
-    virtual void loadMatrix(const fmat_4x4_t& matrix) = 0;
+    virtual void loadMatrix(const Matrix4f4f& matrix) = 0;
 
     /**
      * @brief
@@ -514,7 +514,7 @@ public:
      * @param matrix
      *  the matrix
      */
-    virtual void multiplyMatrix(const fmat_4x4_t& matrix) = 0;
+    virtual void multiplyMatrix(const Matrix4f4f& matrix) = 0;
 
     /**
     * @brief

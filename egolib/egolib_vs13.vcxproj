@@ -456,13 +456,14 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Matrix.hpp" />
+    <ClInclude Include="src\egolib\Math\Rotatable.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedField.hpp" />
     <ClInclude Include="src\egolib\Logic\Attribute.hpp" />
     <ClInclude Include="src\egolib\Logic\Perk.hpp" />
     <ClInclude Include="src\egolib\Logic\PerkHandler.hpp" />
     <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp" />
     <ClInclude Include="src\egolib\Math\Module.hpp" />
-    <ClInclude Include="src\egolib\Math\Point.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedRing.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp" />
     <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp" />

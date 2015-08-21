@@ -22,239 +22,12 @@
 /// @author Michael Heilmann et al.
 #pragma once
 
-#include "egolib/_math.h"
-#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Matrix.hpp"
+#include "egolib/Math/Standard.hpp"
 
-/// @brief Egoboo currently uses column-major format. This will change to column major.
-#define fmat_4x4_layout_RowMajor (1)
-#define fmat_4x4_layout_ColumnMajor (2)
-#define fmat_4x4_layout fmat_4x4_layout_ColumnMajor
 
-namespace Ego {
-namespace Math {
-
-namespace Internal {
-
-template <typename _ElementType, size_t _Rows, size_t _Columns>
-struct MatrixEnable
-	: public std::conditional <
-	  (std::is_floating_point<_ElementType>::value) &&
-	  (Ego::Core::GreaterThan<_Rows, 0>::value) &&
-	  (Ego::Core::GreaterThan<_Columns, 0>::value),
-	  std::true_type,
-	  std::false_type
-	  >::type
-{};
-
-} // namespace Internal
-
-template <typename _ElementType, size_t _Rows, size_t _Columns, typename _Enabled = void>
-struct Matrix;
-
-template <typename _ElementType, size_t _Rows, size_t _Columns>
-struct Matrix<_ElementType, _Rows, _Columns, typename std::enable_if<Internal::MatrixEnable<_ElementType, _Rows, _Columns>::value>::type> {
-
-	/**
-	 * @brief
-	 *  @a MyType is the type of this template/template specialization.
-	 */
-	typedef Matrix<_ElementType, _Rows, _Columns> MyType;
-
-	/**
-	 * @brief
-	 *  The element type.
-	 */
-	typedef _ElementType ScalarType;
-
-	union {
-		/**@{*/
-		_ElementType v[_Rows * _Columns];
-		/**
-		 * @brief
-		 *	The union of a two-dimensional array and a one-dimensional array.
-		 * @remark
-		 *	A two dimensional array \f$a_{n,m}\f$ is layed out in memory
-		 *	\f{align*}{
-		 *	a_{0,0}   a_{0,1}   a_{0,2}   a_{0,3}   \ldots a_{0,m-2}   a_{0,m-1}
-		 *	a_{1,0}   a_{1,1}   a_{1,2}   a_{1,3}   \ldots a_{1,m-2}   a_{1,m-1}  \
-		 *	\vdots
-		 *	a_{n-2,0} a_{n-2,1} a_{n-2,2} a_{n-2,3} \ldots a_{n-2,m-2} a_{n-2,m-1}
-		 *	a_{n-1,0} a_{n-1,1} a_{n-1,2} a_{n-1,3} \ldots a_{n-1,m-2} a_{n-1,m-1}
-		 *	\}
-		 *	and an one dimensional array \f$a_{n \cdot m}\f$ is layed out in memory as
-		 *	\f{align*}{
-		 *	a_{0} a_{1} a_{2} a_{3} \ldots a_{n \cdot m - 2} a_{n \cdot m - 1}
-		 *	\f}
-		 *	The element \f$a_{i,j}\f$ of the two dimensional array maps
-		 *	to the element \f$a_{i * m + j}\f$ of the one-dimensional array.
-		 *
-		 *	The two dimensional array index \f$(i,j)\f$ maps to the one dimensional array index \f$(i \cdot m + j)\f$.
-		 *	The one dimensional array index \f$(k)\f$ maps to the two dimensional array index \f$(\lfloor k / m \rfloor, k \mod m)\f$.
-		 */
-		_ElementType v2[_Rows][_Columns];
-		/**@}*/
-	};
-
-	/**
-	 * @brief
-	 *	Compute the sum of this matrix (the augend) and another matrix (the addend), assign there result to this matrix.
-	 * @param other
-	 *	the other matrix, the addend
-	 * @post
-	 *	This matrix was assigned the sum of this matrix and the other matrix.
-	 */
-	void add(const MyType& other) {
-		for (size_t i = 0; i < _Rows * _Columns; ++i) {
-			at(i) += other.at(i);
-		}
-	}
-
-	/**
-	 * @brief
-	 *	Compute the difference of this matrix (the minuend) and another matrix (the subtrahend), assign the result to this matrix.
-	 * @param other
-	 *	the other matrix, the subtrahend
-	 * @post
-	 *	This matrix was assigned the difference of this matrix and the other matrix.
-	 */
-	void sub(const MyType& other) {
-		for (size_t i = 0; i < _Rows * _Columns; ++i) {
-			at(i) -= other.at(i);
-		}
-	}
-
-	/**
-	 * @brief
-	 *	Assign this matrix with the values of another matrix.
-	 * @param other
-	 *	the other matrix
-	 */
-	void assign(const MyType& other) {
-		for (size_t i = 0; i < _Rows * _Columns; ++i) {
-			v[i] = other.v[i];
-		}
-	}
-
-	/**
-	 * @brief
-	 *	Get the matrix element at the specified index.
-	 * @param i
-	 *	the index
-	 * @return
-	 *	the matrix element
-	 */
-	ScalarType& at(const size_t i) {
-	#ifdef _DEBUG
-		EGOBOO_ASSERT(i < _Rows * _Columns);
-	#endif
-		return v[i];
-	}
-
-	/**
-	 * @brief
-	 *	Get the matrix element at the specified index.
-	 * @param i
-	 *	the index
-	 * @return
-	 *	the matrix element
-	 */
-	const ScalarType& at(const size_t i) const {
-	#ifdef _DEBUG
-		EGOBOO_ASSERT(i < _Rows * _Columns);
-	#endif
-		return v[i];
-	}
-
-	/**
-	 * @brief
-	 *	Get the matrix element at the specified index.
-	 * @param i
-	 *	the row index
-	 * @param j
-	 *	the column index
-	 * @return
-	 *	the matrix element
-	 */
-	ScalarType& at(const size_t i, const size_t j) {
-	#ifdef _DEBUG
-		EGOBOO_ASSERT(i < _Rows);
-		EGOBOO_ASSERT(j < _Columns);
-	#endif
-	#if fmat_4x4_layout == fmat_4x4_layout_RowMajor
-		return v2[i][j];
-	#elif fmat_4x4_layout == fmat_4x4_layout_ColumnMajor
-		return v2[j][i];
-	#else
-		#error(fmat_4x4_layout must be either fmat_4x4_layout_RowMajor or fmat_4x4_layout_ColumnMajor)
-	#endif
-	}
-
-	/**
-	 * @brief
-	 *	Get the matrix element at the specified index.
-	 * @param i
-	 *	the row index
-	 * @param j
-	 *	the column index
-	 * @return
-	 *	the matrix element
-	 */
-	const ScalarType& at(const size_t i, const size_t j) const {
-	#ifdef _DEBUG
-		EGOBOO_ASSERT(i < 4);
-		EGOBOO_ASSERT(j < 4);
-	#endif
-	#if fmat_4x4_layout == fmat_4x4_layout_RowMajor
-		return v2[i][j];
-	#elif fmat_4x4_layout == fmat_4x4_layout_ColumnMajor
-		return v2[j][i];
-	#else
-		#error(fmat_4x4_layout must be either fmat_4x4_layout_RowMajor or fmat_4x4_layout_ColumnMajor)
-	#endif
-	}
-
-	/**
-	 * @brief
-	 *	Get if this matrix is equal to another matrix.
-	 * @param other
-	 *	the other matrix
-	 * @return
-	 *	@a true if this matrix is equal to the other matrix
-	 */
-	bool equalTo(const MyType& other) const {
-		for (size_t i = 0; i < _Rows * _Columns; ++i) {
-			if (at(i) != other.at(i)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * @brief
-	 *	Get if this matrix is not equal to another matrix.
-	 * @param other
-	 *	the other matrix
-	 * @return
-	 *	@a true if this matrix is not equal to the other matrix
-	 */
-	bool notEqualTo(const MyType& other) const {
-		for (size_t i = 0; i < _Rows * _Columns; ++i) {
-			if (at(i) != other.at(i)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-};
-
-} // namespace Math
-} // namespace Ego
-
-/// A wrapper for fmat_4x4_base_t.
-/// Necessary in C so that the function return can be assigned to another matrix more simply.
-struct fmat_4x4_t : public Ego::Math::Matrix<float, 4, 4>
+/// A 4 x 4 single precision floating point matrix.
+struct Matrix4f4f : public Ego::Math::Matrix<float, 4, 4>
 {
     /**
      * @brief
@@ -272,9 +45,9 @@ struct fmat_4x4_t : public Ego::Math::Matrix<float, 4, 4>
      *		\end{matrix}\right]
      * \f]
      */
-    static const fmat_4x4_t& identity()
+    static const Matrix4f4f& identity()
     {
-        static const fmat_4x4_t identity
+        static const Matrix4f4f identity
             (
                 1.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 1.0f, 0.0f, 0.0f,
@@ -300,9 +73,9 @@ struct fmat_4x4_t : public Ego::Math::Matrix<float, 4, 4>
      *	\end{matrix}\right]
      *	\f]
      */
-    static const fmat_4x4_t& zero()
+    static const Matrix4f4f& zero()
     {
-        static const fmat_4x4_t zero
+        static const Matrix4f4f zero
             (
                 0.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 0.0f,
@@ -346,10 +119,10 @@ struct fmat_4x4_t : public Ego::Math::Matrix<float, 4, 4>
      * @todo
      *  Update documentation for the Vector4f case.
      */
-    static fmat_4x4_t tensor(const Vector4f& v, const Vector4f& w)
+    static Matrix4f4f tensor(const Vector4f& v, const Vector4f& w)
     {
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 v[kX] * w[kX], v[kX] * w[kY], v[kX] * w[kZ], v[kX] * w[kW],
                 v[kY] * w[kX], v[kY] * w[kY], v[kY] * w[kZ], v[kY] * w[kW],
@@ -359,7 +132,7 @@ struct fmat_4x4_t : public Ego::Math::Matrix<float, 4, 4>
     }
 public:
 
-    fmat_4x4_t()
+	Matrix4f4f()
 	{
 		for (size_t i = 0; i < 16; ++i)
 		{
@@ -367,7 +140,7 @@ public:
 		}
 	}
 
-	fmat_4x4_t
+	Matrix4f4f
 		(
 			float m00, float m01, float m02, float m03,
 			float m10, float m11, float m12, float m13,
@@ -390,7 +163,7 @@ public:
 	#endif
 	}
 
-	fmat_4x4_t(const fmat_4x4_t& other) {
+	Matrix4f4f(const Matrix4f4f& other) {
 		for (size_t i = 0; i < 16; ++i) {
 			at(i) = other.at(i);
 		}
@@ -435,9 +208,9 @@ public:
 	 *	C_{i,j} = \sum_{i=0}^3 A_{i,k} \cdot B_{k,j}
 	 *	\f]
 	 */
-	fmat_4x4_t multiply(const fmat_4x4_t& other) const
+	Matrix4f4f multiply(const Matrix4f4f& other) const
 	{
-		fmat_4x4_t result;
+		Matrix4f4f result;
 		for (size_t i = 0; i < 4; i++)
 		{
 			for (size_t j = 0; j < 4; j++)
@@ -459,7 +232,7 @@ public:
 	 * @return
 	 *	the product <tt>(*a) * b</tt>
 	 */
-	fmat_4x4_t operator*(const fmat_4x4_t& other) const
+	Matrix4f4f operator*(const Matrix4f4f& other) const
 	{
 		return multiply(other);
 	}
@@ -472,10 +245,10 @@ public:
      * @return
      *  the matrix
      */
-    fmat_4x4_t operator*(const float& scalar) const
+	Matrix4f4f operator*(const float& scalar) const
     {
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 (*this)(0, 0) * scalar, (*this)(0, 1) * scalar, (*this)(0, 2) * scalar, (*this)(0, 3) * scalar,
                 (*this)(1, 0) * scalar, (*this)(1, 1) * scalar, (*this)(1, 2) * scalar, (*this)(1, 3) * scalar,
@@ -497,10 +270,10 @@ public:
 	 *	M^T_{i,j} = M_{j,i}
 	 *	\f]
 	 */
-	fmat_4x4_t getTranspose() const
+	Matrix4f4f getTranspose() const
 	{
 		return
-			fmat_4x4_t
+			Matrix4f4f
 			(
 				(*this)(0, 0), (*this)(1, 0), (*this)(2, 0), (*this)(3,0),
 				(*this)(0, 1), (*this)(1, 1), (*this)(2, 1), (*this)(3,1),
@@ -513,9 +286,9 @@ public:
      * @brief
      *  Overloaded addition operator.
      */
-    fmat_4x4_t operator+(const fmat_4x4_t& other) const
+	Matrix4f4f operator+(const Matrix4f4f& other) const
     {
-        fmat_4x4_t result = *this;
+		Matrix4f4f result = *this;
         return result += other;
     }
 
@@ -523,7 +296,7 @@ public:
 	 * @brief
 	 *	Overloaded assignment addition operator.
 	 */
-	fmat_4x4_t& operator+=(const fmat_4x4_t& other) {
+	Matrix4f4f& operator+=(const Matrix4f4f& other) {
 		add(other);
 		return *this;
 	}
@@ -532,9 +305,9 @@ public:
      * @brief
      *  Overloaded subtraction operator.
      */
-    fmat_4x4_t operator-(const fmat_4x4_t& other) const
+	Matrix4f4f operator-(const Matrix4f4f& other) const
     {
-        fmat_4x4_t result = *this;
+		Matrix4f4f result = *this;
         return result -= other;
     }
 
@@ -542,7 +315,7 @@ public:
      * @brief
      *  Overloaded unary minus operator.
      */
-    fmat_4x4_t operator-() const
+	Matrix4f4f operator-() const
     {
         return (*this) * (-1.0f);
     }
@@ -551,7 +324,7 @@ public:
 	 * @brief
 	 *	Overloaded assignment subtraction operator.
 	 */
-	fmat_4x4_t& operator-=(const fmat_4x4_t& other) {
+	Matrix4f4f& operator-=(const Matrix4f4f& other) {
 		sub(other);
 		return *this;
 	}
@@ -564,7 +337,7 @@ public:
 	 * @post
 	 *	This matrix was assigned the values of another matrix.
 	 */
-	void assign(const fmat_4x4_t& other) {
+	void assign(const Matrix4f4f& other) {
 		this->Ego::Math::Matrix<float, 4, 4>::assign(other);
 	}
 
@@ -578,7 +351,7 @@ public:
 	 * @post
 	 *	This matrix was assigned the values of another matrix.
 	 */
-	fmat_4x4_t& operator=(const fmat_4x4_t& other) {
+	Matrix4f4f& operator=(const Matrix4f4f& other) {
 		assign(other);
 		return *this;
 	}
@@ -591,7 +364,7 @@ public:
 	 * @return
 	 *	@a true if this matrix is equal to the other matrix
 	 */
-	bool operator==(const fmat_4x4_t& other) const {
+	bool operator==(const Matrix4f4f& other) const {
 		return equalTo(other);
 	}
 
@@ -603,7 +376,7 @@ public:
 	 * @return
 	 *	@a true if this matrix is not equal to the other matrix
 	 */
-	bool operator!=(const fmat_4x4_t& other) const {
+	bool operator!=(const Matrix4f4f& other) const {
 		return notEqualTo(other);
 	}
 
@@ -622,7 +395,7 @@ public:
 	 *	eye != center (debug & release)
 	 *	up  != 0
 	 */
-    static fmat_4x4_t lookAt(const Vector3f& eye, const Vector3f& center, const Vector3f& up)
+    static Matrix4f4f lookAt(const Vector3f& eye, const Vector3f& center, const Vector3f& up)
 	{
 		Vector3f f = center - eye;
 		Vector3f u = up;
@@ -636,7 +409,7 @@ public:
 		u = s.cross(f);
 
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
              s[kX],  s[kY],  s[kZ], 0.0f,
              u[kX],  u[kY],  u[kZ], 0.0f,
@@ -644,7 +417,7 @@ public:
               0.0f,   0.0f,   0.0f, 1.0f
             )
             *
-            fmat_4x4_t::translation(-eye);
+			Matrix4f4f::translation(-eye);
 	}
 
 	/**
@@ -673,14 +446,14 @@ public:
 	 *        \f$t_y = -\frac{top+bottom}{top-bottom}\f$,
 	 *        \f$t_z = -\frac{zFar+zNear}{zFar-zNear}\f$.
 	 */
-    static fmat_4x4_t ortho(const float left, const float right, const float bottom, const float top, const float zNear, const float zFar)
+    static Matrix4f4f ortho(const float left, const float right, const float bottom, const float top, const float zNear, const float zFar)
 	{
 		float dx = right - left, dy = top - bottom, dz = zFar - zNear;
 		EGOBOO_ASSERT(dx != 0.0f && dy != 0.0f && dz != 0.0f);
 		float tx = -(right + left) / dx, ty = -(top + bottom) / dy, tz = -(zFar + zNear) / (dz);
 
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 2.0f / dx, 0.0f,     0.0f,    tx,
                 0.0f,      2.0f/dy,  0.0f,    ty,
@@ -719,7 +492,7 @@ public:
 	 *	\f]
 	 *	where \f$f = cot(0.5 fovy)\f$.
 	 */
-    static fmat_4x4_t perspective(const float fovy, const float aspect, const float zNear, const float zFar)
+    static Matrix4f4f perspective(const float fovy, const float aspect, const float zNear, const float zFar)
     {
         EGOBOO_ASSERT(aspect != 0.0f);
         EGOBOO_ASSERT(zFar > 0.0f && zNear > 0.0f);
@@ -730,7 +503,7 @@ public:
         float f = 1 / tan;
 
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 f / aspect, 0.0f, 0.0f,                            0.0f,
                 0.0f,       f,    0.0f,                            0.0f,
@@ -755,10 +528,10 @@ public:
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-	static fmat_4x4_t translation(const Vector3f& t)
+	static Matrix4f4f translation(const Vector3f& t)
 	{
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 1, 0, 0, t[kX],
                 0, 1, 0, t[kY],
@@ -787,11 +560,11 @@ public:
      * @todo
      *  Angles should be in degrees.
 	 */
-	static fmat_4x4_t rotationX(const float a)
+	static Matrix4f4f rotationX(const float a)
 	{
 		float c = std::cos(a), s = std::sin(a);
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 1,  0,  0, 0,
                 0, +c, -s, 0,
@@ -820,11 +593,11 @@ public:
      * @todo
      *  Angles should be in degree.
 	 */
-	static fmat_4x4_t rotationY(const float a)
+	static Matrix4f4f rotationY(const float a)
 	{
         float c = std::cos(a), s = std::sin(a);
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 +c, 0, +s, 0,
                  0, 1,  0, 0,
@@ -853,11 +626,11 @@ public:
      * @todo
      *  Angles should be in degrees.
 	 */
-    static fmat_4x4_t rotationZ(const float a)
+    static Matrix4f4f rotationZ(const float a)
 	{
         float c = std::cos(a), s = std::sin(a);
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 +c, -s, 0, 0,
                 +s, +c, 0, 0,
@@ -1071,7 +844,7 @@ public:
      *  \f}
      *  This implementation performs this form of elimination of common subexpressions.
      */
-    static fmat_4x4_t rotation(const Vector3f& axis, float angle)
+    static Matrix4f4f rotation(const Vector3f& axis, float angle)
     {
         float a = Ego::Math::degToRad(angle);
         float c = std::cos(a), s = std::sin(a);
@@ -1088,7 +861,7 @@ public:
               tx = t * x, ty = t * y, tz = t * z;
         float txy = tx * y, txz = tx * z, tyz = ty * z;
 
-        return fmat_4x4_t
+        return Matrix4f4f
             (
             tx * x + c, txy - sz,   txz + sy,   0,
             txy + sz,   ty * y + c, tyz - sx,   0,
@@ -1116,10 +889,10 @@ public:
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-    static fmat_4x4_t scaling(const Vector3f& s)
+    static Matrix4f4f scaling(const Vector3f& s)
 	{
         return
-            fmat_4x4_t
+			Matrix4f4f
             (
                 s[kX],     0,     0, 0,
                     0, s[kY],     0, 0,
@@ -1179,7 +952,7 @@ public:
 	 * @param [out] targets
 	 *	an array of vectors which are assigned the transformation results
 	 * @see
-	 *	fmat_4x4_t::transform(const fmat_4x4_t& const Vector4f&, Vector4f&)
+	 *	Matrix4f4f::transform(const fmat_4x4_t& const Vector4f&, Vector4f&)
 	 */
 	void transform(const Vector4f sources[], Vector4f targets[], const size_t size) const
 	{
@@ -1195,7 +968,7 @@ public:
 
 };
 
-void mat_FourPoints(fmat_4x4_t& DST, const Vector3f& ori, const Vector3f& wid, const Vector3f& frw, const Vector3f& up, const float scale);
+void mat_FourPoints(Matrix4f4f& DST, const Vector3f& ori, const Vector3f& wid, const Vector3f& frw, const Vector3f& up, const float scale);
 
 /**
  * @remark
@@ -1227,7 +1000,7 @@ void mat_FourPoints(fmat_4x4_t& DST, const Vector3f& ori, const Vector3f& wid, c
  *  \end{matrix}\right]
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-Vector3f mat_getChrUp(const fmat_4x4_t& mat);
+Vector3f mat_getChrUp(const Matrix4f4f& mat);
 
 /**
  * @remark
@@ -1260,7 +1033,7 @@ Vector3f mat_getChrUp(const fmat_4x4_t& mat);
  *  \f}
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-Vector3f mat_getChrForward(const fmat_4x4_t& mat);
+Vector3f mat_getChrForward(const Matrix4f4f& mat);
 
 /**
  * @remark
@@ -1293,18 +1066,18 @@ Vector3f mat_getChrForward(const fmat_4x4_t& mat);
  *  \f}
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-Vector3f mat_getChrRight(const fmat_4x4_t& mat);
+Vector3f mat_getChrRight(const Matrix4f4f& mat);
 
 
-bool mat_getCamUp(const fmat_4x4_t& mat, Vector3f& up);
-bool mat_getCamRight(const fmat_4x4_t& mat, Vector3f& right);
-bool mat_getCamForward(const fmat_4x4_t& mat, Vector3f& forward);
+bool mat_getCamUp(const Matrix4f4f& mat, Vector3f& up);
+bool mat_getCamRight(const Matrix4f4f& mat, Vector3f& right);
+bool mat_getCamForward(const Matrix4f4f& mat, Vector3f& forward);
 
 
-Vector3f mat_getTranslate(const fmat_4x4_t& mat);
+Vector3f mat_getTranslate(const Matrix4f4f& mat);
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_t& mat, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate);
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_t& mat, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate);
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& mat, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate);
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& mat, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate);
 
 
 /**
@@ -1313,4 +1086,4 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_t& mat, const Vector
  * @param a
  *	the matrix
  */
-void dump_matrix(const fmat_4x4_t& a);
+void dump_matrix(const Matrix4f4f& a);

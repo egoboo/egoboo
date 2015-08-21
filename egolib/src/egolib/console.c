@@ -334,13 +334,13 @@ void egolib_console_handler_t::draw_begin()
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-    fmat_4x4_t matrix = fmat_4x4_t::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
+	Matrix4f4f matrix = Matrix4f4f::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
     Ego::Renderer::get().loadMatrix(matrix);
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-    Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
+    Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
 }
 
 void egolib_console_handler_t::draw_end()

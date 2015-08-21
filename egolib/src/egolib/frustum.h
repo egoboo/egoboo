@@ -180,7 +180,7 @@ public:
     * @param view
     *	the view matrix
     */
-    void calculate(const fmat_4x4_t& projection, const fmat_4x4_t& view);
+    void calculate(const Matrix4f4f& projection, const Matrix4f4f& view);
 protected:
 
     /**
@@ -191,7 +191,7 @@ protected:
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
      */
-    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
+    static void calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& view, const Matrix4f4f& world, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
 
 
     /**
@@ -202,7 +202,7 @@ protected:
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
      */
-    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
+    static void calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& view, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
 
     /**
      * @brief
@@ -212,7 +212,7 @@ protected:
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
      */
-    static void calculatePlanes(const fmat_4x4_t& matrix, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
+    static void calculatePlanes(const Matrix4f4f& matrix, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
 
 };
 
