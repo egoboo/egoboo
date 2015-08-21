@@ -124,28 +124,28 @@ public:
 	inline const fmat_4x4_t& getView() const { return _mView; }
     inline const orientation_t& getOrientation() const { return _ori; }
     inline CameraTurnMode getTurnMode() const { return _turnMode; }
-    inline const fvec3_t& getTrackPosition() const { return _trackPos; }
+    inline const Vector3f& getTrackPosition() const { return _trackPos; }
     /**
      * @brief
      *  Get the center of the camera.
      * @return
      *  the center of the camera
      */
-    inline const fvec3_t& getCenter() const { return _center; }
+    inline const Vector3f& getCenter() const { return _center; }
     /**
      * @brief
      *  Get the position of the camera
      * @return
      *  the position of the camera.
      */
-    inline const fvec3_t& getPosition() const { return _pos; }
+    inline const Vector3f& getPosition() const { return _pos; }
     inline uint8_t getTurnTime() const { return _turnTime; }
     inline float getTurnZOne() const { return _turnZOne; }
     inline float getTurnZRad() const { return _turnZRad; }
 
-    inline const fvec3_t& getVUP() const { return _vup; }
-    inline const fvec3_t& getVRT() const { return _vrt; }
-    inline const fvec3_t& getVFW() const { return _vfw; }
+    inline const Vector3f& getVUP() const { return _vup; }
+    inline const Vector3f& getVRT() const { return _vrt; }
+    inline const Vector3f& getVFW() const { return _vfw; }
 
     inline float getMotionBlur() const { return _motionBlur; }
     inline float getMotionBlurOld() const { return _motionBlurOld; }
@@ -285,17 +285,17 @@ private:
     uint8_t        _turnTime;   ///< Time for the smooth turn.
 
     // The actual camera position.
-    fvec3_t       _pos;         ///< @brief The camera position.
+	Vector3f       _pos;        ///< @brief The camera position.
 	                            ///< @inv @a z must be within the interval <tt>[500,1000]</tt>.
-    orientation_t _ori;         ///< @brief The camera orientation.
+    orientation_t  _ori;        ///< @brief The camera orientation.
 
     // The middle of the objects that are being tracked.
-    fvec3_t _trackPos;             ///< Trackee position.
-    float   _trackLevel;
+	Vector3f _trackPos;         ///< Trackee position.
+    float    _trackLevel;
 
     // The position that the camera is focused on.
-    float    _zoom;    ///< Distance from the center
-    fvec3_t  _center;  ///< The position that the camera is focused on.
+    float     _zoom;    ///< Distance from the center
+	Vector3f  _center;  ///< The position that the camera is focused on.
 
     // Camera z movement.
     float _zadd;     ///< Camera height above terrain.
@@ -309,9 +309,9 @@ private:
     float _turnZSustain;    ///< Turning rate falloff.
 
     // Billboard information.
-    fvec3_t _vfw;    ///< The camera forward vector.
-    fvec3_t _vup;    ///< The camera up vector.
-    fvec3_t _vrt;    ///< The camera right vector.
+	Vector3f _vfw;    ///< The camera forward vector.
+	Vector3f _vup;    ///< The camera up vector.
+	Vector3f _vrt;    ///< The camera right vector.
 
     // Effects
     float _motionBlur;         ///< Blurry effect.

@@ -47,7 +47,7 @@ public:
     STRING     spawn_name;
     char      *pname;
     int        slot;
-    fvec3_t    pos;
+	Vector3f   pos;
     int        passage;
     int        content;
     int        money;

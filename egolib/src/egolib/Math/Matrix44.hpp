@@ -340,13 +340,13 @@ struct fmat_4x4_t : public Ego::Math::Matrix<float, 4, 4>
      *  \end{matrix}\right]
      *  \f]
      * @todo
-     *  Move this into fvec4_t.
+     *  Move this into Vector4f.
      * @todo
-     *  Add an implementation for fvec2_t and fvec3_t returning fmat_2x2_t and fmat_3x3_t.
+     *  Add an implementation for Vector2f and Vector3f returning fmat_2x2_t and fmat_3x3_t.
      * @todo
-     *  Update documentation for the fvec4_t case.
+     *  Update documentation for the Vector4f case.
      */
-    static fmat_4x4_t tensor(const fvec4_t& v, const fvec4_t& w)
+    static fmat_4x4_t tensor(const Vector4f& v, const Vector4f& w)
     {
         return
             fmat_4x4_t
@@ -402,8 +402,8 @@ public:
 	 * @return
 	 *	the translation vector
 	 */
-	fvec3_t getTranslation() const {
-		return fvec3_t((*this)(0, 3), (*this)(1, 3), (*this)(2, 3));
+	Vector3f getTranslation() const {
+		return Vector3f((*this)(0, 3), (*this)(1, 3), (*this)(2, 3));
 	}
 
 	const float& operator()(const size_t i) const {
@@ -622,15 +622,15 @@ public:
 	 *	eye != center (debug & release)
 	 *	up  != 0
 	 */
-    static fmat_4x4_t lookAt(const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
+    static fmat_4x4_t lookAt(const Vector3f& eye, const Vector3f& center, const Vector3f& up)
 	{
-		fvec3_t f = center - eye;
-		fvec3_t u = up;
+		Vector3f f = center - eye;
+		Vector3f u = up;
 
 		f.normalize();
 		u.normalize();
 
-		fvec3_t s = f.cross(u);
+		Vector3f s = f.cross(u);
 		s.normalize();
 
 		u = s.cross(f);
@@ -755,7 +755,7 @@ public:
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-	static fmat_4x4_t translation(const fvec3_t& t)
+	static fmat_4x4_t translation(const Vector3f& t)
 	{
         return
             fmat_4x4_t
@@ -893,7 +893,7 @@ public:
      *  </br>
      *  To compute the rotated point \f$\vec{v}'\f$, we begin by splutting \f$\vec{v}\f$ into a part \f$\vec{v}_{\parallel}\f$
      *  parallel to \f$\hat{\vec{r}}\f$ and into a part \f$\vec{v}_{\perp}\f$ perpendicular to \f$\hat{\vec{r}}\f$ which lies
-     *  on the plane of rotation. Recall from fvec3_t::decompose(const fvec3_t&,const fvec3_t&,fvec3_t&,fvec3_t&) that the
+     *  on the plane of rotation. Recall from Vector3f::decompose(const Vector3f&,const Vector3f&,Vector3f&,Vector3f&) that the
      *  parallel part is the projection of \f$\vec{v}\f$ on \f$\hat{\vec{r}}\f$, the perpendicular part is the rejection
      *  \f$\vec{v}_{\perp}\f$ of \f$\vec{v}\f$ from \f$\hat{\vec{r}}\f$:
      *  \f{align*}{
@@ -907,7 +907,7 @@ public:
      *  \vec{w} = \hat{\vec{r}} \times \vec{v}_{\perp} = \hat{\vec{r}} \times \vec{v}
      *  \f}
      *  which is perpendicular to and has the same length as \f$\vec{v}_{\perp}\f$ as
-     *  shown in fvec3_t::decompose(const fvec3_t&,const fvec3_t&,fvec3_t&,fvec3_t&).
+     *  shown in Vector3f::decompose(const Vector3f&,const Vector3f&,Vector3f&,Vector3f&).
      *  </br>
      *  If in \f$\mathbb{R}^2\f$ one rotates the vector \f$\vec{i}=(1,0)\f$ by \f$\theta\f$
      *  degrees in the plane of rotation spanned by the standard basis \f$\vec{i}=(1,0)\f$,
@@ -1071,7 +1071,7 @@ public:
      *  \f}
      *  This implementation performs this form of elimination of common subexpressions.
      */
-    static fmat_4x4_t rotation(const fvec3_t& axis, float angle)
+    static fmat_4x4_t rotation(const Vector3f& axis, float angle)
     {
         float a = Ego::Math::degToRad(angle);
         float c = std::cos(a), s = std::sin(a);
@@ -1116,7 +1116,7 @@ public:
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-    static fmat_4x4_t scaling(const fvec3_t& s)
+    static fmat_4x4_t scaling(const Vector3f& s)
 	{
         return
             fmat_4x4_t
@@ -1161,7 +1161,7 @@ public:
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-	void transform(const fvec4_t& source, fvec4_t& target) const
+	void transform(const Vector4f& source, Vector4f& target) const
 	{
         target[kX] = (*this)(0, 0) * source[kX] + (*this)(0, 1) * source[kY] + (*this)(0, 2) * source[kZ] + (*this)(0, 3) * source[kW];
         target[kY] = (*this)(1, 0) * source[kX] + (*this)(1, 1) * source[kY] + (*this)(1, 2) * source[kZ] + (*this)(1, 3) * source[kW];
@@ -1179,12 +1179,12 @@ public:
 	 * @param [out] targets
 	 *	an array of vectors which are assigned the transformation results
 	 * @see
-	 *	fmat_4x4_t::transform(const fmat_4x4_t& const fvec4_t&, fvec4_t&)
+	 *	fmat_4x4_t::transform(const fmat_4x4_t& const Vector4f&, Vector4f&)
 	 */
-	void transform(const fvec4_t sources[], fvec4_t targets[], const size_t size) const
+	void transform(const Vector4f sources[], Vector4f targets[], const size_t size) const
 	{
-		const fvec4_t *source = sources;
-		fvec4_t *target = targets;
+		const Vector4f *source = sources;
+		Vector4f *target = targets;
 		for (size_t index = 0; index < size; index++)
 		{
 			transform(*source, *target);
@@ -1195,7 +1195,7 @@ public:
 
 };
 
-void mat_FourPoints(fmat_4x4_t& DST, const fvec3_t& ori, const fvec3_t& wid, const fvec3_t& frw, const fvec3_t& up, const float scale);
+void mat_FourPoints(fmat_4x4_t& DST, const Vector3f& ori, const Vector3f& wid, const Vector3f& frw, const Vector3f& up, const float scale);
 
 /**
  * @remark
@@ -1227,7 +1227,7 @@ void mat_FourPoints(fmat_4x4_t& DST, const fvec3_t& ori, const fvec3_t& wid, con
  *  \end{matrix}\right]
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-fvec3_t mat_getChrUp(const fmat_4x4_t& mat);
+Vector3f mat_getChrUp(const fmat_4x4_t& mat);
 
 /**
  * @remark
@@ -1260,7 +1260,7 @@ fvec3_t mat_getChrUp(const fmat_4x4_t& mat);
  *  \f}
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-fvec3_t mat_getChrForward(const fmat_4x4_t& mat);
+Vector3f mat_getChrForward(const fmat_4x4_t& mat);
 
 /**
  * @remark
@@ -1293,18 +1293,18 @@ fvec3_t mat_getChrForward(const fmat_4x4_t& mat);
  *  \f}
  *  This is odd, but remember that Egoboo was a 2D game.
  */
-fvec3_t mat_getChrRight(const fmat_4x4_t& mat);
+Vector3f mat_getChrRight(const fmat_4x4_t& mat);
 
 
-bool mat_getCamUp(const fmat_4x4_t& mat, fvec3_t& up);
-bool mat_getCamRight(const fmat_4x4_t& mat, fvec3_t& right);
-bool mat_getCamForward(const fmat_4x4_t& mat, fvec3_t& forward);
+bool mat_getCamUp(const fmat_4x4_t& mat, Vector3f& up);
+bool mat_getCamRight(const fmat_4x4_t& mat, Vector3f& right);
+bool mat_getCamForward(const fmat_4x4_t& mat, Vector3f& forward);
 
 
-fvec3_t mat_getTranslate(const fmat_4x4_t& mat);
+Vector3f mat_getTranslate(const fmat_4x4_t& mat);
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_t& mat, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate);
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_t& mat, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate);
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_t& mat, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate);
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_t& mat, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate);
 
 
 /**

@@ -651,7 +651,7 @@ void game_reset_timers()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF prt_find_target( const fvec3_t& pos, FACING_T facing,
+CHR_REF prt_find_target( const Vector3f& pos, FACING_T facing,
                          const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget, FACING_T *targetAngle )
 {
     /// @author ZF
@@ -1007,7 +1007,7 @@ void update_pits()
                     else
                     {
                         // Stop movement
-                        pchr->vel = fvec3_t::zero();
+                        pchr->vel = Vector3f::zero();
 
                         // Play sound effect
                         if ( VALID_PLA( pchr->is_which_player ) )
@@ -1097,7 +1097,7 @@ void set_one_player_latch( const PLA_REF ipla )
     float fsin, fcos;
     latch_t sum;
     bool fast_camera_turn;
-    fvec2_t joy_pos, joy_new;
+	Vector2f joy_pos, joy_new;
 
     player_t       * ppla;
     input_device_t * pdevice;
@@ -1122,8 +1122,8 @@ void set_one_player_latch( const PLA_REF ipla )
 
     // Clear the player's latch buffers
     sum.clear();
-    joy_new = fvec2_t::zero();
-    joy_pos = fvec2_t::zero();
+    joy_new = Vector2f::zero();
+    joy_pos = Vector2f::zero();
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera
@@ -3258,10 +3258,10 @@ bool wawalite_finalize(wawalite_data_t *data)
     }
 
     int windspeed_count = 0;
-    Physics::g_environment.windspeed = fvec3_t::zero();
+    Physics::g_environment.windspeed = Vector3f::zero();
 
     int waterspeed_count = 0;
-    Physics::g_environment.waterspeed = fvec3_t::zero();
+    Physics::g_environment.waterspeed = Vector3f::zero();
 
     wawalite_water_layer_t *ilayer = wawalite_data.water.layer + 0;
     if (wawalite_data.water.background_req)
@@ -3280,7 +3280,7 @@ bool wawalite_finalize(wawalite_data_t *data)
     else
     {
         waterspeed_count++;
-        fvec3_t tmp(-ilayer->tx_add[SS] * GRID_FSIZE, -ilayer->tx_add[TT] * GRID_FSIZE, 0.0f);
+		Vector3f tmp(-ilayer->tx_add[SS] * GRID_FSIZE, -ilayer->tx_add[TT] * GRID_FSIZE, 0.0f);
         Physics::g_environment.waterspeed += tmp;
     }
 

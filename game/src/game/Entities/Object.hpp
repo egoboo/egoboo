@@ -480,18 +480,18 @@ public:
     int getPrice() const;
 
 	/** @override */
-	BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+	BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
 	/** @override */
-	BIT_FIELD hit_wall(const Vector3f& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+	BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
 	/** @override */
 	BIT_FIELD test_wall(mesh_wall_data_t *data) override;
 	/** @override */
 	BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) override;
 
-    inline AABB_2D getAABB2D() const
+    inline AABB2f getAABB2D() const
     {
-        return AABB_2D(Vector2f(getPosX() + chr_min_cv.getMin()[OCT_X], getPosY() + chr_min_cv.getMin()[OCT_Y]),
-                       Vector2f(getPosX() + chr_min_cv.getMax()[OCT_X], getPosY() + chr_min_cv.getMax()[OCT_Y]));
+        return AABB2f(Vector2f(getPosX() + chr_min_cv.getMin()[OCT_X], getPosY() + chr_min_cv.getMin()[OCT_Y]),
+                      Vector2f(getPosX() + chr_min_cv.getMax()[OCT_X], getPosY() + chr_min_cv.getMax()[OCT_Y]));
     }
 
     /**

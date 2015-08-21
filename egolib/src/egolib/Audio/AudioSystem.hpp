@@ -179,7 +179,7 @@ public:
 
     /// @author ZF
     /// @details This function plays a specified sound and returns which channel it's using
-    int playSound(const fvec3_t& snd_pos, const SoundID soundID);
+    int playSound(const Vector3f& snd_pos, const SoundID soundID);
 
     /**
      * @brief
@@ -244,7 +244,7 @@ private:
      * @param soundPosition
      *  the sound origin
      */
-    void mixAudioPosition3D(const int channel, float distance, const fvec3_t soundPosition);
+    void mixAudioPosition3D(const int channel, float distance, const Vector3f& soundPosition);
 
     /**
      * @brief
@@ -254,7 +254,7 @@ private:
      * @return
      *  the distance between the sound origin and the players
      */
-    float getSoundDistance(const fvec3_t soundPosition);
+    float getSoundDistance(const Vector3f& soundPosition);
 
     /**
      * @brief

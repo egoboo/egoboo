@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------
 // Generic functions
 //--------------------------------------------------------------------------------------------
-bool twist_to_normal( Uint8 twist, fvec3_t& v, float slide )
+bool twist_to_normal( Uint8 twist, Vector3f& v, float slide )
 {
     float diff_xy = 128.0f / slide;
 
@@ -54,7 +54,7 @@ bool twist_to_normal( Uint8 twist, fvec3_t& v, float slide )
     float nx = - dx * nz / diff_xy;
     float ny = - dy * nz / diff_xy;
 
-    v = fvec3_t(nx, ny, nz);
+    v = Vector3f(nx, ny, nz);
 
     return true;
 }

@@ -30,5 +30,5 @@ class Object;
 bool    chr_matrix_valid( const Object * pchr );
 egolib_rv chr_update_matrix( Object * pchr, bool update_size );
 bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, uint16_t vrt_off );
-bool chr_getMatUp(Object *pchr, fvec3_t& up);
+bool chr_getMatUp(Object *pchr, Vector3f& up);
 void make_one_character_matrix( const CHR_REF cnt );

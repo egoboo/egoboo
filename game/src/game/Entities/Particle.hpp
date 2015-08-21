@@ -57,7 +57,7 @@ struct prt_environment_t
 
     // misc states
     bool   inwater;
-    fvec3_t  acc;
+    Vector3f  acc;
 
     void reset()
     {
@@ -80,7 +80,7 @@ struct prt_environment_t
 
         // misc states
         inwater = false;
-        acc = fvec3_t::zero();
+        acc = Vector3f::zero();
     }
 };
 
@@ -129,13 +129,13 @@ public:
     **/
     void setElevation(const float level);
 
-    BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+    BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
 
-    BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+    BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
 
     BIT_FIELD test_wall(mesh_wall_data_t *data) override;
 
-    BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
+    BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) override;
 
     /**
     * @brief
@@ -150,7 +150,7 @@ public:
     * @brief
     *   Set the position of this Particle
     **/
-    bool setPosition(const fvec3_t& position);
+    bool setPosition(const Vector3f& position);
 
     /**
     * @brief
@@ -272,16 +272,17 @@ public:
 
 //ZF> These functions should only be accessed by the ParticleHandler
 public:
+
     /**
     * @brief
     *   initialize a Particle so that it is ready to be used
     * @note
     *   Should only ever be used by the ParticleHandler! *Do not use*
     **/
-    bool initialize(const PRT_REF particleID, const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
-                const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
-                const bool onlyOverWater);
+    bool initialize(const PRT_REF particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+                    const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                    const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
+                    const bool onlyOverWater);
 
     /**
     * @brief
@@ -349,14 +350,14 @@ public:
      */
     PRT_REF parent_ref;                        ///< Did a another particle spawn this one?
 
-    uint16_t   attachedto_vrt_off;               ///< It's vertex offset
-    uint8_t    type;                             ///< Transparency mode, 0-2
+    uint16_t   attachedto_vrt_off;             ///< It's vertex offset
+    uint8_t    type;                           ///< Transparency mode, 0-2
     FACING_T facing;                           ///< Direction of the part
     TEAM_REF team;                             ///< Team
 
-    fvec3_t vel_stt;        ///< Starting/initial velocity.
+	Vector3f vel_stt;                          ///< Starting/initial velocity.
 
-    fvec3_t offset;                            ///< The initial offset when spawning the particle
+	Vector3f offset;                           ///< The initial offset when spawning the particle
 
     FACING_T          rotate;                  ///< Rotation direction
     Sint16            rotate_add;              ///< Rotation rate

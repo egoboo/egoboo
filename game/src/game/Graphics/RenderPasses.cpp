@@ -216,7 +216,7 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	auto texture = (TX_REF)TX_WATER_TOP;
 
 	float alpha, ftmp;
-	fvec3_t   vforw_wind, vforw_cam;
+	Vector3f vforw_wind, vforw_cam;
 	TURN_T default_turn;
 
 	water_instance_layer_t *ilayer = water._layers + 1;

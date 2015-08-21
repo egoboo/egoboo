@@ -330,7 +330,7 @@ void move_one_character_get_environment( Object * pchr )
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-        fvec3_t platform_up = fvec3_t( 0.0f, 0.0f, 1.0f );
+		Vector3f platform_up = Vector3f( 0.0f, 0.0f, 1.0f );
 
         chr_getMatUp(pplatform, platform_up);
         platform_up.normalize();
@@ -444,7 +444,7 @@ void move_one_character_get_environment( Object * pchr )
     // add in something for the "ground speed"
     if ( NULL == pplatform )
     {
-        penviro->floor_speed = fvec3_t::zero();
+        penviro->floor_speed = Vector3f::zero();
     }
     else
     {
@@ -504,8 +504,8 @@ void move_one_character_do_floor_friction( Object * pchr )
     // reduce the volountary acceleration peopendicular to the direction of motion?
     if (floor_acc.length_abs() > 0.0f)
     {
-        fvec3_t acc_para, acc_perp;
-        fvec3_t vfront;
+		Vector3f acc_para, acc_perp;
+		Vector3f vfront;
 
         // get the direction of motion
         vfront = mat_getChrForward(pchr->inst.matrix);
@@ -533,7 +533,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     }
     else
     {
-        fvec3_t acc_perp, acc_para;
+        Vector3f acc_perp, acc_para;
 
         fvec3_decompose(fric, vup, acc_perp, acc_para);
         fric = acc_para;
@@ -580,8 +580,8 @@ void move_one_character_do_z_motion( Object * pchr )
     {
         // Slippy hills make characters slide
 
-        fvec3_t   gperp;    // gravity perpendicular to the mesh
-        fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
+		Vector3f   gperp;    // gravity perpendicular to the mesh
+		Vector3f   gpara;    // gravity parallel      to the mesh (what pushes you)
 
         // RELATIVE TO THE GRID, since you might be riding a platform!
         float     loc_zlerp = pchr->enviro.grid_lerp;
@@ -630,7 +630,7 @@ bool move_one_character_integrate_motion( Object * pchr )
 
     bool  needs_test, updated_2d;
 
-    fvec3_t tmp_pos;
+	Vector3f tmp_pos;
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
@@ -712,7 +712,6 @@ bool move_one_character_integrate_motion( Object * pchr )
         {
             Vector2f nrm;
             float   pressure;
-            bool diff_function_called = false;
 
             pchr->hit_wall(tmp_pos, nrm, &pressure, &wdata);
 
@@ -1173,7 +1172,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     CHR_REF   ichr_b;
     slot_t    slot;
     oct_vec_v2_t mids;
-    fvec3_t   slot_pos;
+	Vector3f   slot_pos;
 
     bool retval;
 
@@ -1393,7 +1392,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
     if ( !retval )
     {
-        fvec3_t vforward;
+		Vector3f vforward;
 
         //---- generate billboards for things that players can interact with
         if (Ego::FeedbackType::None != egoboo_config_t::get().hud_feedback.getValue() && VALID_PLA(pchr_a->is_which_player))

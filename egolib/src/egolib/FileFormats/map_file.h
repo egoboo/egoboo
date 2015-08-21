@@ -201,8 +201,8 @@ struct tile_info_t
 /// The information for a single mpd vertex.
 struct map_vertex_t
 {
-    fvec3_t pos; ///< Vertex position.
-    Uint8 a;     ///< Vertex base light.
+	Vector3f pos; ///< Vertex position.
+    Uint8 a;      ///< Vertex base light.
 };
 
 //--------------------------------------------------------------------------------------------

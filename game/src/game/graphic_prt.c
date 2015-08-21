@@ -410,7 +410,7 @@ void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float si
     };
 
     int i, index;
-    fvec3_t prt_pos, prt_up, prt_right;
+	Vector3f prt_pos, prt_up, prt_right;
 
     switch (REF_TO_INT(pinst->texture_ref))
     {
@@ -634,15 +634,15 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
     pinst->ref_pos[kZ] = 2 * pprt->enviro.floor_level - pinst->pos[kZ];
 
     // get the vector from the camera to the particle
-    fvec3_t vfwd = pinst->pos - camera.getPosition();
+	Vector3f vfwd = pinst->pos - camera.getPosition();
     vfwd.normalize();
 
-    fvec3_t vfwd_ref = pinst->ref_pos - camera.getPosition();
+	Vector3f vfwd_ref = pinst->ref_pos - camera.getPosition();
     vfwd_ref.normalize();
 
     // Set the up and right vectors.
-    fvec3_t vup = fvec3_t(0.0f, 0.0f, 1.0f), vright;
-    fvec3_t vup_ref = fvec3_t(0.0f, 0.0f, 1.0f), vright_ref;
+	Vector3f vup = Vector3f(0.0f, 0.0f, 1.0f), vright;
+	Vector3f vup_ref = Vector3f(0.0f, 0.0f, 1.0f), vright_ref;
     if (ppip->rotatetoface && !pprt->isAttached() && (pprt->vel.length_abs() > 0))
     {
         // The particle points along its direction of travel.
@@ -680,10 +680,10 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
         // is turned by 45 degrees to the camera (instead of 90 degrees which is invisible)
 
         // Use the camera up vector.
-        fvec3_t vup_cam = camera.getVUP();
+		Vector3f vup_cam = camera.getVUP();
 
         // Use the global up vector.
-        vup = fvec3_t(0, 0, 1);
+        vup = Vector3f(0, 0, 1);
 
         // Adjust the vector so that the particle doesn't disappear if
         // you are viewing it from from the top or the bottom.
@@ -706,7 +706,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
     }
     else if (ORIENTATION_H == pinst->orientation)
     {
-        fvec3_t vert = fvec3_t(0.0f, 0.0f, 1.0f);
+		Vector3f vert = Vector3f(0.0f, 0.0f, 1.0f);
 
         // Force right to be horizontal.
         vright = vfwd.cross(vert);
@@ -831,7 +831,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
 
     {
         // The normal sense of "up".
-        fvec3_t world_up = fvec3_t(0, 0, 1);
+		Vector3f world_up = Vector3f(0, 0, 1);
 
         // The dot product between the normal vector and the world up vector:
         // The following statement could be optimized
@@ -919,7 +919,7 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, 
 
     // interpolate the lighting for the origin of the object
     lighting_cache_t global_light;
-    grid_lighting_interpolate(_currentModule->getMeshPointer(), &global_light, fvec2_t(pinst->pos[kX], pinst->pos[kY]));
+    grid_lighting_interpolate(_currentModule->getMeshPointer(), &global_light, Vector2f(pinst->pos[kX], pinst->pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
     fmat_4x4_t mat = prt_instance_make_matrix(pinst);

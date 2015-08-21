@@ -98,7 +98,7 @@ float lerp<float>(const float& x, const float& y, float t);
  *  the interpolated value
  */
 template <>
-fvec2_t lerp<fvec2_t>(const fvec2_t& x, const fvec2_t& y, float t);
+Vector2f lerp<Vector2f>(const Vector2f& x, const Vector2f& y, float t);
 
 /**
  * @ingroup math
@@ -113,7 +113,7 @@ fvec2_t lerp<fvec2_t>(const fvec2_t& x, const fvec2_t& y, float t);
  *  the interpolated value
  */
 template <>
-fvec3_t lerp<fvec3_t>(const fvec3_t& x, const fvec3_t& y, float t);
+Vector3f lerp<Vector3f>(const Vector3f& x, const Vector3f& y, float t);
 
 /**
  * @ingroup math

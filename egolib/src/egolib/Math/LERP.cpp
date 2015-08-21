@@ -9,7 +9,7 @@ namespace Ego
     {
 
         template <>
-        fvec2_t lerp<fvec2_t>(const fvec2_t& x, const fvec2_t& y, float t)
+		Vector2f lerp<Vector2f>(const Vector2f& x, const Vector2f& y, float t)
         {
             if (t < 0)
             {
@@ -19,12 +19,12 @@ namespace Ego
             {
                 throw std::domain_error("t > 1");
             }
-            return fvec2_t(lerp(x[kX], y[kX], t), lerp(x[kY], y[kY], t));
+            return Vector2f(lerp(x[kX], y[kX], t), lerp(x[kY], y[kY], t));
 
         }
 
         template <>
-        fvec3_t lerp<fvec3_t>(const fvec3_t& x, const fvec3_t& y, float t)
+		Vector3f lerp<Vector3f>(const Vector3f& x, const Vector3f& y, float t)
         {
             if (t < 0)
             {
@@ -34,7 +34,7 @@ namespace Ego
             {
                 throw std::domain_error("t > 1");
             }
-            return fvec3_t(lerp(x[kX], y[kX], t), lerp(x[kY], y[kY], t), lerp(x[kZ], y[kZ], t));
+            return Vector3f(lerp(x[kX], y[kX], t), lerp(x[kY], y[kY], t), lerp(x[kZ], y[kZ], t));
         }
 
         template <>

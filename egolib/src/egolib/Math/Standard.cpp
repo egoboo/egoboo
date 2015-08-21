@@ -36,7 +36,7 @@ void validate<::Vector4f>(const char *file, int line, const ::Vector4f& object) 
 }
 
 template <>
-void validate<::aabb_t>(const char *file, int line, const ::aabb_t& object) {
+void validate<::AABB3f>(const char *file, int line, const ::AABB3f& object) {
     validate(file, line, object.getMin());
     validate(file, line, object.getMax());
 }

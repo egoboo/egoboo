@@ -54,8 +54,8 @@ static bool link_push_module();
 struct s_hero_spawn_data
 {
     Uint32 object_index;
-    fvec3_t   pos;
-    fvec3_t   pos_stt;
+	Vector3f pos;
+	Vector3f pos_stt;
 
     // are there any other hero things to add here?
 };
@@ -271,7 +271,7 @@ bool link_push_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool link_load_parent( const char * modname, fvec3_t pos )
+bool link_load_parent( const char * modname, const Vector3f& pos )
 {
     if ( !VALID_CSTR( modname ) ) return false;
 
@@ -282,7 +282,7 @@ bool link_load_parent( const char * modname, fvec3_t pos )
     link_stack_entry_t *pentry = link_stack + ( link_stack_count - 1 );
 
     // Determine how you would have to shift the heroes so that they fall on top of the spawn point.
-    fvec3_t pos_diff = pos * GRID_FSIZE - pentry->hero[0].pos_stt;
+	Vector3f pos_diff = pos * GRID_FSIZE - pentry->hero[0].pos_stt;
 
     // Adjust all the hero spawn points.
     for (int i = 0; i < pentry->hero_count; ++i)

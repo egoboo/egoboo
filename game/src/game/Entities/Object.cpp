@@ -281,7 +281,7 @@ bool Object::setPosition(const Vector3f& position)
         //chr_update_safe(this, false);
 
         // Update the breadcrumb list.
-        fvec2_t nrm;
+		Vector2f nrm;
         float pressure = 0.0f;
         BIT_FIELD hit_a_wall = hit_wall(nrm, &pressure, NULL);
         if (0 == hit_a_wall && 0.0f == pressure)
@@ -721,7 +721,7 @@ bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
     Vector3f newPosition = position;
 
     //Cannot teleport inside a wall
-    fvec2_t nrm;
+	Vector2f nrm;
     if ( !hit_wall(newPosition, nrm, NULL, NULL) )
     {
         // Yeah!  It worked!
@@ -1674,12 +1674,12 @@ bool Object::isInsideInventory() const
     return true;
 }
 
-BIT_FIELD Object::hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
+BIT_FIELD Object::hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
 {
 	return hit_wall(getPosition(), nrm, pressure, data);
 }
 
-BIT_FIELD Object::hit_wall(const Vector3f& pos, fvec2_t& nrm, float * pressure, mesh_wall_data_t *data)
+BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure, mesh_wall_data_t *data)
 {
 	if (CHR_INFINITE_WEIGHT == phys.weight)
 	{

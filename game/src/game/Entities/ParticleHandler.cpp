@@ -32,7 +32,7 @@ ParticleHandler& ParticleHandler::get()
     return PrtList;
 }
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3f& pos, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget)
 {
@@ -66,8 +66,8 @@ const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const PRT_REF
     return (*result).second;
 }
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, 
-                        const LocalParticleProfileRef& pip_index, int multispawn, const bool onlyOverWater)
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const Vector3f& spawnPos, const FACING_T spawnFacing,
+                                                                    const LocalParticleProfileRef& pip_index, int multispawn, const bool onlyOverWater)
 {
     //Get global particle profile
     PIP_REF globalProfile = ((pip_index.get() < 0) || (pip_index.get() > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index.get());
@@ -76,9 +76,9 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const fvec3_
         INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF, onlyOverWater);
 }
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile, 
-                        const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                        const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget, const bool onlyOverWater)
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+                                                              const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                                                              const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget, const bool onlyOverWater)
 {
     const std::shared_ptr<pip_t> &ppip = PipStack.get_ptr(particleProfile);
 

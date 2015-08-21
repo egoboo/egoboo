@@ -25,14 +25,14 @@ EgoTest_EndDeclaration()
 
 EgoTest_BeginTestCase(VectorMath)
 
-#define TOLERANCE fvec3_t::ScalarType(0.0001)
+#define TOLERANCE Vector3f::ScalarType(0.0001)
 
 EgoTest_Test(add)
 {
-    fvec3_t a, b, c;
+	Vector3f a, b, c;
     for (size_t i = 0; i < 1000; ++i) {
-        a = fvec3_t(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
-        b = fvec3_t(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
+        a = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
+        b = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         c = a + b;
         if (!(c - b).equalsTolerance(a, TOLERANCE))
         {
@@ -46,10 +46,10 @@ EgoTest_Test(add)
 
 EgoTest_Test(sub)
 {
-    fvec3_t a, b, c;
+	Vector3f a, b, c;
     for (size_t i = 0; i < 1000; ++i) {
-        a = fvec3_t(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
-        b = fvec3_t(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
+        a = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
+        b = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         c = a - b;
         EgoTest_Assert((c + b).equalsTolerance(a, TOLERANCE));
         EgoTest_Assert(b.equalsTolerance(a - c, TOLERANCE));
@@ -58,10 +58,10 @@ EgoTest_Test(sub)
 
 EgoTest_Test(muls)
 {
-    fvec3_t a, b, c;
+	Vector3f a, b, c;
     for (size_t i = 0; i < 1000; ++i) {
-        a = fvec3_t(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
-        b = fvec3_t(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
+        a = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
+        b = Vector3f(Random::nextFloat(), Random::nextFloat(), Random::nextFloat());
         float s;
         do {
             s = Random::nextFloat();

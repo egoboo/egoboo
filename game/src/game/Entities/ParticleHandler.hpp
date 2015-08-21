@@ -138,9 +138,9 @@ public:
      *  Same as spawnParticle() except that it uses LocalParticleProfileRef instead of a PIP_REF
      *  Ideally we would like to remove this function as it is simply a wrapper
      */
-    std::shared_ptr<Ego::Particle> spawnLocalParticle(const fvec3_t& position, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
-                               const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                               const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget);
+    std::shared_ptr<Ego::Particle> spawnLocalParticle(const Vector3f& position, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
+                                                      const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                                                      const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget);
     /**
      * @brief Return a pointer object for the specifiec PRT_REF.
      * @return a pointer object for the specified PRT_REF.
@@ -179,10 +179,10 @@ public:
      * @return
      *   The Particle object that was spawned or nullptr if it failed.
      */
-    std::shared_ptr<Ego::Particle> spawnParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
-                            const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                            const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0, 
-                            const CHR_REF spawnTarget = INVALID_CHR_REF, const bool onlyOverWater = false);
+    std::shared_ptr<Ego::Particle> spawnParticle(const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+                                                 const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                                                 const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0, 
+                                                 const CHR_REF spawnTarget = INVALID_CHR_REF, const bool onlyOverWater = false);
 
     /**
     * @brief
@@ -190,8 +190,8 @@ public:
     * @return
     *   The Particle object that was spawned or nullptr if it failed.
     **/
-    std::shared_ptr<Ego::Particle> spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const LocalParticleProfileRef& pip_index, 
-                                int multispawn, const bool onlyOverWater = false);
+    std::shared_ptr<Ego::Particle> spawnGlobalParticle(const Vector3f& spawnPos, const FACING_T spawnFacing, const LocalParticleProfileRef& pip_index,
+                                                       int multispawn, const bool onlyOverWater = false);
 
     /**
     * @brief

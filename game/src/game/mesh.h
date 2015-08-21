@@ -284,7 +284,7 @@ public:
 
     ego_tile_info_t();
 
-    const AABB_2D& getAABB2D() const { return aabb; }
+    const AABB2f& getAABB2D() const { return aabb; }
 
 public:
     // the "inherited" tile info
@@ -310,7 +310,7 @@ public:
 
     // the bounding boc of this tile
     oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
-    AABB_2D        aabb;
+	AABB2f         aabb;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -407,14 +407,14 @@ public:
 struct tile_mem_t
 {
 public:
-    aabb_t           bbox;                             ///< bounding box for the entire mesh
+    AABB3f       bbox;                 ///< bounding box for the entire mesh
 
     // the per-vertex info to be presented to OpenGL
-    size_t vert_count;                        ///< number of vertices
-    GLXvector3f *plst;                        ///< the position list
-    GLXvector2f *tlst;                        ///< the texture coordinate list
-    GLXvector3f *nlst;                        ///< the normal list
-    GLXvector3f *clst;                        ///< the color list (for lighting the mesh)
+    size_t vert_count;                 ///< number of vertices
+    GLXvector3f *plst;                 ///< the position list
+    GLXvector2f *tlst;                 ///< the texture coordinate list
+    GLXvector3f *nlst;                 ///< the normal list
+    GLXvector3f *clst;                 ///< the color list (for lighting the mesh)
 
     static tile_mem_t *ctor(tile_mem_t *self);
     static tile_mem_t *dtor(tile_mem_t *self);
@@ -560,8 +560,8 @@ public:
     grid_mem_t gmem;
     mpdfx_lists_t fxlists;
 
-    static fvec3_t get_diff(const ego_mesh_t *self, const fvec3_t& pos, float radius, float center_pressure, const BIT_FIELD bits);
-    static float get_pressure(const ego_mesh_t *self, const fvec3_t& pos, float radius, const BIT_FIELD bits);
+    static Vector3f get_diff(const ego_mesh_t *self, const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits);
+    static float get_pressure(const ego_mesh_t *self, const Vector3f& pos, float radius, const BIT_FIELD bits);
 	/// @brief Remove extra ambient light in the lightmap.
     void remove_ambient();
 	void recalc_twist();
@@ -569,7 +569,7 @@ public:
     static ego_mesh_t *finalize(ego_mesh_t *self);
     void test_one_corner(GLXvector3f pos, float *pdelta);
     
-    bool light_one_corner(ego_tile_info_t *ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
+    bool light_one_corner(ego_tile_info_t *ptile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float * plight);
 
     /**
     * @brief 
@@ -669,10 +669,10 @@ struct mesh_wall_data_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern fvec3_t   map_twist_nrm[256];
+extern Vector3f  map_twist_nrm[256];
 extern FACING_T  map_twist_facing_y[256];              ///< For surface normal of mesh
 extern FACING_T  map_twist_facing_x[256];
-extern fvec3_t   map_twist_vel[256];            ///< For sliding down steep hills
+extern Vector3f  map_twist_vel[256];            ///< For sliding down steep hills
 extern Uint8     map_twist_flat[256];
 
 extern int mesh_mpdfx_tests;
@@ -698,9 +698,9 @@ bool ego_mesh_interpolate_vertex(tile_mem_t *mem, ego_tile_info_t *tile, float p
 bool grid_light_one_corner(const ego_mesh_t *mesh, const TileIndex& fan, float height, float nrm[], float *plight);
 
 /// @todo @a pos and @a radius should be passed as a sphere.
-BIT_FIELD ego_mesh_hit_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, fvec2_t& nrm, float *pressure, mesh_wall_data_t * private_data);
+BIT_FIELD ego_mesh_hit_wall(const ego_mesh_t *mesh, const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t * private_data);
 /// @todo @a pos and @a radius should be passed as a sphere.
-BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data);
+BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const Vector3f& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data);
 
 
 bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& tile, Uint16 image);

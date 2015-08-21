@@ -78,7 +78,7 @@ struct Billboard
      *  The texture reference.
      */
     std::shared_ptr<oglx_texture_t> _texture;
-    fvec3_t _position;          ///< the position of the bottom-missle of the box
+	Vector3f _position;          ///< the position of the bottom-missle of the box
 
     /**
      * @brief
@@ -97,7 +97,7 @@ struct Billboard
      * @remark
      *  Each time the billboard is updated, <tt>_tint += _tint_add</tt> is computed.
      */
-    fvec4_t _tint_add;
+	Vector4f _tint_add;
 
     /**
      * @brief
@@ -105,14 +105,14 @@ struct Billboard
      * @remark
      *  The offset is given in world cordinates.
      */
-    fvec3_t _offset;
+	Vector3f _offset;
     /**
      * @brief
      *  Additive over-time offset modifier.
      * @remark
      *  Each time the billboard is updated, <tt>_offset += _offset_add</tt> is computed.
      */
-    fvec3_t _offset_add;
+	Vector3f _offset_add;
 
     float _size;
     float _size_add;
@@ -174,7 +174,7 @@ protected:
     static BillboardSystem *singleton;
     BillboardSystem();
     virtual ~BillboardSystem();
-    bool render_one(Billboard& bb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt);
+    bool render_one(Billboard& bb, float scale, const Vector3f& cam_up, const Vector3f& cam_rgt);
 public:
     static void initialize();
     static void uninitialize();

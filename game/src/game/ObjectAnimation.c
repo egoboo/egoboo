@@ -412,7 +412,7 @@ float set_character_animation_rate( Object * pchr )
     {
         // For non-flying objects, we use the intended speed.
         // new_v[kX], new_v[kY] is the speed before any latches are applied.
-        speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length();
+        speed = Vector2f(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length();
         if ( pchr->enviro.is_slipping )
         {
             // The character is slipping as on ice.

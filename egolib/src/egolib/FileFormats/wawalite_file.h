@@ -46,11 +46,11 @@ struct wawalite_data_t;
         float z;                 ///< Base height of water
         float amp;               ///< Amplitude of waves
 
-        fvec2_t dist;            ///< For distant backgrounds
+		Vector2f dist;           ///< For distant backgrounds
         uint32_t light_dir;      ///< direct  reflectivity 0 - 63
         uint32_t light_add;      ///< ambient reflectivity 0 - 63
 
-        fvec2_t tx_add;          ///< Texture movement
+		Vector2f tx_add;         ///< Texture movement
         uint8_t alpha;           ///< Transparency
 
         wawalite_water_layer_t() :
@@ -577,7 +577,7 @@ struct wawalite_data_t;
          * @todo
          *  Egoboo does not allow for specifying a directional light colour.
          */
-		fvec3_t light_d;
+		Vector3f light_d;
         /**
          * @brief
          *  Ambient light brightness.

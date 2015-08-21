@@ -42,8 +42,8 @@ enum
     LIGHTING_VEC_SIZE
 };
 
-void lighting_vector_evaluate( const std::array<float, LIGHTING_VEC_SIZE> &lvec, const fvec3_t& nrm, float * direct, float * amb );
-void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const fvec3_t& nrm, const float direct, const float ambient );
+void lighting_vector_evaluate( const std::array<float, LIGHTING_VEC_SIZE> &lvec, const Vector3f& nrm, float * direct, float * amb );
+void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const Vector3f& nrm, const float direct, const float ambient );
 
 //--------------------------------------------------------------------------------------------
 struct lighting_cache_base_t
@@ -80,19 +80,19 @@ struct lighting_cache_t
 /// A definition of a single in-game dynamic light
 struct dynalight_data_t
 {
-    float   distance;      ///< The distance from the center of the camera view
-    fvec3_t pos;           ///< Light position
-    float   level;         ///< Light intensity
-    float   falloff;       ///< Light radius
+    float    distance;      ///< The distance from the center of the camera view
+	Vector3f pos;           ///< Light position
+    float    level;         ///< Light intensity
+    float    falloff;       ///< Light radius
 
 	static dynalight_data_t *init(dynalight_data_t *self);
 };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern float   light_a,
-               light_d;
-extern fvec3_t light_nrm;
+extern float    light_a,
+                light_d;
+extern Vector3f light_nrm;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -100,9 +100,9 @@ bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * sr
 bool lighting_cache_interpolate( lighting_cache_t * dst, const lighting_cache_t * src[], const float u, const float v );
 float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float * low_max_diff, float * hgh_max_diff );
 
-float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_t& nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir );
+float lighting_evaluate_cache( const lighting_cache_t * src, const Vector3f& nrm, const float z, const AABB3f& bbox, float * light_amb, float * light_dir );
 
-bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTING_VEC_SIZE> &lighting, const fvec3_t& nrm );
+bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTING_VEC_SIZE> &lighting, const Vector3f& nrm );
 
 /// @author BB
 /// @details In the Aaron's lighting, the falloff function was
@@ -136,4 +136,4 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTI
 ///              "physics" behavior at large distances (falls off like 1/r^2). But that is the
 ///              exact problem because the infinite range means that it can potentally affect
 ///              the entire mesh, causing problems with computing a large number of lights
-float  dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_t& diff );
+float  dyna_lighting_intensity( const dynalight_data_t * pdyna, const Vector3f& diff );

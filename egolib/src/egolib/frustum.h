@@ -63,7 +63,7 @@ struct egolib_frustum_t
         SIDES_END = TOP      ///< The index of the last side plane.
     };
     // basic frustum data
-    plane_t _planes2[Planes::COUNT];
+	Plane3f _planes2[Planes::COUNT];
 
     // data for intersection optimization
     Vector3f _origin;
@@ -95,7 +95,7 @@ public:
 	 *  If a point is behind one of the frustum planes (i.e. its distance to the plane is
 	 *  negative), then the point is outside the frustum, otherwise it is inside the frustum.
 	 */
-	Ego::Math::Relation intersects_point(const fvec3_t& point, const bool doEnds) const;
+	Ego::Math::Relation intersects_point(const Vector3f& point, const bool doEnds) const;
 
 	/**
 	 * @brief
@@ -135,9 +135,9 @@ public:
      *      <li>geometry_inside    - the cube is completely inside the frustum</li>
      *  </ul>
      * @todo
-     *  Replace <tt>const fvec3_t& position</tt> and <tt>const float size</tt> by <tt>const Cube3f& cube</tt>.
+     *  Replace <tt>const Vector3f& position</tt> and <tt>const float size</tt> by <tt>const Cube3f& cube</tt>.
      */
-	Ego::Math::Relation intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const;
+	Ego::Math::Relation intersects_cube(const Vector3f& center, const float size, const bool doEnds) const;
 
     /**
      * @brief
@@ -153,8 +153,8 @@ public:
      *      <li>geometry_inside    - the AABB is completely inside the frustum</li>
      *	</ul>
      */
-	Ego::Math::Relation intersects_aabb(const fvec3_t& corner1, const fvec3_t& corner2, bool doEnds) const;
-	Ego::Math::Relation intersects_aabb(const aabb_t& aabb, bool doEnds) const;
+	Ego::Math::Relation intersects_aabb(const Vector3f& corner1, const Vector3f& corner2, bool doEnds) const;
+	Ego::Math::Relation intersects_aabb(const AABB3f& aabb, bool doEnds) const;
 
 	/**
 	 * @brief
@@ -191,7 +191,7 @@ protected:
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
      */
-    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far);
+    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
 
 
     /**
@@ -202,7 +202,7 @@ protected:
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
      */
-    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far);
+    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
 
     /**
      * @brief
@@ -212,7 +212,7 @@ protected:
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
      */
-    static void calculatePlanes(const fmat_4x4_t& matrix, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far);
+    static void calculatePlanes(const fmat_4x4_t& matrix, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far);
 
 };
 

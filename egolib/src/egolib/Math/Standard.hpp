@@ -43,21 +43,6 @@ typedef Ego::Math::Cube<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Cube
 /// A 3D plane.
 typedef Ego::Math::Plane3<float> Plane3f;
 
-/** @deprecated Use Vector2f. */
-typedef Vector2f fvec2_t;
-/** @deprecated Use Vector3f */
-typedef Vector3f fvec3_t;
-/** @deprecated Use Vector4f. */
-typedef Vector4f fvec4_t;
-/** @deprecated Use AABB3f. */
-typedef AABB3f AABB_3D;
-/** @deprecated Use AABB3f. */
-typedef AABB3f aabb_t;
-/** @deprecated Use AABB2f. */
-typedef AABB2f AABB_2D;
-/** @deprecated Use Plane3f. */
-typedef Plane3f plane_t;
-
 #ifdef _DEBUG
 namespace Ego {
 namespace Debug {
@@ -75,7 +60,7 @@ template <>
 void validate<::Vector4f>(const char *file, int line, const ::Vector4f& object);
 
 template <>
-void validate<::aabb_t>(const char *file, int line, const ::aabb_t& object);
+void validate<::AABB3f>(const char *file, int line, const ::AABB3f& object);
 
 template <>
 void validate<::Sphere3f>(const char *file, int line, const ::Sphere3f& object);

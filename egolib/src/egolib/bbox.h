@@ -69,7 +69,7 @@
 
     public:
 
-        void add(const fvec3_t& other)
+        void add(const Vector3f& other)
         {
             sub(oct_vec_v2_t(other));
         }
@@ -82,7 +82,7 @@
             }
         }
 
-        void sub(const fvec3_t& other)
+        void sub(const Vector3f& other)
         {
             sub(oct_vec_v2_t(other));
         }
@@ -122,7 +122,7 @@
             _v[OCT_YX] = 0.0f;
         }
 
-        oct_vec_v2_t(const fvec3_t& point)
+        oct_vec_v2_t(const Vector3f& point)
         {
             _v[OCT_X] = point[kX];
             _v[OCT_Y] = point[kY];
@@ -222,7 +222,7 @@
                 _v[i] = 0.0f;
             }
         }
-        void ctor(const fvec3_t& point)
+        void ctor(const Vector3f& point)
         {
             _v[OCT_X]  = point[kX];
             _v[OCT_Y]  = point[kY];
@@ -251,7 +251,7 @@
         
     };
 
-    bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const fvec3_t& fvec, oct_vec_v2_t& odst);
+    bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const Vector3f& fvec, oct_vec_v2_t& odst);
 
 //--------------------------------------------------------------------------------------------
 
@@ -359,12 +359,12 @@
          * @return
          *  the axis-aligned bounding box
          */
-        aabb_t toAABB() const {
+		AABB3f toAABB() const {
             if (_empty) {
                 throw std::logic_error("unable to convert an empty OBB into an AABB");
             }
-            return aabb_t(fvec3_t(_mins[OCT_X], _mins[OCT_Y], _mins[OCT_Z]),
-                          fvec3_t(_maxs[OCT_X], _maxs[OCT_Y], _maxs[OCT_Z]));
+            return AABB3f(Vector3f(_mins[OCT_X], _mins[OCT_Y], _mins[OCT_Z]),
+				          Vector3f(_maxs[OCT_X], _maxs[OCT_Y], _maxs[OCT_Z]));
         }
 
         /**
@@ -406,7 +406,7 @@
          * @param t
          *	the 3D translation vector
          */
-        void translate(const fvec3_t& t)
+        void translate(const Vector3f& t)
         {
             translate(oct_vec_v2_t(t));
         }
@@ -518,7 +518,7 @@
 		 * @param dst
 		 *	the target bounding box
 		 */
-		static egolib_rv translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst);
+		static egolib_rv translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst);
 		static egolib_rv translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst);
 
 		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, oct_bb_t& pdst_bb);
@@ -537,8 +537,8 @@
     };
     
 egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v);
-int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count);
-void points_to_oct_bb(oct_bb_t& self, const fvec4_t pos[], const size_t pos_count);
+int oct_bb_to_points(const oct_bb_t& self, Vector4f pos[], size_t pos_count);
+void points_to_oct_bb(oct_bb_t& self, const Vector4f pos[], const size_t pos_count);
 bool oct_bb_empty(const oct_bb_t& self);
 
 

@@ -274,7 +274,7 @@ int get_fan_vertex_by_coord( const cartman_mpd_t * pmesh, const cartman_mpd_tile
 }
 
 //--------------------------------------------------------------------------------------------
-bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, fvec3_t& vec, int ext_verts[] )
+bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, Vector3f& vec, int ext_verts[] )
 {
     // set the coordinates of the given vertex to the interpolated position along the edge of the fan
 
@@ -285,7 +285,7 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
     int cnt, ivrt, idx;
 
     float   vweight = 0.0f;
-    fvec3_t vsum    = fvec3_t::zero();
+	Vector3f vsum    = Vector3f::zero();
 
     Cartman::mpd_vertex_t * pvrt;
 
@@ -442,7 +442,7 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
             if ( NULL != pvrt && VERTEXUNUSED != pvrt->a )
             {
                 float weight = expf( - SQR( gx - grid_ix ) - SQR( gy - grid_iy ) );
-                vsum += fvec3_t(pvrt->x, pvrt->y, pvrt->z) * weight;
+                vsum += Vector3f(pvrt->x, pvrt->y, pvrt->z) * weight;
                 vweight += weight;
             }
         }
@@ -479,7 +479,7 @@ int select_lst_add_fan_vertex( select_lst_t * plst, int mapx, int mapy, int grid
         pvrt = CART_MPD_VERTEX_PTR(plst->pmesh, ivrt);
         if ( NULL != pvrt )
         {
-			fvec3_t vtmp;
+			Vector3f vtmp;
             if ( interpolate_coord( plst->pmesh, pfan, grid_ix, grid_iy, vtmp, vert_lst ) )
             {
                 pvrt->x = vtmp[kX];

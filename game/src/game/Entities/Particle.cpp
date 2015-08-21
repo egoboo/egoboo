@@ -71,8 +71,8 @@ void Particle::reset(PRT_REF ref)
     facing = 0;
     team = 0;
 
-    vel_stt = fvec3_t::zero();
-    offset = fvec3_t::zero();
+    vel_stt = Vector3f::zero();
+    offset = Vector3f::zero();
 
     PhysicsData::reset(this);
 
@@ -137,7 +137,7 @@ const std::shared_ptr<Object>& Particle::getAttachedObject() const
 }
 
 
-bool Particle::setPosition(const fvec3_t& position)
+bool Particle::setPosition(const Vector3f& position)
 {
     EGO_DEBUG_VALIDATE(position);
 
@@ -164,7 +164,7 @@ bool Particle::updateSafeRaw()
     BIT_FIELD hit_a_wall;
     float  pressure;
 
-    fvec2_t nrm;
+	Vector2f nrm;
     hit_a_wall = hit_wall(nrm, &pressure, nullptr);
     if ((0 == hit_a_wall) && (0.0f == pressure))
     {
@@ -214,12 +214,12 @@ bool Particle::updateSafe(bool force)
     return retval;
 }
 
-BIT_FIELD Particle::hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
+BIT_FIELD Particle::hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
 {
     return hit_wall(getPosition(), nrm, pressure, data);
 }
 
-BIT_FIELD Particle::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
+BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
 {
     BIT_FIELD stoppedby = MAPFX_IMPASS;
     if (0 != getProfile()->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
@@ -237,7 +237,7 @@ BIT_FIELD Particle::test_wall(mesh_wall_data_t *data)
     return test_wall(getPosition(), data);
 }
 
-BIT_FIELD Particle::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
+BIT_FIELD Particle::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 {
     BIT_FIELD  stoppedby = MAPFX_IMPASS;
     if (0 != getProfile()->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
@@ -454,7 +454,7 @@ void Particle::updateWater()
     {
         bool  spawn_valid = false;
         LocalParticleProfileRef global_pip_index;
-        fvec3_t vtmp = fvec3_t(pos[kX], pos[kY], water._surface_level);
+		Vector3f vtmp = Vector3f(pos[kX], pos[kY], water._surface_level);
 
         if (INVALID_CHR_REF == owner_ref && (PIP_SPLASH == getProfileID() || PIP_RIPPLE == getProfileID()))
         {
@@ -818,15 +818,15 @@ void Particle::playSound(int8_t sound)
     }
 }
 
-bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
-                        const PIP_REF particleProfile, const CHR_REF spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
-                        const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
-                        const bool onlyOverWater)
+bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+                          const PIP_REF particleProfile, const CHR_REF spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
+                          const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
+                          const bool onlyOverWater)
 {
     const int INFINITE_UPDATES = std::numeric_limits<int>::max();
 
-    fvec3_t vel;
-    int     offsetfacing = 0, newrand;
+	Vector3f vel;
+    int offsetfacing = 0, newrand;
 
     //if(!isTerminated()) {
     //    throw std::logic_error("Tried to spawn an existing particle that was not terminated");
@@ -854,7 +854,7 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
     // Save a version of the position for local use.
     // In cpp, will be passed by reference, so we do not want to alter the
     // components of the original vector.
-    fvec3_t tmp_pos = spawnPos;
+	Vector3f tmp_pos = spawnPos;
     FACING_T loc_facing = spawnFacing;
 
     // try to get an idea of who our owner is even if we are
@@ -1145,7 +1145,7 @@ bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, con
     }
 
     // is the spawn location safe?
-    fvec2_t nrm;
+	Vector2f nrm;
     if (0 == hit_wall(tmp_pos, nrm, nullptr, nullptr))
     {
         safe_pos = tmp_pos;
@@ -1250,7 +1250,7 @@ bool Particle::attach(const CHR_REF attach)
 bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_offset)
 {
     int     vertex;
-    fvec4_t point[1], nupoint[1];
+	Vector4f point[1], nupoint[1];
 
     // Check validity of attachment
     if (object->isInsideInventory()) {
@@ -1271,7 +1271,7 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
 
         if ( vertex_offset == GRIP_ORIGIN )
         {
-            fvec3_t tmp_pos;
+			Vector3f tmp_pos;
             tmp_pos[kX] = object->inst.matrix( 0, 3 );
             tmp_pos[kY] = object->inst.matrix( 1, 3 );
             tmp_pos[kZ] = object->inst.matrix( 2, 3 );
@@ -1299,7 +1299,7 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
         // Do the transform
         object->inst.matrix.transform(point, nupoint, 1);
 
-        setPosition(fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
+        setPosition(Vector3f(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
     }
     else
     {

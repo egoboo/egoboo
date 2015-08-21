@@ -48,8 +48,8 @@ struct point_data_t;
 
 struct line_data_t
 {
-    fvec3_t src, dst;
-    fvec4_t color;
+    Vector3f src, dst;
+	Vector4f color;
     int time;
 };
 
@@ -66,8 +66,8 @@ void line_list_draw_all(Camera& camera);
 
 struct point_data_t
 {
-    fvec3_t src;
-    fvec4_t color;
+    Vector3f src;
+	Vector4f color;
     int time;
 };
 
@@ -86,4 +86,4 @@ void gfx_begin_3d(Camera& camera);
 void gfx_end_3d();
 
 bool render_oct_bb(oct_bb_t *bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5, 1, 1), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5, 1, 1, 1));
-bool render_aabb(aabb_t *bv);
+bool render_aabb(AABB3f *bv);

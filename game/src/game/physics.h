@@ -111,7 +111,7 @@ namespace Physics
          * @todo
          *  Short description of (reasonable) limits and effect.
          */
-        fvec3_t windspeed;
+		Vector3f windspeed;
 
         /**
          * @brief
@@ -121,7 +121,7 @@ namespace Physics
          * @todo
          *  Short description of (reasonable) limits and effect.
          */
-        fvec3_t waterspeed;
+		Vector3f waterspeed;
 
         /**
          * @brief
@@ -208,7 +208,7 @@ struct apos_t
      * @default
      *  <tt>(0,0,0)</tt>
      */
-    fvec3_t mins;
+	Vector3f mins;
     
     /**
      * @brief
@@ -216,7 +216,7 @@ struct apos_t
      * @default
      *  <tt>(0,0,0)</tt>
      */
-    fvec3_t maxs;
+	Vector3f maxs;
 
     /**
      * @brief
@@ -224,7 +224,7 @@ struct apos_t
      * @default
      *  <tt>(0,0,0)</tt>
      */
-    fvec3_t sum;
+	Vector3f sum;
 
 	apos_t() :
 		mins(),
@@ -255,9 +255,9 @@ struct apos_t
         {
             throw std::invalid_argument("nullptr == self");
         }
-        self->mins = fvec3_t::zero();
-        self->maxs = fvec3_t::zero();
-        self->sum  = fvec3_t::zero();
+        self->mins = Vector3f::zero();
+        self->maxs = Vector3f::zero();
+        self->sum  = Vector3f::zero();
     }
 
 
@@ -267,15 +267,15 @@ struct apos_t
         {
             throw std::invalid_argument("nullptr == self");
         }
-        self->mins = fvec3_t::zero();
-        self->maxs = fvec3_t::zero();
-        self->sum  = fvec3_t::zero();
+        self->mins = Vector3f::zero();
+        self->maxs = Vector3f::zero();
+        self->sum  = Vector3f::zero();
     
         return self;
     }
 
     static bool self_union(apos_t *self, const apos_t *other);
-    static bool self_union(apos_t *self, const fvec3_t& other);
+    static bool self_union(apos_t *self, const Vector3f& other);
     /**
      * @brief
      *  Update the maximum displacement at a given axis.
@@ -285,7 +285,7 @@ struct apos_t
      *  the index of the axis
      */
     static bool self_union_index(apos_t *self, const float displacement, const size_t index);
-    static bool evaluate(const apos_t *self, fvec3_t& dst);
+    static bool evaluate(const apos_t *self, Vector3f& dst);
 };
 
 
@@ -298,7 +298,7 @@ struct apos_t
 struct phys_data_t
 {
     apos_t         aplat, acoll;
-    fvec3_t        avel;
+	Vector3f       avel;
 
     float          bumpdampen;                    ///< "Mass" = weight / bumpdampen
     Uint32         weight;                        ///< Weight
@@ -311,9 +311,9 @@ struct phys_data_t
 phys_data_t *phys_data_clear(phys_data_t *self);
 
 
-phys_data_t *phys_data_sum_aplat(phys_data_t *self, const fvec3_t& v);
-phys_data_t *phys_data_sum_acoll(phys_data_t *self, const fvec3_t& v);
-phys_data_t *phys_data_sum_avel(phys_data_t *self, const fvec3_t& v);
+phys_data_t *phys_data_sum_aplat(phys_data_t *self, const Vector3f& v);
+phys_data_t *phys_data_sum_acoll(phys_data_t *self, const Vector3f& v);
+phys_data_t *phys_data_sum_avel(phys_data_t *self, const Vector3f& v);
 
 phys_data_t *phys_data_sum_aplat_index(phys_data_t *self, const float v, const size_t index);
 phys_data_t *phys_data_sum_acoll_index(phys_data_t *self, const float v, const size_t index);
@@ -330,17 +330,17 @@ extern const float PLATFORM_STICKINESS;     ///< Friction between characters and
 /// @details use the velocity of an object and its oct_bb_t to determine the
 ///               amount of territory that an object will cover in the range [tmin,tmax].
 ///               One update equals [tmin,tmax] == [0,1].
-bool phys_expand_oct_bb(const oct_bb_t& src, const fvec3_t& vel, const float tmin, const float tmax, oct_bb_t& dst);
+bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tmin, const float tmax, oct_bb_t& dst);
 /// @details use the object velocity to figure out where the volume that the character will
 ///               occupy during this update. Use the loser chr_max_cv and include extra height if
 ///               it is a platform.
 bool phys_expand_chr_bb(Object *pchr, float tmin, float tmax, oct_bb_t& dst);
 bool phys_expand_prt_bb(Ego::Particle *pprt, float tmin, float tmax, oct_bb_t& dst);
 
-bool phys_estimate_collision_normal(const oct_bb_t& obb_a, const oct_bb_t& pobb_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
-bool phys_estimate_pressure_normal(const oct_bb_t& obb_a, const oct_bb_t& pobb_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
+bool phys_estimate_collision_normal(const oct_bb_t& obb_a, const oct_bb_t& pobb_b, const float exponent, oct_vec_v2_t& odepth, Vector3f& nrm, float& depth);
+bool phys_estimate_pressure_normal(const oct_bb_t& obb_a, const oct_bb_t& pobb_b, const float exponent, oct_vec_v2_t& odepth, Vector3f& nrm, float& depth);
 
-bool phys_intersect_oct_bb(const oct_bb_t& src1, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t& src2, const fvec3_t& pos2, const fvec3_t& vel2, int test_platform, oct_bb_t& dst, float *tmin, float *tmax);
+bool phys_intersect_oct_bb(const oct_bb_t& src1, const Vector3f& pos1, const Vector3f& vel1, const oct_bb_t& src2, const Vector3f& pos2, const Vector3f& vel2, int test_platform, oct_bb_t& dst, float *tmin, float *tmax);
 
 bool get_chr_mass(Object *pchr, float *wt);
 bool get_prt_mass(Ego::Particle *pprt, Object *pchr, float *wt);
@@ -348,27 +348,27 @@ void get_recoil_factors(float wta, float wtb, float * recoil_a, float * recoil_b
 
 /// @brief Test whether two objects could interact based on the "collision bounding box".
 ///        This version is for character-particle collisions.
-bool test_interaction_0(bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, int test_platform);
-bool test_interaction_1(const oct_bb_t& cv_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, int test_platform);
+bool test_interaction_0(bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform);
+bool test_interaction_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform);
 /// @brief Test whether two objects could interact based on the "collision bounding box".
 ///        This version is for character-character collisions
-bool test_interaction_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_b, const fvec3_t& pos_b, int test_platform);
+bool test_interaction_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, int test_platform);
 /// @brief Test whether two objects could interact based on the "collision bounding box".
 ///        This version is for character-particle collisions.
-bool test_interaction_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, int test_platform);
+bool test_interaction_close_0( bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform);
 /// @brief Test whether two objects could interact based on the "collision bounding box".
 ///        This version is for character-particle collisions.
-bool test_interaction_close_1(const oct_bb_t& cv_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, int test_platform);
+bool test_interaction_close_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform);
 /// @brief Test whether two objects could interact based on the "collision bounding box".
 ///        This version is for character-particle collisions.
-bool test_interaction_close_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_b, const fvec3_t& pos_b, int test_platform);
+bool test_interaction_close_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, int test_platform);
 
 /// @brief Estimate the depth of collision based on the "collision bounding box".
 ///        This version is for character-particle collisions.
-bool get_depth_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth);
+bool get_depth_0( bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth);
 /// @brief Estimate the depth of collision based on the "collision bounding box".
 ///        This version is for character-particle collisions.
-bool get_depth_1(const oct_bb_t& cv_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth);
+bool get_depth_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth);
 /// @brief Estimate the depth of collision based on the "collision bounding box".
 ///        This version is for character-character collisions
-bool get_depth_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth);
+bool get_depth_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth);

@@ -30,17 +30,17 @@
 //--------------------------------------------------------------------------------------------
 float light_a = 0.0f,
       light_d = 0.0f;
-fvec3_t light_nrm = fvec3_t::zero();
+Vector3f light_nrm = Vector3f::zero();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_t& vec, const int dir );
+static bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const Vector3f& vec, const int dir );
 
-static float  lighting_evaluate_cache_base( const lighting_cache_base_t * lvec, const fvec3_t& nrm, float * amb );
+static float  lighting_evaluate_cache_base( const lighting_cache_base_t * lvec, const Vector3f& nrm, float * amb );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void lighting_vector_evaluate( const std::array<float, LIGHTING_VEC_SIZE> &lvec, const fvec3_t& nrm, float * dir, float * amb )
+void lighting_vector_evaluate( const std::array<float, LIGHTING_VEC_SIZE> &lvec, const Vector3f& nrm, float * dir, float * amb )
 {
     float loc_dir, loc_amb;
 
@@ -82,7 +82,7 @@ void lighting_vector_evaluate( const std::array<float, LIGHTING_VEC_SIZE> &lvec,
 }
 
 //--------------------------------------------------------------------------------------------
-void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const fvec3_t& nrm, const float direct, const float ambient )
+void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const Vector3f& nrm, const float direct, const float ambient )
 {
     if ( nrm[kX] > 0.0f )
     {
@@ -235,7 +235,7 @@ bool lighting_cache_t::blend( lighting_cache_t * cache, lighting_cache_t * cnew,
 //--------------------------------------------------------------------------------------------
 bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const fmat_4x4_t& mat )
 {
-    fvec3_t   fwd, right, up;
+	Vector3f fwd, right, up;
 
     if ( NULL == src ) return false;
 
@@ -425,7 +425,7 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
 }
 
 //--------------------------------------------------------------------------------------------
-bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_t& vec, const int dir )
+bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const Vector3f& vec, const int dir )
 {
     if ( NULL == src || NULL == dst ) return false;
 
@@ -487,7 +487,7 @@ bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src,
 }
 
 //--------------------------------------------------------------------------------------------
-float lighting_evaluate_cache_base( const lighting_cache_base_t * lcache, const fvec3_t& nrm, float * amb )
+float lighting_evaluate_cache_base( const lighting_cache_base_t * lcache, const Vector3f& nrm, float * amb )
 {
     float dir;
     float local_amb;
@@ -518,7 +518,7 @@ float lighting_evaluate_cache_base( const lighting_cache_base_t * lcache, const 
 }
 
 //--------------------------------------------------------------------------------------------
-float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_t& nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir )
+float lighting_evaluate_cache( const lighting_cache_t * src, const Vector3f& nrm, const float z, const AABB3f& bbox, float * light_amb, float * light_dir )
 {
     float loc_light_amb = 0.0f, loc_light_dir = 0.0f;
     float light_tot;
@@ -562,7 +562,7 @@ float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_t& nrm,
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_t& diff )
+float dyna_lighting_intensity( const dynalight_data_t * pdyna, const Vector3f& diff )
 {
     if ( NULL == pdyna || 0.0f == pdyna->level ) return 0.0f;
 
@@ -578,7 +578,7 @@ float dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_t& di
 }
 
 //--------------------------------------------------------------------------------------------
-bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTING_VEC_SIZE> &lighting, const fvec3_t& nrm )
+bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTING_VEC_SIZE> &lighting, const Vector3f& nrm )
 {
     if ( NULL == pdyna ) return false;
 
@@ -589,7 +589,7 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTI
 	float rad_sqr = nrm.length_2();
 
     // make a local copy of the normal so we do not normalize the data in the calling function
-	fvec3_t local_nrm = nrm;
+	Vector3f local_nrm = nrm;
 
     // do the normalization
     if ( 1.0f != rad_sqr && 0.0f != rad_sqr )
@@ -616,7 +616,7 @@ dynalight_data_t * dynalight_data_t::init(dynalight_data_t *self)
 	self->distance = 1000.0f;
 	self->falloff = 255.0f;
 	self->level = 0.0f;
-	self->pos = fvec3_t::zero();
+	self->pos = Vector3f::zero();
 
 	return self;
 }
