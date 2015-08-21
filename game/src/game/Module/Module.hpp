@@ -181,8 +181,8 @@ public:
      * @return
      *  The object that was spawned or nullptr on failure
      */
-     std::shared_ptr<Object> spawnObject(const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, 
-                         const FACING_T facing, const std::string &name, const CHR_REF override);
+     std::shared_ptr<Object> spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
+                                         const FACING_T facing, const std::string &name, const CHR_REF override);
 
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;

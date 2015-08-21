@@ -111,22 +111,22 @@ struct matrix_cache_t
     //---- MAT_CHARACTER data
 
     // the "Euler" rotation angles in 16-bit form
-    fvec3_t   rotate;
+	Vector3f   rotate;
 
     // the translate vector
-    fvec3_t   pos;
+	Vector3f   pos;
 
     //---- MAT_WEAPON data
 
     CHR_REF grip_chr;                   ///< != INVALID_CHR_REF if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     std::array<uint16_t, GRIP_VERTS> grip_verts;     ///< Vertices which describe the weapon grip
-    fvec3_t grip_scale;
+	Vector3f grip_scale;
 
     //---- data used for both
 
     // the body fixed scaling
-    fvec3_t  self_scale;
+	Vector3f  self_scale;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ struct chr_instance_t
 
     // lighting info
     Sint32         color_amb;
-    fvec4_t        col_amb;
+	Vector4f       col_amb;
     int            max_light, min_light;
     int            lighting_update_wld;            ///< update some lighting info no more than once an update
     int            lighting_frame_all;             ///< update some lighting info no more than once a frame

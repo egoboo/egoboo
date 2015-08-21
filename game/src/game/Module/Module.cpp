@@ -228,7 +228,7 @@ bool GameModule::isInside(const float x, const float y) const
      return x > 0 && x < _currentModule->getMeshPointer()->gmem.edge_x && y > 0 && y < _currentModule->getMeshPointer()->gmem.edge_y;
 }
 
-std::shared_ptr<Object> GameModule::spawnObject(const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, 
+std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
                                                 const FACING_T facing, const std::string &name, const CHR_REF override)
 {
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(profile);

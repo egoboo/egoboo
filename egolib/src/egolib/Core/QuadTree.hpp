@@ -97,7 +97,7 @@ public:
 	* @param result
 	*	Vector of all elements that fit within the search area
 	**/
-	void find(const AABB_2D &searchArea, std::vector<std::shared_ptr<T>> &result) const
+	void find(const AABB2f &searchArea, std::vector<std::shared_ptr<T>> &result) const
 	{
 		//Search grid is not part of our bounds
 		if(!_bounds.overlaps(searchArea)) {
@@ -188,7 +188,7 @@ private:
 private:
 	static const size_t QUAD_TREE_NODE_CAPACITY = 8;	//< Maximum number of nodes in tree before subdivision
 
-	AABB_2D _bounds;									//< 2D AABB
+	AABB2f _bounds;									    //< 2D AABB
 
 	std::vector<std::weak_ptr<T>> _nodes;				//< List of nodes contained in this QuadTree
 

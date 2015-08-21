@@ -190,18 +190,18 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
         throw std::logic_error("invalid entity list size");
     }
 
-    fvec3_t vcam;
+	Vector3f vcam;
     mat_getCamForward(cam.getView(), vcam);
 
     // Figure the distance of each.
     size_t count = 0;
     for (size_t i = 0; i < _size; ++i)
     {
-        fvec3_t vtmp;
+		Vector3f vtmp;
 
         if (INVALID_PRT_REF == _lst[i].iprt && VALID_CHR_RANGE(_lst[i].ichr))
         {
-            fvec3_t pos_tmp;
+			Vector3f pos_tmp;
 
             CHR_REF iobj = _lst[i].ichr;
 

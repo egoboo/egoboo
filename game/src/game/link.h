@@ -52,4 +52,4 @@ bool link_follow_modname( const char * modname, bool push_current_module );
 bool link_build_vfs( const char * fname, Link_t list[] );
 
 bool link_pop_module();
-bool link_load_parent( const char * modname, fvec3_t pos );
+bool link_load_parent( const char * modname, const Vector3f& pos );

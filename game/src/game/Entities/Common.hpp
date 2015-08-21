@@ -124,7 +124,7 @@ struct PhysicsData
     phys_data_t phys;          ///< The entity's physics data.
 
     bool safe_valid;               ///< Is the last "safe" position valid?
-    fvec3_t safe_pos;              ///< The last "safe" position.
+	Vector3f safe_pos;             ///< The last "safe" position.
     Uint32 safe_time;              ///< The last "safe" time.
     TileIndex safe_grid;           ///< the last "safe" grid. @todo Should be of type @a TileIndex.
 
@@ -148,29 +148,29 @@ struct PhysicsData
     * @brief
     *  The current velocity of the entity.
     */
-    fvec3_t vel;
+	Vector3f vel;
     /**
     * @brief
     *  The previous velocity of the entity.
     */
-    fvec3_t vel_old;
+	Vector3f vel_old;
 
     /**
     * @brief
     *  The current position of the entity.
     */
-    fvec3_t pos;
+	Vector3f pos;
     /**
     * @brief
     *  The previous position of the entity.
     */
-    fvec3_t pos_old;
+	Vector3f pos_old;
 
     /**
     * @brief
     *  The initial/starting position.
     */
-    fvec3_t pos_stt;
+	Vector3f pos_stt;
 
     PhysicsData() :
         phys(),
@@ -192,7 +192,7 @@ struct PhysicsData
         phys_data_t::reset(&self->phys);
 
         self->safe_valid = false;
-        self->safe_pos = fvec3_t::zero();
+        self->safe_pos = Vector3f::zero();
         self->safe_time = 0;
         self->safe_grid = TileIndex::Invalid;
 
@@ -204,13 +204,13 @@ struct PhysicsData
         self->onwhichplatform_ref = INVALID_CHR_REF;
         self->onwhichplatform_update = 0;
 
-        self->pos = fvec3_t::zero();
-        self->pos_old = fvec3_t::zero();
+        self->pos = Vector3f::zero();
+        self->pos_old = Vector3f::zero();
 
-        self->vel = fvec3_t::zero();
-        self->vel_old = fvec3_t::zero();
+        self->vel = Vector3f::zero();
+        self->vel_old = Vector3f::zero();
 
-        self->pos_stt = fvec3_t::zero();
+        self->pos_stt = Vector3f::zero();
     }
 
     /**
@@ -234,7 +234,7 @@ struct PhysicsData
     /**
      * @return the current position of this object
      */
-    inline const fvec3_t& getPosition() const {
+    inline const Vector3f& getPosition() const {
         return pos;
     }
 
@@ -260,12 +260,12 @@ struct PhysicsData
     }
 
 	/// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
-	virtual BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) = 0;
+	virtual BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data) = 0;
 	/// @brief Returns nonzero if the entity hit a wall that the entity is not allowed to cross.
-	virtual BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) = 0;
+	virtual BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) = 0;
 	/// @brief Returns nonzero if the entity hit a wall that the entity is not allowed to cross.
 	virtual BIT_FIELD test_wall(mesh_wall_data_t *data) = 0;
 	/// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
-	virtual BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) = 0;
+	virtual BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) = 0;
 
 };

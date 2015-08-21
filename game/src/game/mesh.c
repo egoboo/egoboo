@@ -51,10 +51,10 @@ int mesh_mpdfx_tests = 0;
 int mesh_bound_tests = 0;
 int mesh_pressure_tests = 0;
 
-fvec3_t   map_twist_nrm[256];
+Vector3f  map_twist_nrm[256];
 FACING_T  map_twist_facing_y[256];            // For surface normal of mesh
 FACING_T  map_twist_facing_x[256];
-fvec3_t   map_twist_vel[256];            // For sliding down steep hills
+Vector3f  map_twist_vel[256];            // For sliding down steep hills
 Uint8     map_twist_flat[256];
 
 // variables to optimize calls to bind the textures
@@ -785,17 +785,17 @@ void ego_mesh_make_twist()
     /// @details This function precomputes surface normals and steep hill acceleration for
     ///    the mesh
 
-    int     cnt;
-    float   gdot;
-    fvec3_t grav = fvec3_t::zero();
+    int      cnt;
+    float    gdot;
+	Vector3f grav = Vector3f::zero();
 
     grav[kZ] = Physics::g_environment.gravity;
 
     for ( cnt = 0; cnt < 256; cnt++ )
     {
-        fvec3_t   gperp;    // gravity perpendicular to the mesh
-        fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
-        fvec3_t   nrm;
+		Vector3f gperp;    // gravity perpendicular to the mesh
+		Vector3f gpara;    // gravity parallel      to the mesh (what pushes you)
+		Vector3f nrm;
 
         twist_to_normal( cnt, nrm, 1.0f );
 
@@ -840,8 +840,8 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
     pgmem = &( mesh->gmem );
     pinfo = &( mesh->info );
 
-    ptmem->bbox = aabb_t(fvec3_t(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]), 
-                         fvec3_t(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]));
+    ptmem->bbox = AABB3f(Vector3f(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]),
+		                 Vector3f(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]));
 
 	for (TileIndex cnt = 0; cnt.getI() < mesh->info.tiles_count; cnt++)
 	{
@@ -863,7 +863,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
 		vertices = pdef->numvertices;                 // Number of vertices
 
 		// initialize the bounding box
-	    ovec = oct_vec_v2_t(fvec3_t(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
+	    ovec = oct_vec_v2_t(Vector3f(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
         poct = oct_bb_t(ovec);
         mesh_vrt++;
 
@@ -873,7 +873,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            ovec.ctor(fvec3_t(ptmem->plst[mesh_vrt][0],ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
+            ovec.ctor(Vector3f(ptmem->plst[mesh_vrt][0],ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
             poct.join(ovec);
         }
 
@@ -893,12 +893,12 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
         }
 
         // extend the mesh bounding box
-        ptmem->bbox = aabb_t(fvec3_t(std::min(ptmem->bbox.getMin()[XX], poct._mins[XX]),
-                                     std::min(ptmem->bbox.getMin()[YY], poct._mins[YY]),
-                                     std::min(ptmem->bbox.getMin()[ZZ], poct._mins[ZZ])),
-                             fvec3_t(std::max(ptmem->bbox.getMax()[XX], poct._maxs[XX]),
-                                     std::max(ptmem->bbox.getMax()[YY], poct._maxs[YY]),
-                                     std::max(ptmem->bbox.getMax()[ZZ], poct._maxs[ZZ])));
+        ptmem->bbox = AABB3f(Vector3f(std::min(ptmem->bbox.getMin()[XX], poct._mins[XX]),
+                                      std::min(ptmem->bbox.getMin()[YY], poct._mins[YY]),
+                                      std::min(ptmem->bbox.getMin()[ZZ], poct._mins[ZZ])),
+                             Vector3f(std::max(ptmem->bbox.getMax()[XX], poct._maxs[XX]),
+                                      std::max(ptmem->bbox.getMax()[YY], poct._maxs[YY]),
+                                      std::max(ptmem->bbox.getMax()[ZZ], poct._maxs[ZZ])));
     }
 
     return true;
@@ -917,9 +917,9 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
     tile_mem_t * ptmem;
     grid_mem_t * pgmem;
 
-    int     edge_is_crease[4];
-    fvec3_t nrm_lst[4], vec_sum;
-    float   weight_lst[4];
+    int      edge_is_crease[4];
+	Vector3f nrm_lst[4], vec_sum;
+    float    weight_lst[4];
 
     // test for mesh
     if ( NULL == mesh ) return false;
@@ -995,7 +995,7 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
                     }
                     else
                     {
-                        nrm_lst[j] = fvec3_t(0, 0, 1);
+                        nrm_lst[j] = Vector3f(0, 0, 1);
                     }
                 }
 
@@ -1096,14 +1096,14 @@ bool grid_light_one_corner( const ego_mesh_t * mesh, const TileIndex& fan, float
     {
         float light_dir, light_amb;
 
-        lighting_evaluate_cache( lighting, fvec3_t(nrm[0],nrm[1],nrm[2]), height, mesh->tmem.bbox, &light_amb, &light_dir );
+        lighting_evaluate_cache( lighting, Vector3f(nrm[0],nrm[1],nrm[2]), height, mesh->tmem.bbox, &light_amb, &light_dir );
 
         // make ambient light only illuminate 1/2
         ( *plight ) = light_amb + 0.5f * light_dir;
     }
     else
     {
-        ( *plight ) = lighting_evaluate_cache( lighting, fvec3_t(nrm[0],nrm[1],nrm[2]), height, mesh->tmem.bbox, NULL, NULL );
+        ( *plight ) = lighting_evaluate_cache( lighting, Vector3f(nrm[0],nrm[1],nrm[2]), height, mesh->tmem.bbox, NULL, NULL );
     }
 
     // clip the light to a reasonable value
@@ -1138,14 +1138,14 @@ void ego_mesh_t::test_one_corner(GLXvector3f pos, float *pdelta)
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::light_one_corner(ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight )
+bool ego_mesh_t::light_one_corner(ego_tile_info_t * ptile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float * plight )
 {
     lighting_cache_t grid_light;
 
     if ( NULL == ptile ) return false;
 
     // interpolate the lighting for the given corner of the mesh
-    grid_lighting_interpolate( this, &grid_light, fvec2_t(pos[kX],pos[kY]) );
+    grid_lighting_interpolate( this, &grid_light, Vector2f(pos[kX],pos[kY]) );
 
     if ( reflective )
     {
@@ -1272,8 +1272,8 @@ float ego_mesh_light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, bool r
         ppos    = ptmem->plst + ptile->vrtstart + corner;
 
         light_new = 0.0f;
-        mesh->light_one_corner( ptile, reflective, fvec3_t((*ppos)[0],(*ppos)[1],(*ppos)[2]),
-			                                                 fvec3_t((*pnrm)[0],(*pnrm)[1],(*pnrm)[2]), &light_new );
+        mesh->light_one_corner( ptile, reflective, Vector3f((*ppos)[0],(*ppos)[1],(*ppos)[2]),
+			                                       Vector3f((*pnrm)[0],(*pnrm)[1],(*pnrm)[2]), &light_new );
 
         if ( *plight != light_new )
         {
@@ -1383,7 +1383,7 @@ float grid_get_mix( float u0, float u, float v0, float v )
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *pdata)
+BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const Vector3f& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *pdata)
 {
     /// @author BB
     /// @details an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
@@ -1492,7 +1492,7 @@ BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const f
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_t::get_pressure( const ego_mesh_t * mesh, const fvec3_t& pos, float radius, const BIT_FIELD bits )
+float ego_mesh_t::get_pressure( const ego_mesh_t * mesh, const Vector3f& pos, float radius, const BIT_FIELD bits )
 {
     const float tile_area = GRID_FSIZE * GRID_FSIZE;
 
@@ -1629,7 +1629,7 @@ float ego_mesh_t::get_pressure( const ego_mesh_t * mesh, const fvec3_t& pos, flo
 }
 
 //--------------------------------------------------------------------------------------------
-fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float radius, float center_pressure, const BIT_FIELD bits )
+Vector3f ego_mesh_t::get_diff(const ego_mesh_t *mesh, const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits )
 {
     /// @author BB
     /// @details determine the shortest "way out", but creating an array of "pressures"
@@ -1639,7 +1639,7 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
     const float jitter_size = GRID_FSIZE * 0.5f;
     float pressure_ary[9];
     float fx, fy;
-    fvec3_t diff = fvec3_t::zero();
+    Vector3f diff = Vector3f::zero();
     float   sum_diff = 0.0f;
     float   dpressure;
 
@@ -1651,7 +1651,7 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
     {
         for ( fx = pos[kX] - jitter_size; fx <= pos[kX] + jitter_size; fx += jitter_size, cnt++ )
         {
-            fvec3_t jitter_pos(fx,fy,0.0f);
+            Vector3f jitter_pos(fx,fy,0.0f);
             if (4 == cnt) continue;
             pressure_ary[cnt] = ego_mesh_t::get_pressure(mesh, jitter_pos, radius, bits);
         }
@@ -1673,7 +1673,7 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
             {
                 float   dist = pressure_ary[4] / dpressure;
 
-                fvec2_t tmp(dist * fx, dist * fy);
+				Vector2f tmp(dist * fx, dist * fy);
 
                 float weight = 1.0f / dist;
 
@@ -1704,7 +1704,7 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, fvec2_t& nrm, float * pressure, mesh_wall_data_t * pdata )
+BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * mesh, const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float * pressure, mesh_wall_data_t * pdata )
 {
     /// @author BB
     /// @details an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
@@ -1725,7 +1725,7 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * mesh, const fvec3_t& pos, const 
     if ( NULL == pressure ) pressure = &loc_pressure;
     *pressure = 0.0f;
 
-    nrm = fvec2_t::zero();
+    nrm = Vector2f::zero();
 
     // if pdata is not NULL, someone has already run a version of mesh_test_wall
     if ( NULL == pdata )
@@ -1812,7 +1812,7 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * mesh, const fvec3_t& pos, const 
     if ( 0 == pass )
     {
         // if there is no impact at all, there is no normal and no pressure
-        nrm = fvec2_t::zero();
+        nrm = Vector2f::zero();
         *pressure = 0.0f;
     }
     else

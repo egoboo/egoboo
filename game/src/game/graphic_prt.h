@@ -61,15 +61,15 @@ struct prt_instance_t
     uint8_t  light;              ///< base self lighting
 
     // position info
-    fvec3_t   pos;
+	Vector3f  pos;
     float     size;
     float     scale;
 
     // billboard info
     prt_ori_t orientation;
-    fvec3_t   up;
-    fvec3_t   right;
-    fvec3_t   nrm;
+	Vector3f  up;
+	Vector3f  right;
+	Vector3f  nrm;
 
     // lighting info
     float    famb;               ///< cached ambient light
@@ -79,10 +79,10 @@ struct prt_instance_t
     float    falpha;             ///< current alpha
 
     // pre-compute some values for the reflected particle posisions
-    bool  ref_valid;
-    fvec3_t ref_up;
-    fvec3_t ref_right;
-    fvec3_t ref_pos;
+    bool ref_valid;
+	Vector3f ref_up;
+	Vector3f ref_right;
+	Vector3f ref_pos;
 
     prt_instance_t() :
         valid(false),
@@ -96,15 +96,15 @@ struct prt_instance_t
         light(0),
 
         // position info
-        pos(fvec3_t::zero()),
+        pos(Vector3f::zero()),
         size(0.0f),
         scale(0.0f),
 
         // billboard info
         orientation(prt_ori_t::ORIENTATION_B),
-        up(fvec3_t::zero()),
-        right(fvec3_t::zero()),
-        nrm(fvec3_t::zero()),
+        up(Vector3f::zero()),
+        right(Vector3f::zero()),
+        nrm(Vector3f::zero()),
 
         // lighting info
         famb(0.0f),
@@ -115,9 +115,9 @@ struct prt_instance_t
 
         // pre-compute some values for the reflected particle posisions
         ref_valid(false),
-        ref_up(fvec3_t::zero()),
-        ref_right(fvec3_t::zero()),
-        ref_pos(fvec3_t::zero())
+        ref_up(Vector3f::zero()),
+        ref_right(Vector3f::zero()),
+        ref_pos(Vector3f::zero())
     {
         //ctor   
     }
@@ -137,15 +137,15 @@ struct prt_instance_t
         light = 0;
 
         // position info
-        pos = fvec3_t::zero();
+        pos = Vector3f::zero();
         size = 0.0f;
         scale = 0.0f;
 
         // billboard info
         orientation = prt_ori_t::ORIENTATION_B;
-        up = fvec3_t::zero();
-        right = fvec3_t::zero();
-        nrm = fvec3_t::zero();
+        up = Vector3f::zero();
+        right = Vector3f::zero();
+        nrm = Vector3f::zero();
 
         // lighting info
         famb = 0.0f;
@@ -156,9 +156,9 @@ struct prt_instance_t
 
         // pre-compute some values for the reflected particle posisions
         ref_valid = false;
-        ref_up = fvec3_t::zero();
-        ref_right = fvec3_t::zero();
-        ref_pos = fvec3_t::zero();
+        ref_up = Vector3f::zero();
+        ref_right = Vector3f::zero();
+        ref_pos = Vector3f::zero();
     }
 };
 

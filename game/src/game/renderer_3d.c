@@ -90,13 +90,13 @@ bool line_list_add( const float src_x, const float src_y, const float src_z, con
     line_data_t& line = line_list[index];
     
     // Source.
-    line.src = fvec3_t(src_x,src_y,src_z);
+    line.src = Vector3f(src_x,src_y,src_z);
 
     // Target.
-    line.dst = fvec3_t(dst_x,dst_y,dst_z);
+    line.dst = Vector3f(dst_x,dst_y,dst_z);
 
     // Colour: white.
-    line.color = fvec4_t(1,1,1,0.5);
+    line.color = Vector4f(1,1,1,0.5);
 
     // Time.
     line.time = SDL_GetTicks() + duration;
@@ -193,10 +193,10 @@ bool point_list_add(const float x, const float y, const float z, const int durat
     point_data_t& point = point_list[index];
 
     // Position.
-    point.src = fvec3_t(x,y,z);
+    point.src = Vector3f(x,y,z);
 
     // Colour: red.
-    point.color = fvec4_t(1, 0, 0, 0.5);
+    point.color = Vector4f(1, 0, 0, 0.5);
 
     // Time.
     point.time = SDL_GetTicks() + duration;
@@ -264,7 +264,7 @@ void point_list_draw_all(Camera& camera)
 //--------------------------------------------------------------------------------------------
 // AXIS BOUNDING BOX IMPLEMENTATION(S)
 //--------------------------------------------------------------------------------------------
-bool render_aabb(aabb_t *bv)
+bool render_aabb(AABB3f *bv)
 {
     GLint matrix_mode[1];
 

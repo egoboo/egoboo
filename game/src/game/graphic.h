@@ -452,7 +452,7 @@ void  draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_am
 void  draw_blip(float sizeFactor, Uint8 color, float x, float y);
 float draw_character_xp_bar(const CHR_REF character, float x, float y);
 
-bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t * dst, const fvec2_t& pos);
+bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t * dst, const Vector2f& pos);
 float grid_lighting_test(ego_mesh_t *mesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
 
 void release_all_profile_textures();

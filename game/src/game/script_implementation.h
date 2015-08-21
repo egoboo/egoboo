@@ -166,7 +166,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
 /// with the two little needle legs
 ///
 /// @lua Compass( tmpturn = "rotation", tmpdistance = "radius" )
-bool Compass( fvec2_t& pos, int facing, float distance );
+bool Compass( Vector2f& pos, int facing, float distance );
 
 /// @author ZZ
 /// @details This function sets the character's ai timer.  50 clicks per second.

@@ -338,7 +338,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
         return;
     }
 
-    const fvec3_t soundPosition = _currentModule->getObjectHandler().get(sound->getOwner())->getPosition();
+    const Vector3f soundPosition = _currentModule->getObjectHandler().get(sound->getOwner())->getPosition();
     const float distance = getSoundDistance(soundPosition);
 
     //Sound is close enough to be heard?
@@ -459,10 +459,10 @@ int AudioSystem::playSoundFull(SoundID soundID)
     return channel;
 }
 
-float AudioSystem::getSoundDistance(const fvec3_t soundPosition)
+float AudioSystem::getSoundDistance(const Vector3f& soundPosition)
 {
-    fvec3_t cameraPosition =
-        fvec3_t
+	Vector3f cameraPosition =
+		Vector3f
         (
         CameraSystem::get()->getMainCamera()->getCenter()[kX],
         CameraSystem::get()->getMainCamera()->getCenter()[kY],
@@ -473,7 +473,7 @@ float AudioSystem::getSoundDistance(const fvec3_t soundPosition)
     return (cameraPosition - soundPosition).length();
 }
 
-void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fvec3_t soundPosition)
+void AudioSystem::mixAudioPosition3D(const int channel, float distance, const Vector3f& soundPosition)
 {
     const float cameraX = CameraSystem::get()->getMainCamera()->getCenter()[kX];
     const float cameraY = CameraSystem::get()->getMainCamera()->getCenter()[kY];
@@ -524,7 +524,7 @@ void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
     updateLoopingSound(sound);
 }
 
-int AudioSystem::playSound(const fvec3_t& snd_pos, const SoundID soundID)
+int AudioSystem::playSound(const Vector3f& snd_pos, const SoundID soundID)
 {
     // If the sound ID is not valid ...
     if (soundID < 0 || soundID >= _soundsLoaded.size())

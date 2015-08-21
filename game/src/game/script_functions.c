@@ -550,7 +550,7 @@ Uint8 scr_Compass( script_state_t& state, ai_state_t& self )
     /// tmpdistance and tmpturn.  It acts like one of those Compass thing
     /// with the two little needle legs
 
-    fvec2_t loc_pos;
+	Vector2f loc_pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1881,7 +1881,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fvec3_t pos = fvec3_t(state.x, state.y, 0);
+	Vector3f pos = Vector3f(state.x, state.y, 0);
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
@@ -2177,7 +2177,7 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
         particle->placeAtVertex(_currentModule->getObjectHandler()[self.index], state.distance);
         particle->attach(INVALID_CHR_REF);
 
-        fvec3_t tmp_pos = particle->getPosition();
+		Vector3f tmp_pos = particle->getPosition();
 
         // Correct X, Y, Z spacing
         tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
@@ -2844,7 +2844,7 @@ Uint8 scr_TeleportTarget( script_state_t& state, ai_state_t& self )
         return false;
     }
 
-    returncode = target->teleport(fvec3_t(state.x, state.y, state.distance), state.turn);
+    returncode = target->teleport(Vector3f(state.x, state.y, state.distance), state.turn);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4020,8 +4020,8 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
     }
 
     {
-        fvec3_t vtmp =
-            fvec3_t
+		Vector3f vtmp =
+			Vector3f
             (
             state.x,
             state.y,
@@ -4679,7 +4679,7 @@ Uint8 scr_Teleport( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->teleport(fvec3_t(state.x, state.y, pchr->getPosZ()), pchr->ori.facing_z);
+    returncode = pchr->teleport(Vector3f(state.x, state.y, pchr->getPosZ()), pchr->ori.facing_z);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5327,7 +5327,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fvec3_t pos = fvec3_t(state.x, state.y, state.distance);
+	Vector3f pos = Vector3f(state.x, state.y, state.distance);
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF );
     returncode = pchild != nullptr;
@@ -5371,8 +5371,8 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fvec3_t pos =
-        fvec3_t
+	Vector3f pos =
+		Vector3f
         (
         state.x,
         state.y,
@@ -5479,8 +5479,8 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
     }
 
     {
-        fvec3_t vtmp =
-            fvec3_t
+		Vector3f vtmp =
+			Vector3f
             (
             state.x,
             state.y,
@@ -5618,7 +5618,7 @@ Uint8 scr_RespawnTarget( script_state_t& state, ai_state_t& self )
 
 	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
-	fvec3_t save_pos = pself_target->getPosition();
+	Vector3f save_pos = pself_target->getPosition();
     pself_target->respawn();
     pself_target->setPosition(save_pos);
 
@@ -6688,8 +6688,8 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
     }
 
     {
-        fvec3_t vtmp =
-            fvec3_t
+		Vector3f vtmp =
+			Vector3f
             (
             state.x,
             state.y,
@@ -7362,7 +7362,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    fvec3_t pos = fvec3_t(state.x, state.y, state.distance);
+	Vector3f pos = Vector3f(state.x, state.y, state.distance);
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", INVALID_CHR_REF);
     returncode = pchild != nullptr;

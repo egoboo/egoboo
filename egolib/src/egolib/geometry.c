@@ -29,7 +29,7 @@
 #include "egolib/Math/Sphere.h"
 #include "egolib/frustum.h"
 
-Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2)
+Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const Vector3f& corner1, const Vector3f& corner2)
 {
     // scan the points
     for (size_t cnt = 0; cnt < 3; cnt++ )
@@ -59,7 +59,7 @@ Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const fvec3_t&
 // aabb functions
 //--------------------------------------------------------------------------------------------
 
-Ego::Math::Relation aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
+Ego::Math::Relation aabb_intersects_aabb(const AABB3f& lhs, const AABB3f& rhs)
 {
     const size_t dimensions = 3;
 
@@ -93,7 +93,7 @@ Ego::Math::Relation aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
     return retval;
 }
 
-Ego::Math::Relation plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
+Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs)
 {
     int   j;
     float dist, tmp;
@@ -125,7 +125,7 @@ Ego::Math::Relation plane_intersects_aabb_max(const plane_t& plane, const fvec3_
     return retval;
 }
 
-Ego::Math::Relation plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
+Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs)
 {
     int   j;
     float dist, tmp;
@@ -157,7 +157,7 @@ Ego::Math::Relation plane_intersects_aabb_min(const plane_t& plane, const fvec3_
     return retval;
 }
 
-Ego::Math::Relation plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
+Ego::Math::Relation plane_intersects_aabb(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs)
 {
 	Ego::Math::Relation retval = Ego::Math::Relation::inside;
 
@@ -178,11 +178,11 @@ plane_intersects_aabb_done:
     return retval;
 }
 
-bool two_plane_intersection(fvec3_t& p, fvec3_t& d, const plane_t& p0, const plane_t& p1)
+bool two_plane_intersection(Vector3f& p, Vector3f& d, const Plane3f& p0, const Plane3f& p1)
 {
     // Compute \f$\vec{d} = \hat{n}_0 \times \hat{n}_1\f$
-    const fvec3_t &n0 = p0.getNormal();
-    const fvec3_t &n1 = p1.getNormal();
+    const Vector3f &n0 = p0.getNormal();
+    const Vector3f &n1 = p1.getNormal();
     d = n0.cross(n1);
     
     // If \f$\vec{v}\f$ is the zero vector, then the planes do not intersect.
@@ -202,11 +202,11 @@ bool two_plane_intersection(fvec3_t& p, fvec3_t& d, const plane_t& p0, const pla
     return true;
 }
 
-bool three_plane_intersection(fvec3_t& dst_pos, const plane_t& p0, const plane_t& p1, const plane_t& p2)
+bool three_plane_intersection(Vector3f& dst_pos, const Plane3f& p0, const Plane3f& p1, const Plane3f& p2)
 {
-    fvec3_t n0 = p0.getNormal(),
-            n1 = p1.getNormal(),
-            n2 = p2.getNormal();
+	Vector3f n0 = p0.getNormal(),
+             n1 = p1.getNormal(),
+             n2 = p2.getNormal();
     float d0 = p0.getDistance(),
           d1 = p1.getDistance(),
           d2 = p2.getDistance();
@@ -292,7 +292,7 @@ Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f
 // cone functions
 //--------------------------------------------------------------------------------------------
 
-Ego::Math::Relation cone_intersects_point(const Cone3f *K, const fvec3_t& P)
+Ego::Math::Relation cone_intersects_point(const Cone3f *K, const Vector3f& P)
 {
     /// @brief determine whether a point is inside a cone
 	Ego::Math::Relation retval = Ego::Math::Relation::error;
@@ -300,7 +300,7 @@ Ego::Math::Relation cone_intersects_point(const Cone3f *K, const fvec3_t& P)
 	if (NULL == K) return Ego::Math::Relation::error;
 
     // move the cone origin to the origin of coordinates
-    fvec3_t dist_vec = P - K->origin;
+	Vector3f dist_vec = P - K->origin;
 
     // project the point's position onto the cone's axis
     float para_dist = K->axis.dot(dist_vec);
@@ -394,7 +394,7 @@ Ego::Math::Relation cone_intersects_sphere(const Cone3f * K, const Sphere3f * S)
     bool done;
 
     float offset_length;
-    fvec3_t offset_vec;
+	Vector3f offset_vec;
 
     // check to make sure the pointers are valid
     if ( NULL == K || NULL == S )

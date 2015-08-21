@@ -40,9 +40,9 @@ public:
 		//ctor
 	}
 
-    fvec3_t pos;
-    fvec3_t nrm;
-    size_t  normal;  ///< index to id-normal array
+	Vector3f pos;
+	Vector3f nrm;
+    size_t   normal;  ///< index to id-normal array
 };
 
 class MD2_TexCoord
@@ -54,7 +54,7 @@ public:
     	//ctor
     }
 
-    fvec2_t tex;
+	Vector2f tex;
 };
 
 class MD2_GLCommand

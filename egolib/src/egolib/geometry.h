@@ -59,16 +59,16 @@ typedef float point_base_t[3];
  * @param corner1, corner2
  *  the AABB
  * @todo
- *  @a corner1 and @a corner2 should be replaced by @ aabb_t.
+ *  @a corner1 and @a corner2 should be replaced by @ AABB3f.
  * @todo
  *  Document return value.
  */
-Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2);
+Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const Vector3f& corner1, const Vector3f& corner2);
 
-Ego::Math::Relation aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs);
+Ego::Math::Relation aabb_intersects_aabb(const AABB3f& lhs, const AABB3f& rhs);
 
-Ego::Math::Relation plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
-Ego::Math::Relation plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
+Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs);
+Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs);
 
 /**
  * @brief
@@ -78,11 +78,11 @@ Ego::Math::Relation plane_intersects_aabb_max(const plane_t& plane, const fvec3_
  * @param mins, maxs
  *	the AABB
  * @todo
- *	Replace <tt>const fvec3_base_t mins</tt> and <tt>const fvec3_base_t maxs</tt> by <tt>const aabb_t& aabb</tt>.
+ *	Replace <tt>const Vector3f& mins</tt> and <tt>const Vector3f& maxs</tt> by <tt>const AABB3f& aabb</tt>.
  * @todo
  *	Rename <tt>plane</tt> to <tt>lhs</tt> and <tt>aabb</tt> to <tt>rhs</tt>.
  */
-Ego::Math::Relation plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
+Ego::Math::Relation plane_intersects_aabb(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs);
 
 /**
  * @brief
@@ -102,7 +102,7 @@ Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f
  * @param rhs
  *	a point
  */
-Ego::Math::Relation cone_intersects_point(const Cone3f * lhs, const fvec3_t& rhs);
+Ego::Math::Relation cone_intersects_point(const Cone3f * lhs, const Vector3f& rhs);
 
 /**
  * @brief
@@ -120,10 +120,10 @@ Ego::Math::Relation cone_intersects_sphere(const Cone3f * lhs, const Sphere3f * 
  * @brief
  *  Find the parametric line where two planes intersect.
  */
-bool two_plane_intersection(fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_t& p0, const plane_t& p1);
+bool two_plane_intersection(Vector3f& dst_pos, Vector3f& dst_dir, const Plane3f& p0, const Plane3f& p1);
 
 /**
  * @brief
  *  Find the point where 3 planes intersect.
  */
-bool three_plane_intersection(fvec3_t& dst_pos, const plane_t& p0, const plane_t& p1, const plane_t& p2);
+bool three_plane_intersection(Vector3f& dst_pos, const Plane3f& p0, const Plane3f& p1, const Plane3f& p2);

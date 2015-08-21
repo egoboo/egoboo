@@ -313,8 +313,8 @@ bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y
     bool returncode;
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
-    fvec2_t loc_pos;
-    fvec3_t nrm;
+	Vector2f loc_pos;
+    Vector3f nrm;
     float   pressure;
 
     // init the vector with the desired position
@@ -438,7 +438,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool Compass( fvec2_t& pos, int facing, float distance )
+bool Compass( Vector2f& pos, int facing, float distance )
 {
     // Compass( tmpturn = "rotation", tmpdistance = "radius" )
 
@@ -715,7 +715,7 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
     for(const std::shared_ptr<Object> &pweapon : _currentModule->getObjectHandler().iterator())
     {
         float dist;
-        fvec3_t diff;
+		Vector3f diff;
 
         //only do items on the ground
         if ( _currentModule->getObjectHandler().exists( pweapon->attachedto ) || !pweapon->isitem ) continue;

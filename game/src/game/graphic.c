@@ -1961,12 +1961,12 @@ float grid_lighting_test(ego_mesh_t * mesh, GLXvector3f pos, float * low_diff, f
 }
 
 //--------------------------------------------------------------------------------------------
-bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, const fvec2_t& pos)
+bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, const Vector2f& pos)
 {
     int ix, iy, cnt;
     TileIndex fan[4];
     float u, v;
-    fvec2_t tpos;
+	Vector2f tpos;
 
     ego_grid_info_t  * pgrid;
     const lighting_cache_t * cache_list[4];
@@ -2555,8 +2555,8 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
     /// @details This function figures out which particles are visible, and it sets up dynamic
     ///    lighting
 
-    size_t   tnc;
-    fvec3_t  vdist;
+    size_t    tnc;
+	Vector3f  vdist;
 
     float         distance = 0.0f;
     dynalight_data_t * plight = NULL;
@@ -2765,8 +2765,8 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         float dyna_weight = 0.0f;
         float dyna_weight_sum = 0.0f;
 
-        fvec3_t       diff;
-        dynalight_data_t * pdyna;
+		Vector3f diff;
+        dynalight_data_t *pdyna;
 
         // evaluate all the lights at the camera position
         for (cnt = 0; cnt < dyl.size; cnt++)
@@ -2890,8 +2890,8 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
                     // this grid has dynamic lighting. add it.
                     for (cnt = 0; cnt < reg_count; cnt++)
                     {
-                        fvec3_t       nrm;
-                        dynalight_data_t * pdyna;
+						Vector3f nrm;
+                        dynalight_data_t *pdyna;
 
                         // does this dynamic light intersects this grid?
                         if (fgrid_rect.xmin > reg[cnt].bound.xmax || fgrid_rect.xmax < reg[cnt].bound.xmin) continue;
@@ -3026,7 +3026,7 @@ float calc_light_rotation(int rotation, int normal)
 {
     /// @author ZZ
     /// @details This function helps make_lighttable
-    fvec3_t   nrm, nrm2;
+	Vector3f nrm, nrm2;
     float sinrot, cosrot;
 
     nrm[kX] = MD2Model::getMD2Normal(normal, 0);
@@ -3051,7 +3051,7 @@ float calc_light_global(int rotation, int normal, float lx, float ly, float lz)
     /// @author ZZ
     /// @details This function helps make_lighttable
     float fTmp;
-    fvec3_t   nrm, nrm2;
+	Vector3f nrm, nrm2;
     float sinrot, cosrot;
 
     nrm[kX] = MD2Model::getMD2Normal(normal, 0);

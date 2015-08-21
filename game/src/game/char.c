@@ -473,7 +473,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
                     if (particle)
                     {
-                        fvec3_t tmp_pos = particle->getPosition();
+						Vector3f tmp_pos = particle->getPosition();
 
                         if ( weaponProfile->hasAttachParticleToWeapon() )
                         {
@@ -647,7 +647,7 @@ void drop_money( const CHR_REF character, int money )
         return;
     }
 
-	fvec3_t loc_pos = pchr->getPosition();
+	Vector3f loc_pos = pchr->getPosition();
 
     // limit the about of money to the character's actual money
     if (money > pchr->getMoney()) {
@@ -999,7 +999,7 @@ bool chr_update_safe_raw( Object * pchr )
 
     if ( nullptr == ( pchr ) ) return false;
 
-    fvec2_t nrm;
+	Vector2f nrm;
     hit_a_wall = pchr->hit_wall( nrm, &pressure, NULL );
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
@@ -1056,7 +1056,7 @@ bool chr_update_safe( Object * pchr, bool force )
 bool chr_get_safe(Object * pchr)
 {
     bool found = false;
-    fvec3_t loc_pos;
+	Vector3f loc_pos;
 
     if (nullptr == pchr) return false;
 
@@ -1073,7 +1073,7 @@ bool chr_get_safe(Object * pchr)
 
     if ( !found && pchr->safe_valid )
     {
-        fvec2_t nrm;
+		Vector2f nrm;
         if ( !pchr->hit_wall( nrm, NULL, NULL ) )
         {
             found = true;
@@ -1151,8 +1151,8 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     /// if the matrix changes, then you would not need to recalculate this data...
 
     int       vcount;   // the actual number of vertices, in case the object is square
-    fvec4_t   src[16];  // for the upper and lower octagon points
-    fvec4_t   dst[16];  // for the upper and lower octagon points
+	Vector4f  src[16];  // for the upper and lower octagon points
+	Vector4f  dst[16];  // for the upper and lower octagon points
 
     int cnt;
     oct_bb_t bsrc, bdst, bmin;

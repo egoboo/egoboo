@@ -25,7 +25,7 @@
 #include "egolib/_math.h"
 #include "egolib/Math/AABB.hpp"
 
-int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count)
+int oct_bb_to_points(const oct_bb_t& self, Vector4f pos[], size_t pos_count)
 {
     /// @author BB
     /// @details convert the corners of the level 1 bounding box to a point cloud
@@ -296,7 +296,7 @@ int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count)
  * @param numberOfPoints
  *  the number of points in the array
  */
-void points_to_oct_bb(oct_bb_t& self, const fvec4_t points[], const size_t numberOfPoints)
+void points_to_oct_bb(oct_bb_t& self, const Vector4f points[], const size_t numberOfPoints)
 {
     if (!points)
     {
@@ -308,7 +308,7 @@ void points_to_oct_bb(oct_bb_t& self, const fvec4_t points[], const size_t numbe
     }
 
     // Initialize the octagonal bounding box using the first point.
-    oct_vec_v2_t otmp(fvec3_t(points[0][kX], points[0][kY], points[0][kZ]));
+    oct_vec_v2_t otmp(Vector3f(points[0][kX], points[0][kY], points[0][kZ]));
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
         self._mins[i] = self._maxs[i] = otmp[i];
@@ -317,7 +317,7 @@ void points_to_oct_bb(oct_bb_t& self, const fvec4_t points[], const size_t numbe
     // Join the octagonal bounding box (containing only the first point) with all other points.
     for (size_t i = 1; i < numberOfPoints; ++i)
     {
-        otmp.ctor(fvec3_t(points[i][kX], points[i][kY], points[i][kZ]));
+        otmp.ctor(Vector3f(points[i][kX], points[i][kY], points[i][kZ]));
 
         for (size_t j = 0; j < OCT_COUNT; ++j)
         {
@@ -439,7 +439,7 @@ void oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t&
 
 
 //--------------------------------------------------------------------------------------------
-bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const fvec3_t& fvec, oct_vec_v2_t& odst)
+bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const Vector3f& fvec, oct_vec_v2_t& odst)
 {
     odst.ctor(fvec);
 	{
@@ -646,7 +646,7 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_t::translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst) {
+egolib_rv oct_bb_t::translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(t);
 	oct_bb_t::validate(dst);

@@ -87,7 +87,7 @@ Camera::Camera(const CameraOptions &options) :
 {
     // Derived values.
 	_trackPos = _center;
-    _pos = _center + fvec3_t(_zoom * std::sin(_turnZRad), _zoom * std::cos(_turnZRad), CAM_ZADD_MAX);
+    _pos = _center + Vector3f(_zoom * std::sin(_turnZRad), _zoom * std::cos(_turnZRad), CAM_ZADD_MAX);
 
     _turnZOne   = RAD_TO_ONE( _turnZRad );
     _ori.facing_z = ONE_TO_TURN( _turnZOne ) ;
@@ -154,8 +154,8 @@ void Camera::resetView()
     // Check for stupidity.
     if (_pos != _center)
     {
-		static const fvec3_t Z = fvec3_t(0.0f, 0.0f, 1.0f);
-		fmat_4x4_t tmp = fmat_4x4_t::scaling(fvec3_t(-1.0f, 1.0f, 1.0f)) * fmat_4x4_t::rotation(Z, roll_deg);
+		static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
+		fmat_4x4_t tmp = fmat_4x4_t::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) * fmat_4x4_t::rotation(Z, roll_deg);
 		_mView = tmp * fmat_4x4_t::lookAt(_pos, _center, Z);
     }
     // Invalidate the frustum.
@@ -179,7 +179,7 @@ void Camera::updatePosition()
 
     // Update the camera position.
     TURN_T turnsin = TO_TURN(_ori.facing_z);
-    fvec3_t pos_new = _center + fvec3_t(_zoom * turntosin[turnsin], _zoom * turntocos[turnsin], _zGoto);
+	Vector3f pos_new = _center + Vector3f(_zoom * turntosin[turnsin], _zoom * turntocos[turnsin], _zGoto);
 
     // Make the camera motion smooth.
     _pos = _pos * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
@@ -237,7 +237,7 @@ void Camera::updateCenter()
     else
     {
         // Determine tracking direction.
-        fvec3_t track_vec = _trackPos - _pos;
+		Vector3f track_vec = _trackPos - _pos;
 
         // Determine the size of the dead zone.
         float track_fov = DEFAULT_FOV * 0.25f;
@@ -248,13 +248,13 @@ void Camera::updateCenter()
 
         // Calculate the difference between the center of the tracked characters
         // and the center of the camera look to look at.
-		fvec2_t diff = fvec2_t(_trackPos[kX],_trackPos[kY]) - fvec2_t(_center[kX],_center[kY]);
+		Vector2f diff = Vector2f(_trackPos[kX],_trackPos[kY]) - Vector2f(_center[kX],_center[kY]);
 
         // Get 2d versions of the camera's right and up vectors.
-		fvec2_t vrt(_vrt[kX],_vrt[kY]);
+		Vector2f vrt(_vrt[kX],_vrt[kY]);
 		vrt.normalize();
 
-		fvec2_t vup(_vup[kX], _vup[kY]);
+		Vector2f vup(_vup[kX], _vup[kY]);
 		vup.normalize();
 
         // project the diff vector into this space
@@ -262,7 +262,7 @@ void Camera::updateCenter()
         float diff_up = vup.dot(diff);
 
         // Get ready to scroll ...
-		fvec2_t scroll;
+		Vector2f scroll;
         if (diff_rt < -track_size_x)
         {
             // Scroll left
@@ -298,7 +298,7 @@ void Camera::updateCenter()
 void Camera::updateTrack(const ego_mesh_t *mesh)
 {
     // The default camera motion is to do nothing.
-    fvec3_t new_track = _trackPos;
+	Vector3f new_track = _trackPos;
     float new_track_level = _trackLevel;
 
     switch(_moveMode)
@@ -346,12 +346,12 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
     // The camera is (re-)focuses in on a one or more objects.
     case CameraMovementMode::Reset:
 	    {
-	        fvec3_t sum_pos;
+			Vector3f sum_pos;
 	        float   sum_wt, sum_level;
 
 	        sum_wt    = 0.0f;
 	        sum_level = 0.0f;
-			sum_pos = fvec3_t::zero();
+			sum_pos = Vector3f::zero();
 
 	        for(CHR_REF ichr : _trackList)
 	        {
@@ -360,7 +360,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 
 	            if (!pchr->isAlive()) continue;
 
-                sum_pos += pchr->getPosition() + fvec3_t(0.0f, 0.0f, pchr->chr_min_cv._maxs[OCT_Z] * 0.9f);
+                sum_pos += pchr->getPosition() + Vector3f(0.0f, 0.0f, pchr->chr_min_cv._maxs[OCT_Z] * 0.9f);
 	            sum_level += pchr->enviro.level;
 	            sum_wt += 1.0f;
 	        }
@@ -409,7 +409,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 	            // Use the characer's "activity" to average the position the camera is viewing.
 	            float sum_wt    = 0.0f;
 	            float sum_level = 0.0f;
-				fvec3_t sum_pos = fvec3_t::zero();
+				Vector3f sum_pos = Vector3f::zero();
 
 	            for (int cnt = 0; cnt < local_chr_count; ++cnt)
 	            {

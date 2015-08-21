@@ -89,7 +89,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-        fvec3_t platform_up;
+		Vector3f platform_up;
 
         chr_getMatUp(_currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref), platform_up);
         platform_up.normalize();
@@ -145,7 +145,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
 #if 0
 prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
 {
-    fvec3_t fluid_acc;
+	Vector3f fluid_acc;
 
     Ego::Particle *loc_pprt = this->_prt_ptr;
 	std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
@@ -217,8 +217,8 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
 prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
 {
     float temp_friction_xy;
-    fvec3_t   vup;
-    fvec3_t   floor_acc;
+	Vector3f vup;
+	Vector3f floor_acc;
 
     Ego::Particle *loc_pprt = this->_prt_ptr;
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
@@ -261,7 +261,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
         //Is floor flat or sloped?
         if (TWIST_FLAT == penviro->twist)
         {
-            vup = fvec3_t(0, 0, 1);
+            vup = Vector3f(0, 0, 1);
         }
         else
         {
@@ -313,7 +313,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 {
     int       ival;
     float     vlen, min_length, uncertainty;
-    fvec3_t   vdiff, vdither;
+	Vector3f  vdiff, vdither;
 
     if (NULL == this->_prt_ptr) return NULL;
 	Ego::Particle *loc_pprt = this->_prt_ptr;
@@ -393,7 +393,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
 {
     float loc_zlerp, tmp_buoyancy, loc_buoyancy;
 
-    fvec3_t z_motion_acc;
+    Vector3f z_motion_acc;
 
     if (NULL == this->_prt_ptr) return NULL;
     Ego::Particle *loc_pprt = this->_prt_ptr;
@@ -408,7 +408,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
 
     loc_zlerp = CLIP(penviro->zlerp, 0.0f, 1.0f);
 
-    z_motion_acc = fvec3_t::zero();
+    z_motion_acc = Vector3f::zero();
 
     // in higher gravity environments, buoyancy is larger
     tmp_buoyancy = loc_pprt->buoyancy * std::abs(Physics::g_environment.gravity);
@@ -451,10 +451,10 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
         // Hills make particles slide:
 
         // Gravity parallel to the mesh.
-        fvec3_t gpara = map_twist_vel[penviro->twist];
+        Vector3f gpara = map_twist_vel[penviro->twist];
 
         // Gravity perpendicular to the mesh.
-        fvec3_t gperp = -gpara;
+        Vector3f gperp = -gpara;
         gperp[kZ] += Physics::g_environment.gravity;
 
         z_motion_acc += gpara * (1.0f - loc_zlerp) + gperp * loc_zlerp;
@@ -474,7 +474,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
 prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 {
     bool touch_a_floor, hit_a_wall;
-    fvec3_t nrm_total;
+	Vector3f nrm_total;
 
     if (NULL == this->_prt_ptr) return NULL;
     Ego::Particle *loc_pprt = this->_prt_ptr;
@@ -488,7 +488,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 
     touch_a_floor = false;
     hit_a_wall = false;
-    nrm_total = fvec3_t::zero();
+    nrm_total = Vector3f::zero();
 
     // Move the particle
     if (loc_pprt->getPosition()[kZ] < penviro->adj_level)
@@ -517,7 +517,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 
         if (EMPTY_BIT_FIELD != loc_pprt->test_wall(loc_pprt->getPosition(), &wdata))
         {
-            fvec2_t nrm;
+			Vector2f nrm;
             float   pressure;
 
             // how is the character hitting the wall?
@@ -547,7 +547,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 {
     float ftmp;
-    fvec3_t nrm_total;
+	Vector3f nrm_total;
 
     if (NULL == this->_prt_ptr) return NULL;
 
@@ -558,7 +558,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     if (loc_pprt->isTerminated()) return this;
 
     // capture the position
-    fvec3_t tmp_pos = loc_pprt->getPosition();
+	Vector3f tmp_pos = loc_pprt->getPosition();
 
     // no point in doing this if the particle thinks it's attached
     if (loc_pprt->isAttached()) {
@@ -579,8 +579,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     //Are we touching the floor?
     if (tmp_pos[kZ] < penviro->adj_level)
     {
-        fvec3_t floor_nrm = fvec3_t(0.0f, 0.0f, 1.0f);
-        //fvec3_t vel_perp, vel_para;
+		Vector3f floor_nrm = Vector3f(0.0f, 0.0f, 1.0f);
 
         touch_a_floor = true;
 
@@ -594,7 +593,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         float vel_dot = floor_nrm.dot(loc_pprt->vel);
         //if (0.0f == vel_dot)
         //{
-        //    vel_perp = fvec3_t::zero();
+        //    vel_perp = Vector3f::zero();
         //    vel_para = loc_pprt->vel;
         //}
         //else
@@ -656,7 +655,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         //Hitting a wall?
         if (EMPTY_BIT_FIELD != loc_pprt->test_wall(tmp_pos, &wdata))
         {
-            fvec2_t nrm;
+			Vector2f nrm;
             float   pressure;
 
             // how is the character hitting the wall?
@@ -667,7 +666,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
                 nrm_total[kX] += nrm[XX];
                 nrm_total[kY] += nrm[YY];
 
-                hit_a_wall = (fvec2_t(loc_pprt->vel[kX], loc_pprt->vel[kY]).dot(nrm) < 0.0f);
+                hit_a_wall = (Vector2f(loc_pprt->vel[kX], loc_pprt->vel[kY]).dot(nrm) < 0.0f);
             }
         }
     }
@@ -698,7 +697,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
             (hit_a_floor && (loc_pprt->vel[kZ] * nrm_total[kZ]) < 0.0f))
         {
             float vdot;
-            fvec3_t   vpara, vperp;
+			Vector3f vpara, vperp;
 
             nrm_total.normalize();
 

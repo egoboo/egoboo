@@ -211,16 +211,16 @@ struct water_instance_layer_t
 	 */
     float _amp;
 
-    fvec2_t _dist;         ///< some indication of "how far away" the layer is if it is an overlay
+	Vector2f _dist;         ///< some indication of "how far away" the layer is if it is an overlay
 
-    fvec2_t _tx;           ///< Coordinates of texture
+	Vector2f _tx;           ///< Coordinates of texture
 
     float _light_dir;    ///< direct  reflectivity 0 - 1
     float _light_add;    ///< ambient reflectivity 0 - 1
 
     Uint8 _alpha;        ///< layer transparency
 
-    fvec2_t _tx_add;            ///< Texture movement
+	Vector2f _tx_add;            ///< Texture movement
 
 	/**
 	 * @brief
@@ -345,9 +345,9 @@ struct import_list_t
 /// Pitty stuff
 struct pit_info_t
 {
-    bool kill;             ///< Do they kill?
-    bool teleport;         ///< Do they teleport?
-    fvec3_t teleport_pos;  ///< If they teleport, then where to?
+    bool kill;              ///< Do they kill?
+    bool teleport;          ///< Do they teleport?
+	Vector3f teleport_pos;  ///< If they teleport, then where to?
 
 	pit_info_t()
 		: kill(false), teleport(false), teleport_pos() {
@@ -441,7 +441,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
 /// AI targeting
 bool  chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const BIT_FIELD targeting_bits );
 CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
-CHR_REF prt_find_target( const fvec3_t& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget, FACING_T *targetAngle);
+CHR_REF prt_find_target( const Vector3f& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget, FACING_T *targetAngle);
 
 /// object initialization
 void  free_all_objects();

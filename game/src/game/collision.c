@@ -88,17 +88,17 @@ public:
     bool is_pressure;
     bool is_collision;
     float dot;
-    fvec3_t nrm;
+	Vector3f nrm;
 
     // collision modifications
     bool mana_paid;
     int max_damage, actual_damage;
-    fvec3_t vdiff, vdiff_para, vdiff_perp;
+	Vector3f vdiff, vdiff_para, vdiff_perp;
     float block_factor;
 
     // collision reaction
-    //fvec3_t vimpulse;                      ///< the velocity impulse
-    //fvec3_t pimpulse;                      ///< the position impulse
+    //Vector3f vimpulse;                      ///< the velocity impulse
+    //Vector3f pimpulse;                      ///< the position impulse
     bool terminate_particle;
     bool prt_bumps_chr;
     bool prt_damages_chr;
@@ -165,7 +165,7 @@ static bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNode
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_chr_platform_physics( Object * pitem, Object * pplat );
-//static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
+//static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, Vector3f& nrm, Vector3f& vdiff );
 static bool do_chr_chr_collision( const CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
@@ -174,7 +174,7 @@ static bool do_chr_prt_collision( const CoNode_t * d );
 
 //static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_data_t * pdata );
-//static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
+//static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, Vector3f& nrm, float& depth);
 
 static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform);
 static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
@@ -358,7 +358,7 @@ bool get_prt_mass( Ego::Particle * pprt, Object * pchr, float * wt )
 
             float prt_vel2;
             float prt_ke;
-            fvec3_t vdiff;
+			Vector3f vdiff;
 
             vdiff = pprt->vel - pchr->vel;
 
@@ -503,7 +503,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
         phys_expand_chr_bb(pchr_a.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
-        const AABB_2D aabb2d = AABB_2D(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
+        const AABB2f aabb2d = AABB2f(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         // Check collisions between Objects (but do not collide scenery with other scenery objects)
         std::vector<std::shared_ptr<Object>> possibleCollisions;
@@ -556,7 +556,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
         phys_expand_prt_bb(particle.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
-        AABB_2D aabb2d = AABB_2D(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
+		AABB2f aabb2d = AABB2f(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         // find all collisions with characters
         std::vector<std::shared_ptr<Object>> possibleCollisions;
@@ -1054,9 +1054,9 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
         float tmpx, tmpy, tmpz;
         float bump_str;
         bool position_updated = false;
-        fvec3_t max_apos;
+		Vector3f max_apos;
 
-        fvec3_t tmp_pos;
+		Vector3f tmp_pos;
 
         tmp_pos = pchr->getPosition();
 
@@ -1157,13 +1157,13 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
         float tmpx, tmpy, tmpz;
         float bump_str;
         bool position_updated = false;
-        fvec3_t max_apos;
+		Vector3f max_apos;
 
         if(particle->isTerminated()) {
             continue;
         }
 
-        fvec3_t tmp_pos = particle->getPosition();
+		Vector3f tmp_pos = particle->getPosition();
 
         bump_str = 1.0f;
         if ( particle->isAttached() )
@@ -1279,7 +1279,7 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
 //--------------------------------------------------------------------------------------------
 bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    fvec3_t vdiff = fvec3_t::zero();
+	Vector3f vdiff = Vector3f::zero();
 
     oct_vec_v2_t apos, bpos;
 
@@ -1328,7 +1328,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         if (oct_bb_t::contains(saddle_cv, apos))
         {
             oct_vec_v2_t saddle_pos;
-            fvec3_t   pdiff;
+			Vector3f   pdiff;
 
             saddle_pos = saddle_cv.getMid();
             pdiff[kX] = saddle_pos[OCT_X] - apos[OCT_X];
@@ -1363,7 +1363,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         if (oct_bb_t::contains(saddle_cv, bpos))
         {
             oct_vec_v2_t saddle_pos;
-            fvec3_t   pdiff;
+			Vector3f   pdiff;
 
             saddle_pos = saddle_cv.getMid();
 
@@ -1434,9 +1434,9 @@ static bool do_chr_platform_physics( Object * object, Object * platform )
 
 //--------------------------------------------------------------------------------------------
 #if 0
-float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff )
+float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, Vector3f& nrm, Vector3f& vdiff )
 {
-    fvec3_t collision_size;
+	Vector3f collision_size;
     float dot;
 
     collision_size[kX] = std::max( pchr->chr_max_cv._maxs[OCT_X] - pchr->chr_max_cv._mins[OCT_X], 2.0f * pprt->bump_padded.size );
@@ -1473,7 +1473,7 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
     // we really never should have the condition that dot > 0, unless the particle is "fast"
     if ( dot >= 0.0f )
     {
-        fvec3_t vtmp;
+		Vector3f vtmp;
 
         // If the particle is "fast" relative to the object size, it can happen that the particle
         // can be more than halfway through the character before it is detected.
@@ -1519,7 +1519,7 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
 
 //--------------------------------------------------------------------------------------------
 #if 0
-bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth)
+bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, Vector3f& nrm, float& depth)
 {
     oct_bb_t otmp_a, otmp_b;
 
@@ -1545,7 +1545,7 @@ bool do_chr_chr_collision( const CoNode_t * d )
     // object bounding boxes shifted so that they are in the correct place on the map
     oct_bb_t map_bb_a, map_bb_b;
 
-    fvec3_t   nrm;
+	Vector3f nrm;
     int exponent = 1;
 
     oct_vec_v2_t odepth;
@@ -1731,17 +1731,17 @@ bool do_chr_chr_collision( const CoNode_t * d )
         const float max_pressure_strength = 0.25f;//1.0f - std::min(pchr_a->phys.dampen, pchr_b->phys.dampen);
         const float pressure_strength     = max_pressure_strength * interaction_strength;
 
-        fvec3_t   pdiff_a;
+		Vector3f pdiff_a;
 
         bool need_displacement = false;
         bool need_velocity = false;
 
-        fvec3_t   vdiff_a;
+		Vector3f vdiff_a;
 
         if ( depth_min <= 0.0f || collision )
         {
             need_displacement = false;
-			pdiff_a = fvec3_t::zero();
+			pdiff_a = Vector3f::zero();
         }
         else
         {
@@ -1772,7 +1772,7 @@ bool do_chr_chr_collision( const CoNode_t * d )
 
                 // an actual bump, use impulse to make the objects bounce appart
 
-                fvec3_t vdiff_para_a, vdiff_perp_a;
+				Vector3f vdiff_para_a, vdiff_perp_a;
 
                 // generic coefficient of restitution.
                 float cr = pchr_a->phys.dampen * pchr_b->phys.dampen;
@@ -1782,13 +1782,13 @@ bool do_chr_chr_collision( const CoNode_t * d )
 
                 if (recoil_a > 0.0f)
                 {
-					fvec3_t vimp_a = vdiff_perp_a * +(recoil_a * (1.0f + cr) * interaction_strength);
+					Vector3f vimp_a = vdiff_perp_a * +(recoil_a * (1.0f + cr) * interaction_strength);
                     phys_data_sum_avel(&(pchr_a->phys), vimp_a);
                 }
 
                 if (recoil_b > 0.0f)
                 {
-                    fvec3_t vimp_b = vdiff_perp_a * -(recoil_b * (1.0f + cr) * interaction_strength);
+					Vector3f vimp_b = vdiff_perp_a * -(recoil_b * (1.0f + cr) * interaction_strength);
                     phys_data_sum_avel(&(pchr_b->phys), vimp_b);
                 }
 
@@ -1827,13 +1827,13 @@ bool do_chr_chr_collision( const CoNode_t * d )
         {
             if ( recoil_a > 0.0f )
             {
-                fvec3_t pimp_a = pdiff_a * +(recoil_a * pressure_strength);
+				Vector3f pimp_a = pdiff_a * +(recoil_a * pressure_strength);
                 phys_data_sum_acoll(&(pchr_a->phys), pimp_a);
             }
 
             if ( recoil_b > 0.0f )
             {
-				fvec3_t pimp_b = pdiff_a * -(recoil_b * pressure_strength);
+				Vector3f pimp_b = pdiff_a * -(recoil_b * pressure_strength);
                 phys_data_sum_acoll(&(pchr_b->phys), pimp_b);
             }
         }
@@ -1910,7 +1910,7 @@ bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_dat
     if ( SPRITE_SOLID == pdata->pprt->type && pdata->pchr->platform ) exponent += 2;
 
     // assume the simplest interaction normal
-    pdata->nrm = fvec3_t(0, 0, 1);
+    pdata->nrm = Vector3f(0, 0, 1);
 
     // no valid interactions, yet
     handled = false;
@@ -2307,7 +2307,7 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
     // If the particle was magically deflected, there is no rebound on the target
     if ( !pdata->mana_paid )
     {
-        fvec3_t tmp_impulse;
+		Vector3f tmp_impulse;
 
         // calculate the "impulse" to the character
         tmp_impulse = pdata->vimpulse * -(chr_recoil * attack_factor * pdata->block_factor);
@@ -2364,7 +2364,7 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
             // get the actual holder recoil
             float holder_recoil = tmp_holder_recoil * attack_factor;
 
-            fvec3_t tmp_impulse;
+			Vector3f tmp_impulse;
             // in the SAME direction as the particle
 			tmp_impulse = pdata->vimpulse * holder_recoil;
             phys_data_sum_avel(&(pholder->phys), tmp_impulse);
@@ -2377,7 +2377,7 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
     // apply the impulse to the particle velocity
     if ( INVALID_CHR_REF == pdata->pprt->attachedto_ref )
     {
-        fvec3_t tmp_impulse;
+		Vector3f tmp_impulse;
 
         tmp_impulse = pdata->vimpulse * prt_recoil;
         phys_data_sum_avel(&(pdata->pprt->phys), tmp_impulse);
@@ -2712,7 +2712,7 @@ bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
     if ( pdata->int_min && pdata->depth_min > 0.0f && pdata->ichr != pdata->pprt->owner_ref )
     {
         // is the normal reversed?
-		fvec3_t tmp_imp = pdata->nrm * pdata->depth_min;
+		Vector3f tmp_imp = pdata->nrm * pdata->depth_min;
         pdata->pimpulse += tmp_imp;
 
         did_something = true;
@@ -3247,19 +3247,19 @@ chr_prt_collision_data_t * chr_prt_collision_data_t::init( chr_prt_collision_dat
     ptr->is_pressure  = false;
     ptr->is_collision = false;
     ptr->dot = 0.0f;
-    ptr->nrm = fvec3_t(0, 0, 1);
+    ptr->nrm = Vector3f(0, 0, 1);
 
     //---- collision modifications
     ptr->mana_paid = false;
     ptr->max_damage = ptr->actual_damage = 0;
-	ptr->vdiff = fvec3_t::zero();
-	ptr->vdiff_para = fvec3_t::zero();
-	ptr->vdiff_perp = fvec3_t::zero();
+	ptr->vdiff = Vector3f::zero();
+	ptr->vdiff_para = Vector3f::zero();
+	ptr->vdiff_perp = Vector3f::zero();
     ptr->block_factor = 0.0f;
 
     //---- collision reaction
-	//ptr->vimpulse = fvec3_t::zero();
-	//ptr->pimpulse = fvec3_t::zero();
+	//ptr->vimpulse = Vector3f::zero();
+	//ptr->pimpulse = Vector3f::zero();
     ptr->terminate_particle = false;
     ptr->prt_bumps_chr = false;
     ptr->prt_damages_chr = false;

@@ -42,17 +42,17 @@ egolib_frustum_t::~egolib_frustum_t()
 {
 }
 
-void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     calculatePlanes(projection * view * world, left, right, bottom, top, near, far);
 }
 
-void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     calculatePlanes(projection * view, left, right, bottom, top, near, far);
 }
 
-void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     float a, b, c, d;
 
@@ -61,48 +61,48 @@ void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, plane_t& left, 
     b = matrix(3, 1) + matrix(0, 1);
     c = matrix(3, 2) + matrix(0, 2);
     d = matrix(3, 3) + matrix(0, 3);
-    left = plane_t(a, b, c, d);
+    left = Plane3f(a, b, c, d);
 
     // Compute the right clipping plane of the frustum.
     a = matrix(3, 0) - matrix(0, 0);
     b = matrix(3, 1) - matrix(0, 1);
     c = matrix(3, 2) - matrix(0, 2);
     d = matrix(3, 3) - matrix(0, 3);
-    right = plane_t(a, b, c, d);
+    right = Plane3f(a, b, c, d);
 
     // Compute the bottom clipping plane of the frustum.
     a = matrix(3, 0) + matrix(1, 0);
     b = matrix(3, 1) + matrix(1, 1);
     c = matrix(3, 2) + matrix(1, 2);
     d = matrix(3, 3) + matrix(1, 3);
-    bottom = plane_t(a, b, c, d);
+    bottom = Plane3f(a, b, c, d);
 
     // Compute the top clipping plane of the frustum.
     a = matrix(3, 0) - matrix(1, 0);
     b = matrix(3, 1) - matrix(1, 1);
     c = matrix(3, 2) - matrix(1, 2);
     d = matrix(3, 3) - matrix(1, 3);
-    top = plane_t(a, b, c, d);
+    top = Plane3f(a, b, c, d);
 
     // Compute the near clipping plane of the frustum.
     a = matrix(3, 0) - matrix(2, 0);
     b = matrix(3, 1) - matrix(2, 1);
     c = matrix(3, 2) - matrix(2, 2);
     d = matrix(3, 3) - matrix(2, 3);
-    near = plane_t(a, b, c, d);
+    near = Plane3f(a, b, c, d);
 
     // Compute the far clipping plane of the frustum.
     a = matrix(3, 0) - matrix(2, 0);
     b = matrix(3, 1) - matrix(2, 1);
     c = matrix(3, 2) - matrix(2, 2);
     d = matrix(3, 3) - matrix(2, 3);
-    far = plane_t(a, b, c, d);
+    far = Plane3f(a, b, c, d);
 }
 
 void egolib_frustum_t::calculate(const fmat_4x4_t& projection, const fmat_4x4_t& view)
 {
-    fvec3_t pt1;
-    fvec3_t vlook;
+	Vector3f pt1;
+	Vector3f vlook;
 
     // Compute the 6 frustum planes.
     {
@@ -140,7 +140,7 @@ void egolib_frustum_t::calculate(const fmat_4x4_t& projection, const fmat_4x4_t&
         _sphere.setCenter(_origin + vlook * (dist * 0.5f));
 
         // the vector from p1 to the center of the sphere
-        fvec3_t vDiff = _sphere.getCenter() - pt1;
+		Vector3f vDiff = _sphere.getCenter() - pt1;
 
         // the radius becomes the length of this vector
 		_sphere.setRadius(vDiff.length());
@@ -157,7 +157,7 @@ Ego::Math::Relation egolib_frustum_t::intersects_bv(const bv_t *bv, bool doEnds)
 	return intersects_aabb(bv->getAABB().getMin(), bv->getAABB().getMax(), doEnds);
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_point(const fvec3_t& point, const bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_point(const Vector3f& point, const bool doEnds) const
 {
 	// Handle optional parameters.
 	int i_stt, i_end;
@@ -235,7 +235,7 @@ Ego::Math::Relation egolib_frustum_t::intersects_sphere(const Sphere3f& sphere, 
 	return retval;
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_cube(const Vector3f& center, const float size, const bool doEnds) const
 {
 	// Assume the cube is inside the frustum.
 	Ego::Math::Relation retval = Ego::Math::Relation::inside;
@@ -255,8 +255,8 @@ Ego::Math::Relation egolib_frustum_t::intersects_cube(const fvec3_t& center, con
 
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		const plane_t& plane = _planes2[i];
-        fvec3_t vmin, vmax;
+		const Plane3f& plane = _planes2[i];
+		Vector3f vmin, vmax;
 		// find the most-positive and most-negative points of the aabb
 		for (int j = 0; j < 3; j++)
 		{
@@ -292,12 +292,12 @@ Ego::Math::Relation egolib_frustum_t::intersects_cube(const fvec3_t& center, con
 	return retval;
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_aabb(const aabb_t& aabb, bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_aabb(const AABB3f& aabb, bool doEnds) const
 {
     return intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t& maxs, bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_aabb(const Vector3f& mins, const Vector3f& maxs, bool doEnds) const
 {
     // Handle optional parameters.
     int i_stt = 0,
@@ -350,7 +350,7 @@ bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) co
 		return false;
 	}
 
-	aabb_t aabb = oct->toAABB();
+	AABB3f aabb = oct->toAABB();
 	Ego::Math::Relation frustum_rv = this->intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
 
 	return frustum_rv > Ego::Math::Relation::outside;

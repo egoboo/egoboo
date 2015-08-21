@@ -50,7 +50,7 @@ bool Billboard::update(Uint32 ticks) {
     }
 
     // Determine where the new position should be.
-    fvec3_t vup, pos_new;
+	Vector3f vup, pos_new;
     chr_getMatUp(obj_ptr.get(), vup);
 
     _size += _size_add;
@@ -112,14 +112,14 @@ std::shared_ptr<Billboard> BillboardList::makeBillboard(Uint32 lifetime_secs, st
     if (HAS_SOME_BITS(options, Billboard::Flags::RandomPosition))
     {
         // make a random offset from the character
-        billboard->_offset = fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
+        billboard->_offset = Vector3f(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
             * (GRID_FSIZE / 5.0f);
     }
 
     if (HAS_SOME_BITS(options, Billboard::Flags::RandomVelocity))
     {
         // make the text fly away in a random direction
-        billboard->_offset_add += fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
+        billboard->_offset_add += Vector3f(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
             * (2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS);
     }
 
@@ -190,7 +190,7 @@ BillboardSystem& BillboardSystem::get() {
     return *singleton;
 }
 
-bool BillboardSystem::render_one(Billboard& bb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt)
+bool BillboardSystem::render_one(Billboard& bb, float scale, const Vector3f& cam_up, const Vector3f& cam_rgt)
 {
     auto obj_ptr = bb._obj_wptr.lock();
     // Do not display billboards for objects that are being held of are inside an inventory.
@@ -208,12 +208,12 @@ bool BillboardSystem::render_one(Billboard& bb, float scale, const fvec3_t& cam_
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
     // scale the camera vectors
-    fvec3_t vec_rgt = cam_rgt * (ptex->getSourceWidth() * scale * bb._size);
-    fvec3_t vec_up = cam_up  * (ptex->getSourceHeight() * scale * bb._size);
+	Vector3f vec_rgt = cam_rgt * (ptex->getSourceWidth() * scale * bb._size);
+	Vector3f vec_up = cam_up  * (ptex->getSourceHeight() * scale * bb._size);
 
     GLvertex vtlist[4];
     // bottom left
-    fvec3_t tmp;
+	Vector3f tmp;
     tmp = bb._position + (-vec_rgt - vec_up * 0);
     vtlist[0].pos[XX] = bb._offset[kX] + tmp[kX];
     vtlist[0].pos[YY] = bb._offset[kY] + tmp[kY];

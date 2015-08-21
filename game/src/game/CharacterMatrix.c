@@ -33,8 +33,8 @@ static bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp );
 static bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mcache );
 static bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mcache );
 
-static int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
-static int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
+static int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4f   dst_point[] );
+static int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], Vector4f   dst_point[] );
 
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
@@ -194,7 +194,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t dst_point[] )
+int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4f dst_point[] )
 {
     /// @author ZZ
     /// @details a helper function for apply_one_weapon_matrix()
@@ -249,13 +249,13 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], fvec4_t   dst_point[] )
+int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], Vector4f   dst_point[] )
 {
     /// @author ZZ
     /// @details a helper function for apply_one_weapon_matrix()
 
     int       point_count;
-    fvec4_t   src_point[GRIP_VERTS];
+	Vector4f  src_point[GRIP_VERTS];
 
     if ( !_currentModule->getObjectHandler().exists( iholder ) ) return 0;
     Object *pholder = _currentModule->getObjectHandler().get( iholder );
@@ -278,7 +278,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
     /// @details Request that the data in the matrix cache be used to create a "character matrix".
     ///               i.e. a matrix that is not being held by anything.
 
-    fvec4_t   nupoint[GRIP_VERTS];
+	Vector4f  nupoint[GRIP_VERTS];
     int       iweap_points;
 
     Object * pholder;
@@ -302,13 +302,13 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        mat_FourPoints( pweap->inst.matrix, fvec3_t(nupoint[0][kX], nupoint[0][kY], nupoint[0][kZ]),
-			                                fvec3_t(nupoint[1][kX], nupoint[1][kY], nupoint[1][kZ]),
-											fvec3_t(nupoint[2][kX], nupoint[2][kY], nupoint[2][kZ]),
-											fvec3_t(nupoint[3][kX], nupoint[3][kY], nupoint[3][kZ]), mc_tmp->self_scale[kZ]);
+        mat_FourPoints( pweap->inst.matrix, Vector3f(nupoint[0][kX], nupoint[0][kY], nupoint[0][kZ]),
+			                                Vector3f(nupoint[1][kX], nupoint[1][kY], nupoint[1][kZ]),
+			                                Vector3f(nupoint[2][kX], nupoint[2][kY], nupoint[2][kZ]),
+			                                Vector3f(nupoint[3][kX], nupoint[3][kY], nupoint[3][kZ]), mc_tmp->self_scale[kZ]);
 
         // update the weapon position
-        pweap->setPosition(fvec3_t(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
+        pweap->setPosition(Vector3f(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
 
         memcpy( &( pweap->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
 
@@ -320,7 +320,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
         // ignore the shape of the grip and just stick the character to the single mount point
 
         // update the character position
-        pweap->setPosition(fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
+        pweap->setPosition(Vector3f(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
 
         // make sure we have the right data
         chr_get_matrix_cache( pweap, mc_tmp );
@@ -647,7 +647,7 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
 
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatUp(Object *pchr, fvec3_t& up)
+bool chr_getMatUp(Object *pchr, Vector3f& up)
 {
 	bool rv;
 
@@ -676,7 +676,7 @@ bool chr_getMatUp(Object *pchr, fvec3_t& up)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatRight(Object *pchr, fvec3_t& right)
+bool chr_getMatRight(Object *pchr, Vector3f& right)
 {
 	bool rv;
 
@@ -705,7 +705,7 @@ bool chr_getMatRight(Object *pchr, fvec3_t& right)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatForward(Object *pchr, fvec3_t& forward)
+bool chr_getMatForward(Object *pchr, Vector3f& forward)
 {
 	bool rv;
 
@@ -734,7 +734,7 @@ bool chr_getMatForward(Object *pchr, fvec3_t& forward)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatTranslate(Object *pchr, fvec3_t& translate)
+bool chr_getMatTranslate(Object *pchr, Vector3f& translate)
 {
 	bool rv;
 
@@ -774,10 +774,10 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
     oct_bb_t         tmp_cv;
 
-    int     grip_count;
-    Uint16  grip_verts[GRIP_VERTS];
-    fvec4_t grip_points[GRIP_VERTS];
-    fvec4_t grip_nupoints[GRIP_VERTS];
+    int      grip_count;
+    Uint16   grip_verts[GRIP_VERTS];
+	Vector4f grip_points[GRIP_VERTS];
+	Vector4f grip_nupoints[GRIP_VERTS];
     bumper_t bmp;
 
 	if (!pmount) {
@@ -838,13 +838,13 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
             if ( grip_count < 2 )
             {
-                grip_points[2] = fvec4_t::zero();
+                grip_points[2] = Vector4f::zero();
                 grip_points[2][kY] = 1.0f;
             }
 
             if ( grip_count < 3 )
             {
-                grip_points[3] = fvec4_t::zero();
+                grip_points[3] = Vector4f::zero();
                 grip_points[3][kZ] = 1.0f;
             }
         }
@@ -854,7 +854,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
             for ( cnt = 0; cnt < 4; cnt++ )
             {
-                grip_points[cnt] = fvec4_t::zero();
+                grip_points[cnt] = Vector4f::zero();
             }
 
             grip_points[1][kX] = 1.0f;
@@ -879,7 +879,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
     {
-		oct_bb_t::translate(tmp_cv, fvec3_t(grip_nupoints[0][kX], grip_nupoints[0][kY], grip_nupoints[0][kZ]), *grip_cv_ptr);
+		oct_bb_t::translate(tmp_cv, Vector3f(grip_nupoints[0][kX], grip_nupoints[0][kY], grip_nupoints[0][kZ]), *grip_cv_ptr);
     }
 
     return true;
@@ -990,7 +990,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         {
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
                 pinst->matrix,
-                fvec3_t(pchr->fat, pchr->fat, pchr->fat),
+				Vector3f(pchr->fat, pchr->fat, pchr->fat),
                 TO_TURN( pchr->ori.facing_z ),
                 TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
                 TO_TURN( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET ),
@@ -1000,7 +1000,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         {
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
                 pinst->matrix,
-                fvec3_t(pchr->fat, pchr->fat, pchr->fat),
+				Vector3f(pchr->fat, pchr->fat, pchr->fat),
                 TO_TURN( pchr->ori.facing_z ),
                 TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
                 TO_TURN( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET ),
