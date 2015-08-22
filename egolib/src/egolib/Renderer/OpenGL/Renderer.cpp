@@ -362,14 +362,13 @@ void Renderer::setWindingMode(WindingMode mode)
 
 void Renderer::loadMatrix(const Matrix4f4f& matrix)
 {
-    // fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
-    // to the OpenGL API. However, currently this code is redundant.
+	// Convert from Matrix4f4f to an OpenGL matrix.
     GLXmatrix t;
     for (size_t i = 0; i < 4; ++i)
     {
         for (size_t j = 0; j < 4; ++j)
         {
-            t[i * 4 + j] = matrix.v[i * 4 + j];
+            t[i * 4 + j] = matrix(i * 4 + j);
         }
     }
     glLoadMatrixf(t);
@@ -378,14 +377,13 @@ void Renderer::loadMatrix(const Matrix4f4f& matrix)
 
 void Renderer::multiplyMatrix(const Matrix4f4f& matrix)
 {
-    // fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
-    // to the OpenGL API. However, currently this code is redundant.
+    // Convert from Matrix4f4f to an OpenGL matrix.
     GLXmatrix t;
     for (size_t i = 0; i < 4; ++i)
     {
         for (size_t j = 0; j < 4; ++j)
         {
-            t[i * 4 + j] = matrix.v[i * 4 + j];
+            t[i * 4 + j] = matrix(i * 4 + j);
         }
     }
     glMultMatrixf(t);

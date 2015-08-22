@@ -24,8 +24,6 @@
 #pragma once
 
 #include "egolib/_math.h"
-#include "egolib/Math/Colour4f.hpp"
-#include "egolib/Math/Matrix44.hpp"
 #include "egolib/Renderer/ComparisonFunction.hpp"
 #include "egolib/Renderer/RasterizationMode.hpp"
 #include "egolib/Renderer/CullingMode.hpp"

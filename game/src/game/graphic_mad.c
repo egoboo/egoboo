@@ -641,7 +641,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
         if ( pinst.light < 255 )
         {
             // light effects should show through transparent objects
-            oglx_end_culling();         // GL_ENABLE_BIT
+			renderer.setCullingMode(Ego::CullingMode::None);
 
             // the alpha test can only mess us up here
             renderer.setAlphaTestEnabled(false);
@@ -719,7 +719,7 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
             if ( pinst.dont_cull_backfaces )
             {
                 // stop culling backward facing polugons
-                oglx_end_culling();         // GL_ENABLE_BIT
+				renderer.setCullingMode(Ego::CullingMode::None);
             }
             else
             {

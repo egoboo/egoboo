@@ -73,8 +73,8 @@ struct Entity {
      * @return
      *  the dimensionality
      */
-    static size_t dimensionality() {
-        return _VectorSpaceType::Dimensionality::value;
+	constexpr static size_t dimensionality() {
+        return _VectorSpaceType::dimensionality();
     }
 };
 

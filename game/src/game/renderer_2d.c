@@ -266,29 +266,29 @@ float DisplayMsg_draw_all( float y )
 //--------------------------------------------------------------------------------------------
 void gfx_begin_2d()
 {
-
+	auto& renderer = Ego::Renderer::get();
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_SCISSOR_BIT );
 
     // Reset the Projection Matrix
     // Set up an orthogonal projection
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	Matrix4f4f projection = Matrix4f4f::ortho(0.0, sdl_scr.x, sdl_scr.y, 0.0, -1.0f, +1.0f);
-	Ego::Renderer::get().loadMatrix(projection);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0.0, sdl_scr.x, sdl_scr.y, 0.0, -1.0f, +1.0f);
+	renderer.loadMatrix(projection);
 
     // Reset the Modelview Matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
+	renderer.loadMatrix(Matrix4f4f::identity());
 
     // remove any scissor test
-	Ego::Renderer::get().setScissorTestEnabled(false);
+	renderer.setScissorTestEnabled(false);
 
     // don't worry about hidden surfaces
-	Ego::Renderer::get().setDepthTestEnabled(false);
+	renderer.setDepthTestEnabled(false);
 
     // stop culling backward facing polygons
-    oglx_end_culling();                            // GL_ENABLE_BIT
+	renderer.setCullingMode(Ego::CullingMode::None);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -330,7 +330,7 @@ void gfx_begin_text()
 	renderer.setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
-    oglx_end_culling();                                                  // GL_ENABLE_BIT
+	renderer.setCullingMode(Ego::CullingMode::None);
 
 	renderer.setColour(Ego::Math::Colour4f::white());// GL_CURRENT_BIT
 }

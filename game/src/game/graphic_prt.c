@@ -147,7 +147,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
         renderer.setDepthWriteEnabled(true);
 
         // draw draw front and back faces of polygons
-        oglx_end_culling();        // GL_ENABLE_BIT
+		renderer.setCullingMode(Ego::CullingMode::None);
 
         // Since the textures are probably mipmapped or minified with some kind of
         // interpolation, we can never really turn blending off.
@@ -200,7 +200,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
         renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
 
         // Draw front-facing and back-facing polygons.
-        oglx_end_culling();
+		renderer.setCullingMode(Ego::CullingMode::None);
 
         Ego::Math::Colour4f particleColour;
         bool drawParticle = false;
@@ -321,7 +321,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
             renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
-            oglx_end_culling();    // ENABLE_BIT
+			renderer.setCullingMode(Ego::CullingMode::None);
 
             bool draw_particle = false;
             if (SPRITE_LIGHT == pprt->type)

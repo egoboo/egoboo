@@ -78,7 +78,7 @@ void UIManager::beginRenderUI()
 	renderer.setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
-    oglx_end_culling();                                                        // GL_ENABLE_BIT
+	renderer.setCullingMode(Ego::CullingMode::None);
 
     // use normal alpha blending
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );           // GL_COLOR_BUFFER_BIT
@@ -97,7 +97,7 @@ void UIManager::beginRenderUI()
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	Matrix4f4f projection = Matrix4f4f::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
 	renderer.loadMatrix(projection);
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)

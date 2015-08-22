@@ -974,7 +974,7 @@ void ogl_beginFrame()
     // of a frame
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-	Matrix4f4f projection = Matrix4f4f::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
     Ego::Renderer::get().loadMatrix(projection);
 
     glMatrixMode( GL_MODELVIEW );
@@ -1078,13 +1078,13 @@ void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    matrix = Matrix4f4f::ortho(left, right, bottom, top, front, back);
+    matrix = Ego::Math::Transform::ortho(left, right, bottom, top, front, back);
     renderer.loadMatrix(matrix);
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    matrix = Matrix4f4f::scaling({-1.0f, 1.0f, 1.0f});
-    matrix = matrix * Matrix4f4f::lookAt({pcam->x, pcam->y, back}, {pcam->x, pcam->y, front}, {0.0f, -1.0f, 0.0f});
+    matrix = Ego::Math::Transform::scaling({-1.0f, 1.0f, 1.0f});
+    matrix = matrix * Ego::Math::Transform::lookAt({pcam->x, pcam->y, back}, {pcam->x, pcam->y, front}, {0.0f, -1.0f, 0.0f});
     renderer.loadMatrix(matrix);
 }
 
@@ -1128,12 +1128,12 @@ void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    matrix = Matrix4f4f::ortho(left, right, bottom, top, front, back);
+    matrix = Ego::Math::Transform::ortho(left, right, bottom, top, front, back);
     renderer.loadMatrix(matrix);
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    matrix = Matrix4f4f::lookAt({pcam->x, pcam->y, pcam->z}, {pcam->x, pcam->y + back, pcam->z}, {0.0f, 0.0f, 1.0f});
+    matrix = Ego::Math::Transform::lookAt({pcam->x, pcam->y, pcam->z}, {pcam->x, pcam->y + back, pcam->z}, {0.0f, 0.0f, 1.0f});
     renderer.loadMatrix(matrix);
 }
 

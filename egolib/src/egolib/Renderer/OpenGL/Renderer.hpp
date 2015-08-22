@@ -36,8 +36,6 @@
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 #include "egolib/_math.h"
-#include "egolib/Math/Colour4f.hpp"
-#include "egolib/Math/Matrix44.hpp"
 
 /**
  * @ingroup egoboo-opengl

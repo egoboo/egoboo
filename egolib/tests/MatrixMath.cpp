@@ -41,6 +41,12 @@ EgoTest_Test(sub)
     EgoTest_Assert(b == a - c);
 }
 
+EgoTest_Test(trace)
+{
+	Ego::Math::Matrix<float, 3, 3> m33;
+	m33.trace();
+}
+
 EgoTest_Test(muls)
 {
 	Matrix4f4f a, b;
