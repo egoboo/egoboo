@@ -1851,13 +1851,8 @@ gfx_rv chr_instance_t::spawn(chr_instance_t& self, const PRO_REF profileID, cons
         return gfx_fail;
     }
 
-	SKIN_T loc_skin = 0;
-    if (skin >= 0) {
-        loc_skin = skin % SKINS_PEROBJECT_MAX;
-    }
-
     // lighting parameters
-    chr_instance_t::set_texture(self, profile->getSkin(loc_skin));
+    chr_instance_t::set_texture(self, profile->getSkin(skin));
 	self.enviro = profile->isPhongMapped();
 	self.alpha = profile->getAlpha();
 	self.light = profile->getLight();

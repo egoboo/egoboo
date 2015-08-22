@@ -24,9 +24,12 @@
 #include "game/Entities/_Include.hpp"
 #include "game/renderer_2d.h"
 #include "game/player.h"
+#include "game/GUI/ProgressBar.hpp"
+#include "game/game.h" //for update_wld
 
 CharacterStatus::CharacterStatus(const std::shared_ptr<Object> &object) :
-    _object(object)
+    _object(object),
+    _chargeBar(std::make_shared<GUI::ProgressBar>())
 {
     //ctor
 }
@@ -91,4 +94,21 @@ void CharacterStatus::draw()
 
     //After rendering we know how high this GUI component actually is
     setHeight(yOffset - getY());
+
+    //Finally draw charge bar if applicable
+    if(pchr->isPlayer()) {
+        const player_t *ppla = PlaStack.get_ptr(pchr->is_which_player);
+        if(ppla->_chargeBarFrame >= update_wld) {
+            _chargeBar->setVisible(true);
+            _chargeBar->setMaxValue(ppla->_maxCharge);
+            _chargeBar->setValue(ppla->_currentCharge);
+            _chargeBar->setTickWidth(ppla->_chargeTick);
+            _chargeBar->setSize(getWidth(), 16);
+            _chargeBar->setPosition(getX() - _chargeBar->getWidth() - 5, getY() + getHeight() / 2 - _chargeBar->getHeight()/2);
+            _chargeBar->draw();
+        }
+        else {
+            _chargeBar->setVisible(false);
+        }
+    }
 }

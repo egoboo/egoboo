@@ -129,7 +129,7 @@ PerkHandler::PerkHandler() :
         "Mercenary", "Gain +1 Zenny for each monster killed.");
     initializePerk(DARK_ARTS_MASTERY, Attribute::INTELLECT, "mp_data/perks/dark_arts_mastery",
         "Dark Arts Mastery", "+20% Evil damage with magic.");
-    initializePerk(MAGIC_ATTUNEMENT, Attribute::INTELLECT, "mp_data/perks/magic_attunement",
+    initializePerk(MAGIC_ATTUNEMENT, Attribute::INTELLECT, "mp_data/perks/magical_attunement",
         "Magic Attunement", "25% of life healing also refills your mana.");
     initializePerk(CRUSADER, Attribute::INTELLECT, "mp_data/perks/crusader",
         "Crusader", "Regain 1 mana each time you destroy an undead.");
@@ -141,7 +141,7 @@ PerkHandler::PerkHandler() :
         "Rally", "Nearby allies gain +10% Movement Speed and Attack Damage.");
     initializePerk(GUARDIAN_ANGEL, Attribute::INTELLECT, "mp_data/perks/guardian_angel",
         "Guardian Angel", "1% chance per Experience Level to gain full health when suffering a killing blow.");
-    initializePerk(PYROMANIAC, Attribute::INTELLECT, "mp_data/perks/dark_arts_mastery",
+    initializePerk(PYROMANIAC, Attribute::INTELLECT, "mp_data/perks/pyromaniac",
         "Pyromaniac", "+25% Fire damage.\n-10 Fire Resistance.");
     initializePerk(ROSEMARY, Attribute::INTELLECT, "mp_data/perks/rosemary",
         "Rosemary", "+4 Evil resistance.");
