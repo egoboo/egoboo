@@ -442,7 +442,7 @@ static const aicode_t AICODES[] =
     { Token::Type::Function, 390, "DisableStealth" },
     { Token::Type::Function, 391, "IfStealthed" },
     { Token::Type::Function, 392, "SetTargetToDistantFriend" },
-    { 'F', 393, "DisplayCharge" },
+    { Token::Type::Function, 393, "DisplayCharge" },
     { Token::Type::Constant, 1, "BLAHDEAD" },
     { Token::Type::Constant, 2, "BLAHENEMIES" },
     { Token::Type::Constant, 4, "BLAHFRIENDS" },
@@ -1212,9 +1212,6 @@ const char *script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 static size_t       surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max );
 static size_t       insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max );
 static size_t       fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max );
-
-
-static void         emit_opcode( token_t& tok, const BIT_FIELD highbits, script_info_t *pscript );
 
 static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
 static void         parse_jumps( script_info_t *pscript );
