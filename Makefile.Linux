@@ -12,7 +12,7 @@ COMPILE_OPTIMIZE := -O0
 SANITIZER_FLAGS := -fno-sanitize=all
 
 #Silence warnings we do not care about
-COMPILE_WARNINGS += -Wno-sign-compare -Wno-unused-variable -Wno-reorder -Wno-unused-parameter
+COMPILE_WARNINGS += -Wno-sign-compare -Wno-reorder -Wno-unused-parameter
 
 set_debug_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -pg -D_DEBUG)

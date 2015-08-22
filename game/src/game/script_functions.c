@@ -1232,7 +1232,6 @@ Uint8 scr_CostTargetItemID( script_state_t& state, ai_state_t& self )
 
     CHR_REF item;
     Object *ptarget;
-    size_t cnt = INVALID_CHR_REF;
     IDSZ idsz;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4564,7 +4563,6 @@ Uint8 scr_FacingTarget( script_state_t& state, ai_state_t& self )
     /// @details This function proceeds if the character is more or less facing its
     /// target
 
-    FACING_T sTmp = 0;
     Object *  pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
