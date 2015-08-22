@@ -258,7 +258,7 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     _iconsLoaded.clear();
 
     // Load the skins and icons
-    for (int cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
+    for (int cnt = 0; cnt < SKINS_PEROBJECT_MAX*2; cnt++)
     {
         STRING newloadname;
 
@@ -822,15 +822,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
             case MAKE_IDSZ( 'B', 'O', 'O', 'K' ):
             {
-                /// @note BB@> This is the skin value of a saved character.
-                ///            It should(!) correspond to a valid skin for this object,
-                ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX)
-
-                int iTmp = ctxt.readInt();
-
-                iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
-                iTmp = (iTmp > SKINS_PEROBJECT_MAX) ? SKINS_PEROBJECT_MAX : iTmp;
-                _spellEffectType = iTmp;
+                _spellEffectType = ctxt.readInt();
             }
             break;
 
@@ -1385,7 +1377,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     if ( -1 != profile->_isValuable )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), profile->_isValuable );
 
-    if ( profile->_spellEffectType >= 0 && profile->_spellEffectType != NO_SKIN_OVERRIDE )
+    if ( profile->_spellEffectType != NO_SKIN_OVERRIDE )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), profile->_spellEffectType );
 
     if ( profile->_attackFast )

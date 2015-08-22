@@ -391,7 +391,11 @@ public:
 
     inline bool hasFastAttack() const {return  _attackFast;}
 
-    inline int getSpellEffectType() const {return _spellEffectType;}
+    /**
+    * @return
+    *   what kind of spellbook this is or NO_SKIN_OVERRIDE if it is not a spell
+    **/
+    inline uint16_t getSpellEffectType() const {return _spellEffectType;}
 
     inline bool isRangedWeapon() const {return  _isRanged;}
     inline bool isMeleeWeapon() const {return !_isRanged && _idsz[IDSZ_SPECIAL] == MAKE_IDSZ('X','W','E','P');}
@@ -758,7 +762,7 @@ private:
     uint8_t    _kurseChance;                   ///< Chance of being kursed (0 to 100%)
     int8_t     _hideState;                     ///< Don't draw when...
     int8_t     _isValuable;                    ///< Force to be valuable
-    int        _spellEffectType;               ///< is the object that a spellbook generates
+    uint16_t   _spellEffectType;               ///< is the object that a spellbook generates
 
     // item usage
     bool         _needSkillIDToUse;              ///< Check IDSZ first?

@@ -783,6 +783,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
                 case FDISABLESTEALTH: returncode = scr_DisableStealth(self, aiState); break;
                 case FIFSTEALTHED: returncode = scr_Stealthed(self, aiState); break;
                 case FSETTARGETTODISTANTFRIEND: returncode = scr_set_TargetToDistantFriend(self, aiState); break;
+                case FDISPLAYCHARGE: returncode = scr_DisplayCharge(self, aiState); break;
 
                     // if none of the above, skip the line and log an error
                 default:

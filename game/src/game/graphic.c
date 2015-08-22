@@ -2956,10 +2956,10 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
     }
 
     // get the tiles in the center of the view (TODO: calculate actual tile view from camera frustrum)
-    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / GRID_FSIZE - 5, 0, _currentModule->getMeshPointer()->info.tiles_x);
-    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / GRID_FSIZE - 5, 0, _currentModule->getMeshPointer()->info.tiles_y);
-    int endX = Ego::Math::constrain<int>(startX + 10, 0, _currentModule->getMeshPointer()->info.tiles_x);
-    int endY = Ego::Math::constrain<int>(startY + 10, 0, _currentModule->getMeshPointer()->info.tiles_y);
+    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / GRID_FSIZE - 10, 0, _currentModule->getMeshPointer()->info.tiles_x);
+    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / GRID_FSIZE - 10, 0, _currentModule->getMeshPointer()->info.tiles_y);
+    int endX = Ego::Math::constrain<int>(startX + 20, 0, _currentModule->getMeshPointer()->info.tiles_x);
+    int endY = Ego::Math::constrain<int>(startY + 20, 0, _currentModule->getMeshPointer()->info.tiles_y);
 
     for(size_t x = startX; x < endX; ++x) {
         for(size_t y = startY; y < endY; ++y) {

@@ -867,6 +867,9 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     {
         if(ptst->isTerminated()) continue;
 
+        //Skip held items
+        if(ptst->isBeingHeld()) continue;
+
         if ( !chr_check_target( psrc, ptst->getCharacterID(), idsz, targeting_bits ) ) continue;
 
 		float dist2 = (psrc->getPosition() - ptst->getPosition()).length_2();

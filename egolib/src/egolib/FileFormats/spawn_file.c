@@ -151,19 +151,19 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
         char chr = ctxt.readPrintable();
         switch (Ego::toupper(chr))
         {
-        case 'S': info->facing = FACE_SOUTH;       break;
-        case 'E': info->facing = FACE_EAST;        break;
-        case 'W': info->facing = FACE_WEST;        break;
-        case 'N': info->facing = FACE_NORTH;       break;
-        case '?': info->facing = FACE_RANDOM;      break;
-        case 'L': info->attach = ATTACH_LEFT;      break;
-        case 'R': info->attach = ATTACH_RIGHT;     break;
-        case 'I': info->attach = ATTACH_INVENTORY; break;
-        default:
-        {
-            throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
-                                                "invalid enumeration element");
-        }
+            case 'S': info->facing = FACE_SOUTH;       break;
+            case 'E': info->facing = FACE_EAST;        break;
+            case 'W': info->facing = FACE_WEST;        break;
+            case 'N': info->facing = FACE_NORTH;       break;
+            case '?': info->facing = FACE_RANDOM;      break;
+            case 'L': info->attach = ATTACH_LEFT;      break;
+            case 'R': info->attach = ATTACH_RIGHT;     break;
+            case 'I': info->attach = ATTACH_INVENTORY; break;
+            default:
+            {
+                throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                                    "invalid enumeration element");
+            }
         };
         info->money = ctxt.readInt();
 
@@ -180,13 +180,6 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
         info->passage = ctxt.readInt();
         info->content = ctxt.readInt();
         info->level = ctxt.readInt();
-
-        if (info->skin >= SKINS_PEROBJECT_MAX)
-        {
-            int irand = Random::next(std::numeric_limits<uint16_t>::max());
-            info->skin = irand % SKINS_PEROBJECT_MAX;     // Randomize skin?
-        }
-
         info->stat = ctxt.readBool();
 
         ctxt.readPrintable();   ///< BAD! Unused ghost value

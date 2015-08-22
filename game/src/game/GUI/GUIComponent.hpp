@@ -20,7 +20,7 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
 
         void setVisible(const bool visible);
 
-        bool isVisible() const;
+        virtual bool isVisible() const;
 
         const SDL_Rect& getBounds() const;
         int getX() const;
