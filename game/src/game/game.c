@@ -720,8 +720,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
 {
     bool retval = false;
 
-    bool is_hated, hates_me;
-    bool is_friend, is_prey, is_predator, is_mutual;
+    bool is_hated;
 
     // Skip non-existing objects
     if ( !ACTIVE_PCHR( psrc ) ) return false;
@@ -768,7 +767,6 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     }
 
     is_hated = psrc->getTeam().hatesTeam(ptst->getTeam());
-    hates_me = ptst->getTeam().hatesTeam(psrc->getTeam());
 
     // Target neutral items? (still target evil items, could be pets)
     if (( ptst->isItem() || ptst->isInvincible() ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return false;
@@ -779,12 +777,6 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
         if (( HAS_NO_BITS( targeting_bits, TARGET_ENEMIES ) && is_hated ) ) return false;
         if (( HAS_NO_BITS( targeting_bits, TARGET_FRIENDS ) && !is_hated ) ) return false;
     }
-
-    // these options are here for ideas of ways to mod this function
-    is_friend    = !is_hated && !hates_me;
-    is_prey      =  is_hated && !hates_me;
-    is_predator  = !is_hated &&  hates_me;
-    is_mutual    =  is_hated &&  hates_me;
 
     //This is the last and final step! Check for specific IDSZ too? (not needed if we are looking for a quest)
     if ( IDSZ_NONE == idsz || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
@@ -2003,8 +1995,6 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
         {
             // A multiplayer module
 
-            bool player_added;
-
             local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
@@ -2020,16 +2010,15 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 }
             }
 
-            player_added = false;
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
+                add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
             }
             else
             {
                 // It's a remote PlaStack.count
-                player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, NULL );
+                add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, NULL );
             }
         }
     }
@@ -2662,15 +2651,14 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     int    cnt;
     STRING szTmp;
 
-    Object      * pchr, *ptarget, *powner;
+    Object      * pchr, *ptarget;
     ai_state_t * pai;
 
     pchr    = !_currentModule->getObjectHandler().exists( ichr ) ? NULL : _currentModule->getObjectHandler().get( ichr );
     pai     = ( NULL == pchr )    ? NULL : &( pchr->ai );
 
     ptarget = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->target ) ) ? pchr : _currentModule->getObjectHandler().get( pai->target );
-    powner  = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->owner ) ) ? pchr : _currentModule->getObjectHandler().get( pai->owner );
-
+    
     cnt = 0;
     while ( CSTR_END != *src && src < src_end && dst < dst_end )
     {
@@ -3432,7 +3420,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 //--------------------------------------------------------------------------------------------
 bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
 {
-    bool can_grab, can_pay, in_shop;
+    bool can_grab;
     int price;
 
     Object * ppicker, * pitem;
@@ -3444,8 +3432,8 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     ppicker = _currentModule->getObjectHandler().get( ipicker );
 
     can_grab = true;
-    can_pay  = true;
-    in_shop  = false;
+    //bool can_pay  = true;
+    //bool in_shop  = false;
 
     if ( pitem->isitem )
     {
@@ -3456,7 +3444,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         {
             Object * powner = _currentModule->getObjectHandler().get( iowner );
 
-            in_shop = true;
+            //in_shop = true;
             price   = pitem->getPrice();
 
             if ( ppicker->money >= price )
@@ -3471,14 +3459,14 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
                 powner->money   = CLIP( (int)powner->money, 0, MAXMONEY );
 
                 can_grab = true;
-                can_pay  = true;
+                //can_pay  = true;
             }
             else
             {
                 // Don't allow purchase
                 ai_state_t::add_order(powner->ai, price, Passage::SHOP_NOAFFORD);
                 can_grab = false;
-                can_pay  = false;
+                //can_pay  = false;
             }
         }
     }

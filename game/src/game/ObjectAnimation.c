@@ -110,13 +110,9 @@ egolib_rv chr_increment_frame( Object * pchr )
     egolib_rv retval;
     int mount_action;
     CHR_REF imount;
-    bool needs_keep;
-
+    
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
     imount = pchr->attachedto;
-
-    // do we need to keep this animation?
-    needs_keep = false;
 
     if ( !_currentModule->getObjectHandler().exists( imount ) )
     {
@@ -132,33 +128,16 @@ egolib_rv chr_increment_frame( Object * pchr )
             // ACTION_MH == "sitting" so that it does not look so silly
 
             mount_action = pchr->getProfile()->getModel()->getAction(ACTION_MH);
-            if ( ACTION_MH != mount_action )
-            {
-                // no real sitting animation. set the animation to keep
-                needs_keep = true;
-            }
         }
         else
         {
             // if it is not holding anything, go for the riding animation
             mount_action = pchr->getProfile()->getModel()->getAction(ACTION_MI);
-            if ( ACTION_MI != mount_action )
-            {
-                // no real riding animation. set the animation to keep
-                needs_keep = true;
-            }
         }
     }
 
     retval = ( egolib_rv )chr_instance_t::increment_frame(pchr->inst, imount, mount_action );
     if ( rv_success != retval ) return retval;
-
-    /// @note BB@> this did not work as expected...
-    // set keep if needed
-    //if ( needs_keep )
-    //{
-    //    chr_instance_set_action_keep( &( pchr->inst ), true );
-    //}
 
     // if the instance is invalid, invalidate everything that depends on this object
     if ( !pchr->inst.save.valid )

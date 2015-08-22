@@ -391,22 +391,15 @@ bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& index)
     size_t mesh_vrt;
     int    tile_vrt;
     Uint16 vertices;
-    Uint16 image;
     Uint8  type;
 
-    tile_mem_t * ptmem;
-    grid_mem_t * pgmem;
-    ego_mesh_info_t * pinfo;
     tile_definition_t * pdef;
 
-    ptmem = &(self->tmem);
-    pgmem = &(self->gmem);
-    pinfo = &(self->info);
+    tile_mem_t * ptmem = &(self->tmem);
 
     if (!ego_mesh_t::grid_is_valid(self,index)) return false;
     const std::shared_ptr<ego_tile_info_t> &ptile = ptmem->getTile(index.getI());
 
-    image = TILE_GET_LOWER_BITS( ptile->img );
     type  = ptile->type & 0x3F;
 
     pdef = TILE_DICT_PTR( tile_dict, type );
@@ -831,14 +824,10 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
     size_t mesh_vrt;
     int tile_vrt;
     tile_mem_t * ptmem;
-    grid_mem_t * pgmem;
-    ego_mesh_info_t * pinfo;
     tile_definition_t * pdef;
 
     if ( NULL == mesh ) return false;
     ptmem  = &( mesh->tmem );
-    pgmem = &( mesh->gmem );
-    pinfo = &( mesh->info );
 
     ptmem->bbox = AABB3f(Vector3f(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]),
 		                 Vector3f(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]));
@@ -1852,7 +1841,6 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * mesh, const Vector3f& pos, const
 //--------------------------------------------------------------------------------------------
 float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
 {
-    int type;
     Uint32 cnt;
     float zmax;
     size_t vcount, vstart, ivrt;
@@ -1867,7 +1855,6 @@ float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
     // get a pointer to the tile
     const std::shared_ptr<ego_tile_info_t> &ptile = self->tmem.getTile(itile.getI());
 
-    type   = ptile->type;
     vstart = ptile->vrtstart;
     vcount = std::min(static_cast<size_t>(4), self->tmem.vert_count);
 
@@ -1885,7 +1872,6 @@ float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
 float ego_mesh_get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point, float xmin, float ymin, float xmax, float ymax )
 {
     Uint32 cnt;
-    int type;
     float zmax;
     size_t vcount, vstart, ivrt;
 
@@ -1898,7 +1884,6 @@ float ego_mesh_get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point
 
     if (TileIndex::Invalid == itile) return 0.0f;
 
-    type   = tile_mem_t::get(&(mesh->tmem),itile)->type;
     vstart = tile_mem_t::get(&(mesh->tmem),itile)->vrtstart;
     vcount = std::min( (size_t)4, mesh->tmem.vert_count );
 

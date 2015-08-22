@@ -328,7 +328,6 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     /// @author ZZ
     /// @details This function spawns an attack particle
     int    spawn_vrt_offset;
-    int    action;
     TURN_T turn;
     float  velocity;
 
@@ -352,7 +351,6 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     {
         unarmed_attack   = false;
         spawn_vrt_offset = GRIP_LAST;
-        action = pchr->inst.action_which;
     }
 
     const std::shared_ptr<Object> &pweapon = _currentModule->getObjectHandler()[iweapon];
@@ -1345,10 +1343,8 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
 
     bool found;
     CHR_REF item;
-    Object * pchr;
 
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return INVALID_CHR_REF;
-    pchr = _currentModule->getObjectHandler().get( ichr );
 
     // Check the pack
     item       = INVALID_CHR_REF;

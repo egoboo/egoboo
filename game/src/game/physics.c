@@ -541,7 +541,6 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
     *tmax = -1.0e6;
 
     int failure_count = 0;
-    bool failure[OCT_COUNT];
     if ((vel1-vel2).length_abs() < 1.0e-6)
     {
         // No relative motion, so avoid the loop to save time.
@@ -556,7 +555,6 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
 
             if (std::abs(ovel1[index] - ovel2[index]) < 1.0e-6)
             {
-                failure[index] = true;
                 failure_count++;
             }
             else
@@ -574,13 +572,10 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
                 if (rv_fail == retval)
                 {
                     // This case will only occur if the objects are not moving relative to each other.
-                    failure[index] = true;
                     failure_count++;
                 }
                 else if (rv_success == retval)
                 {
-                    failure[index] = false;
-
                     if (!found)
                     {
                         *tmin = tmp_min;

@@ -67,7 +67,7 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
     /// @details This function draws an environment mapped model
 
     GLint matrix_mode[1];
-    float  uoffset, voffset;
+    float  uoffset;
 
     Object          * pchr;
     chr_instance_t * pinst;
@@ -105,7 +105,6 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
     }
 
     uoffset = pinst->uoffset - cam.getTurnZ_turns();
-    voffset = pinst->voffset;
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );

@@ -66,7 +66,7 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     /// @details animate a given tile
 
     Uint16 basetile, image;
-    Uint16 base_and, frame_and, frame_add;
+    Uint16 base_and, frame_add;
     Uint8  type;
     ego_tile_info_t * ptile;
 
@@ -91,14 +91,12 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     {
         // Big tiles
         base_and  = animtile[1].base_and;     // Animation set
-        frame_and = animtile[1].frame_and;
         frame_add = animtile[1].frame_add;    // Animated image
     }
     else
     {
         // Small tiles
         base_and  = animtile[0].base_and;          // Animation set
-        frame_and = animtile[0].frame_and;
         frame_add = animtile[0].frame_add;         // Animated image
     }
 
@@ -117,7 +115,7 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
     int    cnt, entry;
-    Uint16 commands, vertices;
+    Uint16 commands;
 
     tile_definition_t * pdef;
     const tile_mem_t      * ptmem;
@@ -171,7 +169,6 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
         }
 
         // grab some model info
-        vertices = pdef->numvertices;
         commands = pdef->command_count;
 
         // Render each command
@@ -218,7 +215,6 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
     int cnt, vertex;
     size_t badvertex;
     int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
-    Uint16 tile;
     Uint8  type, twist;
 
     const tile_mem_t      * ptmem;
@@ -257,7 +253,6 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    tile  = TILE_GET_LOWER_BITS( ptile->img ); // Tile
     type  = ptile->type;                     // Command type ( index to points in itile )
     twist = pgrid->twist;
 
@@ -310,7 +305,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     /// @details This function draws a water itile
     int    cnt, tnc;
     size_t badvertex;
-    Uint16 type, commands, vertices;
+    Uint16 type;
     TX_REF texture;
     Uint16 frame;
     float offu, offv;
@@ -363,8 +358,6 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     frame = water._layers[layer]._frame;                // Frame
 
     texture  = layer + TX_WATER_TOP;                   // Water starts at texture TX_WATER_TOP
-    vertices = pdef->numvertices;            // Number of vertices
-    commands = pdef->command_count;          // Number of commands
 
 	ptex = TextureManager::get().get_valid_ptr(texture);
 

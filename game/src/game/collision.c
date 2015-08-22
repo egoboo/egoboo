@@ -1051,20 +1051,13 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
     // accumulate the accumulators
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
-        float tmpx, tmpy, tmpz;
-        float bump_str;
+        float tmpx, tmpy;
         bool position_updated = false;
 		Vector3f max_apos;
 
 		Vector3f tmp_pos;
 
         tmp_pos = pchr->getPosition();
-
-        bump_str = 1.0f;
-        if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
-        {
-            bump_str = 0.0f;
-        }
 
         // do the "integration" of the accumulated accelerations
         pchr->vel += pchr->phys.avel;
@@ -1126,7 +1119,6 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
 
         if (std::abs(max_apos[kZ]) > 0.0f)
         {
-            tmpz = tmp_pos[kZ];
             tmp_pos[kZ] += max_apos[kZ];
             if ( tmp_pos[kZ] < pchr->enviro.floor_level )
             {
@@ -1154,8 +1146,7 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
     // accumulate the accumulators
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        float tmpx, tmpy, tmpz;
-        float bump_str;
+        float tmpx, tmpy;
         bool position_updated = false;
 		Vector3f max_apos;
 
@@ -1164,12 +1155,6 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
         }
 
 		Vector3f tmp_pos = particle->getPosition();
-
-        bump_str = 1.0f;
-        if ( particle->isAttached() )
-        {
-            bump_str = 0.0f;
-        }
 
         // do the "integration" of the accumulated accelerations
 		particle->vel += particle->phys.avel;
@@ -1230,7 +1215,6 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
 
         if (std::abs(max_apos[kZ]) > 0.0f)
         {
-            tmpz = tmp_pos[kZ];
             tmp_pos[kZ] += max_apos[kZ];
             if ( tmp_pos[kZ] < particle->enviro.floor_level )
             {
@@ -2393,8 +2377,6 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 {
-    bool prt_needs_impact;
-
     Object * powner = NULL;
 
     if ( NULL == pdata ) return false;
@@ -2479,11 +2461,10 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     //---- Damage the character, if necessary
     if ( 0 != std::abs( pdata->pprt->damage.base ) + std::abs( pdata->pprt->damage.rand ) )
     {
-        prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || pdata->pprt->isAttached() );
-
-        if(spawnerProfile != nullptr) {
-            if ( spawnerProfile->isRangedWeapon() ) prt_needs_impact = true;            
-        }
+        //bool prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || pdata->pprt->isAttached() );
+        //if(spawnerProfile != nullptr) {
+        //    if ( spawnerProfile->isRangedWeapon() ) prt_needs_impact = true;            
+        //}
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
         if ( HAS_NO_BITS(pdata->ppip->damfx, DAMFX_ARRO) /*&& (!prt_needs_impact || pdata->is_impact)*/ )
@@ -2608,7 +2589,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 }                
 
                 //Deadly Strike perk (1% chance per character level to trigger vs non undead)
-                if(pdata->pchr->getProfile()->getIDSZ(IDSZ_PARENT) != MAKE_IDSZ('U','N','D','E'))
+                if(meleeAttack && pdata->pchr->getProfile()->getIDSZ(IDSZ_PARENT) != MAKE_IDSZ('U','N','D','E'))
                 {
                     if(powner->hasPerk(Ego::Perks::DEADLY_STRIKE) && powner->getExperienceLevel() >= Random::getPercent() && DamageType_isPhysical(pdata->pprt->damagetype)){
                         //Gain +0.25 damage per Agility
@@ -2726,7 +2707,7 @@ bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
 bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
 {
     bool prt_belongs_to_chr;
-    bool prt_hates_chr, prt_attacks_chr, prt_hateonly;
+    bool prt_hates_chr, prt_attacks_chr;
     bool valid_onlydamagefriendly;
     bool valid_friendlyfire;
     bool valid_onlydamagehate;
@@ -2774,7 +2755,6 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     prt_hates_chr = team_hates_team( pdata->pprt->team, pdata->pchr->team );
 
     // Only bump into hated characters?
-    prt_hateonly = pdata->pprt->getProfile()->hateonly;
     valid_onlydamagehate = TO_C_BOOL( prt_hates_chr && pdata->pprt->getProfile()->hateonly );
 
     // allow neutral particles to attack anything

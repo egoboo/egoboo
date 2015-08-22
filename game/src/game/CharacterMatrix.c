@@ -281,7 +281,6 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
 	Vector4f  nupoint[GRIP_VERTS];
     int       iweap_points;
 
-    Object * pholder;
     matrix_cache_t * pweap_mcache;
 
     if ( NULL == mc_tmp || !mc_tmp->valid || 0 == ( MAT_WEAPON & mc_tmp->type_bits ) ) return false;
@@ -290,7 +289,6 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
     pweap_mcache = &( pweap->inst.matrix_cache );
 
     if ( !_currentModule->getObjectHandler().exists( mc_tmp->grip_chr ) ) return false;
-    pholder = _currentModule->getObjectHandler().get( mc_tmp->grip_chr );
 
     // make sure that the matrix is invalid incase of an error
     pweap_mcache->matrix_valid = false;
