@@ -284,6 +284,9 @@
     <ClCompile Include="src\game\GameStates\AudioOptionsScreen.cpp">
       <Filter>Game Sources\GameStates</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\ProgressBar.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -534,6 +537,9 @@
     </ClInclude>
     <ClInclude Include="src\game\GameStates\AudioOptionsScreen.hpp">
       <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\ProgressBar.hpp">
+      <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

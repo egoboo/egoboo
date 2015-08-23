@@ -363,12 +363,10 @@ void Renderer::setWindingMode(WindingMode mode)
 void Renderer::loadMatrix(const Matrix4f4f& matrix)
 {
 	// Convert from Matrix4f4f to an OpenGL matrix.
-    GLXmatrix t;
-    for (size_t i = 0; i < 4; ++i)
-    {
-        for (size_t j = 0; j < 4; ++j)
-        {
-            t[i * 4 + j] = matrix(i * 4 + j);
+	GLfloat t[16];
+    for (size_t i = 0; i < 4; ++i) {
+        for (size_t j = 0; j < 4; ++j) {
+            t[i * 4 + j] = matrix(j * 4 + i);
         }
     }
     glLoadMatrixf(t);
@@ -378,12 +376,10 @@ void Renderer::loadMatrix(const Matrix4f4f& matrix)
 void Renderer::multiplyMatrix(const Matrix4f4f& matrix)
 {
     // Convert from Matrix4f4f to an OpenGL matrix.
-    GLXmatrix t;
-    for (size_t i = 0; i < 4; ++i)
-    {
-        for (size_t j = 0; j < 4; ++j)
-        {
-            t[i * 4 + j] = matrix(i * 4 + j);
+	GLfloat t[16];
+    for (size_t i = 0; i < 4; ++i) {
+        for (size_t j = 0; j < 4; ++j) {
+            t[i * 4 + j] = matrix(j * 4 + i);
         }
     }
     glMultMatrixf(t);
