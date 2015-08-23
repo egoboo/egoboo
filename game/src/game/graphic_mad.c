@@ -101,7 +101,7 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
 
     if ( NULL == ptex )
     {
-        ptex = TextureManager::get().get_valid_ptr( pinst->texture );
+        ptex = pinst->texture;
     }
 
     uoffset = pinst->uoffset - cam.getTurnZ_turns();
@@ -271,7 +271,7 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
     const std::shared_ptr<MD2Model> &pmd2 = pchr->getProfile()->getModel()->getMD2();
 
     // To make life easier
-    oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(pinst->texture);
+    oglx_texture_t *ptex = pinst->texture;
 
     float uoffset = pinst->uoffset * INV_FFFF;
     float voffset = pinst->voffset * INV_FFFF;
@@ -2008,19 +2008,15 @@ float chr_instance_t::get_remaining_flip(chr_instance_t& self)
 	return (self.ilip + 1) * 0.25f - self.flip;
 }
 
-gfx_rv chr_instance_t::set_texture(chr_instance_t& self, const TX_REF itex)
+gfx_rv chr_instance_t::set_texture(chr_instance_t& self, const Ego::DeferredOpenGLTexture& itex)
 {
-	// grab the texture
-	oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(itex);
+	// get the texture
+	self.texture = const_cast<oglx_texture_t*>(itex.get_ptr());
 
-	// get the transparency info from the texture
-	self.skin_has_transparency = false;
-	if (ptex) {
-		self.skin_has_transparency = ptex->hasAlpha();
-	}
-
-	// set the texture index
-	self.texture = itex;
+    // get the transparency info from the texture
+    if(self.texture != nullptr) {
+        self.skin_has_transparency = self.texture->hasAlpha();
+    }
 
 	return gfx_success;
 }

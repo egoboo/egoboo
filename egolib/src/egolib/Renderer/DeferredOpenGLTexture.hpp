@@ -16,6 +16,9 @@ namespace Ego
 
         DeferredOpenGLTexture(const std::string &filePath);
 
+        oglx_texture_t* get_ptr() { return const_cast<oglx_texture_t*>(&const_cast<DeferredOpenGLTexture*>(this)->get()); }
+        const oglx_texture_t* get_ptr() const { return &const_cast<DeferredOpenGLTexture*>(this)->get(); }
+
         const oglx_texture_t& get();
 
         void release();

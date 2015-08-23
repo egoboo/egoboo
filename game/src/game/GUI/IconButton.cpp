@@ -22,8 +22,9 @@
 /// @author Johan Jansen
 
 #include "game/GUI/IconButton.hpp"
+#include "egolib/Renderer/DeferredOpenGLTexture.hpp"
 
-IconButton::IconButton(const std::string &buttonText, TX_REF icon, int hotkey) : Button(buttonText, hotkey),
+IconButton::IconButton(const std::string &buttonText, const Ego::DeferredOpenGLTexture& icon, int hotkey) : Button(buttonText, hotkey),
 	_icon(icon)
 {
 	//ctor
@@ -68,9 +69,7 @@ void IconButton::draw()
 
  	//Draw icon
  	int iconSize = getHeight()-4;
- 	if(_icon != INVALID_TX_REF) {
-    	draw_icon_texture(TextureManager::get().get_valid_ptr(_icon), getX() + getWidth() - getHeight()-2, getY()+2, 0xFF, 0, iconSize);
- 	}
+	draw_icon_texture(_icon.get_ptr(), getX() + getWidth() - getHeight()-2, getY()+2, 0xFF, 0, iconSize);
 
     //Draw text on left side in button
     if(!_buttonText.empty())

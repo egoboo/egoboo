@@ -27,6 +27,7 @@
 
 #include "egolib/Script/script.h"
 #include "egolib/Profiles/_Include.hpp"
+#include "egolib/Renderer/DeferredOpenGLTexture.hpp"
 #include "egolib/Logic/Gender.hpp"
 #include "egolib/Logic/Attribute.hpp"
 #include "egolib/Logic/Perk.hpp"
@@ -194,16 +195,16 @@ public:
     const std::string generateRandomName();
 
     /**
-    * @return get the skin of the specified index number (or skin 0 if index is invalid)
+    * @return 
+    *   get the texture of the specified skin (or skin 0 if index is invalid)
     **/
-    TX_REF getSkin(size_t index);
+    const Ego::DeferredOpenGLTexture& getSkin(size_t index);
 
     /**
-    * @return get the icon of the specified index number (or icon 0 if index is invalid)
+    * @return 
+    *   get the texture of the specified icon number (or icon 0 if index is invalid)
     **/
-    TX_REF getIcon(size_t index);
-
-    inline const std::unordered_map<size_t, TX_REF> &getAllIcons() const {return _iconsLoaded;}
+    const Ego::DeferredOpenGLTexture& getIcon(size_t index);
 
     /**
     *@return the folder path where this profile was loaded
@@ -630,8 +631,8 @@ private:
     std::unordered_map<LocalParticleProfileRef, PIP_REF> _particleProfiles;
 
     // the profile skins
-    std::unordered_map<size_t, TX_REF> _texturesLoaded;
-    std::unordered_map<size_t, TX_REF> _iconsLoaded;
+    std::unordered_map<size_t, Ego::DeferredOpenGLTexture> _texturesLoaded;
+    std::unordered_map<size_t, Ego::DeferredOpenGLTexture> _iconsLoaded;
 
     // the profile message info
     std::vector<std::string> _messageList;   ///< Dynamic array of messages

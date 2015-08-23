@@ -124,7 +124,7 @@ struct chr_spawn_data_t;
 Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
 
-TX_REF   chr_get_txtexture_icon_ref( const CHR_REF item );
+const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
 
 egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
 

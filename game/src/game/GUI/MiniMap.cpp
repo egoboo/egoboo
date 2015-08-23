@@ -107,13 +107,13 @@ void MiniMap::draw()
         float x = getX() + (blip.x * getWidth() / _currentModule->getMeshPointer()->gmem.edge_x);
         float y = getY() + (blip.y * getHeight() / _currentModule->getMeshPointer()->gmem.edge_y);
 
-        if(blip.icon != INVALID_TX_REF)
+        if(blip.icon != nullptr)
         {            
             //Center icon on blip position
             x -= BLIP_SIZE/2;
             y -= BLIP_SIZE/2;
 
-            draw_icon_texture(TextureManager::get().get_valid_ptr(blip.icon), x, y, 0xFF, 0, BLIP_SIZE, true);
+            draw_icon_texture(blip.icon, x, y, 0xFF, 0, BLIP_SIZE, true);
         }
         else
         {

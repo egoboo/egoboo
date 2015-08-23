@@ -780,7 +780,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_icon_texture(oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
+float draw_icon_texture(const oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
@@ -851,18 +851,12 @@ float draw_icon_texture(oglx_texture_t * ptex, float x, float y, Uint8 sparkle_c
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_game_icon(const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
+float draw_game_icon(const oglx_texture_t* icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
 {
     /// @author ZZ
     /// @details This function draws an icon
 
-    return draw_icon_texture(TextureManager::get().get_valid_ptr(icontype), x, y, sparkle_color, sparkle_timer, size);
-}
-
-//--------------------------------------------------------------------------------------------
-float draw_menu_icon(const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
-{
-    return draw_icon_texture(TextureManager::get().get_valid_ptr(icontype), x, y, sparkle_color, sparkle_timer, size);
+    return draw_icon_texture(icontype, x, y, sparkle_color, sparkle_timer, size);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1141,12 +1135,10 @@ void draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_amm
     ///     If the object is invalid, draw the null icon instead of failing
     ///     If NOSPARKLE is specified the default item sparkle will be used (default behaviour)
 
-    TX_REF icon_ref;
-
     Object * pitem = !_currentModule->getObjectHandler().exists(item) ? NULL : _currentModule->getObjectHandler().get(item);
 
     // grab the icon reference
-    icon_ref = chr_get_txtexture_icon_ref(item);
+    const oglx_texture_t* icon_ref = chr_get_txtexture_icon_ref(item);
 
     // draw the icon
     if (draw_sparkle == NOSPARKLE) draw_sparkle = (NULL == pitem) ? NOSPARKLE : pitem->sparkle;

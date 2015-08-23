@@ -222,23 +222,6 @@ ObjectProfile::~ObjectProfile()
     {
         PipStack.release_one(element.second);
     }
-
-    // release whatever textures are being used
-    for(const auto &element : _texturesLoaded)
-    {
-        if ( element.second > TX_SPECIAL_LAST )
-        {
-            TextureManager::get().relinquish(element.second);
-        }
-    }
-
-    for(const auto &element : _iconsLoaded)
-    {
-        if ( element.second > TX_SPECIAL_LAST )
-        {
-            TextureManager::get().relinquish(element.second);
-        }
-    }
 }
 
 uint32_t ObjectProfile::getXPNeededForLevel(uint8_t level) const
@@ -260,38 +243,33 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     // Load the skins and icons
     for (int cnt = 0; cnt < SKINS_PEROBJECT_MAX*2; cnt++)
     {
-        STRING newloadname;
-
         // do the texture
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%d", folderPath.c_str(), cnt );
-
-		TX_REF skin = TextureManager::get().load(newloadname, INVALID_TX_REF, TRANSCOLOR);
-        if ( VALID_TX_RANGE( skin ) )
+        const std::string skinPath = folderPath + "/tris" + std::to_string(cnt);
+        //if(vfs_exists(skinPath.c_str()))
         {
-            _texturesLoaded[cnt] = skin;
+            _texturesLoaded[cnt] = Ego::DeferredOpenGLTexture(skinPath);
         }
+        //else log_debug("Object is missing a skin (%s)!\n", skinPath.c_str());
 
         // do the icon
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", folderPath.c_str(), cnt );
-
-		TX_REF icon = TextureManager::get().load(newloadname, INVALID_TX_REF);
-        if ( VALID_TX_RANGE( icon ) )
+        const std::string iconPath = folderPath + "/icon" + std::to_string(cnt);
+	    //if(vfs_exists(iconPath.c_str()))
         {
-            _iconsLoaded[cnt] = icon;
+            _iconsLoaded[cnt] = Ego::DeferredOpenGLTexture(iconPath);
         }
     }
 
     // If we didn't get a skin, set it to the water texture
     if ( _texturesLoaded.empty() )
     {
-        _texturesLoaded[0] = TX_WATER_TOP;
+        _texturesLoaded[0] = Ego::DeferredOpenGLTexture("mp_data/waterlow");
         log_warning("Object is missing a skin (%s)!\n", getPathname().c_str());
     }
 
     // If we didn't get a icon, set it to the NULL icon
     if ( _iconsLoaded.empty())
     {
-        _iconsLoaded[0] = TX_ICON_NULL;
+        _iconsLoaded[0] = Ego::DeferredOpenGLTexture("mp_data/nullicon");
         log_debug("Object is missing an icon (%s)!\n", getPathname().c_str());
     }
 }
@@ -382,7 +360,7 @@ IDSZ ObjectProfile::getIDSZ(size_t type) const
     return _idsz[type];
 }
 
-TX_REF ObjectProfile::getSkin(size_t index)
+const Ego::DeferredOpenGLTexture& ObjectProfile::getSkin(size_t index)
 {
     if(_texturesLoaded.find(index) == _texturesLoaded.end()) {
         return _texturesLoaded[0];
@@ -391,7 +369,7 @@ TX_REF ObjectProfile::getSkin(size_t index)
     return _texturesLoaded[index];
 }
 
-TX_REF ObjectProfile::getIcon(size_t index)
+const Ego::DeferredOpenGLTexture& ObjectProfile::getIcon(size_t index)
 {
     if(_iconsLoaded.find(index) == _iconsLoaded.end()) {
         return _iconsLoaded[0];

@@ -55,12 +55,12 @@ private:
             x(setX),
             y(setY),
             color(setColor),
-            icon(INVALID_TX_REF)
+            icon(nullptr)
         {
             //ctor
         }
 
-        Blip(const float setX, const float setY, TX_REF setIcon) :
+        Blip(const float setX, const float setY, const oglx_texture_t *setIcon) :
             x(setX),
             y(setY),
             color(COLOR_WHITE),
@@ -72,7 +72,7 @@ private:
         float x;
         float y;
         HUDColors color;
-        TX_REF icon;
+        const oglx_texture_t *icon;
     };
 
 private:

@@ -1249,7 +1249,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
+const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
 {
     /// @author BB
     /// @details Get the index to the icon texture (in TxList) that is supposed to be used with this object.
@@ -1257,17 +1257,17 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 
     const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
     if (!pitem) {
-        return static_cast<TX_REF>(TX_ICON_NULL);
+        return TextureManager::get().get_valid_ptr(TX_ICON_NULL);
     }
 
     //Is it a spellbook?
     if (pitem->getProfile()->getSpellEffectType() == ObjectProfile::NO_SKIN_OVERRIDE)
     {
-        return pitem->getProfile()->getIcon(pitem->skin);
+        return pitem->getProfile()->getIcon(pitem->skin).get_ptr();
     }
     else
     {
-        return ProfileSystem::get().getSpellBookIcon(pitem->getProfile()->getSpellEffectType());
+        return ProfileSystem::get().getSpellBookIcon(pitem->getProfile()->getSpellEffectType()).get_ptr();
     }
 }
 
