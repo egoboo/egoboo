@@ -154,7 +154,7 @@ void Background::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 		renderer.setDepthFunction(Ego::ComparisonFunction::AlwaysPass);
 
 		// draw draw front and back faces of polygons
-		renderer.setCullingMode(Ego::CullingMode::None);
+		oglx_end_culling();    // GL_ENABLE_BIT
 
 		if (alpha > 0.0f)
 		{
@@ -298,7 +298,7 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 			renderer.setDepthFunction(Ego::ComparisonFunction::AlwaysPass);
 
 			// draw draw front and back faces of polygons
-			renderer.setCullingMode(Ego::CullingMode::None);
+			oglx_end_culling();                           // GL_ENABLE_BIT
 
 			// do not display the completely transparent portion
 			renderer.setAlphaTestEnabled(true);
@@ -376,8 +376,8 @@ void Reflective1::doRun(Camera& camera, const TileList& tl, const EntityList& el
 
 void Reflective1::doCommon(Camera& camera, const TileList& tl, const EntityList& el) {
 	auto& renderer = Ego::Renderer::get();
-	// Disable culling.
-	renderer.setCullingMode(Ego::CullingMode::None);
+	// Disable culling..
+	oglx_end_culling();
 	// Perform less-or-equal depth testing.
 	renderer.setDepthTestEnabled(true);
 	renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
@@ -431,7 +431,7 @@ void NonReflective::doRun(Camera& camera, const TileList& tl, const EntityList& 
 	{
 		auto& renderer = Ego::Renderer::get();
 		// draw draw front and back faces of polygons
-		renderer.setCullingMode(Ego::CullingMode::None);
+		oglx_end_culling();      // GL_ENABLE_BIT
 		// Write to the depth buffer.
 		renderer.setDepthWriteEnabled(true);
 		// Do not draw hidden surfaces.
@@ -809,7 +809,7 @@ void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityLi
 			else if (INVALID_CHR_REF == el.get(i).ichr && INVALID_PRT_REF != el.get(i).iprt)
 			{
 				// draw draw front and back faces of polygons
-				renderer.setCullingMode(Ego::CullingMode::None);
+				oglx_end_culling();                     // GL_ENABLE_BIT
 
 				// render_one_prt_ref() actually sets its own blend function, but just to be safe
 				// allow transparent objects
@@ -855,7 +855,7 @@ void SolidEntities::doRun(Camera& camera, const TileList& tl, const EntityList& 
 			else if (INVALID_CHR_REF == el.get(i).ichr && ParticleHandler::get()[el.get(i).iprt] != nullptr)
 			{
 				// draw draw front and back faces of polygons
-				renderer.setCullingMode(Ego::CullingMode::None);
+				oglx_end_culling();              // GL_ENABLE_BIT
 
 				render_one_prt_solid(el.get(i).iprt);
 			}

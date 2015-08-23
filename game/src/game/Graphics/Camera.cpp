@@ -141,7 +141,7 @@ float Camera::multiplyFOV(const float old_fov_deg, const float factor)
 
 void Camera::updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near, const float frustum_far)
 {
-    _mProjection = Ego::Math::Transform::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
+    _mProjection = fmat_4x4_t::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
 
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -155,8 +155,8 @@ void Camera::resetView()
     if (_pos != _center)
     {
 		static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
-		Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, roll_deg);
-		_mView = tmp *  Ego::Math::Transform::lookAt(_pos, _center, Z);
+		fmat_4x4_t tmp = fmat_4x4_t::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) * fmat_4x4_t::rotation(Z, roll_deg);
+		_mView = tmp * fmat_4x4_t::lookAt(_pos, _center, Z);
     }
     // Invalidate the frustum.
     _frustumInvalid = true;

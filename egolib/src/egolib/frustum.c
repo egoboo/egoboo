@@ -42,17 +42,17 @@ egolib_frustum_t::~egolib_frustum_t()
 {
 }
 
-void egolib_frustum_t::calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& view, const Matrix4f4f& world, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     calculatePlanes(projection * view * world, left, right, bottom, top, near, far);
 }
 
-void egolib_frustum_t::calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& view, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     calculatePlanes(projection * view, left, right, bottom, top, near, far);
 }
 
-void egolib_frustum_t::calculatePlanes(const Matrix4f4f& matrix, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     float a, b, c, d;
 
@@ -99,7 +99,7 @@ void egolib_frustum_t::calculatePlanes(const Matrix4f4f& matrix, Plane3f& left, 
     far = Plane3f(a, b, c, d);
 }
 
-void egolib_frustum_t::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
+void egolib_frustum_t::calculate(const fmat_4x4_t& projection, const fmat_4x4_t& view)
 {
 	Vector3f pt1;
 	Vector3f vlook;

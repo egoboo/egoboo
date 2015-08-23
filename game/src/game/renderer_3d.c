@@ -131,7 +131,7 @@ void line_list_draw_all(Camera& camera)
             renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
-			renderer.setCullingMode(Ego::CullingMode::None);
+            oglx_end_culling();   // GL_ENABLE_BIT
 
             renderer.setBlendingEnabled(false);
 
@@ -231,7 +231,7 @@ void point_list_draw_all(Camera& camera)
             renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
-			renderer.setCullingMode(Ego::CullingMode::None);
+            oglx_end_culling();   // GL_ENABLE_BIT
 
             renderer.setBlendingEnabled(false);
 

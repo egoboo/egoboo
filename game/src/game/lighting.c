@@ -233,7 +233,7 @@ bool lighting_cache_t::blend( lighting_cache_t * cache, lighting_cache_t * cnew,
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const Matrix4f4f& mat )
+bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const fmat_4x4_t& mat )
 {
 	Vector3f fwd, right, up;
 

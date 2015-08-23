@@ -227,3 +227,4 @@ struct oglx_culling_data_t
 };
 
 void oglx_begin_culling(GLenum which, GLenum mode );
+void oglx_end_culling();

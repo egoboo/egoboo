@@ -27,7 +27,7 @@ EgoTest_BeginTestCase(MatrixMath)
 
 EgoTest_Test(add)
 {
-    Matrix4f4f a, b, c;
+    fmat_4x4_t a, b, c;
     c = a + b;
     EgoTest_Assert(c - b == a);
     EgoTest_Assert(c - a == b);
@@ -35,21 +35,15 @@ EgoTest_Test(add)
 
 EgoTest_Test(sub)
 {
-	Matrix4f4f a, b, c;
+    fmat_4x4_t a, b, c;
     c = a - b;
     EgoTest_Assert(c + b == a);
     EgoTest_Assert(b == a - c);
 }
 
-EgoTest_Test(trace)
-{
-	Ego::Math::Matrix<float, 3, 3> m33;
-	m33.trace();
-}
-
 EgoTest_Test(muls)
 {
-	Matrix4f4f a, b;
+    fmat_4x4_t a, b;
     float s;
     do
     {
