@@ -313,19 +313,20 @@ bool egolib_console_destroy( egolib_console_t ** pcon, bool do_free )
 
 void egolib_console_handler_t::draw_begin()
 {
+	auto& renderer = Ego::Renderer::get();
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
-	Ego::Renderer::get().setDepthTestEnabled(false);
+	renderer.setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
-    oglx_end_culling();                                         // GL_ENABLE_BIT
+	renderer.setCullingMode(Ego::CullingMode::None);
 
-    Ego::Renderer::get().setBlendingEnabled(true);
+	renderer.setBlendingEnabled(true);
     GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
-    Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);                          // GL_VIEWPORT_BIT
+	renderer.setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);                          // GL_VIEWPORT_BIT
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -334,13 +335,13 @@ void egolib_console_handler_t::draw_begin()
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-    fmat_4x4_t matrix = fmat_4x4_t::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
-    Ego::Renderer::get().loadMatrix(matrix);
+	Matrix4f4f matrix = Ego::Math::Transform::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
+	renderer.loadMatrix(matrix);
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-    Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
+	renderer.loadMatrix(Matrix4f4f::identity());
 }
 
 void egolib_console_handler_t::draw_end()

@@ -28,6 +28,7 @@
 #include "egolib/Float.hpp"
 #include "egolib/Debug.hpp"
 #include "egolib/Math/Math.hpp"
+#include "egolib/Math/TemplateUtilities.hpp"
 
 namespace Ego {
 namespace Math {
@@ -50,46 +51,11 @@ namespace Internal {
 template <typename _VectorSpaceType, typename ... ArgTypes>
 struct TupleConstructorEnable
     : public std::conditional<
-      (Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::Dimensionality::value - 1>::value),
+      (Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::dimensionality() - 1>::value),
       std::true_type,
       std::false_type
       >::type
 {};
-
-template <size_t I, typename Type, size_t Size>
-void unpack(Type(&dst)[Size]);
-
-template <size_t I, typename  Type, size_t Size, typename Arg>
-void _unpack(Type(&dst)[Size], Arg&& arg) {
-	dst[I] = arg;
-}
-
-template <size_t I, typename Type, size_t Size, typename Arg, class ... Args>
-void _unpack(Type(&dst)[Size], Arg&& arg, Args&& ... args) {
-	dst[I] = arg;
-	_unpack<I + 1, Type>(dst, args ...);
-}
-
-/**
- * @brief
- *  You can use "unpack" for storing non-type parameter packs in arrays.
- * @invariant
- *  The number of arguments must be exactly the length of the array.
- * @invariant
- *  The argument types must be the array type.
- * @remark
- *  Example usage:
- *  @code
- *  float a[3]; unpack(a,0.5,0.1)
- *  @endcode
- * @author
- *  Michael Heilmann
- */
-template <typename Type, size_t Size, typename ... Args>
-void unpack(Type(&dst)[Size], Args&& ...args) {
-	static_assert(Size == sizeof ... (args), "wrong number of arguments");
-	_unpack<0, Type, Size>(dst, args ...);
-}
 
 } // namespace Internal
 
@@ -138,7 +104,7 @@ public:
      * @invariant
      *  The dimensionality be a positive integral constant.
      */
-	static_assert(IsDimensionality<_UnderlayingType::Dimensionality::value>::value, "_UnderlayingType::Dimensionality must fulfil the dimensionality concept");
+	static_assert(IsDimensionality<_UnderlayingType::dimensionality()>::value, "_UnderlayingType::Dimensionality must fulfil the dimensionality concept");
 
 	/**
 	 * @brief
@@ -146,8 +112,8 @@ public:
 	 * @return
 	 *	the dimensionality of this tuple
 	 */
-	static size_t dimensionality() {
-		return _UnderlayingType::Dimensionality::value;
+	constexpr static size_t dimensionality() {
+		return _UnderlayingType::dimensionality();
 	}
     
 protected:
@@ -156,7 +122,7 @@ protected:
      * @brief
      *  The elements of this tuple.
      */
-	ScalarType _elements[_UnderlayingType::Dimensionality::value];
+	ScalarType _elements[_UnderlayingType::dimensionality()];
 
 	/**
 	 * @brief
@@ -166,8 +132,8 @@ protected:
 	 */
 	template<typename ... ArgTypes, typename = typename std::enable_if<Internal::TupleConstructorEnable<_UnderlayingType, ArgTypes ...>::value>::type>
 	Tuple(ScalarType v, ArgTypes&& ... args) {
-		static_assert(_UnderlayingType::Dimensionality::value - 1 == sizeof ... (args), "wrong number of arguments");
-		Internal::unpack<float, _UnderlayingType::Dimensionality::value>(_elements, std::forward<ScalarType>(v), args ...);
+		static_assert(_UnderlayingType::dimensionality() - 1 == sizeof ... (args), "wrong number of arguments");
+		Internal::unpack<float, _UnderlayingType::dimensionality()>(_elements, std::forward<ScalarType>(v), args ...);
 	}
 
 	/**

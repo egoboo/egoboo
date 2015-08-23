@@ -282,7 +282,7 @@ void BillboardSystem::render_all(Camera& camera)
 
             // Draw only front-facing polygons.
             renderer.setCullingMode(Ego::CullingMode::Back);
-            //GL_DEBUG(glEnable)(GL_CULL_FACE);  // GL_ENABLE_BIT 
+
             //glDisable(GL_LIGHTING);
             renderer.setBlendingEnabled(true);
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // GL_COLOR_BUFFER_BIT

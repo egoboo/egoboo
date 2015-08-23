@@ -49,7 +49,7 @@ namespace Internal {
 template <typename _VectorSpaceType, typename ... ArgTypes>
 struct VectorConstructorEnable
     : public std::conditional<
-      (Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::Dimensionality::value - 1>::value),
+      (Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::dimensionality() - 1>::value),
       std::true_type,
       std::false_type
       >::type
@@ -694,8 +694,8 @@ public:
      *  = \vec{0}
      *  \f]
      */
-    template<size_t _Dummy = _VectorSpaceType::Dimensionality::value>
-	typename std::enable_if < _Dummy == 3 && _VectorSpaceType::Dimensionality::value == 3, MyType> ::type
+    template<size_t _Dummy = _VectorSpaceType::dimensionality()>
+	typename std::enable_if < _Dummy == 3 && _VectorSpaceType::dimensionality() == 3, MyType> ::type
     cross(const MyType& other) const {
         return
             MyType

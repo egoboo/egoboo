@@ -36,8 +36,6 @@
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 #include "egolib/_math.h"
-#include "egolib/Math/Colour4f.hpp"
-#include "egolib/Math/Matrix44.hpp"
 
 /**
  * @ingroup egoboo-opengl
@@ -184,10 +182,10 @@ public:
     virtual void setWindingMode(WindingMode mode) override;
 
     /** @copydoc Ego::Renderer::loadMatrix */
-    virtual void loadMatrix(const fmat_4x4_t& matrix) override;
+    virtual void loadMatrix(const Matrix4f4f& matrix) override;
 
     /** @copydoc Ego::Renderer::multMatrix */
-    virtual void multiplyMatrix(const fmat_4x4_t& matrix) override;
+    virtual void multiplyMatrix(const Matrix4f4f& matrix) override;
 
     /** @copydoc Ego::Renderer::setPerspectiveCorrectionEnabled */
     virtual void setPerspectiveCorrectionEnabled(bool enabled) override;

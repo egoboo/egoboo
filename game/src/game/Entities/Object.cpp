@@ -1804,8 +1804,6 @@ void Object::respawn()
 
     const std::shared_ptr<ObjectProfile> &profile = getProfile();
 
-    int old_attached_prt_count = number_of_attached_particles( getCharacterID() );
-
     spawn_poof( getCharacterID(), _profileID );
     disaffirm_attached_particles( getCharacterID() );
 
@@ -1874,7 +1872,6 @@ void Object::respawn()
     if ( !isHidden() )
     {
         reaffirm_attached_particles( getCharacterID() );
-        int new_attached_prt_count = number_of_attached_particles( getCharacterID() );
     }
 
     chr_instance_t::update_ref(inst, enviro.grid_level, true );

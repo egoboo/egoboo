@@ -974,11 +974,11 @@ void ogl_beginFrame()
     // of a frame
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    fmat_4x4_t projection = fmat_4x4_t::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
     Ego::Renderer::get().loadMatrix(projection);
 
     glMatrixMode( GL_MODELVIEW );
-    Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
+    Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -989,7 +989,7 @@ void ogl_endFrame()
     glPopMatrix();
 
     glMatrixMode( GL_MODELVIEW );
-    Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
+    Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
 
     // Re-enable any states disabled by gui_beginFrame
     glPopAttrib();
@@ -1073,18 +1073,18 @@ void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera
         right *= aspect;
     }
     
-    fmat_4x4_t matrix;
+	Matrix4f4f matrix;
     auto &renderer = Ego::Renderer::get();
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    matrix = fmat_4x4_t::ortho(left, right, bottom, top, front, back);
+    matrix = Ego::Math::Transform::ortho(left, right, bottom, top, front, back);
     renderer.loadMatrix(matrix);
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    matrix = fmat_4x4_t::scaling({-1.0f, 1.0f, 1.0f});
-    matrix = matrix * fmat_4x4_t::lookAt({pcam->x, pcam->y, back}, {pcam->x, pcam->y, front}, {0.0f, -1.0f, 0.0f});
+    matrix = Ego::Math::Transform::scaling({-1.0f, 1.0f, 1.0f});
+    matrix = matrix * Ego::Math::Transform::lookAt({pcam->x, pcam->y, back}, {pcam->x, pcam->y, front}, {0.0f, -1.0f, 0.0f});
     renderer.loadMatrix(matrix);
 }
 
@@ -1123,17 +1123,17 @@ void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera
         right *= aspect;
     }
     
-    fmat_4x4_t matrix;
+	Matrix4f4f matrix;
     auto &renderer = Ego::Renderer::get();
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    matrix = fmat_4x4_t::ortho(left, right, bottom, top, front, back);
+    matrix = Ego::Math::Transform::ortho(left, right, bottom, top, front, back);
     renderer.loadMatrix(matrix);
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    matrix = fmat_4x4_t::lookAt({pcam->x, pcam->y, pcam->z}, {pcam->x, pcam->y + back, pcam->z}, {0.0f, 0.0f, 1.0f});
+    matrix = Ego::Math::Transform::lookAt({pcam->x, pcam->y, pcam->z}, {pcam->x, pcam->y + back, pcam->z}, {0.0f, 0.0f, 1.0f});
     renderer.loadMatrix(matrix);
 }
 

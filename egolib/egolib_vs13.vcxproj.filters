@@ -309,9 +309,6 @@
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Math\Matrix44.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Image\Image.cpp">
       <Filter>Source Files\Image</Filter>
     </ClCompile>
@@ -689,9 +686,6 @@
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Matrix44.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Math.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -929,13 +923,16 @@
     <ClInclude Include="src\egolib\Math\OrderedRing.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Point.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Module.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\OrderedField.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Rotatable.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Matrix.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Transform.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>

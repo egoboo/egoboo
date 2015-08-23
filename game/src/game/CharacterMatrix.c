@@ -266,7 +266,7 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], V
     if ( 0 == point_count ) return 0;
 
     // use the math function instead of rolling out own
-    pholder->inst.matrix.transform(src_point, dst_point, point_count );
+	Utilities::transform(pholder->inst.matrix,src_point, dst_point, point_count);
 
     return point_count;
 }
@@ -874,7 +874,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
     // transform the vertices to calculate the grip_vecs[]
     // we only need one vertex
-	pmount_inst.matrix.transform(grip_points, grip_nupoints, 1);
+	Utilities::transform(pmount_inst.matrix,grip_points, grip_nupoints, 1);
 
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )

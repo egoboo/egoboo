@@ -113,7 +113,7 @@ public:
     void initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList);
 
     // various getters
-	inline const fmat_4x4_t& getProjection() const { return _mProjection; }
+	inline const Matrix4f4f& getProjection() const { return _mProjection; }
     inline const egolib_frustum_t& getFrustum() const {
         if (_frustumInvalid) {
             _frustum.calculate(_mProjection, _mView);
@@ -121,7 +121,7 @@ public:
         }
         return _frustum;
     }
-	inline const fmat_4x4_t& getView() const { return _mView; }
+	inline const Matrix4f4f& getView() const { return _mView; }
     inline const orientation_t& getOrientation() const { return _ori; }
     inline CameraTurnMode getTurnMode() const { return _turnMode; }
     inline const Vector3f& getTrackPosition() const { return _trackPos; }
@@ -262,11 +262,11 @@ protected:
 private:
 	const CameraOptions _options;
 
-    // The view matrix.
-    fmat_4x4_t _mView;   ///< View matrix (derived/cached from other attributes).
+    // The view matrix (derived/cached from other attributes).
+	Matrix4f4f _mView;
 
-    // The projection matrices.
-    fmat_4x4_t _mProjection;        ///< Normal projection matrix (derived/cached from other attributes).
+    // The projection matrices (derived/cached from other attributes).
+	Matrix4f4f _mProjection;
 
     // The view frustum.
     mutable egolib_frustum_t _frustum;

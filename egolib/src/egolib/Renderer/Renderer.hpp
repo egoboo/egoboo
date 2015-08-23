@@ -24,8 +24,6 @@
 #pragma once
 
 #include "egolib/_math.h"
-#include "egolib/Math/Colour4f.hpp"
-#include "egolib/Math/Matrix44.hpp"
 #include "egolib/Renderer/ComparisonFunction.hpp"
 #include "egolib/Renderer/RasterizationMode.hpp"
 #include "egolib/Renderer/CullingMode.hpp"
@@ -506,7 +504,7 @@ public:
      * @param matrix
      *  the matrix
      */
-    virtual void loadMatrix(const fmat_4x4_t& matrix) = 0;
+    virtual void loadMatrix(const Matrix4f4f& matrix) = 0;
 
     /**
      * @brief
@@ -514,7 +512,7 @@ public:
      * @param matrix
      *  the matrix
      */
-    virtual void multiplyMatrix(const fmat_4x4_t& matrix) = 0;
+    virtual void multiplyMatrix(const Matrix4f4f& matrix) = 0;
 
     /**
     * @brief
