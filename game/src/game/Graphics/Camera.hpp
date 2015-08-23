@@ -23,6 +23,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/physics.h"			//for orientation_t
+#include "egolib/Graphics/Camera.hpp"
 
 //Forward declarations
 class ego_mesh_t;
@@ -82,11 +83,47 @@ CONSTEXPR float CAM_ZOOM_FACTOR = 0.5f;
  *  - "center" the position the camera is focused on
  *  - "position" the position the camera is located at
  */
-class Camera : public Id::NonCopyable
+class Camera : public Id::NonCopyable, public Ego::Graphics::Camera
 {
+
 public:
+
+	/** @name "Implementation of Ego::Graphics::Camera" */
+	/**@{*/
+
+	/** @copydoc ICamera::getProjectionMatrix */
+	inline const Matrix4f4f& getProjectionMatrix() const override { return _mProjection; }
+
+	/** @copydoc ICamera::getViewMatrix */
+	inline const Matrix4f4f& getViewMatrix() const override { return _mView; }
+
+	/** @copydoc ICamera::getPosition */
+	inline const Vector3f& getPosition() const override { return _pos; }
+
+	/** @copydoc ICamera::getUp */
+	inline const Vector3f& getUp() const override { return _vup; }
+	
+	/** @copydoc ICamera::getRight */
+	inline const Vector3f& getRight() const override { return _vrt; }
+	
+	/** @copydoc ICamera::getForward */
+	inline const Vector3f& getForward() const override { return _vfw; }
+
+	/**@}*/
+
+public:
+	/**
+	 * @brief
+	 *  Construct this camera.
+	 * @param options
+	 *  the camera options
+	 */
     Camera(const CameraOptions &options);
-    ~Camera();
+	/**
+	 * @brief
+	 *  Destruct this camera.
+	 */
+    virtual ~Camera();
 
     /// The default field of view angle (in degrees).
     static const float DEFAULT_FOV;
@@ -113,15 +150,13 @@ public:
     void initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList);
 
     // various getters
-	inline const Matrix4f4f& getProjection() const { return _mProjection; }
-    inline const egolib_frustum_t& getFrustum() const {
+    inline const Ego::Graphics::Frustum& getFrustum() const {
         if (_frustumInvalid) {
             _frustum.calculate(_mProjection, _mView);
             _frustumInvalid = false;
         }
         return _frustum;
     }
-	inline const Matrix4f4f& getView() const { return _mView; }
     inline const orientation_t& getOrientation() const { return _ori; }
     inline CameraTurnMode getTurnMode() const { return _turnMode; }
     inline const Vector3f& getTrackPosition() const { return _trackPos; }
@@ -132,20 +167,10 @@ public:
      *  the center of the camera
      */
     inline const Vector3f& getCenter() const { return _center; }
-    /**
-     * @brief
-     *  Get the position of the camera
-     * @return
-     *  the position of the camera.
-     */
-    inline const Vector3f& getPosition() const { return _pos; }
     inline uint8_t getTurnTime() const { return _turnTime; }
     inline float getTurnZOne() const { return _turnZOne; }
     inline float getTurnZRad() const { return _turnZRad; }
 
-    inline const Vector3f& getVUP() const { return _vup; }
-    inline const Vector3f& getVRT() const { return _vrt; }
-    inline const Vector3f& getVFW() const { return _vfw; }
 
     inline float getMotionBlur() const { return _motionBlur; }
     inline float getMotionBlurOld() const { return _motionBlurOld; }
@@ -269,7 +294,7 @@ private:
 	Matrix4f4f _mProjection;
 
     // The view frustum.
-    mutable egolib_frustum_t _frustum;
+    mutable Ego::Graphics::Frustum _frustum;
     /**
      * @brief
      *  If either the projection or the view matrix changed, the frustum is marked as invalid,

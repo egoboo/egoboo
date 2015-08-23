@@ -935,6 +935,9 @@
     <ClInclude Include="src\egolib\Math\Transform.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\Camera.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

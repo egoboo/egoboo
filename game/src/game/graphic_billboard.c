@@ -292,7 +292,7 @@ void BillboardSystem::render_all(Camera& camera)
 			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
             for (auto bb : _billboardList._used) {
-                render_one(*bb, 0.75f, camera.getVUP(), camera.getVRT());
+                render_one(*bb, 0.75f, camera.getUp(), camera.getRight());
             }
         }
         ATTRIB_POP( __FUNCTION__ );

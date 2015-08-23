@@ -41,11 +41,11 @@ void gfx_begin_3d(Camera& camera)
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(camera.getProjection());
+	Ego::Renderer::get().loadMatrix(camera.getProjectionMatrix());
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(camera.getView());
+	Ego::Renderer::get().loadMatrix(camera.getViewMatrix());
 }
 
 //--------------------------------------------------------------------------------------------

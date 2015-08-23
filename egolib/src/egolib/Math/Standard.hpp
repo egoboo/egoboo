@@ -73,6 +73,7 @@ void validate<::Cube3f>(const char *file, int line, const ::Cube3f& object);
 } // namespace Ego
 #endif
 
+/// A \f$4\f$-order floating point matrix.
 typedef Ego::Math::Matrix<float, 4, 4> Matrix4f4f;
 
 struct Utilities {
@@ -111,8 +112,7 @@ struct Utilities {
 	 * @todo
 	 *  Update documentation for the Vector4f case.
 	 */
-	static Matrix4f4f tensor(const Vector4f& v, const Vector4f& w)
-	{
+	static Matrix4f4f tensor(const Vector4f& v, const Vector4f& w) {
 		return
 			Matrix4f4f
 			(
@@ -120,7 +120,7 @@ struct Utilities {
 				v[kY] * w[kX], v[kY] * w[kY], v[kY] * w[kZ], v[kY] * w[kW],
 				v[kZ] * w[kX], v[kZ] * w[kY], v[kZ] * w[kZ], v[kZ] * w[kW],
 				v[kW] * w[kX], v[kW] * w[kY], v[kW] * w[kZ], v[kW] * w[kW]
-				);
+			);
 	}
 	/**
 	 * @brief
@@ -159,11 +159,19 @@ struct Utilities {
 	 *  =
 	 *  \left[\begin{matrix}
 	 *  m_{0,0} \cdot v_{0} + m_{0,1} \cdot v_1 + m_{0,2} \cdot v_2 + m_{0,3} \cdot v_3 \\
-	 *  m_{1,0} \cdot v_{0} + m_{1,1} \cdot v_1 + m_{1,2} \cdot v_2 + m_{1,3} \cdot v_3  \\
-	 *  m_{2,0} \cdot v_{0} + m_{2,1} \cdot v_1 + m_{2,2} \cdot v_2 + m_{2,3} \cdot v_3  \\
-	 *  m_{3,0} \cdot v_{0} + m_{3,1} \cdot v_1 + m_{3,2} \cdot v_2 + m_{3,3} \cdot v_3  \\
+	 *  m_{1,0} \cdot v_{0} + m_{1,1} \cdot v_1 + m_{1,2} \cdot v_2 + m_{1,3} \cdot v_3 \\
+	 *  m_{2,0} \cdot v_{0} + m_{2,1} \cdot v_1 + m_{2,2} \cdot v_2 + m_{2,3} \cdot v_3 \\
+	 *  m_{3,0} \cdot v_{0} + m_{3,1} \cdot v_1 + m_{3,2} \cdot v_2 + m_{3,3} \cdot v_3 \\
+	 *  \end{matrix}\right]
+	 *	=
+	 *  \left[\begin{matrix}
+	 *  r_0 \cdot v \\
+	 *  r_1 \cdot v \\
+	 *  r_2 \codt v \\
+	 *  r_3 \cdot v \\
 	 *  \end{matrix}\right]
 	 *  \f]
+	 *  where \f$r_i\f$ is the $i$-th row of the matrix.
 	 */
 	static void transform(const Matrix4f4f& m, const Vector4f& source, Vector4f& target) {
 		target[kX] = m(0, 0) * source[kX] + m(0, 1) * source[kY] + m(0, 2) * source[kZ] + m(0, 3) * source[kW];

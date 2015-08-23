@@ -97,7 +97,7 @@ std::unordered_set<std::string> Capabilities::getExtensions()
     {
         throw std::runtime_error("unable to acquire renderer back-end information");
     }
-    return Ego::Core::make_unordered_set(Ego::split(std::string((const char *)bytes),std::string(" ")));
+    return Core::make_unordered_set(Ego::split(std::string((const char *)bytes),std::string(" ")));
 }
 
 Renderer::Renderer() :
@@ -105,7 +105,7 @@ Renderer::Renderer() :
     _vendor(Capabilities::getVendor()),
     _name(Capabilities::getName())
 {
-    Ego::OpenGL::link();
+    OpenGL::link();
 }
 
 Renderer::~Renderer()
@@ -173,7 +173,7 @@ void Renderer::setAlphaFunction(ComparisonFunction function, float value)
 		glAlphaFunc(GL_GEQUAL, value);
 		break;
     default:
-        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
 	};
 	Utilities::isError();
 }
@@ -218,7 +218,7 @@ void Renderer::setCullingMode(CullingMode mode)
         glCullFace(GL_FRONT_AND_BACK);
         break;
     default:
-        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -252,7 +252,7 @@ void Renderer::setDepthFunction(ComparisonFunction function)
         glDepthFunc(GL_GREATER);
         break;
     default:
-        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -355,7 +355,7 @@ void Renderer::setWindingMode(WindingMode mode)
         glFrontFace(GL_CCW);
         break;
     default:
-        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
     Utilities::isError();
 }
@@ -463,7 +463,7 @@ void Renderer::setMultisamplesEnabled(bool enabled)
 			glDisable(GL_MULTISAMPLE);
 		}
 	}
-	Ego::OpenGL::Utilities::isError();
+	OpenGL::Utilities::isError();
 }
 
 void Renderer::setLightingEnabled(bool enabled) {

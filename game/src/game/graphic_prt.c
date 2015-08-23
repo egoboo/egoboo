@@ -661,7 +661,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
     else if (ORIENTATION_B == pinst->orientation)
     {
         // Use the camera up vector.
-        vup = camera.getVUP();
+        vup = camera.getUp();
         vup.normalize();
 
         // Get the correct "right" vector.
@@ -680,7 +680,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
         // is turned by 45 degrees to the camera (instead of 90 degrees which is invisible)
 
         // Use the camera up vector.
-		Vector3f vup_cam = camera.getVUP();
+		Vector3f vup_cam = camera.getUp();
 
         // Use the global up vector.
         vup = Vector3f(0, 0, 1);
@@ -747,11 +747,11 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
             // Use the camera directions?
             switch (pinst->orientation)
             {
-                case ORIENTATION_X: vup = camera.getVFW(); break;
-                case ORIENTATION_Y: vup = camera.getVRT(); break;
+                case ORIENTATION_X: vup = camera.getForward(); break;
+                case ORIENTATION_Y: vup = camera.getRight(); break;
 
                 default:
-                case ORIENTATION_Z: vup = camera.getVUP(); break;
+                case ORIENTATION_Z: vup = camera.getUp(); break;
             }
         }
 
@@ -768,7 +768,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
     else
     {
         // Use the camera up vector.
-        vup = camera.getVUP();
+        vup = camera.getUp();
         vup.normalize();
 
         // Get the correct "right" vector.

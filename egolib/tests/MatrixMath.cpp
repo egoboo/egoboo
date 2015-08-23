@@ -25,30 +25,41 @@ EgoTest_EndDeclaration()
 
 EgoTest_BeginTestCase(MatrixMath)
 
-EgoTest_Test(add)
-{
+EgoTest_Test(constructor) {
+	Matrix4f4f a
+		(
+			1,  2, 3, 4,
+			5,  6, 7, 8,
+			9, 10,11,12,
+			13,14,15,16
+		);
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			EgoTest_Assert(a(i, j) == i*4+j+1);
+		}
+	}
+}
+
+EgoTest_Test(add) {
     Matrix4f4f a, b, c;
     c = a + b;
     EgoTest_Assert(c - b == a);
     EgoTest_Assert(c - a == b);
 }
 
-EgoTest_Test(sub)
-{
+EgoTest_Test(sub) {
 	Matrix4f4f a, b, c;
     c = a - b;
     EgoTest_Assert(c + b == a);
     EgoTest_Assert(b == a - c);
 }
 
-EgoTest_Test(trace)
-{
+EgoTest_Test(trace) {
 	Ego::Math::Matrix<float, 3, 3> m33;
 	m33.trace();
 }
 
-EgoTest_Test(muls)
-{
+EgoTest_Test(muls) {
 	Matrix4f4f a, b;
     float s;
     do
