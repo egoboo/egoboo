@@ -28,8 +28,8 @@
 typedef int MusicID;
 typedef int SoundID;
 
-CONSTEXPR int INVALID_SOUND_CHANNEL = -1;
-CONSTEXPR SoundID INVALID_SOUND_ID = -1;
+static constexpr int INVALID_SOUND_CHANNEL = -1;
+static constexpr SoundID INVALID_SOUND_ID = -1;
 
 /// Data needed to store and manipulate a looped sound
 class LoopingSound
@@ -102,8 +102,8 @@ enum GlobalSound : uint8_t
 class AudioSystem : public Ego::Core::Singleton<AudioSystem>
 {
 public:
-    static CONSTEXPR int MIX_HIGH_QUALITY = 44100;
-    static CONSTEXPR size_t MENU_SONG = 0;
+    static constexpr int MIX_HIGH_QUALITY = 44100;
+    static constexpr size_t MENU_SONG = 0;
 
 	// TODO: re-add constexpr when we drop VS 2013 support
 	// Workaround for compilers without constexpr support (VS 2013);

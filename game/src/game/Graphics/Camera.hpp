@@ -63,17 +63,17 @@ struct CameraOptions
 };
 
 /// Multi cam uses macro to switch between old and new camera
-CONSTEXPR float CAM_ZOOM_FACTOR = 0.5f;
+static constexpr float CAM_ZOOM_FACTOR = 0.5f;
 #ifdef OLD_CAMERA_MODE
-    CONSTEXPR float CAM_ZOOM_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera distance
-    CONSTEXPR float CAM_ZOOM_MAX = (700 * CAM_ZOOM_FACTOR);
-    CONSTEXPR float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
-    CONSTEXPR float CAM_ZADD_MAX = (2750 * CAM_ZOOM_FACTOR);
+    static constexpr float CAM_ZOOM_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera distance
+    static constexpr float CAM_ZOOM_MAX = (700 * CAM_ZOOM_FACTOR);
+    static constexpr float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
+    static constexpr float CAM_ZADD_MAX = (2750 * CAM_ZOOM_FACTOR);
 #else
-    CONSTEXPR float CAM_ZOOM_MIN = (500 * CAM_ZOOM_FACTOR);       ///< Camera distance
-    CONSTEXPR float CAM_ZOOM_MAX = (800 * CAM_ZOOM_FACTOR);
-    CONSTEXPR float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
-    CONSTEXPR float CAM_ZADD_MAX = (1900 * CAM_ZOOM_FACTOR);
+    static constexpr float CAM_ZOOM_MIN = (500 * CAM_ZOOM_FACTOR);       ///< Camera distance
+    static constexpr float CAM_ZOOM_MAX = (800 * CAM_ZOOM_FACTOR);
+    static constexpr float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
+    static constexpr float CAM_ZADD_MAX = (1900 * CAM_ZOOM_FACTOR);
 #endif
 
 /**
