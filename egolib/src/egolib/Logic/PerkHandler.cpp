@@ -220,10 +220,10 @@ void PerkHandler::initializePerk(const PerkID id, const Ego::Attribute::Attribut
     perk._perkRequirement = perkRequirement;
     perk._icon = Ego::DeferredOpenGLTexture(iconPath);
 
-    //TODO: basicdat folder is not added to vfs path yet
-    //if(!vfs_exists(iconPath)) {
-    //    log_warning("No icon for perk %s: %s\n", name.c_str(), iconPath.c_str());
-    //}
+    //Check if file actually exists
+    if(!ego_texture_exists_vfs(iconPath)) {
+        log_warning("No icon for perk %s: %s\n", name.c_str(), iconPath.c_str());
+    }
 }
 
 PerkID PerkHandler::fromString(const std::string &name) const

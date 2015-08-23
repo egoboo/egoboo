@@ -245,15 +245,14 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     {
         // do the texture
         const std::string skinPath = folderPath + "/tris" + std::to_string(cnt);
-        //if(vfs_exists(skinPath.c_str()))
+        if(ego_texture_exists_vfs(skinPath))
         {
             _texturesLoaded[cnt] = Ego::DeferredOpenGLTexture(skinPath);
         }
-        //else log_debug("Object is missing a skin (%s)!\n", skinPath.c_str());
 
         // do the icon
         const std::string iconPath = folderPath + "/icon" + std::to_string(cnt);
-	    //if(vfs_exists(iconPath.c_str()))
+	    if(ego_texture_exists_vfs(iconPath))
         {
             _iconsLoaded[cnt] = Ego::DeferredOpenGLTexture(iconPath);
         }

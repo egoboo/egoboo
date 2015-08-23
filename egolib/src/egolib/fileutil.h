@@ -485,6 +485,8 @@ bool copy_to_delimiter_vfs(vfs_FILE * fileread, vfs_FILE * filewrite, int delim,
  */
 Uint32 ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key = INVALID_KEY);
 
+bool ego_texture_exists_vfs(const std::string &filename);
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 // Stuff to encapsulte in a WriterContext.
 bool vfs_put_version(vfs_FILE* filewrite, const int version);
