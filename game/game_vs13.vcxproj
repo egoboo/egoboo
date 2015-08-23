@@ -385,6 +385,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\GUI\ProgressBar.cpp" />
     <ClCompile Include="src\game\GameStates\AudioOptionsScreen.cpp" />
     <ClCompile Include="src\game\GUI\Slider.cpp" />
     <ClCompile Include="src\game\ObjectPhysics.c" />
@@ -473,6 +474,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\GUI\ProgressBar.hpp" />
     <ClInclude Include="src\game\GameStates\AudioOptionsScreen.hpp" />
     <ClInclude Include="src\game\GUI\Slider.hpp" />
     <ClInclude Include="src\game\ObjectPhysics.h" />
