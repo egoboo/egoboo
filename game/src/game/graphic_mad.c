@@ -641,7 +641,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
         if ( pinst.light < 255 )
         {
             // light effects should show through transparent objects
-			renderer.setCullingMode(Ego::CullingMode::None);
+            oglx_end_culling();         // GL_ENABLE_BIT
 
             // the alpha test can only mess us up here
             renderer.setAlphaTestEnabled(false);
@@ -719,7 +719,7 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
             if ( pinst.dont_cull_backfaces )
             {
                 // stop culling backward facing polugons
-				renderer.setCullingMode(Ego::CullingMode::None);
+                oglx_end_culling();         // GL_ENABLE_BIT
             }
             else
             {
@@ -1720,7 +1720,7 @@ chr_instance_t *chr_instance_t::ctor(chr_instance_t& self)
 
     // the matrix should never be referenced if the cache is not valid,
     // but it never pays to have a 0 matrix...
-	self.matrix = Matrix4f4f::identity();
+	self.matrix = fmat_4x4_t::identity();
 
     // set the animation state
 	self.rate = 1.0f;

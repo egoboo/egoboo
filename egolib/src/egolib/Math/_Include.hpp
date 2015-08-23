@@ -10,10 +10,9 @@
 #include "egolib/Math/Convex.hpp"
 #include "egolib/Math/Cube.hpp"
 #include "egolib/Math/LERP.hpp"
-#include "egolib/Math/Matrix.hpp"
+#include "egolib/Math/Matrix44.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Random.hpp"
 #include "egolib/Math/Sphere.h"
 #include "egolib/Math/Vector.hpp"
-#include "egolib/Math/Transform.hpp"
 #undef EGOLIB_MATH_PRIVATE

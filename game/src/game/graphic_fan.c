@@ -393,7 +393,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     }
 
     // draw draw front and back faces of polygons
-	Ego::Renderer::get().setCullingMode(Ego::CullingMode::None);
+    oglx_end_culling();                        // GL_ENABLE_BIT
 
     struct Vertex
     {

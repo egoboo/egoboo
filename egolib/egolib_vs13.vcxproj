@@ -339,6 +339,7 @@
     <ClCompile Include="src\egolib\Graphics\Font.cpp" />
     <ClCompile Include="src\egolib\Graphics\FontManager.cpp" />
     <ClCompile Include="src\egolib\Image\Image.cpp" />
+    <ClCompile Include="src\egolib\Math\Matrix44.cpp" />
     <ClCompile Include="src\egolib\FileFormats\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\controls_file-v1.c" />
     <ClCompile Include="src\egolib\FileFormats\controls_file-v2.c" />
@@ -455,14 +456,13 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\egolib\Math\Transform.hpp" />
-    <ClInclude Include="src\egolib\Math\Matrix.hpp" />
-    <ClInclude Include="src\egolib\Math\Rotatable.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedField.hpp" />
     <ClInclude Include="src\egolib\Logic\Attribute.hpp" />
     <ClInclude Include="src\egolib\Logic\Perk.hpp" />
     <ClInclude Include="src\egolib\Logic\PerkHandler.hpp" />
     <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp" />
+    <ClInclude Include="src\egolib\Math\Module.hpp" />
+    <ClInclude Include="src\egolib\Math\Point.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedRing.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp" />
     <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp" />
@@ -556,6 +556,7 @@
     <ClInclude Include="src\egolib\Math\Cone3.hpp" />
     <ClInclude Include="src\egolib\math\LERP.hpp" />
     <ClInclude Include="src\egolib\Math\Math.hpp" />
+    <ClInclude Include="src\egolib\Math\Matrix44.hpp" />
     <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp" />
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp" />

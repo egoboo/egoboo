@@ -1297,7 +1297,7 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
         point[0][kW] = 1.0f;
 
         // Do the transform
-        Utilities::transform(object->inst.matrix, point, nupoint, 1);
+        object->inst.matrix.transform(point, nupoint, 1);
 
         setPosition(Vector3f(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
     }

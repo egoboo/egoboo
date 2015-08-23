@@ -45,6 +45,7 @@
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/input_device.h"
 #include "egolib/log.h"
+#include "egolib/Math/Matrix44.hpp"
 #include "egolib/map_functions.h"
 #include "egolib/network.h"
 #include "egolib/platform.h"

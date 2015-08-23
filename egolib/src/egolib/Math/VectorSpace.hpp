@@ -86,6 +86,7 @@ struct VectorSpace<_ScalarFieldType, _Dimensionality,
 	 */
 	typedef _ScalarFieldType ScalarFieldType;
 
+#if !defined(_MSC_VER)
 	/**
 	 * @brief
 	 *	The dimensionality of the vector space.
@@ -95,7 +96,15 @@ struct VectorSpace<_ScalarFieldType, _Dimensionality,
 	constexpr static size_t dimensionality() {
 		return _Dimensionality;
 	}
+#endif
 
+	/**
+	 * @brief
+	 *	The dimensionality of the vector space.
+	 * @todo
+	 *	Should be a constexpr function. Not yet possible because of - guess what - MSVC.
+	 */
+	typedef typename std::integral_constant < size_t, _Dimensionality > Dimensionality;
 };
 
 } // namespace Math
