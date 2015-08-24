@@ -53,8 +53,6 @@ enum e_global_tx_type
     TX_BARS,
     /* "mp_data/blip" */
     TX_BLIP,
-    /* "mp_data/plan" */
-    TX_MAP,
     /* "mp_data/xpbar", TRANSCOLOR*/
     TX_XP_BAR,
     /* "mp_data/nullicon" */

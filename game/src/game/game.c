@@ -2235,7 +2235,6 @@ void game_load_module_assets( const char *modname )
     }
 
     gfx_system_load_basic_textures();
-    gfx_load_map();
 
     upload_wawalite();
 }

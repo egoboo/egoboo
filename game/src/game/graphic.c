@@ -2075,29 +2075,6 @@ gfx_rv gfx_load_bars()
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_map()
-{
-    /// @author ZZ
-    /// @details This function loads the map bitmap
-
-    const char* szMap = "mp_data/plan";
-    gfx_rv retval = gfx_success;
-
-    // Load the images
-    if (!VALID_TX_RANGE(TextureManager::get().load(szMap, (TX_REF)TX_MAP)))
-    {
-        log_debug("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap);
-        retval = gfx_fail;
-    }
-    else
-    {
-        retval = gfx_success;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 gfx_rv gfx_load_blips()
 {
     /// @author ZZ

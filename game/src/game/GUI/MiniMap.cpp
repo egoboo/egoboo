@@ -36,22 +36,28 @@ MiniMap::MiniMap() :
     _blips(),
     _mouseOver(false),
     _isDragging(false),
-    _mouseDragOffset(0, 0)
+    _mouseDragOffset(0, 0),
+    _minimapTexture(nullptr)
 {
     //The minimap is by default not visible
     setVisible(false);
+
+    if(ego_texture_exists_vfs("mp_data/plan")) {
+        _minimapTexture = std::make_shared<Ego::DeferredOpenGLTexture>("mp_data/plan");
+    }
+    else {
+        log_warning("mp_data/plan - Cannot load file!\n");
+    }
 }
 
 void MiniMap::draw()
 {
-    //Make sure map texture is valid
-    oglx_texture_t *miniMapTexture = TextureManager::get().get_valid_ptr((TX_REF)TX_MAP);
-    if(!miniMapTexture) {
+    if(!_minimapTexture) {
         return;
     }
 
     //Draw the map image
-    _gameEngine->getUIManager()->drawImage(*miniMapTexture, getX(), getY(), getWidth(), getHeight(), Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
+    _gameEngine->getUIManager()->drawImage(_minimapTexture->get(), getX(), getY(), getWidth(), getHeight(), Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
     // If one of the players can sense enemies via ESP, draw them as blips on the map
     if (Team::TEAM_MAX != local_stats.sense_enemies_team)

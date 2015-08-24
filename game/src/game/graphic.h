@@ -458,7 +458,6 @@ void release_all_profile_textures();
 
 gfx_rv gfx_load_blips();
 gfx_rv gfx_load_bars();
-gfx_rv gfx_load_map();
 gfx_rv gfx_load_icons();
 
 float  get_ambient_level();

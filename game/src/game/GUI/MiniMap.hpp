@@ -25,6 +25,8 @@
 
 #include "game/GUI/GUIComponent.hpp"
 
+namespace Ego { class DeferredOpenGLTexture; }
+
 class MiniMap : public GUIComponent
 {
 public:
@@ -82,4 +84,5 @@ private:
     bool _mouseOver;
     bool _isDragging;
     Vector2f _mouseDragOffset;
+    std::shared_ptr<Ego::DeferredOpenGLTexture> _minimapTexture;
 };
