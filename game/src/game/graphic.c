@@ -405,7 +405,7 @@ int GFX::initializeOpenGL()
     /// @todo Including backface culling here prevents the mesh from getting rendered
     /// backface culling
 
-    // oglx_begin_culling( GL_BACK, GL_CW );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+    // oglx_begin_culling(Ego::CullingMode::Back, Ego::WindingMode::Clockwise);            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
     // disable OpenGL lighting
 	renderer.setLightingEnabled(false);

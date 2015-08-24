@@ -23,21 +23,21 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/graphic.h"
+#if 0
+#include "egolib/Graphics/Camera.hpp"
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// Forward declaration.
-class Camera;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct GLvertex;
 struct chr_instance_t;
+class Camera;
+#if 0
+struct GLvertex;
 struct vlst_cache_t;
 struct matrix_cache_t;
 struct chr_reflection_cache_t;
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -46,12 +46,12 @@ struct chr_reflection_cache_t;
 
 #if defined(MAD_CULL_RIGHT)
 // this worked with the old camera
-#    define MAD_REF_CULL   GL_CCW
-#    define MAD_NRM_CULL   GL_CW
+#    define MAD_REF_CULL   Ego::WindingMode::AntiClockwise
+#    define MAD_NRM_CULL   Ego::WindingMode::Clockwise
 #else
 // they had to be reversed with the new camera
-#    define MAD_REF_CULL   GL_CW
-#    define MAD_NRM_CULL   GL_CCW
+#    define MAD_REF_CULL   Ego::WindingMode::Clockwise
+#    define MAD_NRM_CULL   Ego::WindingMode::AntiClockwise
 #endif
 
 //--------------------------------------------------------------------------------------------

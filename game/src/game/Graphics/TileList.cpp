@@ -108,7 +108,7 @@ gfx_rv TileList::reset()
 	return gfx_success;
 }
 
-gfx_rv TileList::insert(const TileIndex& index, const Camera &cam)
+gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 {
 	if (!_mesh)
 	{
@@ -179,7 +179,7 @@ void TileList::setMesh(ego_mesh_t *mesh)
 	_mesh = mesh;
 }
 
-gfx_rv TileList::add(const size_t index, Camera& camera)
+gfx_rv TileList::add(const size_t index, ::Camera& camera)
 {
 	_renderTiles[index] = true;
 

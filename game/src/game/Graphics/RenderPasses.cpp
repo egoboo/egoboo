@@ -47,7 +47,7 @@ namespace Ego {
 namespace Graphics {
 namespace RenderPasses {
 
-void Background::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
+void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) {
 	if (!gfx.draw_background) {
 		return;
 	}
@@ -209,7 +209,7 @@ void Background::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	ATTRIB_POP(__FUNCTION__);
 }
 
-void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
+void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) {
 	if (!gfx.draw_overlay) {
 		return;
 	}
@@ -226,7 +226,7 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	vforw_wind[ZZ] = 0;
 	vforw_wind.normalize();
 
-	mat_getCamForward(cam.getView(), vforw_cam);
+	mat_getCamForward(cam.getViewMatrix(), vforw_cam);
 	vforw_cam.normalize();
 
 	// make the texture begin to disappear if you are not looking straight down
@@ -323,7 +323,7 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	}
 }
 
-void Reflective0::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
+void Reflective0::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	if (gfx.refon) {
 		doReflectionsEnabled(camera, tl, el);
 	}
@@ -332,7 +332,7 @@ void Reflective0::doRun(Camera& camera, const TileList& tl, const EntityList& el
 	}
 }
 
-void Reflective0::doReflectionsEnabled(Camera& camera, const TileList& tl, const EntityList& el) {
+void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, const EntityList& el) {
 	/// @details draw the reflective tiles, but turn off the depth buffer
 	///          this blanks out any background that might've been drawn
 
@@ -362,11 +362,11 @@ void Reflective0::doReflectionsEnabled(Camera& camera, const TileList& tl, const
 	ATTRIB_POP(__FUNCTION__);
 }
 
-void Reflective0::doReflectionsDisabled(Camera& camera, const TileList& tl, const EntityList& el) {
+void Reflective0::doReflectionsDisabled(::Camera& camera, const TileList& tl, const EntityList& el) {
 	/* Intentionally empty. */
 }
 
-void Reflective1::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
+void Reflective1::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	if (gfx.refon) {
 		doReflectionsEnabled(camera, tl, el);
 	} else {
@@ -374,7 +374,7 @@ void Reflective1::doRun(Camera& camera, const TileList& tl, const EntityList& el
 	}
 }
 
-void Reflective1::doCommon(Camera& camera, const TileList& tl, const EntityList& el) {
+void Reflective1::doCommon(::Camera& camera, const TileList& tl, const EntityList& el) {
 	auto& renderer = Ego::Renderer::get();
 	// Disable culling.
 	renderer.setCullingMode(Ego::CullingMode::None);
@@ -385,7 +385,7 @@ void Reflective1::doCommon(Camera& camera, const TileList& tl, const EntityList&
 	renderer.setDepthWriteEnabled(true);
 }
 
-void Reflective1::doReflectionsEnabled(Camera& camera, const TileList& tl, const EntityList& el) {
+void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, const EntityList& el) {
 	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		doCommon(camera, tl, el);
@@ -407,7 +407,7 @@ void Reflective1::doReflectionsEnabled(Camera& camera, const TileList& tl, const
  *       rendering needs to be improved (at least we've improved structure &
  *       terminology for now).
  */
-void Reflective1::doReflectionsDisabled(Camera& camera, const TileList& tl, const EntityList& el) {
+void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, const EntityList& el) {
 	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		doCommon(camera, tl, el);
@@ -426,7 +426,7 @@ void Reflective1::doReflectionsDisabled(Camera& camera, const TileList& tl, cons
 	ATTRIB_POP(__FUNCTION__);
 }
 
-void NonReflective::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
+void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		auto& renderer = Ego::Renderer::get();
@@ -453,7 +453,7 @@ void NonReflective::doRun(Camera& camera, const TileList& tl, const EntityList& 
 	Ego::OpenGL::Utilities::isError();
 }
 
-void EntityShadows::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
+void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	// If shadows are not enabled, return immediatly.
 	if (!gfx.shadows_enable) {
 		return;
@@ -736,7 +736,7 @@ void EntityShadows::doShadowSprite(float intensity, GLvertex v[])
 	GL_DEBUG_END();
 }
 
-void Water::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
+void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	// Restart the mesh texture code.
 	mesh_texture_invalidate();
 
@@ -762,7 +762,7 @@ void Water::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
 	mesh_texture_invalidate();
 }
 
-void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
+void EntityReflections::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	ego_mesh_t *mesh = tl.getMesh();
 	if (!mesh) {
 		log_warning("%s:%d: tile list not attached to a mesh - skipping pass\n", __FILE__, __LINE__);
@@ -789,7 +789,7 @@ void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityLi
 			{
 				// cull backward facing polygons
 				// use couter-clockwise orientation to determine backfaces
-				oglx_begin_culling(GL_BACK, MAP_REF_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
+				oglx_begin_culling(Ego::CullingMode::Back, MAP_REF_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
 				// allow transparent objects
 				renderer.setBlendingEnabled(true);
@@ -831,7 +831,7 @@ void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityLi
 	ATTRIB_POP(__FUNCTION__);
 }
 
-void SolidEntities::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
+void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT)
 	{
 		// scan for solid objects
@@ -865,7 +865,7 @@ void SolidEntities::doRun(Camera& camera, const TileList& tl, const EntityList& 
 }
 
 
-void TransparentEntities::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
+void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT)
 	{
 		auto& renderer = Ego::Renderer::get();

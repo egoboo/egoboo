@@ -33,6 +33,8 @@
 #include "egolib/Renderer/TextureType.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Renderer/PrimitiveType.hpp"
+#include "egolib/Renderer/CullingMode.hpp"
+#include "egolib/Renderer/WindingMode.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -219,11 +221,5 @@ extern oglx_texture_parameters_t g_ogl_textureParameters;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct oglx_culling_data_t
-{
-    GLboolean enabled;
-    GLint     face[1];
-    GLint     mode[1];
-};
 
-void oglx_begin_culling(GLenum which, GLenum mode );
+void oglx_begin_culling(Ego::CullingMode cullingMode, Ego::WindingMode windingMode);

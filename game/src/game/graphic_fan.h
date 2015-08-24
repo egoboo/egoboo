@@ -40,12 +40,12 @@ namespace Graphics
 
 #if defined(MAP_CULL_RIGHT)
 // this worked with the old camera
-#    define MAP_REF_CULL   GL_CCW
-#    define MAP_NRM_CULL   GL_CW
+#    define MAP_REF_CULL   Ego::WindingMode::AntiClockwise
+#    define MAP_NRM_CULL   Ego::WindingMode::Clockwise
 #else
 // they had to be reversed with the new camera
-#    define MAP_REF_CULL   GL_CW
-#    define MAP_NRM_CULL   GL_CCW
+#    define MAP_REF_CULL   Ego::WindingMode::Clockwise
+#    define MAP_NRM_CULL   Ego::WindingMode::AntiClockwise
 #endif
 
 //--------------------------------------------------------------------------------------------

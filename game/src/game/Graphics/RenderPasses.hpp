@@ -39,14 +39,14 @@ public:
 		: Graphics::RenderPass("reflective.0") {
 	}
 protected:
-	void doRun(Camera& cam, const Ego::Graphics::TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const Ego::Graphics::TileList& tl, const EntityList& el) override;
 private:
 	// Used if reflections are enabled.
-	void doReflectionsEnabled(Camera& cam, const TileList& tl, const EntityList& el);
+	void doReflectionsEnabled(::Camera& cam, const TileList& tl, const EntityList& el);
 	// Used if reflections are disabled.
-	void doReflectionsDisabled(Camera& cam, const TileList& tl, const EntityList& el);
+	void doReflectionsDisabled(::Camera& cam, const TileList& tl, const EntityList& el);
 	/// Common renderer configuration regardless of if reflections are enabled or disabled.
-	void doCommon(Camera& cam, const TileList& til, const EntityList& el);
+	void doCommon(::Camera& cam, const TileList& til, const EntityList& el);
 };
 
 /// The 2nd pass for reflective tiles
@@ -58,14 +58,14 @@ public:
 		: Graphics::RenderPass("reflective.1") {
 	}
 protected:
-	void doRun(Camera& cam, const TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 private:
 	// Used if reflections are enabled.
-	void doReflectionsEnabled(Camera& cam, const TileList& tl, const EntityList& el);
+	void doReflectionsEnabled(::Camera& cam, const TileList& tl, const EntityList& el);
 	// Used if reflections are disabled.
-	void doReflectionsDisabled(Camera& cam, const TileList& tl, const EntityList& el);
+	void doReflectionsDisabled(::Camera& cam, const TileList& tl, const EntityList& el);
 	/// Common renderer configuration regardless of if reflections are enabled or disabled.
-	void doCommon(Camera& cam, const TileList& tl, const EntityList& el);
+	void doCommon(::Camera& cam, const TileList& tl, const EntityList& el);
 };
 
 /// The render pass for the world background.
@@ -75,7 +75,7 @@ public:
 		: Graphics::RenderPass("background") {
 	}
 protected:
-	void doRun(Camera& cam, const Graphics::TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const Graphics::TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for the world foreground.
@@ -85,7 +85,7 @@ public:
 		: Graphics::RenderPass("foreground") {
 	}
 protected:
-	void doRun(Camera& cam, const TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for non-reflective tiles
@@ -96,7 +96,7 @@ public:
 		: Graphics::RenderPass("nonReflective") {
 	}
 protected:
-	void doRun(Camera& cam, const TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for water tiles.
@@ -106,7 +106,7 @@ public:
 		: Graphics::RenderPass("water") {
 	}
 protected:
-	void doRun(Camera& cam, const TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for solid entities.
@@ -116,7 +116,7 @@ public:
 		: Graphics::RenderPass("solidEntities") {
 	}
 protected:
-	void doRun(Camera& cam, const TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for transparent entities.
@@ -126,7 +126,7 @@ public:
 		: Graphics::RenderPass("transparentEntities") {
 	}
 protected:
-	void doRun(Camera& cam, const TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for entity reflections.
@@ -136,7 +136,7 @@ public:
 		: Graphics::RenderPass("entityReflections") {
 	}
 protected:
-	void doRun(Camera& cam, const TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for entity shadows.
@@ -146,7 +146,7 @@ public:
 		: Graphics::RenderPass("entityShadows") {
 	}
 protected:
-	void doRun(Camera& cam, const TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 private:
 	// Used if low-quality shadows are enabled.
 	void doLowQualityShadow(const CHR_REF character);

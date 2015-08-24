@@ -489,7 +489,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
 
         // cull backward facing polygons
         // use clockwise orientation to determine backfaces
-        oglx_begin_culling( GL_BACK, MAP_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+        oglx_begin_culling(Ego::CullingMode::Back, MAP_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
         // set the blending mode
         renderer.setBlendingEnabled(true);

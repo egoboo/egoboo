@@ -26,7 +26,7 @@
 #include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/log.h"
-
+#include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -513,16 +513,10 @@ void oglx_texture_parameters_t::download(oglx_texture_parameters_t& self, egoboo
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void oglx_begin_culling( GLenum face, GLenum mode )
+
+void oglx_begin_culling(Ego::CullingMode cullingMode, Ego::WindingMode windingMode)
 {
-    /* Backface culling */
-    // The glEnable() seems implied - DDOI
-
-    // cull backward facing polygons
-    glEnable(GL_CULL_FACE);  // GL_ENABLE_BIT
-    glCullFace(face);        // GL_POLYGON_BIT
-    glFrontFace(mode);       // GL_POLYGON_BIT
-    Ego::OpenGL::Utilities::isError();
+	auto& renderer = Ego::Renderer::get();
+	renderer.setCullingMode(cullingMode);
+	renderer.setWindingMode(windingMode);
 }
-
-//--------------------------------------------------------------------------------------------

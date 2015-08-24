@@ -77,7 +77,7 @@ public:
 	 * @param entityList
 	 *	the entity list to be used
 	 */
-	virtual void doRun(Camera& camera, const Ego::Graphics::TileList& tileList, const EntityList& entityList) = 0;
+	virtual void doRun(::Camera& camera, const Ego::Graphics::TileList& tileList, const EntityList& entityList) = 0;
 public:
 	/**
 	 * @brief
@@ -89,7 +89,7 @@ public:
 	 * @param entityList
 	 *	the entity list to be used
 	 */
-	void run(Camera& camera, const Ego::Graphics::TileList& tileList, const EntityList& entityList) {
+	void run(::Camera& camera, const Ego::Graphics::TileList& tileList, const EntityList& entityList) {
 		ClockScope<ClockPolicy::NonRecursive> clockScope(_clock);
 		Ego::OpenGL::Utilities::isError();
 		doRun(camera, tileList, entityList);

@@ -21,6 +21,8 @@
 /// @brief  An enumeration of winding modes.
 /// @author Michael Heilmann
 
+#pragma once
+
 namespace Ego
 {
 

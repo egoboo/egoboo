@@ -91,23 +91,65 @@ public:
 	/** @name "Implementation of Ego::Graphics::Camera" */
 	/**@{*/
 
+private:
+
+	/**
+	 * @brief
+	 *  The forward vector of this camera.
+	 */
+	Vector3f _forward;
+
+	/**
+	 * @brief
+	 *  The up vector of this camera.
+	 */
+	Vector3f _up;
+
+	/**
+	 * @brief
+	 *  The right vector of this camera.
+	 */
+	Vector3f _right;
+
+	/**
+	 * @brief
+	 *  The view matrix (derived/cached from other attributes).
+	 */
+	Matrix4f4f _viewMatrix;
+
+	/**
+	 * @brief
+	 *  The projection matrices (derived/cached from other attributes).
+	 */
+	Matrix4f4f _projectionMatrix;
+
+	/**
+	 * @brief
+	 *  The position.
+	 * @invariant
+	 *  @a z must be within the interval <tt>[500,1000]</tt>.
+	 */
+	Vector3f _position;
+
+public:
+
 	/** @copydoc ICamera::getProjectionMatrix */
-	inline const Matrix4f4f& getProjectionMatrix() const override { return _mProjection; }
+	inline const Matrix4f4f& getProjectionMatrix() const override { return _projectionMatrix; }
 
 	/** @copydoc ICamera::getViewMatrix */
-	inline const Matrix4f4f& getViewMatrix() const override { return _mView; }
+	inline const Matrix4f4f& getViewMatrix() const override { return _viewMatrix; }
 
 	/** @copydoc ICamera::getPosition */
-	inline const Vector3f& getPosition() const override { return _pos; }
+	inline const Vector3f& getPosition() const override { return _position; }
 
 	/** @copydoc ICamera::getUp */
-	inline const Vector3f& getUp() const override { return _vup; }
+	inline const Vector3f& getUp() const override { return _up; }
 	
 	/** @copydoc ICamera::getRight */
-	inline const Vector3f& getRight() const override { return _vrt; }
+	inline const Vector3f& getRight() const override { return _right; }
 	
 	/** @copydoc ICamera::getForward */
-	inline const Vector3f& getForward() const override { return _vfw; }
+	inline const Vector3f& getForward() const override { return _forward; }
 
 	/**@}*/
 
@@ -152,7 +194,7 @@ public:
     // various getters
     inline const Ego::Graphics::Frustum& getFrustum() const {
         if (_frustumInvalid) {
-            _frustum.calculate(_mProjection, _mView);
+            _frustum.calculate(_projectionMatrix, _viewMatrix);
             _frustumInvalid = false;
         }
         return _frustum;
@@ -168,8 +210,8 @@ public:
      */
     inline const Vector3f& getCenter() const { return _center; }
     inline uint8_t getTurnTime() const { return _turnTime; }
-    inline float getTurnZOne() const { return _turnZOne; }
-    inline float getTurnZRad() const { return _turnZRad; }
+    inline float getTurnZ_turns() const { return _turnZ_turns; }
+    inline float getTurnZ_radians() const { return _turnZ_radians; }
 
 
     inline float getMotionBlur() const { return _motionBlur; }
@@ -287,11 +329,7 @@ protected:
 private:
 	const CameraOptions _options;
 
-    // The view matrix (derived/cached from other attributes).
-	Matrix4f4f _mView;
 
-    // The projection matrices (derived/cached from other attributes).
-	Matrix4f4f _mProjection;
 
     // The view frustum.
     mutable Ego::Graphics::Frustum _frustum;
@@ -309,9 +347,7 @@ private:
 	CameraTurnMode _turnMode;   ///< The camera turn mode.
     uint8_t        _turnTime;   ///< Time for the smooth turn.
 
-    // The actual camera position.
-	Vector3f       _pos;        ///< @brief The camera position.
-	                            ///< @inv @a z must be within the interval <tt>[500,1000]</tt>.
+
     orientation_t  _ori;        ///< @brief The camera orientation.
 
     // The middle of the objects that are being tracked.
@@ -328,15 +364,11 @@ private:
     float _zGoto;    ///< Effective z position.
 
     // Turning
-    float _turnZRad;        ///< Camera z rotation (radians).
-    float _turnZOne;        ///< Camera z rotation (from 0.0f to 1.0f).
+    float _turnZ_radians;   ///< Camera z rotation (in radians).
+    float _turnZ_turns;     ///< Camera z rotation (in turns).
     float _turnZAdd;        ///< Turning rate.
     float _turnZSustain;    ///< Turning rate falloff.
 
-    // Billboard information.
-	Vector3f _vfw;    ///< The camera forward vector.
-	Vector3f _vup;    ///< The camera up vector.
-	Vector3f _vrt;    ///< The camera right vector.
 
     // Effects
     float _motionBlur;         ///< Blurry effect.
