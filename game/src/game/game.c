@@ -3036,9 +3036,9 @@ void fog_instance_t::upload(const wawalite_fog_t& source)
 	_top = source.top;
 	_bottom = source.bottom;
 
-	_red = source.red * 0xFF;
-	_grn = source.grn * 0xFF;
-	_blu = source.blu * 0xFF;
+	_red = source.red;
+	_grn = source.grn;
+	_blu = source.blu;
 
 	_distance = (source.top - source.bottom);
 
