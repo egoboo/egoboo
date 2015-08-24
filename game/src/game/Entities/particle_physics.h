@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  game/Entities/Particle.hpp
+/// @file  game/Entities/Particle.h
 /// @brief Old C code for Particle entities that isnt ported yet.
 
 #pragma once
