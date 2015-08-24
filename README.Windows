@@ -24,6 +24,12 @@ MinGW/MSYS
 Information on compiling Egoboo using MinGW/MSYS is provided
 in the file 'README.MinGW-MSYS'.
 
+Building the documention
+========================
+Doxygen 1.8.10 or higher is required to build the documentation. To build the
+HTML documentation of Egoboo, open a console, change into the directory in
+which this file resides and enter `Doxygen`. The resulting documentaiton can
+then be found in the folder 'doc/doxygen'.
 
 
 For more help and support contacct us on the offical forums at:
