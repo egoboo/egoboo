@@ -27,6 +27,9 @@
 #include "egolib/bv.h"
 #include "egolib/Math/_Include.hpp"
 
+namespace Ego {
+namespace Graphics {
+
 #pragma push_macro("far")
 #undef far
 #pragma push_macro("FAR")
@@ -41,7 +44,7 @@
  *	A view frustum.
  *	A point is inside the frustum, if its distance from each plane of the frustum is non-negative.
  */
-struct egolib_frustum_t
+struct Frustum
 {
     enum Planes
     {
@@ -63,7 +66,7 @@ struct egolib_frustum_t
         SIDES_END = TOP      ///< The index of the last side plane.
     };
     // basic frustum data
-	Plane3f _planes2[Planes::COUNT];
+	Plane3f _planes[Planes::COUNT];
 
     // data for intersection optimization
     Vector3f _origin;
@@ -75,12 +78,13 @@ public:
      * @brief
      *  Construct this frustum.
      */
-    egolib_frustum_t();
-    /**
+    Frustum();
+
+	/**
      * @brief
      *  Destruct this frustum.
      */
-    virtual ~egolib_frustum_t();
+    virtual ~Frustum();
 
 	/**
 	 * @brief
@@ -95,7 +99,7 @@ public:
 	 *  If a point is behind one of the frustum planes (i.e. its distance to the plane is
 	 *  negative), then the point is outside the frustum, otherwise it is inside the frustum.
 	 */
-	Ego::Math::Relation intersects_point(const Vector3f& point, const bool doEnds) const;
+	Math::Relation intersects(const Vector3f& point, const bool doEnds) const;
 
 	/**
 	 * @brief
@@ -115,7 +119,7 @@ public:
 	 * @remark
 	 *	If a the sphere is outside one plane farther than its radius, it is outside the frustum.
 	 */
-	Ego::Math::Relation intersects_sphere(const Sphere3f& sphere, const bool doEnds) const;
+	Math::Relation intersects(const Sphere3f& sphere, const bool doEnds) const;
 
     /**
      * @brief
@@ -137,7 +141,7 @@ public:
      * @todo
      *  Replace <tt>const Vector3f& position</tt> and <tt>const float size</tt> by <tt>const Cube3f& cube</tt>.
      */
-	Ego::Math::Relation intersects_cube(const Vector3f& center, const float size, const bool doEnds) const;
+	Math::Relation intersects(const Cube3f& cube, const bool doEnds) const;
 
     /**
      * @brief
@@ -153,8 +157,8 @@ public:
      *      <li>geometry_inside    - the AABB is completely inside the frustum</li>
      *	</ul>
      */
-	Ego::Math::Relation intersects_aabb(const Vector3f& corner1, const Vector3f& corner2, bool doEnds) const;
-	Ego::Math::Relation intersects_aabb(const AABB3f& aabb, bool doEnds) const;
+	Math::Relation intersects_aabb(const Vector3f& corner1, const Vector3f& corner2, bool doEnds) const;
+	Math::Relation intersects(const AABB3f& aabb, bool doEnds) const;
 
 	/**
 	 * @brief
@@ -167,10 +171,10 @@ public:
 	 *		<li>geometry_intersect - the BV and the frustum partially overlap</li>
 	 *		<li>geometry_inside    - the bounding volume is completely inside the frustum</li>
 	 */
-	Ego::Math::Relation intersects_bv(const bv_t *bv, bool doEnds) const;
+	Math::Relation intersects(const bv_t& bv, bool doEnds) const;
 
 	/// @todo Should return geometry_rv.
-	bool intersects_oct(const oct_bb_t *oct, const bool doEnds) const;
+	bool intersects(const oct_bb_t& oct, const bool doEnds) const;
 
     /**
     * @brief
@@ -220,3 +224,6 @@ protected:
 #pragma pop_macro("near")
 #pragma pop_macro("FAR")
 #pragma pop_macro("far")
+
+} // namespace Graphics
+} // namespace Ego

@@ -191,7 +191,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
     }
 
 	Vector3f vcam;
-    mat_getCamForward(cam.getView(), vcam);
+    mat_getCamForward(cam.getViewMatrix(), vcam);
 
     // Figure the distance of each.
     size_t count = 0;

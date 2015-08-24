@@ -77,21 +77,53 @@ extern "C"
 #   define FACING_TO_RAD(XX)     ( (XX) * 0.000095873799242852576857380474343257f )
 #endif
 
-#if !defined(ONE_TO_TURN)
-#   define ONE_TO_TURN(XX)         CLIP_TO_16BITS(( int )( XX * ( float )0x00010000 ) )
-#endif
+/**
+ * @brief
+ *  Convert an angle from turns to "facing" (some custom Egoboo unit in the interval \f$[0,2^16]\f$).
+ * @param x
+ *  the angle in turns
+ * @return
+ *  the angle in "facing"
+ */
+inline FACING_T TurnsToFacing(float x) {
+	return CLIP_TO_16BITS((int)(x * (float)0x00010000));
+}
 
-#if !defined(TURN_TO_ONE)
-#   define TURN_TO_ONE(XX)         ( (float) CLIP_TO_16BITS(XX) / ( float )0x00010000 )
-#endif
+/**
+ * @brief
+ *  Convert an angle from "facing" (some custom Egoboo unit in the interval \f$[0,2^16]\f$)) to turns.
+ * @param x
+ *	the angle in "facing"
+ * @return
+ *  the angle in turns
+ */
+inline float FacingToTurns(FACING_T x) {
+	return ((float)CLIP_TO_16BITS(XX) / (float)0x00010000);
+}
 
-#if !defined(RAD_TO_ONE)
-#   define RAD_TO_ONE(XX)         ((XX) * Ego::Math::invTwoPi<float>())
-#endif
+/**
+ * @brief
+ *  Convert an angle from radians (\f$[0,2\pi]\f$) to turns (\f$[0,1]\f$).
+ * @param x
+ *  the angle in radians
+ * @return
+ *  the angle in turns
+ */
+inline float RadiansToTurns(float x) {
+	return x * Ego::Math::invTwoPi<float>();
+}
 
-#if !defined(ONE_TO_RAD)
-#   define ONE_TO_RAD(XX)         ((XX) * Ego::Math::twoPi<float>())
-#endif
+/**
+ * @brief
+ *  Convert an angle from turns (\f$[0,1]\f$) to radians (\f$[0,2\pi]\f$).
+ * @param x
+ *  the angle in turns
+ * @return
+ *  the angle in radians
+ */
+inline float TurnsToRadians(float x) {
+	return x * Ego::Math::twoPi<float>();
+}
 
 //--------------------------------------------------------------------------------------------
 // the lookup tables for sine and cosine

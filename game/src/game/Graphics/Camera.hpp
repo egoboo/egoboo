@@ -23,6 +23,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/physics.h"			//for orientation_t
+#include "egolib/Graphics/Camera.hpp"
 
 //Forward declarations
 class ego_mesh_t;
@@ -82,11 +83,89 @@ CONSTEXPR float CAM_ZOOM_FACTOR = 0.5f;
  *  - "center" the position the camera is focused on
  *  - "position" the position the camera is located at
  */
-class Camera : public Id::NonCopyable
+class Camera : public Id::NonCopyable, public Ego::Graphics::Camera
 {
+
 public:
+
+	/** @name "Implementation of Ego::Graphics::Camera" */
+	/**@{*/
+
+private:
+
+	/**
+	 * @brief
+	 *  The forward vector of this camera.
+	 */
+	Vector3f _forward;
+
+	/**
+	 * @brief
+	 *  The up vector of this camera.
+	 */
+	Vector3f _up;
+
+	/**
+	 * @brief
+	 *  The right vector of this camera.
+	 */
+	Vector3f _right;
+
+	/**
+	 * @brief
+	 *  The view matrix (derived/cached from other attributes).
+	 */
+	Matrix4f4f _viewMatrix;
+
+	/**
+	 * @brief
+	 *  The projection matrices (derived/cached from other attributes).
+	 */
+	Matrix4f4f _projectionMatrix;
+
+	/**
+	 * @brief
+	 *  The position.
+	 * @invariant
+	 *  @a z must be within the interval <tt>[500,1000]</tt>.
+	 */
+	Vector3f _position;
+
+public:
+
+	/** @copydoc ICamera::getProjectionMatrix */
+	inline const Matrix4f4f& getProjectionMatrix() const override { return _projectionMatrix; }
+
+	/** @copydoc ICamera::getViewMatrix */
+	inline const Matrix4f4f& getViewMatrix() const override { return _viewMatrix; }
+
+	/** @copydoc ICamera::getPosition */
+	inline const Vector3f& getPosition() const override { return _position; }
+
+	/** @copydoc ICamera::getUp */
+	inline const Vector3f& getUp() const override { return _up; }
+	
+	/** @copydoc ICamera::getRight */
+	inline const Vector3f& getRight() const override { return _right; }
+	
+	/** @copydoc ICamera::getForward */
+	inline const Vector3f& getForward() const override { return _forward; }
+
+	/**@}*/
+
+public:
+	/**
+	 * @brief
+	 *  Construct this camera.
+	 * @param options
+	 *  the camera options
+	 */
     Camera(const CameraOptions &options);
-    ~Camera();
+	/**
+	 * @brief
+	 *  Destruct this camera.
+	 */
+    virtual ~Camera();
 
     /// The default field of view angle (in degrees).
     static const float DEFAULT_FOV;
@@ -113,15 +192,13 @@ public:
     void initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList);
 
     // various getters
-	inline const Matrix4f4f& getProjection() const { return _mProjection; }
-    inline const egolib_frustum_t& getFrustum() const {
+    inline const Ego::Graphics::Frustum& getFrustum() const {
         if (_frustumInvalid) {
-            _frustum.calculate(_mProjection, _mView);
+            _frustum.calculate(_projectionMatrix, _viewMatrix);
             _frustumInvalid = false;
         }
         return _frustum;
     }
-	inline const Matrix4f4f& getView() const { return _mView; }
     inline const orientation_t& getOrientation() const { return _ori; }
     inline CameraTurnMode getTurnMode() const { return _turnMode; }
     inline const Vector3f& getTrackPosition() const { return _trackPos; }
@@ -132,20 +209,10 @@ public:
      *  the center of the camera
      */
     inline const Vector3f& getCenter() const { return _center; }
-    /**
-     * @brief
-     *  Get the position of the camera
-     * @return
-     *  the position of the camera.
-     */
-    inline const Vector3f& getPosition() const { return _pos; }
     inline uint8_t getTurnTime() const { return _turnTime; }
-    inline float getTurnZOne() const { return _turnZOne; }
-    inline float getTurnZRad() const { return _turnZRad; }
+    inline float getTurnZ_turns() const { return _turnZ_turns; }
+    inline float getTurnZ_radians() const { return _turnZ_radians; }
 
-    inline const Vector3f& getVUP() const { return _vup; }
-    inline const Vector3f& getVRT() const { return _vrt; }
-    inline const Vector3f& getVFW() const { return _vfw; }
 
     inline float getMotionBlur() const { return _motionBlur; }
     inline float getMotionBlurOld() const { return _motionBlurOld; }
@@ -262,14 +329,10 @@ protected:
 private:
 	const CameraOptions _options;
 
-    // The view matrix (derived/cached from other attributes).
-	Matrix4f4f _mView;
 
-    // The projection matrices (derived/cached from other attributes).
-	Matrix4f4f _mProjection;
 
     // The view frustum.
-    mutable egolib_frustum_t _frustum;
+    mutable Ego::Graphics::Frustum _frustum;
     /**
      * @brief
      *  If either the projection or the view matrix changed, the frustum is marked as invalid,
@@ -284,9 +347,7 @@ private:
 	CameraTurnMode _turnMode;   ///< The camera turn mode.
     uint8_t        _turnTime;   ///< Time for the smooth turn.
 
-    // The actual camera position.
-	Vector3f       _pos;        ///< @brief The camera position.
-	                            ///< @inv @a z must be within the interval <tt>[500,1000]</tt>.
+
     orientation_t  _ori;        ///< @brief The camera orientation.
 
     // The middle of the objects that are being tracked.
@@ -303,15 +364,11 @@ private:
     float _zGoto;    ///< Effective z position.
 
     // Turning
-    float _turnZRad;        ///< Camera z rotation (radians).
-    float _turnZOne;        ///< Camera z rotation (from 0.0f to 1.0f).
+    float _turnZ_radians;   ///< Camera z rotation (in radians).
+    float _turnZ_turns;     ///< Camera z rotation (in turns).
     float _turnZAdd;        ///< Turning rate.
     float _turnZSustain;    ///< Turning rate falloff.
 
-    // Billboard information.
-	Vector3f _vfw;    ///< The camera forward vector.
-	Vector3f _vup;    ///< The camera up vector.
-	Vector3f _vrt;    ///< The camera right vector.
 
     // Effects
     float _motionBlur;         ///< Blurry effect.

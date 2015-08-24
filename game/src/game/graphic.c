@@ -405,7 +405,7 @@ int GFX::initializeOpenGL()
     /// @todo Including backface culling here prevents the mesh from getting rendered
     /// backface culling
 
-    // oglx_begin_culling( GL_BACK, GL_CW );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+    // oglx_begin_culling(Ego::CullingMode::Back, Ego::WindingMode::Clockwise);            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
     // disable OpenGL lighting
 	renderer.setLightingEnabled(false);
@@ -1332,10 +1332,10 @@ float draw_debug(float y)
 
         // White debug mode
         y = draw_string_raw(0, y, "!!!DEBUG MODE-7!!!");
-        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(0, 0), camera->getView()(0, 1), camera->getView()(0, 2), camera->getView()(0, 3));
-        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(1, 0), camera->getView()(1, 1), camera->getView()(1, 2), camera->getView()(1, 3));
-        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(2, 0), camera->getView()(2, 1), camera->getView()(2, 2), camera->getView()(2, 3));
-        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(3, 0), camera->getView()(3, 1), camera->getView()(3, 2), camera->getView()(3, 3));
+        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getViewMatrix()(0, 0), camera->getViewMatrix()(0, 1), camera->getViewMatrix()(0, 2), camera->getViewMatrix()(0, 3));
+        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getViewMatrix()(1, 0), camera->getViewMatrix()(1, 1), camera->getViewMatrix()(1, 2), camera->getViewMatrix()(1, 3));
+        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getViewMatrix()(2, 0), camera->getViewMatrix()(2, 1), camera->getViewMatrix()(2, 2), camera->getViewMatrix()(2, 3));
+        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getViewMatrix()(3, 0), camera->getViewMatrix()(3, 1), camera->getViewMatrix()(3, 2), camera->getViewMatrix()(3, 3));
         y = draw_string_raw(0, y, "CAM center <%f, %f>", camera->getCenter()[kX], camera->getCenter()[kY]);
         y = draw_string_raw(0, y, "CAM turn %d %d", static_cast<int>(camera->getTurnMode()), camera->getTurnTime());
     }
@@ -3007,7 +3007,7 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
     {
         if (!el.test_prt(particle)) continue;
 
-        if(Ego::Math::Relation::outside != cam.getFrustum().intersects_sphere(Sphere3f(particle->getPosition(), particle->bump_real.size_big), false))
+        if(Ego::Math::Relation::outside != cam.getFrustum().intersects(Sphere3f(particle->getPosition(), particle->bump_real.size_big), false))
         {
             if (gfx_error == el.add_prt_raw(particle))
             {

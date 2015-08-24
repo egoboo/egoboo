@@ -24,6 +24,9 @@
 
 #include "egolib/frustum.h"
 
+namespace Ego {
+namespace Graphics {
+
 #pragma push_macro("far")
 #undef far
 #pragma push_macro("FAR")
@@ -34,25 +37,143 @@
 #undef NEAR
 
 
-egolib_frustum_t::egolib_frustum_t()
+Frustum::Frustum()
 {
 }
 
-egolib_frustum_t::~egolib_frustum_t()
+Frustum::~Frustum()
 {
 }
 
-void egolib_frustum_t::calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& view, const Matrix4f4f& world, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
+void Frustum::calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& view, const Matrix4f4f& world, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     calculatePlanes(projection * view * world, left, right, bottom, top, near, far);
 }
 
-void egolib_frustum_t::calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& view, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
+void Frustum::calculatePlanes(const Matrix4f4f& projection, const Matrix4f4f& view, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     calculatePlanes(projection * view, left, right, bottom, top, near, far);
 }
 
-void egolib_frustum_t::calculatePlanes(const Matrix4f4f& matrix, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
+/**
+ * @remark
+ *	A point
+ *	\f[
+ *	\mathbf{p}=(x,y,z,w=1)
+ *	\f]
+ *	is transformed by a view to device (aka projection) or
+ *	world to device (aka view + projection) transformation represented by a	\f$4 \times 4\f$
+ *	matrix
+ *	\f[
+ *	\mathbf{T} =
+ *	\left[\begin{matrix}
+ *	r_0\\
+ *	r_1\\
+ *	r_2\\
+ *	r_3\\
+ *	\end{matrix}\right]
+ *	\f]
+ *	as follows
+ *	\f[
+ *	\mathbf{p}' = (x',y',z',w') = \mathbf{p} \cdot \mathbf{T} =
+ *	\left[
+ *	\mathbf{p} \cdot r_0
+ *	\mathbf{p} \cdot r_1
+ *	\mathbf{p} \cdot r_2
+ *	\mathbf{p} \cdot r_3
+ *	\right]
+ *	\f]
+ *	For not being clipped, the resulting point \f$\mathbf{p}'\f$ must fulfil the following
+ *	properties
+ *  <center><table>
+ *  <tr><td>\f$-w' < x'\f$</td><td>inside half-space of left   clipping plane</td></tr>
+ *  <tr><td>\f$x'  < w'\f$</td><td>inside half-space of right  clipping plane</td></tr>
+ *  <tr><td>\f$-w' < y'\f$</td><td>inside half-space of bottom clipping plane</td></tr>
+ *  <tr><td>\f$y' < w'\f$ </td><td>inside half-space of top    clipping plane</td></tr>
+ *  <tr><td>\f$-w < z'\f$ </td><td>inside half-space of near   clipping plane</td></tr>
+ *  <tr><td>\f$z' < w'\f$ </td><td>inside half-space of far    clipping plane</td></tr>
+ *	</table></center>
+ *  in order to be rendered.
+ *@remark
+ *	This relation allows for frustum plane extraction.
+ *	Expanding those inequalities, we obtain
+ *
+ *	Left clipping plane:
+ *	<table>
+ *  <tr><td>\f{align*}
+ *	               &\;-w' < x'
+ *	\hookrightarrow&\;-(\mathbf{p} \cdot r_3) < (\mathbf{p} \cdot r_0)\\
+ *  \hookrightarrow&\;0 < (\mathbf{p} \cdot r_0) + (\mathbf{p} \cdot r_3)\\ 
+ *  \hookrightarrow&\;0 < \mathbf{p} \cdot (r_0 + r_3)\\
+ *	\hookrightarrow&\;0 < (m_{0,0} + m_{3,0}) x + (m_{0,1} + m_{3,1}) y + (m_{0,2} + m_{3,2}) z + (m_{0,3} + m_{3,3}) w\\
+ *	\hookrightarrow&\;0 < (m_{0,0} + m_{3,0}) x + (m_{0,1} + m_{3,1}) y + (m_{0,2} + m_{3,2}) z + (m_{0,3} + m_{3,3})
+ *	\f}</td></tr>
+ *	</table>
+ *
+ *	Right clipping plane
+ *	<table>
+ *  <tr><td>\f{align*}
+ *	               &\;x' < w'
+ *  \hookrightarrow&\;(\mathbf{p} \cdot r_0) < (\mathbf{p} \cdot r_3)\\
+ *  \hookrightarrow&\;0 < (\mathbf{p} \cdot r_3) - (\mathbf{p} \cdot r_0)\\
+ *	\hookrightarrow&\;0 < \mathbf{p} \cdot (r_3 - r_0)\\
+ *	\hookrightarrow&\;0 < (m_{3,0} - m_{0,0}) x + (m_{3,1} - m_{0,1}) y + (m_{3,2} - m_{0,2}) z + (m_{3,3} - m_{0,3}) w\\
+ *	\hookrightarrow&\;0 < (m_{3,0} - m_{0,0}) x + (m_{3,1} - m_{0,1}) y + (m_{3,2} - m_{0,2}) z + (m_{3,3} - m_{0,3})
+ *	\f}</td></tr>
+ *	</table>
+ *
+ *	Bottom clipping plane
+ *	<table>
+ *  <tr><td>\f{align*}
+ *	               &\;-w' < y'\\
+ *  \hookrightarrow&\;-(\mathbf{p} \cdot r_3) < (\mathbf{p} \cdot r_1)\\
+ *  \hookrightarrow&\;0 < (\mathbf{p} \cdot r_1) + (\mathbf{p} \cdot r_3)\\
+ *  \hookrightarrow&\;0 < \mathbf{p} + (r_1 + r_3)\\
+ *  \hookrightarrow&\;0 < \mathbf{p} + (r_1 + r_3)\\
+ *	\hookrightarrow&\;0 < (m_{1,0} + m_{3,0}) x + (m_{1,1} + m_{3,1}) y + (m_{1,2} + m_{3,2}) z + (m_{1,3} + m_{3,3}) w\\
+ *	\hookrightarrow&\;0 < (m_{1,0} + m_{3,0}) x + (m_{1,1} + m_{3,1}) y + (m_{1,2} + m_{3,2}) z + (m_{1,3} + m_{3,3})
+ *	\f}</td></tr>
+ *	</table>
+ *
+ *	Top clipping plane
+ *	<table>
+ *  <tr><td>\f{align*}
+ *	               &\;y' < w'\\
+ *  \hookrightarrow&\;(\mathbf{p} \cdot r_1) < (\mathbf{p} \cdot r_3)\\
+ *  \hookrightarrow&\;0 < (\mathbf{p} \cdot r_3) - (\mathbf{p} \cdot r_1)\\
+ *  \hookrightarrow&\;0 < \mathbf{p} \cdot (r_3 - r_1)\\
+ *	\hookrightarrow&\;0 < (m_{3,0} - m_{1,0}) x + (m_{3,1} - m_{1,1}) y + (m_{3,2} - m_{1,2}) z + (m_{3,3} - m_{1,3}) w\\
+ *	\hookrightarrow&\;0 < (m_{3,0} - m_{1,0}) x + (m_{3,1} - m_{1,1}) y + (m_{3,2} - m_{1,2}) z + (m_{3,3} - m_{1,3})
+ *	\f}</td></tr>
+ *	</table>
+ *
+ *	Near clipping plane
+ *	<table>
+ *  <tr><td>\f{align*}
+ *	           &-w < z'\\
+ *  \rightarrow&-(\mathbf{p} \cdot r_3) < (\mathbf{p} \cdot r_2)\\
+ *  \rightarrow&0 < (\mathbf{p} \cdot r_2) + (\mathbf{p} \cdot r_3)\\
+ *  \rightarrow&0 < \mathbf{p} \cdot (r_2 + r_3)\\
+ *  \rightarrow&0 < (m_{2,0} + m_{3,0}) x + (m_{2,1} + m_{3,1}) y + (m_{2,2} + m_{3,2}) z + (m_{2,3} + m_{3,3} w\\
+ *  \rightarrow&0 < (m_{2,0} + m_{3,0}) x + (m_{2,1} + m_{3,1}) y + (m_{2,2} + m_{3,2}) z + (m_{2,3} + m_{3,3})
+ *	\f}</td></tr>
+ *	</table>
+ *
+ *	Far clipping plane
+ *	<table>
+ *  <tr><td>\f{align*}
+ *	           &z' < w'\\
+ *  \rightarrow&(\mathbf{p} \cdot r_2) < (\mathbf{p} \cdot r_3)\\
+ *	\rightarrow&0 < (\mathbf{p} \cdot r_3) - (\mathbf{p} \cdot r_2)\\
+ *	\rightarrow&0 < \mathbf{p} \cdot (r_3 - r_2)\\
+ *	\rightarrow&0 < (m_{3,0} - m_{2,0}) x + (m_{3,1} - m_{2,1}) y + (m_{3,2} - m_{2,1}) z + (m_{3,3} - m_{2,3}) w\\
+ *	\rightarrow&0 < (m_{3,0} - m_{2,0}) x + (m_{3,1} - m_{2,1}) y + (m_{3,2} - m_{2,1}) z + (m_{3,3} - m_{2,3})
+ *	\f}</td></tr>
+ *	</table>
+ * @remark
+
+ */
+void Frustum::calculatePlanes(const Matrix4f4f& matrix, Plane3f& left, Plane3f& right, Plane3f& bottom, Plane3f& top, Plane3f& near, Plane3f& far)
 {
     float a, b, c, d;
 
@@ -99,28 +220,28 @@ void egolib_frustum_t::calculatePlanes(const Matrix4f4f& matrix, Plane3f& left, 
     far = Plane3f(a, b, c, d);
 }
 
-void egolib_frustum_t::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
+void Frustum::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
 {
 	Vector3f pt1;
 	Vector3f vlook;
 
     // Compute the 6 frustum planes.
     {
-        egolib_frustum_t::calculatePlanes(projection, view,
-                                          _planes2[Planes::LEFT],
-                                          _planes2[Planes::RIGHT],
-                                          _planes2[Planes::BOTTOM],
-                                          _planes2[Planes::TOP],
-                                          _planes2[Planes::NEAR],
-                                          _planes2[Planes::FAR]);
+		Frustum::calculatePlanes(projection, view,
+                                 _planes[Planes::LEFT],
+                                 _planes[Planes::RIGHT],
+                                 _planes[Planes::BOTTOM],
+                                 _planes[Planes::TOP],
+                                 _planes[Planes::NEAR],
+                                 _planes[Planes::FAR]);
     }
 
     // Compute the origin.
     {
         // the origin of the frustum (should be the camera position)
-        three_plane_intersection(_origin, _planes2[Planes::RIGHT],
-			                              _planes2[Planes::LEFT],
-									      _planes2[Planes::BOTTOM]);
+        three_plane_intersection(_origin, _planes[Planes::RIGHT],
+			                              _planes[Planes::LEFT],
+									      _planes[Planes::BOTTOM]);
     }
 
     // Compute the sphere.
@@ -129,12 +250,12 @@ void egolib_frustum_t::calculate(const Matrix4f4f& projection, const Matrix4f4f&
         mat_getCamForward(view, vlook);
 
         // one far corner of the frustum
-        three_plane_intersection(pt1, _planes2[Planes::TOP],
-			                          _planes2[Planes::RIGHT],
-									  _planes2[Planes::BACK]);
+        three_plane_intersection(pt1, _planes[Planes::TOP],
+			                          _planes[Planes::RIGHT],
+									  _planes[Planes::BACK]);
 
         // get the distance from the origin to the far plane
-        float dist = _planes2[Planes::BACK].distance(_origin);
+        float dist = _planes[Planes::BACK].distance(_origin);
 
         // calculate the center of the sphere
         _sphere.setCenter(_origin + vlook * (dist * 0.5f));
@@ -147,216 +268,155 @@ void egolib_frustum_t::calculate(const Matrix4f4f& projection, const Matrix4f4f&
     }
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_bv(const bv_t *bv, bool doEnds) const
-{
-	// Validate arguments.
-	if (nullptr == bv)
-	{
-		return Ego::Math::Relation::error;
-	}
-	return intersects_aabb(bv->getAABB().getMin(), bv->getAABB().getMax(), doEnds);
+Math::Relation Frustum::intersects(const bv_t& bv, bool doEnds) const {
+	return intersects_aabb(bv.getAABB().getMin(), bv.getAABB().getMax(), doEnds);
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_point(const Vector3f& point, const bool doEnds) const
-{
+Math::Relation Frustum::intersects(const Vector3f& point, const bool doEnds) const {
 	// Handle optional parameters.
-	int i_stt, i_end;
-	if (doEnds)
-	{
-		i_stt = 0;
-		i_end = Planes::END;
-	}
-	else
-	{
-		i_stt = 0;
-		i_end = Planes::SIDES_END;
-	}
+	int start = 0,
+		end = doEnds ? Planes::END : Planes::SIDES_END;
 
 	// Assume the point is inside the frustum.
 	bool inside = true;
 
 	// Scan through the frustum's planes:
-	for (int i = i_stt; i <= i_end; i++)
-	{
-		if (_planes2[i].distance(point) <= 0.0f)
-		{
+	for (int i = start; i <= end; i++) {
+		if (_planes[i].distance(point) <= 0.0f) {
 			inside = false;
 			break;
 		}
 	}
 
-	return inside ? Ego::Math::Relation::inside : Ego::Math::Relation::outside;
+	return inside ? Math::Relation::inside : Math::Relation::outside;
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_sphere(const Sphere3f& sphere, const bool doEnds) const
-{
-	/// @todo The radius of a sphere shall preserve the invariant to be non-negative.
-	/// The test below would then reduce to radius == 0.0f. In that case, the simple
-	/// frustum - center test is sufficient.
-	if (sphere.getRadius() == 0.0f)
-	{
-		return this->intersects_point(sphere.getCenter(), doEnds);
+Math::Relation Frustum::intersects(const Sphere3f& sphere, const bool doEnds) const {
+	// In the case of the sphere radius being 0, the frustum - sphere (hence multiple
+	// plane - sphere) intersection test reduces to a frustum - point (hence multiple
+	// plane - point) intersection tests.
+	if (sphere.getRadius() == 0.0f) {
+		return intersects(sphere.getCenter(), doEnds);
 	}
 
 	// Assume the sphere is completely inside the frustum.
-	Ego::Math::Relation retval = Ego::Math::Relation::inside;
+	Math::Relation result = Math::Relation::inside;
 
 	// Handle optional parameters.
-	int i_stt, i_end;
-	if (doEnds)
-	{
-		i_stt = 0;
-		i_end = Planes::END;
-	}
-	else
-	{
-		i_stt = 0;
-		i_end = Planes::SIDES_END;
-	}
+	int start = 0,
+		end = doEnds ? Planes::END : Planes::SIDES_END;
 
 	// scan each plane
-	for (int i = i_stt; i <= i_end; i++)
-	{
-		float dist = _planes2[i].distance(sphere.getCenter());
+	for (int i = start; i <= end; i++) {
+		float dist = _planes[i].distance(sphere.getCenter());
 
 		// If the sphere is completely behind the current plane, it is outside the frustum.
-		if (dist <= -sphere.getRadius())
-		{
-			retval = Ego::Math::Relation::outside;
+		if (dist <= -sphere.getRadius()) {
+			result = Math::Relation::outside;
 			break;
-		}
 		// If it is not completely in front of the current plane, it intersects the frustum.
-		else if (dist < sphere.getRadius())
-		{
-			retval = Ego::Math::Relation::intersect;
+		} else if (dist < sphere.getRadius()) {
+			result = Math::Relation::intersect;
 		}
 	}
 
-	return retval;
+	return result;
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_cube(const Vector3f& center, const float size, const bool doEnds) const
-{
+Math::Relation Frustum::intersects(const Cube3f& cube, const bool doEnds) const {
 	// Assume the cube is inside the frustum.
-	Ego::Math::Relation retval = Ego::Math::Relation::inside;
+	Math::Relation result = Math::Relation::inside;
 
 	// Handle optional parameters.
-	int i_stt, i_end;
-	if (doEnds)
-	{
-		i_stt = 0;
-		i_end = Planes::END;
-	}
-	else
-	{
-		i_stt = 0;
-		i_end = Planes::SIDES_END;
-	}
+	int start = 0,
+		end = doEnds ? Planes::END : Planes::SIDES_END;
 
-	for (int i = i_stt; i <= i_end; i++)
-	{
-		const Plane3f& plane = _planes2[i];
+	for (int i = start; i <= end; i++) {
+		const Plane3f& plane = _planes[i];
 		Vector3f vmin, vmax;
 		// find the most-positive and most-negative points of the aabb
-		for (int j = 0; j < 3; j++)
-		{
-			if (plane.getNormal()[j] > 0.0f)
-			{
-				vmin[j] = center[j] - size;
-				vmax[j] = center[j] + size;
-			}
-			else
-			{
-				vmin[j] = center[j] + size;
-				vmax[j] = center[j] - size;
+		for (int j = 0; j < 3; j++) {
+			if (plane.getNormal()[j] > 0.0f) {
+				vmin[j] = cube.getCenter()[j] - cube.getSize();
+				vmax[j] = cube.getCenter()[j] + cube.getSize();
+			} else {
+				vmin[j] = cube.getCenter()[j] + cube.getSize();
+				vmax[j] = cube.getCenter()[j] - cube.getSize();
 			}
 		}
 
 		// If the cube is completely on the negative half-space of the plane,
 		// then it is completely outside.
 		/// @todo This is wrong!
-		if (plane.distance(vmin) > 0.0f)
-		{
-			retval = Ego::Math::Relation::outside;
+		if (plane.distance(vmin) > 0.0f) {
+			result = Math::Relation::outside;
 			break;
 		}
 
 		// if vmin is inside and vmax is outside, then it is not completely inside
 		/// @todo This is wrong.
-		if (plane.distance(vmax) >= 0.0f)
-		{
-			retval = Ego::Math::Relation::intersect;
+		if (plane.distance(vmax) >= 0.0f) {
+			result = Math::Relation::intersect;
 		}
 	}
 
-	return retval;
+	return result;
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_aabb(const AABB3f& aabb, bool doEnds) const
-{
+Math::Relation Frustum::intersects(const AABB3f& aabb, bool doEnds) const {
     return intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
 }
 
-Ego::Math::Relation egolib_frustum_t::intersects_aabb(const Vector3f& mins, const Vector3f& maxs, bool doEnds) const
-{
+Math::Relation Frustum::intersects_aabb(const Vector3f& mins, const Vector3f& maxs, bool doEnds) const {
     // Handle optional parameters.
-    int i_stt = 0,
-        i_end = doEnds ? Planes::END : Planes::SIDES_END;
+    int start = 0,
+        end = doEnds ? Planes::END : Planes::SIDES_END;
 
     // Assume the AABB is inside the frustum.
-	Ego::Math::Relation retval = Ego::Math::Relation::inside;
+	Math::Relation result = Math::Relation::inside;
 
     // scan through the planes until something happens
     int i;
-    for (i = i_stt; i <= i_end; i++)
-    {
-		if (Ego::Math::Relation::outside == plane_intersects_aabb_max(_planes2[i], mins, maxs))
-        {
-			retval = Ego::Math::Relation::outside;
+    for (i = start; i <= end; i++) {
+		if (Math::Relation::outside == plane_intersects_aabb_max(_planes[i], mins, maxs)) {
+			result = Math::Relation::outside;
             break;
         }
 
-		if (Ego::Math::Relation::outside == plane_intersects_aabb_min(_planes2[i], mins, maxs))
-        {
-			retval = Ego::Math::Relation::intersect;
+		if (Math::Relation::outside == plane_intersects_aabb_min(_planes[i], mins, maxs)) {
+			result = Math::Relation::intersect;
             break;
         }
     }
 
     // Continue on if there is something to do.
-	if (Ego::Math::Relation::intersect == retval)
-    {
+	if (Math::Relation::intersect == result) {
         // If we are in geometry_intersect mode, we only need to check for
         // the geometry_outside condition.
 
         // This eliminates a geometry_inside == retval test in every iteration of the loop
-        for ( /* nothing */; i <= i_end; i++)
-        {
-			if (Ego::Math::Relation::outside == plane_intersects_aabb_max(_planes2[i], mins, maxs))
-            {
-				retval = Ego::Math::Relation::outside;
+        for ( /* nothing */; i <= end; i++) {
+			if (Math::Relation::outside == plane_intersects_aabb_max(_planes[i], mins, maxs)) {
+				result = Math::Relation::outside;
                 break;
             }
         }
     }
 
-    return retval;
+    return result;
 }
 
-bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) const
-{
-	if (nullptr == oct)
-	{
-		return false;
-	}
+bool Frustum::intersects(const oct_bb_t& oct, const bool doEnds) const {
+	AABB3f aabb = oct.toAABB();
+	Math::Relation result = intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
 
-	AABB3f aabb = oct->toAABB();
-	Ego::Math::Relation frustum_rv = this->intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
-
-	return frustum_rv > Ego::Math::Relation::outside;
+	return result > Math::Relation::outside;
 }
 
 #pragma pop_macro("NEAR")
 #pragma pop_macro("near")
 #pragma pop_macro("FAR")
 #pragma pop_macro("far")
+
+} // namespace Graphics
+} // namespace Ego

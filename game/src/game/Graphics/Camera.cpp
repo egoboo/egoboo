@@ -40,8 +40,8 @@ const float Camera::CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
 
 Camera::Camera(const CameraOptions &options) :
 	_options(options),
-	_mView(),
-	_mProjection(),
+	_viewMatrix(),
+	_projectionMatrix(),
     _frustumInvalid(true),
 	_frustum(),
 	_moveMode(CameraMovementMode::Player),
@@ -49,7 +49,7 @@ Camera::Camera(const CameraOptions &options) :
 	_turnMode(_options.turnMode),
 	_turnTime(DEFAULT_TURN_TIME),
 
-	_pos(),
+	_position(),
 	_ori(),
 
 	_trackPos(),
@@ -61,14 +61,14 @@ Camera::Camera(const CameraOptions &options) :
 	_zaddGoto(CAM_ZADD_AVG),
 	_zGoto(CAM_ZADD_AVG),
 
-	_turnZRad(-Ego::Math::piOverFour<float>()),
-	_turnZOne(0.0f),
+	_turnZ_radians(-Ego::Math::piOverFour<float>()),
+	_turnZ_turns(RadiansToTurns(_turnZ_radians)),
 	_turnZAdd(0.0f),
 	_turnZSustain(0.60f),	
 
-	_vfw{0, 0, 0},
-	_vup{0, 0, 0},
-	_vrt{0, 0, 0},
+	_forward{0, 0, 0},
+	_up{0, 0, 0},
+	_right{0, 0, 0},
 
 	// Special effects.
 	_motionBlur(0.0f),
@@ -87,10 +87,10 @@ Camera::Camera(const CameraOptions &options) :
 {
     // Derived values.
 	_trackPos = _center;
-    _pos = _center + Vector3f(_zoom * std::sin(_turnZRad), _zoom * std::cos(_turnZRad), CAM_ZADD_MAX);
+    _position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
 
-    _turnZOne   = RAD_TO_ONE( _turnZRad );
-    _ori.facing_z = ONE_TO_TURN( _turnZOne ) ;
+    _turnZ_turns = RadiansToTurns( _turnZ_radians );
+    _ori.facing_z = TurnsToFacing( _turnZ_turns ) ;
 
     resetView();
 
@@ -141,7 +141,7 @@ float Camera::multiplyFOV(const float old_fov_deg, const float factor)
 
 void Camera::updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near, const float frustum_far)
 {
-    _mProjection = Ego::Math::Transform::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
+    _projectionMatrix = Ego::Math::Transform::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
 
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -152,11 +152,11 @@ void Camera::resetView()
 	float roll_deg = Ego::Math::radToDeg(_roll);
 
     // Check for stupidity.
-    if (_pos != _center)
+    if (_position != _center)
     {
 		static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
 		Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, roll_deg);
-		_mView = tmp *  Ego::Math::Transform::lookAt(_pos, _center, Z);
+		_viewMatrix = tmp *  Ego::Math::Transform::lookAt(_position, _center, Z);
     }
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -172,8 +172,8 @@ void Camera::updatePosition()
     if ( 0 != _turnTime )
     {
         _turnZRad = std::atan2(_center[kY] - pos[kY], _center[kX] - pos[kX]);  // xgg
-        _turnZOne = RAD_TO_ONE(_turnZRad );
-        _ori.facing_z = ONE_TO_TURN(_turnZOne);
+        _turnZOne = RadiansToTurns(_turnZRad );
+        _ori.facing_z = TurnsToFacing(_turnZ_turns);
     }
 #endif
 
@@ -182,7 +182,7 @@ void Camera::updatePosition()
 	Vector3f pos_new = _center + Vector3f(_zoom * turntosin[turnsin], _zoom * turntocos[turnsin], _zGoto);
 
     // Make the camera motion smooth.
-    _pos = _pos * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
+    _position = _position * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
 }
 
 void Camera::makeMatrix()
@@ -190,14 +190,14 @@ void Camera::makeMatrix()
     resetView();
 
     // Pre-compute some camera vectors.
-    mat_getCamForward(_mView, _vfw);
-	_vfw.normalize();
+    mat_getCamForward(_viewMatrix, _forward);
+	_forward.normalize();
 
-    mat_getCamUp(_mView, _vup);
-	_vup.normalize();
+    mat_getCamUp(_viewMatrix, _up);
+	_up.normalize();
 
-    mat_getCamRight(_mView, _vrt);
-	_vrt.normalize();
+    mat_getCamRight(_viewMatrix, _right);
+	_right.normalize();
 }
 
 void Camera::updateZoom()
@@ -219,8 +219,8 @@ void Camera::updateZoom()
     else
     {
         _ori.facing_z += _turnZAdd;
-        _turnZOne    = TURN_TO_ONE( _ori.facing_z );
-        _turnZRad    = ONE_TO_RAD( _turnZOne );
+        _turnZ_turns = FacingToTurns( _ori.facing_z );
+        _turnZ_radians = TurnsToRadians( _turnZ_turns );
     }
     _turnZAdd *= _turnZSustain;
 
@@ -237,7 +237,7 @@ void Camera::updateCenter()
     else
     {
         // Determine tracking direction.
-		Vector3f track_vec = _trackPos - _pos;
+		Vector3f track_vec = _trackPos - _position;
 
         // Determine the size of the dead zone.
         float track_fov = DEFAULT_FOV * 0.25f;
@@ -251,10 +251,10 @@ void Camera::updateCenter()
 		Vector2f diff = Vector2f(_trackPos[kX],_trackPos[kY]) - Vector2f(_center[kX],_center[kY]);
 
         // Get 2d versions of the camera's right and up vectors.
-		Vector2f vrt(_vrt[kX],_vrt[kY]);
+		Vector2f vrt(_right[kX], _right[kY]);
 		vrt.normalize();
 
-		Vector2f vup(_vup[kX], _vup[kY]);
+		Vector2f vup(_up[kX], _up[kY]);
 		vup.normalize();
 
         // project the diff vector into this space
@@ -307,26 +307,26 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
     case CameraMovementMode::Free:
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_8))
 	        {
-	            _trackPos[kX] -= _mView(1, 0) * 50;
-	            _trackPos[kY] -= _mView(1, 1) * 50;
+	            _trackPos[kX] -= _viewMatrix(1, 0) * 50;
+	            _trackPos[kY] -= _viewMatrix(1, 1) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_2))
 	        {
-	            _trackPos[kX] += _mView(1, 0) * 50;
-	            _trackPos[kY] += _mView(1, 1) * 50;
+	            _trackPos[kX] += _viewMatrix(1, 0) * 50;
+	            _trackPos[kY] += _viewMatrix(1, 1) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_4))
 	        {
-	            _trackPos[kX] += _mView(0, 0) * 50;
-	            _trackPos[kY] += _mView(0, 1) * 50;
+	            _trackPos[kX] += _viewMatrix(0, 0) * 50;
+	            _trackPos[kY] += _viewMatrix(0, 1) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_6))
 	        {
-	            _trackPos[kX] -= _mView(0, 0) * 10;
-	            _trackPos[kY] -= _mView(0, 1) * 10;
+	            _trackPos[kX] -= _viewMatrix(0, 0) * 10;
+	            _trackPos[kY] -= _viewMatrix(0, 1) * 10;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_7))
@@ -649,7 +649,7 @@ void Camera::reset(const ego_mesh_t *mesh)
     _zadd = CAM_ZADD_AVG;
     _zaddGoto = CAM_ZADD_AVG;
     _zGoto = CAM_ZADD_AVG;
-    _turnZRad = -Ego::Math::piOverFour<float>();
+    _turnZ_radians = -Ego::Math::piOverFour<float>();
     _turnZAdd = 0.0f;
     _roll = 0.0f;
 
@@ -659,14 +659,14 @@ void Camera::reset(const ego_mesh_t *mesh)
     _center[kZ]     = 0.0f;
 
 	_trackPos = _center;
-	_pos = _center;
+	_position = _center;
 
-    _pos[kX] += _zoom * std::sin(_turnZRad);
-    _pos[kY] += _zoom * std::cos(_turnZRad);
-    _pos[kZ] += CAM_ZADD_MAX;
+    _position[kX] += _zoom * std::sin(_turnZ_radians);
+	_position[kY] += _zoom * std::cos(_turnZ_radians);
+    _position[kZ] += CAM_ZADD_MAX;
 
-    _turnZOne = RAD_TO_ONE(_turnZRad);
-    _ori.facing_z = ONE_TO_TURN(_turnZOne) ;
+    _turnZ_turns = RadiansToTurns(_turnZ_radians);
+    _ori.facing_z = TurnsToFacing(_turnZ_turns) ;
 
     // Get optional parameters.
     _swing = _options.swing;

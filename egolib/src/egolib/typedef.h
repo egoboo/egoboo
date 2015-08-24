@@ -124,7 +124,7 @@ signed SFP8_TO_SINT(const T& val)
 
 //--------------------------------------------------------------------------------------------
 /// the type for the 16-bit value used to store angles
-typedef Uint16 FACING_T;
+typedef uint16_t FACING_T;
 
     /// the type for the 14-bit value used to store angles
     typedef FACING_T TURN_T;

@@ -104,7 +104,7 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
         ptex = TextureManager::get().get_valid_ptr( pinst->texture );
     }
 
-    uoffset = pinst->uoffset - cam.getTurnZOne();
+    uoffset = pinst->uoffset - cam.getTurnZ_turns();
     voffset = pinst->voffset;
 
     // save the matrix mode
@@ -536,7 +536,7 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
 		auto& renderer = Ego::Renderer::get();
         // cull backward facing polygons
         // use couter-clockwise orientation to determine backfaces
-        oglx_begin_culling( GL_BACK, MAD_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+        oglx_begin_culling(Ego::CullingMode::Back, MAD_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
         Ego::OpenGL::Utilities::isError();
         if ( pinst.ref.alpha != 255 && pinst.ref.light == 255 )
         {
@@ -622,7 +622,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 
             // cull backward facing polygons
             // use clockwise orientation to determine backfaces
-            oglx_begin_culling( GL_BACK, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+            oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
             // get a speed-up by not displaying completely transparent portions of the skin
             renderer.setAlphaTestEnabled(true);
@@ -725,7 +725,7 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
             {
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
-                oglx_begin_culling( GL_BACK, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+                oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
             }
 
             chr_instance_t::get_tint( pinst, tint, CHR_SOLID );

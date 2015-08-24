@@ -455,6 +455,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />
     <ClInclude Include="src\egolib\Math\Matrix.hpp" />
     <ClInclude Include="src\egolib\Math\Rotatable.hpp" />

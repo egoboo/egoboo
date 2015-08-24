@@ -117,7 +117,7 @@ struct TileList
 	/// @brief Insert a tile into this render list.
 	/// @param index the tile index
 	/// @param camera the camera
-	gfx_rv insert(const TileIndex& index, const Camera& camera);
+	gfx_rv insert(const TileIndex& index, const ::Camera& camera);
 	/// @brief Get mesh this render list is attached to.
 	/// @return the mesh or @a nullptr
 	/// @post If the render list is attached to a mesh, that mesh is returned.
@@ -131,7 +131,7 @@ struct TileList
 	/// @brief Insert a tile into this render list.
 	/// @param the index of the tile to insert
 	/// @param camera the camera
-	gfx_rv add(const size_t index, Camera& camera);
+	gfx_rv add(const size_t index, ::Camera& camera);
 
 	/**
 	* @brief
