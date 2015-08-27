@@ -46,7 +46,7 @@ TextureManager::~TextureManager()
 
 void TextureManager::release_all()
 {
-    //TODO
+    _textureCache.clear();
 }
 
 void TextureManager::reload_all()
