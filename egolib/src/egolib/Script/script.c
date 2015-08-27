@@ -846,7 +846,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     Uint8  variable;
     Uint8  operation;
 
-    Uint32 iTmp;
+    int32_t iTmp;
 
     Object * pchr = NULL, * ptarget = NULL, * powner = NULL;
 

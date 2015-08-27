@@ -120,9 +120,10 @@ void ModuleSelector::drawContainer()
             _gameEngine->getUIManager()->getDefaultFont()->drawTextBox("Difficulty: ", getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25);
 
             // Draw one skull per rated difficulty
+            const std::shared_ptr<oglx_texture_t> &skullTexture = TextureManager::get().getTexture("mp_data/skull");
             for (int i = 0; i < _selectedModule->getRank(); ++i)
             {
-                draw_icon_texture(TextureManager::get().get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY() + 28, 0xFF, 0, textHeight - 4, true);
+                draw_icon_texture(skullTexture.get(), getX() + 5 + textWidth + i*textHeight, getY() + 28, 0xFF, 0, textHeight - 4, true);
             }
         }
 

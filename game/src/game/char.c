@@ -1257,7 +1257,7 @@ const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
 
     const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
     if (!pitem) {
-        return TextureManager::get().get_valid_ptr(TX_ICON_NULL);
+        return TextureManager::get().getTexture("mp_data/nullicon").get();
     }
 
     //Is it a spellbook?

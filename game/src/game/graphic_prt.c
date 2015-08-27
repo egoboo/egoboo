@@ -57,41 +57,25 @@ float CALCULATE_PRT_V1(int IDX, int CNT) {
     return (((.95f + ((CNT) >> 4)) / 16.0f) * ((float)ptex_w[IDX] / (float)ptex_h[IDX])*ptex_hscale[IDX]);
 }
 
-int prt_get_texture_style(const TX_REF itex)
+void prt_set_texture_params(const oglx_texture_t* texture, uint8_t type)
 {
     int index;
 
-    index = -1;
-    switch (REF_TO_INT(itex))
-    {
-        case TX_PARTICLE_TRANS:
+    switch(type) {
+        case SPRITE_ALPHA:
             index = 0;
-            break;
-
-        case TX_PARTICLE_LIGHT:
+        break;
+        case SPRITE_LIGHT:
             index = 1;
-            break;
+        break;
+        default:
+            throw std::invalid_argument("invalid particle type");
     }
 
-    return index;
-}
-
-void prt_set_texture_params(const TX_REF itex)
-{
-    int index = prt_get_texture_style(itex);
-    if (index < 0)
-    {
-        return;
-    }
-    oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(itex);
-    if (!ptex)
-    {
-        return;
-    }
-    ptex_w[index] = ptex->getSourceWidth();
-    ptex_h[index] = ptex->getSourceHeight();
-    ptex_wscale[index] = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
-    ptex_hscale[index] = (float)ptex->getSourceHeight() / (float)ptex->getHeight();
+    ptex_w[index] = texture->getSourceWidth();
+    ptex_h[index] = texture->getSourceHeight();
+    ptex_wscale[index] = static_cast<float>(texture->getSourceWidth()) / static_cast<float>(texture->getWidth());
+    ptex_hscale[index] = static_cast<float>(texture->getSourceHeight()) / static_cast<float>(texture->getHeight());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -158,7 +142,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
         renderer.setAlphaTestEnabled(true);
 		renderer.setAlphaFunction(Ego::ComparisonFunction::Equal, 1.0f);  // GL_COLOR_BUFFER_BIT
 
-        oglx_texture_t::bind(TextureManager::get().get_valid_ptr((TX_REF)TX_PARTICLE_TRANS));
+        oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
 
         renderer.setColour(Ego::Math::Colour4f(pinst->fintens, pinst->fintens, pinst->fintens, 1.0f)); // GL_CURRENT_BIT
 
@@ -218,8 +202,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             float fintens = pinst->fintens;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-            pinst->texture_ref = TX_PARTICLE_TRANS;
-            oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
+            oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
 
             drawParticle = true;
         }
@@ -233,8 +216,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             float fintens = pinst->fintens * pinst->falpha;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-            pinst->texture_ref = TX_PARTICLE_LIGHT;
-            oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
+            oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
 
             drawParticle = (fintens > 0.0f);
         }
@@ -252,8 +234,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             float falpha = pinst->falpha;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
 
-            pinst->texture_ref = TX_PARTICLE_TRANS;
-            oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
+            oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
 
             drawParticle = (falpha > 0.0f);
         }
@@ -336,8 +317,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
 
                 particle_colour = Ego::Math::Colour4f(intens, intens, intens, 1.0f);
 
-                pinst->texture_ref = TX_PARTICLE_TRANS;
-                oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
+                oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
 
                 draw_particle = intens > 0.0f;
             }
@@ -360,8 +340,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
 
                 particle_colour = Ego::Math::Colour4f(pinst->fintens, pinst->fintens, pinst->fintens, alpha);
 
-                pinst->texture_ref = TX_PARTICLE_TRANS;
-                oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
+                oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
 
                 draw_particle = alpha > 0.0f;
             }
@@ -412,14 +391,14 @@ void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float si
     int i, index;
 	Vector3f prt_pos, prt_up, prt_right;
 
-    switch (REF_TO_INT(pinst->texture_ref))
+    switch (pinst->type)
     {
         default:
-        case TX_PARTICLE_TRANS:
+        case SPRITE_ALPHA:
             index = 0;
             break;
 
-        case TX_PARTICLE_LIGHT:
+        case SPRITE_LIGHT:
             index = 1;
             break;
     }

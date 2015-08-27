@@ -29,7 +29,7 @@ void InventorySlot::draw()
         icon_ref = chr_get_txtexture_icon_ref(item->getCharacterID());
     }
     else {
-        icon_ref = TextureManager::get().get_valid_ptr(TX_ICON_NULL);
+        icon_ref = TextureManager::get().getTexture("mp_data/nullicon").get();
     }
 
     bool selected = false;

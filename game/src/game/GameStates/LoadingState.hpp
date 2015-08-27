@@ -66,13 +66,9 @@ protected:
     /// @details This function loads all of the game hints and tips
     bool loadGlobalHints();
 
-    /**
-     * ZF> This function is a place-holder hack until we get proper threaded loading working
-     */
-    void singleThreadRedrawHack(const std::string &loadingText);
+    void setProgressText(const std::string &loadingText);
 
 private:
-    std::atomic_bool _finishedLoading;
     std::thread _loadingThread;
     std::shared_ptr<Label> _loadingLabel;
     const std::shared_ptr<ModuleProfile> _loadModule;

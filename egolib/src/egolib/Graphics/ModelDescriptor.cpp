@@ -341,6 +341,11 @@ void ModelDescriptor::ripActions()
     _actionStart[ACTION_DA] = 0;
     _actionEnd[ACTION_DA]   = 0;
 
+    //Make movement actions map default to each other
+    _actionMap[ACTION_WC] = ACTION_WB;
+    _actionMap[ACTION_WB] = ACTION_WA;
+    _actionMap[ACTION_WA] = ACTION_DA;
+
     // Now go huntin' to see what each iframe is, look for runs of same action
     ModelAction last_action = ACTION_COUNT;
     int iframe = 0;

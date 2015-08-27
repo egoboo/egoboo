@@ -123,9 +123,6 @@ static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 static void game_setup_module( const char *smallname );
 static void game_reset_module_data();
 
-static egolib_rv game_load_global_assets();
-static void game_load_module_assets( const char *modname );
-
 static void load_all_profiles_import();
 static void import_dir_profiles_vfs(const std::string &importDirectory);
 static void game_load_global_profiles();
@@ -2192,54 +2189,6 @@ void game_reset_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv game_load_global_assets()
-{
-    // load a bunch of assets that are used in the module
-
-    egolib_rv retval = rv_success;
-    
-    switch ( gfx_load_blips() )
-    {
-        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
-        case gfx_error:  retval = rv_error; break;
-        default: /*nothing*/ break;
-    }
-
-    switch ( gfx_load_bars() )
-    {
-        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
-        case gfx_error:  retval = rv_error; break;
-        default: /*nothing*/ break;
-    }
-
-    switch ( gfx_load_icons() )
-    {
-        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
-        case gfx_error:  retval = rv_error; break;
-        default: /*nothing*/ break;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void game_load_module_assets( const char *modname )
-{
-    // load a bunch of assets that are used in the module
-    AudioSystem::get().loadGlobalSounds();
-    ProfileSystem::get().loadGlobalParticleProfiles();
-
-    if ( NULL == read_wawalite_vfs() )
-    {
-        log_warning( "wawalite.txt not loaded for %s.\n", modname );
-    }
-
-    gfx_system_load_basic_textures();
-
-    upload_wawalite();
-}
-
-//--------------------------------------------------------------------------------------------
 void game_setup_module( const char *smallname )
 {
     //TODO: ZF> Move to Module.cpp
@@ -2279,9 +2228,14 @@ bool game_load_module_data( const char *smallname )
     strncpy( modname, smallname, SDL_arraysize( modname ) );
     str_append_slash( modname, SDL_arraysize( modname ) );
 
-    // load all module assets
-    game_load_global_assets();
-    game_load_module_assets( modname );
+    // load a bunch of assets that are used in the module
+    AudioSystem::get().loadGlobalSounds();
+    ProfileSystem::get().loadGlobalParticleProfiles();
+
+    if (read_wawalite_vfs() == nullptr) {
+        log_warning( "wawalite.txt not loaded for %s.\n", modname );
+    }
+    upload_wawalite();
 
     // load all module objects
     game_load_global_profiles();            // load the global objects

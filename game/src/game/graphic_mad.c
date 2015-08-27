@@ -88,10 +88,10 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
     }
     const std::shared_ptr<MD2Model>& pmd2 = pchr->getProfile()->getModel()->getMD2();
 
-    ptex = NULL;
+    ptex = nullptr;
     if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
-		ptex = TextureManager::get().get_valid_ptr((TX_REF)TX_PHONG);
+		ptex = TextureManager::get().getTexture("mp_data/phong").get();
     }
 
     if ( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
@@ -99,7 +99,7 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
         return gfx_fail;
     }
 
-    if ( NULL == ptex )
+    if ( nullptr == ptex )
     {
         ptex = pinst->texture;
     }

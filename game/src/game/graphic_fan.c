@@ -27,6 +27,7 @@
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
 #include "game/mesh.h"
+#include "game/Module/Module.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -306,7 +307,6 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     int    cnt, tnc;
     size_t badvertex;
     Uint16 type;
-    TX_REF texture;
     Uint16 frame;
     float offu, offv;
     int ix, iy;
@@ -317,7 +317,6 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
 
     const ego_mesh_info_t  * pinfo = NULL;
     const ego_tile_info_t * ptile = NULL;
-    oglx_texture_t        * ptex  = NULL;
     tile_definition_t     * pdef  = NULL;
 
     if ( NULL == mesh )
@@ -357,9 +356,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     offv  = water._layers[layer]._tx[YY];
     frame = water._layers[layer]._frame;                // Frame
 
-    texture  = layer + TX_WATER_TOP;                   // Water starts at texture TX_WATER_TOP
-
-	ptex = TextureManager::get().get_valid_ptr(texture);
+	const oglx_texture_t *ptex = _currentModule->getWaterTexture(layer);
 
     x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
     y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();

@@ -46,7 +46,9 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _isBeaten(false),
     _seed(seed),
     _passages(),
-    _mesh()
+    _mesh(),
+    _tileTextures(),
+    _waterTextures()
 {
     srand( _seed );
     Random::setSeed(_seed);
@@ -55,6 +57,15 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     for(int i = 0; i < Team::TEAM_MAX; ++i) {
         _teamList.push_back(Team(i));
     }
+
+    //Load tile textures
+    for(size_t i = 0; i < _tileTextures.size(); ++i) {
+        _tileTextures[i] = Ego::DeferredOpenGLTexture("mp_data/tile" + std::to_string(i));
+    }
+
+    //Load water textures
+    _waterTextures[0] = Ego::DeferredOpenGLTexture("mp_data/watertop");
+    _waterTextures[1] = Ego::DeferredOpenGLTexture("mp_data/waterlow");
 }
 
 GameModule::~GameModule()
@@ -489,6 +500,18 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
 #endif
 
     return pchr;
+}
+
+const oglx_texture_t* GameModule::getTileTexture(const size_t index)
+{
+    if(index >= _tileTextures.size()) return nullptr;
+    return _tileTextures[index].get_ptr();
+}
+
+const oglx_texture_t* GameModule::getWaterTexture(const uint8_t layer)
+{
+    if(layer > _waterTextures.size()) return nullptr;
+    return _waterTextures[layer].get_ptr();
 }
 
 /// @todo Remove this global.

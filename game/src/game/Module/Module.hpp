@@ -184,6 +184,9 @@ public:
      std::shared_ptr<Object> spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
                                          const FACING_T facing, const std::string &name, const CHR_REF override);
 
+     const oglx_texture_t* getTileTexture(const size_t index);
+     const oglx_texture_t* getWaterTexture(const uint8_t layer);
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
@@ -200,6 +203,9 @@ private:
     uint32_t  _seed;                          ///< The module seed
 
     ego_mesh_t _mesh;                       ///< Module mesh
+
+    std::array<Ego::DeferredOpenGLTexture, 4> _tileTextures;
+    std::array<Ego::DeferredOpenGLTexture, 2> _waterTextures;
 };
 
 /// @todo Remove this global.

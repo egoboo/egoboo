@@ -93,7 +93,10 @@ public:
         _totalParticlesSpawned(0),
         _unusedPool(),
         _activeParticles(),
-        _particleMap()
+        _particleMap(),
+        
+        _transparentParticleTexture("mp_data/globalparticles/particle_trans"),
+        _lightParticleTexture("mp_data/globalparticles/particle_light")
     {
         setDisplayLimit(512);
     }
@@ -205,6 +208,9 @@ public:
     **/
     size_t getFreeCount() const { return std::min(_maxParticles, _maxParticles - getCount()); }
 
+    const oglx_texture_t* getLightParticleTexture();
+    const oglx_texture_t* getTransparentParticleTexture();
+
 private:
     std::shared_ptr<Ego::Particle> getFreeParticle(bool force);
 
@@ -222,4 +228,7 @@ private:
     std::vector<std::shared_ptr<Ego::Particle>> _pendingParticles;   //Particles that will be added to the active list as soon as it is unlocked
 
     std::unordered_map<PRT_REF, std::shared_ptr<Ego::Particle>> _particleMap; //Mapping from PRT_REF to Particle
+
+    Ego::DeferredOpenGLTexture _transparentParticleTexture;
+    Ego::DeferredOpenGLTexture _lightParticleTexture;
 };

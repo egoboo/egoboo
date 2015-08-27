@@ -54,9 +54,9 @@ enum e_global_pips
 /// particle types / sprite dosplay modes
 enum e_sprite_mode
 {
-    SPRITE_LIGHT = 0, ///< Magic effect particle
-    SPRITE_SOLID,     ///< Sprite particle
-    SPRITE_ALPHA      ///< Smoke particle
+    SPRITE_ALPHA = 0, ///< Smoke particle
+    SPRITE_LIGHT = 1, ///< Magic effect particle
+    SPRITE_SOLID = 2  ///< Sprite particle
 };
 
 /// dynamic lighting modes

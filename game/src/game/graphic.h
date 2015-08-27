@@ -427,9 +427,7 @@ void gfx_system_reload_all_textures();
 void gfx_system_make_enviro();
 void gfx_system_init_all_graphics();
 void gfx_system_release_all_graphics();
-void gfx_system_delete_all_graphics();
 void gfx_system_load_assets();
-void gfx_system_load_basic_textures();
 
 renderlist_mgr_t *gfx_system_get_renderlist_mgr();
 dolist_mgr_t *gfx_system_get_dolist_mgr();
@@ -453,12 +451,6 @@ float draw_character_xp_bar(const CHR_REF character, float x, float y);
 
 bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t * dst, const Vector2f& pos);
 float grid_lighting_test(ego_mesh_t *mesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
-
-void release_all_profile_textures();
-
-gfx_rv gfx_load_blips();
-gfx_rv gfx_load_bars();
-gfx_rv gfx_load_icons();
 
 float  get_ambient_level();
 
@@ -491,7 +483,7 @@ protected:
 #endif
 
     // decimate one tiled texture of a mesh
-    static int decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification);
+    static int decimate_one_mesh_texture(const oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification);
 
 public:
     static oglx_texture_t *get_sml(int which);

@@ -1674,6 +1674,10 @@ Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint
         }
     }
 
+    if(INVALID_GL_ID == retval) {
+        log_warning("unable to load texture: %s\n", vfs_resolveReadFilename(filename));
+    }
+
     return retval;
 }
 

@@ -41,7 +41,6 @@
 #include "game/Module/Module.hpp"
 
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :
-    _finishedLoading({0}),
     _loadingThread(),
     _loadingLabel(nullptr),
     _loadModule(module),
@@ -74,37 +73,23 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
 
 LoadingState::~LoadingState()
 {
-    // Wait until thread is dead:
+    // Wait until thread is dead
     if(_loadingThread.joinable()) {
         _loadingThread.join();
     }
+    TextureAtlasManager::decimate_all_mesh_textures();
 }
 
-//TODO: HACK (no multithreading yet)
-void LoadingState::singleThreadRedrawHack(const std::string &loadingText)
+void LoadingState::setProgressText(const std::string &loadingText)
 {
-    // clear the screen
-    gfx_request_clear_screen();
-    gfx_do_clear_screen();
-
     //Always make loading text centered
     _loadingLabel->setText(loadingText);
-    _loadingLabel->setPosition(GFX_WIDTH/2 - _loadingLabel->getWidth()/2, 40);
-
-    drawAll();
-
-    // flip the graphics page
-    gfx_request_flip_pages();
-    gfx_do_flip_pages();
+    _loadingLabel->setPosition(GFX_WIDTH/2 - _loadingLabel->getWidth()/2, 40);    
 }
-//TODO: HACK END
-
 
 void LoadingState::update()
 {
-	if(!_finishedLoading) {
-		loadModuleData();
-	}
+    
 }
 
 void LoadingState::drawContainer()
@@ -115,7 +100,7 @@ void LoadingState::drawContainer()
 void LoadingState::beginState()
 {
     //Start the background loading thread
-    //_loadingThread = std::thread(&LoadingState::loadModuleData, this);
+    _loadingThread = std::thread(&LoadingState::loadModuleData, this);
     AudioSystem::get().playMusic(27); //TODO: needs to be referenced by string
 }
 
@@ -160,12 +145,12 @@ bool LoadingState::loadPlayers()
 
 void LoadingState::loadModuleData()
 {
-    singleThreadRedrawHack("Tidying some space...");
+    setProgressText("Tidying some space...");
 
     //Make sure all data is cleared first
     game_quit_module();
 
-    singleThreadRedrawHack("Calculating some math...");
+    setProgressText("Calculating some math...");
     BillboardSystem::get()._billboardList.reset();
 
     //initialize math objects
@@ -177,7 +162,7 @@ void LoadingState::loadModuleData()
     else log_message( "Failure!\n" );
 
     // initialize the collision system
-    singleThreadRedrawHack("Beautifying graphics...");
+    setProgressText("Beautifying graphics...");
 
     //Ready message display
     DisplayMsg_reset();
@@ -186,12 +171,11 @@ void LoadingState::loadModuleData()
     ProfileSystem::get().reset();
 
     // do some graphics initialization
-    //make_lightdirectionlookup();
     gfx_system_make_enviro();
 
     //Load players if needed
     if(!_playersToLoad.empty()) {
-        singleThreadRedrawHack("Loading players...");
+        setProgressText("Loading players...");
         if(!loadPlayers()) {
             log_warning("Failed to load players!\n");
             endState();
@@ -200,7 +184,7 @@ void LoadingState::loadModuleData()
     }
 
     // try to start a new module
-    singleThreadRedrawHack("Loading module data...");
+    setProgressText("Loading module data...");
     if(!game_begin_module(_loadModule)) {
         log_warning("Failed to load module!\n");
         endState();
@@ -208,7 +192,7 @@ void LoadingState::loadModuleData()
     }
     _currentModule->setImportPlayers(_playersToLoad);
 
-    singleThreadRedrawHack("Almost done...");
+    setProgressText("Almost done...");
 
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
     // and camera_system_begin() will not set up thte correct view
@@ -217,13 +201,9 @@ void LoadingState::loadModuleData()
     // Fade out music when finished loading
     AudioSystem::get().stopMusic();
 
-    // Must wait until music has finished fading out or else update loop will lag first few updates
-    //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
     // Complete!
-    singleThreadRedrawHack("Finished!");
-    _finishedLoading = true;
-
+    setProgressText("Finished!");
+    
     // Hit that gong
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_GAME_READY));
 
