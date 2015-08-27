@@ -51,7 +51,6 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	if (!gfx.draw_background) {
 		return;
 	}
-	TX_REF texture = (TX_REF)TX_WATER_LOW;
 	GLvertex vtlist[4];
 	int i;
 	float z0, Qx, Qy;
@@ -135,9 +134,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		intens = CLIP(intens, 0.0f, 1.0f);
 	}
 
-	oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(texture);
-
-	oglx_texture_t::bind(ptex);
+	oglx_texture_t::bind(_currentModule->getWaterTexture(1));
 
 	ATTRIB_PUSH(__FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
 	{
@@ -213,8 +210,6 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	if (!gfx.draw_overlay) {
 		return;
 	}
-	auto texture = (TX_REF)TX_WATER_TOP;
-
 	float alpha, ftmp;
 	Vector3f vforw_wind, vforw_cam;
 	TURN_T default_turn;
@@ -277,7 +272,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		vtlist[3].tex[SS] = ilayer->_tx[SS];
 		vtlist[3].tex[TT] = ilayer->_tx[TT] + loc_foregroundrepeat;
 
-		oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(texture);
+		oglx_texture_t::bind(_currentModule->getWaterTexture(1));
 
 		ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT);
 		{
@@ -308,7 +303,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 			renderer.setBlendingEnabled(true);
 			GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);  // GL_COLOR_BUFFER_BIT
 
-			oglx_texture_t::bind(ptex);
+			oglx_texture_t::bind(_currentModule->getWaterTexture(1));
 
 			renderer.setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
 			GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
@@ -496,8 +491,6 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	GLvertex v[4];
 
-	TX_REF  itex;
-	int     itex_style;
 	float   size, x, y;
 	float   level, height, height_factor, alpha;
 
@@ -569,11 +562,8 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	v[3].pos[ZZ] = (float)level;
 
 	// Choose texture and matrix
-	itex = TX_PARTICLE_LIGHT;
-	oglx_texture_t::bind(TextureManager::get().get_valid_ptr(itex));
-
-	itex_style = prt_get_texture_style(itex);
-	if (itex_style < 0) itex_style = 0;
+	oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
+	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	v[0].tex[SS] = CALCULATE_PRT_U0(itex_style, 236);
 	v[0].tex[TT] = CALCULATE_PRT_V0(itex_style, 236);
@@ -593,8 +583,6 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	GLvertex v[4];
 
-	TX_REF  itex;
-	int     itex_style;
 	float   x, y;
 	float   level;
 	float   height, size_umbra, size_penumbra;
@@ -656,12 +644,9 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	x = pchr->inst.matrix(0, 3);
 	y = pchr->inst.matrix(1, 3);
 
-	// Choose texture.
-	itex = TX_PARTICLE_LIGHT;
-	oglx_texture_t::bind(TextureManager::get().get_valid_ptr(itex));
-
-	itex_style = prt_get_texture_style(itex);
-	if (itex_style < 0) itex_style = 0;
+	// Choose texture and matrix
+	oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
+	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	// GOOD SHADOW
 	v[0].tex[SS] = CALCULATE_PRT_U0(itex_style, 238);

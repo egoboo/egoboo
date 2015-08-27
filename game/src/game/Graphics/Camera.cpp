@@ -218,7 +218,12 @@ void Camera::updateZoom()
     }
     else
     {
-        _ori.facing_z += _turnZAdd;
+        //Make it wrap around
+        float newAngle = static_cast<float>(_ori.facing_z) +_turnZAdd;
+        if(newAngle < 0.0f) newAngle += 0xFFFF;
+        else if(newAngle > 0xFFFF) newAngle -= 0xFFFF;
+        _ori.facing_z = newAngle;
+
         _turnZ_turns = FacingToTurns( _ori.facing_z );
         _turnZ_radians = TurnsToRadians( _turnZ_turns );
     }

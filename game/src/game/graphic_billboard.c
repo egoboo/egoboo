@@ -131,9 +131,8 @@ std::shared_ptr<Billboard> BillboardList::makeBillboard(Uint32 lifetime_secs, st
 
     if (HAS_SOME_BITS(options, Billboard::Flags::Burn))
     {
-        float minval, maxval;
+        float maxval;
 
-        minval = std::min({ billboard->_tint.getRed(), billboard->_tint.getGreen(), billboard->_tint.getBlue() });
         maxval = std::max({ billboard->_tint.getRed(), billboard->_tint.getGreen(), billboard->_tint.getBlue() });
 
         if (billboard->_tint.getRed() != maxval) {

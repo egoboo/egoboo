@@ -1311,7 +1311,7 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
     /// @author ZZ
     /// @details This function loads a line into the line buffer
 
-    int stillgoing, foundtext;
+    int foundtext;
     char cTmp;
     bool tabs_warning_needed, inside_string;
 
@@ -1319,7 +1319,6 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
     ps.line_buffer[0] = CSTR_END;
     ps.line_buffer_count = 0;
 
-    stillgoing = true;
     inside_string = false;
 
     // try to trap all end of line conditions so we can properly count the lines

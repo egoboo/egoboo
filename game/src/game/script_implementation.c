@@ -691,7 +691,6 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
     /// @author ZF
     /// @details This function searches the nearby vincinity for a melee weapon the character can use
 
-    CHR_REF ichr;
     CHR_REF retval = INVALID_CHR_REF;
 
     CHR_REF best_target = INVALID_CHR_REF;
@@ -700,7 +699,6 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
     line_of_sight_info_t los;
 
     if ( nullptr == ( pchr ) ) return false;
-    ichr = GET_INDEX_PCHR( pchr );
 
     // set up the target
     best_target = INVALID_CHR_REF;

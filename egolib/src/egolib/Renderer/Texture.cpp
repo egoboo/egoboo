@@ -551,6 +551,10 @@ void  oglx_texture_t::release()
         _source = nullptr;
     }
 
+    if(!_errorTexture2D) {
+        return;
+    }
+
     // The texture is the 2D error texture.
     _type = Ego::TextureType::_2D;
     _id = _errorTexture2D->_id;

@@ -258,3 +258,13 @@ void ParticleHandler::clear()
     _particleMap.clear();
     _totalParticlesSpawned = 0;
 }
+
+const oglx_texture_t* ParticleHandler::getLightParticleTexture()
+{
+    return _lightParticleTexture.get_ptr();
+}
+
+const oglx_texture_t* ParticleHandler::getTransparentParticleTexture()
+{
+    return _transparentParticleTexture.get_ptr();
+}

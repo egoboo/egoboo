@@ -328,7 +328,6 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     /// @author ZZ
     /// @details This function spawns an attack particle
     int    spawn_vrt_offset;
-    int    action;
     TURN_T turn;
     float  velocity;
 
@@ -352,7 +351,6 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     {
         unarmed_attack   = false;
         spawn_vrt_offset = GRIP_LAST;
-        action = pchr->inst.action_which;
     }
 
     const std::shared_ptr<Object> &pweapon = _currentModule->getObjectHandler()[iweapon];
@@ -1251,7 +1249,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
+const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
 {
     /// @author BB
     /// @details Get the index to the icon texture (in TxList) that is supposed to be used with this object.
@@ -1259,17 +1257,17 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 
     const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
     if (!pitem) {
-        return static_cast<TX_REF>(TX_ICON_NULL);
+        return TextureManager::get().getTexture("mp_data/nullicon").get();
     }
 
     //Is it a spellbook?
     if (pitem->getProfile()->getSpellEffectType() == ObjectProfile::NO_SKIN_OVERRIDE)
     {
-        return pitem->getProfile()->getIcon(pitem->skin);
+        return pitem->getProfile()->getIcon(pitem->skin).get_ptr();
     }
     else
     {
-        return ProfileSystem::get().getSpellBookIcon(pitem->getProfile()->getSpellEffectType());
+        return ProfileSystem::get().getSpellBookIcon(pitem->getProfile()->getSpellEffectType()).get_ptr();
     }
 }
 
@@ -1345,10 +1343,8 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
 
     bool found;
     CHR_REF item;
-    Object * pchr;
 
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return INVALID_CHR_REF;
-    pchr = _currentModule->getObjectHandler().get( ichr );
 
     // Check the pack
     item       = INVALID_CHR_REF;

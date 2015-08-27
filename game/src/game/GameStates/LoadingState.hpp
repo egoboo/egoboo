@@ -29,6 +29,7 @@
 // Forward declarations
 class ModuleProfile;
 class Label;
+namespace GUI { class ProgressBar; }
 
 class LoadingState : public GameState
 {
@@ -66,17 +67,14 @@ protected:
     /// @details This function loads all of the game hints and tips
     bool loadGlobalHints();
 
-    /**
-     * ZF> This function is a place-holder hack until we get proper threaded loading working
-     */
-    void singleThreadRedrawHack(const std::string &loadingText);
+    void setProgressText(const std::string &loadingText, const uint8_t progress);
 
 private:
-    std::atomic_bool _finishedLoading;
     std::thread _loadingThread;
     std::shared_ptr<Label> _loadingLabel;
     const std::shared_ptr<ModuleProfile> _loadModule;
     std::list<std::string> _playersToLoad;
+    std::shared_ptr<GUI::ProgressBar> _progressBar;
 
     std::vector<std::string> _globalGameTips;        //Generic game tips for the whole game
     std::vector<std::string> _localGameTips;        //Game tips specific to this module

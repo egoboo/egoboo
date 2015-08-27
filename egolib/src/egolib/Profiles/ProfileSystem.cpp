@@ -39,7 +39,6 @@ static const std::shared_ptr<ObjectProfile> NULL_PROFILE = nullptr;
 
 
 ProfileSystem::ProfileSystem() :
-    _bookIcons(),
     _profilesLoaded(),
     _moduleProfilesLoaded(),
     _loadPlayerList()
@@ -55,18 +54,12 @@ ProfileSystem::ProfileSystem() :
 
 ProfileSystem::~ProfileSystem()
 {
-    // Reset all profiles.
-    //reset();
-
     // Uninitialize the script compiler.
     parser_state_t::uninitialize();
 
     // Uninitialize the enchant and particle profile system.
     EveStack.unintialize();
     ParticleProfileSystem::get().unintialize();
-
-    // Clear the book icons.
-    _bookIcons.clear();
 }
 
 void ProfileSystem::reset()
@@ -103,7 +96,7 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     // grab the slot from the file
     std::string dataFilePath = folderPath + "/data.txt";
 
-    if (0 == vfs_exists(dataFilePath.c_str())) {
+    if (!vfs_exists(dataFilePath.c_str())) {
 
         return -1;
     }
@@ -212,25 +205,12 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     //Success! Store object into the loaded profile map
     _profilesLoaded[iobj] = profile;
 
-    //ZF> TODO: This is kind of a dirty hack and could be done cleaner. If this item is the book object, 
-    //    then the icons are also loaded into the global book icon array
-    if (SPELLBOOK == iobj)
-    {
-        _bookIcons = profile->getAllIcons();
-    }
-
     return iobj;
 }
 
-TX_REF ProfileSystem::getSpellBookIcon(size_t index) const
+const Ego::DeferredOpenGLTexture& ProfileSystem::getSpellBookIcon(size_t index) const
 {
-    const auto& result = _bookIcons.find(index);
-
-    if (result == _bookIcons.end()) {
-        return INVALID_TX_REF;
-    }
-
-    return result->second;
+    return _profilesLoaded.find(SPELLBOOK)->second->getIcon(index);
 }
 
 void ProfileSystem::loadModuleProfiles()

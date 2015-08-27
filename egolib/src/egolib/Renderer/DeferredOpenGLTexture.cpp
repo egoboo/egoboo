@@ -29,22 +29,7 @@ const oglx_texture_t& DeferredOpenGLTexture::get()
             throw std::logic_error("DeferredOpenGLTexture::get() on nullptr texture");
          }
 
-        std::unordered_map<std::string, std::shared_ptr<oglx_texture_t>> &textureCache = TextureManager::get().getTextureCache();
-
-        //Not loaded yet?
-        auto result = textureCache.find(_filePath);
-        if(result == textureCache.end()) {
-            std::shared_ptr<oglx_texture_t> loadTexture = std::make_shared<oglx_texture_t>();
-            ego_texture_load_vfs(loadTexture.get(), _filePath.c_str(), TRANSCOLOR);
-            textureCache[_filePath] = loadTexture;
-            _texture = loadTexture;
-        }
-
-        //Get cached texture
-        else {
-            _texture = (*result).second;
-        }
-
+        _texture = TextureManager::get().getTexture(_filePath);
         _loaded = true;
     }
 

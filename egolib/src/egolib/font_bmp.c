@@ -23,6 +23,7 @@
 
 #include "egolib/font_bmp.h"
 #include "egolib/log.h"
+#include "egolib/Graphics/TextureManager.hpp"
 
 #include "egolib/vfs.h"
 #include "egolib/strutil.h"
@@ -70,23 +71,22 @@ void font_bmp_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const char* szSpacing )
+void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
 {
     /// @author ZZ
     /// @details This function loads the font bitmap and sets up the coordinates
     ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
     font_bmp_init();
 
-    if (!tx_font) return;
-
-    if (INVALID_GL_ID == ego_texture_load_vfs(tx_font, szBitmap))
+    const std::shared_ptr<oglx_texture_t> &fontTexture = TextureManager::get().getTexture(szBitmap);
+    if (INVALID_GL_ID == fontTexture->getTextureID())
     {
         log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
-    int xsize = tx_font->getSourceWidth();
-    int ysize = tx_font->getSourceHeight();
+    int xsize = fontTexture->getSourceWidth();
+    int ysize = fontTexture->getSourceHeight();
     if ( 0 == xsize || 0 == ysize )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );

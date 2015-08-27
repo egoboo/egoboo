@@ -41,7 +41,7 @@ public:
      */
     inline const std::string& getName() const {return _name;}
 
-    TX_REF getIcon() const;
+    const Ego::DeferredOpenGLTexture& getIcon() const;
 
     inline const std::shared_ptr<ObjectProfile>& getProfile() const {return _profile;}
 

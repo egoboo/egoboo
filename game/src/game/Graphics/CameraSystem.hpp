@@ -27,7 +27,7 @@
 // Forward declaration.
 class ego_mesh_t;
 
-CONSTEXPR size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
+static constexpr size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
 
 class CameraSystem
 {

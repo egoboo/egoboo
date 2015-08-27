@@ -50,8 +50,8 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
     STRING szText;
     Uint8 cTmp;
 
-    oglx_texture_t * tx_ptr = TextureManager::get().get_valid_ptr(( TX_REF )TX_FONT_BMP );
-    if ( NULL == tx_ptr ) return y;
+    const std::shared_ptr<oglx_texture_t> &tx_ptr = TextureManager::get().getTexture("mp_data/font_new_shadow");
+    if ( nullptr == tx_ptr ) return y;
 
     if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
     {
@@ -88,7 +88,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
             {
                 // Normal letter
                 iTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr, iTmp, x, y );
+                draw_one_font( tx_ptr.get(), iTmp, x, y );
                 x += fontxspacing[iTmp];
             }
 
@@ -452,8 +452,8 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
     Uint8 newword = true;
     int cnt = 1;
 
-    oglx_texture_t * tx_ptr = TextureManager::get().get_valid_ptr(( TX_REF )TX_FONT_BMP );
-    if ( NULL == tx_ptr ) return y;
+    const std::shared_ptr<oglx_texture_t> &tx_ptr = TextureManager::get().getTexture("mp_data/font_new_shadow");
+    if ( nullptr == tx_ptr ) return y;
 
     gfx_begin_text();
 
@@ -506,7 +506,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
             {
                 // Normal letter
                 iTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr, iTmp, x, y );
+                draw_one_font( tx_ptr.get(), iTmp, x, y );
                 x += fontxspacing[iTmp];
             }
 

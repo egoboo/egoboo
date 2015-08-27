@@ -26,13 +26,15 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/Button.hpp"
 
+namespace Ego { class DeferredOpenGLTexture; }
+
 class IconButton : public Button
 {
 public:
-    IconButton(const std::string &buttonText, TX_REF icon, int hotkey = SDLK_UNKNOWN);
+    IconButton(const std::string &buttonText, const Ego::DeferredOpenGLTexture& icon, int hotkey = SDLK_UNKNOWN);
 
     virtual void draw() override;
 
 private:
-    TX_REF _icon;
+    const Ego::DeferredOpenGLTexture& _icon;
 };

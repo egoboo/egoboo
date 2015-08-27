@@ -625,9 +625,6 @@ bool move_one_character_integrate_motion( Object * pchr )
     /// @details Figure out the next position of the character.
     ///    Include collisions with the mesh in this step.
 
-    CHR_REF  ichr;
-    ai_state_t * pai;
-
     bool  needs_test, updated_2d;
 
 	Vector3f tmp_pos;
@@ -640,12 +637,6 @@ bool move_one_character_integrate_motion( Object * pchr )
     }
 
     tmp_pos = pchr->getPosition();;
-
-    pai = &( pchr->ai );
-    ichr = pai->index;
-
-    //float bumpdampen = Ego::Math::constrain(pchr->phys.bumpdampen, 0.0f, 1.0f);
-    //bumpdampen = (bumpdampen + 1.0f) * 0.5f;
 
     // interaction with the mesh
     //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
@@ -779,14 +770,10 @@ bool chr_do_latch_button( Object * pchr )
     /// @author BB
     /// @details Character latches for generalized buttons
 
-    ai_state_t * pai;
-
     bool attack_handled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     CHR_REF ichr = pchr->getCharacterID();
-
-    pai = &( pchr->ai );
 
     if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;
 

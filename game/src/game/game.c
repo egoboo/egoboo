@@ -120,11 +120,7 @@ static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
 static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 
-static void game_setup_module( const char *smallname );
 static void game_reset_module_data();
-
-static egolib_rv game_load_global_assets();
-static void game_load_module_assets( const char *modname );
 
 static void load_all_profiles_import();
 static void import_dir_profiles_vfs(const std::string &importDirectory);
@@ -720,8 +716,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
 {
     bool retval = false;
 
-    bool is_hated, hates_me;
-    bool is_friend, is_prey, is_predator, is_mutual;
+    bool is_hated;
 
     // Skip non-existing objects
     if ( !ACTIVE_PCHR( psrc ) ) return false;
@@ -768,7 +763,6 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     }
 
     is_hated = psrc->getTeam().hatesTeam(ptst->getTeam());
-    hates_me = ptst->getTeam().hatesTeam(psrc->getTeam());
 
     // Target neutral items? (still target evil items, could be pets)
     if (( ptst->isItem() || ptst->isInvincible() ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return false;
@@ -779,12 +773,6 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
         if (( HAS_NO_BITS( targeting_bits, TARGET_ENEMIES ) && is_hated ) ) return false;
         if (( HAS_NO_BITS( targeting_bits, TARGET_FRIENDS ) && !is_hated ) ) return false;
     }
-
-    // these options are here for ideas of ways to mod this function
-    is_friend    = !is_hated && !hates_me;
-    is_prey      =  is_hated && !hates_me;
-    is_predator  = !is_hated &&  hates_me;
-    is_mutual    =  is_hated &&  hates_me;
 
     //This is the last and final step! Check for specific IDSZ too? (not needed if we are looking for a quest)
     if ( IDSZ_NONE == idsz || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
@@ -2003,8 +1991,6 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
         {
             // A multiplayer module
 
-            bool player_added;
-
             local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
@@ -2020,16 +2006,15 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 }
             }
 
-            player_added = false;
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
+                add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
             }
             else
             {
                 // It's a remote PlaStack.count
-                player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, NULL );
+                add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, NULL );
             }
         }
     }
@@ -2181,8 +2166,6 @@ void activate_spawn_file_vfs()
         ctxt.close();
     }
 
-    DisplayMsg_clear();
-
     // Fix tilting trees problem
     tilt_characters_to_terrain();
 }
@@ -2197,77 +2180,10 @@ void game_reset_module_data()
     ProfileSystem::get().reset();
     free_all_objects();
     DisplayMsg_reset();
+    DisplayMsg_clear();
     game_reset_players();
 
     reset_end_text();
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv game_load_global_assets()
-{
-    // load a bunch of assets that are used in the module
-
-    egolib_rv retval = rv_success;
-    
-    switch ( gfx_load_blips() )
-    {
-        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
-        case gfx_error:  retval = rv_error; break;
-        default: /*nothing*/ break;
-    }
-
-    switch ( gfx_load_bars() )
-    {
-        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
-        case gfx_error:  retval = rv_error; break;
-        default: /*nothing*/ break;
-    }
-
-    switch ( gfx_load_icons() )
-    {
-        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
-        case gfx_error:  retval = rv_error; break;
-        default: /*nothing*/ break;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void game_load_module_assets( const char *modname )
-{
-    // load a bunch of assets that are used in the module
-    AudioSystem::get().loadGlobalSounds();
-    ProfileSystem::get().loadGlobalParticleProfiles();
-
-    if ( NULL == read_wawalite_vfs() )
-    {
-        log_warning( "wawalite.txt not loaded for %s.\n", modname );
-    }
-
-    gfx_system_load_basic_textures();
-    gfx_load_map();
-
-    upload_wawalite();
-}
-
-//--------------------------------------------------------------------------------------------
-void game_setup_module( const char *smallname )
-{
-    //TODO: ZF> Move to Module.cpp
-
-    /// @author ZZ
-    /// @details This runst the setup functions for a module
-
-    // make sure the object lists are empty
-    free_all_objects();
-
-    // just the information in these files to load the module
-    activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
-    activate_alliance_file_vfs();        // set up the non-default team interactions
-
-    // now load the profile AI, do last so that all reserved slot numbers are initialized
-    game_load_profile_ai();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2291,9 +2207,14 @@ bool game_load_module_data( const char *smallname )
     strncpy( modname, smallname, SDL_arraysize( modname ) );
     str_append_slash( modname, SDL_arraysize( modname ) );
 
-    // load all module assets
-    game_load_global_assets();
-    game_load_module_assets( modname );
+    // load a bunch of assets that are used in the module
+    AudioSystem::get().loadGlobalSounds();
+    ProfileSystem::get().loadGlobalParticleProfiles();
+
+    if (read_wawalite_vfs() == nullptr) {
+        log_warning( "wawalite.txt not loaded for %s.\n", modname );
+    }
+    upload_wawalite();
 
     // load all module objects
     game_load_global_profiles();            // load the global objects
@@ -2447,13 +2368,11 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     };
 
     //After loading, spawn all the data and initialize everything
-    game_setup_module( module->getPath().c_str() );
+    activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
+    activate_alliance_file_vfs();        // set up the non-default team interactions
 
-    // make sure the per-module configuration settings are correct
-    config_synch(&egoboo_config_t::get(), true, false);
-
-    // initialize the game objects
-    input_cursor_reset();
+    // now load the profile AI, do last so that all reserved slot numbers are initialized
+    game_load_profile_ai();
 
     // log debug info for every object loaded into the module
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
@@ -2662,15 +2581,14 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     int    cnt;
     STRING szTmp;
 
-    Object      * pchr, *ptarget, *powner;
+    Object      * pchr, *ptarget;
     ai_state_t * pai;
 
     pchr    = !_currentModule->getObjectHandler().exists( ichr ) ? NULL : _currentModule->getObjectHandler().get( ichr );
     pai     = ( NULL == pchr )    ? NULL : &( pchr->ai );
 
     ptarget = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->target ) ) ? pchr : _currentModule->getObjectHandler().get( pai->target );
-    powner  = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->owner ) ) ? pchr : _currentModule->getObjectHandler().get( pai->owner );
-
+    
     cnt = 0;
     while ( CSTR_END != *src && src < src_end && dst < dst_end )
     {
@@ -3049,9 +2967,9 @@ void fog_instance_t::upload(const wawalite_fog_t& source)
 	_top = source.top;
 	_bottom = source.bottom;
 
-	_red = source.red * 0xFF;
-	_grn = source.grn * 0xFF;
-	_blu = source.blu * 0xFF;
+	_red = source.red;
+	_grn = source.grn;
+	_blu = source.blu;
 
 	_distance = (source.top - source.bottom);
 
@@ -3432,7 +3350,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 //--------------------------------------------------------------------------------------------
 bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
 {
-    bool can_grab, can_pay, in_shop;
+    bool can_grab;
     int price;
 
     Object * ppicker, * pitem;
@@ -3444,8 +3362,8 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     ppicker = _currentModule->getObjectHandler().get( ipicker );
 
     can_grab = true;
-    can_pay  = true;
-    in_shop  = false;
+    //bool can_pay  = true;
+    //bool in_shop  = false;
 
     if ( pitem->isitem )
     {
@@ -3456,7 +3374,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         {
             Object * powner = _currentModule->getObjectHandler().get( iowner );
 
-            in_shop = true;
+            //in_shop = true;
             price   = pitem->getPrice();
 
             if ( ppicker->money >= price )
@@ -3471,14 +3389,14 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
                 powner->money   = CLIP( (int)powner->money, 0, MAXMONEY );
 
                 can_grab = true;
-                can_pay  = true;
+                //can_pay  = true;
             }
             else
             {
                 // Don't allow purchase
                 ai_state_t::add_order(powner->ai, price, Passage::SHOP_NOAFFORD);
                 can_grab = false;
-                can_pay  = false;
+                //can_pay  = false;
             }
         }
     }

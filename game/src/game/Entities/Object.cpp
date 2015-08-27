@@ -393,7 +393,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     if ( !isAlive() || 0 == max_damage ) return 0;
 
     // make a special exception for DAMAGE_DIRECT
-    uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : getAttribute(Ego::Attribute::resistFromDamageType(damagetype));
+    uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : getAttribute(Ego::Attribute::modifierFromDamageType(damagetype));
 
     // determine some optional behavior
     bool friendly_fire = false;

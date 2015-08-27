@@ -33,6 +33,7 @@ class ModuleProfile;
 struct pip_t;
 struct eve_t;
 class LoadPlayerElement;
+namespace Ego { class DeferredOpenGLTexture; }
 
 /// Placeholders used while importing profiles
 struct pro_import_t
@@ -106,7 +107,7 @@ public:
      */
     const std::shared_ptr<ObjectProfile> &getProfile(PRO_REF slotNumber) const;
 
-    TX_REF getSpellBookIcon(size_t index) const;
+    const Ego::DeferredOpenGLTexture& getSpellBookIcon(size_t index) const;
 
     /**
      * Get map of all profiles loaded
@@ -146,7 +147,6 @@ public:
     void loadGlobalParticleProfiles();
 
 private:
-    std::unordered_map<size_t, TX_REF> _bookIcons; //List of all book icons loaded
     std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded; //Maps slot numbers to ObjectProfiles
 
     std::vector<std::shared_ptr<ModuleProfile>> _moduleProfilesLoaded;  // List of all valid game modules loaded

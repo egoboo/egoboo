@@ -1616,6 +1616,19 @@ bool vfs_get_next_bool(ReadContext& ctxt) {
 }
 
 //--------------------------------------------------------------------------------------------
+bool ego_texture_exists_vfs(const std::string &filename)
+{
+    // Try all different formats.
+    for (const auto& loader : ImageManager::get())
+    {
+        // Build the full file name.
+        std::string fullFilename = filename + loader.getExtension();
+        if(vfs_exists(fullFilename.c_str())) {
+            return true;
+        }
+    }
+    return false;
+}
 
 Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key)
 {
@@ -1659,6 +1672,10 @@ Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint
         {
             break;
         }
+    }
+
+    if(INVALID_GL_ID == retval) {
+        log_warning("unable to load texture: %s\n", vfs_resolveReadFilename(filename));
     }
 
     return retval;

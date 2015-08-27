@@ -162,6 +162,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <condition_variable>
 #include <new>
 #include <random>
 #include <stdexcept>
@@ -200,26 +201,6 @@
     #define PRIdZ "Id"
 #else
     #define PRIdZ "zd"
-#endif
-
-/**
- * @ingroup IdLib
- * @brief
- *  A macro alias for <tt>constexpr</tt>.
- * @remark
- *  This is necessary because of Redmon Retards' (aka Microsoft) Visual C++
- *  for versions before 19.0 (Visual Studio 2015).
- * @warning
- *  Obviously this macro can not add the semantics of the constexpr keyword
- *  to a compiler with pseudo-C++ 11 support, however, in some cases it can
- *  make up for it and it can be used to mark expressions to be rewritten
- *  as soon as the RR are able to "go native" and provide some "conformance"
- *  in their "industrial strength" "compiler".
- */
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-    #define CONSTEXPR const
-#else
-    #define CONSTEXPR constexpr
 #endif
 
 /**

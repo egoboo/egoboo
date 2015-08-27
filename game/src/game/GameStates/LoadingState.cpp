@@ -29,6 +29,7 @@
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
+#include "game/GUI/ProgressBar.hpp"
 
 //For loading stuff
 #include "game/Graphics/CameraSystem.hpp"
@@ -41,13 +42,13 @@
 #include "game/Module/Module.hpp"
 
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :
-    _finishedLoading({0}),
     _loadingThread(),
     _loadingLabel(nullptr),
     _loadModule(module),
     _playersToLoad(playersToLoad),
     _globalGameTips(),
-    _localGameTips()
+    _localGameTips(),
+    _progressBar(std::make_shared<GUI::ProgressBar>())
 {
     //Load background
     std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_logo");
@@ -66,6 +67,12 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     loadLocalModuleHints();
     loadGlobalHints();
 
+    //Add the progress bar
+    _progressBar->setSize(400, 30);
+    _progressBar->setPosition(GFX_WIDTH/2 - _progressBar->getWidth()/2, GFX_HEIGHT-50);
+    _progressBar->setMaxValue(100);
+    addComponent(_progressBar);
+
     //Add a random game tip
     std::shared_ptr<Label> gameTip = std::make_shared<Label>(getRandomHint());
     gameTip->setPosition(GFX_WIDTH/2 - gameTip->getWidth()/2, GFX_HEIGHT/2);
@@ -74,37 +81,24 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
 
 LoadingState::~LoadingState()
 {
-    // Wait until thread is dead:
+    // Wait until thread is dead
     if(_loadingThread.joinable()) {
         _loadingThread.join();
     }
 }
 
-//TODO: HACK (no multithreading yet)
-void LoadingState::singleThreadRedrawHack(const std::string &loadingText)
+void LoadingState::setProgressText(const std::string &loadingText, const uint8_t progress)
 {
-    // clear the screen
-    gfx_request_clear_screen();
-    gfx_do_clear_screen();
-
     //Always make loading text centered
     _loadingLabel->setText(loadingText);
-    _loadingLabel->setPosition(GFX_WIDTH/2 - _loadingLabel->getWidth()/2, 40);
+    _loadingLabel->setPosition(GFX_WIDTH/2 - _loadingLabel->getWidth()/2, 40);    
 
-    drawAll();
-
-    // flip the graphics page
-    gfx_request_flip_pages();
-    gfx_do_flip_pages();
+    _progressBar->setValue(progress);
 }
-//TODO: HACK END
-
 
 void LoadingState::update()
 {
-	if(!_finishedLoading) {
-		loadModuleData();
-	}
+    
 }
 
 void LoadingState::drawContainer()
@@ -115,7 +109,7 @@ void LoadingState::drawContainer()
 void LoadingState::beginState()
 {
     //Start the background loading thread
-    //_loadingThread = std::thread(&LoadingState::loadModuleData, this);
+    _loadingThread = std::thread(&LoadingState::loadModuleData, this);
     AudioSystem::get().playMusic(27); //TODO: needs to be referenced by string
 }
 
@@ -160,24 +154,23 @@ bool LoadingState::loadPlayers()
 
 void LoadingState::loadModuleData()
 {
-    singleThreadRedrawHack("Tidying some space...");
+    setProgressText("Tidying some space...", 0);
 
     //Make sure all data is cleared first
     game_quit_module();
 
-    singleThreadRedrawHack("Calculating some math...");
+    setProgressText("Calculating some math...", 10);
     BillboardSystem::get()._billboardList.reset();
 
     //initialize math objects
     make_turntosin();
 
     // Linking system
-    log_info("Initializing module linking... ");
-    if (link_build_vfs( "mp_data/link.txt", LinkList)) log_message("Success!\n");
-    else log_message( "Failure!\n" );
+    setProgressText("Initializing module linking... ", 20);
+    if (!link_build_vfs( "mp_data/link.txt", LinkList)) log_warning("Failed to initialize module linking\n");
 
     // initialize the collision system
-    singleThreadRedrawHack("Beautifying graphics...");
+    setProgressText("Beautifying graphics...", 40);
 
     //Ready message display
     DisplayMsg_reset();
@@ -186,12 +179,11 @@ void LoadingState::loadModuleData()
     ProfileSystem::get().reset();
 
     // do some graphics initialization
-    //make_lightdirectionlookup();
     gfx_system_make_enviro();
 
     //Load players if needed
     if(!_playersToLoad.empty()) {
-        singleThreadRedrawHack("Loading players...");
+        setProgressText("Loading players...", 50);
         if(!loadPlayers()) {
             log_warning("Failed to load players!\n");
             endState();
@@ -200,7 +192,7 @@ void LoadingState::loadModuleData()
     }
 
     // try to start a new module
-    singleThreadRedrawHack("Loading module data...");
+    setProgressText("Loading module data...", 60);
     if(!game_begin_module(_loadModule)) {
         log_warning("Failed to load module!\n");
         endState();
@@ -208,7 +200,7 @@ void LoadingState::loadModuleData()
     }
     _currentModule->setImportPlayers(_playersToLoad);
 
-    singleThreadRedrawHack("Almost done...");
+    setProgressText("Almost done...", 90);
 
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
     // and camera_system_begin() will not set up thte correct view
@@ -217,15 +209,17 @@ void LoadingState::loadModuleData()
     // Fade out music when finished loading
     AudioSystem::get().stopMusic();
 
-    // Must wait until music has finished fading out or else update loop will lag first few updates
-    //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    // make sure the per-module configuration settings are correct
+    config_synch(&egoboo_config_t::get(), true, false);
 
     // Complete!
-    singleThreadRedrawHack("Finished!");
-    _finishedLoading = true;
+    setProgressText("Finished!", 100);
 
     // Hit that gong
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_GAME_READY));
+
+    //1 second delay to let music finish, this prevents a frame lag on module startup
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     //Add the start button once we are finished loading
     std::shared_ptr<Button> startButton = std::make_shared<Button>("Press Space to begin", SDLK_SPACE);
@@ -233,11 +227,18 @@ void LoadingState::loadModuleData()
     startButton->setPosition(GFX_WIDTH/2 - startButton->getWidth()/2, GFX_HEIGHT-50);
     startButton->setOnClickFunction(
         [cameraSystem]{
+
+            //Have to do this function in the OpenGL context thread or else it will fail
+            TextureAtlasManager::decimate_all_mesh_textures();
+
             //Hush gong
             AudioSystem::get().fadeAllSounds();
             _gameEngine->setGameState(std::make_shared<PlayingState>(cameraSystem));
         });
     addComponent(startButton);
+
+    //Hide the progress bar
+    _progressBar->setVisible(false);
 }
 
 

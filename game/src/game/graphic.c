@@ -213,10 +213,7 @@ static gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * pt
 static gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl);
 static gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl);
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
-//static float calc_light_rotation(int rotation, int normal);
-//static float calc_light_global(int rotation, int normal, float lx, float ly, float lz);
 
-//static void gfx_init_icon_data();
 static void   gfx_init_bar_data();
 static void   gfx_init_blip_data();
 
@@ -333,8 +330,6 @@ void GFX::initialize()
     // begin the billboard system
     BillboardSystem::initialize();
 
-
-
     // Initialize the texture atlas manager.
     TextureAtlasManager::initialize();
 
@@ -363,7 +358,6 @@ void GFX::uninitialize()
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
 
     Ego::FontManager::uninitialize();
-    TextureManager::get().release_all(); ///< @todo Remove this.
 
     GFX::uninitializeOpenGL();
     GFX::uninitializeSDLGraphics();
@@ -648,6 +642,10 @@ void gfx_system_init_all_graphics()
     gfx_init_blip_data();
     font_bmp_init();
 
+    // Particle sprites
+    prt_set_texture_params(ParticleHandler::get().getTransparentParticleTexture(), SPRITE_ALPHA);
+    prt_set_texture_params(ParticleHandler::get().getLightParticleTexture(), SPRITE_LIGHT);
+
 	reinitClocks();
 }
 
@@ -658,60 +656,6 @@ void gfx_system_release_all_graphics()
     gfx_init_blip_data();
     BillboardSystem::get().reset();
     TextureManager::get().release_all();
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_system_delete_all_graphics()
-{
-    gfx_init_bar_data();
-    gfx_init_blip_data();
-    BillboardSystem::get().reset();
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_system_load_basic_textures()
-{
-    /// @author ZZ
-    /// @details This function loads the standard textures for a module
-
-    // load the bitmapped font (must be done after gfx_system_init_all_graphics())
-    font_bmp_load_vfs(TextureManager::get().get_valid_ptr(static_cast<TX_REF>(TX_FONT_BMP)), "mp_data/font_new_shadow", "mp_data/font.txt");
-
-    // Cursor
-    TextureManager::get().load("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR));
-
-    // Skull
-    TextureManager::get().load("mp_data/skull", static_cast<TX_REF>(TX_SKULL));
-
-    // Particle sprites
-    TextureManager::get().load("mp_data/particle_trans", (TX_REF)TX_PARTICLE_TRANS, TRANSCOLOR);
-    prt_set_texture_params((TX_REF)TX_PARTICLE_TRANS);
-
-    TextureManager::get().load("mp_data/particle_light", (TX_REF)TX_PARTICLE_LIGHT);
-    prt_set_texture_params((TX_REF)TX_PARTICLE_LIGHT);
-
-    // Module background tiles
-    TextureManager::get().load("mp_data/tile0", (TX_REF)TX_TILE_0);
-    TextureManager::get().load("mp_data/tile1", (TX_REF)TX_TILE_1);
-    TextureManager::get().load("mp_data/tile2", (TX_REF)TX_TILE_2);
-    TextureManager::get().load("mp_data/tile3", (TX_REF)TX_TILE_3);
-
-    // Water textures
-    TextureManager::get().load("mp_data/watertop", (TX_REF)TX_WATER_TOP);
-    TextureManager::get().load("mp_data/waterlow", (TX_REF)TX_WATER_LOW);
-
-    // The phong map
-    TextureManager::get().load("mp_data/phong", (TX_REF)TX_PHONG, TRANSCOLOR);
-
-    //Input icons
-    TextureManager::get().load("mp_data/keybicon", static_cast<TX_REF>(TX_ICON_KEYB));
-    TextureManager::get().load("mp_data/mousicon", static_cast<TX_REF>(TX_ICON_MOUS));
-    TextureManager::get().load("mp_data/joyaicon", static_cast<TX_REF>(TX_ICON_JOYA));
-    TextureManager::get().load("mp_data/joybicon", static_cast<TX_REF>(TX_ICON_JOYB));
-
-    TextureAtlasManager::decimate_all_mesh_textures();
-
-	reinitClocks();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -760,7 +704,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
     //Now draw it
     if (x > 0.0f && y > 0.0f)
     {
-        oglx_texture_t * ptex = TextureManager::get().get_valid_ptr((TX_REF)TX_BLIP);
+        const oglx_texture_t * ptex = TextureManager::get().getTexture("mp_data/blip").get();
 
         tx_rect.xmin = (float)bliprect[color]._left / (float)ptex->getWidth();
         tx_rect.xmax = (float)bliprect[color]._right / (float)ptex->getWidth();
@@ -780,7 +724,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_icon_texture(oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
+float draw_icon_texture(const oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
@@ -851,18 +795,12 @@ float draw_icon_texture(oglx_texture_t * ptex, float x, float y, Uint8 sparkle_c
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_game_icon(const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
+float draw_game_icon(const oglx_texture_t* icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
 {
     /// @author ZZ
     /// @details This function draws an icon
 
-    return draw_icon_texture(TextureManager::get().get_valid_ptr(icontype), x, y, sparkle_color, sparkle_timer, size);
-}
-
-//--------------------------------------------------------------------------------------------
-float draw_menu_icon(const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
-{
-    return draw_icon_texture(TextureManager::get().get_valid_ptr(icontype), x, y, sparkle_color, sparkle_timer, size);
+    return draw_icon_texture(icontype, x, y, sparkle_color, sparkle_timer, size);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -870,6 +808,8 @@ float draw_one_xp_bar(float x, float y, Uint8 ticks)
 {
     /// @author ZF
     /// @details This function draws a xp bar and returns the y position for the next one
+
+    const std::shared_ptr<oglx_texture_t> &texture = TextureManager::get().getTexture("mp_data/xpbar");
 
     int width, height;
     Uint8 cnt;
@@ -894,7 +834,7 @@ float draw_one_xp_bar(float x, float y, Uint8 ticks)
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d(TextureManager::get().get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true);
+    draw_quad_2d(texture.get(), sc_rect, tx_rect, true);
 
     x += width;
 
@@ -914,7 +854,7 @@ float draw_one_xp_bar(float x, float y, Uint8 ticks)
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d(TextureManager::get().get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true);
+        draw_quad_2d(texture.get(), sc_rect, tx_rect, true);
     }
 
     //---- Draw the remaining empty ones
@@ -930,7 +870,7 @@ float draw_one_xp_bar(float x, float y, Uint8 ticks)
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d(TextureManager::get().get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true);
+        draw_quad_2d(texture.get(), sc_rect, tx_rect, true);
     }
 
     return y + height;
@@ -946,7 +886,6 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
 
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
-    oglx_texture_t * tx_ptr;
 
     float tx_width, tx_height, img_width;
     float tab_width, tick_width, tick_height;
@@ -965,7 +904,7 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
     if (ticks > total_ticks) ticks = total_ticks;
 
     // grab a pointer to the bar texture
-    tx_ptr = TextureManager::get().get_valid_ptr((TX_REF)TX_BARS);
+    const std::shared_ptr<oglx_texture_t> &tx_ptr = TextureManager::get().getTexture("mp_data/bars");
 
     // allow the bitmap to be scaled to arbitrary size
     tx_width = 128.0f;
@@ -999,7 +938,7 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+    draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
 
     // make the new left-hand margin after the tab
     x_left = x_stt + width;
@@ -1023,7 +962,7 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
 
         y += height;
         ticks -= NUMTICK;
@@ -1049,7 +988,7 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
 
         // move to the right after drawing the full ticks
         x += width;
@@ -1070,7 +1009,7 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
 
         y += height;
         ticks = 0;
@@ -1098,7 +1037,7 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
 
         y += height;
         total_ticks -= NUMTICK;
@@ -1125,7 +1064,7 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
 
         y += height;
     }
@@ -1141,12 +1080,10 @@ void draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_amm
     ///     If the object is invalid, draw the null icon instead of failing
     ///     If NOSPARKLE is specified the default item sparkle will be used (default behaviour)
 
-    TX_REF icon_ref;
-
     Object * pitem = !_currentModule->getObjectHandler().exists(item) ? NULL : _currentModule->getObjectHandler().get(item);
 
     // grab the icon reference
-    icon_ref = chr_get_txtexture_icon_ref(item);
+    const oglx_texture_t* icon_ref = chr_get_txtexture_icon_ref(item);
 
     // draw the icon
     if (draw_sparkle == NOSPARKLE) draw_sparkle = (NULL == pitem) ? NOSPARKLE : pitem->sparkle;
@@ -1437,7 +1374,7 @@ void draw_mouse_cursor()
     //    return;
     //}
 
-    oglx_texture_t *pcursor = TextureManager::get().get_valid_ptr(TX_CURSOR);
+    const std::shared_ptr<oglx_texture_t> &pcursor = TextureManager::get().getTexture("mp_data/cursor");
 
     // Invalid texture?
     if (nullptr == pcursor)
@@ -2055,87 +1992,6 @@ void gfx_init_blip_data()
         bliprect[cnt]._top = 0;
         bliprect[cnt]._bottom = BLIPSIZE;
     }
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_bars()
-{
-    /// @author ZZ
-    /// @details This function loads the status bar bitmap
-
-    gfx_rv retval = gfx_success;
-
-    const char *barFile = "mp_data/bars";
-    if (!VALID_TX_RANGE(TextureManager::get().load(barFile, (TX_REF)TX_BARS)))
-    {
-        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, barFile);
-        retval = gfx_fail;
-    }
-
-    const char *xpBarFile = "mp_data/xpbar";
-    if (!VALID_TX_RANGE(TextureManager::get().load(xpBarFile, (TX_REF)TX_XP_BAR)))
-    {
-        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, xpBarFile);
-        retval = gfx_fail;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_map()
-{
-    /// @author ZZ
-    /// @details This function loads the map bitmap
-
-    const char* szMap = "mp_data/plan";
-    gfx_rv retval = gfx_success;
-
-    // Load the images
-    if (!VALID_TX_RANGE(TextureManager::get().load(szMap, (TX_REF)TX_MAP)))
-    {
-        log_debug("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap);
-        retval = gfx_fail;
-    }
-    else
-    {
-        retval = gfx_success;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_blips()
-{
-    /// @author ZZ
-    /// @details This function loads the blip bitmaps
-
-    const char * pname = "mp_data/blip";
-    gfx_rv retval = gfx_success;
-
-    if (!VALID_TX_RANGE(TextureManager::get().load(pname, (TX_REF)TX_BLIP)))
-    {
-        log_warning("%s - Blip bitmap not loaded! (\"%s\")\n", __FUNCTION__, pname);
-        retval = gfx_fail;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_icons()
-{
-    const char * pname = "mp_data/nullicon";
-    gfx_rv retval = gfx_success;
-
-    if (!VALID_TX_RANGE(TextureManager::get().load(pname, (TX_REF)TX_ICON_NULL)))
-    {
-        log_warning("%s - cannot load \"empty hand\" icon! (\"%s\")\n", __FUNCTION__, pname);
-        retval = gfx_fail;
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3273,12 +3129,16 @@ void TextureAtlasManager::reinitialize()
 {
     for (size_t i = 0; i < sml_cnt; ++i)
     {
-        delete sml[i];
+        if(sml[i] != nullptr) {
+            delete sml[i];
+        }
         sml[i] = nullptr;
     }
     for (size_t i = 0; i < big_cnt; ++i)
     {
-        delete big[i];
+        if(big[i] != nullptr) {
+            delete big[i];
+        }
         big[i] = nullptr;
     }
     sml_cnt = 0;
@@ -3311,9 +3171,10 @@ oglx_texture_t *TextureAtlasManager::get_big(int which)
     return big[which];
 }
 
-int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification)
+int TextureAtlasManager::decimate_one_mesh_texture(const oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification)
 {
-    static const int sub_textures = 8;
+    static constexpr size_t SUB_TEXTURES = 8;
+
     size_t cnt = tx_lst_cnt;
     if (!src_tx || !src_tx->_source)
     {   
@@ -3323,29 +3184,25 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
     // make an alias for the texture's SDL_Surface
     auto src_img = src_tx->_source;
 
-    // grab parameters from the mesh
-    int src_img_w = src_img->w;
-    int src_img_h = src_img->h;
-
     // how large a step every time through the mesh?
-    float step_fx = (float)src_img_w / (float)sub_textures;
-    float step_fy = (float)src_img_h / (float)sub_textures;
+    float step_fx = static_cast<float>(src_img->w) / static_cast<float>(SUB_TEXTURES);
+    float step_fy = static_cast<float>(src_img->h) / static_cast<float>(SUB_TEXTURES);
 
     SDL_Rect src_img_rect;
     src_img_rect.w = std::ceil(step_fx * minification);
-    src_img_rect.w = std::max<Uint16>(1, src_img_rect.w);
+    src_img_rect.w = std::max<uint16_t>(1, src_img_rect.w);
     src_img_rect.h = std::ceil(step_fy * minification);
-    src_img_rect.h = std::max<Uint16>(1, src_img_rect.h);
-
+    src_img_rect.h = std::max<uint16_t>(1, src_img_rect.h);
 
     size_t ix, iy;
     float fx, fy;
+
     // scan across the src_img
-    for (iy = 0, fy = 0.0f; iy < sub_textures; iy++, fy += step_fy)
+    for (iy = 0, fy = 0.0f; iy < SUB_TEXTURES; iy++, fy += step_fy)
     {
         src_img_rect.y = std::floor(fy);
 
-        for (ix = 0, fx = 0.0f; ix < sub_textures; ix++, fx += step_fx)
+        for (ix = 0, fx = 0.0f; ix < SUB_TEXTURES; ix++, fx += step_fx)
         {
             src_img_rect.x = std::floor(fx);
 
@@ -3361,23 +3218,9 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
                 cnt++;
                 continue;
             }
-            // Fill the destination surface with opaque white (redundant, but keept it until SDL 2 migration).
-            SDL_FillRect(dst_img.get(), nullptr, SDL_MapRGBA(dst_img.get()->format, 0, 255, 255, 255));
+           
             // Copy the pixels.
-            for (size_t y = 0; y < src_img_rect.h; ++y)
-            {
-                if(src_img_rect.y + y >= src_img->h) break;
-                for (size_t x = 0; x < src_img_rect.w; ++x)
-                {
-                    if(src_img_rect.x + x >= src_img->w) break;
-
-                    uint32_t p = SDL_GL_getpixel(src_img.get(), src_img_rect.x + x, src_img_rect.y + y);
-                    uint8_t r, g, b, a;
-                    SDL_GetRGBA(p, src_img->format, &r, &g, &b, &a);
-                    uint32_t q = SDL_MapRGBA(dst_img->format, r, g, b, a);
-                    SDL_GL_putpixel(dst_img.get(), x, y, q);
-                }
-            }
+            SDL_BlitSurface(src_img.get(), &src_img_rect, dst_img.get(), nullptr);
 
             // upload the SDL_Surface into OpenGL
             dst_tx->load(dst_img);
@@ -3401,18 +3244,14 @@ void TextureAtlasManager::decimate_all_mesh_textures()
     sml_cnt = 0;
     for (size_t i = 0; i < 4; ++i)
     {
-        oglx_texture_t *ptx = TextureManager::get().get_valid_ptr(TX_TILE_0 + i);
-
-        sml_cnt = decimate_one_mesh_texture(ptx, sml, sml_cnt, 1);
+        sml_cnt = decimate_one_mesh_texture(_currentModule->getTileTexture(i), sml, sml_cnt, 1);
     }
 
     // Do the "big" textures.
     big_cnt = 0;
     for (size_t i = 0; i < 4; ++i)
     {
-        oglx_texture_t *ptx = TextureManager::get().get_valid_ptr(TX_TILE_0 + i);
-
-        big_cnt = decimate_one_mesh_texture(ptx, big, big_cnt, 2);
+        big_cnt = decimate_one_mesh_texture(_currentModule->getTileTexture(i), big, big_cnt, 2);
     }
 }
 

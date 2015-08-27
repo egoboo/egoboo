@@ -6,24 +6,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct chr_anim_data_t
-{
-    chr_anim_data_t() :
-        allowed(false),
-        action(ACTION_DA),
-        lip(0),
-        speed(0.0f)
-    {
-        //ctor
-    }
-
-    bool allowed;
-    int    action;
-    int    lip;
-    float  speed;
-};
-
-static int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs );
 static egolib_rv chr_invalidate_child_instances( Object * pchr );
 static bool chr_handle_madfx( Object * pchr );
 static float set_character_animation_rate( Object * pchr );
@@ -110,13 +92,9 @@ egolib_rv chr_increment_frame( Object * pchr )
     egolib_rv retval;
     int mount_action;
     CHR_REF imount;
-    bool needs_keep;
-
+    
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
     imount = pchr->attachedto;
-
-    // do we need to keep this animation?
-    needs_keep = false;
 
     if ( !_currentModule->getObjectHandler().exists( imount ) )
     {
@@ -132,33 +110,16 @@ egolib_rv chr_increment_frame( Object * pchr )
             // ACTION_MH == "sitting" so that it does not look so silly
 
             mount_action = pchr->getProfile()->getModel()->getAction(ACTION_MH);
-            if ( ACTION_MH != mount_action )
-            {
-                // no real sitting animation. set the animation to keep
-                needs_keep = true;
-            }
         }
         else
         {
             // if it is not holding anything, go for the riding animation
             mount_action = pchr->getProfile()->getModel()->getAction(ACTION_MI);
-            if ( ACTION_MI != mount_action )
-            {
-                // no real riding animation. set the animation to keep
-                needs_keep = true;
-            }
         }
     }
 
     retval = ( egolib_rv )chr_instance_t::increment_frame(pchr->inst, imount, mount_action );
     if ( rv_success != retval ) return retval;
-
-    /// @note BB@> this did not work as expected...
-    // set keep if needed
-    //if ( needs_keep )
-    //{
-    //    chr_instance_set_action_keep( &( pchr->inst ), true );
-    //}
 
     // if the instance is invalid, invalidate everything that depends on this object
     if ( !pchr->inst.save.valid )
@@ -278,9 +239,6 @@ float set_character_animation_rate( Object * pchr )
     /// @details added automatic calculation of variable animation rates for movement animations
 
     bool is_walk_type;
-    int    cnt, anim_count;
-    int    action, lip;
-    bool found;
 
     // set the character speed to zero
     float speed = 0;
@@ -326,82 +284,6 @@ float set_character_animation_rate( Object * pchr )
     // get the model
     const std::shared_ptr<Ego::ModelDescriptor> pmad = pchr->getProfile()->getModel();
 
-    //---- set up the anim_info structure
-    chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
-    anim_info[CHR_MOVEMENT_STOP ].speed = 0;
-    anim_info[CHR_MOVEMENT_SNEAK].speed = pchr->getProfile()->getSneakAnimationSpeed();
-    anim_info[CHR_MOVEMENT_WALK ].speed = pchr->getProfile()->getWalkAnimationSpeed();
-    anim_info[CHR_MOVEMENT_RUN  ].speed = pchr->getProfile()->getRunAnimationSpeed();
-
-    if ( pchr->isFlying() )
-    {
-        // for flying characters, you have to flap like crazy to stand still and
-        // do nothing to move quickly
-        anim_info[CHR_MOVEMENT_STOP ].action = ACTION_WC;
-        anim_info[CHR_MOVEMENT_SNEAK].action = ACTION_WB;
-        anim_info[CHR_MOVEMENT_WALK ].action = ACTION_WA;
-        anim_info[CHR_MOVEMENT_RUN  ].action = ACTION_DA;
-    }
-    else
-    {
-        anim_info[CHR_MOVEMENT_STOP ].action = ACTION_DA;
-        anim_info[CHR_MOVEMENT_SNEAK].action = ACTION_WA;
-        anim_info[CHR_MOVEMENT_WALK ].action = ACTION_WB;
-        anim_info[CHR_MOVEMENT_RUN  ].action = ACTION_WC;
-    }
-
-    anim_info[CHR_MOVEMENT_STOP ].lip = 0;
-    anim_info[CHR_MOVEMENT_SNEAK].lip = LIPWA;
-    anim_info[CHR_MOVEMENT_WALK ].lip = LIPWB;
-    anim_info[CHR_MOVEMENT_RUN  ].lip = LIPWC;
-
-    // set up the arrays that are going to
-    // determine whether the various movements are allowed
-    for ( cnt = 0; cnt < CHR_MOVEMENT_COUNT; cnt++ )
-    {
-        anim_info[cnt].allowed = HAS_SOME_BITS( pchr->movement_bits, 1 << cnt );
-    }
-
-    if ( ACTION_WA != pmad->getAction(ACTION_WA) )
-    {
-        // no specific walk animation exists
-        anim_info[CHR_MOVEMENT_SNEAK].allowed = false;
-
-        /// @note ZF@> small fix here, if there is no sneak animation, try to default to normal walk with reduced animation speed
-        if ( HAS_SOME_BITS( pchr->movement_bits, CHR_MOVEMENT_BITS_SNEAK ) )
-        {
-            anim_info[CHR_MOVEMENT_WALK].allowed = true;
-            anim_info[CHR_MOVEMENT_WALK].speed *= 2;
-        }
-    }
-
-    if ( ACTION_WB != pmad->getAction(ACTION_WB) )
-    {
-        // no specific walk animation exists
-        anim_info[CHR_MOVEMENT_WALK].allowed = false;
-    }
-
-    if ( ACTION_WC != pmad->getAction(ACTION_WC) )
-    {
-        // no specific walk animation exists
-        anim_info[CHR_MOVEMENT_RUN].allowed = false;
-    }
-
-    // sort the allowed movement(s) data
-    qsort( anim_info, CHR_MOVEMENT_COUNT, sizeof( chr_anim_data_t ), cmp_chr_anim_data );
-
-    // count the allowed movements
-    for ( cnt = 0, anim_count = 0; cnt < CHR_MOVEMENT_COUNT; cnt++ )
-    {
-        if ( anim_info[cnt].allowed ) anim_count++;
-    }
-
-    // nothing to be done
-    if ( 0 == anim_count )
-    {
-        return pinst.rate;
-    }
-
     // estimate our speed
     if ( pchr->isFlying() )
     {
@@ -423,58 +305,43 @@ float set_character_animation_rate( Object * pchr )
     }
 
     //Make bigger Objects have slower animations
-    if ( pchr->fat != 0.0f ) speed /= pchr->fat;
+    if ( pchr->fat > 0.0f ) speed /= pchr->fat;
 
-    // handle a special case
-    if ( 1 == anim_count )
-    {
-        if ( 0.0f != anim_info[0].speed )
-        {
-            pinst.rate = speed / anim_info[0].speed;
-        }
-
-        return pinst.rate;
+    //Find out which animation to use depending on movement speed
+    int action = ACTION_DA;
+    int lip = 0;
+    if (speed <= 1e-3f) {
+        action = ACTION_DA;     //Stand still
     }
-
-    // search for the correct animation
-    action = ACTION_DA;
-    lip    = 0;
-    found  = false;
-    for ( cnt = 0; cnt < anim_count - 1; cnt++ )
-    {
-        float speed_mid = 0.5f * ( anim_info[cnt].speed + anim_info[cnt+1].speed );
-
-        // make a special case for dance animation(s)
-        if ( anim_info[cnt].speed <= FLT_EPSILON && speed <= 1e-3 )
-        {
-            found = true;
+    else {
+        if(pchr->isStealthed() && pmad->isActionValid(ACTION_WA)) {
+            action = ACTION_WA; //Sneak animation
+            lip = LIPWA;
         }
-        else
-        {
-            found = ( speed < speed_mid );
-        }
-
-        if ( found )
-        {
-            action = anim_info[cnt].action;
-            lip    = anim_info[cnt].lip;
-            if ( 0.0f != anim_info[cnt].speed )
-            {
-                pinst.rate = speed / anim_info[cnt].speed;
+        else {
+            if(speed <= 4 && pmad->isActionValid(ACTION_WB)) {
+                action = ACTION_WB; //Walk
+                lip = LIPWB;
             }
-            break;
+            else {
+                action = ACTION_WB; //Run
+                lip = LIPWC;
+            }
+
         }
     }
 
-    if ( !found )
+    // for flying characters, you have to flap like crazy to stand still and
+    // do nothing to move quickly
+    if ( pchr->isFlying() )
     {
-        action = anim_info[cnt].action;
-        lip    = anim_info[cnt].lip;
-        if ( 0.0f != anim_info[cnt].speed )
+        switch(action)
         {
-            pinst.rate = speed / anim_info[cnt].speed;
+            case ACTION_DA: action = ACTION_WC; break;
+            case ACTION_WA: action = ACTION_WB; break;
+            case ACTION_WB: action = ACTION_WA; break;
+            case ACTION_WC: action = ACTION_DA; break;
         }
-        found = true;
     }
 
     if ( ACTION_DA == action )
@@ -520,6 +387,7 @@ float set_character_animation_rate( Object * pchr )
             {
                 const MD2_Frame &nextFrame  = chr_instance_t::get_frame_nxt(pchr->inst);
                 chr_set_anim( pchr, tmp_action, pmad->getFrameLipToWalkFrame(lip, nextFrame.framelip), true, true );
+                chr_start_anim(pchr, tmp_action, true, true);
             }
 
             // "loop" the action
@@ -533,39 +401,6 @@ float set_character_animation_rate( Object * pchr )
     return pinst.rate;
 }
 
-
-//--------------------------------------------------------------------------------------------
-int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs )
-{
-    /// @author BB
-    /// @details Sort MOD REF values based on the rank of the module that they point to.
-    ///               Trap all stupid values.
-
-    chr_anim_data_t * plhs = ( chr_anim_data_t * )vp_lhs;
-    chr_anim_data_t * prhs = ( chr_anim_data_t * )vp_rhs;
-
-    int retval = 0;
-
-    if ( NULL == plhs && NULL == prhs )
-    {
-        return 0;
-    }
-    else if ( NULL == plhs )
-    {
-        return 1;
-    }
-    else if ( NULL == prhs )
-    {
-        return -1;
-    }
-
-    retval = ( int )prhs->allowed - ( int )plhs->allowed;
-    if ( 0 != retval ) return retval;
-
-    retval = SGN( plhs->speed - prhs->speed );
-
-    return retval;
-}
 
 //--------------------------------------------------------------------------------------------
 egolib_rv chr_invalidate_child_instances( Object * pchr )

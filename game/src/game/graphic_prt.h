@@ -38,8 +38,7 @@ extern int ptex_w[2];
 extern int ptex_h[2];
 extern float ptex_wscale[2];
 extern float ptex_hscale[2];
-int prt_get_texture_style(const TX_REF itex);
-void prt_set_texture_params(const TX_REF itex);
+void prt_set_texture_params(const oglx_texture_t* texture, uint8_t type);
 float CALCULATE_PRT_U0(int IDX, int CNT);
 float CALCULATE_PRT_U1(int IDX, int CNT);
 float CALCULATE_PRT_V0(int IDX, int CNT);
@@ -55,7 +54,6 @@ struct prt_instance_t
 
     // basic info
     uint8_t  type;               ///< particle type
-    TX_REF   texture_ref;        ///< which texture
     uint32_t image_ref;          ///< which sub image within the texture?
     float    alpha;              ///< base alpha
     uint8_t  light;              ///< base self lighting
@@ -90,7 +88,6 @@ struct prt_instance_t
 
         // basic info
         type(0),
-        texture_ref(INVALID_TX_REF),
         image_ref(0),
         alpha(0.0f),
         light(0),
@@ -131,7 +128,6 @@ struct prt_instance_t
 
         // basic info
         type = 0;
-        texture_ref = INVALID_TX_REF;
         image_ref = 0;
         alpha = 0.0f;
         light = 0;

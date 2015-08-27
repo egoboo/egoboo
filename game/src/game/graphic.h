@@ -427,9 +427,7 @@ void gfx_system_reload_all_textures();
 void gfx_system_make_enviro();
 void gfx_system_init_all_graphics();
 void gfx_system_release_all_graphics();
-void gfx_system_delete_all_graphics();
 void gfx_system_load_assets();
-void gfx_system_load_basic_textures();
 
 renderlist_mgr_t *gfx_system_get_renderlist_mgr();
 dolist_mgr_t *gfx_system_get_dolist_mgr();
@@ -443,9 +441,8 @@ bool gfx_flip_pages_requested();
 void gfx_request_flip_pages();
 void gfx_do_flip_pages();
 
-float draw_icon_texture(oglx_texture_t *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
-float draw_menu_icon(const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
-float draw_game_icon(const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
+float draw_icon_texture(const oglx_texture_t *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
+float draw_game_icon(const oglx_texture_t* icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
 float draw_one_bar(Uint8 bartype, float x, float y, int ticks, int maxticks);
 float draw_status(const CHR_REF character, float x, float y);
 void  draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_ammo, Uint8 sparkle_override);
@@ -454,13 +451,6 @@ float draw_character_xp_bar(const CHR_REF character, float x, float y);
 
 bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t * dst, const Vector2f& pos);
 float grid_lighting_test(ego_mesh_t *mesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
-
-void release_all_profile_textures();
-
-gfx_rv gfx_load_blips();
-gfx_rv gfx_load_bars();
-gfx_rv gfx_load_map();
-gfx_rv gfx_load_icons();
 
 float  get_ambient_level();
 
@@ -493,7 +483,7 @@ protected:
 #endif
 
     // decimate one tiled texture of a mesh
-    static int decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification);
+    static int decimate_one_mesh_texture(const oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification);
 
 public:
     static oglx_texture_t *get_sml(int which);

@@ -201,6 +201,10 @@ void GameEngine::updateOneFrame()
     // Handle all SDL events    
     pollEvents();
 
+    //Deferred loading for any textures requested by other threads
+    TextureManager::get().updateDeferredLoading();
+
+    //Update current game state
     _currentGameState->update();
 
     // Check for screenshots
@@ -304,6 +308,9 @@ bool GameEngine::initialize()
     gfx_system_init_all_graphics();
     gfx_do_clear_screen();
 
+    // load the bitmapped font (must be done after gfx_system_init_all_graphics())
+    font_bmp_load_vfs("mp_data/font_new_shadow", "mp_data/font.txt");
+
     // setup the system gui
     _uiManager = std::unique_ptr<UIManager>(new UIManager());
 
@@ -314,9 +321,6 @@ bool GameEngine::initialize()
     // Run the Cocoa event loop a few times so the window appears
     for (int i = 0; i < 4; i++) SDL_PumpEvents();
 #endif
-
-    // Load basic textures
-    gfx_system_load_basic_textures();
 
     // Initialize the sound system.
     renderPreloadText("Loading audio...");
@@ -381,7 +385,7 @@ void GameEngine::uninitialize()
     config_synch(&egoboo_config_t::get(), true, true);
 
     // delete all the graphics allocated by SDL and OpenGL
-    gfx_system_delete_all_graphics();
+    gfx_system_release_all_graphics();
 
     // make sure that the current control configuration is written
     input_settings_save_vfs("controls.txt", -1);

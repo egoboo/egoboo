@@ -33,7 +33,7 @@
 #include <windows.h>
 #endif
 
-static CONSTEXPR size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages.
+static constexpr size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages.
 
 static vfs_FILE *logFile = nullptr;             ///< Log file.
 static LogLevel _logLevel = LOG_WARNING;        ///< Default log level.

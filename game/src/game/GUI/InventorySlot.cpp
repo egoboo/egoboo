@@ -22,14 +22,14 @@ void InventorySlot::draw()
     std::shared_ptr<Object> item = _inventory.getItem(_slotNumber);
 
     // grab the icon reference
-    TX_REF icon_ref;
+    const oglx_texture_t* icon_ref;
 
 
     if(item) {
         icon_ref = chr_get_txtexture_icon_ref(item->getCharacterID());
     }
     else {
-        icon_ref = static_cast<TX_REF>(TX_ICON_NULL);
+        icon_ref = TextureManager::get().getTexture("mp_data/nullicon").get();
     }
 
     bool selected = false;

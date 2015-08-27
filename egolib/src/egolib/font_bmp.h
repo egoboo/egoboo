@@ -52,5 +52,5 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
     void font_bmp_init();
-    void font_bmp_load_vfs(oglx_texture_t * tx_font, const char* szBitmap, const char* szSpacing );
+    void font_bmp_load_vfs(const char* szBitmap, const char* szSpacing);
     int  font_bmp_length_of_word(const char *szText);

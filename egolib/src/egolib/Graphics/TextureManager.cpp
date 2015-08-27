@@ -27,36 +27,12 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-TextureManager::TextureManager()
-    : _lst(), _free()
+TextureManager::TextureManager() :
+    _deferredLoadingMutex(),
+    _requestedLoadDeferredTextures(),
+    _notifyDeferredLoadingComplete()
 {
     initializeErrorTextures();
-    // Fill the _free set with all texture references
-    // from TX_SPECIAL_LAST (inclusive) to TEXTURES_MAX (exclusive).
-    for (TX_REF ref = TX_SPECIAL_LAST; ref < TEXTURES_MAX; ++ref)
-    {
-        _free.insert(ref);
-    }
-
-    // Initialize the actual list of textures.
-    for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
-    {
-        oglx_texture_t *texture = nullptr;
-        try
-        {
-            texture = new oglx_texture_t();
-        }
-        catch (std::exception& ex)
-        {
-            while (ref > 0)
-            {
-                delete _lst[--ref];
-                _lst[ref] = nullptr;
-            }
-            throw ex;
-        }
-        _lst[ref] = texture;
-    }
 }
 
 TextureManager::~TextureManager()
@@ -65,120 +41,65 @@ TextureManager::~TextureManager()
         texture.second->release();
     }
     _textureCache.clear();
-    
-    for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
-    {
-        delete _lst[ref];
-        _lst[ref] = nullptr;
-    }
     uninitializeErrorTextures();
-}
-
-void TextureManager::freeAll()
-{
-    // Fill the _free set with all texture references
-    // from TX_SPECIAL_LAST (inclusive) to TEXTURES_MAX (exclusive).
-    for (TX_REF ref = TX_SPECIAL_LAST; ref < TEXTURES_MAX; ++ref)
-    {
-        _free.insert(ref);
-    }
 }
 
 void TextureManager::release_all()
 {
-    for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
-    {
-        _lst[ref]->release();
-    }
-
-    freeAll();
+    _textureCache.clear();
 }
 
 void TextureManager::reload_all()
 {
-    for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
-    {
-        oglx_texture_t *texture = _lst[ref];
-        texture->load(texture->_source);
-    }
+    //TODO
 }
 
-TX_REF TextureManager::acquire(const TX_REF ref)
+void TextureManager::updateDeferredLoading()
 {
-    if (ref < TX_SPECIAL_LAST)
+    //If nothing to do, exit function immeadiately
+    if(_requestedLoadDeferredTextures.empty()) return;
+
+    //Load each texture that is required by another thread
     {
-        _lst[ref]->release();
-        return ref;
-    }
-    else if (!VALID_TX_RANGE(ref))
-    {
-        auto head = _free.begin();
-        if (head == _free.end())
-        {
-            return INVALID_TX_REF;
+        std::lock_guard<std::mutex> lock(_deferredLoadingMutex);
+        for(const std::string &filePath : _requestedLoadDeferredTextures) {
+            std::shared_ptr<oglx_texture_t> loadTexture = std::make_shared<oglx_texture_t>();
+            ego_texture_load_vfs(loadTexture.get(), filePath.c_str(), TRANSCOLOR);
+            _textureCache[filePath] = loadTexture;
+            log_debug("Deferred texture load: %s\n", filePath.c_str());
         }
-        TX_REF newRef = *head;
-        _free.erase(head);
-        return newRef;
+        _requestedLoadDeferredTextures.clear();
     }
-    else
-    {
-        // Release the texture under the specified reference.
-        _lst[ref]->release();
-        // Remove this reference from the free set.
-        _free.erase(_free.find(ref));
-        return ref;
-    }
+
+    //Notify all waiting threads that loading is complete
+    _notifyDeferredLoadingComplete.notify_all();  
 }
 
-//--------------------------------------------------------------------------------------------
-bool TextureManager::relinquish(const TX_REF ref)
+const std::shared_ptr<oglx_texture_t>& TextureManager::getTexture(const std::string &filePath)
 {
-    if (ref >= TEXTURES_MAX) return false;
+    //Not loaded yet?
+    auto result = _textureCache.find(filePath);
+    if(result == _textureCache.end()) {
 
-    // Release the texture.
-    _lst[ref]->release();
+        if(SDL_GL_GetCurrentContext() != nullptr) {
+            //We are the main OpenGL context thread so we can load textures
+            std::shared_ptr<oglx_texture_t> loadTexture = std::make_shared<oglx_texture_t>();
+            ego_texture_load_vfs(loadTexture.get(), filePath.c_str(), TRANSCOLOR);
+            _textureCache[filePath] = loadTexture;
+        }
+        else {
+            //We cannot load textures, wait blocking for main thread to load it for us
+            std::unique_lock<std::mutex> lock(_deferredLoadingMutex);
+            _requestedLoadDeferredTextures.push_front(filePath);
+            log_debug("Wait for deferred texture: %s\n", filePath.c_str());
+            _notifyDeferredLoadingComplete.wait(lock, [this]{return _requestedLoadDeferredTextures.empty();});
+        }
 
-    // Do not put anything below TX_SPECIAL_LAST back onto the free stack.
-    if (ref >= TX_SPECIAL_LAST)
-    {
-        _free.insert(ref);
-}
-
-    return true;
-}
-
-TX_REF TextureManager::load(const char *filename, const TX_REF ref, Uint32 key)
-{
-    /// @author BB
-    /// @details load a texture into TxList.
-    ///     If INVALID_TX_IDX == ref, then we just get the next free index
-
-    // Acquire a texture reference.
-    TX_REF newRef = acquire(ref);
-    // If no texture reference is available ...
-    if (!VALID_TX_RANGE(newRef))
-    {
-        // ... return INVALID_TX_REF.
-        return INVALID_TX_REF;
+        return _textureCache[filePath];
     }
 
-    // Otherwise load the texture.
-    Uint32 id = ego_texture_load_vfs(_lst[newRef], filename, key);
-    // If loading fails ...
-    if (INVALID_GL_ID == id)
-    {
-        // ... relinquish the reference and ...
-        relinquish(newRef);
-        // ... return INVALID_TX_REF.
-        return INVALID_TX_REF;
+    //Get cached texture
+    else {
+        return (*result).second;
     }
-
-    return newRef;
-}
-
-oglx_texture_t *TextureManager::get_valid_ptr(const TX_REF ref)
-{
-    oglx_texture_t *texture = LAMBDA(ref >= TEXTURES_MAX, nullptr, _lst[ref]);
-    return texture;
 }

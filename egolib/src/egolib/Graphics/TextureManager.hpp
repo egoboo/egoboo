@@ -28,52 +28,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// Special Textures
-enum e_global_tx_type
-{
-    /* "mp_data/particle_trans", TRANSCOLOR */
-    TX_PARTICLE_TRANS = 0,
-    /* "mp_data/particle_light", INVALID_KEY */
-    TX_PARTICLE_LIGHT,
-    /* "mp_data/tile0",TRANSCOLOR */
-    TX_TILE_0,
-    /* "mp_data/tile1",TRANSCOLOR */
-    TX_TILE_1,
-    /* "mp_data/tile2",TRANSCOLOR */
-    TX_TILE_2,
-    /* "mp_data/tile3",TRANSCOLOR */
-    TX_TILE_3,
-    /* "mp_data/watertop", TRANSCOLOR */
-    TX_WATER_TOP,
-    /* "mp_data/waterlow", TRANSCOLOR */
-    TX_WATER_LOW,
-    /* "mp_data/phong", TRANSCOLOR */
-    TX_PHONG,
-    /* "mp_data/bars", INVALID_KEY vs. TRANSCOLOR */
-    TX_BARS,
-    /* "mp_data/blip" */
-    TX_BLIP,
-    /* "mp_data/plan" */
-    TX_MAP,
-    /* "mp_data/xpbar", TRANSCOLOR*/
-    TX_XP_BAR,
-    /* "mp_data/nullicon" */
-    TX_ICON_NULL,           //Empty icon
-    TX_FONT_BMP,            //Font bitmap
-    TX_ICON_KEYB,           //Keyboard
-    TX_ICON_MOUS,           //Mouse
-    TX_ICON_JOYA,           //White joystick
-    TX_ICON_JOYB,           //Black joystick
-    TX_CURSOR,              //Mouse cursor
-    TX_SKULL,               //Difficulity skull
-    TX_SPECIAL_LAST
-};
-
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 inline bool VALID_TX_RANGE(const TX_REF ref)
 {
     return ref < TEXTURES_MAX;
@@ -85,18 +39,6 @@ protected:
     // Befriend with the singleton to grant access to TextureManager::~TextureManager.
     using TheSingleton = Ego::Core::Singleton<TextureManager>;
     friend TheSingleton;
-
-    /**
-     * @brief
-     *  The list of texture objects.
-     */
-    oglx_texture_t *_lst[TEXTURES_MAX];
-
-    /**
-     * @brief
-     *  The set of free texture references.
-     */
-    std::unordered_set<TX_REF> _free;
 
     /**
      * @brief
@@ -114,31 +56,8 @@ protected:
      */
     virtual ~TextureManager();
 
-    /**
-     * @brief
-     *  Mark all textures as free.
-     */
-    void freeAll();
 
 public:
-
-    /**
-     * @brief
-     *  Acquire a texture reference.
-     * @param ref
-     *  if not equal to #INVALID_TX_REF, this texture reference is acquired
-     * @return
-     *  the texture reference on success, #INVALID_TX_REF on failure
-     */
-    TX_REF acquire(const TX_REF ref);
-
-    /**
-     * @brief
-     *  Relinquish texture reference.
-     * @param ref
-     *  the texture reference
-     */
-    bool relinquish(const TX_REF ref);
 
     /**
      * @brief
@@ -152,11 +71,27 @@ public:
      */
     void release_all();
 
-    TX_REF load(const char *filename, const TX_REF ref, Uint32 key = INVALID_KEY);
-    oglx_texture_t *get_valid_ptr(const TX_REF ref);
+    /**
+    * @brief
+    *   Request a texture from the TextureHandler. If required, this function will load the texture
+    *   first. This method is thread safe, if used by another thread that is not the OpenGL context
+    *   thread, then it will block until the OpenGL context thread can load the texture for us.
+    *   If the texture has already been loaded (even by other threads), that texture will be cached
+    *   and this function will return it immediately.
+    * @param filePath
+    *   File path of the texture to load
+    * @return
+    *   The oglx_texture_t loaded by this TextureManager. Could be the error texture if the specified
+    *   path cannot be found. 
+    **/
+    const std::shared_ptr<oglx_texture_t>& getTexture(const std::string &filePath);
 
-    inline std::unordered_map<std::string, std::shared_ptr<oglx_texture_t>>& getTextureCache() { return _textureCache; }
+    void updateDeferredLoading();
 
 private:
     std::unordered_map<std::string, std::shared_ptr<oglx_texture_t>> _textureCache;
+
+    std::mutex _deferredLoadingMutex;
+    std::forward_list<std::string> _requestedLoadDeferredTextures;
+    std::condition_variable _notifyDeferredLoadingComplete;
 };
