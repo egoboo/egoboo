@@ -387,7 +387,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     }
 
     //Negative skin number means random skin
-    else if (pchr->spawn_data.skin < 0)
+    if (pchr->spawn_data.skin < 0 || !ppro->isValidSkin(pchr->spawn_data.skin))
     {
         // This is a "random" skin.
         // Force it to some specific value so it will go back to the same skin every respawn
