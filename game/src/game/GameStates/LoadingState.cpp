@@ -85,9 +85,6 @@ LoadingState::~LoadingState()
     if(_loadingThread.joinable()) {
         _loadingThread.join();
     }
-
-    //Have to do this function in the OpenGL context thread or else it will fail
-    TextureAtlasManager::decimate_all_mesh_textures();
 }
 
 void LoadingState::setProgressText(const std::string &loadingText, const uint8_t progress)
@@ -217,9 +214,12 @@ void LoadingState::loadModuleData()
 
     // Complete!
     setProgressText("Finished!", 100);
-    
+
     // Hit that gong
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_GAME_READY));
+
+    //1 second delay to let music finish, this prevents a frame lag on module startup
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     //Add the start button once we are finished loading
     std::shared_ptr<Button> startButton = std::make_shared<Button>("Press Space to begin", SDLK_SPACE);
@@ -227,6 +227,10 @@ void LoadingState::loadModuleData()
     startButton->setPosition(GFX_WIDTH/2 - startButton->getWidth()/2, GFX_HEIGHT-50);
     startButton->setOnClickFunction(
         [cameraSystem]{
+
+            //Have to do this function in the OpenGL context thread or else it will fail
+            TextureAtlasManager::decimate_all_mesh_textures();
+
             //Hush gong
             AudioSystem::get().fadeAllSounds();
             _gameEngine->setGameState(std::make_shared<PlayingState>(cameraSystem));
