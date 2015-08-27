@@ -120,7 +120,6 @@ static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
 static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 
-static void game_setup_module( const char *smallname );
 static void game_reset_module_data();
 
 static void load_all_profiles_import();
@@ -2167,8 +2166,6 @@ void activate_spawn_file_vfs()
         ctxt.close();
     }
 
-    DisplayMsg_clear();
-
     // Fix tilting trees problem
     tilt_characters_to_terrain();
 }
@@ -2183,28 +2180,10 @@ void game_reset_module_data()
     ProfileSystem::get().reset();
     free_all_objects();
     DisplayMsg_reset();
+    DisplayMsg_clear();
     game_reset_players();
 
     reset_end_text();
-}
-
-//--------------------------------------------------------------------------------------------
-void game_setup_module( const char *smallname )
-{
-    //TODO: ZF> Move to Module.cpp
-
-    /// @author ZZ
-    /// @details This runst the setup functions for a module
-
-    // make sure the object lists are empty
-    free_all_objects();
-
-    // just the information in these files to load the module
-    activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
-    activate_alliance_file_vfs();        // set up the non-default team interactions
-
-    // now load the profile AI, do last so that all reserved slot numbers are initialized
-    game_load_profile_ai();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2389,13 +2368,11 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     };
 
     //After loading, spawn all the data and initialize everything
-    game_setup_module( module->getPath().c_str() );
+    activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
+    activate_alliance_file_vfs();        // set up the non-default team interactions
 
-    // make sure the per-module configuration settings are correct
-    config_synch(&egoboo_config_t::get(), true, false);
-
-    // initialize the game objects
-    input_cursor_reset();
+    // now load the profile AI, do last so that all reserved slot numbers are initialized
+    game_load_profile_ai();
 
     // log debug info for every object loaded into the module
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())

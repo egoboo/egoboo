@@ -29,6 +29,7 @@
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
+#include "game/GUI/ProgressBar.hpp"
 
 //For loading stuff
 #include "game/Graphics/CameraSystem.hpp"
@@ -46,7 +47,8 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     _loadModule(module),
     _playersToLoad(playersToLoad),
     _globalGameTips(),
-    _localGameTips()
+    _localGameTips(),
+    _progressBar(std::make_shared<GUI::ProgressBar>())
 {
     //Load background
     std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_logo");
@@ -65,6 +67,12 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     loadLocalModuleHints();
     loadGlobalHints();
 
+    //Add the progress bar
+    _progressBar->setSize(400, 30);
+    _progressBar->setPosition(GFX_WIDTH/2 - _progressBar->getWidth()/2, GFX_HEIGHT-50);
+    _progressBar->setMaxValue(100);
+    addComponent(_progressBar);
+
     //Add a random game tip
     std::shared_ptr<Label> gameTip = std::make_shared<Label>(getRandomHint());
     gameTip->setPosition(GFX_WIDTH/2 - gameTip->getWidth()/2, GFX_HEIGHT/2);
@@ -77,14 +85,18 @@ LoadingState::~LoadingState()
     if(_loadingThread.joinable()) {
         _loadingThread.join();
     }
+
+    //Have to do this function in the OpenGL context thread or else it will fail
     TextureAtlasManager::decimate_all_mesh_textures();
 }
 
-void LoadingState::setProgressText(const std::string &loadingText)
+void LoadingState::setProgressText(const std::string &loadingText, const uint8_t progress)
 {
     //Always make loading text centered
     _loadingLabel->setText(loadingText);
     _loadingLabel->setPosition(GFX_WIDTH/2 - _loadingLabel->getWidth()/2, 40);    
+
+    _progressBar->setValue(progress);
 }
 
 void LoadingState::update()
@@ -145,24 +157,23 @@ bool LoadingState::loadPlayers()
 
 void LoadingState::loadModuleData()
 {
-    setProgressText("Tidying some space...");
+    setProgressText("Tidying some space...", 0);
 
     //Make sure all data is cleared first
     game_quit_module();
 
-    setProgressText("Calculating some math...");
+    setProgressText("Calculating some math...", 10);
     BillboardSystem::get()._billboardList.reset();
 
     //initialize math objects
     make_turntosin();
 
     // Linking system
-    log_info("Initializing module linking... ");
-    if (link_build_vfs( "mp_data/link.txt", LinkList)) log_message("Success!\n");
-    else log_message( "Failure!\n" );
+    setProgressText("Initializing module linking... ", 20);
+    if (!link_build_vfs( "mp_data/link.txt", LinkList)) log_warning("Failed to initialize module linking\n");
 
     // initialize the collision system
-    setProgressText("Beautifying graphics...");
+    setProgressText("Beautifying graphics...", 40);
 
     //Ready message display
     DisplayMsg_reset();
@@ -175,7 +186,7 @@ void LoadingState::loadModuleData()
 
     //Load players if needed
     if(!_playersToLoad.empty()) {
-        setProgressText("Loading players...");
+        setProgressText("Loading players...", 50);
         if(!loadPlayers()) {
             log_warning("Failed to load players!\n");
             endState();
@@ -184,7 +195,7 @@ void LoadingState::loadModuleData()
     }
 
     // try to start a new module
-    setProgressText("Loading module data...");
+    setProgressText("Loading module data...", 60);
     if(!game_begin_module(_loadModule)) {
         log_warning("Failed to load module!\n");
         endState();
@@ -192,7 +203,7 @@ void LoadingState::loadModuleData()
     }
     _currentModule->setImportPlayers(_playersToLoad);
 
-    setProgressText("Almost done...");
+    setProgressText("Almost done...", 90);
 
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
     // and camera_system_begin() will not set up thte correct view
@@ -201,8 +212,11 @@ void LoadingState::loadModuleData()
     // Fade out music when finished loading
     AudioSystem::get().stopMusic();
 
+    // make sure the per-module configuration settings are correct
+    config_synch(&egoboo_config_t::get(), true, false);
+
     // Complete!
-    setProgressText("Finished!");
+    setProgressText("Finished!", 100);
     
     // Hit that gong
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_GAME_READY));
@@ -218,6 +232,9 @@ void LoadingState::loadModuleData()
             _gameEngine->setGameState(std::make_shared<PlayingState>(cameraSystem));
         });
     addComponent(startButton);
+
+    //Hide the progress bar
+    _progressBar->setVisible(false);
 }
 
 
