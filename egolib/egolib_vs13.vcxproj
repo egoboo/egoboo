@@ -455,6 +455,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Core\AssertionFailedException.hpp" />
+    <ClInclude Include="src\egolib\Core\LockFailedException.hpp" />
+    <ClInclude Include="src\egolib\Core\UnhandledSwitchCaseException.hpp" />
     <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />
     <ClInclude Include="src\egolib\Math\Matrix.hpp" />

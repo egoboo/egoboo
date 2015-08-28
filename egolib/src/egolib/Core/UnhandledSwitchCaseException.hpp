@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file   egolib/Core/UnhandledSwitchCaseException.hpp
+/// @brief  Definition of an exception indicating a switch is missinga case handle for a specific label
+/// @author Johan Jansen
+
 #pragma once
 
 #include "egolib/Core/Exception.hpp"
@@ -53,10 +57,26 @@ public:
         Exception(file, line), 
         _message(message)
     {}
+
+	/**
+	 * @brief
+	 *  Construct this exception with the value of another exception.
+	 * @param other
+	 *  the other exception
+	 */
     UnhandledSwitchCaseException(const UnhandledSwitchCaseException& other) :
         Exception(other), 
         _message(other._message)
     {}
+
+	/**
+	 * @brief
+	 *  Assign this exception the values of another exception.
+	 * @param other
+	 *  the other exception
+	 * @return
+	 *  this exception
+	 */
     UnhandledSwitchCaseException& operator=(const UnhandledSwitchCaseException& other)
     {
         Exception::operator=(other);

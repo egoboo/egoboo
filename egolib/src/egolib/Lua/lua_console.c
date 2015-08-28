@@ -22,6 +22,7 @@
 /// @details
 
 #include "egolib/Lua/lua_console.h"
+#include "egolib/Debug.hpp"
 
 #if defined(__cplusplus)
 extern "C"

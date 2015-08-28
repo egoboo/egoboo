@@ -25,6 +25,7 @@
 
 // this include must be the absolute last include
 #include "egolib/egolib_config.h"
+#include "egolib/Debug.hpp"
 
 // this include must be the absolute last include
 #include "egolib/mem.h"
@@ -41,13 +42,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // definitions for the compiler environment
-
-#if defined(_DEBUG)
-#define EGOBOO_ASSERT(expression) assert(expression)
-#else
-#define EGOBOO_ASSERT(expression) //non_fatal_assert(expression, "%s - failed an assert \"%s\"\n", __FUNCTION__, #expression)
-#endif
-
 
 
 //--------------------------------------------------------------------------------------------
