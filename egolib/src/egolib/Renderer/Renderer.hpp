@@ -353,19 +353,76 @@ public:
 
 	/**
 	 * @brief
-	 *  Set the source blend function.
-	 * @param function
+	 *  Set the blend function.
+	 * @param sourceColour
+	 *  the source color blend function
+	 * @param sourceAlpha
+	 *  the source alpha blend function
+	 * @param destinationColour
+	 *  the destination color blend function
+	 * @param destinationAlpha
+	 *  the destination alpha blend function
 	 *  the source blend function
+	 * @remark
+	 *  In the following text,                        first source, second source and destination color components are referred to as
+	 *  \f$\left(R_{s_0}, G_{s_0}, B_{s_0}, A_{s_0}\right)\f$,     \f$\left(R_{s_1}, G_{s_1}, B_{s_1}, A_{s_1}\right)\f$ and \f$\left
+	 *  (R_d, G_d, B_d, A_d\right)\f$, respectively. The color specified by Ego::Renderer::setBlendColour(const Ego::Math::Colour4f&)
+	 *  is referred to as \f$\left(R_c, G_c, B_c, A_c\right)\f$. The first column in the following table denotes the parameter value,
+	 *  the second and third column the semantics of that value if assigned to the colour and alpha parameter       (either source or
+	 *  destination), respectively.
+	 *  <table>
+	 *  <tr><td>Parameter                                </td><td>RGB                                      </td> <td>A                </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::Zero                     </td><td>\f$(0,0,0)\f$                            </td> <td>\f$0\f$          </td></tr>
+	 *  <tr><td>Ego::BlendFunc::One                      </td><td>\f$(1,1,1)\f$                            </td> <td>\f$1\f$          </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::SourceColour             </td><td>\f$(R_{s_0},G_{s_0},B_{s_0})\f$          </td> <td>\f$A_{s_0}\f$    </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusSourceColour     </td><td>\f$(1, 1, 1) - (R_{s_0},G_{s_0}, B_{s_0})</td> <td>\f$1 - A_{s_0}\f$</td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::DestinationColour        </td><td>\f$(R_d, G_d, B_d)\f$                    </td> <td>\f$A_d\f$        </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusDestinationColour</td><td>\f$(1, 1, 1) - (R_d, G_d, B_d)\f$        </td> <td>\f$1 - A_d\f$    </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::SourceAlpha              </td><td>\f$(A_{s_0}, A_{s_0}, A_{s_0})\f$         </td><td>\f$A_{s_0}\f$    </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusSourceAlpha      </td><td>\f$(1, 1, 1) - (A_{s_0}, A_{s_0}, A_{s_0})</td><td>\f$1 - A_{s_0}\f$</td></tr>
+	 *  
+	 *  <tr><td>Ego::BlendFunc::DestinationAlpha         </td><td>\f$(A_d, A_d, A_d)\f$                     </td><td>\f$A_d\f$        </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusDestinationAlpha </td><td>\f$(1, 1, 1) - (A_d, A_d, A_d)\f$         </td><td>\f$1 - A_d\f$    </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::ConstantColour           </td><td>\f$(R_c, G_c, B_c\f$)                     </td><td>\f$A_c\f$        </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusConstantColour   </td><td>\f$(1, 1, 1) - (R_c, G_c, B_c)\f$         </td><td>\f$1 - A_c\f$    </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::ConstantAlpha            </td><td>\f$(A_c, A_c, A_c)\f$                     </td><td>\f$A_c\f$        </td></tr>
+	 *  <tr><td>Ego::Blendfunc::OneMinusConstantAlpha    </td><td>\f$(1, 1, 1) - (A_c, A_c, A_c)\f$         </td><td>\f$1 - A_c\f$    </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::SourceAlphaSaturate      </td><td>\f$(i, i, i)\f$                           </td><td>\f$1\f$          </td></tr>
+	 *  </table>
+	 *  where
+	 *  \f{align*}{
+	 *  i = \min\left(A_{s_0}, 1 - A_d\right)
+	 *  \f}
 	 */
-	virtual void setSourceBlendFunction(BlendFunction function) = 0;
-
+	virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
+		                          BlendFunction destinationColour, BlendFunction destinationAlpha) = 0;
 	/**
 	 * @brief
-	 *  Set the target blend function.
-	 * @param function
-	 *  the target blend function
+	 *  Set the blend function.
+	 * @param source
+	 *  the source colour and source alpha blend function
+	 * @param target
+	 *  the destination colour and destination alpha blend function
+	 * @remark
+	 *  This method is a convenience method and a call
+	 *  @code
+	 *  o.setBlendFunction(x,y);
+	 *  @endcode
+	 *  is effectively equivalent to a call
+	 *  @code
+	 *  o.setBlendFunction(x, x, y, y)
+	 *  @endcode
 	 */
-	virtual void setTargetBlendFunction(BlendFunction function) = 0;
+	virtual void setBlendFunction(BlendFunction source, BlendFunction destination) {
+		setBlendFunction(source, source, destination, destination);
+	}
 
     /**
      * @brief

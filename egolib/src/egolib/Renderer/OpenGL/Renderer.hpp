@@ -145,6 +145,10 @@ public:
     /** @copydoc Ego::Renderer::setBlendingEnabled */
     virtual void setBlendingEnabled(bool enabled) override;
 
+	/** @copydoc Ego::Renderer::setSourceBlendFunction */
+	virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
+		                          BlendFunction destinationColour, BlendFunction destinationAlpha) override;
+
     /** @copydoc Ego::Renderer::setColour */
     virtual void setColour(const Colour4f& colour) override;
 
@@ -216,6 +220,9 @@ public:
 
     /** @copydoc Ego::Renderer::render */
     virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) override;
+
+private:
+	GLenum toOpenGL(BlendFunction source);
 
 }; // class Renderer
 

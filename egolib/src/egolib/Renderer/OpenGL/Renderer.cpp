@@ -191,6 +191,14 @@ void Renderer::setBlendingEnabled(bool enabled)
     Utilities::isError();
 }
 
+void Renderer::setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
+	                            BlendFunction destinationColour, BlendFunction destinationAlpha)
+{
+	glBlendFuncSeparate(toOpenGL(sourceColour), toOpenGL(sourceAlpha), 
+		                toOpenGL(destinationColour), toOpenGL(destinationAlpha));
+	Utilities::isError();
+}
+
 void Renderer::setColour(const Colour4f& colour)
 {
     glColor4f(colour.getRed(), colour.getGreen(),
@@ -621,7 +629,7 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
         }
         break;
         default:
-            throw std::invalid_argument("unreachable code reached");
+			throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     const GLenum primitiveType_gl = Utilities::toOpenGL(primitiveType);
     if (index + length > vertexBuffer.getNumberOfVertices())
@@ -634,6 +642,30 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
+}
+
+GLenum Renderer::toOpenGL(BlendFunction source)
+{
+	switch (source)
+	{
+	case BlendFunction::Zero: return GL_ZERO;
+	case BlendFunction::One:  return GL_ONE;
+	case BlendFunction::SourceColour: return GL_SRC_COLOR;
+	case BlendFunction::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
+	case BlendFunction::DestinationColour: return GL_DST_COLOR;
+	case BlendFunction::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
+	case BlendFunction::SourceAlpha: return GL_SRC_ALPHA;
+	case BlendFunction::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
+	case BlendFunction::DestinationAlpha: return GL_DST_ALPHA;
+	case BlendFunction::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
+	case BlendFunction::ConstantColour: return GL_CONSTANT_COLOR;
+	case BlendFunction::OneMinusConstantColour: return GL_ONE_MINUS_CONSTANT_COLOR;
+	case BlendFunction::ConstantAlpha: return GL_CONSTANT_ALPHA;
+	case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+	case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
+	default:
+		throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+	};
 }
 
 } // namespace OpenGL

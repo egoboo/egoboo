@@ -947,6 +947,9 @@
     <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
