@@ -141,35 +141,35 @@ void Renderer::setAlphaTestEnabled(bool enabled)
     Utilities::isError();
 }
 
-void Renderer::setAlphaFunction(ComparisonFunction function, float value)
+void Renderer::setAlphaFunction(CompareFunction function, float value)
 {
 	if (value < 0.0f || value > 1.0f) {
 		throw std::invalid_argument("reference alpha value out of bounds");
 	}
 	switch (function)
 	{
-	case ComparisonFunction::AlwaysFail:
+	case CompareFunction::AlwaysFail:
 		glAlphaFunc(GL_NEVER, value);
 		break;
-	case ComparisonFunction::AlwaysPass:
+	case CompareFunction::AlwaysPass:
 		glAlphaFunc(GL_ALWAYS, value);
 		break;
-	case ComparisonFunction::Equal:
+	case CompareFunction::Equal:
 		glAlphaFunc(GL_EQUAL, value);
 		break;
-	case ComparisonFunction::NotEqual:
+	case CompareFunction::NotEqual:
 		glAlphaFunc(GL_NOTEQUAL, value);
 		break;
-	case ComparisonFunction::Less:
+	case CompareFunction::Less:
 		glAlphaFunc(GL_LESS, value);
 		break;
-	case ComparisonFunction::LessOrEqual:
+	case CompareFunction::LessOrEqual:
 		glAlphaFunc(GL_LEQUAL, value);
 		break;
-	case ComparisonFunction::Greater:
+	case CompareFunction::Greater:
 		glAlphaFunc(GL_GREATER, value);
 		break;
-	case ComparisonFunction::GreaterOrEqual:
+	case CompareFunction::GreaterOrEqual:
 		glAlphaFunc(GL_GEQUAL, value);
 		break;
     default:
@@ -223,32 +223,32 @@ void Renderer::setCullingMode(CullingMode mode)
     Utilities::isError();
 }
 
-void Renderer::setDepthFunction(ComparisonFunction function)
+void Renderer::setDepthFunction(CompareFunction function)
 {
     switch (function)
     {
-    case ComparisonFunction::AlwaysFail:
+    case CompareFunction::AlwaysFail:
         glDepthFunc(GL_NEVER);
         break;
-	case ComparisonFunction::AlwaysPass:
+	case CompareFunction::AlwaysPass:
         glDepthFunc(GL_ALWAYS);
         break;
-	case ComparisonFunction::Less:
+	case CompareFunction::Less:
         glDepthFunc(GL_LESS);
         break;
-	case ComparisonFunction::LessOrEqual:
+	case CompareFunction::LessOrEqual:
         glDepthFunc(GL_LEQUAL);
         break;
-	case ComparisonFunction::Equal:
+	case CompareFunction::Equal:
         glDepthFunc(GL_EQUAL);
         break;
-	case ComparisonFunction::NotEqual:
+	case CompareFunction::NotEqual:
         glDepthFunc(GL_NOTEQUAL);
         break;
-	case ComparisonFunction::GreaterOrEqual:
+	case CompareFunction::GreaterOrEqual:
         glDepthFunc(GL_GEQUAL);
         break;
-	case ComparisonFunction::Greater:
+	case CompareFunction::Greater:
         glDepthFunc(GL_GREATER);
         break;
     default:

@@ -625,7 +625,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 
             // get a speed-up by not displaying completely transparent portions of the skin
             renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
             renderer.setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
@@ -704,7 +704,7 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
         // which will enable the display of the partially transparent portion of the skin
 
         renderer.setAlphaTestEnabled(true);
-		renderer.setAlphaFunction(Ego::ComparisonFunction::Equal, 1.0f); // GL_COLOR_BUFFER_BIT
+		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f); // GL_COLOR_BUFFER_BIT
 
         // can I turn this off?
         renderer.setBlendingEnabled(true);

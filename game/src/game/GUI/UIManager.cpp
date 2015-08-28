@@ -86,7 +86,7 @@ void UIManager::beginRenderUI()
 
     // do not display the completely transparent portion
 	renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
 	renderer.setViewportRectangle(0, 0, getScreenWidth(), getScreenHeight());  // GL_VIEWPORT_BIT
 

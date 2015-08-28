@@ -583,7 +583,7 @@
     <ClInclude Include="src\egolib\Ref.hpp" />
     <ClInclude Include="src\egolib\Debug.hpp" />
     <ClInclude Include="src\egolib\Float.hpp" />
-    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp" />
+    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />

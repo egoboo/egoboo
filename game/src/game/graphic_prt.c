@@ -125,7 +125,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
         auto& renderer = Ego::Renderer::get();
         // Use the depth test to eliminate hidden portions of the particle
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::ComparisonFunction::Less);                                   // GL_DEPTH_BUFFER_BIT
+        renderer.setDepthFunction(Ego::CompareFunction::Less);                                   // GL_DEPTH_BUFFER_BIT
 
         // enable the depth mask for the solid portion of the particles
         renderer.setDepthWriteEnabled(true);
@@ -140,7 +140,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
 
         // only display the portion of the particle that is 100% solid
         renderer.setAlphaTestEnabled(true);
-		renderer.setAlphaFunction(Ego::ComparisonFunction::Equal, 1.0f);  // GL_COLOR_BUFFER_BIT
+		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);  // GL_COLOR_BUFFER_BIT
 
         oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
 
@@ -181,7 +181,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
 
         // Enable depth test: Incoming fragment's depth value must be less or equal.
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // Draw front-facing and back-facing polygons.
 		renderer.setCullingMode(Ego::CullingMode::None);
@@ -194,7 +194,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             // Do the alpha blended edge ("anti-aliasing") of the solid particle.
             // Only display the alpha-edge of the particle.
             renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::ComparisonFunction::Less, 1.0f);   // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);   // GL_COLOR_BUFFER_BIT
 
             renderer.setBlendingEnabled(true);
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
@@ -225,7 +225,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
         {
             // do not display the completely transparent portion
             renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
             renderer.setBlendingEnabled(true);
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
@@ -299,7 +299,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
 			renderer.setCullingMode(Ego::CullingMode::None);
@@ -333,7 +333,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
 
                 // do not display the completely transparent portion
                 renderer.setAlphaTestEnabled(true);
-				renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+				renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
                 renderer.setBlendingEnabled(true);
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT

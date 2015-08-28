@@ -128,7 +128,7 @@ void line_list_draw_all(Camera& camera)
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
 			renderer.setCullingMode(Ego::CullingMode::None);
@@ -228,7 +228,7 @@ void point_list_draw_all(Camera& camera)
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
 			renderer.setCullingMode(Ego::CullingMode::None);
@@ -348,7 +348,7 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
 
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // fix the poorly chosen normals...
         // draw draw front and back faces of polygons
