@@ -321,10 +321,10 @@ void gfx_begin_text()
 	auto& renderer = Ego::Renderer::get();
     // do not display the completely transparent portion
     renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
     renderer.setBlendingEnabled(true);
-    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
+	renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
     // don't worry about hidden surfaces
 	renderer.setDepthTestEnabled(false);
@@ -363,10 +363,10 @@ void draw_quad_2d(const oglx_texture_t *tex, const ego_frect_t scr_rect, const e
         if ( use_alpha )
         {
 			renderer.setBlendingEnabled(true);
-            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
+			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
 			renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
         }
         else
         {

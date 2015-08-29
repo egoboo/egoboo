@@ -292,7 +292,7 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile )
         {
             // MH: Enable alpha blending if the texture requires it.
             Ego::Renderer::get().setBlendingEnabled(true);
-            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceAlpha);
         }
     }
 

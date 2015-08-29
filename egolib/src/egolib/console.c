@@ -324,9 +324,9 @@ void egolib_console_handler_t::draw_begin()
 	renderer.setCullingMode(Ego::CullingMode::None);
 
 	renderer.setBlendingEnabled(true);
-    GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
+	renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-	renderer.setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);                          // GL_VIEWPORT_BIT
+	renderer.setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning

@@ -965,7 +965,7 @@ void ogl_beginFrame()
     glEnable( GL_TEXTURE_2D );
 
     Ego::Renderer::get().setBlendingEnabled(true);
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
     Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
