@@ -223,7 +223,7 @@ public:
      *  the caller has to make sure that a texture object is valid until
      *  the texture unit is deactivated.
      */
-    virtual void setActivated(oglx_texture_t *texture) = 0;
+    virtual void setActivated(const oglx_texture_t *texture) = 0;
 
 };
 
@@ -287,6 +287,14 @@ public:
      *  the depth buffer (facade)
      */
     virtual DepthBuffer& getDepthBuffer() = 0;
+
+	/**
+	 * @brief
+	 *  Get the texture unit (facade).
+	 * @return
+	 *  the texture unit (facade)
+	 */
+	virtual TextureUnit& getTextureUnit() = 0;
 
     /**
      * @brief

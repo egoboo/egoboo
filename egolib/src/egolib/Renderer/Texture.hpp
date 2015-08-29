@@ -48,31 +48,31 @@ protected:
 
     /**
      * @brief
-     *  The texture type.
+     *  The type of this texture.
      */
     TextureType _type;
 
     /**
      * @brief
-     *  The minification texture filter for this texture.
+     *  The minification filter of this texture.
      */
     TextureFilter _minFilter;
     
     /**
      * @brief
-     *  The magnification texture filter for this texture.
+     *  The magnification filter of this texture.
      */
     TextureFilter _magFilter;
     
     /**
      * @brief
-     *  The mipmap texture filter for this texture.
+     *  The mipmap filter of this texture.
      */
     TextureFilter _mipMapFilter;
 
     /**
      * @brief
-     *  The texture address mode along the s-axis.
+     *  The address mode along the s-axis.
      */
     TextureAddressMode _addressModeS;
 
@@ -134,7 +134,7 @@ public:
      */
     std::shared_ptr<SDL_Surface> _source;
 
-public:
+protected:
 
     /**
      * @brief
@@ -147,19 +147,43 @@ public:
             int width, int height, int _sourceWidth, int _sourceHeight, std::shared_ptr<SDL_Surface> source,
             bool hasAlpha);
 
+public:
+
     /**
      * @brief
      *  Destruct this texture.
-     * @remark
-     *  Intentionally protected.
      */
     virtual ~Texture();
+
+	/**
+	 * @brief
+	 *  Get the type of this texture.
+	 * @return
+	 *  the type of this texture
+	 */
+	TextureType getType() const;
+
+	/**
+	 * @brief
+	 *  Get the mipmap filter of this texture.
+	 * @return
+	 *	the mipmap filter
+	 */
+	TextureFilter getMipMapFilter() const;
+
+	/**
+	 * @brief
+	 *  Set the mipmap filter of this texture.
+	 * @param mipMapFilter
+	 *  the mipmap filter
+	 */
+	void setMipMapFilter(TextureFilter minFilter);
 
     /**
      * @brief
      *  Get the minification filter of this texture.
      * @return
-     *  the minification filter of this texture.
+     *  the minification filter
      */
     TextureFilter getMinFilter() const;
 
@@ -189,33 +213,33 @@ public:
 
     /**
      * @brief
-     *  Get the texture address mode of this texture along the s-axis.
+     *  Get the address mode of this texture along the s-axis.
      * @return
-     *  the texture address mode of this texture along the s-axis.
+     *  the address mode of this texture along the s-axis.
      */
     TextureAddressMode getAddressModeS() const;
 
     /**
      * @brief
-     *  Set the texture address mode of this texture along the s-axis.
+     *  Set the address mode of this texture along the s-axis.
      * @param addressMode
-     *  the texture address mode of this texture along the s-axis
+     *  the address mode of this texture along the s-axis
      */
     void setAddressModeS(TextureAddressMode addressModeS);
 
     /**
      * @brief
-     *  Get the texture address mode of this texture along the t-axis.
+     *  Get the address mode of this texture along the t-axis.
      * @return
-     *  the texture address mode of this texture along the t-axis.
+     *  the address mode of this texture along the t-axis.
      */
     TextureAddressMode getAddressModeT() const;
 
     /**
      * @brief
-     *  Set the texture address mode of this texture along the t-axis.
+     *  Set the address mode of this texture along the t-axis.
      * @param addressMode
-     *  the texture address mode of this texture along the t-axis
+     *  the address mode of this texture along the t-axis
      */
     void setAddressModeT(TextureAddressMode addressModeT);
 
@@ -318,17 +342,17 @@ public:
 
     public:
         /**
-        * @brief
-        *  Construct this texture.
-        * @post
-        *  This texture is bound to the backing error texture.
-        */
+         * @brief
+         *  Construct this texture.
+         * @post
+         *  This texture is bound to the backing error texture.
+         */
         oglx_texture_t();
 
         /**
-        * @brief
-        *  Destruct this texture.
-        */
+         * @brief
+         *  Destruct this texture.
+         */
         virtual ~oglx_texture_t();
 
         static void bind(const oglx_texture_t *texture);

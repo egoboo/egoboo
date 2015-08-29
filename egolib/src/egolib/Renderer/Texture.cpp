@@ -18,11 +18,12 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.hpp
-/// @brief  Common interface of all textures.
+/// @file   egolib/Renderer/Texture.hpp
+/// @brief  Common interface of all texture object encapsulations.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/Texture.hpp"
+#include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 #include "egolib/Math/_Include.hpp"
@@ -49,6 +50,21 @@ Texture::Texture(const std::string& name,
 
 Texture::~Texture()
 {}
+
+TextureType Texture::getType() const
+{
+	return _type;
+}
+
+TextureFilter Texture::getMipMapFilter() const
+{
+	return _mipMapFilter;
+}
+
+void Texture::setMipMapFilter(TextureFilter mipMapFilter)
+{
+	_mipMapFilter = mipMapFilter;
+}
 
 TextureFilter Texture::getMinFilter() const
 {
@@ -580,73 +596,5 @@ void  oglx_texture_t::release()
 
 void oglx_texture_t::bind(const oglx_texture_t *texture)
 {
-    /// @author BB
-    /// @details a oglx_texture_t wrapper for oglx_bind_to_tex_params() function
-
-    if (!texture)
-    {
-        glDisable(GL_TEXTURE_1D);
-        glDisable(GL_TEXTURE_2D);
-    }
-    else
-    {
-        auto anisotropy_enable = g_ogl_textureParameters.anisotropy_enable;
-        auto anisotropy_level = g_ogl_textureParameters.anisotropy_level;
-        Ego::OpenGL::Utilities::clearError();
-        GLenum target_gl;
-        switch (texture->_type)
-        {
-            case Ego::TextureType::_2D:
-                glEnable(GL_TEXTURE_2D);
-                glDisable(GL_TEXTURE_1D);
-                target_gl = GL_TEXTURE_2D;
-                break;
-            case Ego::TextureType::_1D:
-                glEnable(GL_TEXTURE_1D);
-                glDisable(GL_TEXTURE_2D);
-                target_gl = GL_TEXTURE_1D;
-                break;
-            default:
-                throw std::runtime_error("unreachable code reached");
-        }
-        if (Ego::OpenGL::Utilities::isError())
-        {
-            return;
-        }
-        glBindTexture(target_gl, texture->_id);
-        if (Ego::OpenGL::Utilities::isError())
-        {
-            return;
-        }
-
-        glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, Ego::OpenGL::Utilities::toOpenGL(texture->_addressModeS));
-        glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, Ego::OpenGL::Utilities::toOpenGL(texture->_addressModeT));
-
-
-        if (Ego::OpenGL::Utilities::isError())
-        {
-            return;
-        }
-
-        GLint minFilter_gl, magFilter_gl;
-        Ego::OpenGL::Utilities::toOpenGL(texture->_minFilter, texture->_magFilter, texture->_mipMapFilter, minFilter_gl, magFilter_gl);
-        glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
-        glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
-        if (Ego::OpenGL::Utilities::isError())
-        {
-            return;
-        }
-
-
-        if (GL_TEXTURE_2D == target_gl && g_ogl_caps.anisotropic_supported && anisotropy_enable && anisotropy_level >= 1.0f)
-        {
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy_level);
-        }
-
-        if (Ego::OpenGL::Utilities::isError())
-        {
-            return;
-        }
-    }
-    Ego::OpenGL::Utilities::isError();
+	Ego::Renderer::get().getTextureUnit().setActivated(texture);
 }
