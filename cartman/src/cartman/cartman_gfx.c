@@ -965,7 +965,7 @@ void ogl_beginFrame()
     glEnable( GL_TEXTURE_2D );
 
     Ego::Renderer::get().setBlendingEnabled(true);
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
     Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
@@ -1383,14 +1383,14 @@ int gfx_init_ogl()
 
     // Enable depth testing: Incoming fragment's depth value must be less.
     renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(ComparisonFunction::Less);
+    renderer.setDepthFunction(CompareFunction::Less);
 
     // Disable blending.
     renderer.setBlendingEnabled(false);
 
     // do not display the completely transparent portion
     renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(ComparisonFunction::Greater, 0.0f);
+	renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     /// backface culling

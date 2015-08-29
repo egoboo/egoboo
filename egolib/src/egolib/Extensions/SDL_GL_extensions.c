@@ -94,7 +94,7 @@ bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
         // PLEASE do not turn this on unless you use
         // @code
         // Ego::Renderer::get().setBlendingEnabled(true);
-        // GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
         // @endcode
         // before every single draw command.
         //

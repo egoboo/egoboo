@@ -88,6 +88,18 @@ std::string Capabilities::getVendor()
     return (const char *)bytes;
 }
 
+std::string Capabilities::getVersion()
+{
+	while (GL_NO_ERROR != glGetError()) {}
+	const GLubyte *bytes = glGetString(GL_VERSION);
+	GLenum error = glGetError();
+	if (GL_NO_ERROR != error)
+	{
+		throw std::runtime_error("unable to acquire renderer back-end information");
+	}
+	return (const char *)bytes;
+}
+
 std::unordered_set<std::string> Capabilities::getExtensions()
 {
     while (GL_NO_ERROR != glGetError()) {}
@@ -103,7 +115,8 @@ std::unordered_set<std::string> Capabilities::getExtensions()
 Renderer::Renderer() :
     _extensions(Capabilities::getExtensions()),
     _vendor(Capabilities::getVendor()),
-    _name(Capabilities::getName())
+    _name(Capabilities::getName()),
+	_version(Capabilities::getVersion())
 {
     OpenGL::link();
 }
@@ -141,35 +154,35 @@ void Renderer::setAlphaTestEnabled(bool enabled)
     Utilities::isError();
 }
 
-void Renderer::setAlphaFunction(ComparisonFunction function, float value)
+void Renderer::setAlphaFunction(CompareFunction function, float value)
 {
 	if (value < 0.0f || value > 1.0f) {
 		throw std::invalid_argument("reference alpha value out of bounds");
 	}
 	switch (function)
 	{
-	case ComparisonFunction::AlwaysFail:
+	case CompareFunction::AlwaysFail:
 		glAlphaFunc(GL_NEVER, value);
 		break;
-	case ComparisonFunction::AlwaysPass:
+	case CompareFunction::AlwaysPass:
 		glAlphaFunc(GL_ALWAYS, value);
 		break;
-	case ComparisonFunction::Equal:
+	case CompareFunction::Equal:
 		glAlphaFunc(GL_EQUAL, value);
 		break;
-	case ComparisonFunction::NotEqual:
+	case CompareFunction::NotEqual:
 		glAlphaFunc(GL_NOTEQUAL, value);
 		break;
-	case ComparisonFunction::Less:
+	case CompareFunction::Less:
 		glAlphaFunc(GL_LESS, value);
 		break;
-	case ComparisonFunction::LessOrEqual:
+	case CompareFunction::LessOrEqual:
 		glAlphaFunc(GL_LEQUAL, value);
 		break;
-	case ComparisonFunction::Greater:
+	case CompareFunction::Greater:
 		glAlphaFunc(GL_GREATER, value);
 		break;
-	case ComparisonFunction::GreaterOrEqual:
+	case CompareFunction::GreaterOrEqual:
 		glAlphaFunc(GL_GEQUAL, value);
 		break;
     default:
@@ -189,6 +202,14 @@ void Renderer::setBlendingEnabled(bool enabled)
         glDisable(GL_BLEND);
     }
     Utilities::isError();
+}
+
+void Renderer::setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
+	                            BlendFunction destinationColour, BlendFunction destinationAlpha)
+{
+	glBlendFuncSeparate(toOpenGL(sourceColour), toOpenGL(sourceAlpha), 
+		                toOpenGL(destinationColour), toOpenGL(destinationAlpha));
+	Utilities::isError();
 }
 
 void Renderer::setColour(const Colour4f& colour)
@@ -223,32 +244,32 @@ void Renderer::setCullingMode(CullingMode mode)
     Utilities::isError();
 }
 
-void Renderer::setDepthFunction(ComparisonFunction function)
+void Renderer::setDepthFunction(CompareFunction function)
 {
     switch (function)
     {
-    case ComparisonFunction::AlwaysFail:
+    case CompareFunction::AlwaysFail:
         glDepthFunc(GL_NEVER);
         break;
-	case ComparisonFunction::AlwaysPass:
+	case CompareFunction::AlwaysPass:
         glDepthFunc(GL_ALWAYS);
         break;
-	case ComparisonFunction::Less:
+	case CompareFunction::Less:
         glDepthFunc(GL_LESS);
         break;
-	case ComparisonFunction::LessOrEqual:
+	case CompareFunction::LessOrEqual:
         glDepthFunc(GL_LEQUAL);
         break;
-	case ComparisonFunction::Equal:
+	case CompareFunction::Equal:
         glDepthFunc(GL_EQUAL);
         break;
-	case ComparisonFunction::NotEqual:
+	case CompareFunction::NotEqual:
         glDepthFunc(GL_NOTEQUAL);
         break;
-	case ComparisonFunction::GreaterOrEqual:
+	case CompareFunction::GreaterOrEqual:
         glDepthFunc(GL_GEQUAL);
         break;
-	case ComparisonFunction::Greater:
+	case CompareFunction::Greater:
         glDepthFunc(GL_GREATER);
         break;
     default:
@@ -621,7 +642,7 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
         }
         break;
         default:
-            throw std::invalid_argument("unreachable code reached");
+			throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     const GLenum primitiveType_gl = Utilities::toOpenGL(primitiveType);
     if (index + length > vertexBuffer.getNumberOfVertices())
@@ -634,6 +655,30 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
+}
+
+GLenum Renderer::toOpenGL(BlendFunction source)
+{
+	switch (source)
+	{
+	case BlendFunction::Zero: return GL_ZERO;
+	case BlendFunction::One:  return GL_ONE;
+	case BlendFunction::SourceColour: return GL_SRC_COLOR;
+	case BlendFunction::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
+	case BlendFunction::DestinationColour: return GL_DST_COLOR;
+	case BlendFunction::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
+	case BlendFunction::SourceAlpha: return GL_SRC_ALPHA;
+	case BlendFunction::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
+	case BlendFunction::DestinationAlpha: return GL_DST_ALPHA;
+	case BlendFunction::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
+	case BlendFunction::ConstantColour: return GL_CONSTANT_COLOR;
+	case BlendFunction::OneMinusConstantColour: return GL_ONE_MINUS_CONSTANT_COLOR;
+	case BlendFunction::ConstantAlpha: return GL_CONSTANT_ALPHA;
+	case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+	case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
+	default:
+		throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+	};
 }
 
 } // namespace OpenGL

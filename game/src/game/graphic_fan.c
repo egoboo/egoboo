@@ -472,24 +472,24 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
         auto& renderer = Ego::Renderer::get();
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // only use the depth mask if the tile is NOT transparent
-        renderer.setDepthWriteEnabled(use_depth_mask);          // GL_DEPTH_BUFFER_BIT
+        renderer.setDepthWriteEnabled(use_depth_mask);
 
         // cull backward facing polygons
         // use clockwise orientation to determine backfaces
-        oglx_begin_culling(Ego::CullingMode::Back, MAP_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+        oglx_begin_culling(Ego::CullingMode::Back, MAP_NRM_CULL);
 
         // set the blending mode
         renderer.setBlendingEnabled(true);
         if (water._light)
         {
-            GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR);          // GL_COLOR_BUFFER_BIT
+			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceColour);
         }
         else
         {
-            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    // GL_COLOR_BUFFER_BIT
+			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
         }
 
         // per-vertex coloring

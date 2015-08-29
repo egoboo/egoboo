@@ -260,9 +260,6 @@
     <ClCompile Include="src\game\GUI\InternalWindow.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\Entities\particle.c">
-      <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\GUI\CharacterWindow.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
@@ -286,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="src\game\GUI\ProgressBar.cpp">
       <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Entities\particle_physics.c">
+      <Filter>Game Sources\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -514,9 +514,6 @@
     <ClInclude Include="src\game\GUI\InternalWindow.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\Entities\particle.h">
-      <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\GUI\InventorySlot.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
@@ -540,6 +537,9 @@
     </ClInclude>
     <ClInclude Include="src\game\GUI\ProgressBar.hpp">
       <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Entities\particle_physics.h">
+      <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -148,7 +148,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		// Essentially disable the depth test without calling
 		// renderer.setDepthTestEnabled(false).
 		renderer.setDepthTestEnabled(true);
-		renderer.setDepthFunction(Ego::ComparisonFunction::AlwaysPass);
+		renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
 
 		// draw draw front and back faces of polygons
 		renderer.setCullingMode(Ego::CullingMode::None);
@@ -166,7 +166,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 				else
 				{
 					renderer.setBlendingEnabled(true);
-					GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
+					renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 				}
 
 				GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
@@ -290,18 +290,18 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 			// Essentially disable the depth test without calling
 			// Ego::Renderer::get().setDepthTestEnabled(false).
 			renderer.setDepthTestEnabled(true);
-			renderer.setDepthFunction(Ego::ComparisonFunction::AlwaysPass);
+			renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
 
 			// draw draw front and back faces of polygons
 			renderer.setCullingMode(Ego::CullingMode::None);
 
 			// do not display the completely transparent portion
 			renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
 			// make the texture a filter
 			renderer.setBlendingEnabled(true);
-			GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);  // GL_COLOR_BUFFER_BIT
+			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceColour);
 
 			oglx_texture_t::bind(_currentModule->getWaterTexture(1));
 
@@ -339,18 +339,17 @@ void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 
 		// do not draw hidden surfaces
 		renderer.setDepthTestEnabled(true);
-		renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+		renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
 		// black out any backgound, but allow the background to show through any holes in the floor
 		renderer.setBlendingEnabled(true);
 		// use the alpha channel to modulate the transparency
-		GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);    // GL_COLOR_BUFFER_BIT
-		Ego::OpenGL::Utilities::isError();
+		renderer.setBlendFunction(Ego::BlendFunction::Zero, Ego::BlendFunction::OneMinusSourceAlpha);
 		// do not display the completely transparent portion
 		// use alpha test to allow the thatched roof tiles to look like thatch
 		renderer.setAlphaTestEnabled(true);
 		// speed-up drawing of surfaces with alpha == 0.0f sections
-		renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f); // GL_COLOR_BUFFER_BIT
+		renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 		// reduce texture hashing by loading up each texture only once
 		render_fans_by_list(tl._mesh, &(tl._reflective));
 	}
@@ -375,7 +374,7 @@ void Reflective1::doCommon(::Camera& camera, const TileList& tl, const EntityLis
 	renderer.setCullingMode(Ego::CullingMode::None);
 	// Perform less-or-equal depth testing.
 	renderer.setDepthTestEnabled(true);
-	renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+	renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 	// Write to depth buffer.
 	renderer.setDepthWriteEnabled(true);
 }
@@ -388,7 +387,7 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 		auto& renderer = Ego::Renderer::get();
 		// Enable blending.
 		renderer.setBlendingEnabled(true);
-		GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE);      // GL_COLOR_BUFFER_BIT
+		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::One);
 
 		// reduce texture hashing by loading up each texture only once
 		render_fans_by_list(tl._mesh, &(tl._reflective));
@@ -413,7 +412,7 @@ void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, co
 		// Use alpha test to allow the thatched roof tiles to look like thatch.
 		renderer.setAlphaTestEnabled(true);
 		// Speed-up drawing of surfaces with alpha = 0.0f sections
-		renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);
+		renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
 		render_fans_by_list(tl._mesh, &(tl._reflective));
@@ -431,7 +430,7 @@ void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList
 		renderer.setDepthWriteEnabled(true);
 		// Do not draw hidden surfaces.
 		renderer.setDepthTestEnabled(true);
-		renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+		renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
 		// Disable blending.
 		renderer.setBlendingEnabled(false);
@@ -439,7 +438,7 @@ void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList
 		// Use alpha test to allow the thatched roof tiles to look like thatch.
 		renderer.setAlphaTestEnabled(true);
 		// Speed-up drawing of surfaces with alpha == 0.0f sections.
-		renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);
+		renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
 		render_fans_by_list(tl._mesh, &(tl._nonReflective));
@@ -460,9 +459,8 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 	// Enable depth tests.
 	renderer.setDepthTestEnabled(true);
 	// Enable blending.
-	/// @todo Encapsulate glBlendFunc in the renderer.
 	renderer.setBlendingEnabled(true);
-	GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+	renderer.setBlendFunction(Ego::BlendFunction::Zero, Ego::BlendFunction::OneMinusSourceColour);
 
 	// Keep track of the number of rendered shadows.
 	size_t count = 0;
@@ -765,7 +763,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 		// do not draw hidden surfaces
 		renderer.setDepthTestEnabled(true);
 		// surfaces must be closer to the camera to be drawn
-		renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+		renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
 		for (size_t j = el.getSize(); j > 0; --j)
 		{
@@ -774,13 +772,12 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 			{
 				// cull backward facing polygons
 				// use couter-clockwise orientation to determine backfaces
-				oglx_begin_culling(Ego::CullingMode::Back, MAP_REF_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
+				oglx_begin_culling(Ego::CullingMode::Back, MAP_REF_CULL);
 
 				// allow transparent objects
 				renderer.setBlendingEnabled(true);
 				// use the alpha channel to modulate the transparency
-				GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
-				Ego::OpenGL::Utilities::isError();
+				renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 				CHR_REF ichr = el.get(i).ichr;
 				TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
 
@@ -800,8 +797,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				// allow transparent objects
 				renderer.setBlendingEnabled(true);
 				// set the default particle blending
-				GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);     // GL_COLOR_BUFFER_BIT
-				Ego::OpenGL::Utilities::isError();
+				renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 				PRT_REF iprt = el.get(i).iprt;
 				TileIndex itile = ParticleHandler::get()[iprt]->getTile();
 
@@ -828,10 +824,10 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 
 			// do not draw hidden surfaces
 			renderer.setDepthTestEnabled(true);
-			renderer.setDepthFunction(Ego::ComparisonFunction::Less);
+			renderer.setDepthFunction(Ego::CompareFunction::Less);
 
 			renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
 			if (INVALID_PRT_REF == el.get(i).iprt && VALID_CHR_RANGE(el.get(i).ichr))
 			{
@@ -861,7 +857,7 @@ void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const Enti
 
 		// do not draw hidden surfaces
 		renderer.setDepthTestEnabled(true);
-		renderer.setDepthFunction(Ego::ComparisonFunction::LessOrEqual);
+		renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
 		// Now render all transparent and light objects
 		for (size_t i = el.getSize(); i > 0; --i)

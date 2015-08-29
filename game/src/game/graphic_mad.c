@@ -535,13 +535,12 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
 		auto& renderer = Ego::Renderer::get();
         // cull backward facing polygons
         // use couter-clockwise orientation to determine backfaces
-        oglx_begin_culling(Ego::CullingMode::Back, MAD_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+        oglx_begin_culling(Ego::CullingMode::Back, MAD_REF_CULL);
         Ego::OpenGL::Utilities::isError();
         if ( pinst.ref.alpha != 255 && pinst.ref.light == 255 )
         {
             renderer.setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );                        // GL_COLOR_BUFFER_BIT
-            Ego::OpenGL::Utilities::isError();
+			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
             chr_instance_t::get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
@@ -555,8 +554,7 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
         if ( pinst.ref.light != 255 )
         {
             renderer.setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                        // GL_COLOR_BUFFER_BIT
-            Ego::OpenGL::Utilities::isError();
+			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
             chr_instance_t::get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
@@ -572,8 +570,7 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
         if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
         {
             renderer.setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
-            Ego::OpenGL::Utilities::isError();
+			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
             chr_instance_t::get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
             if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
@@ -621,14 +618,14 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 
             // cull backward facing polygons
             // use clockwise orientation to determine backfaces
-            oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+            oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);
 
             // get a speed-up by not displaying completely transparent portions of the skin
             renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
             renderer.setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
+			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::One);
 
             chr_instance_t::get_tint( pinst, tint, CHR_ALPHA );
 
@@ -646,7 +643,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
             renderer.setAlphaTestEnabled(false);
 
             renderer.setBlendingEnabled(true);
-            GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE);  // GL_COLOR_BUFFER_BIT
+			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
             chr_instance_t::get_tint( pinst, tint, CHR_LIGHT );
 
@@ -660,7 +657,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
         if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
         {
             renderer.setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );    // GL_COLOR_BUFFER_BIT
+			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
             chr_instance_t::get_tint( pinst, tint, CHR_PHONG );
 
@@ -704,11 +701,11 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
         // which will enable the display of the partially transparent portion of the skin
 
         renderer.setAlphaTestEnabled(true);
-		renderer.setAlphaFunction(Ego::ComparisonFunction::Equal, 1.0f); // GL_COLOR_BUFFER_BIT
+		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
 
         // can I turn this off?
         renderer.setBlendingEnabled(true);
-        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );   // GL_COLOR_BUFFER_BIT
+		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
         if ( 255 == pinst.alpha && 255 == pinst.light )
         {

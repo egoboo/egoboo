@@ -24,7 +24,8 @@
 #pragma once
 
 #include "egolib/_math.h"
-#include "egolib/Renderer/ComparisonFunction.hpp"
+#include "egolib/Renderer/BlendFunction.hpp"
+#include "egolib/Renderer/CompareFunction.hpp"
 #include "egolib/Renderer/RasterizationMode.hpp"
 #include "egolib/Renderer/CullingMode.hpp"
 #include "egolib/Renderer/WindingMode.hpp"
@@ -298,48 +299,48 @@ public:
 
 	/**
 	 * @brief
-	 *	Set the alpha comparison function.
+	 *  Set the alpha compare function.
 	 * @param function
-	 *	the alpha comparison function
+	 *  the alpha compare function
 	 * @param value
-	 *	the reference alpha value that incoming alpha values are compared to.
-	 *	Must be within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
+	 *  the reference alpha value that incoming alpha values are compared to.
+	 *  Must be within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
 	 * @remark
-	 *	The alpha comparison function is used to compare the alpha value of an incoming fragment to the reference alpha value.
-	 *	The outcome of this test is binary, either the incoming fragment passes or fails the comparison.
+	 *  The alpha compare function is used to compare the alpha value of an incoming fragment to the reference alpha value.
+	 *  The outcome of this test is binary, either the incoming fragment passes or fails the comparison.
 	 *
-	 *	The alpha comparison functions are as follows:
-	 *	<ul>
-	 *		<li>Ego::ComparisonFunction::AlwaysFail:
-	 *		The incoming alpha value never passes (regardless of the reference alpha value)</li>
-	 *		<li>Ego::ComparisonFunction::AlwaysPass:
-	 *		The incoming alpha value always passes (regardless of the reference alpha value)</li>
-	 *		<li>Ego::ComparisonFunction::Less:
-	 *		The incoming alpha value passes if it is
-	 *		less than the reference alpha value</li>
-	 *		<li>Ego::ComparisonFunction::LessOrEqual:
-	 *		The incoming alpha value passes if it is
-	 *		less than or equal to the reference alpha value</li>
-	 *		<li>Ego::ComparisonFunction::Equal:
-	 *		The incoming alpha value passes if it is
-	 *		equal to the reference alpha value</li>
-	 *		<li>Ego::ComparisonFunction::NotEqual:
-	 *		The incoming alpha value passes if it is
-	 *		not equal to the reference alpha value</li>
-	 *		<li>Ego::ComparisonFunction::Greater:
-	 *		The incoming alpha value passes if it is
-	 *		greater than the reference alpha value</li>
-	 *		<li>Ego::ComparisonFunction::GreaterOrEqual:
-	 *		The incoming alpha value passes if it is
-	 *		greater than or equal to the reference alpha value</li>
-	 *	</ul>
+	 *  The alpha compare functions are as follows:
+	 *  <ul>
+	 *  	<li>Ego::CompareFunction::AlwaysFail:
+	 *  	The incoming alpha value never passes (regardless of the reference alpha value)</li>
+	 *  	<li>Ego::CompareFunction::AlwaysPass:
+	 *  	The incoming alpha value always passes (regardless of the reference alpha value)</li>
+	 *  	<li>Ego::CompareFunction::Less:
+	 *  	The incoming alpha value passes if it is
+	 *  	less than the reference alpha value</li>
+	 *  	<li>Ego::CompareFunction::LessOrEqual:
+	 *  	The incoming alpha value passes if it is
+	 *  	less than or equal to the reference alpha value</li>
+	 *  	<li>Ego::CompareFunction::Equal:
+	 *  	The incoming alpha value passes if it is
+	 *  	equal to the reference alpha value</li>
+	 *  	<li>Ego::CompareFunction::NotEqual:
+	 *  	The incoming alpha value passes if it is
+	 *  	not equal to the reference alpha value</li>
+	 *  	<li>Ego::CompareFunction::Greater:
+	 *  	The incoming alpha value passes if it is
+	 *  	greater than the reference alpha value</li>
+	 *  	<li>Ego::CompareFunction::GreaterOrEqual:
+	 *  	The incoming alpha value passes if it is
+	 *  	greater than or equal to the reference alpha value</li>
+	 *  </ul>
 	 * @remark
-	 *	The initial alpha comparison function is Ego::ComparisonFunction::Always,
-	 *	the initial reference alpha value is @a 0.
+	 *  The initial alpha compare function is Ego::CompareFunction::Always,
+	 *  the initial reference alpha value is @a 0.
 	 * @throw std::invalid_argument
-	 *	if @a value is not within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
+	 *  if @a value is not within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
 	 */
-	virtual void setAlphaFunction(ComparisonFunction function, float value) = 0;
+	virtual void setAlphaFunction(CompareFunction function, float value) = 0;
 
     /**
      * @brief
@@ -349,6 +350,79 @@ public:
      *  @a false disables it
      */
     virtual void setBlendingEnabled(bool enabled) = 0;
+
+	/**
+	 * @brief
+	 *  Set the blend function.
+	 * @param sourceColour
+	 *  the source color blend function
+	 * @param sourceAlpha
+	 *  the source alpha blend function
+	 * @param destinationColour
+	 *  the destination color blend function
+	 * @param destinationAlpha
+	 *  the destination alpha blend function
+	 *  the source blend function
+	 * @remark
+	 *  In the following text,                        first source, second source and destination color components are referred to as
+	 *  \f$\left(R_{s_0}, G_{s_0}, B_{s_0}, A_{s_0}\right)\f$,     \f$\left(R_{s_1}, G_{s_1}, B_{s_1}, A_{s_1}\right)\f$ and \f$\left
+	 *  (R_d, G_d, B_d, A_d\right)\f$, respectively. The color specified by Ego::Renderer::setBlendColour(const Ego::Math::Colour4f&)
+	 *  is referred to as \f$\left(R_c, G_c, B_c, A_c\right)\f$. The first column in the following table denotes the parameter value,
+	 *  the second and third column the semantics of that value if assigned to the colour and alpha parameter       (either source or
+	 *  destination), respectively.
+	 *  <table>
+	 *  <tr><td>Parameter                                </td><td>RGB                                      </td> <td>A                </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::Zero                     </td><td>\f$(0,0,0)\f$                            </td> <td>\f$0\f$          </td></tr>
+	 *  <tr><td>Ego::BlendFunc::One                      </td><td>\f$(1,1,1)\f$                            </td> <td>\f$1\f$          </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::SourceColour             </td><td>\f$(R_{s_0},G_{s_0},B_{s_0})\f$          </td> <td>\f$A_{s_0}\f$    </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusSourceColour     </td><td>\f$(1, 1, 1) - (R_{s_0},G_{s_0}, B_{s_0})</td> <td>\f$1 - A_{s_0}\f$</td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::DestinationColour        </td><td>\f$(R_d, G_d, B_d)\f$                    </td> <td>\f$A_d\f$        </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusDestinationColour</td><td>\f$(1, 1, 1) - (R_d, G_d, B_d)\f$        </td> <td>\f$1 - A_d\f$    </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::SourceAlpha              </td><td>\f$(A_{s_0}, A_{s_0}, A_{s_0})\f$         </td><td>\f$A_{s_0}\f$    </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusSourceAlpha      </td><td>\f$(1, 1, 1) - (A_{s_0}, A_{s_0}, A_{s_0})</td><td>\f$1 - A_{s_0}\f$</td></tr>
+	 *  
+	 *  <tr><td>Ego::BlendFunc::DestinationAlpha         </td><td>\f$(A_d, A_d, A_d)\f$                     </td><td>\f$A_d\f$        </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusDestinationAlpha </td><td>\f$(1, 1, 1) - (A_d, A_d, A_d)\f$         </td><td>\f$1 - A_d\f$    </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::ConstantColour           </td><td>\f$(R_c, G_c, B_c\f$)                     </td><td>\f$A_c\f$        </td></tr>
+	 *  <tr><td>Ego::BlendFunc::OneMinusConstantColour   </td><td>\f$(1, 1, 1) - (R_c, G_c, B_c)\f$         </td><td>\f$1 - A_c\f$    </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::ConstantAlpha            </td><td>\f$(A_c, A_c, A_c)\f$                     </td><td>\f$A_c\f$        </td></tr>
+	 *  <tr><td>Ego::Blendfunc::OneMinusConstantAlpha    </td><td>\f$(1, 1, 1) - (A_c, A_c, A_c)\f$         </td><td>\f$1 - A_c\f$    </td></tr>
+	 *
+	 *  <tr><td>Ego::BlendFunc::SourceAlphaSaturate      </td><td>\f$(i, i, i)\f$                           </td><td>\f$1\f$          </td></tr>
+	 *  </table>
+	 *  where
+	 *  \f{align*}{
+	 *  i = \min\left(A_{s_0}, 1 - A_d\right)
+	 *  \f}
+	 */
+	virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
+		                          BlendFunction destinationColour, BlendFunction destinationAlpha) = 0;
+	/**
+	 * @brief
+	 *  Set the blend function.
+	 * @param source
+	 *  the source colour and source alpha blend function
+	 * @param target
+	 *  the destination colour and destination alpha blend function
+	 * @remark
+	 *  This method is a convenience method and a call
+	 *  @code
+	 *  o.setBlendFunction(x,y);
+	 *  @endcode
+	 *  is effectively equivalent to a call
+	 *  @code
+	 *  o.setBlendFunction(x, x, y, y)
+	 *  @endcode
+	 */
+	virtual void setBlendFunction(BlendFunction source, BlendFunction destination) {
+		setBlendFunction(source, source, destination, destination);
+	}
 
     /**
      * @brief
@@ -368,51 +442,51 @@ public:
 
     /**
      * @brief
-     *  Set the depth comparison function.
+     *  Set the depth compare function.
      * @param function
-     *  the depth comparison function
+     *  the depth compare function
 	 * @remark
-	 *	The depth comparison function is used to compare the depth value of an incoming pixel to the depth value present in the depth buffer.
-	 *	The outcome of this test is binary, either the incoming pixel passes or fails the comparison.
+	 *  The depth compare function is used to compare the depth value of an incoming pixel to the depth value present in the depth buffer.
+	 *  The outcome of this test is binary, either the incoming pixel passes or fails the comparison.
 	 *
-	 *	The depth comparison functions are as follows:
-	 *	<ul>
-	 *		<li>Ego::ComparisonFunction::AlwaysFail:
-	 *		The incoming pixel never passes</li>
-	 *		<li>Ego::ComparisonFunction::AlwaysPass:
-	 *		The incoming pixel always passes</li>
-	 *		<li>Ego::ComparisonFunction::Less:
-	 *		The incoming pixel passes if it is depth value is
-	 *		less than the depth value present in the depth buffer</li>
-	 *		<li>Ego::ComparisonFunction::LessOrEqual:
-	 *		The incoming pixel passes if its depth value is
-	 *		less than or equal to the depth value present in the depth buffer</li>
-	 *		<li>Ego::ComparisonFunction::Equal:
-	 *		The incoming pixel passes if its depth value is
-	 *		equal to the depth value present in the depth buffer</li>
-	 *		<li>Ego::ComparisonFunction::NotEqual:
-	 *		The incoming pixel passes if its depth value is
-	 *		not equal to the depth value present in the depth buffer</li>
-	 *		<li>Ego::ComparisonFunction::Greater:
-	 *		The incoming pixel passes if its depth value is
-	 *		greater than the depth value present in the depth buffer</li>
-	 *		<li>Ego::ComparisonFunction::GreaterOrEqual:
-	 *		The incoming pixel passes if its depth value is
-	 *		greater than or equal to the depth value present in the depth buffer</li>
-	 *	</ul>
+	 *  The depth compare functions are as follows:
+	 *  <ul>
+	 *  	<li>Ego::CompareFunction::AlwaysFail:
+	 *  	The incoming pixel never passes</li>
+	 *  	<li>Ego::CompareFunction::AlwaysPass:
+	 *  	The incoming pixel always passes</li>
+	 *  	<li>Ego::CompareFunction::Less:
+	 *  	The incoming pixel passes if it is depth value is
+	 *  	less than the depth value present in the depth buffer</li>
+	 *  	<li>Ego::CompareFunction::LessOrEqual:
+	 *  	The incoming pixel passes if its depth value is
+	 *  	less than or equal to the depth value present in the depth buffer</li>
+	 *  	<li>Ego::CompareFunction::Equal:
+	 *  	The incoming pixel passes if its depth value is
+	 *  	equal to the depth value present in the depth buffer</li>
+	 *  	<li>Ego::CompareFunction::NotEqual:
+	 *  	The incoming pixel passes if its depth value is
+	 *  	not equal to the depth value present in the depth buffer</li>
+	 *  	<li>Ego::CompareFunction::Greater:
+	 *  	The incoming pixel passes if its depth value is
+	 *  	greater than the depth value present in the depth buffer</li>
+	 *  	<li>Ego::CompareFunction::GreaterOrEqual:
+	 *  	The incoming pixel passes if its depth value is
+	 *  	greater than or equal to the depth value present in the depth buffer</li>
+	 *  </ul>
 	 * @warning
-	 *	If depth testing is disabled, then the pixel always passes. However, the depth buffer is not modified.
-	 *	To unconditionally write to the depth buffer, depth testing should be set to enabled and the depth test
-	 *	function to always pass. 
+	 *  If depth testing is disabled, then the pixel always passes. However, the depth buffer is not modified.
+	 *  To unconditionally write to the depth buffer, depth testing should be set to enabled and the depth test
+	 *  function to always pass. 
      */
-    virtual void setDepthFunction(ComparisonFunction function) = 0;
+    virtual void setDepthFunction(CompareFunction function) = 0;
 
     /**
      * @brief
-     *	Enable/disable depth tests and depth buffer updates.
+     *  Enable/disable depth tests and depth buffer updates.
      * @param enabled
-     *	@a true enables depth tests and depth buffer updates,
-     *	@a false disables them
+     *  @a true enables depth tests and depth buffer updates,
+     *  @a false disables them
      */
     virtual void setDepthTestEnabled(bool enabled) = 0;
 
@@ -420,8 +494,8 @@ public:
      * @brief
      *  Enable/disable the depth buffer writes.
      * @param enable
-     *	@a true enables scissor tests,
-     *	@a false disables then
+     *  @a true enables scissor tests,
+     *  @a false disables then
      */
     virtual void setDepthWriteEnabled(bool enabled) = 0;
 
@@ -534,37 +608,37 @@ public:
 
 	/**
 	 * @brief
-	 *	Enable/disable antialiasing of points.
+	 *  Enable/disable antialiasing of points.
 	 * @param enable
-	 *	@a true enables antialiasing of points,
-	 *	@a false disables it
+	 *  @a true enables antialiasing of points,
+	 *  @a false disables it
 	 * @remark
-	 *	Enabling/disabling antialiasing of points has no impact if
-	 *	multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.3.3).
+	 *  Enabling/disabling antialiasing of points has no impact if
+	 *  multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.3.3).
 	 */
 	virtual void setPointSmoothEnabled(bool enabled) = 0;
 
 	/**
 	 * @brief
-	 *	Enable/disable antialiasing of lines.
+	 *  Enable/disable antialiasing of lines.
 	 * @param enabled
-	 *	@a true enables antialiasing of lines,
-	 *	@a false disables it
+	 *  @a true enables antialiasing of lines,
+	 *  @a false disables it
 	 * @remark
-	 *	Enabling/disabling antialiasing of lines has no impact if
-	 *	multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.4.4).
+	 *  Enabling/disabling antialiasing of lines has no impact if
+	 *  multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.4.4).
 	 */
 	virtual void setLineSmoothEnabled(bool enabled) = 0;
 
 	/**
 	 * @brief
-	 *	Enable/disable antialiasing of lines.
+	 *  Enable/disable antialiasing of lines.
 	 * @param enabled
-	 *	@a true enables antialiasing of lines,
-	 *	@a false disables it
+	 *  @a true enables antialiasing of lines,
+	 *  @a false disables it
 	 * @remark
-	 *	Enabling/disabling antialiasing of polygons has no impact if
-	 *	multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.5.6).
+	 *  Enabling/disabling antialiasing of polygons has no impact if
+	 *  multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.5.6).
 	 */
 	virtual void setPolygonSmoothEnabled(bool enabled) = 0;
 
@@ -579,18 +653,18 @@ public:
 
 	/**
 	 * @brief
-	 *	Enable/disable lighting.
+	 *  Enable/disable lighting.
 	 * @param enabled
-	 *	@a true enables lighting,
-	 *	@a false disables it
+	 *  @a true enables lighting,
+	 *  @a false disables it
 	 */
 	virtual void setLightingEnabled(bool enabled) = 0;
 
 	/**
 	 * @brief
-	 *	Set the rasterization mode (for front- and back-facing polygons).
+	 *  Set the rasterization mode (for front- and back-facing polygons).
 	 * @param mode
-	 *	the rasterization mode
+	 *  the rasterization mode
 	 */
 	virtual void setRasterizationMode(RasterizationMode mode) = 0;
 

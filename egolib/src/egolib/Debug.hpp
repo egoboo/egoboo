@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include "egolib/Core/AssertionFailedException.hpp"
+
 namespace Ego
 {
     namespace Debug
@@ -48,3 +50,23 @@ namespace Ego
 #endif
     }
 }
+
+
+/**
+ * @brief
+ *  Raise an exception if an assertion fails.
+ * @param assertion
+ *	the assertion
+ * @throw Ego::Core::AssertionFailed
+ *  if the assertion fails
+ * @remark
+ *	This macro evaluates to the empty statement if #_DEBUG is not defined.
+ */
+#if defined(_DEBUG)
+    #define EGOBOO_ASSERT(assertion, ...) \
+	    if(!(assertion)) { \
+		    throw Ego::Core::AssertionFailed(__FILE__, __LINE__, #assertion); \
+        }
+#else
+    #define EGOBOO_ASSERT(assertion) /* Empty statement. */;
+#endif

@@ -181,7 +181,7 @@ namespace Ego
         renderer.setColour(colour);
         renderer.setBlendingEnabled(true);
         oglx_texture_t::bind(cache->tex);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
         GL_DEBUG(glBegin)(GL_QUADS);
         {
             GL_DEBUG(glTexCoord2f)(0, 0);

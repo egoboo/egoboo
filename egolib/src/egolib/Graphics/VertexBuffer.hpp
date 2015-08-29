@@ -25,6 +25,7 @@
 #pragma once
 
 #include "egolib/Graphics/VertexFormat.hpp"
+#include "egolib/Core/LockFailedException.hpp"
 
 namespace Ego
 {
@@ -99,19 +100,76 @@ public:
      * @brief
      *  Lock this vertex buffer.
      * @return
-     *  a pointer to the vertex data on success, @a nullptr on failure
+     *  a pointer to the vertex data
+	 * @throw Ego::Core::LockFailedException
+	 *  if locking the vertex buffer failed
      */
     void *lock();
      
     /**
      * @brief
      *  Unlock this vertex buffer.
+	 * @remark
+	 *  If the vertex buffer is not locked, a call to this method is a no-op.
      */
     void unlock();
 
-    // Disable copy assignment operator
-    //VertexBuffer& operator=(const VertexBuffer&) = delete;
-    //VertexBuffer(const VertexBuffer &copy) = delete;
+};
+
+/**
+ * @brief
+ *	Provides convenient RAII-style mechanism for locking/unlocking a vertex buffer.
+ * @author
+ *  Michael Heilmann
+ */
+struct VertexBufferScopedLock
+{
+private:
+	/**
+	 * @brief
+	 *  A pointer to the backing memory of the vertex buffer.
+	 */
+	void *_pointer;
+	/**
+	 * @brief
+	 *  A pointer to the vertex buffer.
+	 */
+	VertexBuffer *_vertexBuffer;
+public:
+	/**
+	 * @brief
+	 *  Construct this vertex buffer scoped lock, locking the vertex buffer.
+	 * @param vertexBuffer
+	 *  the vertex buffer
+	 * @throw Ego::Core::LockFailedException
+	 *	if the vertex buffer can not be locked
+	 * @todo
+	 *  Use an other exception type than std::runtime_error.
+	 */
+	VertexBufferScopedLock(VertexBuffer& vertexBuffer)
+		: _vertexBuffer(&vertexBuffer) {
+		_pointer = _vertexBuffer->lock();
+	}
+
+	/**
+	 * @brief
+	 *  Destruct his vertex buffer scoped lock, unlocking the vertex buffer.
+	 */
+	virtual ~VertexBufferScopedLock() {
+		_vertexBuffer->unlock();
+	}
+
+	/**
+	 * @brief
+	 *  Get a pointer to the backing memory of the vertex buffer.
+	 * @return
+	 *  a pointer to the backing memory of the vertex buffer
+	 */
+	template <typename _Type>
+	_Type *get() {
+		return static_cast<_Type *>(_pointer);
+	}
+
 };
 
 } // namespace Ego

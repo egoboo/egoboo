@@ -914,9 +914,6 @@
     <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -937,6 +934,21 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\Camera.hpp">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\UnhandledSwitchCaseException.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\LockFailedException.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\AssertionFailedException.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -81,14 +81,14 @@ void UIManager::beginRenderUI()
 	renderer.setCullingMode(Ego::CullingMode::None);
 
     // use normal alpha blending
-    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );           // GL_COLOR_BUFFER_BIT
+	renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 	renderer.setBlendingEnabled(true);
 
     // do not display the completely transparent portion
 	renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
+	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-	renderer.setViewportRectangle(0, 0, getScreenWidth(), getScreenHeight());  // GL_VIEWPORT_BIT
+	renderer.setViewportRectangle(0, 0, getScreenWidth(), getScreenHeight());
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning

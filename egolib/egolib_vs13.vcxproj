@@ -455,6 +455,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Core\AssertionFailedException.hpp" />
+    <ClInclude Include="src\egolib\Core\LockFailedException.hpp" />
+    <ClInclude Include="src\egolib\Core\UnhandledSwitchCaseException.hpp" />
+    <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp" />
     <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />
     <ClInclude Include="src\egolib\Math\Matrix.hpp" />
@@ -580,7 +584,7 @@
     <ClInclude Include="src\egolib\Ref.hpp" />
     <ClInclude Include="src\egolib\Debug.hpp" />
     <ClInclude Include="src\egolib\Float.hpp" />
-    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp" />
+    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />

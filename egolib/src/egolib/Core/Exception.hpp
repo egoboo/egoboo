@@ -18,12 +18,14 @@
 //********************************************************************************************
 #pragma once
 
+/// @file   egolib/Core/Exception.hpp
+/// @brief  Root of the exception hierarchy.
+/// @author Michael Heilmann
+
 #include "egolib/platform.h"
 
-namespace Ego
-{
-namespace Core
-{
+namespace Ego {
+namespace Core {
 
 using namespace std;
 
@@ -54,7 +56,7 @@ protected:
 
     /**
      * @brief
-     *  Construct this IdLib exception.
+     *  Construct this exception.
      * @param file
      *  the C++ source file (as obtained by the __FILE__ macro) associated with this exception
      * @param line
@@ -65,9 +67,29 @@ protected:
     Exception(const char *file, int line) throw() :
         _file((char *)(file)), _line(line)
     {}
+
+	/**
+	 * @brief
+	 *  Construct this exception using the values of another exception.
+	 * @param other
+	 *  the other exception
+	 * @remark
+	 *  Intentionally protected.
+	 */
     Exception(const Exception& other) throw() :
         _file(other._file), _line(other._line)
     {}
+
+	/**
+	 * @brief
+	 *  Assign this exception the values of another exception
+	 * @param other
+	 *  the other exception
+	 * @return
+	 *  this exception
+	 * @remark
+	 *  Intentionally protected
+	 */
     Exception& operator=(const Exception& other) throw()
     {
         _file = other._file;
@@ -117,83 +139,8 @@ public:
     virtual operator string() const = 0;
 };
 
-/**
- * @brief
- *  The base class of all assertion failed exceptions.
- * @author
- *  Michael Heilmann
- */
-class AssertionFailed : public Exception
-{
-
-private:
-        
-    /**
-     * @brief
-     *  A string describing the assertion e.g. <tt>nullptr != ptr</tt>.
-     */
-    string _assertion;
-
-public:
-
-    /**
-     * @brief
-     *  Construct this assertion failed (exception).
-     * @param file
-     *   the C++ source file associated with this exception
-     * @param line
-     *   the line within the C++ source file associated with this exception
-     * @param assertion
-     *   a description of the assertion
-     */
-    AssertionFailed(const char *file, int line, const string& assertion) :
-        Exception(file, line), _assertion(assertion)
-    {}
-    AssertionFailed(const AssertionFailed& other) :
-        Exception(other), _assertion(other._assertion)
-    {}
-    AssertionFailed& operator=(const AssertionFailed& other)
-    {
-        Exception::operator=(other);
-        _assertion = other._assertion;
-        return *this;
-    }
-
-public:
-
-    /**
-     * @brief
-     *  Get a description of the assertion.
-     * @return
-     *  a description of the assertion
-     */
-    const string& getAssertion() const
-    {
-        return _assertion;
-    }
-
-    virtual operator string() const
-    {
-        ostringstream buffer;
-        buffer << "assertion `" << _assertion << "` failed";
-        buffer << " (raised in file " << getFile() << ", line " << getLine() << ")";
-        return buffer.str();
-    }
-
-};
-
 } // namespace Core
 } // namespace Ego
 
-// Raise an assertion.
-#if defined(_DEBUG)
-#define EGO2_ASSERT(assertion, ...) \
-    if(!(assertion)) \
-    { \
-        throw Ego::Core::AssertionFailed(__FILE__, __LINE__, #assertion); \
-    }
-#else
-#define EGO2_ASSERT(assertion) /* Empty statement. */;
-#endif
 
 

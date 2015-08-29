@@ -73,6 +73,13 @@ struct Capabilities {
 	 *  the name of this OpenGL implementation
 	 */
 	static std::string getName();
+	/**
+	 * @brief
+	 *  Get the version of this OpenGL implementation.
+	 * @return
+	 *  the version of this OpenGL implementation
+	 */
+	static std::string getVersion();
 };
 
 class Renderer : public Ego::Renderer
@@ -113,6 +120,11 @@ protected:
      *  The name of this OpenGL implementation.
      */
     std::string _name;
+	/**
+	 * @brief
+	 *	The version of this OpenGL implementation.
+	 */
+	std::string _version;
 public:
     /**
      * @brief
@@ -140,10 +152,14 @@ public:
     virtual void setAlphaTestEnabled(bool enabled) override;
 
 	/** @copydoc Ego::Renderer::setAlphaFunction */
-	virtual void setAlphaFunction(ComparisonFunction function, float value) override;
+	virtual void setAlphaFunction(CompareFunction function, float value) override;
 
     /** @copydoc Ego::Renderer::setBlendingEnabled */
     virtual void setBlendingEnabled(bool enabled) override;
+
+	/** @copydoc Ego::Renderer::setSourceBlendFunction */
+	virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
+		                          BlendFunction destinationColour, BlendFunction destinationAlpha) override;
 
     /** @copydoc Ego::Renderer::setColour */
     virtual void setColour(const Colour4f& colour) override;
@@ -152,7 +168,7 @@ public:
     virtual void setCullingMode(CullingMode mode) override;
 
     /** @copydoc Ego::Renderer::setDepthFunction */
-    virtual void setDepthFunction(ComparisonFunction function) override;
+    virtual void setDepthFunction(CompareFunction function) override;
 
     /** @copydoc Ego::Renderer::setDepthTestEnabled */
     virtual void setDepthTestEnabled(bool enabled) override;
@@ -216,6 +232,9 @@ public:
 
     /** @copydoc Ego::Renderer::render */
     virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) override;
+
+private:
+	GLenum toOpenGL(BlendFunction source);
 
 }; // class Renderer
 

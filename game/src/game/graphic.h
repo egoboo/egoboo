@@ -187,9 +187,9 @@ private:
 protected:
     void free(size_t index)
     {
-        EGO2_ASSERT(index < getCapacity()); // Index is not valid.
-        EGO2_ASSERT(!isFree(index)); // Index already free.
-        EGO2_ASSERT(free_count < getCapacity()); // Free list is full.
+        EGOBOO_ASSERT(index < getCapacity()); // Index is not valid.
+        EGOBOO_ASSERT(!isFree(index)); // Index already free.
+        EGOBOO_ASSERT(free_count < getCapacity()); // Free list is full.
 
         // Add the the index to the free list and increment the number of free indices.
         free_lst[free_count] = index;

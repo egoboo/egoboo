@@ -387,14 +387,14 @@ int GFX::initializeOpenGL()
 
     // Enable depth test. Incoming fragment's depth value must be less.
     renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(ComparisonFunction::Less);
+    renderer.setDepthFunction(CompareFunction::Less);
 
     // Disable blending.
     renderer.setBlendingEnabled(false);
 
     // Enable alpha testing: Hide fully transparent parts.
     renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);
+	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     /// backface culling
