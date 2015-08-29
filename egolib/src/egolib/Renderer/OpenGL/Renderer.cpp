@@ -88,6 +88,18 @@ std::string Capabilities::getVendor()
     return (const char *)bytes;
 }
 
+std::string Capabilities::getVersion()
+{
+	while (GL_NO_ERROR != glGetError()) {}
+	const GLubyte *bytes = glGetString(GL_VERSION);
+	GLenum error = glGetError();
+	if (GL_NO_ERROR != error)
+	{
+		throw std::runtime_error("unable to acquire renderer back-end information");
+	}
+	return (const char *)bytes;
+}
+
 std::unordered_set<std::string> Capabilities::getExtensions()
 {
     while (GL_NO_ERROR != glGetError()) {}
@@ -103,7 +115,8 @@ std::unordered_set<std::string> Capabilities::getExtensions()
 Renderer::Renderer() :
     _extensions(Capabilities::getExtensions()),
     _vendor(Capabilities::getVendor()),
-    _name(Capabilities::getName())
+    _name(Capabilities::getName()),
+	_version(Capabilities::getVersion())
 {
     OpenGL::link();
 }

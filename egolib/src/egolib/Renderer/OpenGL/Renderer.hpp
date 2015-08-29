@@ -73,6 +73,13 @@ struct Capabilities {
 	 *  the name of this OpenGL implementation
 	 */
 	static std::string getName();
+	/**
+	 * @brief
+	 *  Get the version of this OpenGL implementation.
+	 * @return
+	 *  the version of this OpenGL implementation
+	 */
+	static std::string getVersion();
 };
 
 class Renderer : public Ego::Renderer
@@ -113,6 +120,11 @@ protected:
      *  The name of this OpenGL implementation.
      */
     std::string _name;
+	/**
+	 * @brief
+	 *	The version of this OpenGL implementation.
+	 */
+	std::string _version;
 public:
     /**
      * @brief
