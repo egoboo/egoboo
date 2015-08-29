@@ -33,13 +33,13 @@ namespace RenderPasses {
 /// The first pass for reflective tiles
 /// i.e. tiles which do reflect entities.
 /// Ran before the pass rendering the reflections of entities.
-struct Reflective0 : public Graphics::RenderPass {
+struct Reflective0 : public RenderPass {
 public:
 	Reflective0()
-		: Graphics::RenderPass("reflective.0") {
+		: RenderPass("reflective.0") {
 	}
 protected:
-	void doRun(::Camera& cam, const Ego::Graphics::TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 private:
 	// Used if reflections are enabled.
 	void doReflectionsEnabled(::Camera& cam, const TileList& tl, const EntityList& el);
@@ -52,10 +52,10 @@ private:
 /// The 2nd pass for reflective tiles
 /// i.e. tiles which do reflect entities.
 /// Ran after the pass rendering the reflections of entities.
-struct Reflective1 : public Graphics::RenderPass {
+struct Reflective1 : public RenderPass {
 public:
 	Reflective1()
-		: Graphics::RenderPass("reflective.1") {
+		: RenderPass("reflective.1") {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
@@ -69,20 +69,20 @@ private:
 };
 
 /// The render pass for the world background.
-struct Background : public Graphics::RenderPass {
+struct Background : public RenderPass {
 public:
 	Background()
-		: Graphics::RenderPass("background") {
+		: RenderPass("background") {
 	}
 protected:
-	void doRun(::Camera& cam, const Graphics::TileList& tl, const EntityList& el) override;
+	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for the world foreground.
-struct Foreground : public Graphics::RenderPass {
+struct Foreground : public RenderPass {
 public:
 	Foreground()
-		: Graphics::RenderPass("foreground") {
+		: RenderPass("foreground") {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
@@ -90,60 +90,60 @@ protected:
 
 /// The render pass for non-reflective tiles
 /// i.e. tiles which do not reflect entities.
-struct NonReflective : public Graphics::RenderPass {
+struct NonReflective : public RenderPass {
 public:
 	NonReflective()
-		: Graphics::RenderPass("nonReflective") {
+		: RenderPass("nonReflective") {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for water tiles.
-struct Water : public Graphics::RenderPass {
+struct Water : public RenderPass {
 public:
 	Water()
-		: Graphics::RenderPass("water") {
+		: RenderPass("water") {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for solid entities.
-struct SolidEntities : public Graphics::RenderPass {
+struct SolidEntities : public RenderPass {
 public:
 	SolidEntities()
-		: Graphics::RenderPass("solidEntities") {
+		: RenderPass("solidEntities") {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for transparent entities.
-struct TransparentEntities : public Graphics::RenderPass {
+struct TransparentEntities : public RenderPass {
 public:
 	TransparentEntities()
-		: Graphics::RenderPass("transparentEntities") {
+		: RenderPass("transparentEntities") {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for entity reflections.
-struct EntityReflections : public Graphics::RenderPass {
+struct EntityReflections : public RenderPass {
 public:
 	EntityReflections()
-		: Graphics::RenderPass("entityReflections") {
+		: RenderPass("entityReflections") {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
 /// The render pass for entity shadows.
-struct EntityShadows : public Graphics::RenderPass {
+struct EntityShadows : public RenderPass {
 public:
 	EntityShadows()
-		: Graphics::RenderPass("entityShadows") {
+		: RenderPass("entityShadows") {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
