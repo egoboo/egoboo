@@ -37,12 +37,12 @@ struct RenderPass {
 public:
 	// To shorten expressions.
 	template <typename _ClockPolicy>
-	using Clock = Ego::Time::Clock<_ClockPolicy>;
+	using Clock = Time::Clock<_ClockPolicy>;
 	// To shorten expressions.
 	template <typename _ClockPolicy>
-	using ClockScope = Ego::Time::ClockScope <_ClockPolicy>;
+	using ClockScope = Time::ClockScope <_ClockPolicy>;
 	// To shorten expressions.
-	using ClockPolicy = Ego::Time::ClockPolicy;
+	using ClockPolicy = Time::ClockPolicy;
 	/**
 	 * @brief
 	 *	The clock for measuring the time spent in this render pass.
@@ -77,7 +77,7 @@ public:
 	 * @param entityList
 	 *	the entity list to be used
 	 */
-	virtual void doRun(::Camera& camera, const Ego::Graphics::TileList& tileList, const EntityList& entityList) = 0;
+	virtual void doRun(::Camera& camera, const TileList& tileList, const EntityList& entityList) = 0;
 public:
 	/**
 	 * @brief
@@ -89,11 +89,11 @@ public:
 	 * @param entityList
 	 *	the entity list to be used
 	 */
-	void run(::Camera& camera, const Ego::Graphics::TileList& tileList, const EntityList& entityList) {
+	void run(::Camera& camera, const TileList& tileList, const EntityList& entityList) {
 		ClockScope<ClockPolicy::NonRecursive> clockScope(_clock);
-		Ego::OpenGL::Utilities::isError();
+		OpenGL::Utilities::isError();
 		doRun(camera, tileList, entityList);
-		Ego::OpenGL::Utilities::isError();
+		OpenGL::Utilities::isError();
 	}
 
 };
