@@ -207,8 +207,8 @@ void Renderer::setBlendingEnabled(bool enabled)
 void Renderer::setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
 	                            BlendFunction destinationColour, BlendFunction destinationAlpha)
 {
-	glBlendFuncSeparate(toOpenGL(sourceColour), toOpenGL(sourceAlpha), 
-		                toOpenGL(destinationColour), toOpenGL(destinationAlpha));
+	glBlendFuncSeparate(toOpenGL(sourceColour), toOpenGL(destinationColour),
+		                toOpenGL(sourceAlpha), toOpenGL(destinationAlpha));
 	Utilities::isError();
 }
 
