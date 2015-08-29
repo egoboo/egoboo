@@ -2009,12 +2009,13 @@ void gfx_do_clear_screen()
 {
     if (!gfx_page_clear_requested) return;
 
+	auto& renderer = Ego::Renderer::get();
     // Clear the depth buffer.
-    Ego::Renderer::get().setDepthWriteEnabled(true);
-    GL_DEBUG(glClear)(GL_DEPTH_BUFFER_BIT);
+    renderer.setDepthWriteEnabled(true);
+	renderer.getDepthBuffer().clear();
 
     // Clear the colour buffer.
-    GL_DEBUG(glClear)(GL_COLOR_BUFFER_BIT);
+	renderer.getColourBuffer().clear();
 
     gfx_page_clear_requested = false;
 

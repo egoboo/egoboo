@@ -51,27 +51,23 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	if (!gfx.draw_background) {
 		return;
 	}
-	GLvertex vtlist[4];
-	int i;
-	float z0, Qx, Qy;
-	float intens = 1.0f;
 
-	float xmag, Cx_0, Cx_1;
-	float ymag, Cy_0, Cy_1;
-
-	
-
-	grid_mem_t     *pgmem = &(_currentModule->getMeshPointer()->gmem);
+	grid_mem_t *pgmem = &(_currentModule->getMeshPointer()->gmem);
 
 	// which layer
 	water_instance_layer_t *ilayer = water._layers + 0;
 
+	GLvertex vtlist[4];
+
 	// the "official" camera height
-	z0 = 1500;
+	float z0 = 1500;
 
 	// clip the waterlayer uv offset
 	ilayer->_tx[XX] = ilayer->_tx[XX] - (float)std::floor(ilayer->_tx[XX]);
 	ilayer->_tx[YY] = ilayer->_tx[YY] - (float)std::floor(ilayer->_tx[YY]);
+
+	float xmag, Cx_0, Cx_1;
+	float ymag, Cy_0, Cy_1;
 
 	// determine the constants for the x-coordinate
 	xmag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / GRID_FSIZE;
@@ -82,6 +78,8 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	ymag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[YY]) / GRID_FSIZE;
 	Cy_0 = ymag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[YY]);
 	Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[YY]);
+
+	float Qx, Qy;
 
 	// Figure out the coordinates of its corners
 	Qx = -pgmem->edge_x;
@@ -118,6 +116,8 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 	float light = water._light ? 1.0f : 0.0f;
 	float alpha = ilayer->_alpha * INV_FF;
+
+	float intens = 1.0f;
 
 	if (gfx.usefaredge)
 	{
@@ -171,7 +171,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 				GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
 				{
-					for (i = 0; i < 4; i++)
+					for (size_t i = 0; i < 4; i++)
 					{
 						GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
 						GL_DEBUG(glVertex3fv)(vtlist[i].pos);
@@ -192,7 +192,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 				GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
 				{
-					for (i = 0; i < 4; i++)
+					for (size_t i = 0; i < 4; i++)
 					{
 						GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
 						GL_DEBUG(glVertex3fv)(vtlist[i].pos);
@@ -210,43 +210,34 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	if (!gfx.draw_overlay) {
 		return;
 	}
-	float alpha, ftmp;
-	Vector3f vforw_wind, vforw_cam;
-	TURN_T default_turn;
 
 	water_instance_layer_t *ilayer = water._layers + 1;
 
-	vforw_wind[XX] = ilayer->_tx_add[XX];
-	vforw_wind[YY] = ilayer->_tx_add[YY];
-	vforw_wind[ZZ] = 0;
+	Vector3f vforw_wind(ilayer->_tx_add[XX], ilayer->_tx_add[YY], 0.0f);
 	vforw_wind.normalize();
 
+	Vector3f vforw_cam;
 	mat_getCamForward(cam.getViewMatrix(), vforw_cam);
 	vforw_cam.normalize();
 
 	// make the texture begin to disappear if you are not looking straight down
-	ftmp = vforw_wind.dot(vforw_cam);
+	float ftmp = vforw_wind.dot(vforw_cam);
 
-	alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * INV_FF);
+	float alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * INV_FF);
 
 	if (alpha != 0.0f)
 	{
 		GLvertex vtlist[4];
-		int i;
-		float size;
-		float sinsize, cossize;
-		float x, y, z;
-		float loc_foregroundrepeat;
 
 		// Figure out the screen coordinates of its corners
-		x = sdl_scr.x << 6;
-		y = sdl_scr.y << 6;
-		z = 0;
-		size = x + y + 1;
-		default_turn = (3 * 2047) & TRIG_TABLE_MASK;
-		sinsize = turntosin[default_turn] * size;
-		cossize = turntocos[default_turn] * size;
-		loc_foregroundrepeat = water._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
+		float x = sdl_scr.x << 6;
+		float y = sdl_scr.y << 6;
+		float z = 0;
+		float size = x + y + 1;
+		TURN_T default_turn = (3 * 2047) & TRIG_TABLE_MASK;
+		float sinsize = turntosin[default_turn] * size;
+		float cossize = turntocos[default_turn] * size;
+		float loc_foregroundrepeat = water._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
 
 		vtlist[0].pos[XX] = x + cossize;
 		vtlist[0].pos[YY] = y - sinsize;
@@ -307,7 +298,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 			renderer.setColour(Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
 			GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-			for (i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
 				GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
 				GL_DEBUG(glVertex3fv)(vtlist[i].pos);
@@ -487,11 +478,6 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 }
 
 void EntityShadows::doLowQualityShadow(const CHR_REF character) {
-	GLvertex v[4];
-
-	float   size, x, y;
-	float   level, height, height_factor, alpha;
-
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	if(pchr->isBeingHeld()) return;
 
@@ -514,7 +500,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	}
 
 	// No shadow if completely transparent or completely glowing.
-	alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
 
 	/// @test ZF@> previous test didn't work, but this one does
 	//if ( alpha * 255 < 1 ) return;
@@ -528,20 +514,21 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	if (alpha < INV_FF) return;
 
 	// Original points
-	level = pchr->enviro.floor_level;
-	level += SHADOWRAISE;
-	height = pchr->inst.matrix(2, 3) - level;
-	height_factor = 1.0f - height / (pchr->shadow_size * 5.0f);
+	float level = pchr->enviro.floor_level + SHADOWRAISE;
+	float height = pchr->inst.matrix(2, 3) - level;
+	float height_factor = 1.0f - height / (pchr->shadow_size * 5.0f);
 	if (height_factor <= 0.0f) return;
 
 	// how much transparency from height
 	alpha *= height_factor * 0.5f + 0.25f;
 	if (alpha < INV_FF) return;
 
-	x = pchr->inst.matrix(0, 3); ///< @todo MH: This should be the x/y position of the model.
-	y = pchr->inst.matrix(1, 3); ///<           Use a more self-descriptive method to describe this.
+	float x = pchr->inst.matrix(0, 3); ///< @todo MH: This should be the x/y position of the model.
+	float y = pchr->inst.matrix(1, 3); ///<           Use a more self-descriptive method to describe this.
 
-	size = pchr->shadow_size * height_factor;
+	float size = pchr->shadow_size * height_factor;
+
+	GLvertex v[4];
 
 	v[0].pos[XX] = (float)x + size;
 	v[0].pos[YY] = (float)y - size;
@@ -579,12 +566,6 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 }
 
 void EntityShadows::doHighQualityShadow(const CHR_REF character) {
-	GLvertex v[4];
-
-	float   x, y;
-	float   level;
-	float   height, size_umbra, size_penumbra;
-	float   alpha, alpha_umbra, alpha_penumbra;
 
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	if(pchr->isBeingHeld()) return;
@@ -600,7 +581,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (TILE_IS_FANOFF(ptile)) return;
 
 	// no shadow if completely transparent
-	alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
 
 	/// @test ZF@> The previous test didn't work, but this one does
 	//if ( alpha * 255 < 1 ) return;
@@ -614,15 +595,17 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (alpha < INV_FF) return;
 
 	// Original points
-	level = pchr->enviro.floor_level;
-	level += SHADOWRAISE;
-	height = pchr->inst.matrix(2, 3) - level;
+	float level = pchr->enviro.floor_level + SHADOWRAISE;
+	float height = pchr->inst.matrix(2, 3) - level;
 	if (height < 0) height = 0;
 
-	size_umbra = 1.5f * (pchr->bump.size - height / 30.0f);
-	size_penumbra = 1.5f * (pchr->bump.size + height / 30.0f);
+	float size_umbra = 1.5f * (pchr->bump.size - height / 30.0f);
+	float size_penumbra = 1.5f * (pchr->bump.size + height / 30.0f);
 
 	alpha *= 0.3f;
+	GLvertex v[4];
+
+	float   alpha_umbra, alpha_penumbra;
 	alpha_umbra = alpha_penumbra = alpha;
 	if (height > 0)
 	{
@@ -639,8 +622,8 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 		alpha_penumbra = CLIP(alpha_penumbra, 0.0f, 1.0f);
 	}
 
-	x = pchr->inst.matrix(0, 3);
-	y = pchr->inst.matrix(1, 3);
+	float x = pchr->inst.matrix(0, 3);
+	float y = pchr->inst.matrix(1, 3);
 
 	// Choose texture and matrix
 	oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
@@ -706,7 +689,7 @@ void EntityShadows::doShadowSprite(float intensity, GLvertex v[])
 {
 	if (intensity*255.0f < 1.0f) return;
 
-	GL_DEBUG(glColor4f)(intensity, intensity, intensity, 1.0f);
+	Ego::Renderer::get().setColour(Colour4f(intensity, intensity, intensity, 1.0f));
 
 	GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
 	{
