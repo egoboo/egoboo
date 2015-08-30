@@ -94,21 +94,26 @@ void ModuleSelector::drawContainer()
     oglx_texture_t::bind(nullptr);
     
     renderer.setColour(backDrop);
-    GL_DEBUG( glBegin )( GL_QUADS );
-    {
-        GL_DEBUG( glVertex2f )( getX(), getY() );
-        GL_DEBUG( glVertex2f )( getX(), getY()+getHeight() );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY()+getHeight() );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
-    }
-    GL_DEBUG_END();
+	Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>());
+	{
+		struct Vertex {
+			float x, y;
+		};
+		Ego::VertexBufferScopedLock vblck(vb);
+		Vertex *vertices = vblck.get<Vertex>();
+		vertices[0].x = getX(); vertices[0].y = getY();
+		vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
+		vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
+		vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
+	}
+	renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     // Module description
     if(_selectedModule != nullptr)
     {
 
         // Draw module Name first
-        Ego::Renderer::get().setColour(Ego::Colour4f::white());
+        renderer.setColour(Ego::Colour4f::white());
         _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 20, 25);
         
 
