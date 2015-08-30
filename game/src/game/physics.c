@@ -955,7 +955,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
 //--------------------------------------------------------------------------------------------
 bool phys_expand_chr_bb(Object *pchr, float tmin, float tmax, oct_bb_t& dst)
 {
-    if (!ACTIVE_PCHR(pchr)) return false;
+    if (!pchr || pchr->isTerminated()) return false;
 
     // copy the volume
     oct_bb_t tmp_oct1 = pchr->chr_max_cv;

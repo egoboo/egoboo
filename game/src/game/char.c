@@ -708,51 +708,6 @@ bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF charac
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_one_character( Object * pchr )
-{
-    /// @author BB
-    /// @details Everything necessary to disconnect one character from the game
-
-    CHR_REF ichr = pchr->getCharacterID();
-
-    pchr->sparkle = NOSPARKLE;
-
-    // Remove it from the team
-    pchr->team = pchr->team_base;
-    _currentModule->getTeamList()[pchr->team].decreaseMorale();
-
-    if ( _currentModule->getTeamList()[pchr->team].getLeader().get() == pchr )
-    {
-        // The team now has no leader if the character is the leader
-        _currentModule->getTeamList()[pchr->team].setLeader(Object::INVALID_OBJECT);
-    }
-
-    // Clear all shop passages that it owned..
-    _currentModule->removeShopOwner(ichr);
-
-    // detach from any mount
-    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
-    {
-        pchr->detatchFromHolder(true, false);
-    }
-
-    // drop your left item
-    const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
-    if(leftItem && leftItem->isItem()) {
-        leftItem->detatchFromHolder(true, false);
-    }
-
-    // drop your right item
-    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
-    if(rightItem && rightItem->isItem()) {
-        rightItem->detatchFromHolder(true, false);
-    }
-
-    // Stop all sound loops for this object
-    AudioSystem::get().stopObjectLoopingSounds(ichr);
-}
-
-//--------------------------------------------------------------------------------------------
 void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
 {
     /// @author ZF
@@ -861,31 +816,29 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
     /// @details This function makes a character join another team...
 
     CHR_REF tmp_ref;
-    Object * pchr;
-
     // change the base object
     switch_team_base( character, team, true );
 
     // grab a pointer to the character
     if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
+    Object *pchr = _currentModule->getObjectHandler().get( character );
 
     // change our mount team as well
     tmp_ref = pchr->attachedto;
-    if ( VALID_CHR_RANGE( tmp_ref ) )
+    if ( tmp_ref != INVALID_CHR_REF )
     {
         switch_team_base( tmp_ref, team, false );
     }
 
     // update the team of anything we are holding as well
     tmp_ref = pchr->holdingwhich[SLOT_LEFT];
-    if ( VALID_CHR_RANGE( tmp_ref ) )
+    if ( tmp_ref != INVALID_CHR_REF )
     {
         switch_team_base( tmp_ref, team, false );
     }
 
     tmp_ref = pchr->holdingwhich[SLOT_RIGHT];
-    if ( VALID_CHR_RANGE( tmp_ref ) )
+    if ( tmp_ref != INVALID_CHR_REF )
     {
         switch_team_base( tmp_ref, team, false );
     }
@@ -894,7 +847,7 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
 //--------------------------------------------------------------------------------------------
 bool chr_get_skill( Object *pchr, IDSZ whichskill )
 {
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
+    if (!pchr || pchr->isTerminated()) return false;
 
     //Any [NONE] IDSZ returns always "true"
     if ( IDSZ_NONE == whichskill ) return true;

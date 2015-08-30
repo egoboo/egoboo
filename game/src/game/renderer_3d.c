@@ -109,17 +109,16 @@ void line_list_draw_all(Camera& camera)
     /// @author BB
     /// @details draw some lines for debugging purposes
 
-    int cnt, ticks;
+	auto& renderer = Ego::Renderer::get();
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    oglx_texture_t::bind(nullptr);
+    renderer.getTextureUnit().setActivated(nullptr);
 
     gfx_begin_3d(camera);
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
-            auto& renderer = Ego::Renderer::get();
             // flat shading
             renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
 
@@ -135,9 +134,9 @@ void line_list_draw_all(Camera& camera)
 
             renderer.setBlendingEnabled(false);
 
-            ticks = SDL_GetTicks();
+            int ticks = SDL_GetTicks();
 
-            for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
+            for (int cnt = 0; cnt < LINE_COUNT; cnt++ )
             {
                 auto& line = line_list[cnt];
                 if ( line.time < 0 ) continue;
@@ -209,17 +208,16 @@ void point_list_draw_all(Camera& camera)
     /// @author BB
     /// @details draw some points for debugging purposes
 
-    int cnt, ticks;
+	auto& renderer = Ego::Renderer::get();
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    oglx_texture_t::bind(nullptr);
+    renderer.getTextureUnit().setActivated(nullptr);
 
     gfx_begin_3d(camera);
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
-            auto& renderer = Ego::Renderer::get();
             // flat shading
             renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
 
@@ -235,9 +233,9 @@ void point_list_draw_all(Camera& camera)
 
             renderer.setBlendingEnabled(false);
 
-            ticks = SDL_GetTicks();
+            int ticks = SDL_GetTicks();
 
-            for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
+            for (int cnt = 0; cnt < POINT_COUNT; cnt++ )
             {
                 auto& point = point_list[cnt];
                 if ( point.time < 0 ) continue;
@@ -359,7 +357,7 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
 		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
         // choose a "white" texture
-        oglx_texture_t::bind(nullptr);
+		renderer.getTextureUnit().setActivated(nullptr);
 
         //------------------------------------------------
         // DIAGONAL BBOX

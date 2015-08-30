@@ -3137,7 +3137,7 @@ void TextureAtlasManager::reload_all()
 //--------------------------------------------------------------------------------------------
 gfx_rv update_one_chr_instance(Object *pchr)
 {
-    if (!ACTIVE_PCHR(pchr))
+    if (!pchr || pchr->isTerminated())
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr), "invalid character");
         return gfx_error;

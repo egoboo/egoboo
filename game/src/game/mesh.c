@@ -287,7 +287,7 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile )
 
     if ( needs_bind )
     {
-        oglx_texture_t::bind( tx_ptr );
+		Ego::Renderer::get().getTextureUnit().setActivated(tx_ptr);
         if (tx_ptr && tx_ptr->hasAlpha())
         {
             // MH: Enable alpha blending if the texture requires it.

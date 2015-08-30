@@ -91,7 +91,7 @@ void ModuleSelector::drawContainer()
     auto &renderer = Ego::Renderer::get();
 
     //Draw backdrop
-    oglx_texture_t::bind(nullptr);
+	renderer.getTextureUnit().setActivated(nullptr);
     
     renderer.setColour(backDrop);
 	Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>());
@@ -188,7 +188,7 @@ void ModuleSelector::ModuleButton::draw()
     auto &renderer = Ego::Renderer::get();
 
     // Draw backdrop
-    oglx_texture_t::bind(nullptr);
+	renderer.getTextureUnit().setActivated(nullptr);
     
     // Determine button color
     if(!isEnabled())

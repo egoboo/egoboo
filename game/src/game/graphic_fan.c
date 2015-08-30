@@ -185,8 +185,8 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
     GL_DEBUG(glPopClientAttrib)();
 
 #if defined(DEBUG_MESH_NORMALS) && defined(_DEBUG)
-    oglx_texture_t::bind(nullptr);
-    Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
+    Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+    Ego::Renderer::get().setColour(Ego::Colour4f::white());
     entry = ptile->vrtstart;
     for ( cnt = 0; cnt < 4; cnt++, entry++ )
     {
@@ -283,7 +283,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
         badvertex++;
     }
 
-    oglx_texture_t::bind(nullptr);
+	Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
     // Render each command
     GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
@@ -462,14 +462,15 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     // tell the mesh texture code that someone else is controlling the texture
     mesh_texture_invalidate();
 
+	auto& renderer = Ego::Renderer::get();
+
     // set the texture
-    oglx_texture_t::bind( ptex );
+    renderer.getTextureUnit().setActivated(ptex);
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {
         bool use_depth_mask = ( !water._light && ( 1.0f == falpha ) );
 
-        auto& renderer = Ego::Renderer::get();
         // do not draw hidden surfaces
         renderer.setDepthTestEnabled(true);
         renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);

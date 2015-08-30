@@ -370,12 +370,10 @@ bool egolib_console_t::draw(egolib_console_t *self)
 
     SDL_Rect *pwin = &(self->rect);
 
-    oglx_texture_t::bind(nullptr);
-
     auto& renderer = Ego::Renderer::get();
     auto white = Ego::Math::Colour4f::white();
     auto black = Ego::Math::Colour4f::black();
-
+	renderer.getTextureUnit().setActivated(nullptr);
     renderer.setColour(white);
     GL_DEBUG(glLineWidth)(5);
     GL_DEBUG(glBegin)(GL_LINE_LOOP);

@@ -235,6 +235,12 @@ public:
     **/
     inline bool isTerminated() const {return _terminateRequested;}
 
+	/**
+	* @brief
+	*    Remove this object from the game.
+	*/
+	static void removeFromGame(Object * pchr);
+
     /**
     * @brief
     *   This function returns true if this Object is emerged in water

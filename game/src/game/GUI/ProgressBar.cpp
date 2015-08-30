@@ -20,7 +20,7 @@ void ProgressBar::draw()
 
     auto &renderer = Ego::Renderer::get();
     const auto &vb = _gameEngine->getUIManager()->_vertexBuffer;
-    oglx_texture_t::bind(nullptr);
+	renderer.getTextureUnit().setActivated(nullptr);
 
     // Draw the bar background
     renderer.setColour(Ego::Math::Colour4f(Ego::Math::Colour3f::grey(), 0.5f));

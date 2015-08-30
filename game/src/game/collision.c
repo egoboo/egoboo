@@ -103,7 +103,7 @@ public:
     bool prt_bumps_chr;
     bool prt_damages_chr;
 
-    static chr_prt_collision_data_t *init(chr_prt_collision_data_t *);
+    static void init(chr_prt_collision_data_t& self);
 };
 
 static bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata);
@@ -289,7 +289,9 @@ bool get_chr_mass( Object * pchr, float * wt )
 
     float loc_wta;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
+	if (!pchr || pchr->isTerminated()) {
+		return false;
+	}
 
     // handle oprtional parameters
     if ( NULL == wt ) wt = &loc_wta;
@@ -1380,9 +1382,12 @@ static bool do_chr_platform_physics( Object * object, Object * platform )
     Sint16 rot_a, rot_b;
     float lerp_z, vlerp_z;
 
-    if ( !ACTIVE_PCHR( object ) ) return false;
-    if ( !ACTIVE_PCHR( platform ) ) return false;
-
+	if (!object || object->isTerminated()) {
+		return false;
+	}
+	if (!platform || object->isTerminated()) {
+		return false;
+	}
     //Are we attached to this platform?
     if ( object->onwhichplatform_ref != platform->getCharacterID() ) return false;
 
@@ -2983,7 +2988,7 @@ bool do_chr_prt_collision( const CoNode_t * d )
     bool prt_deflected;
 
     chr_prt_collision_data_t cn_data;
-    chr_prt_collision_data_t::init(&cn_data);
+    chr_prt_collision_data_t::init(cn_data);
     bool intialized;
 
     // valid node?
@@ -3005,7 +3010,7 @@ bool do_chr_prt_collision( const CoNode_t * d )
         intialized = false;
 
         // in here to keep the compiler from complaining
-        chr_prt_collision_data_t::init( &cn_data );
+        chr_prt_collision_data_t::init(cn_data);
     }
 
     if ( !intialized ) return false;
@@ -3199,55 +3204,51 @@ bool do_chr_prt_collision( const CoNode_t * d )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-chr_prt_collision_data_t * chr_prt_collision_data_t::init( chr_prt_collision_data_t * ptr )
+void chr_prt_collision_data_t::init(chr_prt_collision_data_t& self)
 {
-    if ( NULL == ptr ) return ptr;
-
     //---- invalidate the object parameters
-    ptr->ichr = INVALID_CHR_REF;
-    ptr->pchr = NULL;
+    self.ichr = INVALID_CHR_REF;
+    self.pchr = NULL;
 
-    ptr->iprt = INVALID_PRT_REF;
-    ptr->pprt = NULL;
-    ptr->ppip = NULL;
+    self.iprt = INVALID_PRT_REF;
+    self.pprt = NULL;
+    self.ppip = NULL;
 
     //---- collision parameters
 
     // true collisions
-    ptr->int_min = 0;
-    ptr->depth_min = 0.0f;
+    self.int_min = 0;
+    self.depth_min = 0.0f;
 
     // hit-box collisions
-    ptr->int_max = 0;
-    ptr->depth_max = 0.0f;
+    self.int_max = 0;
+    self.depth_max = 0.0f;
 
     // platform interactions
-    //ptr->int_plat = false;
-    //ptr->plat_lerp = 0.0f;
+    //self.int_plat = false;
+    //self.plat_lerp = 0.0f;
 
     // basic parameters
-    ptr->is_impact    = false;
-    ptr->is_pressure  = false;
-    ptr->is_collision = false;
-    ptr->dot = 0.0f;
-    ptr->nrm = Vector3f(0, 0, 1);
+    self.is_impact    = false;
+    self.is_pressure  = false;
+    self.is_collision = false;
+    self.dot = 0.0f;
+    self.nrm = Vector3f(0, 0, 1);
 
     //---- collision modifications
-    ptr->mana_paid = false;
-    ptr->max_damage = ptr->actual_damage = 0;
-	ptr->vdiff = Vector3f::zero();
-	ptr->vdiff_para = Vector3f::zero();
-	ptr->vdiff_perp = Vector3f::zero();
-    ptr->block_factor = 0.0f;
+    self.mana_paid = false;
+    self.max_damage = self.actual_damage = 0;
+	self.vdiff = Vector3f::zero();
+	self.vdiff_para = Vector3f::zero();
+	self.vdiff_perp = Vector3f::zero();
+    self.block_factor = 0.0f;
 
     //---- collision reaction
-	//ptr->vimpulse = Vector3f::zero();
-	//ptr->pimpulse = Vector3f::zero();
-    ptr->terminate_particle = false;
-    ptr->prt_bumps_chr = false;
-    ptr->prt_damages_chr = false;
-
-    return ptr;
+	//self.vimpulse = Vector3f::zero();
+	//self.pimpulse = Vector3f::zero();
+    self.terminate_particle = false;
+    self.prt_bumps_chr = false;
+    self.prt_damages_chr = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3312,7 +3313,9 @@ bool detach_character_from_platform( Object * pchr )
     ///  move_one_character() function, so the environment has already been determined this round
 
     // verify that we do not have two dud pointers
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
+	if (!pchr || pchr->isTerminated()) {
+		return false;
+	}
 
     // save some values
     float old_zlerp        = pchr->enviro.zlerp;
@@ -3349,8 +3352,8 @@ static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
     /// @details attach a particle to a platform
 
     // verify that we do not have two dud pointers
-    if ( !pprt || pprt->isTerminated() ) return false;
-    if ( !ACTIVE_PCHR( pplat ) ) return false;
+    if (!pprt || pprt->isTerminated() ) return false;
+	if (!pplat || pplat->isTerminated()) return false;
 
     // check if they can be connected
     if ( !pplat->platform ) return false;

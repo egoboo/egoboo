@@ -41,7 +41,7 @@ struct grab_data_t
 void move_one_character_do_voluntary( Object * pchr )
 {
     // do voluntary motion
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if (!pchr || pchr->isTerminated()) return;
 
     CHR_REF ichr = GET_INDEX_PCHR( pchr );
 
@@ -246,7 +246,7 @@ void move_one_character_get_environment( Object * pchr )
 
     chr_environment_t * penviro;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if (!pchr || pchr->isTerminated()) return;
     penviro = &( pchr->enviro );
 
     // determine if the character is standing on a platform
@@ -459,7 +459,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     /// @author BB
     /// @details Friction is complicated when you want to have sliding characters :P
 
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if (!pchr || pchr->isTerminated()) return;
     chr_environment_t * penviro = &( pchr->enviro );
 
     if ( pchr->isFlying() ) return;
@@ -566,7 +566,7 @@ void move_one_character_do_floor_friction( Object * pchr )
 //--------------------------------------------------------------------------------------------
 void move_one_character_do_z_motion( Object * pchr )
 {
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if (!pchr || pchr->isTerminated()) return;
 
     //---- do z acceleration
     if ( pchr->isFlying() )
@@ -605,7 +605,7 @@ bool move_one_character_integrate_motion_attached( Object * pchr )
 {
     Uint32 chr_update;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
+    if (!pchr || pchr->isTerminated()) return false;
 
     // make a timer that is individual for each object
     chr_update = pchr->getCharacterID() + update_wld;
@@ -629,7 +629,7 @@ bool move_one_character_integrate_motion( Object * pchr )
 
 	Vector3f tmp_pos;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
+    if (!pchr || pchr->isTerminated()) return false;
 
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
@@ -772,7 +772,7 @@ bool chr_do_latch_button( Object * pchr )
 
     bool attack_handled;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
+    if (!pchr || pchr->isTerminated()) return false;
     CHR_REF ichr = pchr->getCharacterID();
 
     if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;
@@ -925,7 +925,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
     bool retval = false;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
+    if (!pchr || pchr->isTerminated()) return false;
     ichr = GET_INDEX_PCHR( pchr );
 
 
@@ -1454,7 +1454,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 //--------------------------------------------------------------------------------------------
 void move_one_character( Object * pchr )
 {
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if (!pchr || pchr->isTerminated()) return;
 
     if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return;
 

@@ -142,7 +142,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
         renderer.setAlphaTestEnabled(true);
 		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
 
-        oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
+        renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
 
         renderer.setColour(Ego::Math::Colour4f(pinst->fintens, pinst->fintens, pinst->fintens, 1.0f));
 
@@ -202,7 +202,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             float fintens = pinst->fintens;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-            oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
+            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
 
             drawParticle = true;
         }
@@ -216,7 +216,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             float fintens = pinst->fintens * pinst->falpha;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-            oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
+            renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
 
             drawParticle = (fintens > 0.0f);
         }
@@ -234,7 +234,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             float falpha = pinst->falpha;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
 
-            oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
+            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
 
             drawParticle = (falpha > 0.0f);
         }
@@ -317,7 +317,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
 
                 particle_colour = Ego::Math::Colour4f(intens, intens, intens, 1.0f);
 
-                oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
+                renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
 
                 draw_particle = intens > 0.0f;
             }
@@ -340,7 +340,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
 
                 particle_colour = Ego::Math::Colour4f(pinst->fintens, pinst->fintens, pinst->fintens, alpha);
 
-                oglx_texture_t::bind(ParticleHandler::get().getTransparentParticleTexture());
+				renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
 
                 draw_particle = alpha > 0.0f;
             }
@@ -496,7 +496,7 @@ void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset)
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    oglx_texture_t::bind(nullptr);
+    Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
     GL_DEBUG(glPointSize)(5);
 
@@ -996,7 +996,7 @@ void render_prt_bbox(prt_bundle_t *pbdl_prt)
         oct_bb_t loc_bb;
         oct_bb_t::translate(exp_bb, loc_pprt->pos, loc_bb);
 
-        oglx_texture_t::bind(nullptr);
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
         render_oct_bb(&loc_bb, true, true);
     }

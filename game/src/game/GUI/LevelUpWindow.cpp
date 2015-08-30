@@ -34,7 +34,7 @@ public:
 
         // Draw backdrop
         auto &renderer = Ego::Renderer::get();
-        oglx_texture_t::bind(nullptr);
+		renderer.getTextureUnit().setActivated(nullptr);
 
         if(_mouseOver && _hoverFadeEffect < 2.0f) {
             _hoverFadeEffect += 2.0f / GameEngine::GAME_TARGET_FPS;

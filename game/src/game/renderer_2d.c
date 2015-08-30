@@ -355,9 +355,8 @@ void draw_quad_2d(const oglx_texture_t *tex, const ego_frect_t scr_rect, const e
 {
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
     {
-        oglx_texture_t::bind(tex);
-
 		auto& renderer = Ego::Renderer::get();
+		renderer.getTextureUnit().setActivated(tex);
 		renderer.setColour(tint);
 
         if ( use_alpha )

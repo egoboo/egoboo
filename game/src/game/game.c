@@ -719,7 +719,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     bool is_hated;
 
     // Skip non-existing objects
-    if ( !ACTIVE_PCHR( psrc ) ) return false;
+    if (!psrc || psrc->isTerminated()) return false;
 
     const std::shared_ptr<Object> &ptst = _currentModule->getObjectHandler()[iObjectest];
     if(!ptst) {
@@ -806,7 +806,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
 
     line_of_sight_info_t los_info;
 
-    if ( !ACTIVE_PCHR( psrc ) ) return INVALID_CHR_REF;
+    if (!psrc || psrc->isTerminated()) return INVALID_CHR_REF;
 
     std::vector<std::shared_ptr<Object>> searchList;
 
@@ -3578,7 +3578,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
 
     oct_bb_t bump;
 
-    if ( NULL == mesh || !ACTIVE_PCHR( pchr ) ) return 0;
+    if (!mesh || !pchr || pchr->isTerminated()) return 0;
 
     // certain scenery items like doors and such just need to be able to
     // collide with the mesh. They all have 0 == pchr->bump.size

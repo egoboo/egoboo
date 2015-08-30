@@ -462,7 +462,10 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
 //--------------------------------------------------------------------------------------------
 void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t& self)
 {
-    BLANK_STRUCT_PTR(&self);
+	self.resizable = 0;
+	self.borderless = 0;
+	self.use_desktop_size = 0;
+	self.highdpi = 0;
 
     self.full_screen = 1;
     self.opengl      = 1;
@@ -471,7 +474,14 @@ void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t& self)
 //--------------------------------------------------------------------------------------------
 void SDLX_sdl_gl_attrib_t::defaults(SDLX_sdl_gl_attrib_t& self)
 {
-    BLANK_STRUCT_PTR(&self);
+	self.doublebuffer = 0;
+	self.stencil_size = 0;
+	self.accum[0] = 0;
+	self.accum[1] = 0;
+	self.accum[2] = 0;
+	self.accum[3] = 0;
+	self.stereo = 0;
+	self.swap_control = 0;
 
     self.multi_buffers = 1;
     self.multi_samples = 2;

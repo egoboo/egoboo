@@ -161,7 +161,7 @@ egolib_rv CameraSystem::renderAll(std::function<void(std::shared_ptr<Camera>, st
 
 size_t CameraSystem::getCameraIndexByID(const CHR_REF target) const
 {
-    if ( !VALID_CHR_RANGE( target ) )  {
+    if (target == INVALID_CHR_REF)  {
         return 0;
     }
 
@@ -180,7 +180,7 @@ size_t CameraSystem::getCameraIndexByID(const CHR_REF target) const
 
 std::shared_ptr<Camera> CameraSystem::getCameraByChrID(const CHR_REF target) const
 {
-    if ( !VALID_CHR_RANGE( target ) )  {
+    if (target == INVALID_CHR_REF)  {
     	return _mainCamera;
     }
 
@@ -321,7 +321,7 @@ void CameraSystem::autoSetTargets()
     {
         // only look at valid players
         player_t * ppla = PlaStack.get_ptr( cnt );
-        if ( !ppla->valid || !VALID_CHR_RANGE( ppla->index ) ) continue;
+        if ( !ppla->valid || INVALID_CHR_REF == ppla->index ) continue;
 
         // only look at local players
         if ( NULL == ppla->pdevice ) continue;

@@ -39,6 +39,10 @@ enum e_attachment_type
 struct spawn_file_info_t
 {
 public:
+	/**
+	 * @brief
+	 *	Construct this spawn file info with safe values.
+	 */
     spawn_file_info_t();
 
     bool       do_spawn;
@@ -58,16 +62,17 @@ public:
     FACING_T   facing;
     REF_T      attach;
     CHR_REF    parent;
+	/**
+	* @brief
+	*  Assign safe values to all fields.
+	*/
+	static spawn_file_info_t *init(spawn_file_info_t *self);
+	/**
+	* @brief
+	*  Assign safe values to all fields, keep the parent.
+	*/
+	static spawn_file_info_t *reinit(spawn_file_info_t *self);
 };
-/**
- * @brief
- *  Assign safe values to all fields.
- */
-spawn_file_info_t *spawn_file_info_init(spawn_file_info_t *self);
-/**
- * @brief
- *  Assign safe values to all fields, keep the parent.
- */
-spawn_file_info_t *spawn_file_info_reinit(spawn_file_info_t *self);
+
 bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *self);
 

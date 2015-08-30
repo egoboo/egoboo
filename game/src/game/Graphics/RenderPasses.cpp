@@ -375,7 +375,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 			renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceColour);
 
-			oglx_texture_t::bind(_currentModule->getWaterTexture(1));
+			renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1));
 
 			renderer.setColour(Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
 			renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
@@ -543,7 +543,7 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 		// Render high-quality shadows.
 		for (size_t i = 0; i < el.getSize(); ++i) {
 			CHR_REF ichr = el.get(i).ichr;
-			if (!VALID_CHR_RANGE(ichr)) continue;
+			if (INVALID_CHR_REF == ichr) continue;
 			if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
 			doHighQualityShadow(ichr);
 			count++;
@@ -552,7 +552,7 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 		// Render low-quality shadows.
 		for (size_t i = 0; i < el.getSize(); ++i) {
 			CHR_REF ichr = el.get(i).ichr;
-			if (!VALID_CHR_RANGE(ichr)) continue;
+			if (INVALID_CHR_REF == ichr) continue;
 			if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
 			doLowQualityShadow(ichr);
 			count++;
@@ -632,7 +632,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	}
 
 	// Choose texture and matrix
-	oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
+	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	{
@@ -714,7 +714,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	float y = pchr->inst.matrix(1, 3);
 
 	// Choose texture and matrix
-	oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
+	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	// GOOD SHADOW
@@ -906,7 +906,7 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 			renderer.setAlphaTestEnabled(true);
 			renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
-			if (INVALID_PRT_REF == el.get(i).iprt && VALID_CHR_RANGE(el.get(i).ichr))
+			if (INVALID_PRT_REF == el.get(i).iprt && INVALID_CHR_REF != el.get(i).ichr)
 			{
 				render_one_mad_solid(camera, el.get(i).ichr);
 			}

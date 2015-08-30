@@ -355,9 +355,8 @@ public:
          */
         virtual ~oglx_texture_t();
 
-        static void bind(const oglx_texture_t *texture);
-
     public:
+
         GLuint getTextureID() const;
 
     };

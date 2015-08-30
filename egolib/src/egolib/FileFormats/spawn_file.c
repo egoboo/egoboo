@@ -51,19 +51,17 @@ spawn_file_info_t::spawn_file_info_t() :
     //ctor
 }
 
-spawn_file_info_t *spawn_file_info_init(spawn_file_info_t *self)
+spawn_file_info_t *spawn_file_info_t::init(spawn_file_info_t *self)
 {
     if (!self)
     {
         return nullptr;
     }
-    BLANK_STRUCT_PTR(self);
-    self->attach = ATTACH_NONE;
-    self->team = Team::TEAM_NULL;
+	*self = spawn_file_info_t();
     return self;
 }
 
-spawn_file_info_t *spawn_file_info_reinit(spawn_file_info_t *self)
+spawn_file_info_t *spawn_file_info_t::reinit(spawn_file_info_t *self)
 {
     if (!self)
     {
@@ -72,7 +70,7 @@ spawn_file_info_t *spawn_file_info_reinit(spawn_file_info_t *self)
     // Save the parent.
     CHR_REF parent = self->parent;
     // Reset the data.
-    spawn_file_info_init(self);
+    init(self);
     // Restore the parent.
     self->parent = parent;
     return self;
@@ -84,7 +82,7 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
     {
         return false;
     }
-    spawn_file_info_reinit(info);
+    spawn_file_info_t::reinit(info);
 
     // Until we hit something else than newlines, whitespaces or comments.
     while (true)

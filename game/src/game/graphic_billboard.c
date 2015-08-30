@@ -197,9 +197,7 @@ bool BillboardSystem::render_one(Billboard& bb, float scale, const Vector3f& cam
         return false;
     }
 
-    auto ptex = bb._texture.get();
-    oglx_texture_t::bind(ptex);
-
+	auto ptex = bb._texture.get();
 
     float s = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
     float t = (float)ptex->getSourceHeight() / (float)ptex->getHeight();
@@ -250,6 +248,7 @@ bool BillboardSystem::render_one(Billboard& bb, float scale, const Vector3f& cam
     {
         auto& renderer = Ego::Renderer::get();
         renderer.setColour(bb._tint);
+		renderer.getTextureUnit().setActivated(ptex);
 
         // Go on and draw it
 		renderer.render(_vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);

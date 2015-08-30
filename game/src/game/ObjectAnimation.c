@@ -15,7 +15,7 @@ egolib_rv chr_set_action( Object * pchr, int action, bool action_ready, bool ove
 {
     egolib_rv retval;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if (!pchr || pchr->isTerminated()) return rv_error;
 
     retval = (egolib_rv)chr_instance_t::set_action(pchr->inst, action, action_ready, override_action);
     if ( rv_success != retval ) return retval;
@@ -34,7 +34,7 @@ egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool ove
 {
     egolib_rv retval;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if (!pchr || pchr->isTerminated()) return rv_error;
 
     retval = ( egolib_rv )chr_instance_t::start_anim(pchr->inst, action, action_ready, override_action );
     if ( rv_success != retval ) return retval;
@@ -53,7 +53,7 @@ egolib_rv chr_set_anim( Object * pchr, int action, int frame, bool action_ready,
 {
     egolib_rv retval;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if (!pchr || pchr->isTerminated()) return rv_error;
 
     retval = ( egolib_rv )chr_instance_t::set_anim(pchr->inst, action, frame, action_ready, override_action);
     if ( rv_success != retval ) return retval;
@@ -72,7 +72,7 @@ egolib_rv chr_increment_action( Object * pchr )
 {
     egolib_rv retval;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if (!pchr || pchr->isTerminated() ) return rv_error;
 
     retval = (egolib_rv)chr_instance_t::increment_action(pchr->inst);
     if ( rv_success != retval ) return retval;
@@ -93,7 +93,7 @@ egolib_rv chr_increment_frame( Object * pchr )
     int mount_action;
     CHR_REF imount;
     
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if (!pchr || pchr->isTerminated() ) return rv_error;
     imount = pchr->attachedto;
 
     if ( !_currentModule->getObjectHandler().exists( imount ) )
@@ -133,7 +133,7 @@ egolib_rv chr_increment_frame( Object * pchr )
 //--------------------------------------------------------------------------------------------
 egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
 {
-    if (!ACTIVE_PCHR(pchr)) {
+    if (!pchr || pchr->isTerminated()) {
         return rv_error;
     }
 
@@ -407,7 +407,7 @@ egolib_rv chr_invalidate_child_instances( Object * pchr )
 {
     int cnt;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if (!pchr || pchr->isTerminated()) return rv_error;
 
     // invalidate vlst_cache of everything in this character's holdingwhich array
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )

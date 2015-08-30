@@ -604,7 +604,7 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
 
     // don't draw if there is no texture
     if ( NULL == tx_tile ) return;
-    oglx_texture_t::bind( tx_tile );
+	Ego::Renderer::get().getTextureUnit().setActivated(tx_tile);
 
     min_s = dst;
     min_t = dst;
@@ -834,7 +834,7 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
     }
 
     // Draw the image
-    oglx_texture_t::bind( img );
+	Ego::Renderer::get().getTextureUnit().setActivated(img);
 
     Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -884,7 +884,7 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
     }
 
     // Draw the image
-    oglx_texture_t::bind( img );
+	Ego::Renderer::get().getTextureUnit().setActivated(img);
 
     Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 

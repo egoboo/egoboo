@@ -45,7 +45,7 @@ void Button::draw()
     auto &renderer = Ego::Renderer::get();
 
     // Draw the button
-    oglx_texture_t::bind(nullptr);
+	renderer.getTextureUnit().setActivated(nullptr);
 
     // convert the virtual coordinates to screen coordinates
     //ui_virtual_to_screen( vx, vy, &x1, &y1 );
