@@ -16,27 +16,28 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-#pragma once
 
-/// @file   egolib/Core/Exception.hpp
+/// @file   IdLib/Exception.hpp
 /// @brief  Root of the exception hierarchy.
 /// @author Michael Heilmann
 
-#include "egolib/platform.h"
+#pragma once
 
-namespace Ego {
-namespace Core {
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
+
+#include "IdLib/Platform.hpp"
+
+namespace Id {
 
 using namespace std;
 
 /**
  * @brief
- *  The base class of all IdLib (subsequently EgoLib, Cartman and Egoboo) exceptions.
- * @author
- *  Michael Heilmann
+ *  The base class of all Id exceptions.
  */
-class Exception
-{
+class Exception {
 
 private:
 
@@ -68,28 +69,28 @@ protected:
         _file((char *)(file)), _line(line)
     {}
 
-	/**
-	 * @brief
-	 *  Construct this exception using the values of another exception.
-	 * @param other
-	 *  the other exception
-	 * @remark
-	 *  Intentionally protected.
-	 */
+    /**
+     * @brief
+     *  Construct this exception using the values of another exception.
+     * @param other
+     *  the other exception
+     * @remark
+     *  Intentionally protected.
+     */
     Exception(const Exception& other) throw() :
         _file(other._file), _line(other._line)
     {}
 
-	/**
-	 * @brief
-	 *  Assign this exception the values of another exception
-	 * @param other
-	 *  the other exception
-	 * @return
-	 *  this exception
-	 * @remark
-	 *  Intentionally protected
-	 */
+    /**
+     * @brief
+     *  Assign this exception the values of another exception
+     * @param other
+     *  the other exception
+     * @return
+     *  this exception
+     * @remark
+     *  Intentionally protected
+     */
     Exception& operator=(const Exception& other) throw()
     {
         _file = other._file;
@@ -114,8 +115,7 @@ public:
      * @return
      *  the C++ source file associated with this exception
      */
-    const char *getFile() const throw()
-    {
+    const char *getFile() const throw() {
         return _file;
     }
 
@@ -125,8 +125,7 @@ public:
      * @return
      *  the line within the C++ source file associated with this exception
      */
-    int getLine() const throw()
-    {
+    int getLine() const throw() {
         return _line;
     }
 
@@ -139,8 +138,4 @@ public:
     virtual operator string() const = 0;
 };
 
-} // namespace Core
-} // namespace Ego
-
-
-
+} // namespace Id

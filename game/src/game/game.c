@@ -411,7 +411,7 @@ void activate_alliance_file_vfs()
         vfs_read_string_lit(ctxt, buffer, 1024);
         if (strlen(buffer) < 1)
         {
-            throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
                                                 "empty string literal");
         }
         teama = (buffer[0] - 'A') % Team::TEAM_MAX;
@@ -419,7 +419,7 @@ void activate_alliance_file_vfs()
         vfs_read_string_lit(ctxt, buffer, 1024);
         if (strlen(buffer) < 1)
         {
-            throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
                                                 "empty string literal");
         }
         teamb = (buffer[0] - 'A') % Team::TEAM_MAX;

@@ -29,10 +29,6 @@
     #error iOS or iOS simulator are not yet supported
 #endif
 
-/// Define __EGO_CURRENT_FILE__, __EGO_CURRENT_LINE__ and __EGO_CURRENT_FUNCTION__.
-/// Those constants will either be properly defined or not at all.
-#include "egolib/Platform/CurrentFunction.inline"
-
 //--------------------------------------------------------------------------------------------
 // SDL.
 #include <SDL.h>

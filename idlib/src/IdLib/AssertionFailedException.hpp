@@ -17,24 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Core/AssertionFailed.hpp
+/// @file   IdLib/AssertionFailedException.hpp
 /// @brief  Definition of an exception indicating that an assertion failed.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Core/Exception.hpp"
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
-namespace Ego {
-namespace Core {
+#include "IdLib/Exception.hpp"
+
+namespace Id {
 
 /**
  * @brief
  *  Exception for when an assertion failed.
- * @author
- *  Michael Heilmann
  */
-class AssertionFailed : public Exception {
+class AssertionFailedException : public Exception {
 
 private:
         
@@ -48,7 +49,7 @@ public:
 
     /**
      * @brief
-     *  Construct this assertion failed (exception).
+     *  Construct this exception.
      * @param file
      *  the C++ source file associated with this exception
      * @param line
@@ -56,7 +57,7 @@ public:
      * @param assertion
      *  a description of the assertion
      */
-    AssertionFailed(const char *file, int line, const string& assertion) :
+	AssertionFailedException(const char *file, int line, const string& assertion) :
         Exception(file, line), _assertion(assertion)
     {}
     
@@ -66,7 +67,7 @@ public:
      * @param other
      *  the other exception
      */
-    AssertionFailed(const AssertionFailed& other) :
+	AssertionFailedException(const AssertionFailedException& other) :
         Exception(other), _assertion(other._assertion)
     {}
  
@@ -78,7 +79,7 @@ public:
      * @return
      *  this exception
      */
-    AssertionFailed& operator=(const AssertionFailed& other)
+	AssertionFailedException& operator=(const AssertionFailedException& other)
     {
         Exception::operator=(other);
         _assertion = other._assertion;
@@ -93,13 +94,11 @@ public:
      * @return
      *  a description of the assertion
      */
-    const string& getAssertion() const
-    {
+    const string& getAssertion() const {
         return _assertion;
     }
 
-    virtual operator string() const
-    {
+    virtual operator string() const {
         ostringstream buffer;
         buffer << "assertion `" << _assertion << "` failed";
         buffer << " (raised in file " << getFile() << ", line " << getLine() << ")";
@@ -108,5 +107,4 @@ public:
 
 };
 
-} // namespace Core
-} // namespace Ego
+} // namespace Id

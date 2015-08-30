@@ -18,7 +18,6 @@
 //********************************************************************************************
 
 #include "egolib/Time/LocalTime.hpp"
-#include "egolib/Core/EnvironmentError.hpp"
 
 /// @file   egolib/Time/LocalTime.hpp
 /// @brief  Local (aka Calendar) Time functionality
@@ -35,11 +34,11 @@ LocalTime::LocalTimeType LocalTime::convert(const std::time_t& source) {
 	LocalTimeType target;
 #if defined(_MSC_VER)
 	if (0 != localtime_s(&target, &source)) {
-		throw Ego::Core::EnvironmentError(__FILE__, __LINE__, "Ego::Time", "localtime_s failed");
+		throw Id::EnvironmentErrorException(__FILE__, __LINE__, "Ego::Time", "localtime_s failed");
 	}
 #else
 	if (NULL == localtime_r(&source, &target)) {
-		throw Ego::Core::EnvironmentError(__FILE__, __LINE__, "Ego::Time", "localtime_r failed");
+		throw Id::EnvironmentErrorException(__FILE__, __LINE__, "Ego::Time", "localtime_r failed");
 	}
 #endif
 	return target;

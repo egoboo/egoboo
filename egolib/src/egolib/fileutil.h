@@ -37,7 +37,6 @@
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/Script/EnumDescriptor.hpp"
-#include "egolib/Script/Location.hpp"
 #include "egolib/Script/AbstractReader.hpp"
 #include "egolib/Script/Errors.hpp"
 
@@ -74,7 +73,7 @@ public:
      *  Convert the contents of the buffer to a float value.
      * @return
      *  the float value
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      */
     float toReal() const;
@@ -94,7 +93,7 @@ public:
      *  Convert the contents of the buffer to an unsigned int value.
      * @return
      *  the unsigned int value
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      */
     unsigned int toNatural() const;
@@ -153,7 +152,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber), "invalid enum");
+            throw Id::LexicalErrorException(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber), "invalid enum");
         }
         return it->second;
     }
@@ -203,7 +202,7 @@ public:
      */
     std::string readToEndOfLine();
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A single line comment in this revision are the strings
@@ -214,7 +213,7 @@ public:
     std::string readSingleLineComment();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A printable character in this revision are the strings
@@ -225,7 +224,7 @@ public:
     char readPrintable();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A character literal in this revision are the strings
@@ -248,7 +247,7 @@ public:
     std::string readStringLit();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  An integer literal in this revision are the strings
@@ -259,7 +258,7 @@ public:
     int readInt();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A natural literal in this revision are the strings
@@ -270,7 +269,7 @@ public:
     unsigned int readNat();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A real literal in this revision are the strings
@@ -283,7 +282,7 @@ public:
     float readReal();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *   A boolean literal in this revision are the strings
@@ -294,7 +293,7 @@ public:
     bool readBool();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *   A name in this revision are the strings
@@ -306,7 +305,7 @@ public:
     std::string readName();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  A reference in this revision are the strings
@@ -318,7 +317,7 @@ public:
     std::string readReference();
 
     /**
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @remark
      *  An IDSZ literal in this revision is a string
@@ -342,7 +341,7 @@ public:
      *  If the specified delimiter is reached, skip it as well.
      * @param option
      *  if @a true and the specified delimiter was not encountered, a lexical error is raised
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @return
      *  @a true if the specifed delimiter is was skipped, @a false otherwise
@@ -355,7 +354,7 @@ public:
      *  If a colon is reached, skip it as well.
      * @param option
      *  if @a true and a colon was not encountered, a lexical error is raised
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if a lexical error occurs
      * @return
      *  @a true if a colon was skipped, @a false otherwise

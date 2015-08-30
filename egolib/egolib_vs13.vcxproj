@@ -365,7 +365,6 @@
     <ClCompile Include="src\egolib\Audio\AudioSystem.cpp" />
     <ClCompile Include="src\egolib\Script\Buffer.cpp" />
     <ClCompile Include="src\egolib\Script\Errors.cpp" />
-    <ClCompile Include="src\egolib\Script\Location.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileReader.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileWriter.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfileReader.cpp" />
@@ -455,9 +454,6 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\egolib\Core\AssertionFailedException.hpp" />
-    <ClInclude Include="src\egolib\Core\LockFailedException.hpp" />
-    <ClInclude Include="src\egolib\Core\UnhandledSwitchCaseException.hpp" />
     <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp" />
     <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />
@@ -503,8 +499,6 @@
     <ClInclude Include="src\egolib\Renderer\Texture.hpp" />
     <ClInclude Include="src\egolib\Math\TemplateUtilities.hpp" />
     <ClInclude Include="src\egolib\Logic\Action.hpp" />
-    <ClInclude Include="src\egolib\Core\EnvironmentError.hpp" />
-    <ClInclude Include="src\egolib\Core\Exception.hpp" />
     <ClInclude Include="src\egolib\Core\System.hpp" />
     <ClInclude Include="src\egolib\Renderer\PrimitiveType.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexBuffer.hpp" />
@@ -521,13 +515,9 @@
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL_image.hpp" />
     <ClInclude Include="src\egolib\Image\ImageManager.hpp" />
     <ClInclude Include="src\egolib\Network\_Include.hpp" />
-    <ClInclude Include="src\egolib\Script\AbstractLexicalError.hpp" />
     <ClInclude Include="src\egolib\Script\AbstractReader.hpp" />
-    <ClInclude Include="src\egolib\Script\AbstractSyntacticalError.hpp" />
     <ClInclude Include="src\egolib\Script\Conversion.hpp" />
     <ClInclude Include="src\egolib\Script\EnumDescriptor.hpp" />
-    <ClInclude Include="src\egolib\Script\LexicalError.hpp" />
-    <ClInclude Include="src\egolib\Script\SyntacticalError.hpp" />
     <ClInclude Include="src\egolib\Script\QualifiedName.hpp" />
     <ClInclude Include="src\egolib\Script\TextInputFile.hpp" />
     <ClInclude Include="src\egolib\Script\TextFile.hpp" />
@@ -572,7 +562,6 @@
     <ClInclude Include="src\egolib\Audio\AudioSystem.hpp" />
     <ClInclude Include="src\egolib\Script\Buffer.hpp" />
     <ClInclude Include="src\egolib\Script\Errors.hpp" />
-    <ClInclude Include="src\egolib\Script\Location.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfileReader.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfileWriter.hpp" />
     <ClInclude Include="src\egolib\Profiles\ParticleProfileReader.hpp" />

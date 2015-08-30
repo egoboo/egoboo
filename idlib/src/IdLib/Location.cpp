@@ -17,38 +17,40 @@
 //*
 //********************************************************************************************
 
-/// @file   IdLib/NonCopyable.hpp
-/// @brief  Make classes non-copyable.
+/// @file   IdLib/Location.cpp
+/// @brief  Definition of a location in an Egoboo DSL file
 /// @author Michael Heilmann
 
-#pragma once
-
-#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
-#error(do not include directly, include `IdLib/IdLib.hpp` instead)
-#endif
+#define IDLIB_PRIVATE 1
+#include "IdLib/Location.hpp"
+#undef IDLIB_PRIVATE
 
 namespace Id {
-/**
- * @brief
- *  Inherit from this class to make the inheriting class and its descendant class non-copyable.
- *  Example usage
- *  @code
- *  class Foo : Bar, NonCopyable
- *  { ... }
- *  @endcode
- * @see http://en.cppreference.com/w/cpp/language/as_operator
- * @see http://en.cppreference.com/w/cpp/language/copy_constructor
- * @author
- *  Michael Heilmann
- */
-class NonCopyable
-{
 
-protected:
-    NonCopyable() { }
-    ~NonCopyable() { }
-    NonCopyable(const NonCopyable&) = delete;
-    NonCopyable& operator=(const NonCopyable&) = delete;
-};
+Location::Location(const std::string& loadName, const size_t lineNumber) :
+    _loadName(loadName), _lineNumber(lineNumber) {
+}
+
+Location::Location(const Location& other) :
+    _loadName(other._loadName), _lineNumber(other._lineNumber) {
+}
+
+bool Location::operator==(const Location& other) {
+    return _loadName == other._loadName
+        && _lineNumber == other._lineNumber;
+}
+
+bool Location::operator!=(const Location& other) {
+    return _loadName != other._loadName
+        || _lineNumber != other._lineNumber;
+}
+
+const std::string& Location::getLoadName() const {
+    return _loadName;
+}
+
+size_t Location::getLineNumber() const {
+    return _lineNumber;
+}
 
 } // namespace Id

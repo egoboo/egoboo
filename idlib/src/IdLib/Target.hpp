@@ -20,6 +20,7 @@
 /// @file   IdLib/Target.hpp
 /// @brief  Target platform detection.
 /// @author Michael Heilmann
+
 /**
  * @detail
  *  This file makes attempts to detect the target platform based on common predefined
@@ -56,7 +57,12 @@
  * @todo
  *  Add more detection mechanisms.
  */
+
 #pragma once
+
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 // "defining any of those constants to a value not equal to @a 1, will result in a compile-time error"

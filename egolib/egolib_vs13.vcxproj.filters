@@ -234,9 +234,6 @@
     <ClCompile Include="src\egolib\Script\Buffer.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Script\Location.cpp">
-      <Filter>Source Files\Script</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Audio\AudioSystem.cpp">
       <Filter>Source Files\Audio</Filter>
     </ClCompile>
@@ -587,9 +584,6 @@
     <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Script\Location.hpp">
-      <Filter>Header Files\Script</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Script\Buffer.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
@@ -731,18 +725,6 @@
     <ClInclude Include="src\egolib\Script\QualifiedName.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Script\AbstractLexicalError.hpp">
-      <Filter>Header Files\Script</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Script\AbstractSyntacticalError.hpp">
-      <Filter>Header Files\Script</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Script\LexicalError.hpp">
-      <Filter>Header Files\Script</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Script\SyntacticalError.hpp">
-      <Filter>Header Files\Script</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Script\EnumDescriptor.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
@@ -792,12 +774,6 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Core\System.hpp">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Core\Exception.hpp">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Core\EnvironmentError.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Logic\Action.hpp">
@@ -934,15 +910,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\Camera.hpp">
       <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Core\UnhandledSwitchCaseException.hpp">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Core\LockFailedException.hpp">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Core\AssertionFailedException.hpp">
-      <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
       <Filter>Header Files\Renderer</Filter>

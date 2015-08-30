@@ -18,7 +18,6 @@
 //********************************************************************************************
 
 #include "egolib/Core/System.hpp"
-#include "egolib/Core/EnvironmentError.hpp"
 #include "egolib/egoboo_setup.h"
 
 namespace Ego
@@ -32,7 +31,7 @@ TimerService::TimerService()
     if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0)
     {
         log_message(" failure!\n");
-        EnvironmentError error(__FILE__, __LINE__, "SDL timer", SDL_GetError());
+        Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL timer", SDL_GetError());
         log_error("%s\n", ((std::string)error).c_str());
         throw error;
     }
@@ -59,7 +58,7 @@ EventService::EventService()
     if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0)
     {
         log_message(" failure!\n");
-        EnvironmentError error(__FILE__, __LINE__, "SDL events", SDL_GetError());
+        Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL events", SDL_GetError());
         log_error("%s\n", ((std::string)error).c_str());
         throw error;
     }
@@ -80,7 +79,7 @@ VideoService::VideoService()
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
 	{
 		log_message(" failure!\n");
-		EnvironmentError error(__FILE__, __LINE__, "SDL Video", SDL_GetError());
+		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Video", SDL_GetError());
 		log_error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}
@@ -101,7 +100,7 @@ AudioService::AudioService()
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
 	{
 		log_message(" failure!\n");
-		EnvironmentError error(__FILE__, __LINE__, "SDL Audio", SDL_GetError());
+		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Audio", SDL_GetError());
 		log_error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}
@@ -122,7 +121,7 @@ InputService::InputService()
 	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
 	{
 		log_message(" failure!\n");
-		EnvironmentError error(__FILE__, __LINE__, "SDL Joystick/GameController/Haptic", SDL_GetError());
+		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Joystick/GameController/Haptic", SDL_GetError());
 		log_error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}

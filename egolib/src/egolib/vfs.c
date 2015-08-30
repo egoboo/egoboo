@@ -57,11 +57,11 @@ typedef struct s_vfs_path_data vfs_path_data_t;
 #if defined(__EGO_CURRENT_FUNCTION__)
     #define BAIL_IF_NOT_INIT() \
         if(!_vfs_initialized) \
-            log_error("egolib VFS function called while the system was not initialized -- function `%s`\n", __EGO_CURRENT_FUNCTION__);
+            log_error("egolib VFS function called while the system was not initialized -- function `%s`\n", __ID_CURRENT_FUNCTION__);
 #else
     #define BAIL_IF_NOT_INIT() \
         if(!_vfs_initialized) \
-            log_error("egolib VFS function called while the system was not initialized -- file `%s`, line %d\n", __EGO_CURRENT_FILE__, __EGO_CURRENT_LINE__ );
+            log_error("egolib VFS function called while the system was not initialized -- file `%s`, line %d\n", __ID_CURRENT_FILE__, __ID_CURRENT_LINE__ );
 #endif
 
 //--------------------------------------------------------------------------------------------

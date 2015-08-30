@@ -22,12 +22,10 @@
 
 #pragma once
 
-#include "egolib/Core/AssertionFailedException.hpp"
+#include "egolib/platform.h"
 
-namespace Ego
-{
-    namespace Debug
-    {
+namespace Ego {
+namespace Debug {
 #ifdef _DEBUG
         /**
             * @remark
@@ -65,7 +63,7 @@ namespace Ego
 #if defined(_DEBUG)
     #define EGOBOO_ASSERT(assertion, ...) \
 	    if(!(assertion)) { \
-		    throw Ego::Core::AssertionFailed(__FILE__, __LINE__, #assertion); \
+		    throw Id::AssertionFailedException(__FILE__, __LINE__, #assertion); \
         }
 #else
     #define EGOBOO_ASSERT(assertion) /* Empty statement. */;

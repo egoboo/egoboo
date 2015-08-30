@@ -233,13 +233,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\IdLib\Location.cpp" />
     <ClCompile Include="src\IdLib\IdLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\IdLib\AbstractLexicalErrorException.hpp" />
+    <ClInclude Include="src\IdLib\AbstractSyntacticalErrorException.hpp" />
+    <ClInclude Include="src\IdLib\AssertionFailedException.hpp" />
+    <ClInclude Include="src\IdLib\EnvironmentErrorException.hpp" />
+    <ClInclude Include="src\IdLib\Exception.hpp" />
+    <ClInclude Include="src\IdLib\LexicalErrorException.hpp" />
+    <ClInclude Include="src\IdLib\Location.hpp" />
+    <ClInclude Include="src\IdLib\LockFailedException.hpp" />
+    <ClInclude Include="src\IdLib\SyntacticalErrorException.hpp" />
+    <ClInclude Include="src\IdLib\UnhandledSwitchCaseException.hpp" />
     <ClInclude Include="src\IdLib\NonCopyable.hpp" />
     <ClInclude Include="src\IdLib\Platform.hpp" />
     <ClInclude Include="src\IdLib\Target.hpp" />
     <ClInclude Include="src\IdLib\IdLib.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\IdLib\CurrentFunction.inline" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -17,23 +17,25 @@
 //*
 //********************************************************************************************
 
+/// @file   IdLib/Location.hpp
+/// @brief  Declaration of a location in an Egoboo DSL file
+/// @author Michael Heilmann
+
 #pragma once
 
-#include "egolib/platform.h"
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
-namespace Ego
-{
-namespace Script
-{
+#include "IdLib/Platform.hpp"
+
+namespace Id {
 
 /**
  * @brief
- *  A lociation (w.r.t. to Egoboo's languages files) is identified by the load name of a file and a line number with that file.
- * @author
- *  Michael Heilmann
+ *  A location is identified by the load name of the Egoboo DSL file and a line number within that file.
  */
-class Location
-{
+class Location {
 
 private:
 
@@ -109,5 +111,4 @@ public:
 
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Id

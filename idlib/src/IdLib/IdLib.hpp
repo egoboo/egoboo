@@ -25,6 +25,28 @@
 
 #pragma once
 
+#define IDLIB_PRIVATE 1
 #include "IdLib/Target.hpp"
 #include "IdLib/Platform.hpp"
 #include "IdLib/NonCopyable.hpp"
+
+// Exceptions.
+#include "IdLib/Exception.hpp"
+#include "IdLib/EnvironmentErrorException.hpp"
+#include "IdLib/AssertionFailedException.hpp"
+#include "IdLib/UnhandledSwitchCaseException.hpp"
+
+// DSL utilities.
+#include "IdLib/Location.hpp"
+
+// DSL exceptions.
+#include "IdLib/AbstractLexicalErrorException.hpp"
+#include "IdLib/LexicalErrorException.hpp"
+#include "IdLib/AbstractSyntacticalErrorException.hpp"
+#include "IdLib/SyntacticalErrorException.hpp"
+
+/// Define __ID_CURRENT_FILE__, __ID_CURRENT_LINE__ and __ID_CURRENT_FUNCTION__.
+/// Those constants will either be properly defined or not at all.
+#include "IdLib/CurrentFunction.inline"
+
+#undef IDLIB_PRIVATE
