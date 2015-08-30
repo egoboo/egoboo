@@ -80,10 +80,6 @@ public:
     bool int_max;
     float depth_max;
 
-    // platform interactions
-    //bool int_plat;
-    //float plat_lerp;
-
     bool is_impact;
     bool is_pressure;
     bool is_collision;
@@ -97,8 +93,6 @@ public:
     float block_factor;
 
     // collision reaction
-    //Vector3f vimpulse;                      ///< the velocity impulse
-    //Vector3f pimpulse;                      ///< the position impulse
     bool terminate_particle;
     bool prt_bumps_chr;
     bool prt_damages_chr;
@@ -107,9 +101,7 @@ public:
 };
 
 static bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata);
-//static bool do_chr_prt_collision_recoil(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_damage(chr_prt_collision_data_t * pdata);
-//static bool do_chr_prt_collision_impulse(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_bump(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_handle_bump(chr_prt_collision_data_t * pdata);
 
@@ -140,8 +132,6 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
     vdiff_perp(),
     block_factor(0.0f),
 
-    //vimpulse(),                      ///< the velocity impulse
-    //pimpulse(),                      ///< the position impulse
     terminate_particle(false),
     prt_bumps_chr(false),
     prt_damages_chr(false)
@@ -165,16 +155,11 @@ static bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNode
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_chr_platform_physics( Object * pitem, Object * pplat );
-//static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, Vector3f& nrm, Vector3f& vdiff );
 static bool do_chr_chr_collision( const CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
-
 static bool do_chr_prt_collision( const CoNode_t * d );
-
-//static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_data_t * pdata );
-//static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, Vector3f& nrm, float& depth);
 
 static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform);
 static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
@@ -555,7 +540,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
         oct_bb_t   tmp_oct;
         phys_expand_prt_bb(particle.get(), 0.0f, 1.0f, tmp_oct);
 
-        // convert the oct_bb_t to a correct BSP_aabb_t
+        // convert the oct_bb_t to a correct AABB2f
 		AABB2f aabb2d = AABB2f(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         // find all collisions with characters
@@ -1989,155 +1974,61 @@ bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_dat
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
-{
-    /// @author BB
-    /// @details handle the particle interaction with a platform it is not attached "on".
-    /// @note gravity is not handled here
-
-    bool plat_collision = false;
-    bool z_collide, was_z_collide;
-
-    if ( NULL == pdata ) return false;
-
-    // is the platform a platform?
-    if ( !pdata->pchr->platform ) return false;
-
-    // can the particle interact with it?
-    if ( _currentModule->getObjectHandler().exists( pdata->pprt->attachedto_ref ) ) return false;
-
-    // this is handled elsewhere
-    if ( GET_INDEX_PCHR( pdata->pchr ) == pdata->pprt->onwhichplatform_ref ) return false;
-
-    // Test to see whether the particle is in the right position to interact with the platform.
-    // You have to be closer to a platform to interact with it then for a general object,
-    // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1(pdata->pchr->chr_max_cv, pdata->pchr->getPosition(), pdata->pprt->bump_padded, pdata->pprt->getPosition(), true );
-
-    if ( !plat_collision ) return false;
-
-    // the only way to get to this point is if the two objects don't collide
-    // but they are within the PLATTOLERANCE of each other in the z direction
-    // it is a valid platform. now figure out the physics
-
-    // are they colliding for the first time?
-    z_collide     = TO_C_BOOL(( pdata->pprt->pos[kZ] < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] ) && ( pdata->pprt->pos[kZ] > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._mins[OCT_Z] ) );
-    was_z_collide = TO_C_BOOL(( pdata->pprt->pos[kZ] - pdata->pprt->vel[kZ] < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] - pdata->pchr->vel[kZ] ) && ( pdata->pprt->pos[kZ] - pdata->pprt->vel[kZ]  > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._mins[OCT_Z] ) );
-
-    if ( z_collide && !was_z_collide )
-    {
-        // Particle is falling onto the platform
-        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] - pdata->pprt->pos[kZ], kZ );
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->getPosZ() - pdata->pprt->vel[kZ] ) *( 1.0f + pdata->ppip->dampen ), kZ );
-
-        // This should prevent raindrops from stacking up on the top of trees and other
-        // objects
-        if ( pdata->ppip->end_ground && pdata->pchr->platform )
-        {
-            pdata->terminate_particle = true;
-        }
-
-        plat_collision = true;
-    }
-    else if ( z_collide && was_z_collide )
-    {
-        // colliding this time and last time. particle is *embedded* in the platform
-        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] - pdata->pprt->pos[kZ], kZ );
-
-        if ( pdata->pprt->vel[kZ] - pdata->pchr->vel[kZ] < 0 )
-        {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pchr->vel[kZ] * pdata->ppip->dampen + PLATFORM_STICKINESS * pdata->pchr->vel[kZ] - pdata->pprt->vel[kZ], kZ );
-        }
-        else
-        {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel[kZ] *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel[kZ] * PLATFORM_STICKINESS - pdata->pprt->vel[kZ], kZ );
-        }
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel[kX] *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel[kX] * PLATFORM_STICKINESS - pdata->pprt->vel[kX], kX );
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel[kY] *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel[kY] * PLATFORM_STICKINESS - pdata->pprt->vel[kY], kY );
-
-        plat_collision = true;
-    }
-    else
-    {
-        // not colliding this time or last time. particle is just near the platform
-        float lerp_z = ( pdata->pprt->pos[kZ] - ( pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] ) ) / PLATTOLERANCE;
-        lerp_z = CLIP( lerp_z, -1.0f, +1.0f );
-
-        if ( lerp_z > 0.0f )
-        {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel[kX] - pdata->pprt->vel[kX] ) * PLATFORM_STICKINESS * lerp_z, kX );
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel[kY] - pdata->pprt->vel[kY] ) * PLATFORM_STICKINESS * lerp_z, kY );
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel[kZ] - pdata->pprt->vel[kZ] ) * PLATFORM_STICKINESS * lerp_z, kZ );
-
-            plat_collision = true;
-        }
-    }
-
-    return plat_collision;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
+bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
 {
     bool prt_deflected = false;
 
-    bool chr_is_invictus, chr_can_deflect;
-    bool prt_wants_deflection;
-    FACING_T direction;
-
-    if ( NULL == pdata ) return false;
-
     /// @note ZF@> Simply ignore characters with invictus for now, it causes some strange effects
-    if ( pdata->pchr->invictus ) return true;
+    if ( pdata->pchr->isInvincible() ) return true;
+
+    //Don't deflect money or particles spawned by the Object itself
+    bool prt_wants_deflection = (pdata->pprt->owner_ref != pdata->pchr->getCharacterID()) && !pdata->ppip->bump_money;
+    if(!prt_wants_deflection) {
+        return false;
+    }
 
     // find the "attack direction" of the particle
-    direction = vec_to_facing( pdata->pchr->getPosX() - pdata->pprt->pos[kX], pdata->pchr->getPosY() - pdata->pprt->pos[kY] );
+    FACING_T direction = vec_to_facing(pdata->pchr->getPosX() - pdata->pprt->getPosX(), pdata->pchr->getPosY() - pdata->pprt->getPosY());
     direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
-    chr_is_invictus = pdata->pchr->isInvictusDirection(direction, pdata->ppip->damfx);
-
-    // determine whether the character is magically protected from missile attacks
-    prt_wants_deflection  = TO_C_BOOL( ( pdata->pprt->owner_ref != GET_INDEX_PCHR( pdata->pchr ) ) && !pdata->ppip->bump_money );
-
-    chr_can_deflect = TO_C_BOOL(( 0 != pdata->pchr->damage_timer ) && ( pdata->max_damage > 0 ) );
+    bool chr_is_invictus = pdata->pchr->isInvictusDirection(direction, pdata->ppip->damfx);
 
     // try to deflect the particle
+    bool chr_can_deflect = (0 != pdata->pchr->damage_timer) && (pdata->max_damage > 0);
     prt_deflected = false;
     pdata->mana_paid = false;
-    if ( chr_is_invictus || ( prt_wants_deflection && chr_can_deflect ) )
+    if(chr_can_deflect)
     {
-        // magically deflect the particle or make a ricochet if the character is invictus
-        MissileTreatmentType treatment = chr_is_invictus ? MISSILE_DEFLECT : MISSILE_NORMAL;
-        prt_deflected = true;
+        MissileTreatmentType treatment = MISSILE_NORMAL;
+
+        // make a ricochet if the character is invictus
+        if(chr_is_invictus) {
+            treatment = MISSILE_DEFLECT;
+            prt_deflected = true;
+        }
 
         //Check if the target has any enchantment that can deflect missiles
-        for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
-            if(enchant->isTerminated()) continue;
+        else {
+            for(const std::shared_ptr<Ego::Enchantment> &enchant : pdata->pchr->getActiveEnchants()) {
+                if(enchant->isTerminated()) continue;
 
-            //Does this enchant provide special missile protection?
-            if(enchant->getMissileTreatment() != MISSILE_NORMAL) {
-                if(enchant->getOwner() != nullptr) {
-                    if(enchant->getOwner()->costMana(enchant->getMissileTreatmentCost(), pdata->pprt->owner_ref)) {
-                        pdata->mana_paid = true;
-                        treatment = enchant->getMissileTreatment();
-                        break;
+                //Does this enchant provide special missile protection?
+                if(enchant->getMissileTreatment() != MISSILE_NORMAL) {
+                    if(enchant->getOwner() != nullptr) {
+                        if(enchant->getOwner()->costMana(enchant->getMissileTreatmentCost(), pdata->pprt->owner_ref)) {
+                            pdata->mana_paid = true;
+                            treatment = enchant->getMissileTreatment();
+                            prt_deflected = true;
+                            break;
+                        }
                     }
                 }
             }
         }
 
-        if(treatment == MISSILE_NORMAL) {
-            prt_wants_deflection = false;
-            prt_deflected = false;
-        }
-        else {
-            prt_deflected = pdata->mana_paid;            
-        }
-
-        if ( prt_deflected )
+        //Was it deflected somehow?
+        if (prt_deflected)
         {
             // Treat the missile
             if ( treatment == MISSILE_DEFLECT )
@@ -2157,222 +2048,93 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
                 pdata->pprt->team       = pdata->pchr->team;
                 pdata->pprt->owner_ref  = pdata->pchr->getCharacterID();
             }
+        }
+    }
 
-            // Blocked!
-            if(0 == pdata->pchr->damage_timer) 
+    if (chr_is_invictus || prt_deflected)
+    {
+        bool using_shield = false;
+
+        // If the attack was blocked by a shield, then check if the block caused a knockback
+        if ( chr_is_invictus && ACTION_IS_TYPE(pdata->pchr->inst.action_which, P) )
+        {
+            // Figure out if we are really using a shield or if it is just a invictus frame
+            CHR_REF item = INVALID_CHR_REF;
+
+            // Check right hand for a shield
+            if ( !using_shield )
             {
-                spawn_defense_ping( pdata->pchr, pdata->pprt->owner_ref );
-
-                // Initialize for the billboard
-                const float lifetime = 3;
-                const auto text_color = Ego::Math::Colour4f::white();
-                const auto tint = Ego::Math::Colour4f(getBlockActionColour(),1);                
-                chr_make_text_billboard( pdata->pchr->getCharacterID(), "Blocked!", text_color, tint, lifetime, Billboard::Flags::All );                
-            }
-
-            // If the attack was blocked by a shield, then check if the block caused a knockback
-            if ( chr_is_invictus && ACTION_IS_TYPE( pdata->pchr->inst.action_which, P ) )
-            {
-                bool using_shield;
-                CHR_REF item;
-
-                // Figure out if we are really using a shield or if it is just a invictus frame
-                using_shield = false;
-                item         = INVALID_CHR_REF;
-
-                // Check right hand for a shield
-                if ( !using_shield )
+                item = pdata->pchr->holdingwhich[SLOT_RIGHT];
+                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
                 {
-                    item = pdata->pchr->holdingwhich[SLOT_RIGHT];
-                    if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
-                    {
-                        using_shield = true;
-                    }
-                }
-
-                // Check left hand for a shield
-                if ( !using_shield )
-                {
-                    item = pdata->pchr->holdingwhich[SLOT_LEFT];
-                    if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
-                    {
-                        using_shield = true;
-                    }
-                }
-
-                // Now we have the block rating and know the enemy
-                if ( _currentModule->getObjectHandler().exists( pdata->pprt->owner_ref ) && using_shield )
-                {
-                    int   total_block_rating;
-
-                    Object *pshield   = _currentModule->getObjectHandler().get( item );
-                    Object *pattacker = _currentModule->getObjectHandler().get( pdata->pprt->owner_ref );
-
-                    // use the character block skill plus the base block rating of the shield and adjust for strength
-                    total_block_rating = pshield->getProfile()->getBaseBlockRating();
-
-                    //Defender Perk gives +100% Block Rating
-                    if(pdata->pchr->hasPerk(Ego::Perks::DEFENDER)) {
-                        total_block_rating += 100;
-                    }
-
-                    // -4% per attacker strength
-                    total_block_rating -= 4 * pattacker->getAttribute(Ego::Attribute::MIGHT);
-
-                    // +2% per defender strength
-                    total_block_rating += 2 * pdata->pchr->getAttribute(Ego::Attribute::MIGHT);
-
-                    // Now determine the result of the block
-                    if ( Random::getPercent() <= total_block_rating )
-                    {
-                        // Defender won, the block holds
-                        // Add a small stun to the attacker = 40/50 (0.8 seconds)
-                        pattacker->reload_timer += 40;
-                    }
-                    else
-                    {
-                        // Attacker broke the block and batters away the shield
-                        // Time to raise shield again = 40/50 (0.8 seconds)
-                        pdata->pchr->reload_timer += 40;
-                        AudioSystem::get().playSound(pdata->pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_SHIELDBLOCK));
-                    }
+                    using_shield = true;
                 }
             }
 
+            // Check left hand for a shield
+            if ( !using_shield )
+            {
+                item = pdata->pchr->holdingwhich[SLOT_LEFT];
+                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
+                {
+                    using_shield = true;
+                }
+            }
+
+            // Now we have the block rating and know the enemy
+            if ( _currentModule->getObjectHandler().exists( pdata->pprt->owner_ref ) && using_shield )
+            {
+                int   total_block_rating;
+
+                Object *pshield   = _currentModule->getObjectHandler().get( item );
+                Object *pattacker = _currentModule->getObjectHandler().get( pdata->pprt->owner_ref );
+
+                // use the character block skill plus the base block rating of the shield and adjust for strength
+                total_block_rating = pshield->getProfile()->getBaseBlockRating();
+
+                //Defender Perk gives +100% Block Rating
+                if(pdata->pchr->hasPerk(Ego::Perks::DEFENDER)) {
+                    total_block_rating += 100;
+                }
+
+                // -4% per attacker strength
+                total_block_rating -= 4 * pattacker->getAttribute(Ego::Attribute::MIGHT);
+
+                // +2% per defender strength
+                total_block_rating += 2 * pdata->pchr->getAttribute(Ego::Attribute::MIGHT);
+
+                // Now determine the result of the block
+                if ( Random::getPercent() <= total_block_rating )
+                {
+                    // Defender won, the block holds
+                    // Add a small stun to the attacker = 40/50 (0.8 seconds)
+                    pattacker->reload_timer += 40;
+                }
+                else
+                {
+                    // Attacker broke the block and batters away the shield
+                    // Time to raise shield again = 40/50 (0.8 seconds)
+                    pdata->pchr->reload_timer += 40;
+                    AudioSystem::get().playSound(pdata->pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_SHIELDBLOCK));
+                }
+            }
+        }
+
+        // Tell the players that the attack was somehow deflected
+        if(0 == pdata->pchr->damage_timer) 
+        {
+            spawn_defense_ping(pdata->pchr, pdata->pprt->owner_ref);
+            if(using_shield) {
+                chr_make_text_billboard(pdata->pchr->getCharacterID(), "Blocked!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
+            }
+            else {
+                chr_make_text_billboard(pdata->pchr->getCharacterID(), "Deflected!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
+            }
         }
     }
 
     return prt_deflected;
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
-{
-    /// @author BB
-    /// @details make the character and particle recoil from the collision
-
-    float chr_mass = 0.0f, prt_mass;
-    float chr_recoil, prt_recoil;
-
-    float attack_factor;
-
-    if ( !pdata->ppip->allowpush ) return false;
-
-    // do the reaction force of the particle on the character
-
-    // determine how much the attack is "felt"
-    attack_factor = 1.0f;
-    if ( DAMAGE_CRUSH == pdata->pprt->damagetype )
-    {
-        // very blunt type of attack, the maximum effect
-        attack_factor = 1.0f;
-    }
-    else if ( DAMAGE_POKE == pdata->pprt->damagetype )
-    {
-        // very focussed type of attack, the minimum effect
-        attack_factor = 0.5f;
-    }
-    else
-    {
-        // all other damage types are in the middle
-        attack_factor = Ego::Math::invSqrtTwo<float>();
-    }
-
-    // get some type of mass info for the particle
-    get_chr_mass( pdata->pchr, &chr_mass );
-    get_prt_mass( pdata->pprt, pdata->pchr, &prt_mass );
-
-    // get recoil factors for the masses
-    get_recoil_factors( chr_mass, prt_mass, &chr_recoil, &prt_recoil );
-
-    // now, we have the particle's impulse and mass
-    // Do the impulse to the object that was hit
-    // If the particle was magically deflected, there is no rebound on the target
-    if ( !pdata->mana_paid )
-    {
-		Vector3f tmp_impulse;
-
-        // calculate the "impulse" to the character
-        tmp_impulse = pdata->vimpulse * -(chr_recoil * attack_factor * pdata->block_factor);
-        phys_data_sum_avel(&(pdata->pchr->phys), tmp_impulse);
-
-        tmp_impulse = pdata->pimpulse * -(chr_recoil * attack_factor * pdata->block_factor);
-        phys_data_sum_acoll(&(pdata->pchr->phys), tmp_impulse);
-    }
-
-    // if the particle is attached to a weapon, the particle can force the
-    // weapon (actually, the weapon's holder) to rebound.
-    if ( _currentModule->getObjectHandler().exists( pdata->pprt->attachedto_ref ) )
-    {
-        // get the attached mass
-        Object *pattached = _currentModule->getObjectHandler().get( pdata->pprt->attachedto_ref );
-
-        // assume the worst
-        Object *pholder = NULL;
-
-        // who is holding the weapon?
-        CHR_REF iholder = chr_get_lowest_attachment(pdata->pprt->attachedto_ref, false);
-        if ( _currentModule->getObjectHandler().exists( iholder ) )
-        {
-            pholder = _currentModule->getObjectHandler().get( iholder );
-        }
-        else
-        {
-            iholder = chr_get_lowest_attachment( pdata->pprt->owner_ref, false );
-            if ( _currentModule->getObjectHandler().exists( iholder ) )
-            {
-                pholder = _currentModule->getObjectHandler().get( iholder );
-            }
-        }
-
-        {
-            float holder_mass = 0.0f;
-            if (( NULL != pholder ) && ( iholder != pdata->pprt->attachedto_ref ) )
-            {
-                get_chr_mass( pholder, &holder_mass );
-            }
-
-            float attached_mass = 0.0f;
-            get_chr_mass( pattached, &attached_mass );
-
-            float total_mass = std::abs( holder_mass ) + std::abs( attached_mass );
-            if ( holder_mass < 0.0f ||  attached_mass < 0.0f )
-            {
-                total_mass = -total_mass;
-            }
-
-            float tmp_holder_recoil, tmp_prt_recoil;
-            get_recoil_factors( total_mass, prt_mass, &tmp_holder_recoil, &tmp_prt_recoil );
-
-            // get the actual holder recoil
-            float holder_recoil = tmp_holder_recoil * attack_factor;
-
-			Vector3f tmp_impulse;
-            // in the SAME direction as the particle
-			tmp_impulse = pdata->vimpulse * holder_recoil;
-            phys_data_sum_avel(&(pholder->phys), tmp_impulse);
-
-			tmp_impulse = pdata->pimpulse * holder_recoil;
-            phys_data_sum_acoll(&(pholder->phys), tmp_impulse);
-        }
-    }
-
-    // apply the impulse to the particle velocity
-    if ( INVALID_CHR_REF == pdata->pprt->attachedto_ref )
-    {
-		Vector3f tmp_impulse;
-
-        tmp_impulse = pdata->vimpulse * prt_recoil;
-        phys_data_sum_avel(&(pdata->pprt->phys), tmp_impulse);
-
-		tmp_impulse = pdata->pimpulse * prt_recoil;
-        phys_data_sum_acoll(&(pdata->pprt->phys), tmp_impulse);
-    }
-
-    return true;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
@@ -2641,69 +2403,6 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
-{
-    // estimate the impulse on the particle
-
-    bool did_something = false;
-
-    if ( NULL == pdata ) return false;
-
-    if ( !pdata->ppip->allowpush ) return false;
-
-    // the impulse due to particle damage
-    if ( pdata->is_impact && pdata->prt_damages_chr )
-    {
-        int left_over_damage;
-
-        did_something = true;
-
-        left_over_damage = 0;
-        if ( std::abs( pdata->actual_damage ) < std::abs( pdata->max_damage ) )
-        {
-            left_over_damage = std::abs( pdata->max_damage ) - std::abs( pdata->actual_damage );
-        }
-
-        if ( 0 == pdata->max_damage )
-        {
-            pdata->block_factor = 0.0f;
-        }
-        else
-        {
-            pdata->block_factor = static_cast<float>(left_over_damage)
-                                / static_cast<float>(std::abs(pdata->max_damage));
-            pdata->block_factor = pdata->block_factor / ( 1.0f + pdata->block_factor );
-        }
-
-        if ( 0.0f == pdata->block_factor )
-        {
-            // the simple case (particle comes to a stop)
-            pdata->vimpulse -= pdata->pprt->vel;
-        }
-        else if ( 0.0f != pdata->dot )
-        {
-            float sgn = SGN( pdata->dot );
-
-            pdata->vimpulse += pdata->vdiff_perp * (-sgn * (1.0f + pdata->block_factor));
-        }
-    }
-
-    // the "pressure" impulse due to overlap
-    if ( pdata->int_min && pdata->depth_min > 0.0f && pdata->ichr != pdata->pprt->owner_ref )
-    {
-        // is the normal reversed?
-		Vector3f tmp_imp = pdata->nrm * pdata->depth_min;
-        pdata->pimpulse += tmp_imp;
-
-        did_something = true;
-    }
-
-    return true;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
 {
     bool prt_belongs_to_chr;
@@ -2724,9 +2423,6 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     {
         return true;
     }
-
-    // if the particle was deflected, then it can't bump the character
-    if ( pdata->pchr->isInvincible() || pdata->pprt->getAttachedObject().get() == pdata->pchr ) return false;
 
     //Only allow one collision per particle unless that particle is eternal
     if(!pdata->pprt->isEternal() && pdata->pprt->hasCollided(_currentModule->getObjectHandler()[pdata->pchr->getCharacterID()])) {
@@ -2980,15 +2676,13 @@ bool do_chr_prt_collision( const CoNode_t * d )
 
     bool retval = false;
 
-    bool prt_deflected;
-
     chr_prt_collision_data_t cn_data;
     chr_prt_collision_data_t::init(&cn_data);
-    bool intialized;
 
     // valid node?
     if ( NULL == d ) return false;
 
+    bool intialized;
     if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
     {
         // character was first
@@ -3003,9 +2697,6 @@ bool do_chr_prt_collision( const CoNode_t * d )
     {
         // not a valid interaction
         intialized = false;
-
-        // in here to keep the compiler from complaining
-        chr_prt_collision_data_t::init( &cn_data );
     }
 
     if ( !intialized ) return false;
@@ -3046,11 +2737,11 @@ bool do_chr_prt_collision( const CoNode_t * d )
     }
 
     // if there is no collision, no point in going farther
-    if ( !cn_data.int_min && !cn_data.int_max /* && !cn_data.int_plat */ ) return false;
+    if (!cn_data.int_min && !cn_data.int_max) return false;
 
     // if the particle is not actually hitting the object, then limit the
     // interaction to 2d
-    if ( cn_data.int_max && !cn_data.int_min )
+    if (cn_data.int_max && !cn_data.int_min)
     {
         // do not re-normalize this vector
         cn_data.nrm[kZ] = 0.0f;
@@ -3062,24 +2753,18 @@ bool do_chr_prt_collision( const CoNode_t * d )
     // decompose the relative velocity parallel and perpendicular to the surface normal
     cn_data.dot = fvec3_decompose(cn_data.vdiff, cn_data.nrm, cn_data.vdiff_perp, cn_data.vdiff_para);
 
-    // handle particle deflection
-    prt_deflected = false;
-    if ( cn_data.int_min || cn_data.int_max )
-    {
-        // determine whether the particle is deflected by the character
-        prt_deflected = do_chr_prt_collision_deflect( &cn_data );
-        if ( prt_deflected )
-        {
-            retval = true;
-        }
+    // determine whether the particle is deflected by the character
+    bool prt_deflected = do_chr_prt_collision_deflect(&cn_data);
+    if (prt_deflected) {
+        retval = true;
     }
 
     // refine the logic for a particle to hit a character
-    bool prt_can_hit_chr = do_chr_prt_collision_bump( &cn_data );
+    bool prt_can_hit_chr = !prt_deflected && do_chr_prt_collision_bump(&cn_data);
 
     // Torches and such are marked as invulnerable, so the particle is always deflected.
     // make a special case for reaffirmation
-    if (( cn_data.int_min || cn_data.int_max ) && 0 == cn_data.pchr->damage_timer )
+    if (0 == cn_data.pchr->damage_timer )
     {
         // Check reaffirmation of particles
         if ( cn_data.pchr->reaffirm_damagetype == cn_data.pprt->damagetype )
@@ -3096,7 +2781,7 @@ bool do_chr_prt_collision( const CoNode_t * d )
     }
 
     //Do they hit each other?
-    if(prt_can_hit_chr && (cn_data.int_min || cn_data.int_max))
+    if(prt_can_hit_chr && 0 == cn_data.pchr->damage_timer)
     {
         bool dodged = false;
 
@@ -3118,7 +2803,7 @@ bool do_chr_prt_collision( const CoNode_t * d )
 
         if(!dodged) {
             // do "damage" to the character
-            if (!prt_deflected && 0 == cn_data.pchr->damage_timer )
+            if (!prt_deflected)
             {
                 // we can't even get to this point if the character is completely invulnerable (invictus)
                 // or can't be damaged this round
@@ -3131,29 +2816,10 @@ bool do_chr_prt_collision( const CoNode_t * d )
                 }
             }
 
-    #if 0
-            // calculate the impulse.
-            if (( cn_data.int_min || cn_data.int_max ) && cn_data.ppip->allowpush )
-            {
-                do_chr_prt_collision_impulse( &cn_data );
-            }
-
-            // make the character and particle recoil from the collision
-            if (cn_data.vimpulse.length_abs() > 0.0f ||
-                cn_data.pimpulse.length_abs() > 0.0f)
-            {
-                if ( do_chr_prt_collision_recoil( &cn_data ) )
-                {
-                    retval = true;
-                }
-            }
-    #endif
-
             //Cause knockback (Hold the Line perk makes Objects immune to knockback)
             if(!cn_data.pchr->hasPerk(Ego::Perks::HOLD_THE_LINE)) {
                 do_chr_prt_collision_knockback(cn_data);
             }
-
         }
 
         //Attack was dodged!
@@ -3165,26 +2831,19 @@ bool do_chr_prt_collision( const CoNode_t * d )
             AudioSystem::get().playSound(cn_data.pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_DODGE));
 
             // Initialize for the billboard
-            const float lifetime = 3;
-            chr_make_text_billboard( cn_data.pchr->getCharacterID(), "Dodged!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(1.0f, 0.6f, 0.0f, 1.0f), lifetime, Billboard::Flags::All);
+            chr_make_text_billboard( cn_data.pchr->getCharacterID(), "Dodged!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(1.0f, 0.6f, 0.0f, 1.0f), 3, Billboard::Flags::All);
         }
 
 
-        // handle a couple of special cases
-        if ( cn_data.prt_bumps_chr )
+        // handle a couple of special cases (grabbing money)
+        if (cn_data.prt_bumps_chr)
         {
-            if ( do_chr_prt_collision_handle_bump( &cn_data ) )
+            if ( do_chr_prt_collision_handle_bump(&cn_data) )
             {
                 retval = true;
             }
         }
     }
-
-    // platform interaction. do this last, and only if there is no other interaction
-    //if ( cn_data.int_plat && !cn_data.int_max && !cn_data.int_min )
-    //{
-    //    cn_data.int_plat = do_prt_platform_physics( &cn_data );
-    //}
 
     // terminate the particle if needed
     if ( cn_data.terminate_particle )
