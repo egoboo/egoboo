@@ -64,8 +64,8 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     }
 
     //Load water textures
-    _waterTextures[0] = Ego::DeferredOpenGLTexture("mp_data/watertop");
-    _waterTextures[1] = Ego::DeferredOpenGLTexture("mp_data/waterlow");
+    _waterTextures[0] = Ego::DeferredOpenGLTexture("mp_data/waterlow");
+    _waterTextures[1] = Ego::DeferredOpenGLTexture("mp_data/watertop");
 }
 
 GameModule::~GameModule()

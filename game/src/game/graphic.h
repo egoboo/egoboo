@@ -335,12 +335,11 @@ struct gfx_config_t
     bool exploremode;       ///< fog of war mode for mesh display
     bool usefaredge;        ///< Far edge maps? (Outdoor)
 
-    static void init(gfx_config_t *self);
-    static void download(gfx_config_t *self, egoboo_config_t *cfg);
+    static void init(gfx_config_t& self);
+    static void download(gfx_config_t& self, egoboo_config_t& cfg);
 };
 
 
-gfx_rv render_fans_by_list(const ego_mesh_t *mesh, const Ego::Graphics::renderlist_lst_t *rlst);
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

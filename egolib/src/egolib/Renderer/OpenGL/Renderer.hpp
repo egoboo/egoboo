@@ -148,6 +148,9 @@ public:
     /** @copydoc Ego::Renderer::getDepthBuffer() */
     virtual Ego::DepthBuffer& getDepthBuffer() override;
 
+	/** @copydoc Ego::Renderer::getTextureUnit() */
+	virtual Ego::TextureUnit& getTextureUnit() override;
+
     /** @copydoc Ego::Renderer::setAlphaTestEnabled */
     virtual void setAlphaTestEnabled(bool enabled) override;
 

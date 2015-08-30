@@ -1399,140 +1399,6 @@ void draw_mouse_cursor()
 }
 
 //--------------------------------------------------------------------------------------------
-// 3D RENDERER FUNCTIONS
-//--------------------------------------------------------------------------------------------
-struct by_element_t
-{
-    float  dist;
-    Uint32 tile;
-    Uint32 texture;
-};
-
-int by_element_cmp(const void *lhs, const void *rhs)
-{
-    int retval = 0;
-    by_element_t * loc_lhs = (by_element_t *)lhs;
-    by_element_t * loc_rhs = (by_element_t *)rhs;
-
-    if (NULL == loc_lhs && NULL == loc_rhs)
-    {
-        retval = 0;
-    }
-    else if (NULL == loc_lhs && NULL != loc_rhs)
-    {
-        retval = 1;
-    }
-    else if (NULL == loc_rhs)
-    {
-        retval = -1;
-    }
-    else
-    {
-        retval = loc_lhs->texture - loc_rhs->texture;
-        if (0 == retval)
-        {
-            float ftmp = loc_lhs->dist - loc_rhs->dist;
-
-            if (ftmp < 0.0f)
-            {
-                retval = -1;
-            }
-            else if (ftmp > 0.0f)
-            {
-                retval = 1;
-            }
-        }
-    }
-
-    return retval;
-}
-
-struct by_list_t
-{
-    size_t       count;
-    by_element_t lst[Ego::Graphics::renderlist_lst_t::CAPACITY];
-    static by_list_t *sort(by_list_t *self)
-    {
-        if (!self)
-        {
-            return nullptr;
-        }
-        qsort(self->lst, self->count, sizeof(self->lst[0]), by_element_cmp);
-        return self;
-    }
-};
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_fans_by_list(const ego_mesh_t * mesh, const Ego::Graphics::renderlist_lst_t * rlst)
-{
-    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
-    if (NULL == mesh)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
-        return gfx_error;
-    }
-    size_t tcnt = mesh->tmem.getTileCount();
-
-    if (!rlst)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL tile rlst");
-        return gfx_error;
-    }
-
-    if (0 == rlst->size)
-    {
-        return gfx_success;
-    }
-
-    // insert the rlst values into lst_vals
-    by_list_t lst_vals = {};
-    lst_vals.count = rlst->size;
-    for (Uint32 cnt = 0; cnt < rlst->size; cnt++)
-    {
-        lst_vals.lst[cnt].tile = rlst->lst[cnt].index;
-        lst_vals.lst[cnt].dist = rlst->lst[cnt].distance;
-
-        if (rlst->lst[cnt].index >= tcnt)
-        {
-            lst_vals.lst[cnt].texture = (Uint32)(~0);
-        }
-        else
-        {
-            const std::shared_ptr<ego_tile_info_t> &ptile = mesh->tmem.getTile(rlst->lst[cnt].index);
-
-            int img = TILE_GET_LOWER_BITS(ptile->img);
-            if (ptile->type >= tile_dict.offset)
-            {
-                img += MESH_IMG_COUNT;
-            }
-
-            lst_vals.lst[cnt].texture = img;
-        }
-    }
-
-    by_list_t::sort(&lst_vals);
-
-    // restart the mesh texture code
-    mesh_texture_invalidate();
-
-    for (size_t i = 0; i < rlst->size; ++i)
-    {
-        Uint32 tmp_itile = lst_vals.lst[i].tile;
-
-        gfx_rv render_rv = render_fan(mesh, tmp_itile);
-        if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
-        {
-            log_warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile);
-        }
-    }
-
-    // let the mesh texture code know that someone else is in control now
-    mesh_texture_invalidate();
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
 // render_scene FUNCTIONS
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam)
@@ -1746,61 +1612,51 @@ gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, s
 //--------------------------------------------------------------------------------------------
 // gfx_config_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void gfx_config_t::download(gfx_config_t *self, egoboo_config_t *cfg)
+void gfx_config_t::download(gfx_config_t& self, egoboo_config_t& cfg)
 {
     // Load GFX configuration values, even if no Egoboo configuration is provided.
     init(self);
 
-    if (!cfg)
-    {
-        throw std::invalid_argument("nullptr == cfg");
-    }
+    self.antialiasing = cfg.graphic_antialiasing.getValue() > 0;
 
-    self->antialiasing = cfg->graphic_antialiasing.getValue() > 0;
+    self.refon = cfg.graphic_reflections_enable.getValue();
 
-    self->refon = cfg->graphic_reflections_enable.getValue();
+    self.shadows_enable = cfg.graphic_shadows_enable.getValue();
+    self.shadows_highQuality_enable = !cfg.graphic_shadows_highQuality_enable.getValue();
 
-    self->shadows_enable = cfg->graphic_shadows_enable.getValue();
-    self->shadows_highQuality_enable = !cfg->graphic_shadows_highQuality_enable.getValue();
+    self.gouraudShading_enable = cfg.graphic_gouraudShading_enable.getValue();
+    self.dither = cfg.graphic_dithering_enable.getValue();
+    self.perspective = cfg.graphic_perspectiveCorrection_enable.getValue();
+    self.phongon = cfg.graphic_specularHighlights_enable.getValue();
 
-    self->gouraudShading_enable = cfg->graphic_gouraudShading_enable.getValue();
-    self->dither = cfg->graphic_dithering_enable.getValue();
-    self->perspective = cfg->graphic_perspectiveCorrection_enable.getValue();
-    self->phongon = cfg->graphic_specularHighlights_enable.getValue();
+    self.draw_background = cfg.graphic_background_enable.getValue() && water._background_req;
+    self.draw_overlay = cfg.graphic_overlay_enable.getValue() && water._overlay_req;
 
-    self->draw_background = cfg->graphic_background_enable.getValue() && water._background_req;
-    self->draw_overlay = cfg->graphic_overlay_enable.getValue() && water._overlay_req;
+    self.dynalist_max = CLIP(cfg.graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
 
-    self->dynalist_max = CLIP(cfg->graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
-
-    self->draw_water_0 = !self->draw_overlay && (water._layer_count > 0);
-    self->clearson = !self->draw_background;
-    self->draw_water_1 = !self->draw_background && (water._layer_count > 1);
+    self.draw_water_0 = !self.draw_overlay && (water._layer_count > 0);
+    self.clearson = !self.draw_background;
+    self.draw_water_1 = !self.draw_background && (water._layer_count > 1);
 }
 
-void gfx_config_t::init(gfx_config_t *self)
+void gfx_config_t::init(gfx_config_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
+    self.gouraudShading_enable = true;
+    self.refon = true;
+    self.antialiasing = false;
+    self.dither = false;
+    self.perspective = false;
+    self.phongon = true;
+    self.shadows_enable = true;
+    self.shadows_highQuality_enable = true;
 
-    self->gouraudShading_enable = true;
-    self->refon = true;
-    self->antialiasing = false;
-    self->dither = false;
-    self->perspective = false;
-    self->phongon = true;
-    self->shadows_enable = true;
-    self->shadows_highQuality_enable = true;
+    self.clearson = true;
+    self.draw_background = false;
+    self.draw_overlay = false;
+    self.draw_water_0 = true;
+    self.draw_water_1 = true;
 
-    self->clearson = true;
-    self->draw_background = false;
-    self->draw_overlay = false;
-    self->draw_water_0 = true;
-    self->draw_water_1 = true;
-
-    self->dynalist_max = 8;
+    self.dynalist_max = 8;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2009,12 +1865,13 @@ void gfx_do_clear_screen()
 {
     if (!gfx_page_clear_requested) return;
 
+	auto& renderer = Ego::Renderer::get();
     // Clear the depth buffer.
-    Ego::Renderer::get().setDepthWriteEnabled(true);
-    GL_DEBUG(glClear)(GL_DEPTH_BUFFER_BIT);
+    renderer.setDepthWriteEnabled(true);
+	renderer.getDepthBuffer().clear();
 
     // Clear the colour buffer.
-    GL_DEBUG(glClear)(GL_COLOR_BUFFER_BIT);
+	renderer.getColourBuffer().clear();
 
     gfx_page_clear_requested = false;
 
@@ -2630,9 +2487,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
             pdyna = dyl.lst + cnt;
 
             // evaluate the intensity at the camera
-            diff[kX] = pdyna->pos[kX] - cam.getCenter()[kX];
-            diff[kY] = pdyna->pos[kY] - cam.getCenter()[kY];
-            diff[kZ] = pdyna->pos[kZ] - cam.getCenter()[kZ] - 90.0f;   // evaluated at the "head height" of a character
+			diff = pdyna->pos - cam.getCenter() - Vector3f(0.0f, 0.0f, 90.0f); // evaluate at the "head height" of a character
 
             dyna_weight = std::abs(dyna_lighting_intensity(pdyna, diff));
 

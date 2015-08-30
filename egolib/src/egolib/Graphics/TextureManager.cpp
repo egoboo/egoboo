@@ -37,16 +37,25 @@ TextureManager::TextureManager() :
 
 TextureManager::~TextureManager()
 {
-    for(auto& texture : _textureCache) {
-        texture.second->release();
-    }
     _textureCache.clear();
+	_unload.clear();
     uninitializeErrorTextures();
 }
 
 void TextureManager::release_all()
 {
-    _textureCache.clear();
+	if (SDL_GL_GetCurrentContext() != nullptr) {
+		// We are the main OpenGL context thread so we can destroy textures.
+		_textureCache.clear();
+		_unload.clear();
+	} else {
+		// We are not the main OpenGL context thread so we can not destroy textures.
+		for (auto it = std::begin(_textureCache); it != std::end(_textureCache);)
+		{
+			_unload.push_front(it->second);
+			it = _textureCache.erase(it);
+		}
+	}
 }
 
 void TextureManager::reload_all()

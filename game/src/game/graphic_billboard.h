@@ -184,5 +184,11 @@ public:
 public:
     void render_all(Camera& camera);
     BillboardList _billboardList;
-    std::shared_ptr<Ego::VertexBuffer> _vertexBuffer;
+	// A vertex type used by the billboard system.
+	struct Vertex {
+		float x, y, z;
+		float s, t;
+	};
+	// A vertex buffer used by the billboard system.
+    Ego::VertexBuffer _vertexBuffer;
 };

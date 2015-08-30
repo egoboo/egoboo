@@ -47,31 +47,118 @@ namespace Ego {
 namespace Graphics {
 namespace RenderPasses {
 
+namespace Internal {
+
+struct by_element2_t {
+	float _distance;
+	uint32_t _tileIndex;
+	uint32_t _textureIndex;
+	by_element2_t()
+		: by_element2_t(std::numeric_limits<float>::infinity(), std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()) {
+	}
+	by_element2_t(float distance, uint32_t tileIndex, uint32_t textureIndex)
+		: _distance(distance), _tileIndex(tileIndex), _textureIndex(textureIndex) {
+	}
+	by_element2_t(const by_element2_t& other)
+		: by_element2_t(other._distance, other._tileIndex, other._textureIndex) {
+	}
+	by_element2_t& operator=(const by_element2_t& other) {
+		_distance = other._distance;
+		_tileIndex = other._tileIndex;
+		_textureIndex = other._textureIndex;
+		return *this;
+	}
+	static bool compare(const by_element2_t& x, const by_element2_t& y) {
+		int result = (int)x._textureIndex - (int)y._textureIndex;
+		if (result < 0) {
+			return true;
+		} else if (result > 0) {
+			return false;
+		} else {
+			float result = x._distance - y._distance;
+			if (result < 0.0f) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+};
+
+void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist_lst_t& rlst)
+{
+	size_t tcnt = mesh.tmem.getTileCount();
+
+	if (0 == rlst.size) {
+		return;
+	}
+
+	// insert the rlst values into lst_vals
+	std::vector<by_element2_t> lst_vals(rlst.size);
+	for (size_t i = 0; i < rlst.size; ++i)
+	{
+		lst_vals[i]._tileIndex = rlst.lst[i].index;
+		lst_vals[i]._distance = rlst.lst[i].distance;
+
+		if (rlst.lst[i].index >= tcnt)
+		{
+			lst_vals[i]._textureIndex = std::numeric_limits<uint32_t>::max();
+		}
+		else
+		{
+			const std::shared_ptr<ego_tile_info_t> &tile = mesh.tmem.getTile(rlst.lst[i].index);
+
+			int img = TILE_GET_LOWER_BITS(tile->img);
+			if (tile->type >= tile_dict.offset)
+			{
+				img += MESH_IMG_COUNT;
+			}
+
+			lst_vals[i]._textureIndex = img;
+		}
+	}
+
+	std::sort(lst_vals.begin(), lst_vals.end(), by_element2_t::compare);
+
+	// restart the mesh texture code
+	mesh_texture_invalidate();
+
+	for (size_t i = 0; i < rlst.size; ++i)
+	{
+		Uint32 tmp_itile = lst_vals[i]._tileIndex;
+
+		gfx_rv render_rv = render_fan(&mesh, tmp_itile);
+		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
+		{
+			log_warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile);
+		}
+	}
+
+	// let the mesh texture code know that someone else is in control now
+	mesh_texture_invalidate();
+}
+
+}
+
 void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) {
 	if (!gfx.draw_background) {
 		return;
 	}
-	GLvertex vtlist[4];
-	int i;
-	float z0, Qx, Qy;
-	float intens = 1.0f;
 
-	float xmag, Cx_0, Cx_1;
-	float ymag, Cy_0, Cy_1;
-
-	
-
-	grid_mem_t     *pgmem = &(_currentModule->getMeshPointer()->gmem);
+	grid_mem_t *pgmem = &(_currentModule->getMeshPointer()->gmem);
 
 	// which layer
 	water_instance_layer_t *ilayer = water._layers + 0;
 
 	// the "official" camera height
-	z0 = 1500;
+	float z0 = 1500;
 
 	// clip the waterlayer uv offset
 	ilayer->_tx[XX] = ilayer->_tx[XX] - (float)std::floor(ilayer->_tx[XX]);
 	ilayer->_tx[YY] = ilayer->_tx[YY] - (float)std::floor(ilayer->_tx[YY]);
+
+	float xmag, Cx_0, Cx_1;
+	float ymag, Cy_0, Cy_1;
 
 	// determine the constants for the x-coordinate
 	xmag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / GRID_FSIZE;
@@ -83,62 +170,69 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	Cy_0 = ymag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[YY]);
 	Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[YY]);
 
-	// Figure out the coordinates of its corners
-	Qx = -pgmem->edge_x;
-	Qy = -pgmem->edge_y;
-	vtlist[0].pos[XX] = Qx;
-	vtlist[0].pos[YY] = Qy;
-	vtlist[0].pos[ZZ] = cam.getPosition()[kZ] - z0;
-	vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
-	vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+	float Qx, Qy;
 
-	Qx = 2 * pgmem->edge_x;
-	Qy = -pgmem->edge_y;
-	vtlist[1].pos[XX] = Qx;
-	vtlist[1].pos[YY] = Qy;
-	vtlist[1].pos[ZZ] = cam.getPosition()[kZ] - z0;
-	vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
-	vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+	{
+		VertexBufferScopedLock lock(_vertexBuffer);
+		Vertex *vertices = lock.get<Vertex>();
+		// Figure out the coordinates of its corners
+		Qx = -pgmem->edge_x;
+		Qy = -pgmem->edge_y;
+		vertices[0].x = Qx;
+		vertices[0].y = Qy;
+		vertices[0].z = cam.getPosition()[kZ] - z0;
+		vertices[0].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
+		vertices[0].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-	Qx = 2 * pgmem->edge_x;
-	Qy = 2 * pgmem->edge_y;
-	vtlist[2].pos[XX] = Qx;
-	vtlist[2].pos[YY] = Qy;
-	vtlist[2].pos[ZZ] = cam.getPosition()[kZ] - z0;
-	vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
-	vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+		Qx = 2 * pgmem->edge_x;
+		Qy = -pgmem->edge_y;
+		vertices[1].x = Qx;
+		vertices[1].y = Qy;
+		vertices[1].z = cam.getPosition()[kZ] - z0;
+		vertices[1].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
+		vertices[1].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-	Qx = -pgmem->edge_x;
-	Qy = 2 * pgmem->edge_y;
-	vtlist[3].pos[XX] = Qx;
-	vtlist[3].pos[YY] = Qy;
-	vtlist[3].pos[ZZ] = cam.getPosition()[kZ] - z0;
-	vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
-	vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+		Qx = 2 * pgmem->edge_x;
+		Qy = 2 * pgmem->edge_y;
+		vertices[2].x = Qx;
+		vertices[2].y = Qy;
+		vertices[2].z = cam.getPosition()[kZ] - z0;
+		vertices[2].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
+		vertices[2].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+
+		Qx = -pgmem->edge_x;
+		Qy = 2 * pgmem->edge_y;
+		vertices[3].x = Qx;
+		vertices[3].y = Qy;
+		vertices[3].z = cam.getPosition()[kZ] - z0;
+		vertices[3].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
+		vertices[3].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
+	}
 
 	float light = water._light ? 1.0f : 0.0f;
 	float alpha = ilayer->_alpha * INV_FF;
 
+	float intens = 1.0f;
+
 	if (gfx.usefaredge)
 	{
-		float fcos;
-
 		intens = light_a * ilayer->_light_add;
 
-		fcos = light_nrm[kZ];
+		float fcos = light_nrm[kZ];
 		if (fcos > 0.0f)
 		{
 			intens += fcos * fcos * light_d * ilayer->_light_dir;
 		}
 
-		intens = CLIP(intens, 0.0f, 1.0f);
+		intens = constrain(intens, 0.0f, 1.0f);
 	}
 
-	oglx_texture_t::bind(_currentModule->getWaterTexture(1));
+	auto& renderer = Renderer::get();
+
+	renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(0));
 
 	ATTRIB_PUSH(__FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
 	{
-		auto& renderer = Renderer::get();
 		// flat shading
 		renderer.setGouraudShadingEnabled(false);
 
@@ -169,15 +263,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 					renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 				}
 
-				GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-				{
-					for (i = 0; i < 4; i++)
-					{
-						GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
-						GL_DEBUG(glVertex3fv)(vtlist[i].pos);
-					}
-				}
-				GL_DEBUG_END();
+				renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
 			}
 			ATTRIB_POP(__FUNCTION__);
 		}
@@ -190,15 +276,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 				renderer.setColour(Colour4f(light, light, light, 1.0f));
 
-				GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-				{
-					for (i = 0; i < 4; i++)
-					{
-						GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
-						GL_DEBUG(glVertex3fv)(vtlist[i].pos);
-					}
-				}
-				GL_DEBUG_END();
+				renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
 			}
 			ATTRIB_POP(__FUNCTION__);
 		}
@@ -210,76 +288,70 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	if (!gfx.draw_overlay) {
 		return;
 	}
-	float alpha, ftmp;
-	Vector3f vforw_wind, vforw_cam;
-	TURN_T default_turn;
 
 	water_instance_layer_t *ilayer = water._layers + 1;
 
-	vforw_wind[XX] = ilayer->_tx_add[XX];
-	vforw_wind[YY] = ilayer->_tx_add[YY];
-	vforw_wind[ZZ] = 0;
+	Vector3f vforw_wind(ilayer->_tx_add[XX], ilayer->_tx_add[YY], 0.0f);
 	vforw_wind.normalize();
 
+	Vector3f vforw_cam;
 	mat_getCamForward(cam.getViewMatrix(), vforw_cam);
 	vforw_cam.normalize();
 
 	// make the texture begin to disappear if you are not looking straight down
-	ftmp = vforw_wind.dot(vforw_cam);
+	float ftmp = vforw_wind.dot(vforw_cam);
 
-	alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * INV_FF);
+	float alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * INV_FF);
 
 	if (alpha != 0.0f)
 	{
-		GLvertex vtlist[4];
-		int i;
-		float size;
-		float sinsize, cossize;
-		float x, y, z;
-		float loc_foregroundrepeat;
-
 		// Figure out the screen coordinates of its corners
-		x = sdl_scr.x << 6;
-		y = sdl_scr.y << 6;
-		z = 0;
-		size = x + y + 1;
-		default_turn = (3 * 2047) & TRIG_TABLE_MASK;
-		sinsize = turntosin[default_turn] * size;
-		cossize = turntocos[default_turn] * size;
-		loc_foregroundrepeat = water._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
+		float x = sdl_scr.x << 6;
+		float y = sdl_scr.y << 6;
+		float z = 0;
+		float size = x + y + 1;
+		TURN_T default_turn = (3 * 2047) & TRIG_TABLE_MASK;
+		float sinsize = turntosin[default_turn] * size;
+		float cossize = turntocos[default_turn] * size;
+		float loc_foregroundrepeat = water._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
 
-		vtlist[0].pos[XX] = x + cossize;
-		vtlist[0].pos[YY] = y - sinsize;
-		vtlist[0].pos[ZZ] = z;
-		vtlist[0].tex[SS] = ilayer->_tx[XX];
-		vtlist[0].tex[TT] = ilayer->_tx[YY];
+		{
+			VertexBufferScopedLock lock(_vertexBuffer);
+			Vertex *vertices = lock.get<Vertex>();
 
-		vtlist[1].pos[XX] = x + sinsize;
-		vtlist[1].pos[YY] = y + cossize;
-		vtlist[1].pos[ZZ] = z;
-		vtlist[1].tex[SS] = ilayer->_tx[XX] + loc_foregroundrepeat;
-		vtlist[1].tex[TT] = ilayer->_tx[YY];
+			vertices[0].x = x + cossize;
+			vertices[0].y = y - sinsize;
+			vertices[0].z = z;
+			vertices[0].s = ilayer->_tx[XX];
+			vertices[0].t = ilayer->_tx[YY];
 
-		vtlist[2].pos[XX] = x - cossize;
-		vtlist[2].pos[YY] = y + sinsize;
-		vtlist[2].pos[ZZ] = z;
-		vtlist[2].tex[SS] = ilayer->_tx[SS] + loc_foregroundrepeat;
-		vtlist[2].tex[TT] = ilayer->_tx[TT] + loc_foregroundrepeat;
+			vertices[1].x = x + sinsize;
+			vertices[1].y = y + cossize;
+			vertices[1].z = z;
+			vertices[1].s = ilayer->_tx[XX] + loc_foregroundrepeat;
+			vertices[1].t = ilayer->_tx[YY];
 
-		vtlist[3].pos[XX] = x - sinsize;
-		vtlist[3].pos[YY] = y - cossize;
-		vtlist[3].pos[ZZ] = z;
-		vtlist[3].tex[SS] = ilayer->_tx[SS];
-		vtlist[3].tex[TT] = ilayer->_tx[TT] + loc_foregroundrepeat;
+			vertices[2].x = x - cossize;
+			vertices[2].y = y + sinsize;
+			vertices[2].z = z;
+			vertices[2].s = ilayer->_tx[SS] + loc_foregroundrepeat;
+			vertices[2].t = ilayer->_tx[TT] + loc_foregroundrepeat;
 
-		oglx_texture_t::bind(_currentModule->getWaterTexture(1));
+			vertices[3].x = x - sinsize;
+			vertices[3].y = y - cossize;
+			vertices[3].z = z;
+			vertices[3].s = ilayer->_tx[SS];
+			vertices[3].t = ilayer->_tx[TT] + loc_foregroundrepeat;
+		}
+
+		auto& renderer = Renderer::get();
+
+		renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1));
 
 		ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT);
 		{
 			// make sure that the texture is as smooth as possible
 			GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);          // GL_HINT_BIT
-
-			auto& renderer = Renderer::get();
 
 			// flat shading
 			renderer.setGouraudShadingEnabled(false);                     // GL_LIGHTING_BIT
@@ -306,13 +378,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 			oglx_texture_t::bind(_currentModule->getWaterTexture(1));
 
 			renderer.setColour(Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
-			GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-			for (i = 0; i < 4; i++)
-			{
-				GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
-				GL_DEBUG(glVertex3fv)(vtlist[i].pos);
-			}
-			GL_DEBUG_END();
+			renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
 		}
 		ATTRIB_POP(__FUNCTION__);
 	}
@@ -351,7 +417,9 @@ void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 		// speed-up drawing of surfaces with alpha == 0.0f sections
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 		// reduce texture hashing by loading up each texture only once
-		render_fans_by_list(tl._mesh, &(tl._reflective));
+		if (tl._mesh) {
+			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
+		}
 	}
 	ATTRIB_POP(__FUNCTION__);
 }
@@ -390,7 +458,9 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 		renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::One);
 
 		// reduce texture hashing by loading up each texture only once
-		render_fans_by_list(tl._mesh, &(tl._reflective));
+		if (tl._mesh) {
+			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
+		}
 	}
 	ATTRIB_POP(__FUNCTION__);
 }
@@ -415,7 +485,9 @@ void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, co
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
-		render_fans_by_list(tl._mesh, &(tl._reflective));
+		if (tl._mesh) {
+			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
+		}
 	}
 	ATTRIB_POP(__FUNCTION__);
 }
@@ -441,7 +513,9 @@ void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
-		render_fans_by_list(tl._mesh, &(tl._nonReflective));
+		if (tl._mesh) {
+			Internal::render_fans_by_list(*tl._mesh, tl._nonReflective);
+		}
 	}
 	ATTRIB_POP(__FUNCTION__);
 	OpenGL::Utilities::isError();
@@ -487,11 +561,6 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 }
 
 void EntityShadows::doLowQualityShadow(const CHR_REF character) {
-	GLvertex v[4];
-
-	float   size, x, y;
-	float   level, height, height_factor, alpha;
-
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	if(pchr->isBeingHeld()) return;
 
@@ -514,7 +583,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	}
 
 	// No shadow if completely transparent or completely glowing.
-	alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
 
 	/// @test ZF@> previous test didn't work, but this one does
 	//if ( alpha * 255 < 1 ) return;
@@ -528,63 +597,64 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	if (alpha < INV_FF) return;
 
 	// Original points
-	level = pchr->enviro.floor_level;
-	level += SHADOWRAISE;
-	height = pchr->inst.matrix(2, 3) - level;
-	height_factor = 1.0f - height / (pchr->shadow_size * 5.0f);
+	float level = pchr->enviro.floor_level + SHADOWRAISE;
+	float height = pchr->inst.matrix(2, 3) - level;
+	float height_factor = 1.0f - height / (pchr->shadow_size * 5.0f);
 	if (height_factor <= 0.0f) return;
 
 	// how much transparency from height
 	alpha *= height_factor * 0.5f + 0.25f;
 	if (alpha < INV_FF) return;
 
-	x = pchr->inst.matrix(0, 3); ///< @todo MH: This should be the x/y position of the model.
-	y = pchr->inst.matrix(1, 3); ///<           Use a more self-descriptive method to describe this.
+	float x = pchr->inst.matrix(0, 3); ///< @todo MH: This should be the x/y position of the model.
+	float y = pchr->inst.matrix(1, 3); ///<           Use a more self-descriptive method to describe this.
 
-	size = pchr->shadow_size * height_factor;
+	float size = pchr->shadow_size * height_factor;
 
-	v[0].pos[XX] = (float)x + size;
-	v[0].pos[YY] = (float)y - size;
-	v[0].pos[ZZ] = (float)level;
+	{
+		VertexBufferScopedLock lock(_vertexBuffer);
+		Vertex *vertices = lock.get<Vertex>();
+		vertices[0].x = (float)x + size;
+		vertices[0].y = (float)y - size;
+		vertices[0].z = (float)level;
 
-	v[1].pos[XX] = (float)x + size;
-	v[1].pos[YY] = (float)y + size;
-	v[1].pos[ZZ] = (float)level;
+		vertices[1].x = (float)x + size;
+		vertices[1].y = (float)y + size;
+		vertices[1].z = (float)level;
 
-	v[2].pos[XX] = (float)x - size;
-	v[2].pos[YY] = (float)y + size;
-	v[2].pos[ZZ] = (float)level;
+		vertices[2].x = (float)x - size;
+		vertices[2].y = (float)y + size;
+		vertices[2].z = (float)level;
 
-	v[3].pos[XX] = (float)x - size;
-	v[3].pos[YY] = (float)y - size;
-	v[3].pos[ZZ] = (float)level;
+		vertices[3].x = (float)x - size;
+		vertices[3].y = (float)y - size;
+		vertices[3].z = (float)level;
+	}
 
 	// Choose texture and matrix
 	oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
-	v[0].tex[SS] = CALCULATE_PRT_U0(itex_style, 236);
-	v[0].tex[TT] = CALCULATE_PRT_V0(itex_style, 236);
+	{
+		VertexBufferScopedLock lock(_vertexBuffer);
+		Vertex *vertices = lock.get<Vertex>();
+		vertices[0].s = CALCULATE_PRT_U0(itex_style, 236);
+		vertices[0].t = CALCULATE_PRT_V0(itex_style, 236);
 
-	v[1].tex[SS] = CALCULATE_PRT_U1(itex_style, 253);
-	v[1].tex[TT] = CALCULATE_PRT_V0(itex_style, 236);
+		vertices[1].s = CALCULATE_PRT_U1(itex_style, 253);
+		vertices[1].t = CALCULATE_PRT_V0(itex_style, 236);
 
-	v[2].tex[SS] = CALCULATE_PRT_U1(itex_style, 253);
-	v[2].tex[TT] = CALCULATE_PRT_V1(itex_style, 253);
+		vertices[2].s = CALCULATE_PRT_U1(itex_style, 253);
+		vertices[2].t = CALCULATE_PRT_V1(itex_style, 253);
 
-	v[3].tex[SS] = CALCULATE_PRT_U0(itex_style, 236);
-	v[3].tex[TT] = CALCULATE_PRT_V1(itex_style, 253);
+		vertices[3].s = CALCULATE_PRT_U0(itex_style, 236);
+		vertices[3].t = CALCULATE_PRT_V1(itex_style, 253);
+	}
 
-	doShadowSprite(alpha, v);
+	doShadowSprite(alpha, _vertexBuffer);
 }
 
 void EntityShadows::doHighQualityShadow(const CHR_REF character) {
-	GLvertex v[4];
-
-	float   x, y;
-	float   level;
-	float   height, size_umbra, size_penumbra;
-	float   alpha, alpha_umbra, alpha_penumbra;
 
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	if(pchr->isBeingHeld()) return;
@@ -600,7 +670,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (TILE_IS_FANOFF(ptile)) return;
 
 	// no shadow if completely transparent
-	alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
 
 	/// @test ZF@> The previous test didn't work, but this one does
 	//if ( alpha * 255 < 1 ) return;
@@ -614,15 +684,16 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (alpha < INV_FF) return;
 
 	// Original points
-	level = pchr->enviro.floor_level;
-	level += SHADOWRAISE;
-	height = pchr->inst.matrix(2, 3) - level;
+	float level = pchr->enviro.floor_level + SHADOWRAISE;
+	float height = pchr->inst.matrix(2, 3) - level;
 	if (height < 0) height = 0;
 
-	size_umbra = 1.5f * (pchr->bump.size - height / 30.0f);
-	size_penumbra = 1.5f * (pchr->bump.size + height / 30.0f);
+	float size_umbra = 1.5f * (pchr->bump.size - height / 30.0f);
+	float size_penumbra = 1.5f * (pchr->bump.size + height / 30.0f);
 
 	alpha *= 0.3f;
+
+	float   alpha_umbra, alpha_penumbra;
 	alpha_umbra = alpha_penumbra = alpha;
 	if (height > 0)
 	{
@@ -635,88 +706,94 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 		alpha_umbra *= 1.0f / factor_umbra / factor_umbra / 1.5f;
 		alpha_penumbra *= 1.0f / factor_penumbra / factor_penumbra / 1.5f;
 
-		alpha_umbra = CLIP(alpha_umbra, 0.0f, 1.0f);
-		alpha_penumbra = CLIP(alpha_penumbra, 0.0f, 1.0f);
+		alpha_umbra = constrain(alpha_umbra, 0.0f, 1.0f);
+		alpha_penumbra = constrain(alpha_penumbra, 0.0f, 1.0f);
 	}
 
-	x = pchr->inst.matrix(0, 3);
-	y = pchr->inst.matrix(1, 3);
+	float x = pchr->inst.matrix(0, 3);
+	float y = pchr->inst.matrix(1, 3);
 
 	// Choose texture and matrix
 	oglx_texture_t::bind(ParticleHandler::get().getLightParticleTexture());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	// GOOD SHADOW
-	v[0].tex[SS] = CALCULATE_PRT_U0(itex_style, 238);
-	v[0].tex[TT] = CALCULATE_PRT_V0(itex_style, 238);
+	{
+		VertexBufferScopedLock lock(_vertexBuffer);
+		Vertex *vertices = lock.get<Vertex>();
 
-	v[1].tex[SS] = CALCULATE_PRT_U1(itex_style, 255);
-	v[1].tex[TT] = CALCULATE_PRT_V0(itex_style, 238);
+		vertices[0].s = CALCULATE_PRT_U0(itex_style, 238);
+		vertices[0].t = CALCULATE_PRT_V0(itex_style, 238);
 
-	v[2].tex[SS] = CALCULATE_PRT_U1(itex_style, 255);
-	v[2].tex[TT] = CALCULATE_PRT_V1(itex_style, 255);
+		vertices[1].s = CALCULATE_PRT_U1(itex_style, 255);
+		vertices[1].t = CALCULATE_PRT_V0(itex_style, 238);
 
-	v[3].tex[SS] = CALCULATE_PRT_U0(itex_style, 238);
-	v[3].tex[TT] = CALCULATE_PRT_V1(itex_style, 255);
+		vertices[2].s = CALCULATE_PRT_U1(itex_style, 255);
+		vertices[2].t = CALCULATE_PRT_V1(itex_style, 255);
 
+		vertices[3].s = CALCULATE_PRT_U0(itex_style, 238);
+		vertices[3].t = CALCULATE_PRT_V1(itex_style, 255);
+	}
 	if (size_penumbra > 0)
 	{
-		v[0].pos[XX] = x + size_penumbra;
-		v[0].pos[YY] = y - size_penumbra;
-		v[0].pos[ZZ] = level;
+		{
+			VertexBufferScopedLock lock(_vertexBuffer);
+			Vertex *vertices = lock.get<Vertex>();
+			
+			vertices[0].x = x + size_penumbra;
+			vertices[0].y = y - size_penumbra;
+			vertices[0].z = level;
 
-		v[1].pos[XX] = x + size_penumbra;
-		v[1].pos[YY] = y + size_penumbra;
-		v[1].pos[ZZ] = level;
+			vertices[1].x = x + size_penumbra;
+			vertices[1].y = y + size_penumbra;
+			vertices[1].z = level;
 
-		v[2].pos[XX] = x - size_penumbra;
-		v[2].pos[YY] = y + size_penumbra;
-		v[2].pos[ZZ] = level;
+			vertices[2].x = x - size_penumbra;
+			vertices[2].y = y + size_penumbra;
+			vertices[2].z = level;
 
-		v[3].pos[XX] = x - size_penumbra;
-		v[3].pos[YY] = y - size_penumbra;
-		v[3].pos[ZZ] = level;
-
-		doShadowSprite(alpha_penumbra, v);
+			vertices[3].x = x - size_penumbra;
+			vertices[3].y = y - size_penumbra;
+			vertices[3].z = level;
+		}
+		doShadowSprite(alpha_penumbra, _vertexBuffer);
 	};
 
 	if (size_umbra > 0)
 	{
-		v[0].pos[XX] = x + size_umbra;
-		v[0].pos[YY] = y - size_umbra;
-		v[0].pos[ZZ] = level + 0.1f;
+		{
+			VertexBufferScopedLock lock(_vertexBuffer);
+			Vertex *vertices = lock.get<Vertex>();
 
-		v[1].pos[XX] = x + size_umbra;
-		v[1].pos[YY] = y + size_umbra;
-		v[1].pos[ZZ] = level + 0.1f;
+			vertices[0].x = x + size_umbra;
+			vertices[0].y = y - size_umbra;
+			vertices[0].z = level + 0.1f;
 
-		v[2].pos[XX] = x - size_umbra;
-		v[2].pos[YY] = y + size_umbra;
-		v[2].pos[ZZ] = level + 0.1f;
+			vertices[1].x = x + size_umbra;
+			vertices[1].y = y + size_umbra;
+			vertices[1].z = level + 0.1f;
 
-		v[3].pos[XX] = x - size_umbra;
-		v[3].pos[YY] = y - size_umbra;
-		v[3].pos[ZZ] = level + 0.1f;
+			vertices[2].x = x - size_umbra;
+			vertices[2].y = y + size_umbra;
+			vertices[2].z = level + 0.1f;
 
-		doShadowSprite(alpha_umbra, v);
+			vertices[3].x = x - size_umbra;
+			vertices[3].y = y - size_umbra;
+			vertices[3].z = level + 0.1f;
+		}
+
+		doShadowSprite(alpha_umbra, _vertexBuffer);
 	}
 }
 
-void EntityShadows::doShadowSprite(float intensity, GLvertex v[])
+void EntityShadows::doShadowSprite(float intensity, VertexBuffer& vertexBuffer)
 {
 	if (intensity*255.0f < 1.0f) return;
 
-	GL_DEBUG(glColor4f)(intensity, intensity, intensity, 1.0f);
+	auto& renderer = Renderer::get();
+	renderer.setColour(Colour4f(intensity, intensity, intensity, 1.0f));
 
-	GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-	{
-		for (size_t i = 0; i < 4; i++)
-		{
-			GL_DEBUG(glTexCoord2fv)(v[i].tex);
-			GL_DEBUG(glVertex3fv)(v[i].pos);
-		}
-	}
-	GL_DEBUG_END();
+	renderer.render(vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
 }
 
 void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {

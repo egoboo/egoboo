@@ -89,6 +89,7 @@ public:
     void updateDeferredLoading();
 
 private:
+	std::forward_list<std::shared_ptr<oglx_texture_t>> _unload;
     std::unordered_map<std::string, std::shared_ptr<oglx_texture_t>> _textureCache;
 
     std::mutex _deferredLoadingMutex;

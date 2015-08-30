@@ -141,6 +141,11 @@ Ego::DepthBuffer& Renderer::getDepthBuffer()
     return _depthBuffer;
 }
 
+Ego::TextureUnit& Renderer::getTextureUnit()
+{
+	return _textureUnit;
+}
+
 void Renderer::setAlphaTestEnabled(bool enabled)
 {
     if (enabled)

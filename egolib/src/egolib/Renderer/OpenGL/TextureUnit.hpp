@@ -46,7 +46,7 @@ public:
     virtual ~TextureUnit();
 
     /** @copydoc Ego::TextureUnit::setActivated */
-    virtual void setActivated(oglx_texture_t *texture) override;
+    virtual void setActivated(const oglx_texture_t *texture) override;
 };
 } // namespace OpenGL
 } // namespace Ego

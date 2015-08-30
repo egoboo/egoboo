@@ -158,7 +158,7 @@ std::shared_ptr<Billboard> BillboardList::makeBillboard(Uint32 lifetime_secs, st
 BillboardSystem *BillboardSystem::singleton = nullptr;
 
 BillboardSystem::BillboardSystem() :
-    _billboardList() {
+    _billboardList(), _vertexBuffer(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>()) {
 }
 
 BillboardSystem::~BillboardSystem() {
@@ -210,54 +210,49 @@ bool BillboardSystem::render_one(Billboard& bb, float scale, const Vector3f& cam
 	Vector3f vec_rgt = cam_rgt * (ptex->getSourceWidth() * scale * bb._size);
 	Vector3f vec_up = cam_up  * (ptex->getSourceHeight() * scale * bb._size);
 
-    GLvertex vtlist[4];
     // bottom left
 	Vector3f tmp;
-    tmp = bb._position + (-vec_rgt - vec_up * 0);
-    vtlist[0].pos[XX] = bb._offset[kX] + tmp[kX];
-    vtlist[0].pos[YY] = bb._offset[kY] + tmp[kY];
-    vtlist[0].pos[ZZ] = bb._offset[kZ] + tmp[kZ];
-    vtlist[0].tex[SS] = s;
-    vtlist[0].tex[TT] = t;
+	{
+		Ego::VertexBufferScopedLock lock(_vertexBuffer);
+		Vertex *vertices = lock.get<Vertex>();
+		tmp = bb._position + (-vec_rgt - vec_up * 0);
+		vertices[0].x = bb._offset[kX] + tmp[kX];
+		vertices[0].y = bb._offset[kY] + tmp[kY];
+		vertices[0].z = bb._offset[kZ] + tmp[kZ];
+		vertices[0].s = s;
+		vertices[0].t = t;
 
-    // top left
-    tmp = bb._position + (-vec_rgt + vec_up * 2);
-    vtlist[1].pos[XX] = bb._offset[kX] + tmp[kX];
-    vtlist[1].pos[YY] = bb._offset[kY] + tmp[kY];
-    vtlist[1].pos[ZZ] = bb._offset[kZ] + tmp[kZ];
-    vtlist[1].tex[SS] = s;
-    vtlist[1].tex[TT] = 0;
+		// top left
+		tmp = bb._position + (-vec_rgt + vec_up * 2);
+		vertices[1].x = bb._offset[kX] + tmp[kX];
+		vertices[1].y = bb._offset[kY] + tmp[kY];
+		vertices[1].z = bb._offset[kZ] + tmp[kZ];
+		vertices[1].s = s;
+		vertices[1].t = 0;
 
-    // top right
-    tmp = bb._position + (vec_rgt + vec_up * 2);
-    vtlist[2].pos[XX] = bb._offset[kX] + tmp[kX];
-    vtlist[2].pos[YY] = bb._offset[kY] + tmp[kY];
-    vtlist[2].pos[ZZ] = bb._offset[kZ] + tmp[kZ];
-    vtlist[2].tex[SS] = 0;
-    vtlist[2].tex[TT] = 0;
+		// top right
+		tmp = bb._position + (vec_rgt + vec_up * 2);
+		vertices[2].x = bb._offset[kX] + tmp[kX];
+		vertices[2].y = bb._offset[kY] + tmp[kY];
+		vertices[2].z = bb._offset[kZ] + tmp[kZ];
+		vertices[2].s = 0;
+		vertices[2].t = 0;
 
-    // bottom right
-    tmp = bb._position + (vec_rgt - vec_up * 0);
-    vtlist[3].pos[XX] = bb._offset[kX] + tmp[kX];
-    vtlist[3].pos[YY] = bb._offset[kY] + tmp[kY];
-    vtlist[3].pos[ZZ] = bb._offset[kZ] + tmp[kZ];
-    vtlist[3].tex[SS] = 0;
-    vtlist[3].tex[TT] = t;
+		// bottom right
+		tmp = bb._position + (vec_rgt - vec_up * 0);
+		vertices[3].x = bb._offset[kX] + tmp[kX];
+		vertices[3].y = bb._offset[kY] + tmp[kY];
+		vertices[3].z = bb._offset[kZ] + tmp[kZ];
+		vertices[3].s = 0;
+		vertices[3].t = t;
+	}
 
     {
         auto& renderer = Ego::Renderer::get();
         renderer.setColour(bb._tint);
 
         // Go on and draw it
-        GL_DEBUG( glBegin )( GL_QUADS );
-        {
-            for (size_t i = 0; i < 4; ++i)
-            {
-                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
-                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
-            }
-        }
-        GL_DEBUG_END();
+		renderer.render(_vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
 
     return true;
