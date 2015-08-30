@@ -30,6 +30,10 @@ namespace Ego {
 namespace Graphics {
 namespace RenderPasses {
 
+namespace Internal {
+void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist_lst_t& rlst);
+}
+
 /// The first pass for reflective tiles
 /// i.e. tiles which do reflect entities.
 /// Ran before the pass rendering the reflections of entities.
@@ -72,9 +76,17 @@ private:
 struct Background : public RenderPass {
 public:
 	Background()
-		: RenderPass("background") {
+		: RenderPass("background"),
+		  _vertexBuffer(4, VertexFormatDescriptor::get<VertexFormat::P3FT2F>()) {
 	}
 protected:
+	/// A vertex type used by this render pass.
+	struct Vertex {
+		float x, y, z;
+		float s, t;
+	};
+	/// A vertex buffer used by this render pass.
+	VertexBuffer _vertexBuffer;
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
@@ -82,9 +94,17 @@ protected:
 struct Foreground : public RenderPass {
 public:
 	Foreground()
-		: RenderPass("foreground") {
+		: RenderPass("foreground"),
+		  _vertexBuffer(4, VertexFormatDescriptor::get<VertexFormat::P3FT2F>()) {
 	}
 protected:
+	/// A vertex type used by this render pass.
+	struct Vertex {
+		float x, y, z;
+		float s, t;
+	};
+	/// A vertex buffer used by this render pass.
+	VertexBuffer _vertexBuffer;
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 };
 
@@ -143,17 +163,25 @@ protected:
 struct EntityShadows : public RenderPass {
 public:
 	EntityShadows()
-		: RenderPass("entityShadows") {
+		: RenderPass("entityShadows"),
+		  _vertexBuffer(4, VertexFormatDescriptor::get<VertexFormat::P3FT2F>()) {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;
 private:
+	/// A vertex type used by this render pass.
+	struct Vertex {
+		float x, y, z;
+		float s, t;
+	};
+	/// A vertex buffer used by this render pass.
+	VertexBuffer _vertexBuffer;
 	// Used if low-quality shadows are enabled.
 	void doLowQualityShadow(const CHR_REF character);
 	// Used if high-quality shadows are enabled.
 	void doHighQualityShadow(const CHR_REF character);
 	// Used by all shadow qualities.
-	void doShadowSprite(float intensity, GLvertex v[]);
+	void doShadowSprite(float intensity, VertexBuffer& vertexBuffer);
 };
 
 extern TransparentEntities g_transparentEntities;
