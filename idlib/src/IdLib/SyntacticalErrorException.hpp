@@ -16,31 +16,34 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+/// @file   IdLib/SyntacticalErrorException.hpp
+/// @brief  Definition of an abstract exception indicating a lexical error
+/// @author Michael Heilmann
+
 #pragma once
 
-#include "egolib/Script/AbstractLexicalError.hpp"
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
-namespace Ego
-{
-namespace Script
-{
+#include "IdLib/AbstractSyntacticalErrorException.hpp"
 
-using namespace std;
+namespace Id {
+
 
 /**
  * @brief
- *  An exception for generic lexical errors.
- * @author
- *  Michael Heilmann
+ *  An abstract lexical error exception.
  */
-class LexicalError : public AbstractLexicalError
+class SyntacticalErrorException : public AbstractSyntacticalErrorException
 {
 
-private:
+protected:
 
     /**
      * @brief
-     *  A message describing the error.
+     *  A message describing the errror.
      */
     string _message;
 
@@ -59,15 +62,14 @@ public:
      * @param message
      *  a message describing the error
      */
-    LexicalError(const char *file, int line, const Location& location, const string& message) :
-        AbstractLexicalError(file, line, location), _message(message)
+    SyntacticalErrorException(const char *file, int line, const Location& location, const std::string& message) :
+        AbstractSyntacticalErrorException(file, line, location), _message(message)
     {}
-    LexicalError(const LexicalError& other) :
-        AbstractLexicalError(other), _message(other._message)
+    SyntacticalErrorException(const SyntacticalErrorException& other) :
+		AbstractSyntacticalErrorException(other), _message(other._message)
     {}
-    LexicalError& operator=(const LexicalError& other)
-    {
-        AbstractLexicalError::operator=(other);
+    SyntacticalErrorException& operator=(const SyntacticalErrorException& other) {
+		AbstractSyntacticalErrorException::operator=(other);
         _message = other._message;
         return *this;
     }
@@ -78,18 +80,15 @@ public:
      * @return
      *  the result of the cast
      */
-    operator string() const override
-    {
+    operator string() const override {
         ostringstream o;
         writeLocation(o);
         o << " - "
-            << "lexical error: "
-            << _message;
-        ;
+          << "syntactical error: "
+          << _message;
         return o.str();
     }
 
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Id

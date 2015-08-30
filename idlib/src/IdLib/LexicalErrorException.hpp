@@ -16,50 +16,38 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+/// @file   IdLib/LexicalErrorException.hpp
+/// @brief  Definition of an  exception indicating a lexical error
+/// @author Michael Heilmann
+
 #pragma once
 
-#include "egolib/Core/Exception.hpp"
-#include "egolib/Script/Location.hpp"
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
-namespace Ego
-{
-namespace Script
-{
+#include "IdLib/AbstractLexicalErrorException.hpp"
+
+namespace Id {
 
 using namespace std;
 
 /**
  * @brief
  *  An abstract lexical error exception.
- * @author
- *  Michael Heilmann
  */
-class AbstractLexicalError : public Ego::Core::Exception
-{
+class LexicalErrorException : public AbstractLexicalErrorException {
 
 private:
 
     /**
      * @brief
-     *  The location associated with this error.
+     *  A message describing the error.
      */
-    Location _location;
+    string _message;
 
-protected:
-
-    ostringstream& writeLocation(ostringstream& o) const
-    {
-        o << _location.getLoadName() << ": " << _location.getLineNumber()
-          << " (raised in file " << getFile() << ", line " << getLine() << ")";
-        return o;
-    }
-
-    AbstractLexicalError& operator=(const AbstractLexicalError& other)
-    {
-        Core::Exception::operator=(other);
-        _location = other._location;
-        return *this;
-    }
+public:
 
     /**
      * @brief
@@ -70,25 +58,40 @@ protected:
      *  the line within the C++ source file associated with this error
      * @param location
      *  the location associated with this error
+     *  the load name of the file associated with this error
+     * @param message
+     *  a message describing the error
      */
-    AbstractLexicalError(const char *file, int line, const Location& location) :
-        Core::Exception(file, line), _location(location)
-    {}
+	LexicalErrorException(const char *file, int line, const Location& location, const string& message) :
+        AbstractLexicalErrorException(file, line, location), _message(message) {
+    }
 
-public:
+	LexicalErrorException(const LexicalErrorException& other) :
+        AbstractLexicalErrorException(other), _message(other._message) {
+    }
+    
+	LexicalErrorException& operator=(const LexicalErrorException& other) {
+		LexicalErrorException::operator=(other);
+        _message = other._message;
+        return *this;
+    }
 
     /**
      * @brief
-     *  Get the location associated with this error.
+     *  Overloaded cast to std::string operator.
      * @return
-     *  the location associated with this error
+     *  the result of the cast
      */
-    const Location& getLocation() const
-    {
-        return _location;
+    operator string() const override {
+        ostringstream o;
+        writeLocation(o);
+        o << " - "
+            << "lexical error: "
+            << _message;
+        ;
+        return o.str();
     }
 
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Id

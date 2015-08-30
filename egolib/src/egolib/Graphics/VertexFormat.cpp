@@ -22,7 +22,6 @@
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/VertexFormat.hpp"
-#include "egolib/Core/UnhandledSwitchCaseException.hpp"
 
 namespace Ego
 {
@@ -31,45 +30,15 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFor
 {
     switch (vertexFormat)
     {
-        case VertexFormat::P2F:
-        {
-            return get<VertexFormat::P2F>();
-        }
-        break;
-        case VertexFormat::P3F:
-        {
-            return get<VertexFormat::P3F>();
-        }
-        break;
-        case VertexFormat::P3FT2F:
-        {
-            return get<VertexFormat::P3FT2F>();
-        }
-        break;
-        case VertexFormat::P3FC4F:
-        {
-            return get<VertexFormat::P3FC4F>();
-        }
-        break;
-        case VertexFormat::P3FC4FN3F:
-        {
-            return get<VertexFormat::P3FC4FN3F>();
-        }
-        break;
-        case VertexFormat::P3FC4FT2F:
-        {
-            return get<VertexFormat::P3FC4FT2F>();
-        }
-        break;
-        case VertexFormat::P3FC4FT2FN3F:
-        {
-            return get<VertexFormat::P3FC4FT2FN3F>();
-        }
-        break;
+        case VertexFormat::P2F:          return get<VertexFormat::P2F>();
+        case VertexFormat::P3F:          return get<VertexFormat::P3F>();
+        case VertexFormat::P3FT2F:       return get<VertexFormat::P3FT2F>();
+        case VertexFormat::P3FC4F:       return get<VertexFormat::P3FC4F>();
+        case VertexFormat::P3FC4FN3F:    return get<VertexFormat::P3FC4FN3F>();
+        case VertexFormat::P3FC4FT2F:    return get<VertexFormat::P3FC4FT2F>();
+        case VertexFormat::P3FC4FT2FN3F: return get<VertexFormat::P3FC4FT2FN3F>();
         default:
-        {
-            throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
-        }
+			throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
 }
 

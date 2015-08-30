@@ -17,33 +17,51 @@
 //*
 //********************************************************************************************
 
+/// @file   IdLib/AbstractLexicalError.hpp
+/// @brief  Definition of an abstract exception indicating a lexical error
+/// @author Michael Heilmann
+
 #pragma once
 
-#include "egolib/Script/AbstractSyntacticalError.hpp"
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
-namespace Ego
-{
-namespace Script
-{
+#include "IdLib/Exception.hpp"
+#include "IdLib/Location.hpp"
+
+namespace Id {
+
+using namespace std;
 
 /**
  * @brief
- *  An exception for generic syntactical errors.
- * @author
- *  Michael Heilmann
+ *  An abstract lexical error exception.
  */
-class SyntacticalError : public AbstractSyntacticalError
+class AbstractLexicalErrorException : public Exception
 {
 
-protected:
+private:
 
     /**
      * @brief
-     *  A message describing the errror.
+     *  The location associated with this error.
      */
-    string _message;
+    Location _location;
 
-public:
+protected:
+
+    ostringstream& writeLocation(ostringstream& o) const {
+        o << _location.getLoadName() << ": " << _location.getLineNumber()
+          << " (raised in file " << getFile() << ", line " << getLine() << ")";
+        return o;
+    }
+
+    AbstractLexicalErrorException& operator=(const AbstractLexicalErrorException& other) {
+        Exception::operator=(other);
+        _location = other._location;
+        return *this;
+    }
 
     /**
      * @brief
@@ -54,40 +72,23 @@ public:
      *  the line within the C++ source file associated with this error
      * @param location
      *  the location associated with this error
-     *  the load name of the file associated with this error
-     * @param message
-     *  a message describing the error
      */
-    SyntacticalError(const char *file, int line, const Location& location, const std::string& message) :
-        AbstractSyntacticalError(file, line, location), _message(message)
+	AbstractLexicalErrorException(const char *file, int line, const Location& location) :
+        Exception(file, line), _location(location)
     {}
-    SyntacticalError(const SyntacticalError& other) :
-        AbstractSyntacticalError(other), _message(other._message)
-    {}
-    SyntacticalError& operator=(const SyntacticalError& other)
-    {
-        AbstractSyntacticalError::operator=(other);
-        _message = other._message;
-        return *this;
-    }
+
+public:
 
     /**
      * @brief
-     *  Overloaded cast to std::string operator.
+     *  Get the location associated with this error.
      * @return
-     *  the result of the cast
+     *  the location associated with this error
      */
-    operator string() const override
-    {
-        ostringstream o;
-        writeLocation(o);
-        o << " - "
-          << "syntactical error: "
-          << _message;
-        return o.str();
+    const Location& getLocation() const {
+        return _location;
     }
 
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Id

@@ -17,24 +17,28 @@
 //*
 //********************************************************************************************
 
+/// @file   IdLib/AbstractSyntacticalError.hpp
+/// @brief  Definition of an abstract exception indicating a lexical error
+/// @author Michael Heilmann
+
 #pragma once
 
-#include "egolib/Core/Exception.hpp"
-#include "egolib/Script/Location.hpp"
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
-namespace Ego
-{
-namespace Script
-{
+#include "IdLib/Exception.hpp"
+#include "IdLib/Location.hpp"
+
+namespace Id {
+
 using namespace std;
 
 /**
  * @brief
- *  An abstract exception for syntactical errors.
- * @author
- *  Michael Heilmann
+ *  An abstract syntactical error exception.
  */
-class AbstractSyntacticalError : public Core::Exception
+class AbstractSyntacticalErrorException : public Exception
 {
 
 private:
@@ -47,8 +51,7 @@ private:
 
 protected:
 
-    ostringstream& writeLocation(ostringstream& o) const
-    {
+    ostringstream& writeLocation(ostringstream& o) const {
         o << _location.getLoadName() << ": " << _location.getLineNumber()
           << " (raised in file " << getFile() << ", line " << getLine() << ")";
         return o;
@@ -67,8 +70,8 @@ protected:
      * @param message
      *  an additional error message to be appended to the standard error information
      */
-    AbstractSyntacticalError(const char *file, int line, const Location& location) :
-        Core::Exception(file, line), _location(location)
+    AbstractSyntacticalErrorException(const char *file, int line, const Location& location) :
+        Exception(file, line), _location(location)
     {}
 
 public:
@@ -79,12 +82,10 @@ public:
      * @return
      *  the location associated with the error
      */
-    const Location& getLocation() const
-    {
+    const Location& getLocation() const {
         return _location;
     }
 
 };
 
-} // namespace Script
-} // namespace Ego
+} // namespace Id

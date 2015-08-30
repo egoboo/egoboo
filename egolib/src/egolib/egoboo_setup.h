@@ -25,7 +25,6 @@
 #include "egolib/typedef.h"
 #include "egolib/log.h"
 #include "egolib/Script/EnumDescriptor.hpp"
-#include "egolib/Script/LexicalError.hpp"
 #include "egolib/FileFormats/configfile.h"
 #include "egolib/Script/Conversion.hpp"
 #include "egolib/Renderer/TextureFilter.hpp"

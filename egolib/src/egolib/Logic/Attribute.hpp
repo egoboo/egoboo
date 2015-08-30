@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include "egolib/Core/UnhandledSwitchCaseException.hpp"
 #include "egolib/Logic/Damage.hpp"
 
 namespace Ego
@@ -125,9 +124,9 @@ namespace Attribute
             case MAX_LIFE:    return "Life";
 
             default:
-            case NR_OF_ATTRIBUTES: throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            case NR_OF_ATTRIBUTES: throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
         }
-        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 
     inline AttributeType resistFromDamageType(const DamageType type) {

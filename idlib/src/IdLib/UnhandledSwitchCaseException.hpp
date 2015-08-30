@@ -17,26 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Core/UnhandledSwitchCaseException.hpp
-/// @brief  Definition of an exception indicating a switch is missinga case handle for a specific label
-/// @author Johan Jansen
+/// @file   IdLib/UnhandledSwitchCaseException.hpp
+/// @brief  Definition of an exception indicating a missing siwtch case handle for a specific label
+/// @author Johan Jansen, Michael Heilmann
 
 #pragma once
 
-#include "egolib/Core/Exception.hpp"
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
-namespace Ego
-{
-namespace Core
-{
+#include "IdLib/Exception.hpp"
+
+namespace Id {
 
 using namespace std;
 
 /**
  * @brief
- *  Exception for when a switch is missing a case handle for a specific label
- * @author
- *  Johan Jansen
+ *  A missing case handle for specific label exception
  */
 class UnhandledSwitchCaseException : public Exception
 {
@@ -45,40 +44,37 @@ public:
 
     /**
      * @brief
-     *  Construct this environment error.
+     *  Construct this exception.
      * @param file
      *  the C++ source file (as obtained by the __FILE__ macro) associated with this exception
      * @param line
      *  the line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception
      * @param message
-     * 	optional exception string message
+     *  optional exception string message
      */
     UnhandledSwitchCaseException(const char *file, int line, const string& message = "Unhandled switch case") :
-        Exception(file, line), 
-        _message(message)
-    {}
+        Exception(file, line),  _message(message) {
+    }
 
-	/**
-	 * @brief
-	 *  Construct this exception with the value of another exception.
-	 * @param other
-	 *  the other exception
-	 */
+    /**
+     * @brief
+     *  Construct this exception with the value of another exception.
+     * @param other
+     *  the other exception
+     */
     UnhandledSwitchCaseException(const UnhandledSwitchCaseException& other) :
-        Exception(other), 
-        _message(other._message)
-    {}
+        Exception(other), _message(other._message) {
+    }
 
-	/**
-	 * @brief
-	 *  Assign this exception the values of another exception.
-	 * @param other
-	 *  the other exception
-	 * @return
-	 *  this exception
-	 */
-    UnhandledSwitchCaseException& operator=(const UnhandledSwitchCaseException& other)
-    {
+    /**
+     * @brief
+     *  Assign this exception the values of another exception.
+     * @param other
+     *  the other exception
+     * @return
+     *  this exception
+     */
+    UnhandledSwitchCaseException& operator=(const UnhandledSwitchCaseException& other) {
         Exception::operator=(other);
         _message = other._message;
         return *this;
@@ -92,8 +88,7 @@ public:
      * @return
      *  the message associated with this exception
      */
-    const string& getMessage() const
-    {
+    const string& getMessage() const {
         return _message;
     }
 
@@ -103,8 +98,7 @@ public:
      * @return
      *  a human-readable textual description of the string.
      */
-    virtual operator ::std::string() const
-    {
+    virtual operator ::std::string() const {
         ostringstream buffer;
         buffer << "(raised in file " << getFile() << ", line " << getLine() << ")"
                << ":" << std::endl;
@@ -113,8 +107,7 @@ public:
     }
 
 private:
-	std::string _message;
+    std::string _message;
 };
 
-} // namespace Core
-} // namespace Ego
+} // namespace Id

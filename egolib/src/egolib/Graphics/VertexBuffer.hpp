@@ -25,7 +25,6 @@
 #pragma once
 
 #include "egolib/Graphics/VertexFormat.hpp"
-#include "egolib/Core/LockFailedException.hpp"
 
 namespace Ego
 {

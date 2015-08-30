@@ -18,13 +18,12 @@
 //********************************************************************************************
 #pragma once
 
-#include "egolib/Script/LexicalError.hpp"
-#include "egolib/Script/SyntacticalError.hpp"
+#include "egolib/platform.h"
 
-namespace Ego
-{
-namespace Script
-{
+namespace Ego {
+namespace Script {
+
+using namespace Id;
 using namespace std;
 
 /**
@@ -33,7 +32,7 @@ using namespace std;
  * @author
  *  Michael Heilmann
  */
-class MissingDelimiterError : public AbstractLexicalError
+class MissingDelimiterError : public AbstractLexicalErrorException
 {
 
 private:
@@ -50,16 +49,15 @@ public:
      * @brief
      *  Construct a missing delimiter error.
      * @param file, line, location
-     *  see documentation of Ego::Script::LexicalError(const char *,int,const Ego::Script::Location&)
+     *  see documentation of Id::LexicalErrorException(const char *,int,const Id::Location&)
      * @param delimiter
      *  the expected delimiter
      */
     MissingDelimiterError(const char *file, int line, const Location& location, char delimiter) :
-        AbstractLexicalError(file, line, location), _delimiter(delimiter)
+        AbstractLexicalErrorException(file, line, location), _delimiter(delimiter)
     {}
 
-    operator string() const override
-    {
+    operator string() const override {
         std::ostringstream o;
         writeLocation(o);
         o << " - "

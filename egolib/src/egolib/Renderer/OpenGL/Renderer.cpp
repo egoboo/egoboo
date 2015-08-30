@@ -23,7 +23,6 @@
 
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
 #include "egolib/Core/StringUtilities.hpp"
-#include "egolib/Core/UnhandledSwitchCaseException.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 

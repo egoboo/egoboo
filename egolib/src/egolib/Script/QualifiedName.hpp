@@ -64,7 +64,7 @@ private:
         ostringstream message;
         message << file << ":" << line << ": ";
         message << "argument string `" << string << "` does not not represent a valid qualified name";
-        throw LexicalError(file, line, location, message.str());
+        throw Id::LexicalErrorException(file, line, location, message.str());
     }
 
 private:
@@ -131,7 +131,7 @@ public:
      *  the string
      * @post
      *  This qualified name was assigned the string.
-     * @throw Ego::Script::LexicalError
+     * @throw Id::LexicalErrorException
      *  if the argument string @a string does not represent a qualified name
      */
     QualifiedName(const string& string) :

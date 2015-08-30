@@ -24,7 +24,6 @@
 #include "egolib/Image/ImageLoader_SDL.hpp"
 #include "egolib/Image/ImageLoader_SDL_image.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
-#include "egolib/Core/EnvironmentError.hpp"
 
 ImageManager *ImageManager::_singleton = nullptr;
 
@@ -70,7 +69,7 @@ ImageManager::ImageManager() :
 		flags = IMG_Init(flags);
 		// PNG support is mandatory.
 		if (!(flags & IMG_INIT_PNG)) {
-			EnvironmentError error(__FILE__, __LINE__, "ImageManager", string("Failed to initialize SDL_Image subsystem (") + SDL_GetError() + ")");
+			Id::EnvironmentErrorException error(__FILE__, __LINE__, "ImageManager", string("Failed to initialize SDL_Image subsystem (") + SDL_GetError() + ")");
 			_withSDL_image = false;
 			log_warning(" %s\n", ((std::string)error).c_str());
 			throw error;

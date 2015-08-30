@@ -246,7 +246,7 @@ bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::stri
                 }
             }
         } else {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber),
+            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
                                             "expected `:`, comment, whitespace, newline or end of input");
         }
     }

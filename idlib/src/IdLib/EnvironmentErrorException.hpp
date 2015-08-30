@@ -17,14 +17,19 @@
 //*
 //********************************************************************************************
 
+/// @file   idlib/EnvironmentError.hpp
+/// @brief  Definition of an exception indicating an environment error
+/// @author Michael Heilmann
+
 #pragma once
 
-#include "egolib/Core/Exception.hpp"
+#if !defined(IDLIB_PRIVATE) || IDLIB_PRIVATE != 1
+#error(do not include directly, include `IdLib/IdLib.hpp` instead)
+#endif
 
-namespace Ego
-{
-namespace Core
-{
+#include "IdLib/Exception.hpp"
+
+namespace Id {
 
 using namespace std;
 
@@ -36,7 +41,7 @@ using namespace std;
  * @author
  *  Michael Heilmann
  */
-class EnvironmentError : public Exception
+class EnvironmentErrorException : public Exception
 {
 
 private:
@@ -69,14 +74,13 @@ public:
      * @remark
      *  Intentionally protected.
      */
-    EnvironmentError(const char *file, int line, const string& component, const string& message) :
-        Exception(file, line), _component(component), _message(message)
-    {}
-    EnvironmentError(const EnvironmentError& other) :
-        Exception(other), _component(other._component), _message(other._message)
-    {}
-    EnvironmentError& operator=(const EnvironmentError& other)
-    {
+    EnvironmentErrorException(const char *file, int line, const string& component, const string& message) :
+        Exception(file, line), _component(component), _message(message) {
+	}
+	EnvironmentErrorException(const EnvironmentErrorException& other) :
+        Exception(other), _component(other._component), _message(other._message) {
+	}
+	EnvironmentErrorException& operator=(const EnvironmentErrorException& other) {
         Exception::operator=(other);
         _component = other._component;
         _message = other._message;
@@ -91,8 +95,7 @@ public:
      * @return
      *  the component associated with this environment error
      */
-    const string& getComponent() const
-    {
+    const string& getComponent() const {
         return _component;
     }
 
@@ -102,8 +105,7 @@ public:
      * @return
      *  the message associated with this environment error
      */
-    const string& getMessage() const
-    {
+    const string& getMessage() const {
         return _message;
     }
 
@@ -113,8 +115,7 @@ public:
      * @return
      *  a human-readable textual description of the string.
      */
-    virtual operator ::std::string() const
-    {
+    virtual operator ::std::string() const {
         ostringstream buffer;
         buffer << _component
                << " "
@@ -125,5 +126,4 @@ public:
     }
 };
 
-} // namespace Core
-} // namespace Ego
+} // namespace Id
