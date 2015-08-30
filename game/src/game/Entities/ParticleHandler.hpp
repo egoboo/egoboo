@@ -29,10 +29,9 @@
 #include "game/Entities/Particle.hpp"
 #include "game/Entities/particle_physics.h"
 
-class ParticleHandler : public Id::NonCopyable
+class ParticleHandler : public Ego::Core::Singleton<ParticleHandler>
 {
 public:
-    static ParticleHandler& get();
 
     /**
     * @brief A completely recursive loop safe container for accessing instances of in-game objects
@@ -98,7 +97,9 @@ public:
         _transparentParticleTexture("mp_data/globalparticles/particle_trans"),
         _lightParticleTexture("mp_data/globalparticles/particle_light")
     {
-        setDisplayLimit(512);
+		setDisplayLimit(egoboo_config_t::get().graphic_simultaneousParticles_max.getValue());
+		prt_set_texture_params(getTransparentParticleTexture(), SPRITE_ALPHA);
+		prt_set_texture_params(getLightParticleTexture(), SPRITE_LIGHT);
     }
 
     /**

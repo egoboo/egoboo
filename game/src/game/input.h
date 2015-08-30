@@ -150,7 +150,10 @@ extern input_cursor_t input_cursor;
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-void input_system_init();
+struct InputSystem {
+	static void initialize();
+	static void uninitialize();
+};
 void input_read_all_devices();
 
 void input_cursor_reset();
