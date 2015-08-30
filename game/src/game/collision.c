@@ -80,10 +80,6 @@ public:
     bool int_max;
     float depth_max;
 
-    // platform interactions
-    //bool int_plat;
-    //float plat_lerp;
-
     bool is_impact;
     bool is_pressure;
     bool is_collision;

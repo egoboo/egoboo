@@ -2439,7 +2439,7 @@ bool Object::isInvictusDirection(FACING_T direction, const BIT_FIELD effects) co
     }
     else
     {
-        // N Frame
+        // Non invictus Frame
         direction -= getProfile()->getNormalFrameFacing();
         left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getProfile()->getNormalFrameAngle()) );
         right      = getProfile()->getNormalFrameAngle();
