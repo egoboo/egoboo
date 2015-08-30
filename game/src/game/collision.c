@@ -93,8 +93,6 @@ public:
     float block_factor;
 
     // collision reaction
-    //Vector3f vimpulse;                      ///< the velocity impulse
-    //Vector3f pimpulse;                      ///< the position impulse
     bool terminate_particle;
     bool prt_bumps_chr;
     bool prt_damages_chr;
@@ -103,9 +101,7 @@ public:
 };
 
 static bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata);
-//static bool do_chr_prt_collision_recoil(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_damage(chr_prt_collision_data_t * pdata);
-//static bool do_chr_prt_collision_impulse(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_bump(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_handle_bump(chr_prt_collision_data_t * pdata);
 
@@ -136,8 +132,6 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
     vdiff_perp(),
     block_factor(0.0f),
 
-    //vimpulse(),                      ///< the velocity impulse
-    //pimpulse(),                      ///< the position impulse
     terminate_particle(false),
     prt_bumps_chr(false),
     prt_damages_chr(false)
@@ -161,16 +155,11 @@ static bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNode
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_chr_platform_physics( Object * pitem, Object * pplat );
-//static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, Vector3f& nrm, Vector3f& vdiff );
 static bool do_chr_chr_collision( const CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
-
 static bool do_chr_prt_collision( const CoNode_t * d );
-
-//static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( const CoNode_t * d, chr_prt_collision_data_t * pdata );
-//static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, Vector3f& nrm, float& depth);
 
 static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform);
 static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
@@ -551,7 +540,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
         oct_bb_t   tmp_oct;
         phys_expand_prt_bb(particle.get(), 0.0f, 1.0f, tmp_oct);
 
-        // convert the oct_bb_t to a correct BSP_aabb_t
+        // convert the oct_bb_t to a correct AABB2f
 		AABB2f aabb2d = AABB2f(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
         // find all collisions with characters
@@ -2637,69 +2626,6 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
-{
-    // estimate the impulse on the particle
-
-    bool did_something = false;
-
-    if ( NULL == pdata ) return false;
-
-    if ( !pdata->ppip->allowpush ) return false;
-
-    // the impulse due to particle damage
-    if ( pdata->is_impact && pdata->prt_damages_chr )
-    {
-        int left_over_damage;
-
-        did_something = true;
-
-        left_over_damage = 0;
-        if ( std::abs( pdata->actual_damage ) < std::abs( pdata->max_damage ) )
-        {
-            left_over_damage = std::abs( pdata->max_damage ) - std::abs( pdata->actual_damage );
-        }
-
-        if ( 0 == pdata->max_damage )
-        {
-            pdata->block_factor = 0.0f;
-        }
-        else
-        {
-            pdata->block_factor = static_cast<float>(left_over_damage)
-                                / static_cast<float>(std::abs(pdata->max_damage));
-            pdata->block_factor = pdata->block_factor / ( 1.0f + pdata->block_factor );
-        }
-
-        if ( 0.0f == pdata->block_factor )
-        {
-            // the simple case (particle comes to a stop)
-            pdata->vimpulse -= pdata->pprt->vel;
-        }
-        else if ( 0.0f != pdata->dot )
-        {
-            float sgn = SGN( pdata->dot );
-
-            pdata->vimpulse += pdata->vdiff_perp * (-sgn * (1.0f + pdata->block_factor));
-        }
-    }
-
-    // the "pressure" impulse due to overlap
-    if ( pdata->int_min && pdata->depth_min > 0.0f && pdata->ichr != pdata->pprt->owner_ref )
-    {
-        // is the normal reversed?
-		Vector3f tmp_imp = pdata->nrm * pdata->depth_min;
-        pdata->pimpulse += tmp_imp;
-
-        did_something = true;
-    }
-
-    return true;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
 {
     bool prt_belongs_to_chr;
@@ -3127,29 +3053,10 @@ bool do_chr_prt_collision( const CoNode_t * d )
                 }
             }
 
-    #if 0
-            // calculate the impulse.
-            if (( cn_data.int_min || cn_data.int_max ) && cn_data.ppip->allowpush )
-            {
-                do_chr_prt_collision_impulse( &cn_data );
-            }
-
-            // make the character and particle recoil from the collision
-            if (cn_data.vimpulse.length_abs() > 0.0f ||
-                cn_data.pimpulse.length_abs() > 0.0f)
-            {
-                if ( do_chr_prt_collision_recoil( &cn_data ) )
-                {
-                    retval = true;
-                }
-            }
-    #endif
-
             //Cause knockback (Hold the Line perk makes Objects immune to knockback)
             if(!cn_data.pchr->hasPerk(Ego::Perks::HOLD_THE_LINE)) {
                 do_chr_prt_collision_knockback(cn_data);
             }
-
         }
 
         //Attack was dodged!
