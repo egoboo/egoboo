@@ -335,8 +335,8 @@ struct gfx_config_t
     bool exploremode;       ///< fog of war mode for mesh display
     bool usefaredge;        ///< Far edge maps? (Outdoor)
 
-    static void init(gfx_config_t *self);
-    static void download(gfx_config_t *self, egoboo_config_t *cfg);
+    static void init(gfx_config_t& self);
+    static void download(gfx_config_t& self, egoboo_config_t& cfg);
 };
 
 

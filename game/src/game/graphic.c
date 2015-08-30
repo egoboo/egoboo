@@ -1612,61 +1612,51 @@ gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, s
 //--------------------------------------------------------------------------------------------
 // gfx_config_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void gfx_config_t::download(gfx_config_t *self, egoboo_config_t *cfg)
+void gfx_config_t::download(gfx_config_t& self, egoboo_config_t& cfg)
 {
     // Load GFX configuration values, even if no Egoboo configuration is provided.
     init(self);
 
-    if (!cfg)
-    {
-        throw std::invalid_argument("nullptr == cfg");
-    }
+    self.antialiasing = cfg.graphic_antialiasing.getValue() > 0;
 
-    self->antialiasing = cfg->graphic_antialiasing.getValue() > 0;
+    self.refon = cfg.graphic_reflections_enable.getValue();
 
-    self->refon = cfg->graphic_reflections_enable.getValue();
+    self.shadows_enable = cfg.graphic_shadows_enable.getValue();
+    self.shadows_highQuality_enable = !cfg.graphic_shadows_highQuality_enable.getValue();
 
-    self->shadows_enable = cfg->graphic_shadows_enable.getValue();
-    self->shadows_highQuality_enable = !cfg->graphic_shadows_highQuality_enable.getValue();
+    self.gouraudShading_enable = cfg.graphic_gouraudShading_enable.getValue();
+    self.dither = cfg.graphic_dithering_enable.getValue();
+    self.perspective = cfg.graphic_perspectiveCorrection_enable.getValue();
+    self.phongon = cfg.graphic_specularHighlights_enable.getValue();
 
-    self->gouraudShading_enable = cfg->graphic_gouraudShading_enable.getValue();
-    self->dither = cfg->graphic_dithering_enable.getValue();
-    self->perspective = cfg->graphic_perspectiveCorrection_enable.getValue();
-    self->phongon = cfg->graphic_specularHighlights_enable.getValue();
+    self.draw_background = cfg.graphic_background_enable.getValue() && water._background_req;
+    self.draw_overlay = cfg.graphic_overlay_enable.getValue() && water._overlay_req;
 
-    self->draw_background = cfg->graphic_background_enable.getValue() && water._background_req;
-    self->draw_overlay = cfg->graphic_overlay_enable.getValue() && water._overlay_req;
+    self.dynalist_max = CLIP(cfg.graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
 
-    self->dynalist_max = CLIP(cfg->graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
-
-    self->draw_water_0 = !self->draw_overlay && (water._layer_count > 0);
-    self->clearson = !self->draw_background;
-    self->draw_water_1 = !self->draw_background && (water._layer_count > 1);
+    self.draw_water_0 = !self.draw_overlay && (water._layer_count > 0);
+    self.clearson = !self.draw_background;
+    self.draw_water_1 = !self.draw_background && (water._layer_count > 1);
 }
 
-void gfx_config_t::init(gfx_config_t *self)
+void gfx_config_t::init(gfx_config_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
+    self.gouraudShading_enable = true;
+    self.refon = true;
+    self.antialiasing = false;
+    self.dither = false;
+    self.perspective = false;
+    self.phongon = true;
+    self.shadows_enable = true;
+    self.shadows_highQuality_enable = true;
 
-    self->gouraudShading_enable = true;
-    self->refon = true;
-    self->antialiasing = false;
-    self->dither = false;
-    self->perspective = false;
-    self->phongon = true;
-    self->shadows_enable = true;
-    self->shadows_highQuality_enable = true;
+    self.clearson = true;
+    self.draw_background = false;
+    self.draw_overlay = false;
+    self.draw_water_0 = true;
+    self.draw_water_1 = true;
 
-    self->clearson = true;
-    self->draw_background = false;
-    self->draw_overlay = false;
-    self->draw_water_0 = true;
-    self->draw_water_1 = true;
-
-    self->dynalist_max = 8;
+    self.dynalist_max = 8;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2497,9 +2487,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
             pdyna = dyl.lst + cnt;
 
             // evaluate the intensity at the camera
-            diff[kX] = pdyna->pos[kX] - cam.getCenter()[kX];
-            diff[kY] = pdyna->pos[kY] - cam.getCenter()[kY];
-            diff[kZ] = pdyna->pos[kZ] - cam.getCenter()[kZ] - 90.0f;   // evaluated at the "head height" of a character
+			diff = pdyna->pos - cam.getCenter() - Vector3f(0.0f, 0.0f, 90.0f); // evaluate at the "head height" of a character
 
             dyna_weight = std::abs(dyna_lighting_intensity(pdyna, diff));
 
