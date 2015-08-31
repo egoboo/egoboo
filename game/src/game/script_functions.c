@@ -6557,10 +6557,10 @@ Uint8 scr_TargetPayForArmor( script_state_t& state, ai_state_t& self )
     pself_target = _currentModule->getObjectHandler().get( self.target );
 
 
-    iTmp = ppro->getSkinInfo(state.argument).cost;
+    iTmp = pself_target->getProfile()->getSkinInfo(state.argument).cost;
     state.y = iTmp;                                       // Cost of new skin
 
-    iTmp -= ppro->getSkinInfo(pself_target->skin).cost;     // Refund for old skin
+    iTmp -= pself_target->getProfile()->getSkinInfo(pself_target->skin).cost;     // Refund for old skin
 
     if ( iTmp > pself_target->money )
     {
@@ -6571,9 +6571,7 @@ Uint8 scr_TargetPayForArmor( script_state_t& state, ai_state_t& self )
     else
     {
         // Pay for it.  Cost may be negative after refund.
-        pself_target->money = pself_target->money - iTmp;
-        pself_target->money = CLIP( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
-
+        pself_target->money = Ego::Math::constrain<int16_t>(pself_target->money - iTmp, 0, MAXMONEY);
         state.x = 0;
         returncode = true;
     }
