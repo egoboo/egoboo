@@ -1158,7 +1158,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // set the dismount timer
-    if ( !isitem ) dismount_timer  = PHYS_DISMOUNT_TIME;
+    dismount_timer  = PHYS_DISMOUNT_TIME;
     dismount_object = holder;
 
     // Figure out which hand it's in
@@ -1222,6 +1222,14 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     {
         vel[kX] = pholder->vel[kX];
         vel[kY] = pholder->vel[kY];
+    }
+
+    //Throw us forward if we can collide with the holder (for example the Stool)
+    //This prevents us from being dropped into the collision box of the holder
+    if(bump.size > 0) {
+        float angle = FACING_TO_RAD(ori.facing_z + ATK_BEHIND);
+        vel[kX] += std::cos(angle) * DROPXYVEL * 0.5f;
+        vel[kY] += std::sin(angle) * DROPXYVEL * 0.5f;
     }
 
     vel[kZ] = DROPZVEL;

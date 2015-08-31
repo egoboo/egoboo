@@ -441,8 +441,8 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
     if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return false;
 
     // handle the dismount exception
-    if ( pchr_a->dismount_timer > 0 && pchr_a->dismount_object == ichr_b ) return false;
-    if ( pchr_b->dismount_timer > 0 && pchr_b->dismount_object == ichr_a ) return false;
+    if ( pchr_a->dismount_timer > 0 && pchr_a->dismount_object == ichr_b) return false;
+    if ( pchr_b->dismount_timer > 0 && pchr_b->dismount_object == ichr_a) return false;
 
     return true;
 }
@@ -1254,9 +1254,6 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
     oct_vec_v2_t apos, bpos;
 
-    bool mounted = false;
-    bool handled = false;
-
     // make sure that A is valid
     const std::shared_ptr<Object> &pchr_a = _currentModule->getObjectHandler()[ichr_a];
     if(!pchr_a) {
@@ -1279,14 +1276,11 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     if ( !mount_a && !mount_b ) return false;
 
     // Ready for position calulations
-    apos.ctor(pchr_a->getPosition() );
-    bpos.ctor( pchr_b->getPosition() );
-
-    // assume the worst
-    mounted = false;
+    apos.ctor(pchr_a->getPosition());
+    bpos.ctor(pchr_b->getPosition());
 
     // mount a on b ?
-    if ( !mounted && mount_b )
+    if ( mount_b )
     {
         oct_bb_t  tmp_cv, saddle_cv;
 
@@ -1309,19 +1303,17 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
             if (pdiff.dot(vdiff) >= 0.0f)
             {
                 // the rider is in a mountable position, don't do any more collisions
-                // even if the object is doesn't actually mount
-                handled = true;
-
+                // even if the object doesn't actually mount
                 if ( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
                 {
-                    mounted = pchr_a->isBeingHeld();
+                    return true;
                 }
             }
         }
     }
 
     // mount b on a ?
-    if ( !mounted && mount_a )
+    if ( mount_a )
     {
         oct_bb_t  tmp_cv, saddle_cv;
 
@@ -1343,21 +1335,20 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
             pdiff[kY] = bpos[OCT_Y] - saddle_pos[OCT_Y];
             pdiff[kZ] = bpos[OCT_Z] - saddle_pos[OCT_Z];
 
-            if (pdiff.dot(vdiff ) >= 0.0f)
+            if (pdiff.dot(vdiff) >= 0.0f)
             {
                 // the rider is in a mountable position, don't do any more collisions
-                // even if the object is doesn't actually mount
-                handled = true;
+                // even if the object doesn't actually mount
 
                 if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
                 {
-                    mounted = pchr_b->isBeingHeld();
+                    return true;
                 }
             }
         }
     }
 
-    return handled;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1703,7 +1694,7 @@ bool do_chr_chr_collision( const CoNode_t * d )
     //---- calculate the character-character interactions
     {
         const float max_pressure_strength = 0.25f;//1.0f - std::min(pchr_a->phys.dampen, pchr_b->phys.dampen);
-        const float pressure_strength     = max_pressure_strength * interaction_strength;
+        float pressure_strength     = max_pressure_strength * interaction_strength;
 
 		Vector3f pdiff_a;
 
