@@ -81,7 +81,7 @@ struct chr_spawn_data_t;
 //Dismounting
 #define DISMOUNTZVEL        16
 #define DISMOUNTZVELFLY     4
-#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.05f)          ///< time delay for full object-object interaction (approximately 0.05 second)
+#define PHYS_DISMOUNT_TIME  25          ///< time delay for full object-object interaction (approximately 0.5 second)
 
 //Water
 #define RIPPLETOLERANCE     60          ///< For deep water

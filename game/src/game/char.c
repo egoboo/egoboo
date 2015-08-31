@@ -1077,6 +1077,12 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     //    pchr->chr_max_cv.maxs[OCT_Z] += PLATTOLERANCE;
     //}
 
+    //This makes it easier to jump on top of mounts
+    if(pchr->isMount()) {
+       pchr->chr_max_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, pchr->chr_max_cv._maxs[OCT_Z]);
+       pchr->chr_min_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, pchr->chr_min_cv._maxs[OCT_Z]);
+    }
+
     // calculate collision volumes for various slots
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {

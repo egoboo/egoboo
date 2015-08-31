@@ -153,7 +153,7 @@ static bool bump_all_platforms( const std::set<CoNode_t, CollisionCmp> &collisio
 static bool bump_all_mounts( const std::set<CoNode_t, CollisionCmp> &collisionNodes );
 static bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes );
 
-static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
+static bool bump_one_mount(const std::shared_ptr<Object> &character, const std::shared_ptr<Object> &mount);
 static bool do_chr_platform_physics( Object * pitem, Object * pplat );
 static bool do_chr_chr_collision( const CoNode_t * d );
 
@@ -990,10 +990,29 @@ bool bump_all_mounts( const std::set<CoNode_t, CollisionCmp> &collisionNodes )
     // Do mounts
     for(const CoNode_t &node : collisionNodes)
     {
-        // only look at character-character interactions
-        if ( INVALID_CHR_REF == node.chra || INVALID_CHR_REF == node.chrb ) continue;
+        // make sure that A is valid
+        const std::shared_ptr<Object> &pchr_a = _currentModule->getObjectHandler()[node.chra];
+        if(!pchr_a) {
+            continue;
+        }
 
-        bump_one_mount( node.chra, node.chrb );
+        // make sure that B is valid
+        const std::shared_ptr<Object> &pchr_b = _currentModule->getObjectHandler()[node.chrb];
+        if(!pchr_b) {
+            continue;
+        }
+
+        //Try to mount A with B
+        if(pchr_a->canMount(pchr_b)) {
+            if(bump_one_mount(pchr_a, pchr_b)) {
+                continue;
+            }
+        }
+
+        //Try to mount B with A
+        if(pchr_b->canMount(pchr_a)) {
+            bump_one_mount(pchr_b, pchr_a);
+        }
     }
 
     return true;
@@ -1248,103 +1267,37 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
 }
 
 //--------------------------------------------------------------------------------------------
-bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
+bool bump_one_mount(const std::shared_ptr<Object> &character, const std::shared_ptr<Object> &mount)
 {
-	Vector3f vdiff = Vector3f::zero();
+    bool characterWantsToMount = false;
+    bool collideXY = false;
+    bool collideZ = false;
 
-    oct_vec_v2_t apos, bpos;
-
-    // make sure that A is valid
-    const std::shared_ptr<Object> &pchr_a = _currentModule->getObjectHandler()[ichr_a];
-    if(!pchr_a) {
-        return false;
+    //Do some collision checks
+    if((Vector2f(character->getPosX(), character->getPosY()) - Vector2f(mount->getPosX(), mount->getPosY())).length() < MOUNTTOLERANCE) {
+        collideXY = true;
     }
 
-    // make sure that B is valid
-    const std::shared_ptr<Object> &pchr_b = _currentModule->getObjectHandler()[ichr_b];
-    if(!pchr_b) {
-        return false;
+    if((mount->getPosZ() + mount->chr_min_cv._maxs[OCT_Z]) < character->getPosZ()) {
+        collideZ = true;
     }
 
-    // find the difference in velocities
-    vdiff = pchr_b->vel - pchr_a->vel;
-
-    // can either of these objects mount the other?
-    bool mount_a = pchr_b->canMount(pchr_a);
-    bool mount_b = pchr_a->canMount(pchr_b);
-
-    if ( !mount_a && !mount_b ) return false;
-
-    // Ready for position calulations
-    apos.ctor(pchr_a->getPosition());
-    bpos.ctor(pchr_b->getPosition());
-
-    // mount a on b ?
-    if ( mount_b )
-    {
-        oct_bb_t  tmp_cv, saddle_cv;
-
-        //---- find out whether the object is overlapping with the saddle
-
-        // the position of the saddle over the frame
-        oct_bb_t::translate(pchr_b->slot_cv[SLOT_LEFT], pchr_b->getPosition(), tmp_cv);
-        phys_expand_oct_bb(tmp_cv, pchr_b->vel, 0.0f, 1.0f, saddle_cv);
-
-        if (oct_bb_t::contains(saddle_cv, apos))
-        {
-            oct_vec_v2_t saddle_pos;
-			Vector3f   pdiff;
-
-            saddle_pos = saddle_cv.getMid();
-            pdiff[kX] = saddle_pos[OCT_X] - apos[OCT_X];
-            pdiff[kY] = saddle_pos[OCT_Y] - apos[OCT_Y];
-            pdiff[kZ] = saddle_pos[OCT_Z] - apos[OCT_Z];
-
-            if (pdiff.dot(vdiff) >= 0.0f)
-            {
-                // the rider is in a mountable position, don't do any more collisions
-                // even if the object doesn't actually mount
-                if ( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
-                {
-                    return true;
-                }
-            }
-        }
+    //If we are falling on top of the mount, then we are trying to mount
+    if (collideXY && collideZ) {
+        characterWantsToMount = true;
     }
 
-    // mount b on a ?
-    if ( mount_a )
-    {
-        oct_bb_t  tmp_cv, saddle_cv;
+    //If we are facing the mount and jumping towards it, then we are trying to mount
+    //else if(collideXY) {
+    //    if(character->jump_timer > 0 && character->isFacingLocation(mount->getPosX(), mount->getPosY())) {
+    //        characterWantsToMount = true;
+    //    }
+    //}
 
-        //---- find out whether the object is overlapping with the saddle
-
-        // the position of the saddle over the frame
-        oct_bb_t::translate(pchr_a->slot_cv[SLOT_LEFT], pchr_a->getPosition(), tmp_cv);
-        phys_expand_oct_bb(tmp_cv, pchr_a->vel, 0.0f, 1.0f, saddle_cv);
-
-        if (oct_bb_t::contains(saddle_cv, bpos))
-        {
-            oct_vec_v2_t saddle_pos;
-			Vector3f   pdiff;
-
-            saddle_pos = saddle_cv.getMid();
-
-            // vdiff is computed as b - a. keep the pdiff in the same sense
-            pdiff[kX] = bpos[OCT_X] - saddle_pos[OCT_X];
-            pdiff[kY] = bpos[OCT_Y] - saddle_pos[OCT_Y];
-            pdiff[kZ] = bpos[OCT_Z] - saddle_pos[OCT_Z];
-
-            if (pdiff.dot(vdiff) >= 0.0f)
-            {
-                // the rider is in a mountable position, don't do any more collisions
-                // even if the object doesn't actually mount
-
-                if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
-                {
-                    return true;
-                }
-            }
+    //Attempt to mount?
+    if(characterWantsToMount) {
+        if(rv_success == attach_character_to_mount(character->getCharacterID(), mount->getCharacterID(), GRIP_ONLY)) {
+            return true;
         }
     }
 
