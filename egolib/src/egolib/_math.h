@@ -63,17 +63,19 @@ extern "C"
 {
 #endif
 
-#define FACE_RANDOM  ((FACING_T)Random::next(0xFFFF))
+#define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // basic constants
 
 #if !defined(RAD_TO_FACING)
+    //UINT16_MAX / 2PI
 #   define RAD_TO_FACING(XX)     ( (XX) * 10430.378350470452724949566316381f )
 #endif
 
 #if !defined(FACING_TO_RAD)
+    //2PI / UINT16_MAX
 #   define FACING_TO_RAD(XX)     ( (XX) * 0.000095873799242852576857380474343257f )
 #endif
 

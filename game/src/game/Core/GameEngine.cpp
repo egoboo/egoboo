@@ -152,9 +152,9 @@ void GameEngine::start()
 void GameEngine::estimateFrameRate()
 {
     const uint64_t now = getMicros();
-    const float dt = (now-_lastFrameEstimation) * 0.000001f;
+    const float dt = (now-_lastFrameEstimation) / 1e6f;
 
-    //Throttle estimations to four times per second
+    //Throttle estimations to ten times per second
     if(dt < 0.1f) {
         return;
     }
