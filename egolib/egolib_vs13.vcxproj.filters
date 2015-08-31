@@ -922,5 +922,14 @@
     <None Include="src\egolib\Platform\CurrentFunction.inline">
       <Filter>Platforms</Filter>
     </None>
+    <None Include="src\egolib\Script\Functions.in">
+      <Filter>Header Files\Script</Filter>
+    </None>
+    <None Include="src\egolib\Script\Variables.in">
+      <Filter>Header Files\Script</Filter>
+    </None>
+    <None Include="src\egolib\Script\Operators.in">
+      <Filter>Header Files\Script</Filter>
+    </None>
   </ItemGroup>
 </Project>
