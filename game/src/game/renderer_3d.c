@@ -27,13 +27,6 @@
 #include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
-// INTERNAL VARIABLES
-//--------------------------------------------------------------------------------------------
-
-static line_data_t line_list[LINE_COUNT];
-static point_data_t point_list[POINT_COUNT];
-
-//--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------
 void gfx_begin_3d(Camera& camera)
@@ -63,40 +56,43 @@ void gfx_end_3d()
 //--------------------------------------------------------------------------------------------
 // Lines.
 //--------------------------------------------------------------------------------------------
-void line_list_init()
+
+LineSegmentList g_lineSegmentList;
+
+void LineSegmentList::init()
 {
-    for (size_t i = 0; i < LINE_COUNT; ++i)
+    for (size_t i = 0; i < capacity; ++i)
     {
-        line_list[i].time = -1;
+        _elements[i].time = -1;
     }
 }
 
-size_t line_list_get_free()
+size_t LineSegmentList::get_free()
 {
-    for (size_t i = 0; i < LINE_COUNT; ++i)
+    for (size_t i = 0; i < capacity; ++i)
     {
-        if (line_list[i].time < 0)
+        if (_elements[i].time < 0)
         {
             return i;
         }
     }
-    return LINE_COUNT;
+    return capacity;
 }
 
-bool line_list_add( const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration )
+bool LineSegmentList::add(const Vector3f& p, const Vector3f& q, const int duration )
 {
-    size_t index = line_list_get_free();
-    if (index == LINE_COUNT) return false;
-    line_data_t& line = line_list[index];
+    size_t index = get_free();
+    if (index == capacity) return false;
+    auto& line = _elements[index];
     
     // Source.
-    line.src = Vector3f(src_x,src_y,src_z);
+    line.p = p;
 
     // Target.
-    line.dst = Vector3f(dst_x,dst_y,dst_z);
+    line.q = q;
 
-    // Colour: white.
-    line.color = Vector4f(1,1,1,0.5);
+    // Colour: white/half transparent
+    line.colour = Ego::Math::Colour4f(1,1,1,0.5);
 
     // Time.
     line.time = SDL_GetTicks() + duration;
@@ -104,16 +100,15 @@ bool line_list_add( const float src_x, const float src_y, const float src_z, con
     return true;
 }
 
-void line_list_draw_all(Camera& camera)
+void LineSegmentList::draw_all(Camera& camera)
 {
     /// @author BB
     /// @details draw some lines for debugging purposes
 
 	auto& renderer = Ego::Renderer::get();
 
-    // disable the texturing so all the points will be white,
-    // not the texture color of the last vertex we drawn
-    renderer.getTextureUnit().setActivated(nullptr);
+    // disable texturing
+	renderer.getTextureUnit().setActivated(nullptr);
 
     gfx_begin_3d(camera);
     {
@@ -134,11 +129,11 @@ void line_list_draw_all(Camera& camera)
 
             renderer.setBlendingEnabled(false);
 
-            int ticks = SDL_GetTicks();
+            uint32_t ticks = SDL_GetTicks();
 
-            for (int cnt = 0; cnt < LINE_COUNT; cnt++ )
+            for (size_t i = 0; i < capacity; ++i)
             {
-                auto& line = line_list[cnt];
+                auto& line = _elements[i];
                 if ( line.time < 0 ) continue;
 
                 if ( line.time < ticks )
@@ -147,12 +142,11 @@ void line_list_draw_all(Camera& camera)
                     continue;
                 }
 
-                const auto colour = Ego::Math::Colour4f(line.color[XX], line.color[YY], line.color[ZZ], line.color[WW]);
-                renderer.setColour(colour); // GL_CURRENT_BIT
+                renderer.setColour(line.colour); // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_LINES );
                 {
-                    GL_DEBUG(glVertex3f)( line.src[kX], line.src[kY], line.src[kZ] );
-                    GL_DEBUG(glVertex3f)( line.dst[kX], line.dst[kY], line.dst[kZ] );
+                    GL_DEBUG(glVertex3f)( line.p[kX], line.p[kY], line.p[kZ] );
+                    GL_DEBUG(glVertex3f)( line.q[kX], line.q[kY], line.q[kZ] );
                 }
                 GL_DEBUG_END();
             }
@@ -165,37 +159,40 @@ void line_list_draw_all(Camera& camera)
 //--------------------------------------------------------------------------------------------
 // Points.
 //--------------------------------------------------------------------------------------------
-void point_list_init()
+
+PointList g_pointList;
+
+void PointList::init()
 {
-    for (size_t i = 0; i < POINT_COUNT; ++i)
+    for (size_t i = 0; i < capacity; ++i)
     {
-        point_list[i].time = -1;
+        _elements[i].time = -1;
     }
 }
 
-size_t point_list_get_free()
+size_t PointList::get_free()
 {
-    for (size_t i = 0; i < POINT_COUNT; ++i)
+    for (size_t i = 0; i < capacity; ++i)
     {
-        if (point_list[i].time < 0)
+        if (_elements[i].time < 0)
         {
             return i;
         }
     }
-    return POINT_COUNT;
+    return capacity;
 }
 
-bool point_list_add(const float x, const float y, const float z, const int duration)
+bool PointList::add(const Vector3f& p, const int duration)
 {
-    size_t index = point_list_get_free();
-    if (index == POINT_COUNT) return false;
-    point_data_t& point = point_list[index];
+    size_t index = get_free();
+    if (index == capacity) return false;
+    auto& point = _elements[index];
 
     // Position.
-    point.src = Vector3f(x,y,z);
+    point.p = p;
 
-    // Colour: red.
-    point.color = Vector4f(1, 0, 0, 0.5);
+    // Colour: red/half-transparent
+    point.colour = Ego::Math::Colour4f(1, 0, 0, 0.5);
 
     // Time.
     point.time = SDL_GetTicks() + duration;
@@ -203,16 +200,15 @@ bool point_list_add(const float x, const float y, const float z, const int durat
     return true;
 }
 
-void point_list_draw_all(Camera& camera)
+void PointList::draw_all(Camera& camera)
 {
     /// @author BB
     /// @details draw some points for debugging purposes
 
 	auto& renderer = Ego::Renderer::get();
 
-    // disable the texturing so all the points will be white,
-    // not the texture color of the last vertex we drawn
-    renderer.getTextureUnit().setActivated(nullptr);
+    // disable texturing
+	renderer.getTextureUnit().setActivated(nullptr);
 
     gfx_begin_3d(camera);
     {
@@ -233,11 +229,11 @@ void point_list_draw_all(Camera& camera)
 
             renderer.setBlendingEnabled(false);
 
-            int ticks = SDL_GetTicks();
+            uint32_t ticks = SDL_GetTicks();
 
-            for (int cnt = 0; cnt < POINT_COUNT; cnt++ )
+            for (size_t i = 0; i < capacity; ++i)
             {
-                auto& point = point_list[cnt];
+                auto& point = _elements[i];
                 if ( point.time < 0 ) continue;
 
                 if ( point.time < ticks )
@@ -245,11 +241,10 @@ void point_list_draw_all(Camera& camera)
                     point.time = -1;
                     continue;
                 }
-                const auto colour = Ego::Math::Colour4f(point.color[XX], point.color[YY], point.color[ZZ], point.color[WW]);
-                renderer.setColour(colour); // GL_CURRENT_BIT
+                renderer.setColour(point.colour); // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_POINTS );
                 {
-                    GL_DEBUG(glVertex3f)(point.src[kX], point.src[kY], point.src[kZ]);
+                    GL_DEBUG(glVertex3f)(point.p[kX], point.p[kY], point.p[kZ]);
                 }
                 GL_DEBUG_END();
             }
@@ -356,7 +351,7 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
         renderer.setBlendingEnabled(true);
 		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-        // choose a "white" texture
+        // deactivate texturing
 		renderer.getTextureUnit().setActivated(nullptr);
 
         //------------------------------------------------

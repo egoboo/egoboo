@@ -1581,8 +1581,8 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 
 #if defined(DRAW_LISTS)
     // draw some debugging lines
-    line_list_draw_all(cam);
-    point_list_draw_all(cam);
+    g_lineSegmentList.draw_all(cam);
+    g_pointList.draw_all(cam);
 #endif
 
 #if defined(DRAW_PRT_BBOX)
