@@ -1205,7 +1205,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         if (pchr_a == pchr_c) continue;
 
         // Dont do hidden objects
-        if ( pchr_c->is_hidden ) continue;
+        if ( pchr_c->isHidden() ) continue;
 
         // pickpocket not allowed yet
         if ( _currentModule->getObjectHandler().exists( pchr_c->inwhich_inventory ) ) continue;

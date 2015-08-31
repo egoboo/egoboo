@@ -476,9 +476,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //    pchr->isshopitem = true;
     //}
 
-    // determine whether the object is hidden
-    chr_update_hide( pchr.get() );
-
     chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
 
     // start the character out in the "dance" animation

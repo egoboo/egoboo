@@ -75,7 +75,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     damagetarget_damagetype(DamageType::DAMAGE_SLASH),
     reaffirm_damagetype(DamageType::DAMAGE_SLASH),
     damage_threshold(0),
-    is_hidden(false),
     is_which_player(INVALID_PLA_REF),
     islocalplayer(false),
     invictus(false),
@@ -748,9 +747,6 @@ bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
 
 void Object::update()
 {
-    //then do status updates
-    chr_update_hide(this);
-
     //Update active enchantments on this Object
     if(!_activeEnchants.empty()) {
         _activeEnchants.remove_if([this](const std::shared_ptr<Ego::Enchantment> &enchant) 
@@ -1907,9 +1903,6 @@ void Object::respawn()
     chr_instance_t::spawn(inst, _profileID, skin);
     chr_update_matrix( this, true );
 
-    // determine whether the object is hidden
-    chr_update_hide( this );
-
     if ( !isHidden() )
     {
         reaffirm_attached_particles( getCharacterID() );
@@ -2320,7 +2313,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     }
 
     // AI stuff
-    chr_set_ai_state(this, 0);
+    ai.state = 0;
     ai.timer          = 0;
     turnmode          = TURNMODE_VELOCITY;
     latch.clear();
@@ -2427,9 +2420,6 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         EGOBOO_ASSERT(rightItem->attachedto == getCharacterID());
         set_weapongrip(rightItem->getCharacterID(), getCharacterID(), GRIP_RIGHT);
     }
-
-    // determine whether the object is hidden
-    chr_update_hide(this);
 
     /// @note ZF@> disabled so that books dont burn when dropped
     //reaffirm_attached_particles( ichr );
@@ -2612,4 +2602,32 @@ bool Object::isScenery() const
     //Objects on other teams than TEAM_NULL can still be scenery, such as destructable tents or idols
     //These are scenery objects if they are either invincible or have infinite weight
     return getProfile()->isInvincible() || getProfile()->getWeight() == CAP_INFINITE_WEIGHT;
+}
+
+const std::shared_ptr<Object>& Object::isWieldingItemIDSZ(const IDSZ idsz) const
+{
+    //Check left hand
+    const std::shared_ptr<Object> &leftHandItem = getLeftHandItem();
+    if(leftHandItem) {
+        if(chr_is_type_idsz(leftHandItem->getCharacterID(), idsz)) {
+            return leftHandItem;
+        }
+    }
+
+    //Check right hand
+    const std::shared_ptr<Object> &rightHandItem = getRightHandItem();
+    if(rightHandItem) {
+        if(chr_is_type_idsz(rightHandItem->getCharacterID(), idsz)) {
+            return rightHandItem;
+        }
+    }
+
+    //No matching IDSZ
+    return INVALID_OBJECT;
+}
+
+bool Object::isHidden() const 
+{
+    if(getProfile()->getHideState() == NOHIDE) return false;
+    return getProfile()->getHideState() == ai.state;
 }

@@ -1225,100 +1225,6 @@ const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
 }
 
 //--------------------------------------------------------------------------------------------
-Object * chr_update_hide( Object * pchr )
-{
-    /// @author BB
-    /// @details Update the hide state of the character. Should be called every time that
-    ///               the state variable in an ai_state_t structure is updated
-
-    if ( nullptr == pchr ) return pchr;
-
-    pchr->is_hidden = false;
-    int8_t hideState = pchr->getProfile()->getHideState();
-    if ( hideState != NOHIDE && hideState == pchr->ai.state )
-    {
-        pchr->is_hidden = true;
-    }
-
-    return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
-{
-    /// @author BB
-    /// @details check the character's hands for a matching item
-
-    bool found;
-    CHR_REF item, tmp_item;
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return INVALID_CHR_REF;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    item = INVALID_CHR_REF;
-    found = false;
-
-    if ( !found )
-    {
-        // Check right hand. technically a held item cannot be equipped...
-        tmp_item = pchr->holdingwhich[SLOT_RIGHT];
-
-        if ( chr_is_type_idsz( tmp_item, idsz ) )
-        {
-            found = true;
-            item = tmp_item;
-        }
-    }
-
-    if ( !found )
-    {
-        // Check left hand. technically a held item cannot be equipped...
-        tmp_item = pchr->holdingwhich[SLOT_LEFT];
-
-        if ( chr_is_type_idsz( tmp_item, idsz ) )
-        {
-            found = true;
-            item = tmp_item;
-        }
-    }
-
-    return item;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
-{
-    /// @author BB
-    /// @details is ichr holding an item matching idsz, or is such an item in his pack?
-    ///               return the index of the found item, or INVALID_CHR_REF if not found. Also return
-    ///               the previous pack item in *pack_last, or INVALID_CHR_REF if it was not in a pack.
-
-    bool found;
-    CHR_REF item;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return INVALID_CHR_REF;
-
-    // Check the pack
-    item       = INVALID_CHR_REF;
-    found      = false;
-
-    if ( !found )
-    {
-        item = chr_holding_idsz( ichr, idsz );
-        found = _currentModule->getObjectHandler().exists( item );
-    }
-
-    if ( !found )
-    {
-        item = Inventory::findItem( ichr, idsz, equipped );
-        found = _currentModule->getObjectHandler().exists( item );
-    }
-
-    return item;
-}
-
-//--------------------------------------------------------------------------------------------
 void chr_set_floor_level( Object * pchr, const float level )
 {
     if ( nullptr == ( pchr ) ) return;
@@ -1375,18 +1281,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     }
 
     return object;
-}
-
-//--------------------------------------------------------------------------------------------
-Object * chr_set_ai_state( Object * pchr, int state )
-{
-    if ( nullptr == ( pchr ) ) return pchr;
-
-    pchr->ai.state = state;
-
-    chr_update_hide( pchr );
-
-    return pchr;
 }
 
 //--------------------------------------------------------------------------------------------

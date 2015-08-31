@@ -906,13 +906,25 @@ Uint8 scr_TargetHasItemID( script_state_t& state, ai_state_t& self )
     /// @details This function proceeds if the target has a matching item in his/her
     /// pockets or hands.
 
-    CHR_REF item;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_has_item_idsz( self.target, ( IDSZ ) state.argument, false );
+    Object *pself_target;
+    SCRIPT_REQUIRE_TARGET(pself_target);
 
-    returncode = _currentModule->getObjectHandler().exists( item );
+    //Assume nothing is found
+    returncode = false;
+
+    //Check hands
+    if(pself_target->isWieldingItemIDSZ(state.argument) != nullptr) {
+        returncode = true;
+    }
+
+    //Check inventory
+    if(!returncode) {
+        if(Inventory::findItem(pself_target->getCharacterID(), state.argument, false) != INVALID_CHR_REF) {
+            returncode = true;
+        }
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -926,13 +938,13 @@ Uint8 scr_TargetHoldingItemID( script_state_t& state, ai_state_t& self )
     /// hands.  It also sets tmpargument to the proper latch button to press
     /// to use that item
 
-    CHR_REF item;
+    Object *pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_holding_idsz( self.target, state.argument );
+    SCRIPT_REQUIRE_TARGET(pself_target);
 
-    returncode = _currentModule->getObjectHandler().exists( item );
+    returncode = (pself_target->isWieldingItemIDSZ(state.argument) != nullptr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1230,34 +1242,32 @@ Uint8 scr_CostTargetItemID( script_state_t& state, ai_state_t& self )
     /// that item.
     /// For one use keys and such
 
-    CHR_REF item;
     Object *ptarget;
-    IDSZ idsz;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( ptarget );
 
     //first check both hands
-    idsz = ( IDSZ ) state.argument;
-    item = chr_holding_idsz( self.target, idsz );
+    const IDSZ idsz = static_cast<IDSZ>(state.argument);
+    std::shared_ptr<Object> pitem = ptarget->isWieldingItemIDSZ(idsz);
 
     //need to search inventory as well?
-    if ( !_currentModule->getObjectHandler().exists( item ) )
+    if (!pitem)
     {
-        for(const std::shared_ptr<Object> &pitem : ptarget->getInventory().iterate())
+        for(const std::shared_ptr<Object> &inventoryItem : ptarget->getInventory().iterate())
         {
             //matching idsz?
-            if ( chr_is_type_idsz( pitem->getCharacterID(), idsz ) ) {
-                item = pitem->getCharacterID();
+            if ( chr_is_type_idsz( inventoryItem->getCharacterID(), idsz ) ) {
+                pitem = inventoryItem;
+                break;
             }
         }
     }
 
     returncode = false;
-    if ( _currentModule->getObjectHandler().exists( item ) )
+    if ( pitem )
     {
-        const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
         returncode = true;
 
         // Cost one ammo
@@ -1281,7 +1291,7 @@ Uint8 scr_CostTargetItemID( script_state_t& state, ai_state_t& self )
             }
 
             // get rid of the character, no matter what
-            _currentModule->getObjectHandler().remove( item );
+            pitem->requestTerminate();
         }
     }
 
@@ -1384,8 +1394,7 @@ Uint8 scr_set_State( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // set the state - this function updates the is_hidden
-    chr_set_ai_state( pchr, state.argument );
+    pchr->ai.state = state.argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2394,7 +2403,7 @@ Uint8 scr_BecomeSpell( script_state_t& state, ai_state_t& self )
 
     // set the spell effect parameters
     self.content = 0;
-    chr_set_ai_state( pchr, 0 );
+    self.state = 0;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2417,7 +2426,7 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
     pchr->polymorphObject(SPELLBOOK, ppro->getSpellEffectType());
 
     // Reset the spellbook state so it doesn't burn up
-    chr_set_ai_state(pchr, 0);
+    self.state = 0;
     self.content = REF_TO_INT( old_profile );
 
     // set the spellbook animations
@@ -3639,9 +3648,7 @@ Uint8 scr_HoldingItemID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	CHR_REF item = chr_holding_idsz( self.index, state.argument );
-
-    returncode = _currentModule->getObjectHandler().exists( item );
+    returncode = (pchr->isWieldingItemIDSZ(state.argument) != nullptr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4479,7 +4486,7 @@ Uint8 scr_set_ChildState( script_state_t& state, ai_state_t& self )
 
     if (INVALID_CHR_REF != self.child)
     {
-        chr_set_ai_state( _currentModule->getObjectHandler().get( self.child ), state.argument );
+        _currentModule->getObjectHandler()[self.child]->ai.state = state.argument;
     }
 
     SCRIPT_FUNCTION_END();

@@ -435,7 +435,7 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
     }
 
     // reject characters that are hidden
-    if ( pchr_a->is_hidden || pchr_b->is_hidden ) return false;
+    if ( pchr_a->isHidden() || pchr_b->isHidden() ) return false;
 
     // don't interact with your mount, or your held items
     if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return false;
@@ -460,7 +460,7 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
     if(pprt_b == nullptr || pprt_b->isTerminated()) return false;
 
     // reject characters that are hidden
-    if ( pchr_a->is_hidden || pprt_b->isHidden() ) return false;
+    if ( pchr_a->isHidden() || pprt_b->isHidden() ) return false;
 
     // particles don't "collide" with anything they are attached to.
     // that only happes through doing bump particle damamge
@@ -482,7 +482,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
     for(const std::shared_ptr<Object> &pchr_a : _currentModule->getObjectHandler().iterator())
     {
         // ignore in-accessible objects
-        if ( pchr_a->isInsideInventory() || pchr_a->is_hidden || pchr_a->isTerminated() ) continue;
+        if ( pchr_a->isInsideInventory() || pchr_a->isHidden() || pchr_a->isTerminated() ) continue;
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update

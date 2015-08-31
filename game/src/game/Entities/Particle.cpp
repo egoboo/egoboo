@@ -347,7 +347,7 @@ bool Particle::isHidden() const
         return false;
     }
 
-    return attachedToObject->is_hidden;
+    return attachedToObject->isHidden();
 }
 
 bool Particle::hasValidTarget() const
@@ -788,7 +788,7 @@ void Particle::destroy()
         std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, "", INVALID_CHR_REF);
         if (child)
         {
-            chr_set_ai_state(child.get(), endspawn_characterstate);
+            child->ai.state = endspawn_characterstate;
             child->ai.owner = owner_ref;
         }
     }
