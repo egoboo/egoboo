@@ -941,114 +941,6 @@ void update_all_characters()
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_update_safe_raw( Object * pchr )
-{
-    bool retval = false;
-
-    BIT_FIELD hit_a_wall;
-    float pressure = 0.0f;
-
-    if ( nullptr == ( pchr ) ) return false;
-
-	Vector2f nrm;
-    hit_a_wall = pchr->hit_wall( nrm, &pressure, NULL );
-    if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
-    {
-        pchr->safe_valid = true;
-        pchr->safe_pos = pchr->getPosition();
-        pchr->safe_time  = update_wld;
-        pchr->safe_grid  = _currentModule->getMeshPointer()->get_grid(PointWorld(pchr->getPosX(), pchr->getPosY())).getI();
-
-        retval = true;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_update_safe( Object * pchr, bool force )
-{
-    bool retval = false;
-    bool needs_update = false;
-
-    if ( nullptr == ( pchr ) ) return false;
-
-    if ( force || !pchr->safe_valid )
-    {
-        needs_update = true;
-    }
-    else
-    {
-        TileIndex new_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(pchr->getPosX(), pchr->getPosY()));
-
-        if (TileIndex::Invalid == new_grid )
-        {
-            if ( std::abs( pchr->getPosX() - pchr->safe_pos[kX] ) > GRID_FSIZE ||
-                 std::abs( pchr->getPosY() - pchr->safe_pos[kY] ) > GRID_FSIZE )
-            {
-                needs_update = true;
-            }
-        }
-        else if ( new_grid != pchr->safe_grid )
-        {
-            needs_update = true;
-        }
-    }
-
-    if ( needs_update )
-    {
-        retval = chr_update_safe_raw( pchr );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_get_safe(Object * pchr)
-{
-    bool found = false;
-	Vector3f loc_pos;
-
-    if (nullptr == pchr) return false;
-
-    // DO NOT require objects that are spawning in a module to have a
-    // valid position at spawn-time. For instance, if a suit of armor is
-    // spawned in a closed hallway, don't complain.
-
-    /// @note ZF@> I fixed a bug that caused this boolean variable always to be true.
-    /// by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt, I've tried a hotfix here instead
-    if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )
-    {
-        return true;
-    }
-
-    if ( !found && pchr->safe_valid )
-    {
-		Vector2f nrm;
-        if ( !pchr->hit_wall( nrm, NULL, NULL ) )
-        {
-            found = true;
-        }
-    }
-
-    if ( !found )
-    {
-        if(!pchr->getBreadcrumbList().empty())
-        {
-            found = true;
-        }
-    }
-
-    // maybe there is one last fallback after this? we could check the character's current position?
-    if ( !found )
-    {
-        log_debug( "Uh oh! We could not find a valid non-wall position for %s!\n", _currentModule->getObjectHandler()[pchr->ai.index]->getProfile()->getClassName().c_str() );
-    }
-
-    return found;
-}
-
-//--------------------------------------------------------------------------------------------
 std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
     if (!_currentModule->getObjectHandler().exists(ichr)) {
@@ -1185,6 +1077,12 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     //    pchr->chr_max_cv.maxs[OCT_Z] += PLATTOLERANCE;
     //}
 
+    //This makes it easier to jump on top of mounts
+    if(pchr->isMount()) {
+       pchr->chr_max_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, pchr->chr_max_cv._maxs[OCT_Z]);
+       pchr->chr_min_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, pchr->chr_min_cv._maxs[OCT_Z]);
+    }
+
     // calculate collision volumes for various slots
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
@@ -1222,100 +1120,6 @@ const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
     {
         return ProfileSystem::get().getSpellBookIcon(pitem->getProfile()->getSpellEffectType()).get_ptr();
     }
-}
-
-//--------------------------------------------------------------------------------------------
-Object * chr_update_hide( Object * pchr )
-{
-    /// @author BB
-    /// @details Update the hide state of the character. Should be called every time that
-    ///               the state variable in an ai_state_t structure is updated
-
-    if ( nullptr == pchr ) return pchr;
-
-    pchr->is_hidden = false;
-    int8_t hideState = pchr->getProfile()->getHideState();
-    if ( hideState != NOHIDE && hideState == pchr->ai.state )
-    {
-        pchr->is_hidden = true;
-    }
-
-    return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
-{
-    /// @author BB
-    /// @details check the character's hands for a matching item
-
-    bool found;
-    CHR_REF item, tmp_item;
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return INVALID_CHR_REF;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    item = INVALID_CHR_REF;
-    found = false;
-
-    if ( !found )
-    {
-        // Check right hand. technically a held item cannot be equipped...
-        tmp_item = pchr->holdingwhich[SLOT_RIGHT];
-
-        if ( chr_is_type_idsz( tmp_item, idsz ) )
-        {
-            found = true;
-            item = tmp_item;
-        }
-    }
-
-    if ( !found )
-    {
-        // Check left hand. technically a held item cannot be equipped...
-        tmp_item = pchr->holdingwhich[SLOT_LEFT];
-
-        if ( chr_is_type_idsz( tmp_item, idsz ) )
-        {
-            found = true;
-            item = tmp_item;
-        }
-    }
-
-    return item;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
-{
-    /// @author BB
-    /// @details is ichr holding an item matching idsz, or is such an item in his pack?
-    ///               return the index of the found item, or INVALID_CHR_REF if not found. Also return
-    ///               the previous pack item in *pack_last, or INVALID_CHR_REF if it was not in a pack.
-
-    bool found;
-    CHR_REF item;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return INVALID_CHR_REF;
-
-    // Check the pack
-    item       = INVALID_CHR_REF;
-    found      = false;
-
-    if ( !found )
-    {
-        item = chr_holding_idsz( ichr, idsz );
-        found = _currentModule->getObjectHandler().exists( item );
-    }
-
-    if ( !found )
-    {
-        item = Inventory::findItem( ichr, idsz, equipped );
-        found = _currentModule->getObjectHandler().exists( item );
-    }
-
-    return item;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1375,18 +1179,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     }
 
     return object;
-}
-
-//--------------------------------------------------------------------------------------------
-Object * chr_set_ai_state( Object * pchr, int state )
-{
-    if ( nullptr == ( pchr ) ) return pchr;
-
-    pchr->ai.state = state;
-
-    chr_update_hide( pchr );
-
-    return pchr;
 }
 
 //--------------------------------------------------------------------------------------------

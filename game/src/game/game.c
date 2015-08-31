@@ -364,35 +364,6 @@ void log_madused_vfs( const char *savename )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_along, int ilip )
-{
-    /// @author ZZ
-    /// @details This function sets the frame for a character explicitly...  This is used to
-    ///    rotate Tank turrets
-
-    Object * pchr;
-    egolib_rv retval;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return rv_error;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    // resolve the requested action to a action that is valid for this model (if possible)
-    int action = pchr->getProfile()->getModel()->getAction(req_action);
-
-    // set the action
-    retval = chr_set_action( pchr, action, true, true );
-    if ( rv_success == retval )
-    {
-        // the action is set. now set the frame info.
-        // pass along the imad in case the pchr->inst is not using this same mad
-        // (corrupted data?)
-        retval = (egolib_rv)chr_instance_t::set_frame_full(pchr->inst, frame_along, ilip, pchr->getProfile()->getModel());
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 void activate_alliance_file_vfs()
 {
     /// @author ZZ
@@ -891,7 +862,7 @@ void do_damage_tiles()
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         // if the object is not really in the game, do nothing
-        if ( pchr->is_hidden || !pchr->isAlive() ) continue;
+        if ( pchr->isHidden() || !pchr->isAlive() ) continue;
 
         // if you are being held by something, you are protected
         if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;

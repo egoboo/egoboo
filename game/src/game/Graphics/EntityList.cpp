@@ -108,7 +108,7 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
     /// @details This function puts an entity in the list
 
     // Don't add if it is hidden.
-    if (obj.is_hidden)
+    if (obj.isHidden())
     {
         return gfx_fail;
     }

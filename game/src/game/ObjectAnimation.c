@@ -255,8 +255,15 @@ float set_character_animation_rate( Object * pchr )
     // if the character is mounted or sitting, base the rate off of the mounr
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && (( ACTION_MI == pinst.action_which ) || ( ACTION_MH == pinst.action_which ) ) )
     {
-        // just copy the rate from the mount
-        pinst.rate = _currentModule->getObjectHandler().get(pchr->attachedto)->inst.rate;
+        if(pchr->getHolder()->isScenery()) {
+            //This is a special case to make animation while in the Pot (which is actually a "mount") look better
+            pinst.rate = 0.0f;
+        }
+        else {
+            // just copy the rate from the mount
+            pinst.rate = pchr->getHolder()->inst.rate;
+        }
+
         return pinst.rate;
     }
 
