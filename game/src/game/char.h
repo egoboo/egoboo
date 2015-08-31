@@ -121,16 +121,9 @@ struct chr_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
 
-Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
 
 const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
-
-egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
-
-bool chr_update_safe_raw( Object * pchr );
-bool chr_update_safe( Object * pchr, bool force );
-bool chr_get_safe( Object * pchr);
 
 void chr_set_floor_level( Object * pchr, const float level );
 

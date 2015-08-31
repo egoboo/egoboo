@@ -10,7 +10,6 @@ static void move_one_character_do_voluntary( Object * pchr );
 static void move_one_character( Object * pchr );
 static void move_one_character_do_z_motion( Object * pchr );
 static bool move_one_character_integrate_motion( Object * pchr );
-static bool move_one_character_integrate_motion_attached( Object * pchr );
 
 static bool chr_do_latch_button( Object * pchr );
 static bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
@@ -601,39 +600,22 @@ void move_one_character_do_z_motion( Object * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool move_one_character_integrate_motion_attached( Object * pchr )
-{
-    Uint32 chr_update;
-
-    if (!pchr || pchr->isTerminated()) return false;
-
-    // make a timer that is individual for each object
-    chr_update = pchr->getCharacterID() + update_wld;
-
-    if ( 0 == ( chr_update & 7 ) )
-    {
-        chr_update_safe( pchr, true );
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 bool move_one_character_integrate_motion( Object * pchr )
 {
     /// @author BB
     /// @details Figure out the next position of the character.
     ///    Include collisions with the mesh in this step.
 
-    bool  needs_test, updated_2d;
-
 	Vector3f tmp_pos;
 
     if (!pchr || pchr->isTerminated()) return false;
 
-    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
+    //Are we being held?
+    if (pchr->isBeingHeld())
     {
-        return move_one_character_integrate_motion_attached( pchr );
+        //Always set our position to that of our holder
+        pchr->setPosition(_currentModule->getObjectHandler()[pchr->attachedto]->getPosition());
+        return true;
     }
 
     tmp_pos = pchr->getPosition();;
@@ -678,9 +660,6 @@ bool move_one_character_integrate_motion( Object * pchr )
         if ( tmp_pos[kZ] < 0.0f ) tmp_pos[kZ] = 0.0f;  // Don't fall in pits...
     }
 
-    // interaction with the grid flags
-    updated_2d = false;
-    needs_test = false;
 
     //if (std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) > 0.0f)
     {
@@ -695,12 +674,9 @@ bool move_one_character_integrate_motion( Object * pchr )
         tmp_pos[kX] = new_x;
         tmp_pos[kY] = new_y;
 
-        if ( EMPTY_BIT_FIELD == pchr->test_wall( tmp_pos, &wdata ) )
-        {
-            updated_2d = true;
-        }
-        else
-        {
+        //Wall collision?
+        if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos, &wdata ) )
+        {            
             Vector2f nrm;
             float   pressure;
 
@@ -745,21 +721,6 @@ bool move_one_character_integrate_motion( Object * pchr )
     }
 
     pchr->setPosition(tmp_pos);
-
-    // we need to test the validity of the current position every 8 frames or so,
-    // no matter what
-    if ( !needs_test )
-    {
-        // make a timer that is individual for each object
-        Uint32 chr_update = pchr->getCharacterID() + update_wld;
-
-        needs_test = ( 0 == ( chr_update & 7 ) );
-    }
-
-    if ( needs_test || updated_2d )
-    {
-        chr_update_safe( pchr, needs_test );
-    }
 
     return true;
 }

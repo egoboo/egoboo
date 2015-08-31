@@ -1901,7 +1901,8 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe( pchild.get())) {
+        if (!pchild->safe_valid) {
+            log_warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
         }
         else
@@ -4307,14 +4308,23 @@ Uint8 scr_set_Frame( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function sets the current .MD2 frame for the character.  Values are * 4
 
-    int    frame_along = 0;
-    Uint16 ilip        = 0;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ilip        = state.argument & 3;
-    frame_along = state.argument >> 2;
-    chr_set_frame( self.index, ACTION_DA, frame_along, ilip );
+    uint16_t ilip   = state.argument & 3;
+    int frame_along = state.argument >> 2;
+
+    // resolve the requested action to a action that is valid for this model (if possible)
+    const int action = pchr->getProfile()->getModel()->getAction(ACTION_DA);
+
+    // set the action
+    if ( rv_success == chr_set_action(pchr, action, true, true) )
+    {
+        // the action is set. now set the frame info.
+        // pass along the imad in case the pchr->inst is not using this same mad
+        // (corrupted data?)
+        returncode = chr_instance_t::set_frame_full(pchr->inst, frame_along, ilip, pchr->getProfile()->getModel());
+    }
+
 
     SCRIPT_FUNCTION_END();
 }
@@ -5338,8 +5348,9 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe(pchild.get()))
+        if (!pchild->safe_valid)
         {
+            log_warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
         }
         else
@@ -5387,8 +5398,9 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe(pchild.get()))
+        if (!pchild->safe_valid)
         {
+            log_warning( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
             pchr->requestTerminate();
             returncode = false;
         }
@@ -7427,18 +7439,10 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
             // we have been given an invalid attachment point.
             // still allow the character to spawn if it is not in an invalid area
 
-            // technically this should never occur since we are limiting the attachment points above
-            if (!chr_get_safe(pchild.get()))
-            {
-                pchild->requestTerminate();
-            }
-            else
-            {
-                //Set some AI values
-                self.child = pchild->getCharacterID();
-                pchild->ai.passage = self.passage;
-                pchild->ai.owner   = self.owner;                
-            }
+            //Set some AI values
+            self.child = pchild->getCharacterID();
+            pchild->ai.passage = self.passage;
+            pchild->ai.owner   = self.owner;                
         }
     }
 

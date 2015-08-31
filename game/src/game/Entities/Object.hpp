@@ -219,6 +219,8 @@ public:
     **/
     bool isBeingHeld() const;
 
+    const std::shared_ptr<Object> &getHolder() const;
+
     /**
     * @brief
     *   This function returns true if this Object is inside another Objects inventory

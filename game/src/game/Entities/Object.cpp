@@ -276,22 +276,24 @@ bool Object::setPosition(const Vector3f& position)
         _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY]));
         _block = _currentModule->getMeshPointer()->get_block(PointWorld(pos[kX], pos[kY]));
 
-        // Update whether the current object position is safe.
-        //chr_update_safe(this, false);
-
         // Update the breadcrumb list.
 		Vector2f nrm;
         float pressure = 0.0f;
         BIT_FIELD hit_a_wall = hit_wall(nrm, &pressure, NULL);
-        if (0 == hit_a_wall && 0.0f == pressure)
+        if (EMPTY_BIT_FIELD == hit_a_wall && 0.0f <= pressure)
         {
             //This is a safe position
             _breadcrumbList.push_back(position);
             if(_breadcrumbList.size() > 32) {
                 _breadcrumbList.pop_front();
             }
-        }
 
+            //Update last safe position
+            safe_valid = true;
+            safe_pos   = getPosition();
+            safe_time  = update_wld;
+            safe_grid  = _tile;
+        }
 
         return true;
     }
@@ -1647,7 +1649,7 @@ int Object::getPrice() const
 bool Object::isBeingHeld() const
 {
     //Check if holder exists and not marked for removal
-    const std::shared_ptr<Object> &holder = _currentModule->getObjectHandler()[attachedto];
+    const std::shared_ptr<Object> &holder = getHolder();
     if(!holder || holder->isTerminated()) {
         return false;
     }
@@ -2630,4 +2632,9 @@ bool Object::isHidden() const
 {
     if(getProfile()->getHideState() == NOHIDE) return false;
     return getProfile()->getHideState() == ai.state;
+}
+
+const std::shared_ptr<Object>& Object::getHolder() const
+{
+    return _currentModule->getObjectHandler()[attachedto];
 }
