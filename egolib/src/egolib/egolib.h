@@ -86,11 +86,7 @@
 #include "egolib/FileFormats/treasure_table_file.h"
 #include "egolib/FileFormats/wawalite_file.h"
 
-#if defined(USE_LUA_CONSOLE)
-	#include "egolib/Lua/lua_console.h"
-#else
-	#include "egolib/console.h"
-#endif
+#include "egolib/console.h"
 
 //!!! watch this one. if you are using the Fluid Studios memory manager,
 //!!! this must be the absolute last include file.

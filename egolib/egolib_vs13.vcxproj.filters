@@ -16,9 +16,6 @@
     <Filter Include="Extensions">
       <UniqueIdentifier>{9ee0c819-9153-4fc0-a5c0-daff3cbb6c8a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Lua">
-      <UniqueIdentifier>{159266bb-db21-41e6-9989-7b420b223573}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Math">
       <UniqueIdentifier>{a74381e6-c46a-4aef-ab17-99f2ff4e5172}</UniqueIdentifier>
     </Filter>
@@ -179,9 +176,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c">
       <Filter>Extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\lua\lua_console.c">
-      <Filter>Lua</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\platform\file_linux.c">
       <Filter>Platforms</Filter>
@@ -517,9 +511,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">
       <Filter>Platforms</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\lua\lua_console.h">
-      <Filter>Lua</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\bv.h">
       <Filter>Header Files</Filter>
