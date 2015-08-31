@@ -185,7 +185,7 @@ Object::~Object()
 
     // Detach the character from the active game
     if(_currentModule) {
-        cleanup_one_character(this);
+        removeFromGame(this);
 
         // free the character's inventory
         for(const std::shared_ptr<Object> pitem : _inventory.iterate())
@@ -1530,7 +1530,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     }
 
     // Detach the character from the game
-    cleanup_one_character(this);
+	removeFromGame(this);
 
     // If it's a player, let it die properly before enabling respawn
     if ( VALID_PLA(is_which_player) )  {
@@ -1673,6 +1673,47 @@ bool Object::isInsideInventory() const
     }
 
     return true;
+}
+
+void Object::removeFromGame(Object * pchr)
+{
+	CHR_REF ichr = pchr->getCharacterID();
+
+	pchr->sparkle = NOSPARKLE;
+
+	// Remove it from the team
+	pchr->team = pchr->team_base;
+	_currentModule->getTeamList()[pchr->team].decreaseMorale();
+
+	if (_currentModule->getTeamList()[pchr->team].getLeader().get() == pchr)
+	{
+		// The team now has no leader if the character is the leader
+		_currentModule->getTeamList()[pchr->team].setLeader(Object::INVALID_OBJECT);
+	}
+
+	// Clear all shop passages that it owned..
+	_currentModule->removeShopOwner(ichr);
+
+	// detach from any mount
+	if (_currentModule->getObjectHandler().exists(pchr->attachedto))
+	{
+		pchr->detatchFromHolder(true, false);
+	}
+
+	// drop your left item
+	const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
+	if (leftItem && leftItem->isItem()) {
+		leftItem->detatchFromHolder(true, false);
+	}
+
+	// drop your right item
+	const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
+	if (rightItem && rightItem->isItem()) {
+		rightItem->detatchFromHolder(true, false);
+	}
+
+	// Stop all sound loops for this object
+	AudioSystem::get().stopObjectLoopingSounds(ichr);
 }
 
 BIT_FIELD Object::hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data)

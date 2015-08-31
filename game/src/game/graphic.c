@@ -313,6 +313,8 @@ void GFX::initialize()
     // Initialize SDL and initialize OpenGL.
     GFX::initializeSDLGraphics(); ///< @todo Error handling.
     GFX::initializeOpenGL();      ///< @todo Error handling.
+
+	// Initialize the font manager.
     Ego::FontManager::initialize();
 
     // Initialize the dolist manager.
@@ -642,9 +644,7 @@ void gfx_system_init_all_graphics()
     gfx_init_blip_data();
     font_bmp_init();
 
-    // Particle sprites
-    prt_set_texture_params(ParticleHandler::get().getTransparentParticleTexture(), SPRITE_ALPHA);
-    prt_set_texture_params(ParticleHandler::get().getLightParticleTexture(), SPRITE_LIGHT);
+
 
 	reinitClocks();
 }
@@ -1581,8 +1581,8 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 
 #if defined(DRAW_LISTS)
     // draw some debugging lines
-    line_list_draw_all(cam);
-    point_list_draw_all(cam);
+    g_lineSegmentList.draw_all(cam);
+    g_pointList.draw_all(cam);
 #endif
 
 #if defined(DRAW_PRT_BBOX)
@@ -3137,7 +3137,7 @@ void TextureAtlasManager::reload_all()
 //--------------------------------------------------------------------------------------------
 gfx_rv update_one_chr_instance(Object *pchr)
 {
-    if (!ACTIVE_PCHR(pchr))
+    if (!pchr || pchr->isTerminated())
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr), "invalid character");
         return gfx_error;

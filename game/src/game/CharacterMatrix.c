@@ -203,7 +203,7 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4
 
     if ( NULL == grip_verts || NULL == dst_point ) return 0;
 
-    if ( !ACTIVE_PCHR( pholder ) ) return 0;
+    if (!pholder || pholder->isTerminated()) return 0;
 
     // count the valid weapon connection dst_points
     point_count = 0;

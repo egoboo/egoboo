@@ -24,14 +24,6 @@
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/Particle.hpp"
 
-
-static ParticleHandler PrtList;
-
-ParticleHandler& ParticleHandler::get()
-{
-    return PrtList;
-}
-
 std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3f& pos, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget)

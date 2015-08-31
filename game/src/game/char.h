@@ -141,7 +141,6 @@ bool chr_get_skill( Object * pchr, IDSZ whichskill );
 // whether  ai.state == cap.hidestate
 Object * chr_set_ai_state( Object * pchr, int state );
 
-void cleanup_one_character( Object * pchr );
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;

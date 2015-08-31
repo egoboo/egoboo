@@ -593,8 +593,3 @@ void  oglx_texture_t::release()
     // (The error texture has no alpha component).
     _hasAlpha = false;
 }
-
-void oglx_texture_t::bind(const oglx_texture_t *texture)
-{
-	Ego::Renderer::get().getTextureUnit().setActivated(texture);
-}

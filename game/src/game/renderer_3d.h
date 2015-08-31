@@ -32,52 +32,57 @@ class Camera;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-struct line_data_t;
-struct point_data_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define LINE_COUNT 100
-#define POINT_COUNT 100
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // some lines to be drawn in the display
 
-struct line_data_t
-{
-    Vector3f src, dst;
-	Vector4f color;
-    int time;
+namespace Ego {
+struct LineSegment {
+	Vector3f p, q;
+	Ego::Math::Colour4f colour;
+	int time;
+};
+}
+
+struct LineSegmentList {
+	static const size_t capacity = 100;
+	Ego::LineSegment _elements[capacity];
+	/// @brief Initialize the line list so that all lines are free.
+	void init();
+	/// @brief Get the index of a free line.
+	/// @return the index of a free line if any, #LINE_COUNT otherwise
+	size_t get_free();
+	bool add(const Vector3f& p, const Vector3f& q, const int duration);
+	void draw_all(Camera& camera);
 };
 
-/// @brief Initialize the line list so that all lines are free.
-void line_list_init();
-/// @brief Get the index of a free line.
-/// @return the index of a free line if any, #LINE_COUNT otherwise
-size_t line_list_get_free();
-bool line_list_add(const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration);
-void line_list_draw_all(Camera& camera);
+extern LineSegmentList g_lineSegmentList;
+
 
 //--------------------------------------------------------------------------------------------
 // some points to be drawn in the display
 
-struct point_data_t
-{
-    Vector3f src;
-	Vector4f color;
-    int time;
+namespace Ego {
+struct Point {
+	Vector3f p;
+	Ego::Math::Colour4f colour;
+	int time;
+};
+}
+
+
+struct PointList {
+	static const size_t capacity = 100;
+	Ego::Point _elements[capacity];
+	/// @brief Initialize the point list so that all points are free.
+	void init();
+	/// @brief Get the index of a free point.
+	/// @return the index of a free point if any, #POINT_COUNT otherwise
+	size_t get_free();
+	bool add(const Vector3f& p, const int duration);
+	void draw_all(Camera& camera);
 };
 
-/// @brief Initialize the point list so that all points are free.
-void point_list_init();
-/// @brief Get the index of a free point.
-/// @return the index of a free point if any, #POINT_COUNT otherwise
-size_t point_list_get_free();
-bool point_list_add(const float x, const float y, const float z, const int duration);
-void point_list_draw_all(Camera& camera);
+extern PointList g_pointList;
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

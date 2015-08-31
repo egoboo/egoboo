@@ -76,7 +76,7 @@ gfx_rv EntityList::reset()
             const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element->iprt];
             if (nullptr != pprt) pprt->inst.indolist = false;
         }
-        else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
+        else if (INVALID_PRT_REF == element->iprt && INVALID_CHR_REF != element->ichr)
         {
             Object *pobj = _currentModule->getObjectHandler().get(element->ichr);
             if (nullptr != pobj) pobj->inst.indolist = false;
@@ -199,7 +199,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
     {
 		Vector3f vtmp;
 
-        if (INVALID_PRT_REF == _lst[i].iprt && VALID_CHR_RANGE(_lst[i].ichr))
+        if (INVALID_PRT_REF == _lst[i].iprt && INVALID_CHR_REF != _lst[i].ichr)
         {
 			Vector3f pos_tmp;
 

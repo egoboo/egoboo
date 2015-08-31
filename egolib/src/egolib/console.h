@@ -31,15 +31,11 @@
 // opaque console struct
 struct egolib_console_t;
 
-/// console callback used to implement specializations of the egolib_console
-typedef bool (*egolib_console_callback_t)(egolib_console_t *console, void *data);
+
 
 //--------------------------------------------------------------------------------------------
 // struct s_egolib_console
 //--------------------------------------------------------------------------------------------
-
-egolib_console_t *egolib_console_create(egolib_console_t *pcon, SDL_Rect rect, egolib_console_callback_t callback, void *data);
-bool egolib_console_destroy(egolib_console_t **console, bool do_free);
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
@@ -61,12 +57,20 @@ class egolib_console_FontWrapper;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
-struct egolib_console_t
-{
-    egolib_console_t *pnext;
+namespace Ego {
+namespace Core {
 
-    egolib_console_callback_t run_func;
+/// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
+struct Console
+{
+	static Console *_singleton;
+	static void startup();
+	static void shutdown();
+	/// console callback used to implement specializations of the egolib_console
+	typedef bool (*Callback)(Console *console, void *data);
+	Console *pnext;
+
+    Callback run_func;
     void *run_data;
 
     egolib_console_FontWrapper *pfont;
@@ -89,17 +93,18 @@ struct egolib_console_t
     size_t output_carat;
     char output_buffer[EGOBOO_CONSOLE_OUTPUT];
 
-    static bool draw(egolib_console_t *self);
+	Console(SDL_Rect rectangle, Callback callback, void *data);
+	virtual ~Console();
 
-    static void show(egolib_console_t *self);
-    static void hide(egolib_console_t *self);
+    bool draw();
 
-    static bool run(egolib_console_t *self);
-    static egolib_console_t *ctor(egolib_console_t *self, SDL_Rect rect, egolib_console_callback_t callback, void *data);
-    static egolib_console_t *dtor(egolib_console_t *self);
+    void show();
+    void hide();
 
-    static void print(egolib_console_t *self, const char *format, ...) GCC_PRINTF_FUNC(2);
-    static void printv(egolib_console_t *self, const char *format, va_list args);
+    bool run();
+
+    void print(const char *format, ...) GCC_PRINTF_FUNC(2);
+    void printv(const char *format, va_list args);
 
     /**
      * @brief
@@ -109,7 +114,7 @@ struct egolib_console_t
      * @todo
      *  Semantics if there are no saved lines?
      */
-    static const char *get_saved(egolib_console_t *self);
+    const char *get_saved();
     /**
      * @brief
      *  Add a line to the saved lines.
@@ -119,12 +124,14 @@ struct egolib_console_t
      *  If the array of lines was full, the first line was removed from the array.
      *  The given line was appended to the array. The save index refers to the appended line.
      */
-    static void add_saved(egolib_console_t *self, char *line);
+    void add_saved(char *line);
 
-    static void add_output(egolib_console_t *self, char *line);
-
-
+    void add_output(char *line);
+	
 };
+
+} // namespace Core
+} // namespace Ego
 
 struct egolib_console_handler_t
 {
@@ -133,7 +140,7 @@ protected:
     static void draw_end();
 public:
     static void draw_all();
-    static bool push_front(egolib_console_t *console);
+    static bool push_front(Ego::Core::Console *console);
     /**
      * @brief
      *  Remove the console from the console stack.
@@ -142,7 +149,7 @@ public:
      * @return
      *  @a true if the console was removed, @a false otherwise
      */
-    static bool unlink(egolib_console_t *console);
+    static bool unlink(Ego::Core::Console *console);
 
     /**
     * @return
@@ -160,4 +167,4 @@ public:
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern egolib_console_t *egolib_console_top;
+extern Ego::Core::Console *egolib_console_top;

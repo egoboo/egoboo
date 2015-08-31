@@ -444,5 +444,58 @@ void issue_order( const CHR_REF character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
 void set_alerts( const CHR_REF character );
 
+namespace Ego {
+namespace Script {
+namespace NativeInterface {
+	/**
+	 * @brief
+	 *  The type of a C/C++ native interface (NI) function.
+	 */
+	typedef uint8_t Function(script_state_t&, ai_state_t&);
+	/**
+	 * @brief
+	 *  Combination of a pointer to a C/C++ NI function with its name in the DSL.
+	 */
+	struct FunctionInfo {
+		/// The name of the function in the DSL.
+		std::string _functionName;
+		/// A pointer to the C/C++ NI function.
+		Function *_functionPointer;
+	};
+}
+/**
+ * @brief
+ *	The runtime (environment) for the scripts.
+ */
+struct Runtime : public Core::Singleton<Runtime> {
+protected:
+	// Befriend with the singleton to grant access to Runtime::~Runtime.
+	using TheSingleton = Core::Singleton<Runtime>;
+	friend TheSingleton;
+	/**
+	 * @brief
+	 *	Construct this runtime.
+	 * @remarks
+	 *	Intentionally protected.
+	 */
+	Runtime();
+	/**
+	 * @brief
+	 *	Destruct this runtime.
+	 * @remarks
+	 *	Intentionally protected.
+	 */
+	~Runtime();
+public:
+	/**
+	 * @brief
+	 *	A map from function value codes to function pointers.
+	 */
+	std::unordered_map<uint32_t, NativeInterface::Function *> _functionValueCodeToFunctionPointer;
+};
+
+} // namespace Script
+} // namespace Ego
+
 void scripting_system_begin();
 void scripting_system_end();

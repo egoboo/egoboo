@@ -3,8 +3,9 @@
 enum class RefKind
 {
     Billboard,       ///< @see BillboardRef
+	Particle,        ///< @see ParticleRef
     ParticleProfile, ///< @see ParticleProfileRef
-    Enchant,         ///< @see EnchantRef.
+    Enchant,         ///< @see EnchantRef
     EnchantProfile,  ///< @see EnchantProfileRef
     Object,          ///< @see ObjectRef
     ObjectProfile,   ///< @see ObjectProfileRef

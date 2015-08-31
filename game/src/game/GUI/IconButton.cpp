@@ -38,7 +38,7 @@ void IconButton::draw()
     auto &renderer = Ego::Renderer::get();
 
     // Draw the button
-    oglx_texture_t::bind(nullptr);
+	renderer.getTextureUnit().setActivated(nullptr);
 
     //Determine button color
     if(!isEnabled())

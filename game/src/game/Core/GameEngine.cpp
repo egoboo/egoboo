@@ -282,9 +282,6 @@ bool GameEngine::initialize()
     DisplayMsg_count = Ego::Math::constrain<uint8_t>(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(), EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
     DisplayMsg_on = egoboo_config_t::get().hud_simultaneousMessages_max.getValue() > 0;
 
-    // Adjust the particle limit.
-    ParticleHandler::get().setDisplayLimit(egoboo_config_t::get().graphic_simultaneousParticles_max.getValue());
-
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
 
@@ -297,16 +294,24 @@ bool GameEngine::initialize()
     // <<<
     /* ********************************************************************************** */
 
-    // do basic system initialization
-    input_system_init();
+    // Initialize the input system.
+    InputSystem::initialize();
 
     // Initialize the image manager.
     ImageManager::initialize();
 
     // Initialize GFX system.
     GFX::initialize();
-    gfx_system_init_all_graphics();
-    gfx_do_clear_screen();
+
+	// TODO: REMOVE THIS.
+	gfx_system_init_all_graphics();
+	gfx_do_clear_screen();
+
+	// Initialize the audio system.
+	AudioSystem::initialize();
+
+	// Initialize the particle handler.
+	ParticleHandler::initialize();
 
     // load the bitmapped font (must be done after gfx_system_init_all_graphics())
     font_bmp_load_vfs("mp_data/font_new_shadow", "mp_data/font.txt");
@@ -324,7 +329,6 @@ bool GameEngine::initialize()
 
     // Initialize the sound system.
     renderPreloadText("Loading audio...");
-    AudioSystem::initialize();
     auto& audioSystem = AudioSystem::get();
     audioSystem.loadAllMusic();
     audioSystem.playMusic(AudioSystem::MENU_SONG);
@@ -405,6 +409,9 @@ void GameEngine::uninitialize()
     // Uninitialize the console.
     egolib_console_handler_t::uninitialize();
 
+	// Uninitialize the particle handler.
+	ParticleHandler::uninitialize();
+
     // Uninitialize the audio system.
     AudioSystem::uninitialize();
 
@@ -413,6 +420,9 @@ void GameEngine::uninitialize()
 
     // Uninitialize the image manager.
     ImageManager::uninitialize();
+
+	// Uninitialize the input system.
+	InputSystem::uninitialize();
 
     // Shut down the log services.
     log_message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());

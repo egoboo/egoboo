@@ -4477,7 +4477,7 @@ Uint8 scr_set_ChildState( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( VALID_CHR_RANGE( self.child ) )
+    if (INVALID_CHR_REF != self.child)
     {
         chr_set_ai_state( _currentModule->getObjectHandler().get( self.child ), state.argument );
     }
@@ -7076,7 +7076,7 @@ Uint8 scr_Backstabbed( script_state_t& state, ai_state_t& self )
     {
         //Who is the dirty backstabber?
         Object * pattacker = _currentModule->getObjectHandler().get( self.attacklast );
-        if ( !ACTIVE_PCHR( pattacker ) ) return false;
+        if (!pattacker || pattacker->isTerminated()) return false;
 
         //Only if hit from behind
         if ( self.directionlast >= ATK_BEHIND - 8192 && self.directionlast < ATK_BEHIND + 8192 )

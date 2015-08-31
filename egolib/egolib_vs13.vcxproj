@@ -438,7 +438,6 @@
     <ClCompile Include="src\egolib\IDSZ_map.c" />
     <ClCompile Include="src\egolib\input_device.c" />
     <ClCompile Include="src\egolib\log.c" />
-    <ClCompile Include="src\egolib\lua\lua_console.c" />
     <ClCompile Include="src\egolib\map_functions.c" />
     <ClCompile Include="src\egolib\network.c" />
     <ClCompile Include="src\egolib\platform\file_linux.c">
@@ -605,7 +604,6 @@
     <ClInclude Include="src\egolib\IDSZ_map.h" />
     <ClInclude Include="src\egolib\input_device.h" />
     <ClInclude Include="src\egolib\log.h" />
-    <ClInclude Include="src\egolib\lua\lua_console.h" />
     <ClInclude Include="src\egolib\map_functions.h" />
     <ClInclude Include="src\egolib\mem.h" />
     <ClInclude Include="src\egolib\network.h" />

@@ -101,7 +101,7 @@ void input_system_init_devices()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_system_init()
+void InputSystem::initialize()
 {
     /// @author BB
     /// @details initialize the inputs
@@ -109,6 +109,11 @@ void input_system_init()
     input_system_init_mouse();
     input_system_init_joysticks();
     input_system_init_devices();
+}
+
+void InputSystem::uninitialize()
+{
+
 }
 
 //--------------------------------------------------------------------------------------------

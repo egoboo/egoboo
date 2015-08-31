@@ -180,7 +180,7 @@ namespace Ego
         auto& renderer = Ego::Renderer::get();
         renderer.setColour(colour);
         renderer.setBlendingEnabled(true);
-        oglx_texture_t::bind(cache->tex);
+		renderer.getTextureUnit().setActivated(cache->tex);
 		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
         GL_DEBUG(glBegin)(GL_QUADS);
         {

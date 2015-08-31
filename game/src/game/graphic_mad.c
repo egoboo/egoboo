@@ -123,7 +123,7 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
     }
 
     // Choose texture and matrix
-    oglx_texture_t::bind( ptex );
+	Ego::Renderer::get().getTextureUnit().setActivated(ptex);
 
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
@@ -318,7 +318,7 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
     }
 
     // Choose texture.
-    oglx_texture_t::bind(ptex);
+	Ego::Renderer::get().getTextureUnit().setActivated(ptex);
 
     glPushAttrib(GL_CURRENT_BIT);
     {
@@ -743,14 +743,14 @@ void draw_chr_bbox(Object *pchr)
     static const bool drawLeftSlot = true;
     static const bool drawRightSlot = true;
     static const bool drawCharacter = true;
-    if (!ACTIVE_PCHR(pchr))
+    if (!pchr || pchr->isTerminated())
     {
         return;
     }
     // Draw the object bounding box as a part of the graphics debug mode F7.
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_F7))
     {
-        oglx_texture_t::bind(nullptr);
+        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         {
             if (drawLeftSlot)
             {
@@ -800,7 +800,7 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
 
     int vmin, vmax, cnt;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if (!pchr || pchr->isTerminated()) return;
 
     vmin = vrt_offset;
     vmax = vmin + verts;
@@ -810,7 +810,7 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    oglx_texture_t::bind(nullptr);
+    Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
@@ -844,7 +844,7 @@ void draw_one_grip( chr_instance_t * pinst, int slot )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    oglx_texture_t::bind(nullptr);
+    Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
@@ -918,7 +918,7 @@ void draw_chr_attached_grip( Object * pchr )
 {
     Object * pholder;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if (!pchr || pchr->isTerminated()) return;
 
     if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) ) return;
     pholder = _currentModule->getObjectHandler().get( pchr->attachedto );
@@ -942,7 +942,7 @@ void draw_chr_grips( Object * pchr )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    oglx_texture_t::bind(nullptr);
+    Ego::Renderer::getTextureUnit().setActivated(nullptr);
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
