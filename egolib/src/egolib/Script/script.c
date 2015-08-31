@@ -35,6 +35,420 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 
+namespace Ego {
+namespace Script {
+
+Runtime::Runtime() 
+	:
+		_functionValueCodeToFunctionPointer
+		{
+			{ FIFSPAWNED, &scr_Spawned },
+			{ FIFTIMEOUT, &scr_TimeOut },
+			{ FIFATWAYPOINT, &scr_AtWaypoint },
+			{ FIFATLASTWAYPOINT, &scr_AtLastWaypoint },
+			{ FIFATTACKED, &scr_Attacked },
+			{ FIFBUMPED, &scr_Bumped },
+			{ FIFORDERED, &scr_Ordered },
+			{ FIFCALLEDFORHELP, &scr_CalledForHelp },
+			{ FSETCONTENT, &scr_set_Content },
+			{ FIFKILLED, &scr_Killed },
+			{ FIFTARGETKILLED, &scr_TargetKilled },
+			{ FCLEARWAYPOINTS, &scr_ClearWaypoints },
+			{ FADDWAYPOINT, &scr_AddWaypoint },
+			{ FFINDPATH, &scr_FindPath },
+			{ FCOMPASS, &scr_Compass },
+			{ FGETTARGETARMORPRICE, &scr_get_TargetArmorPrice },
+			{ FSETTIME, &scr_set_Time },
+			{ FGETCONTENT, &scr_get_Content },
+			{ FJOINTARGETTEAM, &scr_JoinTargetTeam },
+			{ FSETTARGETTONEARBYENEMY, &scr_set_TargetToNearbyEnemy },
+			{ FSETTARGETTOTARGETLEFTHAND, &scr_set_TargetToTargetLeftHand },
+			{ FSETTARGETTOTARGETRIGHTHAND, &scr_set_TargetToTargetRightHand },
+			{ FSETTARGETTOWHOEVERATTACKED, &scr_set_TargetToWhoeverAttacked },
+			{ FSETTARGETTOWHOEVERBUMPED, &scr_set_TargetToWhoeverBumped },
+			{ FSETTARGETTOWHOEVERCALLEDFORHELP, &scr_set_TargetToWhoeverCalledForHelp },
+			{ FSETTARGETTOOLDTARGET, &scr_set_TargetToOldTarget },
+			{ FSETTURNMODETOVELOCITY, &scr_set_TurnModeToVelocity },
+			{ FSETTURNMODETOWATCH, &scr_set_TurnModeToWatch },
+			{ FSETTURNMODETOSPIN, &scr_set_TurnModeToSpin },
+			{ FSETBUMPHEIGHT, &scr_set_BumpHeight },
+			{ FIFTARGETHASID, &scr_TargetHasID },
+			{ FIFTARGETHASITEMID, &scr_TargetHasItemID },
+			{ FIFTARGETHOLDINGITEMID, &scr_TargetHoldingItemID },
+			{ FIFTARGETHASSKILLID, &scr_TargetHasSkillID },
+			{ FELSE, &scr_Else },
+			{ FRUN, &scr_Run },
+			{ FWALK, &scr_Walk },
+			{ FSNEAK, &scr_Sneak },
+			{ FDOACTION, &scr_DoAction },
+			{ FKEEPACTION, &scr_KeepAction },
+			{ FISSUEORDER, &scr_IssueOrder },
+			{ FDROPWEAPONS, &scr_DropWeapons },
+			{ FTARGETDOACTION, &scr_TargetDoAction },
+			{ FOPENPASSAGE, &scr_OpenPassage },
+			{ FCLOSEPASSAGE, &scr_ClosePassage },
+			{ FIFPASSAGEOPEN, &scr_PassageOpen },
+			{ FGOPOOF, &scr_GoPoof },
+			{ FCOSTTARGETITEMID, &scr_CostTargetItemID },
+			{ FDOACTIONOVERRIDE, &scr_DoActionOverride },
+			{ FIFHEALED, &scr_Healed },
+			{ FSENDMESSAGE, &scr_SendPlayerMessage },
+			{ FCALLFORHELP, &scr_CallForHelp },
+			{ FADDIDSZ, &scr_AddIDSZ },
+			{ FSETSTATE, &scr_set_State },
+			{ FGETSTATE, &scr_get_State },
+			{ FIFSTATEIS, &scr_StateIs },
+			{ FIFTARGETCANOPENSTUFF, &scr_TargetCanOpenStuff },
+			{ FIFGRABBED, &scr_Grabbed },
+			{ FIFDROPPED, &scr_Dropped },
+			{ FSETTARGETTOWHOEVERISHOLDING, &scr_set_TargetToWhoeverIsHolding },
+			{ FDAMAGETARGET, &scr_DamageTarget },
+			{ FIFXISLESSTHANY, &scr_XIsLessThanY },
+			{ FSETWEATHERTIME, &scr_set_WeatherTime },
+			{ FGETBUMPHEIGHT, &scr_get_BumpHeight },
+			{ FIFREAFFIRMED, &scr_Reaffirmed },
+			{ FUNKEEPACTION, &scr_UnkeepAction },
+			{ FIFTARGETISONOTHERTEAM, &scr_TargetIsOnOtherTeam },
+			{ FIFTARGETISONHATEDTEAM, &scr_TargetIsOnHatedTeam },
+			{ FPRESSLATCHBUTTON, &scr_PressLatchButton },
+			{ FSETTARGETTOTARGETOFLEADER, &scr_set_TargetToTargetOfLeader },
+			{ FIFLEADERKILLED, &scr_LeaderKilled },
+			{ FBECOMELEADER, &scr_BecomeLeader },
+			{ FCHANGETARGETARMOR, &scr_ChangeTargetArmor },
+			{ FGIVEMONEYTOTARGET, &scr_GiveMoneyToTarget },
+			{ FDROPKEYS, &scr_DropKeys },
+			{ FIFLEADERISALIVE, &scr_LeaderIsAlive },
+			{ FIFTARGETISOLDTARGET, &scr_TargetIsOldTarget },
+			{ FSETTARGETTOLEADER, &scr_set_TargetToLeader },
+			{ FSPAWNCHARACTER, &scr_SpawnCharacter },
+			{ FRESPAWNCHARACTER, &scr_RespawnCharacter },
+			{ FCHANGETILE, &scr_ChangeTile },
+			{ FIFUSED, &scr_Used },
+			{ FDROPMONEY, &scr_DropMoney },
+			{ FSETOLDTARGET, &scr_set_OldTarget },
+			{ FDETACHFROMHOLDER, &scr_DetachFromHolder },
+			{ FIFTARGETHASVULNERABILITYID, &scr_TargetHasVulnerabilityID },
+			{ FCLEANUP, &scr_CleanUp },
+			{ FIFCLEANEDUP, &scr_CleanedUp },
+			{ FIFSITTING, &scr_Sitting },
+			{ FIFTARGETISHURT, &scr_TargetIsHurt },
+			{ FIFTARGETISAPLAYER, &scr_TargetIsAPlayer },
+			{ FPLAYSOUND, &scr_PlaySound },
+			{ FSPAWNPARTICLE, &scr_SpawnParticle },
+			{ FIFTARGETISALIVE, &scr_TargetIsAlive },
+			{ FSTOP, &scr_Stop },
+			{ FDISAFFIRMCHARACTER, &scr_DisaffirmCharacter },
+			{ FREAFFIRMCHARACTER, &scr_ReaffirmCharacter },
+			{ FIFTARGETISSELF, &scr_TargetIsSelf },
+			{ FIFTARGETISMALE, &scr_TargetIsMale },
+			{ FIFTARGETISFEMALE, &scr_TargetIsFemale },
+			{ FSETTARGETTOSELF, &scr_set_TargetToSelf },
+			{ FSETTARGETTORIDER, &scr_set_TargetToRider },
+			{ FGETATTACKTURN, &scr_get_AttackTurn },
+			{ FGETDAMAGETYPE, &scr_get_DamageType },
+			{ FBECOMESPELL, &scr_BecomeSpell },
+			{ FBECOMESPELLBOOK, &scr_BecomeSpellbook },
+			{ FIFSCOREDAHIT, &scr_ScoredAHit },
+			{ FIFDISAFFIRMED, &scr_Disaffirmed },
+			{ FTRANSLATEORDER, &scr_TranslateOrder },
+			{ FSETTARGETTOWHOEVERWASHIT, &scr_set_TargetToWhoeverWasHit },
+			{ FSETTARGETTOWIDEENEMY, &scr_set_TargetToWideEnemy },
+			{ FIFCHANGED, &scr_Changed },
+			{ FIFINWATER, &scr_InWater },
+			{ FIFBORED, &scr_Bored },
+			{ FIFTOOMUCHBAGGAGE, &scr_TooMuchBaggage },
+			{ FIFGROGGED, &scr_Grogged },
+			{ FIFDAZED, &scr_Dazed },
+			{ FIFTARGETHASSPECIALID, &scr_TargetHasSpecialID },
+			{ FPRESSTARGETLATCHBUTTON, &scr_PressTargetLatchButton },
+			{ FIFINVISIBLE, &scr_Invisible },
+			{ FIFARMORIS, &scr_ArmorIs },
+			{ FGETTARGETGROGTIME, &scr_get_TargetGrogTime },
+			{ FGETTARGETDAZETIME, &scr_get_TargetDazeTime },
+			{ FSETDAMAGETYPE, &scr_set_DamageType },
+			{ FSETWATERLEVEL, &scr_set_WaterLevel },
+			{ FENCHANTTARGET, &scr_EnchantTarget },
+			{ FENCHANTCHILD, &scr_EnchantChild },
+			{ FTELEPORTTARGET, &scr_TeleportTarget },
+			{ FGIVEEXPERIENCETOTARGET, &scr_add_TargetExperience },
+			{ FINCREASEAMMO, &scr_IncreaseAmmo },
+			{ FUNKURSETARGET, &scr_UnkurseTarget },
+			{ FGIVEEXPERIENCETOTARGETTEAM, &scr_add_TargetTeamExperience },
+			{ FIFUNARMED, &scr_Unarmed },
+			{ FRESTOCKTARGETAMMOIDALL, &scr_RestockTargetAmmoIDAll },
+			{ FRESTOCKTARGETAMMOIDFIRST, &scr_RestockTargetAmmoIDFirst },
+			{ FFLASHTARGET, &scr_FlashTarget },
+			{ FSETREDSHIFT, &scr_set_RedShift },
+			{ FSETGREENSHIFT, &scr_set_GreenShift },
+			{ FSETBLUESHIFT, &scr_set_BlueShift },
+			{ FSETLIGHT, &scr_set_Light },
+			{ FSETALPHA, &scr_set_Alpha },
+			{ FIFHITFROMBEHIND, &scr_HitFromBehind },
+			{ FIFHITFROMFRONT, &scr_HitFromFront },
+			{ FIFHITFROMLEFT, &scr_HitFromLeft },
+			{ FIFHITFROMRIGHT, &scr_HitFromRight },
+			{ FIFTARGETISONSAMETEAM, &scr_TargetIsOnSameTeam },
+			{ FKILLTARGET, &scr_KillTarget },
+			{ FUNDOENCHANT, &scr_UndoEnchant },
+			{ FGETWATERLEVEL, &scr_get_WaterLevel },
+			{ FCOSTTARGETMANA, &scr_CostTargetMana },
+			{ FIFTARGETHASANYID, &scr_TargetHasAnyID },
+			{ FSETBUMPSIZE, &scr_set_BumpSize },
+			{ FIFNOTDROPPED, &scr_NotDropped },
+			{ FIFYISLESSTHANX, &scr_YIsLessThanX },
+			{ FSETFLYHEIGHT, &scr_set_FlyHeight },
+			{ FIFBLOCKED, &scr_Blocked },
+			{ FIFTARGETISDEFENDING, &scr_TargetIsDefending },
+			{ FIFTARGETISATTACKING, &scr_TargetIsAttacking },
+			{ FIFSTATEIS0, &scr_StateIs0 },
+			{ FIFSTATEIS1, &scr_StateIs1 },
+			{ FIFSTATEIS2, &scr_StateIs2 },
+			{ FIFSTATEIS3, &scr_StateIs3 },
+			{ FIFSTATEIS4, &scr_StateIs4 },
+			{ FIFSTATEIS5, &scr_StateIs5 },
+			{ FIFSTATEIS6, &scr_StateIs6 },
+			{ FIFSTATEIS7, &scr_StateIs7 },
+			{ FIFCONTENTIS, &scr_ContentIs },
+			{ FSETTURNMODETOWATCHTARGET, &scr_set_TurnModeToWatchTarget },
+			{ FIFSTATEISNOT, &scr_StateIsNot },
+			{ FIFXISEQUALTOY, &scr_XIsEqualToY },
+			{ FDEBUGMESSAGE, &scr_DebugMessage },
+			{ FBLACKTARGET, &scr_BlackTarget },
+			{ FSENDMESSAGENEAR, &scr_SendMessageNear },
+			{ FIFHITGROUND, &scr_HitGround },
+			{ FIFNAMEISKNOWN, &scr_NameIsKnown },
+			{ FIFUSAGEISKNOWN, &scr_UsageIsKnown },
+			{ FIFHOLDINGITEMID, &scr_HoldingItemID },
+			{ FIFHOLDINGRANGEDWEAPON, &scr_HoldingRangedWeapon },
+			{ FIFHOLDINGMELEEWEAPON, &scr_HoldingMeleeWeapon },
+			{ FIFHOLDINGSHIELD, &scr_HoldingShield },
+			{ FIFKURSED, &scr_Kursed },
+			{ FIFTARGETISKURSED, &scr_TargetIsKursed },
+			{ FIFTARGETISDRESSEDUP, &scr_TargetIsDressedUp },
+			{ FIFOVERWATER, &scr_OverWater },
+			{ FIFTHROWN, &scr_Thrown },
+			{ FMAKENAMEKNOWN, &scr_MakeNameKnown },
+			{ FMAKEUSAGEKNOWN, &scr_MakeUsageKnown },
+			{ FSTOPTARGETMOVEMENT, &scr_StopTargetMovement },
+			{ FSETXY, &scr_set_XY },
+			{ FGETXY, &scr_get_XY },
+			{ FADDXY, &scr_AddXY },
+			{ FMAKEAMMOKNOWN, &scr_MakeAmmoKnown },
+			{ FSPAWNATTACHEDPARTICLE, &scr_SpawnAttachedParticle },
+			{ FSPAWNEXACTPARTICLE, &scr_SpawnExactParticle },
+			{ FACCELERATETARGET, &scr_AccelerateTarget },
+			{ FIFDISTANCEISMORETHANTURN, &scr_distanceIsMoreThanTurn },
+			{ FIFCRUSHED, &scr_Crushed },
+			{ FMAKECRUSHVALID, &scr_MakeCrushValid },
+			{ FSETTARGETTOLOWESTTARGET, &scr_set_TargetToLowestTarget },
+			{ FIFNOTPUTAWAY, &scr_NotPutAway },
+			{ FIFTAKENOUT, &scr_TakenOut },
+			{ FIFAMMOOUT, &scr_AmmoOut },
+			{ FPLAYSOUNDLOOPED, &scr_PlaySoundLooped },
+			{ FSTOPSOUND, &scr_StopSound },
+			{ FHEALSELF, &scr_HealSelf },
+			{ FEQUIP, &scr_Equip },
+			{ FIFTARGETHASITEMIDEQUIPPED, &scr_TargetHasItemIDEquipped },
+			{ FSETOWNERTOTARGET, &scr_set_OwnerToTarget },
+			{ FSETTARGETTOOWNER, &scr_set_TargetToOwner },
+			{ FSETFRAME, &scr_set_Frame },
+			{ FBREAKPASSAGE, &scr_BreakPassage },
+			{ FSETRELOADTIME, &scr_set_ReloadTime },
+			{ FSETTARGETTOWIDEBLAHID, &scr_set_TargetToWideBlahID },
+			{ FPOOFTARGET, &scr_PoofTarget },
+			{ FCHILDDOACTIONOVERRIDE, &scr_ChildDoActionOverride },
+			{ FSPAWNPOOF, &scr_SpawnPoof },
+			{ FSETSPEEDPERCENT, &scr_set_SpeedPercent },
+			{ FSETCHILDSTATE, &scr_set_ChildState },
+			{ FSPAWNATTACHEDSIZEDPARTICLE, &scr_SpawnAttachedSizedParticle },
+			{ FCHANGEARMOR, &scr_ChangeArmor },
+			{ FSHOWTIMER, &scr_ShowTimer },
+			{ FIFFACINGTARGET, &scr_FacingTarget },
+			{ FPLAYSOUNDVOLUME, &scr_PlaySoundVolume },
+			{ FSPAWNATTACHEDFACEDPARTICLE, &scr_SpawnAttachedFacedParticle },
+			{ FIFSTATEISODD, &scr_StateIsOdd },
+			{ FSETTARGETTODISTANTENEMY, &scr_set_TargetToDistantEnemy },
+			{ FTELEPORT, &scr_Teleport },
+			{ FGIVESTRENGTHTOTARGET, &scr_add_TargetStrength },
+			{ FGIVEINTELLECTTOTARGET, &scr_add_TargetIntelligence },
+			{ FGIVEINTELLIGENCETOTARGET, &scr_add_TargetIntelligence },
+			{ FGIVEDEXTERITYTOTARGET, &scr_add_TargetDexterity },
+			{ FGIVELIFETOTARGET, &scr_add_TargetLife },
+			{ FGIVEMANATOTARGET, &scr_add_TargetMana },
+			{ FSHOWMAP, &scr_ShowMap },
+			{ FSHOWYOUAREHERE, &scr_ShowYouAreHere },
+			{ FSHOWBLIPXY, &scr_ShowBlipXY },
+			{ FHEALTARGET, &scr_HealTarget },
+			{ FPUMPTARGET, &scr_PumpTarget },
+			{ FCOSTAMMO, &scr_CostAmmo },
+			{ FMAKESIMILARNAMESKNOWN, &scr_MakeSimilarNamesKnown },
+			{ FSPAWNATTACHEDHOLDERPARTICLE, &scr_SpawnAttachedHolderParticle },
+			{ FSETTARGETRELOADTIME, &scr_set_TargetReloadTime },
+			{ FSETFOGLEVEL, &scr_set_FogLevel },
+			{ FGETFOGLEVEL, &scr_get_FogLevel },
+			{ FSETFOGTAD, &scr_set_FogTAD },
+			{ FSETFOGBOTTOMLEVEL, &scr_set_FogBottomLevel },
+			{ FGETFOGBOTTOMLEVEL, &scr_get_FogBottomLevel },
+			{ FCORRECTACTIONFORHAND, &scr_CorrectActionForHand },
+			{ FIFTARGETISMOUNTED, &scr_TargetIsMounted },
+			{ FSPARKLEICON, &scr_SparkleIcon },
+			{ FUNSPARKLEICON, &scr_UnsparkleIcon },
+			{ FGETTILEXY, &scr_get_TileXY },
+			{ FSETTILEXY, &scr_set_TileXY },
+			{ FSETSHADOWSIZE, &scr_set_ShadowSize },
+			{ FORDERTARGET, &scr_OrderTarget },
+			{ FSETTARGETTOWHOEVERISINPASSAGE, &scr_set_TargetToWhoeverIsInPassage },
+			{ FIFCHARACTERWASABOOK, &scr_CharacterWasABook },
+			{ FSETENCHANTBOOSTVALUES, &scr_set_EnchantBoostValues },
+			{ FSPAWNCHARACTERXYZ, &scr_SpawnCharacterXYZ },
+			{ FSPAWNEXACTCHARACTERXYZ, &scr_SpawnExactCharacterXYZ },
+			{ FCHANGETARGETCLASS, &scr_ChangeTargetClass },
+			{ FPLAYFULLSOUND, &scr_PlayFullSound },
+			{ FSPAWNEXACTCHASEPARTICLE, &scr_SpawnExactChaseParticle },
+			{ FCREATEORDER, &scr_CreateOrder },
+			{ FORDERSPECIALID, &scr_OrderSpecialID },
+			{ FUNKURSETARGETINVENTORY, &scr_UnkurseTargetInventory },
+			{ FIFTARGETISSNEAKING, &scr_TargetIsSneaking },
+			{ FDROPITEMS, &scr_DropItems },
+			{ FRESPAWNTARGET, &scr_RespawnTarget },
+			{ FTARGETDOACTIONSETFRAME, &scr_TargetDoActionSetFrame },
+			{ FIFTARGETCANSEEINVISIBLE, &scr_TargetCanSeeInvisible },
+			{ FSETTARGETTONEARESTBLAHID, &scr_set_TargetToNearestBlahID },
+			{ FSETTARGETTONEARESTENEMY, &scr_set_TargetToNearestEnemy },
+			{ FSETTARGETTONEARESTFRIEND, &scr_set_TargetToNearestFriend },
+			{ FSETTARGETTONEARESTLIFEFORM, &scr_set_TargetToNearestLifeform },
+			{ FFLASHPASSAGE, &scr_FlashPassage },
+			{ FFINDTILEINPASSAGE, &scr_FindTileInPassage },
+			{ FIFHELDINLEFTHAND, &scr_HeldInLeftHand },
+			{ FNOTANITEM, &scr_NotAnItem },
+			{ FSETCHILDAMMO, &scr_set_ChildAmmo },
+			{ FIFHITVULNERABLE, &scr_HitVulnerable },
+			{ FIFTARGETISFLYING, &scr_TargetIsFlying },
+			{ FIDENTIFYTARGET, &scr_IdentifyTarget },
+			{ FBEATMODULE, &scr_BeatModule },
+			{ FENDMODULE, &scr_EndModule },
+			{ FDISABLEEXPORT, &scr_DisableExport },
+			{ FENABLEEXPORT, &scr_EnableExport },
+			{ FGETTARGETSTATE, &scr_get_TargetState },
+			{ FIFEQUIPPED, &scr_Equipped },
+			{ FDROPTARGETMONEY, &scr_DropTargetMoney },
+			{ FGETTARGETCONTENT, &scr_get_TargetContent },
+			{ FDROPTARGETKEYS, &scr_DropTargetKeys },
+			{ FJOINTEAM, &scr_JoinTeam },
+			{ FTARGETJOINTEAM, &scr_TargetJoinTeam },
+			{ FCLEARMUSICPASSAGE, &scr_ClearMusicPassage },
+			{ FCLEARENDMESSAGE, &scr_ClearEndMessage },
+			{ FADDENDMESSAGE, &scr_AddEndMessage },
+			{ FPLAYMUSIC, &scr_PlayMusic },
+			{ FSETMUSICPASSAGE, &scr_set_MusicPassage },
+			{ FMAKECRUSHINVALID, &scr_MakeCrushInvalid },
+			{ FSTOPMUSIC, &scr_StopMusic },
+			{ FFLASHVARIABLE, &scr_FlashVariable },
+			{ FACCELERATEUP, &scr_AccelerateUp },
+			{ FFLASHVARIABLEHEIGHT, &scr_FlashVariableHeight },
+			{ FSETDAMAGETIME, &scr_set_DamageTime },
+			{ FIFSTATEIS8, &scr_StateIs8 },
+			{ FIFSTATEIS9, &scr_StateIs9 },
+			{ FIFSTATEIS10, &scr_StateIs10 },
+			{ FIFSTATEIS11, &scr_StateIs11 },
+			{ FIFSTATEIS12, &scr_StateIs12 },
+			{ FIFSTATEIS13, &scr_StateIs13 },
+			{ FIFSTATEIS14, &scr_StateIs14 },
+			{ FIFSTATEIS15, &scr_StateIs15 },
+			{ FIFTARGETISAMOUNT, &scr_TargetIsAMount },
+			{ FIFTARGETISAPLATFORM, &scr_TargetIsAPlatform },
+			{ FADDSTAT, &scr_AddStat },
+			{ FDISENCHANTTARGET, &scr_DisenchantTarget },
+			{ FDISENCHANTALL, &scr_DisenchantAll },
+			{ FSETVOLUMENEARESTTEAMMATE, &scr_set_VolumeNearestTeammate },
+			{ FADDSHOPPASSAGE, &scr_AddShopPassage },
+			{ FTARGETPAYFORARMOR, &scr_TargetPayForArmor },
+			{ FJOINEVILTEAM, &scr_JoinEvilTeam },
+			{ FJOINNULLTEAM, &scr_JoinNullTeam },
+			{ FJOINGOODTEAM, &scr_JoinGoodTeam },
+			{ FPITSKILL, &scr_PitsKill },
+			{ FSETTARGETTOPASSAGEID, &scr_set_TargetToPassageID },
+			{ FMAKENAMEUNKNOWN, &scr_MakeNameUnknown },
+			{ FSPAWNEXACTPARTICLEENDSPAWN, &scr_SpawnExactParticleEndSpawn },
+			{ FSPAWNPOOFSPEEDSPACINGDAMAGE, &scr_SpawnPoofSpeedSpacingDamage },
+			{ FGIVEEXPERIENCETOGOODTEAM, &scr_add_GoodTeamExperience },
+			{ FDONOTHING, &scr_DoNothing },
+			{ FGROGTARGET, &scr_GrogTarget },
+			{ FDAZETARGET, &scr_DazeTarget },
+			{ FENABLERESPAWN, &scr_EnableRespawn },
+			{ FDISABLERESPAWN, &scr_DisableRespawn },
+			{ FDISPELTARGETENCHANTID, &scr_DispelTargetEnchantID },
+			{ FIFHOLDERBLOCKED, &scr_HolderBlocked },
+
+			{ FIFTARGETHASNOTFULLMANA, &scr_TargetHasNotFullMana },
+			{ FENABLELISTENSKILL, &scr_EnableListenSkill },
+			{ FSETTARGETTOLASTITEMUSED, &scr_set_TargetToLastItemUsed },
+			{ FFOLLOWLINK, &scr_FollowLink },
+			{ FIFOPERATORISLINUX, &scr_OperatorIsLinux },
+			{ FIFTARGETISAWEAPON, &scr_TargetIsAWeapon },
+			{ FIFSOMEONEISSTEALING, &scr_SomeoneIsStealing },
+			{ FIFTARGETISASPELL, &scr_TargetIsASpell },
+			{ FIFBACKSTABBED, &scr_Backstabbed },
+			{ FGETTARGETDAMAGETYPE, &scr_get_TargetDamageType },
+			{ FADDQUEST, &scr_AddQuest },
+			{ FBEATQUESTALLPLAYERS, &scr_BeatQuestAllPlayers },
+			{ FIFTARGETHASQUEST, &scr_TargetHasQuest },
+			{ FSETQUESTLEVEL, &scr_set_QuestLevel },
+			{ FADDQUESTALLPLAYERS, &scr_AddQuestAllPlayers },
+			{ FADDBLIPALLENEMIES, &scr_AddBlipAllEnemies },
+			{ FPITSFALL, &scr_PitsFall },
+			{ FIFTARGETISOWNER, &scr_TargetIsOwner },
+			{ FEND, &scr_End },
+
+			{ FSETSPEECH, &scr_set_Speech },
+			{ FSETMOVESPEECH, &scr_set_MoveSpeech },
+			{ FSETSECONDMOVESPEECH, &scr_set_SecondMoveSpeech },
+			{ FSETATTACKSPEECH, &scr_set_AttackSpeech },
+			{ FSETASSISTSPEECH, &scr_set_AssistSpeech },
+			{ FSETTERRAINSPEECH, &scr_set_TerrainSpeech },
+			{ FSETSELECTSPEECH, &scr_set_SelectSpeech },
+
+			{ FTAKEPICTURE, &scr_TakePicture },
+			{ FIFOPERATORISMACINTOSH, &scr_OperatorIsMacintosh },
+			{ FIFMODULEHASIDSZ, &scr_ModuleHasIDSZ },
+			{ FMORPHTOTARGET, &scr_MorphToTarget },
+			{ FGIVEMANAFLOWTOTARGET, &scr_add_TargetManaFlow },
+			{ FGIVEMANARETURNTOTARGET, &scr_add_TargetManaReturn },
+			{ FSETMONEY, &scr_set_Money },
+			{ FIFTARGETCANSEEKURSES, &scr_TargetCanSeeKurses },
+			{ FSPAWNATTACHEDCHARACTER, &scr_SpawnAttachedCharacter },
+			{ FKURSETARGET, &scr_KurseTarget },
+			{ FSETCHILDCONTENT, &scr_set_ChildContent },
+			{ FSETTARGETTOCHILD, &scr_set_TargetToChild },
+			{ FSETDAMAGETHRESHOLD, &scr_set_DamageThreshold },
+			{ FACCELERATETARGETUP, &scr_AccelerateTargetUp },
+			{ FSETTARGETAMMO, &scr_set_TargetAmmo },
+			{ FENABLEINVICTUS, &scr_EnableInvictus },
+			{ FDISABLEINVICTUS, &scr_DisableInvictus },
+			{ FTARGETDAMAGESELF, &scr_TargetDamageSelf },
+			{ FSETTARGETSIZE, &scr_set_TargetSize },
+			{ FIFTARGETISFACINGSELF, &scr_TargetIsFacingSelf },
+
+			{ FDRAWBILLBOARD, &scr_DrawBillboard },
+			{ FSETTARGETTOFIRSTBLAHINPASSAGE, &scr_set_TargetToBlahInPassage },
+			{ FIFLEVELUP, &scr_LevelUp },
+			{ FGIVESKILLTOTARGET, &scr_add_TargetSkill },
+			{ FSETTARGETTONEARBYMELEEWEAPON, &scr_set_TargetToNearbyMeleeWeapon },
+
+			{ FENABLESTEALTH, &scr_EnableStealth },
+			{ FDISABLESTEALTH, &scr_DisableStealth },
+			{ FIFSTEALTHED, &scr_Stealthed },
+			{ FSETTARGETTODISTANTFRIEND, &scr_set_TargetToDistantFriend },
+			{ FDISPLAYCHARGE, &scr_DisplayCharge },
+		}
+{
+}
+
+Runtime::~Runtime() {
+}
+
+} // namespace Script
+} // namespace Ego
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -57,6 +471,7 @@ static bool _scripting_system_initialized = false;
 void scripting_system_begin()
 {
 	if (!_scripting_system_initialized) {
+		Ego::Script::Runtime::initialize();
 		g_scriptFunctionClock = std::make_shared<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("script function clock", 1);
 		for (size_t i = 0; i < SCRIPT_FUNCTIONS_COUNT; ++i) {
 			_script_function_calls[i] = 0;
@@ -80,6 +495,7 @@ void scripting_system_end()
             vfs_close(target);
         }
 		g_scriptFunctionClock = nullptr;
+		Ego::Script::Runtime::uninitialize();
         _scripting_system_initialized = false;
     }
 }
@@ -380,418 +796,15 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     }
     else
     {
-		
 		{ 
 			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(*g_scriptFunctionClock);
-            // Figure out which function to run
-            switch ( valuecode )
-            {
-				case FIFSPAWNED: returncode = scr_Spawned(self, aiState); break;
-				case FIFTIMEOUT: returncode = scr_TimeOut(self, aiState); break;
-				case FIFATWAYPOINT: returncode = scr_AtWaypoint(self, aiState); break;
-				case FIFATLASTWAYPOINT: returncode = scr_AtLastWaypoint(self, aiState); break;
-				case FIFATTACKED: returncode = scr_Attacked(self, aiState); break;
-				case FIFBUMPED: returncode = scr_Bumped(self, aiState); break;
-				case FIFORDERED: returncode = scr_Ordered(self, aiState); break;
-				case FIFCALLEDFORHELP: returncode = scr_CalledForHelp(self, aiState); break;
-				case FSETCONTENT: returncode = scr_set_Content(self, aiState); break;
-				case FIFKILLED: returncode = scr_Killed(self, aiState); break;
-				case FIFTARGETKILLED: returncode = scr_TargetKilled(self, aiState); break;
-				case FCLEARWAYPOINTS: returncode = scr_ClearWaypoints(self, aiState); break;
-				case FADDWAYPOINT: returncode = scr_AddWaypoint(self, aiState); break;
-				case FFINDPATH: returncode = scr_FindPath(self, aiState); break;
-				case FCOMPASS: returncode = scr_Compass(self, aiState); break;
-				case FGETTARGETARMORPRICE: returncode = scr_get_TargetArmorPrice(self, aiState); break;
-				case FSETTIME: returncode = scr_set_Time(self, aiState); break;
-				case FGETCONTENT: returncode = scr_get_Content(self, aiState); break;
-				case FJOINTARGETTEAM: returncode = scr_JoinTargetTeam(self, aiState); break;
-				case FSETTARGETTONEARBYENEMY: returncode = scr_set_TargetToNearbyEnemy(self, aiState); break;
-				case FSETTARGETTOTARGETLEFTHAND: returncode = scr_set_TargetToTargetLeftHand(self, aiState); break;
-				case FSETTARGETTOTARGETRIGHTHAND: returncode = scr_set_TargetToTargetRightHand(self, aiState); break;
-				case FSETTARGETTOWHOEVERATTACKED: returncode = scr_set_TargetToWhoeverAttacked(self, aiState); break;
-				case FSETTARGETTOWHOEVERBUMPED: returncode = scr_set_TargetToWhoeverBumped(self, aiState); break;
-				case FSETTARGETTOWHOEVERCALLEDFORHELP: returncode = scr_set_TargetToWhoeverCalledForHelp(self, aiState); break;
-				case FSETTARGETTOOLDTARGET: returncode = scr_set_TargetToOldTarget(self, aiState); break;
-				case FSETTURNMODETOVELOCITY: returncode = scr_set_TurnModeToVelocity(self, aiState); break;
-				case FSETTURNMODETOWATCH: returncode = scr_set_TurnModeToWatch(self, aiState); break;
-				case FSETTURNMODETOSPIN: returncode = scr_set_TurnModeToSpin(self, aiState); break;
-				case FSETBUMPHEIGHT: returncode = scr_set_BumpHeight(self, aiState); break;
-				case FIFTARGETHASID: returncode = scr_TargetHasID(self, aiState); break;
-				case FIFTARGETHASITEMID: returncode = scr_TargetHasItemID(self, aiState); break;
-				case FIFTARGETHOLDINGITEMID: returncode = scr_TargetHoldingItemID(self, aiState); break;
-				case FIFTARGETHASSKILLID: returncode = scr_TargetHasSkillID(self, aiState); break;
-				case FELSE: returncode = scr_Else(self, aiState); break;
-				case FRUN: returncode = scr_Run(self, aiState); break;
-				case FWALK: returncode = scr_Walk(self, aiState); break;
-				case FSNEAK: returncode = scr_Sneak(self, aiState); break;
-				case FDOACTION: returncode = scr_DoAction(self, aiState); break;
-				case FKEEPACTION: returncode = scr_KeepAction(self, aiState); break;
-				case FISSUEORDER: returncode = scr_IssueOrder(self, aiState); break;
-				case FDROPWEAPONS: returncode = scr_DropWeapons(self, aiState); break;
-				case FTARGETDOACTION: returncode = scr_TargetDoAction(self, aiState); break;
-				case FOPENPASSAGE: returncode = scr_OpenPassage(self, aiState); break;
-				case FCLOSEPASSAGE: returncode = scr_ClosePassage(self, aiState); break;
-				case FIFPASSAGEOPEN: returncode = scr_PassageOpen(self, aiState); break;
-				case FGOPOOF: returncode = scr_GoPoof(self, aiState); break;
-				case FCOSTTARGETITEMID: returncode = scr_CostTargetItemID(self, aiState); break;
-				case FDOACTIONOVERRIDE: returncode = scr_DoActionOverride(self, aiState); break;
-				case FIFHEALED: returncode = scr_Healed(self, aiState); break;
-				case FSENDMESSAGE: returncode = scr_SendPlayerMessage(self, aiState); break;
-				case FCALLFORHELP: returncode = scr_CallForHelp(self, aiState); break;
-				case FADDIDSZ: returncode = scr_AddIDSZ(self, aiState); break;
-				case FSETSTATE: returncode = scr_set_State(self, aiState); break;
-				case FGETSTATE: returncode = scr_get_State(self, aiState); break;
-				case FIFSTATEIS: returncode = scr_StateIs(self, aiState); break;
-				case FIFTARGETCANOPENSTUFF: returncode = scr_TargetCanOpenStuff(self, aiState); break;
-				case FIFGRABBED: returncode = scr_Grabbed(self, aiState); break;
-				case FIFDROPPED: returncode = scr_Dropped(self, aiState); break;
-				case FSETTARGETTOWHOEVERISHOLDING: returncode = scr_set_TargetToWhoeverIsHolding(self, aiState); break;
-				case FDAMAGETARGET: returncode = scr_DamageTarget(self, aiState); break;
-				case FIFXISLESSTHANY: returncode = scr_XIsLessThanY(self, aiState); break;
-				case FSETWEATHERTIME: returncode = scr_set_WeatherTime(self, aiState); break;
-				case FGETBUMPHEIGHT: returncode = scr_get_BumpHeight(self, aiState); break;
-				case FIFREAFFIRMED: returncode = scr_Reaffirmed(self, aiState); break;
-				case FUNKEEPACTION: returncode = scr_UnkeepAction(self, aiState); break;
-				case FIFTARGETISONOTHERTEAM: returncode = scr_TargetIsOnOtherTeam(self, aiState); break;
-				case FIFTARGETISONHATEDTEAM: returncode = scr_TargetIsOnHatedTeam(self, aiState); break;
-				case FPRESSLATCHBUTTON: returncode = scr_PressLatchButton(self, aiState); break;
-				case FSETTARGETTOTARGETOFLEADER: returncode = scr_set_TargetToTargetOfLeader(self, aiState); break;
-				case FIFLEADERKILLED: returncode = scr_LeaderKilled(self, aiState); break;
-				case FBECOMELEADER: returncode = scr_BecomeLeader(self, aiState); break;
-				case FCHANGETARGETARMOR: returncode = scr_ChangeTargetArmor(self, aiState); break;
-				case FGIVEMONEYTOTARGET: returncode = scr_GiveMoneyToTarget(self, aiState); break;
-				case FDROPKEYS: returncode = scr_DropKeys(self, aiState); break;
-				case FIFLEADERISALIVE: returncode = scr_LeaderIsAlive(self, aiState); break;
-				case FIFTARGETISOLDTARGET: returncode = scr_TargetIsOldTarget(self, aiState); break;
-				case FSETTARGETTOLEADER: returncode = scr_set_TargetToLeader(self, aiState); break;
-				case FSPAWNCHARACTER: returncode = scr_SpawnCharacter(self, aiState); break;
-				case FRESPAWNCHARACTER: returncode = scr_RespawnCharacter(self, aiState); break;
-				case FCHANGETILE: returncode = scr_ChangeTile(self, aiState); break;
-				case FIFUSED: returncode = scr_Used(self, aiState); break;
-				case FDROPMONEY: returncode = scr_DropMoney(self, aiState); break;
-				case FSETOLDTARGET: returncode = scr_set_OldTarget(self, aiState); break;
-				case FDETACHFROMHOLDER: returncode = scr_DetachFromHolder(self, aiState); break;
-				case FIFTARGETHASVULNERABILITYID: returncode = scr_TargetHasVulnerabilityID(self, aiState); break;
-				case FCLEANUP: returncode = scr_CleanUp(self, aiState); break;
-				case FIFCLEANEDUP: returncode = scr_CleanedUp(self, aiState); break;
-				case FIFSITTING: returncode = scr_Sitting(self, aiState); break;
-				case FIFTARGETISHURT: returncode = scr_TargetIsHurt(self, aiState); break;
-				case FIFTARGETISAPLAYER: returncode = scr_TargetIsAPlayer(self, aiState); break;
-				case FPLAYSOUND: returncode = scr_PlaySound(self, aiState); break;
-				case FSPAWNPARTICLE: returncode = scr_SpawnParticle(self, aiState); break;
-				case FIFTARGETISALIVE: returncode = scr_TargetIsAlive(self, aiState); break;
-				case FSTOP: returncode = scr_Stop(self, aiState); break;
-				case FDISAFFIRMCHARACTER: returncode = scr_DisaffirmCharacter(self, aiState); break;
-				case FREAFFIRMCHARACTER: returncode = scr_ReaffirmCharacter(self, aiState); break;
-				case FIFTARGETISSELF: returncode = scr_TargetIsSelf(self, aiState); break;
-				case FIFTARGETISMALE: returncode = scr_TargetIsMale(self, aiState); break;
-				case FIFTARGETISFEMALE: returncode = scr_TargetIsFemale(self, aiState); break;
-				case FSETTARGETTOSELF: returncode = scr_set_TargetToSelf(self, aiState); break;
-				case FSETTARGETTORIDER: returncode = scr_set_TargetToRider(self, aiState); break;
-				case FGETATTACKTURN: returncode = scr_get_AttackTurn(self, aiState); break;
-				case FGETDAMAGETYPE: returncode = scr_get_DamageType(self, aiState); break;
-				case FBECOMESPELL: returncode = scr_BecomeSpell(self, aiState); break;
-				case FBECOMESPELLBOOK: returncode = scr_BecomeSpellbook(self, aiState); break;
-				case FIFSCOREDAHIT: returncode = scr_ScoredAHit(self, aiState); break;
-				case FIFDISAFFIRMED: returncode = scr_Disaffirmed(self, aiState); break;
-				case FTRANSLATEORDER: returncode = scr_TranslateOrder(self, aiState); break;
-				case FSETTARGETTOWHOEVERWASHIT: returncode = scr_set_TargetToWhoeverWasHit(self, aiState); break;
-				case FSETTARGETTOWIDEENEMY: returncode = scr_set_TargetToWideEnemy(self, aiState); break;
-				case FIFCHANGED: returncode = scr_Changed(self, aiState); break;
-				case FIFINWATER: returncode = scr_InWater(self, aiState); break;
-				case FIFBORED: returncode = scr_Bored(self, aiState); break;
-				case FIFTOOMUCHBAGGAGE: returncode = scr_TooMuchBaggage(self, aiState); break;
-				case FIFGROGGED: returncode = scr_Grogged(self, aiState); break;
-				case FIFDAZED: returncode = scr_Dazed(self, aiState); break;
-				case FIFTARGETHASSPECIALID: returncode = scr_TargetHasSpecialID(self, aiState); break;
-				case FPRESSTARGETLATCHBUTTON: returncode = scr_PressTargetLatchButton(self, aiState); break;
-				case FIFINVISIBLE: returncode = scr_Invisible(self, aiState); break;
-				case FIFARMORIS: returncode = scr_ArmorIs(self, aiState); break;
-				case FGETTARGETGROGTIME: returncode = scr_get_TargetGrogTime(self, aiState); break;
-				case FGETTARGETDAZETIME: returncode = scr_get_TargetDazeTime(self, aiState); break;
-				case FSETDAMAGETYPE: returncode = scr_set_DamageType(self, aiState); break;
-				case FSETWATERLEVEL: returncode = scr_set_WaterLevel(self, aiState); break;
-				case FENCHANTTARGET: returncode = scr_EnchantTarget(self, aiState); break;
-				case FENCHANTCHILD: returncode = scr_EnchantChild(self, aiState); break;
-				case FTELEPORTTARGET: returncode = scr_TeleportTarget(self, aiState); break;
-				case FGIVEEXPERIENCETOTARGET: returncode = scr_add_TargetExperience(self, aiState); break;
-				case FINCREASEAMMO: returncode = scr_IncreaseAmmo(self, aiState); break;
-				case FUNKURSETARGET: returncode = scr_UnkurseTarget(self, aiState); break;
-				case FGIVEEXPERIENCETOTARGETTEAM: returncode = scr_add_TargetTeamExperience(self, aiState); break;
-				case FIFUNARMED: returncode = scr_Unarmed(self, aiState); break;
-				case FRESTOCKTARGETAMMOIDALL: returncode = scr_RestockTargetAmmoIDAll(self, aiState); break;
-				case FRESTOCKTARGETAMMOIDFIRST: returncode = scr_RestockTargetAmmoIDFirst(self, aiState); break;
-				case FFLASHTARGET: returncode = scr_FlashTarget(self, aiState); break;
-				case FSETREDSHIFT: returncode = scr_set_RedShift(self, aiState); break;
-				case FSETGREENSHIFT: returncode = scr_set_GreenShift(self, aiState); break;
-				case FSETBLUESHIFT: returncode = scr_set_BlueShift(self, aiState); break;
-				case FSETLIGHT: returncode = scr_set_Light(self, aiState); break;
-				case FSETALPHA: returncode = scr_set_Alpha(self, aiState); break;
-				case FIFHITFROMBEHIND: returncode = scr_HitFromBehind(self, aiState); break;
-				case FIFHITFROMFRONT: returncode = scr_HitFromFront(self, aiState); break;
-				case FIFHITFROMLEFT: returncode = scr_HitFromLeft(self, aiState); break;
-				case FIFHITFROMRIGHT: returncode = scr_HitFromRight(self, aiState); break;
-				case FIFTARGETISONSAMETEAM: returncode = scr_TargetIsOnSameTeam(self, aiState); break;
-				case FKILLTARGET: returncode = scr_KillTarget(self, aiState); break;
-				case FUNDOENCHANT: returncode = scr_UndoEnchant(self, aiState); break;
-				case FGETWATERLEVEL: returncode = scr_get_WaterLevel(self, aiState); break;
-				case FCOSTTARGETMANA: returncode = scr_CostTargetMana(self, aiState); break;
-				case FIFTARGETHASANYID: returncode = scr_TargetHasAnyID(self, aiState); break;
-				case FSETBUMPSIZE: returncode = scr_set_BumpSize(self, aiState); break;
-				case FIFNOTDROPPED: returncode = scr_NotDropped(self, aiState); break;
-				case FIFYISLESSTHANX: returncode = scr_YIsLessThanX(self, aiState); break;
-				case FSETFLYHEIGHT: returncode = scr_set_FlyHeight(self, aiState); break;
-				case FIFBLOCKED: returncode = scr_Blocked(self, aiState); break;
-				case FIFTARGETISDEFENDING: returncode = scr_TargetIsDefending(self, aiState); break;
-				case FIFTARGETISATTACKING: returncode = scr_TargetIsAttacking(self, aiState); break;
-				case FIFSTATEIS0: returncode = scr_StateIs0(self, aiState); break;
-				case FIFSTATEIS1: returncode = scr_StateIs1(self, aiState); break;
-				case FIFSTATEIS2: returncode = scr_StateIs2(self, aiState); break;
-				case FIFSTATEIS3: returncode = scr_StateIs3(self, aiState); break;
-				case FIFSTATEIS4: returncode = scr_StateIs4(self, aiState); break;
-				case FIFSTATEIS5: returncode = scr_StateIs5(self, aiState); break;
-				case FIFSTATEIS6: returncode = scr_StateIs6(self, aiState); break;
-				case FIFSTATEIS7: returncode = scr_StateIs7(self, aiState); break;
-				case FIFCONTENTIS: returncode = scr_ContentIs(self, aiState); break;
-				case FSETTURNMODETOWATCHTARGET: returncode = scr_set_TurnModeToWatchTarget(self, aiState); break;
-				case FIFSTATEISNOT: returncode = scr_StateIsNot(self, aiState); break;
-				case FIFXISEQUALTOY: returncode = scr_XIsEqualToY(self, aiState); break;
-				case FDEBUGMESSAGE: returncode = scr_DebugMessage(self, aiState); break;
-				case FBLACKTARGET: returncode = scr_BlackTarget(self, aiState); break;
-				case FSENDMESSAGENEAR: returncode = scr_SendMessageNear(self, aiState); break;
-				case FIFHITGROUND: returncode = scr_HitGround(self, aiState); break;
-				case FIFNAMEISKNOWN: returncode = scr_NameIsKnown(self, aiState); break;
-				case FIFUSAGEISKNOWN: returncode = scr_UsageIsKnown(self, aiState); break;
-				case FIFHOLDINGITEMID: returncode = scr_HoldingItemID(self, aiState); break;
-				case FIFHOLDINGRANGEDWEAPON: returncode = scr_HoldingRangedWeapon(self, aiState); break;
-				case FIFHOLDINGMELEEWEAPON: returncode = scr_HoldingMeleeWeapon(self, aiState); break;
-				case FIFHOLDINGSHIELD: returncode = scr_HoldingShield(self, aiState); break;
-				case FIFKURSED: returncode = scr_Kursed(self, aiState); break;
-				case FIFTARGETISKURSED: returncode = scr_TargetIsKursed(self, aiState); break;
-				case FIFTARGETISDRESSEDUP: returncode = scr_TargetIsDressedUp(self, aiState); break;
-				case FIFOVERWATER: returncode = scr_OverWater(self, aiState); break;
-				case FIFTHROWN: returncode = scr_Thrown(self, aiState); break;
-				case FMAKENAMEKNOWN: returncode = scr_MakeNameKnown(self, aiState); break;
-				case FMAKEUSAGEKNOWN: returncode = scr_MakeUsageKnown(self, aiState); break;
-				case FSTOPTARGETMOVEMENT: returncode = scr_StopTargetMovement(self, aiState); break;
-				case FSETXY: returncode = scr_set_XY(self, aiState); break;
-				case FGETXY: returncode = scr_get_XY(self, aiState); break;
-				case FADDXY: returncode = scr_AddXY(self, aiState); break;
-				case FMAKEAMMOKNOWN: returncode = scr_MakeAmmoKnown(self, aiState); break;
-				case FSPAWNATTACHEDPARTICLE: returncode = scr_SpawnAttachedParticle(self, aiState); break;
-				case FSPAWNEXACTPARTICLE: returncode = scr_SpawnExactParticle(self, aiState); break;
-				case FACCELERATETARGET: returncode = scr_AccelerateTarget(self, aiState); break;
-				case FIFDISTANCEISMORETHANTURN: returncode = scr_distanceIsMoreThanTurn(self, aiState); break;
-				case FIFCRUSHED: returncode = scr_Crushed(self, aiState); break;
-				case FMAKECRUSHVALID: returncode = scr_MakeCrushValid(self, aiState); break;
-				case FSETTARGETTOLOWESTTARGET: returncode = scr_set_TargetToLowestTarget(self, aiState); break;
-				case FIFNOTPUTAWAY: returncode = scr_NotPutAway(self, aiState); break;
-				case FIFTAKENOUT: returncode = scr_TakenOut(self, aiState); break;
-				case FIFAMMOOUT: returncode = scr_AmmoOut(self, aiState); break;
-				case FPLAYSOUNDLOOPED: returncode = scr_PlaySoundLooped(self, aiState); break;
-				case FSTOPSOUND: returncode = scr_StopSound(self, aiState); break;
-				case FHEALSELF: returncode = scr_HealSelf(self, aiState); break;
-				case FEQUIP: returncode = scr_Equip(self, aiState); break;
-				case FIFTARGETHASITEMIDEQUIPPED: returncode = scr_TargetHasItemIDEquipped(self, aiState); break;
-				case FSETOWNERTOTARGET: returncode = scr_set_OwnerToTarget(self, aiState); break;
-				case FSETTARGETTOOWNER: returncode = scr_set_TargetToOwner(self, aiState); break;
-				case FSETFRAME: returncode = scr_set_Frame(self, aiState); break;
-				case FBREAKPASSAGE: returncode = scr_BreakPassage(self, aiState); break;
-				case FSETRELOADTIME: returncode = scr_set_ReloadTime(self, aiState); break;
-				case FSETTARGETTOWIDEBLAHID: returncode = scr_set_TargetToWideBlahID(self, aiState); break;
-				case FPOOFTARGET: returncode = scr_PoofTarget(self, aiState); break;
-				case FCHILDDOACTIONOVERRIDE: returncode = scr_ChildDoActionOverride(self, aiState); break;
-				case FSPAWNPOOF: returncode = scr_SpawnPoof(self, aiState); break;
-				case FSETSPEEDPERCENT: returncode = scr_set_SpeedPercent(self, aiState); break;
-				case FSETCHILDSTATE: returncode = scr_set_ChildState(self, aiState); break;
-				case FSPAWNATTACHEDSIZEDPARTICLE: returncode = scr_SpawnAttachedSizedParticle(self, aiState); break;
-				case FCHANGEARMOR: returncode = scr_ChangeArmor(self, aiState); break;
-				case FSHOWTIMER: returncode = scr_ShowTimer(self, aiState); break;
-				case FIFFACINGTARGET: returncode = scr_FacingTarget(self, aiState); break;
-				case FPLAYSOUNDVOLUME: returncode = scr_PlaySoundVolume(self, aiState); break;
-				case FSPAWNATTACHEDFACEDPARTICLE: returncode = scr_SpawnAttachedFacedParticle(self, aiState); break;
-				case FIFSTATEISODD: returncode = scr_StateIsOdd(self, aiState); break;
-				case FSETTARGETTODISTANTENEMY: returncode = scr_set_TargetToDistantEnemy(self, aiState); break;
-				case FTELEPORT: returncode = scr_Teleport(self, aiState); break;
-				case FGIVESTRENGTHTOTARGET: returncode = scr_add_TargetStrength(self, aiState); break;
-				case FGIVEINTELLECTTOTARGET:
-				case FGIVEINTELLIGENCETOTARGET: returncode = scr_add_TargetIntelligence(self, aiState); break;
-				case FGIVEDEXTERITYTOTARGET: returncode = scr_add_TargetDexterity(self, aiState); break;
-				case FGIVELIFETOTARGET: returncode = scr_add_TargetLife(self, aiState); break;
-				case FGIVEMANATOTARGET: returncode = scr_add_TargetMana(self, aiState); break;
-				case FSHOWMAP: returncode = scr_ShowMap(self, aiState); break;
-				case FSHOWYOUAREHERE: returncode = scr_ShowYouAreHere(self, aiState); break;
-				case FSHOWBLIPXY: returncode = scr_ShowBlipXY(self, aiState); break;
-				case FHEALTARGET: returncode = scr_HealTarget(self, aiState); break;
-				case FPUMPTARGET: returncode = scr_PumpTarget(self, aiState); break;
-				case FCOSTAMMO: returncode = scr_CostAmmo(self, aiState); break;
-				case FMAKESIMILARNAMESKNOWN: returncode = scr_MakeSimilarNamesKnown(self, aiState); break;
-				case FSPAWNATTACHEDHOLDERPARTICLE: returncode = scr_SpawnAttachedHolderParticle(self, aiState); break;
-				case FSETTARGETRELOADTIME: returncode = scr_set_TargetReloadTime(self, aiState); break;
-				case FSETFOGLEVEL: returncode = scr_set_FogLevel(self, aiState); break;
-				case FGETFOGLEVEL: returncode = scr_get_FogLevel(self, aiState); break;
-				case FSETFOGTAD: returncode = scr_set_FogTAD(self, aiState); break;
-				case FSETFOGBOTTOMLEVEL: returncode = scr_set_FogBottomLevel(self, aiState); break;
-				case FGETFOGBOTTOMLEVEL: returncode = scr_get_FogBottomLevel(self, aiState); break;
-				case FCORRECTACTIONFORHAND: returncode = scr_CorrectActionForHand(self, aiState); break;
-				case FIFTARGETISMOUNTED: returncode = scr_TargetIsMounted(self, aiState); break;
-				case FSPARKLEICON: returncode = scr_SparkleIcon(self, aiState); break;
-				case FUNSPARKLEICON: returncode = scr_UnsparkleIcon(self, aiState); break;
-				case FGETTILEXY: returncode = scr_get_TileXY(self, aiState); break;
-				case FSETTILEXY: returncode = scr_set_TileXY(self, aiState); break;
-				case FSETSHADOWSIZE: returncode = scr_set_ShadowSize(self, aiState); break;
-				case FORDERTARGET: returncode = scr_OrderTarget(self, aiState); break;
-				case FSETTARGETTOWHOEVERISINPASSAGE: returncode = scr_set_TargetToWhoeverIsInPassage(self, aiState); break;
-				case FIFCHARACTERWASABOOK: returncode = scr_CharacterWasABook(self, aiState); break;
-				case FSETENCHANTBOOSTVALUES: returncode = scr_set_EnchantBoostValues(self, aiState); break;
-				case FSPAWNCHARACTERXYZ: returncode = scr_SpawnCharacterXYZ(self, aiState); break;
-				case FSPAWNEXACTCHARACTERXYZ: returncode = scr_SpawnExactCharacterXYZ(self, aiState); break;
-				case FCHANGETARGETCLASS: returncode = scr_ChangeTargetClass(self, aiState); break;
-				case FPLAYFULLSOUND: returncode = scr_PlayFullSound(self, aiState); break;
-				case FSPAWNEXACTCHASEPARTICLE: returncode = scr_SpawnExactChaseParticle(self, aiState); break;
-				case FCREATEORDER: returncode = scr_CreateOrder(self, aiState); break;
-				case FORDERSPECIALID: returncode = scr_OrderSpecialID(self, aiState); break;
-				case FUNKURSETARGETINVENTORY: returncode = scr_UnkurseTargetInventory(self, aiState); break;
-				case FIFTARGETISSNEAKING: returncode = scr_TargetIsSneaking(self, aiState); break;
-				case FDROPITEMS: returncode = scr_DropItems(self, aiState); break;
-				case FRESPAWNTARGET: returncode = scr_RespawnTarget(self, aiState); break;
-				case FTARGETDOACTIONSETFRAME: returncode = scr_TargetDoActionSetFrame(self, aiState); break;
-				case FIFTARGETCANSEEINVISIBLE: returncode = scr_TargetCanSeeInvisible(self, aiState); break;
-				case FSETTARGETTONEARESTBLAHID: returncode = scr_set_TargetToNearestBlahID(self, aiState); break;
-				case FSETTARGETTONEARESTENEMY: returncode = scr_set_TargetToNearestEnemy(self, aiState); break;
-				case FSETTARGETTONEARESTFRIEND: returncode = scr_set_TargetToNearestFriend(self, aiState); break;
-				case FSETTARGETTONEARESTLIFEFORM: returncode = scr_set_TargetToNearestLifeform(self, aiState); break;
-				case FFLASHPASSAGE: returncode = scr_FlashPassage(self, aiState); break;
-				case FFINDTILEINPASSAGE: returncode = scr_FindTileInPassage(self, aiState); break;
-				case FIFHELDINLEFTHAND: returncode = scr_HeldInLeftHand(self, aiState); break;
-				case FNOTANITEM: returncode = scr_NotAnItem(self, aiState); break;
-				case FSETCHILDAMMO: returncode = scr_set_ChildAmmo(self, aiState); break;
-				case FIFHITVULNERABLE: returncode = scr_HitVulnerable(self, aiState); break;
-				case FIFTARGETISFLYING: returncode = scr_TargetIsFlying(self, aiState); break;
-				case FIDENTIFYTARGET: returncode = scr_IdentifyTarget(self, aiState); break;
-				case FBEATMODULE: returncode = scr_BeatModule(self, aiState); break;
-				case FENDMODULE: returncode = scr_EndModule(self, aiState); break;
-				case FDISABLEEXPORT: returncode = scr_DisableExport(self, aiState); break;
-				case FENABLEEXPORT: returncode = scr_EnableExport(self, aiState); break;
-				case FGETTARGETSTATE: returncode = scr_get_TargetState(self, aiState); break;
-				case FIFEQUIPPED: returncode = scr_Equipped(self, aiState); break;
-				case FDROPTARGETMONEY: returncode = scr_DropTargetMoney(self, aiState); break;
-				case FGETTARGETCONTENT: returncode = scr_get_TargetContent(self, aiState); break;
-				case FDROPTARGETKEYS: returncode = scr_DropTargetKeys(self, aiState); break;
-				case FJOINTEAM: returncode = scr_JoinTeam(self, aiState); break;
-				case FTARGETJOINTEAM: returncode = scr_TargetJoinTeam(self, aiState); break;
-				case FCLEARMUSICPASSAGE: returncode = scr_ClearMusicPassage(self, aiState); break;
-				case FCLEARENDMESSAGE: returncode = scr_ClearEndMessage(self, aiState); break;
-				case FADDENDMESSAGE: returncode = scr_AddEndMessage(self, aiState); break;
-				case FPLAYMUSIC: returncode = scr_PlayMusic(self, aiState); break;
-				case FSETMUSICPASSAGE: returncode = scr_set_MusicPassage(self, aiState); break;
-				case FMAKECRUSHINVALID: returncode = scr_MakeCrushInvalid(self, aiState); break;
-				case FSTOPMUSIC: returncode = scr_StopMusic(self, aiState); break;
-				case FFLASHVARIABLE: returncode = scr_FlashVariable(self, aiState); break;
-				case FACCELERATEUP: returncode = scr_AccelerateUp(self, aiState); break;
-				case FFLASHVARIABLEHEIGHT: returncode = scr_FlashVariableHeight(self, aiState); break;
-				case FSETDAMAGETIME: returncode = scr_set_DamageTime(self, aiState); break;
-				case FIFSTATEIS8: returncode = scr_StateIs8(self, aiState); break;
-				case FIFSTATEIS9: returncode = scr_StateIs9(self, aiState); break;
-				case FIFSTATEIS10: returncode = scr_StateIs10(self, aiState); break;
-				case FIFSTATEIS11: returncode = scr_StateIs11(self, aiState); break;
-				case FIFSTATEIS12: returncode = scr_StateIs12(self, aiState); break;
-				case FIFSTATEIS13: returncode = scr_StateIs13(self, aiState); break;
-				case FIFSTATEIS14: returncode = scr_StateIs14(self, aiState); break;
-				case FIFSTATEIS15: returncode = scr_StateIs15(self, aiState); break;
-				case FIFTARGETISAMOUNT: returncode = scr_TargetIsAMount(self, aiState); break;
-				case FIFTARGETISAPLATFORM: returncode = scr_TargetIsAPlatform(self, aiState); break;
-				case FADDSTAT: returncode = scr_AddStat(self, aiState); break;
-				case FDISENCHANTTARGET: returncode = scr_DisenchantTarget(self, aiState); break;
-				case FDISENCHANTALL: returncode = scr_DisenchantAll(self, aiState); break;
-				case FSETVOLUMENEARESTTEAMMATE: returncode = scr_set_VolumeNearestTeammate(self, aiState); break;
-				case FADDSHOPPASSAGE: returncode = scr_AddShopPassage(self, aiState); break;
-				case FTARGETPAYFORARMOR: returncode = scr_TargetPayForArmor(self, aiState); break;
-				case FJOINEVILTEAM: returncode = scr_JoinEvilTeam(self, aiState); break;
-				case FJOINNULLTEAM: returncode = scr_JoinNullTeam(self, aiState); break;
-				case FJOINGOODTEAM: returncode = scr_JoinGoodTeam(self, aiState); break;
-				case FPITSKILL: returncode = scr_PitsKill(self, aiState); break;
-				case FSETTARGETTOPASSAGEID: returncode = scr_set_TargetToPassageID(self, aiState); break;
-				case FMAKENAMEUNKNOWN: returncode = scr_MakeNameUnknown(self, aiState); break;
-				case FSPAWNEXACTPARTICLEENDSPAWN: returncode = scr_SpawnExactParticleEndSpawn(self, aiState); break;
-				case FSPAWNPOOFSPEEDSPACINGDAMAGE: returncode = scr_SpawnPoofSpeedSpacingDamage(self, aiState); break;
-				case FGIVEEXPERIENCETOGOODTEAM: returncode = scr_add_GoodTeamExperience(self, aiState); break;
-				case FDONOTHING: returncode = scr_DoNothing(self, aiState); break;
-				case FGROGTARGET: returncode = scr_GrogTarget(self, aiState); break;
-				case FDAZETARGET: returncode = scr_DazeTarget(self, aiState); break;
-				case FENABLERESPAWN: returncode = scr_EnableRespawn(self, aiState); break;
-				case FDISABLERESPAWN: returncode = scr_DisableRespawn(self, aiState); break;
-				case FDISPELTARGETENCHANTID: returncode = scr_DispelTargetEnchantID(self, aiState); break;
-				case FIFHOLDERBLOCKED: returncode = scr_HolderBlocked(self, aiState); break;
-
-				case FIFTARGETHASNOTFULLMANA: returncode = scr_TargetHasNotFullMana(self, aiState); break;
-				case FENABLELISTENSKILL: returncode = scr_EnableListenSkill(self, aiState); break;
-				case FSETTARGETTOLASTITEMUSED: returncode = scr_set_TargetToLastItemUsed(self, aiState); break;
-				case FFOLLOWLINK: returncode = scr_FollowLink(self, aiState); break;
-				case FIFOPERATORISLINUX: returncode = scr_OperatorIsLinux(self, aiState); break;
-				case FIFTARGETISAWEAPON: returncode = scr_TargetIsAWeapon(self, aiState); break;
-				case FIFSOMEONEISSTEALING: returncode = scr_SomeoneIsStealing(self, aiState); break;
-				case FIFTARGETISASPELL: returncode = scr_TargetIsASpell(self, aiState); break;
-				case FIFBACKSTABBED: returncode = scr_Backstabbed(self, aiState); break;
-				case FGETTARGETDAMAGETYPE: returncode = scr_get_TargetDamageType(self, aiState); break;
-				case FADDQUEST: returncode = scr_AddQuest(self, aiState); break;
-				case FBEATQUESTALLPLAYERS: returncode = scr_BeatQuestAllPlayers(self, aiState); break;
-				case FIFTARGETHASQUEST: returncode = scr_TargetHasQuest(self, aiState); break;
-				case FSETQUESTLEVEL: returncode = scr_set_QuestLevel(self, aiState); break;
-				case FADDQUESTALLPLAYERS: returncode = scr_AddQuestAllPlayers(self, aiState); break;
-				case FADDBLIPALLENEMIES: returncode = scr_AddBlipAllEnemies(self, aiState); break;
-				case FPITSFALL: returncode = scr_PitsFall(self, aiState); break;
-				case FIFTARGETISOWNER: returncode = scr_TargetIsOwner(self, aiState); break;
-				case FEND: returncode = scr_End(self, aiState); break;
-
-				case FSETSPEECH: returncode = scr_set_Speech(self, aiState); break;
-				case FSETMOVESPEECH: returncode = scr_set_MoveSpeech(self, aiState); break;
-				case FSETSECONDMOVESPEECH: returncode = scr_set_SecondMoveSpeech(self, aiState); break;
-				case FSETATTACKSPEECH: returncode = scr_set_AttackSpeech(self, aiState); break;
-				case FSETASSISTSPEECH: returncode = scr_set_AssistSpeech(self, aiState); break;
-				case FSETTERRAINSPEECH: returncode = scr_set_TerrainSpeech(self, aiState); break;
-				case FSETSELECTSPEECH: returncode = scr_set_SelectSpeech(self, aiState); break;
-
-				case FTAKEPICTURE: returncode = scr_TakePicture(self, aiState); break;
-				case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh(self, aiState); break;
-				case FIFMODULEHASIDSZ: returncode = scr_ModuleHasIDSZ(self, aiState); break;
-				case FMORPHTOTARGET: returncode = scr_MorphToTarget(self, aiState); break;
-				case FGIVEMANAFLOWTOTARGET: returncode = scr_add_TargetManaFlow(self, aiState); break;
-				case FGIVEMANARETURNTOTARGET: returncode = scr_add_TargetManaReturn(self, aiState); break;
-				case FSETMONEY: returncode = scr_set_Money(self, aiState); break;
-				case FIFTARGETCANSEEKURSES:  returncode = scr_TargetCanSeeKurses(self, aiState); break;
-				case FSPAWNATTACHEDCHARACTER:returncode = scr_SpawnAttachedCharacter(self, aiState); break;
-				case FKURSETARGET: returncode = scr_KurseTarget(self, aiState); break;
-				case FSETCHILDCONTENT: returncode = scr_set_ChildContent(self, aiState); break;
-				case FSETTARGETTOCHILD: returncode = scr_set_TargetToChild(self, aiState); break;
-				case FSETDAMAGETHRESHOLD: returncode = scr_set_DamageThreshold(self, aiState); break;
-				case FACCELERATETARGETUP: returncode = scr_AccelerateTargetUp(self, aiState); break;
-				case FSETTARGETAMMO: returncode = scr_set_TargetAmmo(self, aiState); break;
-				case FENABLEINVICTUS: returncode = scr_EnableInvictus(self, aiState); break;
-				case FDISABLEINVICTUS: returncode = scr_DisableInvictus(self, aiState); break;
-				case FTARGETDAMAGESELF: returncode = scr_TargetDamageSelf(self, aiState); break;
-				case FSETTARGETSIZE: returncode = scr_set_TargetSize(self, aiState); break;
-				case FIFTARGETISFACINGSELF: returncode = scr_TargetIsFacingSelf(self, aiState); break;
-
-				case FDRAWBILLBOARD: returncode = scr_DrawBillboard(self, aiState); break;
-				case FSETTARGETTOFIRSTBLAHINPASSAGE: returncode = scr_set_TargetToBlahInPassage(self, aiState); break;
-				case FIFLEVELUP: returncode = scr_LevelUp(self, aiState); break;
-				case FGIVESKILLTOTARGET: returncode = scr_add_TargetSkill(self, aiState); break;
-				case FSETTARGETTONEARBYMELEEWEAPON: returncode = scr_set_TargetToNearbyMeleeWeapon(self, aiState); break;
-
-                case FENABLESTEALTH: returncode = scr_EnableStealth(self, aiState); break;
-                case FDISABLESTEALTH: returncode = scr_DisableStealth(self, aiState); break;
-                case FIFSTEALTHED: returncode = scr_Stealthed(self, aiState); break;
-                case FSETTARGETTODISTANTFRIEND: returncode = scr_set_TargetToDistantFriend(self, aiState); break;
-                case FDISPLAYCHARGE: returncode = scr_DisplayCharge(self, aiState); break;
-
-                    // if none of the above, skip the line and log an error
-                default:
-                    log_message( "SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", script._name.c_str(), valuecode );
-                    returncode = false;
-                    break;
-            }
-
+			auto result = Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.find(valuecode);
+			if (Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.cend() == result) {
+				log_message("SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", script._name.c_str(), valuecode);
+				returncode = false;
+			} else {
+				returncode = result->second(self, aiState);
+			}
         }
 
         _script_function_calls[valuecode] += 1;
