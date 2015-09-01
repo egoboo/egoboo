@@ -1022,7 +1022,7 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
 
     if ( ps.line_buffer_count > 0  && tabs_warning_needed )
     {
-        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
     }
 
     // scan to the beginning of the next line
@@ -1078,14 +1078,14 @@ int parser_state_t::get_indentation( parser_state_t& ps, script_info_t *pscript 
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
         ps.error = true;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
         ps.error = true;
         cnt = 15;
     }
@@ -1209,7 +1209,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         }
         else
         {
-            log_message( "SCRIPT ERROR: %s() - The string in line %d is too long\n.", __FUNCTION__, tok.iLine );
+            log_message( "SCRIPT ERROR: %s() - The string in line %d is too long\n.", __FUNCTION__, tok.getLine() );
         }
     }
     else
@@ -1239,9 +1239,11 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
     // Check for numeric constant
     if (!parsed && Ego::isdigit(tok.szWord[0]))
     {
-        sscanf( tok.szWord, "%d", &tok.iValue );
+		int temporary;
+		sscanf(tok.szWord, "%d", &temporary);
+		tok.setValue(temporary);
         tok.setType(Token::Type::Constant);
-        tok.iIndex = MAX_OPCODE;
+        tok.setIndex(MAX_OPCODE);
 
         // move on to the next thing
         parsed = true;
@@ -1252,9 +1254,9 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
     {
         idsz = MAKE_IDSZ( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
 
-        tok.iValue = idsz;
+        tok.setValue(idsz);
         tok.setType(Token::Type::Constant);
-        tok.iIndex = MAX_OPCODE;
+        tok.setIndex(MAX_OPCODE);
 
         // move on to the next thing
         parsed = true;
@@ -1262,9 +1264,9 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
 
     if ( !parsed && ( 0 == strcmp( tok.szWord, "=" ) ) )
     {
-        tok.iValue = -1;
+        tok.setValue(-1);
         tok.setType(Token::Type::Operator);
-        tok.iIndex = MAX_OPCODE;
+        tok.setIndex(MAX_OPCODE);
 
         // move on to the next thing
         parsed = true;
@@ -1279,7 +1281,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         {
             // some kind of empty string
 
-            log_message( "SCRIPT ERROR: %s() - The string in line %d is empty\n.", __FUNCTION__, tok.iLine );
+            log_message( "SCRIPT ERROR: %s() - The string in line %d is empty\n.", __FUNCTION__, tok.getLine() );
 
             // some kind of error
             parsed = true;
@@ -1290,7 +1292,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
             std::string obj_name = str + 1;
 
             // Invalid profile as default
-            tok.iValue = INVALID_PRO_REF;
+            tok.setValue(INVALID_PRO_REF);
 
             // Convert reference to slot number
             for (const auto &element : ProfileSystem::get().getLoadedProfiles())
@@ -1302,13 +1304,13 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
                 //is this the object we are looking for?
                 if (Ego::isSuffix(profile->getPathname(), obj_name))
                 {
-                    tok.iValue = profile->getSlotNumber();
+                    tok.setValue(profile->getSlotNumber());
                     break;
                 }
             }
 
             // Do we need to load the object?
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.iValue))
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
             {
                 std::string loadname = "mp_objects/" + obj_name;
 
@@ -1319,19 +1321,19 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
                     if (ProfileSystem::get().isValidProfileID(ipro)) continue;
 
                     //found a free slot
-                    tok.iValue = ProfileSystem::get().loadOneProfile(loadname, REF_TO_INT(ipro));
-                    if (tok.iValue == ipro) break;
+                    tok.setValue(ProfileSystem::get().loadOneProfile(loadname, REF_TO_INT(ipro)));
+                    if (tok.getValue() == ipro) break;
                 }
             }
 
             // Failed to load object!
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.iValue))
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
             {
-                log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, tok.szWord, pscript->_name.c_str(), tok.iLine );
+                log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, tok.szWord, pscript->_name.c_str(), tok.getLine() );
             }
 
             tok.setType(Token::Type::Constant);
-            tok.iIndex = MAX_OPCODE;
+            tok.setIndex(MAX_OPCODE);
 
             parsed = true;
         }
@@ -1339,10 +1341,10 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         {
             // a normal string
             // if this is a new string, add this message to the avalible messages of the object
-            tok.iValue = ppro->addMessage(str, true);
+            tok.setValue(ppro->addMessage(str, true));
 
             tok.setType(Token::Type::Constant);
-            tok.iIndex = MAX_OPCODE;
+            tok.setIndex(MAX_OPCODE);
 
             parsed = true;
         }
@@ -1355,9 +1357,9 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         {
             if ( 0 == strncmp( tok.szWord, OpList.ary[cnt].cName, MAXCODENAMESIZE ) )
             {
-                tok.iValue = OpList.ary[cnt].iValue;
+                tok.setValue(OpList.ary[cnt].iValue);
                 tok.setType(OpList.ary[cnt]._type);
-                tok.iIndex = cnt;
+                tok.setIndex(cnt);
 
                 // move on to the next thing
                 parsed = true;
@@ -1370,12 +1372,12 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
     // We couldn't figure out what this is, throw out an error code
     if ( !parsed )
     {
-        log_message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), tok.iLine, tok.szWord );
+        log_message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), tok.getLine(), tok.szWord );
 
         // put the token in an error state
-        tok.iValue = -1;
+        tok.setValue(-1);
         tok.setType(Token::Type::Unknown);
-        tok.iIndex = MAX_OPCODE;
+        tok.setIndex(MAX_OPCODE);
 
         self.error = true;
     }
@@ -1400,7 +1402,7 @@ void emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t *pscript )
     // emit the opcode
     if (!pscript->_instructions.isFull())
     {
-		pscript->_instructions.append(Instruction(loc_highbits | tok.iValue));
+		pscript->_instructions.append(Instruction(loc_highbits | tok.getValue()));
     }
     else
     {
@@ -1420,7 +1422,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
     size_t parseposition;
 
     read = 0;
-    for ( ps.token.iLine = 0; read < ps.load_buffer_count; ps.token.iLine++ )
+    for ( ps.token.setLine(0); read < ps.load_buffer_count; ps.token.setLine(ps.token.getLine() + 1) )
     {
         read = load_one_line( ps, read, pscript );
         if ( 0 == ps.line_buffer_count ) continue;
@@ -1435,11 +1437,11 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
         //------------------------------
         // grab the first opcode
 
-        highbits = SET_DATA_BITS( get_indentation( ps, pscript ) );
+        highbits = SetDataBits( get_indentation( ps, pscript ) );
         parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
         if ( Token::Type::Function == ps.token.getType() )
         {
-            if ( FEND == ps.token.iValue && 0 == highbits )
+            if ( FEND == ps.token.getValue() && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -1452,7 +1454,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             emit_opcode( ps.token, highbits, pscript );
 
             // leave a space for the control code
-            ps.token.iValue = 0;
+            ps.token.setValue(0);
             emit_opcode( ps.token, 0, pscript );
 
         }
@@ -1468,7 +1470,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             emit_opcode( ps.token, highbits, pscript );
 
             // save a position for the operand count
-            ps.token.iValue = 0;
+            ps.token.setValue(0);
             operand_index = pscript->_instructions.getLength();    //AisCompiled_offset;
             emit_opcode( ps.token, 0, pscript );
 
@@ -1477,7 +1479,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );  // EQUALS
             if ( Token::Type::Operator != ps.token.getType() || 0 != strcmp( ps.token.szWord, "=" ) )
             {
-                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
             }
 
             //------------------------------
@@ -1495,7 +1497,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             else if ( Token::Type::Operator != ps.token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
 
                 emit_opcode( ps.token, 0, pscript );
                 operands++;
@@ -1510,19 +1512,19 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
                 if ( Token::Type::Operator != ps.token.getType() )
                 {
                     // problem with the loop
-                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
                     break;
                 }
 
                 // the highbits are the operator's value
-                highbits = SET_DATA_BITS( ps.token.iValue );
+				highbits = SetDataBits( ps.token.getValue() );
 
                 // VALUE
                 parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
                 if ( Token::Type::Constant != ps.token.getType() && Token::Type::Variable != ps.token.getType() )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
                     break;
                 }
 
@@ -1536,24 +1538,24 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
         }
         else if ( Token::Type::Constant == ps.token.getType() )
         {
-            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
         }
         else if ( Token::Type::Unknown == ps.token.getType() )
         {
             // unknown opcode, do not process this line
-            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
         }
         else
         {
-            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
             break;
         }
     }
 
-    ps.token.iValue = FEND;
+    ps.token.setValue(FEND);
     ps.token.setType(Token::Type::Function);
     emit_opcode( ps.token, 0, pscript );
-    ps.token.iValue = pscript->_instructions.getLength() + 1;
+    ps.token.setValue(pscript->_instructions.getLength() + 1);
     emit_opcode( ps.token, 0, pscript );
 }
 
@@ -1568,13 +1570,13 @@ Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
     int targetindent, indent;
 
     auto value = pscript->_instructions[index]; /*AisCompiled_buffer[index];*/  index += 2;
-    targetindent = GET_DATA_BITS( value._value );
+    targetindent = GetDataBits( value._value );
     indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
         value = pscript->_instructions[index]; //AisCompiled_buffer[index];
-        indent = GET_DATA_BITS( value._value );
+        indent = GetDataBits ( value._value );
         if ( indent > targetindent )
         {
             // Was it a function
