@@ -1,0 +1,16 @@
+/// +
+Define(OPADD)
+/// -
+Define(OPSUB)
+/// &
+Define(OPAND)
+/// >
+Define(OPSHR)
+/// <
+Define(OPSHL)
+/// *
+Define(OPMUL)
+/// /
+Define(OPDIV)
+/// %
+Define(OPMOD)

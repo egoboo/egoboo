@@ -20,14 +20,36 @@
 
 Token::Token()
 	: szWord{ '\0' }, szWord_length(0),
-	  iLine(0), iIndex(MAX_OPCODE), iValue(0), _type(Type::Unknown) {
+	  _line(0), _index(MAX_OPCODE), _value(0), _type(Type::Unknown) {
 }
 
 Token::Token(const Token& other)
 	: szWord{ '\0' }, szWord_length(other.szWord_length),
-	  iLine(other.iLine), iIndex(other.iIndex), iValue(other.iValue), _type(other._type) {
+	  _line(other._line), _index(other._index), _value(other._value), _type(other._type) {
 	strcpy(szWord, other.szWord);
 }
 
 Token::~Token() {
+}
+
+std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
+	switch (tokenType) {
+	case Token::Type::Constant: os << "Constant"; break;
+	case Token::Type::Function: os << "Function"; break;
+	case Token::Type::Operator: os << "Operator"; break;
+	case Token::Type::Unknown:  os << "Unknown" ; break;
+	case Token::Type::Variable: os << "Variable"; break;
+	};
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Token& token) {
+	os << "token {";
+	os << "line = " << token.getLine() << "," << " ";
+	os << "value = " << token.getValue() << "," << " ";
+	os << "index = " << token._index << "," << " ";
+	os << "type = " << token.getType() << "," << " ";
+	os << "word = " << token.szWord << " ";
+	os << "}";
+	return os;
 }

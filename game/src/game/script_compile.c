@@ -773,438 +773,28 @@ StaticArray<opcode_data_t, MAX_OPCODE> OpList;
 bool debug_scripts = false;
 vfs_FILE *debug_script_file = NULL;
 
+//--------------------------------------------------------------------------------------------
+
+const char *script_variable_names[SCRIPT_VARIABLES_COUNT] =
+{
+#define Define(name) #name,
+#include "egolib/Script/Variables.in"
+#undef Define
+};
 const char *script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 {
-    /// Scripted AI functions (v0.10)
-    "FIFSPAWNED",                          // == 0
-    "FIFTIMEOUT",                          // == 1
-    "FIFATWAYPOINT",                       // == 2
-    "FIFATLASTWAYPOINT",                   // == 3
-    "FIFATTACKED",                         // == 4
-    "FIFBUMPED",                           // == 5
-    "FIFORDERED",                          // == 6
-    "FIFCALLEDFORHELP",                    // == 7
-    "FSETCONTENT",                         // == 8
-    "FIFKILLED",                           // == 9
-    "FIFTARGETKILLED",                     // == 10
-    "FCLEARWAYPOINTS",                     // == 11
-    "FADDWAYPOINT",                        // == 12
-    "FFINDPATH",                           // == 13
-    "FCOMPASS",                            // == 14
-    "FGETTARGETARMORPRICE",                // == 15
-    "FSETTIME",                            // == 16
-    "FGETCONTENT",                         // == 17
-    "FJOINTARGETTEAM",                     // == 18
-    "FSETTARGETTONEARBYENEMY",             // == 19
-    "FSETTARGETTOTARGETLEFTHAND",          // == 20
-    "FSETTARGETTOTARGETRIGHTHAND",         // == 21
-    "FSETTARGETTOWHOEVERATTACKED",         // == 22
-    "FSETTARGETTOWHOEVERBUMPED",           // == 23
-    "FSETTARGETTOWHOEVERCALLEDFORHELP",    // == 24
-    "FSETTARGETTOOLDTARGET",               // == 25
-    "FSETTURNMODETOVELOCITY",              // == 26
-    "FSETTURNMODETOWATCH",                 // == 27
-    "FSETTURNMODETOSPIN",                  // == 28
-    "FSETBUMPHEIGHT",                      // == 29
-    "FIFTARGETHASID",                      // == 30
-    "FIFTARGETHASITEMID",                  // == 31
-    "FIFTARGETHOLDINGITEMID",              // == 32
-    "FIFTARGETHASSKILLID",                 // == 33
-    "FELSE",                               // == 34
-    "FRUN",                                // == 35
-    "FWALK",                               // == 36
-    "FSNEAK",                              // == 37
-    "FDOACTION",                           // == 38
-    "FKEEPACTION",                         // == 39
-    "FISSUEORDER",                         // == 40
-    "FDROPWEAPONS",                        // == 41
-    "FTARGETDOACTION",                     // == 42
-    "FOPENPASSAGE",                        // == 43
-    "FCLOSEPASSAGE",                       // == 44
-    "FIFPASSAGEOPEN",                      // == 45
-    "FGOPOOF",                             // == 46
-    "FCOSTTARGETITEMID",                   // == 47
-    "FDOACTIONOVERRIDE",                   // == 48
-    "FIFHEALED",                           // == 49
-    "FSENDMESSAGE",                        // == 50
-    "FCALLFORHELP",                        // == 51
-    "FADDIDSZ",                            // == 52
-    "FEND",                                // == 53
-
-    /// Scripted AI functions (v0.20)
-    "FSETSTATE",                           // == 54
-    "FGETSTATE",                           // == 55
-    "FIFSTATEIS",                          // == 56
-
-    /// Scripted AI functions (v0.30)
-    "FIFTARGETCANOPENSTUFF",               // == 57
-    "FIFGRABBED",                          // == 58
-    "FIFDROPPED",                          // == 59
-    "FSETTARGETTOWHOEVERISHOLDING",        // == 60
-    "FDAMAGETARGET",                       // == 61
-    "FIFXISLESSTHANY",                     // == 62
-
-    /// Scripted AI functions (v0.40)
-    "FSETWEATHERTIME",                     // == 63
-    "FGETBUMPHEIGHT",                      // == 64
-    "FIFREAFFIRMED",                       // == 65
-    "FUNKEEPACTION",                       // == 66
-    "FIFTARGETISONOTHERTEAM",              // == 67
-
-    /// Scripted AI functions (v0.50)
-    "FIFTARGETISONHATEDTEAM",              // == 68
-    "FPRESSLATCHBUTTON",                   // == 69
-    "FSETTARGETTOTARGETOFLEADER",          // == 70
-    "FIFLEADERKILLED",                     // == 71
-    "FBECOMELEADER",                       // == 72
-
-    /// Scripted AI functions (v0.60)
-    "FCHANGETARGETARMOR",                  // == 73
-    "FGIVEMONEYTOTARGET",                  // == 74
-    "FDROPKEYS",                           // == 75
-    "FIFLEADERISALIVE",                    // == 76
-    "FIFTARGETISOLDTARGET",                // == 77
-    "FSETTARGETTOLEADER",                  // == 78
-    "FSPAWNCHARACTER",                     // == 79
-    "FRESPAWNCHARACTER",                   // == 80
-    "FCHANGETILE",                         // == 81
-    "FIFUSED",                             // == 82
-    "FDROPMONEY",                          // == 83
-    "FSETOLDTARGET",                       // == 84
-    "FDETACHFROMHOLDER",                   // == 85
-    "FIFTARGETHASVULNERABILITYID",         // == 86
-    "FCLEANUP",                            // == 87
-    "FIFCLEANEDUP",                        // == 88
-    "FIFSITTING",                          // == 89
-    "FIFTARGETISHURT",                     // == 90
-    "FIFTARGETISAPLAYER",                  // == 91
-    "FPLAYSOUND",                          // == 92
-    "FSPAWNPARTICLE",                      // == 93
-    "FIFTARGETISALIVE",                    // == 94
-    "FSTOP",                               // == 95
-    "FDISAFFIRMCHARACTER",                 // == 96
-    "FREAFFIRMCHARACTER",                  // == 97
-    "FIFTARGETISSELF",                     // == 98
-    "FIFTARGETISMALE",                     // == 99
-    "FIFTARGETISFEMALE",                   // == 100
-
-    // Scripted AI functions (v0.70)
-    "FSETTARGETTOSELF",                    // == 101
-    "FSETTARGETTORIDER",                   // == 102
-    "FGETATTACKTURN",                      // == 103
-    "FGETDAMAGETYPE",                      // == 104
-    "FBECOMESPELL",                        // == 105
-    "FBECOMESPELLBOOK",                    // == 106
-    "FIFSCOREDAHIT",                       // == 107
-    "FIFDISAFFIRMED",                      // == 108
-    "FTRANSLATEORDER",                     // == 109
-    "FSETTARGETTOWHOEVERWASHIT",           // == 110
-    "FSETTARGETTOWIDEENEMY",               // == 111
-    "FIFCHANGED",                          // == 112
-    "FIFINWATER",                          // == 113
-    "FIFBORED",                            // == 114
-    "FIFTOOMUCHBAGGAGE",                   // == 115
-    "FIFGROGGED",                          // == 116
-    "FIFDAZED",                            // == 117
-    "FIFTARGETHASSPECIALID",               // == 118
-    "FPRESSTARGETLATCHBUTTON",             // == 119
-    "FIFINVISIBLE",                        // == 120
-    "FIFARMORIS",                          // == 121
-    "FGETTARGETGROGTIME",                  // == 122
-    "FGETTARGETDAZETIME",                  // == 123
-    "FSETDAMAGETYPE",                      // == 124
-    "FSETWATERLEVEL",                      // == 125
-    "FENCHANTTARGET",                      // == 126
-    "FENCHANTCHILD",                       // == 127
-    "FTELEPORTTARGET",                     // == 128
-    "FGIVEEXPERIENCETOTARGET",             // == 129
-    "FINCREASEAMMO",                       // == 130
-    "FUNKURSETARGET",                      // == 131
-    "FGIVEEXPERIENCETOTARGETTEAM",         // == 132
-    "FIFUNARMED",                          // == 133
-    "FRESTOCKTARGETAMMOIDALL",             // == 134
-    "FRESTOCKTARGETAMMOIDFIRST",           // == 135
-    "FFLASHTARGET",                        // == 136
-    "FSETREDSHIFT",                        // == 137
-    "FSETGREENSHIFT",                      // == 138
-    "FSETBLUESHIFT",                       // == 139
-    "FSETLIGHT",                           // == 140
-    "FSETALPHA",                           // == 141
-    "FIFHITFROMBEHIND",                    // == 142
-    "FIFHITFROMFRONT",                     // == 143
-    "FIFHITFROMLEFT",                      // == 144
-    "FIFHITFROMRIGHT",                     // == 145
-    "FIFTARGETISONSAMETEAM",               // == 146
-    "FKILLTARGET",                         // == 147
-    "FUNDOENCHANT",                        // == 148
-    "FGETWATERLEVEL",                      // == 149
-    "FCOSTTARGETMANA",                     // == 150
-    "FIFTARGETHASANYID",                   // == 151
-    "FSETBUMPSIZE",                        // == 152
-    "FIFNOTDROPPED",                       // == 153
-    "FIFYISLESSTHANX",                     // == 154
-    "FSETFLYHEIGHT",                       // == 155
-    "FIFBLOCKED",                          // == 156
-    "FIFTARGETISDEFENDING",                // == 157
-    "FIFTARGETISATTACKING",                // == 158
-    "FIFSTATEIS0",                         // == 159
-    "FIFSTATEIS1",                         // == 160
-    "FIFSTATEIS2",                         // == 161
-    "FIFSTATEIS3",                         // == 162
-    "FIFSTATEIS4",                         // == 163
-    "FIFSTATEIS5",                         // == 164
-    "FIFSTATEIS6",                         // == 165
-    "FIFSTATEIS7",                         // == 166
-    "FIFCONTENTIS",                        // == 167
-    "FSETTURNMODETOWATCHTARGET",           // == 168
-    "FIFSTATEISNOT",                       // == 169
-    "FIFXISEQUALTOY",                      // == 170
-    "FDEBUGMESSAGE",                       // == 171
-
-    /// Scripted AI functions (v0.80)
-    "FBLACKTARGET",                        // == 172
-    "FSENDMESSAGENEAR",                    // == 173
-    "FIFHITGROUND",                        // == 174
-    "FIFNAMEISKNOWN",                      // == 175
-    "FIFUSAGEISKNOWN",                     // == 176
-    "FIFHOLDINGITEMID",                    // == 177
-    "FIFHOLDINGRANGEDWEAPON",              // == 178
-    "FIFHOLDINGMELEEWEAPON",               // == 179
-    "FIFHOLDINGSHIELD",                    // == 180
-    "FIFKURSED",                           // == 181
-    "FIFTARGETISKURSED",                   // == 182
-    "FIFTARGETISDRESSEDUP",                // == 183
-    "FIFOVERWATER",                        // == 184
-    "FIFTHROWN",                           // == 185
-    "FMAKENAMEKNOWN",                      // == 186
-    "FMAKEUSAGEKNOWN",                     // == 187
-    "FSTOPTARGETMOVEMENT",                 // == 188
-    "FSETXY",                              // == 189
-    "FGETXY",                              // == 190
-    "FADDXY",                              // == 191
-    "FMAKEAMMOKNOWN",                      // == 192
-    "FSPAWNATTACHEDPARTICLE",              // == 193
-    "FSPAWNEXACTPARTICLE",                 // == 194
-    "FACCELERATETARGET",                   // == 195
-    "FIFDISTANCEISMORETHANTURN",           // == 196
-    "FIFCRUSHED",                          // == 197
-    "FMAKECRUSHVALID",                     // == 198
-    "FSETTARGETTOLOWESTTARGET",            // == 199
-    "FIFNOTPUTAWAY",                       // == 200
-    "FIFTAKENOUT",                         // == 201
-    "FIFAMMOOUT",                          // == 202
-    "FPLAYSOUNDLOOPED",                    // == 203
-    "FSTOPSOUND",                          // == 204
-    "FHEALSELF",                           // == 205
-    "FEQUIP",                              // == 206
-    "FIFTARGETHASITEMIDEQUIPPED",          // == 207
-    "FSETOWNERTOTARGET",                   // == 208
-    "FSETTARGETTOOWNER",                   // == 209
-    "FSETFRAME",                           // == 210
-    "FBREAKPASSAGE",                       // == 211
-    "FSETRELOADTIME",                      // == 212
-    "FSETTARGETTOWIDEBLAHID",              // == 213
-    "FPOOFTARGET",                         // == 214
-    "FCHILDDOACTIONOVERRIDE",              // == 215
-    "FSPAWNPOOF",                          // == 216
-    "FSETSPEEDPERCENT",                    // == 217
-    "FSETCHILDSTATE",                      // == 218
-    "FSPAWNATTACHEDSIZEDPARTICLE",         // == 219
-    "FCHANGEARMOR",                        // == 220
-    "FSHOWTIMER",                          // == 221
-    "FIFFACINGTARGET",                     // == 222
-    "FPLAYSOUNDVOLUME",                    // == 223
-    "FSPAWNATTACHEDFACEDPARTICLE",         // == 224
-    "FIFSTATEISODD",                       // == 225
-    "FSETTARGETTODISTANTENEMY",            // == 226
-    "FTELEPORT",                           // == 227
-    "FGIVESTRENGTHTOTARGET",               // == 228
-    "FGIVEINTELLECTTOTARGET",              // == 229
-    "FGIVEINTELLIGENCETOTARGET",           // == 230
-    "FGIVEDEXTERITYTOTARGET",              // == 231
-    "FGIVELIFETOTARGET",                   // == 232
-    "FGIVEMANATOTARGET",                   // == 233
-    "FSHOWMAP",                            // == 234
-    "FSHOWYOUAREHERE",                     // == 235
-    "FSHOWBLIPXY",                         // == 236
-    "FHEALTARGET",                         // == 237
-    "FPUMPTARGET",                         // == 238
-    "FCOSTAMMO",                           // == 239
-    "FMAKESIMILARNAMESKNOWN",              // == 240
-    "FSPAWNATTACHEDHOLDERPARTICLE",        // == 241
-    "FSETTARGETRELOADTIME",                // == 242
-    "FSETFOGLEVEL",                        // == 243
-    "FGETFOGLEVEL",                        // == 244
-    "FSETFOGTAD",                          // == 245
-    "FSETFOGBOTTOMLEVEL",                  // == 246
-    "FGETFOGBOTTOMLEVEL",                  // == 247
-    "FCORRECTACTIONFORHAND",               // == 248
-    "FIFTARGETISMOUNTED",                  // == 249
-    "FSPARKLEICON",                        // == 250
-    "FUNSPARKLEICON",                      // == 251
-    "FGETTILEXY",                          // == 252
-    "FSETTILEXY",                          // == 253
-    "FSETSHADOWSIZE",                      // == 254
-    "FORDERTARGET",                        // == 255
-    "FSETTARGETTOWHOEVERISINPASSAGE",      // == 256
-    "FIFCHARACTERWASABOOK",                // == 257
-
-    /// Scripted AI functions (v0.90)
-    "FSETENCHANTBOOSTVALUES",              // == 258
-    "FSPAWNCHARACTERXYZ",                  // == 259
-    "FSPAWNEXACTCHARACTERXYZ",             // == 260
-    "FCHANGETARGETCLASS",                  // == 261
-    "FPLAYFULLSOUND",                      // == 262
-    "FSPAWNEXACTCHASEPARTICLE",            // == 263
-    "FCREATEORDER",                        // == 264
-    "FORDERSPECIALID",                     // == 265
-    "FUNKURSETARGETINVENTORY",             // == 266
-    "FIFTARGETISSNEAKING",                 // == 267
-    "FDROPITEMS",                          // == 268
-    "FRESPAWNTARGET",                      // == 269
-    "FTARGETDOACTIONSETFRAME",             // == 270
-    "FIFTARGETCANSEEINVISIBLE",            // == 271
-    "FSETTARGETTONEARESTBLAHID",           // == 272
-    "FSETTARGETTONEARESTENEMY",            // == 273
-    "FSETTARGETTONEARESTFRIEND",           // == 274
-    "FSETTARGETTONEARESTLIFEFORM",         // == 275
-    "FFLASHPASSAGE",                       // == 276
-    "FFINDTILEINPASSAGE",                  // == 277
-    "FIFHELDINLEFTHAND",                   // == 278
-    "FNOTANITEM",                          // == 279
-    "FSETCHILDAMMO",                       // == 280
-    "FIFHITVULNERABLE",                    // == 281
-    "FIFTARGETISFLYING",                   // == 282
-    "FIDENTIFYTARGET",                     // == 283
-    "FBEATMODULE",                         // == 284
-    "FENDMODULE",                          // == 285
-    "FDISABLEEXPORT",                      // == 286
-    "FENABLEEXPORT",                       // == 287
-    "FGETTARGETSTATE",                     // == 288
-
-    /// Redone in v 0.95
-    "FIFEQUIPPED",                         // == 289
-    "FDROPTARGETMONEY",                    // == 290
-    "FGETTARGETCONTENT",                   // == 291
-    "FDROPTARGETKEYS",                     // == 292
-    "FJOINTEAM",                           // == 293
-    "FTARGETJOINTEAM",                     // == 294
-
-    /// Below is original code again
-    "FCLEARMUSICPASSAGE",                  // == 295
-    "FCLEARENDMESSAGE",                    // == 296
-    "FADDENDMESSAGE",                      // == 297
-    "FPLAYMUSIC",                          // == 298
-    "FSETMUSICPASSAGE",                    // == 299
-    "FMAKECRUSHINVALID",                   // == 300
-    "FSTOPMUSIC",                          // == 301
-    "FFLASHVARIABLE",                      // == 302
-    "FACCELERATEUP",                       // == 303
-    "FFLASHVARIABLEHEIGHT",                // == 304
-    "FSETDAMAGETIME",                      // == 305
-    "FIFSTATEIS8",                         // == 306
-    "FIFSTATEIS9",                         // == 307
-    "FIFSTATEIS10",                        // == 308
-    "FIFSTATEIS11",                        // == 309
-    "FIFSTATEIS12",                        // == 310
-    "FIFSTATEIS13",                        // == 311
-    "FIFSTATEIS14",                        // == 312
-    "FIFSTATEIS15",                        // == 313
-    "FIFTARGETISAMOUNT",                   // == 314
-    "FIFTARGETISAPLATFORM",                // == 315
-    "FADDSTAT",                            // == 316
-    "FDISENCHANTTARGET",                   // == 317
-    "FDISENCHANTALL",                      // == 318
-    "FSETVOLUMENEARESTTEAMMATE",           // == 319
-    "FADDSHOPPASSAGE",                     // == 320
-    "FTARGETPAYFORARMOR",                  // == 321
-    "FJOINEVILTEAM",                       // == 322
-    "FJOINNULLTEAM",                       // == 323
-    "FJOINGOODTEAM",                       // == 324
-    "FPITSKILL",                           // == 325
-    "FSETTARGETTOPASSAGEID",               // == 326
-    "FMAKENAMEUNKNOWN",                    // == 327
-    "FSPAWNEXACTPARTICLEENDSPAWN",         // == 328
-    "FSPAWNPOOFSPEEDSPACINGDAMAGE",        // == 329
-    "FGIVEEXPERIENCETOGOODTEAM",           // == 330
-
-    /// Scripted AI functions (v0.95)
-    "FDONOTHING",                          // == 331
-    "FGROGTARGET",                         // == 332
-    "FDAZETARGET",                         // == 333
-    "FENABLERESPAWN",                      // == 334
-    "FDISABLERESPAWN",                     // == 335
-
-    /// Redone in v 1.10
-    "FDISPELTARGETENCHANTID",              // == 336
-    "FIFHOLDERBLOCKED",                    // == 337
-    "FGETSKILLLEVEL",                      // == 338
-    "FIFTARGETHASNOTFULLMANA",             // == 339
-    "FENABLELISTENSKILL",                  // == 340
-    "FSETTARGETTOLASTITEMUSED",            // == 341
-    "FFOLLOWLINK",                         // == 342  Scripted AI functions (v1.00)
-    "FIFOPERATORISLINUX",                  // == 343
-    "FIFTARGETISAWEAPON",                  // == 344
-    "FIFSOMEONEISSTEALING",                // == 345
-    "FIFTARGETISASPELL",                   // == 346
-    "FIFBACKSTABBED",                      // == 347
-    "FGETTARGETDAMAGETYPE",                // == 348
-    "FADDQUEST",                           // == 349
-    "FBEATQUESTALLPLAYERS",                // == 350
-    "FIFTARGETHASQUEST",                   // == 351
-    "FSETQUESTLEVEL",                      // == 352
-    "FADDQUESTALLPLAYERS",                 // == 353
-    "FADDBLIPALLENEMIES",                  // == 354
-    "FPITSFALL",                           // == 355
-    "FIFTARGETISOWNER",                    // == 356
-
-    /// adding in the "speech" thing so the script can define its "ouch" sound, for instance
-    "FSETSPEECH",                  // == 357
-    "FSETMOVESPEECH",              // == 358
-    "FSETSECONDMOVESPEECH",        // == 359
-    "FSETATTACKSPEECH",            // == 360
-    "FSETASSISTSPEECH",            // == 361
-    "FSETTERRAINSPEECH",           // == 362
-    "FSETSELECTSPEECH",            // == 363
-
-    /// Scripted AI functions (v1.10)
-    "FTAKEPICTURE",                // == 364
-    "FIFOPERATORISMACINTOSH",      // == 365
-    "FIFMODULEHASIDSZ",            // == 366
-    "FMORPHTOTARGET",              // == 367
-    "FGIVEMANAFLOWTOTARGET",       // == 368
-    "FGIVEMANARETURNTOTARGET",     // == 369
-    "FSETMONEY",                   // == 370
-    "FIFTARGETCANSEEKURSES",       // == 371
-    "FSPAWNATTACHEDCHARACTER",     // == 372
-    "FKURSETARGET",                // == 373
-    "FSETCHILDCONTENT",            // == 374
-    "FSETTARGETTOCHILD",           // == 375
-    "FSETDAMAGETHRESHOLD",         // == 376
-    "FACCELERATETARGETUP",         // == 377
-    "FSETTARGETAMMO",              // == 378
-    "FENABLEINVICTUS",             // == 379
-    "FDISABLEINVICTUS",            // == 380
-    "FTARGETDAMAGESELF",           // == 381
-    "FSETTARGETSIZE",              // == 382
-    "FIFTARGETISFACINGSELF",       // == 383
-
-    // Scripted AI functions (v1.20)
-    "FDRAWBILLBOARD",                // == 384
-    "FSETTARGETTOBLAHINPASSAGE"      // == 385
-    "FIFLEVELUP",                    // == 386
-    "FGIVESKILLTOTARGET",            // == 387
-    "FSETTARGETTONEARBYMELEEWEAPON", // == 388
-
-    //Scripted AI functions (v1.30)
-    "FENABLESTEALTH",
-    "FDISABLESTEALTH",
-    "FIFSTEALTHED",
-    "FSETTARGETTODISTANTFRIEND",
-    "FDISPLAYCHARGE",
+#define Define(name) #name,
+#include "egolib/Script/Functions.in"
+#undef Define
+};
+const char *script_operator_names[SCRIPT_OPERATORS_COUNT] =
+{
+#define Define(name) #name,
+#include "egolib/Script/Operators.in"
+#undef Define
 };
 
-//--------------------------------------------------------------------------------------------
+
 //--------------------------------------------------------------------------------------------
 
 //Private functions
@@ -1432,7 +1022,7 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
 
     if ( ps.line_buffer_count > 0  && tabs_warning_needed )
     {
-        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
     }
 
     // scan to the beginning of the next line
@@ -1488,14 +1078,14 @@ int parser_state_t::get_indentation( parser_state_t& ps, script_info_t *pscript 
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
         ps.error = true;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
         ps.error = true;
         cnt = 15;
     }
@@ -1619,7 +1209,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         }
         else
         {
-            log_message( "SCRIPT ERROR: %s() - The string in line %d is too long\n.", __FUNCTION__, tok.iLine );
+            log_message( "SCRIPT ERROR: %s() - The string in line %d is too long\n.", __FUNCTION__, tok.getLine() );
         }
     }
     else
@@ -1649,9 +1239,11 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
     // Check for numeric constant
     if (!parsed && Ego::isdigit(tok.szWord[0]))
     {
-        sscanf( tok.szWord, "%d", &tok.iValue );
+		int temporary;
+		sscanf(tok.szWord, "%d", &temporary);
+		tok.setValue(temporary);
         tok.setType(Token::Type::Constant);
-        tok.iIndex = MAX_OPCODE;
+        tok.setIndex(MAX_OPCODE);
 
         // move on to the next thing
         parsed = true;
@@ -1662,9 +1254,9 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
     {
         idsz = MAKE_IDSZ( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
 
-        tok.iValue = idsz;
+        tok.setValue(idsz);
         tok.setType(Token::Type::Constant);
-        tok.iIndex = MAX_OPCODE;
+        tok.setIndex(MAX_OPCODE);
 
         // move on to the next thing
         parsed = true;
@@ -1672,9 +1264,9 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
 
     if ( !parsed && ( 0 == strcmp( tok.szWord, "=" ) ) )
     {
-        tok.iValue = -1;
+        tok.setValue(-1);
         tok.setType(Token::Type::Operator);
-        tok.iIndex = MAX_OPCODE;
+        tok.setIndex(MAX_OPCODE);
 
         // move on to the next thing
         parsed = true;
@@ -1689,7 +1281,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         {
             // some kind of empty string
 
-            log_message( "SCRIPT ERROR: %s() - The string in line %d is empty\n.", __FUNCTION__, tok.iLine );
+            log_message( "SCRIPT ERROR: %s() - The string in line %d is empty\n.", __FUNCTION__, tok.getLine() );
 
             // some kind of error
             parsed = true;
@@ -1700,7 +1292,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
             std::string obj_name = str + 1;
 
             // Invalid profile as default
-            tok.iValue = INVALID_PRO_REF;
+            tok.setValue(INVALID_PRO_REF);
 
             // Convert reference to slot number
             for (const auto &element : ProfileSystem::get().getLoadedProfiles())
@@ -1712,13 +1304,13 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
                 //is this the object we are looking for?
                 if (Ego::isSuffix(profile->getPathname(), obj_name))
                 {
-                    tok.iValue = profile->getSlotNumber();
+                    tok.setValue(profile->getSlotNumber());
                     break;
                 }
             }
 
             // Do we need to load the object?
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.iValue))
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
             {
                 std::string loadname = "mp_objects/" + obj_name;
 
@@ -1729,19 +1321,19 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
                     if (ProfileSystem::get().isValidProfileID(ipro)) continue;
 
                     //found a free slot
-                    tok.iValue = ProfileSystem::get().loadOneProfile(loadname, REF_TO_INT(ipro));
-                    if (tok.iValue == ipro) break;
+                    tok.setValue(ProfileSystem::get().loadOneProfile(loadname, REF_TO_INT(ipro)));
+                    if (tok.getValue() == ipro) break;
                 }
             }
 
             // Failed to load object!
-            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.iValue))
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
             {
-                log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, tok.szWord, pscript->_name.c_str(), tok.iLine );
+                log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, tok.szWord, pscript->_name.c_str(), tok.getLine() );
             }
 
             tok.setType(Token::Type::Constant);
-            tok.iIndex = MAX_OPCODE;
+            tok.setIndex(MAX_OPCODE);
 
             parsed = true;
         }
@@ -1749,10 +1341,10 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         {
             // a normal string
             // if this is a new string, add this message to the avalible messages of the object
-            tok.iValue = ppro->addMessage(str, true);
+            tok.setValue(ppro->addMessage(str, true));
 
             tok.setType(Token::Type::Constant);
-            tok.iIndex = MAX_OPCODE;
+            tok.setIndex(MAX_OPCODE);
 
             parsed = true;
         }
@@ -1765,9 +1357,9 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         {
             if ( 0 == strncmp( tok.szWord, OpList.ary[cnt].cName, MAXCODENAMESIZE ) )
             {
-                tok.iValue = OpList.ary[cnt].iValue;
+                tok.setValue(OpList.ary[cnt].iValue);
                 tok.setType(OpList.ary[cnt]._type);
-                tok.iIndex = cnt;
+                tok.setIndex(cnt);
 
                 // move on to the next thing
                 parsed = true;
@@ -1780,12 +1372,12 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
     // We couldn't figure out what this is, throw out an error code
     if ( !parsed )
     {
-        log_message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), tok.iLine, tok.szWord );
+        log_message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), tok.getLine(), tok.szWord );
 
         // put the token in an error state
-        tok.iValue = -1;
+        tok.setValue(-1);
         tok.setType(Token::Type::Unknown);
-        tok.iIndex = MAX_OPCODE;
+        tok.setIndex(MAX_OPCODE);
 
         self.error = true;
     }
@@ -1810,7 +1402,7 @@ void emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t *pscript )
     // emit the opcode
     if (!pscript->_instructions.isFull())
     {
-		pscript->_instructions.append(Instruction(loc_highbits | tok.iValue));
+		pscript->_instructions.append(Instruction(loc_highbits | tok.getValue()));
     }
     else
     {
@@ -1830,7 +1422,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
     size_t parseposition;
 
     read = 0;
-    for ( ps.token.iLine = 0; read < ps.load_buffer_count; ps.token.iLine++ )
+    for ( ps.token.setLine(0); read < ps.load_buffer_count; ps.token.setLine(ps.token.getLine() + 1) )
     {
         read = load_one_line( ps, read, pscript );
         if ( 0 == ps.line_buffer_count ) continue;
@@ -1845,11 +1437,11 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
         //------------------------------
         // grab the first opcode
 
-        highbits = SET_DATA_BITS( get_indentation( ps, pscript ) );
+        highbits = SetDataBits( get_indentation( ps, pscript ) );
         parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
         if ( Token::Type::Function == ps.token.getType() )
         {
-            if ( FEND == ps.token.iValue && 0 == highbits )
+            if ( FEND == ps.token.getValue() && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -1862,7 +1454,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             emit_opcode( ps.token, highbits, pscript );
 
             // leave a space for the control code
-            ps.token.iValue = 0;
+            ps.token.setValue(0);
             emit_opcode( ps.token, 0, pscript );
 
         }
@@ -1878,7 +1470,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             emit_opcode( ps.token, highbits, pscript );
 
             // save a position for the operand count
-            ps.token.iValue = 0;
+            ps.token.setValue(0);
             operand_index = pscript->_instructions.getLength();    //AisCompiled_offset;
             emit_opcode( ps.token, 0, pscript );
 
@@ -1887,7 +1479,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );  // EQUALS
             if ( Token::Type::Operator != ps.token.getType() || 0 != strcmp( ps.token.szWord, "=" ) )
             {
-                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
             }
 
             //------------------------------
@@ -1905,7 +1497,7 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             else if ( Token::Type::Operator != ps.token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
 
                 emit_opcode( ps.token, 0, pscript );
                 operands++;
@@ -1920,19 +1512,19 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
                 if ( Token::Type::Operator != ps.token.getType() )
                 {
                     // problem with the loop
-                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.line_buffer );
+                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
                     break;
                 }
 
                 // the highbits are the operator's value
-                highbits = SET_DATA_BITS( ps.token.iValue );
+				highbits = SetDataBits( ps.token.getValue() );
 
                 // VALUE
                 parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
                 if ( Token::Type::Constant != ps.token.getType() && Token::Type::Variable != ps.token.getType() )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
                     break;
                 }
 
@@ -1946,24 +1538,24 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
         }
         else if ( Token::Type::Constant == ps.token.getType() )
         {
-            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
         }
         else if ( Token::Type::Unknown == ps.token.getType() )
         {
             // unknown opcode, do not process this line
-            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
         }
         else
         {
-            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.iLine, ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
             break;
         }
     }
 
-    ps.token.iValue = FEND;
+    ps.token.setValue(FEND);
     ps.token.setType(Token::Type::Function);
     emit_opcode( ps.token, 0, pscript );
-    ps.token.iValue = pscript->_instructions.getLength() + 1;
+    ps.token.setValue(pscript->_instructions.getLength() + 1);
     emit_opcode( ps.token, 0, pscript );
 }
 
@@ -1978,13 +1570,13 @@ Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
     int targetindent, indent;
 
     auto value = pscript->_instructions[index]; /*AisCompiled_buffer[index];*/  index += 2;
-    targetindent = GET_DATA_BITS( value._value );
+    targetindent = GetDataBits( value._value );
     indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
         value = pscript->_instructions[index]; //AisCompiled_buffer[index];
-        indent = GET_DATA_BITS( value._value );
+        indent = GetDataBits ( value._value );
         if ( indent > targetindent )
         {
             // Was it a function
