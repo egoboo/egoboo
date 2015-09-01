@@ -302,10 +302,11 @@ float set_character_animation_rate( Object * pchr )
         // For non-flying objects, we use the intended speed.
         // new_v[kX], new_v[kY] is the speed before any latches are applied.
         speed = Vector2f(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length();
-        if ( pchr->enviro.is_slipping )
+        if ( pchr->enviro.is_slippy )
         {
             // The character is slipping as on ice.
             // Make his little legs move based on his intended speed, for comic effect! :)
+            pinst.rate = 2.0f;
             speed *= 2.0f;
         }
 
@@ -377,7 +378,7 @@ float set_character_animation_rate( Object * pchr )
             // if the current action is not ACTION_D* switch to ACTION_DA
             if ( !ACTION_IS_TYPE( pinst.action_which, D ) )
             {
-                // get an appropriate version of the boredom action
+                // get an appropriate version of the idle action
                 int tmp_action = pinst.imad->getAction(ACTION_DA);
 
                 // start the animation
