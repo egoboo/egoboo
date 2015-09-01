@@ -247,7 +247,7 @@ void drop_keys( const CHR_REF character )
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
         pkey->setPosition(pchr->getPosition());
         move_one_character_get_environment( pkey.get() );
-        chr_set_floor_level( pkey.get(), pchr->enviro.floor_level );
+        pkey->enviro.floor_level = pchr->enviro.floor_level;
     }
 }
 
@@ -311,7 +311,7 @@ bool drop_all_items( const CHR_REF character )
         SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
         pitem->setPosition(pchr->getPosition());
         move_one_character_get_environment(pitem.get());
-        chr_set_floor_level(pitem.get(), pchr->enviro.floor_level);
+        pitem->enviro.floor_level = pchr->enviro.floor_level;
 
         //drop out evenly in all directions
         direction += diradd;
@@ -723,30 +723,24 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
 //--------------------------------------------------------------------------------------------
 void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent )
 {
-    Object  * pchr;
-    bool   can_have_team;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
+    if(!pchr) return;
 
     // do we count this character as being on a team?
-    can_have_team = !pchr->isitem && pchr->isAlive() && !pchr->invictus;
+    bool can_have_team = !pchr->isItem() && pchr->isAlive() && !pchr->isInvincible();
 
     // take the character off of its old team
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        // get the old team index
-        TEAM_REF team_old = pchr->team;
-
         // remove the character from the old team
         if ( can_have_team )
         {
-            _currentModule->getTeamList()[team_old].decreaseMorale();
+            _pchr->getTeam().decreaseMorale();
         }
 
-        if ( pchr == _currentModule->getTeamList()[team_old].getLeader().get() )
+        if ( pchr == _pchr->getTeam().getLeader().get() )
         {
-            _currentModule->getTeamList()[team_old].setLeader(Object::INVALID_OBJECT);
+            _pchr->getTeam().setLeader(Object::INVALID_OBJECT);
         }
     }
 
@@ -762,19 +756,19 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
         // switch the base team only if required
         if ( permanent )
         {
-            pchr->team_base = loc_team_new;
+            pchr->team_base = pchr->team;
         }
 
         // add the character to the new team
         if ( can_have_team )
         {
-            _currentModule->getTeamList()[loc_team_new].increaseMorale();
+            pchr->getTeam().increaseMorale();
         }
 
         // we are the new leader if there isn't one already
-        if ( can_have_team && !_currentModule->getTeamList()[loc_team_new].getLeader() )
+        if ( can_have_team && !pchr->getTeam().getLeader() )
         {
-            _currentModule->getTeamList()[loc_team_new].setLeader(_currentModule->getObjectHandler()[character]);
+            pchr->getTeam().setLeader(pchr);
         }
     }
 }
@@ -941,15 +935,6 @@ std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const ch
 }
 
 //--------------------------------------------------------------------------------------------
-std::string chr_get_dir_name( const CHR_REF ichr )
-{
-    if (!_currentModule->getObjectHandler().exists(ichr)) {
-        return "*INVALID*";
-    }
-    return _currentModule->getObjectHandler()[ichr]->getProfile()->getPathname();
-}
-
-//--------------------------------------------------------------------------------------------
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 {
     /// @author BB
@@ -1089,17 +1074,6 @@ const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
     else
     {
         return ProfileSystem::get().getSpellBookIcon(pitem->getProfile()->getSpellEffectType()).get_ptr();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_set_floor_level( Object * pchr, const float level )
-{
-    if ( nullptr == ( pchr ) ) return;
-
-    if ( level != pchr->enviro.floor_level )
-    {
-        pchr->enviro.floor_level = level;
     }
 }
 
