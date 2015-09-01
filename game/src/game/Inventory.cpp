@@ -27,7 +27,7 @@ CHR_REF Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly)
     {
         bool matches_equipped = (!equippedOnly || pitem->isequipped);
 
-        if (chr_is_type_idsz(pitem->getCharacterID(), idsz) && matches_equipped)
+        if (pitem->getProfile()->hasTypeIDSZ(idsz) && matches_equipped)
         {
             result = pitem->getCharacterID();
             break;
@@ -289,7 +289,7 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
         {
             for ( Uint16 id = 0; id < IDSZ_COUNT && found; id++ )
             {
-                if ( chr_get_idsz( pstack->getCharacterID(), id ) != chr_get_idsz( item, id ) )
+                if ( pstack->getProfile()->getIDSZ(id) != pitem->getProfile()->getIDSZ(id) )
                 {
                     found = false;
                 }

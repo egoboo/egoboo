@@ -211,12 +211,10 @@ void drop_keys( const CHR_REF character )
     //check each inventory item
     for(const std::shared_ptr<Object> &pkey : pchr->getInventory().iterate())
     {
-        IDSZ idsz_parent;
-        IDSZ idsz_type;
         TURN_T turn;
 
-        idsz_parent = chr_get_idsz( pkey->getCharacterID(), IDSZ_PARENT );
-        idsz_type   = chr_get_idsz( pkey->getCharacterID(), IDSZ_TYPE );
+        IDSZ idsz_parent = pkey->getProfile()->getIDSZ(IDSZ_PARENT);
+        IDSZ idsz_type   = pkey->getProfile()->getIDSZ(IDSZ_TYPE);
 
         //is it really a key?
         if (( idsz_parent < testa && idsz_parent > testz ) &&
@@ -358,6 +356,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
     // find the 1st non-item that is holding the weapon
     CHR_REF iholder = chr_get_lowest_attachment( iweapon, true );
+    const std::shared_ptr<Object> &pholder = _currentModule->getObjectHandler()[iholder];
 
     /*
         if ( iweapon != iholder && iweapon != ichr )
@@ -382,7 +381,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), chr_get_iteam( iholder ), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -467,7 +466,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
                         pchr->ori.facing_z, weaponProfile->getSlotNumber(), 
                         attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : INVALID_CHR_REF,  
-                        spawn_vrt_offset, chr_get_iteam(iholder), iholder);
+                        spawn_vrt_offset, pholder->getTeam().toRef(), iholder);
 
                     if (particle)
                     {
@@ -679,35 +678,6 @@ void drop_money( const CHR_REF character, int money )
 }
 
 //--------------------------------------------------------------------------------------------
-bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function makes the naming.txt file for the character
-
-    player_t *ppla;
-    egolib_rv rv;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
-
-    ppla = chr_get_ppla( character );
-    if ( NULL == ppla ) return false;
-
-    rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
-    return TO_C_BOOL( rv_success == rv );
-}
-
-//--------------------------------------------------------------------------------------------
-bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function makes the naming.txt file for the character
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
-
-    return RandomName::exportName(_currentModule->getObjectHandler()[character]->getName(), szSaveName);
-}
-
-//--------------------------------------------------------------------------------------------
 void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
 {
     /// @author ZF
@@ -854,7 +824,7 @@ bool chr_get_skill( Object *pchr, IDSZ whichskill )
 
     // First check the character Skill ID matches
     // Then check for expansion skills too.
-    if ( chr_get_idsz( pchr->ai.index, IDSZ_SKILL )  == whichskill ) {
+    if ( pchr->getProfile()->getIDSZ(IDSZ_SKILL) == whichskill ) {
         return true;
     }
 
@@ -1184,102 +1154,13 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION (previously inline functions)
 //--------------------------------------------------------------------------------------------
-
-TEAM_REF chr_get_iteam( const CHR_REF ichr )
-{
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return static_cast<TEAM_REF>(Team::TEAM_DAMAGE);
-    Object * pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return static_cast<TEAM_REF>(pchr->team);
-}
-
-//--------------------------------------------------------------------------------------------
-TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
-{
-    Object * pchr;
-    int iteam;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return ( TEAM_REF )Team::TEAM_MAX;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    iteam = REF_TO_INT( pchr->team_base );
-    iteam = CLIP( iteam, 0, (int)Team::TEAM_MAX );
-
-    return ( TEAM_REF )iteam;
-}
-
-//--------------------------------------------------------------------------------------------
-Team * chr_get_pteam( const CHR_REF ichr )
-{
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return NULL;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return &_currentModule->getTeamList()[pchr->team];
-}
-
-//--------------------------------------------------------------------------------------------
-Team * chr_get_pteam_base( const CHR_REF ichr )
-{
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return NULL;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return &_currentModule->getTeamList()[pchr->team_base];
-}
-
-//--------------------------------------------------------------------------------------------
-chr_instance_t * chr_get_pinstance( const CHR_REF ichr )
-{
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return NULL;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return &( pchr->inst );
-}
-
-//--------------------------------------------------------------------------------------------
-IDSZ chr_get_idsz( const CHR_REF ichr, int type )
-{
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return IDSZ_NONE;
-    return _currentModule->getObjectHandler()[ichr]->getProfile()->getIDSZ(type);
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
-{
-    /// @author BB
-    /// @details a wrapper for cap_has_idsz
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return IDSZ_NONE;
-    return _currentModule->getObjectHandler()[ichr]->getProfile()->hasIDSZ(idsz);
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
-{
-    /// @author BB
-    /// @details check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
-    ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
-
-    if ( !_currentModule->getObjectHandler().exists( item ) ) return IDSZ_NONE;
-    return _currentModule->getObjectHandler()[item]->getProfile()->hasTypeIDSZ(test_idsz);
-}
-
-//--------------------------------------------------------------------------------------------
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 {
     /// @author BB
     /// @details is item vulnerable to the type in profile test_profile?
 
-    IDSZ vulnie;
-
     if ( !_currentModule->getObjectHandler().exists( item ) ) return false;
-    vulnie = chr_get_idsz( item, IDSZ_VULNERABILITY );
+    IDSZ vulnie = _currentModule->getObjectHandler()[item]->getProfile()->getIDSZ(IDSZ_VULNERABILITY);
 
     // not vulnerable if there is no specific weakness
     if ( IDSZ_NONE == vulnie ) return false;

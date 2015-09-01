@@ -2619,7 +2619,7 @@ const std::shared_ptr<Object>& Object::isWieldingItemIDSZ(const IDSZ idsz) const
     //Check left hand
     const std::shared_ptr<Object> &leftHandItem = getLeftHandItem();
     if(leftHandItem) {
-        if(chr_is_type_idsz(leftHandItem->getCharacterID(), idsz)) {
+        if(leftHandItem->getProfile()->hasTypeIDSZ(idsz)) {
             return leftHandItem;
         }
     }
@@ -2627,7 +2627,7 @@ const std::shared_ptr<Object>& Object::isWieldingItemIDSZ(const IDSZ idsz) const
     //Check right hand
     const std::shared_ptr<Object> &rightHandItem = getRightHandItem();
     if(rightHandItem) {
-        if(chr_is_type_idsz(rightHandItem->getCharacterID(), idsz)) {
+        if(rightHandItem->getProfile()->hasTypeIDSZ(idsz)) {
             return rightHandItem;
         }
     }

@@ -2275,7 +2275,7 @@ int reaffirm_attached_particles( const CHR_REF character )
         std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
                 pchr->getPosition(), pchr->ori.facing_z, pchr->getProfile()->getSlotNumber(), 
                 pchr->getProfile()->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, 
-                chr_get_iteam(character), character, INVALID_PRT_REF, number_attached);
+                pchr->getTeam().toRef(), character, INVALID_PRT_REF, number_attached);
 
         if (particle)
         {
@@ -3946,4 +3946,33 @@ float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk )
     }
 
     return zdone;
+}
+
+//--------------------------------------------------------------------------------------------
+bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character )
+{
+    /// @author ZZ
+    /// @details This function makes the naming.txt file for the character
+
+    player_t *ppla;
+    egolib_rv rv;
+
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
+
+    ppla = chr_get_ppla( character );
+    if ( NULL == ppla ) return false;
+
+    rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
+    return TO_C_BOOL( rv_success == rv );
+}
+
+//--------------------------------------------------------------------------------------------
+bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF character )
+{
+    /// @author ZZ
+    /// @details This function makes the naming.txt file for the character
+
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
+
+    return RandomName::exportName(_currentModule->getObjectHandler()[character]->getName(), szSaveName);
 }

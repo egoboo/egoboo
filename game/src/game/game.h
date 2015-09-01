@@ -419,6 +419,10 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
 egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool is_local );
 egolib_rv export_all_players( bool require_local );
 
+// save character functions
+bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
+bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
+
 /// Messages
 void show_stat( int statindex );
 void show_armor( int statindex );

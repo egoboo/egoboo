@@ -893,7 +893,14 @@ Uint8 scr_IfTargetHasID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = chr_is_type_idsz( self.target, state.argument );
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
+    if(target) {
+        returncode = target->getProfile()->hasTypeIDSZ(state.argument);
+    }
+    else {
+        returncode = false;
+    }
+
 
     SCRIPT_FUNCTION_END();
 }
@@ -1258,7 +1265,7 @@ Uint8 scr_CostTargetItemID( script_state_t& state, ai_state_t& self )
         for(const std::shared_ptr<Object> &inventoryItem : ptarget->getInventory().iterate())
         {
             //matching idsz?
-            if ( chr_is_type_idsz( inventoryItem->getCharacterID(), idsz ) ) {
+            if ( inventoryItem->getProfile()->hasTypeIDSZ(idsz) ) {
                 pitem = inventoryItem;
                 break;
             }
@@ -1628,7 +1635,7 @@ Uint8 scr_IfTargetIsOnOtherTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->isAlive() && chr_get_iteam( self.target ) != pchr->team );
+    returncode = ( pself_target->isAlive() &&  pself_target->getTeam() != pchr->getTeam() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1646,7 +1653,7 @@ Uint8 scr_IfTargetIsOnHatedTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->isAlive() && team_hates_team( pchr->team, chr_get_iteam( self.target ) ) && !pself_target->invictus );
+    returncode = ( pself_target->isAlive() && pchr->getTeam().hatesTeam(pself_target->getTeam()) && !pself_target->isInvincible() );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3182,9 +3189,13 @@ Uint8 scr_IfTargetIsOnSameTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = false;
-    if ( chr_get_iteam( self.target ) == pchr->team )
-        returncode = true;
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
+    if(target) {
+        returncode = target->getTeam() == pchr->getTeam();
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -3281,7 +3292,13 @@ Uint8 scr_IfTargetHasAnyID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = chr_has_idsz( self.target, state.argument );
+    const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[self.target];
+    if(target) {
+        returncode = target->getProfile()->hasIDSZ(state.argument);
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6249,40 +6266,39 @@ Uint8 scr_FlashVariableHeight( script_state_t& state, ai_state_t& self )
     const uint8_t valuehigh = state.distance;
     const int16_t high = state.y;
 
-    chr_instance_t *pinst = chr_get_pinstance( pchr->getCharacterID() );
-    for (size_t cnt = 0; cnt < pinst->vrt_count; cnt++)
+    for (size_t cnt = 0; cnt < pchr->inst.vrt_count; cnt++)
     {
-        int16_t z = pinst->vrt_lst[cnt].pos[ZZ];
+        int16_t z = pchr->inst.vrt_lst[cnt].pos[ZZ];
 
         if ( z < low )
         {
-            pinst->vrt_lst[cnt].col[RR] =
-                pinst->vrt_lst[cnt].col[GG] =
-                    pinst->vrt_lst[cnt].col[BB] = valuelow;
+            pchr->inst.vrt_lst[cnt].col[RR] =
+                pchr->inst.vrt_lst[cnt].col[GG] =
+                    pchr->inst.vrt_lst[cnt].col[BB] = valuelow;
         }
         else if ( z > high )
         {
-            pinst->vrt_lst[cnt].col[RR] =
-                pinst->vrt_lst[cnt].col[GG] =
-                    pinst->vrt_lst[cnt].col[BB] = valuehigh;
+            pchr->inst.vrt_lst[cnt].col[RR] =
+                pchr->inst.vrt_lst[cnt].col[GG] =
+                    pchr->inst.vrt_lst[cnt].col[BB] = valuehigh;
         }
         else if ( high != low )
         {
             uint8_t valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
                              ( valuelow * ( high - z ) / ( high - low ) );
 
-            pinst->vrt_lst[cnt].col[RR] =
-                pinst->vrt_lst[cnt].col[GG] =
-                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+            pchr->inst.vrt_lst[cnt].col[RR] =
+                pchr->inst.vrt_lst[cnt].col[GG] =
+                    pchr->inst.vrt_lst[cnt].col[BB] =  valuemid;
         }
         else
         {
             // z == high == low
             uint8_t valuemid = ( valuehigh + valuelow ) * 0.5f;
 
-            pinst->vrt_lst[cnt].col[RR] =
-                pinst->vrt_lst[cnt].col[GG] =
-                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+            pchr->inst.vrt_lst[cnt].col[RR] =
+                pchr->inst.vrt_lst[cnt].col[GG] =
+                    pchr->inst.vrt_lst[cnt].col[BB] =  valuemid;
         }
     }
 
@@ -7031,9 +7047,13 @@ Uint8 scr_IfTargetIsAWeapon( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !_currentModule->getObjectHandler().exists( self.target ) ) return false;
-
-    returncode = _currentModule->getObjectHandler()[self.target]->getProfile()->isRangedWeapon() || chr_has_idsz(self.target, MAKE_IDSZ('X', 'W', 'E', 'P'));
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
+    if(target) {
+        returncode = target->getProfile()->isRangedWeapon() || target->getProfile()->hasIDSZ(MAKE_IDSZ('X', 'W', 'E', 'P'));
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -7300,7 +7320,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( self.target ) )
     {
-        local_stats.sense_enemies_team = chr_get_iteam( self.target );
+        local_stats.sense_enemies_team = _currentModule->getObjectHandler()[self.target]->getTeam().toRef();
         local_stats.sense_enemies_idsz = state.argument;
     }
     else
