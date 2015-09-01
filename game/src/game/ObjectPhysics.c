@@ -172,6 +172,12 @@ void move_one_character_do_voluntary( Object * pchr )
     new_ax *= pchr->enviro.traction;
     new_ay *= pchr->enviro.traction;
 
+    //Slippery environment?
+    if(pchr->enviro.is_slippy) {
+        new_ax *= Physics::g_environment.icefriction * 0.1f;
+        new_ay *= Physics::g_environment.icefriction * 0.1f;
+    }
+
     //Limit movement to the max acceleration
     float accelerationMagnitude = std::sqrt(new_ax*new_ax + new_ay*new_ay);
     if(accelerationMagnitude > pchr->getAttribute(Ego::Attribute::ACCELERATION)) {
@@ -372,8 +378,9 @@ void move_one_character_get_environment( Object * pchr )
     }
     else
     {
-        penviro->fluid_friction_hrz = Physics::g_environment.airfriction;       // like real-life air friction
-        penviro->fluid_friction_vrt = Physics::g_environment.airfriction;
+        // like real-life air friction
+        penviro->fluid_friction_hrz = Physics::g_environment.airfriction;
+        penviro->fluid_friction_vrt = Physics::g_environment.airfriction;            
     }
 
     //---- friction
@@ -557,9 +564,11 @@ void move_one_character_do_floor_friction( Object * pchr )
     pchr->vel += fric_floor;
 
     // Apply fluid friction from last time
-    pchr->vel[kX] -= pchr->vel[kX] * (1.0f - penviro->fluid_friction_hrz);
-    pchr->vel[kY] -= pchr->vel[kY] * (1.0f - penviro->fluid_friction_hrz);
-    pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - penviro->fluid_friction_vrt);
+    if(!penviro->is_slippy) {
+        pchr->vel[kX] -= pchr->vel[kX] * (1.0f - penviro->fluid_friction_hrz);
+        pchr->vel[kY] -= pchr->vel[kY] * (1.0f - penviro->fluid_friction_hrz);
+        pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - penviro->fluid_friction_vrt);
+    }
 }
 
 //--------------------------------------------------------------------------------------------
