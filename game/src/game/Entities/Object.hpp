@@ -775,6 +775,12 @@ public:
     **/
     const std::shared_ptr<Object>& isWieldingItemIDSZ(const IDSZ idsz) const;
 
+    /**
+    * @brief
+    *   Changes the team of this Object to another team
+    **/
+    void setTeam(TEAM_REF team, bool permanent = true);
+
 private:
 
     /**

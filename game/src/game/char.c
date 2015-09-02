@@ -56,9 +56,6 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
-
-//--------------------------------------------------------------------------------------------
 egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
 {
     /// @author ZZ
@@ -717,94 +714,6 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
                             INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt);
 
         facing_z += profile->getParticlePoofFacingAdd();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent )
-{
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
-    if(!pchr) return;
-
-    // do we count this character as being on a team?
-    bool can_have_team = !pchr->isItem() && pchr->isAlive() && !pchr->isInvincible();
-
-    // take the character off of its old team
-    if ( VALID_TEAM_RANGE( pchr->team ) )
-    {
-        // remove the character from the old team
-        if ( can_have_team )
-        {
-            _pchr->getTeam().decreaseMorale();
-        }
-
-        if ( pchr == _pchr->getTeam().getLeader().get() )
-        {
-            _pchr->getTeam().setLeader(Object::INVALID_OBJECT);
-        }
-    }
-
-    // make sure we have a valid value
-    TEAM_REF loc_team_new = VALID_TEAM_RANGE(team_new) ? team_new : static_cast<TEAM_REF>(Team::TEAM_NULL);
-
-    // place the character onto its new team
-    if ( VALID_TEAM_RANGE( loc_team_new ) )
-    {
-        // switch the team
-        pchr->team = loc_team_new;
-
-        // switch the base team only if required
-        if ( permanent )
-        {
-            pchr->team_base = pchr->team;
-        }
-
-        // add the character to the new team
-        if ( can_have_team )
-        {
-            pchr->getTeam().increaseMorale();
-        }
-
-        // we are the new leader if there isn't one already
-        if ( can_have_team && !pchr->getTeam().getLeader() )
-        {
-            pchr->getTeam().setLeader(pchr);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void switch_team( const CHR_REF character, const TEAM_REF team )
-{
-    /// @author ZZ
-    /// @details This function makes a character join another team...
-
-    CHR_REF tmp_ref;
-    // change the base object
-    switch_team_base( character, team, true );
-
-    // grab a pointer to the character
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    Object *pchr = _currentModule->getObjectHandler().get( character );
-
-    // change our mount team as well
-    tmp_ref = pchr->attachedto;
-    if ( tmp_ref != INVALID_CHR_REF )
-    {
-        switch_team_base( tmp_ref, team, false );
-    }
-
-    // update the team of anything we are holding as well
-    tmp_ref = pchr->holdingwhich[SLOT_LEFT];
-    if ( tmp_ref != INVALID_CHR_REF )
-    {
-        switch_team_base( tmp_ref, team, false );
-    }
-
-    tmp_ref = pchr->holdingwhich[SLOT_RIGHT];
-    if ( tmp_ref != INVALID_CHR_REF )
-    {
-        switch_team_base( tmp_ref, team, false );
     }
 }
 

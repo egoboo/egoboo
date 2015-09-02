@@ -2646,3 +2646,68 @@ const std::shared_ptr<Object>& Object::getHolder() const
 {
     return _currentModule->getObjectHandler()[attachedto];
 }
+
+void Object::setTeam(TEAM_REF team_new, bool permanent)
+{
+    //No change?
+    if(getTeam() == team_new) {
+        return;
+    }
+
+    // do we count this character as being on a team?
+    const bool canHaveTeam = !isItem() && isAlive() && !isInvincible();
+
+    // take the character off of its old team
+    if ( VALID_TEAM_RANGE(this->team) )
+    {
+        // remove the character from the old team
+        if ( canHaveTeam )
+        {
+            getTeam().decreaseMorale();
+        }
+
+        //Were we the leader?
+        if (this == getTeam().getLeader().get())
+        {
+            getTeam().setLeader(Object::INVALID_OBJECT);
+        }
+    }
+
+    // make sure we have a valid value
+    if(!VALID_TEAM_RANGE(team_new)) {
+        team_new = static_cast<TEAM_REF>(Team::TEAM_NULL);
+    }
+
+    // place the character onto its new team
+    this->team = team_new;
+
+    // switch the base team only if required
+    if (permanent) {
+        team_base = this->team;
+    }
+
+    // add the character to the new team
+    if (canHaveTeam) {
+        getTeam().increaseMorale();
+    }
+
+    // we are the new leader if there isn't one already
+    if (canHaveTeam && !getTeam().getLeader()) {
+        getTeam().setLeader(_currentModule->getObjectHandler()[getCharacterID()]);
+    }
+
+    if(permanent) {
+        //Set the team of our mount as well
+        if(isBeingHeld() && getHolder()->isMount()) {
+            getHolder()->setTeam(team_new, false);
+        }
+
+        //Switch team of whatever we are holding as well
+        if(getLeftHandItem()) {
+            getLeftHandItem()->setTeam(team_new, false);
+        }
+        if(getRightHandItem()) {
+            getRightHandItem()->setTeam(team_new, false);
+        }
+    }
+}

@@ -2430,7 +2430,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
     pchr->is_which_player = player;
 
     // download the quest info
-    quest_log_download_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pchr->getProfile()->getPathname() );
+    quest_log_download_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pchr->getProfile()->getPathname().c_str() );
 
     //---- skeleton for using a ConfigFile to save quests
     // ppla->quest_file = quest_file_open( chr_get_dir_name(character).c_str() );

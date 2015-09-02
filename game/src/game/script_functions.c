@@ -647,7 +647,7 @@ Uint8 scr_JoinTargetTeam( script_state_t& state, ai_state_t& self )
     returncode = false;
     if ( _currentModule->getObjectHandler().exists( self.target ) )
     {
-        switch_team( self.index, pself_target->team );
+        pchr->setTeam(pself_target->team);
         returncode = true;
     }
 
@@ -6092,7 +6092,7 @@ Uint8 scr_JoinTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( self.index, ( TEAM_REF )state.argument );
+    pchr->setTeam(static_cast<TEAM_REF>(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -6106,7 +6106,14 @@ Uint8 scr_TargetJoinTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( self.target, ( TEAM_REF )state.argument );
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
+    if(target) {
+        target->setTeam(static_cast<TEAM_REF>(state.argument));
+        returncode = true;
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6604,7 +6611,7 @@ Uint8 scr_JoinEvilTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( self.index, ( TEAM_REF )Team::TEAM_EVIL );
+    pchr->setTeam(static_cast<TEAM_REF>(Team::TEAM_EVIL));
 
     SCRIPT_FUNCTION_END();
 }
@@ -6618,7 +6625,7 @@ Uint8 scr_JoinNullTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( self.index, ( TEAM_REF )Team::TEAM_NULL );
+    pchr->setTeam(static_cast<TEAM_REF>(Team::TEAM_NULL));
 
     SCRIPT_FUNCTION_END();
 }
@@ -6632,7 +6639,7 @@ Uint8 scr_JoinGoodTeam( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( self.index, ( TEAM_REF )Team::TEAM_GOOD );
+    pchr->setTeam(static_cast<TEAM_REF>(Team::TEAM_GOOD));
 
     SCRIPT_FUNCTION_END();
 }
