@@ -115,15 +115,18 @@ private:
 	 */
 	virtual ~parser_state_t();
 public:
-    bool error;
-    Token token;
-    int line_count;
+    bool _error;
+    Token _token;
+    int _line_count;
 
-    size_t line_buffer_count;
-    char line_buffer[MAXLINESIZE];
+protected:
+    size_t _line_buffer_count;
+    char _line_buffer[MAXLINESIZE];
+	void clear_line_buffer();
 
-    size_t load_buffer_count;
-    Uint8 load_buffer[AISMAXLOADSIZE];
+public:
+    size_t _load_buffer_count;
+    Uint8 _load_buffer[AISMAXLOADSIZE];
 
     /**
      * @brief
@@ -156,17 +159,37 @@ public:
     * @return
     *  the error variable value
     */
-    static bool get_error(parser_state_t& self);
+    bool get_error() const;
     /**
     * @brief
     *  Clear the error variable.
     */
-    static void clear_error(parser_state_t& self);
+    void clear_error();
 
-	static size_t parse_token(parser_state_t& self, Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read);
-	static size_t load_one_line(parser_state_t& self, size_t read, script_info_t *pscript);
-	static int get_indentation(parser_state_t& self, script_info_t *pscript);
-	static void parse_line_by_line(parser_state_t& self, ObjectProfile *ppro, script_info_t *pscript);
+private:
+	static size_t surround_space(size_t position, char buffer[], size_t buffer_size, const size_t buffer_max);
+	static size_t insert_space(size_t position, char buffer[], size_t buffer_length, const size_t buffer_max);
+	static size_t fix_operators(char buffer[], size_t buffer_size, const size_t buffer_max);
+	static void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t *pscript);
+
+	static Uint32 jump_goto(int index, int index_end, script_info_t *pscript);
+public:
+	static void parse_jumps(script_info_t *pscript);
+	static egolib_rv ai_script_upload_default(script_info_t *pscript);
+private:
+	size_t parse_token(Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read);
+	size_t load_one_line(size_t read, script_info_t *pscript);
+	/**
+	 * @brief
+	 *  Compute the indention level of a line.
+	 * @remark
+	 *  A line must begin with a number of spaces \f$2k\f$ where \f$k=0,1,\ldots$, otherwise an error shall be raised.
+	 *  The indention level $j$ of a line with \f$2k\f$ leading spaces for some $k=0,1,\ldots$ is given by \f$\frac{2k
+	 *  }{2}=k\f$. The indention level \f$j\f$ of a line may not exceed \f$15\f$.
+	 */
+	int get_indentation(script_info_t *pscript);
+public:
+	void parse_line_by_line(ObjectProfile *ppro, script_info_t *pscript);
 
 };
 
