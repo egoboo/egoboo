@@ -731,7 +731,7 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
         // then check if a skill is needed
         if ( weaponProfile->requiresSkillIDToUse() )
         {
-            if ( !chr_get_skill( pchr, pweapon->getProfile()->getIDSZ(IDSZ_SKILL) ) ) continue;
+            if (!pchr->hasSkillIDSZ(pweapon->getProfile()->getIDSZ(IDSZ_SKILL))) continue;
         }
 
         //check distance

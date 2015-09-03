@@ -781,6 +781,17 @@ public:
     **/
     void setTeam(TEAM_REF team, bool permanent = true);
 
+    /**
+    * @brief
+    *   checks if the object has a matching skill IDSZ. This function also maps between the old skill IDSZ
+    *   system and the new Perk system.
+    * @param whichskill
+    *   The IDSZ of the skill to check. An IDSZ of [NONE] always matches true.
+    * @return
+    *   true if the Object has the matching skill IDSZ of a perk that matches the skill IDSZ
+    **/
+    bool hasSkillIDSZ(const IDSZ whichskill) const;
+
 private:
 
     /**

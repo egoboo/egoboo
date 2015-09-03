@@ -132,8 +132,6 @@ void update_all_characters();
 
 const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
 
-bool chr_get_skill( Object * pchr, IDSZ whichskill );
-
 /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
 ///    inventory ( Not hands ).
 void drop_keys(const CHR_REF character);

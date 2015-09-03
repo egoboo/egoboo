@@ -969,7 +969,7 @@ Uint8 scr_IfTargetHasSkillID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = chr_get_skill(pself_target, ( IDSZ )state.argument);
+    returncode = pself_target->hasSkillIDSZ(state.argument);
 
     SCRIPT_FUNCTION_END();
 }

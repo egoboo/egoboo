@@ -2711,3 +2711,66 @@ void Object::setTeam(TEAM_REF team_new, bool permanent)
         }
     }
 }
+
+bool Object::hasSkillIDSZ(const IDSZ whichskill) const
+{
+    if (isTerminated()) return false;
+
+    //Any [NONE] IDSZ returns always "true"
+    if ( IDSZ_NONE == whichskill ) return true;
+
+    // First check the character Skill ID matches
+    if ( getProfile()->getIDSZ(IDSZ_SKILL) == whichskill ) {
+        return true;
+    }
+
+    // Then check if any Perk matches
+    switch(whichskill)
+    {
+        case MAKE_IDSZ('P', 'O', 'I', 'S'):
+            return hasPerk(Ego::Perks::POISONRY);
+
+        case MAKE_IDSZ('C', 'K', 'U', 'R'):
+            return hasPerk(Ego::Perks::SENSE_KURSES);
+
+        case MAKE_IDSZ('D', 'A', 'R', 'K'):
+            return hasPerk(Ego::Perks::NIGHT_VISION) || hasPerk(Ego::Perks::PERCEPTIVE);
+
+        case MAKE_IDSZ('A', 'W', 'E', 'P'):
+            return hasPerk(Ego::Perks::WEAPON_PROFICIENCY);
+
+        case MAKE_IDSZ('W', 'M', 'A', 'G'):
+            return hasPerk(Ego::Perks::ARCANE_MAGIC);
+
+        case MAKE_IDSZ('D', 'M', 'A', 'G'):
+        case MAKE_IDSZ('H', 'M', 'A', 'G'):
+            return hasPerk(Ego::Perks::DIVINE_MAGIC);
+
+        case MAKE_IDSZ('D', 'I', 'S', 'A'):
+            return hasPerk(Ego::Perks::TRAP_LORE);
+
+        case MAKE_IDSZ('F', 'I', 'N', 'D'):
+            return hasPerk(Ego::Perks::PERCEPTIVE);
+
+        case MAKE_IDSZ('T', 'E', 'C', 'H'):
+            return hasPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS);
+
+        case MAKE_IDSZ('S', 'T', 'A', 'B'):
+            return hasPerk(Ego::Perks::BACKSTAB);
+
+        case MAKE_IDSZ('R', 'E', 'A', 'D'):
+            return hasPerk(Ego::Perks::LITERACY);
+
+        case MAKE_IDSZ('W', 'A', 'N', 'D'):
+            return hasPerk(Ego::Perks::THAUMATURGY);
+
+        case MAKE_IDSZ('J', 'O', 'U', 'S'):
+            return hasPerk(Ego::Perks::JOUSTING);            
+
+        case MAKE_IDSZ('T', 'E', 'L', 'E'):
+            return hasPerk(Ego::Perks::TELEPORT_MASTERY); 
+    }
+
+    //Skill not found
+    return false;    
+}
