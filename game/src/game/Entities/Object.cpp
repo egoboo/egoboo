@@ -75,7 +75,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     damagetarget_damagetype(DamageType::DAMAGE_SLASH),
     reaffirm_damagetype(DamageType::DAMAGE_SLASH),
     damage_threshold(0),
-    is_hidden(false),
     is_which_player(INVALID_PLA_REF),
     islocalplayer(false),
     invictus(false),
@@ -277,22 +276,24 @@ bool Object::setPosition(const Vector3f& position)
         _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY]));
         _block = _currentModule->getMeshPointer()->get_block(PointWorld(pos[kX], pos[kY]));
 
-        // Update whether the current object position is safe.
-        //chr_update_safe(this, false);
-
         // Update the breadcrumb list.
 		Vector2f nrm;
         float pressure = 0.0f;
         BIT_FIELD hit_a_wall = hit_wall(nrm, &pressure, NULL);
-        if (0 == hit_a_wall && 0.0f == pressure)
+        if (EMPTY_BIT_FIELD == hit_a_wall && 0.0f <= pressure)
         {
             //This is a safe position
             _breadcrumbList.push_back(position);
             if(_breadcrumbList.size() > 32) {
                 _breadcrumbList.pop_front();
             }
-        }
 
+            //Update last safe position
+            safe_valid = true;
+            safe_pos   = getPosition();
+            safe_time  = update_wld;
+            safe_grid  = _tile;
+        }
 
         return true;
     }
@@ -748,9 +749,6 @@ bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
 
 void Object::update()
 {
-    //then do status updates
-    chr_update_hide(this);
-
     //Update active enchantments on this Object
     if(!_activeEnchants.empty()) {
         _activeEnchants.remove_if([this](const std::shared_ptr<Ego::Enchantment> &enchant) 
@@ -1160,7 +1158,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // set the dismount timer
-    if ( !isitem ) dismount_timer  = PHYS_DISMOUNT_TIME;
+    dismount_timer  = PHYS_DISMOUNT_TIME;
     dismount_object = holder;
 
     // Figure out which hand it's in
@@ -1224,6 +1222,14 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     {
         vel[kX] = pholder->vel[kX];
         vel[kY] = pholder->vel[kY];
+    }
+
+    //Throw us forward if we can collide with the holder (for example the Stool)
+    //This prevents us from being dropped into the collision box of the holder
+    if(bump.size > 0) {
+        float angle = FACING_TO_RAD(ori.facing_z + ATK_BEHIND);
+        vel[kX] += std::cos(angle) * DROPXYVEL * 0.5f;
+        vel[kY] += std::sin(angle) * DROPXYVEL * 0.5f;
     }
 
     vel[kZ] = DROPZVEL;
@@ -1651,7 +1657,7 @@ int Object::getPrice() const
 bool Object::isBeingHeld() const
 {
     //Check if holder exists and not marked for removal
-    const std::shared_ptr<Object> &holder = _currentModule->getObjectHandler()[attachedto];
+    const std::shared_ptr<Object> &holder = getHolder();
     if(!holder || holder->isTerminated()) {
         return false;
     }
@@ -1906,9 +1912,6 @@ void Object::respawn()
     // re-initialize the instance
     chr_instance_t::spawn(inst, _profileID, skin);
     chr_update_matrix( this, true );
-
-    // determine whether the object is hidden
-    chr_update_hide( this );
 
     if ( !isHidden() )
     {
@@ -2320,7 +2323,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     }
 
     // AI stuff
-    chr_set_ai_state(this, 0);
+    ai.state = 0;
     ai.timer          = 0;
     turnmode          = TURNMODE_VELOCITY;
     latch.clear();
@@ -2427,9 +2430,6 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         EGOBOO_ASSERT(rightItem->attachedto == getCharacterID());
         set_weapongrip(rightItem->getCharacterID(), getCharacterID(), GRIP_RIGHT);
     }
-
-    // determine whether the object is hidden
-    chr_update_hide(this);
 
     /// @note ZF@> disabled so that books dont burn when dropped
     //reaffirm_attached_particles( ichr );
@@ -2612,4 +2612,37 @@ bool Object::isScenery() const
     //Objects on other teams than TEAM_NULL can still be scenery, such as destructable tents or idols
     //These are scenery objects if they are either invincible or have infinite weight
     return getProfile()->isInvincible() || getProfile()->getWeight() == CAP_INFINITE_WEIGHT;
+}
+
+const std::shared_ptr<Object>& Object::isWieldingItemIDSZ(const IDSZ idsz) const
+{
+    //Check left hand
+    const std::shared_ptr<Object> &leftHandItem = getLeftHandItem();
+    if(leftHandItem) {
+        if(chr_is_type_idsz(leftHandItem->getCharacterID(), idsz)) {
+            return leftHandItem;
+        }
+    }
+
+    //Check right hand
+    const std::shared_ptr<Object> &rightHandItem = getRightHandItem();
+    if(rightHandItem) {
+        if(chr_is_type_idsz(rightHandItem->getCharacterID(), idsz)) {
+            return rightHandItem;
+        }
+    }
+
+    //No matching IDSZ
+    return INVALID_OBJECT;
+}
+
+bool Object::isHidden() const 
+{
+    if(getProfile()->getHideState() == NOHIDE) return false;
+    return getProfile()->getHideState() == ai.state;
+}
+
+const std::shared_ptr<Object>& Object::getHolder() const
+{
+    return _currentModule->getObjectHandler()[attachedto];
 }

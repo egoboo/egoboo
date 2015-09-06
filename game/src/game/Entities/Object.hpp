@@ -219,6 +219,8 @@ public:
     **/
     bool isBeingHeld() const;
 
+    const std::shared_ptr<Object> &getHolder() const;
+
     /**
     * @brief
     *   This function returns true if this Object is inside another Objects inventory
@@ -367,7 +369,13 @@ public:
     **/
     bool isAlive() const {return _isAlive;}
 
-    bool isHidden() const {return is_hidden;}
+    /**
+    * @return
+    *   true if the Object is currently in hidden state. In hidden state the object cannot be
+    *   interacted with, is not rendered and is effectively not part of the game until it is
+    *   unhidden again. Hidden state is determined by the Objects AI state.
+    **/
+    bool isHidden() const;
 
     bool isNameKnown() const {return nameknown;}
 
@@ -759,6 +767,14 @@ public:
 
     const std::list<Vector3f>& getBreadcrumbList() const {return _breadcrumbList;}
 
+    /**
+    * @brief
+    *   Checks if the character is wielding an item with the specified IDSZ in his or her hands
+    * @return
+    *   The Object that has the matching IDSZ
+    **/
+    const std::shared_ptr<Object>& isWieldingItemIDSZ(const IDSZ idsz) const;
+
 private:
 
     /**
@@ -832,7 +848,6 @@ public:
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
     // "variable" properties
-    bool         is_hidden;
     PLA_REF      is_which_player;               ///< true = player
     bool         islocalplayer;                 ///< true = local player
     bool         invictus;                      ///< Totally invincible?

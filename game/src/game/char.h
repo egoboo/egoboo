@@ -81,7 +81,7 @@ struct chr_spawn_data_t;
 //Dismounting
 #define DISMOUNTZVEL        16
 #define DISMOUNTZVELFLY     4
-#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.05f)          ///< time delay for full object-object interaction (approximately 0.05 second)
+#define PHYS_DISMOUNT_TIME  25          ///< time delay for full object-object interaction (approximately 0.5 second)
 
 //Water
 #define RIPPLETOLERANCE     60          ///< For deep water
@@ -121,25 +121,14 @@ struct chr_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
 
-Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
 
 const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
-
-egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
-
-bool chr_update_safe_raw( Object * pchr );
-bool chr_update_safe( Object * pchr, bool force );
-bool chr_get_safe( Object * pchr);
 
 void chr_set_floor_level( Object * pchr, const float level );
 
 std::string chr_get_dir_name( const CHR_REF ichr );
 bool chr_get_skill( Object * pchr, IDSZ whichskill );
-
-// this function is needed because the "hidden" state of an ai is determined by
-// whether  ai.state == cap.hidestate
-Object * chr_set_ai_state( Object * pchr, int state );
 
 
 // counters for debugging wall collisions
@@ -160,9 +149,6 @@ bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF char
 bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
-
-CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
-CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 
 bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin );
 

@@ -566,7 +566,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 
 	// If the object is hidden it is not drawn at all, so it has no shadow.
 	// If the object's shadow size is qa 0, then it has no shadow.
-	if (pchr->is_hidden || 0 == pchr->shadow_size)
+	if (pchr->isHidden() || 0 == pchr->shadow_size)
 	{
 		return;
 	}
@@ -660,7 +660,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if(pchr->isBeingHeld()) return;
 
 	// if the character is hidden, not drawn at all, so no shadow
-	if (pchr->is_hidden || 0 == pchr->shadow_size) return;
+	if (pchr->isHidden() || 0 == pchr->shadow_size) return;
 
 	// no shadow if off the mesh
 	ego_tile_info_t *ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
