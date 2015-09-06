@@ -92,7 +92,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_set_AlertBit( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetAlertBit( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Sets the bit in the 32-bit integer self.alert indexed by state.argument
@@ -151,7 +151,7 @@ Uint8 scr_TestAlertBit( script_state_t& state, ai_state_t& self )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_set_Alert( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetAlert( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Sets one or more bits of the self.alert variable given by the bitmask in tmpargument
@@ -196,7 +196,7 @@ Uint8 scr_TestAlert( script_state_t& state, ai_state_t& self )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_set_Bit( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetBit( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Sets the bit in the 32-bit tmpx variable with the offset given in tmpy
@@ -255,7 +255,7 @@ Uint8 scr_TestBit( script_state_t& state, ai_state_t& self )
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-Uint8 scr_set_Bits( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetBits( script_state_t& state, ai_state_t& self )
 {
     /// @author BB
     /// @details Adds the bits in the 32-bit tmpx based on the bitmask in tmpy
@@ -299,7 +299,7 @@ Uint8 scr_TestBits( script_state_t& state, ai_state_t& self )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Spawned( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfSpawned( script_state_t& state, ai_state_t& self )
 {
     // IfSpawned()
     /// @author ZZ
@@ -314,7 +314,7 @@ Uint8 scr_Spawned( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TimeOut( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTimeOut( script_state_t& state, ai_state_t& self )
 {
     // IfTimeOut()
     /// @author ZZ
@@ -330,7 +330,7 @@ Uint8 scr_TimeOut( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AtWaypoint( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfAtWaypoint( script_state_t& state, ai_state_t& self )
 {
     // IfAtWaypoint()
     /// @author ZZ
@@ -346,7 +346,7 @@ Uint8 scr_AtWaypoint( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AtLastWaypoint( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfAtLastWaypoint( script_state_t& state, ai_state_t& self )
 {
     // IfAtLastWaypoint()
     /// @author ZZ
@@ -362,7 +362,7 @@ Uint8 scr_AtLastWaypoint( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Attacked( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfAttacked( script_state_t& state, ai_state_t& self )
 {
     // IfAttacked()
     /// @author ZZ
@@ -378,7 +378,7 @@ Uint8 scr_Attacked( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Bumped( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfBumped( script_state_t& state, ai_state_t& self )
 {
     // IfBumped()
     /// @author ZZ
@@ -394,7 +394,7 @@ Uint8 scr_Bumped( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Ordered( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfOrdered( script_state_t& state, ai_state_t& self )
 {
     // IfOrdered()
     /// @author ZZ
@@ -410,7 +410,7 @@ Uint8 scr_Ordered( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CalledForHelp( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfCalledForHelp( script_state_t& state, ai_state_t& self )
 {
     // IfCalledForHelp()
     /// @author ZZ
@@ -426,7 +426,7 @@ Uint8 scr_CalledForHelp( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Content( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetContent( script_state_t& state, ai_state_t& self )
 {
     // SetContent( tmpargument )
     /// @author ZZ
@@ -442,7 +442,7 @@ Uint8 scr_set_Content( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Killed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfKilled( script_state_t& state, ai_state_t& self )
 {
     // IfKilled()
     /// @author ZZ
@@ -457,7 +457,7 @@ Uint8 scr_Killed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetKilled( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetKilled( script_state_t& state, ai_state_t& self )
 {
     // IfTargetKilled()
     /// @author ZZ
@@ -570,7 +570,7 @@ Uint8 scr_Compass( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetArmorPrice( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetTargetArmorPrice( script_state_t& state, ai_state_t& self )
 {
     // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
     /// @author ZZ
@@ -600,7 +600,7 @@ Uint8 scr_get_TargetArmorPrice( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Time( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTime( script_state_t& state, ai_state_t& self )
 {
     // SetTime( tmpargument = "time" )
     /// @author ZZ
@@ -615,7 +615,7 @@ Uint8 scr_set_Time( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_Content( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetContent( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetContent()
     /// @author ZZ
@@ -655,7 +655,7 @@ Uint8 scr_JoinTargetTeam( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearbyEnemy( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToNearbyEnemy( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearbyEnemy()
     /// @author ZZ
@@ -679,7 +679,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToTargetLeftHand( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToTargetLeftHand( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToTargetLeftHand()
     /// @author ZZ
@@ -705,7 +705,7 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToTargetRightHand( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToTargetRightHand( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToTargetRightHand()
     /// @author ZZ
@@ -731,7 +731,7 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverAttacked( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToWhoeverAttacked( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverAttacked()
     /// @author ZZ
@@ -752,7 +752,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverBumped( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToWhoeverBumped( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverBumped()
     /// @author ZZ
@@ -773,7 +773,7 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToWhoeverCalledForHelp( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverCalledForHelp()
     /// @author ZZ
@@ -803,7 +803,7 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t& state, ai_state_t& s
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToOldTarget( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToOldTarget( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToOldTarget()
     /// @author ZZ
@@ -825,7 +825,7 @@ Uint8 scr_set_TargetToOldTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TurnModeToVelocity( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTurnModeToVelocity( script_state_t& state, ai_state_t& self )
 {
     // SetTurnModeToVelocity()
     /// @author ZZ
@@ -839,7 +839,7 @@ Uint8 scr_set_TurnModeToVelocity( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TurnModeToWatch( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTurnModeToWatch( script_state_t& state, ai_state_t& self )
 {
     // SetTurnModeToWatch()
     /// @author ZZ
@@ -854,7 +854,7 @@ Uint8 scr_set_TurnModeToWatch( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TurnModeToSpin( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTurnModeToSpin( script_state_t& state, ai_state_t& self )
 {
     // SetTurnModeToSpin()
     /// @author ZZ
@@ -869,7 +869,7 @@ Uint8 scr_set_TurnModeToSpin( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_BumpHeight( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetBumpHeight( script_state_t& state, ai_state_t& self )
 {
     // SetBumpHeight( tmpargument = "height" )
     /// @author ZZ
@@ -884,7 +884,7 @@ Uint8 scr_set_BumpHeight( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasID( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasID( tmpargument = "idsz" )
     /// @author ZZ
@@ -899,7 +899,7 @@ Uint8 scr_TargetHasID( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasItemID( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasItemID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasItemID( tmpargument = "idsz" )
     /// @author ZZ
@@ -918,7 +918,7 @@ Uint8 scr_TargetHasItemID( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHoldingItemID( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHoldingItemID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHoldingItemID( tmpargument = "idsz" )
     /// @author ZZ
@@ -938,7 +938,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasSkillID( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasSkillID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasSkillID( tmpargument = "skill idsz" )
     /// @author ZZ
@@ -1182,7 +1182,7 @@ Uint8 scr_ClosePassage( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_PassageOpen( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfPassageOpen( script_state_t& state, ai_state_t& self )
 {
     // IfPassageOpen( tmpargument = "passage" )
     /// @author ZZ
@@ -1312,7 +1312,7 @@ Uint8 scr_DoActionOverride( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Healed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHealed( script_state_t& state, ai_state_t& self )
 {
     // IfHealed()
     /// @author ZZ
@@ -1375,7 +1375,7 @@ Uint8 scr_AddIDSZ( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_State( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetState( script_state_t& state, ai_state_t& self )
 {
     // SetState( tmpargument = "state" )
     /// @author ZZ
@@ -1391,7 +1391,7 @@ Uint8 scr_set_State( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_State( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetState( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetState()
     /// @author ZZ
@@ -1405,7 +1405,7 @@ Uint8 scr_get_State( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs( script_state_t& state, ai_state_t& self )
 {
     // IfStateIs( tmpargument = "state" )
     /// @author ZZ
@@ -1419,7 +1419,7 @@ Uint8 scr_StateIs( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetCanOpenStuff( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetCanOpenStuff( script_state_t& state, ai_state_t& self )
 {
     // IfTargetCanOpenStuff()
     /// @author ZZ
@@ -1455,7 +1455,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Grabbed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfGrabbed( script_state_t& state, ai_state_t& self )
 {
     // IfGrabbed()
     /// @author ZZ
@@ -1470,7 +1470,7 @@ Uint8 scr_Grabbed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Dropped( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfDropped( script_state_t& state, ai_state_t& self )
 {
     // IfDropped()
     /// @author ZZ
@@ -1485,7 +1485,7 @@ Uint8 scr_Dropped( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToWhoeverIsHolding( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverIsHolding()
     /// @author ZZ
@@ -1533,7 +1533,7 @@ Uint8 scr_DamageTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_XIsLessThanY( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfXIsLessThanY( script_state_t& state, ai_state_t& self )
 {
     // IfXIsLessThanY( tmpx, tmpy )
     /// @author ZZ
@@ -1547,7 +1547,7 @@ Uint8 scr_XIsLessThanY( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_WeatherTime( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetWeatherTime( script_state_t& state, ai_state_t& self )
 {
     // SetWeatherTime( tmpargument = "time" )
     /// @author ZZ
@@ -1564,7 +1564,7 @@ Uint8 scr_set_WeatherTime( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_BumpHeight( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetBumpHeight( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetBumpHeight()
     /// @author ZZ
@@ -1578,7 +1578,7 @@ Uint8 scr_get_BumpHeight( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Reaffirmed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfReaffirmed( script_state_t& state, ai_state_t& self )
 {
     // IfReaffirmed()
     /// @author ZZ
@@ -1607,7 +1607,7 @@ Uint8 scr_UnkeepAction( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOnOtherTeam( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsOnOtherTeam( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOnOtherTeam()
     /// @author ZZ
@@ -1625,7 +1625,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOnHatedTeam( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsOnHatedTeam( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOnHatedTeam()
     /// @author ZZ
@@ -1660,7 +1660,7 @@ Uint8 scr_PressLatchButton( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToTargetOfLeader( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToTargetOfLeader( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToTargetOfLeader()
     /// @author ZZ
@@ -1700,7 +1700,7 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_LeaderKilled( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfLeaderKilled( script_state_t& state, ai_state_t& self )
 {
     // IfLeaderKilled()
     /// @author ZZ
@@ -1815,7 +1815,7 @@ Uint8 scr_DropKeys( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_LeaderIsAlive( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfLeaderIsAlive( script_state_t& state, ai_state_t& self )
 {
     // IfLeaderIsAlive()
     /// @author ZZ
@@ -1829,7 +1829,7 @@ Uint8 scr_LeaderIsAlive( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOldTarget( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsOldTarget( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOldTarget()
     /// @author ZZ
@@ -1843,7 +1843,7 @@ Uint8 scr_TargetIsOldTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToLeader( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToLeader( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToLeader()
     /// @author ZZ
@@ -1947,7 +1947,7 @@ Uint8 scr_ChangeTile( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Used( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfUsed( script_state_t& state, ai_state_t& self )
 {
     // IfUsed()
     /// @author ZZ
@@ -1977,7 +1977,7 @@ Uint8 scr_DropMoney( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_OldTarget( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetOldTarget( script_state_t& state, ai_state_t& self )
 {
     // SetOldTarget()
     /// @author ZZ
@@ -2015,7 +2015,7 @@ Uint8 scr_DetachFromHolder( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasVulnerabilityID( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasVulnerabilityID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasVulnerabilityID( tmpargument = "vulnerability idsz" )
     /// @author ZZ
@@ -2058,7 +2058,7 @@ Uint8 scr_CleanUp( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CleanedUp( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfCleanedUp( script_state_t& state, ai_state_t& self )
 {
     // IfCleanedUp()
     /// @author ZZ
@@ -2073,7 +2073,7 @@ Uint8 scr_CleanedUp( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Sitting( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfSitting( script_state_t& state, ai_state_t& self )
 {
     // IfSitting()
     /// @author ZZ
@@ -2087,7 +2087,7 @@ Uint8 scr_Sitting( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsHurt( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsHurt( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsHurt()
     /// @author ZZ
@@ -2106,7 +2106,7 @@ Uint8 scr_TargetIsHurt( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAPlayer( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsAPlayer( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAPlayer()
     /// @author ZZ
@@ -2201,7 +2201,7 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAlive( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsAlive( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAlive()
     /// @author ZZ
@@ -2263,7 +2263,7 @@ Uint8 scr_ReaffirmCharacter( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsSelf( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsSelf( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsSelf()
     /// @author ZZ
@@ -2277,7 +2277,7 @@ Uint8 scr_TargetIsSelf( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsMale( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsMale( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsMale()
     /// @author ZZ
@@ -2294,7 +2294,7 @@ Uint8 scr_TargetIsMale( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsFemale( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsFemale( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsFemale()
     /// @author ZZ
@@ -2312,7 +2312,7 @@ Uint8 scr_TargetIsFemale( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToSelf( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToSelf( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToSelf()
     /// @author ZZ
@@ -2326,7 +2326,7 @@ Uint8 scr_set_TargetToSelf( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToRider( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToRider( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToRider()
     /// @author ZZ
@@ -2348,7 +2348,7 @@ Uint8 scr_set_TargetToRider( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_AttackTurn( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetAttackTurn( script_state_t& state, ai_state_t& self )
 {
     // tmpturn = GetAttackTurn()
     /// @author ZZ
@@ -2363,7 +2363,7 @@ Uint8 scr_get_AttackTurn( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_DamageType( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetDamageType( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetDamageType()
     /// @author ZZ
@@ -2431,7 +2431,7 @@ Uint8 scr_BecomeSpellbook( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ScoredAHit( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfScoredAHit( script_state_t& state, ai_state_t& self )
 {
     // IfScoredAHit()
     /// @author ZZ
@@ -2457,7 +2457,7 @@ Uint8 scr_ScoredAHit( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Disaffirmed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfDisaffirmed( script_state_t& state, ai_state_t& self )
 {
     // IfDisaffirmed()
     /// @author ZZ
@@ -2503,7 +2503,7 @@ Uint8 scr_TranslateOrder( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverWasHit( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToWhoeverWasHit( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverWasHit()
     /// @author ZZ
@@ -2524,7 +2524,7 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWideEnemy( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToWideEnemy( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWideEnemy()
     /// @author ZZ
@@ -2549,7 +2549,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Changed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfChanged( script_state_t& state, ai_state_t& self )
 {
     // IfChanged()
     /// @author ZZ
@@ -2564,7 +2564,7 @@ Uint8 scr_Changed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_InWater( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfInWater( script_state_t& state, ai_state_t& self )
 {
     // IfInWater()
     /// @author ZZ
@@ -2579,7 +2579,7 @@ Uint8 scr_InWater( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Bored( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfBored( script_state_t& state, ai_state_t& self )
 {
     // IfBored()
     /// @author ZZ
@@ -2593,7 +2593,7 @@ Uint8 scr_Bored( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TooMuchBaggage( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTooMuchBaggage( script_state_t& state, ai_state_t& self )
 {
     // IfTooMuchBaggage()
     /// @author ZZ
@@ -2609,7 +2609,7 @@ Uint8 scr_TooMuchBaggage( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Grogged( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfGrogged( script_state_t& state, ai_state_t& self )
 {
     // IfGrogged()
     /// @author ZZ
@@ -2624,7 +2624,7 @@ Uint8 scr_Grogged( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Dazed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfDazed( script_state_t& state, ai_state_t& self )
 {
     // IfDazed()
     /// @author ZZ
@@ -2639,7 +2639,7 @@ Uint8 scr_Dazed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasSpecialID( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasSpecialID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasSpecialID( tmpargument = "special idsz" )
     /// @author ZZ
@@ -2679,7 +2679,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Invisible( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfInvisible( script_state_t& state, ai_state_t& self )
 {
     // IfInvisible()
     /// @author ZZ
@@ -2693,7 +2693,7 @@ Uint8 scr_Invisible( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ArmorIs( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfArmorIs( script_state_t& state, ai_state_t& self )
 {
     // IfArmorIs( tmpargument = "skin" )
     /// @author ZZ
@@ -2710,7 +2710,7 @@ Uint8 scr_ArmorIs( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetGrogTime( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetTargetGrogTime( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetGrogTime()
     /// @author ZZ
@@ -2731,7 +2731,7 @@ Uint8 scr_get_TargetGrogTime( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetDazeTime( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetTargetDazeTime( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetDazeTime()
     /// @author ZZ
@@ -2752,7 +2752,7 @@ Uint8 scr_get_TargetDazeTime( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_DamageType( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetDamageType( script_state_t& state, ai_state_t& self )
 {
     // SetDamageType( tmpargument = "damage type" )
     /// @author ZZ
@@ -2766,7 +2766,7 @@ Uint8 scr_set_DamageType( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_WaterLevel( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetWaterLevel( script_state_t& state, ai_state_t& self )
 {
     // SetWaterLevel( tmpargument = "level" )
     /// @author ZZ
@@ -2843,7 +2843,7 @@ Uint8 scr_TeleportTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetExperience( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveExperienceToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveExperienceToTarget( tmpargument = "amount", tmpdistance = "type" )
     /// @author ZZ
@@ -2897,7 +2897,7 @@ Uint8 scr_UnkurseTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetTeamExperience( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveExperienceToTargetTeam( script_state_t& state, ai_state_t& self )
 {
     // GiveExperienceToTargetTeam( tmpargument = "amount", tmpdistance = "type" )
     /// @author ZZ
@@ -2913,7 +2913,7 @@ Uint8 scr_add_TargetTeamExperience( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Unarmed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfUnarmed( script_state_t& state, ai_state_t& self )
 {
     // IfUnarmed()
     /// @author ZZ
@@ -3022,7 +3022,7 @@ Uint8 scr_FlashTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_RedShift( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetRedShift( script_state_t& state, ai_state_t& self )
 {
     // SetRedShift( tmpargument = "red darkening" )
     /// @author ZZ
@@ -3037,7 +3037,7 @@ Uint8 scr_set_RedShift( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_GreenShift( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetGreenShift( script_state_t& state, ai_state_t& self )
 {
     // SetGreenShift( tmpargument = "green darkening" )
     /// @author ZZ
@@ -3052,7 +3052,7 @@ Uint8 scr_set_GreenShift( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_BlueShift( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetBlueShift( script_state_t& state, ai_state_t& self )
 {
     // SetBlueShift( tmpargument = "blue darkening" )
     /// @author ZZ
@@ -3067,7 +3067,7 @@ Uint8 scr_set_BlueShift( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Light( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetLight( script_state_t& state, ai_state_t& self )
 {
     // SetLight( tmpargument = "lighness" )
     /// @author ZZ
@@ -3082,7 +3082,7 @@ Uint8 scr_set_Light( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Alpha( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetAlpha( script_state_t& state, ai_state_t& self )
 {
     // SetAlpha( tmpargument = "alpha" )
     /// @author ZZ
@@ -3097,7 +3097,7 @@ Uint8 scr_set_Alpha( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitFromBehind( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHitFromBehind( script_state_t& state, ai_state_t& self )
 {
     // IfHitFromBehind()
     /// @author ZZ
@@ -3113,7 +3113,7 @@ Uint8 scr_HitFromBehind( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitFromFront( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHitFromFront( script_state_t& state, ai_state_t& self )
 {
     // IfHitFromFront()
     /// @author ZZ
@@ -3130,7 +3130,7 @@ Uint8 scr_HitFromFront( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitFromLeft( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHitFromLeft( script_state_t& state, ai_state_t& self )
 {
     // IfHitFromLeft()
     /// @author ZZ
@@ -3147,7 +3147,7 @@ Uint8 scr_HitFromLeft( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitFromRight( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHitFromRight( script_state_t& state, ai_state_t& self )
 {
     // IfHitFromRight()
     /// @author ZZ
@@ -3164,7 +3164,7 @@ Uint8 scr_HitFromRight( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOnSameTeam( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsOnSameTeam( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOnSameTeam()
     /// @author ZZ
@@ -3227,7 +3227,7 @@ Uint8 scr_UndoEnchant( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_WaterLevel( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetWaterLevel( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetWaterLevel()
     /// @author ZZ
@@ -3263,7 +3263,7 @@ Uint8 scr_CostTargetMana( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasAnyID( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasAnyID( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasAnyID( tmpargument = "idsz" )
     /// @author ZZ
@@ -3277,7 +3277,7 @@ Uint8 scr_TargetHasAnyID( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_BumpSize( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetBumpSize( script_state_t& state, ai_state_t& self )
 {
     // SetBumpSize( tmpargument = "size" )
     /// @author ZZ
@@ -3291,7 +3291,7 @@ Uint8 scr_set_BumpSize( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_NotDropped( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfNotDropped( script_state_t& state, ai_state_t& self )
 {
     // IfNotDropped()
     /// @author ZZ
@@ -3306,7 +3306,7 @@ Uint8 scr_NotDropped( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_YIsLessThanX( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfYIsLessThanX( script_state_t& state, ai_state_t& self )
 {
     // IfYIsLessThanX()
     /// @author ZZ
@@ -3320,7 +3320,7 @@ Uint8 scr_YIsLessThanX( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_FlyHeight( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetFlyHeight( script_state_t& state, ai_state_t& self )
 {
     // SetFlyHeight( tmpargument = "height" )
     /// @author ZZ
@@ -3334,7 +3334,7 @@ Uint8 scr_set_FlyHeight( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Blocked( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfBlocked( script_state_t& state, ai_state_t& self )
 {
     // IfBlocked()
     /// @author ZZ
@@ -3349,7 +3349,7 @@ Uint8 scr_Blocked( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsDefending( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsDefending( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsDefending()
     /// @author ZZ
@@ -3368,7 +3368,7 @@ Uint8 scr_TargetIsDefending( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAttacking( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsAttacking( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAttacking()
     /// @author ZZ
@@ -3386,7 +3386,7 @@ Uint8 scr_TargetIsAttacking( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs0( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs0( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3396,7 +3396,7 @@ Uint8 scr_StateIs0( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs1( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs1( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3406,7 +3406,7 @@ Uint8 scr_StateIs1( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs2( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs2( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3416,7 +3416,7 @@ Uint8 scr_StateIs2( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs3( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs3( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3426,7 +3426,7 @@ Uint8 scr_StateIs3( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs4( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs4( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3436,7 +3436,7 @@ Uint8 scr_StateIs4( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs5( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs5( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3446,7 +3446,7 @@ Uint8 scr_StateIs5( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs6( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs6( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3456,7 +3456,7 @@ Uint8 scr_StateIs6( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs7( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs7( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3466,7 +3466,7 @@ Uint8 scr_StateIs7( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ContentIs( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfContentIs( script_state_t& state, ai_state_t& self )
 {
     // IfContentIs( tmpargument = "test" )
     /// @author ZZ
@@ -3480,7 +3480,7 @@ Uint8 scr_ContentIs( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TurnModeToWatchTarget( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTurnModeToWatchTarget( script_state_t& state, ai_state_t& self )
 {
     // SetTurnModeToWatchTarget()
     /// @author ZZ
@@ -3495,7 +3495,7 @@ Uint8 scr_set_TurnModeToWatchTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIsNot( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIsNot( script_state_t& state, ai_state_t& self )
 {
     // IfStateIsNot( tmpargument = "test" )
     /// @author ZZ
@@ -3509,7 +3509,7 @@ Uint8 scr_StateIsNot( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_XIsEqualToY( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfXIsEqualToY( script_state_t& state, ai_state_t& self )
 {
     // These functions proceed if tmpx and tmpy are the same
 
@@ -3587,7 +3587,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitGround( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHitGround( script_state_t& state, ai_state_t& self )
 {
     // IfHitGround()
     /// @author ZZ
@@ -3602,7 +3602,7 @@ Uint8 scr_HitGround( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_NameIsKnown( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfNameIsKnown( script_state_t& state, ai_state_t& self )
 {
     // IfNameIsKnown()
     /// @author ZZ
@@ -3616,7 +3616,7 @@ Uint8 scr_NameIsKnown( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_UsageIsKnown( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfUsageIsKnown( script_state_t& state, ai_state_t& self )
 {
     // IfUsageIsKnown()
     /// @author ZZ
@@ -3630,7 +3630,7 @@ Uint8 scr_UsageIsKnown( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HoldingItemID( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHoldingItemID( script_state_t& state, ai_state_t& self )
 {
     // IfHoldingItemID( tmpargument = "idsz" )
     /// @author ZZ
@@ -3647,7 +3647,7 @@ Uint8 scr_HoldingItemID( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HoldingRangedWeapon( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHoldingRangedWeapon( script_state_t& state, ai_state_t& self )
 {
     // IfHoldingRangedWeapon()
     /// @author ZZ
@@ -3691,7 +3691,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HoldingMeleeWeapon( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHoldingMeleeWeapon( script_state_t& state, ai_state_t& self )
 {
     // IfHoldingMeleeWeapon()
     /// @author ZZ
@@ -3738,7 +3738,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HoldingShield( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHoldingShield( script_state_t& state, ai_state_t& self )
 {
     // IfHoldingShield()
     /// @author ZZ
@@ -3782,7 +3782,7 @@ Uint8 scr_HoldingShield( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Kursed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfKursed( script_state_t& state, ai_state_t& self )
 {
     // IfKursed()
     /// @author ZZ
@@ -3796,7 +3796,7 @@ Uint8 scr_Kursed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsKursed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsKursed( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsKursed()
     /// @author ZZ
@@ -3814,7 +3814,7 @@ Uint8 scr_TargetIsKursed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsDressedUp( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsDressedUp( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsDressedUp()
     /// @author ZZ
@@ -3828,7 +3828,7 @@ Uint8 scr_TargetIsDressedUp( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OverWater( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfOverWater( script_state_t& state, ai_state_t& self )
 {
     // IfOverWater()
     /// @author ZZ
@@ -3842,7 +3842,7 @@ Uint8 scr_OverWater( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Thrown( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfThrown( script_state_t& state, ai_state_t& self )
 {
     // IfThrown()
     /// @author ZZ
@@ -3910,7 +3910,7 @@ Uint8 scr_StopTargetMovement( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_XY( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetXY( script_state_t& state, ai_state_t& self )
 {
     // SetXY( tmpargument = "index", tmpx = "x", tmpy = "y" )
     /// @author ZZ
@@ -3926,7 +3926,7 @@ Uint8 scr_set_XY( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_XY( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetXY( script_state_t& state, ai_state_t& self )
 {
     // tmpx,tmpy = GetXY( tmpargument = "index" )
     /// @author ZZ
@@ -4050,9 +4050,9 @@ Uint8 scr_AccelerateTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_distanceIsMoreThanTurn( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfDistanceIsMoreThanTurn( script_state_t& state, ai_state_t& self )
 {
-    // IfdistanceIsMoreThanTurn()
+    // IfDistanceIsMoreThanTurn()
     /// @author ZZ
     /// @details This function proceeds tmpdistance is greater than tmpturn
 
@@ -4064,7 +4064,7 @@ Uint8 scr_distanceIsMoreThanTurn( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Crushed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfCrushed( script_state_t& state, ai_state_t& self )
 {
     // IfCrushed()
     /// @author ZZ
@@ -4094,7 +4094,7 @@ Uint8 scr_MakeCrushValid( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToLowestTarget( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToLowestTarget( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToLowestTarget()
     /// @author ZZ
@@ -4119,7 +4119,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_NotPutAway( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfNotPutAway( script_state_t& state, ai_state_t& self )
 {
     // IfNotPutAway()
     /// @author ZZ
@@ -4135,7 +4135,7 @@ Uint8 scr_NotPutAway( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TakenOut( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTakenOut( script_state_t& state, ai_state_t& self )
 {
     // IfTakenOut()
     /// @author ZZ
@@ -4151,7 +4151,7 @@ Uint8 scr_TakenOut( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_AmmoOut( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfAmmoOut( script_state_t& state, ai_state_t& self )
 {
     // IfAmmoOut()
     /// @author ZZ
@@ -4239,7 +4239,7 @@ Uint8 scr_Equip( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasItemIDEquipped( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasItemIDEquipped( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasItemIDEquipped( tmpargument = "item idsz" )
     /// @author ZZ
@@ -4257,7 +4257,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_OwnerToTarget( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetOwnerToTarget( script_state_t& state, ai_state_t& self )
 {
     // SetOwnerToTarget()
     /// @author ZZ
@@ -4272,7 +4272,7 @@ Uint8 scr_set_OwnerToTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToOwner( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToOwner( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToOwner()
     /// @author ZZ
@@ -4294,7 +4294,7 @@ Uint8 scr_set_TargetToOwner( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Frame( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetFrame( script_state_t& state, ai_state_t& self )
 {
     // SetFrame( tmpargument = "frame" )
     /// @author ZZ
@@ -4331,7 +4331,7 @@ Uint8 scr_BreakPassage( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ReloadTime( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetReloadTime( script_state_t& state, ai_state_t& self )
 {
     // SetReloadTime( tmpargument = "time" )
     /// @author ZZ
@@ -4346,7 +4346,7 @@ Uint8 scr_set_ReloadTime( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWideBlahID( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToWideBlahID( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWideBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
     /// @author ZZ
@@ -4453,7 +4453,7 @@ Uint8 scr_SpawnPoof( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_SpeedPercent( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetSpeedPercent( script_state_t& state, ai_state_t& self )
 {
     // SetSpeedPercent( tmpargument = "percent" )
     /// @author ZZ
@@ -4468,7 +4468,7 @@ Uint8 scr_set_SpeedPercent( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ChildState( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetChildState( script_state_t& state, ai_state_t& self )
 {
     // SetChildState( tmpargument = "state" )
     /// @author ZZ
@@ -4556,7 +4556,7 @@ Uint8 scr_ShowTimer( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_FacingTarget( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfFacingTarget( script_state_t& state, ai_state_t& self )
 {
     // IfFacingTarget()
     /// @author ZZ
@@ -4622,7 +4622,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIsOdd( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIsOdd( script_state_t& state, ai_state_t& self )
 {
     // IfStateIsOdd()
     /// @author ZZ
@@ -4636,7 +4636,7 @@ Uint8 scr_StateIsOdd( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToDistantEnemy( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToDistantEnemy( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToDistantEnemy( tmpdistance = "distance" )
     /// @author ZZ
@@ -4677,7 +4677,7 @@ Uint8 scr_Teleport( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetStrength( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveStrengthToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveStrengthToTarget()
     // Permanently boost the target's strength
@@ -4697,7 +4697,7 @@ Uint8 scr_add_TargetStrength( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetIntelligence( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveIntelligenceToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveIntelligenceToTarget()
     // Permanently boost the target's intelligence
@@ -4717,7 +4717,7 @@ Uint8 scr_add_TargetIntelligence( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetDexterity( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveDexterityToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveDexterityToTarget()
     // Permanently boost the target's dexterity
@@ -4737,7 +4737,7 @@ Uint8 scr_add_TargetDexterity( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetLife( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveLifeToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveLifeToTarget()
     /// @author ZZ
@@ -4759,7 +4759,7 @@ Uint8 scr_add_TargetLife( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetMana( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveManaToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveManaToTarget()
     /// @author ZZ
@@ -4954,7 +4954,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetReloadTime( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetReloadTime( script_state_t& state, ai_state_t& self )
 {
     // SetTargetReloadTime( tmpargument = "time" )
 
@@ -4981,7 +4981,7 @@ Uint8 scr_set_TargetReloadTime( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_FogLevel( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetFogLevel( script_state_t& state, ai_state_t& self )
 {
     // SetFogLevel( tmpargument = "level" )
     /// @author ZZ
@@ -5003,7 +5003,7 @@ Uint8 scr_set_FogLevel( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_FogLevel( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetFogLevel( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetFogLevel()
     /// @author ZZ
@@ -5018,7 +5018,7 @@ Uint8 scr_get_FogLevel( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_FogTAD( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetFogTAD( script_state_t& state, ai_state_t& self )
 {
     /// @author ZZ
     /// @details This function sets the color of the module's fog.
@@ -5036,7 +5036,7 @@ Uint8 scr_set_FogTAD( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_FogBottomLevel( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetFogBottomLevel( script_state_t& state, ai_state_t& self )
 {
     // SetFogBottomLevel( tmpargument = "level" )
 
@@ -5058,7 +5058,7 @@ Uint8 scr_set_FogBottomLevel( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_FogBottomLevel( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetFogBottomLevel( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetFogBottomLevel()
 
@@ -5101,7 +5101,7 @@ Uint8 scr_CorrectActionForHand( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsMounted( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsMounted( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsMounted()
     /// @author ZZ
@@ -5163,7 +5163,7 @@ Uint8 scr_UnsparkleIcon( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TileXY( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetTileXY( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTileXY( tmpx = "x", tmpy = "y" )
     /// @author ZZ
@@ -5186,9 +5186,9 @@ Uint8 scr_get_TileXY( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TileXY( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTileXY( script_state_t& state, ai_state_t& self )
 {
-    // scr_set_TileXY( tmpargument = "tile type", tmpx = "x", tmpy = "y" )
+    // SetTileXY( tmpargument = "tile type", tmpx = "x", tmpy = "y" )
     /// @author ZZ
     /// @details This function changes the tile type at the specified coordinates
 
@@ -5201,7 +5201,7 @@ Uint8 scr_set_TileXY( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ShadowSize( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetShadowSize( script_state_t& state, ai_state_t& self )
 {
     // SetShadowSize( tmpargument = "size" )
     /// @author ZZ
@@ -5242,7 +5242,7 @@ Uint8 scr_OrderTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToWhoeverIsInPassage( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToWhoeverIsInPassage()
     /// @author ZZ
@@ -5271,7 +5271,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t& state, ai_state_t& sel
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_CharacterWasABook( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfCharacterWasABook( script_state_t& state, ai_state_t& self )
 {
     // IfCharacterWasABook()
     /// @author ZZ
@@ -5288,7 +5288,7 @@ Uint8 scr_CharacterWasABook( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_EnchantBoostValues( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetEnchantBoostValues( script_state_t& state, ai_state_t& self )
 {
     // SetEnchantBoostValues( tmpargument = "owner mana regen", tmpdistance = "owner life regen", tmpx = "target mana regen", tmpy = "target life regen" )
     /// @author ZZ
@@ -5568,7 +5568,7 @@ Uint8 scr_UnkurseTargetInventory( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsSneaking( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsSneaking( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsSneaking()
     /// @author ZZ
@@ -5650,7 +5650,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetCanSeeInvisible( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetCanSeeInvisible( script_state_t& state, ai_state_t& self )
 {
     // IfTargetCanSeeInvisible()
     /// @author ZZ
@@ -5668,7 +5668,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearestBlahID( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToNearestBlahID( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearestBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
 
@@ -5696,7 +5696,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearestEnemy( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToNearestEnemy( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearestEnemy()
     /// @author ZZ
@@ -5721,7 +5721,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearestFriend( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToNearestFriend( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearestFriend()
     /// @author ZZ
@@ -5746,7 +5746,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearestLifeform( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToNearestLifeform( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToNearestLifeform()
 
@@ -5811,7 +5811,7 @@ Uint8 scr_FindTileInPassage( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HeldInLeftHand( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHeldInLeftHand( script_state_t& state, ai_state_t& self )
 {
     // IfHeldInLeftHand()
     /// @author ZZ
@@ -5847,7 +5847,7 @@ Uint8 scr_NotAnItem( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ChildAmmo( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetChildAmmo( script_state_t& state, ai_state_t& self )
 {
     // SetChildAmmo( tmpargument = "none" )
     /// @author ZZ
@@ -5861,7 +5861,7 @@ Uint8 scr_set_ChildAmmo( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HitVulnerable( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHitVulnerable( script_state_t& state, ai_state_t& self )
 {
     // IfHitVulnerable()
     /// @author ZZ
@@ -5877,7 +5877,7 @@ Uint8 scr_HitVulnerable( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsFlying( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsFlying( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsFlying()
     /// @author ZZ
@@ -5973,7 +5973,7 @@ Uint8 scr_EnableExport( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetState( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetTargetState( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetState()
     /// @author ZZ
@@ -5991,7 +5991,7 @@ Uint8 scr_get_TargetState( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Equipped( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfEquipped( script_state_t& state, ai_state_t& self )
 {
     // This proceeds if the character is equipped
 
@@ -6017,7 +6017,7 @@ Uint8 scr_DropTargetMoney( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetContent( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetTargetContent( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetContent()
     // This sets tmpargument to the current Target's content value
@@ -6139,7 +6139,7 @@ Uint8 scr_PlayMusic( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_MusicPassage( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetMusicPassage( script_state_t& state, ai_state_t& self )
 {
     // SetMusicPassage( tmpargument = "passage", tmpturn = "type", tmpdistance = "repetitions" )
 
@@ -6271,7 +6271,7 @@ Uint8 scr_FlashVariableHeight( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_DamageTime( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetDamageTime( script_state_t& state, ai_state_t& self )
 {
     // SetDamageTime( tmpargument = "time" )
     /// @author ZZ
@@ -6285,7 +6285,7 @@ Uint8 scr_set_DamageTime( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs8( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs8( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6295,7 +6295,7 @@ Uint8 scr_StateIs8( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs9( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs9( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6305,7 +6305,7 @@ Uint8 scr_StateIs9( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs10( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs10( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6315,7 +6315,7 @@ Uint8 scr_StateIs10( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs11( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs11( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6325,7 +6325,7 @@ Uint8 scr_StateIs11( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs12( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs12( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6335,7 +6335,7 @@ Uint8 scr_StateIs12( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs13( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs13( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6345,7 +6345,7 @@ Uint8 scr_StateIs13( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs14( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs14( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6355,7 +6355,7 @@ Uint8 scr_StateIs14( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_StateIs15( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStateIs15( script_state_t& state, ai_state_t& self )
 {
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6365,7 +6365,7 @@ Uint8 scr_StateIs15( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAMount( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsAMount( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAMount()
     /// @author ZZ
@@ -6383,7 +6383,7 @@ Uint8 scr_TargetIsAMount( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAPlatform( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsAPlatform( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAPlatform()
     /// @author ZZ
@@ -6452,7 +6452,7 @@ Uint8 scr_DisenchantAll( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_VolumeNearestTeammate( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetVolumeNearestTeammate( script_state_t& state, ai_state_t& self )
 {
     // SetVolumeNearestTeammate( tmpargument = "sound", tmpdistance = "distance" )
     /// @author ZZ
@@ -6620,7 +6620,7 @@ Uint8 scr_PitsKill( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToPassageID( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToPassageID( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToPassageID( tmpargument = "passage", tmpdistance = "idsz" )
     /// @author ZZ
@@ -6757,7 +6757,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_GoodTeamExperience( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveExperienceToGoodTeam( script_state_t& state, ai_state_t& self )
 {
     // GiveExperienceToGoodTeam(  tmpargument = "amount", tmpdistance = "type" )
     /// @author ZZ
@@ -6865,7 +6865,7 @@ Uint8 scr_DisableRespawn( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HolderBlocked( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfHolderBlocked( script_state_t& state, ai_state_t& self )
 {
     // IfHolderBlocked()
     /// @author ZF
@@ -6908,7 +6908,7 @@ Uint8 scr_HolderBlocked( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasNotFullMana( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasNotFullMana( script_state_t& state, ai_state_t& self )
 {
     // IfTargetHasNotFullMana()
     /// @author ZF
@@ -6947,7 +6947,7 @@ Uint8 scr_EnableListenSkill( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToLastItemUsed( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToLastItemUsed( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToLastItemUsed()
     /// @author ZF
@@ -6988,7 +6988,7 @@ Uint8 scr_FollowLink( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OperatorIsLinux( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfOperatorIsLinux( script_state_t& state, ai_state_t& self )
 {
     // IfOperatorIsLinux()
     /// @author ZF
@@ -7006,7 +7006,7 @@ Uint8 scr_OperatorIsLinux( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsAWeapon( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsAWeapon( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsAWeapon()
     /// @author ZF
@@ -7022,7 +7022,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SomeoneIsStealing( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfSomeoneIsStealing( script_state_t& state, ai_state_t& self )
 {
     // IfSomeoneIsStealing()
     /// @author ZF
@@ -7036,7 +7036,7 @@ Uint8 scr_SomeoneIsStealing( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsASpell( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsASpell( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsASpell()
     /// @author ZF
@@ -7061,7 +7061,7 @@ Uint8 scr_TargetIsASpell( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Backstabbed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfBackstabbed( script_state_t& state, ai_state_t& self )
 {
     // IfBackstabbed()
     /// @author ZF
@@ -7097,7 +7097,7 @@ Uint8 scr_Backstabbed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_get_TargetDamageType( script_state_t& state, ai_state_t& self )
+Uint8 scr_GetTargetDamageType( script_state_t& state, ai_state_t& self )
 {
     // tmpargument = GetTargetDamageType()
     /// @author ZF
@@ -7175,7 +7175,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetHasQuest( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetHasQuest( script_state_t& state, ai_state_t& self )
 {
     // tmpdistance = IfTargetHasQuest( tmpargument = "quest idsz )
     /// @author ZF
@@ -7211,7 +7211,7 @@ Uint8 scr_TargetHasQuest( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_QuestLevel( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetQuestLevel( script_state_t& state, ai_state_t& self )
 {
     // SetQuestLevel( tmpargument = "idsz", distance = "adjustment" )
     /// @author ZF
@@ -7320,7 +7320,7 @@ Uint8 scr_PitsFall( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsOwner( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsOwner( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsOwner()
     /// @author ZF
@@ -7439,7 +7439,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToChild( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToChild( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToChild()
     /// @author ZF
@@ -7460,7 +7460,7 @@ Uint8 scr_set_TargetToChild( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_DamageThreshold( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetDamageThreshold( script_state_t& state, ai_state_t& self )
 {
     // SetDamageThreshold()
     /// @author ZF
@@ -7503,7 +7503,7 @@ Uint8 scr_TakePicture( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Speech( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7524,7 +7524,7 @@ Uint8 scr_set_Speech( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_MoveSpeech( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetMoveSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetMoveSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7541,7 +7541,7 @@ Uint8 scr_set_MoveSpeech( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_SecondMoveSpeech( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetSecondMoveSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetSecondMoveSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7557,7 +7557,7 @@ Uint8 scr_set_SecondMoveSpeech( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_AttackSpeech( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetAttackSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetAttacksSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7573,7 +7573,7 @@ Uint8 scr_set_AttackSpeech( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_AssistSpeech( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetAssistSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetAssistSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7589,7 +7589,7 @@ Uint8 scr_set_AssistSpeech( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TerrainSpeech( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTerrainSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetTerrainSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7605,7 +7605,7 @@ Uint8 scr_set_TerrainSpeech( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_SelectSpeech( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetSelectSpeech( script_state_t& state, ai_state_t& self )
 {
     // SetSelectSpeech( tmpargument = "sound" )
     /// @author ZZ
@@ -7621,7 +7621,7 @@ Uint8 scr_set_SelectSpeech( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_OperatorIsMacintosh( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfOperatorIsMacintosh( script_state_t& state, ai_state_t& self )
 {
     // IfOperatorIsMacintosh()
     /// @author ZF
@@ -7639,7 +7639,7 @@ Uint8 scr_OperatorIsMacintosh( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_ModuleHasIDSZ( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfModuleHasIDSZ( script_state_t& state, ai_state_t& self )
 {
     // IfModuleHasIDSZ( tmpargument = "message number with module name", tmpdistance = "idsz" )
 
@@ -7689,7 +7689,7 @@ Uint8 scr_MorphToTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetManaFlow( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveManaFlowToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveManaFlowToTarget()
     /// @author ZF
@@ -7710,7 +7710,7 @@ Uint8 scr_add_TargetManaFlow( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetManaReturn( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveManaReturnToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveManaReturnToTarget()
     /// @author ZF
@@ -7731,7 +7731,7 @@ Uint8 scr_add_TargetManaReturn( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_Money( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetMoney( script_state_t& state, ai_state_t& self )
 {
     // SetMoney()
     /// @author ZF
@@ -7745,7 +7745,7 @@ Uint8 scr_set_Money( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetCanSeeKurses( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetCanSeeKurses( script_state_t& state, ai_state_t& self )
 {
     // IfTargetCanSeeKurses()
     /// @author ZF
@@ -7810,7 +7810,7 @@ Uint8 scr_KurseTarget( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_ChildContent( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetChildContent( script_state_t& state, ai_state_t& self )
 {
     // SetChildContent( tmpargument = "content" )
     /// @author ZF
@@ -7843,7 +7843,7 @@ Uint8 scr_AccelerateTargetUp( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetAmmo( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetAmmo( script_state_t& state, ai_state_t& self )
 {
     // SetTargetAmmo( tmpargument = "ammo" )
     /// @author ZF
@@ -7914,9 +7914,9 @@ Uint8 scr_TargetDamageSelf( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetSize( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetSize( script_state_t& state, ai_state_t& self )
 {
-    // SetSize( tmpargument = "percent" )
+    // SetTargetSize( tmpargument = "percent" )
     /// @author ZF
     /// @details This changes the AI target's size
 
@@ -7972,7 +7972,7 @@ Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToBlahInPassage( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToBlahInPassage( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToBlahInPassage()
     /// @author ZF
@@ -7997,7 +7997,7 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_TargetIsFacingSelf( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfTargetIsFacingSelf( script_state_t& state, ai_state_t& self )
 {
     // IfTargetIsFacingSelf()
     /// @author ZF
@@ -8017,7 +8017,7 @@ Uint8 scr_TargetIsFacingSelf( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_LevelUp( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfLevelUp( script_state_t& state, ai_state_t& self )
 {
     // IfLevelUp()
     /// @author ZF
@@ -8030,7 +8030,7 @@ Uint8 scr_LevelUp( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetSkill( script_state_t& state, ai_state_t& self )
+Uint8 scr_GiveSkillToTarget( script_state_t& state, ai_state_t& self )
 {
     // GiveSkillToTarget( tmpargument = "skill_IDSZ" )
     /// @author ZF
@@ -8060,7 +8060,7 @@ Uint8 scr_add_TargetSkill( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t& state, ai_state_t& self )
+Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t& state, ai_state_t& self )
 {
     CHR_REF best_target;
 
@@ -8113,7 +8113,7 @@ Uint8 scr_DisableStealth( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_Stealthed( script_state_t& state, ai_state_t& self )
+Uint8 scr_IfStealthed( script_state_t& state, ai_state_t& self )
 {
     // IfStealthed()
     /// @author ZF
@@ -8127,7 +8127,7 @@ Uint8 scr_Stealthed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-uint8_t scr_set_TargetToDistantFriend( script_state_t& state, ai_state_t& self )
+uint8_t scr_SetTargetToDistantFriend( script_state_t& state, ai_state_t& self )
 {
     // SetTargetToDistantFriend( tmpdistance = "distance" )
     /// @author ZF
