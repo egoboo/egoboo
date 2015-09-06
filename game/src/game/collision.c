@@ -2072,7 +2072,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
         // Tell the players that the attack was somehow deflected
         if(0 == pdata->pchr->damage_timer) 
         {
-            spawn_defense_ping(pdata->pchr, pdata->pprt->owner_ref);
+            ParticleHandler::get().spawnDefencePing(pdata->pchr->toSharedPointer(), _currentModule->getObjectHandler()[pdata->pprt->owner_ref]);
             if(using_shield) {
                 chr_make_text_billboard(pdata->pchr->getCharacterID(), "Blocked!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
             }

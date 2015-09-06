@@ -675,49 +675,6 @@ void drop_money( const CHR_REF character, int money )
 }
 
 //--------------------------------------------------------------------------------------------
-void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
-{
-    /// @author ZF
-    /// @details Spawn a defend particle
-    if ( 0 != pchr->damage_timer ) return;
-
-    ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
-
-    pchr->damage_timer    = DEFENDTIME;
-    SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
-    pchr->ai.attacklast = attacker;                 // For the ones attacking a shield
-}
-
-//--------------------------------------------------------------------------------------------
-void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
-{
-    /// @author ZZ
-    /// @details This function spawns a character poof
-
-    FACING_T facing_z;
-    CHR_REF  origin;
-    int      cnt;
-
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(profileRef);
-    if (!profile) return;
-
-    origin = pchr->ai.owner;
-    facing_z   = pchr->ori.facing_z;
-    for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
-    {
-        ParticleHandler::get().spawnParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
-                            INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt);
-
-        facing_z += profile->getParticlePoofFacingAdd();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void update_all_characters()
 {
     /// @author ZZ

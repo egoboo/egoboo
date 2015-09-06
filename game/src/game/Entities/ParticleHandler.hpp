@@ -212,6 +212,10 @@ public:
     const oglx_texture_t* getLightParticleTexture();
     const oglx_texture_t* getTransparentParticleTexture();
 
+    void spawnPoof(const std::shared_ptr<Object> &object);
+
+    void spawnDefencePing(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &attacker);
+
 private:
     std::shared_ptr<Ego::Particle> getFreeParticle(bool force);
 

@@ -144,9 +144,6 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
-void spawn_poof( const CHR_REF character, const PRO_REF profile );
-void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
-
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
 void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile);

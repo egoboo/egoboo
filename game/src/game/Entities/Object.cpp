@@ -475,8 +475,8 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         //but don't do message and ping for mounts, it's just irritating
         if ( !isMount() && 0 == damage_timer )
         {
-            //Dark green text
-            spawn_defense_ping(this, attacker ? attacker->getCharacterID() : INVALID_CHR_REF);
+            //Ping!
+            ParticleHandler::get().spawnDefencePing(toSharedPointer(), attacker);
 
             //Only draw "Immune!" if we are truly completely immune and it was not simply a weak attack
             if(HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || damage.base + damage.rand <= damage_threshold) {
@@ -1851,7 +1851,7 @@ void Object::respawn()
 
     const std::shared_ptr<ObjectProfile> &profile = getProfile();
 
-    spawn_poof( getCharacterID(), _profileID );
+    ParticleHandler::get().spawnPoof(this->toSharedPointer());
     disaffirm_attached_particles( getCharacterID() );
 
     _isAlive = true;

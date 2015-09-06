@@ -4481,7 +4481,7 @@ Uint8 scr_SpawnPoof( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    spawn_poof( self.index, pchr->getProfileID() );
+    ParticleHandler::get().spawnPoof(pchr->toSharedPointer());
 
     SCRIPT_FUNCTION_END();
 }
@@ -6782,7 +6782,8 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
         ppip->damage.from           = FP8_TO_FLOAT( state.argument );
         ppip->damage.to             = ppip->damage.from + damage_rand;
 
-        spawn_poof( self.index, pchr->getProfileID() );
+        ParticleHandler::get().spawnPoof(pchr->toSharedPointer());
+
 
         // Restore the saved values
         ppip->vel_hrz_pair.base     = iTmp;
