@@ -47,6 +47,7 @@ class CharacterWindow : public InternalWindow
 
         void buildCharacterStatisticTab();
         void buildKnownPerksTab();
+        void buildActiveEnchantsTab();
 
     private:
         std::shared_ptr<Object> _character;
@@ -55,6 +56,7 @@ class CharacterWindow : public InternalWindow
 
         std::vector<std::shared_ptr<GUIComponent>> _characterStatisticsTab;
         std::vector<std::shared_ptr<GUIComponent>> _knownPerksTab;
+        std::vector<std::shared_ptr<GUIComponent>> _activeEnchantsTab;
 };
 
 } //GUI

@@ -21,12 +21,14 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     _levelUpButton(nullptr),
     _levelUpWindow(),
     _characterStatisticsTab(),
-    _knownPerksTab()    
+    _knownPerksTab(),
+    _activeEnchantsTab()
 {
     setSize(400, 320);
 
     buildCharacterStatisticTab();
     buildKnownPerksTab();
+    buildActiveEnchantsTab();
 
     setComponentList(_characterStatisticsTab);
 }
@@ -253,6 +255,15 @@ void CharacterWindow::buildCharacterStatisticTab()
         setComponentList(_knownPerksTab);
     });
     _characterStatisticsTab.push_back(perksTab);
+
+    //Active enchants tab
+    std::shared_ptr<Button> enchantsTab = std::make_shared<Button>("Enchants");
+    enchantsTab->setSize(120, 30);
+    enchantsTab->setPosition(getWidth() - enchantsTab->getWidth(), getHeight() - enchantsTab->getHeight() - 15);
+    enchantsTab->setOnClickFunction([this]{
+        setComponentList(_activeEnchantsTab);
+    });
+    _characterStatisticsTab.push_back(enchantsTab);
 }
 
 void CharacterWindow::buildKnownPerksTab()
@@ -308,6 +319,34 @@ void CharacterWindow::buildKnownPerksTab()
     }
 
     perksKnown->forceUpdate();
+}
+
+void CharacterWindow::buildActiveEnchantsTab()
+{
+    //List of perks known
+    std::shared_ptr<ScrollableList> activeEnchants = std::make_shared<ScrollableList>();
+    activeEnchants->setSize(getWidth() - 60, getHeight() * 0.60f);
+    activeEnchants->setPosition(10, 40);
+    _activeEnchantsTab.push_back(activeEnchants);
+
+    //Count number of unique enchants and merge all others
+    std::unordered_map<std::string, int> enchantCount;
+    for(const std::shared_ptr<Ego::Enchantment> &enchant : _character->getActiveEnchants()) {
+        if(!enchant->getProfile()->getEnchantName().empty()) {
+            enchantCount[enchant->getProfile()->getEnchantName()] += 1;
+        }
+        else {
+            enchantCount["Miscellaneous"] += 1;
+        }
+    }
+
+    for(const auto& element : enchantCount) {
+        std::string prefix = element.second > 1 ? "x"+std::to_string(element.second) + " " : "";
+
+        std::shared_ptr<Button> button = std::make_shared<Button>(prefix + element.first);
+        button->setSize(activeEnchants->getWidth() - 50, activeEnchants->getHeight() / 6);
+        activeEnchants->addComponent(button);
+    }
 }
 
 } //GUI
