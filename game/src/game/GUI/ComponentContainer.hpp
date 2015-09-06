@@ -134,6 +134,8 @@ public:
 protected:
     virtual void drawContainer() = 0;
 
+    void setComponentList(const std::vector<std::shared_ptr<GUIComponent>> &list);
+
 private:
     /**
     * @brief

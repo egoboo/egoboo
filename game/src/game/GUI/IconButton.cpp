@@ -25,7 +25,8 @@
 #include "egolib/Renderer/DeferredOpenGLTexture.hpp"
 
 IconButton::IconButton(const std::string &buttonText, const Ego::DeferredOpenGLTexture& icon, int hotkey) : Button(buttonText, hotkey),
-	_icon(icon)
+	_icon(icon),
+    _iconTint(Ego::Math::Colour4f::white())
 {
 	//ctor
 }
@@ -69,7 +70,7 @@ void IconButton::draw()
 
  	//Draw icon
  	int iconSize = getHeight()-4;
-	draw_icon_texture(_icon.get_ptr(), getX() + getWidth() - getHeight()-2, getY()+2, 0xFF, 0, iconSize);
+    _gameEngine->getUIManager()->drawImage(_icon, getX() + getWidth() - getHeight() - 2, getY() + 2, iconSize, iconSize, _iconTint);
 
     //Draw text on left side in button
     if(!_buttonText.empty())
@@ -81,3 +82,7 @@ void IconButton::draw()
     }
 }
 
+void IconButton::setIconTint(const Ego::Math::Colour4f &tint)
+{
+    _iconTint = tint;
+}

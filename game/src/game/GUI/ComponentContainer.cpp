@@ -158,3 +158,9 @@ void ComponentContainer::unlock()
         _componentDestroyed = false;
     }
 }
+
+void ComponentContainer::setComponentList(const std::vector<std::shared_ptr<GUIComponent>> &list)
+{
+    clearComponents();
+    for(const auto& component : list) addComponent(component);
+}
