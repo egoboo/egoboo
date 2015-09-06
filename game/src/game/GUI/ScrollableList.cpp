@@ -139,3 +139,11 @@ void ScrollableList::forceUpdate()
 {
     setScrollPosition(_currentIndex);
 }
+
+void ScrollableList::setPosition(const int x, const int y)
+{
+	GUIComponent::setX(x);
+	GUIComponent::setY(y);
+	updateScrollButtons();	
+    setScrollPosition(_currentIndex);
+}

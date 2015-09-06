@@ -60,6 +60,7 @@ public:
     void setHeight(const int height) override;
     void setX(const int x) override;
     void setY(const int y) override;
+    void setPosition(const int x, const int y) override;
 
 protected:
 	void drawContainer() override;
