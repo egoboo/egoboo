@@ -1144,7 +1144,7 @@ float draw_fps(float y)
         y = draw_string_raw(0, y, "OUT OF SYNC");
     }
 
-    if (parser_state_t::get_error(ps))
+    if (ps.get_error())
     {
         y = draw_string_raw(0, y, "SCRIPT ERROR ( see \"/debug/log.txt\" )");
     }

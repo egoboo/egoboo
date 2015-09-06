@@ -717,44 +717,42 @@ static const aicode_t AICODES[] =
 static bool load_ai_codes_vfs();
 
 parser_state_t::parser_state_t()
-	: token()
+	: _token()
 {
-	this->line_count = 0;
-	this->line_buffer_count = 0;
-	this->line_buffer[0] = '\0';
-	this->load_buffer_count = 0;
-	this->load_buffer[0] = '\0';
+	_line_count = 0;
+	_line_buffer_count = 0;
+	_line_buffer[0] = '\0';
+	_load_buffer_count = 0;
+	_load_buffer[0] = '\0';
 
     load_ai_codes_vfs();
     debug_script_file = vfs_openWrite("/debug/script_debug.txt");
 
-    // just to be explicit
-    this->error = false;
+    _error = false;
 }
 
 parser_state_t::~parser_state_t()
 {
-	this->line_count = 0;
-	this->line_buffer_count = 0;
-	this->line_buffer[0] = '\0';
-	this->load_buffer_count = 0;
-	this->load_buffer[0] = '\0';
+	_line_count = 0;
+	_line_buffer_count = 0;
+	_line_buffer[0] = '\0';
+	_load_buffer_count = 0;
+	_load_buffer[0] = '\0';
 
     vfs_close(debug_script_file);
     debug_script_file = nullptr;
 
-    // just to be explicit
-    this->error = false;
+    _error = false;
 }
 
-bool parser_state_t::get_error(parser_state_t& self)
+bool parser_state_t::get_error() const
 {
-    return self.error;
+    return _error;
 }
 
-void parser_state_t::clear_error(parser_state_t& self)
+void parser_state_t::clear_error()
 {
-    self.error = false;
+    _error = false;
 }
 
 /// the pointer to the singleton
@@ -799,13 +797,7 @@ const char *script_operator_names[SCRIPT_OPERATORS_COUNT] =
 
 //Private functions
 
-static size_t       surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max );
-static size_t       insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max );
-static size_t       fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max );
 
-static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
-static void         parse_jumps( script_info_t *pscript );
-static egolib_rv    ai_script_upload_default( script_info_t *pscript );
 
 
 
@@ -849,7 +841,7 @@ parser_state_t& parser_state_t::get()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-size_t insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max )
+size_t parser_state_t::insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max )
 {
     /// @author ZZ
     /// @details This function adds a space into the load line if there isn't one there already
@@ -895,8 +887,14 @@ size_t insert_space( size_t position, char buffer[], size_t buffer_length, const
     return buffer_length;
 }
 
+void parser_state_t::clear_line_buffer()
+{
+	_line_buffer[0] = CSTR_END;
+	_line_buffer_count = 0;
+}
+
 //--------------------------------------------------------------------------------------------
-size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_info_t *pscript )
+size_t parser_state_t::load_one_line( size_t read, script_info_t *pscript )
 {
     /// @author ZZ
     /// @details This function loads a line into the line buffer
@@ -906,35 +904,31 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
     bool tabs_warning_needed, inside_string;
 
     // Parse to start to maintain indentation
-    ps.line_buffer[0] = CSTR_END;
-    ps.line_buffer_count = 0;
+	clear_line_buffer();
 
     inside_string = false;
 
     // try to trap all end of line conditions so we can properly count the lines
     tabs_warning_needed = false;
-    while ( read < ps.load_buffer_count )
+    while ( read < _load_buffer_count )
     {
-        cTmp = ps.load_buffer[read];
+        cTmp = _load_buffer[read];
 
-        if ( ASCII_LINEFEED_CHAR == cTmp && C_CARRIAGE_RETURN_CHAR == ps.load_buffer[read+1] )
+        if ( ASCII_LINEFEED_CHAR == cTmp && C_CARRIAGE_RETURN_CHAR == _load_buffer[read+1] )
         {
-            ps.line_buffer_count = 0;
-            ps.line_buffer[0] = CSTR_END;
+			clear_line_buffer();
             return read + 2;
         }
 
-        if ( C_CARRIAGE_RETURN_CHAR == cTmp && ASCII_LINEFEED_CHAR == ps.load_buffer[read+1] )
+        if ( C_CARRIAGE_RETURN_CHAR == cTmp && ASCII_LINEFEED_CHAR == _load_buffer[read+1] )
         {
-            ps.line_buffer_count = 0;
-            ps.line_buffer[0] = CSTR_END;
+			clear_line_buffer();
             return read + 2;
         }
 
         if ( ASCII_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp )
         {
-            ps.line_buffer_count = 0;
-            ps.line_buffer[0] = CSTR_END;
+			clear_line_buffer();
             return read + 1;
         }
 
@@ -949,19 +943,19 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
             break;
         }
 
-        ps.line_buffer[ps.line_buffer_count] = ' ';
-        ps.line_buffer[ps.line_buffer_count+1] = CSTR_END;
+        _line_buffer[_line_buffer_count] = ' ';
+        _line_buffer[_line_buffer_count+1] = CSTR_END;
 
         read++;
-        ps.line_buffer_count++;
+        _line_buffer_count++;
     }
 
     // Parse to comment or end of line
     foundtext = false;
     inside_string = false;
-    while ( read < ps.load_buffer_count )
+    while ( read < _load_buffer_count )
     {
-        cTmp = ps.load_buffer[read];
+        cTmp = _load_buffer[read];
 
         // we reached endline
         if ( C_CARRIAGE_RETURN_CHAR == cTmp || ASCII_LINEFEED_CHAR == cTmp )
@@ -970,7 +964,7 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
         }
 
         // we reached a comment
-        if ( '/' == cTmp && '/' == ps.load_buffer[read + 1] )
+        if ( '/' == cTmp && '/' == _load_buffer[read + 1] )
         {
             break;
         }
@@ -1005,8 +999,8 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
         {
             foundtext = true;
 
-            ps.line_buffer[ps.line_buffer_count] = cTmp;
-            ps.line_buffer_count++;
+            _line_buffer[_line_buffer_count] = cTmp;
+            _line_buffer_count++;
         }
 
         read++;
@@ -1014,31 +1008,31 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
 
     if ( !foundtext )
     {
-        ps.line_buffer_count = 0;
+        _line_buffer_count = 0;
     }
 
     // terminate the line buffer properly
-    ps.line_buffer[ps.line_buffer_count] = CSTR_END;
+    _line_buffer[_line_buffer_count] = CSTR_END;
 
-    if ( ps.line_buffer_count > 0  && tabs_warning_needed )
+    if ( _line_buffer_count > 0  && tabs_warning_needed )
     {
-        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
+        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
     }
 
     // scan to the beginning of the next line
-    while ( read < ps.load_buffer_count )
+    while ( read < _load_buffer_count )
     {
-        if ( ASCII_LINEFEED_CHAR == ps.load_buffer[read] && C_CARRIAGE_RETURN_CHAR == ps.load_buffer[read+1] )
+        if ( ASCII_LINEFEED_CHAR == _load_buffer[read] && C_CARRIAGE_RETURN_CHAR == _load_buffer[read+1] )
         {
             read += 2;
             break;
         }
-        else if ( C_CARRIAGE_RETURN_CHAR == ps.load_buffer[read] && ASCII_LINEFEED_CHAR == ps.load_buffer[read+1] )
+        else if ( C_CARRIAGE_RETURN_CHAR == _load_buffer[read] && ASCII_LINEFEED_CHAR == _load_buffer[read+1] )
         {
             read += 2;
             break;
         }
-        else if ( CSTR_END == ps.load_buffer[read] || ASCII_LINEFEED_CHAR == ps.load_buffer[read] || C_CARRIAGE_RETURN_CHAR == ps.load_buffer[read] )
+        else if ( CSTR_END == _load_buffer[read] || ASCII_LINEFEED_CHAR == _load_buffer[read] || C_CARRIAGE_RETURN_CHAR == _load_buffer[read] )
         {
             read += 1;
             break;
@@ -1051,7 +1045,7 @@ size_t parser_state_t::load_one_line( parser_state_t& ps, size_t read, script_in
 }
 
 //--------------------------------------------------------------------------------------------
-size_t surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max )
+size_t parser_state_t::surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max )
 {
     buffer_size = insert_space( position + 1, buffer, buffer_size, buffer_max );
 
@@ -1061,32 +1055,26 @@ size_t surround_space( size_t position, char buffer[], size_t buffer_size, const
 }
 
 //--------------------------------------------------------------------------------------------
-int parser_state_t::get_indentation( parser_state_t& ps, script_info_t *pscript )
+int parser_state_t::get_indentation(script_info_t *pscript )
 {
-    /// @author ZZ
-    /// @details This function returns the number of starting spaces in a line
-
-    int cnt;
-    char cTmp;
-
-    cnt = 0;
-    cTmp = ps.line_buffer[cnt];
+    int cnt = 0;
+    char cTmp = _line_buffer[cnt];
     while (Ego::isspace(cTmp))
     {
         cnt++;
-        cTmp = ps.line_buffer[cnt];
+        cTmp = _line_buffer[cnt];
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
-        ps.error = true;
+        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+        _error = true;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
-        ps.error = true;
+        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+        _error = true;
         cnt = 15;
     }
 
@@ -1094,7 +1082,7 @@ int parser_state_t::get_indentation( parser_state_t& ps, script_info_t *pscript 
 }
 
 //--------------------------------------------------------------------------------------------
-size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max )
+size_t parser_state_t::fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max )
 {
     /// @author ZZ
     /// @details This function puts spaces around operators to seperate words better
@@ -1131,7 +1119,7 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read)
+size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read)
 {
     /// @author ZZ
     /// @details This function tells what code is being indexed by read, it
@@ -1155,24 +1143,24 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
 	tok = Token();
 
     // Check bounds
-	if ( read >= self.line_buffer_count )
+	if ( read >= _line_buffer_count )
     {
-        return self.line_buffer_count;
+        return _line_buffer_count;
     }
 
     // nothing is parsed yet
     parsed = false;
 
     // Skip any initial spaces
-    cTmp = self.line_buffer[read];
-    while (Ego::isspace(cTmp) && read < self.line_buffer_count)
+    cTmp = _line_buffer[read];
+    while (Ego::isspace(cTmp) && read < _line_buffer_count)
     {
         read++;
-        cTmp = self.line_buffer[read];
+        cTmp = _line_buffer[read];
     }
 
     // break if there was nothing here
-    if ( read >= self.line_buffer_count )
+    if ( read >= _line_buffer_count )
     {
         goto parse_token_end;
     }
@@ -1191,18 +1179,18 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
             tok.szWord_length++;
 
             read++;
-            cTmp = self.line_buffer[read];
+            cTmp = _line_buffer[read];
 
             // Break out if we find the end of the string
             // Strings of the form "Here lies \"The Sandwich King\"" are not supported
         }
-        while ( CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && tok.szWord_length < szWord_length_max && read < self.line_buffer_count );
+        while ( CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && tok.szWord_length < szWord_length_max && read < _line_buffer_count );
 
         if ( C_DOUBLE_QUOTE_CHAR == cTmp )
         {
             // skip the ending qoutation mark
             read++;
-            cTmp = self.line_buffer[read];
+            cTmp = _line_buffer[read];
 
             tok.szWord[tok.szWord_length] = CSTR_END;
             tok.szWord_length++;
@@ -1218,13 +1206,13 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         tok.szWord_length = 0;
         tok.szWord[0] = CSTR_END;
 
-        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && tok.szWord_length < szWord_length_max && read < self.line_buffer_count )
+        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && tok.szWord_length < szWord_length_max && read < _line_buffer_count )
         {
             tok.szWord[tok.szWord_length] = cTmp;
             tok.szWord_length++;
 
             read++;
-            cTmp = self.line_buffer[read];
+            cTmp = _line_buffer[read];
         }
 
         if ( tok.szWord_length < szWord_length_max )
@@ -1379,7 +1367,7 @@ size_t parser_state_t::parse_token(parser_state_t& self, Token& tok, ObjectProfi
         tok.setType(Token::Type::Unknown);
         tok.setIndex(MAX_OPCODE);
 
-        self.error = true;
+        _error = true;
     }
 
 parse_token_end:
@@ -1389,7 +1377,7 @@ parse_token_end:
 }
 
 //--------------------------------------------------------------------------------------------
-void emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t *pscript )
+void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t *pscript )
 {
     BIT_FIELD loc_highbits = highbits;
 
@@ -1412,7 +1400,7 @@ void emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro, script_info_t *pscript )
+void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *pscript )
 {
     /// @author ZF
     /// @details This parses an AI script line by line
@@ -1422,26 +1410,26 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
     size_t parseposition;
 
     read = 0;
-    for ( ps.token.setLine(0); read < ps.load_buffer_count; ps.token.setLine(ps.token.getLine() + 1) )
+    for ( _token.setLine(0); read < _load_buffer_count; _token.setLine(_token.getLine() + 1) )
     {
-        read = load_one_line( ps, read, pscript );
-        if ( 0 == ps.line_buffer_count ) continue;
+        read = load_one_line( read, pscript );
+        if ( 0 == _line_buffer_count ) continue;
 
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
         print_line();
 #endif
 
-        ps.line_buffer_count = fix_operators( ps.line_buffer, ps.line_buffer_count, SDL_arraysize( ps.line_buffer ) );
+        _line_buffer_count = fix_operators( _line_buffer, _line_buffer_count, SDL_arraysize( _line_buffer ) );
         parseposition = 0;
 
         //------------------------------
         // grab the first opcode
 
-        highbits = SetDataBits( get_indentation( ps, pscript ) );
-        parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
-        if ( Token::Type::Function == ps.token.getType() )
+        highbits = SetDataBits( get_indentation( pscript ) );
+        parseposition = parse_token(_token, ppro, pscript, parseposition );
+        if ( Token::Type::Function == _token.getType() )
         {
-            if ( FEND == ps.token.getValue() && 0 == highbits )
+            if ( FEND == _token.getValue() && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -1451,14 +1439,14 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             // the code type is a function
 
             // save the opcode
-            emit_opcode( ps.token, highbits, pscript );
+            emit_opcode( _token, highbits, pscript );
 
             // leave a space for the control code
-            ps.token.setValue(0);
-            emit_opcode( ps.token, 0, pscript );
+            _token.setValue(0);
+            emit_opcode( _token, 0, pscript );
 
         }
-        else if ( Token::Type::Variable == ps.token.getType() )
+        else if ( Token::Type::Variable == _token.getType() )
         {
             //------------------------------
             // the code type is a math operation
@@ -1467,100 +1455,100 @@ void parser_state_t::parse_line_by_line( parser_state_t& ps, ObjectProfile *ppro
             int operands = 0;
 
             // save in the value's opcode
-            emit_opcode( ps.token, highbits, pscript );
+            emit_opcode( _token, highbits, pscript );
 
             // save a position for the operand count
-            ps.token.setValue(0);
+            _token.setValue(0);
             operand_index = pscript->_instructions.getLength();    //AisCompiled_offset;
-            emit_opcode( ps.token, 0, pscript );
+            emit_opcode( _token, 0, pscript );
 
             // handle the "="
             highbits = 0;
-            parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );  // EQUALS
-            if ( Token::Type::Operator != ps.token.getType() || 0 != strcmp( ps.token.szWord, "=" ) )
+            parseposition = parse_token(_token, ppro, pscript, parseposition );  // EQUALS
+			if ( Token::Type::Operator != _token.getType() || 0 != strcmp( _token.szWord, "=" ) )
             {
-                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
+                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
             }
 
             //------------------------------
             // grab the next opcode
 
-            parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
-            if ( Token::Type::Variable == ps.token.getType() || Token::Type::Constant == ps.token.getType() )
+            parseposition = parse_token( _token, ppro, pscript, parseposition );
+            if ( Token::Type::Variable == _token.getType() || Token::Type::Constant == _token.getType() )
             {
                 // this is a value or a constant
-                emit_opcode( ps.token, 0, pscript );
+                emit_opcode( _token, 0, pscript );
                 operands++;
 
-                parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
+                parseposition = parse_token(_token, ppro, pscript, parseposition );
             }
-            else if ( Token::Type::Operator != ps.token.getType() )
+            else if ( Token::Type::Operator != _token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
+                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
 
-                emit_opcode( ps.token, 0, pscript );
+                emit_opcode( _token, 0, pscript );
                 operands++;
 
-                parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
+                parseposition = parse_token(_token, ppro, pscript, parseposition );
             }
 
             // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
-            while ( parseposition < ps.line_buffer_count )
+            while ( parseposition < _line_buffer_count )
             {
                 // the current token should be an operator
-                if ( Token::Type::Operator != ps.token.getType() )
+                if ( Token::Type::Operator != _token.getType() )
                 {
                     // problem with the loop
-                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.line_buffer );
+                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
                     break;
                 }
 
                 // the highbits are the operator's value
-				highbits = SetDataBits( ps.token.getValue() );
+				highbits = SetDataBits( _token.getValue() );
 
                 // VALUE
-                parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
-                if ( Token::Type::Constant != ps.token.getType() && Token::Type::Variable != ps.token.getType() )
+                parseposition = parse_token(_token, ppro, pscript, parseposition );
+                if ( Token::Type::Constant != _token.getType() && Token::Type::Variable != _token.getType() )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
+                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
                     break;
                 }
 
-                emit_opcode( ps.token, highbits, pscript );
+                emit_opcode( _token, highbits, pscript );
                 operands++;
 
                 // OPERATOR
-                parseposition = parse_token( ps, ps.token, ppro, pscript, parseposition );
+                parseposition = parse_token( _token, ppro, pscript, parseposition );
             }
             pscript->_instructions[operand_index]._value = operands;
         }
-        else if ( Token::Type::Constant == ps.token.getType() )
+        else if ( Token::Type::Constant == _token.getType() )
         {
-            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
         }
-        else if ( Token::Type::Unknown == ps.token.getType() )
+        else if ( Token::Type::Unknown == _token.getType() )
         {
             // unknown opcode, do not process this line
-            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
         }
         else
         {
-            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), ps.token.getLine(), ps.token.szWord );
+            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
             break;
         }
     }
 
-    ps.token.setValue(FEND);
-    ps.token.setType(Token::Type::Function);
-    emit_opcode( ps.token, 0, pscript );
-    ps.token.setValue(pscript->_instructions.getLength() + 1);
-    emit_opcode( ps.token, 0, pscript );
+    _token.setValue(FEND);
+    _token.setType(Token::Type::Function);
+    emit_opcode( _token, 0, pscript );
+    _token.setValue(pscript->_instructions.getLength() + 1);
+    emit_opcode( _token, 0, pscript );
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
+Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t *pscript )
 {
     /// @author ZZ
     /// @details This function figures out where to jump to on a fail based on the
@@ -1601,7 +1589,7 @@ Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-void parse_jumps( script_info_t *pscript )
+void parser_state_t::parse_jumps( script_info_t *pscript )
 {
     /// @author ZZ
     /// @details This function sets up the fail jumps for the down and dirty code
@@ -1654,7 +1642,7 @@ bool load_ai_codes_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv ai_script_upload_default( script_info_t * pscript )
+egolib_rv parser_state_t::ai_script_upload_default( script_info_t * pscript )
 {
     /// @author ZF
     /// @details This loads the default AI script into a character profile ai
@@ -1684,7 +1672,7 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
     //Handle default AI
     if ( NULL == pscript ) pscript = &( default_ai_script );
 
-    ps.line_count = 0;
+    ps._line_count = 0;
     fileread = vfs_openRead( loadname.c_str() );
 
     // No such file
@@ -1693,21 +1681,21 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
         log_message( "SCRIPT ERROR: %s() - I am missing a AI script (%s)\n", __FUNCTION__, loadname.c_str() );
         log_message( "              Using the default AI script instead (\"mp_data/script.txt\")\n" );
 
-        ai_script_upload_default( pscript );
+        ps.ai_script_upload_default( pscript );
         return rv_fail;
     }
 
     // load the file
     file_size = vfs_fileLength( fileread );
-    ps.load_buffer_count = ( int )vfs_read( ps.load_buffer, 1, file_size, fileread );
+    ps._load_buffer_count = ( int )vfs_read( ps._load_buffer, 1, file_size, fileread );
     vfs_close( fileread );
 
     // if the file is empty, use the default script
-    if ( 0 == ps.load_buffer_count )
+    if ( 0 == ps._load_buffer_count )
     {
         log_message( "SCRIPT ERROR: %s() - Script file is empty. \"%s\"\n", __FUNCTION__, loadname.c_str() );
 
-        ai_script_upload_default( pscript );
+        ps.ai_script_upload_default( pscript );
         return rv_fail;
     }
 
@@ -1718,17 +1706,13 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
     pscript->_instructions._length = 0;
 
     // parse/compile the scripts
-    parser_state_t::parse_line_by_line( ps, ppro, pscript );
+    ps.parse_line_by_line( ppro, pscript );
 
     // determine the correct jumps
-    parse_jumps( pscript );
+    parser_state_t::parse_jumps( pscript );
 
     return rv_success;
 }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

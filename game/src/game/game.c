@@ -2166,7 +2166,7 @@ bool game_load_module_data( const char *smallname )
 
     // ensure that the script parser exists
     parser_state_t& ps = parser_state_t::get();
-    parser_state_t::clear_error(ps);
+    ps.clear_error();
     if ( load_ai_script_vfs( ps, "mp_data/script.txt", NULL, NULL ) != rv_success )
     {
         log_warning( "game_load_module_data() - cannot load the default script\n" );
