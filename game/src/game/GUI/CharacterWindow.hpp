@@ -24,9 +24,11 @@
 
 #include "game/GUI/InternalWindow.hpp"
 
+//Forward declarations
 class Object;
 class Button;
-class InternalWindow;
+class ScrollableList;
+namespace Ego { class Enchantment; }
 
 namespace Ego
 {
@@ -48,6 +50,8 @@ class CharacterWindow : public InternalWindow
         void buildCharacterStatisticTab();
         void buildKnownPerksTab();
         void buildActiveEnchantsTab();
+
+        void describeEnchantEffects(const std::vector<std::shared_ptr<Ego::Enchantment>> &enchants, std::shared_ptr<ScrollableList> list);
 
     private:
         std::shared_ptr<Object> _character;

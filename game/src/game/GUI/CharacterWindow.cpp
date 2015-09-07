@@ -24,7 +24,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     _knownPerksTab(),
     _activeEnchantsTab()
 {
-    setSize(400, 320);
+    setSize(420, 320);
 
     buildCharacterStatisticTab();
     buildKnownPerksTab();
@@ -323,30 +323,82 @@ void CharacterWindow::buildKnownPerksTab()
 
 void CharacterWindow::buildActiveEnchantsTab()
 {
-    //List of perks known
+    //List of active enchants
     std::shared_ptr<ScrollableList> activeEnchants = std::make_shared<ScrollableList>();
-    activeEnchants->setSize(getWidth() - 60, getHeight() * 0.60f);
+    activeEnchants->setSize( (getWidth()-20) / 2, getHeight() * 0.60f);
     activeEnchants->setPosition(10, 40);
     _activeEnchantsTab.push_back(activeEnchants);
 
+    //Enchant Name
+    std::shared_ptr<Label> enchantName = std::make_shared<Label>("No Enchant Selected");
+    enchantName->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
+    enchantName->setPosition(activeEnchants->getX()+activeEnchants->getWidth()+5, activeEnchants->getY());
+    enchantName->setColor(Ego::Math::Colour4f::yellow());
+    _activeEnchantsTab.push_back(enchantName);
+
+    //List of effects a given enchant has
+    std::shared_ptr<ScrollableList> enchantEffects = std::make_shared<ScrollableList>();
+    enchantEffects->setSize( (getWidth()-20) /2, activeEnchants->getHeight() - enchantName->getHeight());
+    enchantEffects->setPosition(enchantName->getX(), enchantName->getY() + enchantName->getHeight());
+    _activeEnchantsTab.push_back(enchantEffects);
+
     //Count number of unique enchants and merge all others
-    std::unordered_map<std::string, int> enchantCount;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Ego::Enchantment>>> enchantCount;
     for(const std::shared_ptr<Ego::Enchantment> &enchant : _character->getActiveEnchants()) {
         if(!enchant->getProfile()->getEnchantName().empty()) {
-            enchantCount[enchant->getProfile()->getEnchantName()] += 1;
+            enchantCount[enchant->getProfile()->getEnchantName()].push_back(enchant);
         }
         else {
-            enchantCount["Miscellaneous"] += 1;
+            enchantCount["Miscellaneous"].push_back(enchant);
         }
     }
 
     for(const auto& element : enchantCount) {
-        std::string prefix = element.second > 1 ? "x"+std::to_string(element.second) + " " : "";
+        std::string prefix = element.second.size() > 1 ? "x"+std::to_string(element.second.size()) + " " : "";
 
         std::shared_ptr<Button> button = std::make_shared<Button>(prefix + element.first);
         button->setSize(activeEnchants->getWidth() - 50, activeEnchants->getHeight() / 6);
+        button->setOnClickFunction([this, element, enchantName, enchantEffects] {
+            enchantName->setText(element.first);
+            describeEnchantEffects(element.second, enchantEffects);
+
+        });
         activeEnchants->addComponent(button);
     }
+}
+
+void CharacterWindow::describeEnchantEffects(const std::vector<std::shared_ptr<Ego::Enchantment>> &enchantments, std::shared_ptr<ScrollableList> list)
+{
+    //Accumulate effects
+    std::unordered_map<Ego::Attribute::AttributeType, float> effects;
+    for(const std::shared_ptr<Ego::Enchantment> &enchant : enchantments) {
+        for(const EnchantModifier& modifier : enchant->getModifiers()) {
+            effects[modifier._type] += modifier._value;
+        }
+    }
+
+    //Now describe each effect
+    list->clearComponents();
+    for(const auto &element : effects) {
+        //No effect?
+        if(std::abs(element.second) < std::numeric_limits<float>::epsilon()) continue;
+
+        //Add a label description
+        try {
+            std::ostringstream out;
+            out << Ego::Attribute::toString(element.first) << std::setprecision(2) << ": " << element.second;
+
+            std::shared_ptr<Label> label = std::make_shared<Label>(out.str());
+            label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
+            label->setColor(element.second > 0 ? Ego::Math::Colour4f::green() : Ego::Math::Colour4f::red());
+            list->addComponent(label);
+        }
+        catch(Id::UnhandledSwitchCaseException &ex) {
+            //Simply ignore effects that cannot be translated into a description
+            continue;
+        }
+    }
+    list->forceUpdate();
 }
 
 } //GUI

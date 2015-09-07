@@ -13,6 +13,7 @@ ScrollableList::ScrollableList() :
 	_downButton->setOnClickFunction([this]{
 		setScrollPosition(_currentIndex + 1);
 	});
+	_downButton->setEnabled(false);
 
 	_upButton->setSize(32, 32);
 	_upButton->setOnClickFunction([this]{
