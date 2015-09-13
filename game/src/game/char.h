@@ -130,12 +130,6 @@ extern int chr_pressure_tests;
 // Function prototypes
 const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
 
-/// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
-///    inventory ( Not hands ).
-void drop_keys(const CHR_REF character);
-void drop_money( const CHR_REF character, int money );
-bool drop_all_items( const CHR_REF character );
-
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
 

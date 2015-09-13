@@ -33,6 +33,7 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
 #include "game/collision.h"                  //Only for detach_character_from_platform()
+#include "game/ObjectPhysics.h" //only for move_one_character_get_environment()
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -2773,4 +2774,158 @@ bool Object::hasSkillIDSZ(const IDSZ whichskill) const
 
     //Skill not found
     return false;    
+}
+
+void Object::dropMoney(int amount)
+{
+    static constexpr std::array<int, PIP_MONEY_COUNT> vals = {1, 5, 25, 100, 200, 500, 1000, 2000};
+    static constexpr std::array<PIP_REF, PIP_MONEY_COUNT> pips =
+    {
+        PIP_COIN1, PIP_COIN5, PIP_COIN25, PIP_COIN100,
+        PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
+    };
+
+    // limit the about of money to the character's actual money
+    amount = Ego::Math::constrain<int>(amount, 0, getMoney());
+
+    //Not valid to drop any money?
+    if(getPosZ() <= (PITDEPTH/2) || amount <= 0) {
+        return;
+    }
+
+    // remove the money from inventory
+    money -= amount;
+
+    // make the particles emit from "waist high"
+    Vector3f pos = getPosition();
+    pos[kZ] += (chr_min_cv._maxs[OCT_Z] + chr_min_cv._mins[OCT_Z]) * 0.5f;
+
+    // Give the character a time-out from interacting with particles so it
+    // doesn't just grab the money again
+    damage_timer = DAMAGETIME;
+
+    // count and spawn the various denominations
+    for (size_t cnt = PIP_MONEY_COUNT - 1; amount >= 0; cnt--)
+    {
+        int count = amount / vals[cnt];
+        amount -= count * vals[cnt];
+
+        for (size_t tnc = 0; tnc < count; tnc++)
+        {
+            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
+        }
+    }
+}
+
+void Object::dropKeys()
+{
+    // Don't lose keys in pits...
+    if (getPosZ() <= (PITDEPTH / 2)) return;
+
+    // The IDSZs to find
+    const IDSZ testa = MAKE_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
+    const IDSZ testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
+
+    //check each inventory item
+    for(const std::shared_ptr<Object> &pkey : getInventory().iterate())
+    {
+        TURN_T turn;
+
+        IDSZ idsz_parent = pkey->getProfile()->getIDSZ(IDSZ_PARENT);
+        IDSZ idsz_type   = pkey->getProfile()->getIDSZ(IDSZ_TYPE);
+
+        //is it really a key?
+        if (( idsz_parent < testa && idsz_parent > testz ) &&
+            ( idsz_type < testa && idsz_type > testz ) ) continue;
+
+        FACING_T direction = Random::next(std::numeric_limits<FACING_T>::max());
+        turn      = TO_TURN(direction);
+
+        //remove it from inventory
+        getInventory().removeItem(pkey, true);
+
+        // fix the attachments
+        pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
+        pkey->dismount_object        = getCharacterID();
+        pkey->onwhichplatform_ref    = onwhichplatform_ref;
+        pkey->onwhichplatform_update = onwhichplatform_update;
+
+        // fix some flags
+        pkey->hitready               = true;
+        pkey->isequipped             = false;
+        pkey->ori.facing_z           = direction + ATK_BEHIND;
+        pkey->team                   = pkey->team_base;
+
+        // fix the current velocity
+        pkey->vel[kX]                  += turntocos[ turn ] * DROPXYVEL;
+        pkey->vel[kY]                  += turntosin[ turn ] * DROPXYVEL;
+        pkey->vel[kZ]                  += DROPZVEL;
+
+        // do some more complicated things
+        SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
+        pkey->setPosition(getPosition());
+        move_one_character_get_environment( pkey.get() );
+        pkey->enviro.floor_level = enviro.floor_level;
+    }    
+}
+
+void Object::dropAllItems()
+{
+    //Drop held items
+    const std::shared_ptr<Object> &leftItem = getLeftHandItem();
+    if(leftItem) {
+        leftItem->detatchFromHolder(true, false);
+    }
+    const std::shared_ptr<Object> &rightItem = getRightHandItem();
+    if(rightItem) {
+        rightItem->detatchFromHolder(true, false);
+    }
+
+    //simply count the number of items in inventory
+    uint8_t pack_count = getInventory().iterate().size();
+
+    //Don't continue if we have nothing to drop
+    if(pack_count == 0) {
+        return;
+    }
+
+    //Calculate direction offset for each object
+    const FACING_T diradd = 0xFFFF / pack_count;
+
+    // now drop each item in turn
+    FACING_T direction = ori.facing_z + ATK_BEHIND;
+    for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
+    {
+        //remove it from inventory
+        getInventory().removeItem(pitem, true);
+
+        // detach the item
+        pitem->detatchFromHolder(true, true);
+
+        // fix the attachments
+        pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
+        pitem->dismount_object        = getCharacterID();
+        pitem->onwhichplatform_ref    = onwhichplatform_ref;
+        pitem->onwhichplatform_update = onwhichplatform_update;
+
+        // fix some flags
+        pitem->hitready               = true;
+        pitem->ori.facing_z           = direction + ATK_BEHIND;
+        pitem->team                   = pitem->team_base;
+
+        // fix the current velocity
+        TURN_T turn                   = TO_TURN( direction );
+        pitem->vel[kX]                += turntocos[ turn ] * DROPXYVEL;
+        pitem->vel[kY]                += turntosin[ turn ] * DROPXYVEL;
+        pitem->vel[kZ]                += DROPZVEL;
+
+        // do some more complicated things
+        SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
+        pitem->setPosition(getPosition());
+        move_one_character_get_environment(pitem.get());
+        pitem->enviro.floor_level = enviro.floor_level;
+
+        //drop out evenly in all directions
+        direction += diradd;
+    }
 }

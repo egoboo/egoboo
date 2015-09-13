@@ -1825,7 +1825,7 @@ Uint8 scr_DropKeys( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_keys( self.index );
+    pchr->dropKeys();
 
     SCRIPT_FUNCTION_END();
 }
@@ -1988,7 +1988,7 @@ Uint8 scr_DropMoney( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_money( self.index, state.argument );
+    pchr->dropMoney(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5630,7 +5630,7 @@ Uint8 scr_DropItems( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_all_items( self.index );
+    pchr->dropAllItems();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6045,9 +6045,13 @@ Uint8 scr_DropTargetMoney( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function drops some of the target's money
 
+    Object * pself_target;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_money( self.target, state.argument );
+    SCRIPT_REQUIRE_TARGET( pself_target );
+
+    pself_target->dropMoney(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6076,9 +6080,13 @@ Uint8 scr_DropTargetKeys( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function makes the Target drops keys in inventory (Not inhand)
 
+    Object * pself_target;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    drop_keys( self.target );
+    SCRIPT_REQUIRE_TARGET( pself_target );
+
+    pself_target->dropKeys();
 
     SCRIPT_FUNCTION_END();
 }

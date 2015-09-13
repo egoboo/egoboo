@@ -792,6 +792,17 @@ public:
     **/
     bool hasSkillIDSZ(const IDSZ whichskill) const;
 
+    void dropMoney(int amount);
+
+    /**
+    * @brief 
+    *   This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
+    *   inventory (Not hands).
+    **/
+    void dropKeys();
+
+    void dropAllItems();
+
 private:
 
     /**
