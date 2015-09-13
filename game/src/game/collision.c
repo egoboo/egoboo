@@ -2312,7 +2312,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             }
 
             // handle vulnerabilities, double the damage
-            if ( chr_has_vulnie(pdata->pchr->getCharacterID(), pdata->pprt->getSpawnerProfile()) )
+            if (pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_TYPE) || 
+                pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_PARENT))
             {
                 // Double the damage
                 modifiedDamage.base = ( modifiedDamage.base << 1 );

@@ -678,7 +678,8 @@ void Particle::updateAttachedDamage()
     bool skewered_by_arrow = HAS_SOME_BITS(getProfile()->damfx, DAMFX_ARRO);
 
     // 2) the character is vulnerable to this damage type
-    bool has_vulnie = chr_has_vulnie(attachedObject->getCharacterID(), _spawnerProfile);
+    bool has_vulnie = (attachedObject->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == ProfileSystem::get().getProfile(_spawnerProfile)->getIDSZ(IDSZ_TYPE) || 
+                       attachedObject->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == ProfileSystem::get().getProfile(_spawnerProfile)->getIDSZ(IDSZ_PARENT));
 
     // 3) the character is "lit on fire" by the particle damage type
     bool is_immolated_by = (damagetype < DAMAGE_COUNT && attachedObject->reaffirm_damagetype == damagetype);

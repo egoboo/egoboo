@@ -128,8 +128,6 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
-void update_all_characters();
-
 const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
 
 /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
@@ -140,7 +138,6 @@ bool drop_all_items( const CHR_REF character );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
-bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin );
 
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 

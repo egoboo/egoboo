@@ -404,7 +404,7 @@ void update_all_objects()
     chr_stoppedby_tests = 0;
     chr_pressure_tests  = 0;
 
-    update_all_characters();
+    _currentModule->updateAllObjects();
     ParticleHandler::get().updateAllParticles();
 }
 

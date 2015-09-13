@@ -675,37 +675,6 @@ void drop_money( const CHR_REF character, int money )
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_characters()
-{
-    /// @author ZZ
-    /// @details This function updates stats and such for every character
-
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        //Skip terminated objects
-        if(object->isTerminated()) {
-            continue;
-        }
-
-        //Update object logic
-        object->update();
-
-        //Check if this object should be poofed (destroyed)
-        bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if (timeOut) {
-            object->requestTerminate();
-        }
-    }
-
-    // fix the stat timer
-    if ( clock_chr_stat >= ONESECOND )
-    {
-        // Reset the clock
-        clock_chr_stat -= ONESECOND;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
     if (!_currentModule->getObjectHandler().exists(ichr)) {
@@ -928,27 +897,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION (previously inline functions)
-//--------------------------------------------------------------------------------------------
-bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
-{
-    /// @author BB
-    /// @details is item vulnerable to the type in profile test_profile?
-
-    if ( !_currentModule->getObjectHandler().exists( item ) ) return false;
-    IDSZ vulnie = _currentModule->getObjectHandler()[item]->getProfile()->getIDSZ(IDSZ_VULNERABILITY);
-
-    // not vulnerable if there is no specific weakness
-    if ( IDSZ_NONE == vulnie ) return false;
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(test_profile);
-    if (nullptr == profile) return false;
-
-    // check vs. every IDSZ that could have something to do with attacking
-    if ( vulnie == profile->getIDSZ(IDSZ_TYPE) ) return true;
-    if ( vulnie == profile->getIDSZ(IDSZ_PARENT) ) return true;
-
-    return false;
-}
-
 //--------------------------------------------------------------------------------------------
 void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
 {
