@@ -779,7 +779,7 @@ const char *script_variable_names[SCRIPT_VARIABLES_COUNT] =
 #include "egolib/Script/Variables.in"
 #undef Define
 };
-const char *script_function_names[SCRIPT_FUNCTIONS_COUNT] =
+const char *script_function_names[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT] =
 {
 #define Define(name) #name,
 #include "egolib/Script/Functions.in"
@@ -1429,7 +1429,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
         parseposition = parse_token(_token, ppro, pscript, parseposition );
         if ( Token::Type::Function == _token.getType() )
         {
-            if ( FEND == _token.getValue() && 0 == highbits )
+            if ( Ego::ScriptFunctions::End == _token.getValue() && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -1540,7 +1540,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
         }
     }
 
-    _token.setValue(FEND);
+    _token.setValue(Ego::ScriptFunctions::End);
     _token.setType(Token::Type::Function);
     emit_opcode( _token, 0, pscript );
     _token.setValue(pscript->_instructions.getLength() + 1);
