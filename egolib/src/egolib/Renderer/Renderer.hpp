@@ -640,9 +640,9 @@ public:
 
 	/**
 	 * @brief
-	 *	Set line width.
+	 *  Set line width.
 	 * @param width
-	 *	the line width
+	 *  the line width
 	 */
 	virtual void setLineWidth(float width) = 0;
 
