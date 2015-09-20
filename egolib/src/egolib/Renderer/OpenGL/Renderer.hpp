@@ -221,6 +221,9 @@ public:
 	/** @copydoc Ego::Renderer::setLineWidth */
 	virtual void setLineWidth(float width) override;
 
+	/** @copydoc Ego::Renderer::setPointSize */
+	virtual void setPointSize(float size) override;
+
 	/** @copydoc Ego::Renderer::setPolygonSmoothEnabled */
 	virtual void setPolygonSmoothEnabled(bool enabled) override;
 

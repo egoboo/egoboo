@@ -467,6 +467,12 @@ void Renderer::setLineWidth(float width)
 	Utilities::isError();
 }
 
+void Renderer::setPointSize(float size)
+{
+	glPointSize(size);
+	Utilities::isError();
+}
+
 void Renderer::setPolygonSmoothEnabled(bool enabled)
 {
 	if (enabled) {

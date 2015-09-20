@@ -648,6 +648,14 @@ public:
 
 	/**
 	 * @brief
+	 *  Set point size.
+	 * @param size
+	 *  the point size
+	 */
+	virtual void setPointSize(float size) = 0;
+
+	/**
+	 * @brief
 	 *  Enable/disable antialiasing of lines.
 	 * @param enabled
 	 *  @a true enables antialiasing of lines,
