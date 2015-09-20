@@ -38,411 +38,417 @@
 namespace Ego {
 namespace Script {
 
+#define Define(name) { name, &scr_##name },
+#define DefineAlias(alias, name) { alias, &scr_##name },
+
 Runtime::Runtime() 
 	:
 		_functionValueCodeToFunctionPointer
 		{
-			{ IfSpawned, &scr_IfSpawned },
-			{ IfTimeOut, &scr_IfTimeOut },
-			{ IfAtWaypoint, &scr_IfAtWaypoint },
-			{ IfAtLastWaypoint, &scr_IfAtLastWaypoint },
-			{ IfAttacked, &scr_IfAttacked },
-			{ IfBumped, &scr_IfBumped },
-			{ IfOrdered, &scr_IfOrdered },
-			{ IfCalledForHelp, &scr_IfCalledForHelp },
-			{ SetContent, &scr_SetContent },
-			{ IfKilled, &scr_IfKilled },
-			{ IfTargetKilled, &scr_IfTargetKilled },
-			{ ClearWaypoints, &scr_ClearWaypoints },
-			{ AddWaypoint, &scr_AddWaypoint },
-			{ FindPath, &scr_FindPath },
-			{ Compass, &scr_Compass },
-			{ GetTargetArmorPrice, &scr_GetTargetArmorPrice },
-			{ SetTime, &scr_SetTime },
-			{ GetContent, &scr_GetContent },
-			{ JoinTargetTeam, &scr_JoinTargetTeam },
-			{ SetTargetToNearbyEnemy, &scr_SetTargetToNearbyEnemy },
-			{ SetTargetToTargetLeftHand, &scr_SetTargetToTargetLeftHand },
-			{ SetTargetToTargetRightHand, &scr_SetTargetToTargetRightHand },
-			{ SetTargetToWhoeverAttacked, &scr_SetTargetToWhoeverAttacked },
-			{ SetTargetToWhoeverBumped, &scr_SetTargetToWhoeverBumped },
-			{ SetTargetToWhoeverCalledForHelp, &scr_SetTargetToWhoeverCalledForHelp },
-			{ SetTargetToOldTarget, &scr_SetTargetToOldTarget },
-			{ SetTurnModeToVelocity, &scr_SetTurnModeToVelocity },
-			{ SetTurnModeToWatch, &scr_SetTurnModeToWatch },
-			{ SetTurnModeToSpin, &scr_SetTurnModeToSpin },
-			{ SetBumpHeight, &scr_SetBumpHeight },
-			{ IfTargetHasID, &scr_IfTargetHasID },
-			{ IfTargetHasItemID, &scr_IfTargetHasItemID },
-			{ IfTargetHoldingItemID, &scr_IfTargetHoldingItemID },
-			{ IfTargetHasSkillID, &scr_IfTargetHasSkillID },
-			{ Else, &scr_Else },
-			{ Run, &scr_Run },
-			{ Walk, &scr_Walk },
-			{ Sneak, &scr_Sneak },
-			{ DoAction, &scr_DoAction },
-			{ KeepAction, &scr_KeepAction },
-			{ IssueOrder, &scr_IssueOrder },
-			{ DropWeapons, &scr_DropWeapons },
-			{ TargetDoAction, &scr_TargetDoAction },
-			{ OpenPassage, &scr_OpenPassage },
-			{ ClosePassage, &scr_ClosePassage },
-			{ IfPassageOpen, &scr_IfPassageOpen },
-			{ GoPoof, &scr_GoPoof },
-			{ CostTargetItemID, &scr_CostTargetItemID },
-			{ DoActionOverride, &scr_DoActionOverride },
-			{ IfHealed, &scr_IfHealed },
-			{ SendMessage, &scr_SendPlayerMessage },
-			{ CallForHelp, &scr_CallForHelp },
-			{ AddIDSZ, &scr_AddIDSZ },
-			{ SetState, &scr_SetState },
-			{ GetState, &scr_GetState },
-			{ IfStateIs, &scr_IfStateIs },
-			{ IfTargetCanOpenStuff, &scr_IfTargetCanOpenStuff },
-			{ IfGrabbed, &scr_IfGrabbed },
-			{ IfDropped, &scr_IfDropped },
-			{ SetTargetToWhoeverIsHolding, &scr_SetTargetToWhoeverIsHolding },
-			{ DamageTarget, &scr_DamageTarget },
-			{ IfXIsLessThanY, &scr_IfXIsLessThanY },
-			{ SetWeatherTime, &scr_SetWeatherTime },
-			{ GetBumpHeight, &scr_GetBumpHeight },
-			{ IfReaffirmed, &scr_IfReaffirmed },
-			{ UnkeepAction, &scr_UnkeepAction },
-			{ IfTargetIsOnOtherTeam, &scr_IfTargetIsOnOtherTeam },
-			{ IfTargetIsOnHatedTeam, &scr_IfTargetIsOnHatedTeam },
-			{ PressLatchButton, &scr_PressLatchButton },
-			{ SetTargetToTargetOfLeader, &scr_SetTargetToTargetOfLeader },
-			{ IfLeaderKilled, &scr_IfLeaderKilled },
-			{ BecomeLeader, &scr_BecomeLeader },
-			{ ChangeTargetArmor, &scr_ChangeTargetArmor },
-			{ GiveMoneyToTarget, &scr_GiveMoneyToTarget },
-			{ DropKeys, &scr_DropKeys },
-			{ IfLeaderIsAlive, &scr_IfLeaderIsAlive },
-			{ IfTargetIsOldTarget, &scr_IfTargetIsOldTarget },
-			{ SetTargetToLeader, &scr_SetTargetToLeader },
-			{ SpawnCharacter, &scr_SpawnCharacter },
-			{ RespawnCharacter, &scr_RespawnCharacter },
-			{ ChangeTile, &scr_ChangeTile },
-			{ IfUsed, &scr_IfUsed },
-			{ DropMoney, &scr_DropMoney },
-			{ SetOldTarget, &scr_SetOldTarget },
-			{ DetachFromHolder, &scr_DetachFromHolder },
-			{ IfTargetHasVulnerabilityID, &scr_IfTargetHasVulnerabilityID },
-			{ CleanUp, &scr_CleanUp },
-			{ IfCleanedUp, &scr_IfCleanedUp },
-			{ IfSitting, &scr_IfSitting },
-			{ IfTargetIsHurt, &scr_IfTargetIsHurt },
-			{ IfTargetIsAPlayer, &scr_IfTargetIsAPlayer },
-			{ PlaySound, &scr_PlaySound },
-			{ SpawnParticle, &scr_SpawnParticle },
-			{ IfTargetIsAlive, &scr_IfTargetIsAlive },
-			{ Stop, &scr_Stop },
-			{ DisaffirmCharacter, &scr_DisaffirmCharacter },
-			{ ReaffirmCharacter, &scr_ReaffirmCharacter },
-			{ IfTargetIsSelf, &scr_IfTargetIsSelf },
-			{ IfTargetIsMale, &scr_IfTargetIsMale },
-			{ IfTargetIsFemale, &scr_IfTargetIsFemale },
-			{ SetTargetToSelf, &scr_SetTargetToSelf },
-			{ SetTargetToRider, &scr_SetTargetToRider },
-			{ GetAttackTurn, &scr_GetAttackTurn },
-			{ GetDamageType, &scr_GetDamageType },
-			{ BecomeSpell, &scr_BecomeSpell },
-			{ BecomeSpellbook, &scr_BecomeSpellbook },
-			{ IfScoredAHit, &scr_IfScoredAHit },
-			{ IfDisaffirmed, &scr_IfDisaffirmed },
-			{ TranslateOrder, &scr_TranslateOrder },
-			{ SetTargetToWhoeverWasHit, &scr_SetTargetToWhoeverWasHit },
-			{ SetTargetToWideEnemy, &scr_SetTargetToWideEnemy },
-			{ IfChanged, &scr_IfChanged },
-			{ IfInWater, &scr_IfInWater },
-			{ IfBored, &scr_IfBored },
-			{ IfTooMuchBaggage, &scr_IfTooMuchBaggage },
-			{ IfGrogged, &scr_IfGrogged },
-			{ IfDazed, &scr_IfDazed },
-			{ IfTargetHasSpecialID, &scr_IfTargetHasSpecialID },
-			{ PressTargetLatchButton, &scr_PressTargetLatchButton },
-			{ IfInvisible, &scr_IfInvisible },
-			{ IfArmorIs, &scr_IfArmorIs },
-			{ GetTargetGrogTime, &scr_GetTargetGrogTime },
-			{ GetTargetDazeTime, &scr_GetTargetDazeTime },
-			{ SetDamageType, &scr_SetDamageType },
-			{ SetWaterLevel, &scr_SetWaterLevel },
-			{ EnchantTarget, &scr_EnchantTarget },
-			{ EnchantChild, &scr_EnchantChild },
-			{ TeleportTarget, &scr_TeleportTarget },
-			{ GiveExperienceToTarget, &scr_GiveExperienceToTarget },
-			{ IncreaseAmmo, &scr_IncreaseAmmo },
-			{ UnkurseTarget, &scr_UnkurseTarget },
-			{ GiveExperienceToTargetTeam, &scr_GiveExperienceToTargetTeam },
-			{ IfUnarmed, &scr_IfUnarmed },
-			{ RestockTargetAmmoIDAll, &scr_RestockTargetAmmoIDAll },
-			{ RestockTargetAmmoIDFirst, &scr_RestockTargetAmmoIDFirst },
-			{ FlashTarget, &scr_FlashTarget },
-			{ SetRedShift, &scr_SetRedShift },
-			{ SetGreenShift, &scr_SetGreenShift },
-			{ SetBlueShift, &scr_SetBlueShift },
-			{ SetLight, &scr_SetLight },
-			{ SetAlpha, &scr_SetAlpha },
-			{ IfHitFromBehind, &scr_IfHitFromBehind },
-			{ IfHitFromFront, &scr_IfHitFromFront },
-			{ IfHitFromLeft, &scr_IfHitFromLeft },
-			{ IfHitFromRight, &scr_IfHitFromRight },
-			{ IfTargetIsOnSameTeam, &scr_IfTargetIsOnSameTeam },
-			{ KillTarget, &scr_KillTarget },
-			{ UndoEnchant, &scr_UndoEnchant },
-			{ GetWaterLevel, &scr_GetWaterLevel },
-			{ CostTargetMana, &scr_CostTargetMana },
-			{ IfTargetHasAnyID, &scr_IfTargetHasAnyID },
-			{ SetBumpSize, &scr_SetBumpSize },
-			{ IfNotDropped, &scr_IfNotDropped },
-			{ IfYIsLessThanX, &scr_IfYIsLessThanX },
-			{ SetFlyheight, &scr_SetFlyHeight },
-			{ IfBlocked, &scr_IfBlocked },
-			{ IfTargetIsDefending, &scr_IfTargetIsDefending },
-			{ IfTargetIsAttacking, &scr_IfTargetIsAttacking },
-			{ IfStateIs0, &scr_IfStateIs0 },
-			{ IfStateIs1, &scr_IfStateIs1 },
-			{ IfStateIs2, &scr_IfStateIs2 },
-			{ IfStateIs3, &scr_IfStateIs3 },
-			{ IfStateIs4, &scr_IfStateIs4 },
-			{ IfStateIs5, &scr_IfStateIs5 },
-			{ IfStateIs6, &scr_IfStateIs6 },
-			{ IfStateIs7, &scr_IfStateIs7 },
-			{ IfContentIs, &scr_IfContentIs },
-			{ SetTurnModeToWatchTarget, &scr_SetTurnModeToWatchTarget },
-			{ IfStateIsNot, &scr_IfStateIsNot },
-			{ IfXIsEqualToY, &scr_IfXIsEqualToY },
-			{ DebugMessage, &scr_DebugMessage },
-			{ BlackTarget, &scr_BlackTarget },
-			{ SendMessageNear, &scr_SendMessageNear },
-			{ IfHitGround, &scr_IfHitGround },
-			{ IfNameIsKnown, &scr_IfNameIsKnown },
-			{ IfUsageIsKnown, &scr_IfUsageIsKnown },
-			{ IfHoldingItemID, &scr_IfHoldingItemID },
-			{ IfHoldingRangedWeapon, &scr_IfHoldingRangedWeapon },
-			{ IfHoldingMeleeWeapon, &scr_IfHoldingMeleeWeapon },
-			{ IfHoldingShield, &scr_IfHoldingShield },
-			{ IfKursed, &scr_IfKursed },
-			{ IfTargetIsKursed, &scr_IfTargetIsKursed },
-			{ IfTargetIsDressedUp, &scr_IfTargetIsDressedUp },
-			{ IfOverWater, &scr_IfOverWater },
-			{ IfThrown, &scr_IfThrown },
-			{ MakeNameKnown, &scr_MakeNameKnown },
-			{ MakeUsageKnown, &scr_MakeUsageKnown },
-			{ StopTargetMovement, &scr_StopTargetMovement },
-			{ SetXY, &scr_SetXY },
-			{ GetXY, &scr_GetXY },
-			{ AddXY, &scr_AddXY },
-			{ MakeAmmoKnown, &scr_MakeAmmoKnown },
-			{ SpawnAttachedParticle, &scr_SpawnAttachedParticle },
-			{ SpawnExactParticle, &scr_SpawnExactParticle },
-			{ AccelerateTarget, &scr_AccelerateTarget },
-			{ IfDistanceIsMoreThanTurn, &scr_IfDistanceIsMoreThanTurn },
-			{ IfCrushed, &scr_IfCrushed },
-			{ MakeCrushValid, &scr_MakeCrushValid },
-			{ SetTargetToLowestTarget, &scr_SetTargetToLowestTarget },
-			{ IfNotPutAway, &scr_IfNotPutAway },
-			{ IfTakenOut, &scr_IfTakenOut },
-			{ IfAmmoOut, &scr_IfAmmoOut },
-			{ PlaySoundLooped, &scr_PlaySoundLooped },
-			{ StopSound, &scr_StopSound },
-			{ HealSelf, &scr_HealSelf },
-			{ Equip, &scr_Equip },
-			{ IfTargetHasItemIDEquipped, &scr_IfTargetHasItemIDEquipped },
-			{ SetOwnerToTarget, &scr_SetOwnerToTarget },
-			{ SetTargetToOwner, &scr_SetTargetToOwner },
-			{ SetFrame, &scr_SetFrame },
-			{ BreakPassage, &scr_BreakPassage },
-			{ SetReloadTime, &scr_SetReloadTime },
-			{ SetTargetToWideBlahID, &scr_SetTargetToWideBlahID },
-			{ PoofTarget, &scr_PoofTarget },
-			{ ChildDoActionOverride, &scr_ChildDoActionOverride },
-			{ SpawnPoof, &scr_SpawnPoof },
-			{ SetSpeedPercent, &scr_SetSpeedPercent },
-			{ SetChildState, &scr_SetChildState },
-			{ SpawnAttachedSizedParticle, &scr_SpawnAttachedSizedParticle },
-			{ ChangeArmor, &scr_ChangeArmor },
-			{ ShowTimer, &scr_ShowTimer },
-			{ IfFacingTarget, &scr_IfFacingTarget },
-			{ PlaySoundVolume, &scr_PlaySoundVolume },
-			{ SpawnAttachedFacedParticle, &scr_SpawnAttachedFacedParticle },
-			{ IfStateIsOdd, &scr_IfStateIsOdd },
-			{ SetTargetToDistantEnemy, &scr_SetTargetToDistantEnemy },
-			{ Teleport, &scr_Teleport },
-			{ GiveStrengthToTarget, &scr_GiveStrengthToTarget },
-			{ GiveIntellectToTarget, &scr_GiveIntelligenceToTarget },
-			{ GiveIntelligenceToTarget, &scr_GiveIntelligenceToTarget },
-			{ GiveDexterityToTarget, &scr_GiveDexterityToTarget },
-			{ GiveLifeToTarget, &scr_GiveLifeToTarget },
-			{ GiveManaToTarget, &scr_GiveManaToTarget },
-			{ ShowMap, &scr_ShowMap },
-			{ ShowYouAreHere, &scr_ShowYouAreHere },
-			{ ShowBlipXY, &scr_ShowBlipXY },
-			{ HealTarget, &scr_HealTarget },
-			{ PumpTarget, &scr_PumpTarget },
-			{ CostAmmo, &scr_CostAmmo },
-			{ MakeSimilarNamesKnown, &scr_MakeSimilarNamesKnown },
-			{ SpawnAttachedHolderParticle, &scr_SpawnAttachedHolderParticle },
-			{ SetTargetReloadTime, &scr_SetTargetReloadTime },
-			{ SetFogLevel, &scr_SetFogLevel },
-			{ GetFogLevel, &scr_GetFogLevel },
-			{ SetFogTAD, &scr_SetFogTAD },
-			{ SetFogBottomLevel, &scr_SetFogBottomLevel },
-			{ GetFogBottomLevel, &scr_GetFogBottomLevel },
-			{ CorrectActionForHand, &scr_CorrectActionForHand },
-			{ IfTargetIsMounted, &scr_IfTargetIsMounted },
-			{ SparkleIcon, &scr_SparkleIcon },
-			{ UnsparkleIcon, &scr_UnsparkleIcon },
-			{ GetTileXY, &scr_GetTileXY },
-			{ SetTileXY, &scr_SetTileXY },
-			{ SetShadowSize, &scr_SetShadowSize },
-			{ OrderTarget, &scr_OrderTarget },
-			{ SetTargetToWhoeverIsInPassage, &scr_SetTargetToWhoeverIsInPassage },
-			{ IfCharacterWasABook, &scr_IfCharacterWasABook },
-			{ SetEnchantBoostValues, &scr_SetEnchantBoostValues },
-			{ SpawnCharacterXYZ, &scr_SpawnCharacterXYZ },
-			{ SpawnExactCharacterXYZ, &scr_SpawnExactCharacterXYZ },
-			{ ChangeTargetClass, &scr_ChangeTargetClass },
-			{ PlayFullSound, &scr_PlayFullSound },
-			{ SpawnExactChaseParticle, &scr_SpawnExactChaseParticle },
-			{ CreateOrder, &scr_CreateOrder },
-			{ OrderSpecialID, &scr_OrderSpecialID },
-			{ UnkurseTargetInventory, &scr_UnkurseTargetInventory },
-			{ IfTargetIsSneaking, &scr_IfTargetIsSneaking },
-			{ DropItems, &scr_DropItems },
-			{ RespawnTarget, &scr_RespawnTarget },
-			{ TargetDoActionSetFrame, &scr_TargetDoActionSetFrame },
-			{ IfTargetCanSeeInvisible, &scr_IfTargetCanSeeInvisible },
-			{ SetTargetToNearestBlahID, &scr_SetTargetToNearestBlahID },
-			{ SetTargetToNearestEnemy, &scr_SetTargetToNearestEnemy },
-			{ SetTargetToNearestFriend, &scr_SetTargetToNearestFriend },
-			{ SetTargetToNearestLifeform, &scr_SetTargetToNearestLifeform },
-			{ FlashPassage, &scr_FlashPassage },
-			{ FindTileInPassage, &scr_FindTileInPassage },
-			{ IfHeldInLeftHand, &scr_IfHeldInLeftHand },
-			{ NotAnItem, &scr_NotAnItem },
-			{ SetChildAmmo, &scr_SetChildAmmo },
-			{ IfHitVulnerable, &scr_IfHitVulnerable },
-			{ IfTargetIsFlying, &scr_IfTargetIsFlying },
-			{ IdentifyTarget, &scr_IdentifyTarget },
-			{ BeatModule, &scr_BeatModule },
-			{ EndModule, &scr_EndModule },
-			{ DisableExport, &scr_DisableExport },
-			{ EnableExport, &scr_EnableExport },
-			{ GetTargetState, &scr_GetTargetState },
-			{ IfEquipped, &scr_IfEquipped },
-			{ DropTargetMoney, &scr_DropTargetMoney },
-			{ GetTargetContent, &scr_GetTargetContent },
-			{ DropTargetKeys, &scr_DropTargetKeys },
-			{ JoinTeam, &scr_JoinTeam },
-			{ TargetJoinTeam, &scr_TargetJoinTeam },
-			{ ClearMusicPassage, &scr_ClearMusicPassage },
-			{ ClearEndMessage, &scr_ClearEndMessage },
-			{ AddEndMessage, &scr_AddEndMessage },
-			{ PlayMusic, &scr_PlayMusic },
-			{ SetMusicPassage, &scr_SetMusicPassage },
-			{ MakeCrushInvalid, &scr_MakeCrushInvalid },
-			{ StopMusic, &scr_StopMusic },
-			{ FlashVariable, &scr_FlashVariable },
-			{ AccelerateUp, &scr_AccelerateUp },
-			{ FlashVariableHeight, &scr_FlashVariableHeight },
-			{ SetDamageTime, &scr_SetDamageTime },
-			{ IfStateIs8, &scr_IfStateIs8 },
-			{ IfStateIs9, &scr_IfStateIs9 },
-			{ IfStateIs10, &scr_IfStateIs10 },
-			{ IfStateIs11, &scr_IfStateIs11 },
-			{ IfStateIs12, &scr_IfStateIs12 },
-			{ IfStateIs13, &scr_IfStateIs13 },
-			{ IfStateIs14, &scr_IfStateIs14 },
-			{ IfStateIs15, &scr_IfStateIs15 },
-			{ IfTargetIsAMount, &scr_IfTargetIsAMount },
-			{ IfTargetIsAPlatform, &scr_IfTargetIsAPlatform },
-			{ AddStat, &scr_AddStat },
-			{ DisenchantTarget, &scr_DisenchantTarget },
-			{ DisenchantAll, &scr_DisenchantAll },
-			{ SetVolumeNearestTeammate, &scr_SetVolumeNearestTeammate },
-			{ AddShopPassage, &scr_AddShopPassage },
-			{ TargetPayForArmor, &scr_TargetPayForArmor },
-			{ JoinEvilTeam, &scr_JoinEvilTeam },
-			{ JoinNullTeam, &scr_JoinNullTeam },
-			{ JoinGoodTeam, &scr_JoinGoodTeam },
-			{ PitsKill, &scr_PitsKill },
-			{ SetTargetToPassageID, &scr_SetTargetToPassageID },
-			{ MakeNameUnknown, &scr_MakeNameUnknown },
-			{ SpawnExactParticleEndSpawn, &scr_SpawnExactParticleEndSpawn },
-			{ SpawnPoofSpeedSpacingDamage, &scr_SpawnPoofSpeedSpacingDamage },
-			{ GiveExperienceToGoodTeam, &scr_GiveExperienceToGoodTeam },
-			{ DoNothing, &scr_DoNothing },
-			{ GrogTarget, &scr_GrogTarget },
-			{ DazeTarget, &scr_DazeTarget },
-			{ EnableRespawn, &scr_EnableRespawn },
-			{ DisableRespawn, &scr_DisableRespawn },
-			{ DispelTargetEnchantID, &scr_DispelTargetEnchantID },
-			{ IfHolderBlocked, &scr_IfHolderBlocked },
+			Define(IfSpawned)
+			Define(IfTimeOut)
+			Define(IfAtWaypoint)
+			Define(IfAtLastWaypoint)
+			Define(IfAttacked)
+			Define(IfBumped)
+			Define(IfOrdered)
+			Define(IfCalledForHelp)
+			Define(SetContent)
+			Define(IfKilled)
+			Define(IfTargetKilled)
+			Define(ClearWaypoints)
+			Define(AddWaypoint)
+			Define(FindPath)
+			Define(Compass)
+			Define(GetTargetArmorPrice)
+			Define(SetTime)
+			Define(GetContent)
+			Define(JoinTargetTeam)
+			Define(SetTargetToNearbyEnemy)
+			Define(SetTargetToTargetLeftHand)
+			Define(SetTargetToTargetRightHand)
+			Define(SetTargetToWhoeverAttacked)
+			Define(SetTargetToWhoeverBumped)
+			Define(SetTargetToWhoeverCalledForHelp)
+			Define(SetTargetToOldTarget)
+			Define(SetTurnModeToVelocity)
+			Define(SetTurnModeToWatch)
+			Define(SetTurnModeToSpin)
+			Define(SetBumpHeight)
+			Define(IfTargetHasID)
+			Define(IfTargetHasItemID)
+			Define(IfTargetHoldingItemID)
+			Define(IfTargetHasSkillID)
+			Define(Else)
+			Define(Run)
+			Define(Walk)
+			Define(Sneak)
+			Define(DoAction)
+			Define(KeepAction)
+			Define(IssueOrder)
+			Define(DropWeapons)
+			Define(TargetDoAction)
+			Define(OpenPassage)
+			Define(ClosePassage)
+			Define(IfPassageOpen)
+			Define(GoPoof)
+			Define(CostTargetItemID)
+			Define(DoActionOverride)
+			Define(IfHealed)
+			Define(SendMessage)
+			Define(CallForHelp)
+			Define(AddIDSZ)
+			Define(SetState)
+			Define(GetState)
+			Define(IfStateIs)
+			Define(IfTargetCanOpenStuff)
+			Define(IfGrabbed)
+			Define(IfDropped)
+			Define(SetTargetToWhoeverIsHolding)
+			Define(DamageTarget)
+			Define(IfXIsLessThanY)
+			Define(SetWeatherTime)
+			Define(GetBumpHeight)
+			Define(IfReaffirmed)
+			Define(UnkeepAction)
+			Define(IfTargetIsOnOtherTeam)
+			Define(IfTargetIsOnHatedTeam)
+			Define(PressLatchButton)
+			Define(SetTargetToTargetOfLeader)
+			Define(IfLeaderKilled)
+			Define(BecomeLeader)
+			Define(ChangeTargetArmor)
+			Define(GiveMoneyToTarget)
+			Define(DropKeys)
+			Define(IfLeaderIsAlive)
+			Define(IfTargetIsOldTarget)
+			Define(SetTargetToLeader)
+			Define(SpawnCharacter)
+			Define(RespawnCharacter)
+			Define(ChangeTile)
+			Define(IfUsed)
+			Define(DropMoney)
+			Define(SetOldTarget)
+			Define(DetachFromHolder)
+			Define(IfTargetHasVulnerabilityID)
+			Define(CleanUp)
+			Define(IfCleanedUp)
+			Define(IfSitting)
+			Define(IfTargetIsHurt)
+			Define(IfTargetIsAPlayer)
+			Define(PlaySound)
+			Define(SpawnParticle)
+			Define(IfTargetIsAlive)
+			Define(Stop)
+			Define(DisaffirmCharacter)
+			Define(ReaffirmCharacter)
+			Define(IfTargetIsSelf)
+			Define(IfTargetIsMale)
+			Define(IfTargetIsFemale)
+			Define(SetTargetToSelf)
+			Define(SetTargetToRider)
+			Define(GetAttackTurn)
+			Define(GetDamageType)
+			Define(BecomeSpell)
+			Define(BecomeSpellbook)
+			Define(IfScoredAHit)
+			Define(IfDisaffirmed)
+			Define(TranslateOrder)
+			Define(SetTargetToWhoeverWasHit)
+			Define(SetTargetToWideEnemy)
+			Define(IfChanged)
+			Define(IfInWater)
+			Define(IfBored)
+			Define(IfTooMuchBaggage)
+			Define(IfGrogged)
+			Define(IfDazed)
+			Define(IfTargetHasSpecialID)
+			Define(PressTargetLatchButton)
+			Define(IfInvisible)
+			Define(IfArmorIs)
+			Define(GetTargetGrogTime)
+			Define(GetTargetDazeTime)
+			Define(SetDamageType)
+			Define(SetWaterLevel)
+			Define(EnchantTarget)
+			Define(EnchantChild)
+			Define(TeleportTarget)
+			Define(GiveExperienceToTarget)
+			Define(IncreaseAmmo)
+			Define(UnkurseTarget)
+			Define(GiveExperienceToTargetTeam)
+			Define(IfUnarmed)
+			Define(RestockTargetAmmoIDAll)
+			Define(RestockTargetAmmoIDFirst)
+			Define(FlashTarget)
+			Define(SetRedShift)
+			Define(SetGreenShift)
+			Define(SetBlueShift)
+			Define(SetLight)
+			Define(SetAlpha)
+			Define(IfHitFromBehind)
+			Define(IfHitFromFront)
+			Define(IfHitFromLeft)
+			Define(IfHitFromRight)
+			Define(IfTargetIsOnSameTeam)
+			Define(KillTarget)
+			Define(UndoEnchant)
+			Define(GetWaterLevel)
+			Define(CostTargetMana)
+			Define(IfTargetHasAnyID)
+			Define(SetBumpSize)
+			Define(IfNotDropped)
+			Define(IfYIsLessThanX)
+			Define(SetFlyHeight)
+			Define(IfBlocked)
+			Define(IfTargetIsDefending)
+			Define(IfTargetIsAttacking)
+			Define(IfStateIs0)
+			Define(IfStateIs1)
+			Define(IfStateIs2)
+			Define(IfStateIs3)
+			Define(IfStateIs4)
+			Define(IfStateIs5)
+			Define(IfStateIs6)
+			Define(IfStateIs7)
+			Define(IfContentIs)
+			Define(SetTurnModeToWatchTarget)
+			Define(IfStateIsNot)
+			Define(IfXIsEqualToY)
+			Define(DebugMessage)
+			Define(BlackTarget)
+			Define(SendMessageNear)
+			Define(IfHitGround)
+			Define(IfNameIsKnown)
+			Define(IfUsageIsKnown)
+			Define(IfHoldingItemID)
+			Define(IfHoldingRangedWeapon)
+			Define(IfHoldingMeleeWeapon)
+			Define(IfHoldingShield)
+			Define(IfKursed)
+			Define(IfTargetIsKursed)
+			Define(IfTargetIsDressedUp)
+			Define(IfOverWater)
+			Define(IfThrown)
+			Define(MakeNameKnown)
+			Define(MakeUsageKnown)
+			Define(StopTargetMovement)
+			Define(SetXY)
+			Define(GetXY)
+			Define(AddXY)
+			Define(MakeAmmoKnown)
+			Define(SpawnAttachedParticle)
+			Define(SpawnExactParticle)
+			Define(AccelerateTarget)
+			Define(IfDistanceIsMoreThanTurn)
+			Define(IfCrushed)
+			Define(MakeCrushValid)
+			Define(SetTargetToLowestTarget)
+			Define(IfNotPutAway)
+			Define(IfTakenOut)
+			Define(IfAmmoOut)
+			Define(PlaySoundLooped)
+			Define(StopSound)
+			Define(HealSelf)
+			Define(Equip)
+			Define(IfTargetHasItemIDEquipped)
+			Define(SetOwnerToTarget)
+			Define(SetTargetToOwner)
+			Define(SetFrame)
+			Define(BreakPassage)
+			Define(SetReloadTime)
+			Define(SetTargetToWideBlahID)
+			Define(PoofTarget)
+			Define(ChildDoActionOverride)
+			Define(SpawnPoof)
+			Define(SetSpeedPercent)
+			Define(SetChildState)
+			Define(SpawnAttachedSizedParticle)
+			Define(ChangeArmor)
+			Define(ShowTimer)
+			Define(IfFacingTarget)
+			Define(PlaySoundVolume)
+			Define(SpawnAttachedFacedParticle)
+			Define(IfStateIsOdd)
+			Define(SetTargetToDistantEnemy)
+			Define(Teleport)
+			Define(GiveStrengthToTarget)
+			DefineAlias(GiveIntellectToTarget,GiveIntelligenceToTarget)
+			Define(GiveIntelligenceToTarget)
+			Define(GiveDexterityToTarget)
+			Define(GiveLifeToTarget)
+			Define(GiveManaToTarget)
+			Define(ShowMap)
+			Define(ShowYouAreHere)
+			Define(ShowBlipXY)
+			Define(HealTarget)
+			Define(PumpTarget)
+			Define(CostAmmo)
+			Define(MakeSimilarNamesKnown)
+			Define(SpawnAttachedHolderParticle)
+			Define(SetTargetReloadTime)
+			Define(SetFogLevel)
+			Define(GetFogLevel)
+			Define(SetFogTAD)
+			Define(SetFogBottomLevel)
+			Define(GetFogBottomLevel)
+			Define(CorrectActionForHand)
+			Define(IfTargetIsMounted)
+			Define(SparkleIcon)
+			Define(UnsparkleIcon)
+			Define(GetTileXY)
+			Define(SetTileXY)
+			Define(SetShadowSize)
+			Define(OrderTarget)
+			Define(SetTargetToWhoeverIsInPassage)
+			Define(IfCharacterWasABook)
+			Define(SetEnchantBoostValues)
+			Define(SpawnCharacterXYZ)
+			Define(SpawnExactCharacterXYZ)
+			Define(ChangeTargetClass)
+			Define(PlayFullSound)
+			Define(SpawnExactChaseParticle)
+			Define(CreateOrder)
+			Define(OrderSpecialID)
+			Define(UnkurseTargetInventory)
+			Define(IfTargetIsSneaking)
+			Define(DropItems)
+			Define(RespawnTarget)
+			Define(TargetDoActionSetFrame)
+			Define(IfTargetCanSeeInvisible)
+			Define(SetTargetToNearestBlahID)
+			Define(SetTargetToNearestEnemy)
+			Define(SetTargetToNearestFriend)
+			Define(SetTargetToNearestLifeform)
+			Define(FlashPassage)
+			Define(FindTileInPassage)
+			Define(IfHeldInLeftHand)
+			Define(NotAnItem)
+			Define(SetChildAmmo)
+			Define(IfHitVulnerable)
+			Define(IfTargetIsFlying)
+			Define(IdentifyTarget)
+			Define(BeatModule)
+			Define(EndModule)
+			Define(DisableExport)
+			Define(EnableExport)
+			Define(GetTargetState)
+			Define(IfEquipped)
+			Define(DropTargetMoney)
+			Define(GetTargetContent)
+			Define(DropTargetKeys)
+			Define(JoinTeam)
+			Define(TargetJoinTeam)
+			Define(ClearMusicPassage)
+			Define(ClearEndMessage)
+			Define(AddEndMessage)
+			Define(PlayMusic)
+			Define(SetMusicPassage)
+			Define(MakeCrushInvalid)
+			Define(StopMusic)
+			Define(FlashVariable)
+			Define(AccelerateUp)
+			Define(FlashVariableHeight)
+			Define(SetDamageTime)
+			Define(IfStateIs8)
+			Define(IfStateIs9)
+			Define(IfStateIs10)
+			Define(IfStateIs11)
+			Define(IfStateIs12)
+			Define(IfStateIs13)
+			Define(IfStateIs14)
+			Define(IfStateIs15)
+			Define(IfTargetIsAMount)
+			Define(IfTargetIsAPlatform)
+			Define(AddStat)
+			Define(DisenchantTarget)
+			Define(DisenchantAll)
+			Define(SetVolumeNearestTeammate)
+			Define(AddShopPassage)
+			Define(TargetPayForArmor)
+			Define(JoinEvilTeam)
+			Define(JoinNullTeam)
+			Define(JoinGoodTeam)
+			Define(PitsKill)
+			Define(SetTargetToPassageID)
+			Define(MakeNameUnknown)
+			Define(SpawnExactParticleEndSpawn)
+			Define(SpawnPoofSpeedSpacingDamage)
+			Define(GiveExperienceToGoodTeam)
+			Define(DoNothing)
+			Define(GrogTarget)
+			Define(DazeTarget)
+			Define(EnableRespawn)
+			Define(DisableRespawn)
+			Define(DispelTargetEnchantID)
+			Define(IfHolderBlocked)
 
-			{ IfTargetHasNotFullMana, &scr_IfTargetHasNotFullMana },
-			{ EnableListenSkill, &scr_EnableListenSkill },
-			{ SetTargetToLastItemUsed, &scr_SetTargetToLastItemUsed },
-			{ FollowLink, &scr_FollowLink },
-			{ IfOperatorIsLinux, &scr_IfOperatorIsLinux },
-			{ IfTargetIsAWeapon, &scr_IfTargetIsAWeapon },
-			{ IfSomeoneIsStealing, &scr_IfSomeoneIsStealing },
-			{ IfTargetIsASpell, &scr_IfTargetIsASpell },
-			{ IfBackstabbed, &scr_IfBackstabbed },
-			{ GetTargetDamageType, &scr_GetTargetDamageType },
-			{ AddQuest, &scr_AddQuest },
-			{ BeatQuestAllPlayers, &scr_BeatQuestAllPlayers },
-			{ IfTargetHasAQuest, &scr_IfTargetHasQuest },
-			{ SetQuestLevel, &scr_SetQuestLevel },
-			{ AddQuestAllPlayers, &scr_AddQuestAllPlayers },
-			{ AddBlipAllEnemies, &scr_AddBlipAllEnemies },
-			{ PitsFall, &scr_PitsFall },
-			{ IfTargetIsOwner, &scr_IfTargetIsOwner },
-			{ End, &scr_End },
+			Define(IfTargetHasNotFullMana)
+			Define(EnableListenSkill)
+			Define(SetTargetToLastItemUsed)
+			Define(FollowLink)
+			Define(IfOperatorIsLinux)
+			Define(IfTargetIsAWeapon)
+			Define(IfSomeoneIsStealing)
+			Define(IfTargetIsASpell)
+			Define(IfBackstabbed)
+			Define(GetTargetDamageType)
+			Define(AddQuest)
+			Define(BeatQuestAllPlayers)
+			Define(IfTargetHasQuest)
+			Define(SetQuestLevel)
+			Define(AddQuestAllPlayers)
+			Define(AddBlipAllEnemies)
+			Define(PitsFall)
+			Define(IfTargetIsOwner)
+			Define(End)
 
-			{ SetSpeech, &scr_SetSpeech },
-			{ SetMoveSpeech, &scr_SetMoveSpeech },
-			{ SetSecondMoveSpeech, &scr_SetSecondMoveSpeech },
-			{ SetAttackSpeech, &scr_SetAttackSpeech },
-			{ SetAssistSpeech, &scr_SetAssistSpeech },
-			{ SetTerrainSpeech, &scr_SetTerrainSpeech },
-			{ SetSelectSpeech, &scr_SetSelectSpeech },
+			Define(SetSpeech)
+			Define(SetMoveSpeech)
+			Define(SetSecondMoveSpeech)
+			Define(SetAttackSpeech)
+			Define(SetAssistSpeech)
+			Define(SetTerrainSpeech)
+			Define(SetSelectSpeech)
 
-			{ TakePicture, &scr_TakePicture },
-			{ IfOperatorIsMacintosh, &scr_IfOperatorIsMacintosh },
-			{ IfModuleHasIDSZ, &scr_IfModuleHasIDSZ },
-			{ MorphToTarget, &scr_MorphToTarget },
-			{ GiveManaFlowToTarget, &scr_GiveManaFlowToTarget },
-			{ GiveManaReturnToTarget, &scr_GiveManaReturnToTarget },
-			{ SetMoney, &scr_SetMoney },
-			{ IfTargetCanSeeKurses, &scr_IfTargetCanSeeKurses },
-			{ SpawnAttachedCharacter, &scr_SpawnAttachedCharacter },
-			{ KurseTarget, &scr_KurseTarget },
-			{ SetChildContent, &scr_SetChildContent },
-			{ SetTargetToChild, &scr_SetTargetToChild },
-			{ SetDamageThreshold, &scr_SetDamageThreshold },
-			{ AccelerateTargetUp, &scr_AccelerateTargetUp },
-			{ SetTargetAmmo, &scr_SetTargetAmmo },
-			{ EnableInvictus, &scr_EnableInvictus },
-			{ DisableInvictus, &scr_DisableInvictus },
-			{ TargetDamageSelf, &scr_TargetDamageSelf },
-			{ SetTargetSize, &scr_SetTargetSize },
-			{ IfTargetIsFacingSelf, &scr_IfTargetIsFacingSelf },
+			Define(TakePicture)
+			Define(IfOperatorIsMacintosh)
+			Define(IfModuleHasIDSZ)
+			Define(MorphToTarget)
+			Define(GiveManaFlowToTarget)
+			Define(GiveManaReturnToTarget)
+			Define(SetMoney)
+			Define(IfTargetCanSeeKurses)
+			Define(SpawnAttachedCharacter)
+			Define(KurseTarget)
+			Define(SetChildContent)
+			Define(SetTargetToChild)
+			Define(SetDamageThreshold)
+			Define(AccelerateTargetUp)
+			Define(SetTargetAmmo)
+			Define(EnableInvictus)
+			Define(DisableInvictus)
+			Define(TargetDamageSelf)
+			Define(SetTargetSize)
+			Define(IfTargetIsFacingSelf)
 
-			{ DrawBillboard, &scr_DrawBillboard },
-			{ SetTargetToFirstBlahInPassage, &scr_SetTargetToBlahInPassage },
-			{ IfLevelUp, &scr_IfLevelUp },
-			{ GiveSkillToTarget, &scr_GiveSkillToTarget },
-			{ SetTargetToNearbyMeleeWeapon, &scr_SetTargetToNearbyMeleeWeapon },
+			Define(DrawBillboard)
+			Define(SetTargetToBlahInPassage)
+			Define(IfLevelUp)
+			Define(GiveSkillToTarget)
+			Define(SetTargetToNearbyMeleeWeapon)
 
-			{ EnableStealth, &scr_EnableStealth },
-			{ DisableStealth, &scr_DisableStealth },
-			{ IfStealthed, &scr_IfStealthed },
-			{ SetTargetToDistantFriend, &scr_SetTargetToDistantFriend },
-			{ DisplayCharge, &scr_DisplayCharge },
+			Define(EnableStealth)
+			Define(DisableStealth)
+			Define(IfStealthed)
+			Define(SetTargetToDistantFriend)
+			Define(DisplayCharge)
 		}
 {
 }
+
+#undef DefineAlias
+#undef Define
 
 Runtime::~Runtime() {
 }

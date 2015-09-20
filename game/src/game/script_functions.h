@@ -97,7 +97,7 @@ uint8_t scr_GoPoof( script_state_t& state, ai_state_t& self );
 uint8_t scr_CostTargetItemID( script_state_t& state, ai_state_t& self );
 uint8_t scr_DoActionOverride( script_state_t& state, ai_state_t& self );
 uint8_t scr_IfHealed( script_state_t& state, ai_state_t& self );
-uint8_t scr_SendPlayerMessage( script_state_t& state, ai_state_t& self );
+uint8_t scr_SendMessage( script_state_t& state, ai_state_t& self );
 uint8_t scr_CallForHelp( script_state_t& state, ai_state_t& self );
 uint8_t scr_AddIDSZ( script_state_t& state, ai_state_t& self );
 uint8_t scr_SetState( script_state_t& state, ai_state_t& self );
