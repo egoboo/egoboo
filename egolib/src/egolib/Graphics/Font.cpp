@@ -177,27 +177,26 @@ namespace Ego
         float u = w / cache->tex->getWidth();
         float v = h / cache->tex->getHeight();
         
-        auto& renderer = Ego::Renderer::get();
+        auto& renderer = Renderer::get();
         renderer.setColour(colour);
         renderer.setBlendingEnabled(true);
 		renderer.getTextureUnit().setActivated(cache->tex);
-		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
-        GL_DEBUG(glBegin)(GL_QUADS);
-        {
-            GL_DEBUG(glTexCoord2f)(0, 0);
-            GL_DEBUG(glVertex2f)(x, y);
-            
-            GL_DEBUG(glTexCoord2f)(u, 0);
-            GL_DEBUG(glVertex2f)(x + w, y);
-            
-            GL_DEBUG(glTexCoord2f)(u, v);
-            GL_DEBUG(glVertex2f)(x + w, y + h);
-            
-            GL_DEBUG(glTexCoord2f)(0, v);
-            GL_DEBUG(glVertex2f)(x, y + h);
-        }
-        GL_DEBUG_END();
-        
+		renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+		Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2FT2F>());
+		{
+			struct Vertex {
+				float x, y;
+				float s, t;
+			};
+			Ego::VertexBufferScopedLock vblck(vb);
+			Vertex *vertices = vblck.get<Vertex>();
+			vertices[0].x = x;     vertices[0].y = y;     vertices[0].s = 0.0f; vertices[0].t = 0.0f;
+			vertices[1].x = x + w; vertices[1].y = y;     vertices[1].s = u;    vertices[1].t = 0.0f;
+			vertices[2].x = x + w; vertices[2].y = y + h; vertices[2].s = u;    vertices[2].t = v;
+			vertices[3].x = x;     vertices[3].y = y + h; vertices[3].s = 0.0f; vertices[3].t = v;
+		}
+		renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+       
         cache->lastUseInTicks = SDL_GetTicks();
         cache->text = text;
         _stringCache[text] = cache;

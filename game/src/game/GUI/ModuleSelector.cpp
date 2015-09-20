@@ -204,14 +204,19 @@ void ModuleSelector::ModuleButton::draw()
         renderer.setColour( DEFAULT_BUTTON_COLOUR );
     }
 
-    GL_DEBUG( glBegin )( GL_QUADS );
-    {
-        GL_DEBUG( glVertex2f )( getX(), getY() );
-        GL_DEBUG( glVertex2f )( getX(), getY()+getHeight() );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY()+getHeight() );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
-    }
-    GL_DEBUG_END();
+	Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>());
+	{
+		struct Vertex {
+			float x, y;
+		};
+		Ego::VertexBufferScopedLock vblck(vb);
+		Vertex *vertices = vblck.get<Vertex>();
+		vertices[0].x = getX(); vertices[0].y = getY();
+		vertices[1].x = getX(); vertices[1].y = getY() + getHeight();
+		vertices[2].x = getX() + getWidth(); vertices[2].y = getY() + getHeight();
+		vertices[3].x = getX() + getWidth(); vertices[3].y = getY();
+	}
+	renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw module title image
     _gameEngine->getUIManager()->drawImage(*(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon()), getX() + 5, getY() + 5, getWidth()-10, getHeight()-10);
