@@ -218,6 +218,9 @@ public:
 	/** @copydoc Ego::Renderer::setLineSmoothEnabled */
 	virtual void setLineSmoothEnabled(bool enabled) override;
 
+	/** @copydoc Ego::Renderer::setLineWidth */
+	virtual void setLineWidth(float width) override;
+
 	/** @copydoc Ego::Renderer::setPolygonSmoothEnabled */
 	virtual void setPolygonSmoothEnabled(bool enabled) override;
 

@@ -640,6 +640,14 @@ public:
 
 	/**
 	 * @brief
+	 *	Set line width.
+	 * @param width
+	 *	the line width
+	 */
+	virtual void setLineWidth(float width) = 0;
+
+	/**
+	 * @brief
 	 *  Enable/disable antialiasing of lines.
 	 * @param enabled
 	 *  @a true enables antialiasing of lines,

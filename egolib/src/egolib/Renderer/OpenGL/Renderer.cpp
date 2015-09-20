@@ -447,6 +447,7 @@ void Renderer::setPointSmoothEnabled(bool enabled)
 	} else {
 		glDisable(GL_POINT_SMOOTH);
 	}
+	Utilities::isError();
 }
 
 void Renderer::setLineSmoothEnabled(bool enabled)
@@ -457,6 +458,13 @@ void Renderer::setLineSmoothEnabled(bool enabled)
 	} else {
 		glDisable(GL_LINE_SMOOTH);
 	}
+	Utilities::isError();
+}
+
+void Renderer::setLineWidth(float width)
+{
+	glLineWidth(width);
+	Utilities::isError();
 }
 
 void Renderer::setPolygonSmoothEnabled(bool enabled)
@@ -468,6 +476,7 @@ void Renderer::setPolygonSmoothEnabled(bool enabled)
 	else {
 		glDisable(GL_POLYGON_SMOOTH);
 	}
+	Utilities::isError();
 }
 
 void Renderer::setMultisamplesEnabled(bool enabled)
