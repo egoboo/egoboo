@@ -549,6 +549,21 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                             vertices + offset);
         }
         break;
+		case VertexFormat::P2FT2F:
+		{
+			// Enable the required client-side capabilities.
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			// Set the pointers.
+			size_t offset = 0;
+			glVertexPointer(2, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
+				            vertices + offset);
+			offset += vertexFormatDescriptor.getPositionSize();
+			offset += vertexFormatDescriptor.getColorSize();
+			glTexCoordPointer(2, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
+				              vertices + offset);
+		}
+		break;
         case VertexFormat::P3F:
         {
             // Enable the required client-side capabilities.
