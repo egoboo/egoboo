@@ -38,411 +38,417 @@
 namespace Ego {
 namespace Script {
 
+#define Define(name) { name, &scr_##name },
+#define DefineAlias(alias, name) { alias, &scr_##name },
+
 Runtime::Runtime() 
 	:
 		_functionValueCodeToFunctionPointer
 		{
-			{ FIFSPAWNED, &scr_IfSpawned },
-			{ FIFTIMEOUT, &scr_IfTimeOut },
-			{ FIFATWAYPOINT, &scr_IfAtWaypoint },
-			{ FIFATLASTWAYPOINT, &scr_IfAtLastWaypoint },
-			{ FIFATTACKED, &scr_IfAttacked },
-			{ FIFBUMPED, &scr_IfBumped },
-			{ FIFORDERED, &scr_IfOrdered },
-			{ FIFCALLEDFORHELP, &scr_IfCalledForHelp },
-			{ FSETCONTENT, &scr_SetContent },
-			{ FIFKILLED, &scr_IfKilled },
-			{ FIFTARGETKILLED, &scr_IfTargetKilled },
-			{ FCLEARWAYPOINTS, &scr_ClearWaypoints },
-			{ FADDWAYPOINT, &scr_AddWaypoint },
-			{ FFINDPATH, &scr_FindPath },
-			{ FCOMPASS, &scr_Compass },
-			{ FGETTARGETARMORPRICE, &scr_GetTargetArmorPrice },
-			{ FSETTIME, &scr_SetTime },
-			{ FGETCONTENT, &scr_GetContent },
-			{ FJOINTARGETTEAM, &scr_JoinTargetTeam },
-			{ FSETTARGETTONEARBYENEMY, &scr_SetTargetToNearbyEnemy },
-			{ FSETTARGETTOTARGETLEFTHAND, &scr_SetTargetToTargetLeftHand },
-			{ FSETTARGETTOTARGETRIGHTHAND, &scr_SetTargetToTargetRightHand },
-			{ FSETTARGETTOWHOEVERATTACKED, &scr_SetTargetToWhoeverAttacked },
-			{ FSETTARGETTOWHOEVERBUMPED, &scr_SetTargetToWhoeverBumped },
-			{ FSETTARGETTOWHOEVERCALLEDFORHELP, &scr_SetTargetToWhoeverCalledForHelp },
-			{ FSETTARGETTOOLDTARGET, &scr_SetTargetToOldTarget },
-			{ FSETTURNMODETOVELOCITY, &scr_SetTurnModeToVelocity },
-			{ FSETTURNMODETOWATCH, &scr_SetTurnModeToWatch },
-			{ FSETTURNMODETOSPIN, &scr_SetTurnModeToSpin },
-			{ FSETBUMPHEIGHT, &scr_SetBumpHeight },
-			{ FIFTARGETHASID, &scr_IfTargetHasID },
-			{ FIFTARGETHASITEMID, &scr_IfTargetHasItemID },
-			{ FIFTARGETHOLDINGITEMID, &scr_IfTargetHoldingItemID },
-			{ FIFTARGETHASSKILLID, &scr_IfTargetHasSkillID },
-			{ FELSE, &scr_Else },
-			{ FRUN, &scr_Run },
-			{ FWALK, &scr_Walk },
-			{ FSNEAK, &scr_Sneak },
-			{ FDOACTION, &scr_DoAction },
-			{ FKEEPACTION, &scr_KeepAction },
-			{ FISSUEORDER, &scr_IssueOrder },
-			{ FDROPWEAPONS, &scr_DropWeapons },
-			{ FTARGETDOACTION, &scr_TargetDoAction },
-			{ FOPENPASSAGE, &scr_OpenPassage },
-			{ FCLOSEPASSAGE, &scr_ClosePassage },
-			{ FIFPASSAGEOPEN, &scr_IfPassageOpen },
-			{ FGOPOOF, &scr_GoPoof },
-			{ FCOSTTARGETITEMID, &scr_CostTargetItemID },
-			{ FDOACTIONOVERRIDE, &scr_DoActionOverride },
-			{ FIFHEALED, &scr_IfHealed },
-			{ FSENDMESSAGE, &scr_SendPlayerMessage },
-			{ FCALLFORHELP, &scr_CallForHelp },
-			{ FADDIDSZ, &scr_AddIDSZ },
-			{ FSETSTATE, &scr_SetState },
-			{ FGETSTATE, &scr_GetState },
-			{ FIFSTATEIS, &scr_IfStateIs },
-			{ FIFTARGETCANOPENSTUFF, &scr_IfTargetCanOpenStuff },
-			{ FIFGRABBED, &scr_IfGrabbed },
-			{ FIFDROPPED, &scr_IfDropped },
-			{ FSETTARGETTOWHOEVERISHOLDING, &scr_SetTargetToWhoeverIsHolding },
-			{ FDAMAGETARGET, &scr_DamageTarget },
-			{ FIFXISLESSTHANY, &scr_IfXIsLessThanY },
-			{ FSETWEATHERTIME, &scr_SetWeatherTime },
-			{ FGETBUMPHEIGHT, &scr_GetBumpHeight },
-			{ FIFREAFFIRMED, &scr_IfReaffirmed },
-			{ FUNKEEPACTION, &scr_UnkeepAction },
-			{ FIFTARGETISONOTHERTEAM, &scr_IfTargetIsOnOtherTeam },
-			{ FIFTARGETISONHATEDTEAM, &scr_IfTargetIsOnHatedTeam },
-			{ FPRESSLATCHBUTTON, &scr_PressLatchButton },
-			{ FSETTARGETTOTARGETOFLEADER, &scr_SetTargetToTargetOfLeader },
-			{ FIFLEADERKILLED, &scr_IfLeaderKilled },
-			{ FBECOMELEADER, &scr_BecomeLeader },
-			{ FCHANGETARGETARMOR, &scr_ChangeTargetArmor },
-			{ FGIVEMONEYTOTARGET, &scr_GiveMoneyToTarget },
-			{ FDROPKEYS, &scr_DropKeys },
-			{ FIFLEADERISALIVE, &scr_IfLeaderIsAlive },
-			{ FIFTARGETISOLDTARGET, &scr_IfTargetIsOldTarget },
-			{ FSETTARGETTOLEADER, &scr_SetTargetToLeader },
-			{ FSPAWNCHARACTER, &scr_SpawnCharacter },
-			{ FRESPAWNCHARACTER, &scr_RespawnCharacter },
-			{ FCHANGETILE, &scr_ChangeTile },
-			{ FIFUSED, &scr_IfUsed },
-			{ FDROPMONEY, &scr_DropMoney },
-			{ FSETOLDTARGET, &scr_SetOldTarget },
-			{ FDETACHFROMHOLDER, &scr_DetachFromHolder },
-			{ FIFTARGETHASVULNERABILITYID, &scr_IfTargetHasVulnerabilityID },
-			{ FCLEANUP, &scr_CleanUp },
-			{ FIFCLEANEDUP, &scr_IfCleanedUp },
-			{ FIFSITTING, &scr_IfSitting },
-			{ FIFTARGETISHURT, &scr_IfTargetIsHurt },
-			{ FIFTARGETISAPLAYER, &scr_IfTargetIsAPlayer },
-			{ FPLAYSOUND, &scr_PlaySound },
-			{ FSPAWNPARTICLE, &scr_SpawnParticle },
-			{ FIFTARGETISALIVE, &scr_IfTargetIsAlive },
-			{ FSTOP, &scr_Stop },
-			{ FDISAFFIRMCHARACTER, &scr_DisaffirmCharacter },
-			{ FREAFFIRMCHARACTER, &scr_ReaffirmCharacter },
-			{ FIFTARGETISSELF, &scr_IfTargetIsSelf },
-			{ FIFTARGETISMALE, &scr_IfTargetIsMale },
-			{ FIFTARGETISFEMALE, &scr_IfTargetIsFemale },
-			{ FSETTARGETTOSELF, &scr_SetTargetToSelf },
-			{ FSETTARGETTORIDER, &scr_SetTargetToRider },
-			{ FGETATTACKTURN, &scr_GetAttackTurn },
-			{ FGETDAMAGETYPE, &scr_GetDamageType },
-			{ FBECOMESPELL, &scr_BecomeSpell },
-			{ FBECOMESPELLBOOK, &scr_BecomeSpellbook },
-			{ FIFSCOREDAHIT, &scr_IfScoredAHit },
-			{ FIFDISAFFIRMED, &scr_IfDisaffirmed },
-			{ FTRANSLATEORDER, &scr_TranslateOrder },
-			{ FSETTARGETTOWHOEVERWASHIT, &scr_SetTargetToWhoeverWasHit },
-			{ FSETTARGETTOWIDEENEMY, &scr_SetTargetToWideEnemy },
-			{ FIFCHANGED, &scr_IfChanged },
-			{ FIFINWATER, &scr_IfInWater },
-			{ FIFBORED, &scr_IfBored },
-			{ FIFTOOMUCHBAGGAGE, &scr_IfTooMuchBaggage },
-			{ FIFGROGGED, &scr_IfGrogged },
-			{ FIFDAZED, &scr_IfDazed },
-			{ FIFTARGETHASSPECIALID, &scr_IfTargetHasSpecialID },
-			{ FPRESSTARGETLATCHBUTTON, &scr_PressTargetLatchButton },
-			{ FIFINVISIBLE, &scr_IfInvisible },
-			{ FIFARMORIS, &scr_IfArmorIs },
-			{ FGETTARGETGROGTIME, &scr_GetTargetGrogTime },
-			{ FGETTARGETDAZETIME, &scr_GetTargetDazeTime },
-			{ FSETDAMAGETYPE, &scr_SetDamageType },
-			{ FSETWATERLEVEL, &scr_SetWaterLevel },
-			{ FENCHANTTARGET, &scr_EnchantTarget },
-			{ FENCHANTCHILD, &scr_EnchantChild },
-			{ FTELEPORTTARGET, &scr_TeleportTarget },
-			{ FGIVEEXPERIENCETOTARGET, &scr_GiveExperienceToTarget },
-			{ FINCREASEAMMO, &scr_IncreaseAmmo },
-			{ FUNKURSETARGET, &scr_UnkurseTarget },
-			{ FGIVEEXPERIENCETOTARGETTEAM, &scr_GiveExperienceToTargetTeam },
-			{ FIFUNARMED, &scr_IfUnarmed },
-			{ FRESTOCKTARGETAMMOIDALL, &scr_RestockTargetAmmoIDAll },
-			{ FRESTOCKTARGETAMMOIDFIRST, &scr_RestockTargetAmmoIDFirst },
-			{ FFLASHTARGET, &scr_FlashTarget },
-			{ FSETREDSHIFT, &scr_SetRedShift },
-			{ FSETGREENSHIFT, &scr_SetGreenShift },
-			{ FSETBLUESHIFT, &scr_SetBlueShift },
-			{ FSETLIGHT, &scr_SetLight },
-			{ FSETALPHA, &scr_SetAlpha },
-			{ FIFHITFROMBEHIND, &scr_IfHitFromBehind },
-			{ FIFHITFROMFRONT, &scr_IfHitFromFront },
-			{ FIFHITFROMLEFT, &scr_IfHitFromLeft },
-			{ FIFHITFROMRIGHT, &scr_IfHitFromRight },
-			{ FIFTARGETISONSAMETEAM, &scr_IfTargetIsOnSameTeam },
-			{ FKILLTARGET, &scr_KillTarget },
-			{ FUNDOENCHANT, &scr_UndoEnchant },
-			{ FGETWATERLEVEL, &scr_GetWaterLevel },
-			{ FCOSTTARGETMANA, &scr_CostTargetMana },
-			{ FIFTARGETHASANYID, &scr_IfTargetHasAnyID },
-			{ FSETBUMPSIZE, &scr_SetBumpSize },
-			{ FIFNOTDROPPED, &scr_IfNotDropped },
-			{ FIFYISLESSTHANX, &scr_IfYIsLessThanX },
-			{ FSETFLYHEIGHT, &scr_SetFlyHeight },
-			{ FIFBLOCKED, &scr_IfBlocked },
-			{ FIFTARGETISDEFENDING, &scr_IfTargetIsDefending },
-			{ FIFTARGETISATTACKING, &scr_IfTargetIsAttacking },
-			{ FIFSTATEIS0, &scr_IfStateIs0 },
-			{ FIFSTATEIS1, &scr_IfStateIs1 },
-			{ FIFSTATEIS2, &scr_IfStateIs2 },
-			{ FIFSTATEIS3, &scr_IfStateIs3 },
-			{ FIFSTATEIS4, &scr_IfStateIs4 },
-			{ FIFSTATEIS5, &scr_IfStateIs5 },
-			{ FIFSTATEIS6, &scr_IfStateIs6 },
-			{ FIFSTATEIS7, &scr_IfStateIs7 },
-			{ FIFCONTENTIS, &scr_IfContentIs },
-			{ FSETTURNMODETOWATCHTARGET, &scr_SetTurnModeToWatchTarget },
-			{ FIFSTATEISNOT, &scr_IfStateIsNot },
-			{ FIFXISEQUALTOY, &scr_IfXIsEqualToY },
-			{ FDEBUGMESSAGE, &scr_DebugMessage },
-			{ FBLACKTARGET, &scr_BlackTarget },
-			{ FSENDMESSAGENEAR, &scr_SendMessageNear },
-			{ FIFHITGROUND, &scr_IfHitGround },
-			{ FIFNAMEISKNOWN, &scr_IfNameIsKnown },
-			{ FIFUSAGEISKNOWN, &scr_IfUsageIsKnown },
-			{ FIFHOLDINGITEMID, &scr_IfHoldingItemID },
-			{ FIFHOLDINGRANGEDWEAPON, &scr_IfHoldingRangedWeapon },
-			{ FIFHOLDINGMELEEWEAPON, &scr_IfHoldingMeleeWeapon },
-			{ FIFHOLDINGSHIELD, &scr_IfHoldingShield },
-			{ FIFKURSED, &scr_IfKursed },
-			{ FIFTARGETISKURSED, &scr_IfTargetIsKursed },
-			{ FIFTARGETISDRESSEDUP, &scr_IfTargetIsDressedUp },
-			{ FIFOVERWATER, &scr_IfOverWater },
-			{ FIFTHROWN, &scr_IfThrown },
-			{ FMAKENAMEKNOWN, &scr_MakeNameKnown },
-			{ FMAKEUSAGEKNOWN, &scr_MakeUsageKnown },
-			{ FSTOPTARGETMOVEMENT, &scr_StopTargetMovement },
-			{ FSETXY, &scr_SetXY },
-			{ FGETXY, &scr_GetXY },
-			{ FADDXY, &scr_AddXY },
-			{ FMAKEAMMOKNOWN, &scr_MakeAmmoKnown },
-			{ FSPAWNATTACHEDPARTICLE, &scr_SpawnAttachedParticle },
-			{ FSPAWNEXACTPARTICLE, &scr_SpawnExactParticle },
-			{ FACCELERATETARGET, &scr_AccelerateTarget },
-			{ FIFDISTANCEISMORETHANTURN, &scr_IfDistanceIsMoreThanTurn },
-			{ FIFCRUSHED, &scr_IfCrushed },
-			{ FMAKECRUSHVALID, &scr_MakeCrushValid },
-			{ FSETTARGETTOLOWESTTARGET, &scr_SetTargetToLowestTarget },
-			{ FIFNOTPUTAWAY, &scr_IfNotPutAway },
-			{ FIFTAKENOUT, &scr_IfTakenOut },
-			{ FIFAMMOOUT, &scr_IfAmmoOut },
-			{ FPLAYSOUNDLOOPED, &scr_PlaySoundLooped },
-			{ FSTOPSOUND, &scr_StopSound },
-			{ FHEALSELF, &scr_HealSelf },
-			{ FEQUIP, &scr_Equip },
-			{ FIFTARGETHASITEMIDEQUIPPED, &scr_IfTargetHasItemIDEquipped },
-			{ FSETOWNERTOTARGET, &scr_SetOwnerToTarget },
-			{ FSETTARGETTOOWNER, &scr_SetTargetToOwner },
-			{ FSETFRAME, &scr_SetFrame },
-			{ FBREAKPASSAGE, &scr_BreakPassage },
-			{ FSETRELOADTIME, &scr_SetReloadTime },
-			{ FSETTARGETTOWIDEBLAHID, &scr_SetTargetToWideBlahID },
-			{ FPOOFTARGET, &scr_PoofTarget },
-			{ FCHILDDOACTIONOVERRIDE, &scr_ChildDoActionOverride },
-			{ FSPAWNPOOF, &scr_SpawnPoof },
-			{ FSETSPEEDPERCENT, &scr_SetSpeedPercent },
-			{ FSETCHILDSTATE, &scr_SetChildState },
-			{ FSPAWNATTACHEDSIZEDPARTICLE, &scr_SpawnAttachedSizedParticle },
-			{ FCHANGEARMOR, &scr_ChangeArmor },
-			{ FSHOWTIMER, &scr_ShowTimer },
-			{ FIFFACINGTARGET, &scr_IfFacingTarget },
-			{ FPLAYSOUNDVOLUME, &scr_PlaySoundVolume },
-			{ FSPAWNATTACHEDFACEDPARTICLE, &scr_SpawnAttachedFacedParticle },
-			{ FIFSTATEISODD, &scr_IfStateIsOdd },
-			{ FSETTARGETTODISTANTENEMY, &scr_SetTargetToDistantEnemy },
-			{ FTELEPORT, &scr_Teleport },
-			{ FGIVESTRENGTHTOTARGET, &scr_GiveStrengthToTarget },
-			{ FGIVEINTELLECTTOTARGET, &scr_GiveIntelligenceToTarget },
-			{ FGIVEINTELLIGENCETOTARGET, &scr_GiveIntelligenceToTarget },
-			{ FGIVEDEXTERITYTOTARGET, &scr_GiveDexterityToTarget },
-			{ FGIVELIFETOTARGET, &scr_GiveLifeToTarget },
-			{ FGIVEMANATOTARGET, &scr_GiveManaToTarget },
-			{ FSHOWMAP, &scr_ShowMap },
-			{ FSHOWYOUAREHERE, &scr_ShowYouAreHere },
-			{ FSHOWBLIPXY, &scr_ShowBlipXY },
-			{ FHEALTARGET, &scr_HealTarget },
-			{ FPUMPTARGET, &scr_PumpTarget },
-			{ FCOSTAMMO, &scr_CostAmmo },
-			{ FMAKESIMILARNAMESKNOWN, &scr_MakeSimilarNamesKnown },
-			{ FSPAWNATTACHEDHOLDERPARTICLE, &scr_SpawnAttachedHolderParticle },
-			{ FSETTARGETRELOADTIME, &scr_SetTargetReloadTime },
-			{ FSETFOGLEVEL, &scr_SetFogLevel },
-			{ FGETFOGLEVEL, &scr_GetFogLevel },
-			{ FSETFOGTAD, &scr_SetFogTAD },
-			{ FSETFOGBOTTOMLEVEL, &scr_SetFogBottomLevel },
-			{ FGETFOGBOTTOMLEVEL, &scr_GetFogBottomLevel },
-			{ FCORRECTACTIONFORHAND, &scr_CorrectActionForHand },
-			{ FIFTARGETISMOUNTED, &scr_IfTargetIsMounted },
-			{ FSPARKLEICON, &scr_SparkleIcon },
-			{ FUNSPARKLEICON, &scr_UnsparkleIcon },
-			{ FGETTILEXY, &scr_GetTileXY },
-			{ FSETTILEXY, &scr_SetTileXY },
-			{ FSETSHADOWSIZE, &scr_SetShadowSize },
-			{ FORDERTARGET, &scr_OrderTarget },
-			{ FSETTARGETTOWHOEVERISINPASSAGE, &scr_SetTargetToWhoeverIsInPassage },
-			{ FIFCHARACTERWASABOOK, &scr_IfCharacterWasABook },
-			{ FSETENCHANTBOOSTVALUES, &scr_SetEnchantBoostValues },
-			{ FSPAWNCHARACTERXYZ, &scr_SpawnCharacterXYZ },
-			{ FSPAWNEXACTCHARACTERXYZ, &scr_SpawnExactCharacterXYZ },
-			{ FCHANGETARGETCLASS, &scr_ChangeTargetClass },
-			{ FPLAYFULLSOUND, &scr_PlayFullSound },
-			{ FSPAWNEXACTCHASEPARTICLE, &scr_SpawnExactChaseParticle },
-			{ FCREATEORDER, &scr_CreateOrder },
-			{ FORDERSPECIALID, &scr_OrderSpecialID },
-			{ FUNKURSETARGETINVENTORY, &scr_UnkurseTargetInventory },
-			{ FIFTARGETISSNEAKING, &scr_IfTargetIsSneaking },
-			{ FDROPITEMS, &scr_DropItems },
-			{ FRESPAWNTARGET, &scr_RespawnTarget },
-			{ FTARGETDOACTIONSETFRAME, &scr_TargetDoActionSetFrame },
-			{ FIFTARGETCANSEEINVISIBLE, &scr_IfTargetCanSeeInvisible },
-			{ FSETTARGETTONEARESTBLAHID, &scr_SetTargetToNearestBlahID },
-			{ FSETTARGETTONEARESTENEMY, &scr_SetTargetToNearestEnemy },
-			{ FSETTARGETTONEARESTFRIEND, &scr_SetTargetToNearestFriend },
-			{ FSETTARGETTONEARESTLIFEFORM, &scr_SetTargetToNearestLifeform },
-			{ FFLASHPASSAGE, &scr_FlashPassage },
-			{ FFINDTILEINPASSAGE, &scr_FindTileInPassage },
-			{ FIFHELDINLEFTHAND, &scr_IfHeldInLeftHand },
-			{ FNOTANITEM, &scr_NotAnItem },
-			{ FSETCHILDAMMO, &scr_SetChildAmmo },
-			{ FIFHITVULNERABLE, &scr_IfHitVulnerable },
-			{ FIFTARGETISFLYING, &scr_IfTargetIsFlying },
-			{ FIDENTIFYTARGET, &scr_IdentifyTarget },
-			{ FBEATMODULE, &scr_BeatModule },
-			{ FENDMODULE, &scr_EndModule },
-			{ FDISABLEEXPORT, &scr_DisableExport },
-			{ FENABLEEXPORT, &scr_EnableExport },
-			{ FGETTARGETSTATE, &scr_GetTargetState },
-			{ FIFEQUIPPED, &scr_IfEquipped },
-			{ FDROPTARGETMONEY, &scr_DropTargetMoney },
-			{ FGETTARGETCONTENT, &scr_GetTargetContent },
-			{ FDROPTARGETKEYS, &scr_DropTargetKeys },
-			{ FJOINTEAM, &scr_JoinTeam },
-			{ FTARGETJOINTEAM, &scr_TargetJoinTeam },
-			{ FCLEARMUSICPASSAGE, &scr_ClearMusicPassage },
-			{ FCLEARENDMESSAGE, &scr_ClearEndMessage },
-			{ FADDENDMESSAGE, &scr_AddEndMessage },
-			{ FPLAYMUSIC, &scr_PlayMusic },
-			{ FSETMUSICPASSAGE, &scr_SetMusicPassage },
-			{ FMAKECRUSHINVALID, &scr_MakeCrushInvalid },
-			{ FSTOPMUSIC, &scr_StopMusic },
-			{ FFLASHVARIABLE, &scr_FlashVariable },
-			{ FACCELERATEUP, &scr_AccelerateUp },
-			{ FFLASHVARIABLEHEIGHT, &scr_FlashVariableHeight },
-			{ FSETDAMAGETIME, &scr_SetDamageTime },
-			{ FIFSTATEIS8, &scr_IfStateIs8 },
-			{ FIFSTATEIS9, &scr_IfStateIs9 },
-			{ FIFSTATEIS10, &scr_IfStateIs10 },
-			{ FIFSTATEIS11, &scr_IfStateIs11 },
-			{ FIFSTATEIS12, &scr_IfStateIs12 },
-			{ FIFSTATEIS13, &scr_IfStateIs13 },
-			{ FIFSTATEIS14, &scr_IfStateIs14 },
-			{ FIFSTATEIS15, &scr_IfStateIs15 },
-			{ FIFTARGETISAMOUNT, &scr_IfTargetIsAMount },
-			{ FIFTARGETISAPLATFORM, &scr_IfTargetIsAPlatform },
-			{ FADDSTAT, &scr_AddStat },
-			{ FDISENCHANTTARGET, &scr_DisenchantTarget },
-			{ FDISENCHANTALL, &scr_DisenchantAll },
-			{ FSETVOLUMENEARESTTEAMMATE, &scr_SetVolumeNearestTeammate },
-			{ FADDSHOPPASSAGE, &scr_AddShopPassage },
-			{ FTARGETPAYFORARMOR, &scr_TargetPayForArmor },
-			{ FJOINEVILTEAM, &scr_JoinEvilTeam },
-			{ FJOINNULLTEAM, &scr_JoinNullTeam },
-			{ FJOINGOODTEAM, &scr_JoinGoodTeam },
-			{ FPITSKILL, &scr_PitsKill },
-			{ FSETTARGETTOPASSAGEID, &scr_SetTargetToPassageID },
-			{ FMAKENAMEUNKNOWN, &scr_MakeNameUnknown },
-			{ FSPAWNEXACTPARTICLEENDSPAWN, &scr_SpawnExactParticleEndSpawn },
-			{ FSPAWNPOOFSPEEDSPACINGDAMAGE, &scr_SpawnPoofSpeedSpacingDamage },
-			{ FGIVEEXPERIENCETOGOODTEAM, &scr_GiveExperienceToGoodTeam },
-			{ FDONOTHING, &scr_DoNothing },
-			{ FGROGTARGET, &scr_GrogTarget },
-			{ FDAZETARGET, &scr_DazeTarget },
-			{ FENABLERESPAWN, &scr_EnableRespawn },
-			{ FDISABLERESPAWN, &scr_DisableRespawn },
-			{ FDISPELTARGETENCHANTID, &scr_DispelTargetEnchantID },
-			{ FIFHOLDERBLOCKED, &scr_IfHolderBlocked },
+			Define(IfSpawned)
+			Define(IfTimeOut)
+			Define(IfAtWaypoint)
+			Define(IfAtLastWaypoint)
+			Define(IfAttacked)
+			Define(IfBumped)
+			Define(IfOrdered)
+			Define(IfCalledForHelp)
+			Define(SetContent)
+			Define(IfKilled)
+			Define(IfTargetKilled)
+			Define(ClearWaypoints)
+			Define(AddWaypoint)
+			Define(FindPath)
+			Define(Compass)
+			Define(GetTargetArmorPrice)
+			Define(SetTime)
+			Define(GetContent)
+			Define(JoinTargetTeam)
+			Define(SetTargetToNearbyEnemy)
+			Define(SetTargetToTargetLeftHand)
+			Define(SetTargetToTargetRightHand)
+			Define(SetTargetToWhoeverAttacked)
+			Define(SetTargetToWhoeverBumped)
+			Define(SetTargetToWhoeverCalledForHelp)
+			Define(SetTargetToOldTarget)
+			Define(SetTurnModeToVelocity)
+			Define(SetTurnModeToWatch)
+			Define(SetTurnModeToSpin)
+			Define(SetBumpHeight)
+			Define(IfTargetHasID)
+			Define(IfTargetHasItemID)
+			Define(IfTargetHoldingItemID)
+			Define(IfTargetHasSkillID)
+			Define(Else)
+			Define(Run)
+			Define(Walk)
+			Define(Sneak)
+			Define(DoAction)
+			Define(KeepAction)
+			Define(IssueOrder)
+			Define(DropWeapons)
+			Define(TargetDoAction)
+			Define(OpenPassage)
+			Define(ClosePassage)
+			Define(IfPassageOpen)
+			Define(GoPoof)
+			Define(CostTargetItemID)
+			Define(DoActionOverride)
+			Define(IfHealed)
+			Define(SendMessage)
+			Define(CallForHelp)
+			Define(AddIDSZ)
+			Define(SetState)
+			Define(GetState)
+			Define(IfStateIs)
+			Define(IfTargetCanOpenStuff)
+			Define(IfGrabbed)
+			Define(IfDropped)
+			Define(SetTargetToWhoeverIsHolding)
+			Define(DamageTarget)
+			Define(IfXIsLessThanY)
+			Define(SetWeatherTime)
+			Define(GetBumpHeight)
+			Define(IfReaffirmed)
+			Define(UnkeepAction)
+			Define(IfTargetIsOnOtherTeam)
+			Define(IfTargetIsOnHatedTeam)
+			Define(PressLatchButton)
+			Define(SetTargetToTargetOfLeader)
+			Define(IfLeaderKilled)
+			Define(BecomeLeader)
+			Define(ChangeTargetArmor)
+			Define(GiveMoneyToTarget)
+			Define(DropKeys)
+			Define(IfLeaderIsAlive)
+			Define(IfTargetIsOldTarget)
+			Define(SetTargetToLeader)
+			Define(SpawnCharacter)
+			Define(RespawnCharacter)
+			Define(ChangeTile)
+			Define(IfUsed)
+			Define(DropMoney)
+			Define(SetOldTarget)
+			Define(DetachFromHolder)
+			Define(IfTargetHasVulnerabilityID)
+			Define(CleanUp)
+			Define(IfCleanedUp)
+			Define(IfSitting)
+			Define(IfTargetIsHurt)
+			Define(IfTargetIsAPlayer)
+			Define(PlaySound)
+			Define(SpawnParticle)
+			Define(IfTargetIsAlive)
+			Define(Stop)
+			Define(DisaffirmCharacter)
+			Define(ReaffirmCharacter)
+			Define(IfTargetIsSelf)
+			Define(IfTargetIsMale)
+			Define(IfTargetIsFemale)
+			Define(SetTargetToSelf)
+			Define(SetTargetToRider)
+			Define(GetAttackTurn)
+			Define(GetDamageType)
+			Define(BecomeSpell)
+			Define(BecomeSpellbook)
+			Define(IfScoredAHit)
+			Define(IfDisaffirmed)
+			Define(TranslateOrder)
+			Define(SetTargetToWhoeverWasHit)
+			Define(SetTargetToWideEnemy)
+			Define(IfChanged)
+			Define(IfInWater)
+			Define(IfBored)
+			Define(IfTooMuchBaggage)
+			Define(IfGrogged)
+			Define(IfDazed)
+			Define(IfTargetHasSpecialID)
+			Define(PressTargetLatchButton)
+			Define(IfInvisible)
+			Define(IfArmorIs)
+			Define(GetTargetGrogTime)
+			Define(GetTargetDazeTime)
+			Define(SetDamageType)
+			Define(SetWaterLevel)
+			Define(EnchantTarget)
+			Define(EnchantChild)
+			Define(TeleportTarget)
+			Define(GiveExperienceToTarget)
+			Define(IncreaseAmmo)
+			Define(UnkurseTarget)
+			Define(GiveExperienceToTargetTeam)
+			Define(IfUnarmed)
+			Define(RestockTargetAmmoIDAll)
+			Define(RestockTargetAmmoIDFirst)
+			Define(FlashTarget)
+			Define(SetRedShift)
+			Define(SetGreenShift)
+			Define(SetBlueShift)
+			Define(SetLight)
+			Define(SetAlpha)
+			Define(IfHitFromBehind)
+			Define(IfHitFromFront)
+			Define(IfHitFromLeft)
+			Define(IfHitFromRight)
+			Define(IfTargetIsOnSameTeam)
+			Define(KillTarget)
+			Define(UndoEnchant)
+			Define(GetWaterLevel)
+			Define(CostTargetMana)
+			Define(IfTargetHasAnyID)
+			Define(SetBumpSize)
+			Define(IfNotDropped)
+			Define(IfYIsLessThanX)
+			Define(SetFlyHeight)
+			Define(IfBlocked)
+			Define(IfTargetIsDefending)
+			Define(IfTargetIsAttacking)
+			Define(IfStateIs0)
+			Define(IfStateIs1)
+			Define(IfStateIs2)
+			Define(IfStateIs3)
+			Define(IfStateIs4)
+			Define(IfStateIs5)
+			Define(IfStateIs6)
+			Define(IfStateIs7)
+			Define(IfContentIs)
+			Define(SetTurnModeToWatchTarget)
+			Define(IfStateIsNot)
+			Define(IfXIsEqualToY)
+			Define(DebugMessage)
+			Define(BlackTarget)
+			Define(SendMessageNear)
+			Define(IfHitGround)
+			Define(IfNameIsKnown)
+			Define(IfUsageIsKnown)
+			Define(IfHoldingItemID)
+			Define(IfHoldingRangedWeapon)
+			Define(IfHoldingMeleeWeapon)
+			Define(IfHoldingShield)
+			Define(IfKursed)
+			Define(IfTargetIsKursed)
+			Define(IfTargetIsDressedUp)
+			Define(IfOverWater)
+			Define(IfThrown)
+			Define(MakeNameKnown)
+			Define(MakeUsageKnown)
+			Define(StopTargetMovement)
+			Define(SetXY)
+			Define(GetXY)
+			Define(AddXY)
+			Define(MakeAmmoKnown)
+			Define(SpawnAttachedParticle)
+			Define(SpawnExactParticle)
+			Define(AccelerateTarget)
+			Define(IfDistanceIsMoreThanTurn)
+			Define(IfCrushed)
+			Define(MakeCrushValid)
+			Define(SetTargetToLowestTarget)
+			Define(IfNotPutAway)
+			Define(IfTakenOut)
+			Define(IfAmmoOut)
+			Define(PlaySoundLooped)
+			Define(StopSound)
+			Define(HealSelf)
+			Define(Equip)
+			Define(IfTargetHasItemIDEquipped)
+			Define(SetOwnerToTarget)
+			Define(SetTargetToOwner)
+			Define(SetFrame)
+			Define(BreakPassage)
+			Define(SetReloadTime)
+			Define(SetTargetToWideBlahID)
+			Define(PoofTarget)
+			Define(ChildDoActionOverride)
+			Define(SpawnPoof)
+			Define(SetSpeedPercent)
+			Define(SetChildState)
+			Define(SpawnAttachedSizedParticle)
+			Define(ChangeArmor)
+			Define(ShowTimer)
+			Define(IfFacingTarget)
+			Define(PlaySoundVolume)
+			Define(SpawnAttachedFacedParticle)
+			Define(IfStateIsOdd)
+			Define(SetTargetToDistantEnemy)
+			Define(Teleport)
+			Define(GiveStrengthToTarget)
+			DefineAlias(GiveIntellectToTarget,GiveIntelligenceToTarget)
+			Define(GiveIntelligenceToTarget)
+			Define(GiveDexterityToTarget)
+			Define(GiveLifeToTarget)
+			Define(GiveManaToTarget)
+			Define(ShowMap)
+			Define(ShowYouAreHere)
+			Define(ShowBlipXY)
+			Define(HealTarget)
+			Define(PumpTarget)
+			Define(CostAmmo)
+			Define(MakeSimilarNamesKnown)
+			Define(SpawnAttachedHolderParticle)
+			Define(SetTargetReloadTime)
+			Define(SetFogLevel)
+			Define(GetFogLevel)
+			Define(SetFogTAD)
+			Define(SetFogBottomLevel)
+			Define(GetFogBottomLevel)
+			Define(CorrectActionForHand)
+			Define(IfTargetIsMounted)
+			Define(SparkleIcon)
+			Define(UnsparkleIcon)
+			Define(GetTileXY)
+			Define(SetTileXY)
+			Define(SetShadowSize)
+			Define(OrderTarget)
+			Define(SetTargetToWhoeverIsInPassage)
+			Define(IfCharacterWasABook)
+			Define(SetEnchantBoostValues)
+			Define(SpawnCharacterXYZ)
+			Define(SpawnExactCharacterXYZ)
+			Define(ChangeTargetClass)
+			Define(PlayFullSound)
+			Define(SpawnExactChaseParticle)
+			Define(CreateOrder)
+			Define(OrderSpecialID)
+			Define(UnkurseTargetInventory)
+			Define(IfTargetIsSneaking)
+			Define(DropItems)
+			Define(RespawnTarget)
+			Define(TargetDoActionSetFrame)
+			Define(IfTargetCanSeeInvisible)
+			Define(SetTargetToNearestBlahID)
+			Define(SetTargetToNearestEnemy)
+			Define(SetTargetToNearestFriend)
+			Define(SetTargetToNearestLifeform)
+			Define(FlashPassage)
+			Define(FindTileInPassage)
+			Define(IfHeldInLeftHand)
+			Define(NotAnItem)
+			Define(SetChildAmmo)
+			Define(IfHitVulnerable)
+			Define(IfTargetIsFlying)
+			Define(IdentifyTarget)
+			Define(BeatModule)
+			Define(EndModule)
+			Define(DisableExport)
+			Define(EnableExport)
+			Define(GetTargetState)
+			Define(IfEquipped)
+			Define(DropTargetMoney)
+			Define(GetTargetContent)
+			Define(DropTargetKeys)
+			Define(JoinTeam)
+			Define(TargetJoinTeam)
+			Define(ClearMusicPassage)
+			Define(ClearEndMessage)
+			Define(AddEndMessage)
+			Define(PlayMusic)
+			Define(SetMusicPassage)
+			Define(MakeCrushInvalid)
+			Define(StopMusic)
+			Define(FlashVariable)
+			Define(AccelerateUp)
+			Define(FlashVariableHeight)
+			Define(SetDamageTime)
+			Define(IfStateIs8)
+			Define(IfStateIs9)
+			Define(IfStateIs10)
+			Define(IfStateIs11)
+			Define(IfStateIs12)
+			Define(IfStateIs13)
+			Define(IfStateIs14)
+			Define(IfStateIs15)
+			Define(IfTargetIsAMount)
+			Define(IfTargetIsAPlatform)
+			Define(AddStat)
+			Define(DisenchantTarget)
+			Define(DisenchantAll)
+			Define(SetVolumeNearestTeammate)
+			Define(AddShopPassage)
+			Define(TargetPayForArmor)
+			Define(JoinEvilTeam)
+			Define(JoinNullTeam)
+			Define(JoinGoodTeam)
+			Define(PitsKill)
+			Define(SetTargetToPassageID)
+			Define(MakeNameUnknown)
+			Define(SpawnExactParticleEndSpawn)
+			Define(SpawnPoofSpeedSpacingDamage)
+			Define(GiveExperienceToGoodTeam)
+			Define(DoNothing)
+			Define(GrogTarget)
+			Define(DazeTarget)
+			Define(EnableRespawn)
+			Define(DisableRespawn)
+			Define(DispelTargetEnchantID)
+			Define(IfHolderBlocked)
 
-			{ FIFTARGETHASNOTFULLMANA, &scr_IfTargetHasNotFullMana },
-			{ FENABLELISTENSKILL, &scr_EnableListenSkill },
-			{ FSETTARGETTOLASTITEMUSED, &scr_SetTargetToLastItemUsed },
-			{ FFOLLOWLINK, &scr_FollowLink },
-			{ FIFOPERATORISLINUX, &scr_IfOperatorIsLinux },
-			{ FIFTARGETISAWEAPON, &scr_IfTargetIsAWeapon },
-			{ FIFSOMEONEISSTEALING, &scr_IfSomeoneIsStealing },
-			{ FIFTARGETISASPELL, &scr_IfTargetIsASpell },
-			{ FIFBACKSTABBED, &scr_IfBackstabbed },
-			{ FGETTARGETDAMAGETYPE, &scr_GetTargetDamageType },
-			{ FADDQUEST, &scr_AddQuest },
-			{ FBEATQUESTALLPLAYERS, &scr_BeatQuestAllPlayers },
-			{ FIFTARGETHASQUEST, &scr_IfTargetHasQuest },
-			{ FSETQUESTLEVEL, &scr_SetQuestLevel },
-			{ FADDQUESTALLPLAYERS, &scr_AddQuestAllPlayers },
-			{ FADDBLIPALLENEMIES, &scr_AddBlipAllEnemies },
-			{ FPITSFALL, &scr_PitsFall },
-			{ FIFTARGETISOWNER, &scr_IfTargetIsOwner },
-			{ FEND, &scr_End },
+			Define(IfTargetHasNotFullMana)
+			Define(EnableListenSkill)
+			Define(SetTargetToLastItemUsed)
+			Define(FollowLink)
+			Define(IfOperatorIsLinux)
+			Define(IfTargetIsAWeapon)
+			Define(IfSomeoneIsStealing)
+			Define(IfTargetIsASpell)
+			Define(IfBackstabbed)
+			Define(GetTargetDamageType)
+			Define(AddQuest)
+			Define(BeatQuestAllPlayers)
+			Define(IfTargetHasQuest)
+			Define(SetQuestLevel)
+			Define(AddQuestAllPlayers)
+			Define(AddBlipAllEnemies)
+			Define(PitsFall)
+			Define(IfTargetIsOwner)
+			Define(End)
 
-			{ FSETSPEECH, &scr_SetSpeech },
-			{ FSETMOVESPEECH, &scr_SetMoveSpeech },
-			{ FSETSECONDMOVESPEECH, &scr_SetSecondMoveSpeech },
-			{ FSETATTACKSPEECH, &scr_SetAttackSpeech },
-			{ FSETASSISTSPEECH, &scr_SetAssistSpeech },
-			{ FSETTERRAINSPEECH, &scr_SetTerrainSpeech },
-			{ FSETSELECTSPEECH, &scr_SetSelectSpeech },
+			Define(SetSpeech)
+			Define(SetMoveSpeech)
+			Define(SetSecondMoveSpeech)
+			Define(SetAttackSpeech)
+			Define(SetAssistSpeech)
+			Define(SetTerrainSpeech)
+			Define(SetSelectSpeech)
 
-			{ FTAKEPICTURE, &scr_TakePicture },
-			{ FIFOPERATORISMACINTOSH, &scr_IfOperatorIsMacintosh },
-			{ FIFMODULEHASIDSZ, &scr_IfModuleHasIDSZ },
-			{ FMORPHTOTARGET, &scr_MorphToTarget },
-			{ FGIVEMANAFLOWTOTARGET, &scr_GiveManaFlowToTarget },
-			{ FGIVEMANARETURNTOTARGET, &scr_GiveManaReturnToTarget },
-			{ FSETMONEY, &scr_SetMoney },
-			{ FIFTARGETCANSEEKURSES, &scr_IfTargetCanSeeKurses },
-			{ FSPAWNATTACHEDCHARACTER, &scr_SpawnAttachedCharacter },
-			{ FKURSETARGET, &scr_KurseTarget },
-			{ FSETCHILDCONTENT, &scr_SetChildContent },
-			{ FSETTARGETTOCHILD, &scr_SetTargetToChild },
-			{ FSETDAMAGETHRESHOLD, &scr_SetDamageThreshold },
-			{ FACCELERATETARGETUP, &scr_AccelerateTargetUp },
-			{ FSETTARGETAMMO, &scr_SetTargetAmmo },
-			{ FENABLEINVICTUS, &scr_EnableInvictus },
-			{ FDISABLEINVICTUS, &scr_DisableInvictus },
-			{ FTARGETDAMAGESELF, &scr_TargetDamageSelf },
-			{ FSETTARGETSIZE, &scr_SetTargetSize },
-			{ FIFTARGETISFACINGSELF, &scr_IfTargetIsFacingSelf },
+			Define(TakePicture)
+			Define(IfOperatorIsMacintosh)
+			Define(IfModuleHasIDSZ)
+			Define(MorphToTarget)
+			Define(GiveManaFlowToTarget)
+			Define(GiveManaReturnToTarget)
+			Define(SetMoney)
+			Define(IfTargetCanSeeKurses)
+			Define(SpawnAttachedCharacter)
+			Define(KurseTarget)
+			Define(SetChildContent)
+			Define(SetTargetToChild)
+			Define(SetDamageThreshold)
+			Define(AccelerateTargetUp)
+			Define(SetTargetAmmo)
+			Define(EnableInvictus)
+			Define(DisableInvictus)
+			Define(TargetDamageSelf)
+			Define(SetTargetSize)
+			Define(IfTargetIsFacingSelf)
 
-			{ FDRAWBILLBOARD, &scr_DrawBillboard },
-			{ FSETTARGETTOFIRSTBLAHINPASSAGE, &scr_SetTargetToBlahInPassage },
-			{ FIFLEVELUP, &scr_IfLevelUp },
-			{ FGIVESKILLTOTARGET, &scr_GiveSkillToTarget },
-			{ FSETTARGETTONEARBYMELEEWEAPON, &scr_SetTargetToNearbyMeleeWeapon },
+			Define(DrawBillboard)
+			Define(SetTargetToBlahInPassage)
+			Define(IfLevelUp)
+			Define(GiveSkillToTarget)
+			Define(SetTargetToNearbyMeleeWeapon)
 
-			{ FENABLESTEALTH, &scr_EnableStealth },
-			{ FDISABLESTEALTH, &scr_DisableStealth },
-			{ FIFSTEALTHED, &scr_IfStealthed },
-			{ FSETTARGETTODISTANTFRIEND, &scr_SetTargetToDistantFriend },
-			{ FDISPLAYCHARGE, &scr_DisplayCharge },
+			Define(EnableStealth)
+			Define(DisableStealth)
+			Define(IfStealthed)
+			Define(SetTargetToDistantFriend)
+			Define(DisplayCharge)
 		}
 {
 }
+
+#undef DefineAlias
+#undef Define
 
 Runtime::~Runtime() {
 }
@@ -458,8 +464,8 @@ Runtime::~Runtime() {
 static std::shared_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> g_scriptFunctionClock = nullptr;
 /// @todo Data points (avg. runtimes) sorted into categories (script functions): This is a histogram
 ///       and can be implemented as such.
-static int    _script_function_calls[SCRIPT_FUNCTIONS_COUNT];
-static double _script_function_times[SCRIPT_FUNCTIONS_COUNT];
+static int    _script_function_calls[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT];
+static double _script_function_times[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT];
 
 static PRO_REF script_error_model = INVALID_PRO_REF;
 static const char * script_error_classname = "UNKNOWN";
@@ -473,7 +479,7 @@ void scripting_system_begin()
 	if (!_scripting_system_initialized) {
 		Ego::Script::Runtime::initialize();
 		g_scriptFunctionClock = std::make_shared<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("script function clock", 1);
-		for (size_t i = 0; i < SCRIPT_FUNCTIONS_COUNT; ++i) {
+		for (size_t i = 0; i < Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT; ++i) {
 			_script_function_calls[i] = 0;
 			_script_function_times[i] = 0.0F;
 		}
@@ -486,7 +492,7 @@ void scripting_system_end()
     if (_scripting_system_initialized) {
 		vfs_FILE *target = vfs_openAppend("/debug/script_function_timing.txt");
 		if (nullptr != target) {
-            for (size_t i = 0; i < SCRIPT_FUNCTIONS_COUNT; ++i) {
+            for (size_t i = 0; i < Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT; ++i) {
                 if (_script_function_calls[i] > 0) {
 					vfs_printf(target, "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
 						       static_cast<int>(i), script_function_names[i], _script_function_calls[i], _script_function_times[i]);
@@ -791,7 +797,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
         }
     }
 
-    if ( valuecode > SCRIPT_FUNCTIONS_COUNT )
+    if ( valuecode > Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT )
     {
     }
     else

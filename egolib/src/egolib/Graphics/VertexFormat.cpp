@@ -31,6 +31,7 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFor
     switch (vertexFormat)
     {
         case VertexFormat::P2F:          return get<VertexFormat::P2F>();
+		case VertexFormat::P2FT2F:       return get<VertexFormat::P2FT2F>();
         case VertexFormat::P3F:          return get<VertexFormat::P3F>();
         case VertexFormat::P3FT2F:       return get<VertexFormat::P3FT2F>();
         case VertexFormat::P3FC4F:       return get<VertexFormat::P3FC4F>();
@@ -47,14 +48,29 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2F>()
 {
     static const VertexFormatDescriptor INSTANCE
         (
-        VertexFormat::P2F,
-        sizeof(float) * 2,
-        sizeof(float) * 2, // position
-        0,                 // colour
-        0,                 // texture
-        0                  // normal
+			VertexFormat::P2F,
+			sizeof(float) * 2,
+			sizeof(float) * 2, // position
+			0,                 // colour
+			0,                 // texture
+			0                  // normal
         );
     return INSTANCE;
+}
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2FT2F>()
+{
+	static const VertexFormatDescriptor INSTANCE
+		(
+			VertexFormat::P2FT2F,
+			sizeof(float) * 2 + sizeof(float) * 2,
+			sizeof(float) * 2, // position
+			0,                 // colour
+			sizeof(float) * 2, // texture
+			0                  // normal
+		);
+	return INSTANCE;
 }
 
 template <>
@@ -62,12 +78,12 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3F>()
 {
     static const VertexFormatDescriptor INSTANCE
         (
-        VertexFormat::P3F,
-        sizeof(float) * 3,
-        sizeof(float) * 3, // position
-        0 ,                // colour
-        0,                 // texture
-        0                  // normal
+			VertexFormat::P3F,
+			sizeof(float) * 3,
+			sizeof(float) * 3, // position
+			0 ,                // colour
+			0,                 // texture
+			0                  // normal
         );
     return INSTANCE;
 }
@@ -92,12 +108,12 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FT2F>(
 {
     static const VertexFormatDescriptor INSTANCE
         (
-        VertexFormat::P3FT2F,
-        sizeof(float) * 3 + sizeof(float) * 2,
-        sizeof(float) * 3, // position
-        0,                 // colour
-        sizeof(float) * 2, // texture
-        0                  // normal
+			VertexFormat::P3FT2F,
+			sizeof(float) * 3 + sizeof(float) * 2,
+			sizeof(float) * 3, // position
+			0,                 // colour
+			sizeof(float) * 2, // texture
+			0                  // normal
         );
     return INSTANCE;
 }
@@ -148,6 +164,5 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2
         );
     return INSTANCE;
 }
-
 
 } // namespace Ego

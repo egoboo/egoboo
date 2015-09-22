@@ -373,14 +373,20 @@ void draw_quad_2d(const oglx_texture_t *tex, const ego_frect_t scr_rect, const e
 			renderer.setAlphaTestEnabled(false);
         }
 
-        GL_DEBUG( glBegin )( GL_QUADS );
-        {
-			GL_DEBUG(glTexCoord2f)(tx_rect.xmin, tx_rect.ymax); GL_DEBUG(glVertex2f)(scr_rect.xmin, scr_rect.ymax);
-			GL_DEBUG(glTexCoord2f)(tx_rect.xmax, tx_rect.ymax); GL_DEBUG(glVertex2f)(scr_rect.xmax, scr_rect.ymax);
-			GL_DEBUG(glTexCoord2f)(tx_rect.xmax, tx_rect.ymin); GL_DEBUG(glVertex2f)(scr_rect.xmax, scr_rect.ymin);
-			GL_DEBUG(glTexCoord2f)(tx_rect.xmin, tx_rect.ymin); GL_DEBUG(glVertex2f)(scr_rect.xmin, scr_rect.ymin);
-        }
-        GL_DEBUG_END();
+		Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2FT2F>());
+		{
+			struct Vertex {
+				float x, y;
+				float s, t;
+			};
+			Ego::VertexBufferScopedLock vblck(vb);
+			Vertex *vertices = vblck.get<Vertex>();
+			vertices[0].x = scr_rect.xmin; vertices[0].y = scr_rect.ymax; vertices[0].s = tx_rect.xmin; vertices[0].t = tx_rect.ymax;
+			vertices[1].x = scr_rect.xmax; vertices[1].y = scr_rect.ymax; vertices[1].s = tx_rect.xmax; vertices[1].t = tx_rect.ymax;
+			vertices[2].x = scr_rect.xmax; vertices[2].y = scr_rect.ymin; vertices[2].s = tx_rect.xmax; vertices[2].t = tx_rect.ymin;
+			vertices[3].x = scr_rect.xmin; vertices[3].y = scr_rect.ymin; vertices[3].s = tx_rect.xmin; vertices[3].t = tx_rect.ymin;
+		}
+		renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
     ATTRIB_POP( __FUNCTION__ );
 }

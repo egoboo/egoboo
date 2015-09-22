@@ -447,6 +447,7 @@ void Renderer::setPointSmoothEnabled(bool enabled)
 	} else {
 		glDisable(GL_POINT_SMOOTH);
 	}
+	Utilities::isError();
 }
 
 void Renderer::setLineSmoothEnabled(bool enabled)
@@ -457,6 +458,19 @@ void Renderer::setLineSmoothEnabled(bool enabled)
 	} else {
 		glDisable(GL_LINE_SMOOTH);
 	}
+	Utilities::isError();
+}
+
+void Renderer::setLineWidth(float width)
+{
+	glLineWidth(width);
+	Utilities::isError();
+}
+
+void Renderer::setPointSize(float size)
+{
+	glPointSize(size);
+	Utilities::isError();
 }
 
 void Renderer::setPolygonSmoothEnabled(bool enabled)
@@ -468,6 +482,7 @@ void Renderer::setPolygonSmoothEnabled(bool enabled)
 	else {
 		glDisable(GL_POLYGON_SMOOTH);
 	}
+	Utilities::isError();
 }
 
 void Renderer::setMultisamplesEnabled(bool enabled)
@@ -549,6 +564,21 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                             vertices + offset);
         }
         break;
+		case VertexFormat::P2FT2F:
+		{
+			// Enable the required client-side capabilities.
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			// Set the pointers.
+			size_t offset = 0;
+			glVertexPointer(2, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
+				            vertices + offset);
+			offset += vertexFormatDescriptor.getPositionSize();
+			offset += vertexFormatDescriptor.getColorSize();
+			glTexCoordPointer(2, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
+				              vertices + offset);
+		}
+		break;
         case VertexFormat::P3F:
         {
             // Enable the required client-side capabilities.

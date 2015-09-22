@@ -58,15 +58,18 @@ extern StaticArray<opcode_data_t, MAX_OPCODE> OpList;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+namespace Ego
+{
 /// A list of all possible egoscript functions
-enum e_script_functions
+enum ScriptFunctions
 {
 #define Define(name) name,
 #include "egolib/Script/Functions.in"
 #undef Define
     SCRIPT_FUNCTIONS_COUNT
 };
-extern const char *script_function_names[SCRIPT_FUNCTIONS_COUNT];
+} // namespace Ego
+extern const char *script_function_names[Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT];
 
 /// A list of all possible egoscript variables
 enum e_script_variables

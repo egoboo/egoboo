@@ -415,7 +415,7 @@ bool Console::draw()
 	auto black = Ego::Math::Colour4f::black();
 
 	renderer.setColour(white);
-	GL_DEBUG(glLineWidth)(5);
+	renderer.setLineWidth(5);
 	GL_DEBUG(glBegin)(GL_LINE_LOOP);
 	{
 		GL_DEBUG(glVertex2i)(pwin->x, pwin->y);
@@ -425,7 +425,7 @@ bool Console::draw()
 	}
 	GL_DEBUG_END();
 
-	GL_DEBUG(glLineWidth)(1);
+	renderer.setLineWidth(1);
 
 	renderer.setColour(black);
 	GL_DEBUG(glBegin)(GL_QUADS);

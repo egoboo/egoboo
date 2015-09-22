@@ -1337,9 +1337,9 @@ Uint8 scr_IfHealed( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SendPlayerMessage( script_state_t& state, ai_state_t& self )
+Uint8 scr_SendMessage( script_state_t& state, ai_state_t& self )
 {
-    // SendPlayerMessage( tmpargument = "message number" )
+    // SendMessage( tmpargument = "message number" )
     /// @author ZZ
     /// @details This function sends a message to the players
 
