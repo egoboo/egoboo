@@ -42,12 +42,6 @@ enum class Relation {
 } // namespace Ego
 
 //--------------------------------------------------------------------------------------------
-// a datatype for points
-//--------------------------------------------------------------------------------------------
-
-typedef float point_base_t[3];
-
-//--------------------------------------------------------------------------------------------
 // intersection routines
 //--------------------------------------------------------------------------------------------
 
@@ -63,7 +57,7 @@ typedef float point_base_t[3];
  * @todo
  *  Document return value.
  */
-Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const Vector3f& corner1, const Vector3f& corner2);
+Ego::Math::Relation point_intersects_aabb(const Vector3f& point, const Vector3f& corner1, const Vector3f& corner2);
 
 Ego::Math::Relation aabb_intersects_aabb(const AABB3f& lhs, const AABB3f& rhs);
 
@@ -102,7 +96,7 @@ Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f
  * @param rhs
  *	a point
  */
-Ego::Math::Relation cone_intersects_point(const Cone3f * lhs, const Vector3f& rhs);
+Ego::Math::Relation cone_intersects_point(const Cone3f& lhs, const Vector3f& rhs);
 
 /**
  * @brief
@@ -114,7 +108,7 @@ Ego::Math::Relation cone_intersects_point(const Cone3f * lhs, const Vector3f& rh
  * @todo
  *  Document return value.
  */
-Ego::Math::Relation cone_intersects_sphere(const Cone3f * lhs, const Sphere3f * rhs);
+Ego::Math::Relation cone_intersects_sphere(const Cone3f& lhs, const Sphere3f& rhs);
 
 /**
  * @brief

@@ -32,7 +32,7 @@
 #include "egolib/Logic/ObjectSlot.hpp"
 #include "egolib/Renderer/DeferredOpenGLTexture.hpp"
 #include "egolib/bbox.h"
-#include "egolib/clock.h"
+#include "egolib/Clock.hpp"
 #include "egolib/egoboo_setup.h"
 #include "egolib/endian.h"
 #include "egolib/file_common.h"
@@ -86,7 +86,7 @@
 #include "egolib/FileFormats/treasure_table_file.h"
 #include "egolib/FileFormats/wawalite_file.h"
 
-#include "egolib/console.h"
+#include "egolib/Console/Console.hpp"
 
 //!!! watch this one. if you are using the Fluid Studios memory manager,
 //!!! this must be the absolute last include file.

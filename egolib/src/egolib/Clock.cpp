@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/clock.c
+/// @file egolib/Clock.cpp
 /// @brief Clock & timer implementation
 /// @details This implementation was adapted from Noel Lopis' article in Game Programming Gems 4.
 
-#include "egolib/clock.h"
+#include "egolib/Clock.hpp"
 
 namespace Ego {
 namespace Time {

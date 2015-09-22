@@ -100,18 +100,18 @@
     <Filter Include="Source Files\Time">
       <UniqueIdentifier>{ee19822c-5fc0-4ad0-b8c9-0142ff69e1f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Console">
+      <UniqueIdentifier>{05eeb29f-5d84-46e1-a607-6d6a77b5ba7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Console">
+      <UniqueIdentifier>{d944dd51-555f-439a-857b-a710844af634}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\bbox.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\clock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\console.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\egoboo_setup.c">
@@ -417,6 +417,15 @@
     <ClCompile Include="src\egolib\Renderer\DeferredOpenGLTexture.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\Console.cpp">
+      <Filter>Source Files\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\DefaultConsole.cpp">
+      <Filter>Source Files\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Clock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -480,12 +489,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\egoboo_setup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\console.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\clock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\bbox.h">
@@ -907,6 +910,15 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\Console.hpp">
+      <Filter>Header Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\DefaultConsole.hpp">
+      <Filter>Header Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Clock.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

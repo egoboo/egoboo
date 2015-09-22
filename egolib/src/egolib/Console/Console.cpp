@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/console.c
+/// @file egolib/Console/Console.cpp
 /// @brief A quake-style console that can be used for anything.
 /// @details
 
-#include "egolib/console.h"
+#include "egolib/Console/Console.hpp"
 
 #include "egolib/file_common.h"
 #include "egolib/strutil.h"
