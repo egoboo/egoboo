@@ -35,9 +35,6 @@
 
 #include "egolib/_math.h"
 
-// this include must be the absolute last include
-#include "egolib/mem.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -68,30 +65,107 @@ public:
     std::shared_ptr<Ego::Font> _font;
 };
 
-void egolib_console_handler_t::initialize()
-{
-    /// @author BB
-    /// @details initialize the console. This must happen after the screen has been defines,
-    ///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
-    ///     have no area...
+namespace Ego {
+namespace Core {
 
-    SDL_Rect blah;
+const std::string ConsoleSettings::InputSettings::Prompt = ">";
 
-    blah.x = 0;
-    blah.y = 0;
-    blah.w = sdl_scr.x;
-    blah.h = sdl_scr.y * 0.25f;
-
-    // without a callback, this console just dumps the input and generates no output
-    egolib_console_top = new Ego::Core::Console(blah, nullptr, nullptr);
+ConsoleHistory::ConsoleHistory()
+	: _index(0), _size(0) {
+	for (int i = 0; i < ConsoleSettings::HistorySettings::Length; ++i) {
+		_buffer[i][0] = '\0';
+	}
 }
 
-void egolib_console_handler_t::uninitialize() {
+const char *ConsoleHistory::get_saved() {
+	if (_index == _size) {
+		return "";
+	} else {
+		return _buffer[_index];
+	}
+}
+
+void ConsoleHistory::add_saved(char *line) {
+	if (0 == strlen(line)) {
+		return;
+	}
+	// (1) If the history is full:
+	if (_size == ConsoleSettings::HistorySettings::Length) {
+		// (1.1) Shift all elements up.
+		for (size_t i = 0; i < ConsoleSettings::HistorySettings::Length - 1; ++i) {
+			strncpy(_buffer[i], _buffer[i + 1], ConsoleSettings::LineSettings::Length);
+		}
+		// (1.2) Decrement the size.
+		_size--;
+	}
+	// (2) Prepend the new element.
+	strncpy(_buffer[0], line, ConsoleSettings::LineSettings::Length);
+	// (3) Increment the size.
+	_size++;
+	// (3) No line is focused.
+	_index = _size;
+}
+
+void ConsoleHistory::up() {
+	--_index;
+	if (_index < 0) {
+		_index = 0;
+	}
+}
+
+void ConsoleHistory::down() {
+	++_index;
+	if (_index >= _size) {
+		_index = _size;
+	}
+}
+
+ConsoleHandler *ConsoleHandler::_singleton = nullptr;
+
+ConsoleHandler::ConsoleHandler() {
+	/// @author BB
+	/// @details initialize the console. This must happen after the screen has been defines,
+	///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
+	///     have no area...
+
+	SDL_Rect blah;
+
+	blah.x = 0;
+	blah.y = 0;
+	blah.w = sdl_scr.x;
+	blah.h = sdl_scr.y * 0.25f;
+
+	// without a callback, this console just dumps the input and generates no output
+	egolib_console_top = new Ego::Core::Console(blah, nullptr, nullptr);
+}
+
+ConsoleHandler::~ConsoleHandler() {
 	Ego::Core::Console *console = egolib_console_top; egolib_console_top = egolib_console_top->pnext;
 	delete console;
 }
 
-bool egolib_console_handler_t::unlink(Ego::Core::Console *console)
+void ConsoleHandler::initialize()
+{
+	if (!_singleton) {
+		_singleton = new ConsoleHandler();
+	}
+}
+
+void ConsoleHandler::uninitialize() {
+	if (_singleton) {
+		delete _singleton;
+		_singleton = nullptr;
+	}
+}
+
+ConsoleHandler& ConsoleHandler::get() {
+	if (nullptr == _singleton) {
+		throw std::logic_error("console handler singleton not initialized");
+	}
+	return *_singleton;
+}
+
+bool ConsoleHandler::unlink(Ego::Core::Console *console)
 {
     bool retval = false;
 
@@ -124,7 +198,7 @@ bool egolib_console_handler_t::unlink(Ego::Core::Console *console)
     return retval;
 }
 
-bool egolib_console_handler_t::push_front(Ego::Core::Console *console)
+bool ConsoleHandler::push_front(Ego::Core::Console *console)
 {
     if (!console)
     {
@@ -137,7 +211,7 @@ bool egolib_console_handler_t::push_front(Ego::Core::Console *console)
     return true;
 }
 
-void egolib_console_handler_t::draw_begin()
+void ConsoleHandler::draw_begin()
 {
 	auto& renderer = Ego::Renderer::get();
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
@@ -170,7 +244,7 @@ void egolib_console_handler_t::draw_begin()
 	renderer.loadMatrix(Matrix4f4f::identity());
 }
 
-void egolib_console_handler_t::draw_end()
+void ConsoleHandler::draw_end()
 {
     // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
@@ -186,7 +260,7 @@ void egolib_console_handler_t::draw_end()
 }
 
 
-void egolib_console_handler_t::draw_all()
+void ConsoleHandler::draw_all()
 {
 	Ego::Core::Console *console = egolib_console_top;
 
@@ -194,12 +268,12 @@ void egolib_console_handler_t::draw_all()
     {
         return;
     }
-	egolib_console_handler_t::draw_begin();
+	draw_begin();
     console->draw();
-    egolib_console_handler_t::draw_end();
+	draw_end();
 }
 
-SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
+SDL_Event *ConsoleHandler::handle_event(SDL_Event *event)
 {
 	Ego::Core::Console *console = egolib_console_top;
 
@@ -282,63 +356,29 @@ SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
 		}
 		else if (SDL_SCANCODE_UP == vkey)
 		{
-			console->save_index--;
-
-			if (console->save_index < 0)
-			{
-				// Behind the last saved line. Blank the line.
-				console->save_index = 0;
-				console->buffer[0] = CSTR_END;
-				console->buffer_carat = 0;
-			}
-			else
-			{
-				console->save_index = CLIP(console->save_index, 0, console->save_count - 1);
-
-				if (console->save_count > 0)
-				{
-					strncpy(console->buffer, console->get_saved(), EGOBOO_CONSOLE_LENGTH - 1);
-					console->buffer_carat = strlen(console->buffer);
-				}
-			}
-
+			console->history.up();
+			strcpy(console->buffer,console->history.get_saved());
+			console->buffer_carat = strlen(console->buffer);
 			event = nullptr;
 		}
 		else if (SDL_SCANCODE_DOWN == vkey)
 		{
-			console->save_index++;
-
-			if (console->save_index >= console->save_count)
-			{
-				// Before the first saved line. Blank the line.
-				console->save_index = console->save_count;
-				console->buffer[0] = CSTR_END;
-				console->buffer_carat = 0;
-			}
-			else
-			{
-				console->save_index = CLIP(console->save_index, 0, console->save_count - 1);
-
-				if (console->save_count > 0)
-				{
-					strncpy(console->buffer, console->get_saved(), EGOBOO_CONSOLE_LENGTH - 1);
-					console->buffer_carat = strlen(console->buffer);
-				}
-			}
-
+			console->history.down();
+			strcpy(console->buffer, console->history.get_saved());
+			console->buffer_carat = strlen(console->buffer);
 			event = nullptr;
 		}
 		else if (SDL_SCANCODE_LEFT == vkey)
 		{
 			console->buffer_carat--;
-			console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1));
+			console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(ConsoleSettings::LineSettings::Length - 1));
 
 			event = nullptr;
 		}
 		else if (SDL_SCANCODE_RIGHT == vkey)
 		{
 			console->buffer_carat++;
-			console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1));
+			console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(ConsoleSettings::LineSettings::Length - 1));
 
 			event = nullptr;
 		}
@@ -347,10 +387,10 @@ SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
 			console->buffer[console->buffer_carat] = CSTR_END;
 
 			// Add this command line to the list of saved command line.
-			console->add_saved(console->buffer);
+			console->history.add_saved(console->buffer);
 
 			// Add the command line to the output buffer.
-			console->print("%c %s\n", EGOBOO_CONSOLE_PROMPT, console->buffer);
+			console->print("%s %s\n", ConsoleSettings::InputSettings::Prompt.c_str(), console->buffer);
 
 			// Actually execute the command line.
 			console->run();
@@ -370,7 +410,7 @@ SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
 	size_t textLength = strlen(text);
 
 	// handle normal keystrokes
-	if (console->buffer_carat + textLength + 1 < EGOBOO_CONSOLE_LENGTH)
+	if (console->buffer_carat + textLength + 1 < ConsoleSettings::LineSettings::Length)
 	{
 		strcat(console->buffer + console->buffer_carat, event->text.text);
 		console->buffer[console->buffer_carat + textLength] = CSTR_END;
@@ -383,20 +423,11 @@ SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
 	return event;
 }
 
+} // namespace Core
+} // namespace Ego
 
 namespace Ego {
 namespace Core {
-
-Console *Console::_singleton = nullptr;
-
-void Console::startup()
-{
-}
-
-void Console::shutdown()
-{
-}
-
 
 bool Console::draw()
 {
@@ -409,10 +440,10 @@ bool Console::draw()
 
 	SDL_Rect *pwin = &(this->rect);
 
-	auto& renderer = Ego::Renderer::get();
+	auto& renderer = Renderer::get();
 	renderer.getTextureUnit().setActivated(nullptr);
-	auto white = Ego::Math::Colour4f::white();
-	auto black = Ego::Math::Colour4f::black();
+	auto white = Math::Colour4f::white();
+	auto black = Math::Colour4f::black();
 
 	renderer.setColour(white);
 	renderer.setLineWidth(5);
@@ -447,14 +478,12 @@ bool Console::draw()
 
 		height = pwin->h;
 
-		char buffer[EGOBOO_CONSOLE_WRITE_LEN];
+		char buffer[ConsoleSettings::InputSettings::Length];
 
 		// draw the current command line
-		buffer[0] = EGOBOO_CONSOLE_PROMPT;
-		buffer[1] = ' ';
-		buffer[2] = CSTR_END;
+		sprintf(buffer, "%s ", ConsoleSettings::InputSettings::Prompt.c_str());
 
-		strncat(buffer, this->buffer, 1022);
+		strncat(buffer, buffer, 1022);
 		buffer[1022] = CSTR_END;
 
 		this->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
@@ -507,8 +536,8 @@ bool Console::draw()
 
 void Console::printv(const char *format, va_list args)
 {
-	char buffer[EGOBOO_CONSOLE_WRITE_LEN] = EMPTY_CSTR;
-	vsnprintf(buffer, EGOBOO_CONSOLE_WRITE_LEN - 1, format, args);
+	char buffer[ConsoleSettings::InputSettings::Length] = EMPTY_CSTR;
+	vsnprintf(buffer, ConsoleSettings::InputSettings::Length - 1, format, args);
 	add_output(buffer);
 }
 
@@ -536,23 +565,23 @@ void Console::add_output(char *line)
 	//copy_len = out_len;
 
 	// check to make sure that the ranges are valid
-	if (lineLength > EGOBOO_CONSOLE_OUTPUT)
+	if (lineLength > ConsoleSettings::OutputSettings::Length)
 	{
 		// we need to replace the entire output buffer with
 		// a portion of szNew
 
-		size_t offset = lineLength - EGOBOO_CONSOLE_OUTPUT - 1;
+		size_t offset = lineLength - ConsoleSettings::OutputSettings::Length - 1;
 
 		// update the copy parameters
 		src = line + offset;
 		//copy_len = out_len - offset;
 	}
-	else if (this->output_carat + lineLength > EGOBOO_CONSOLE_OUTPUT)
+	else if (this->output_carat + lineLength > ConsoleSettings::OutputSettings::Length)
 	{
 		// the length of the buffer after adding szNew would be too large
 		// get rid of some of the input buffer and then add szNew
 
-		size_t offset = (this->output_carat + lineLength) - EGOBOO_CONSOLE_OUTPUT - 1;
+		size_t offset = (this->output_carat + lineLength) - ConsoleSettings::OutputSettings::Length - 1;
 
 		// move the memory so that we create some space
 		memmove(this->output_buffer, this->output_buffer + offset, this->output_carat - offset);
@@ -562,11 +591,12 @@ void Console::add_output(char *line)
 		dst = this->output_buffer - this->output_carat;
 	}
 
-	this->output_carat += snprintf(dst, EGOBOO_CONSOLE_OUTPUT - this->output_carat, "%s", src);
-	this->output_buffer[EGOBOO_CONSOLE_OUTPUT - 1] = CSTR_END;
+	this->output_carat += snprintf(dst, ConsoleSettings::OutputSettings::Length - this->output_carat, "%s", src);
+	this->output_buffer[ConsoleSettings::OutputSettings::Length - 1] = CSTR_END;
 }
 
 Console::Console(SDL_Rect rectangle, Console::Callback callback, void *data)
+	: history()
 {
 	// reset all the console data
 	this->on = false;
@@ -576,13 +606,6 @@ Console::Console(SDL_Rect rectangle, Console::Callback callback, void *data)
 
 	this->output_buffer[0] = '\0';
 	this->output_carat = 0;
-
-	this->save_count = 0;
-	this->save_index = 0;
-	for (size_t i = 0; i < EGOBOO_CONSOLE_LINES; ++i)
-	{
-		this->save_buffer[i][0] = '\0';
-	}
 
 	this->pnext = nullptr;
 
@@ -635,7 +658,7 @@ void Console::show()
 void Console::hide()
 {
 	// Turn the console off.
-	this->on = SDL_FALSE;
+	this->on = false;
 
     // Fix the keyrepeat.
     if (nullptr == egolib_console_top)
@@ -648,31 +671,9 @@ void Console::hide()
     }
 }
 
-const char *Console::get_saved()
-{
-	this->save_count = Ego::Math::constrain(this->save_count, 0, EGOBOO_CONSOLE_LINES);
-	this->save_index = Ego::Math::constrain(this->save_index, 0, this->save_count - 1);
-
-    return this->save_buffer[this->save_index];
+ConsoleHistory& Console::getHistory() {
+	return history;
 }
 
-void Console::add_saved(char *line)
-{
-	this->save_count = Ego::Math::constrain(this->save_count, 0, EGOBOO_CONSOLE_LINES);
-
-    if (this->save_count == EGOBOO_CONSOLE_LINES)
-    {
-        // Bump all of the saved lines so that we can insert a new one.
-        for (size_t i = 0; i < EGOBOO_CONSOLE_LINES - 1; ++i)
-        {
-            strncpy(this->save_buffer[i], this->save_buffer[i+1], EGOBOO_CONSOLE_LENGTH);
-        }
-		this->save_count--;
-    }
-
-    strncpy(this->save_buffer[this->save_count], line, EGOBOO_CONSOLE_LENGTH);
-	this->save_count++;
-	this->save_index = this->save_count;
-}
 } // namespace Core
 } // namespace Ego

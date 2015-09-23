@@ -282,8 +282,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\Console.cpp" />
-    <ClCompile Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\DefaultConsole.cpp" />
+    <ClCompile Include="src\egolib\Console\Console.cpp" />
+    <ClCompile Include="src\egolib\Console\DefaultConsole.cpp" />
     <ClCompile Include="src\egolib\Logic\Perk.cpp" />
     <ClCompile Include="src\egolib\Logic\PerkHandler.cpp" />
     <ClCompile Include="src\egolib\Renderer\DeferredOpenGLTexture.cpp" />
@@ -454,8 +454,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\Console.hpp" />
-    <ClInclude Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\DefaultConsole.hpp" />
+    <ClInclude Include="src\egolib\Console\Console.hpp" />
+    <ClInclude Include="src\egolib\Console\DefaultConsole.hpp" />
     <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp" />
     <ClInclude Include="src\egolib\Graphics\Camera.hpp" />
     <ClInclude Include="src\egolib\Math\Transform.hpp" />

@@ -417,10 +417,10 @@
     <ClCompile Include="src\egolib\Renderer\DeferredOpenGLTexture.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\Console.cpp">
+    <ClCompile Include="src\egolib\Console\Console.cpp">
       <Filter>Source Files\Console</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\DefaultConsole.cpp">
+    <ClCompile Include="src\egolib\Console\DefaultConsole.cpp">
       <Filter>Source Files\Console</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Clock.cpp">
@@ -911,10 +911,10 @@
     <ClInclude Include="src\egolib\Renderer\BlendFunction.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\Console.hpp">
+    <ClInclude Include="src\egolib\Console\Console.hpp">
       <Filter>Header Files\Console</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\Console\DefaultConsole.hpp">
+    <ClInclude Include="src\egolib\Console\DefaultConsole.hpp">
       <Filter>Header Files\Console</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Clock.hpp">

@@ -347,7 +347,7 @@ bool GameEngine::initialize()
     init_random_treasure_tables_vfs("mp_data/randomtreasure.txt");
 
     // Initialize the console.
-    egolib_console_handler_t::initialize();
+    Ego::Core::ConsoleHandler::initialize();
 
     // Initialize Perks
     Ego::Perks::PerkHandler::initialize();
@@ -407,7 +407,7 @@ void GameEngine::uninitialize()
     ProfileSystem::uninitialize();
 
     // Uninitialize the console.
-    egolib_console_handler_t::uninitialize();
+    Ego::Core::ConsoleHandler::uninitialize();
 
 	// Uninitialize the particle handler.
 	ParticleHandler::uninitialize();
@@ -452,7 +452,7 @@ void GameEngine::pollEvents()
         //Console has first say in events
         if (egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
-            if (!egolib_console_handler_t::handle_event(&event))
+            if (!Ego::Core::ConsoleHandler::get().handle_event(&event))
             {
                 continue;
             }

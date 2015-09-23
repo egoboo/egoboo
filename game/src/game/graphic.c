@@ -1909,7 +1909,7 @@ void _flip_pages()
     //GL_DEBUG( glFlush )();
 
     // draw the console on top of everything
-    egolib_console_handler_t::draw_all();
+    Ego::Core::ConsoleHandler::get().draw_all();
 
     SDL_GL_SwapWindow(sdl_scr.window);
 
