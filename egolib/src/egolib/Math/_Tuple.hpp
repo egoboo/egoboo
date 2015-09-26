@@ -37,21 +37,22 @@ namespace Internal {
 
 /**
  * @brief
- *  Derived from @a std::true_type if @a _VectorSpaceType::Dimensionality and @a ArgTypes fulfil the requirements for a constructor of a tuple,
- *	and derived from @a std::false_type otherwise.
+ *  Derived from @a std::true_type if @a _VectorSpaceType::Dimensionality and @a ArgTypes
+ *  fulfil the requirements for a constructor of a tuple, and derived from @a std::false_type
+ *  otherwise.
  * @param _VectorSpaceType
  *  must fulfil the <em>vector space</em> concept
  * @param _ArgTypes
  *  @a ArgTypes must have <tt>_VectorSpaceType::Dimensionality-1</tt> elements which are convertible into values of type @a _VectorSpaceType::ScalarType
  * @author
  *  Michael Heilmann
- * @todo
- *  Fast-fail if the parameters are not convertible into @a _VectorSpaceType::ScalarType.
  */
 template <typename _VectorSpaceType, typename ... ArgTypes>
 struct TupleConstructorEnable
     : public std::conditional<
-      (Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::dimensionality() - 1>::value),
+      ((Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::dimensionality() - 1>::value)
+	   &&
+	   (Ego::Core::AllTrue<std::is_convertible<ArgTypes,typename _VectorSpaceType::ScalarType>::value ...>::value)),
       std::true_type,
       std::false_type
       >::type

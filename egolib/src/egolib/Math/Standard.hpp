@@ -34,6 +34,8 @@ typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> AABB
 
 /// A 2D AABB.
 typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 2>> AABB2f;
+/// A 2D AABB can also be considered as a rectangle.
+typedef AABB2f Rectangle2f;
 
 /// A 3D cone.
 typedef Ego::Math::Cone3<float> Cone3f;
