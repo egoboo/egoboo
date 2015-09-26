@@ -530,7 +530,6 @@
     <ClInclude Include="src\egolib\Image\Image.hpp" />
     <ClInclude Include="src\egolib\Renderer\CullingMode.hpp" />
     <ClInclude Include="src\egolib\Renderer\WindingMode.hpp" />
-    <ClInclude Include="src\egolib\Math\Rectangle2.hpp" />
     <ClInclude Include="src\egolib\FileFormats\configfile.h" />
     <ClInclude Include="src\egolib\FileFormats\controls_file-v1.h" />
     <ClInclude Include="src\egolib\FileFormats\controls_file-v2.h" />
