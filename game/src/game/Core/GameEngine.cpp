@@ -313,6 +313,10 @@ bool GameEngine::initialize()
 	// Initialize the particle handler.
 	ParticleHandler::initialize();
 
+	// Initialize the console.
+	Ego::Core::ConsoleHandler::initialize();
+
+
     // load the bitmapped font (must be done after gfx_system_init_all_graphics())
     font_bmp_load_vfs("mp_data/font_new_shadow", "mp_data/font.txt");
 
@@ -345,9 +349,6 @@ bool GameEngine::initialize()
 
     // initialize the random treasure system
     init_random_treasure_tables_vfs("mp_data/randomtreasure.txt");
-
-    // Initialize the console.
-    Ego::Core::ConsoleHandler::initialize();
 
     // Initialize Perks
     Ego::Perks::PerkHandler::initialize();
