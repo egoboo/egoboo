@@ -537,7 +537,7 @@ int update_game()
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
-    mpdfx_lists_t::synch( &( _currentModule->getMeshPointer()->fxlists ), &( _currentModule->getMeshPointer()->gmem ), false );
+    mpdfx_lists_t::synch( _currentModule->getMeshPointer()->fxlists, _currentModule->getMeshPointer()->gmem, false );
     
     // Get immediate mode state for the rest of the game
     input_read_keyboard();

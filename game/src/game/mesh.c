@@ -69,28 +69,18 @@ static void warnNumberOfVertices(const char *file, int line, size_t numberOfVert
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mesh_info_t *ego_mesh_info_t::ctor(ego_mesh_info_t *self)
+void ego_mesh_info_t::ctor(ego_mesh_info_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    self->tiles_x = 0; self->tiles_y = 0;
-    self->tiles_count = 0;
-    self->vertcount = 0;
-    return self;
+    self.tiles_x = 0; self.tiles_y = 0;
+    self.tiles_count = 0;
+    self.vertcount = 0;
 }
 
-ego_mesh_info_t *ego_mesh_info_t::dtor(ego_mesh_info_t *self)
+void ego_mesh_info_t::dtor(ego_mesh_info_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    self->tiles_x = 0; self->tiles_y = 0;
-    self->tiles_count = 0;
-    self->vertcount = 0;
-    return self;
+    self.tiles_x = 0; self.tiles_y = 0;
+    self.tiles_count = 0;
+    self.vertcount = 0;
 }
 
 void ego_mesh_info_t::init(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y)
@@ -111,34 +101,20 @@ void ego_mesh_info_t::init(ego_mesh_info_t *self, int numvert, size_t tiles_x, s
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-
-
-tile_mem_t *tile_mem_t::ctor(tile_mem_t *self)
+void tile_mem_t::ctor(tile_mem_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    BLANK_STRUCT_PTR(self);
-    return self;
+    BLANK_STRUCT_PTR(&self);
 }
 
-tile_mem_t *tile_mem_t::dtor(tile_mem_t *self)
+void tile_mem_t::dtor(tile_mem_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
     tile_mem_t::free(self);
-
-    BLANK_STRUCT_PTR(self);
-
-    return self;
+    BLANK_STRUCT_PTR(&self);
 }
 
-bool tile_mem_t::alloc(tile_mem_t *self, const ego_mesh_info_t *info)
+bool tile_mem_t::alloc(tile_mem_t& self, const ego_mesh_info_t& info)
 {
-    if (!self || !info || 0 == info->vertcount)
+    if (0 == info.vertcount)
     {
         return false;
     }
@@ -148,30 +124,30 @@ bool tile_mem_t::alloc(tile_mem_t *self, const ego_mesh_info_t *info)
     {
         return false;
     }
-    if (info->vertcount > MAP_VERTICES_MAX)
+    if (info.vertcount > MAP_VERTICES_MAX)
     {
-        warnNumberOfVertices(__FILE__, __LINE__, info->vertcount);
+        warnNumberOfVertices(__FILE__, __LINE__, info.vertcount);
         return false;
     }
 
-    //Allocate memory
+    // Allocate memory
     try
     {
         // Allocate per-vertex memory.
-        self->plst = new GLXvector3f[info->vertcount];
-        self->tlst = new GLXvector2f[info->vertcount];
-        self->clst = new GLXvector3f[info->vertcount];
-        self->nlst = new GLXvector3f[info->vertcount];
+        self.plst = new GLXvector3f[info.vertcount];
+        self.tlst = new GLXvector2f[info.vertcount];
+        self.clst = new GLXvector3f[info.vertcount];
+        self.nlst = new GLXvector3f[info.vertcount];
 
         // Allocate per-tile memory.
-        self->_tileList.resize(info->tiles_x);
-        for(size_t i = 0; i < info->tiles_x; ++i) {
-            self->_tileList[i].reserve(info->tiles_y);
-            for(size_t j = 0; j < info->tiles_y; ++j) {
-                self->_tileList[i].push_back(std::make_shared<ego_tile_info_t>());
+        self._tileList.resize(info.tiles_x);
+        for(size_t i = 0; i < info.tiles_x; ++i) {
+            self._tileList[i].reserve(info.tiles_y);
+            for(size_t j = 0; j < info.tiles_y; ++j) {
+                self._tileList[i].push_back(std::make_shared<ego_tile_info_t>());
             }
         }
-        self->_tileCount = info->tiles_x * info->tiles_y;
+        self._tileCount = info.tiles_x * info.tiles_y;
     }
     catch (std::bad_alloc& ex)
     {
@@ -181,44 +157,40 @@ bool tile_mem_t::alloc(tile_mem_t *self, const ego_mesh_info_t *info)
         return false;
     }
 
-    self->vert_count = info->vertcount;
+    self.vert_count = info.vertcount;
 
     return true;
 }
 
-bool tile_mem_t::free(tile_mem_t *self)
+bool tile_mem_t::free(tile_mem_t& self)
 {
-    if (!self)
-    {
-        return false;
-    }
     // Free the vertex data.
-    if (self->plst)
+    if (self.plst)
     {
-        delete[] self->plst;
-        self->plst = nullptr;
+        delete[] self.plst;
+        self.plst = nullptr;
     }
-    if (self->nlst)
+    if (self.nlst)
     {
-        delete[] self->nlst;
-        self->nlst = nullptr;
+        delete[] self.nlst;
+        self.nlst = nullptr;
     }
-    if (self->clst)
+    if (self.clst)
     {
-        delete[] self->clst;
-        self->clst = nullptr;
+        delete[] self.clst;
+        self.clst = nullptr;
     }
-    if (self->tlst)
+    if (self.tlst)
     {
-        delete[] self->tlst;
-        self->tlst = nullptr;
+        delete[] self.tlst;
+        self.tlst = nullptr;
     }
 
     // Free the tile data.
-    self->_tileList.clear();
+    self._tileList.clear();
 
     // Set the vertex count to 0.
-    self->vert_count = 0;
+    self.vert_count = 0;
 
     return true;
 }
@@ -305,10 +277,10 @@ ego_mesh_t::ego_mesh_t() :
     gmem(),
     fxlists()
 {
-    tile_mem_t::ctor(&tmem);
-    grid_mem_t::ctor(&gmem);
-    ego_mesh_info_t::ctor(&info);
-    mpdfx_lists_t::ctor(&fxlists);
+    tile_mem_t::ctor(tmem);
+    grid_mem_t::ctor(gmem);
+    ego_mesh_info_t::ctor(info);
+    mpdfx_lists_t::ctor(fxlists);
 
     // global initialization
     ego_mesh_make_twist();
@@ -316,9 +288,9 @@ ego_mesh_t::ego_mesh_t() :
 
 ego_mesh_t::~ego_mesh_t()
 {
-    tile_mem_t::dtor(&tmem);
-    grid_mem_t::dtor(&gmem);
-    ego_mesh_info_t::dtor(&info);
+    tile_mem_t::dtor(tmem);
+    grid_mem_t::dtor(gmem);
+    ego_mesh_info_t::dtor(info);
 }
 
 ego_mesh_t::ego_mesh_t(int tiles_x, int tiles_y) : ego_mesh_t()
@@ -327,9 +299,9 @@ ego_mesh_t::ego_mesh_t(int tiles_x, int tiles_y) : ego_mesh_t()
     ego_mesh_info_t::init(&info, -1, tiles_x, tiles_y);
 
     // allocate the mesh memory
-    tile_mem_t::alloc( &tmem, &info );
-    grid_mem_t::alloc( &gmem, &info );
-    mpdfx_lists_t::alloc( &fxlists, &info );    
+    tile_mem_t::alloc( tmem, info );
+    grid_mem_t::alloc( gmem, info );
+    mpdfx_lists_t::alloc( fxlists, &info );    
 }
 
 //--------------------------------------------------------------------------------------------
@@ -341,28 +313,25 @@ void ego_mesh_t::remove_ambient()
     /// @todo Use iterator.
     for (Uint32 i = 0; i < this->info.tiles_count; ++i)
     {
-        min_vrt_a = std::min(min_vrt_a, grid_mem_t::get(&(this->gmem),TileIndex(i))->a);
+        min_vrt_a = std::min(min_vrt_a, grid_mem_t::get(this->gmem, TileIndex(i))->a);
     }
 
     /// @todo Use iterator.
     for (Uint32 i = 0; i < this->info.tiles_count; ++i)
     {
-        grid_mem_t::get(&(this->gmem),TileIndex(i))->a =
-            grid_mem_t::get(&(this->gmem),TileIndex(i))->a - min_vrt_a;
+        grid_mem_t::get(this->gmem, TileIndex(i))->a = 
+			grid_mem_t::get(this->gmem, TileIndex(i))->a - min_vrt_a;
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void ego_mesh_t::recalc_twist()
 {
-	ego_mesh_info_t *pinfo = &(this->info);
-	grid_mem_t *pgmem = &(this->gmem);
-
     // recalculate the twist
-    for (TileIndex fan = 0; fan.getI() < pinfo->tiles_count; fan++)
+    for (TileIndex fan = 0; fan.getI() < info.tiles_count; fan++)
     {
         Uint8 twist = cartman_get_fan_twist(this, fan);
-        grid_mem_t::get(pgmem,fan)->twist = twist;
+        grid_mem_t::get(gmem, fan)->twist = twist;
     }
 }
 
@@ -419,10 +388,8 @@ bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& index)
 //--------------------------------------------------------------------------------------------
 void ego_mesh_t::make_texture()
 {
-    ego_mesh_info_t *info = &(this->info);
-
     // Set the texture coordinate for every vertex.
-    for (TileIndex index = 0; index < info->tiles_count; index++)
+    for (TileIndex index = 0; index < info.tiles_count; ++index)
     {
         ego_mesh_update_texture(this, index);
     }
@@ -441,7 +408,7 @@ ego_mesh_t * ego_mesh_t::finalize( ego_mesh_t * mesh )
 	mesh->make_texture();
 
     // create some lists to make searching the mesh tiles easier
-    mpdfx_lists_t::synch( &( mesh->fxlists ), &( mesh->gmem ), true );
+    mpdfx_lists_t::synch( mesh->fxlists, mesh->gmem, true );
 
     return mesh;
 }
@@ -449,25 +416,21 @@ ego_mesh_t * ego_mesh_t::finalize( ego_mesh_t * mesh )
 //--------------------------------------------------------------------------------------------
 bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
 {
-    tile_mem_t * ptmem_dst;
-    grid_mem_t * pgmem_dst;
-    mpdfx_lists_t * plists_dst;
-    ego_mesh_info_t * pinfo_dst;
     bool allocated_dst;
 
     if ( NULL == pmesh_src ) return false;
-    map_mem_t  *pmem_src = &(pmesh_src->_mem);
-    map_info_t *pinfo_src = &(pmesh_src->_info);
+    map_mem_t& pmem_src = pmesh_src->_mem;
+    map_info_t& pinfo_src = pmesh_src->_info;
 
     // clear out all data in the destination mesh
     *pmesh_dst = ego_mesh_t();
-    ptmem_dst  = &( pmesh_dst->tmem );
-    pgmem_dst  = &( pmesh_dst->gmem );
-    plists_dst = &( pmesh_dst->fxlists );
-    pinfo_dst  = &( pmesh_dst->info );
+	tile_mem_t& ptmem_dst  = pmesh_dst->tmem;
+	grid_mem_t& pgmem_dst  = pmesh_dst->gmem;
+	mpdfx_lists_t& plists_dst = pmesh_dst->fxlists;
+	ego_mesh_info_t& pinfo_dst  = pmesh_dst->info;
 
     // set up the destination mesh from the source mesh
-    ego_mesh_info_t::init( pinfo_dst, pinfo_src->vertexCount, pinfo_src->tileCountX, pinfo_src->tileCountY );
+    ego_mesh_info_t::init( &pinfo_dst, pinfo_src.vertexCount, pinfo_src.tileCountX, pinfo_src.tileCountY );
 
     allocated_dst = tile_mem_t::alloc( ptmem_dst, pinfo_dst );
     if ( !allocated_dst ) return false;
@@ -475,14 +438,14 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     allocated_dst = grid_mem_t::alloc( pgmem_dst, pinfo_dst );
     if ( !allocated_dst ) return false;
 
-    allocated_dst = mpdfx_lists_t::alloc( plists_dst, pinfo_dst );
+    allocated_dst = mpdfx_lists_t::alloc( plists_dst, &pinfo_dst );
     if ( !allocated_dst ) return false;
 
     // copy all the per-tile info
-    for (size_t cnt = 0; cnt < pinfo_dst->tiles_count; cnt++)
+    for (size_t cnt = 0; cnt < pinfo_dst.tiles_count; cnt++)
     {
-        tile_info_t& ptile_src = pmem_src->tiles[cnt];
-        const std::shared_ptr<ego_tile_info_t> &ptile_dst = ptmem_dst->getTile(cnt);
+        tile_info_t& ptile_src = pmem_src.tiles[cnt];
+        const std::shared_ptr<ego_tile_info_t> &ptile_dst = ptmem_dst.getTile(cnt);
         ego_grid_info_t *pgrid_dst = grid_mem_t::get(pgmem_dst,cnt);
 
         // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
@@ -501,11 +464,11 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     }
 
     // copy all the per-vertex info
-    for (size_t cnt = 0; cnt < pinfo_src->vertexCount; cnt++ )
+    for (size_t cnt = 0; cnt < pinfo_src.vertexCount; cnt++ )
     {
-        GLXvector3f     * ppos_dst = ptmem_dst->plst + cnt;
-        GLXvector3f     * pcol_dst = ptmem_dst->clst + cnt;
-        const map_vertex_t& pvrt_src = pmem_src->vertices[cnt];
+		GLXvector3f     * ppos_dst = ptmem_dst.plst + cnt;
+        GLXvector3f     * pcol_dst = ptmem_dst.clst + cnt;
+        const map_vertex_t& pvrt_src = pmem_src.vertices[cnt];
 
         // copy all info from map_mem_t
         ( *ppos_dst )[XX] = pvrt_src.pos[kX];
@@ -519,11 +482,11 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     }
 
     // copy some of the pre-calculated grid lighting
-    for (Uint32 cnt = 0; cnt < pinfo_dst->tiles_count; cnt++ )
+    for (Uint32 cnt = 0; cnt < pinfo_dst.tiles_count; cnt++ )
     {
-        size_t vertex = tile_mem_t::get(ptmem_dst,cnt)->vrtstart;
-        ego_grid_info_t *pgrid_dst = grid_mem_t::get(pgmem_dst,cnt);
-        const map_vertex_t& pvrt_src = pmem_src->vertices[vertex];
+        size_t vertex = tile_mem_t::get(ptmem_dst, cnt)->vrtstart;
+        ego_grid_info_t *pgrid_dst = grid_mem_t::get(pgmem_dst, cnt);
+        const map_vertex_t& pvrt_src = pmem_src.vertices[vertex];
 
         pgrid_dst->a = pvrt_src.a;
         pgrid_dst->l = 0.0f;
@@ -570,77 +533,64 @@ ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * mesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-grid_mem_t *grid_mem_t::ctor(grid_mem_t *self)
+void grid_mem_t::ctor(grid_mem_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    BLANK_STRUCT_PTR(self);
-    return self;
+    BLANK_STRUCT_PTR(&self);
 }
 
-grid_mem_t *grid_mem_t::dtor(grid_mem_t *self)
+void grid_mem_t::dtor(grid_mem_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
     grid_mem_t::free(self);
-    BLANK_STRUCT_PTR(self);
-    return self;
+    BLANK_STRUCT_PTR(&self);
 }
 
-bool grid_mem_t::alloc(grid_mem_t *self, const ego_mesh_info_t *info)
+bool grid_mem_t::alloc(grid_mem_t& self, const ego_mesh_info_t& info)
 {
-    if (!self || !info || 0 == info->vertcount)
+    if (0 == info.vertcount)
     {
         return false;
     }
     // Free any memory already allocated.
-    if (!grid_mem_t::free(self))
+	grid_mem_t::free(self);
+    if (info.vertcount > MAP_VERTICES_MAX)
     {
-        return false;
-    }
-    if (info->vertcount > MAP_VERTICES_MAX)
-    {
-        warnNumberOfVertices(__FILE__, __LINE__, info->vertcount);
+        warnNumberOfVertices(__FILE__, __LINE__, info.vertcount);
         return false;
     }
 
     // Set the desired block number of grids.
-    self->grids_x = info->tiles_x;
-    self->grids_y = info->tiles_y;
-    self->grid_count = self->grids_x * self->grids_y;
+    self.grids_x = info.tiles_x;
+    self.grids_y = info.tiles_y;
+    self.grid_count = self.grids_x * self.grids_y;
 
     // Set the mesh edge info.
-    self->edge_x = (self->grids_x + 1) * GRID_ISIZE;
-    self->edge_y = (self->grids_y + 1) * GRID_ISIZE;
+    self.edge_x = (self.grids_x + 1) * GRID_ISIZE;
+    self.edge_y = (self.grids_y + 1) * GRID_ISIZE;
 
     // Set the desired blocknumber of blocks.
     // This only works if BLOCK_BITS = GRID_BITS + 2.
-    self->blocks_x = (info->tiles_x >> 2);
-    if (HAS_SOME_BITS(info->tiles_x, 0x03))
+    self.blocks_x = (info.tiles_x >> 2);
+    if (HAS_SOME_BITS(info.tiles_x, 0x03))
     {
-        self->blocks_x++;
+        self.blocks_x++;
     }
-    self->blocks_y = (info->tiles_y >> 2);
-    if (HAS_SOME_BITS(info->tiles_y, 0x03))
+    self.blocks_y = (info.tiles_y >> 2);
+    if (HAS_SOME_BITS(info.tiles_y, 0x03))
     {
-        self->blocks_y++;
+        self.blocks_y++;
     }
-    self->blocks_count = self->blocks_x * self->blocks_y;
+    self.blocks_count = self.blocks_x * self.blocks_y;
 
     // Allocate per-grid memory.
-    self->grid_list  = ego_grid_info_create_ary(info->tiles_count);
-    if (!self->grid_list)
+    self.grid_list  = ego_grid_info_create_ary(info.tiles_count);
+    if (!self.grid_list)
     {
         goto grid_mem_alloc_fail;
     }
     // Allocate the array for the block start data.
     try
     {
-        self->blockstart = new Uint32[self->blocks_y];
+        self.blockstart = new Uint32[self.blocks_y];
     }
     catch (std::bad_alloc& ex)
     {
@@ -650,7 +600,7 @@ bool grid_mem_t::alloc(grid_mem_t *self, const ego_mesh_info_t *info)
     // Allocate the array for the tile start data.
     try
     {
-        self->tilestart = new Uint32[info->tiles_y];
+        self.tilestart = new Uint32[info.tiles_y];
     }
     catch (std::bad_alloc& ex)
     {
@@ -658,7 +608,7 @@ bool grid_mem_t::alloc(grid_mem_t *self, const ego_mesh_info_t *info)
     }
 
     // Compute the tile start/block start data.
-    grid_mem_t::make_fanstart(self, info);
+    grid_mem_t::make_fanstart(&self, &info);
 
     return true;
 
@@ -671,32 +621,26 @@ grid_mem_alloc_fail:
     return false;
 }
 
-bool grid_mem_t::free(grid_mem_t *self)
+void grid_mem_t::free(grid_mem_t& self)
 {
-    if (!self)
-    {
-        return false;
-    }
     // Free the block start and tile start arrays.
-    if (self->blockstart)
+    if (self.blockstart)
     {
-        delete[] self->blockstart;
-        self->blockstart = nullptr;
+        delete[] self.blockstart;
+        self.blockstart = nullptr;
     }
-    if (self->tilestart)
+    if (self.tilestart)
     {
-        delete[] self->tilestart;
-        self->tilestart = nullptr;
+        delete[] self.tilestart;
+        self.tilestart = nullptr;
     }
 
     // Destroy the grid list.
-    ego_grid_info_destroy_ary(self->grid_list, self->grid_count);
-    self->grid_list = nullptr;
+    ego_grid_info_destroy_ary(self.grid_list, self.grid_count);
+    self.grid_list = nullptr;
 
     // Blank this struct.
-    BLANK_STRUCT_PTR(self);
-
-    return true;
+    BLANK_STRUCT_PTR(&self);
 }
 
 void grid_mem_t::make_fanstart(grid_mem_t *self, const ego_mesh_info_t *info)
@@ -738,17 +682,13 @@ void ego_mesh_make_vrtstart( ego_mesh_t * mesh )
     size_t vert;
     Uint32 tile;
 
-    ego_mesh_info_t * pinfo;
-    tile_mem_t  * ptmem;
-    tile_definition_t * pdef;
-
     if ( NULL == mesh ) return;
 
-    pinfo = &( mesh->info );
-    ptmem  = &( mesh->tmem );
+	ego_mesh_info_t& pinfo = mesh->info;
+	tile_mem_t& ptmem  = mesh->tmem;
 
     vert = 0;
-    for ( tile = 0; tile < pinfo->tiles_count; tile++ )
+    for ( tile = 0; tile < pinfo.tiles_count; tile++ )
     {
         Uint8 ttype;
 
@@ -759,15 +699,15 @@ void ego_mesh_make_vrtstart( ego_mesh_t * mesh )
         // throw away any remaining upper bits
         ttype &= 0x3F;
 
-        pdef = TILE_DICT_PTR( tile_dict, ttype );
+		tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, ttype );
         if ( NULL == pdef ) continue;
 
         vert += pdef->numvertices;
     }
 
-    if ( vert != pinfo->vertcount )
+    if ( vert != pinfo.vertcount )
     {
-        log_warning( "ego_mesh_make_vrtstart() - unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", vert, pinfo->vertcount );
+		log_warning( "ego_mesh_make_vrtstart() - unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", vert, pinfo.vertcount );
     }
 }
 
@@ -823,14 +763,13 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
 
     size_t mesh_vrt;
     int tile_vrt;
-    tile_mem_t * ptmem;
     tile_definition_t * pdef;
 
     if ( NULL == mesh ) return false;
-    ptmem  = &( mesh->tmem );
+	tile_mem_t& ptmem  = mesh->tmem;
 
-    ptmem->bbox = AABB3f(Vector3f(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]),
-		                 Vector3f(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]));
+    ptmem.bbox = AABB3f(Vector3f(ptmem.plst[0][XX], ptmem.plst[0][YY], ptmem.plst[0][ZZ]),
+		                Vector3f(ptmem.plst[0][XX], ptmem.plst[0][YY], ptmem.plst[0][ZZ]));
 
 	for (TileIndex cnt = 0; cnt.getI() < mesh->info.tiles_count; cnt++)
 	{
@@ -838,7 +777,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
 		Uint8 type;
 		oct_vec_v2_t ovec;
 
-        const std::shared_ptr<ego_tile_info_t> &ptile = ptmem->getTile(cnt.getI());
+        const std::shared_ptr<ego_tile_info_t> &ptile = ptmem.getTile(cnt.getI());
         oct_bb_t& poct = ptile->oct;
 
         ptile->itile = cnt.getI();
@@ -852,7 +791,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
 		vertices = pdef->numvertices;                 // Number of vertices
 
 		// initialize the bounding box
-	    ovec = oct_vec_v2_t(Vector3f(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
+	    ovec = oct_vec_v2_t(Vector3f(ptmem.plst[mesh_vrt][0], ptmem.plst[mesh_vrt][1],ptmem.plst[mesh_vrt][2]));
         poct = oct_bb_t(ovec);
         mesh_vrt++;
 
@@ -862,7 +801,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            ovec.ctor(Vector3f(ptmem->plst[mesh_vrt][0],ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
+            ovec.ctor(Vector3f(ptmem.plst[mesh_vrt][0],ptmem.plst[mesh_vrt][1],ptmem.plst[mesh_vrt][2]));
             poct.join(ovec);
         }
 
@@ -882,12 +821,12 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
         }
 
         // extend the mesh bounding box
-        ptmem->bbox = AABB3f(Vector3f(std::min(ptmem->bbox.getMin()[XX], poct._mins[XX]),
-                                      std::min(ptmem->bbox.getMin()[YY], poct._mins[YY]),
-                                      std::min(ptmem->bbox.getMin()[ZZ], poct._mins[ZZ])),
-                             Vector3f(std::max(ptmem->bbox.getMax()[XX], poct._maxs[XX]),
-                                      std::max(ptmem->bbox.getMax()[YY], poct._maxs[YY]),
-                                      std::max(ptmem->bbox.getMax()[ZZ], poct._maxs[ZZ])));
+        ptmem.bbox = AABB3f(Vector3f(std::min(ptmem.bbox.getMin()[XX], poct._mins[XX]),
+                                     std::min(ptmem.bbox.getMin()[YY], poct._mins[YY]),
+                                     std::min(ptmem.bbox.getMin()[ZZ], poct._mins[ZZ])),
+                            Vector3f(std::max(ptmem.bbox.getMax()[XX], poct._maxs[XX]),
+                                     std::max(ptmem.bbox.getMax()[YY], poct._maxs[YY]),
+                                     std::max(ptmem.bbox.getMax()[ZZ], poct._maxs[ZZ])));
     }
 
     return true;
@@ -903,8 +842,6 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
     ///               a wall) the normals should not be smoothed.
 
     int ix, iy;
-    tile_mem_t * ptmem;
-    grid_mem_t * pgmem;
 
     int      edge_is_crease[4];
 	Vector3f nrm_lst[4], vec_sum;
@@ -912,17 +849,17 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
 
     // test for mesh
     if ( NULL == mesh ) return false;
-    ptmem = &( mesh->tmem );
-    pgmem = &( mesh->gmem );
+	tile_mem_t& ptmem = mesh->tmem;
+	grid_mem_t& pgmem = mesh->gmem;
 
     // set the default normal for each fan, based on the calculated twist value
-    for (TileIndex fan0 = 0; fan0 < ptmem->getTileCount(); fan0++ )
+    for (TileIndex fan0 = 0; fan0 < ptmem.getTileCount(); fan0++ )
     {
-        Uint8 twist = grid_mem_t::get(pgmem,fan0)->twist;
+        Uint8 twist = grid_mem_t::get(pgmem, fan0)->twist;
 
-        ptmem->nlst[fan0.getI()][XX] = map_twist_nrm[twist][kX];
-        ptmem->nlst[fan0.getI()][YY] = map_twist_nrm[twist][kY];
-        ptmem->nlst[fan0.getI()][ZZ] = map_twist_nrm[twist][kZ];
+        ptmem.nlst[fan0.getI()][XX] = map_twist_nrm[twist][kX];
+        ptmem.nlst[fan0.getI()][YY] = map_twist_nrm[twist][kY];
+        ptmem.nlst[fan0.getI()][ZZ] = map_twist_nrm[twist][kZ];
     }
 
     // find an "average" normal of each corner of the tile
@@ -937,9 +874,9 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
             TileIndex fan0 = mesh->get_tile_int(PointGrid(ix, iy));
             if ( !ego_mesh_t::grid_is_valid( mesh, fan0 ) ) continue;
 
-            nrm_lst[0][kX] = ptmem->nlst[fan0.getI()][XX];
-            nrm_lst[0][kY] = ptmem->nlst[fan0.getI()][YY];
-            nrm_lst[0][kZ] = ptmem->nlst[fan0.getI()][ZZ];
+            nrm_lst[0][kX] = ptmem.nlst[fan0.getI()][XX];
+            nrm_lst[0][kY] = ptmem.nlst[fan0.getI()][YY];
+            nrm_lst[0][kZ] = ptmem.nlst[fan0.getI()][ZZ];
 
             // for each corner of this tile
             for ( i = 0; i < 4; i++ )
@@ -973,9 +910,9 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
 
                     if ( ego_mesh_t::grid_is_valid( mesh, fan1 ) )
                     {
-                        nrm_lst[j][kX] = ptmem->nlst[fan1.getI()][XX];
-                        nrm_lst[j][kY] = ptmem->nlst[fan1.getI()][YY];
-                        nrm_lst[j][kZ] = ptmem->nlst[fan1.getI()][ZZ];
+                        nrm_lst[j][kX] = ptmem.nlst[fan1.getI()][XX];
+                        nrm_lst[j][kY] = ptmem.nlst[fan1.getI()][YY];
+                        nrm_lst[j][kZ] = ptmem.nlst[fan1.getI()][ZZ];
 
                         if ( nrm_lst[j][kZ] < 0 )
                         {
@@ -1392,7 +1329,7 @@ BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const Vector3f& pos, const 
     // if the mesh is empty, return 0
     if ( NULL == mesh || 0 == mesh->info.tiles_count || mesh->tmem.getTileCount() == 0 ) return EMPTY_BIT_FIELD;
     pdata->pinfo = (ego_mesh_info_t *)&(mesh->info);
-    pdata->glist = grid_mem_t::get(&(mesh->gmem),0);
+    pdata->glist = grid_mem_t::get(mesh->gmem, 0);
 
     // make an alias for the radius
     loc_radius = radius;
@@ -1501,7 +1438,7 @@ float ego_mesh_t::get_pressure( const ego_mesh_t * mesh, const Vector3f& pos, fl
 
     if ( NULL == mesh || 0 == mesh->info.tiles_count || mesh->tmem.getTileCount() == 0 ) return 0;
     pinfo = &( mesh->info );
-    glist = grid_mem_t::get(&(mesh->gmem),0);
+    glist = grid_mem_t::get(mesh->gmem, 0);
 
     // make an alias for the radius
     loc_radius = radius;
@@ -1884,7 +1821,7 @@ float ego_mesh_get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point
 
     if (TileIndex::Invalid == itile) return 0.0f;
 
-    vstart = tile_mem_t::get(&(mesh->tmem),itile)->vrtstart;
+    vstart = tile_mem_t::get(mesh->tmem, itile)->vrtstart;
     vcount = std::min( (size_t)4, mesh->tmem.vert_count );
 
     zmax = -1e6;
@@ -1934,33 +1871,20 @@ ego_tile_info_t::ego_tile_info_t() :
 //--------------------------------------------------------------------------------------------
 // ego_grid_info_t
 //--------------------------------------------------------------------------------------------
-ego_grid_info_t *ego_grid_info_t::ctor(ego_grid_info_t *self)
+void ego_grid_info_t::ctor(ego_grid_info_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    BLANK_STRUCT_PTR(self);
+    BLANK_STRUCT_PTR(&self);
 
     // Set to non-zero, non-null, non-false values.
-    self->cache_frame = -1;
-    self->twist = TWIST_FLAT;
-
-    return self;
+    self.cache_frame = -1;
+    self.twist = TWIST_FLAT;
 }
 
-ego_grid_info_t *ego_grid_info_t::dtor(ego_grid_info_t * self)
+void ego_grid_info_t::dtor(ego_grid_info_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
+    ego_grid_info_t::free(&self);
 
-    ego_grid_info_t::free(self);
-
-    BLANK_STRUCT_PTR(self);
-
-    return self;
+    BLANK_STRUCT_PTR(&self);
 }
 
 ego_grid_info_t *ego_grid_info_t::free(ego_grid_info_t *self)
@@ -1982,7 +1906,8 @@ ego_grid_info_t *ego_grid_info_t::create()
     {
         return nullptr;
     }
-    return ego_grid_info_t::ctor(self);
+    ego_grid_info_t::ctor(*self);
+	return self;
 }
 
 ego_grid_info_t *ego_grid_info_t::destroy(ego_grid_info_t *self)
@@ -1992,7 +1917,7 @@ ego_grid_info_t *ego_grid_info_t::destroy(ego_grid_info_t *self)
         return nullptr;
     }
 
-    self = ego_grid_info_t::dtor(self);
+    ego_grid_info_t::dtor(*self);
 
     EGOBOO_DELETE(self);
 
@@ -2008,7 +1933,7 @@ ego_grid_info_t *ego_grid_info_ctor_ary(ego_grid_info_t *self, size_t size)
     }
     for (size_t i = 0; i < size; i++)
     {
-        ego_grid_info_t::ctor(self + i);
+        ego_grid_info_t::ctor(self[i]);
     }
 
     return self;
@@ -2023,7 +1948,7 @@ ego_grid_info_t *ego_grid_info_dtor_ary(ego_grid_info_t *self, size_t size)
 
     for (size_t i = 0; i < size; ++i)
     {
-        ego_grid_info_t::dtor(self + i);
+        ego_grid_info_t::dtor(self[i]);
     }
 
     return self;
@@ -2068,87 +1993,58 @@ bool ego_mesh_update_water_level( ego_mesh_t * mesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mpdfx_list_ary_t *mpdfx_list_ary_t::ctor(mpdfx_list_ary_t *self)
+void mpdfx_list_ary_t::ctor(mpdfx_list_ary_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-
-    BLANK_STRUCT_PTR(self);
-
-    return self;
+	self.cnt = 0;
+	self.lst = nullptr;
+	self.idx = 0;
 }
 
-mpdfx_list_ary_t *mpdfx_list_ary_t::dtor(mpdfx_list_ary_t *self)
+void mpdfx_list_ary_t::dtor(mpdfx_list_ary_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-
     mpdfx_list_ary_t::dealloc(self);
 
-    BLANK_STRUCT_PTR(self);
-
-    return self;
+	self.lst = nullptr;
+	self.idx = 0;
+	self.cnt = 0;
 }
 
-mpdfx_list_ary_t *mpdfx_list_ary_t::alloc(mpdfx_list_ary_t *self, size_t size)
+void mpdfx_list_ary_t::alloc(mpdfx_list_ary_t& self, size_t size)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-
     mpdfx_list_ary_t::dealloc(self);
 
     if (0 == size)
     {
-        return self;
+        return;
     }
-    self->lst = EGOBOO_NEW_ARY(size_t, size);
-    self->cnt = (!self->lst) ? 0 : size;
-    self->idx = 0;
-    return self;
+    self.lst = new size_t[size];
+    self.cnt = size;
+    self.idx = 0;
 }
 
-mpdfx_list_ary_t *mpdfx_list_ary_t::dealloc(mpdfx_list_ary_t * self)
+void mpdfx_list_ary_t::dealloc(mpdfx_list_ary_t& self)
 {
-    if (!self)
+    if (0 == self.cnt)
     {
-        return nullptr;
+        return;
     }
-    if (0 == self->cnt)
-    {
-        return self;
-    }
-    EGOBOO_DELETE_ARY(self->lst);
-    self->cnt = 0;
-    self->idx = 0;
-    return self;
+	delete[] self.lst;
+	self.lst = nullptr;
+    self.cnt = 0;
+    self.idx = 0;
 }
 
-mpdfx_list_ary_t *mpdfx_list_ary_t::reset(mpdfx_list_ary_t *self)
+void mpdfx_list_ary_t::reset(mpdfx_list_ary_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    self->idx = 0;
-    return self;
+    self.idx = 0;
 }
 
-bool mpdfx_list_ary_t::push(mpdfx_list_ary_t *self, size_t value)
+bool mpdfx_list_ary_t::push(mpdfx_list_ary_t& self, size_t value)
 {
-    if (!self)
+    if (self.idx < self.cnt)
     {
-        return false;
-    }
-    if (self->idx < self->cnt)
-    {
-        self->lst[self->idx] = value;
-        self->idx++;
+        self.lst[self.idx] = value;
+        self.idx++;
         return true;
     }
     else
@@ -2158,148 +2054,113 @@ bool mpdfx_list_ary_t::push(mpdfx_list_ary_t *self, size_t value)
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-mpdfx_lists_t * mpdfx_lists_t::ctor( mpdfx_lists_t * plst )
+
+void mpdfx_lists_t::ctor(mpdfx_lists_t& self)
 {
-    if ( NULL == plst ) return plst;
+    mpdfx_list_ary_t::ctor(self.sha);
+    mpdfx_list_ary_t::ctor(self.drf);
+    mpdfx_list_ary_t::ctor(self.anm);
+    mpdfx_list_ary_t::ctor(self.wat);
+    mpdfx_list_ary_t::ctor(self.wal);
+    mpdfx_list_ary_t::ctor(self.imp);
+    mpdfx_list_ary_t::ctor(self.dam);
+    mpdfx_list_ary_t::ctor(self.slp);
 
-    BLANK_STRUCT_PTR( plst );
-
-    mpdfx_list_ary_t::ctor( &( plst->sha ) );
-    mpdfx_list_ary_t::ctor( &( plst->drf ) );
-    mpdfx_list_ary_t::ctor( &( plst->anm ) );
-    mpdfx_list_ary_t::ctor( &( plst->wat ) );
-    mpdfx_list_ary_t::ctor( &( plst->wal ) );
-    mpdfx_list_ary_t::ctor( &( plst->imp ) );
-    mpdfx_list_ary_t::ctor( &( plst->dam ) );
-    mpdfx_list_ary_t::ctor( &( plst->slp ) );
-
-    return plst;
+	// No memory, hence nothing is stored, hence nothing is dirty.
+	self.dirty = false;
 }
 
-//--------------------------------------------------------------------------------------------
-mpdfx_lists_t * mpdfx_lists_t::dtor( mpdfx_lists_t * plst )
+void mpdfx_lists_t::dtor(mpdfx_lists_t& self)
 {
-    if ( NULL == plst ) return NULL;
+    mpdfx_lists_t::dealloc(self);
 
-    mpdfx_lists_t::dealloc( plst );
+    mpdfx_list_ary_t::dtor(self.sha);
+    mpdfx_list_ary_t::dtor(self.drf);
+    mpdfx_list_ary_t::dtor(self.anm);
+    mpdfx_list_ary_t::dtor(self.wat);
+    mpdfx_list_ary_t::dtor(self.wal);
+    mpdfx_list_ary_t::dtor(self.imp);
+    mpdfx_list_ary_t::dtor(self.dam);
+    mpdfx_list_ary_t::dtor(self.slp);
 
-    mpdfx_list_ary_t::dtor( &( plst->sha ) );
-    mpdfx_list_ary_t::dtor( &( plst->drf ) );
-    mpdfx_list_ary_t::dtor( &( plst->anm ) );
-    mpdfx_list_ary_t::dtor( &( plst->wat ) );
-    mpdfx_list_ary_t::dtor( &( plst->wal ) );
-    mpdfx_list_ary_t::dtor( &( plst->imp ) );
-    mpdfx_list_ary_t::dtor( &( plst->dam ) );
-    mpdfx_list_ary_t::dtor( &( plst->slp ) );
-
-    BLANK_STRUCT_PTR( plst )
-
-    return plst;
+	// No memory, hence nothing is stored, hence nothing is dirty.
+	self.dirty = false;
 }
 
-//--------------------------------------------------------------------------------------------
-bool mpdfx_lists_t::alloc( mpdfx_lists_t * plst, const ego_mesh_info_t * pinfo )
+bool mpdfx_lists_t::alloc(mpdfx_lists_t& self, const ego_mesh_info_t *info)
 {
-    if ( NULL == plst || NULL == pinfo ) return false;
+	if (nullptr == info) {
+		throw std::invalid_argument("nullptr = info");
+	}
 
-    // free any memory already allocated
-    if ( !mpdfx_lists_t::dealloc( plst ) ) return false;
+	// free any memory already allocated
+	mpdfx_lists_t::dealloc(self);
 
-    if ( 0 == pinfo->tiles_count ) return true;
+	if (0 == info->tiles_count) return true;
 
-    mpdfx_list_ary_t::alloc( &( plst->sha ), pinfo->tiles_count );
-    if ( NULL == plst->sha.lst ) goto mesh_mem_alloc_fail;
+	try {
+		mpdfx_list_ary_t::alloc(self.sha, info->tiles_count);
+		mpdfx_list_ary_t::alloc(self.drf, info->tiles_count);
+		mpdfx_list_ary_t::alloc(self.anm, info->tiles_count);
+		mpdfx_list_ary_t::alloc(self.wat, info->tiles_count);
+		mpdfx_list_ary_t::alloc(self.wal, info->tiles_count);
+		mpdfx_list_ary_t::alloc(self.imp, info->tiles_count);
+		mpdfx_list_ary_t::alloc(self.dam, info->tiles_count);
+		mpdfx_list_ary_t::alloc(self.slp, info->tiles_count);
 
-    mpdfx_list_ary_t::alloc( &( plst->drf ), pinfo->tiles_count );
-    if ( NULL == plst->drf.lst ) goto mesh_mem_alloc_fail;
+		// the list needs to be resynched
+		self.dirty = true;
 
-    mpdfx_list_ary_t::alloc( &( plst->anm ), pinfo->tiles_count );
-    if ( NULL == plst->anm.lst ) goto mesh_mem_alloc_fail;
-
-    mpdfx_list_ary_t::alloc( &( plst->wat ), pinfo->tiles_count );
-    if ( NULL == plst->wat.lst ) goto mesh_mem_alloc_fail;
-
-    mpdfx_list_ary_t::alloc( &( plst->wal ), pinfo->tiles_count );
-    if ( NULL == plst->wal.lst ) goto mesh_mem_alloc_fail;
-
-    mpdfx_list_ary_t::alloc( &( plst->imp ), pinfo->tiles_count );
-    if ( NULL == plst->imp.lst ) goto mesh_mem_alloc_fail;
-
-    mpdfx_list_ary_t::alloc( &( plst->dam ), pinfo->tiles_count );
-    if ( NULL == plst->dam.lst ) goto mesh_mem_alloc_fail;
-
-    mpdfx_list_ary_t::alloc( &( plst->slp ), pinfo->tiles_count );
-    if ( NULL == plst->slp.lst ) goto mesh_mem_alloc_fail;
-
-    // the list needs to be resynched
-    plst->dirty = true;
-
-    return true;
-
-mesh_mem_alloc_fail:
-
-    mpdfx_lists_t::dealloc( plst );
-
-    log_error( "%s - cannot allocate mpdfx_lists_t for this mesh!\n", __FUNCTION__ );
-
-    return false;
+		return true;
+	}
+	catch (...) {
+		mpdfx_lists_t::dealloc(self);
+		log_error("%s - cannot allocate mpdfx_lists_t for this mesh!\n", __FUNCTION__);
+		throw std::current_exception();
+	}
 }
 
-//--------------------------------------------------------------------------------------------
-bool mpdfx_lists_t::dealloc( mpdfx_lists_t * plst )
+void mpdfx_lists_t::dealloc(mpdfx_lists_t& self)
 {
-    if ( NULL == plst ) return false;
-
     // free the memory
-    mpdfx_list_ary_t::dealloc( &( plst->sha ) );
-    mpdfx_list_ary_t::dealloc( &( plst->drf ) );
-    mpdfx_list_ary_t::dealloc( &( plst->anm ) );
-    mpdfx_list_ary_t::dealloc( &( plst->wat ) );
-    mpdfx_list_ary_t::dealloc( &( plst->wal ) );
-    mpdfx_list_ary_t::dealloc( &( plst->imp ) );
-    mpdfx_list_ary_t::dealloc( &( plst->dam ) );
-    mpdfx_list_ary_t::dealloc( &( plst->slp ) );
+	mpdfx_list_ary_t::dealloc(self.sha);
+    mpdfx_list_ary_t::dealloc(self.drf);
+    mpdfx_list_ary_t::dealloc(self.anm);
+    mpdfx_list_ary_t::dealloc(self.wat);
+    mpdfx_list_ary_t::dealloc(self.wal);
+    mpdfx_list_ary_t::dealloc(self.imp);
+    mpdfx_list_ary_t::dealloc(self.dam);
+    mpdfx_list_ary_t::dealloc(self.slp);
 
-    // no memory, so nothing can be stored and nothing can be dirty
-    plst->dirty = false;
-
-    return true;
+    // No memory, hence nothing is stored, hence nothing is dirty.
+	self.dirty = false;
 }
 
-//--------------------------------------------------------------------------------------------
-bool mpdfx_lists_t::reset( mpdfx_lists_t * plst )
+void mpdfx_lists_t::reset(mpdfx_lists_t& self)
 {
-    if ( NULL == plst ) return false;
-
     // free the memory
-    mpdfx_list_ary_t::reset( &( plst->sha ) );
-    mpdfx_list_ary_t::reset( &( plst->drf ) );
-    mpdfx_list_ary_t::reset( &( plst->anm ) );
-    mpdfx_list_ary_t::reset( &( plst->wat ) );
-    mpdfx_list_ary_t::reset( &( plst->wal ) );
-    mpdfx_list_ary_t::reset( &( plst->imp ) );
-    mpdfx_list_ary_t::reset( &( plst->dam ) );
-    mpdfx_list_ary_t::reset( &( plst->slp ) );
+    mpdfx_list_ary_t::reset(self.sha);
+    mpdfx_list_ary_t::reset(self.drf);
+    mpdfx_list_ary_t::reset(self.anm);
+    mpdfx_list_ary_t::reset(self.wat);
+    mpdfx_list_ary_t::reset(self.wal);
+    mpdfx_list_ary_t::reset(self.imp);
+    mpdfx_list_ary_t::reset(self.dam);
+    mpdfx_list_ary_t::reset(self.slp);
 
     // everything has been reset. force it to recalculate
-    plst->dirty = true;
-
-    return true;
+	self.dirty = true;
 }
 
-//--------------------------------------------------------------------------------------------
-int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t value )
+int mpdfx_lists_t::push( mpdfx_lists_t& self, GRID_FX_BITS fx_bits, size_t value )
 {
     int retval = 0;
-
-    if ( NULL == plst ) return false;
 
     if ( 0 == fx_bits ) return true;
 
     if ( HAS_NO_BITS( fx_bits, MAPFX_SHA ) )
     {
-        if ( mpdfx_list_ary_t::push( &( plst->sha ), value ) )
+        if ( mpdfx_list_ary_t::push(self.sha, value) )
         {
             retval++;
         }
@@ -2308,7 +2169,7 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_REFLECTIVE ) )
     {
-        if ( mpdfx_list_ary_t::push( &( plst->drf ), value ) )
+        if ( mpdfx_list_ary_t::push(self.drf, value) )
         {
             retval++;
         }
@@ -2316,7 +2177,7 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_ANIM ) )
     {
-        if ( mpdfx_list_ary_t::push( &( plst->anm ), value ) )
+        if ( mpdfx_list_ary_t::push(self.anm, value) )
         {
             retval++;
         }
@@ -2324,7 +2185,7 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_WATER ) )
     {
-        if ( mpdfx_list_ary_t::push( &( plst->wat ), value ) )
+        if ( mpdfx_list_ary_t::push(self.wat, value) )
         {
             retval++;
         }
@@ -2332,7 +2193,7 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_WALL ) )
     {
-        if ( mpdfx_list_ary_t::push( &( plst->wal ), value ) )
+        if ( mpdfx_list_ary_t::push(self.wal, value) )
         {
             retval++;
         }
@@ -2340,7 +2201,7 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_IMPASS ) )
     {
-        if ( mpdfx_list_ary_t::push( &( plst->imp ), value ) )
+        if ( mpdfx_list_ary_t::push(self.imp, value) )
         {
             retval++;
         }
@@ -2348,7 +2209,7 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_DAMAGE ) )
     {
-        if ( mpdfx_list_ary_t::push( &( plst->dam ), value ) )
+        if ( mpdfx_list_ary_t::push(self.dam, value) )
         {
             retval++;
         }
@@ -2356,7 +2217,7 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_SLIPPY ) )
     {
-        if ( mpdfx_list_ary_t::push( &( plst->slp ), value ) )
+        if ( mpdfx_list_ary_t::push(self.slp, value) )
         {
             retval++;
         }
@@ -2365,32 +2226,25 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-bool mpdfx_lists_t::synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool force )
+bool mpdfx_lists_t::synch( mpdfx_lists_t& self, const grid_mem_t& gmem, bool force )
 {
-    size_t count, i;
-    GRID_FX_BITS fx;
-
-    if ( NULL == plst || NULL == pgmem ) return false;
-
-    count =  pgmem->grid_count;
-    if ( 0 == count ) return true;
+    if ( 0 == gmem.grid_count ) return true;
 
     // don't re-calculate unless it is necessary
-    if ( !force && !plst->dirty ) return true;
+    if ( !force && !self.dirty ) return true;
 
     // !!reset the counts!!
-    mpdfx_lists_t::reset( plst );
+    mpdfx_lists_t::reset(self);
 
-    for ( i = 0; i < count; i++ )
+    for (size_t i = 0; i < gmem.grid_count; i++ )
     {
-        fx = ego_grid_info_t::get_all_fx(grid_mem_t::get(pgmem,i));
+		GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(grid_mem_t::get(gmem, i));
 
-        mpdfx_lists_t::push( plst, fx, i );
+        mpdfx_lists_t::push(self, fx, i);
     }
 
     // we're done calculating
-    plst->dirty = false;
+	self.dirty = false;
 
     return true;
 }
@@ -2414,7 +2268,7 @@ bool ego_mesh_tile_has_bits( const ego_mesh_t * mesh, const PointGrid& point, co
     }
 
     // Since we KNOW that this is in range, allow raw access to the data structure.
-    GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(grid_mem_t::get(&(mesh->gmem),tileRef));
+    GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(grid_mem_t::get(mesh->gmem, tileRef));
 
     return HAS_SOME_BITS(fx, bits);
 }
@@ -2452,10 +2306,10 @@ float ego_mesh_t::getElevation(const PointWorld& point) const
                         static_cast<int>(point.getY()) & GRID_MASK);
 
     // Get the height of each fan corner.
-    float z0 = tmem.plst[tile_mem_t::get(&tmem, tile)->vrtstart + 0][ZZ];
-    float z1 = tmem.plst[tile_mem_t::get(&tmem, tile)->vrtstart + 1][ZZ];
-    float z2 = tmem.plst[tile_mem_t::get(&tmem, tile)->vrtstart + 2][ZZ];
-    float z3 = tmem.plst[tile_mem_t::get(&tmem, tile)->vrtstart + 3][ZZ];
+    float z0 = tmem.plst[tile_mem_t::get(tmem, tile)->vrtstart + 0][ZZ];
+    float z1 = tmem.plst[tile_mem_t::get(tmem, tile)->vrtstart + 1][ZZ];
+    float z2 = tmem.plst[tile_mem_t::get(tmem, tile)->vrtstart + 2][ZZ];
+    float z3 = tmem.plst[tile_mem_t::get(tmem, tile)->vrtstart + 3][ZZ];
 
     // Get the weighted height of each side.
     float zleft = (z0 * (GRID_FSIZE - gridPoint.getY()) + z3 * gridPoint.getY()) / GRID_FSIZE;
@@ -2530,7 +2384,7 @@ bool ego_mesh_clear_fx( ego_mesh_t * mesh, const TileIndex& itile, const BIT_FIE
     if ( itile > mesh->info.tiles_count ) return false;
 
     mesh_mpdfx_tests++;
-    retval = ego_grid_info_sub_pass_fx(grid_mem_t::get(&mesh->gmem,itile), flags );
+    retval = ego_grid_info_t::sub_pass_fx(grid_mem_t::get(mesh->gmem, itile), flags );
 
     if ( retval )
     {
@@ -2558,7 +2412,7 @@ bool ego_mesh_add_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD f
 
     // Succeed only of something actually changed.
     mesh_mpdfx_tests++;
-    bool retval = ego_grid_info_add_pass_fx(grid_mem_t::get(&(self->gmem),index), flags);
+    bool retval = ego_grid_info_t::add_pass_fx(grid_mem_t::get(self->gmem, index), flags);
 
     if ( retval )
     {
@@ -2585,13 +2439,13 @@ Uint32 ego_mesh_t::test_fx(const ego_mesh_t *self, const TileIndex& index, const
     }
 
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
-    if (TILE_IS_FANOFF(tile_mem_t::get(&(self->tmem),index)))
+    if (TILE_IS_FANOFF(tile_mem_t::get(self->tmem, index)))
     {
         return 0;
     }
 
     mesh_mpdfx_tests++;
-    return ego_grid_info_t::test_all_fx(grid_mem_t::get(&(self->gmem),index), flags);
+    return ego_grid_info_t::test_all_fx(grid_mem_t::get(self->gmem, index), flags);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2616,7 +2470,7 @@ ego_grid_info_t* ego_mesh_t::get_pgrid(const TileIndex& index) const
     }
 
     // Get the grid info.
-    return grid_mem_t::get(&gmem, index);
+    return grid_mem_t::get(gmem, index);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2627,7 +2481,7 @@ Uint8 ego_mesh_get_twist(ego_mesh_t *self, const TileIndex& index)
     {
         return TWIST_FLAT;
     }
-    return grid_mem_t::get(&(self->gmem), index)->twist;
+    return grid_mem_t::get(self->gmem, index)->twist;
 #if 0
     // Assert that the grids are allocated.
     if (!self->gmem.grid_list || index.getI() >= self->gmem.grid_count)
@@ -2663,8 +2517,7 @@ GRID_FX_BITS ego_grid_info_t::test_all_fx(const ego_grid_info_t *self, const GRI
     return grid_bits & bits;
 }
 
-//--------------------------------------------------------------------------------------------
-bool ego_grid_info_add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits)
+bool ego_grid_info_t::add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits)
 {
     GRID_FX_BITS old_bits, new_bits;
 
@@ -2683,41 +2536,39 @@ bool ego_grid_info_add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits)
     return old_bits != new_bits;
 }
 
-//--------------------------------------------------------------------------------------------
-bool ego_grid_info_sub_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+bool ego_grid_info_t::sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits)
 {
     GRID_FX_BITS old_bits, new_bits;
 
-    if ( NULL == pgrid ) return false;
+    if ( NULL == self) return false;
 
     // save the old bits
-    old_bits = ego_grid_info_t::get_all_fx( pgrid );
+    old_bits = ego_grid_info_t::get_all_fx(self);
 
     // set the bits that we can modify
-    UNSET_BIT( pgrid->pass_fx, bits );
+    UNSET_BIT(self->pass_fx, bits );
 
     // get the new bits
-    new_bits = ego_grid_info_t::get_all_fx( pgrid );
+    new_bits = ego_grid_info_t::get_all_fx(self);
 
     // let the caller know if they changed anything
     return old_bits != new_bits;
 }
 
-//--------------------------------------------------------------------------------------------
-bool ego_grid_info_set_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+bool ego_grid_info_t::set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits)
 {
     GRID_FX_BITS old_bits, new_bits;
 
-    if ( NULL == pgrid ) return false;
+    if ( NULL == self) return false;
 
     // save the old bits
-    old_bits = ego_grid_info_t::get_all_fx( pgrid );
+    old_bits = ego_grid_info_t::get_all_fx(self);
 
     // set the bits that we can modify
-    pgrid->pass_fx = bits;
+	self->pass_fx = bits;
 
     // get the new bits
-    new_bits = ego_grid_info_t::get_all_fx( pgrid );
+    new_bits = ego_grid_info_t::get_all_fx(self);
 
     // let the caller know if they changed anything
     return old_bits != new_bits;

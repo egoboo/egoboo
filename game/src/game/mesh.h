@@ -331,19 +331,19 @@ struct ego_grid_info_t
     lighting_cache_t cache;                    ///< the per-grid lighting info
     int              cache_frame;              ///< the last frame in which the cache was calculated
 
-    static ego_grid_info_t *ctor(ego_grid_info_t *self);
-    static ego_grid_info_t *dtor(ego_grid_info_t *self);
+    static void ctor(ego_grid_info_t& self);
+    static void dtor(ego_grid_info_t& self);
     static ego_grid_info_t *free(ego_grid_info_t *self);
     static ego_grid_info_t *create();
     static ego_grid_info_t *destroy(ego_grid_info_t *self);
     static GRID_FX_BITS get_all_fx(const ego_grid_info_t *self);
     static GRID_FX_BITS test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits);
+	static bool add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
+	static bool sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
+	static bool set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 };
 
 
-bool ego_grid_info_add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
-bool ego_grid_info_sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
-bool ego_grid_info_set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 
 ego_grid_info_t *ego_grid_info_ctor_ary(ego_grid_info_t *self, size_t size);
 ego_grid_info_t *ego_grid_info_dtor_ary(ego_grid_info_t *self, size_t size);
@@ -371,29 +371,29 @@ protected:
     // the per-grid info
     ego_grid_info_t* grid_list;                       ///< tile command info
 public:
-    static grid_mem_t *ctor(grid_mem_t *self);
-    static grid_mem_t *dtor(grid_mem_t *self);
-    static bool alloc(grid_mem_t *self, const ego_mesh_info_t *info);
-    static bool free(grid_mem_t *self);
+    static void ctor(grid_mem_t& self);
+    static void dtor(grid_mem_t& self);
+    static bool alloc(grid_mem_t& self, const ego_mesh_info_t& info);
+    static void free(grid_mem_t& self);
     /**
      * @brief
      *  This function builds a look up table to ease calculating the fan number given an x,y pair.
      */
     static void make_fanstart(grid_mem_t *self, const ego_mesh_info_t *info);
 
-    static ego_grid_info_t *get(const grid_mem_t *self, const TileIndex& index)
+    static ego_grid_info_t *get(const grid_mem_t& self, const TileIndex& index)
     {
         // Validate arguments.
-        if (!self || TileIndex::Invalid == index)
+        if (TileIndex::Invalid == index)
         {
             return nullptr;
         }
         // Assert that the grids are allocated and the index is within bounds.
-        if (!self->grid_list || index.getI() >= self->grid_count)
+        if (!self.grid_list || index.getI() >= self.grid_count)
         {
             return nullptr;
         }
-        return self->grid_list + index.getI();
+        return self.grid_list + index.getI();
     }
 };
 
@@ -416,19 +416,19 @@ public:
     GLXvector3f *nlst;                 ///< the normal list
     GLXvector3f *clst;                 ///< the color list (for lighting the mesh)
 
-    static tile_mem_t *ctor(tile_mem_t *self);
-    static tile_mem_t *dtor(tile_mem_t *self);
-    static bool free(tile_mem_t *self);
-    static bool alloc(tile_mem_t *self, const ego_mesh_info_t *info);
+    static void ctor(tile_mem_t& self);
+    static void dtor(tile_mem_t& self);
+    static bool free(tile_mem_t& self);
+    static bool alloc(tile_mem_t& self, const ego_mesh_info_t& info);
 
-    static const std::shared_ptr<ego_tile_info_t>& get(const tile_mem_t *self,const TileIndex& index)
+    static const std::shared_ptr<ego_tile_info_t>& get(const tile_mem_t& self,const TileIndex& index)
     {
         // Assert that the index is within bounds.
-        if (TileIndex::Invalid == index || !self)
+        if (TileIndex::Invalid == index)
         {
             return ego_tile_info_t::NULL_TILE;
         }
-        return self->getTile(index.getI());
+        return self.getTile(index.getI());
     }
 
     const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y) const
@@ -473,12 +473,12 @@ struct mpdfx_list_ary_t
     size_t   idx;
     size_t * lst;
 
-    static mpdfx_list_ary_t *ctor(mpdfx_list_ary_t *self);
-    static mpdfx_list_ary_t *dtor(mpdfx_list_ary_t *self);
-    static mpdfx_list_ary_t *alloc(mpdfx_list_ary_t *self, size_t size);
-    static mpdfx_list_ary_t *dealloc(mpdfx_list_ary_t *self);
-    static mpdfx_list_ary_t *reset(mpdfx_list_ary_t *self);
-    static bool push(mpdfx_list_ary_t *self, size_t value);
+    static void ctor(mpdfx_list_ary_t& self);
+    static void dtor(mpdfx_list_ary_t& self);
+    static void reset(mpdfx_list_ary_t& self);
+    static bool push(mpdfx_list_ary_t& self, size_t value);
+	static void alloc(mpdfx_list_ary_t& self, size_t size);
+	static void dealloc(mpdfx_list_ary_t& self);
 };
 
 
@@ -486,7 +486,8 @@ struct mpdfx_list_ary_t
 //--------------------------------------------------------------------------------------------
 struct mpdfx_lists_t
 {
-    bool   dirty;
+	// If @a true, the lists are constructed & allocated but are not synchronized with grid memory.
+    bool dirty;
 
     mpdfx_list_ary_t sha;
     mpdfx_list_ary_t drf;
@@ -497,13 +498,13 @@ struct mpdfx_lists_t
     mpdfx_list_ary_t dam;
     mpdfx_list_ary_t slp;
 
-    static mpdfx_lists_t *ctor(mpdfx_lists_t *self);
-    static mpdfx_lists_t *dtor(mpdfx_lists_t *self);
-    static bool alloc(mpdfx_lists_t *self, const ego_mesh_info_t *info);
-    static bool dealloc(mpdfx_lists_t *self);
-    static bool reset(mpdfx_lists_t *self);
-    static int push(mpdfx_lists_t *self, GRID_FX_BITS fx_bits, size_t value);
-    static bool synch(mpdfx_lists_t *self, const grid_mem_t *other, bool force);
+    static void ctor(mpdfx_lists_t& self);
+    static void dtor(mpdfx_lists_t& self);
+    static bool alloc(mpdfx_lists_t& self, const ego_mesh_info_t *info);
+    static void dealloc(mpdfx_lists_t& self);
+    static void reset(mpdfx_lists_t& self);
+    static int push(mpdfx_lists_t& self, GRID_FX_BITS fx_bits, size_t value);
+    static bool synch(mpdfx_lists_t& self, const grid_mem_t& other, bool force);
 };
 
 
@@ -539,8 +540,8 @@ struct ego_mesh_info_t
      */
     uint32_t tiles_count;
 
-    static ego_mesh_info_t *ctor(ego_mesh_info_t *self);
-    static ego_mesh_info_t *dtor(ego_mesh_info_t *self);
+    static void ctor(ego_mesh_info_t& self);
+    static void dtor(ego_mesh_info_t& self);
     static void init(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y);
 };
 

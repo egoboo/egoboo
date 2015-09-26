@@ -121,7 +121,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t *pgrid = grid_mem_t::get(&(_mesh->gmem), index);
+	ego_grid_info_t *pgrid = grid_mem_t::get(_mesh->gmem, index);
 	if (!pgrid)
 	{
 		return gfx_fail;

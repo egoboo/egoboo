@@ -52,12 +52,14 @@ struct lighting_cache_base_t
     float             _max_delta;  ///< max change in the light amplitude
     std::array<float, LIGHTING_VEC_SIZE> _lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
 
-	static lighting_cache_base_t *init(lighting_cache_base_t *self);
-	static bool max_light(lighting_cache_base_t *self);
+	static void init(lighting_cache_base_t& self);
+	static void max_light(lighting_cache_base_t& self);
+	// Blend another cache into this cache.
+	static void blend(lighting_cache_base_t& self, const lighting_cache_base_t& other, float keep);
+	static float evaluate(const lighting_cache_base_t& self, const Vector3f& nrm, float * amb);
 };
 
 
-bool lighting_cache_base_blend( lighting_cache_base_t * cache, const lighting_cache_base_t * cnew, float keep );
 
 //--------------------------------------------------------------------------------------------
 struct lighting_cache_t
@@ -70,7 +72,8 @@ struct lighting_cache_t
 
 	static lighting_cache_t *init(lighting_cache_t *self);
 	static bool max_light(lighting_cache_t *self);
-	static bool blend(lighting_cache_t * cache, lighting_cache_t * cnew, float keep);
+	/// Blend another cache into this cache.
+	static bool blend(lighting_cache_t *self, lighting_cache_t *other, float keep);
 };
 
 //--------------------------------------------------------------------------------------------

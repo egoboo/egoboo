@@ -2390,13 +2390,13 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     }
 
 	ego_mesh_info_t *pinfo = &(mesh->info);
-	grid_mem_t *pgmem = &(mesh->gmem);
-	tile_mem_t *ptmem = &(mesh->tmem);
+	grid_mem_t& pgmem = mesh->gmem;
+	tile_mem_t& ptmem = mesh->tmem;
 
     // find a bounding box for the "frustum"
-    mesh_bound.xmin = pgmem->edge_x;
+    mesh_bound.xmin = pgmem.edge_x;
     mesh_bound.xmax = 0;
-    mesh_bound.ymin = pgmem->edge_y;
+    mesh_bound.ymin = pgmem.edge_y;
     mesh_bound.ymax = 0;
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
@@ -2428,9 +2428,9 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     dynalight_data_t::init(&fake_dynalight);
 
     // initialize the light_bound
-    light_bound.xmin = pgmem->edge_x;
+    light_bound.xmin = pgmem.edge_x;
     light_bound.xmax = 0;
-    light_bound.ymin = pgmem->edge_y;
+    light_bound.ymin = pgmem.edge_y;
     light_bound.ymax = 0;
 
     // make bounding boxes for each dynamic light
@@ -2623,10 +2623,10 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 
                         nrm[kX] = pdyna->pos[kX] - x0;
                         nrm[kY] = pdyna->pos[kY] - y0;
-                        nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.getMin()[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - ptmem.bbox.getMin()[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.low._lighting, nrm);
 
-                        nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.getMax()[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - ptmem.bbox.getMax()[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.hgh._lighting, nrm);
                     }
                 }
