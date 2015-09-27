@@ -437,8 +437,10 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
     // reject characters that are hidden
     if ( pchr_a->isHidden() || pchr_b->isHidden() ) return false;
 
-    // don't interact with your mount, or your held items
-    if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return false;
+    // reject objects that are being held or inside another inventory
+    if(pchr_a->isBeingHeld() || pchr_b->isBeingHeld()) {
+        return false;
+    }
 
     // handle the dismount exception
     if ( pchr_a->dismount_timer > 0 && pchr_a->dismount_object == ichr_b) return false;
