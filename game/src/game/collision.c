@@ -2878,7 +2878,7 @@ static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const 
     if (object->enviro.fly_level < 0) object->enviro.fly_level = 0;  // fly above pits...
 
     // add the weight to the platform based on the new zlerp
-    platform->holdingweight += object->phys.weight * ( 1.0f - object->enviro.zlerp );
+    platform->holdingweight += object->phys.weight;
 
     // update the character jumping
     if (object->enviro.grounded)
@@ -2916,7 +2916,6 @@ bool detach_character_from_platform( Object * pchr )
 	}
 
     // save some values
-    float old_zlerp        = pchr->enviro.zlerp;
     const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
 
     // undo the attachment
@@ -2927,7 +2926,7 @@ bool detach_character_from_platform( Object * pchr )
 
     // adjust the platform weight, if necessary
     if (oldPlatform) {
-        oldPlatform->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
+        oldPlatform->holdingweight -= pchr->phys.weight;
     }
 
     // update the character-platform properties
