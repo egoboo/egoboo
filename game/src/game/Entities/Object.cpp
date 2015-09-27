@@ -2805,7 +2805,7 @@ void Object::dropMoney(int amount)
     damage_timer = DAMAGETIME;
 
     // count and spawn the various denominations
-    for (size_t cnt = PIP_MONEY_COUNT - 1; amount >= 0; cnt--)
+    for (size_t cnt = PIP_MONEY_COUNT - 1; amount > 0; cnt--)
     {
         int count = amount / vals[cnt];
         amount -= count * vals[cnt];
