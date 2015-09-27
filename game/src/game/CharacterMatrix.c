@@ -136,7 +136,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
         chr_update_matrix( ptarget, true );
 
         // grab the matrix cache into from the character we are overlaying
-        memcpy( mc_tmp, &( ptarget->inst.matrix_cache ), sizeof( matrix_cache_t ) );
+        *mc_tmp = ptarget->inst.matrix_cache;
 
         // just in case the overlay's matrix cannot be corrected
         // then treat it as if it is not an overlay
@@ -307,8 +307,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
 
         // update the weapon position
         pweap->setPosition(Vector3f(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
-
-        memcpy( &( pweap->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
+        pweap->inst.matrix_cache = *mc_tmp;
 
         pweap_mcache->matrix_valid = true;
     }

@@ -26,7 +26,6 @@
 #endif
 
 #include "egolib/typedef.h"
-#include "egolib/IDSZ_map.h"
 #include "egolib/Renderer/Texture.hpp"
 
 enum ModuleFilter : uint8_t
@@ -131,7 +130,8 @@ private:
     uint8_t   _respawnValid;                ///< Allow respawn
     std::vector<std::string> _summary;      ///< Quest description
 
-    IDSZ_node_t     _unlockQuest;           ///< the quest required to unlock this module
+    IDSZ     _unlockQuest;                  ///< the quest required to unlock this module
+    int      _unlockQuestLevel;
     ModuleFilter    _moduleType;            ///< Main quest, town, sidequest or whatever
     bool            _beaten;                ///< The module has been marked with the [BEAT] eapansion
 

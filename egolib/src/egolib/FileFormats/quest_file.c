@@ -22,7 +22,6 @@
 
 #include "egolib/FileFormats/quest_file.h"
 
-#include "egolib/IDSZ_map.h"
 #include "egolib/log.h"
 
 #include "egolib/fileutil.h"
@@ -66,18 +65,14 @@ egolib_rv quest_file_export(std::shared_ptr<ConfigFile> file)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_download_vfs(IDSZ_node_t *quest_log, size_t quest_log_len, const char* player_directory)
+egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ, int> &quest_log, const char* player_directory)
 {
     /// @author ZF
     /// @details Reads a quest.txt for a player and turns it into a data structure
     ///               we can use. If the file isn't found, the quest log will be initialized as empty.
 
-    egolib_rv retval = rv_success;
-
-    if ( NULL == quest_log ) return rv_error;
-
     // blank out the existing map
-    idsz_map_init( quest_log, quest_log_len );
+    quest_log.clear();
 
     // Figure out the file path
     std::string newLoadName = std::string(player_directory) + "/quest.txt";
@@ -85,45 +80,26 @@ egolib_rv quest_log_download_vfs(IDSZ_node_t *quest_log, size_t quest_log_len, c
     // Try to open a context
     ReadContext ctxt(newLoadName);
     if (!ctxt.ensureOpen()) return rv_error;
+
     // Load each IDSZ
-    retval = rv_success;
     while (ctxt.skipToColon(true))
     {
-        egolib_rv rv;
-
         IDSZ idsz = ctxt.readIDSZ();
         int  level = ctxt.readInt();
 
         // Try to add a single quest to the map
-        rv = idsz_map_add( quest_log, quest_log_len, idsz, level );
-
-        // Stop here if it failed
-        if ( rv_error == rv )
-        {
-            log_warning("quest_log_download_vfs() - Encountered an error while trying to add a quest. (%s)\n", newLoadName.c_str());
-            retval = rv;
-            break;
-        }
-        else if ( rv_fail == rv )
-        {
-            log_warning( "quest_log_download_vfs() - Unable to load all quests. (%s)\n", newLoadName.c_str());
-            retval = rv;
-            break;
-        }
+        quest_log[idsz] = level;
     }
-    return retval;
+
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_upload_vfs( IDSZ_node_t * quest_log, size_t quest_log_len, const char *player_directory )
+egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ, int> &quest_log, const char *player_directory )
 {
     /// @author ZF
     /// @details This exports quest_log data into a quest.txt file
     vfs_FILE *filewrite;
-    int iterator;
-    IDSZ_node_t *pquest;
-
-    if ( NULL == quest_log ) return rv_error;
 
     // Write a new quest file with all the quests
     filewrite = vfs_openWrite( player_directory );
@@ -137,15 +113,10 @@ egolib_rv quest_log_upload_vfs( IDSZ_node_t * quest_log, size_t quest_log_len, c
     vfs_printf( filewrite, "// The number after the IDSZ shows the quest level. %i means it is completed.", QUEST_BEATEN );
 
     // Iterate through every element in the IDSZ map
-    iterator = 0;
-    pquest = idsz_map_iterate( quest_log, quest_log_len, &iterator );
-    while ( pquest != NULL )
+    for(const auto& node : quest_log)
     {
         // Write every single quest to the quest log
-        vfs_printf( filewrite, "\n:[%4s] %i", undo_idsz( pquest->id ), pquest->level );
-
-        // Get the next element
-        pquest = idsz_map_iterate( quest_log, quest_log_len, &iterator );
+        vfs_printf( filewrite, "\n:[%4s] %i", undo_idsz(node.first), node.second);
     }
 
     // Clean up and return
@@ -154,27 +125,23 @@ egolib_rv quest_log_upload_vfs( IDSZ_node_t * quest_log, size_t quest_log_len, c
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_set_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level )
+int quest_log_set_level(std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz, int level )
 {
     /// @author ZF
     /// @details This function will set the quest level for the specified quest
     ///          and return the new quest_level. It will return QUEST_NONE if the quest was
     ///          not found.
 
-    IDSZ_node_t *pquest = NULL;
-
     // find the quest
-    pquest = idsz_map_get( quest_log, quest_log_len, idsz );
-    if ( NULL == pquest ) return QUEST_NONE;
+    if(quest_log.find(idsz) == quest_log.end()) return QUEST_NONE;
 
-    // make a copy of the quest's level
-    pquest->level = level;
+    quest_log[idsz] = level;
 
     return level;
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_adjust_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int adjustment )
+int quest_log_adjust_level( std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz, int adjustment )
 {
     /// @author ZF
     /// @details This function will modify the quest level for the specified quest with adjustment
@@ -183,14 +150,12 @@ int quest_log_adjust_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ 
 
     int          src_level = QUEST_NONE;
     int          dst_level = QUEST_NONE;
-    IDSZ_node_t *pquest    = NULL;
 
     // find the quest
-    pquest = idsz_map_get( quest_log, quest_log_len, idsz );
-    if ( NULL == pquest ) return QUEST_NONE;
+    if(quest_log.find(idsz) == quest_log.end()) return QUEST_NONE;
 
     // make a copy of the quest's level
-    src_level = pquest->level;
+    src_level = quest_log[idsz];
 
     // figure out what the dst_level is
     if ( QUEST_BEATEN == src_level )
@@ -208,33 +173,33 @@ int quest_log_adjust_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ 
         else                             dst_level = std::max( 0, src_level + adjustment );
 
         // set the quest level
-        pquest->level = dst_level;
+        quest_log[idsz] = dst_level;
     }
 
     return dst_level;
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_get_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz )
+int quest_log_get_level( std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz )
 {
     /// @author ZF
     /// @details Returns the quest level for the specified quest IDSZ.
     ///          It will return QUEST_NONE if the quest was not found or if the quest was beaten.
 
-    IDSZ_node_t *pquest;
+    const auto &result = quest_log.find(idsz);
 
-    pquest = idsz_map_get( quest_log, quest_log_len, idsz );
-    if ( NULL == pquest ) return QUEST_NONE;
+    if(result == quest_log.end()) return QUEST_NONE;
 
-    return pquest->level;
+    return (*result).second;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_add( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level )
+egolib_rv quest_log_add( std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz, int level )
 {
     /// @author ZF
     /// @details This adds a new quest to the quest log. If the quest is already in there, the higher quest
     ///          level of either the old and new one will be kept.
 
-    return idsz_map_add( quest_log, quest_log_len, idsz, level );
+    quest_log[idsz] = std::max(quest_log[idsz], level);
+    return rv_success;
 }

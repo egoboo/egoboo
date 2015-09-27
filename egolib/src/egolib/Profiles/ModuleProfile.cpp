@@ -47,7 +47,8 @@ ModuleProfile::ModuleProfile() :
     _maxPlayers(0),
     _respawnValid(false),
     _summary(),
-    _unlockQuest(),
+    _unlockQuest(IDSZ_NONE),
+    _unlockQuestLevel(QUEST_NONE),
     _moduleType(FILTER_SIDE_QUEST),
     _beaten(false),
     _icon(new oglx_texture_t()),
@@ -69,7 +70,7 @@ bool ModuleProfile::isModuleUnlocked() const
         return true;
     }
 
-    if (moduleHasIDSZ(_reference.c_str(), _unlockQuest.id, 0, nullptr))
+    if (moduleHasIDSZ(_reference.c_str(), _unlockQuest, 0, nullptr))
     {
         return true;
     }
@@ -119,12 +120,11 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     vfs_get_next_name(ctxt, buffer, SDL_arraysize(buffer));
     result->_reference = buffer;
 
-    result->_unlockQuest.id = vfs_get_next_idsz(ctxt);
-    result->_unlockQuest.level = 0;
+    result->_unlockQuest = vfs_get_next_idsz(ctxt);
     ctxt.skipWhiteSpaces();
     if (!ctxt.isNewLine() && !ctxt.is(ReadContext::Traits::endOfInput()))
     {
-        result->_unlockQuest.level = ctxt.readInt();
+        result->_unlockQuestLevel = ctxt.readInt();
     }
     result->_importAmount = vfs_get_next_int(ctxt);
     result->_allowExport  = vfs_get_next_bool(ctxt);
