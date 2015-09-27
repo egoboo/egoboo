@@ -1658,18 +1658,18 @@ int Object::getPrice() const
 
 bool Object::isBeingHeld() const
 {
-    //Check if holder exists and not marked for removal
-    const std::shared_ptr<Object> &holder = getHolder();
-    if(!holder || holder->isTerminated()) {
-        return false;
-    }
-
     //If we are inside an inventory then we are being "held"
     if(isInsideInventory()) {
         return true;
     }
 
-    return true;
+    //Check if holder exists and not marked for removal
+    const std::shared_ptr<Object> &holder = getHolder();
+    if(holder && !holder->isTerminated()) {
+        return true;
+    }
+
+    return false;
 }
 
 bool Object::isInsideInventory() const
