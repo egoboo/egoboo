@@ -2469,14 +2469,12 @@ void let_all_characters_think()
             continue;
         }
         
-        bool is_crushed, is_cleanedup, can_think;        
-
         // check for actions that must always be handled
-        is_cleanedup = HAS_SOME_BITS( object->ai.alert, ALERTIF_CLEANEDUP );
-        is_crushed   = HAS_SOME_BITS( object->ai.alert, ALERTIF_CRUSHED );
+        bool is_cleanedup = HAS_SOME_BITS( object->ai.alert, ALERTIF_CLEANEDUP );
+        bool is_crushed   = HAS_SOME_BITS( object->ai.alert, ALERTIF_CRUSHED );
 
         // let the script run sometimes even if the item is in your backpack
-        can_think = !object->isInsideInventory() || object->getProfile()->isEquipment();
+        bool can_think = !object->isInsideInventory() || object->getProfile()->isEquipment();
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
         if (( object->isAlive() && can_think ) || is_crushed || is_cleanedup )

@@ -1506,7 +1506,7 @@ bool do_chr_chr_collision( const CoNode_t * d )
     // don't do anything if there is no interaction strength
     if ( 0.0f == pchr_a->bump_stt.size || 0.0f == pchr_b->bump_stt.size ) return false;
 
-    interaction_strength = 1.0f;
+    interaction_strength = 0.1f + (0.9f-pchr_a->phys.bumpdampen) * (0.9f-pchr_b->phys.bumpdampen);
     
     //ZF> This was supposed to make ghosts more insubstantial, but it also affects invisible characters
     //interaction_strength *= pchr_a->inst.alpha * INV_FF;
