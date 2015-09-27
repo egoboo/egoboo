@@ -432,6 +432,9 @@ void GFX::uninitializeSDLGraphics()
     {
         return;
     }
+
+    SDL_DestroyWindow(sdl_scr.window);
+    sdl_scr.window = nullptr;
 }
 
 void GFX::initializeSDLGraphics()
