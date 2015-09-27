@@ -1341,9 +1341,9 @@ void Object::setBumpWidth(const float width)
 {
     float ratio = std::abs(width / bump_stt.size);
 
-    shadow_size_stt *= ratio;
-    bump_stt.size *= ratio;
-    bump_stt.size_big *= ratio;
+    shadow_size_save = shadow_size_stt * ratio;
+    bump_save.size = bump_stt.size * ratio;
+    bump_save.size_big = bump_stt.size_big * ratio;
 
     recalculateCollisionSize();
 }
@@ -1462,6 +1462,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     platform        = true;
     canuseplatforms = true;
     phys.bumpdampen = phys.bumpdampen * 0.5f;
+    setBumpWidth(bump_stt.size * 0.5f);
 
     //End stealth if we were hidden
     deactivateStealth();
