@@ -141,7 +141,7 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
+static bool detect_chr_chr_interaction_valid(const std::shared_ptr<Object> &pchr_a, const std::shared_ptr<Object> &pchr_b);
 static bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
 static bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b );
@@ -412,21 +412,8 @@ void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b )
+bool detect_chr_chr_interaction_valid(const std::shared_ptr<Object> &pchr_a, const std::shared_ptr<Object> &pchr_b)
 {
-    Object *pchr_a, *pchr_b;
-
-    // Don't interact with self
-    if ( ichr_a == ichr_b ) return false;
-
-    // Ignore invalid characters
-    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
-    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
-
-    // Ignore invalid characters
-    if ( !_currentModule->getObjectHandler().exists( ichr_b ) ) return false;
-    pchr_b = _currentModule->getObjectHandler().get( ichr_b );
-
     // "non-interacting" objects interact with platforms
     if (( 0 == pchr_a->bump.size && !pchr_b->platform ) ||
         ( 0 == pchr_b->bump.size && !pchr_a->platform ) )
@@ -434,17 +421,12 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
         return false;
     }
 
-    // reject characters that are hidden
-    if ( pchr_a->isHidden() || pchr_b->isHidden() ) return false;
-
-    // reject objects that are being held or inside another inventory
-    if(pchr_a->isBeingHeld() || pchr_b->isBeingHeld()) {
-        return false;
-    }
-
     // handle the dismount exception
-    if ( pchr_a->dismount_timer > 0 && pchr_a->dismount_object == ichr_b) return false;
-    if ( pchr_b->dismount_timer > 0 && pchr_b->dismount_object == ichr_a) return false;
+    if ( pchr_a->dismount_timer > 0 && pchr_a->dismount_object == pchr_b->getCharacterID()) return false;
+    if ( pchr_b->dismount_timer > 0 && pchr_b->dismount_object == pchr_a->getCharacterID()) return false;
+
+    //No collision box?
+    if (oct_bb_empty(pchr_b->chr_max_cv)) return false;
 
     return true;
 }
@@ -479,12 +461,14 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 {
     //---- find the character/particle interactions
+    std::unordered_set<std::shared_ptr<Object>> handledObjects;
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
     for(const std::shared_ptr<Object> &pchr_a : _currentModule->getObjectHandler().iterator())
     {
         // ignore in-accessible objects
-        if ( pchr_a->isInsideInventory() || pchr_a->isHidden() || pchr_a->isTerminated() ) continue;
+        if ( pchr_a->isBeingHeld() || pchr_a->isHidden() || pchr_a->isTerminated() ) continue;
+        handledObjects.insert(pchr_a);
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
@@ -499,18 +483,23 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
          _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, !pchr_a->isScenery());
         for (const std::shared_ptr<Object> &pchr_b : possibleCollisions)
         {
-            //Ignore invalid collisions
-            if(pchr_b->isTerminated() || !chr_BSP_can_collide(pchr_b)) continue;
+            //Skip invalid objects
+            if(pchr_b->isTerminated() || pchr_b->isHidden() || pchr_b->isBeingHeld()) {
+                continue;
+            }
+
+            //Skip possible interactions that have already been handled earlier
+            if(handledObjects.find(pchr_b) != handledObjects.end()) continue;
 
             // do some logic on this to determine whether the collision is valid
-            if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), pchr_b->getCharacterID() ) )
+            if ( detect_chr_chr_interaction_valid(pchr_a, pchr_b) )
             {
                 CoNode_t    tmp_codata;
 
-                // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
+                //Is it a platform collision?
                 BIT_FIELD test_platform = EMPTY_BIT_FIELD;
-                if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
-                if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
+                if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT(test_platform, PHYS_PLATFORM_OBJ1);
+                if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT(test_platform, PHYS_PLATFORM_OBJ2);
 
                 // detect a when the possible collision occurred
                 if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pchr_b->chr_max_cv, pchr_b->getPosition(), pchr_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
