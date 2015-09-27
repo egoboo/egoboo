@@ -226,6 +226,11 @@ bool EnchantProfileWriter::write(std::shared_ptr<eve_t> profile, const std::stri
         vfs_put_expansion(filewrite, "", MAKE_IDSZ('D', 'E', 'A', 'D'), 1);
     }
 
+    if (!profile->getEnchantName().empty())
+    {
+        vfs_put_expansion_string(filewrite, "", MAKE_IDSZ('N', 'A', 'M', 'E'), profile->getEnchantName().c_str());
+    }
+
     // dump the rest of the template file
     template_flush(filetemp, filewrite);
 

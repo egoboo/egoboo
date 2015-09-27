@@ -42,6 +42,7 @@ enum MissileTreatmentType
 */
 struct eve_t : public AbstractProfile
 {
+public:
 
     /**
      * @brief
@@ -151,6 +152,30 @@ struct eve_t : public AbstractProfile
 
     };
 
+    /**
+     * @brief
+     *  Construct this enchant profile with default values.
+     */
+    eve_t();
+
+    /**
+     * @brief
+     *  Destruct this enchant profile.
+     */
+    virtual ~eve_t();
+
+    /**
+     * @brief
+     *  Initialize an enchant profile with safe default values.
+     * @return
+     *  a pointer to the profile on success, @a nullptr on failure
+     */
+    void reset() override;
+
+    const std::string& getEnchantName() const;
+    void setEnchantName(const std::string& name);
+
+public:
     // Enchant spawn description.
     bool _override;                         ///< Override other enchants?
     bool remove_overridden;                ///< Remove other enchants?
@@ -209,23 +234,6 @@ struct eve_t : public AbstractProfile
     bool poofonend;                      ///< Spawn a poof on end?
     int endmessage;                      ///< Message on end (-1 for none)
 
-    /**
-     * @brief
-     *  Construct this enchant profile with default values.
-     */
-    eve_t();
-
-    /**
-     * @brief
-     *  Destruct this enchant profile.
-     */
-    virtual ~eve_t();
-
-    /**
-     * @brief
-     *  Initialize an enchant profile with safe default values.
-     * @return
-     *  a pointer to the profile on success, @a nullptr on failure
-     */
-    void reset() override;
+private:
+    std::string _enchantName;
 };

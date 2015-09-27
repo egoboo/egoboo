@@ -24,9 +24,11 @@
 
 #include "game/GUI/InternalWindow.hpp"
 
+//Forward declarations
 class Object;
 class Button;
-class InternalWindow;
+class ScrollableList;
+namespace Ego { class Enchantment; }
 
 namespace Ego
 {
@@ -45,10 +47,20 @@ class CharacterWindow : public InternalWindow
         int addResistanceLabel(const int x, const int y, const DamageType type);
         int addAttributeLabel(const int x, const int y, const Ego::Attribute::AttributeType type);
 
+        void buildCharacterStatisticTab();
+        void buildKnownPerksTab();
+        void buildActiveEnchantsTab();
+
+        void describeEnchantEffects(const std::vector<std::shared_ptr<Ego::Enchantment>> &enchants, std::shared_ptr<ScrollableList> list);
+
     private:
         std::shared_ptr<Object> _character;
         std::shared_ptr<Button> _levelUpButton;
         std::weak_ptr<InternalWindow> _levelUpWindow;
+
+        std::vector<std::shared_ptr<GUIComponent>> _characterStatisticsTab;
+        std::vector<std::shared_ptr<GUIComponent>> _knownPerksTab;
+        std::vector<std::shared_ptr<GUIComponent>> _activeEnchantsTab;
 };
 
 } //GUI

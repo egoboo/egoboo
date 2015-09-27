@@ -935,7 +935,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
         // Then check if a skill is needed
         if ( weaponProfile->requiresSkillIDToUse() )
         {
-            if ( !chr_get_skill( pchr, chr_get_idsz( iweapon, IDSZ_SKILL ) ) )
+            if (!pchr->hasSkillIDSZ(pweapon->getProfile()->getIDSZ(IDSZ_SKILL)))
             {
                 allowedtoattack = false;
             }

@@ -33,6 +33,11 @@ namespace Ego
         **/
         const std::string& getFilePath() const;
 
+        operator bool() const
+        {
+            return !_filePath.empty();
+        }
+
     private:
         std::shared_ptr<oglx_texture_t> _texture;
         std::string _filePath;

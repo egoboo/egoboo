@@ -775,6 +775,34 @@ public:
     **/
     const std::shared_ptr<Object>& isWieldingItemIDSZ(const IDSZ idsz) const;
 
+    /**
+    * @brief
+    *   Changes the team of this Object to another team
+    **/
+    void setTeam(TEAM_REF team, bool permanent = true);
+
+    /**
+    * @brief
+    *   checks if the object has a matching skill IDSZ. This function also maps between the old skill IDSZ
+    *   system and the new Perk system.
+    * @param whichskill
+    *   The IDSZ of the skill to check. An IDSZ of [NONE] always matches true.
+    * @return
+    *   true if the Object has the matching skill IDSZ of a perk that matches the skill IDSZ
+    **/
+    bool hasSkillIDSZ(const IDSZ whichskill) const;
+
+    void dropMoney(int amount);
+
+    /**
+    * @brief 
+    *   This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
+    *   inventory (Not hands).
+    **/
+    void dropKeys();
+
+    void dropAllItems();
+
 private:
 
     /**

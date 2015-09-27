@@ -141,7 +141,7 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
+static bool detect_chr_chr_interaction_valid(const std::shared_ptr<Object> &pchr_a, const std::shared_ptr<Object> &pchr_b);
 static bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
 static bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b );
@@ -412,21 +412,8 @@ void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b )
+bool detect_chr_chr_interaction_valid(const std::shared_ptr<Object> &pchr_a, const std::shared_ptr<Object> &pchr_b)
 {
-    Object *pchr_a, *pchr_b;
-
-    // Don't interact with self
-    if ( ichr_a == ichr_b ) return false;
-
-    // Ignore invalid characters
-    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
-    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
-
-    // Ignore invalid characters
-    if ( !_currentModule->getObjectHandler().exists( ichr_b ) ) return false;
-    pchr_b = _currentModule->getObjectHandler().get( ichr_b );
-
     // "non-interacting" objects interact with platforms
     if (( 0 == pchr_a->bump.size && !pchr_b->platform ) ||
         ( 0 == pchr_b->bump.size && !pchr_a->platform ) )
@@ -434,15 +421,12 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
         return false;
     }
 
-    // reject characters that are hidden
-    if ( pchr_a->isHidden() || pchr_b->isHidden() ) return false;
-
-    // don't interact with your mount, or your held items
-    if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return false;
-
     // handle the dismount exception
-    if ( pchr_a->dismount_timer > 0 && pchr_a->dismount_object == ichr_b) return false;
-    if ( pchr_b->dismount_timer > 0 && pchr_b->dismount_object == ichr_a) return false;
+    if ( pchr_a->dismount_timer > 0 && pchr_a->dismount_object == pchr_b->getCharacterID()) return false;
+    if ( pchr_b->dismount_timer > 0 && pchr_b->dismount_object == pchr_a->getCharacterID()) return false;
+
+    //No collision box?
+    if (oct_bb_empty(pchr_b->chr_max_cv)) return false;
 
     return true;
 }
@@ -477,12 +461,14 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 {
     //---- find the character/particle interactions
+    std::unordered_set<std::shared_ptr<Object>> handledObjects;
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
     for(const std::shared_ptr<Object> &pchr_a : _currentModule->getObjectHandler().iterator())
     {
         // ignore in-accessible objects
-        if ( pchr_a->isInsideInventory() || pchr_a->isHidden() || pchr_a->isTerminated() ) continue;
+        if ( pchr_a->isBeingHeld() || pchr_a->isHidden() || pchr_a->isTerminated() ) continue;
+        handledObjects.insert(pchr_a);
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
@@ -497,18 +483,23 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
          _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, !pchr_a->isScenery());
         for (const std::shared_ptr<Object> &pchr_b : possibleCollisions)
         {
-            //Ignore invalid collisions
-            if(pchr_b->isTerminated() || !chr_BSP_can_collide(pchr_b)) continue;
+            //Skip invalid objects
+            if(pchr_b->isTerminated() || pchr_b->isHidden() || pchr_b->isBeingHeld()) {
+                continue;
+            }
+
+            //Skip possible interactions that have already been handled earlier
+            if(handledObjects.find(pchr_b) != handledObjects.end()) continue;
 
             // do some logic on this to determine whether the collision is valid
-            if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), pchr_b->getCharacterID() ) )
+            if ( detect_chr_chr_interaction_valid(pchr_a, pchr_b) )
             {
                 CoNode_t    tmp_codata;
 
-                // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
+                //Is it a platform collision?
                 BIT_FIELD test_platform = EMPTY_BIT_FIELD;
-                if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
-                if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
+                if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT(test_platform, PHYS_PLATFORM_OBJ1);
+                if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT(test_platform, PHYS_PLATFORM_OBJ2);
 
                 // detect a when the possible collision occurred
                 if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pchr_b->chr_max_cv, pchr_b->getPosition(), pchr_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
@@ -1515,7 +1506,7 @@ bool do_chr_chr_collision( const CoNode_t * d )
     // don't do anything if there is no interaction strength
     if ( 0.0f == pchr_a->bump_stt.size || 0.0f == pchr_b->bump_stt.size ) return false;
 
-    interaction_strength = 1.0f;
+    interaction_strength = 0.1f + (0.9f-pchr_a->phys.bumpdampen) * (0.9f-pchr_b->phys.bumpdampen);
     
     //ZF> This was supposed to make ghosts more insubstantial, but it also affects invisible characters
     //interaction_strength *= pchr_a->inst.alpha * INV_FF;
@@ -2072,7 +2063,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
         // Tell the players that the attack was somehow deflected
         if(0 == pdata->pchr->damage_timer) 
         {
-            spawn_defense_ping(pdata->pchr, pdata->pprt->owner_ref);
+            ParticleHandler::get().spawnDefencePing(pdata->pchr->toSharedPointer(), _currentModule->getObjectHandler()[pdata->pprt->owner_ref]);
             if(using_shield) {
                 chr_make_text_billboard(pdata->pchr->getCharacterID(), "Blocked!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
             }
@@ -2312,7 +2303,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             }
 
             // handle vulnerabilities, double the damage
-            if ( chr_has_vulnie(pdata->pchr->getCharacterID(), pdata->pprt->getSpawnerProfile()) )
+            if (pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_TYPE) || 
+                pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_PARENT))
             {
                 // Double the damage
                 modifiedDamage.base = ( modifiedDamage.base << 1 );
@@ -2886,7 +2878,7 @@ static bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const 
     if (object->enviro.fly_level < 0) object->enviro.fly_level = 0;  // fly above pits...
 
     // add the weight to the platform based on the new zlerp
-    platform->holdingweight += object->phys.weight * ( 1.0f - object->enviro.zlerp );
+    platform->holdingweight += object->phys.weight;
 
     // update the character jumping
     if (object->enviro.grounded)
@@ -2924,7 +2916,6 @@ bool detach_character_from_platform( Object * pchr )
 	}
 
     // save some values
-    float old_zlerp        = pchr->enviro.zlerp;
     const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
 
     // undo the attachment
@@ -2935,7 +2926,7 @@ bool detach_character_from_platform( Object * pchr )
 
     // adjust the platform weight, if necessary
     if (oldPlatform) {
-        oldPlatform->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
+        oldPlatform->holdingweight -= pchr->phys.weight;
     }
 
     // update the character-platform properties

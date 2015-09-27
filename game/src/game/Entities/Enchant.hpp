@@ -127,6 +127,8 @@ public:
     **/
     float getMissileTreatmentCost() const;
 
+    const std::forward_list<EnchantModifier>& getModifiers() const;
+
 private:
     bool _isTerminated;
 

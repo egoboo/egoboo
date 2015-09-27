@@ -260,3 +260,33 @@ const oglx_texture_t* ParticleHandler::getTransparentParticleTexture()
 {
     return _transparentParticleTexture.get_ptr();
 }
+
+void ParticleHandler::spawnPoof(const std::shared_ptr<Object> &object)
+{
+    FACING_T facing_z = object->ori.facing_z;
+    for (int cnt = 0; cnt < object->getProfile()->getParticlePoofAmount(); cnt++)
+    {
+        ParticleHandler::get().spawnParticle( object->pos_old, facing_z, object->getProfile()->getSlotNumber(), object->getProfile()->getParticlePoofProfile(),
+                            INVALID_CHR_REF, GRIP_LAST, object->team, object->ai.owner, INVALID_PRT_REF, cnt);
+
+        facing_z += object->getProfile()->getParticlePoofFacingAdd();
+    }
+}
+
+void ParticleHandler::spawnDefencePing(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &attacker)
+{
+    if (0 != object->damage_timer) return;
+
+    spawnGlobalParticle(object->getPosition(), object->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0);
+
+    object->damage_timer = DEFENDTIME;
+    SET_BIT(object->ai.alert, ALERTIF_BLOCKED);
+
+    // For the ones attacking a shield
+    if(attacker != nullptr && !attacker->isTerminated()) {
+        object->ai.attacklast = attacker->getCharacterID();
+    }
+    else {
+        object->ai.attacklast = INVALID_CHR_REF;
+    }
+}
