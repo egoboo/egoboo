@@ -331,11 +331,10 @@ struct ego_grid_info_t
     lighting_cache_t cache;                    ///< the per-grid lighting info
     int              cache_frame;              ///< the last frame in which the cache was calculated
 
-    static void ctor(ego_grid_info_t& self);
-    static void dtor(ego_grid_info_t& self);
-    static ego_grid_info_t *free(ego_grid_info_t *self);
+	ego_grid_info_t();
+	~ego_grid_info_t();
     static ego_grid_info_t *create();
-    static ego_grid_info_t *destroy(ego_grid_info_t *self);
+    static void destroy(ego_grid_info_t *self);
     static GRID_FX_BITS get_all_fx(const ego_grid_info_t *self);
     static GRID_FX_BITS test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits);
 	static bool add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
@@ -343,12 +342,8 @@ struct ego_grid_info_t
 	static bool set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 };
 
-
-
-ego_grid_info_t *ego_grid_info_ctor_ary(ego_grid_info_t *self, size_t size);
-ego_grid_info_t *ego_grid_info_dtor_ary(ego_grid_info_t *self, size_t size);
 ego_grid_info_t *ego_grid_info_create_ary(size_t size);
-ego_grid_info_t *ego_grid_info_destroy_ary(ego_grid_info_t *self, size_t size);
+void ego_grid_info_destroy_ary(ego_grid_info_t *self);
 
 //--------------------------------------------------------------------------------------------
 struct grid_mem_t
@@ -406,6 +401,9 @@ public:
 /// A wrapper for the dynamically allocated mesh memory
 struct tile_mem_t
 {
+private:
+	std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>> _tileList;   ///< tile command info
+	size_t _tileCount;
 public:
     AABB3f       bbox;                 ///< bounding box for the entire mesh
 
@@ -416,8 +414,8 @@ public:
     GLXvector3f *nlst;                 ///< the normal list
     GLXvector3f *clst;                 ///< the color list (for lighting the mesh)
 
-    static void ctor(tile_mem_t& self);
-    static void dtor(tile_mem_t& self);
+	tile_mem_t();
+	~tile_mem_t();
     static bool free(tile_mem_t& self);
     static bool alloc(tile_mem_t& self, const ego_mesh_info_t& info);
 
@@ -457,9 +455,6 @@ public:
 
     std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>>& getAllTiles() { return _tileList; }
 
-private:
-    std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>> _tileList;   ///< tile command info
-    size_t _tileCount;
 };
 
 
@@ -473,8 +468,8 @@ struct mpdfx_list_ary_t
     size_t   idx;
     size_t * lst;
 
-    static void ctor(mpdfx_list_ary_t& self);
-    static void dtor(mpdfx_list_ary_t& self);
+	mpdfx_list_ary_t();
+	~mpdfx_list_ary_t();
     static void reset(mpdfx_list_ary_t& self);
     static bool push(mpdfx_list_ary_t& self, size_t value);
 	static void alloc(mpdfx_list_ary_t& self, size_t size);
@@ -498,8 +493,8 @@ struct mpdfx_lists_t
     mpdfx_list_ary_t dam;
     mpdfx_list_ary_t slp;
 
-    static void ctor(mpdfx_lists_t& self);
-    static void dtor(mpdfx_lists_t& self);
+	mpdfx_lists_t();
+	~mpdfx_lists_t();
     static bool alloc(mpdfx_lists_t& self, const ego_mesh_info_t *info);
     static void dealloc(mpdfx_lists_t& self);
     static void reset(mpdfx_lists_t& self);
@@ -514,7 +509,7 @@ struct mpdfx_lists_t
 /// The generic parameters describing an ego_mesh
 struct ego_mesh_info_t
 {
-    size_t vertcount;    ///< For malloc
+    size_t _vertcount;    ///< For malloc
 
     /**
      * @brief
@@ -522,14 +517,14 @@ struct ego_mesh_info_t
      * @todo
      *  Rename to @a sizeX. The type should be @a size_t.
      */
-    int tiles_x;
+    int _tiles_x;
     /**
      * @brief
      *  The size, in tiles, along the y-axis.
      * @todo
      *  Rename to @a sizeY. The type should be @a size_t.
      */
-    int tiles_y;
+    int _tiles_y;
     /**
      * @brief
      *  The number of tiles in the mesh.
@@ -538,11 +533,11 @@ struct ego_mesh_info_t
      * @todo
      *  Rename to @a size. The type should be @a size_t.
      */
-    uint32_t tiles_count;
+    uint32_t _tiles_count;
 
-    static void ctor(ego_mesh_info_t& self);
-    static void dtor(ego_mesh_info_t& self);
-    static void init(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y);
+	ego_mesh_info_t();
+	~ego_mesh_info_t();
+    static void reset(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -638,6 +633,10 @@ public:
 
     static Uint32 test_fx(const ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
 
+	static bool clear_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
+	static bool add_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
+	static Uint8 get_twist(ego_mesh_t *self, const TileIndex& index);
+
 };
 
 
@@ -647,12 +646,9 @@ float ego_mesh_get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, 
 
 //Previously inlined
 
-bool ego_mesh_clear_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
-bool ego_mesh_add_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
 
 bool ego_mesh_tile_has_bits(const ego_mesh_t *, const PointGrid& point, const BIT_FIELD bits);
 
-Uint8 ego_mesh_get_twist(ego_mesh_t *self, const TileIndex& index);
 
 
 //--------------------------------------------------------------------------------------------

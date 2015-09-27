@@ -2401,7 +2401,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
         TileIndex fan = tl._all.lst[entry].index;
-        if (fan.getI() >= pinfo->tiles_count) continue;
+        if (fan.getI() >= pinfo->_tiles_count) continue;
 
         poct = &(tile_mem_t::get(ptmem, fan)->oct);
 
@@ -2554,8 +2554,8 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         // do not update this more than once a frame
         if (pgrid->cache_frame >= 0 && (Uint32)pgrid->cache_frame >= game_frame_all) continue;
 
-        ix = fan.getI() % pinfo->tiles_x;
-        iy = fan.getI() / pinfo->tiles_x;
+        ix = fan.getI() % pinfo->_tiles_x;
+        iy = fan.getI() / pinfo->_tiles_x;
 
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that
@@ -2667,14 +2667,14 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
     }
 
     // get the tiles in the center of the view (TODO: calculate actual tile view from camera frustrum)
-    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / GRID_FSIZE - 10, 0, _currentModule->getMeshPointer()->info.tiles_x);
-    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / GRID_FSIZE - 10, 0, _currentModule->getMeshPointer()->info.tiles_y);
-    int endX = Ego::Math::constrain<int>(startX + 20, 0, _currentModule->getMeshPointer()->info.tiles_x);
-    int endY = Ego::Math::constrain<int>(startY + 20, 0, _currentModule->getMeshPointer()->info.tiles_y);
+    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / GRID_FSIZE - 10, 0, _currentModule->getMeshPointer()->info._tiles_x);
+    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / GRID_FSIZE - 10, 0, _currentModule->getMeshPointer()->info._tiles_y);
+    int endX = Ego::Math::constrain<int>(startX + 20, 0, _currentModule->getMeshPointer()->info._tiles_x);
+    int endY = Ego::Math::constrain<int>(startY + 20, 0, _currentModule->getMeshPointer()->info._tiles_y);
 
     for(size_t x = startX; x < endX; ++x) {
         for(size_t y = startY; y < endY; ++y) {
-            if (gfx_error == tl.add(x + y*_currentModule->getMeshPointer()->info.tiles_y, cam))
+            if (gfx_error == tl.add(x + y*_currentModule->getMeshPointer()->info._tiles_y, cam))
             {
                 return gfx_error;
             }        

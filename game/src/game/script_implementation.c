@@ -544,7 +544,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( img == endtile )
             {
-                useful = ego_mesh_add_fx( _currentModule->getMeshPointer(), fan, mesh_fx_or );
+                useful = ego_mesh_t::add_fx( _currentModule->getMeshPointer(), fan, mesh_fx_or );
 
                 if ( become != 0 )
                 {

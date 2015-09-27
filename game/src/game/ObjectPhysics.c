@@ -316,7 +316,7 @@ void move_one_character_get_environment( Object * pchr )
     penviro->grounded = (!pchr->isFlying() && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
-    penviro->grid_twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), pchr->getTile() );
+    penviro->grid_twist = ego_mesh_t::get_twist( _currentModule->getMeshPointer(), pchr->getTile() );
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water._is_water && penviro->inwater;

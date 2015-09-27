@@ -547,7 +547,8 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*GRID_FSIZE, _currentModule->getMeshPointer()->info.tiles_y*GRID_FSIZE);
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info._tiles_x*GRID_FSIZE,
+		                                                          _currentModule->getMeshPointer()->info._tiles_y*GRID_FSIZE);
 
     //---- begin the code for updating misc. game stuff
     {
@@ -1668,7 +1669,7 @@ void tilt_characters_to_terrain()
 
         if ( object->getProfile()->hasStickyButt() )
         {
-            twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), object->getTile() );
+            twist = ego_mesh_t::get_twist( _currentModule->getMeshPointer(), object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
             object->ori.map_twist_facing_x = map_twist_facing_x[twist];
         }
@@ -3563,11 +3564,11 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bump);
 
     // determine the size of this object in tiles
-    ixmin = bump._mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, mesh->info.tiles_x - 1 );
-    ixmax = bump._maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, mesh->info.tiles_x - 1 );
+    ixmin = bump._mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, mesh->info._tiles_x - 1 );
+    ixmax = bump._maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, mesh->info._tiles_x - 1 );
 
-    iymin = bump._mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, mesh->info.tiles_y - 1 );
-    iymax = bump._maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, mesh->info.tiles_y - 1 );
+    iymin = bump._mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, mesh->info._tiles_y - 1 );
+    iymax = bump._maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, mesh->info._tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )

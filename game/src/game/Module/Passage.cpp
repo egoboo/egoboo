@@ -70,7 +70,7 @@ void Passage::open()
             {
                 //clear impassable and wall bits
                 TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
-                ego_mesh_clear_fx( _currentModule->getMeshPointer(), fan, MAPFX_WALL | MAPFX_IMPASS );
+                ego_mesh_t::clear_fx( _currentModule->getMeshPointer(), fan, MAPFX_WALL | MAPFX_IMPASS );
             }
         }
     }
@@ -134,7 +134,7 @@ bool Passage::close()
         for ( int x = _area._left; x <= _area._right; x++ )
         {
             TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
-            ego_mesh_add_fx( _currentModule->getMeshPointer(), fan, _mask );
+            ego_mesh_t::add_fx( _currentModule->getMeshPointer(), fan, _mask );
         }
     }
 
