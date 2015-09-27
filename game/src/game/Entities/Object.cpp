@@ -2197,14 +2197,13 @@ void Object::removeEnchantsWithIDSZ(const IDSZ idsz)
     if(idsz == IDSZ_NONE) return;
 
     //Remove all active enchants that have the corresponding IDSZ
-    _activeEnchants.remove_if([idsz](const std::shared_ptr<Ego::Enchantment> &enchant)
+    for(const std::shared_ptr<Ego::Enchantment> &enchant : _activeEnchants)
     {
+        if(enchant->isTerminated()) continue;
         if(idsz == enchant->getProfile()->removedByIDSZ) {
             enchant->requestTerminate();
-            return true;
         }
-        return false;
-    });
+    }
 }
 
 std::forward_list<std::shared_ptr<Ego::Enchantment>>& Object::getActiveEnchants()
