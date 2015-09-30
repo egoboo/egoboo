@@ -280,7 +280,7 @@ bool link_load_parent( const char * modname, const Vector3f& pos )
     link_stack_entry_t *pentry = link_stack + ( link_stack_count - 1 );
 
     // Determine how you would have to shift the heroes so that they fall on top of the spawn point.
-	Vector3f pos_diff = pos * GRID_FSIZE - pentry->hero[0].pos_stt;
+	Vector3f pos_diff = pos * Info<float>::Grid::Size() - pentry->hero[0].pos_stt;
 
     // Adjust all the hero spawn points.
     for (int i = 0; i < pentry->hero_count; ++i)

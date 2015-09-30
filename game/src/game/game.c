@@ -537,7 +537,7 @@ int update_game()
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
-    mpdfx_lists_t::synch( _currentModule->getMeshPointer()->fxlists, _currentModule->getMeshPointer()->gmem, false );
+    _currentModule->getMeshPointer()->fxlists.synch( _currentModule->getMeshPointer()->gmem, false );
     
     // Get immediate mode state for the rest of the game
     input_read_keyboard();
@@ -547,8 +547,8 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info._tiles_x*GRID_FSIZE,
-		                                                          _currentModule->getMeshPointer()->info._tiles_y*GRID_FSIZE);
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info._tiles_x*Info<float>::Grid::Size(),
+		                                                          _currentModule->getMeshPointer()->info._tiles_y*Info<float>::Grid::Size());
 
     //---- begin the code for updating misc. game stuff
     {
@@ -869,8 +869,9 @@ void do_damage_tiles()
         if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
-        if ( !ego_mesh_t::grid_is_valid( _currentModule->getMeshPointer(), pchr->getTile() ) ) continue;
-        if ( 0 == ego_mesh_t::test_fx( _currentModule->getMeshPointer(), pchr->getTile(), MAPFX_DAMAGE ) ) continue;
+		ego_mesh_t *mesh = _currentModule->getMeshPointer();
+        if ( !mesh->grid_is_valid( pchr->getTile() ) ) continue;
+        if ( 0 == mesh->test_fx( pchr->getTile(), MAPFX_DAMAGE ) ) continue;
 
         // are we low enough?
         if ( pchr->getPosZ() > pchr->enviro.floor_level + DAMAGERAISE ) continue;
@@ -1034,11 +1035,11 @@ void do_weather_spawn_particles()
                 if ( particle )
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
+                    if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->gmem._edge_x - EDGE )
                     {
                         particle->requestTerminate();
                     }
-                    else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
+                    else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->gmem._edge_y - EDGE )
                     {
                         particle->requestTerminate();
                     }
@@ -3166,14 +3167,14 @@ bool wawalite_finalize(wawalite_data_t *data)
         const float default_bg_repeat = 4.0f;
 
         windspeed_count++;
-        Physics::g_environment.windspeed[kX] += -ilayer->tx_add[SS] * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
-        Physics::g_environment.windspeed[kY] += -ilayer->tx_add[TT] * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
+        Physics::g_environment.windspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
+        Physics::g_environment.windspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
         Physics::g_environment.windspeed[kZ] += -0;
     }
     else
     {
         waterspeed_count++;
-		Vector3f tmp(-ilayer->tx_add[SS] * GRID_FSIZE, -ilayer->tx_add[TT] * GRID_FSIZE, 0.0f);
+		Vector3f tmp(-ilayer->tx_add[SS] * Info<float>::Grid::Size(), -ilayer->tx_add[TT] * Info<float>::Grid::Size(), 0.0f);
         Physics::g_environment.waterspeed += tmp;
     }
 
@@ -3182,16 +3183,16 @@ bool wawalite_finalize(wawalite_data_t *data)
     {
         windspeed_count++;
 
-        Physics::g_environment.windspeed[kX] += -600 * ilayer->tx_add[SS] * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
-        Physics::g_environment.windspeed[kY] += -600 * ilayer->tx_add[TT] * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        Physics::g_environment.windspeed[kX] += -600 * ilayer->tx_add[SS] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
+        Physics::g_environment.windspeed[kY] += -600 * ilayer->tx_add[TT] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
         Physics::g_environment.windspeed[kZ] += -0;
     }
     else
     {
         waterspeed_count++;
 
-        Physics::g_environment.waterspeed[kX] += -ilayer->tx_add[SS] * GRID_FSIZE;
-        Physics::g_environment.waterspeed[kY] += -ilayer->tx_add[TT] * GRID_FSIZE;
+        Physics::g_environment.waterspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size();
+        Physics::g_environment.waterspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size();
         Physics::g_environment.waterspeed[kZ] += -0;
     }
 
@@ -3500,7 +3501,7 @@ float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t
     {
         TileIndex tile = mesh->get_tile_int( point );
 
-        if ( 0 != ego_mesh_t::test_fx( mesh, tile, MAPFX_WATER ) )
+        if ( 0 != mesh->test_fx( tile, MAPFX_WATER ) )
         {
             zdone = water._surface_level;
         }
@@ -3514,6 +3515,10 @@ float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
     /// @author BB
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
 
+	if (nullptr == mesh) {
+		throw std::invalid_argument("nullptr == mesh");
+	}
+	
     int corner;
     int ix_off[4] = {1, 1, 0, 0};
     int iy_off[4] = {0, 1, 1, 0};
@@ -3528,10 +3533,10 @@ float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
         pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+    zmax = mesh->getElevation( PointWorld(pos_x[0], pos_y[0]), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        float fval = mesh->getElevation( PointWorld(pos_x[corner], pos_y[corner]), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         zmax = std::max( zmax, fval );
     }
 
@@ -3556,7 +3561,8 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == pchr->bump_stt.size )
     {
-        return get_mesh_level(mesh, pchr->getPosX(), pchr->getPosY(), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
+        return mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()),
+			                      pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
@@ -3564,11 +3570,11 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bump);
 
     // determine the size of this object in tiles
-    ixmin = bump._mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, mesh->info._tiles_x - 1 );
-    ixmax = bump._maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, mesh->info._tiles_x - 1 );
+    ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = CLIP( ixmin, 0, mesh->info._tiles_x - 1 );
+    ixmax = bump._maxs[OCT_X] / Info<float>::Grid::Size(); ixmax = CLIP( ixmax, 0, mesh->info._tiles_x - 1 );
 
-    iymin = bump._mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, mesh->info._tiles_y - 1 );
-    iymax = bump._maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, mesh->info._tiles_y - 1 );
+    iymin = bump._mins[OCT_Y] / Info<float>::Grid::Size(); iymin = CLIP( iymin, 0, mesh->info._tiles_y - 1 );
+    iymax = bump._maxs[OCT_Y] / Info<float>::Grid::Size(); iymax = CLIP( iymax, 0, mesh->info._tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
@@ -3579,12 +3585,12 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // otherwise, make up a list of tiles that the object might overlap
     for ( iy = iymin; iy <= iymax; iy++ )
     {
-        float grid_y = iy * GRID_ISIZE;
+        float grid_y = iy * Info<int>::Grid::Size();
 
         for ( ix = ixmin; ix <= ixmax; ix++ )
         {
             float ftmp;
-            float grid_x = ix * GRID_ISIZE;
+            float grid_x = ix * Info<int>::Grid::Size();
 
             ftmp = grid_x + grid_y;
             if ( ftmp < bump._mins[OCT_XY] || ftmp > bump._maxs[OCT_XY] ) continue;
@@ -3927,24 +3933,15 @@ float water_instance_t::get_level() const
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk )
+float ego_mesh_t::getElevation(const PointWorld& point, bool waterwalk) const
 {
-    /// @author ZZ
-    /// @details This function returns the height of a point within a mesh fan, precise
-    ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
-    ///    level of the water.
+    float zdone = getElevation(point);
+    if (waterwalk && water._surface_level > zdone && water._is_water) {
+        TileIndex tile = get_grid(point);
 
-    float zdone = mesh->getElevation(PointWorld(x, y));
-
-    if ( waterwalk && water._surface_level > zdone && water._is_water )
-    {
-        TileIndex tile = mesh->get_grid(PointWorld(x, y));
-
-        if ( 0 != ego_mesh_t::test_fx( mesh, tile, MAPFX_WATER ) )
-        {
-            zdone = water._surface_level;
-        }
+		if (0 != test_fx(tile, MAPFX_WATER)) {
+			zdone = water._surface_level;
+		}
     }
-
     return zdone;
 }

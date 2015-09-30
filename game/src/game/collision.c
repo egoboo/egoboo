@@ -1086,9 +1086,9 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
         }
 
         // limit the size of the displacement
-        max_apos[kX] = CLIP( max_apos[kX], -GRID_FSIZE, GRID_FSIZE );
-        max_apos[kY] = CLIP( max_apos[kY], -GRID_FSIZE, GRID_FSIZE );
-        max_apos[kZ] = CLIP( max_apos[kZ], -GRID_FSIZE, GRID_FSIZE );
+        max_apos[kX] = CLIP( max_apos[kX], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kY] = CLIP( max_apos[kY], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kZ] = CLIP( max_apos[kZ], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
 
         // do the "integration" on the position
         if (std::abs(max_apos[kX]) > 0.0f)
@@ -1182,9 +1182,9 @@ bool bump_all_collisions( std::set<CoNode_t, CollisionCmp> &collisionNodes )
             apos_t::evaluate(&apos_tmp, max_apos);
         }
 
-        max_apos[kX] = CLIP( max_apos[kX], -GRID_FSIZE, GRID_FSIZE );
-        max_apos[kY] = CLIP( max_apos[kY], -GRID_FSIZE, GRID_FSIZE );
-        max_apos[kZ] = CLIP( max_apos[kZ], -GRID_FSIZE, GRID_FSIZE );
+        max_apos[kX] = CLIP( max_apos[kX], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kY] = CLIP( max_apos[kY], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kZ] = CLIP( max_apos[kZ], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
 
         // do the "integration" on the position
         if (std::abs(max_apos[kX]) > 0.0f)

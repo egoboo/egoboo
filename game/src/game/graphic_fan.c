@@ -47,13 +47,13 @@ void animate_all_tiles( ego_mesh_t * mesh )
     if (!small_tile_update && !big_tile_update) return;
 
     size_t tile_count = mesh->tmem.getTileCount();
-    size_t anim_count = mesh->fxlists.anm.idx;
+    size_t anim_count = mesh->fxlists.anm._idx;
 
     // Scan through all the animated tiles.
     for (size_t i = 0; i < anim_count; ++i)
     {
         // Get the offset
-        Uint32 itile = mesh->fxlists.anm.lst[i];
+        Uint32 itile = mesh->fxlists.anm._lst[i];
         if (itile >= tile_count) continue;
 
         animate_tile(mesh, itile);
@@ -72,7 +72,7 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     ego_tile_info_t * ptile;
 
     // do nothing if the tile is not animated
-    if ( 0 == ego_mesh_t::test_fx( mesh, itile, MAPFX_ANIM ) )
+    if ( 0 == mesh->test_fx( itile, MAPFX_ANIM ) )
     {
         return true;
     }
@@ -84,8 +84,8 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
         return false;
     }
 
-    image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image
-    type  = ptile->type;                       // Command type ( index to points in itile )
+    image = TILE_GET_LOWER_BITS( ptile->_img ); // Tile image
+    type  = ptile->_type;                       // Command type ( index to points in itile )
 
     // Animate the tiles
     if ( type >= tile_dict.offset )
@@ -141,7 +141,7 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
     // do not render the itile if the image image is invalid
     if (TILE_IS_FANOFF(ptile))  return gfx_success;
 
-    pdef = TILE_DICT_PTR( tile_dict, ptile->type );
+    pdef = TILE_DICT_PTR( tile_dict, ptile->_type );
     if ( NULL == pdef ) return gfx_fail;
 
     // bind the correct texture
@@ -154,15 +154,15 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
 
         /// @note claforte@> Put this in an initialization function.
         GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
-        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem->plst + ptile->vrtstart );
+        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem->_plst + ptile->_vrtstart );
 
         GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
-        GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem->tlst + ptile->vrtstart );
+        GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem->_tlst + ptile->_vrtstart );
 
         if (gfx.gouraudShading_enable)
         {
             GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
-            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem->clst + ptile->vrtstart );
+            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem->_clst + ptile->_vrtstart );
         }
         else
         {
@@ -254,19 +254,19 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    type  = ptile->type;                     // Command type ( index to points in itile )
-    twist = pgrid->twist;
+    type  = ptile->_type;                     // Command type ( index to points in itile )
+    twist = pgrid->_twist;
 
     type &= 0x3F;
 
     // Original points
-    badvertex = ptile->vrtstart;          // Get big reference value
+    badvertex = ptile->_vrtstart;          // Get big reference value
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         float tmp;
-        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * GRID_FSIZE;
-        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * GRID_FSIZE;
-        v[cnt].pos[ZZ] = ptmem->plst[badvertex][ZZ];
+        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * Info<float>::Grid::Size();
+        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * Info<float>::Grid::Size();
+        v[cnt].pos[ZZ] = ptmem->_plst[badvertex][ZZ];
 
         tmp = map_twist_nrm[twist][kZ];
         tmp *= tmp;
@@ -395,7 +395,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     Vertex *v = static_cast<Vertex *>(vb->lock());
 
     // Original points
-    badvertex = ptile->vrtstart;
+    badvertex = ptile->_vrtstart;
     {
         GLXvector3f nrm = {0, 0, 1};
         float alight;
@@ -412,8 +412,8 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
             int jx = ix + ix_off[cnt];
             int jy = iy + iy_off[cnt];
 
-            v0->x = jx * GRID_FSIZE;
-            v0->y = jy * GRID_FSIZE;
+            v0->x = jx * Info<float>::Grid::Size();
+            v0->y = jy * Info<float>::Grid::Size();
             v0->z = water._layer_z_add[layer][frame][tnc] + water._layers[layer]._z;
 
             v0->s = fx_off[cnt] + offu;

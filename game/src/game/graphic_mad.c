@@ -1038,15 +1038,15 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
         if (pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f)
         {
             // this is the "ambient only" index, but it really means to sum up all the light
-            lite  = lighting_evaluate_cache(&loc_light, Vector3f(+1.0f,+1.0f,+1.0f), hgt, _currentModule->getMeshPointer()->tmem.bbox, nullptr, nullptr);
-            lite += lighting_evaluate_cache(&loc_light, Vector3f(-1.0f,-1.0f,-1.0f), hgt, _currentModule->getMeshPointer()->tmem.bbox, nullptr, nullptr);
+            lite  = lighting_evaluate_cache(&loc_light, Vector3f(+1.0f,+1.0f,+1.0f), hgt, _currentModule->getMeshPointer()->tmem._bbox, nullptr, nullptr);
+            lite += lighting_evaluate_cache(&loc_light, Vector3f(-1.0f,-1.0f,-1.0f), hgt, _currentModule->getMeshPointer()->tmem._bbox, nullptr, nullptr);
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite  = lighting_evaluate_cache( &loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->tmem.bbox, NULL, NULL );
+            lite  = lighting_evaluate_cache( &loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->tmem._bbox, NULL, NULL );
         }
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;

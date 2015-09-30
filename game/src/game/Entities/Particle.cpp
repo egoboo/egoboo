@@ -194,8 +194,8 @@ bool Particle::updateSafe(bool force)
 
         if (TileIndex::Invalid == new_grid)
         {
-            if (std::abs(pos[kX] - safe_pos[kX]) > GRID_FSIZE ||
-                std::abs(pos[kY] - safe_pos[kY]) > GRID_FSIZE)
+            if (std::abs(pos[kX] - safe_pos[kX]) > Info<float>::Grid::Size() ||
+                std::abs(pos[kY] - safe_pos[kY]) > Info<float>::Grid::Size())
             {
                 needs_update = true;
             }
@@ -227,9 +227,7 @@ BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    BIT_FIELD  result = ego_mesh_hit_wall(_currentModule->getMeshPointer(), pos, 0.0f, stoppedby, nrm, pressure, data);
-
-    return result;
+    return _currentModule->getMeshPointer()->hit_wall(pos, 0.0f, stoppedby, nrm, pressure, data);
 }
 
 BIT_FIELD Particle::test_wall(mesh_wall_data_t *data)
@@ -246,9 +244,7 @@ BIT_FIELD Particle::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    BIT_FIELD result = ego_mesh_test_wall(_currentModule->getMeshPointer(), pos, 0.0f, stoppedby, data);
-
-    return result;
+    return _currentModule->getMeshPointer()->test_wall(pos, 0.0f, stoppedby, data);
 }
 
 const std::shared_ptr<pip_t>& Particle::getProfile() const
@@ -1003,8 +999,8 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     tmp_pos[kX] += offset[kX];
     tmp_pos[kY] += offset[kY];
 
-    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->gmem.edge_x - 2.0f);
-    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->gmem.edge_y - 2.0f);
+    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->gmem._edge_x - 2.0f);
+    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->gmem._edge_y - 2.0f);
 
     setPosition(tmp_pos);
     pos_old = tmp_pos;
@@ -1317,7 +1313,8 @@ const std::shared_ptr<Object>& Particle::getTarget() const
 
 bool Particle::isOverWater() const
 {
-    return (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), getTile(), MAPFX_WATER));
+	ego_mesh_t *mesh = _currentModule->getMeshPointer();
+    return (0 != mesh->test_fx(getTile(), MAPFX_WATER));
 }
 
 void Particle::setTarget(const CHR_REF target)

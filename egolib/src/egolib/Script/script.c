@@ -638,8 +638,8 @@ void scr_run_chr_script(Object *pchr) {
 		}
 		else if (aiState.wp_valid) {
 			// Normal AI
-			pchr->latch.x = (aiState.wp[kX] - pchr->getPosX()) / (GRID_ISIZE << 1);
-			pchr->latch.y = (aiState.wp[kY] - pchr->getPosY()) / (GRID_ISIZE << 1);
+			pchr->latch.x = (aiState.wp[kX] - pchr->getPosX()) / (Info<int>::Grid::Size() << 1);
+			pchr->latch.y = (aiState.wp[kY] - pchr->getPosY()) / (Info<int>::Grid::Size() << 1);
 		}
 		else {
 			// AI, but no valid waypoints

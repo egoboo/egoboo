@@ -659,8 +659,8 @@ void Camera::reset(const ego_mesh_t *mesh)
     _roll = 0.0f;
 
     // Derived values.
-    _center[kX]     = mesh->gmem.edge_x * 0.5f;
-    _center[kY]     = mesh->gmem.edge_y * 0.5f;
+    _center[kX]     = mesh->gmem._edge_x * 0.5f;
+    _center[kY]     = mesh->gmem._edge_y * 0.5f;
     _center[kZ]     = 0.0f;
 
 	_trackPos = _center;
@@ -785,9 +785,9 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
     // Update projection after setting size.
     float aspect_ratio = (_screen.xmax - _screen.xmin) / (_screen.ymax - _screen.ymin);
     // The nearest we will have to worry about is 1/2 of a tile.
-    float frustum_near = GRID_ISIZE * 0.25f;
+    float frustum_near = Info<int>::Grid::Size() * 0.25f;
     // Set the maximum depth to be the "largest possible size" of a mesh.
-    float frustum_far  = GRID_ISIZE * 256 * Ego::Math::sqrtTwo<float>();
+    float frustum_far  = Info<int>::Grid::Size() * 256 * Ego::Math::sqrtTwo<float>();
     updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
 }
 

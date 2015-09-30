@@ -341,8 +341,8 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
             else
             {
                 // translate to raw coordinates
-                way_x = safe_waypoint->ix * GRID_ISIZE + ( GRID_ISIZE / 2 );
-                way_y = safe_waypoint->iy * GRID_ISIZE + ( GRID_ISIZE / 2 );
+                way_x = safe_waypoint->ix * Info<int>::Grid::Size() + (Info<int>::Grid::Size() / 2 );
+                way_y = safe_waypoint->iy * Info<int>::Grid::Size() + (Info<int>::Grid::Size() / 2 );
             }
 
 #ifdef DEBUG_ASTAR

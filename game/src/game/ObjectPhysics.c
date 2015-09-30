@@ -246,24 +246,19 @@ void move_one_character_do_voluntary( Object * pchr )
 
 void move_one_character_get_environment( Object * pchr )
 {
-    float   grid_level, water_level;
-    Object * pplatform = NULL;
-
-    chr_environment_t * penviro;
-
     if (!pchr || pchr->isTerminated()) return;
-    penviro = &( pchr->enviro );
+	chr_environment_t *penviro = &( pchr->enviro );
 
     // determine if the character is standing on a platform
-    pplatform = NULL;
+	Object *pplatform = NULL;
     if ( _currentModule->getObjectHandler().exists( pchr->onwhichplatform_ref ) )
     {
         pplatform = _currentModule->getObjectHandler().get( pchr->onwhichplatform_ref );
     }
-
+	ego_mesh_t *mesh = _currentModule->getMeshPointer();
     //---- character "floor" level
-    grid_level = get_mesh_level( _currentModule->getMeshPointer(), pchr->getPosX(), pchr->getPosY(), false );
-    water_level = get_mesh_level( _currentModule->getMeshPointer(), pchr->getPosX(), pchr->getPosY(), true );
+    float grid_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), false );
+    float water_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), true );
 
     // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
     if (grid_level != pchr->enviro.grid_level) {
@@ -299,7 +294,7 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
-    if ( 0 != ego_mesh_t::test_fx( _currentModule->getMeshPointer(), pchr->getTile(), MAPFX_WATER ) )
+    if ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_WATER ) )
     {
         penviro->fly_level = std::max( penviro->level, water._surface_level );
     }
@@ -316,11 +311,11 @@ void move_one_character_get_environment( Object * pchr )
     penviro->grounded = (!pchr->isFlying() && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
-    penviro->grid_twist = ego_mesh_t::get_twist( _currentModule->getMeshPointer(), pchr->getTile() );
+    penviro->grid_twist = ego_mesh_t::get_twist( mesh, pchr->getTile() );
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water._is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && ( 0 != ego_mesh_t::test_fx( _currentModule->getMeshPointer(), pchr->getTile(), MAPFX_SLIPPY ) );
+    penviro->is_slippy = !penviro->is_watery && ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_SLIPPY ) );
 
     //---- traction
     penviro->traction = 1.0f;
@@ -347,7 +342,7 @@ void move_one_character_get_environment( Object * pchr )
             penviro->traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
-    else if ( ego_mesh_t::grid_is_valid( _currentModule->getMeshPointer(), pchr->getTile() ) )
+    else if ( mesh->grid_is_valid( pchr->getTile() ) )
     {
         penviro->traction = std::abs( map_twist_nrm[penviro->grid_twist][kZ] ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -398,7 +393,7 @@ void move_one_character_get_environment( Object * pchr )
     {
         // Make the characters slide
         float temp_friction_xy = Physics::g_environment.noslipfriction;
-        if ( ego_mesh_t::grid_is_valid( _currentModule->getMeshPointer(), pchr->getTile() ) && penviro->is_slippy )
+        if ( mesh->grid_is_valid( pchr->getTile() ) && penviro->is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = Physics::g_environment.slippyfriction;
@@ -1121,10 +1116,10 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     const auto default_tint = Ego::Math::Colour4f::white();
 
     //Max search distance in quad tree relative to object position
-    const float MAX_SEARCH_DIST = 3.0f * GRID_FSIZE;
+    const float MAX_SEARCH_DIST = 3.0f * Info<float>::Grid::Size();
 
     //Max grab distance is 2/3rds of a tile
-    const float MAX_DIST_GRAB = GRID_FSIZE * 0.66f;
+    const float MAX_DIST_GRAB = Info<float>::Grid::Size() * 0.66f;
 
     CHR_REF   ichr_b;
     slot_t    slot;

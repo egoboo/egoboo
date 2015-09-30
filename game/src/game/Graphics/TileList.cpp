@@ -117,11 +117,11 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	}
 
 	// check for a valid tile
-	if (index >= _mesh->gmem.grid_count)
+	if (index >= _mesh->gmem._grid_count)
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t *pgrid = grid_mem_t::get(_mesh->gmem, index);
+	ego_grid_info_t *pgrid = _mesh->gmem.get(index);
 	if (!pgrid)
 	{
 		return gfx_fail;
@@ -186,8 +186,8 @@ gfx_rv TileList::add(const size_t index, ::Camera& camera)
 	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
 	if(!_lastRenderTiles[index]) {
 		const std::shared_ptr<ego_tile_info_t> &tile = _mesh->tmem.getTile(index);
-		tile->request_lcache_update = true;
-		tile->lcache_frame = -1;
+		tile->_request_lcache_update = true;
+		tile->_lcache_frame = -1;
 	}
 
 	if (gfx_error == insert(index, camera))

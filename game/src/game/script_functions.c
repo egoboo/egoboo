@@ -5196,7 +5196,7 @@ Uint8 scr_GetTileXY( script_state_t& state, ai_state_t& self )
     if (ptr)
     {
         returncode = true;
-        state.argument = ptr->img & TILE_LOWER_MASK;
+        state.argument = ptr->_img & TILE_LOWER_MASK;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7321,7 +7321,7 @@ Uint8 scr_PitsFall( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->gmem.edge_x - EDGE && state.y < _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
+    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->gmem._edge_x - EDGE && state.y < _currentModule->getMeshPointer()->gmem._edge_y - EDGE )
     {
         g_pits.teleport = true;
         g_pits.teleport_pos[kX] = state.x;

@@ -108,8 +108,8 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 		{
 			const std::shared_ptr<ego_tile_info_t> &tile = mesh.tmem.getTile(rlst.lst[i].index);
 
-			int img = TILE_GET_LOWER_BITS(tile->img);
-			if (tile->type >= tile_dict.offset)
+			int img = TILE_GET_LOWER_BITS(tile->_img);
+			if (tile->_type >= tile_dict.offset)
 			{
 				img += MESH_IMG_COUNT;
 			}
@@ -161,12 +161,12 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	float ymag, Cy_0, Cy_1;
 
 	// determine the constants for the x-coordinate
-	xmag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / GRID_FSIZE;
+	xmag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / Info<float>::Grid::Size();
 	Cx_0 = xmag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[XX]);
 	Cx_1 = -xmag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[XX]);
 
 	// determine the constants for the y-coordinate
-	ymag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[YY]) / GRID_FSIZE;
+	ymag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[YY]) / Info<float>::Grid::Size();
 	Cy_0 = ymag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[YY]);
 	Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[YY]);
 
@@ -176,32 +176,32 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		VertexBufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
 		// Figure out the coordinates of its corners
-		Qx = -pgmem->edge_x;
-		Qy = -pgmem->edge_y;
+		Qx = -pgmem->_edge_x;
+		Qy = -pgmem->_edge_y;
 		vertices[0].x = Qx;
 		vertices[0].y = Qy;
 		vertices[0].z = cam.getPosition()[kZ] - z0;
 		vertices[0].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[0].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = 2 * pgmem->edge_x;
-		Qy = -pgmem->edge_y;
+		Qx = 2 * pgmem->_edge_x;
+		Qy = -pgmem->_edge_y;
 		vertices[1].x = Qx;
 		vertices[1].y = Qy;
 		vertices[1].z = cam.getPosition()[kZ] - z0;
 		vertices[1].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[1].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = 2 * pgmem->edge_x;
-		Qy = 2 * pgmem->edge_y;
+		Qx = 2 * pgmem->_edge_x;
+		Qy = 2 * pgmem->_edge_y;
 		vertices[2].x = Qx;
 		vertices[2].y = Qy;
 		vertices[2].z = cam.getPosition()[kZ] - z0;
 		vertices[2].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[2].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = -pgmem->edge_x;
-		Qy = 2 * pgmem->edge_y;
+		Qx = -pgmem->_edge_x;
+		Qy = 2 * pgmem->_edge_y;
 		vertices[3].x = Qx;
 		vertices[3].y = Qy;
 		vertices[3].z = cam.getPosition()[kZ] - z0;
@@ -590,7 +590,8 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
 	// much reduced shadow if on a reflective tile
-	if (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), pchr->getTile(), MAPFX_REFLECTIVE))
+	ego_mesh_t *mesh = _currentModule->getMeshPointer();
+	if (0 != mesh->test_fx(pchr->getTile(), MAPFX_REFLECTIVE))
 	{
 		alpha *= 0.1f;
 	}
@@ -677,7 +678,8 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
 	// much reduced shadow if on a reflective tile
-	if (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), pchr->getTile(), MAPFX_REFLECTIVE))
+	ego_mesh_t *mesh = _currentModule->getMeshPointer();
+	if (0 != mesh->test_fx(pchr->getTile(), MAPFX_REFLECTIVE))
 	{
 		alpha *= 0.1f;
 	}
@@ -858,7 +860,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				CHR_REF ichr = el.get(i).ichr;
 				TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
 
-				if (ego_mesh_t::grid_is_valid(mesh, itile) && (0 != ego_mesh_t::test_fx(mesh, itile, MAPFX_REFLECTIVE)))
+				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Colour4f::white());
 
@@ -878,7 +880,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				PRT_REF iprt = el.get(i).iprt;
 				TileIndex itile = ParticleHandler::get()[iprt]->getTile();
 
-				if (ego_mesh_t::grid_is_valid(mesh, itile) && (0 != ego_mesh_t::test_fx(mesh, itile, MAPFX_REFLECTIVE)))
+				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Colour4f::white());
 					render_one_prt_ref(iprt);
