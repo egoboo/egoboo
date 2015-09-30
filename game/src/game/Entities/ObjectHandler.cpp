@@ -263,6 +263,7 @@ void ObjectHandler::maybeRunDeferred()
                     {
                         // std::remove_if results in temporary nullptrs in _iteratorList.
                         if (nullptr == chr) continue;
+                        
                         //Don't do ourselves or terminated characters
                         if (chr->isTerminated() || chr == element) continue;
 						ai_state_t *ai = &(chr->ai);
@@ -272,7 +273,7 @@ void ObjectHandler::maybeRunDeferred()
                             SET_BIT(ai->alert, ALERTIF_TARGETKILLED);
                         }
 
-                        if (chr_get_pteam(chr->getCharacterID())->getLeader() == element)
+                        if (chr->getTeam().getLeader() == element)
                         {
                             SET_BIT(ai->alert, ALERTIF_LEADERKILLED);
                         }

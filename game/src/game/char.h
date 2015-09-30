@@ -121,16 +121,6 @@ struct chr_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
 
-egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
-
-const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
-
-void chr_set_floor_level( Object * pchr, const float level );
-
-std::string chr_get_dir_name( const CHR_REF ichr );
-bool chr_get_skill( Object * pchr, IDSZ whichskill );
-
-
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;
 extern int chr_pressure_tests;
@@ -138,55 +128,18 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
-void update_all_characters();
-
-/// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
-///    inventory ( Not hands ).
-void  drop_keys(const CHR_REF character);
-
-// save character functions
-bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
-bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
+const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
-bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin );
 
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
-void drop_money( const CHR_REF character, int money );
-void spawn_poof( const CHR_REF character, const PRO_REF profile );
-void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
-
-void    switch_team( const CHR_REF character, const TEAM_REF team );
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
-
-bool  drop_all_items( const CHR_REF character );
-
 void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
+egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
 
-//--------------------------------------------------------------------------------------------
-// generic helper functions
 std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 
-
-//--------------------------------------------------------------------------------------------
-// PREVIOUSLY INLINE FUNCTIONS
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// Object accessor functions
-TEAM_REF chr_get_iteam( const CHR_REF ichr );
-TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
-
-Team         *chr_get_pteam( const CHR_REF ichr );
-Team         *chr_get_pteam_base( const CHR_REF ichr );
-chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
-
-IDSZ chr_get_idsz( const CHR_REF ichr, int type );
-
-bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
-bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
-

@@ -35,6 +35,9 @@ public:
 
     virtual void draw() override;
 
+    void setIconTint(const Ego::Math::Colour4f &tint);
+
 private:
     const Ego::DeferredOpenGLTexture& _icon;
+    Ego::Math::Colour4f _iconTint;
 };

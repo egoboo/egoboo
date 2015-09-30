@@ -33,6 +33,7 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
 #include "game/collision.h"                  //Only for detach_character_from_platform()
+#include "game/ObjectPhysics.h" //only for move_one_character_get_environment()
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -475,8 +476,8 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         //but don't do message and ping for mounts, it's just irritating
         if ( !isMount() && 0 == damage_timer )
         {
-            //Dark green text
-            spawn_defense_ping(this, attacker ? attacker->getCharacterID() : INVALID_CHR_REF);
+            //Ping!
+            ParticleHandler::get().spawnDefencePing(toSharedPointer(), attacker);
 
             //Only draw "Immune!" if we are truly completely immune and it was not simply a weak attack
             if(HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || damage.base + damage.rand <= damage_threshold) {
@@ -1340,9 +1341,9 @@ void Object::setBumpWidth(const float width)
 {
     float ratio = std::abs(width / bump_stt.size);
 
-    shadow_size_stt *= ratio;
-    bump_stt.size *= ratio;
-    bump_stt.size_big *= ratio;
+    shadow_size_save = shadow_size_stt * ratio;
+    bump_save.size = bump_stt.size * ratio;
+    bump_save.size_big = bump_stt.size_big * ratio;
 
     recalculateCollisionSize();
 }
@@ -1461,6 +1462,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     platform        = true;
     canuseplatforms = true;
     phys.bumpdampen = phys.bumpdampen * 0.5f;
+    setBumpWidth(bump_stt.size * 0.5f);
 
     //End stealth if we were hidden
     deactivateStealth();
@@ -1656,18 +1658,18 @@ int Object::getPrice() const
 
 bool Object::isBeingHeld() const
 {
-    //Check if holder exists and not marked for removal
-    const std::shared_ptr<Object> &holder = getHolder();
-    if(!holder || holder->isTerminated()) {
-        return false;
-    }
-
     //If we are inside an inventory then we are being "held"
     if(isInsideInventory()) {
         return true;
     }
 
-    return true;
+    //Check if holder exists and not marked for removal
+    const std::shared_ptr<Object> &holder = getHolder();
+    if(holder && !holder->isTerminated()) {
+        return true;
+    }
+
+    return false;
 }
 
 bool Object::isInsideInventory() const
@@ -1851,7 +1853,7 @@ void Object::respawn()
 
     const std::shared_ptr<ObjectProfile> &profile = getProfile();
 
-    spawn_poof( getCharacterID(), _profileID );
+    ParticleHandler::get().spawnPoof(this->toSharedPointer());
     disaffirm_attached_particles( getCharacterID() );
 
     _isAlive = true;
@@ -2195,14 +2197,13 @@ void Object::removeEnchantsWithIDSZ(const IDSZ idsz)
     if(idsz == IDSZ_NONE) return;
 
     //Remove all active enchants that have the corresponding IDSZ
-    _activeEnchants.remove_if([idsz](const std::shared_ptr<Ego::Enchantment> &enchant)
+    for(const std::shared_ptr<Ego::Enchantment> &enchant : _activeEnchants)
     {
+        if(enchant->isTerminated()) continue;
         if(idsz == enchant->getProfile()->removedByIDSZ) {
             enchant->requestTerminate();
-            return true;
         }
-        return false;
-    });
+    }
 }
 
 std::forward_list<std::shared_ptr<Ego::Enchantment>>& Object::getActiveEnchants()
@@ -2619,7 +2620,7 @@ const std::shared_ptr<Object>& Object::isWieldingItemIDSZ(const IDSZ idsz) const
     //Check left hand
     const std::shared_ptr<Object> &leftHandItem = getLeftHandItem();
     if(leftHandItem) {
-        if(chr_is_type_idsz(leftHandItem->getCharacterID(), idsz)) {
+        if(leftHandItem->getProfile()->hasTypeIDSZ(idsz)) {
             return leftHandItem;
         }
     }
@@ -2627,7 +2628,7 @@ const std::shared_ptr<Object>& Object::isWieldingItemIDSZ(const IDSZ idsz) const
     //Check right hand
     const std::shared_ptr<Object> &rightHandItem = getRightHandItem();
     if(rightHandItem) {
-        if(chr_is_type_idsz(rightHandItem->getCharacterID(), idsz)) {
+        if(rightHandItem->getProfile()->hasTypeIDSZ(idsz)) {
             return rightHandItem;
         }
     }
@@ -2645,4 +2646,286 @@ bool Object::isHidden() const
 const std::shared_ptr<Object>& Object::getHolder() const
 {
     return _currentModule->getObjectHandler()[attachedto];
+}
+
+void Object::setTeam(TEAM_REF team_new, bool permanent)
+{
+    //No change?
+    if(getTeam() == team_new) {
+        return;
+    }
+
+    // do we count this character as being on a team?
+    const bool canHaveTeam = !isItem() && isAlive() && !isInvincible();
+
+    // take the character off of its old team
+    if ( VALID_TEAM_RANGE(this->team) )
+    {
+        // remove the character from the old team
+        if ( canHaveTeam )
+        {
+            getTeam().decreaseMorale();
+        }
+
+        //Were we the leader?
+        if (this == getTeam().getLeader().get())
+        {
+            getTeam().setLeader(Object::INVALID_OBJECT);
+        }
+    }
+
+    // make sure we have a valid value
+    if(!VALID_TEAM_RANGE(team_new)) {
+        team_new = static_cast<TEAM_REF>(Team::TEAM_NULL);
+    }
+
+    // place the character onto its new team
+    this->team = team_new;
+
+    // switch the base team only if required
+    if (permanent) {
+        team_base = this->team;
+    }
+
+    // add the character to the new team
+    if (canHaveTeam) {
+        getTeam().increaseMorale();
+    }
+
+    // we are the new leader if there isn't one already
+    if (canHaveTeam && !getTeam().getLeader()) {
+        getTeam().setLeader(_currentModule->getObjectHandler()[getCharacterID()]);
+    }
+
+    if(permanent) {
+        //Set the team of our mount as well
+        if(isBeingHeld() && getHolder()->isMount()) {
+            getHolder()->setTeam(team_new, false);
+        }
+
+        //Switch team of whatever we are holding as well
+        if(getLeftHandItem()) {
+            getLeftHandItem()->setTeam(team_new, false);
+        }
+        if(getRightHandItem()) {
+            getRightHandItem()->setTeam(team_new, false);
+        }
+    }
+}
+
+bool Object::hasSkillIDSZ(const IDSZ whichskill) const
+{
+    if (isTerminated()) return false;
+
+    //Any [NONE] IDSZ returns always "true"
+    if ( IDSZ_NONE == whichskill ) return true;
+
+    // First check the character Skill ID matches
+    if ( getProfile()->getIDSZ(IDSZ_SKILL) == whichskill ) {
+        return true;
+    }
+
+    // Then check if any Perk matches
+    switch(whichskill)
+    {
+        case MAKE_IDSZ('P', 'O', 'I', 'S'):
+            return hasPerk(Ego::Perks::POISONRY);
+
+        case MAKE_IDSZ('C', 'K', 'U', 'R'):
+            return hasPerk(Ego::Perks::SENSE_KURSES);
+
+        case MAKE_IDSZ('D', 'A', 'R', 'K'):
+            return hasPerk(Ego::Perks::NIGHT_VISION) || hasPerk(Ego::Perks::PERCEPTIVE);
+
+        case MAKE_IDSZ('A', 'W', 'E', 'P'):
+            return hasPerk(Ego::Perks::WEAPON_PROFICIENCY);
+
+        case MAKE_IDSZ('W', 'M', 'A', 'G'):
+            return hasPerk(Ego::Perks::ARCANE_MAGIC);
+
+        case MAKE_IDSZ('D', 'M', 'A', 'G'):
+        case MAKE_IDSZ('H', 'M', 'A', 'G'):
+            return hasPerk(Ego::Perks::DIVINE_MAGIC);
+
+        case MAKE_IDSZ('D', 'I', 'S', 'A'):
+            return hasPerk(Ego::Perks::TRAP_LORE);
+
+        case MAKE_IDSZ('F', 'I', 'N', 'D'):
+            return hasPerk(Ego::Perks::PERCEPTIVE);
+
+        case MAKE_IDSZ('T', 'E', 'C', 'H'):
+            return hasPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS);
+
+        case MAKE_IDSZ('S', 'T', 'A', 'B'):
+            return hasPerk(Ego::Perks::BACKSTAB);
+
+        case MAKE_IDSZ('R', 'E', 'A', 'D'):
+            return hasPerk(Ego::Perks::LITERACY);
+
+        case MAKE_IDSZ('W', 'A', 'N', 'D'):
+            return hasPerk(Ego::Perks::THAUMATURGY);
+
+        case MAKE_IDSZ('J', 'O', 'U', 'S'):
+            return hasPerk(Ego::Perks::JOUSTING);            
+
+        case MAKE_IDSZ('T', 'E', 'L', 'E'):
+            return hasPerk(Ego::Perks::TELEPORT_MASTERY); 
+    }
+
+    //Skill not found
+    return false;    
+}
+
+void Object::dropMoney(int amount)
+{
+    static constexpr std::array<int, PIP_MONEY_COUNT> vals = {1, 5, 25, 100, 200, 500, 1000, 2000};
+    static constexpr std::array<PIP_REF, PIP_MONEY_COUNT> pips =
+    {
+        PIP_COIN1, PIP_COIN5, PIP_COIN25, PIP_COIN100,
+        PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
+    };
+
+    // limit the about of money to the character's actual money
+    amount = Ego::Math::constrain<int>(amount, 0, getMoney());
+
+    //Not valid to drop any money?
+    if(getPosZ() <= (PITDEPTH/2) || amount <= 0) {
+        return;
+    }
+
+    // remove the money from inventory
+    money -= amount;
+
+    // make the particles emit from "waist high"
+    Vector3f pos = getPosition();
+    pos[kZ] += (chr_min_cv._maxs[OCT_Z] + chr_min_cv._mins[OCT_Z]) * 0.5f;
+
+    // Give the character a time-out from interacting with particles so it
+    // doesn't just grab the money again
+    damage_timer = DAMAGETIME;
+
+    // count and spawn the various denominations
+    for (size_t cnt = PIP_MONEY_COUNT - 1; amount > 0; cnt--)
+    {
+        int count = amount / vals[cnt];
+        amount -= count * vals[cnt];
+
+        for (size_t tnc = 0; tnc < count; tnc++)
+        {
+            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
+        }
+    }
+}
+
+void Object::dropKeys()
+{
+    // Don't lose keys in pits...
+    if (getPosZ() <= (PITDEPTH / 2)) return;
+
+    // The IDSZs to find
+    const IDSZ testa = MAKE_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
+    const IDSZ testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
+
+    //check each inventory item
+    for(const std::shared_ptr<Object> &pkey : getInventory().iterate())
+    {
+        TURN_T turn;
+
+        IDSZ idsz_parent = pkey->getProfile()->getIDSZ(IDSZ_PARENT);
+        IDSZ idsz_type   = pkey->getProfile()->getIDSZ(IDSZ_TYPE);
+
+        //is it really a key?
+        if (( idsz_parent < testa && idsz_parent > testz ) &&
+            ( idsz_type < testa && idsz_type > testz ) ) continue;
+
+        FACING_T direction = Random::next(std::numeric_limits<FACING_T>::max());
+        turn      = TO_TURN(direction);
+
+        //remove it from inventory
+        getInventory().removeItem(pkey, true);
+
+        // fix the attachments
+        pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
+        pkey->dismount_object        = getCharacterID();
+        pkey->onwhichplatform_ref    = onwhichplatform_ref;
+        pkey->onwhichplatform_update = onwhichplatform_update;
+
+        // fix some flags
+        pkey->hitready               = true;
+        pkey->isequipped             = false;
+        pkey->ori.facing_z           = direction + ATK_BEHIND;
+        pkey->team                   = pkey->team_base;
+
+        // fix the current velocity
+        pkey->vel[kX]                  += turntocos[ turn ] * DROPXYVEL;
+        pkey->vel[kY]                  += turntosin[ turn ] * DROPXYVEL;
+        pkey->vel[kZ]                  += DROPZVEL;
+
+        // do some more complicated things
+        SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
+        pkey->setPosition(getPosition());
+        move_one_character_get_environment( pkey.get() );
+        pkey->enviro.floor_level = enviro.floor_level;
+    }    
+}
+
+void Object::dropAllItems()
+{
+    //Drop held items
+    const std::shared_ptr<Object> &leftItem = getLeftHandItem();
+    if(leftItem) {
+        leftItem->detatchFromHolder(true, false);
+    }
+    const std::shared_ptr<Object> &rightItem = getRightHandItem();
+    if(rightItem) {
+        rightItem->detatchFromHolder(true, false);
+    }
+
+    //simply count the number of items in inventory
+    uint8_t pack_count = getInventory().iterate().size();
+
+    //Don't continue if we have nothing to drop
+    if(pack_count == 0) {
+        return;
+    }
+
+    //Calculate direction offset for each object
+    const FACING_T diradd = 0xFFFF / pack_count;
+
+    // now drop each item in turn
+    FACING_T direction = ori.facing_z + ATK_BEHIND;
+    for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
+    {
+        //remove it from inventory
+        getInventory().removeItem(pitem, true);
+
+        // detach the item
+        pitem->detatchFromHolder(true, true);
+
+        // fix the attachments
+        pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
+        pitem->dismount_object        = getCharacterID();
+        pitem->onwhichplatform_ref    = onwhichplatform_ref;
+        pitem->onwhichplatform_update = onwhichplatform_update;
+
+        // fix some flags
+        pitem->hitready               = true;
+        pitem->ori.facing_z           = direction + ATK_BEHIND;
+        pitem->team                   = pitem->team_base;
+
+        // fix the current velocity
+        TURN_T turn                   = TO_TURN( direction );
+        pitem->vel[kX]                += turntocos[ turn ] * DROPXYVEL;
+        pitem->vel[kY]                += turntosin[ turn ] * DROPXYVEL;
+        pitem->vel[kZ]                += DROPZVEL;
+
+        // do some more complicated things
+        SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
+        pitem->setPosition(getPosition());
+        move_one_character_get_environment(pitem.get());
+        pitem->enviro.floor_level = enviro.floor_level;
+
+        //drop out evenly in all directions
+        direction += diradd;
+    }
 }

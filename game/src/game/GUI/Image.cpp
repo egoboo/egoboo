@@ -36,7 +36,7 @@ void Image::draw()
     if(_image) {
         _gameEngine->getUIManager()->drawImage(*_image, getX(), getY(), getWidth(), getHeight(), _tint);
     }
-    else {
+    else if(_texture) {
         _gameEngine->getUIManager()->drawImage(_texture, getX(), getY(), getWidth(), getHeight(), _tint);
     }
 }

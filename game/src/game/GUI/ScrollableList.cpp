@@ -13,6 +13,7 @@ ScrollableList::ScrollableList() :
 	_downButton->setOnClickFunction([this]{
 		setScrollPosition(_currentIndex + 1);
 	});
+	_downButton->setEnabled(false);
 
 	_upButton->setSize(32, 32);
 	_upButton->setOnClickFunction([this]{
@@ -137,5 +138,13 @@ bool ScrollableList::notifyMouseClicked(const int button, const int x, const int
 
 void ScrollableList::forceUpdate()
 {
+    setScrollPosition(_currentIndex);
+}
+
+void ScrollableList::setPosition(const int x, const int y)
+{
+	GUIComponent::setX(x);
+	GUIComponent::setY(y);
+	updateScrollButtons();	
     setScrollPosition(_currentIndex);
 }

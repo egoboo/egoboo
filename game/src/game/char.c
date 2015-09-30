@@ -56,9 +56,6 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
-
-//--------------------------------------------------------------------------------------------
 egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
 {
     /// @author ZZ
@@ -191,138 +188,6 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
 }
 
 //--------------------------------------------------------------------------------------------
-void drop_keys( const CHR_REF character )
-{
-    Object  * pchr;
-
-    FACING_T direction;
-    IDSZ     testa, testz;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    // Don't lose keys in pits...
-    if ( pchr->getPosZ() <= ( PITDEPTH >> 1 ) ) return;
-
-    // The IDSZs to find
-    testa = MAKE_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
-    testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
-
-    //check each inventory item
-    for(const std::shared_ptr<Object> &pkey : pchr->getInventory().iterate())
-    {
-        IDSZ idsz_parent;
-        IDSZ idsz_type;
-        TURN_T turn;
-
-        idsz_parent = chr_get_idsz( pkey->getCharacterID(), IDSZ_PARENT );
-        idsz_type   = chr_get_idsz( pkey->getCharacterID(), IDSZ_TYPE );
-
-        //is it really a key?
-        if (( idsz_parent < testa && idsz_parent > testz ) &&
-            ( idsz_type < testa && idsz_type > testz ) ) continue;
-
-        direction = Random::next(std::numeric_limits<uint16_t>::max());
-        turn      = TO_TURN( direction );
-
-        //remove it from inventory
-        pchr->getInventory().removeItem(pkey, true);
-
-        // fix the attachments
-        pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pkey->dismount_object        = pchr->getCharacterID();
-        pkey->onwhichplatform_ref    = pchr->onwhichplatform_ref;
-        pkey->onwhichplatform_update = pchr->onwhichplatform_update;
-
-        // fix some flags
-        pkey->hitready               = true;
-        pkey->isequipped             = false;
-        pkey->ori.facing_z           = direction + ATK_BEHIND;
-        pkey->team                   = pkey->team_base;
-
-        // fix the current velocity
-        pkey->vel[kX]                  += turntocos[ turn ] * DROPXYVEL;
-        pkey->vel[kY]                  += turntosin[ turn ] * DROPXYVEL;
-        pkey->vel[kZ]                  += DROPZVEL;
-
-        // do some more complicated things
-        SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
-        pkey->setPosition(pchr->getPosition());
-        move_one_character_get_environment( pkey.get() );
-        chr_set_floor_level( pkey.get(), pchr->enviro.floor_level );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool drop_all_items( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function drops all of a character's items
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
-
-    //Drop held items
-    const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
-    if(leftItem) {
-        leftItem->detatchFromHolder(true, false);
-    }
-    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
-    if(rightItem) {
-        rightItem->detatchFromHolder(true, false);
-    }
-
-    //simply count the number of items in inventory
-    uint8_t pack_count = pchr->getInventory().iterate().size();
-
-    //Don't continue if we have nothing to drop
-    if(pack_count == 0)
-    {
-        return true;
-    }
-
-    //Calculate direction offset for each object
-    const FACING_T diradd = 0xFFFF / pack_count;
-
-    // now drop each item in turn
-    FACING_T direction = pchr->ori.facing_z + ATK_BEHIND;
-    for(const std::shared_ptr<Object> &pitem : pchr->getInventory().iterate())
-    {
-        //remove it from inventory
-        pchr->getInventory().removeItem(pitem, true);
-
-        // detach the item
-        pitem->detatchFromHolder(true, true);
-
-        // fix the attachments
-        pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pitem->dismount_object        = pchr->getCharacterID();
-        pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
-        pitem->onwhichplatform_update = pchr->onwhichplatform_update;
-
-        // fix some flags
-        pitem->hitready               = true;
-        pitem->ori.facing_z           = direction + ATK_BEHIND;
-        pitem->team                   = pitem->team_base;
-
-        // fix the current velocity
-        TURN_T turn                   = TO_TURN( direction );
-        pitem->vel[kX]                  += turntocos[ turn ] * DROPXYVEL;
-        pitem->vel[kY]                  += turntosin[ turn ] * DROPXYVEL;
-        pitem->vel[kZ]                  += DROPZVEL;
-
-        // do some more complicated things
-        SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
-        pitem->setPosition(pchr->getPosition());
-        move_one_character_get_environment(pitem.get());
-        chr_set_floor_level(pitem.get(), pchr->enviro.floor_level);
-
-        //drop out evenly in all directions
-        direction += diradd;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void character_swipe( const CHR_REF ichr, slot_t slot )
 {
     /// @author ZZ
@@ -358,6 +223,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
     // find the 1st non-item that is holding the weapon
     CHR_REF iholder = chr_get_lowest_attachment( iweapon, true );
+    const std::shared_ptr<Object> &pholder = _currentModule->getObjectHandler()[iholder];
 
     /*
         if ( iweapon != iholder && iweapon != ichr )
@@ -382,7 +248,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), chr_get_iteam( iholder ), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -467,7 +333,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
                         pchr->ori.facing_z, weaponProfile->getSlotNumber(), 
                         attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : INVALID_CHR_REF,  
-                        spawn_vrt_offset, chr_get_iteam(iholder), iholder);
+                        spawn_vrt_offset, pholder->getTeam().toRef(), iholder);
 
                     if (particle)
                     {
@@ -628,319 +494,6 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 }
 
 //--------------------------------------------------------------------------------------------
-void drop_money( const CHR_REF character, int money )
-{
-    /// @author ZZ
-    /// @details This function drops some of a character's money
-
-    static const std::array<int, PIP_MONEY_COUNT> vals = {1, 5, 25, 100, 200, 500, 1000, 2000};
-    static const std::array<PIP_REF, PIP_MONEY_COUNT> pips =
-    {
-        PIP_COIN1, PIP_COIN5, PIP_COIN25, PIP_COIN100,
-        PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
-    };
-
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
-    if(!pchr) {
-        return;
-    }
-
-	Vector3f loc_pos = pchr->getPosition();
-
-    // limit the about of money to the character's actual money
-    if (money > pchr->getMoney()) {
-        money = pchr->getMoney();
-    }
-
-    if ( money > 0 && loc_pos[kZ] > -2 )
-    {
-        // remove the money from inventory
-        pchr->money = pchr->getMoney() - money;
-
-        // make the particles emit from "waist high"
-        loc_pos[kZ] += ( pchr->chr_min_cv._maxs[OCT_Z] + pchr->chr_min_cv._mins[OCT_Z] ) * 0.5f;
-
-        // Give the character a time-out from interacting with particles so it
-        // doesn't just grab the money again
-        pchr->damage_timer = DAMAGETIME;
-
-        // count and spawn the various denominations
-        for (int cnt = PIP_MONEY_COUNT - 1; cnt >= 0 && money >= 0; cnt-- )
-        {
-            int count = money / vals[cnt];
-            money -= count * vals[cnt];
-
-            for ( int tnc = 0; tnc < count; tnc++)
-            {
-                ParticleHandler::get().spawnGlobalParticle( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function makes the naming.txt file for the character
-
-    player_t *ppla;
-    egolib_rv rv;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
-
-    ppla = chr_get_ppla( character );
-    if ( NULL == ppla ) return false;
-
-    rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
-    return TO_C_BOOL( rv_success == rv );
-}
-
-//--------------------------------------------------------------------------------------------
-bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function makes the naming.txt file for the character
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
-
-    return RandomName::exportName(_currentModule->getObjectHandler()[character]->getName(), szSaveName);
-}
-
-//--------------------------------------------------------------------------------------------
-void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
-{
-    /// @author ZF
-    /// @details Spawn a defend particle
-    if ( 0 != pchr->damage_timer ) return;
-
-    ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
-
-    pchr->damage_timer    = DEFENDTIME;
-    SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
-    pchr->ai.attacklast = attacker;                 // For the ones attacking a shield
-}
-
-//--------------------------------------------------------------------------------------------
-void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
-{
-    /// @author ZZ
-    /// @details This function spawns a character poof
-
-    FACING_T facing_z;
-    CHR_REF  origin;
-    int      cnt;
-
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(profileRef);
-    if (!profile) return;
-
-    origin = pchr->ai.owner;
-    facing_z   = pchr->ori.facing_z;
-    for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
-    {
-        ParticleHandler::get().spawnParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
-                            INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt);
-
-        facing_z += profile->getParticlePoofFacingAdd();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent )
-{
-    Object  * pchr;
-    bool   can_have_team;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    // do we count this character as being on a team?
-    can_have_team = !pchr->isitem && pchr->isAlive() && !pchr->invictus;
-
-    // take the character off of its old team
-    if ( VALID_TEAM_RANGE( pchr->team ) )
-    {
-        // get the old team index
-        TEAM_REF team_old = pchr->team;
-
-        // remove the character from the old team
-        if ( can_have_team )
-        {
-            _currentModule->getTeamList()[team_old].decreaseMorale();
-        }
-
-        if ( pchr == _currentModule->getTeamList()[team_old].getLeader().get() )
-        {
-            _currentModule->getTeamList()[team_old].setLeader(Object::INVALID_OBJECT);
-        }
-    }
-
-    // make sure we have a valid value
-    TEAM_REF loc_team_new = VALID_TEAM_RANGE(team_new) ? team_new : static_cast<TEAM_REF>(Team::TEAM_NULL);
-
-    // place the character onto its new team
-    if ( VALID_TEAM_RANGE( loc_team_new ) )
-    {
-        // switch the team
-        pchr->team = loc_team_new;
-
-        // switch the base team only if required
-        if ( permanent )
-        {
-            pchr->team_base = loc_team_new;
-        }
-
-        // add the character to the new team
-        if ( can_have_team )
-        {
-            _currentModule->getTeamList()[loc_team_new].increaseMorale();
-        }
-
-        // we are the new leader if there isn't one already
-        if ( can_have_team && !_currentModule->getTeamList()[loc_team_new].getLeader() )
-        {
-            _currentModule->getTeamList()[loc_team_new].setLeader(_currentModule->getObjectHandler()[character]);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void switch_team( const CHR_REF character, const TEAM_REF team )
-{
-    /// @author ZZ
-    /// @details This function makes a character join another team...
-
-    CHR_REF tmp_ref;
-    // change the base object
-    switch_team_base( character, team, true );
-
-    // grab a pointer to the character
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    Object *pchr = _currentModule->getObjectHandler().get( character );
-
-    // change our mount team as well
-    tmp_ref = pchr->attachedto;
-    if ( tmp_ref != INVALID_CHR_REF )
-    {
-        switch_team_base( tmp_ref, team, false );
-    }
-
-    // update the team of anything we are holding as well
-    tmp_ref = pchr->holdingwhich[SLOT_LEFT];
-    if ( tmp_ref != INVALID_CHR_REF )
-    {
-        switch_team_base( tmp_ref, team, false );
-    }
-
-    tmp_ref = pchr->holdingwhich[SLOT_RIGHT];
-    if ( tmp_ref != INVALID_CHR_REF )
-    {
-        switch_team_base( tmp_ref, team, false );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_get_skill( Object *pchr, IDSZ whichskill )
-{
-    if (!pchr || pchr->isTerminated()) return false;
-
-    //Any [NONE] IDSZ returns always "true"
-    if ( IDSZ_NONE == whichskill ) return true;
-
-    // First check the character Skill ID matches
-    // Then check for expansion skills too.
-    if ( chr_get_idsz( pchr->ai.index, IDSZ_SKILL )  == whichskill ) {
-        return true;
-    }
-
-    switch(whichskill)
-    {
-        case MAKE_IDSZ('P', 'O', 'I', 'S'):
-            return pchr->hasPerk(Ego::Perks::POISONRY);
-
-        case MAKE_IDSZ('C', 'K', 'U', 'R'):
-            return pchr->hasPerk(Ego::Perks::SENSE_KURSES);
-
-        case MAKE_IDSZ('D', 'A', 'R', 'K'):
-            return pchr->hasPerk(Ego::Perks::NIGHT_VISION) || pchr->hasPerk(Ego::Perks::PERCEPTIVE);
-
-        case MAKE_IDSZ('A', 'W', 'E', 'P'):
-            return pchr->hasPerk(Ego::Perks::WEAPON_PROFICIENCY);
-
-        case MAKE_IDSZ('W', 'M', 'A', 'G'):
-            return pchr->hasPerk(Ego::Perks::ARCANE_MAGIC);
-
-        case MAKE_IDSZ('D', 'M', 'A', 'G'):
-        case MAKE_IDSZ('H', 'M', 'A', 'G'):
-            return pchr->hasPerk(Ego::Perks::DIVINE_MAGIC);
-
-        case MAKE_IDSZ('D', 'I', 'S', 'A'):
-            return pchr->hasPerk(Ego::Perks::TRAP_LORE);
-
-        case MAKE_IDSZ('F', 'I', 'N', 'D'):
-            return pchr->hasPerk(Ego::Perks::PERCEPTIVE);
-
-        case MAKE_IDSZ('T', 'E', 'C', 'H'):
-            return pchr->hasPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS);
-
-        case MAKE_IDSZ('S', 'T', 'A', 'B'):
-            return pchr->hasPerk(Ego::Perks::BACKSTAB);
-
-        case MAKE_IDSZ('R', 'E', 'A', 'D'):
-            return pchr->hasPerk(Ego::Perks::LITERACY);
-
-        case MAKE_IDSZ('W', 'A', 'N', 'D'):
-            return pchr->hasPerk(Ego::Perks::THAUMATURGY);
-
-        case MAKE_IDSZ('J', 'O', 'U', 'S'):
-            return pchr->hasPerk(Ego::Perks::JOUSTING);            
-
-        case MAKE_IDSZ('T', 'E', 'L', 'E'):
-            return pchr->hasPerk(Ego::Perks::TELEPORT_MASTERY); 
-
-    }
-
-    //Skill not found
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------
-void update_all_characters()
-{
-    /// @author ZZ
-    /// @details This function updates stats and such for every character
-
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        //Skip terminated objects
-        if(object->isTerminated()) {
-            continue;
-        }
-
-        //Update object logic
-        object->update();
-
-        //Check if this object should be poofed (destroyed)
-        bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if (timeOut) {
-            object->requestTerminate();
-        }
-    }
-
-    // fix the stat timer
-    if ( clock_chr_stat >= ONESECOND )
-    {
-        // Reset the clock
-        clock_chr_stat -= ONESECOND;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
     if (!_currentModule->getObjectHandler().exists(ichr)) {
@@ -968,15 +521,6 @@ std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const ch
     billboard->_position = obj_ptr->getPosition();
 
     return billboard;
-}
-
-//--------------------------------------------------------------------------------------------
-std::string chr_get_dir_name( const CHR_REF ichr )
-{
-    if (!_currentModule->getObjectHandler().exists(ichr)) {
-        return "*INVALID*";
-    }
-    return _currentModule->getObjectHandler()[ichr]->getProfile()->getPathname();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1123,17 +667,6 @@ const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_floor_level( Object * pchr, const float level )
-{
-    if ( nullptr == ( pchr ) ) return;
-
-    if ( level != pchr->enviro.floor_level )
-    {
-        pchr->enviro.floor_level = level;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
 {
     /// @author BB
@@ -1183,116 +716,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION (previously inline functions)
-//--------------------------------------------------------------------------------------------
-
-TEAM_REF chr_get_iteam( const CHR_REF ichr )
-{
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return static_cast<TEAM_REF>(Team::TEAM_DAMAGE);
-    Object * pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return static_cast<TEAM_REF>(pchr->team);
-}
-
-//--------------------------------------------------------------------------------------------
-TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
-{
-    Object * pchr;
-    int iteam;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return ( TEAM_REF )Team::TEAM_MAX;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    iteam = REF_TO_INT( pchr->team_base );
-    iteam = CLIP( iteam, 0, (int)Team::TEAM_MAX );
-
-    return ( TEAM_REF )iteam;
-}
-
-//--------------------------------------------------------------------------------------------
-Team * chr_get_pteam( const CHR_REF ichr )
-{
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return NULL;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return &_currentModule->getTeamList()[pchr->team];
-}
-
-//--------------------------------------------------------------------------------------------
-Team * chr_get_pteam_base( const CHR_REF ichr )
-{
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return NULL;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return &_currentModule->getTeamList()[pchr->team_base];
-}
-
-//--------------------------------------------------------------------------------------------
-chr_instance_t * chr_get_pinstance( const CHR_REF ichr )
-{
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return NULL;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return &( pchr->inst );
-}
-
-//--------------------------------------------------------------------------------------------
-IDSZ chr_get_idsz( const CHR_REF ichr, int type )
-{
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return IDSZ_NONE;
-    return _currentModule->getObjectHandler()[ichr]->getProfile()->getIDSZ(type);
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
-{
-    /// @author BB
-    /// @details a wrapper for cap_has_idsz
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return IDSZ_NONE;
-    return _currentModule->getObjectHandler()[ichr]->getProfile()->hasIDSZ(idsz);
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
-{
-    /// @author BB
-    /// @details check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
-    ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
-
-    if ( !_currentModule->getObjectHandler().exists( item ) ) return IDSZ_NONE;
-    return _currentModule->getObjectHandler()[item]->getProfile()->hasTypeIDSZ(test_idsz);
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
-{
-    /// @author BB
-    /// @details is item vulnerable to the type in profile test_profile?
-
-    IDSZ vulnie;
-
-    if ( !_currentModule->getObjectHandler().exists( item ) ) return false;
-    vulnie = chr_get_idsz( item, IDSZ_VULNERABILITY );
-
-    // not vulnerable if there is no specific weakness
-    if ( IDSZ_NONE == vulnie ) return false;
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(test_profile);
-    if (nullptr == profile) return false;
-
-    // check vs. every IDSZ that could have something to do with attacking
-    if ( vulnie == profile->getIDSZ(IDSZ_TYPE) ) return true;
-    if ( vulnie == profile->getIDSZ(IDSZ_PARENT) ) return true;
-
-    return false;
-}
-
 //--------------------------------------------------------------------------------------------
 void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
 {

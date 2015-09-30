@@ -530,4 +530,9 @@ float Enchantment::getMissileTreatmentCost() const
     return _missileTreatmentCost;
 }
 
+const std::forward_list<EnchantModifier>& Enchantment::getModifiers() const
+{
+    return _modifiers;
+}
+
 } //Ego

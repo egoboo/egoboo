@@ -1114,12 +1114,12 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFID:
                 varname = "SELFID";
-				iTmp = chr_get_idsz(aiState.index, IDSZ_TYPE);
+				iTmp = pchr->getProfile()->getIDSZ(IDSZ_TYPE);
                 break;
 
             case VARSELFHATEID:
                 varname = "SELFHATEID";
-				iTmp = chr_get_idsz(aiState.index, IDSZ_HATE);
+				iTmp = pchr->getProfile()->getIDSZ(IDSZ_HATE);
                 break;
 
             case VARSELFMANA:

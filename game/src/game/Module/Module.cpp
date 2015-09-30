@@ -512,5 +512,32 @@ const oglx_texture_t* GameModule::getWaterTexture(const uint8_t layer)
     return _waterTextures[layer].get_ptr();
 }
 
+void GameModule::updateAllObjects()
+{
+   for(const std::shared_ptr<Object> &object : getObjectHandler().iterator())
+    {
+        //Skip terminated objects
+        if(object->isTerminated()) {
+            continue;
+        }
+
+        //Update object logic
+        object->update();
+
+        //Check if this object should be poofed (destroyed)
+        bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
+        if (timeOut) {
+            object->requestTerminate();
+        }
+    }
+
+    // fix the stat timer
+    if ( clock_chr_stat >= ONESECOND )
+    {
+        // Reset the clock
+        clock_chr_stat -= ONESECOND;
+    }    
+}
+
 /// @todo Remove this global.
 std::unique_ptr<GameModule> _currentModule = nullptr;

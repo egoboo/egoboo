@@ -187,6 +187,12 @@ public:
      const oglx_texture_t* getTileTexture(const size_t index);
      const oglx_texture_t* getWaterTexture(const uint8_t layer);
 
+    /**
+    * @brief
+    *   Update all active objects in the module
+    **/
+    void updateAllObjects();
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module

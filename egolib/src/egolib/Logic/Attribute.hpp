@@ -123,6 +123,27 @@ namespace Attribute
             case MAX_MANA:    return "Mana";
             case MAX_LIFE:    return "Life";
 
+            case NUMBER_OF_JUMPS: return "Number of Jumps";
+            case FLY_TO_HEIGHT: return "Levitation";
+            case WALK_ON_WATER: return "Waterwalking";
+            case SEE_INVISIBLE: return "See Invisible";
+            case CHANNEL_LIFE: return "Life Channeling";
+            case JUMP_POWER: return "Jump Power";
+            case DAMAGE_BONUS: return "Damage Bonus";
+            case SIZE: return "Size";
+            case ACCELERATION: return "Speed";
+            case DEFENCE: return "Defence";
+            case SLASH_RESIST: return "Slash Resist";
+            case CRUSH_RESIST: return "Crush Resist";
+            case POKE_RESIST: return "Poke Resist";
+            case EVIL_RESIST: return "Evil Resist";
+            case HOLY_RESIST: return "Holy Resist";
+            case FIRE_RESIST: return "Fire Resist";
+            case ICE_RESIST: return "Ice Resist";
+            case ZAP_RESIST: return "Zap Resist";
+            case DARKVISION: return "Darkvision";
+            case SENSE_KURSES: return "Sense Kurses";
+
             default:
             case NR_OF_ATTRIBUTES: throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
         }
@@ -191,4 +212,17 @@ namespace Attribute
         }
     }
 }
+}
+
+//Hash specialization to allow AttributeType to be hashed by std::containers
+namespace std
+{
+    template <> 
+    struct hash<Ego::Attribute::AttributeType>
+    {
+        size_t operator()(const Ego::Attribute::AttributeType& v) const
+        {
+            return hash<size_t>()(static_cast<size_t>(v));
+        }
+    };
 }

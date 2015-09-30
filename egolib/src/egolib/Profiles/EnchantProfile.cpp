@@ -50,7 +50,9 @@ eve_t::eve_t() : AbstractProfile(),
     endsound_index(-1),
     killtargetonend(false),
     poofonend(false),
-    endmessage(-1)
+    endmessage(-1),
+
+    _enchantName()
 {
     //ctor
 }
@@ -96,4 +98,14 @@ void eve_t::reset()
     lifetime = 0;
     endIfCannotPay = false;
     removedByIDSZ = IDSZ_NONE;
+}
+
+const std::string& eve_t::getEnchantName() const
+{
+    return _enchantName;
+}
+
+void eve_t::setEnchantName(const std::string& name)
+{
+    _enchantName = name;
 }

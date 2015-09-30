@@ -187,24 +187,15 @@ CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_
             // It needs to have a specific item as well
             else
             {
-                // I: Check left hand
-                if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_LEFT], require_item ) )
-                {
-                    // It has the item...
+                // I: Check hands
+                if(pchr->isWieldingItemIDSZ(require_item)) {
                     return character;
                 }
-
-                // II: Check right hand
-                if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_RIGHT], require_item ) )
-                {
-                    // It has the item...
-                    return character;
-                }
-
-                // III: Check the pack
+                
+                // II: Check the pack
                 for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
                 {
-                    if ( chr_is_type_idsz( pitem->getCharacterID(), require_item ) )
+                    if ( pitem->getProfile()->hasTypeIDSZ(require_item) )
                     {
                         // It has the ipacked in inventory...
                         return character;
