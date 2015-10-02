@@ -69,19 +69,35 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // basic constants
 
-#if !defined(RAD_TO_FACING)
-    //UINT16_MAX / 2PI
-#   define RAD_TO_FACING(XX)     ( (XX) * 10430.378350470452724949566316381f )
-#endif
-
-#if !defined(FACING_TO_RAD)
-    //2PI / UINT16_MAX
-#   define FACING_TO_RAD(XX)     ( (XX) * 0.000095873799242852576857380474343257f )
-#endif
+/**
+ * @brief
+ *  Convert an angle from radians to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
+ * @param x
+ *  the angle in radians
+ * @return
+ *  the angle in "facing"
+ */
+inline FACING_T RAD_TO_FACING(float x) {
+	// UINT16_MAX / (2 * PI).
+	return x * 10430.378350470452724949566316381f;
+}
 
 /**
  * @brief
- *  Convert an angle from turns to "facing" (some custom Egoboo unit in the interval \f$[0,2^16]\f$).
+ *  Convert an angle "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$) to radians.
+ * @param x
+ *  the angle in facing
+ * @return
+ *  the angle in radians
+ */
+inline float FACING_TO_RAD(FACING_T facing) {
+	// (2 * PI) / UINT16_MAX
+	return facing * 0.000095873799242852576857380474343257f;
+}
+
+/**
+ * @brief
+ *  Convert an angle from turns to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
  * @param x
  *  the angle in turns
  * @return
@@ -93,14 +109,14 @@ inline FACING_T TurnsToFacing(float x) {
 
 /**
  * @brief
- *  Convert an angle from "facing" (some custom Egoboo unit in the interval \f$[0,2^16]\f$)) to turns.
+ *  Convert an angle from "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$)) to turns.
  * @param x
  *	the angle in "facing"
  * @return
  *  the angle in turns
  */
 inline float FacingToTurns(FACING_T x) {
-	return ((float)CLIP_TO_16BITS(XX) / (float)0x00010000);
+	return ((float)CLIP_TO_16BITS(x) / (float)0x00010000);
 }
 
 /**
