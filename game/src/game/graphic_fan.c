@@ -105,7 +105,7 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     image    = frame_add + basetile;
 
     // actually update the animated texture info
-    return ego_mesh_set_texture( mesh, itile, image );
+    return ego_mesh_t::set_texture( mesh, itile, image );
 }
 
 //--------------------------------------------------------------------------------------------

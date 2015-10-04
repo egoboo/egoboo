@@ -663,8 +663,7 @@ public:
 	/// @brief Remove extra ambient light in the lightmap.
     void remove_ambient();
 	void recalc_twist();
-	void make_texture();
-    static ego_mesh_t *finalize(ego_mesh_t *self);
+    void finalize();
     void test_one_corner(GLXvector3f pos, float *pdelta);
     
     bool light_one_corner(ego_tile_info_t *ptile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float * plight);
@@ -728,7 +727,7 @@ public:
 
 	bool clear_fx(const TileIndex& index, const BIT_FIELD flags);
 	bool add_fx(const TileIndex& index, const BIT_FIELD flags);
-	static Uint8 get_twist(ego_mesh_t *self, const TileIndex& index);
+	Uint8 get_twist(const TileIndex& index) const;
 
 	/// @todo @a pos and @a radius should be passed as a sphere.
 	BIT_FIELD hit_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t *private_data) const;
@@ -758,7 +757,11 @@ public:
 	 **/
 	float getElevation(const PointWorld& point) const;
 
-	static bool tile_has_bits(std::shared_ptr<const ego_mesh_t> mesh, const PointGrid& point, const BIT_FIELD bits);
+	bool tile_has_bits(const PointGrid& point, const BIT_FIELD bits) const;
+
+	void make_texture();
+	static bool set_texture(ego_mesh_t *self, const TileIndex& tile, Uint16 image);
+	static bool update_texture(ego_mesh_t *self, const TileIndex& tile);
 
 };
 
@@ -794,17 +797,10 @@ float ego_mesh_light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool refle
 bool ego_mesh_interpolate_vertex(tile_mem_t *self, ego_tile_info_t *tile, float pos[], float *plight);
 bool grid_light_one_corner(const ego_mesh_t& self, const TileIndex& fan, float height, float nrm[], float *plight);
 
-bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& tile, Uint16 image);
-bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& tile);
-bool ego_mesh_update_water_level(ego_mesh_t *self);
-
 void mesh_texture_invalidate();
 oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
 
-
 Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

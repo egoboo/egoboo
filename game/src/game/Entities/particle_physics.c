@@ -70,7 +70,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
         itile = loc_pprt->getTile();
     }
 
-    penviro->twist = ego_mesh_t::get_twist(_currentModule->getMeshPointer().get(), itile);
+    penviro->twist = _currentModule->getMeshPointer()->get_twist(itile);
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water._is_water && penviro->inwater;

@@ -1670,7 +1670,7 @@ void tilt_characters_to_terrain()
 
         if ( object->getProfile()->hasStickyButt() )
         {
-            twist = ego_mesh_t::get_twist( _currentModule->getMeshPointer().get(), object->getTile() );
+            twist = _currentModule->getMeshPointer()->get_twist( object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
             object->ori.map_twist_facing_x = map_twist_facing_x[twist];
         }
@@ -3913,8 +3913,6 @@ void water_instance_t::set_douse_level(float level)
     for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i) {
         _layers[i]._z += dlevel;
     }
-
-    ego_mesh_update_water_level(_currentModule->getMeshPointer().get());
 }
 
 float water_instance_t::get_level() const

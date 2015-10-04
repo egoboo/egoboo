@@ -311,8 +311,7 @@ void ego_mesh_t::recalc_twist()
     }
 }
 
-//--------------------------------------------------------------------------------------------
-bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& index, Uint16 image)
+bool ego_mesh_t::set_texture(ego_mesh_t *self, const TileIndex& index, Uint16 image)
 {
 	if (nullptr == self) {
 		throw std::invalid_argument("nullptr == self");
@@ -331,11 +330,10 @@ bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& index, Uint16 image
     self->_tmem.getTile(index.getI())->_img = tile_upper | tile_lower;
 
     // Update the pre-computed texture info.
-    return ego_mesh_update_texture(self, index);
+    return ego_mesh_t::update_texture(self, index);
 }
 
-//--------------------------------------------------------------------------------------------
-bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& index)
+bool ego_mesh_t::update_texture(ego_mesh_t *self, const TileIndex& index)
 {
 	if (nullptr == self) {
 		throw std::invalid_argument("nullptr == self");
@@ -366,32 +364,26 @@ bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& index)
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
 void ego_mesh_t::make_texture()
 {
     // Set the texture coordinate for every vertex.
     for (TileIndex index = 0; index < _info._tiles_count; ++index)
     {
-        ego_mesh_update_texture(this, index);
+        ego_mesh_t::update_texture(this, index);
     }
 }
 
-//--------------------------------------------------------------------------------------------
-ego_mesh_t * ego_mesh_t::finalize( ego_mesh_t * mesh )
+void ego_mesh_t::finalize()
 {
-    if ( NULL == mesh ) return NULL;
-
-    ego_mesh_make_vrtstart( mesh );
-	mesh->remove_ambient();
-	mesh->recalc_twist();
-    ego_mesh_make_normals( mesh );
-    ego_mesh_make_bbox( mesh );
-	mesh->make_texture();
+    ego_mesh_make_vrtstart( this );
+	this->remove_ambient();
+	this->recalc_twist();
+    ego_mesh_make_normals(this);
+    ego_mesh_make_bbox(this);
+	this->make_texture();
 
     // create some lists to make searching the mesh tiles easier
-    mesh->_fxlists.synch( mesh->_gmem, true );
-
-    return mesh;
+	this->_fxlists.synch(this->_gmem, true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -499,52 +491,9 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 		log_error("%s:%d: %s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
-	if (!ego_mesh_t::finalize(mesh.get()))
-	{
-		std::ostringstream os;
-		os << "unable to finalize mesh of module `" << moduleName << "`";
-		log_error("%s:%d: %s\n", os.str().c_str());
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
-	}
+	mesh->finalize();
 	return mesh;
 }
-
-#if 0
-ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * mesh )
-{
-    // trap bad module names
-    if ( !VALID_CSTR( modname ) ) return mesh;
-
-    // initialize the mesh
-    {
-        // clear and free any memory that has been allocated
-        *mesh = ego_mesh_t();
-    }
-
-    // actually do the loading
-    {
-        map_t local_mpd;
-
-        // load a raw mpd
-        tile_dictionary_load_vfs( "mp_data/fans.txt", &tile_dict, -1 );
-        if (!local_mpd.load("mp_data/level.mpd"))
-        {
-            return nullptr;
-        }
-
-        // convert it into a convenient version for Egoboo
-        if (!ego_mesh_convert(mesh, &local_mpd))
-        {
-            return nullptr;
-        }
-    }
-
-    // do some calculation to set up the mpd as a game mesh
-    mesh = ego_mesh_t::finalize( mesh );
-
-    return mesh;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1878,19 +1827,6 @@ ego_grid_info_t::~ego_grid_info_t() {
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_update_water_level( ego_mesh_t * mesh )
-{
-    // BB>
-    // TODO: WHEN we begin using the map_BSP for frustum culling, we need to
-    // update the bounding box height for every single water tile and then re-insert them in the mpd
-    // AT THE MOMENT, this is not done and the increased bounding height due to water is handled elsewhere
-
-    if ( NULL == mesh ) return false;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 
 mpdfx_list_ary_t::mpdfx_list_ary_t()
 	: _cnt(0), _lst(nullptr), _idx(0) {
@@ -2120,22 +2056,19 @@ bool mpdfx_lists_t::synch( const grid_mem_t& gmem, bool force )
 //--------------------------------------------------------------------------------------------
 //Previously inlined
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::tile_has_bits( std::shared_ptr<const ego_mesh_t> mesh, const PointGrid& point, const BIT_FIELD bits )
+bool ego_mesh_t::tile_has_bits( const PointGrid& point, const BIT_FIELD bits ) const
 {
-	if (!mesh) {
-		throw std::invalid_argument("nullptr == mesh");
-	}
     // Figure out which tile we are on.
-    TileIndex tileRef = mesh->get_tile_int(point);
+    TileIndex tileRef = get_tile_int(point);
 
     // Everything outside the map bounds is wall and impassable.
-    if (!mesh->grid_is_valid(tileRef))
+    if (!grid_is_valid(tileRef))
     {
         return HAS_SOME_BITS((MAPFX_IMPASS | MAPFX_WALL), bits);
     }
 
     // Since we KNOW that this is in range, allow raw access to the data structure.
-    GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(mesh->_gmem.get(tileRef));
+    GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(_gmem.get(tileRef));
 
     return HAS_SOME_BITS(fx, bits);
 }
@@ -2331,21 +2264,21 @@ const ego_grid_info_t *ego_mesh_t::get_pgrid(const TileIndex& index) const
     return _gmem.get(index);
 }
 
-Uint8 ego_mesh_t::get_twist(ego_mesh_t *self, const TileIndex& index)
+Uint8 ego_mesh_t::get_twist(const TileIndex& index) const
 {
     // Validate arguments.
-    if (!self || index >= self->_info._tiles_count)
+    if (index >= _info._tiles_count)
     {
         return TWIST_FLAT;
     }
-    return self->_gmem.get(index)->_twist;
+    return _gmem.get(index)->_twist;
 #if 0
     // Assert that the grids are allocated.
-    if (!self->gmem.grid_list || index.getI() >= self->gmem.grid_count)
+    if (!_gmem.grid_list || index.getI() >= _gmem.grid_count)
     {
         return TWIST_FLAT;
     }
-    return self->gmem.grid_list[index].twist;
+    return _gmem.grid_list[index].twist;
 #endif
 }
 

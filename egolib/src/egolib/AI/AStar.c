@@ -109,6 +109,10 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
     float weight;
     ego_tile_info_t * ptile;
 
+	// do not start if there is no mesh
+	if (!mesh) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
     // do not start if the initial point is off the mesh
     if (TileIndex::Invalid == mesh->get_tile_int(PointGrid(src_ix, src_iy)))
     {
@@ -119,7 +123,7 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
     }
 
     //be a bit flexible if the destination is inside a wall
-    if ( ego_mesh_t::tile_has_bits( mesh, PointGrid(dst_ix, dst_iy), stoppedby ) )
+    if ( mesh->tile_has_bits( PointGrid(dst_ix, dst_iy), stoppedby ) )
     {
         //check all tiles edging to this one, including corners
         for ( j = -1; j <= 1; j++ )
@@ -129,7 +133,7 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
                 if ( j == 0 && k == 0 ) continue;
 
                 //Did we find a free tile?
-                if ( !ego_mesh_t::tile_has_bits( mesh, PointGrid(dst_ix + j, dst_iy + k), stoppedby ) )
+                if ( !mesh->tile_has_bits(PointGrid(dst_ix + j, dst_iy + k), stoppedby ) )
                 {
                     dst_ix = dst_ix + j;
                     dst_iy = dst_iy + k;
@@ -225,7 +229,7 @@ flexible_destination:
                     }
 
                     // is this a wall or impassable?
-                    if ( ego_mesh_t::tile_has_bits( mesh, PointGrid(tmp_x, tmp_y), stoppedby ) )
+                    if ( mesh->tile_has_bits( PointGrid(tmp_x, tmp_y), stoppedby ) )
                     {
                         // add the invalid tile to the list as a closed tile
                         AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );
