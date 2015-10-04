@@ -69,7 +69,7 @@ void Passage::open()
             for ( int x = _area._left; x <= _area._right; x++ )
             {
                 //clear impassable and wall bits
-				ego_mesh_t *mesh = _currentModule->getMeshPointer();
+				auto mesh = _currentModule->getMeshPointer();
                 TileIndex fan = mesh->get_tile_int(PointGrid(x, y));
 				mesh->clear_fx( fan, MAPFX_WALL | MAPFX_IMPASS );
             }

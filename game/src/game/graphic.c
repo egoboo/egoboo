@@ -197,7 +197,6 @@ static gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& camera)
 static gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& camera);
 static gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& camera);
 
-static float draw_one_xp_bar(float x, float y, Uint8 ticks);
 static float draw_fps(float y);
 static float draw_help(float y);
 static float draw_debug(float y);
@@ -804,335 +803,6 @@ float draw_game_icon(const oglx_texture_t* icontype, float x, float y, Uint8 spa
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_one_xp_bar(float x, float y, Uint8 ticks)
-{
-    /// @author ZF
-    /// @details This function draws a xp bar and returns the y position for the next one
-
-    const std::shared_ptr<oglx_texture_t> &texture = TextureManager::get().getTexture("mp_data/xpbar");
-
-    int width, height;
-    Uint8 cnt;
-    ego_frect_t tx_rect, sc_rect;
-
-    ticks = std::min(ticks, (Uint8)NUMTICK);
-
-    Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-
-    //---- Draw the tab (always colored)
-
-    width = 16;
-    height = XPTICK;
-
-    tx_rect.xmin = 0;
-    tx_rect.xmax = 32.00f / 128;
-    tx_rect.ymin = XPTICK / 16;
-    tx_rect.ymax = XPTICK * 2 / 16;
-
-    sc_rect.xmin = x;
-    sc_rect.xmax = x + width;
-    sc_rect.ymin = y;
-    sc_rect.ymax = y + height;
-
-    draw_quad_2d(texture.get(), sc_rect, tx_rect, true);
-
-    x += width;
-
-    //---- Draw the filled ones
-    tx_rect.xmin = 0.0f;
-    tx_rect.xmax = 32 / 128.0f;
-    tx_rect.ymin = XPTICK / 16.0f;
-    tx_rect.ymax = 2 * XPTICK / 16.0f;
-
-    width = XPTICK;
-    height = XPTICK;
-
-    for (cnt = 0; cnt < ticks; cnt++)
-    {
-        sc_rect.xmin = x + (cnt * width);
-        sc_rect.xmax = x + (cnt * width) + width;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + height;
-
-        draw_quad_2d(texture.get(), sc_rect, tx_rect, true);
-    }
-
-    //---- Draw the remaining empty ones
-    tx_rect.xmin = 0;
-    tx_rect.xmax = 32 / 128.0f;
-    tx_rect.ymin = 0;
-    tx_rect.ymax = XPTICK / 16.0f;
-
-    for ( /*nothing*/; cnt < NUMTICK; cnt++)
-    {
-        sc_rect.xmin = x + (cnt * width);
-        sc_rect.xmax = x + (cnt * width) + width;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + height;
-
-        draw_quad_2d(texture.get(), sc_rect, tx_rect, true);
-    }
-
-    return y + height;
-}
-
-//--------------------------------------------------------------------------------------------
-float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxticks)
-{
-    /// @author ZZ
-    /// @details This function draws a bar and returns the y position for the next one
-
-    const float scale = 1.0f;
-
-    float       width, height;
-    ego_frect_t tx_rect, sc_rect;
-
-    float tx_width, tx_height, img_width;
-    float tab_width, tick_width, tick_height;
-
-    int total_ticks = maxticks;
-    int tmp_bartype = bartype;
-
-    float x_left = x_stt;
-    float x = x_stt;
-    float y = y_stt;
-
-    if (maxticks <= 0 || ticks < 0 || bartype > NUMBAR) return y;
-
-    // limit the values to reasonable ones
-    if (total_ticks > MAXTICK) total_ticks = MAXTICK;
-    if (ticks > total_ticks) ticks = total_ticks;
-
-    // grab a pointer to the bar texture
-    const std::shared_ptr<oglx_texture_t> &tx_ptr = TextureManager::get().getTexture("mp_data/bars");
-
-    // allow the bitmap to be scaled to arbitrary size
-    tx_width = 128.0f;
-    tx_height = 128.0f;
-    img_width = 112.0f;
-    if (NULL != tx_ptr)
-    {
-        tx_width = tx_ptr->getWidth();
-        tx_height = tx_ptr->getHeight();
-        img_width = tx_ptr->getSourceWidth();
-    }
-
-    // calculate the bar parameters
-    tick_width = img_width / 14.0f;
-    tick_height = img_width / 7.0f;
-    tab_width = img_width / 3.5f;
-
-    //---- Draw the tab
-    tmp_bartype = bartype;
-
-    tx_rect.xmin = 0.0f / tx_width;
-    tx_rect.xmax = tab_width / tx_width;
-    tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-    tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
-
-    width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-    height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
-
-    sc_rect.xmin = x;
-    sc_rect.xmax = x + width;
-    sc_rect.ymin = y;
-    sc_rect.ymax = y + height;
-
-    draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
-
-    // make the new left-hand margin after the tab
-    x_left = x_stt + width;
-    x = x_left;
-
-    //---- Draw the full rows of ticks
-    while (ticks >= NUMTICK)
-    {
-        tmp_bartype = bartype;
-
-        tx_rect.xmin = tab_width / tx_width;
-        tx_rect.xmax = img_width / tx_width;
-        tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
-
-        width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-        height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
-
-        sc_rect.xmin = x;
-        sc_rect.xmax = x + width;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + height;
-
-        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
-
-        y += height;
-        ticks -= NUMTICK;
-        total_ticks -= NUMTICK;
-    }
-
-    if (ticks > 0)
-    {
-        int full_ticks = NUMTICK - ticks;
-        int empty_ticks = NUMTICK - (std::min(NUMTICK, total_ticks) - ticks);
-
-        //---- draw a partial row of full ticks
-        tx_rect.xmin = tab_width / tx_width;
-        tx_rect.xmax = (img_width - tick_width * full_ticks) / tx_width;
-        tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
-
-        width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-        height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
-
-        sc_rect.xmin = x;
-        sc_rect.xmax = x + width;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + height;
-
-        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
-
-        // move to the right after drawing the full ticks
-        x += width;
-
-        //---- draw a partial row of empty ticks
-        tmp_bartype = 0;
-
-        tx_rect.xmin = tab_width / tx_width;
-        tx_rect.xmax = (img_width - tick_width * empty_ticks) / tx_width;
-        tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
-
-        width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-        height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
-
-        sc_rect.xmin = x;
-        sc_rect.xmax = x + width;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + height;
-
-        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
-
-        y += height;
-        ticks = 0;
-        total_ticks -= NUMTICK;
-    }
-
-    // reset the x position
-    x = x_left;
-
-    // Draw full rows of empty ticks
-    while (total_ticks >= NUMTICK)
-    {
-        tmp_bartype = 0;
-
-        tx_rect.xmin = tab_width / tx_width;
-        tx_rect.xmax = img_width / tx_width;
-        tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
-
-        width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-        height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
-
-        sc_rect.xmin = x;
-        sc_rect.xmax = x + width;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + height;
-
-        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
-
-        y += height;
-        total_ticks -= NUMTICK;
-    }
-
-    // Draw the last of the empty ones
-    if (total_ticks > 0)
-    {
-        int remaining = NUMTICK - total_ticks;
-
-        //---- draw a partial row of empty ticks
-        tmp_bartype = 0;
-
-        tx_rect.xmin = tab_width / tx_width;
-        tx_rect.xmax = (img_width - tick_width * remaining) / tx_width;
-        tx_rect.ymin = tick_height * (tmp_bartype + 0) / tx_height;
-        tx_rect.ymax = tick_height * (tmp_bartype + 1) / tx_height;
-
-        width = (tx_rect.xmax - tx_rect.xmin) * scale * tx_width;
-        height = (tx_rect.ymax - tx_rect.ymin) * scale * tx_height;
-
-        sc_rect.xmin = x;
-        sc_rect.xmax = x + width;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + height;
-
-        draw_quad_2d(tx_ptr.get(), sc_rect, tx_rect, true);
-
-        y += height;
-    }
-
-    return y;
-}
-
-//--------------------------------------------------------------------------------------------
-void draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_ammo, Uint8 draw_sparkle)
-{
-    /// @author BB
-    /// @details Draw an icon for the given item at the position <x,y>.
-    ///     If the object is invalid, draw the null icon instead of failing
-    ///     If NOSPARKLE is specified the default item sparkle will be used (default behaviour)
-
-    Object * pitem = !_currentModule->getObjectHandler().exists(item) ? NULL : _currentModule->getObjectHandler().get(item);
-
-    // grab the icon reference
-    const oglx_texture_t* icon_ref = chr_get_txtexture_icon_ref(item);
-
-    // draw the icon
-    if (draw_sparkle == NOSPARKLE) draw_sparkle = (NULL == pitem) ? NOSPARKLE : pitem->sparkle;
-    draw_game_icon(icon_ref, x, y, draw_sparkle, update_wld, -1);
-
-    // draw the ammo, if requested
-    if (draw_ammo && (NULL != pitem))
-    {
-        if (0 != pitem->ammomax && pitem->ammoknown)
-        {
-            if ((!pitem->getProfile()->isStackable()) || pitem->ammo > 1)
-            {
-                // Show amount of ammo left
-                draw_string_raw(x, y - 8, "%2d", pitem->ammo);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-float draw_character_xp_bar(const CHR_REF character, float x, float y)
-{
-    Object * pchr;
-
-    if (!_currentModule->getObjectHandler().exists(character)) return y;
-    pchr = _currentModule->getObjectHandler().get(character);
-
-    //Draw the small XP progress bar
-    if (pchr->experiencelevel < MAXLEVEL - 1)
-    {
-        uint8_t  curlevel = pchr->experiencelevel + 1;
-        uint32_t xplastlevel = pchr->getProfile()->getXPNeededForLevel(curlevel - 1);
-        uint32_t xpneed = pchr->getProfile()->getXPNeededForLevel(curlevel);
-
-        while (pchr->experience < xplastlevel && curlevel > 1) {
-            curlevel--;
-            xplastlevel = pchr->getProfile()->getXPNeededForLevel(curlevel - 1);
-        }
-
-        float fraction = ((float)(pchr->experience - xplastlevel)) / (float)std::max<uint32_t>(xpneed - xplastlevel, 1);
-        int   numticks = fraction * NUMTICK;
-
-        y = draw_one_xp_bar(x, y, CLIP(numticks, 0, NUMTICK));
-    }
-
-    return y;
-}
-
-//--------------------------------------------------------------------------------------------
 float draw_fps(float y)
 {
     // FPS text
@@ -1415,11 +1085,10 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
         }
     }
 
-    ego_mesh_t *mesh = tl.getMesh();
+    auto& mesh = tl.getMesh();
     if (!mesh)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "tile list is not attached to a mesh");
-        return gfx_error;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
     }
 
     {
@@ -1491,7 +1160,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     retval = gfx_success;
     //--------------------------------
     // advance the animation of all animated tiles
-    animate_all_tiles(tl._mesh);
+    animate_all_tiles(tl._mesh.get());
 
 	// Render non-reflective tiles.
 	Ego::Graphics::RenderPasses::g_nonReflective.run(cam, tl, el);
@@ -1707,36 +1376,24 @@ void gfx_error_clear()
 //--------------------------------------------------------------------------------------------
 // grid_lighting FUNCTIONS
 //--------------------------------------------------------------------------------------------
-float grid_lighting_test(ego_mesh_t * mesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
+float grid_lighting_test(ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
 {
-    int ix, iy, cnt;
+    const lighting_cache_t *cache_list[4];
 
-    float u, v;
-
-    const lighting_cache_t * cache_list[4];
-    ego_grid_info_t  * pgrid;
-
-    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
-    if (NULL == mesh)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
-        return 0.0f;
-    }
-
-    ix = std::floor(pos[XX] / Info<float>::Grid::Size());
-    iy = std::floor(pos[YY] / Info<float>::Grid::Size());
+    int ix = std::floor(pos[XX] / Info<float>::Grid::Size());
+    int iy = std::floor(pos[YY] / Info<float>::Grid::Size());
 
     TileIndex fan[4];
-    fan[0] = mesh->get_tile_int(PointGrid(ix, iy));
-    fan[1] = mesh->get_tile_int(PointGrid(ix + 1, iy));
-    fan[2] = mesh->get_tile_int(PointGrid(ix, iy + 1));
-    fan[3] = mesh->get_tile_int(PointGrid(ix + 1, iy + 1));
+    fan[0] = mesh.get_tile_int(PointGrid(ix, iy));
+    fan[1] = mesh.get_tile_int(PointGrid(ix + 1, iy));
+    fan[2] = mesh.get_tile_int(PointGrid(ix, iy + 1));
+    fan[3] = mesh.get_tile_int(PointGrid(ix + 1, iy + 1));
 
-    for (cnt = 0; cnt < 4; cnt++)
+    for (size_t cnt = 0; cnt < 4; cnt++)
     {
         cache_list[cnt] = NULL;
 
-        pgrid = mesh->get_pgrid(fan[cnt]);
+		ego_grid_info_t  *pgrid = mesh.get_pgrid(fan[cnt]);
         if (NULL == pgrid)
         {
             cache_list[cnt] = NULL;
@@ -1747,14 +1404,14 @@ float grid_lighting_test(ego_mesh_t * mesh, GLXvector3f pos, float * low_diff, f
         }
     }
 
-    u = pos[XX] / Info<float>::Grid::Size() - ix;
-    v = pos[YY] / Info<float>::Grid::Size() - iy;
+    float u = pos[XX] / Info<float>::Grid::Size() - ix;
+    float v = pos[YY] / Info<float>::Grid::Size() - iy;
 
     return lighting_cache_test(cache_list, u, v, low_diff, hgh_diff);
 }
 
 //--------------------------------------------------------------------------------------------
-bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, const Vector2f& pos)
+bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t& dst, const Vector2f& pos)
 {
     int ix, iy, cnt;
     TileIndex fan[4];
@@ -1764,16 +1421,10 @@ bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, 
     const ego_grid_info_t  * pgrid;
     const lighting_cache_t * cache_list[4];
 
-    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
+    if (NULL == mesh) mesh = _currentModule->getMeshPointer().get();
     if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
-        return false;
-    }
-
-    if (NULL == dst)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "no valid lighting cache");
         return false;
     }
 
@@ -1920,15 +1571,13 @@ void _flip_pages()
 //--------------------------------------------------------------------------------------------
 gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold)
 {
-    grid_mem_t * pgmem = NULL;
     bool       retval = false;
 
-    if (NULL == mesh)
+    if (!mesh)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "no valid mesh");
-        return gfx_error;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
     }
-    pgmem = &(mesh->gmem);
+	grid_mem_t& pgmem = mesh->_gmem;
 
     if (NULL == ptile)
     {
@@ -1947,8 +1596,8 @@ gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, in
         int ix, iy;
 
         // use a kind of checkerboard pattern
-        ix = fan % pgmem->_grids_x;
-        iy = fan / pgmem->_grids_x;
+        ix = fan % pgmem._grids_x;
+        iy = fan / pgmem._grids_x;
         if (0 != (((ix ^ iy) + game_frame_all) & 0x03))
         {
             retval = true;
@@ -1981,11 +1630,10 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
     /// which means that the threshold could be set as low as 1/64 = 0.015625.
     const float delta_threshold = 0.05f;
 
-    ego_mesh_t *mesh = tl.getMesh();
-    if (NULL == mesh)
+    auto& mesh = tl.getMesh();
+    if (!mesh)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
-        return gfx_error;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not attached to a mesh");
     }
 
 #if defined(CLIP_ALL_LIGHT_FANS)
@@ -2033,7 +1681,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         if (!ptile->_request_lcache_update)
         {
             // is someone else did not request an update, do we need an one?
-            gfx_rv light_fans_rv = light_fans_throttle_update(mesh, ptile, fan, delta_threshold);
+            gfx_rv light_fans_rv = light_fans_throttle_update(mesh.get(), ptile, fan, delta_threshold);
             ptile->_request_lcache_update = (gfx_success == light_fans_rv);
         }
 
@@ -2045,7 +1693,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
-        delta = ego_mesh_light_corners(tl._mesh, ptile, reflective, local_mesh_lighting_keep);
+        delta = ego_mesh_light_corners(tl._mesh.get(), ptile, reflective, local_mesh_lighting_keep);
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to
@@ -2071,20 +1719,17 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
     int ivrt, vertex;
     float light;
 
-    ego_tile_info_t   * ptile = NULL;
-    ego_mesh_t         * mesh = NULL;
-    tile_mem_t        * ptmem = NULL;
-    tile_definition_t * pdef = NULL;
+    ego_tile_info_t   *ptile = NULL;
+    tile_definition_t *pdef = NULL;
 
-    mesh = tl.getMesh();
-    if (NULL == mesh)
+    auto& mesh = tl.getMesh();
+    if (!mesh)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
-        return gfx_error;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
     }
 
     // alias the tile memory
-    ptmem = &(mesh->tmem);
+	tile_mem_t& ptmem = mesh->_tmem;
 
     // assume the best
     retval = gfx_success;
@@ -2128,7 +1773,7 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
         // copy the 1st 4 vertices
         for (ivrt = 0, vertex = ptile->_vrtstart; ivrt < 4; ivrt++, vertex++)
         {
-            GLXvector3f * pcol = ptmem->_clst + vertex;
+            GLXvector3f * pcol = ptmem._clst + vertex;
 
             light = ptile->_lcache[ivrt];
 
@@ -2139,11 +1784,11 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
         {
             bool was_calculated;
 
-			GLXvector3f *pcol = ptmem->_clst + vertex;
-			GLXvector3f *ppos = ptmem->_plst + vertex;
+			GLXvector3f *pcol = ptmem._clst + vertex;
+			GLXvector3f *ppos = ptmem._plst + vertex;
 
             light = 0;
-            was_calculated = ego_mesh_interpolate_vertex(ptmem, ptile, *ppos, &light);
+            was_calculated = ego_mesh_interpolate_vertex(&ptmem, ptile, *ppos, &light);
             if (!was_calculated) continue;
 
             (*pcol)[RR] = (*pcol)[GG] = (*pcol)[BB] = INV_FF * CLIP(light, 0.0f, 255.0f);
@@ -2293,10 +1938,10 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
     {
         if(particle->isTerminated()) continue;
         
-        dynalight_info_t * pprt_dyna = &(particle->dynalight);
+        dynalight_info_t& pprt_dyna = particle->dynalight;
 
         // is the light on?
-        if (!pprt_dyna->on || 0.0f == pprt_dyna->level) continue;
+        if (!pprt_dyna.on || 0.0f == pprt_dyna.level) continue;
 
         // reset the dynalight pointer
         plight = NULL;
@@ -2347,8 +1992,8 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
         {
             plight->distance = distance;
             plight->pos = particle->getPosition();
-            plight->level = pprt_dyna->level;
-            plight->falloff = pprt_dyna->falloff;
+            plight->level = pprt_dyna.level;
+            plight->falloff = pprt_dyna.falloff;
         }
     }
 
@@ -2381,16 +2026,15 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 
     dynalight_data_t fake_dynalight;
 
-	ego_mesh_t *mesh = tl.getMesh();
-    if (NULL == mesh)
+	auto& mesh = tl.getMesh();
+    if (!mesh)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
-        return gfx_error;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not attached to a mesh");
     }
 
-	ego_mesh_info_t *pinfo = &(mesh->info);
-	grid_mem_t& pgmem = mesh->gmem;
-	tile_mem_t& ptmem = mesh->tmem;
+	ego_mesh_info_t& pinfo = mesh->_info;
+	grid_mem_t& pgmem = mesh->_gmem;
+	tile_mem_t& ptmem = mesh->_tmem;
 
     // find a bounding box for the "frustum"
     mesh_bound.xmin = pgmem._edge_x;
@@ -2400,7 +2044,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
         TileIndex fan = tl._all.lst[entry].index;
-        if (fan.getI() >= pinfo->_tiles_count) continue;
+        if (fan.getI() >= pinfo._tiles_count) continue;
 
         poct = &(ptmem.get(fan)->_oct);
 
@@ -2424,7 +2068,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     needs_dynalight = false;
 
     // assume no "extra help" for systems with only flat lighting
-    dynalight_data_t::init(&fake_dynalight);
+    dynalight_data_t::init(fake_dynalight);
 
     // initialize the light_bound
     light_bound.xmin = pgmem._edge_x;
@@ -2553,8 +2197,8 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         // do not update this more than once a frame
         if (pgrid->_cache_frame >= 0 && (Uint32)pgrid->_cache_frame >= game_frame_all) continue;
 
-        ix = fan.getI() % pinfo->_tiles_x;
-        iy = fan.getI() / pinfo->_tiles_x;
+        ix = fan.getI() % pinfo._tiles_x;
+        iy = fan.getI() / pinfo._tiles_x;
 
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that
@@ -2564,10 +2208,10 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         if (resist_lighting_calculation) continue;
 
         // this is not a "bad" grid box, so grab the lighting info
-        lighting_cache_t *pcache_old = &(pgrid->_cache);
+        lighting_cache_t& pcache_old = pgrid->_cache;
 
         lighting_cache_t cache_new;
-        lighting_cache_t::init(&cache_new);
+        lighting_cache_t::init(cache_new);
 
         // copy the global lighting
         for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
@@ -2638,7 +2282,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 
         // blend in the global lighting every single time
         // average this in with the existing lighting
-        lighting_cache_t::blend(pcache_old, &cache_new, local_keep);
+        lighting_cache_t::blend(pcache_old, cache_new, local_keep);
 
         // find the max intensity
         lighting_cache_t::max_light(pcache_old);
@@ -2666,14 +2310,14 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
     }
 
     // get the tiles in the center of the view (TODO: calculate actual tile view from camera frustrum)
-    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / Info<float>::Grid::Size() - 10, 0, _currentModule->getMeshPointer()->info._tiles_x);
-    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / Info<float>::Grid::Size() - 10, 0, _currentModule->getMeshPointer()->info._tiles_y);
-    int endX = Ego::Math::constrain<int>(startX + 20, 0, _currentModule->getMeshPointer()->info._tiles_x);
-    int endY = Ego::Math::constrain<int>(startY + 20, 0, _currentModule->getMeshPointer()->info._tiles_y);
+    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / Info<float>::Grid::Size() - 10, 0, _currentModule->getMeshPointer()->_info._tiles_x);
+    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / Info<float>::Grid::Size() - 10, 0, _currentModule->getMeshPointer()->_info._tiles_y);
+    int endX = Ego::Math::constrain<int>(startX + 20, 0, _currentModule->getMeshPointer()->_info._tiles_x);
+    int endY = Ego::Math::constrain<int>(startY + 20, 0, _currentModule->getMeshPointer()->_info._tiles_y);
 
     for(size_t x = startX; x < endX; ++x) {
         for(size_t y = startY; y < endY; ++y) {
-            if (gfx_error == tl.add(x + y*_currentModule->getMeshPointer()->info._tiles_y, cam))
+            if (gfx_error == tl.add(x + y*_currentModule->getMeshPointer()->_info._tiles_y, cam))
             {
                 return gfx_error;
             }        
@@ -2846,7 +2490,7 @@ gfx_rv gfx_update_all_chr_instance()
             continue;
         }
 
-		ego_mesh_t *mesh = _currentModule->getMeshPointer();
+		auto& mesh = _currentModule->getMeshPointer();
         if (!mesh->grid_is_valid(pchr->getTile())) continue;
 
         tmp_rv = update_one_chr_instance(pchr.get());

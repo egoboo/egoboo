@@ -1000,8 +1000,8 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     tmp_pos[kX] += offset[kX];
     tmp_pos[kY] += offset[kY];
 
-    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->gmem._edge_x - 2.0f);
-    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->gmem._edge_y - 2.0f);
+    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_x - 2.0f);
+    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_y - 2.0f);
 
     setPosition(tmp_pos);
     pos_old = tmp_pos;
@@ -1314,7 +1314,7 @@ const std::shared_ptr<Object>& Particle::getTarget() const
 
 bool Particle::isOverWater() const
 {
-	ego_mesh_t *mesh = _currentModule->getMeshPointer();
+	auto& mesh = _currentModule->getMeshPointer();
     return (0 != mesh->test_fx(getTile(), MAPFX_WATER));
 }
 

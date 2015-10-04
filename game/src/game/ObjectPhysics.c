@@ -247,7 +247,7 @@ void move_one_character_do_voluntary( Object * pchr )
 void move_one_character_get_environment( Object * pchr )
 {
     if (!pchr || pchr->isTerminated()) return;
-	chr_environment_t *penviro = &( pchr->enviro );
+	chr_environment_t& enviro = pchr->enviro;
 
     // determine if the character is standing on a platform
 	Object *pplatform = NULL;
@@ -255,7 +255,7 @@ void move_one_character_get_environment( Object * pchr )
     {
         pplatform = _currentModule->getObjectHandler().get( pchr->onwhichplatform_ref );
     }
-	ego_mesh_t *mesh = _currentModule->getMeshPointer();
+	ego_mesh_t *mesh = _currentModule->getMeshPointer().get();
     //---- character "floor" level
     float grid_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), false );
     float water_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), true );
@@ -267,58 +267,58 @@ void move_one_character_get_environment( Object * pchr )
         chr_instance_t::apply_reflection_matrix(pchr->inst, grid_level);
     }
 
-    penviro->grid_lerp  = ( pchr->getPosZ() - grid_level ) / PLATTOLERANCE;
-    penviro->grid_lerp  = CLIP( penviro->grid_lerp, 0.0f, 1.0f );
+    enviro.grid_lerp  = ( pchr->getPosZ() - grid_level ) / PLATTOLERANCE;
+    enviro.grid_lerp  = CLIP( enviro.grid_lerp, 0.0f, 1.0f );
 
-    penviro->water_level = water_level;
-    penviro->water_lerp  = ( pchr->getPosZ() - water_level ) / PLATTOLERANCE;
-    penviro->water_lerp  = CLIP( penviro->water_lerp, 0.0f, 1.0f );
+    enviro.water_level = water_level;
+    enviro.water_lerp  = ( pchr->getPosZ() - water_level ) / PLATTOLERANCE;
+    enviro.water_lerp  = CLIP( enviro.water_lerp, 0.0f, 1.0f );
 
     // The actual level of the floor underneath the character.
     if ( NULL != pplatform )
     {
-        penviro->floor_level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
+        enviro.floor_level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
     }
     else
     {
-        penviro->floor_level = pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) ? water_level : grid_level;
+        enviro.floor_level = pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) ? water_level : grid_level;
     }
 
     //---- The actual level of the characer.
     //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
     //     last loop
-    penviro->level = penviro->floor_level;
+    enviro.level = enviro.floor_level;
     if ( NULL != pplatform )
     {
-        penviro->level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
+        enviro.level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
     }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
     if ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_WATER ) )
     {
-        penviro->fly_level = std::max( penviro->level, water._surface_level );
+        enviro.fly_level = std::max( enviro.level, water._surface_level );
     }
 
-    if ( penviro->fly_level < 0 )
+    if ( enviro.fly_level < 0 )
     {
-        penviro->fly_level = 0;  // fly above pits...
+        enviro.fly_level = 0;  // fly above pits...
     }
 
     // set the zlerp after we have done everything to the particle's level we care to
-    penviro->zlerp = ( pchr->getPosZ() - penviro->level ) / PLATTOLERANCE;
-    penviro->zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
+    enviro.zlerp = ( pchr->getPosZ() - enviro.level ) / PLATTOLERANCE;
+    enviro.zlerp = CLIP( enviro.zlerp, 0.0f, 1.0f );
 
-    penviro->grounded = (!pchr->isFlying() && ( penviro->zlerp < 0.25f ) );
+    enviro.grounded = (!pchr->isFlying() && ( enviro.zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
-    penviro->grid_twist = ego_mesh_t::get_twist( mesh, pchr->getTile() );
+    enviro.grid_twist = ego_mesh_t::get_twist( mesh, pchr->getTile() );
 
     // the "watery-ness" of whatever water might be here
-    penviro->is_watery = water._is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_SLIPPY ) );
+    enviro.is_watery = water._is_water && enviro.inwater;
+    enviro.is_slippy = !enviro.is_watery && ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_SLIPPY ) );
 
     //---- traction
-    penviro->traction = 1.0f;
+    enviro.traction = 1.0f;
     if ( pchr->isFlying() )
     {
         // any traction factor here
@@ -335,71 +335,71 @@ void move_one_character_get_environment( Object * pchr )
         chr_getMatUp(pplatform, platform_up);
         platform_up.normalize();
 
-        penviro->traction = std::abs(platform_up[kZ]) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
+        enviro.traction = std::abs(platform_up[kZ]) * ( 1.0f - enviro.zlerp ) + 0.25f * enviro.zlerp;
 
-        if ( penviro->is_slippy )
+        if ( enviro.is_slippy )
         {
-            penviro->traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
+            enviro.traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
         }
     }
     else if ( mesh->grid_is_valid( pchr->getTile() ) )
     {
-        penviro->traction = std::abs( map_twist_nrm[penviro->grid_twist][kZ] ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
+        enviro.traction = std::abs( map_twist_nrm[enviro.grid_twist][kZ] ) * ( 1.0f - enviro.zlerp ) + 0.25f * enviro.zlerp;
 
-        if ( penviro->is_slippy )
+        if ( enviro.is_slippy )
         {
-            penviro->traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
+            enviro.traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
         }
     }
 
     //---- the friction of the fluid we are in
-    if (penviro->is_watery)
+    if (enviro.is_watery)
     {
         //Athletics perk halves penality for moving in water
         if(pchr->hasPerk(Ego::Perks::ATHLETICS)) {
-            penviro->fluid_friction_vrt  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
-            penviro->fluid_friction_hrz  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
+            enviro.fluid_friction_vrt  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
+            enviro.fluid_friction_hrz  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
         }
         else {
-            penviro->fluid_friction_vrt = Physics::g_environment.waterfriction;
-            penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;            
+            enviro.fluid_friction_vrt = Physics::g_environment.waterfriction;
+            enviro.fluid_friction_hrz = Physics::g_environment.waterfriction;            
         }
 
     }
     else if ( NULL != pplatform )
     {
-        penviro->fluid_friction_hrz = 1.0f;
-        penviro->fluid_friction_vrt = 1.0f;
+        enviro.fluid_friction_hrz = 1.0f;
+        enviro.fluid_friction_vrt = 1.0f;
     }
     else
     {
         // like real-life air friction
-        penviro->fluid_friction_hrz = Physics::g_environment.airfriction;
-        penviro->fluid_friction_vrt = Physics::g_environment.airfriction;            
+        enviro.fluid_friction_hrz = Physics::g_environment.airfriction;
+        enviro.fluid_friction_vrt = Physics::g_environment.airfriction;            
     }
 
     //---- friction
-    penviro->friction_hrz = 1.0f;
+    enviro.friction_hrz = 1.0f;
     if ( pchr->isFlying() )
     {
         if ( pchr->platform )
         {
             // override the z friction for platforms.
             // friction in the z direction will make the bouncing stop
-            penviro->fluid_friction_vrt = 1.0f;
+            enviro.fluid_friction_vrt = 1.0f;
         }
     }
     else
     {
         // Make the characters slide
         float temp_friction_xy = Physics::g_environment.noslipfriction;
-        if ( mesh->grid_is_valid( pchr->getTile() ) && penviro->is_slippy )
+        if ( mesh->grid_is_valid( pchr->getTile() ) && enviro.is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = Physics::g_environment.slippyfriction;
         }
 
-        penviro->friction_hrz = penviro->zlerp * 1.0f + ( 1.0f - penviro->zlerp ) * temp_friction_xy;
+        enviro.friction_hrz = enviro.zlerp * 1.0f + ( 1.0f - enviro.zlerp ) * temp_friction_xy;
     }
 
     //---- jump stuff
@@ -411,31 +411,31 @@ void move_one_character_get_environment( Object * pchr )
     else
     {
         // Character is in the air
-        pchr->jumpready = penviro->grounded;
+        pchr->jumpready = enviro.grounded;
 
         // Down jump timer
         if (( _currentModule->getObjectHandler().exists( pchr->attachedto ) || pchr->jumpready || pchr->jumpnumber > 0 ) && pchr->jump_timer > 0 ) pchr->jump_timer--;
 
         // Do ground hits
-        if ( penviro->grounded && pchr->vel[kZ] < -STOPBOUNCING && pchr->hitready )
+        if ( enviro.grounded && pchr->vel[kZ] < -STOPBOUNCING && pchr->hitready )
         {
             SET_BIT( pchr->ai.alert, ALERTIF_HITGROUND );
             pchr->hitready = false;
         }
 
         // Special considerations for slippy surfaces
-        if ( penviro->is_slippy )
+        if ( enviro.is_slippy )
         {
-            if ( map_twist_flat[penviro->grid_twist] )
+            if ( map_twist_flat[enviro.grid_twist] )
             {
                 // Reset jumping on flat areas of slippiness
-                if ( penviro->grounded && 0 == pchr->jump_timer )
+                if ( enviro.grounded && 0 == pchr->jump_timer )
                 {
                     pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
                 }
             }
         }
-        else if ( penviro->grounded && 0 == pchr->jump_timer )
+        else if ( enviro.grounded && 0 == pchr->jump_timer )
         {
             // Reset jumping
             pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
@@ -445,11 +445,11 @@ void move_one_character_get_environment( Object * pchr )
     // add in something for the "ground speed"
     if ( NULL == pplatform )
     {
-        penviro->floor_speed = Vector3f::zero();
+        enviro.floor_speed = Vector3f::zero();
     }
     else
     {
-        penviro->floor_speed = pplatform->vel;
+        enviro.floor_speed = pplatform->vel;
     }
 
 }

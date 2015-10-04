@@ -173,7 +173,8 @@ public:
     /**
     * Porting hack, TODO: remove
     **/
-    ego_mesh_t* getMeshPointer() { return &_mesh; }
+    std::shared_ptr<ego_mesh_t> getMeshPointer() { return _mesh; }
+	void setMeshPointer(std::shared_ptr<ego_mesh_t> mesh) { _mesh = mesh; }
 
     /**
      * @brief
@@ -208,7 +209,8 @@ private:
     bool _isBeaten;                               ///< Have the players won?
     uint32_t  _seed;                          ///< The module seed
 
-    ego_mesh_t _mesh;                       ///< Module mesh
+	/// @brief The mesh of the module.
+	std::shared_ptr<ego_mesh_t> _mesh;
 
     std::array<Ego::DeferredOpenGLTexture, 4> _tileTextures;
     std::array<Ego::DeferredOpenGLTexture, 2> _waterTextures;

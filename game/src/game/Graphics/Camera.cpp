@@ -659,8 +659,8 @@ void Camera::reset(const ego_mesh_t *mesh)
     _roll = 0.0f;
 
     // Derived values.
-    _center[kX]     = mesh->gmem._edge_x * 0.5f;
-    _center[kY]     = mesh->gmem._edge_y * 0.5f;
+    _center[kX]     = mesh->_gmem._edge_x * 0.5f;
+    _center[kY]     = mesh->_gmem._edge_y * 0.5f;
     _center[kZ]     = 0.0f;
 
 	_trackPos = _center;

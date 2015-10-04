@@ -35,7 +35,7 @@
 #include "game/input.h"
 #include "game/collision.h"
 #include "game/bsp.h"
-#include "egolib/Script/script.h"
+#include "egolib/egolib.h"
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
 #include "game/egoboo.h"
@@ -537,7 +537,7 @@ int update_game()
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
-    _currentModule->getMeshPointer()->fxlists.synch( _currentModule->getMeshPointer()->gmem, false );
+    _currentModule->getMeshPointer()->_fxlists.synch( _currentModule->getMeshPointer()->_gmem, false );
     
     // Get immediate mode state for the rest of the game
     input_read_keyboard();
@@ -547,8 +547,8 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info._tiles_x*Info<float>::Grid::Size(),
-		                                                          _currentModule->getMeshPointer()->info._tiles_y*Info<float>::Grid::Size());
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->_info._tiles_x*Info<float>::Grid::Size(),
+		                                                          _currentModule->getMeshPointer()->_info._tiles_y*Info<float>::Grid::Size());
 
     //---- begin the code for updating misc. game stuff
     {
@@ -578,7 +578,7 @@ int update_game()
     //---- end the code for updating in-game objects
 
     // put the camera movement inside here
-    CameraSystem::get()->updateAll(_currentModule->getMeshPointer());
+    CameraSystem::get()->updateAll(_currentModule->getMeshPointer().get());
 
     // Timers
     clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
@@ -869,7 +869,7 @@ void do_damage_tiles()
         if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
-		ego_mesh_t *mesh = _currentModule->getMeshPointer();
+		auto& mesh = _currentModule->getMeshPointer();
         if ( !mesh->grid_is_valid( pchr->getTile() ) ) continue;
         if ( 0 == mesh->test_fx( pchr->getTile(), MAPFX_DAMAGE ) ) continue;
 
@@ -1035,11 +1035,11 @@ void do_weather_spawn_particles()
                 if ( particle )
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->gmem._edge_x - EDGE )
+                    if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->_gmem._edge_x - EDGE )
                     {
                         particle->requestTerminate();
                     }
-                    else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->gmem._edge_y - EDGE )
+                    else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
                     {
                         particle->requestTerminate();
                     }
@@ -1670,7 +1670,7 @@ void tilt_characters_to_terrain()
 
         if ( object->getProfile()->hasStickyButt() )
         {
-            twist = ego_mesh_t::get_twist( _currentModule->getMeshPointer(), object->getTile() );
+            twist = ego_mesh_t::get_twist( _currentModule->getMeshPointer().get(), object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
             object->ori.map_twist_facing_x = map_twist_facing_x[twist];
         }
@@ -2193,14 +2193,16 @@ bool game_load_module_data( const char *smallname )
     game_load_global_profiles();            // load the global objects
     game_load_module_profiles( modname );   // load the objects from the module's directory
 
-    ego_mesh_t * pmesh_rv = ego_mesh_load( modname, _currentModule->getMeshPointer() );
-    if ( nullptr == pmesh_rv )
-    {
-        // do not cause the program to fail, in case we are using a script function to load a module
-        // just return a failure value and log a warning message for debugging purposes
-        log_warning( "game_load_module_data() - Uh oh! Problems loading the mesh! (%s)\n", modname );
-        return false;
-    }
+	std::shared_ptr<ego_mesh_t> mesh = nullptr;
+	try {
+		mesh = LoadMesh(modname);
+	} catch (Id::Exception& ex) {
+		// do not cause the program to fail, in case we are using a script function to load a module
+		// just return a failure value and log a warning message for debugging purposes
+		log_warning("%s\n", static_cast<std::string>(ex).c_str());
+		return false;
+	}
+	_currentModule->setMeshPointer(mesh);
 
     //Load passage.txt
     _currentModule->loadAllPassages();
@@ -3568,11 +3570,11 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bump);
 
     // determine the size of this object in tiles
-    ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = CLIP( ixmin, 0, mesh->info._tiles_x - 1 );
-    ixmax = bump._maxs[OCT_X] / Info<float>::Grid::Size(); ixmax = CLIP( ixmax, 0, mesh->info._tiles_x - 1 );
+    ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = CLIP( ixmin, 0, mesh->_info._tiles_x - 1 );
+    ixmax = bump._maxs[OCT_X] / Info<float>::Grid::Size(); ixmax = CLIP( ixmax, 0, mesh->_info._tiles_x - 1 );
 
-    iymin = bump._mins[OCT_Y] / Info<float>::Grid::Size(); iymin = CLIP( iymin, 0, mesh->info._tiles_y - 1 );
-    iymax = bump._maxs[OCT_Y] / Info<float>::Grid::Size(); iymax = CLIP( iymax, 0, mesh->info._tiles_y - 1 );
+    iymin = bump._mins[OCT_Y] / Info<float>::Grid::Size(); iymin = CLIP( iymin, 0, mesh->_info._tiles_y - 1 );
+    iymax = bump._maxs[OCT_Y] / Info<float>::Grid::Size(); iymax = CLIP( iymax, 0, mesh->_info._tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
@@ -3912,7 +3914,7 @@ void water_instance_t::set_douse_level(float level)
         _layers[i]._z += dlevel;
     }
 
-    ego_mesh_update_water_level(_currentModule->getMeshPointer());
+    ego_mesh_update_water_level(_currentModule->getMeshPointer().get());
 }
 
 float water_instance_t::get_level() const

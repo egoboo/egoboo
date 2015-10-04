@@ -87,7 +87,7 @@ struct by_element2_t {
 
 void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist_lst_t& rlst)
 {
-	size_t tcnt = mesh.tmem.getTileCount();
+	size_t tcnt = mesh._tmem.getTileCount();
 
 	if (0 == rlst.size) {
 		return;
@@ -106,7 +106,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 		}
 		else
 		{
-			const std::shared_ptr<ego_tile_info_t> &tile = mesh.tmem.getTile(rlst.lst[i].index);
+			const std::shared_ptr<ego_tile_info_t> &tile = mesh._tmem.getTile(rlst.lst[i].index);
 
 			int img = TILE_GET_LOWER_BITS(tile->_img);
 			if (tile->_type >= tile_dict.offset)
@@ -145,7 +145,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		return;
 	}
 
-	grid_mem_t *pgmem = &(_currentModule->getMeshPointer()->gmem);
+	grid_mem_t *pgmem = &(_currentModule->getMeshPointer()->_gmem);
 
 	// which layer
 	water_instance_layer_t *ilayer = water._layers + 0;
@@ -590,7 +590,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
 	// much reduced shadow if on a reflective tile
-	ego_mesh_t *mesh = _currentModule->getMeshPointer();
+	auto& mesh = _currentModule->getMeshPointer();
 	if (0 != mesh->test_fx(pchr->getTile(), MAPFX_REFLECTIVE))
 	{
 		alpha *= 0.1f;
@@ -678,7 +678,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
 	// much reduced shadow if on a reflective tile
-	ego_mesh_t *mesh = _currentModule->getMeshPointer();
+	auto& mesh = _currentModule->getMeshPointer();
 	if (0 != mesh->test_fx(pchr->getTile(), MAPFX_REFLECTIVE))
 	{
 		alpha *= 0.1f;
@@ -807,7 +807,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(tl._mesh, tl._water.lst[i].index, 1);
+			render_water_fan(tl._mesh.get(), tl._water.lst[i].index, 1);
 		}
 	}
 
@@ -816,7 +816,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(tl._mesh, tl._water.lst[i].index, 0);
+			render_water_fan(tl._mesh.get(), tl._water.lst[i].index, 0);
 		}
 	}
 
@@ -825,7 +825,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 }
 
 void EntityReflections::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
-	ego_mesh_t *mesh = tl.getMesh();
+	auto& mesh = tl.getMesh();
 	if (!mesh) {
 		log_warning("%s:%d: tile list not attached to a mesh - skipping pass\n", __FILE__, __LINE__);
 		return;

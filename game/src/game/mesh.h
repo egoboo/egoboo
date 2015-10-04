@@ -585,7 +585,7 @@ struct mpdfx_lists_t
 
 	mpdfx_lists_t();
 	~mpdfx_lists_t();
-    bool alloc(const ego_mesh_info_t *info);
+    bool alloc(const ego_mesh_info_t& info);
     void dealloc();
     void reset();
     int push(GRID_FX_BITS fx_bits, size_t value);
@@ -627,7 +627,7 @@ struct ego_mesh_info_t
 
 	ego_mesh_info_t();
 	~ego_mesh_info_t();
-    static void reset(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y);
+    void reset(int numvert, size_t tiles_x, size_t tiles_y);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -653,13 +653,13 @@ public:
 
     ~ego_mesh_t();
 
-    ego_mesh_info_t info;
-    tile_mem_t tmem;
-    grid_mem_t gmem;
-    mpdfx_lists_t fxlists;
+    ego_mesh_info_t _info;
+    tile_mem_t _tmem;
+    grid_mem_t _gmem;
+    mpdfx_lists_t _fxlists;
 
     Vector3f get_diff(const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits);
-    static float get_pressure(const ego_mesh_t *self, const Vector3f& pos, float radius, const BIT_FIELD bits);
+    float get_pressure(const Vector3f& pos, float radius, const BIT_FIELD bits) const;
 	/// @brief Remove extra ambient light in the lightmap.
     void remove_ambient();
 	void recalc_twist();
@@ -758,12 +758,12 @@ public:
 	 **/
 	float getElevation(const PointWorld& point) const;
 
+	static bool tile_has_bits(std::shared_ptr<const ego_mesh_t> mesh, const PointGrid& point, const BIT_FIELD bits);
 
 };
 
 float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point);
 float ego_mesh_get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, float xmin, float ymin, float xmax, float ymax);
-bool ego_mesh_tile_has_bits(const ego_mesh_t *, const PointGrid& point, const BIT_FIELD bits);
 
 //--------------------------------------------------------------------------------------------
 
@@ -785,14 +785,14 @@ extern Uint8   mesh_tx_size;           ///< what size texture?
 //--------------------------------------------------------------------------------------------
 
 /// loading/saving
-ego_mesh_t *ego_mesh_load( const char *modname, ego_mesh_t * mesh);
+std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName);
 
 void   ego_mesh_make_twist();
 
 bool ego_mesh_test_corners(ego_mesh_t *self, ego_tile_info_t *tile, float threshold);
 float ego_mesh_light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
 bool ego_mesh_interpolate_vertex(tile_mem_t *self, ego_tile_info_t *tile, float pos[], float *plight);
-bool grid_light_one_corner(const ego_mesh_t *self, const TileIndex& fan, float height, float nrm[], float *plight);
+bool grid_light_one_corner(const ego_mesh_t& self, const TileIndex& fan, float height, float nrm[], float *plight);
 
 bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& tile, Uint16 image);
 bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& tile);

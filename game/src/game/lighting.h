@@ -70,10 +70,10 @@ struct lighting_cache_t
     lighting_cache_base_t low;
     lighting_cache_base_t hgh;
 
-	static lighting_cache_t *init(lighting_cache_t *self);
-	static bool max_light(lighting_cache_t *self);
+	static void init(lighting_cache_t& self);
+	static void max_light(lighting_cache_t& self);
 	/// Blend another cache into this cache.
-	static bool blend(lighting_cache_t *self, lighting_cache_t *other, float keep);
+	static void blend(lighting_cache_t& self, lighting_cache_t& other, float keep);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ struct dynalight_data_t
     float    level;         ///< Light intensity
     float    falloff;       ///< Light radius
 
-	static dynalight_data_t *init(dynalight_data_t *self);
+	static void init(dynalight_data_t& self);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -99,11 +99,11 @@ extern Vector3f light_nrm;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const Matrix4f4f& mat );
-bool lighting_cache_interpolate( lighting_cache_t * dst, const lighting_cache_t * src[], const float u, const float v );
+void lighting_project_cache( lighting_cache_t& dst, const lighting_cache_t& src, const Matrix4f4f& mat );
+bool lighting_cache_interpolate( lighting_cache_t& dst, const lighting_cache_t * src[], const float u, const float v );
 float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float * low_max_diff, float * hgh_max_diff );
 
-float lighting_evaluate_cache( const lighting_cache_t * src, const Vector3f& nrm, const float z, const AABB3f& bbox, float * light_amb, float * light_dir );
+float lighting_evaluate_cache( const lighting_cache_t& src, const Vector3f& nrm, const float z, const AABB3f& bbox, float *light_amb, float *light_dir );
 
 bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTING_VEC_SIZE> &lighting, const Vector3f& nrm );
 

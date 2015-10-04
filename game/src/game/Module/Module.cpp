@@ -46,7 +46,7 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _isBeaten(false),
     _seed(seed),
     _passages(),
-    _mesh(),
+    _mesh(std::make_shared<ego_mesh_t>()),
     _tileTextures(),
     _waterTextures()
 {
@@ -93,10 +93,10 @@ void GameModule::loadAllPassages()
         area._bottom = ctxt.readInt();
 
         //constrain passage area within the level
-        area._left = CLIP(area._left, 0, _currentModule->getMeshPointer()->info._tiles_x - 1);
-        area._top = CLIP(area._top, 0, _currentModule->getMeshPointer()->info._tiles_y - 1);
-        area._right = CLIP(area._right, 0, _currentModule->getMeshPointer()->info._tiles_x - 1);
-        area._bottom = CLIP(area._bottom, 0, _currentModule->getMeshPointer()->info._tiles_y - 1);
+        area._left = CLIP(area._left, 0, _currentModule->getMeshPointer()->_info._tiles_x - 1);
+        area._top = CLIP(area._top, 0, _currentModule->getMeshPointer()->_info._tiles_y - 1);
+        area._right = CLIP(area._right, 0, _currentModule->getMeshPointer()->_info._tiles_x - 1);
+        area._bottom = CLIP(area._bottom, 0, _currentModule->getMeshPointer()->_info._tiles_y - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();
@@ -236,7 +236,7 @@ uint8_t GameModule::getMinPlayers() const
 
 bool GameModule::isInside(const float x, const float y) const
 {
-	auto& gmem = _currentModule->getMeshPointer()->gmem;
+	auto& gmem = _currentModule->getMeshPointer()->_gmem;
     return x > 0 && x < gmem._edge_x && y > 0 && y < gmem._edge_y;
 }
 
