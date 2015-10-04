@@ -63,7 +63,7 @@ CameraSystem::CameraSystem(const size_t numberOfCameras) :
     autoSetTargets();
 
     // make sure the cameras are centered on something or there will be a graphics error
-    resetAllTargets(_currentModule->getMeshPointer());
+    resetAllTargets(_currentModule->getMeshPointer().get());
 }
 
 CameraSystem::~CameraSystem()

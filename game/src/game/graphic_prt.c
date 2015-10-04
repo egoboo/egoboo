@@ -898,16 +898,16 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, 
 
     // interpolate the lighting for the origin of the object
     lighting_cache_t global_light;
-    grid_lighting_interpolate(_currentModule->getMeshPointer(), &global_light, Vector2f(pinst->pos[kX], pinst->pos[kY]));
+    grid_lighting_interpolate(_currentModule->getMeshPointer().get(), global_light, Vector2f(pinst->pos[kX], pinst->pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
 	Matrix4f4f mat = prt_instance_make_matrix(pinst);
     lighting_cache_t loc_light;
-    lighting_project_cache(&loc_light, &global_light, mat);
+    lighting_project_cache(loc_light, global_light, mat);
 
     // determine the normal dependent amount of light
     float amb, dir;
-    lighting_evaluate_cache(&loc_light, pinst->nrm, pinst->pos[kZ], _currentModule->getMeshPointer()->tmem.bbox, &amb, &dir);
+    lighting_evaluate_cache(loc_light, pinst->nrm, pinst->pos[kZ], _currentModule->getMeshPointer()->_tmem._bbox, &amb, &dir);
 
     // LIGHT-blended sprites automatically glow. ALPHA-blended and SOLID
     // sprites need to convert the light channel into additional alpha
@@ -945,19 +945,19 @@ gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, 
         return gfx_error;
     }
 
-    prt_instance_t *pinst = &(pprt->inst);
+    prt_instance_t& pinst = pprt->inst;
 
     // assume the best
     gfx_rv retval = gfx_success;
 
     // make sure that the vertices are interpolated
-    if (gfx_error == prt_instance_update_vertices(camera, pinst, pprt.get()))
+    if (gfx_error == prt_instance_update_vertices(camera, &pinst, pprt.get()))
     {
         retval = gfx_error;
     }
 
     // do the lighting
-    if (gfx_error == prt_instance_update_lighting(pinst, pprt.get(), trans, do_lighting))
+    if (gfx_error == prt_instance_update_lighting(&pinst, pprt.get(), trans, do_lighting))
     {
         retval = gfx_error;
     }

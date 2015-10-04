@@ -1958,7 +1958,7 @@ Uint8 scr_ChangeTile( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), pchr->getTile(), state.argument );
+    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer().get(), pchr->getTile(), state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5213,7 +5213,7 @@ Uint8 scr_GetTileXY( script_state_t& state, ai_state_t& self )
     if (ptr)
     {
         returncode = true;
-        state.argument = ptr->img & TILE_LOWER_MASK;
+        state.argument = ptr->_img & TILE_LOWER_MASK;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5229,7 +5229,7 @@ Uint8 scr_SetTileXY( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     TileIndex index = _currentModule->getMeshPointer()->get_grid(PointWorld(state.x, state.y));
-    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), index, state.argument );
+    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer().get(), index, state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7357,7 +7357,7 @@ Uint8 scr_PitsFall( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->gmem.edge_x - EDGE && state.y < _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
+    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->_gmem._edge_x - EDGE && state.y < _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
     {
         g_pits.teleport = true;
         g_pits.teleport_pos[kX] = state.x;

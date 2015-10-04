@@ -70,11 +70,11 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
         itile = loc_pprt->getTile();
     }
 
-    penviro->twist = ego_mesh_get_twist(_currentModule->getMeshPointer(), itile);
+    penviro->twist = ego_mesh_t::get_twist(_currentModule->getMeshPointer().get(), itile);
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water._is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), loc_pprt->getTile(), MAPFX_SLIPPY));
+    penviro->is_slippy = !penviro->is_watery && (0 != _currentModule->getMeshPointer()->test_fx(loc_pprt->getTile(), MAPFX_SLIPPY));
 
     //---- traction
     penviro->traction = 1.0f;
@@ -101,7 +101,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
             penviro->traction /= Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
-    else if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), loc_pprt->getTile()))
+    else if (_currentModule->getMeshPointer()->grid_is_valid(loc_pprt->getTile()))
     {
         penviro->traction = std::abs(map_twist_nrm[penviro->twist][kZ]) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
 
@@ -129,7 +129,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     {
         // Make the characters slide
         float temp_friction_xy = Physics::g_environment.noslipfriction;
-        if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), loc_pprt->getTile()) && penviro->is_slippy)
+        if (_currentModule->getMeshPointer()->grid_is_valid(loc_pprt->getTile()) && penviro->is_slippy)
         {
             // It's slippy all right...
             temp_friction_xy = Physics::g_environment.slippyfriction;
@@ -245,7 +245,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
     else
     {
         //Is the floor slippery?
-        if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), loc_pprt->getTile()) && penviro->is_slippy)
+        if (_currentModule->getMeshPointer()->grid_is_valid(loc_pprt->getTile()) && penviro->is_slippy)
         {
             // It's slippy all right...
             temp_friction_xy = 1.0f - Physics::g_environment.slippyfriction;
@@ -583,7 +583,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 
         touch_a_floor = true;
 
-        uint8_t tmp_twist = cartman_get_fan_twist(_currentModule->getMeshPointer(), loc_pprt->getTile());
+        uint8_t tmp_twist = cartman_get_fan_twist(_currentModule->getMeshPointer().get(), loc_pprt->getTile());
 
         if (TWIST_FLAT != tmp_twist)
         {

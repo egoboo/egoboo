@@ -186,11 +186,11 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
     //is there any point of these calculations?
     if ( EMPTY_BIT_FIELD == plos->stopped_by ) return false;
 
-    ix_stt = std::floor( plos->x0 / GRID_FSIZE ); /// @todo We have a projection function for that.
-    ix_end = std::floor( plos->x1 / GRID_FSIZE );
+    ix_stt = std::floor( plos->x0 / Info<float>::Grid::Size()); /// @todo We have a projection function for that.
+    ix_end = std::floor( plos->x1 / Info<float>::Grid::Size());
 
-    iy_stt = std::floor( plos->y0 / GRID_FSIZE ); /// @todo We have a projection function for that.
-    iy_end = std::floor( plos->y1 / GRID_FSIZE );
+    iy_stt = std::floor( plos->y0 / Info<float>::Grid::Size()); /// @todo We have a projection function for that.
+    iy_end = std::floor( plos->y1 / Info<float>::Grid::Size());
 
     Dx = plos->x1 - plos->x0;
     Dy = plos->y1 - plos->y0;
@@ -261,7 +261,7 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
         TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(ix, iy));
         if (TileIndex::Invalid != fan && fan != fan_last )
         {
-            Uint32 collide_fx = ego_mesh_t::test_fx( _currentModule->getMeshPointer(), fan, plos->stopped_by );
+            Uint32 collide_fx = _currentModule->getMeshPointer()->test_fx( fan, plos->stopped_by );
             // collide the ray with the mesh
 
             if ( EMPTY_BIT_FIELD != collide_fx )
@@ -381,12 +381,12 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     }
 
     //Our current position
-    src_ix = ( int )pchr->getPosX() / GRID_ISIZE;
-    src_iy = ( int )pchr->getPosY() / GRID_ISIZE;
+    src_ix = ( int )pchr->getPosX() / Info<int>::Grid::Size();
+    src_iy = ( int )pchr->getPosY() / Info<int>::Grid::Size();
 
     //Destination position
-    dst_ix = dst_x / GRID_ISIZE;
-    dst_iy = dst_y / GRID_ISIZE;
+    dst_ix = dst_x / Info<int>::Grid::Size();
+    dst_iy = dst_y / Info<int>::Grid::Size();
 
     //Always clear any old waypoints
     waypoint_list_clear( wplst );
@@ -524,8 +524,8 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
         ptile = _currentModule->getMeshPointer()->get_ptile(fan);
         if ( NULL != ptile )
         {
-            Uint16 img      = ptile->img & TILE_LOWER_MASK;
-            Uint16 highbits = ptile->img & TILE_UPPER_MASK;
+            Uint16 img      = ptile->_img & TILE_LOWER_MASK;
+            Uint16 highbits = ptile->_img & TILE_UPPER_MASK;
 
             if ( img >= loc_starttile && img < endtile )
             {
@@ -544,7 +544,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( img == endtile )
             {
-                useful = ego_mesh_add_fx( _currentModule->getMeshPointer(), fan, mesh_fx_or );
+                useful = _currentModule->getMeshPointer()->add_fx( fan, mesh_fx_or );
 
                 if ( become != 0 )
                 {
@@ -552,9 +552,9 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
                 }
             }
 
-            if ( ptile->img != ( img | highbits ) )
+            if ( ptile->_img != ( img | highbits ) )
             {
-                ego_mesh_set_texture( _currentModule->getMeshPointer(), fan, img | highbits );
+                ego_mesh_set_texture( _currentModule->getMeshPointer().get(), fan, img | highbits );
             }
         }
     }
@@ -611,8 +611,8 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     if ( !passage ) return false;
 
     // Do the first row
-    x = x0 / GRID_ISIZE;
-    y = y0 / GRID_ISIZE;
+    x = x0 / Info<int>::Grid::Size();
+    y = y0 / Info<int>::Grid::Size();
 
     if ( x < passage->getLeft() )  x = passage->getLeft();
     if ( y < passage->getTop() )  y = passage->getTop();
@@ -624,10 +624,10 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
             TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
 
             ptile = _currentModule->getMeshPointer()->get_ptile(fan);
-            if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
+            if ( NULL != ptile && tiletype == ( ptile->_img & TILE_LOWER_MASK ) )
             {
-                *px1 = ( x * GRID_ISIZE ) + 64;
-                *py1 = ( y * GRID_ISIZE ) + 64;
+                *px1 = ( x * Info<int>::Grid::Size()) + 64;
+                *py1 = ( y * Info<int>::Grid::Size()) + 64;
                 return true;
             }
         }
@@ -642,10 +642,10 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
             TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
 
             ptile = _currentModule->getMeshPointer()->get_ptile(fan);
-            if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
+            if ( NULL != ptile && tiletype == ( ptile->_img & TILE_LOWER_MASK ) )
             {
-                *px1 = x * GRID_ISIZE + 64;
-                *py1 = y * GRID_ISIZE + 64;
+                *px1 = x * Info<int>::Grid::Size() + 64;
+                *py1 = y * Info<int>::Grid::Size() + 64;
                 return true;
             }
         }

@@ -135,7 +135,11 @@ public:
      * @return
      *  a human-readable textual description of the string.
      */
-    virtual operator string() const = 0;
+	virtual operator string() const {
+		std::ostringstream os;
+		os << getFile() << ":" << getLine() << ": exception";
+		return os.str();
+	}
 };
 
 } // namespace Id

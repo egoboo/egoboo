@@ -96,7 +96,7 @@ void AStar_reset()
 }
 
 //------------------------------------------------------------------------------
-bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy )
+bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy )
 {
     /// @author ZF
     /// @details Explores up to MAX_ASTAR_NODES number of nodes to find a path between the source coordinates and destination coordinates.
@@ -110,7 +110,7 @@ bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, con
     ego_tile_info_t * ptile;
 
     // do not start if the initial point is off the mesh
-    if (TileIndex::Invalid == PMesh->get_tile_int(PointGrid(src_ix, src_iy)))
+    if (TileIndex::Invalid == mesh->get_tile_int(PointGrid(src_ix, src_iy)))
     {
 #ifdef DEBUG_ASTAR
         printf( "AStar failed because source position is off the mesh.\n" );
@@ -119,7 +119,7 @@ bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, con
     }
 
     //be a bit flexible if the destination is inside a wall
-    if ( ego_mesh_tile_has_bits( PMesh, PointGrid(dst_ix, dst_iy), stoppedby ) )
+    if ( ego_mesh_t::tile_has_bits( mesh, PointGrid(dst_ix, dst_iy), stoppedby ) )
     {
         //check all tiles edging to this one, including corners
         for ( j = -1; j <= 1; j++ )
@@ -129,7 +129,7 @@ bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, con
                 if ( j == 0 && k == 0 ) continue;
 
                 //Did we find a free tile?
-                if ( !ego_mesh_tile_has_bits( PMesh, PointGrid(dst_ix + j, dst_iy + k), stoppedby ) )
+                if ( !ego_mesh_t::tile_has_bits( mesh, PointGrid(dst_ix + j, dst_iy + k), stoppedby ) )
                 {
                     dst_ix = dst_ix + j;
                     dst_iy = dst_iy + k;
@@ -191,7 +191,7 @@ flexible_destination:
                     }
 
                     // is the test node on the mesh?
-                    TileIndex itile = PMesh->get_tile_int(PointGrid(tmp_x, tmp_y));
+                    TileIndex itile = mesh->get_tile_int(PointGrid(tmp_x, tmp_y));
                     if (TileIndex::Invalid == itile)
                     {
                         deadend_count++;
@@ -213,7 +213,7 @@ flexible_destination:
 
                     //Dont walk into pits
                     //@todo: might need to check tile Z level here instead
-                    ptile = PMesh->get_ptile(itile);
+                    ptile = mesh->get_ptile(itile);
                     if ( NULL == ptile ) continue;
 
                     if ( TILE_IS_FANOFF( ptile ) )
@@ -225,7 +225,7 @@ flexible_destination:
                     }
 
                     // is this a wall or impassable?
-                    if ( ego_mesh_tile_has_bits( PMesh, PointGrid(tmp_x, tmp_y), stoppedby ) )
+                    if ( ego_mesh_t::tile_has_bits( mesh, PointGrid(tmp_x, tmp_y), stoppedby ) )
                     {
                         // add the invalid tile to the list as a closed tile
                         AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );
@@ -341,8 +341,8 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
             else
             {
                 // translate to raw coordinates
-                way_x = safe_waypoint->ix * GRID_ISIZE + ( GRID_ISIZE / 2 );
-                way_y = safe_waypoint->iy * GRID_ISIZE + ( GRID_ISIZE / 2 );
+                way_x = safe_waypoint->ix * Info<int>::Grid::Size() + (Info<int>::Grid::Size() / 2 );
+                way_y = safe_waypoint->iy * Info<int>::Grid::Size() + (Info<int>::Grid::Size() / 2 );
             }
 
 #ifdef DEBUG_ASTAR

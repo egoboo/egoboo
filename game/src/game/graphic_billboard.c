@@ -113,14 +113,14 @@ std::shared_ptr<Billboard> BillboardList::makeBillboard(Uint32 lifetime_secs, st
     {
         // make a random offset from the character
         billboard->_offset = Vector3f(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
-            * (GRID_FSIZE / 5.0f);
+            * (Info<float>::Grid::Size() / 5.0f);
     }
 
     if (HAS_SOME_BITS(options, Billboard::Flags::RandomVelocity))
     {
         // make the text fly away in a random direction
         billboard->_offset_add += Vector3f(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
-            * (2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS);
+            * (2.0f * Info<float>::Grid::Size() / lifetime_secs / GameEngine::GAME_TARGET_UPS);
     }
 
     if (HAS_SOME_BITS(options, Billboard::Flags::Fade))

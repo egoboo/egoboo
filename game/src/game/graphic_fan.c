@@ -46,14 +46,14 @@ void animate_all_tiles( ego_mesh_t * mesh )
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
 
-    size_t tile_count = mesh->tmem.getTileCount();
-    size_t anim_count = mesh->fxlists.anm.idx;
+    size_t tile_count = mesh->_tmem.getTileCount();
+    size_t anim_count = mesh->_fxlists.anm._idx;
 
     // Scan through all the animated tiles.
     for (size_t i = 0; i < anim_count; ++i)
     {
         // Get the offset
-        Uint32 itile = mesh->fxlists.anm.lst[i];
+        Uint32 itile = mesh->_fxlists.anm._lst[i];
         if (itile >= tile_count) continue;
 
         animate_tile(mesh, itile);
@@ -72,7 +72,7 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     ego_tile_info_t * ptile;
 
     // do nothing if the tile is not animated
-    if ( 0 == ego_mesh_t::test_fx( mesh, itile, MAPFX_ANIM ) )
+    if ( 0 == mesh->test_fx( itile, MAPFX_ANIM ) )
     {
         return true;
     }
@@ -84,8 +84,8 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
         return false;
     }
 
-    image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image
-    type  = ptile->type;                       // Command type ( index to points in itile )
+    image = TILE_GET_LOWER_BITS( ptile->_img ); // Tile image
+    type  = ptile->_type;                       // Command type ( index to points in itile )
 
     // Animate the tiles
     if ( type >= tile_dict.offset )
@@ -118,12 +118,8 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
     int    cnt, entry;
     Uint16 commands;
 
-    tile_definition_t * pdef;
-    const tile_mem_t      * ptmem;
-    const ego_tile_info_t * ptile;
-
     // grab a pointer to the tile
-    ptile = mesh->get_ptile(itile);
+	const ego_tile_info_t *ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
@@ -136,12 +132,12 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
         return gfx_error;
     }
-    ptmem  = &( mesh->tmem );
+	const tile_mem_t& ptmem  = mesh->_tmem;
 
     // do not render the itile if the image image is invalid
     if (TILE_IS_FANOFF(ptile))  return gfx_success;
 
-    pdef = TILE_DICT_PTR( tile_dict, ptile->type );
+	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, ptile->_type );
     if ( NULL == pdef ) return gfx_fail;
 
     // bind the correct texture
@@ -154,15 +150,15 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
 
         /// @note claforte@> Put this in an initialization function.
         GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
-        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem->plst + ptile->vrtstart );
+        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem._plst + ptile->_vrtstart );
 
         GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
-        GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem->tlst + ptile->vrtstart );
+        GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem._tlst + ptile->_vrtstart );
 
         if (gfx.gouraudShading_enable)
         {
             GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
-            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem->clst + ptile->vrtstart );
+            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem._clst + ptile->_vrtstart );
         }
         else
         {
@@ -218,26 +214,22 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
     int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
     Uint8  type, twist;
 
-    const tile_mem_t      * ptmem;
-    const ego_tile_info_t * ptile;
-    const ego_grid_info_t * pgrid;
-
     if ( NULL == mesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
         return gfx_error;
     }
 
-    ptmem  = &( mesh->tmem );
+	const tile_mem_t& ptmem  = mesh->_tmem;
 
-    ptile = mesh->get_ptile(itile);
+	const ego_tile_info_t *ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
         return gfx_error;
     }
 
-    pgrid = mesh->get_pgrid(itile);
+	const ego_grid_info_t *pgrid = mesh->get_pgrid(itile);
     if ( NULL == pgrid )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
@@ -248,25 +240,25 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
     /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
 
-    ix = itile % mesh->info.tiles_x;
-    iy = itile / mesh->info.tiles_x;
+    ix = itile % mesh->_info._tiles_x;
+    iy = itile / mesh->_info._tiles_x;
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    type  = ptile->type;                     // Command type ( index to points in itile )
-    twist = pgrid->twist;
+    type  = ptile->_type;                     // Command type ( index to points in itile )
+    twist = pgrid->_twist;
 
     type &= 0x3F;
 
     // Original points
-    badvertex = ptile->vrtstart;          // Get big reference value
+    badvertex = ptile->_vrtstart;          // Get big reference value
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         float tmp;
-        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * GRID_FSIZE;
-        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * GRID_FSIZE;
-        v[cnt].pos[ZZ] = ptmem->plst[badvertex][ZZ];
+        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * Info<float>::Grid::Size();
+        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * Info<float>::Grid::Size();
+        v[cnt].pos[ZZ] = ptmem._plst[badvertex][ZZ];
 
         tmp = map_twist_nrm[twist][kZ];
         tmp *= tmp;
@@ -315,9 +307,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     float x1, y1, fx_off[4], fy_off[4];
     float falpha;
 
-    const ego_mesh_info_t  * pinfo = NULL;
     const ego_tile_info_t * ptile = NULL;
-    tile_definition_t     * pdef  = NULL;
 
     if ( NULL == mesh )
     {
@@ -325,7 +315,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
         return gfx_error;
     }
 
-    pinfo = &( mesh->info );
+	const ego_mesh_info_t& pinfo = mesh->_info;
 
     ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
@@ -340,12 +330,12 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
 
-    ix = itile % pinfo->tiles_x;
-    iy = itile / pinfo->tiles_x;
+    ix = itile % pinfo._tiles_x;
+    iy = itile / pinfo._tiles_x;
 
     // To make life easier
     type  = 0;                                         // Command type ( index to points in tile )
-    pdef = TILE_DICT_PTR( tile_dict, type );
+	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, type );
     if ( NULL == pdef )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, type, "unknown tile type" );
@@ -395,7 +385,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     Vertex *v = static_cast<Vertex *>(vb->lock());
 
     // Original points
-    badvertex = ptile->vrtstart;
+    badvertex = ptile->_vrtstart;
     {
         GLXvector3f nrm = {0, 0, 1};
         float alight;
@@ -412,8 +402,8 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
             int jx = ix + ix_off[cnt];
             int jy = iy + iy_off[cnt];
 
-            v0->x = jx * GRID_FSIZE;
-            v0->y = jy * GRID_FSIZE;
+            v0->x = jx * Info<float>::Grid::Size();
+            v0->y = jy * Info<float>::Grid::Size();
             v0->z = water._layer_z_add[layer][frame][tnc] + water._layers[layer]._z;
 
             v0->s = fx_off[cnt] + offu;
@@ -422,7 +412,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
             // get the lighting info from the grid
             TileIndex jtile = mesh->get_tile_int(PointGrid(jx, jy));
             float dlight;
-            if ( grid_light_one_corner(mesh, jtile, v0->z, nrm, &dlight) )
+            if ( grid_light_one_corner(*mesh, jtile, v0->z, nrm, &dlight) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
                 v0->r = dlight * INV_FF + alight;

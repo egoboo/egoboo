@@ -256,7 +256,7 @@ bool Object::isOverWater(bool anyLiquid) const
 		return false;
 	}
 
-    return 0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), getTile(), MAPFX_WATER);
+    return 0 != _currentModule->getMeshPointer()->test_fx(getTile(), MAPFX_WATER);
 }
 
 bool Object::isInWater(bool anyLiquid) const
@@ -996,7 +996,7 @@ void Object::update()
                 chance -= target->getAttribute(Ego::Attribute::AGILITY)*0.5f;
 
                 //-5% per tile distance
-                chance -= 5 * ((getPosition()-target->getPosition()).length() / GRID_FSIZE);
+                chance -= 5 * ((getPosition()-target->getPosition()).length() / Info<float>::Grid::Size());
 
                 //Perceptive Perk doubles chance
                 if(target->hasPerk(Ego::Perks::PERCEPTIVE)) {
@@ -1749,7 +1749,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 	mesh_mpdfx_tests = 0;
 	mesh_bound_tests = 0;
 	mesh_pressure_tests = 0;
-	BIT_FIELD result = ego_mesh_hit_wall(_currentModule->getMeshPointer(), pos, radius, stoppedby, nrm, pressure, data);
+	BIT_FIELD result = _currentModule->getMeshPointer()->hit_wall(pos, radius, stoppedby, nrm, pressure, data);
 	chr_stoppedby_tests += mesh_mpdfx_tests;
 	chr_pressure_tests += mesh_pressure_tests;
 
@@ -1788,7 +1788,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 	mesh_mpdfx_tests = 0;
 	mesh_bound_tests = 0;
 	mesh_pressure_tests = 0;
-	BIT_FIELD result = ego_mesh_test_wall(_currentModule->getMeshPointer(), pos, radius, stoppedby, data);
+	BIT_FIELD result = _currentModule->getMeshPointer()->test_wall(pos, radius, stoppedby, data);
 	chr_stoppedby_tests += mesh_mpdfx_tests;
 	chr_pressure_tests += mesh_pressure_tests;
 

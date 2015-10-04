@@ -47,7 +47,7 @@ struct line_of_sight_info_t;
 //--------------------------------------------------------------------------------------------
 
 
-#define WAYTHRESH           (GRID_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_FSIZE/2)
+#define WAYTHRESH           (Info<int>::Grid::Size() >> 1)       ///< Threshold for reaching waypoint (GRID_FSIZE/2)
 
 
 

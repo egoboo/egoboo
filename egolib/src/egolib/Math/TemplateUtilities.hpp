@@ -25,20 +25,46 @@
 
 #include "egolib/platform.h"
 
-namespace Ego
-{
-namespace Core
-{
+namespace Ego {
+namespace Core {
+
+/**
+ * @brief
+ *  The following templates obtain the relation of one the boolean values in a variadic template argument list
+ *  @a size_t compile-time constants.
+ * @todo
+ *  Make more general and simplify.
+ */
+
+template <bool...> struct BoolPack;
+/**
+ * @brief
+ *	Derived from std::true_type if all boolean values in the variadic template argument list are true,
+ *  derived from std::false type otherwise.
+ */
+template <bool... v>
+using AllTrue  = std::is_same<BoolPack<true, v...>, BoolPack<v..., true>>;
+/**
+ * @brief
+ *  Derived from std::true_type if all boolean values in the variadic template argument list are true,
+ *  derived from std::false type otherwise.
+ */
+template <bool... v>
+using AllFalse = std::is_same<BoolPack<false, v...>, BoolPack<v..., false>>;
+
+} // namespace Core
+} // namespace Ego
+
+namespace Ego {
+namespace Core {
 
 /**@{*/
 /**
  * @brief
- *  The following templates obtain  the relation of two @a size_t
- *  compile-time constants.
+ *  The following templates obtain the relation of two @a size_t compile-time constants.
  * @todo
  *  Make more general and simplify.
  */
- 
 
 /** @a std::true_type if <tt>n == m</tt>, @a std::false_type otherwise */
 template <size_t n, size_t m>

@@ -35,6 +35,7 @@
 #include "IdLib/EnvironmentErrorException.hpp"
 #include "IdLib/AssertionFailedException.hpp"
 #include "IdLib/UnhandledSwitchCaseException.hpp"
+#include "IdLib/RuntimeErrorException.hpp"
 
 // DSL utilities.
 #include "IdLib/Location.hpp"

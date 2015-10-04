@@ -31,6 +31,8 @@ namespace Math {
 /** 
  * @brief
  *  The interface of an entity that can be translated.
+ * @tparam _VectorSpaceType
+ *  the vector space type
  */
 template <typename _VectorSpaceType>
 struct Translatable {

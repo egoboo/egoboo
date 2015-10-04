@@ -101,7 +101,7 @@ gfx_rv TileList::reset()
 	_renderTiles.reset();
 
 	// Re-initialize the renderlist.
-	auto *mesh = _mesh;
+	auto mesh = _mesh;
 	init();
 	setMesh(mesh);
 
@@ -117,11 +117,11 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	}
 
 	// check for a valid tile
-	if (index >= _mesh->gmem.grid_count)
+	if (index >= _mesh->_gmem._grid_count)
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t *pgrid = grid_mem_t::get(&(_mesh->gmem), index);
+	ego_grid_info_t *pgrid = _mesh->_gmem.get(index);
 	if (!pgrid)
 	{
 		return gfx_fail;
@@ -133,8 +133,8 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 		return gfx_fail;
 	}
 
-	int ix = index.getI() % _mesh->info.tiles_x;
-	int iy = index.getI() / _mesh->info.tiles_y;
+	int ix = index.getI() % _mesh->_info._tiles_x;
+	int iy = index.getI() / _mesh->_info._tiles_y;
 	float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter()[kX];
 	float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
@@ -169,12 +169,12 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	return gfx_success;
 }
 
-ego_mesh_t *TileList::getMesh() const
+std::shared_ptr<ego_mesh_t> TileList::getMesh() const
 {
 	return _mesh;
 }
 
-void TileList::setMesh(ego_mesh_t *mesh)
+void TileList::setMesh(std::shared_ptr<ego_mesh_t> mesh)
 {
 	_mesh = mesh;
 }
@@ -185,9 +185,9 @@ gfx_rv TileList::add(const size_t index, ::Camera& camera)
 
 	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
 	if(!_lastRenderTiles[index]) {
-		const std::shared_ptr<ego_tile_info_t> &tile = _mesh->tmem.getTile(index);
-		tile->request_lcache_update = true;
-		tile->lcache_frame = -1;
+		const std::shared_ptr<ego_tile_info_t> &tile = _mesh->_tmem.getTile(index);
+		tile->_request_lcache_update = true;
+		tile->_lcache_frame = -1;
 	}
 
 	if (gfx_error == insert(index, camera))

@@ -23,7 +23,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/Logic/Damage.hpp"
-#include "egolib/clock.h"
+#include "egolib/Clock.hpp"
 #include "egolib/AI/WaypointList.h"
 
 //--------------------------------------------------------------------------------------------
@@ -49,9 +49,9 @@ class Object;
 #define EDGE                128
 
 /// AI targeting
-#define NEARBY      3*GRID_FSIZE    ///< 3 tiles away
-#define WIDE        6*GRID_FSIZE    ///< 6 tiles away
-#define NEAREST     0              ///< unlimited range
+#define NEARBY      3*Info<float>::Grid::Size()    ///< 3 tiles away
+#define WIDE        6*Info<float>::Grid::Size()    ///< 6 tiles away
+#define NEAREST     0                              ///< unlimited range
 
 //Max size of an compiled AI script
 #define MAXAICOMPILESIZE    2048

@@ -140,9 +140,9 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
 
         info->slot = ctxt.readInt();
 
-        info->pos[kX] = ctxt.readReal() * GRID_FSIZE;
-        info->pos[kY] = ctxt.readReal() * GRID_FSIZE;
-        info->pos[kZ] = ctxt.readReal() * GRID_FSIZE;
+        info->pos[kX] = ctxt.readReal() * Info<float>::Grid::Size();
+        info->pos[kY] = ctxt.readReal() * Info<float>::Grid::Size();
+        info->pos[kZ] = ctxt.readReal() * Info<float>::Grid::Size();
 
         info->facing = FACE_NORTH;
         info->attach = ATTACH_NONE;

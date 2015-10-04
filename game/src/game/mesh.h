@@ -32,21 +32,80 @@ struct ego_mesh_info_t;
 struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
+
+// The size of a grid is an positive integral power of two.
+// The grid info structure provides two static methods both
+// returning a value of type @a Type: The method Size returns
+// the grid size and the method Exponent returns the exponent
+// to which 2 is raised to in order to compute the grid size.
+template <typename Type>
+struct Info;
+
+template <>
+struct Info<int> {
+	struct Grid {
+		/// @return the number bits by which 1 is shifted to the left in order to compute the grid size
+		static constexpr int Bits() {
+			return 7;
+		}
+		/// @return the exponent = bits
+		static constexpr int Exponent() {
+			return 7;
+		}
+		/// @return the grid size
+		static constexpr int Size() {
+			return 1 << Info<int>::Grid::Exponent();
+		}
+		/// @return the mask for bitwise modulus
+		static constexpr int Mask() {
+			return Info<int>::Grid::Size() - 1;
+		}
+	};
+	struct Block {
+		/// @return the number bits by which 1 is shifted to the left in order to compute the block size
+		static constexpr int Bits() {
+			return 9;
+		}
+		/// @return the exponent = bits
+		static constexpr int Exponent() {
+			return 9;
+		}
+		/// @return the block size
+		static constexpr int Size() {
+			return 1 << Info<int>::Block::Exponent();
+		}
+		/// @return the mask for bitwise modulis
+		static constexpr int Mask() {
+			return Info<int>::Block::Size() - 1;
+		}
+	};
+};
+
+template <>
+struct Info<float> {
+	struct Grid {
+		static float Exponent() {
+			return (float)Info<int>::Grid::Exponent();
+		}
+		static float Size() {
+			return (float)Info<int>::Grid::Size();
+		}
+	};
+	struct Block {
+		static float Exponent() {
+			return (float)Info<int>::Block::Exponent();
+		}
+		static float Size() {
+			return (float)Info<int>::Block::Size();
+		}
+	};
+};
+
 //--------------------------------------------------------------------------------------------
 
-#define GRID_BITS      7
-/// Grid bits isize is an unsigned power of two integer (hence a bitwise and modulus is possible).
-#define GRID_ISIZE     (1<<(GRID_BITS))
-#define GRID_FSIZE     ((float)GRID_ISIZE)
-#define GRID_MASK      (GRID_ISIZE - 1)
-
-#define BLOCK_BITS      9
-/// Block isize is an unsigned power of two integer (hence a bitwise and modulus is possible).
-#define BLOCK_ISIZE     (1<<(BLOCK_BITS))
-#define BLOCK_FSIZE     ((float)BLOCK_ISIZE)
-#define BLOCK_MASK      (BLOCK_ISIZE - 1)
-
-#define GRID_BLOCKY_MAX             (( MAP_TILE_MAX_Y >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
+/// @todo max blocks in the x direction
+/// max blocks in the y direction
+#define GRID_BLOCKY_MAX (( MAP_TILE_MAX_Y >> (Info<int>::Block::Exponent()-Info<int>::Grid::Exponent()) )+1)  
 
 
 
@@ -66,11 +125,9 @@ struct oglx_texture_t;
 #define TILE_GET_UPPER_BITS(XX)         (( TILE_UPPER_MASK & (XX) ) >> TILE_UPPER_SHIFT )
 #define TILE_SET_UPPER_BITS(XX)         (( (XX) << TILE_UPPER_SHIFT ) & TILE_UPPER_MASK )
 
-#define TILE_IS_FANOFF(XX)              ( MAP_FANOFF == (XX)->img )
-#define TILE_HAS_INVALID_IMAGE(XX)      HAS_SOME_BITS( TILE_UPPER_MASK, (XX).img )
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 typedef GLXvector3f normal_cache_t[4];
 typedef float       light_cache_t[4];
 
@@ -274,7 +331,6 @@ typedef Index<Uint32, IndexSystem::Tile,UINT32_MAX> TileIndex;
 typedef Index<Uint32, IndexSystem::Block,UINT32_MAX> BlockIndex;
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 /// The data describing an Egoboo tile
 class ego_tile_info_t
@@ -284,36 +340,46 @@ public:
 
     ego_tile_info_t();
 
-    const AABB2f& getAABB2D() const { return aabb; }
+    const AABB2f& getAABB2D() const { return _aabb; }
 
 public:
     // the "inherited" tile info
-    size_t    itile;
-    uint8_t   type;                              ///< Tile type
-    uint16_t  img;                               ///< Get texture from this
-    size_t    vrtstart;                          ///< Which vertex to start at
+    size_t _itile;
+    uint8_t _type;                             ///< Tile type
+    uint16_t _img;                             ///< Get texture from this
+    size_t _vrtstart;                          ///< Which vertex to start at
 
     // some extra flags
-    bool  fanoff;                            ///< display this tile?
+    bool _fanoff;                            ///< display this tile?
 
     // tile corner lighting parameters
-    normal_cache_t ncache;                     ///< the normals at the corners of this tile
-    light_cache_t  lcache;                     ///< the light at the corners of this tile
-    bool           request_lcache_update;      ///< has this tile been tagged for a lcache update?
-    int            lcache_frame;               ///< the last frame in which the lighting cache was updated
+    normal_cache_t _ncache;                     ///< the normals at the corners of this tile
+    light_cache_t  _lcache;                     ///< the light at the corners of this tile
+    bool           _request_lcache_update;      ///< has this tile been tagged for a lcache update?
+    int            _lcache_frame;               ///< the last frame in which the lighting cache was updated
 
     // tile vertex lighting parameters
-    bool           request_clst_update;        ///< has this tile been tagged for a color list update?
-    int            clst_frame;                 ///< the last frame in which the color list was updated
-    light_cache_t  d1_cache;                   ///< the estimated change in the light at the corner of the tile
-    light_cache_t  d2_cache;                   ///< the estimated change in the light at the corner of the tile
+    bool           _request_clst_update;        ///< has this tile been tagged for a color list update?
+    int            _clst_frame;                 ///< the last frame in which the color list was updated
+    light_cache_t  _d1_cache;                   ///< the estimated change in the light at the corner of the tile
+    light_cache_t  _d2_cache;                   ///< the estimated change in the light at the corner of the tile
 
     // the bounding boc of this tile
-    oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
-	AABB2f         aabb;
+    oct_bb_t       _oct;                        ///< the octagonal bounding box for this tile
+	AABB2f         _aabb;
 };
 
-//--------------------------------------------------------------------------------------------
+inline bool TILE_IS_FANOFF(const std::shared_ptr<ego_tile_info_t>& tileInfo) {
+	return MAP_FANOFF == tileInfo->_img;
+}
+inline bool TILE_IS_FANOFF(const ego_tile_info_t *tileInfo) {
+	return MAP_FANOFF == tileInfo->_img;
+}
+inline bool TILE_HAS_INVALID_IMAGE(const ego_tile_info_t& tileInfo) {
+	return HAS_SOME_BITS(TILE_UPPER_MASK, tileInfo._img);
+}
+
+
 //--------------------------------------------------------------------------------------------
 
 typedef BIT_FIELD GRID_FX_BITS;
@@ -322,124 +388,149 @@ typedef BIT_FIELD GRID_FX_BITS;
 struct ego_grid_info_t
 {
     // MODIFY THESE FLAGS
-    GRID_FX_BITS    base_fx;                   ///< the special effects flags in the mpd
-    GRID_FX_BITS    pass_fx;                   ///< the working copy of base_fx, which might be modified by passages
-    Uint8           twist;                     ///< The orientation of the tile
+    GRID_FX_BITS    _base_fx;                   ///< the special effects flags in the mpd
+    GRID_FX_BITS    _pass_fx;                   ///< the working copy of base_fx, which might be modified by passages
+    Uint8           _twist;                     ///< The orientation of the tile
 
     // the lighting info in the upper left hand corner of a grid
-    Uint8            a, l;                     ///< the raw mesh lighting... pretty much ignored
-    lighting_cache_t cache;                    ///< the per-grid lighting info
-    int              cache_frame;              ///< the last frame in which the cache was calculated
+    Uint8            _a, _l;                   ///< the raw mesh lighting... pretty much ignored
+    lighting_cache_t _cache;                   ///< the per-grid lighting info
+    int              _cache_frame;             ///< the last frame in which the cache was calculated
 
-    static ego_grid_info_t *ctor(ego_grid_info_t *self);
-    static ego_grid_info_t *dtor(ego_grid_info_t *self);
-    static ego_grid_info_t *free(ego_grid_info_t *self);
-    static ego_grid_info_t *create();
-    static ego_grid_info_t *destroy(ego_grid_info_t *self);
+	ego_grid_info_t();
+	~ego_grid_info_t();
     static GRID_FX_BITS get_all_fx(const ego_grid_info_t *self);
     static GRID_FX_BITS test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits);
+	static bool add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
+	static bool sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
+	static bool set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 };
 
-
-bool ego_grid_info_add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
-bool ego_grid_info_sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
-bool ego_grid_info_set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
-
-ego_grid_info_t *ego_grid_info_ctor_ary(ego_grid_info_t *self, size_t size);
-ego_grid_info_t *ego_grid_info_dtor_ary(ego_grid_info_t *self, size_t size);
-ego_grid_info_t *ego_grid_info_create_ary(size_t size);
-ego_grid_info_t *ego_grid_info_destroy_ary(ego_grid_info_t *self, size_t size);
-
 //--------------------------------------------------------------------------------------------
+
 struct grid_mem_t
 {
-    int grids_x;         ///< Size in grids
-    int grids_y;
-    size_t grid_count;   ///< How many grids.
+    int _grids_x;         ///< Size in grids
+    int _grids_y;
+    size_t _grid_count;   ///< How many grids.
 
-    int blocks_x;        ///< Size in blocks
-    int blocks_y;
-    Uint32 blocks_count; ///< Number of blocks (collision areas)
+    int _blocks_x;        ///< Size in blocks
+    int _blocks_y;
+    Uint32 _blocks_count; ///< Number of blocks (collision areas)
 
-    float edge_x; ///< Limits.
-    float edge_y;
+    float _edge_x; ///< Limits.
+    float _edge_y;
 
-    Uint32 *blockstart; ///< List of blocks that start each row.
-    Uint32 *tilestart;  ///< List of tiles  that start each row.
+    Uint32 *_blockstart; ///< List of blocks that start each row.
+    Uint32 *_tilestart;  ///< List of tiles  that start each row.
 
 protected:
     // the per-grid info
-    ego_grid_info_t* grid_list;                       ///< tile command info
+    ego_grid_info_t* _grid_list;                       ///< tile command info
 public:
-    static grid_mem_t *ctor(grid_mem_t *self);
-    static grid_mem_t *dtor(grid_mem_t *self);
-    static bool alloc(grid_mem_t *self, const ego_mesh_info_t *info);
-    static bool free(grid_mem_t *self);
+	grid_mem_t();
+    ~grid_mem_t();
+    bool alloc(const ego_mesh_info_t& info);
+    void free();
     /**
      * @brief
      *  This function builds a look up table to ease calculating the fan number given an x,y pair.
      */
-    static void make_fanstart(grid_mem_t *self, const ego_mesh_info_t *info);
+	void make_fanstart(const ego_mesh_info_t& info);
 
-    static ego_grid_info_t *get(const grid_mem_t *self, const TileIndex& index)
+	ego_grid_info_t *get(const TileIndex& index)
+	{
+		// Validate arguments.
+		if (TileIndex::Invalid == index)
+		{
+			return nullptr;
+		}
+		// Assert that the grids are allocated and the index is within bounds.
+		if (!_grid_list || index.getI() >= _grid_count)
+		{
+			return nullptr;
+		}
+		return _grid_list + index.getI();
+	}
+
+    const ego_grid_info_t *get(const TileIndex& index) const
     {
         // Validate arguments.
-        if (!self || TileIndex::Invalid == index)
+        if (TileIndex::Invalid == index)
         {
             return nullptr;
         }
         // Assert that the grids are allocated and the index is within bounds.
-        if (!self->grid_list || index.getI() >= self->grid_count)
+        if (!_grid_list || index.getI() >= _grid_count)
         {
             return nullptr;
         }
-        return self->grid_list + index.getI();
+        return _grid_list + index.getI();
     }
 };
 
-
-
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the dynamically allocated mesh memory
 struct tile_mem_t
 {
+private:
+	std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>> _tileList;   ///< tile command info
+	size_t _tileCount;
 public:
-    AABB3f       bbox;                 ///< bounding box for the entire mesh
+    AABB3f _bbox;                 ///< bounding box for the entire mesh
 
     // the per-vertex info to be presented to OpenGL
-    size_t vert_count;                 ///< number of vertices
-    GLXvector3f *plst;                 ///< the position list
-    GLXvector2f *tlst;                 ///< the texture coordinate list
-    GLXvector3f *nlst;                 ///< the normal list
-    GLXvector3f *clst;                 ///< the color list (for lighting the mesh)
+    size_t _vert_count;                 ///< number of vertices
+    GLXvector3f *_plst;                 ///< the position list
+    GLXvector2f *_tlst;                 ///< the texture coordinate list
+    GLXvector3f *_nlst;                 ///< the normal list
+    GLXvector3f *_clst;                 ///< the color list (for lighting the mesh)
 
-    static tile_mem_t *ctor(tile_mem_t *self);
-    static tile_mem_t *dtor(tile_mem_t *self);
-    static bool free(tile_mem_t *self);
-    static bool alloc(tile_mem_t *self, const ego_mesh_info_t *info);
+	tile_mem_t();
+	~tile_mem_t();
+    void free();
+    bool alloc(const ego_mesh_info_t& info);
 
-    static const std::shared_ptr<ego_tile_info_t>& get(const tile_mem_t *self,const TileIndex& index)
+    const std::shared_ptr<ego_tile_info_t>& get(const TileIndex& index) const
     {
         // Assert that the index is within bounds.
-        if (TileIndex::Invalid == index || !self)
+        if (TileIndex::Invalid == index)
         {
             return ego_tile_info_t::NULL_TILE;
         }
-        return self->getTile(index.getI());
+        return getTile(index.getI());
     }
 
-    const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y) const
-    {
-        if(x >= _tileList.size()) return ego_tile_info_t::NULL_TILE;
-        if(y >= _tileList[x].size()) return ego_tile_info_t::NULL_TILE;
+	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y)
+	{
+		if (x >= _tileList.size()) return ego_tile_info_t::NULL_TILE;
+		if (y >= _tileList[x].size()) return ego_tile_info_t::NULL_TILE;
 
-        //Retrieve the tile and return it
-        return _tileList[x][y];
-    }
+		//Retrieve the tile and return it
+		return _tileList[x][y];
+	}
 
+	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y) const
+	{
+		if (x >= _tileList.size()) return ego_tile_info_t::NULL_TILE;
+		if (y >= _tileList[x].size()) return ego_tile_info_t::NULL_TILE;
+
+		//Retrieve the tile and return it
+		return _tileList[x][y];
+	}
+
+	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t index)
+	{
+		if (index >= _tileCount) return ego_tile_info_t::NULL_TILE;
+
+		//Extract X and Y positions
+		size_t x = index % _tileList.size();
+		size_t y = index / _tileList[x].size();
+
+		//Retrieve the tile and return it
+		return getTile(x, y);
+	}
 
     const std::shared_ptr<ego_tile_info_t>& getTile(const size_t index) const
     {
@@ -457,28 +548,22 @@ public:
 
     std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>>& getAllTiles() { return _tileList; }
 
-private:
-    std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>> _tileList;   ///< tile command info
-    size_t _tileCount;
 };
-
-
 
 //--------------------------------------------------------------------------------------------
 
 struct mpdfx_list_ary_t
 {
-    size_t   cnt;
+    size_t _cnt;
+    size_t _idx;
+    size_t *_lst;
 
-    size_t   idx;
-    size_t * lst;
-
-    static mpdfx_list_ary_t *ctor(mpdfx_list_ary_t *self);
-    static mpdfx_list_ary_t *dtor(mpdfx_list_ary_t *self);
-    static mpdfx_list_ary_t *alloc(mpdfx_list_ary_t *self, size_t size);
-    static mpdfx_list_ary_t *dealloc(mpdfx_list_ary_t *self);
-    static mpdfx_list_ary_t *reset(mpdfx_list_ary_t *self);
-    static bool push(mpdfx_list_ary_t *self, size_t value);
+	mpdfx_list_ary_t();
+	~mpdfx_list_ary_t();
+    void reset();
+    bool push(size_t value);
+	void alloc(size_t size);
+	void dealloc();
 };
 
 
@@ -486,7 +571,8 @@ struct mpdfx_list_ary_t
 //--------------------------------------------------------------------------------------------
 struct mpdfx_lists_t
 {
-    bool   dirty;
+	// If @a true, the lists are constructed & allocated but are not synchronized with grid memory.
+    bool dirty;
 
     mpdfx_list_ary_t sha;
     mpdfx_list_ary_t drf;
@@ -497,13 +583,13 @@ struct mpdfx_lists_t
     mpdfx_list_ary_t dam;
     mpdfx_list_ary_t slp;
 
-    static mpdfx_lists_t *ctor(mpdfx_lists_t *self);
-    static mpdfx_lists_t *dtor(mpdfx_lists_t *self);
-    static bool alloc(mpdfx_lists_t *self, const ego_mesh_info_t *info);
-    static bool dealloc(mpdfx_lists_t *self);
-    static bool reset(mpdfx_lists_t *self);
-    static int push(mpdfx_lists_t *self, GRID_FX_BITS fx_bits, size_t value);
-    static bool synch(mpdfx_lists_t *self, const grid_mem_t *other, bool force);
+	mpdfx_lists_t();
+	~mpdfx_lists_t();
+    bool alloc(const ego_mesh_info_t& info);
+    void dealloc();
+    void reset();
+    int push(GRID_FX_BITS fx_bits, size_t value);
+    bool synch(const grid_mem_t& other, bool force);
 };
 
 
@@ -513,7 +599,7 @@ struct mpdfx_lists_t
 /// The generic parameters describing an ego_mesh
 struct ego_mesh_info_t
 {
-    size_t vertcount;    ///< For malloc
+    size_t _vertcount;    ///< For malloc
 
     /**
      * @brief
@@ -521,14 +607,14 @@ struct ego_mesh_info_t
      * @todo
      *  Rename to @a sizeX. The type should be @a size_t.
      */
-    int tiles_x;
+    int _tiles_x;
     /**
      * @brief
      *  The size, in tiles, along the y-axis.
      * @todo
      *  Rename to @a sizeY. The type should be @a size_t.
      */
-    int tiles_y;
+    int _tiles_y;
     /**
      * @brief
      *  The number of tiles in the mesh.
@@ -537,14 +623,26 @@ struct ego_mesh_info_t
      * @todo
      *  Rename to @a size. The type should be @a size_t.
      */
-    uint32_t tiles_count;
+    uint32_t _tiles_count;
 
-    static ego_mesh_info_t *ctor(ego_mesh_info_t *self);
-    static ego_mesh_info_t *dtor(ego_mesh_info_t *self);
-    static void init(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y);
+	ego_mesh_info_t();
+	~ego_mesh_info_t();
+    void reset(int numvert, size_t tiles_x, size_t tiles_y);
 };
 
 //--------------------------------------------------------------------------------------------
+
+// struct for caching fome values for wall collisions
+/// MH: This seems to be used like an iterator.
+struct mesh_wall_data_t
+{
+	int   ix_min, ix_max, iy_min, iy_max;
+	float fx_min, fx_max, fy_min, fy_max;
+
+	const ego_mesh_info_t *pinfo;
+	const ego_grid_info_t *glist;
+};
+
 
 /// Egoboo's representation of the .mpd mesh file
 class ego_mesh_t
@@ -555,13 +653,13 @@ public:
 
     ~ego_mesh_t();
 
-    ego_mesh_info_t info;
-    tile_mem_t tmem;
-    grid_mem_t gmem;
-    mpdfx_lists_t fxlists;
+    ego_mesh_info_t _info;
+    tile_mem_t _tmem;
+    grid_mem_t _gmem;
+    mpdfx_lists_t _fxlists;
 
-    static Vector3f get_diff(const ego_mesh_t *self, const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits);
-    static float get_pressure(const ego_mesh_t *self, const Vector3f& pos, float radius, const BIT_FIELD bits);
+    Vector3f get_diff(const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits);
+    float get_pressure(const Vector3f& pos, float radius, const BIT_FIELD bits) const;
 	/// @brief Remove extra ambient light in the lightmap.
     void remove_ambient();
 	void recalc_twist();
@@ -571,16 +669,7 @@ public:
     
     bool light_one_corner(ego_tile_info_t *ptile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float * plight);
 
-    /**
-    * @brief 
-    *   Get the precise height of the mesh at a given point (world coordinates).
-    * @param point 
-    *   the point (world coordinates)
-    * @return 
-    *   the precise height of the mesh at the given point if there is a height at that point,
-    *   0 otherwise
-    **/
-    float getElevation(const PointWorld& point) const;
+
 
     /// @brief Get the block index of the block at a given point (world coordinates).
     /// @param point the point (world coordinates)
@@ -606,7 +695,7 @@ public:
     ///         #INVALID_TILE otherwise
     TileIndex get_tile_int(const PointGrid& point) const;
 
-    static bool grid_is_valid(const ego_mesh_t *self, const TileIndex& id);
+    bool grid_is_valid(const TileIndex& id) const;
 
     /**
      * @brief
@@ -632,43 +721,52 @@ public:
      *  a pointer to the grid information of the tile at the index in this mesh
      *  if the grids are allocated and the index is within bounds, @a nullptr otherwise.
      */
-    ego_grid_info_t* get_pgrid(const TileIndex& index) const;
+	const ego_grid_info_t *get_pgrid(const TileIndex& index) const;
+	ego_grid_info_t *get_pgrid(const TileIndex& index);
 
+    Uint32 test_fx(const TileIndex& index, const BIT_FIELD flags) const;
 
-    static Uint32 test_fx(const ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
+	bool clear_fx(const TileIndex& index, const BIT_FIELD flags);
+	bool add_fx(const TileIndex& index, const BIT_FIELD flags);
+	static Uint8 get_twist(ego_mesh_t *self, const TileIndex& index);
+
+	/// @todo @a pos and @a radius should be passed as a sphere.
+	BIT_FIELD hit_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t *private_data) const;
+	/// @todo @a pos and @a radius should be passed as a sphere.
+	BIT_FIELD test_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data) const;
+
+	/**
+	 * @brief
+	 *  Get the precise height of the mesh at a given point (world coordinates).
+	 * @param point
+	 *	the point (world coordinates)
+	 * @param waterwalk
+	 *	if @a true and the fan is watery, then the height returned is the water level
+	 * @return
+	 *  the precise height of the mesh at the given point if there is a height at that point,
+	 *  0 otherwise
+	 */
+	float getElevation(const PointWorld& point, bool waterwalk) const;
+	/**
+	 * @brief
+	 *  Get the precise height of the mesh at a given point (world coordinates).
+	 * @param point
+	 *  the point (world coordinates)
+	 * @return
+	 *  the precise height of the mesh at the given point if there is a height at that point,
+	 *  0 otherwise
+	 **/
+	float getElevation(const PointWorld& point) const;
+
+	static bool tile_has_bits(std::shared_ptr<const ego_mesh_t> mesh, const PointGrid& point, const BIT_FIELD bits);
 
 };
-
 
 float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point);
 float ego_mesh_get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, float xmin, float ymin, float xmax, float ymax);
 
-
-//Previously inlined
-
-bool ego_mesh_clear_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
-bool ego_mesh_add_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
-
-bool ego_mesh_tile_has_bits(const ego_mesh_t *, const PointGrid& point, const BIT_FIELD bits);
-
-Uint8 ego_mesh_get_twist(ego_mesh_t *self, const TileIndex& index);
-
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// struct for caching fome values for wall collisions
 
-struct mesh_wall_data_t
-{
-    int   ix_min, ix_max, iy_min, iy_max;
-    float fx_min, fx_max, fy_min, fy_max;
-
-    ego_mesh_info_t  * pinfo;
-    ego_grid_info_t * glist;
-};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 extern Vector3f  map_twist_nrm[256];
 extern FACING_T  map_twist_facing_y[256];              ///< For surface normal of mesh
 extern FACING_T  map_twist_facing_x[256];
@@ -685,28 +783,19 @@ extern TX_REF  mesh_tx_image;          ///< Last texture used
 extern Uint8   mesh_tx_size;           ///< what size texture?
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 /// loading/saving
-ego_mesh_t *ego_mesh_load( const char *modname, ego_mesh_t * mesh);
+std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName);
 
 void   ego_mesh_make_twist();
 
 bool ego_mesh_test_corners(ego_mesh_t *self, ego_tile_info_t *tile, float threshold);
 float ego_mesh_light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
-bool ego_mesh_interpolate_vertex(tile_mem_t *mem, ego_tile_info_t *tile, float pos[], float *plight);
-
-bool grid_light_one_corner(const ego_mesh_t *mesh, const TileIndex& fan, float height, float nrm[], float *plight);
-
-/// @todo @a pos and @a radius should be passed as a sphere.
-BIT_FIELD ego_mesh_hit_wall(const ego_mesh_t *mesh, const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t * private_data);
-/// @todo @a pos and @a radius should be passed as a sphere.
-BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const Vector3f& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data);
-
+bool ego_mesh_interpolate_vertex(tile_mem_t *self, ego_tile_info_t *tile, float pos[], float *plight);
+bool grid_light_one_corner(const ego_mesh_t& self, const TileIndex& fan, float height, float nrm[], float *plight);
 
 bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& tile, Uint16 image);
 bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& tile);
-
-
 bool ego_mesh_update_water_level(ego_mesh_t *self);
 
 void mesh_texture_invalidate();
@@ -715,7 +804,7 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
 
 Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);
 
-float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk );
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

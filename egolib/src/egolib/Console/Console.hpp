@@ -25,19 +25,6 @@
 #include "egolib/typedef.h"
 
 //--------------------------------------------------------------------------------------------
-// TYPEDEFS
-//--------------------------------------------------------------------------------------------
-
-// opaque console struct
-struct egolib_console_t;
-
-
-
-//--------------------------------------------------------------------------------------------
-// struct s_egolib_console
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
@@ -47,25 +34,89 @@ class egolib_console_FontWrapper;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define EGOBOO_CONSOLE_LINES   32
-#define EGOBOO_CONSOLE_LENGTH 256
-#define EGOBOO_CONSOLE_PROMPT '>'
-#define EGOBOO_CONSOLE_OUTPUT 4096
-
-#define EGOBOO_CONSOLE_WRITE_LEN 1024
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 namespace Ego {
 namespace Core {
 
+struct ConsoleSettings {
+	/// The length: The maximum number of lines in a console.
+	static const int Length = 32;
+	struct OutputSettings {
+		/// The length: The maximum number of characters in the output.
+		static const int Length = 4096;
+	};
+	struct InputSettings {
+		/// The prompt (a symbol to indicate readiness). Default is &gt;.
+		static const std::string Prompt;
+		/// The length: The maximum number of characters in a input line.
+		static const int Length = 1024;
+	};
+	struct LineSettings {
+		/// The length: The maximum number of characters in a line.
+		static const int Length = 256;
+	};
+	struct HistorySettings {
+		// The length: the maximum number of lines in a history.
+		static const int Length = 32;
+	};
+};
+
+/**
+ * @brief
+ *  The history of a console.
+ *
+ *  <p>
+ *  A history is a bounded lifo queue:
+ *	If an element is added and the history is full, then the oldest element is removed.
+ *  </p>
+ *
+ *	<p>
+ *	The other part of a history is a browser.
+ *	</p>
+ */
+struct ConsoleHistory {
+	int _index;
+	int _size;
+	char _buffer[ConsoleSettings::HistorySettings::Length][ConsoleSettings::LineSettings::Length];
+	/**
+	 * @brief
+	 *	Construct this history.
+	 */
+	ConsoleHistory();
+	/**
+	 * @brief
+	 *	Get the focused line.
+	 * @return
+	 *	the focused line
+	 *	If the entry index is @a size, the empty string is returned
+	 */
+	const char *get_saved();
+	/**
+	 *
+	 * @post
+	 *	If the string is empty, the history was not observably modified.
+	 *	Otherwise:
+	 *  If the history was full, the oldest element was removed.
+	 *	The new element is the most recent element.
+	 *	The entry index was set to @a size.
+     */
+	void add_saved(char *line);
+
+	/**
+	 * @brief
+	 *	Scroll up the history.
+	 *	Decrement the entry index if it is not @a 0.
+	 */
+	void up();
+	/**
+	 * @brief
+	 *	Scroll down the history.
+	 *  Increment the index if it is not @a size.
+	 */
+	void down();
+};
+
 /// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
-struct Console
-{
-	static Console *_singleton;
-	static void startup();
-	static void shutdown();
+struct Console {
 	/// console callback used to implement specializations of the egolib_console
 	typedef bool (*Callback)(Console *console, void *data);
 	Console *pnext;
@@ -83,15 +134,13 @@ struct Console
 
     SDL_Rect rect;
 
-    int save_count;
-    int save_index;
-    char save_buffer[EGOBOO_CONSOLE_LINES][EGOBOO_CONSOLE_LENGTH];
+	ConsoleHistory history;
 
     size_t buffer_carat;
-    char buffer[EGOBOO_CONSOLE_LENGTH];
+    char buffer[ConsoleSettings::LineSettings::Length];
 
     size_t output_carat;
-    char output_buffer[EGOBOO_CONSOLE_OUTPUT];
+    char output_buffer[ConsoleSettings::OutputSettings::Length];
 
 	Console(SDL_Rect rectangle, Callback callback, void *data);
 	virtual ~Console();
@@ -106,25 +155,7 @@ struct Console
     void print(const char *format, ...) GCC_PRINTF_FUNC(2);
     void printv(const char *format, va_list args);
 
-    /**
-     * @brief
-     *  Get a saved line.
-     * @return
-     *  the saved line
-     * @todo
-     *  Semantics if there are no saved lines?
-     */
-    const char *get_saved();
-    /**
-     * @brief
-     *  Add a line to the saved lines.
-     * @param line
-     *  the line
-     * @post
-     *  If the array of lines was full, the first line was removed from the array.
-     *  The given line was appended to the array. The save index refers to the appended line.
-     */
-    void add_saved(char *line);
+	ConsoleHistory& getHistory();
 
     void add_output(char *line);
 	
@@ -133,14 +164,20 @@ struct Console
 } // namespace Core
 } // namespace Ego
 
-struct egolib_console_handler_t
-{
+namespace Ego {
+namespace Core {
+
+/**
+ * @brief
+ *	The console handler.
+ */
+struct ConsoleHandler {
 protected:
-    static void draw_begin();
-    static void draw_end();
+    void draw_begin();
+    void draw_end();
 public:
-    static void draw_all();
-    static bool push_front(Ego::Core::Console *console);
+    void draw_all();
+    bool push_front(Console *console);
     /**
      * @brief
      *  Remove the console from the console stack.
@@ -149,7 +186,7 @@ public:
      * @return
      *  @a true if the console was removed, @a false otherwise
      */
-    static bool unlink(Ego::Core::Console *console);
+    bool unlink(Console *console);
 
     /**
     * @return
@@ -158,11 +195,20 @@ public:
     *  - @a event is not @a nullptr and the event was handled by some console.
     *  @a event in all other cases.
     */
-    static SDL_Event *handle_event(SDL_Event *event);
+    SDL_Event *handle_event(SDL_Event *event);
 
+private:
+	static ConsoleHandler *_singleton;
+	ConsoleHandler();
+	~ConsoleHandler();
+public:
     static void initialize();
     static void uninitialize();
+	static ConsoleHandler& get();
 };
+
+} // namespace Core
+} // namespace Ego
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

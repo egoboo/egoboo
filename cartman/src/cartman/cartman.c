@@ -1969,7 +1969,7 @@ void draw_main( cartman_mpd_t * pmesh )
         mesh_calc_vrta( pmesh );
     }
 
-    egolib_console_handler_t::draw_all();
+    Ego::Core::ConsoleHandler::get().draw_all();
 
     dunframe++;
     secframe++;
@@ -2031,7 +2031,7 @@ int SDL_main( int argcnt, char* argtext[] )
     gfx_system_begin();
 
     // Initialize the console.
-    egolib_console_handler_t::initialize();
+    Ego::Core::ConsoleHandler::initialize();
 
     // Load the module
     if (!load_module(modulename, &mesh))
@@ -2060,7 +2060,7 @@ int SDL_main( int argcnt, char* argtext[] )
         timclock = SDL_GetTicks() >> 3;
     }
     Cartman::GUI::uninitialize();
-    egolib_console_handler_t::uninitialize();
+    Ego::Core::ConsoleHandler::uninitialize();
     gfx_system_end();
     Cartman::Input::uninitialize();
     Ego::Core::System::uninitialize();

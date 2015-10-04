@@ -69,8 +69,9 @@ void Passage::open()
             for ( int x = _area._left; x <= _area._right; x++ )
             {
                 //clear impassable and wall bits
-                TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
-                ego_mesh_clear_fx( _currentModule->getMeshPointer(), fan, MAPFX_WALL | MAPFX_IMPASS );
+				auto mesh = _currentModule->getMeshPointer();
+                TileIndex fan = mesh->get_tile_int(PointGrid(x, y));
+				mesh->clear_fx( fan, MAPFX_WALL | MAPFX_IMPASS );
             }
         }
     }
@@ -134,7 +135,7 @@ bool Passage::close()
         for ( int x = _area._left; x <= _area._right; x++ )
         {
             TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
-            ego_mesh_add_fx( _currentModule->getMeshPointer(), fan, _mask );
+			_currentModule->getMeshPointer()->add_fx( fan, _mask );
         }
     }
 
@@ -148,10 +149,10 @@ bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
 
     // Passage area
     radius += CLOSE_TOLERANCE;
-    tmp_rect._left   = ( _area._left          * GRID_FSIZE ) - radius;
-    tmp_rect._top    = ( _area._top           * GRID_FSIZE ) - radius;
-    tmp_rect._right  = (( _area._right + 1 )  * GRID_FSIZE ) + radius;
-    tmp_rect._bottom = (( _area._bottom + 1 ) * GRID_FSIZE ) + radius;
+    tmp_rect._left   = ( _area._left          * Info<float>::Grid::Size()) - radius;
+    tmp_rect._top    = ( _area._top           * Info<float>::Grid::Size()) - radius;
+    tmp_rect._right  = (( _area._right + 1 )  * Info<float>::Grid::Size()) + radius;
+    tmp_rect._bottom = (( _area._bottom + 1 ) * Info<float>::Grid::Size()) + radius;
 
     return tmp_rect.point_inside(xpos, ypos);
 }
@@ -222,11 +223,11 @@ void Passage::flashColor(uint8_t color)
             for (int cnt = 0; cnt < 4; cnt++ )
             {
                 // set the color
-                ptile->lcache[cnt]       = color;
+                ptile->_lcache[cnt]         = color;
 
                 // force the lighting code to update
-                ptile->request_clst_update = true;
-                ptile->clst_frame          = -1;
+                ptile->_request_clst_update = true;
+                ptile->_clst_frame          = -1;
             }
         }
     }
@@ -237,10 +238,10 @@ bool Passage::isPointInside( float xpos, float ypos ) const
     frect_t tmp_rect;
 
     // Passage area
-    tmp_rect._left   = _area._left * GRID_FSIZE;
-    tmp_rect._top    = _area._top * GRID_FSIZE;
-    tmp_rect._right  = ( _area._right + 1 ) * GRID_FSIZE;
-    tmp_rect._bottom = ( _area._bottom + 1 ) * GRID_FSIZE;
+    tmp_rect._left   = _area._left * Info<float>::Grid::Size();
+    tmp_rect._top    = _area._top * Info<float>::Grid::Size();
+    tmp_rect._right  = ( _area._right + 1 ) * Info<float>::Grid::Size();
+    tmp_rect._bottom = ( _area._bottom + 1 ) * Info<float>::Grid::Size();
 
     return tmp_rect.point_inside(xpos, ypos );
 }

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file    egolib/clock.h
+/// @file    egolib/Clock.hpp
 /// @brief   clock & timer functionality
 /// @author  Michael Heilmann
 

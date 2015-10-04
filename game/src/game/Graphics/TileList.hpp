@@ -80,7 +80,7 @@ struct renderlist_lst_t
 /// Which tiles are to be drawn, arranged by MAPFX_* bits
 struct TileList
 {
-	ego_mesh_t *_mesh;
+	std::shared_ptr<ego_mesh_t> _mesh;
 	renderlist_lst_t _all;     ///< List of which to render, total
 	renderlist_lst_t _ref;     ///< ..., is reflected in the floor
 	renderlist_lst_t _sha;     ///< ..., is not reflected in the floor
@@ -122,12 +122,12 @@ struct TileList
 	/// @return the mesh or @a nullptr
 	/// @post If the render list is attached to a mesh, that mesh is returned.
 	///       Otherwise a null pointer is returned.
-	ego_mesh_t *getMesh() const;
+	std::shared_ptr<ego_mesh_t> getMesh() const;
 	/// @brief Set mesh this render list is attached to.
 	/// @param mesh the mesh or @a nullptr
 	/// @post If @a mesh is not a null pointer, then this render list is attached to that mesh.
 	///       Otherwise it is detached.
-	void setMesh(ego_mesh_t *mesh);
+	void setMesh(std::shared_ptr<ego_mesh_t> mesh);
 	/// @brief Insert a tile into this render list.
 	/// @param the index of the tile to insert
 	/// @param camera the camera
