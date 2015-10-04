@@ -869,7 +869,7 @@ void do_damage_tiles()
         if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
-		auto& mesh = _currentModule->getMeshPointer();
+		auto mesh = _currentModule->getMeshPointer();
         if ( !mesh->grid_is_valid( pchr->getTile() ) ) continue;
         if ( 0 == mesh->test_fx( pchr->getTile(), MAPFX_DAMAGE ) ) continue;
 

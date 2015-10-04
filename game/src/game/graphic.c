@@ -1085,7 +1085,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
         }
     }
 
-    auto& mesh = tl.getMesh();
+    auto mesh = tl.getMesh();
     if (!mesh)
     {
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
@@ -1630,7 +1630,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
     /// which means that the threshold could be set as low as 1/64 = 0.015625.
     const float delta_threshold = 0.05f;
 
-    auto& mesh = tl.getMesh();
+    auto mesh = tl.getMesh();
     if (!mesh)
     {
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not attached to a mesh");
@@ -1722,7 +1722,7 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
     ego_tile_info_t   *ptile = NULL;
     tile_definition_t *pdef = NULL;
 
-    auto& mesh = tl.getMesh();
+    auto mesh = tl.getMesh();
     if (!mesh)
     {
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
@@ -2026,7 +2026,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 
     dynalight_data_t fake_dynalight;
 
-	auto& mesh = tl.getMesh();
+	auto mesh = tl.getMesh();
     if (!mesh)
     {
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not attached to a mesh");
@@ -2490,7 +2490,7 @@ gfx_rv gfx_update_all_chr_instance()
             continue;
         }
 
-		auto& mesh = _currentModule->getMeshPointer();
+		auto mesh = _currentModule->getMeshPointer();
         if (!mesh->grid_is_valid(pchr->getTile())) continue;
 
         tmp_rv = update_one_chr_instance(pchr.get());

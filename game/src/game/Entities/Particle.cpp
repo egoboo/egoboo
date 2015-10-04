@@ -1314,7 +1314,7 @@ const std::shared_ptr<Object>& Particle::getTarget() const
 
 bool Particle::isOverWater() const
 {
-	auto& mesh = _currentModule->getMeshPointer();
+	auto mesh = _currentModule->getMeshPointer();
     return (0 != mesh->test_fx(getTile(), MAPFX_WATER));
 }
 

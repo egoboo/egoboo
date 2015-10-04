@@ -590,7 +590,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
 	// much reduced shadow if on a reflective tile
-	auto& mesh = _currentModule->getMeshPointer();
+	auto mesh = _currentModule->getMeshPointer();
 	if (0 != mesh->test_fx(pchr->getTile(), MAPFX_REFLECTIVE))
 	{
 		alpha *= 0.1f;
@@ -678,7 +678,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
 	// much reduced shadow if on a reflective tile
-	auto& mesh = _currentModule->getMeshPointer();
+	auto mesh = _currentModule->getMeshPointer();
 	if (0 != mesh->test_fx(pchr->getTile(), MAPFX_REFLECTIVE))
 	{
 		alpha *= 0.1f;
@@ -825,7 +825,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 }
 
 void EntityReflections::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
-	auto& mesh = tl.getMesh();
+	auto mesh = tl.getMesh();
 	if (!mesh) {
 		log_warning("%s:%d: tile list not attached to a mesh - skipping pass\n", __FILE__, __LINE__);
 		return;
