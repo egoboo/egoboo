@@ -583,7 +583,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 
         touch_a_floor = true;
 
-        uint8_t tmp_twist = cartman_get_fan_twist(_currentModule->getMeshPointer().get(), loc_pprt->getTile());
+        uint8_t tmp_twist = ego_mesh_t::get_fan_twist(_currentModule->getMeshPointer().get(), loc_pprt->getTile());
 
         if (TWIST_FLAT != tmp_twist)
         {

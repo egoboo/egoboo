@@ -224,9 +224,9 @@ BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure
     BIT_FIELD stoppedby = MAPFX_IMPASS;
     if (0 != getProfile()->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
 
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
+    g_meshStats.mpdfxTests = 0;
+    g_meshStats.boundTests = 0;
+    g_meshStats.pressureTests = 0;
     return _currentModule->getMeshPointer()->hit_wall(pos, 0.0f, stoppedby, nrm, pressure, data);
 }
 
@@ -241,9 +241,9 @@ BIT_FIELD Particle::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
     if (0 != getProfile()->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
 
     // Do the wall test.
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
+    g_meshStats.mpdfxTests = 0;
+	g_meshStats.boundTests = 0;
+	g_meshStats.pressureTests = 0;
     return _currentModule->getMeshPointer()->test_wall(pos, 0.0f, stoppedby, data);
 }
 

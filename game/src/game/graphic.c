@@ -1588,7 +1588,7 @@ gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, in
 #if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
 
     // visible fans based on the update "need"
-    retval = ego_mesh_test_corners(mesh, ptile, threshold);
+    retval = ego_mesh_t::test_corners(mesh, ptile, threshold);
 
     // update every 4 fans even if there is no need
     if (!retval)
@@ -1693,7 +1693,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
-        delta = ego_mesh_light_corners(tl._mesh.get(), ptile, reflective, local_mesh_lighting_keep);
+        delta = ego_mesh_t::light_corners(tl._mesh.get(), ptile, reflective, local_mesh_lighting_keep);
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to

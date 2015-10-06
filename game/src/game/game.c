@@ -411,7 +411,7 @@ void update_all_objects()
 //--------------------------------------------------------------------------------------------
 void move_all_objects()
 {
-    mesh_mpdfx_tests = 0;
+	g_meshStats.mpdfxTests = 0;
 
     move_all_particles();
     move_all_characters();

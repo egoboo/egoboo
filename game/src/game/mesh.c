@@ -46,9 +46,7 @@ const std::shared_ptr<ego_tile_info_t> ego_tile_info_t::NULL_TILE = nullptr;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-int mesh_mpdfx_tests = 0;
-int mesh_bound_tests = 0;
-int mesh_pressure_tests = 0;
+MeshStats g_meshStats;
 
 Vector3f  map_twist_nrm[256];
 FACING_T  map_twist_facing_y[256];            // For surface normal of mesh
@@ -306,7 +304,7 @@ void ego_mesh_t::recalc_twist()
     // recalculate the twist
     for (TileIndex fan = 0; fan.getI() < _info._tiles_count; fan++)
     {
-        Uint8 twist = cartman_get_fan_twist(this, fan);
+        Uint8 twist = ego_mesh_t::get_fan_twist(this, fan);
         _gmem.get(fan)->_twist = twist;
     }
 }
@@ -954,7 +952,7 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
 }
 
 //--------------------------------------------------------------------------------------------
-bool grid_light_one_corner( const ego_mesh_t& mesh, const TileIndex& fan, float height, float nrm[], float * plight )
+bool ego_mesh_t::light_corner( const ego_mesh_t& mesh, const TileIndex& fan, float height, float nrm[], float * plight )
 {
     // valid parameters?
     if ( NULL == plight)
@@ -1061,7 +1059,7 @@ bool ego_mesh_t::light_one_corner(ego_tile_info_t * ptile, const bool reflective
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_test_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, float threshold )
+bool ego_mesh_t::test_corners(ego_mesh_t *mesh, ego_tile_info_t *ptile, float threshold)
 {
     bool retval;
     int corner;
@@ -1112,7 +1110,7 @@ bool ego_mesh_test_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, float th
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep )
+float ego_mesh_t::light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep )
 {
     int corner;
     float max_delta;
@@ -1342,7 +1340,7 @@ BIT_FIELD ego_mesh_t::test_wall(const Vector3f& pos, const float radius, const B
     if ( bound.ymin < 0 || bound.ymax >= pdata->pinfo->_tiles_y )
     {
         pass = ( MAPFX_IMPASS | MAPFX_WALL ) & bits;
-        mesh_bound_tests++;
+		g_meshStats.boundTests++;
     }
     if ( EMPTY_BIT_FIELD != pass ) return pass;
 
@@ -1350,7 +1348,7 @@ BIT_FIELD ego_mesh_t::test_wall(const Vector3f& pos, const float radius, const B
     if ( bound.xmin < 0 || bound.xmax >= pdata->pinfo->_tiles_x )
     {
         pass = ( MAPFX_IMPASS | MAPFX_WALL ) & bits;
-        mesh_bound_tests++;
+		g_meshStats.boundTests++;
     }
     if ( EMPTY_BIT_FIELD != pass ) return pass;
 
@@ -1370,7 +1368,7 @@ BIT_FIELD ego_mesh_t::test_wall(const Vector3f& pos, const float radius, const B
                 return pass;
             }
 
-            mesh_mpdfx_tests++;
+			g_meshStats.mpdfxTests++;
         }
     }
 
@@ -1494,7 +1492,7 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
 
                 loc_pressure += area_ratio;
 
-                mesh_pressure_tests++;
+                g_meshStats.pressureTests++;
             }
         }
     }
@@ -1634,7 +1632,7 @@ BIT_FIELD ego_mesh_t::hit_wall( const Vector3f& pos, const float radius, const B
             }
 
             invalid = true;
-            mesh_bound_tests++;
+			g_meshStats.boundTests++;
         }
 
         for ( ix = pdata->ix_min; ix <= pdata->ix_max; ix++ )
@@ -1654,7 +1652,7 @@ BIT_FIELD ego_mesh_t::hit_wall( const Vector3f& pos, const float radius, const B
                 }
 
                 invalid = true;
-                mesh_bound_tests++;
+				g_meshStats.boundTests++;
             }
 
             if ( !invalid )
@@ -1723,7 +1721,7 @@ BIT_FIELD ego_mesh_t::hit_wall( const Vector3f& pos, const float radius, const B
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
+float ego_mesh_t::get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
 {
     Uint32 cnt;
     float zmax;
@@ -1753,7 +1751,7 @@ float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point, float xmin, float ymin, float xmax, float ymax )
+float ego_mesh_t::get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point, float xmin, float ymin, float xmax, float ymax )
 {
     Uint32 cnt;
     float zmax;
@@ -2075,13 +2073,13 @@ bool ego_mesh_t::tile_has_bits( const PointGrid& point, const BIT_FIELD bits ) c
 
 Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test )
 {
-    mesh_mpdfx_tests++;
+	g_meshStats.mpdfxTests++;
     return HAS_SOME_BITS( mpdfx, test );
 }
 
 bool ego_mesh_t::grid_is_valid(const TileIndex& index) const
 {
-    mesh_bound_tests++;
+	g_meshStats.boundTests++;
 
     if (TileIndex::Invalid == index)
     {
@@ -2171,10 +2169,10 @@ bool ego_mesh_t::clear_fx( const TileIndex& itile, const BIT_FIELD flags )
     bool retval;
 
     // test for invalid tile
-    mesh_bound_tests++;
+	g_meshStats.boundTests++;
     if ( itile > _info._tiles_count ) return false;
 
-    mesh_mpdfx_tests++;
+	g_meshStats.mpdfxTests++;
     retval = ego_grid_info_t::sub_pass_fx(_gmem.get(itile), flags );
 
     if ( retval )
@@ -2188,14 +2186,14 @@ bool ego_mesh_t::clear_fx( const TileIndex& itile, const BIT_FIELD flags )
 bool ego_mesh_t::add_fx(const TileIndex& index, const BIT_FIELD flags)
 {
     // Validate tile index.
-    mesh_bound_tests++;
+	g_meshStats.boundTests++;
     if (index > _info._tiles_count)
     {
         return false;
     }
 
     // Succeed only of something actually changed.
-    mesh_mpdfx_tests++;
+	g_meshStats.mpdfxTests++;
     bool retval = ego_grid_info_t::add_pass_fx(_gmem.get(index), flags);
 
     if ( retval )
@@ -2212,7 +2210,7 @@ Uint32 ego_mesh_t::test_fx(const TileIndex& index, const BIT_FIELD flags) const
     if (EMPTY_BIT_FIELD == flags) return 0;
 
     // test for invalid tile
-    mesh_bound_tests++;
+	g_meshStats.boundTests++;
     if (index > _info._tiles_count)
     {
         return flags & ( MAPFX_WALL | MAPFX_IMPASS );
@@ -2224,7 +2222,7 @@ Uint32 ego_mesh_t::test_fx(const TileIndex& index, const BIT_FIELD flags) const
         return 0;
     }
 
-    mesh_mpdfx_tests++;
+	g_meshStats.mpdfxTests++;
     return ego_grid_info_t::test_all_fx(_gmem.get(index), flags);
 }
 
@@ -2358,7 +2356,7 @@ bool ego_grid_info_t::set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits
     return old_bits != new_bits;
 }
 
-Uint8 cartman_get_fan_twist(const ego_mesh_t *self, const TileIndex& tile)
+Uint8 ego_mesh_t::get_fan_twist(const ego_mesh_t *self, const TileIndex& tile)
 {
     // check for a valid tile
     if (TileIndex::Invalid == tile || tile > self->_info._tiles_count)

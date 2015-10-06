@@ -762,11 +762,15 @@ public:
 	void make_texture();
 	static bool set_texture(ego_mesh_t *self, const TileIndex& tile, Uint16 image);
 	static bool update_texture(ego_mesh_t *self, const TileIndex& tile);
+	static bool test_corners(ego_mesh_t *self, ego_tile_info_t *tile, float threshold);
+	static float light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
+	static bool light_corner(const ego_mesh_t& self, const TileIndex& fan, float height, float nrm[], float *plight);
+	static Uint8 get_fan_twist(const ego_mesh_t *self, const TileIndex& tile);
+	static float get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point);
+	static float get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, float xmin, float ymin, float xmax, float ymax);
 
 };
 
-float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point);
-float ego_mesh_get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, float xmin, float ymin, float xmax, float ymax);
 
 //--------------------------------------------------------------------------------------------
 
@@ -776,9 +780,21 @@ extern FACING_T  map_twist_facing_x[256];
 extern Vector3f  map_twist_vel[256];            ///< For sliding down steep hills
 extern Uint8     map_twist_flat[256];
 
-extern int mesh_mpdfx_tests;
-extern int mesh_bound_tests;
-extern int mesh_pressure_tests;
+/** Per-mesh test statistics. */
+struct MeshStats {
+	/** The number of MPD-FX tests performed. */
+	int mpdfxTests;
+	/** The number of bound tests performed. */
+	int boundTests;
+	/* The number of pressure tests performed. */
+	int pressureTests;
+	/** The mesh statistics. */
+	MeshStats()
+		: mpdfxTests(0), boundTests(0), pressureTests(0) {
+	}
+};
+// Those are statistics. Move into per-mesh statistics.
+extern MeshStats g_meshStats;
 
 // variables to optimize calls to bind the textures
 extern bool  mesh_tx_none;           ///< use blank textures?
@@ -792,10 +808,9 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName);
 
 void   ego_mesh_make_twist();
 
-bool ego_mesh_test_corners(ego_mesh_t *self, ego_tile_info_t *tile, float threshold);
-float ego_mesh_light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
+
+
 bool ego_mesh_interpolate_vertex(tile_mem_t *self, ego_tile_info_t *tile, float pos[], float *plight);
-bool grid_light_one_corner(const ego_mesh_t& self, const TileIndex& fan, float height, float nrm[], float *plight);
 
 void mesh_texture_invalidate();
 oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
@@ -806,9 +821,3 @@ Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);
 //--------------------------------------------------------------------------------------------
 
 #define CARTMAN_SLOPE             50                        ///< increments for terrain slope
-
-//--------------------------------------------------------------------------------------------
-// Translated Cartman functions
-//--------------------------------------------------------------------------------------------
-
-Uint8 cartman_get_fan_twist(const ego_mesh_t *self, const TileIndex& tile);

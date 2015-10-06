@@ -412,7 +412,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
             // get the lighting info from the grid
             TileIndex jtile = mesh->get_tile_int(PointGrid(jx, jy));
             float dlight;
-            if ( grid_light_one_corner(*mesh, jtile, v0->z, nrm, &dlight) )
+            if ( ego_mesh_t::light_corner(*mesh, jtile, v0->z, nrm, &dlight) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
                 v0->r = dlight * INV_FF + alight;
