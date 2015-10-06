@@ -766,8 +766,8 @@ public:
 	static float light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
 	static bool light_corner(const ego_mesh_t& self, const TileIndex& fan, float height, float nrm[], float *plight);
 	static Uint8 get_fan_twist(const ego_mesh_t *self, const TileIndex& tile);
-	static float get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point);
-	static float get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, float xmin, float ymin, float xmax, float ymax);
+	float get_max_vertex_0(const PointGrid& point) const;
+	float get_max_vertex_1(const PointGrid& point, float xmin, float ymin, float xmax, float ymax) const;
 
 };
 

@@ -1721,37 +1721,34 @@ BIT_FIELD ego_mesh_t::hit_wall( const Vector3f& pos, const float radius, const B
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float ego_mesh_t::get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
+float ego_mesh_t::get_max_vertex_0(const PointGrid& point) const
 {
     Uint32 cnt;
     float zmax;
     size_t vcount, vstart, ivrt;
 
-    if (!self) return 0.0f;
-
-    TileIndex itile = self->get_tile_int(point);
+    TileIndex itile = get_tile_int(point);
     if (TileIndex::Invalid == itile)
     {
         return 0.0f;
     }
     // get a pointer to the tile
-    const std::shared_ptr<ego_tile_info_t> &ptile = self->_tmem.getTile(itile.getI());
+    const std::shared_ptr<ego_tile_info_t> &ptile = _tmem.getTile(itile.getI());
 
     vstart = ptile->_vrtstart;
-    vcount = std::min(static_cast<size_t>(4), self->_tmem._vert_count);
+    vcount = std::min(static_cast<size_t>(4), _tmem._vert_count);
 
     ivrt = vstart;
-    zmax = self->_tmem._plst[ivrt][ZZ];
+    zmax = _tmem._plst[ivrt][ZZ];
     for ( ivrt++, cnt = 1; cnt < vcount; ivrt++, cnt++ )
     {
-        zmax = std::max( zmax, self->_tmem._plst[ivrt][ZZ] );
+        zmax = std::max( zmax, _tmem._plst[ivrt][ZZ] );
     }
 
     return zmax;
 }
 
-//--------------------------------------------------------------------------------------------
-float ego_mesh_t::get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point, float xmin, float ymin, float xmax, float ymax )
+float ego_mesh_t::get_max_vertex_1( const PointGrid& point, float xmin, float ymin, float xmax, float ymax ) const
 {
     Uint32 cnt;
     float zmax;
@@ -1760,20 +1757,18 @@ float ego_mesh_t::get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& po
     int ix_off[4] = {1, 1, 0, 0};
     int iy_off[4] = {0, 1, 1, 0};
 
-    if ( NULL == mesh ) return 0.0f;
-
-    TileIndex itile = mesh->get_tile_int( point );
+    TileIndex itile = get_tile_int( point );
 
     if (TileIndex::Invalid == itile) return 0.0f;
 
-    vstart = mesh->_tmem.get(itile)->_vrtstart;
-    vcount = std::min( (size_t)4, mesh->_tmem._vert_count );
+    vstart = _tmem.get(itile)->_vrtstart;
+    vcount = std::min( (size_t)4, _tmem._vert_count );
 
     zmax = -1e6;
     for ( ivrt = vstart, cnt = 0; cnt < vcount; ivrt++, cnt++ )
     {
         float fx, fy;
-        GLXvector3f * pvert = mesh->_tmem._plst + ivrt;
+        GLXvector3f * pvert = _tmem._plst + ivrt;
 
         // we are evaluating the height based on the grid, not the actual vertex positions
         fx = ( point.getX() + ix_off[cnt] ) * Info<float>::Grid::Size();
