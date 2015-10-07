@@ -464,7 +464,6 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF ichr );
 bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem );
 bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
-float get_chr_level( ego_mesh_t * mesh, Object * pchr );
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
@@ -478,3 +477,10 @@ struct wawalite_data_t * read_wawalite_vfs();
 bool write_wawalite_vfs( const wawalite_data_t * pdata );
 bool wawalite_finalize( wawalite_data_t * pdata );
 void   upload_wawalite();
+
+// Mesh query.
+float get_chr_level(ego_mesh_t *mesh, Object *object);
+// Mesh query.
+float get_mesh_max_vertex_1(ego_mesh_t *mesh, const PointGrid& point, oct_bb_t& bump, bool waterwalk);
+// Mesh query.
+float get_mesh_max_vertex_2(ego_mesh_t *mesh, Object *object);

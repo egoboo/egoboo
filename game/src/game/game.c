@@ -113,8 +113,6 @@ static bool upload_camera_data(const wawalite_camera_t *data);
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-static float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk );
-static float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr );
 
 static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
@@ -3493,9 +3491,9 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     return can_grab;
 }
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t *mesh, const PointGrid& point, oct_bb_t& bump, bool waterwalk )
 {
-    float zdone = ego_mesh_get_max_vertex_1( mesh, point, pbump->_mins[OCT_X], pbump->_mins[OCT_Y], pbump->_maxs[OCT_X], pbump->_maxs[OCT_Y] );
+    float zdone = mesh->get_max_vertex_1( point, bump._mins[OCT_X], bump._mins[OCT_Y], bump._maxs[OCT_X], bump._maxs[OCT_Y] );
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
@@ -3509,14 +3507,17 @@ float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t
 
     return zdone;
 }
-//--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
+
+float get_mesh_max_vertex_2( ego_mesh_t *mesh, Object *object)
 {
     /// @author BB
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
 
 	if (nullptr == mesh) {
-		throw std::invalid_argument("nullptr == mesh");
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
+	if (nullptr == object) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == object");
 	}
 	
     int corner;
@@ -3529,21 +3530,21 @@ float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
 
     for ( corner = 0; corner < 4; corner++ )
     {
-        pos_x[corner] = pchr->getPosX() + (( 0 == ix_off[corner] ) ? pchr->chr_min_cv._mins[OCT_X] : pchr->chr_min_cv._maxs[OCT_X] );
-        pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
+        pos_x[corner] = object->getPosX() + (( 0 == ix_off[corner] ) ? object->chr_min_cv._mins[OCT_X] : object->chr_min_cv._maxs[OCT_X] );
+        pos_y[corner] = object->getPosY() + (( 0 == iy_off[corner] ) ? object->chr_min_cv._mins[OCT_Y] : object->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = mesh->getElevation( PointWorld(pos_x[0], pos_y[0]), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+    zmax = mesh->getElevation( PointWorld(pos_x[0], pos_y[0]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = mesh->getElevation( PointWorld(pos_x[corner], pos_y[corner]), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        float fval = mesh->getElevation( PointWorld(pos_x[corner], pos_y[corner]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         zmax = std::max( zmax, fval );
     }
 
     return zmax;
 }
 //--------------------------------------------------------------------------------------------
-float get_chr_level( ego_mesh_t * mesh, Object * pchr )
+float get_chr_level( ego_mesh_t *mesh, Object *object )
 {
     float zmax;
     int ix, ixmax, ixmin;
@@ -3555,19 +3556,19 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
 
     oct_bb_t bump;
 
-    if (!mesh || !pchr || pchr->isTerminated()) return 0;
+    if (!mesh || !object || object->isTerminated()) return 0;
 
     // certain scenery items like doors and such just need to be able to
     // collide with the mesh. They all have 0 == pchr->bump.size
-    if ( 0.0f == pchr->bump_stt.size )
+    if ( 0.0f == object->bump_stt.size )
     {
-        return mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()),
-			                      pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
+        return mesh->getElevation(PointWorld(object->getPosX(), object->getPosY()),
+			                      object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bump);
+    oct_bb_t::translate(object->chr_min_cv, object->getPosition(), bump);
 
     // determine the size of this object in tiles
     ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = CLIP( ixmin, 0, mesh->_info._tiles_x - 1 );
@@ -3579,7 +3580,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
     {
-        return get_mesh_max_vertex_2( mesh, pchr );
+        return get_mesh_max_vertex_2( mesh, object);
     }
 
     // otherwise, make up a list of tiles that the object might overlap
@@ -3612,7 +3613,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // the current system would not work for that shape
     if ( 0 == grid_vert_count )
     {
-        return get_mesh_max_vertex_2( mesh, pchr );
+        return get_mesh_max_vertex_2( mesh, object);
     }
     else
     {
@@ -3620,10 +3621,10 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
             zmax = std::max( zmax, fval );
         }
     }
