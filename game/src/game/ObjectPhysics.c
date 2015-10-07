@@ -485,7 +485,7 @@ void move_one_character_do_floor_friction( Object * pchr )
 
         if ( TWIST_FLAT != penviro->grid_twist )
         {
-            vup = map_twist_nrm[penviro->grid_twist];
+            vup = g_meshLookupTables.twist_nrm[penviro->grid_twist];
         }
 
     }
@@ -496,7 +496,7 @@ void move_one_character_do_floor_friction( Object * pchr )
 
         if ( TWIST_FLAT != penviro->grid_twist )
         {
-            vup = map_twist_nrm[penviro->grid_twist];
+            vup = g_meshLookupTables.twist_nrm[penviro->grid_twist];
         }
     }
 

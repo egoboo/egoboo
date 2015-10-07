@@ -29,14 +29,9 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// mesh initialization - not accessible by scripts
-static void   ego_mesh_make_vrtstart( ego_mesh_t * mesh );
 
-// some twist/normal functions
-static bool ego_mesh_make_normals( ego_mesh_t * mesh );
 
 static bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src );
-static bool ego_mesh_make_bbox( ego_mesh_t * mesh );
 
 static float grid_get_mix( float u0, float u, float v0, float v );
 
@@ -47,12 +42,6 @@ const std::shared_ptr<ego_tile_info_t> ego_tile_info_t::NULL_TILE = nullptr;
 //--------------------------------------------------------------------------------------------
 
 MeshStats g_meshStats;
-
-Vector3f  map_twist_nrm[256];
-FACING_T  map_twist_facing_y[256];            // For surface normal of mesh
-FACING_T  map_twist_facing_x[256];
-Vector3f  map_twist_vel[256];            // For sliding down steep hills
-Uint8     map_twist_flat[256];
 
 // variables to optimize calls to bind the textures
 bool    mesh_tx_none   = false;
@@ -260,8 +249,6 @@ ego_mesh_t::ego_mesh_t() :
     _gmem(),
     _fxlists()
 {
-    // global initialization
-    ego_mesh_make_twist();
 }
 
 ego_mesh_t::~ego_mesh_t() {
@@ -373,15 +360,15 @@ void ego_mesh_t::make_texture()
 
 void ego_mesh_t::finalize()
 {
-    ego_mesh_make_vrtstart( this );
-	this->remove_ambient();
-	this->recalc_twist();
-    ego_mesh_make_normals(this);
-    ego_mesh_make_bbox(this);
-	this->make_texture();
+    make_vrtstart();
+	remove_ambient();
+	recalc_twist();
+    make_normals();
+    make_bbox();
+	make_texture();
 
     // create some lists to make searching the mesh tiles easier
-	this->_fxlists.synch(this->_gmem, true );
+	_fxlists.synch(_gmem, true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -646,24 +633,16 @@ void grid_mem_t::make_fanstart(const ego_mesh_info_t& info)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ego_mesh_make_vrtstart( ego_mesh_t * mesh )
+void ego_mesh_t::make_vrtstart()
 {
-    size_t vert;
-    Uint32 tile;
-
-    if ( NULL == mesh ) return;
-
-	ego_mesh_info_t& pinfo = mesh->_info;
-	tile_mem_t& ptmem  = mesh->_tmem;
-
-    vert = 0;
-    for ( tile = 0; tile < pinfo._tiles_count; tile++ )
+    size_t vert = 0;
+    for (uint32_t tile = 0; tile < _info._tiles_count; tile++ )
     {
         Uint8 ttype;
 
-        ptmem.get(tile)->_vrtstart = vert;
+        _tmem.get(tile)->_vrtstart = vert;
 
-        ttype = ptmem.get(tile)->_type;
+        ttype = _tmem.get(tile)->_type;
 
         // throw away any remaining upper bits
         ttype &= 0x3F;
@@ -674,79 +653,67 @@ void ego_mesh_make_vrtstart( ego_mesh_t * mesh )
         vert += pdef->numvertices;
     }
 
-    if ( vert != pinfo._vertcount )
+    if ( vert != _info._vertcount )
     {
-		log_warning( "ego_mesh_make_vrtstart() - unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", vert, pinfo._vertcount );
+		log_warning( "%s:%d: unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", __FILE__, __LINE__, vert, _info._vertcount );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void ego_mesh_make_twist()
-{
-    /// @author ZZ
-    /// @details This function precomputes surface normals and steep hill acceleration for
-    ///    the mesh
+MeshLookupTables g_meshLookupTables;
 
-    int      cnt;
-    float    gdot;
+MeshLookupTables::MeshLookupTables() {
 	Vector3f grav = Vector3f::zero();
 
-    grav[kZ] = Physics::g_environment.gravity;
+	grav[kZ] = Physics::g_environment.gravity;
 
-    for ( cnt = 0; cnt < 256; cnt++ )
-    {
-		Vector3f gperp;    // gravity perpendicular to the mesh
-		Vector3f gpara;    // gravity parallel      to the mesh (what pushes you)
+	for (size_t cnt = 0; cnt < 256; cnt++)
+	{
 		Vector3f nrm;
 
-        twist_to_normal( cnt, nrm, 1.0f );
+		twist_to_normal(cnt, nrm, 1.0f);
 
-        map_twist_nrm[cnt] = nrm;
+		twist_nrm[cnt] = nrm;
 
-        map_twist_facing_x[cnt] = ( FACING_T )( - vec_to_facing( nrm[kZ], nrm[kY] ) );
-        map_twist_facing_y[cnt] = vec_to_facing( nrm[kZ], nrm[kX] );
+		twist_facing_x[cnt] = (FACING_T)(-vec_to_facing(nrm[kZ], nrm[kY]));
+		twist_facing_y[cnt] = vec_to_facing(nrm[kZ], nrm[kX]);
 
-        // this is about 5 degrees off of vertical
-        map_twist_flat[cnt] = false;
-        if ( nrm[kZ] > 0.9945f )
-        {
-            map_twist_flat[cnt] = true;
-        }
+		// this is about 5 degrees off of vertical
+		twist_flat[cnt] = false;
+		if (nrm[kZ] > 0.9945f)
+		{
+			twist_flat[cnt] = true;
+		}
 
-        // projection of the gravity parallel to the surface
-        gdot = grav[kZ] * nrm[kZ];
+		// projection of the gravity parallel to the surface
+		float gdot = grav[kZ] * nrm[kZ];
 
-        gperp = nrm * gdot;
+		// Gravity perpendicular to the mesh.
+		Vector3f gperp = nrm * gdot;
 
-        gpara = grav - gperp;
+		// Gravity parallel to the mesh.
+		Vector3f gpara = grav - gperp;
 
-        map_twist_vel[cnt] = gpara;
-    }
+		twist_vel[cnt] = gpara;
+	}
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_make_bbox( ego_mesh_t * mesh )
+void ego_mesh_t::make_bbox()
 {
-    /// @author BB
-    /// @details set the bounding box for each tile, and for the entire mesh
+    _tmem._bbox = AABB3f(Vector3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]),
+		                 Vector3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]));
 
-    size_t mesh_vrt;
-    int tile_vrt;
-    tile_definition_t * pdef;
-
-    if ( NULL == mesh ) return false;
-	tile_mem_t& ptmem  = mesh->_tmem;
-
-    ptmem._bbox = AABB3f(Vector3f(ptmem._plst[0][XX], ptmem._plst[0][YY], ptmem._plst[0][ZZ]),
-		                 Vector3f(ptmem._plst[0][XX], ptmem._plst[0][YY], ptmem._plst[0][ZZ]));
-
-	for (TileIndex cnt = 0; cnt.getI() < mesh->_info._tiles_count; cnt++)
+	for (TileIndex cnt = 0; cnt.getI() < _info._tiles_count; cnt++)
 	{
+		size_t mesh_vrt;
+		int tile_vrt;
+		tile_definition_t * pdef;
 		Uint16 vertices;
 		Uint8 type;
 		oct_vec_v2_t ovec;
 
-        std::shared_ptr<ego_tile_info_t> ptile = ptmem.getTile(cnt.getI());
+        std::shared_ptr<ego_tile_info_t> ptile = _tmem.getTile(cnt.getI());
         oct_bb_t& poct = ptile->_oct;
 
         ptile->_itile = cnt.getI();
@@ -756,21 +723,21 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
 		pdef = TILE_DICT_PTR(tile_dict, type);
 		if (NULL == pdef) continue;
 
-		mesh_vrt = ptmem.get(cnt)->_vrtstart;    // Number of vertices
+		mesh_vrt = _tmem.get(cnt)->_vrtstart;    // Number of vertices
 		vertices = pdef->numvertices;           // Number of vertices
 
 		// initialize the bounding box
-	    ovec = oct_vec_v2_t(Vector3f(ptmem._plst[mesh_vrt][0], ptmem._plst[mesh_vrt][1],ptmem._plst[mesh_vrt][2]));
+	    ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0], _tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
         poct = oct_bb_t(ovec);
         mesh_vrt++;
 
-        ptile->_aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile->_itile % mesh->_info._tiles_x), Info<float>::Grid::Size() * (ptile->_itile % mesh->_info._tiles_y));
+        ptile->_aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile->_itile % _info._tiles_x), Info<float>::Grid::Size() * (ptile->_itile % _info._tiles_y));
         ptile->_aabb._max = Vector2f(ptile->_aabb._min[OCT_X] + Info<float>::Grid::Size(), ptile->_aabb._min[OCT_Y] + Info<float>::Grid::Size());
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            ovec.ctor(Vector3f(ptmem._plst[mesh_vrt][0],ptmem._plst[mesh_vrt][1],ptmem._plst[mesh_vrt][2]));
+            ovec.ctor(Vector3f(_tmem._plst[mesh_vrt][0],_tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
             poct.join(ovec);
         }
 
@@ -790,25 +757,19 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
         }
 
         // extend the mesh bounding box
-        ptmem._bbox = AABB3f(Vector3f(std::min(ptmem._bbox.getMin()[XX], poct._mins[XX]),
-                                      std::min(ptmem._bbox.getMin()[YY], poct._mins[YY]),
-                                      std::min(ptmem._bbox.getMin()[ZZ], poct._mins[ZZ])),
-                             Vector3f(std::max(ptmem._bbox.getMax()[XX], poct._maxs[XX]),
-                                      std::max(ptmem._bbox.getMax()[YY], poct._maxs[YY]),
-                                      std::max(ptmem._bbox.getMax()[ZZ], poct._maxs[ZZ])));
+        _tmem._bbox = AABB3f(Vector3f(std::min(_tmem._bbox.getMin()[XX], poct._mins[XX]),
+                                      std::min(_tmem._bbox.getMin()[YY], poct._mins[YY]),
+                                      std::min(_tmem._bbox.getMin()[ZZ], poct._mins[ZZ])),
+                             Vector3f(std::max(_tmem._bbox.getMax()[XX], poct._maxs[XX]),
+                                      std::max(_tmem._bbox.getMax()[YY], poct._maxs[YY]),
+                                      std::max(_tmem._bbox.getMax()[ZZ], poct._maxs[ZZ])));
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_make_normals( ego_mesh_t * mesh )
+void ego_mesh_t::make_normals()
 {
-    /// @author BB
-    /// @details this function calculates a set of normals for the 4 corners
-    ///               of a given tile. It is supposed to generate smooth normals for
-    ///               most tiles, but where there is a creas (i.e. between the floor and
-    ///               a wall) the normals should not be smoothed.
+
 
     int ix, iy;
 
@@ -817,37 +778,34 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
     float    weight_lst[4];
 
     // test for mesh
-    if ( NULL == mesh ) return false;
-	tile_mem_t& ptmem = mesh->_tmem;
-	grid_mem_t& pgmem = mesh->_gmem;
 
     // set the default normal for each fan, based on the calculated twist value
-    for (TileIndex fan0 = 0; fan0 < ptmem.getTileCount(); fan0++ )
+    for (TileIndex fan0 = 0; fan0 < _tmem.getTileCount(); fan0++ )
     {
-        Uint8 twist = pgmem.get(fan0)->_twist;
+        Uint8 twist = _gmem.get(fan0)->_twist;
 
-        ptmem._nlst[fan0.getI()][XX] = map_twist_nrm[twist][kX];
-        ptmem._nlst[fan0.getI()][YY] = map_twist_nrm[twist][kY];
-        ptmem._nlst[fan0.getI()][ZZ] = map_twist_nrm[twist][kZ];
+        _tmem._nlst[fan0.getI()][XX] = g_meshLookupTables.twist_nrm[twist][kX];
+        _tmem._nlst[fan0.getI()][YY] = g_meshLookupTables.twist_nrm[twist][kY];
+        _tmem._nlst[fan0.getI()][ZZ] = g_meshLookupTables.twist_nrm[twist][kZ];
     }
 
     // find an "average" normal of each corner of the tile
-    for ( iy = 0; iy < mesh->_info._tiles_y; iy++ )
+    for ( iy = 0; iy < _info._tiles_y; iy++ )
     {
-        for ( ix = 0; ix < mesh->_info._tiles_x; ix++ )
+        for ( ix = 0; ix < _info._tiles_x; ix++ )
         {
             int ix_off[4] = {0, 1, 1, 0};
             int iy_off[4] = {0, 0, 1, 1};
             int i, j, k;
 
-            TileIndex fan0 = mesh->get_tile_int(PointGrid(ix, iy));
-			if (!mesh->grid_is_valid(fan0)) {
+            TileIndex fan0 = get_tile_int(PointGrid(ix, iy));
+			if (!grid_is_valid(fan0)) {
 				continue;
 			}
 
-            nrm_lst[0][kX] = ptmem._nlst[fan0.getI()][XX];
-            nrm_lst[0][kY] = ptmem._nlst[fan0.getI()][YY];
-            nrm_lst[0][kZ] = ptmem._nlst[fan0.getI()][ZZ];
+            nrm_lst[0][kX] = _tmem._nlst[fan0.getI()][XX];
+            nrm_lst[0][kY] = _tmem._nlst[fan0.getI()][YY];
+            nrm_lst[0][kZ] = _tmem._nlst[fan0.getI()][ZZ];
 
             // for each corner of this tile
             for ( i = 0; i < 4; i++ )
@@ -877,13 +835,13 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
                     jx = ix + loc_ix_off[j];
                     jy = iy + loc_iy_off[j];
 
-                    TileIndex fan1 = mesh->get_tile_int(PointGrid(jx, jy));
+                    TileIndex fan1 = get_tile_int(PointGrid(jx, jy));
 
-                    if ( mesh->grid_is_valid( fan1 ) )
+                    if ( grid_is_valid( fan1 ) )
                     {
-                        nrm_lst[j][kX] = ptmem._nlst[fan1.getI()][XX];
-                        nrm_lst[j][kY] = ptmem._nlst[fan1.getI()][YY];
-                        nrm_lst[j][kZ] = ptmem._nlst[fan1.getI()][ZZ];
+                        nrm_lst[j][kX] = _tmem._nlst[fan1.getI()][XX];
+                        nrm_lst[j][kY] = _tmem._nlst[fan1.getI()][YY];
+                        nrm_lst[j][kZ] = _tmem._nlst[fan1.getI()][ZZ];
 
                         if ( nrm_lst[j][kZ] < 0 )
                         {
@@ -942,13 +900,12 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
 
 				vec_sum.normalize();
 
-                ptmem.get(fan0)->_ncache[i][XX] = vec_sum[kX];
-                ptmem.get(fan0)->_ncache[i][YY] = vec_sum[kY];
-                ptmem.get(fan0)->_ncache[i][ZZ] = vec_sum[kZ];
+                _tmem.get(fan0)->_ncache[i][XX] = vec_sum[kX];
+                _tmem.get(fan0)->_ncache[i][YY] = vec_sum[kY];
+                _tmem.get(fan0)->_ncache[i][ZZ] = vec_sum[kZ];
             }
         }
     }
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------

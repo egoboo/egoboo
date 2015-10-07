@@ -260,11 +260,11 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
         v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * Info<float>::Grid::Size();
         v[cnt].pos[ZZ] = ptmem._plst[badvertex][ZZ];
 
-        tmp = map_twist_nrm[twist][kZ];
+        tmp = g_meshLookupTables.twist_nrm[twist][kZ];
         tmp *= tmp;
 
-        v[cnt].col[RR] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist][kX] * map_twist_nrm[twist][kX] );
-        v[cnt].col[GG] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist][kY] * map_twist_nrm[twist][kY] );
+        v[cnt].col[RR] = tmp * ( tmp + ( 1.0f - tmp ) * g_meshLookupTables.twist_nrm[twist][kX] * g_meshLookupTables.twist_nrm[twist][kX] );
+        v[cnt].col[GG] = tmp * ( tmp + ( 1.0f - tmp ) * g_meshLookupTables.twist_nrm[twist][kY] * g_meshLookupTables.twist_nrm[twist][kY] );
         v[cnt].col[BB] = tmp;
         v[cnt].col[AA] = 1.0f;
 

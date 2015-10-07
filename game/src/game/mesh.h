@@ -769,16 +769,40 @@ public:
 	float get_max_vertex_0(const PointGrid& point) const;
 	float get_max_vertex_1(const PointGrid& point, float xmin, float ymin, float xmax, float ymax) const;
 
+public:
+
+private:
+	// mesh initialization - not accessible by scripts
+	void make_vrtstart();
+	/// Calculate a set of normals for the 4 corner of a given tile.
+	/// It is supposed to generate smooth normals for most tiles, but where there is a creas
+	/// (i.e. between the floor and a wall) the normals should not be smoothed.
+	// some twist/normal functions
+	void make_normals();
+	/// Set the bounding box for each tile, and for the entire mesh
+	void make_bbox();
+
 };
 
+/// Some look-up tables for meshes (and independent of the particular mesh).
+/// Contains precomputed surface normals and steep hill acceleration.
+/// @todo This should be in map, not in mesh.
+struct MeshLookupTables {
+	Vector3f twist_nrm[256];
+	/// For surface normal of the mesh.
+	FACING_T twist_facing_y[256];
+	/// For surface normal of the mesh.
+	FACING_T twist_facing_x[256];
+	/// Precomputed velocity (acceleration?) for sliding (down?) steep hills.
+	Vector3f twist_vel[256];
+	/// Is (something) flat?
+	bool twist_flat[256];
+	MeshLookupTables();
+};
+
+extern MeshLookupTables g_meshLookupTables;
 
 //--------------------------------------------------------------------------------------------
-
-extern Vector3f  map_twist_nrm[256];
-extern FACING_T  map_twist_facing_y[256];              ///< For surface normal of mesh
-extern FACING_T  map_twist_facing_x[256];
-extern Vector3f  map_twist_vel[256];            ///< For sliding down steep hills
-extern Uint8     map_twist_flat[256];
 
 /** Per-mesh test statistics. */
 struct MeshStats {
@@ -806,7 +830,6 @@ extern Uint8   mesh_tx_size;           ///< what size texture?
 /// loading/saving
 std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName);
 
-void   ego_mesh_make_twist();
 
 
 
