@@ -35,20 +35,20 @@
 #include "game/input.h"
 #include "game/collision.h"
 #include "game/bsp.h"
-#include "egolib/egolib.h"
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
 #include "game/egoboo.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/Graphics/CameraSystem.hpp"
-#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
 #include "game/physics.h"
 #include "game/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
+#include "egolib/Graphics/ModelDescriptor.hpp"
+#include "egolib/egolib.h"
 
 //--------------------------------------------------------------------------------------------
 
@@ -104,17 +104,15 @@ static void   game_reset_players();
 static void log_madused_vfs( const char *savename );
 
 // implementing wawalite data
-static bool upload_light_data(const wawalite_data_t *data);
-static bool upload_phys_data(const wawalite_physics_t *data);
-static bool upload_graphics_data(const wawalite_graphics_t *data);
-static bool upload_camera_data(const wawalite_camera_t *data);
+static void upload_light_data(const wawalite_data_t& data);
+static void upload_phys_data(const wawalite_physics_t& data);
+static void upload_graphics_data(const wawalite_graphics_t& data);
+static void upload_camera_data(const wawalite_camera_t& data);
 
 // implementing water layer data
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-static float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk );
-static float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr );
 
 static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
@@ -411,7 +409,7 @@ void update_all_objects()
 //--------------------------------------------------------------------------------------------
 void move_all_objects()
 {
-    mesh_mpdfx_tests = 0;
+	g_meshStats.mpdfxTests = 0;
 
     move_all_particles();
     move_all_characters();
@@ -1670,9 +1668,9 @@ void tilt_characters_to_terrain()
 
         if ( object->getProfile()->hasStickyButt() )
         {
-            twist = ego_mesh_t::get_twist( _currentModule->getMeshPointer().get(), object->getTile() );
-            object->ori.map_twist_facing_y = map_twist_facing_y[twist];
-            object->ori.map_twist_facing_x = map_twist_facing_x[twist];
+            twist = _currentModule->getMeshPointer()->get_twist( object->getTile() );
+            object->ori.map_twist_facing_y = g_meshLookupTables.twist_facing_y[twist];
+            object->ori.map_twist_facing_x = g_meshLookupTables.twist_facing_x[twist];
         }
         else
         {
@@ -2995,13 +2993,11 @@ bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_light_data(const wawalite_data_t *pdata)
+void upload_light_data(const wawalite_data_t& data)
 {
-    if ( NULL == pdata ) return false;
-
     // Upload the lighting data.
-    light_nrm = pdata->light.light_d;
-    light_a = pdata->light.light_a;
+    light_nrm = data.light.light_d;
+    light_a = data.light.light_a;
 
     if (light_nrm.length() > 0.0f)
     {
@@ -3032,48 +3028,31 @@ bool upload_light_data(const wawalite_data_t *pdata)
 
     //make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
     //make_lighttospek();
-
-    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool upload_phys_data( const wawalite_physics_t * pdata )
+void upload_phys_data( const wawalite_physics_t& data )
 {
-    if ( NULL == pdata ) return false;
-
     // upload the physics data
-    Physics::g_environment.hillslide = pdata->hillslide;
-    Physics::g_environment.slippyfriction = pdata->slippyfriction;
-    Physics::g_environment.noslipfriction = pdata->noslipfriction;
-    Physics::g_environment.airfriction = pdata->airfriction;
-    Physics::g_environment.waterfriction = pdata->waterfriction;
-    Physics::g_environment.gravity = pdata->gravity;
-
-    return true;
+    Physics::g_environment.hillslide = data.hillslide;
+    Physics::g_environment.slippyfriction = data.slippyfriction;
+    Physics::g_environment.noslipfriction = data.noslipfriction;
+    Physics::g_environment.airfriction = data.airfriction;
+    Physics::g_environment.waterfriction = data.waterfriction;
+    Physics::g_environment.gravity = data.gravity;
 }
 
-//--------------------------------------------------------------------------------------------
-bool upload_graphics_data( const wawalite_graphics_t * pdata )
+void upload_graphics_data( const wawalite_graphics_t& data )
 {
-    if ( NULL == pdata ) return false;
-
     // Read extra data
-    gfx.exploremode = pdata->exploremode;
-    gfx.usefaredge  = pdata->usefaredge;
-
-    return true;
+    gfx.exploremode = data.exploremode;
+    gfx.usefaredge  = data.usefaredge;
 }
 
-//--------------------------------------------------------------------------------------------
-bool upload_camera_data( const wawalite_camera_t * pdata )
+void upload_camera_data( const wawalite_camera_t& data )
 {
-    if ( NULL == pdata ) return false;
-
-    CameraSystem::get()->getCameraOptions().swing     = pdata->swing;
-    CameraSystem::get()->getCameraOptions().swingRate = pdata->swing_rate;
-    CameraSystem::get()->getCameraOptions().swingAmp  = pdata->swing_amp;
-
-    return true;
+    CameraSystem::get()->getCameraOptions().swing     = data.swing;
+    CameraSystem::get()->getCameraOptions().swingRate = data.swing_rate;
+    CameraSystem::get()->getCameraOptions().swingAmp  = data.swing_amp;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3081,18 +3060,15 @@ void upload_wawalite()
 {
     /// @author ZZ
     /// @details This function sets up water and lighting for the module
-
-    wawalite_data_t * pdata = &wawalite_data;
-
-    upload_phys_data( &( pdata->phys ) );
-    upload_graphics_data( &( pdata->graphics ) );
-    upload_light_data( pdata );                         // this statement depends on data from upload_graphics_data()
-    upload_camera_data( &( pdata->camera ) );
-    fog.upload(pdata->fog);
-    water.upload(pdata->water);
-    weather.upload(pdata->weather);
-    damagetile.upload(pdata->damagetile);
-    upload_animtile_data( animtile, &( pdata->animtile ), SDL_arraysize( animtile ) );
+    upload_phys_data( wawalite_data.phys );
+    upload_graphics_data( wawalite_data.graphics );
+    upload_light_data( wawalite_data);                         // this statement depends on data from upload_graphics_data()
+    upload_camera_data( wawalite_data.camera );
+    fog.upload( wawalite_data.fog );
+    water.upload( wawalite_data.water );
+    weather.upload( wawalite_data.weather );
+    damagetile.upload( wawalite_data.damagetile );
+    upload_animtile_data( animtile, &(wawalite_data.animtile ), SDL_arraysize( animtile ) );
 }
 
 
@@ -3493,9 +3469,9 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     return can_grab;
 }
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t *mesh, const PointGrid& point, oct_bb_t& bump, bool waterwalk )
 {
-    float zdone = ego_mesh_get_max_vertex_1( mesh, point, pbump->_mins[OCT_X], pbump->_mins[OCT_Y], pbump->_maxs[OCT_X], pbump->_maxs[OCT_Y] );
+    float zdone = mesh->get_max_vertex_1( point, bump._mins[OCT_X], bump._mins[OCT_Y], bump._maxs[OCT_X], bump._maxs[OCT_Y] );
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
@@ -3509,14 +3485,17 @@ float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t
 
     return zdone;
 }
-//--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
+
+float get_mesh_max_vertex_2( ego_mesh_t *mesh, Object *object)
 {
     /// @author BB
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
 
 	if (nullptr == mesh) {
-		throw std::invalid_argument("nullptr == mesh");
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
+	if (nullptr == object) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == object");
 	}
 	
     int corner;
@@ -3529,21 +3508,21 @@ float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
 
     for ( corner = 0; corner < 4; corner++ )
     {
-        pos_x[corner] = pchr->getPosX() + (( 0 == ix_off[corner] ) ? pchr->chr_min_cv._mins[OCT_X] : pchr->chr_min_cv._maxs[OCT_X] );
-        pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
+        pos_x[corner] = object->getPosX() + (( 0 == ix_off[corner] ) ? object->chr_min_cv._mins[OCT_X] : object->chr_min_cv._maxs[OCT_X] );
+        pos_y[corner] = object->getPosY() + (( 0 == iy_off[corner] ) ? object->chr_min_cv._mins[OCT_Y] : object->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = mesh->getElevation( PointWorld(pos_x[0], pos_y[0]), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+    zmax = mesh->getElevation( PointWorld(pos_x[0], pos_y[0]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = mesh->getElevation( PointWorld(pos_x[corner], pos_y[corner]), pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        float fval = mesh->getElevation( PointWorld(pos_x[corner], pos_y[corner]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         zmax = std::max( zmax, fval );
     }
 
     return zmax;
 }
 //--------------------------------------------------------------------------------------------
-float get_chr_level( ego_mesh_t * mesh, Object * pchr )
+float get_chr_level( ego_mesh_t *mesh, Object *object )
 {
     float zmax;
     int ix, ixmax, ixmin;
@@ -3555,19 +3534,19 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
 
     oct_bb_t bump;
 
-    if (!mesh || !pchr || pchr->isTerminated()) return 0;
+    if (!mesh || !object || object->isTerminated()) return 0;
 
     // certain scenery items like doors and such just need to be able to
     // collide with the mesh. They all have 0 == pchr->bump.size
-    if ( 0.0f == pchr->bump_stt.size )
+    if ( 0.0f == object->bump_stt.size )
     {
-        return mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()),
-			                      pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
+        return mesh->getElevation(PointWorld(object->getPosX(), object->getPosY()),
+			                      object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bump);
+    oct_bb_t::translate(object->chr_min_cv, object->getPosition(), bump);
 
     // determine the size of this object in tiles
     ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = CLIP( ixmin, 0, mesh->_info._tiles_x - 1 );
@@ -3579,7 +3558,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
     {
-        return get_mesh_max_vertex_2( mesh, pchr );
+        return get_mesh_max_vertex_2( mesh, object);
     }
 
     // otherwise, make up a list of tiles that the object might overlap
@@ -3612,7 +3591,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
     // the current system would not work for that shape
     if ( 0 == grid_vert_count )
     {
-        return get_mesh_max_vertex_2( mesh, pchr );
+        return get_mesh_max_vertex_2( mesh, object);
     }
     else
     {
@@ -3620,10 +3599,10 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
             zmax = std::max( zmax, fval );
         }
     }
@@ -3913,8 +3892,6 @@ void water_instance_t::set_douse_level(float level)
     for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i) {
         _layers[i]._z += dlevel;
     }
-
-    ego_mesh_update_water_level(_currentModule->getMeshPointer().get());
 }
 
 float water_instance_t::get_level() const

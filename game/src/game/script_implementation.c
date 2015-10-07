@@ -554,7 +554,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( ptile->_img != ( img | highbits ) )
             {
-                ego_mesh_set_texture( _currentModule->getMeshPointer().get(), fan, img | highbits );
+                ego_mesh_t::set_texture( _currentModule->getMeshPointer().get(), fan, img | highbits );
             }
         }
     }

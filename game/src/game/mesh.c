@@ -21,22 +21,16 @@
 /// @brief Functions for creating, reading, and writing Egoboo's .mpd mesh file
 /// @details
 
-#include "egolib/_math.h"
-#include "egolib/bbox.h"
 #include "game/mesh.h"
+#include "game/lighting.h"
+#include "game/physics.h"
 #include "game/graphic.h"
-#include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// mesh initialization - not accessible by scripts
-static void   ego_mesh_make_vrtstart( ego_mesh_t * mesh );
 
-// some twist/normal functions
-static bool ego_mesh_make_normals( ego_mesh_t * mesh );
 
 static bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src );
-static bool ego_mesh_make_bbox( ego_mesh_t * mesh );
 
 static float grid_get_mix( float u0, float u, float v0, float v );
 
@@ -46,20 +40,7 @@ const std::shared_ptr<ego_tile_info_t> ego_tile_info_t::NULL_TILE = nullptr;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-int mesh_mpdfx_tests = 0;
-int mesh_bound_tests = 0;
-int mesh_pressure_tests = 0;
-
-Vector3f  map_twist_nrm[256];
-FACING_T  map_twist_facing_y[256];            // For surface normal of mesh
-FACING_T  map_twist_facing_x[256];
-Vector3f  map_twist_vel[256];            // For sliding down steep hills
-Uint8     map_twist_flat[256];
-
-// variables to optimize calls to bind the textures
-bool    mesh_tx_none   = false;
-TX_REF    mesh_tx_image  = MESH_IMG_COUNT;
-Uint8     mesh_tx_size   = 0xFF;
+MeshStats g_meshStats;
 
 static void warnNumberOfVertices(const char *file, int line, size_t numberOfVertices)
 {
@@ -182,79 +163,7 @@ void tile_mem_t::free()
 
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t *ego_mesh_get_texture(Uint8 image, Uint8 size)
-{
-    oglx_texture_t * tx_ptr = nullptr;
 
-    if (0 == size)
-    {
-        tx_ptr = TextureAtlasManager::get_sml(image);
-    }
-    else if (1 == size)
-    {
-        tx_ptr = TextureAtlasManager::get_big(image);
-    }
-
-    return tx_ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-void mesh_texture_invalidate()
-{
-    mesh_tx_image = MESH_IMG_COUNT;
-    mesh_tx_size  = 0xFF;
-}
-
-//--------------------------------------------------------------------------------------------
-oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile )
-{
-    Uint8  tx_image, tx_size;
-    oglx_texture_t  * tx_ptr = NULL;
-    bool needs_bind = false;
-
-    // bind a NULL texture if we are in that mode
-    if ( mesh_tx_none )
-    {
-        tx_ptr = NULL;
-        needs_bind = true;
-
-        mesh_texture_invalidate();
-    }
-    else if ( NULL == ptile )
-    {
-        tx_ptr = NULL;
-        needs_bind = true;
-
-        mesh_texture_invalidate();
-    }
-    else
-    {
-        tx_image = TILE_GET_LOWER_BITS( ptile->_img );
-        tx_size  = ( ptile->_type < tile_dict.offset ) ? 0 : 1;
-
-        if (( mesh_tx_image != tx_image ) || ( mesh_tx_size != tx_size ) )
-        {
-            tx_ptr = ego_mesh_get_texture( tx_image, tx_size );
-            needs_bind = true;
-
-            mesh_tx_image = tx_image;
-            mesh_tx_size  = tx_size;
-        }
-    }
-
-    if ( needs_bind )
-    {
-		Ego::Renderer::get().getTextureUnit().setActivated(tx_ptr);
-        if (tx_ptr && tx_ptr->hasAlpha())
-        {
-            // MH: Enable alpha blending if the texture requires it.
-            Ego::Renderer::get().setBlendingEnabled(true);
-			Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceAlpha);
-        }
-    }
-
-    return tx_ptr;
-}
 
 ego_mesh_t::ego_mesh_t() :
     _info(),
@@ -262,8 +171,6 @@ ego_mesh_t::ego_mesh_t() :
     _gmem(),
     _fxlists()
 {
-    // global initialization
-    ego_mesh_make_twist();
 }
 
 ego_mesh_t::~ego_mesh_t() {
@@ -306,13 +213,12 @@ void ego_mesh_t::recalc_twist()
     // recalculate the twist
     for (TileIndex fan = 0; fan.getI() < _info._tiles_count; fan++)
     {
-        Uint8 twist = cartman_get_fan_twist(this, fan);
+        Uint8 twist = ego_mesh_t::get_fan_twist(this, fan);
         _gmem.get(fan)->_twist = twist;
     }
 }
 
-//--------------------------------------------------------------------------------------------
-bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& index, Uint16 image)
+bool ego_mesh_t::set_texture(ego_mesh_t *self, const TileIndex& index, Uint16 image)
 {
 	if (nullptr == self) {
 		throw std::invalid_argument("nullptr == self");
@@ -331,11 +237,10 @@ bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& index, Uint16 image
     self->_tmem.getTile(index.getI())->_img = tile_upper | tile_lower;
 
     // Update the pre-computed texture info.
-    return ego_mesh_update_texture(self, index);
+    return ego_mesh_t::update_texture(self, index);
 }
 
-//--------------------------------------------------------------------------------------------
-bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& index)
+bool ego_mesh_t::update_texture(ego_mesh_t *self, const TileIndex& index)
 {
 	if (nullptr == self) {
 		throw std::invalid_argument("nullptr == self");
@@ -366,32 +271,26 @@ bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& index)
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
 void ego_mesh_t::make_texture()
 {
     // Set the texture coordinate for every vertex.
     for (TileIndex index = 0; index < _info._tiles_count; ++index)
     {
-        ego_mesh_update_texture(this, index);
+        ego_mesh_t::update_texture(this, index);
     }
 }
 
-//--------------------------------------------------------------------------------------------
-ego_mesh_t * ego_mesh_t::finalize( ego_mesh_t * mesh )
+void ego_mesh_t::finalize()
 {
-    if ( NULL == mesh ) return NULL;
-
-    ego_mesh_make_vrtstart( mesh );
-	mesh->remove_ambient();
-	mesh->recalc_twist();
-    ego_mesh_make_normals( mesh );
-    ego_mesh_make_bbox( mesh );
-	mesh->make_texture();
+    make_vrtstart();
+	remove_ambient();
+	recalc_twist();
+    make_normals();
+    make_bbox();
+	make_texture();
 
     // create some lists to make searching the mesh tiles easier
-    mesh->_fxlists.synch( mesh->_gmem, true );
-
-    return mesh;
+	_fxlists.synch(_gmem, true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -499,52 +398,9 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 		log_error("%s:%d: %s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
-	if (!ego_mesh_t::finalize(mesh.get()))
-	{
-		std::ostringstream os;
-		os << "unable to finalize mesh of module `" << moduleName << "`";
-		log_error("%s:%d: %s\n", os.str().c_str());
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
-	}
+	mesh->finalize();
 	return mesh;
 }
-
-#if 0
-ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * mesh )
-{
-    // trap bad module names
-    if ( !VALID_CSTR( modname ) ) return mesh;
-
-    // initialize the mesh
-    {
-        // clear and free any memory that has been allocated
-        *mesh = ego_mesh_t();
-    }
-
-    // actually do the loading
-    {
-        map_t local_mpd;
-
-        // load a raw mpd
-        tile_dictionary_load_vfs( "mp_data/fans.txt", &tile_dict, -1 );
-        if (!local_mpd.load("mp_data/level.mpd"))
-        {
-            return nullptr;
-        }
-
-        // convert it into a convenient version for Egoboo
-        if (!ego_mesh_convert(mesh, &local_mpd))
-        {
-            return nullptr;
-        }
-    }
-
-    // do some calculation to set up the mpd as a game mesh
-    mesh = ego_mesh_t::finalize( mesh );
-
-    return mesh;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -699,24 +555,16 @@ void grid_mem_t::make_fanstart(const ego_mesh_info_t& info)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ego_mesh_make_vrtstart( ego_mesh_t * mesh )
+void ego_mesh_t::make_vrtstart()
 {
-    size_t vert;
-    Uint32 tile;
-
-    if ( NULL == mesh ) return;
-
-	ego_mesh_info_t& pinfo = mesh->_info;
-	tile_mem_t& ptmem  = mesh->_tmem;
-
-    vert = 0;
-    for ( tile = 0; tile < pinfo._tiles_count; tile++ )
+    size_t vert = 0;
+    for (uint32_t tile = 0; tile < _info._tiles_count; tile++ )
     {
         Uint8 ttype;
 
-        ptmem.get(tile)->_vrtstart = vert;
+        _tmem.get(tile)->_vrtstart = vert;
 
-        ttype = ptmem.get(tile)->_type;
+        ttype = _tmem.get(tile)->_type;
 
         // throw away any remaining upper bits
         ttype &= 0x3F;
@@ -727,79 +575,67 @@ void ego_mesh_make_vrtstart( ego_mesh_t * mesh )
         vert += pdef->numvertices;
     }
 
-    if ( vert != pinfo._vertcount )
+    if ( vert != _info._vertcount )
     {
-		log_warning( "ego_mesh_make_vrtstart() - unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", vert, pinfo._vertcount );
+		log_warning( "%s:%d: unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", __FILE__, __LINE__, vert, _info._vertcount );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void ego_mesh_make_twist()
-{
-    /// @author ZZ
-    /// @details This function precomputes surface normals and steep hill acceleration for
-    ///    the mesh
+MeshLookupTables g_meshLookupTables;
 
-    int      cnt;
-    float    gdot;
+MeshLookupTables::MeshLookupTables() {
 	Vector3f grav = Vector3f::zero();
 
-    grav[kZ] = Physics::g_environment.gravity;
+	grav[kZ] = Physics::g_environment.gravity;
 
-    for ( cnt = 0; cnt < 256; cnt++ )
-    {
-		Vector3f gperp;    // gravity perpendicular to the mesh
-		Vector3f gpara;    // gravity parallel      to the mesh (what pushes you)
+	for (size_t cnt = 0; cnt < 256; cnt++)
+	{
 		Vector3f nrm;
 
-        twist_to_normal( cnt, nrm, 1.0f );
+		twist_to_normal(cnt, nrm, 1.0f);
 
-        map_twist_nrm[cnt] = nrm;
+		twist_nrm[cnt] = nrm;
 
-        map_twist_facing_x[cnt] = ( FACING_T )( - vec_to_facing( nrm[kZ], nrm[kY] ) );
-        map_twist_facing_y[cnt] = vec_to_facing( nrm[kZ], nrm[kX] );
+		twist_facing_x[cnt] = (FACING_T)(-vec_to_facing(nrm[kZ], nrm[kY]));
+		twist_facing_y[cnt] = vec_to_facing(nrm[kZ], nrm[kX]);
 
-        // this is about 5 degrees off of vertical
-        map_twist_flat[cnt] = false;
-        if ( nrm[kZ] > 0.9945f )
-        {
-            map_twist_flat[cnt] = true;
-        }
+		// this is about 5 degrees off of vertical
+		twist_flat[cnt] = false;
+		if (nrm[kZ] > 0.9945f)
+		{
+			twist_flat[cnt] = true;
+		}
 
-        // projection of the gravity parallel to the surface
-        gdot = grav[kZ] * nrm[kZ];
+		// projection of the gravity parallel to the surface
+		float gdot = grav[kZ] * nrm[kZ];
 
-        gperp = nrm * gdot;
+		// Gravity perpendicular to the mesh.
+		Vector3f gperp = nrm * gdot;
 
-        gpara = grav - gperp;
+		// Gravity parallel to the mesh.
+		Vector3f gpara = grav - gperp;
 
-        map_twist_vel[cnt] = gpara;
-    }
+		twist_vel[cnt] = gpara;
+	}
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_make_bbox( ego_mesh_t * mesh )
+void ego_mesh_t::make_bbox()
 {
-    /// @author BB
-    /// @details set the bounding box for each tile, and for the entire mesh
+    _tmem._bbox = AABB3f(Vector3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]),
+		                 Vector3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]));
 
-    size_t mesh_vrt;
-    int tile_vrt;
-    tile_definition_t * pdef;
-
-    if ( NULL == mesh ) return false;
-	tile_mem_t& ptmem  = mesh->_tmem;
-
-    ptmem._bbox = AABB3f(Vector3f(ptmem._plst[0][XX], ptmem._plst[0][YY], ptmem._plst[0][ZZ]),
-		                 Vector3f(ptmem._plst[0][XX], ptmem._plst[0][YY], ptmem._plst[0][ZZ]));
-
-	for (TileIndex cnt = 0; cnt.getI() < mesh->_info._tiles_count; cnt++)
+	for (TileIndex cnt = 0; cnt.getI() < _info._tiles_count; cnt++)
 	{
+		size_t mesh_vrt;
+		int tile_vrt;
+		tile_definition_t * pdef;
 		Uint16 vertices;
 		Uint8 type;
 		oct_vec_v2_t ovec;
 
-        std::shared_ptr<ego_tile_info_t> ptile = ptmem.getTile(cnt.getI());
+        std::shared_ptr<ego_tile_info_t> ptile = _tmem.getTile(cnt.getI());
         oct_bb_t& poct = ptile->_oct;
 
         ptile->_itile = cnt.getI();
@@ -809,21 +645,21 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
 		pdef = TILE_DICT_PTR(tile_dict, type);
 		if (NULL == pdef) continue;
 
-		mesh_vrt = ptmem.get(cnt)->_vrtstart;    // Number of vertices
+		mesh_vrt = _tmem.get(cnt)->_vrtstart;    // Number of vertices
 		vertices = pdef->numvertices;           // Number of vertices
 
 		// initialize the bounding box
-	    ovec = oct_vec_v2_t(Vector3f(ptmem._plst[mesh_vrt][0], ptmem._plst[mesh_vrt][1],ptmem._plst[mesh_vrt][2]));
+	    ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0], _tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
         poct = oct_bb_t(ovec);
         mesh_vrt++;
 
-        ptile->_aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile->_itile % mesh->_info._tiles_x), Info<float>::Grid::Size() * (ptile->_itile % mesh->_info._tiles_y));
+        ptile->_aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile->_itile % _info._tiles_x), Info<float>::Grid::Size() * (ptile->_itile % _info._tiles_y));
         ptile->_aabb._max = Vector2f(ptile->_aabb._min[OCT_X] + Info<float>::Grid::Size(), ptile->_aabb._min[OCT_Y] + Info<float>::Grid::Size());
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            ovec.ctor(Vector3f(ptmem._plst[mesh_vrt][0],ptmem._plst[mesh_vrt][1],ptmem._plst[mesh_vrt][2]));
+            ovec.ctor(Vector3f(_tmem._plst[mesh_vrt][0],_tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
             poct.join(ovec);
         }
 
@@ -843,25 +679,19 @@ bool ego_mesh_make_bbox( ego_mesh_t * mesh )
         }
 
         // extend the mesh bounding box
-        ptmem._bbox = AABB3f(Vector3f(std::min(ptmem._bbox.getMin()[XX], poct._mins[XX]),
-                                      std::min(ptmem._bbox.getMin()[YY], poct._mins[YY]),
-                                      std::min(ptmem._bbox.getMin()[ZZ], poct._mins[ZZ])),
-                             Vector3f(std::max(ptmem._bbox.getMax()[XX], poct._maxs[XX]),
-                                      std::max(ptmem._bbox.getMax()[YY], poct._maxs[YY]),
-                                      std::max(ptmem._bbox.getMax()[ZZ], poct._maxs[ZZ])));
+        _tmem._bbox = AABB3f(Vector3f(std::min(_tmem._bbox.getMin()[XX], poct._mins[XX]),
+                                      std::min(_tmem._bbox.getMin()[YY], poct._mins[YY]),
+                                      std::min(_tmem._bbox.getMin()[ZZ], poct._mins[ZZ])),
+                             Vector3f(std::max(_tmem._bbox.getMax()[XX], poct._maxs[XX]),
+                                      std::max(_tmem._bbox.getMax()[YY], poct._maxs[YY]),
+                                      std::max(_tmem._bbox.getMax()[ZZ], poct._maxs[ZZ])));
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_make_normals( ego_mesh_t * mesh )
+void ego_mesh_t::make_normals()
 {
-    /// @author BB
-    /// @details this function calculates a set of normals for the 4 corners
-    ///               of a given tile. It is supposed to generate smooth normals for
-    ///               most tiles, but where there is a creas (i.e. between the floor and
-    ///               a wall) the normals should not be smoothed.
+
 
     int ix, iy;
 
@@ -870,37 +700,34 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
     float    weight_lst[4];
 
     // test for mesh
-    if ( NULL == mesh ) return false;
-	tile_mem_t& ptmem = mesh->_tmem;
-	grid_mem_t& pgmem = mesh->_gmem;
 
     // set the default normal for each fan, based on the calculated twist value
-    for (TileIndex fan0 = 0; fan0 < ptmem.getTileCount(); fan0++ )
+    for (TileIndex fan0 = 0; fan0 < _tmem.getTileCount(); fan0++ )
     {
-        Uint8 twist = pgmem.get(fan0)->_twist;
+        Uint8 twist = _gmem.get(fan0)->_twist;
 
-        ptmem._nlst[fan0.getI()][XX] = map_twist_nrm[twist][kX];
-        ptmem._nlst[fan0.getI()][YY] = map_twist_nrm[twist][kY];
-        ptmem._nlst[fan0.getI()][ZZ] = map_twist_nrm[twist][kZ];
+        _tmem._nlst[fan0.getI()][XX] = g_meshLookupTables.twist_nrm[twist][kX];
+        _tmem._nlst[fan0.getI()][YY] = g_meshLookupTables.twist_nrm[twist][kY];
+        _tmem._nlst[fan0.getI()][ZZ] = g_meshLookupTables.twist_nrm[twist][kZ];
     }
 
     // find an "average" normal of each corner of the tile
-    for ( iy = 0; iy < mesh->_info._tiles_y; iy++ )
+    for ( iy = 0; iy < _info._tiles_y; iy++ )
     {
-        for ( ix = 0; ix < mesh->_info._tiles_x; ix++ )
+        for ( ix = 0; ix < _info._tiles_x; ix++ )
         {
             int ix_off[4] = {0, 1, 1, 0};
             int iy_off[4] = {0, 0, 1, 1};
             int i, j, k;
 
-            TileIndex fan0 = mesh->get_tile_int(PointGrid(ix, iy));
-			if (!mesh->grid_is_valid(fan0)) {
+            TileIndex fan0 = get_tile_int(PointGrid(ix, iy));
+			if (!grid_is_valid(fan0)) {
 				continue;
 			}
 
-            nrm_lst[0][kX] = ptmem._nlst[fan0.getI()][XX];
-            nrm_lst[0][kY] = ptmem._nlst[fan0.getI()][YY];
-            nrm_lst[0][kZ] = ptmem._nlst[fan0.getI()][ZZ];
+            nrm_lst[0][kX] = _tmem._nlst[fan0.getI()][XX];
+            nrm_lst[0][kY] = _tmem._nlst[fan0.getI()][YY];
+            nrm_lst[0][kZ] = _tmem._nlst[fan0.getI()][ZZ];
 
             // for each corner of this tile
             for ( i = 0; i < 4; i++ )
@@ -930,13 +757,13 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
                     jx = ix + loc_ix_off[j];
                     jy = iy + loc_iy_off[j];
 
-                    TileIndex fan1 = mesh->get_tile_int(PointGrid(jx, jy));
+                    TileIndex fan1 = get_tile_int(PointGrid(jx, jy));
 
-                    if ( mesh->grid_is_valid( fan1 ) )
+                    if ( grid_is_valid( fan1 ) )
                     {
-                        nrm_lst[j][kX] = ptmem._nlst[fan1.getI()][XX];
-                        nrm_lst[j][kY] = ptmem._nlst[fan1.getI()][YY];
-                        nrm_lst[j][kZ] = ptmem._nlst[fan1.getI()][ZZ];
+                        nrm_lst[j][kX] = _tmem._nlst[fan1.getI()][XX];
+                        nrm_lst[j][kY] = _tmem._nlst[fan1.getI()][YY];
+                        nrm_lst[j][kZ] = _tmem._nlst[fan1.getI()][ZZ];
 
                         if ( nrm_lst[j][kZ] < 0 )
                         {
@@ -995,17 +822,16 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
 
 				vec_sum.normalize();
 
-                ptmem.get(fan0)->_ncache[i][XX] = vec_sum[kX];
-                ptmem.get(fan0)->_ncache[i][YY] = vec_sum[kY];
-                ptmem.get(fan0)->_ncache[i][ZZ] = vec_sum[kZ];
+                _tmem.get(fan0)->_ncache[i][XX] = vec_sum[kX];
+                _tmem.get(fan0)->_ncache[i][YY] = vec_sum[kY];
+                _tmem.get(fan0)->_ncache[i][ZZ] = vec_sum[kZ];
             }
         }
     }
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool grid_light_one_corner( const ego_mesh_t& mesh, const TileIndex& fan, float height, float nrm[], float * plight )
+bool ego_mesh_t::light_corner( const ego_mesh_t& mesh, const TileIndex& fan, float height, float nrm[], float * plight )
 {
     // valid parameters?
     if ( NULL == plight)
@@ -1112,7 +938,7 @@ bool ego_mesh_t::light_one_corner(ego_tile_info_t * ptile, const bool reflective
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_test_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, float threshold )
+bool ego_mesh_t::test_corners(ego_mesh_t *mesh, ego_tile_info_t *ptile, float threshold)
 {
     bool retval;
     int corner;
@@ -1163,7 +989,7 @@ bool ego_mesh_test_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, float th
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep )
+float ego_mesh_t::light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep )
 {
     int corner;
     float max_delta;
@@ -1393,7 +1219,7 @@ BIT_FIELD ego_mesh_t::test_wall(const Vector3f& pos, const float radius, const B
     if ( bound.ymin < 0 || bound.ymax >= pdata->pinfo->_tiles_y )
     {
         pass = ( MAPFX_IMPASS | MAPFX_WALL ) & bits;
-        mesh_bound_tests++;
+		g_meshStats.boundTests++;
     }
     if ( EMPTY_BIT_FIELD != pass ) return pass;
 
@@ -1401,7 +1227,7 @@ BIT_FIELD ego_mesh_t::test_wall(const Vector3f& pos, const float radius, const B
     if ( bound.xmin < 0 || bound.xmax >= pdata->pinfo->_tiles_x )
     {
         pass = ( MAPFX_IMPASS | MAPFX_WALL ) & bits;
-        mesh_bound_tests++;
+		g_meshStats.boundTests++;
     }
     if ( EMPTY_BIT_FIELD != pass ) return pass;
 
@@ -1421,7 +1247,7 @@ BIT_FIELD ego_mesh_t::test_wall(const Vector3f& pos, const float radius, const B
                 return pass;
             }
 
-            mesh_mpdfx_tests++;
+			g_meshStats.mpdfxTests++;
         }
     }
 
@@ -1545,7 +1371,7 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
 
                 loc_pressure += area_ratio;
 
-                mesh_pressure_tests++;
+                g_meshStats.pressureTests++;
             }
         }
     }
@@ -1685,7 +1511,7 @@ BIT_FIELD ego_mesh_t::hit_wall( const Vector3f& pos, const float radius, const B
             }
 
             invalid = true;
-            mesh_bound_tests++;
+			g_meshStats.boundTests++;
         }
 
         for ( ix = pdata->ix_min; ix <= pdata->ix_max; ix++ )
@@ -1705,7 +1531,7 @@ BIT_FIELD ego_mesh_t::hit_wall( const Vector3f& pos, const float radius, const B
                 }
 
                 invalid = true;
-                mesh_bound_tests++;
+				g_meshStats.boundTests++;
             }
 
             if ( !invalid )
@@ -1774,37 +1600,34 @@ BIT_FIELD ego_mesh_t::hit_wall( const Vector3f& pos, const float radius, const B
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
+float ego_mesh_t::get_max_vertex_0(const PointGrid& point) const
 {
     Uint32 cnt;
     float zmax;
     size_t vcount, vstart, ivrt;
 
-    if (!self) return 0.0f;
-
-    TileIndex itile = self->get_tile_int(point);
+    TileIndex itile = get_tile_int(point);
     if (TileIndex::Invalid == itile)
     {
         return 0.0f;
     }
     // get a pointer to the tile
-    const std::shared_ptr<ego_tile_info_t> &ptile = self->_tmem.getTile(itile.getI());
+    const std::shared_ptr<ego_tile_info_t> &ptile = _tmem.getTile(itile.getI());
 
     vstart = ptile->_vrtstart;
-    vcount = std::min(static_cast<size_t>(4), self->_tmem._vert_count);
+    vcount = std::min(static_cast<size_t>(4), _tmem._vert_count);
 
     ivrt = vstart;
-    zmax = self->_tmem._plst[ivrt][ZZ];
+    zmax = _tmem._plst[ivrt][ZZ];
     for ( ivrt++, cnt = 1; cnt < vcount; ivrt++, cnt++ )
     {
-        zmax = std::max( zmax, self->_tmem._plst[ivrt][ZZ] );
+        zmax = std::max( zmax, _tmem._plst[ivrt][ZZ] );
     }
 
     return zmax;
 }
 
-//--------------------------------------------------------------------------------------------
-float ego_mesh_get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point, float xmin, float ymin, float xmax, float ymax )
+float ego_mesh_t::get_max_vertex_1( const PointGrid& point, float xmin, float ymin, float xmax, float ymax ) const
 {
     Uint32 cnt;
     float zmax;
@@ -1813,20 +1636,18 @@ float ego_mesh_get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point
     int ix_off[4] = {1, 1, 0, 0};
     int iy_off[4] = {0, 1, 1, 0};
 
-    if ( NULL == mesh ) return 0.0f;
-
-    TileIndex itile = mesh->get_tile_int( point );
+    TileIndex itile = get_tile_int( point );
 
     if (TileIndex::Invalid == itile) return 0.0f;
 
-    vstart = mesh->_tmem.get(itile)->_vrtstart;
-    vcount = std::min( (size_t)4, mesh->_tmem._vert_count );
+    vstart = _tmem.get(itile)->_vrtstart;
+    vcount = std::min( (size_t)4, _tmem._vert_count );
 
     zmax = -1e6;
     for ( ivrt = vstart, cnt = 0; cnt < vcount; ivrt++, cnt++ )
     {
         float fx, fy;
-        GLXvector3f * pvert = mesh->_tmem._plst + ivrt;
+        GLXvector3f * pvert = _tmem._plst + ivrt;
 
         // we are evaluating the height based on the grid, not the actual vertex positions
         fx = ( point.getX() + ix_off[cnt] ) * Info<float>::Grid::Size();
@@ -1875,19 +1696,6 @@ ego_grid_info_t::ego_grid_info_t()
 
 ego_grid_info_t::~ego_grid_info_t() {
 	lighting_cache_t::init(_cache);
-}
-
-//--------------------------------------------------------------------------------------------
-bool ego_mesh_update_water_level( ego_mesh_t * mesh )
-{
-    // BB>
-    // TODO: WHEN we begin using the map_BSP for frustum culling, we need to
-    // update the bounding box height for every single water tile and then re-insert them in the mpd
-    // AT THE MOMENT, this is not done and the increased bounding height due to water is handled elsewhere
-
-    if ( NULL == mesh ) return false;
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2120,35 +1928,32 @@ bool mpdfx_lists_t::synch( const grid_mem_t& gmem, bool force )
 //--------------------------------------------------------------------------------------------
 //Previously inlined
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::tile_has_bits( std::shared_ptr<const ego_mesh_t> mesh, const PointGrid& point, const BIT_FIELD bits )
+bool ego_mesh_t::tile_has_bits( const PointGrid& point, const BIT_FIELD bits ) const
 {
-	if (!mesh) {
-		throw std::invalid_argument("nullptr == mesh");
-	}
     // Figure out which tile we are on.
-    TileIndex tileRef = mesh->get_tile_int(point);
+    TileIndex tileRef = get_tile_int(point);
 
     // Everything outside the map bounds is wall and impassable.
-    if (!mesh->grid_is_valid(tileRef))
+    if (!grid_is_valid(tileRef))
     {
         return HAS_SOME_BITS((MAPFX_IMPASS | MAPFX_WALL), bits);
     }
 
     // Since we KNOW that this is in range, allow raw access to the data structure.
-    GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(mesh->_gmem.get(tileRef));
+    GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(_gmem.get(tileRef));
 
     return HAS_SOME_BITS(fx, bits);
 }
 
 Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test )
 {
-    mesh_mpdfx_tests++;
+	g_meshStats.mpdfxTests++;
     return HAS_SOME_BITS( mpdfx, test );
 }
 
 bool ego_mesh_t::grid_is_valid(const TileIndex& index) const
 {
-    mesh_bound_tests++;
+	g_meshStats.boundTests++;
 
     if (TileIndex::Invalid == index)
     {
@@ -2238,10 +2043,10 @@ bool ego_mesh_t::clear_fx( const TileIndex& itile, const BIT_FIELD flags )
     bool retval;
 
     // test for invalid tile
-    mesh_bound_tests++;
+	g_meshStats.boundTests++;
     if ( itile > _info._tiles_count ) return false;
 
-    mesh_mpdfx_tests++;
+	g_meshStats.mpdfxTests++;
     retval = ego_grid_info_t::sub_pass_fx(_gmem.get(itile), flags );
 
     if ( retval )
@@ -2255,14 +2060,14 @@ bool ego_mesh_t::clear_fx( const TileIndex& itile, const BIT_FIELD flags )
 bool ego_mesh_t::add_fx(const TileIndex& index, const BIT_FIELD flags)
 {
     // Validate tile index.
-    mesh_bound_tests++;
+	g_meshStats.boundTests++;
     if (index > _info._tiles_count)
     {
         return false;
     }
 
     // Succeed only of something actually changed.
-    mesh_mpdfx_tests++;
+	g_meshStats.mpdfxTests++;
     bool retval = ego_grid_info_t::add_pass_fx(_gmem.get(index), flags);
 
     if ( retval )
@@ -2279,7 +2084,7 @@ Uint32 ego_mesh_t::test_fx(const TileIndex& index, const BIT_FIELD flags) const
     if (EMPTY_BIT_FIELD == flags) return 0;
 
     // test for invalid tile
-    mesh_bound_tests++;
+	g_meshStats.boundTests++;
     if (index > _info._tiles_count)
     {
         return flags & ( MAPFX_WALL | MAPFX_IMPASS );
@@ -2291,7 +2096,7 @@ Uint32 ego_mesh_t::test_fx(const TileIndex& index, const BIT_FIELD flags) const
         return 0;
     }
 
-    mesh_mpdfx_tests++;
+	g_meshStats.mpdfxTests++;
     return ego_grid_info_t::test_all_fx(_gmem.get(index), flags);
 }
 
@@ -2331,21 +2136,21 @@ const ego_grid_info_t *ego_mesh_t::get_pgrid(const TileIndex& index) const
     return _gmem.get(index);
 }
 
-Uint8 ego_mesh_t::get_twist(ego_mesh_t *self, const TileIndex& index)
+Uint8 ego_mesh_t::get_twist(const TileIndex& index) const
 {
     // Validate arguments.
-    if (!self || index >= self->_info._tiles_count)
+    if (index >= _info._tiles_count)
     {
         return TWIST_FLAT;
     }
-    return self->_gmem.get(index)->_twist;
+    return _gmem.get(index)->_twist;
 #if 0
     // Assert that the grids are allocated.
-    if (!self->gmem.grid_list || index.getI() >= self->gmem.grid_count)
+    if (!_gmem.grid_list || index.getI() >= _gmem.grid_count)
     {
         return TWIST_FLAT;
     }
-    return self->gmem.grid_list[index].twist;
+    return _gmem.grid_list[index].twist;
 #endif
 }
 
@@ -2425,7 +2230,7 @@ bool ego_grid_info_t::set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits
     return old_bits != new_bits;
 }
 
-Uint8 cartman_get_fan_twist(const ego_mesh_t *self, const TileIndex& tile)
+Uint8 ego_mesh_t::get_fan_twist(const ego_mesh_t *self, const TileIndex& tile)
 {
     // check for a valid tile
     if (TileIndex::Invalid == tile || tile > self->_info._tiles_count)

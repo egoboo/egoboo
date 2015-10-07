@@ -22,6 +22,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
+#include "game/mesh.h"
 #include "game/input.h"
 #include "game/Inventory.hpp"
 
@@ -29,36 +30,7 @@
 // forward declaration of external structs
 //--------------------------------------------------------------------------------------------
 
-// Forward declarations.
-class ego_mesh_t;
-struct script_state_t;
-struct mod_file_t;
-
-struct wawalite_animtile_t;
-struct wawalite_damagetile_t;
-struct wawalite_weather_t;
-struct wawalite_water_t;
-struct wawalite_fog_t;
-
-struct menu_process_t;
-
-class Object;
-namespace Ego { class Particle; }
 struct prt_bundle_t;
-
-struct s_import_list;
-class CameraSystem;
-class AudioSystem;
-class GameModule;
-class ObjectHandler;
-class ModuleProfile;
-
-//--------------------------------------------------------------------------------------------
-// forward declaration of internal structs
-//--------------------------------------------------------------------------------------------
-
-struct water_instance_layer_t;
-
 
 
 //--------------------------------------------------------------------------------------------
@@ -464,7 +436,6 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF ichr );
 bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem );
 bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
-float get_chr_level( ego_mesh_t * mesh, Object * pchr );
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
@@ -478,3 +449,10 @@ struct wawalite_data_t * read_wawalite_vfs();
 bool write_wawalite_vfs( const wawalite_data_t * pdata );
 bool wawalite_finalize( wawalite_data_t * pdata );
 void   upload_wawalite();
+
+// Mesh query.
+float get_chr_level(ego_mesh_t *mesh, Object *object);
+// Mesh query.
+float get_mesh_max_vertex_1(ego_mesh_t *mesh, const PointGrid& point, oct_bb_t& bump, bool waterwalk);
+// Mesh query.
+float get_mesh_max_vertex_2(ego_mesh_t *mesh, Object *object);

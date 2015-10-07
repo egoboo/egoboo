@@ -1958,7 +1958,7 @@ Uint8 scr_ChangeTile( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer().get(), pchr->getTile(), state.argument );
+    returncode = ego_mesh_t::set_texture( _currentModule->getMeshPointer().get(), pchr->getTile(), state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5229,7 +5229,7 @@ Uint8 scr_SetTileXY( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     TileIndex index = _currentModule->getMeshPointer()->get_grid(PointWorld(state.x, state.y));
-    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer().get(), index, state.argument );
+    returncode = ego_mesh_t::set_texture( _currentModule->getMeshPointer().get(), index, state.argument );
 
     SCRIPT_FUNCTION_END();
 }

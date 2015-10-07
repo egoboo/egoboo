@@ -311,7 +311,7 @@ void move_one_character_get_environment( Object * pchr )
     enviro.grounded = (!pchr->isFlying() && ( enviro.zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
-    enviro.grid_twist = ego_mesh_t::get_twist( mesh, pchr->getTile() );
+    enviro.grid_twist = mesh->get_twist( pchr->getTile() );
 
     // the "watery-ness" of whatever water might be here
     enviro.is_watery = water._is_water && enviro.inwater;
@@ -344,7 +344,7 @@ void move_one_character_get_environment( Object * pchr )
     }
     else if ( mesh->grid_is_valid( pchr->getTile() ) )
     {
-        enviro.traction = std::abs( map_twist_nrm[enviro.grid_twist][kZ] ) * ( 1.0f - enviro.zlerp ) + 0.25f * enviro.zlerp;
+        enviro.traction = std::abs(g_meshLookupTables.twist_nrm[enviro.grid_twist][kZ] ) * ( 1.0f - enviro.zlerp ) + 0.25f * enviro.zlerp;
 
         if ( enviro.is_slippy )
         {
@@ -426,7 +426,7 @@ void move_one_character_get_environment( Object * pchr )
         // Special considerations for slippy surfaces
         if ( enviro.is_slippy )
         {
-            if ( map_twist_flat[enviro.grid_twist] )
+            if (g_meshLookupTables.twist_flat[enviro.grid_twist] )
             {
                 // Reset jumping on flat areas of slippiness
                 if ( enviro.grounded && 0 == pchr->jump_timer )
@@ -485,7 +485,7 @@ void move_one_character_do_floor_friction( Object * pchr )
 
         if ( TWIST_FLAT != penviro->grid_twist )
         {
-            vup = map_twist_nrm[penviro->grid_twist];
+            vup = g_meshLookupTables.twist_nrm[penviro->grid_twist];
         }
 
     }
@@ -496,7 +496,7 @@ void move_one_character_do_floor_friction( Object * pchr )
 
         if ( TWIST_FLAT != penviro->grid_twist )
         {
-            vup = map_twist_nrm[penviro->grid_twist];
+            vup = g_meshLookupTables.twist_nrm[penviro->grid_twist];
         }
     }
 
@@ -589,7 +589,7 @@ void move_one_character_do_z_motion( Object * pchr )
         // RELATIVE TO THE GRID, since you might be riding a platform!
         float     loc_zlerp = pchr->enviro.grid_lerp;
 
-        gpara = map_twist_vel[pchr->enviro.grid_twist];
+        gpara = g_meshLookupTables.twist_vel[pchr->enviro.grid_twist];
 
         gperp[kX] = 0       - gpara[kX];
         gperp[kY] = 0       - gpara[kY];
@@ -1458,8 +1458,8 @@ void move_one_character( Object * pchr )
 
         if ( fnew > 0 )
         {
-            pchr->ori.map_twist_facing_x = pchr->ori.map_twist_facing_x * fkeep + map_twist_facing_x[pchr->enviro.grid_twist] * fnew;
-            pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + map_twist_facing_y[pchr->enviro.grid_twist] * fnew;
+            pchr->ori.map_twist_facing_x = pchr->ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[pchr->enviro.grid_twist] * fnew;
+            pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[pchr->enviro.grid_twist] * fnew;
         }
     }
 }

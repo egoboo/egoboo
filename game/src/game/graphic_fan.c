@@ -105,7 +105,7 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     image    = frame_add + basetile;
 
     // actually update the animated texture info
-    return ego_mesh_set_texture( mesh, itile, image );
+    return ego_mesh_t::set_texture( mesh, itile, image );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -260,11 +260,11 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
         v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * Info<float>::Grid::Size();
         v[cnt].pos[ZZ] = ptmem._plst[badvertex][ZZ];
 
-        tmp = map_twist_nrm[twist][kZ];
+        tmp = g_meshLookupTables.twist_nrm[twist][kZ];
         tmp *= tmp;
 
-        v[cnt].col[RR] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist][kX] * map_twist_nrm[twist][kX] );
-        v[cnt].col[GG] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist][kY] * map_twist_nrm[twist][kY] );
+        v[cnt].col[RR] = tmp * ( tmp + ( 1.0f - tmp ) * g_meshLookupTables.twist_nrm[twist][kX] * g_meshLookupTables.twist_nrm[twist][kX] );
+        v[cnt].col[GG] = tmp * ( tmp + ( 1.0f - tmp ) * g_meshLookupTables.twist_nrm[twist][kY] * g_meshLookupTables.twist_nrm[twist][kY] );
         v[cnt].col[BB] = tmp;
         v[cnt].col[AA] = 1.0f;
 
@@ -412,7 +412,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
             // get the lighting info from the grid
             TileIndex jtile = mesh->get_tile_int(PointGrid(jx, jy));
             float dlight;
-            if ( grid_light_one_corner(*mesh, jtile, v0->z, nrm, &dlight) )
+            if ( ego_mesh_t::light_corner(*mesh, jtile, v0->z, nrm, &dlight) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
                 v0->r = dlight * INV_FF + alight;

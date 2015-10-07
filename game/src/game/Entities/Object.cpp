@@ -1746,12 +1746,12 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 		}
 	}
 
-	mesh_mpdfx_tests = 0;
-	mesh_bound_tests = 0;
-	mesh_pressure_tests = 0;
+	g_meshStats.mpdfxTests = 0;
+	g_meshStats.boundTests = 0;
+	g_meshStats.pressureTests = 0;
 	BIT_FIELD result = _currentModule->getMeshPointer()->hit_wall(pos, radius, stoppedby, nrm, pressure, data);
-	chr_stoppedby_tests += mesh_mpdfx_tests;
-	chr_pressure_tests += mesh_pressure_tests;
+	chr_stoppedby_tests += g_meshStats.mpdfxTests;
+	chr_pressure_tests += g_meshStats.pressureTests;
 
 	return result;
 }
@@ -1785,12 +1785,12 @@ BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 	}
 
 	// Do the wall test.
-	mesh_mpdfx_tests = 0;
-	mesh_bound_tests = 0;
-	mesh_pressure_tests = 0;
+	g_meshStats.mpdfxTests = 0;
+	g_meshStats.boundTests = 0;
+	g_meshStats.pressureTests = 0;
 	BIT_FIELD result = _currentModule->getMeshPointer()->test_wall(pos, radius, stoppedby, data);
-	chr_stoppedby_tests += mesh_mpdfx_tests;
-	chr_pressure_tests += mesh_pressure_tests;
+	chr_stoppedby_tests += g_meshStats.mpdfxTests;
+	chr_pressure_tests += g_meshStats.pressureTests;
 
 	return result;
 }
