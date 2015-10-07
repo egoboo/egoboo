@@ -22,6 +22,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
+#include "game/mesh.h"
 #include "game/input.h"
 #include "game/Inventory.hpp"
 
@@ -29,36 +30,7 @@
 // forward declaration of external structs
 //--------------------------------------------------------------------------------------------
 
-// Forward declarations.
-class ego_mesh_t;
-struct script_state_t;
-struct mod_file_t;
-
-struct wawalite_animtile_t;
-struct wawalite_damagetile_t;
-struct wawalite_weather_t;
-struct wawalite_water_t;
-struct wawalite_fog_t;
-
-struct menu_process_t;
-
-class Object;
-namespace Ego { class Particle; }
 struct prt_bundle_t;
-
-struct s_import_list;
-class CameraSystem;
-class AudioSystem;
-class GameModule;
-class ObjectHandler;
-class ModuleProfile;
-
-//--------------------------------------------------------------------------------------------
-// forward declaration of internal structs
-//--------------------------------------------------------------------------------------------
-
-struct water_instance_layer_t;
-
 
 
 //--------------------------------------------------------------------------------------------

@@ -35,20 +35,20 @@
 #include "game/input.h"
 #include "game/collision.h"
 #include "game/bsp.h"
-#include "egolib/egolib.h"
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
 #include "game/egoboo.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/Graphics/CameraSystem.hpp"
-#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
 #include "game/physics.h"
 #include "game/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
+#include "egolib/Graphics/ModelDescriptor.hpp"
+#include "egolib/egolib.h"
 
 //--------------------------------------------------------------------------------------------
 
@@ -104,10 +104,10 @@ static void   game_reset_players();
 static void log_madused_vfs( const char *savename );
 
 // implementing wawalite data
-static bool upload_light_data(const wawalite_data_t *data);
-static bool upload_phys_data(const wawalite_physics_t *data);
-static bool upload_graphics_data(const wawalite_graphics_t *data);
-static bool upload_camera_data(const wawalite_camera_t *data);
+static void upload_light_data(const wawalite_data_t& data);
+static void upload_phys_data(const wawalite_physics_t& data);
+static void upload_graphics_data(const wawalite_graphics_t& data);
+static void upload_camera_data(const wawalite_camera_t& data);
 
 // implementing water layer data
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
@@ -2993,13 +2993,11 @@ bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_light_data(const wawalite_data_t *pdata)
+void upload_light_data(const wawalite_data_t& data)
 {
-    if ( NULL == pdata ) return false;
-
     // Upload the lighting data.
-    light_nrm = pdata->light.light_d;
-    light_a = pdata->light.light_a;
+    light_nrm = data.light.light_d;
+    light_a = data.light.light_a;
 
     if (light_nrm.length() > 0.0f)
     {
@@ -3030,48 +3028,31 @@ bool upload_light_data(const wawalite_data_t *pdata)
 
     //make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
     //make_lighttospek();
-
-    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool upload_phys_data( const wawalite_physics_t * pdata )
+void upload_phys_data( const wawalite_physics_t& data )
 {
-    if ( NULL == pdata ) return false;
-
     // upload the physics data
-    Physics::g_environment.hillslide = pdata->hillslide;
-    Physics::g_environment.slippyfriction = pdata->slippyfriction;
-    Physics::g_environment.noslipfriction = pdata->noslipfriction;
-    Physics::g_environment.airfriction = pdata->airfriction;
-    Physics::g_environment.waterfriction = pdata->waterfriction;
-    Physics::g_environment.gravity = pdata->gravity;
-
-    return true;
+    Physics::g_environment.hillslide = data.hillslide;
+    Physics::g_environment.slippyfriction = data.slippyfriction;
+    Physics::g_environment.noslipfriction = data.noslipfriction;
+    Physics::g_environment.airfriction = data.airfriction;
+    Physics::g_environment.waterfriction = data.waterfriction;
+    Physics::g_environment.gravity = data.gravity;
 }
 
-//--------------------------------------------------------------------------------------------
-bool upload_graphics_data( const wawalite_graphics_t * pdata )
+void upload_graphics_data( const wawalite_graphics_t& data )
 {
-    if ( NULL == pdata ) return false;
-
     // Read extra data
-    gfx.exploremode = pdata->exploremode;
-    gfx.usefaredge  = pdata->usefaredge;
-
-    return true;
+    gfx.exploremode = data.exploremode;
+    gfx.usefaredge  = data.usefaredge;
 }
 
-//--------------------------------------------------------------------------------------------
-bool upload_camera_data( const wawalite_camera_t * pdata )
+void upload_camera_data( const wawalite_camera_t& data )
 {
-    if ( NULL == pdata ) return false;
-
-    CameraSystem::get()->getCameraOptions().swing     = pdata->swing;
-    CameraSystem::get()->getCameraOptions().swingRate = pdata->swing_rate;
-    CameraSystem::get()->getCameraOptions().swingAmp  = pdata->swing_amp;
-
-    return true;
+    CameraSystem::get()->getCameraOptions().swing     = data.swing;
+    CameraSystem::get()->getCameraOptions().swingRate = data.swing_rate;
+    CameraSystem::get()->getCameraOptions().swingAmp  = data.swing_amp;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3079,18 +3060,15 @@ void upload_wawalite()
 {
     /// @author ZZ
     /// @details This function sets up water and lighting for the module
-
-    wawalite_data_t * pdata = &wawalite_data;
-
-    upload_phys_data( &( pdata->phys ) );
-    upload_graphics_data( &( pdata->graphics ) );
-    upload_light_data( pdata );                         // this statement depends on data from upload_graphics_data()
-    upload_camera_data( &( pdata->camera ) );
-    fog.upload(pdata->fog);
-    water.upload(pdata->water);
-    weather.upload(pdata->weather);
-    damagetile.upload(pdata->damagetile);
-    upload_animtile_data( animtile, &( pdata->animtile ), SDL_arraysize( animtile ) );
+    upload_phys_data( wawalite_data.phys );
+    upload_graphics_data( wawalite_data.graphics );
+    upload_light_data( wawalite_data);                         // this statement depends on data from upload_graphics_data()
+    upload_camera_data( wawalite_data.camera );
+    fog.upload( wawalite_data.fog );
+    water.upload( wawalite_data.water );
+    weather.upload( wawalite_data.weather );
+    damagetile.upload( wawalite_data.damagetile );
+    upload_animtile_data( animtile, &(wawalite_data.animtile ), SDL_arraysize( animtile ) );
 }
 
 
