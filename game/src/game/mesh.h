@@ -817,30 +817,19 @@ struct MeshStats {
 		: mpdfxTests(0), boundTests(0), pressureTests(0) {
 	}
 };
+
 // Those are statistics. Move into per-mesh statistics.
 extern MeshStats g_meshStats;
-
-// variables to optimize calls to bind the textures
-extern bool  mesh_tx_none;           ///< use blank textures?
-extern TX_REF  mesh_tx_image;          ///< Last texture used
-extern Uint8   mesh_tx_size;           ///< what size texture?
 
 //--------------------------------------------------------------------------------------------
 
 /// loading/saving
 std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName);
 
-
-
-
 bool ego_mesh_interpolate_vertex(tile_mem_t *self, ego_tile_info_t *tile, float pos[], float *plight);
-
-void mesh_texture_invalidate();
-oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
 
 Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #define CARTMAN_SLOPE             50                        ///< increments for terrain slope

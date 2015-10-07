@@ -2809,3 +2809,80 @@ gfx_rv update_one_chr_instance(Object *pchr)
 
     return retval;
 }
+
+// variables to optimize calls to bind the textures
+bool mesh_tx_none = false;
+TX_REF mesh_tx_image = MESH_IMG_COUNT;
+uint8_t mesh_tx_size = 0xFF;
+
+oglx_texture_t *ego_mesh_get_texture(Uint8 image, Uint8 size)
+{
+	oglx_texture_t * tx_ptr = nullptr;
+
+	if (0 == size)
+	{
+		tx_ptr = TextureAtlasManager::get_sml(image);
+	}
+	else if (1 == size)
+	{
+		tx_ptr = TextureAtlasManager::get_big(image);
+	}
+
+	return tx_ptr;
+}
+
+void mesh_texture_invalidate()
+{
+	mesh_tx_image = MESH_IMG_COUNT;
+	mesh_tx_size = 0xFF;
+}
+
+oglx_texture_t * mesh_texture_bind(const ego_tile_info_t * ptile)
+{
+	Uint8  tx_image, tx_size;
+	oglx_texture_t  * tx_ptr = NULL;
+	bool needs_bind = false;
+
+	// bind a NULL texture if we are in that mode
+	if (mesh_tx_none)
+	{
+		tx_ptr = NULL;
+		needs_bind = true;
+
+		mesh_texture_invalidate();
+	}
+	else if (NULL == ptile)
+	{
+		tx_ptr = NULL;
+		needs_bind = true;
+
+		mesh_texture_invalidate();
+	}
+	else
+	{
+		tx_image = TILE_GET_LOWER_BITS(ptile->_img);
+		tx_size = (ptile->_type < tile_dict.offset) ? 0 : 1;
+
+		if ((mesh_tx_image != tx_image) || (mesh_tx_size != tx_size))
+		{
+			tx_ptr = ego_mesh_get_texture(tx_image, tx_size);
+			needs_bind = true;
+
+			mesh_tx_image = tx_image;
+			mesh_tx_size = tx_size;
+		}
+	}
+
+	if (needs_bind)
+	{
+		Ego::Renderer::get().getTextureUnit().setActivated(tx_ptr);
+		if (tx_ptr && tx_ptr->hasAlpha())
+		{
+			// MH: Enable alpha blending if the texture requires it.
+			Ego::Renderer::get().setBlendingEnabled(true);
+			Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceAlpha);
+		}
+	}
+
+	return tx_ptr;
+}

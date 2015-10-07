@@ -512,3 +512,15 @@ public:
     static void decimate_all_mesh_textures();
 
 };
+
+//--------------------------------------------------------------------------------------------
+// The following functions/variables manipulate/represent a per-mesh rendering cache;
+// per-mesh and global variables - 'nough said.
+
+// variables to optimize calls to bind the textures
+extern bool mesh_tx_none;           ///< use blank textures?
+extern TX_REF mesh_tx_image;          ///< Last texture used
+extern uint8_t mesh_tx_size;           ///< what size texture?
+void mesh_texture_invalidate();
+oglx_texture_t *ego_mesh_get_texture(Uint8 image, Uint8 size);
+oglx_texture_t *mesh_texture_bind(const ego_tile_info_t * ptile);
