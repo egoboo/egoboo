@@ -89,8 +89,8 @@ static void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset);
 static void prt_draw_attached_point(prt_bundle_t *pbdl_prt);
 static void render_prt_bbox(prt_bundle_t *pbdl_prt);
 static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t * pinst, Ego::Particle * pprt);
-static Matrix4f4f prt_instance_make_matrix(prt_instance_t *pinst);
-static gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
+static Matrix4f4f prt_instance_make_matrix(prt_instance_t& pinst);
+static gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
 
 //--------------------------------------------------------------------------------------------
 
@@ -861,32 +861,27 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
     return gfx_success;
 }
 
-Matrix4f4f prt_instance_make_matrix(prt_instance_t *pinst)
+Matrix4f4f prt_instance_make_matrix(prt_instance_t& pinst)
 {
 	Matrix4f4f mat = Matrix4f4f::identity();
 
-    mat(1, 0) = -pinst->up[kX];
-    mat(1, 1) = -pinst->up[kY];
-    mat(1, 2) = -pinst->up[kZ];
+    mat(1, 0) = -pinst.up[kX];
+    mat(1, 1) = -pinst.up[kY];
+    mat(1, 2) = -pinst.up[kZ];
 
-    mat(0, 0) = pinst->right[kX];
-    mat(0, 1) = pinst->right[kY];
-    mat(0, 2) = pinst->right[kZ];
+    mat(0, 0) = pinst.right[kX];
+    mat(0, 1) = pinst.right[kY];
+    mat(0, 2) = pinst.right[kZ];
 
-    mat(2, 0) = pinst->nrm[kX];
-    mat(2, 1) = pinst->nrm[kY];
-    mat(2, 2) = pinst->nrm[kZ];
+    mat(2, 0) = pinst.nrm[kX];
+    mat(2, 1) = pinst.nrm[kY];
+    mat(2, 2) = pinst.nrm[kZ];
 
     return mat;
 }
 
-gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
+gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
 {
-    if (!pinst)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL instance");
-        return gfx_error;
-    }
     if (!pprt)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL particle");
@@ -897,8 +892,12 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, 
     Uint32 alpha = trans;
 
     // interpolate the lighting for the origin of the object
+	auto mesh = _currentModule->getMeshPointer();
+	if (!mesh) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
     lighting_cache_t global_light;
-    grid_lighting_interpolate(_currentModule->getMeshPointer().get(), global_light, Vector2f(pinst->pos[kX], pinst->pos[kY]));
+    grid_lighting_interpolate(*mesh, global_light, Vector2f(pinst.pos[kX], pinst.pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
 	Matrix4f4f mat = prt_instance_make_matrix(pinst);
@@ -907,32 +906,32 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, 
 
     // determine the normal dependent amount of light
     float amb, dir;
-    lighting_evaluate_cache(loc_light, pinst->nrm, pinst->pos[kZ], _currentModule->getMeshPointer()->_tmem._bbox, &amb, &dir);
+    lighting_evaluate_cache(loc_light, pinst.nrm, pinst.pos[kZ], _currentModule->getMeshPointer()->_tmem._bbox, &amb, &dir);
 
     // LIGHT-blended sprites automatically glow. ALPHA-blended and SOLID
     // sprites need to convert the light channel into additional alpha
     // lighting to make them "glow"
     Sint16 self_light = 0;
-    if (SPRITE_LIGHT != pinst->type)
+    if (SPRITE_LIGHT != pinst.type)
     {
-        self_light = (255 == pinst->light) ? 0 : pinst->light;
+        self_light = (255 == pinst.light) ? 0 : pinst.light;
     }
 
     // determine the ambient lighting
-    pinst->famb = 0.9f * pinst->famb + 0.1f * (self_light + amb);
-    pinst->fdir = 0.9f * pinst->fdir + 0.1f * dir;
+    pinst.famb = 0.9f * pinst.famb + 0.1f * (self_light + amb);
+    pinst.fdir = 0.9f * pinst.fdir + 0.1f * dir;
 
     // determine the overall lighting
-    pinst->fintens = pinst->fdir * INV_FF;
+    pinst.fintens = pinst.fdir * INV_FF;
     if (do_lighting)
     {
-        pinst->fintens += pinst->famb * INV_FF;
+        pinst.fintens += pinst.famb * INV_FF;
     }
-    pinst->fintens = CLIP(pinst->fintens, 0.0f, 1.0f);
+    pinst.fintens = CLIP(pinst.fintens, 0.0f, 1.0f);
 
     // determine the alpha component
-    pinst->falpha = (alpha * INV_FF) * (pinst->alpha * INV_FF);
-    pinst->falpha = CLIP(pinst->falpha, 0.0f, 1.0f);
+    pinst.falpha = (alpha * INV_FF) * (pinst.alpha * INV_FF);
+    pinst.falpha = CLIP(pinst.falpha, 0.0f, 1.0f);
 
     return gfx_success;
 }
@@ -957,7 +956,7 @@ gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, 
     }
 
     // do the lighting
-    if (gfx_error == prt_instance_update_lighting(&pinst, pprt.get(), trans, do_lighting))
+    if (gfx_error == prt_instance_update_lighting(pinst, pprt.get(), trans, do_lighting))
     {
         retval = gfx_error;
     }

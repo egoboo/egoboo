@@ -114,15 +114,6 @@ enum HUDColors : uint8_t
 
 #define VALID_MESH_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<MESH_IMG_COUNT) )
 
-//#define CALC_OFFSET_X(IMG) ((( (IMG) >> 0 ) & 7 ) / 8.0f)
-//#define CALC_OFFSET_Y(IMG) ((( (IMG) >> 3 ) & 7 ) / 8.0f)
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
-
 //--------------------------------------------------------------------------------------------
 
 using namespace std;
@@ -442,14 +433,14 @@ void gfx_do_flip_pages();
 
 float draw_icon_texture(const oglx_texture_t *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
 float draw_game_icon(const oglx_texture_t* icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
-void  draw_blip(float sizeFactor, Uint8 color, float x, float y);
+void draw_blip(float sizeFactor, Uint8 color, float x, float y);
+void draw_mouse_cursor();
 
-bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t& dst, const Vector2f& pos);
-float grid_lighting_test(ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
+bool grid_lighting_interpolate(const ego_mesh_t& mesh, lighting_cache_t& dst, const Vector2f& pos);
+float grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
 
 float  get_ambient_level();
 
-void   draw_mouse_cursor();
 
 
 #define TEXTUREATLASMANAGER_VERSION 1

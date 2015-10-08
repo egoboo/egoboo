@@ -30,30 +30,23 @@
 #include "game/Module/Module.hpp"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-static bool animate_tile( ego_mesh_t * mesh, Uint32 itile );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void animate_all_tiles( ego_mesh_t * mesh )
+void animate_all_tiles( ego_mesh_t& mesh )
 {
-    if (!mesh) return;
-
     bool small_tile_update = (animtile[0].frame_add_old != animtile[0].frame_add);
     bool big_tile_update = (animtile[1].frame_add_old != animtile[1].frame_add);
 
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
 
-    size_t tile_count = mesh->_tmem.getTileCount();
-    size_t anim_count = mesh->_fxlists.anm._idx;
+    size_t tile_count = mesh._tmem.getTileCount();
+    size_t anim_count = mesh._fxlists.anm._idx;
 
     // Scan through all the animated tiles.
     for (size_t i = 0; i < anim_count; ++i)
     {
         // Get the offset
-        Uint32 itile = mesh->_fxlists.anm._lst[i];
+        Uint32 itile = mesh._fxlists.anm._lst[i];
         if (itile >= tile_count) continue;
 
         animate_tile(mesh, itile);
@@ -61,7 +54,7 @@ void animate_all_tiles( ego_mesh_t * mesh )
 }
 
 //--------------------------------------------------------------------------------------------
-bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
+bool animate_tile( ego_mesh_t& mesh, Uint32 itile )
 {
     /// @author BB
     /// @details animate a given tile
@@ -72,14 +65,14 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     ego_tile_info_t * ptile;
 
     // do nothing if the tile is not animated
-    if ( 0 == mesh->test_fx( itile, MAPFX_ANIM ) )
+    if ( 0 == mesh.test_fx( itile, MAPFX_ANIM ) )
     {
         return true;
     }
 
     // grab a pointer to the tile
-    ptile = mesh->get_ptile(itile);
-    if ( NULL == ptile )
+    ptile = mesh.get_ptile(itile);
+    if (nullptr == ptile)
     {
         return false;
     }
@@ -105,11 +98,11 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     image    = frame_add + basetile;
 
     // actually update the animated texture info
-    return ego_mesh_t::set_texture( mesh, itile, image );
+    return mesh.set_texture( itile, image );
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
+gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 itile )
 {
     /// @author ZZ
     /// @details This function draws a mesh itile
@@ -119,20 +112,14 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
     Uint16 commands;
 
     // grab a pointer to the tile
-	const ego_tile_info_t *ptile = mesh->get_ptile(itile);
+	const ego_tile_info_t *ptile = mesh.get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
         return gfx_error;
     }
 
-    // get some info from the mesh
-    if ( NULL == mesh )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
-        return gfx_error;
-    }
-	const tile_mem_t& ptmem  = mesh->_tmem;
+	const tile_mem_t& ptmem  = mesh._tmem;
 
     // do not render the itile if the image image is invalid
     if (TILE_IS_FANOFF(ptile))  return gfx_success;

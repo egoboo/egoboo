@@ -127,7 +127,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 	{
 		Uint32 tmp_itile = lst_vals[i]._tileIndex;
 
-		gfx_rv render_rv = render_fan(&mesh, tmp_itile);
+		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
 		{
 			log_warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile);

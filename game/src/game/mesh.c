@@ -213,45 +213,35 @@ void ego_mesh_t::recalc_twist()
     // recalculate the twist
     for (TileIndex fan = 0; fan.getI() < _info._tiles_count; fan++)
     {
-        Uint8 twist = ego_mesh_t::get_fan_twist(this, fan);
+        uint8_t twist = get_fan_twist(fan);
         _gmem.get(fan)->_twist = twist;
     }
 }
 
-bool ego_mesh_t::set_texture(ego_mesh_t *self, const TileIndex& index, Uint16 image)
+bool ego_mesh_t::set_texture(const TileIndex& index, Uint16 image)
 {
-	if (nullptr == self) {
-		throw std::invalid_argument("nullptr == self");
-	}
-
-	if (!self->grid_is_valid(index)) {
+	if (!grid_is_valid(index)) {
 		return false;
 	}
 
     // Get the upper and lower bits for this tile image.
-	Uint16 tile_value = self->_tmem.getTile(index.getI())->_img;
+	Uint16 tile_value = _tmem.getTile(index.getI())->_img;
 	Uint16 tile_lower = image & TILE_LOWER_MASK;
 	Uint16 tile_upper = tile_value & TILE_UPPER_MASK;
 
     // Set the actual image.
-    self->_tmem.getTile(index.getI())->_img = tile_upper | tile_lower;
+    _tmem.getTile(index.getI())->_img = tile_upper | tile_lower;
 
     // Update the pre-computed texture info.
-    return ego_mesh_t::update_texture(self, index);
+    return update_texture(index);
 }
 
-bool ego_mesh_t::update_texture(ego_mesh_t *self, const TileIndex& index)
+bool ego_mesh_t::update_texture(const TileIndex& index)
 {
-	if (nullptr == self) {
-		throw std::invalid_argument("nullptr == self");
-	}
-
-    tile_mem_t& ptmem = self->_tmem;
-
-	if (!self->grid_is_valid(index)) {
+	if (!grid_is_valid(index)) {
 		return false;
 	}
-	std::shared_ptr<const ego_tile_info_t> ptile = ptmem.getTile(index.getI());
+	std::shared_ptr<const ego_tile_info_t> ptile = _tmem.getTile(index.getI());
 
 	int    tile_vrt;
 	Uint8  type;
@@ -264,8 +254,8 @@ bool ego_mesh_t::update_texture(ego_mesh_t *self, const TileIndex& index)
     Uint16 vertices = pdef->numvertices;
     for ( tile_vrt = 0; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
     {
-        ptmem._tlst[mesh_vrt][SS] = pdef->u[tile_vrt];
-        ptmem._tlst[mesh_vrt][TT] = pdef->v[tile_vrt];
+        _tmem._tlst[mesh_vrt][SS] = pdef->u[tile_vrt];
+        _tmem._tlst[mesh_vrt][TT] = pdef->v[tile_vrt];
     }
 
     return true;
@@ -276,7 +266,7 @@ void ego_mesh_t::make_texture()
     // Set the texture coordinate for every vertex.
     for (TileIndex index = 0; index < _info._tiles_count; ++index)
     {
-        ego_mesh_t::update_texture(this, index);
+        update_texture(index);
     }
 }
 
@@ -892,7 +882,7 @@ bool ego_mesh_t::light_corner( const ego_mesh_t& mesh, const TileIndex& fan, flo
 }
 
 //--------------------------------------------------------------------------------------------
-void ego_mesh_t::test_one_corner(GLXvector3f pos, float *pdelta)
+void ego_mesh_t::test_one_corner(GLXvector3f pos, float *pdelta) const
 {
     float loc_delta, low_delta, hgh_delta;
     float hgh_wt, low_wt;
@@ -918,7 +908,7 @@ bool ego_mesh_t::light_one_corner(ego_tile_info_t * ptile, const bool reflective
     if ( NULL == ptile ) return false;
 
     // interpolate the lighting for the given corner of the mesh
-    grid_lighting_interpolate( this, grid_light, Vector2f(pos[kX],pos[kY]) );
+    grid_lighting_interpolate( *this, grid_light, Vector2f(pos[kX],pos[kY]) );
 
     if ( reflective )
     {
@@ -938,18 +928,17 @@ bool ego_mesh_t::light_one_corner(ego_tile_info_t * ptile, const bool reflective
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::test_corners(ego_mesh_t *mesh, ego_tile_info_t *ptile, float threshold)
+bool ego_mesh_t::test_corners(ego_tile_info_t *ptile, float threshold) const
 {
     bool retval;
     int corner;
 
     // validate the parameters
-    if ( NULL == mesh || NULL == ptile ) return false;
+    if ( NULL == ptile ) return false;
 
     if ( threshold < 0.0f ) threshold = 0.0f;
 
     // get the normal and lighting cache for this tile
-	tile_mem_t& ptmem = mesh->_tmem;
 	light_cache_t& lcache = ptile->_lcache;
 	light_cache_t& d1_cache = ptile->_d1_cache;
 
@@ -963,9 +952,9 @@ bool ego_mesh_t::test_corners(ego_mesh_t *mesh, ego_tile_info_t *ptile, float th
 
         pdelta = ( d1_cache ) + corner;
         plight = ( lcache ) + corner;
-        ppos   = ptmem._plst + ptile->_vrtstart + corner;
+        ppos   = _tmem._plst + ptile->_vrtstart + corner;
 
-        mesh->test_one_corner(*ppos, &delta);
+        test_one_corner(*ppos, &delta);
 
         if ( 0.0f == *plight )
         {
@@ -2230,14 +2219,14 @@ bool ego_grid_info_t::set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits
     return old_bits != new_bits;
 }
 
-Uint8 ego_mesh_t::get_fan_twist(const ego_mesh_t *self, const TileIndex& tile)
+uint8_t ego_mesh_t::get_fan_twist(const TileIndex& tile) const
 {
     // check for a valid tile
-    if (TileIndex::Invalid == tile || tile > self->_info._tiles_count)
+    if (TileIndex::Invalid == tile || tile > _info._tiles_count)
     {
         return TWIST_FLAT;
     }
-    ego_tile_info_t *info = self->_tmem.getTile(tile.getI()).get();
+    ego_tile_info_t *info = _tmem.getTile(tile.getI()).get();
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
     if (TILE_IS_FANOFF(info))
     {
@@ -2245,10 +2234,10 @@ Uint8 ego_mesh_t::get_fan_twist(const ego_mesh_t *self, const TileIndex& tile)
     }
     size_t vrtstart = info->_vrtstart;
 
-    float z0 = self->_tmem._plst[vrtstart + 0][ZZ];
-    float z1 = self->_tmem._plst[vrtstart + 1][ZZ];
-    float z2 = self->_tmem._plst[vrtstart + 2][ZZ];
-    float z3 = self->_tmem._plst[vrtstart + 3][ZZ];
+    float z0 = _tmem._plst[vrtstart + 0][ZZ];
+    float z1 = _tmem._plst[vrtstart + 1][ZZ];
+    float z2 = _tmem._plst[vrtstart + 2][ZZ];
+    float z3 = _tmem._plst[vrtstart + 3][ZZ];
 
     float zx = CARTMAN_FIXNUM * (z0 + z3 - z1 - z2) / CARTMAN_SLOPE;
     float zy = CARTMAN_FIXNUM * (z2 + z3 - z0 - z1) / CARTMAN_SLOPE;

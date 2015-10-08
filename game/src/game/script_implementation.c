@@ -487,42 +487,40 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     /// @details This function breaks the tiles of a passage if there is a character standing
     ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
 
-    Uint32 endtile;
-    bool       useful;
-    ego_tile_info_t * ptile = NULL;
-    int loc_starttile;
+	auto mesh = _currentModule->getMeshPointer();
+	if (!mesh) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
 
     const std::shared_ptr<Passage> &passage = _currentModule->getPassageByID(passageID);
 
     if ( !passage ) return false;
 
     // limit the start tile the the 256 tile images that we have
-    loc_starttile = CLIP_TO_08BITS( starttile );
+	int loc_starttile = CLIP_TO_08BITS( starttile );
 
     // same with the end tile
-    endtile   =  loc_starttile + frames - 1;
-    endtile = CLIP( endtile, (Uint32)0, (Uint32)255 );
+	Uint32 endtile = Ego::Math::constrain(loc_starttile + frames - 1, 0, 255);
 
-    useful = false;
+	bool useful = false;
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
-        float lerp_z;
-
         // nothing in packs
         if (pchr->isBeingHeld()) continue;
 
         // nothing flying
         if (pchr->isFlying()) continue;
 
+		float lerp_z;
         lerp_z = ( pchr->getPosZ() - pchr->enviro.floor_level ) / DAMAGERAISE;
         lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        TileIndex fan = _currentModule->getMeshPointer()->get_grid(PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex fan = mesh->get_grid(PointWorld(pchr->getPosX(), pchr->getPosY()));
 
-        ptile = _currentModule->getMeshPointer()->get_ptile(fan);
-        if ( NULL != ptile )
+		ego_tile_info_t *ptile = mesh->get_ptile(fan);
+        if ( nullptr != ptile )
         {
             Uint16 img      = ptile->_img & TILE_LOWER_MASK;
             Uint16 highbits = ptile->_img & TILE_UPPER_MASK;
@@ -544,7 +542,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( img == endtile )
             {
-                useful = _currentModule->getMeshPointer()->add_fx( fan, mesh_fx_or );
+                useful = mesh->add_fx( fan, mesh_fx_or );
 
                 if ( become != 0 )
                 {
@@ -554,7 +552,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( ptile->_img != ( img | highbits ) )
             {
-                ego_mesh_t::set_texture( _currentModule->getMeshPointer().get(), fan, img | highbits );
+                mesh->set_texture( fan, img | highbits );
             }
         }
     }
