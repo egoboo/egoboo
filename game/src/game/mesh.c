@@ -978,13 +978,13 @@ bool ego_mesh_t::test_corners(ego_tile_info_t *ptile, float threshold) const
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_t::light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep )
+float ego_mesh_t::light_corners( ego_mesh_t& mesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep )
 {
     int corner;
     float max_delta;
 
     // check for valid pointers
-    if ( NULL == mesh || NULL == ptile )
+    if ( NULL == ptile )
     {
         return -1.0f;
     }
@@ -1002,7 +1002,7 @@ float ego_mesh_t::light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, boo
     }
 
     // get the normal and lighting cache for this tile
-	tile_mem_t&     ptmem    = mesh->_tmem;
+	tile_mem_t&     ptmem    = mesh._tmem;
 	normal_cache_t& ncache   = ptile->_ncache;
 	light_cache_t&  lcache   = ptile->_lcache;
 	light_cache_t&  d1_cache = ptile->_d1_cache;
@@ -1025,8 +1025,8 @@ float ego_mesh_t::light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, boo
         ppos    = ptmem._plst + ptile->_vrtstart + corner;
 
         light_new = 0.0f;
-        mesh->light_one_corner( ptile, reflective, Vector3f((*ppos)[0],(*ppos)[1],(*ppos)[2]),
-			                                       Vector3f((*pnrm)[0],(*pnrm)[1],(*pnrm)[2]), &light_new );
+        mesh.light_one_corner( ptile, reflective, Vector3f((*ppos)[0],(*ppos)[1],(*ppos)[2]),
+			                                      Vector3f((*pnrm)[0],(*pnrm)[1],(*pnrm)[2]), &light_new );
 
         if ( *plight != light_new )
         {

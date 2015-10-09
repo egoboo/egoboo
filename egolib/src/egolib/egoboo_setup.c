@@ -129,6 +129,8 @@ egoboo_config_t::egoboo_config_t() :
     hud_displayGameTime(false, "hud.displayGameTime","show/hide game timer"),
     hud_displayFramesPerSecond(false, "hud.displayFramesPerSecond", "show/hide frames per second"),
     // Debug configuration section.
+	debug_mesh_renderHeightMap(false, "debug.mesh.renderHeightMap", "render mesh's height map"),
+	debug_mesh_renderNormals(false, "debug.mesh.renderNormals", "render mesh's normals"),
     debug_hideMouse(true,"debug.hideMouse","show/hide mouse"),
     debug_grabMouse(true,"debug.grabMouse","grab/don't grab mouse"),
     debug_developerMode_enable(false,"debug.developerMode.enable","enable/disable developer mode"),
@@ -201,6 +203,8 @@ egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
     hud_displayFramesPerSecond = other.hud_displayFramesPerSecond;
 
     // Debug configuration section.
+	debug_mesh_renderHeightMap = other.debug_mesh_renderHeightMap;
+	debug_mesh_renderNormals = other.debug_mesh_renderNormals;
     debug_hideMouse = other.debug_hideMouse;
     debug_grabMouse = other.debug_grabMouse;
     debug_developerMode_enable = other.debug_developerMode_enable;

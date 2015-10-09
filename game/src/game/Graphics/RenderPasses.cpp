@@ -799,6 +799,11 @@ void EntityShadows::doShadowSprite(float intensity, VertexBuffer& vertexBuffer)
 }
 
 void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
+	if (!tl.getMesh())
+	{
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not bound to a mesh");
+	}
+	ego_mesh_t& mesh = *tl.getMesh().get();
 	// Restart the mesh texture code.
 	mesh_texture_invalidate();
 
@@ -807,7 +812,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(tl._mesh.get(), tl._water.lst[i].index, 1);
+			render_water_fan(mesh, tl._water.lst[i].index, 1);
 		}
 	}
 
@@ -816,7 +821,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(tl._mesh.get(), tl._water.lst[i].index, 0);
+			render_water_fan(mesh, tl._water.lst[i].index, 0);
 		}
 	}
 

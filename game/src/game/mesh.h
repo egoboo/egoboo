@@ -763,7 +763,7 @@ public:
 	bool set_texture(const TileIndex& tile, Uint16 image);
 	bool update_texture(const TileIndex& tile);
 	bool test_corners(ego_tile_info_t *tile, float threshold) const;
-	static float light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
+	static float light_corners(ego_mesh_t& self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
 	static bool light_corner(const ego_mesh_t& self, const TileIndex& fan, float height, float nrm[], float *plight);
 	uint8_t get_fan_twist(const TileIndex& tile) const;
 	float get_max_vertex_0(const PointGrid& point) const;

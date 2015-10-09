@@ -1185,21 +1185,20 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     }
 	Ego::Graphics::RenderPasses::g_reflective1.run(cam, tl, el);
 
-#if defined(RENDER_HMAP) && defined(_DEBUG)
+	if (egoboo_config_t::get().debug_mesh_renderHeightMap.getValue())
+	{
+		// restart the mesh texture code
+		mesh_texture_invalidate();
 
-    // restart the mesh texture code
-    mesh_texture_invalidate();
+		// render the heighmap
+		for (size_t i = 0; i < tl._all.size; ++i)
+		{
+			render_hmap_fan(tl._mesh.get(), tl._all.lst[i].index);
+		}
 
-    // render the heighmap
-    for (size_t i = 0; i < rl._all.count; ++i)
-    {
-        render_hmap_fan(mesh, rl._all[i]);
-    }
-
-    // let the mesh texture code know that someone else is in control now
-    mesh_texture_invalidate();
-
-#endif
+		// let the mesh texture code know that someone else is in control now
+		mesh_texture_invalidate();
+	}
 
     // Render the shadows of entities.
 	Ego::Graphics::RenderPasses::g_entityShadows.run(cam, tl, el);
@@ -1691,7 +1690,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
-        delta = ego_mesh_t::light_corners(tl._mesh.get(), ptile, reflective, local_mesh_lighting_keep);
+        delta = ego_mesh_t::light_corners(*mesh, ptile, reflective, local_mesh_lighting_keep);
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to
