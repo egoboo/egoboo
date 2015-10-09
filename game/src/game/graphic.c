@@ -1154,13 +1154,18 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     /// @author BB
     /// @details draw the mesh and reflections of entities
 
+	if (!tl._mesh)
+	{
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list is not attached to a mesh");
+	}
+
     gfx_rv retval;
 
     // assume the best
     retval = gfx_success;
     //--------------------------------
     // advance the animation of all animated tiles
-    animate_all_tiles(tl._mesh.get());
+    animate_all_tiles(*tl._mesh);
 
 	// Render non-reflective tiles.
 	Ego::Graphics::RenderPasses::g_nonReflective.run(cam, tl, el);
@@ -1180,21 +1185,20 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     }
 	Ego::Graphics::RenderPasses::g_reflective1.run(cam, tl, el);
 
-#if defined(RENDER_HMAP) && defined(_DEBUG)
+	if (egoboo_config_t::get().debug_mesh_renderHeightMap.getValue())
+	{
+		// restart the mesh texture code
+		mesh_texture_invalidate();
 
-    // restart the mesh texture code
-    mesh_texture_invalidate();
+		// render the heighmap
+		for (size_t i = 0; i < tl._all.size; ++i)
+		{
+			render_hmap_fan(tl._mesh.get(), tl._all.lst[i].index);
+		}
 
-    // render the heighmap
-    for (size_t i = 0; i < rl._all.count; ++i)
-    {
-        render_hmap_fan(mesh, rl._all[i]);
-    }
-
-    // let the mesh texture code know that someone else is in control now
-    mesh_texture_invalidate();
-
-#endif
+		// let the mesh texture code know that someone else is in control now
+		mesh_texture_invalidate();
+	}
 
     // Render the shadows of entities.
 	Ego::Graphics::RenderPasses::g_entityShadows.run(cam, tl, el);
@@ -1376,7 +1380,7 @@ void gfx_error_clear()
 //--------------------------------------------------------------------------------------------
 // grid_lighting FUNCTIONS
 //--------------------------------------------------------------------------------------------
-float grid_lighting_test(ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
+float grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
 {
     const lighting_cache_t *cache_list[4];
 
@@ -1393,7 +1397,7 @@ float grid_lighting_test(ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, fl
     {
         cache_list[cnt] = NULL;
 
-		ego_grid_info_t  *pgrid = mesh.get_pgrid(fan[cnt]);
+		const ego_grid_info_t  *pgrid = mesh.get_pgrid(fan[cnt]);
         if (NULL == pgrid)
         {
             cache_list[cnt] = NULL;
@@ -1411,7 +1415,7 @@ float grid_lighting_test(ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, fl
 }
 
 //--------------------------------------------------------------------------------------------
-bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t& dst, const Vector2f& pos)
+bool grid_lighting_interpolate(const ego_mesh_t& mesh, lighting_cache_t& dst, const Vector2f& pos)
 {
     int ix, iy, cnt;
     TileIndex fan[4];
@@ -1421,13 +1425,6 @@ bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t& dst, co
     const ego_grid_info_t  * pgrid;
     const lighting_cache_t * cache_list[4];
 
-    if (NULL == mesh) mesh = _currentModule->getMeshPointer().get();
-    if (NULL == mesh)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
-        return false;
-    }
-
     // calculate the "tile position"
     tpos = pos * (1.0f / Info<float>::Grid::Size());
 
@@ -1436,14 +1433,14 @@ bool grid_lighting_interpolate(const ego_mesh_t *mesh, lighting_cache_t& dst, co
     iy = std::floor(tpos[YY]);
 
     // find the tile id for the surrounding tiles
-    fan[0] = mesh->get_tile_int(PointGrid(ix, iy));
-    fan[1] = mesh->get_tile_int(PointGrid(ix + 1, iy));
-    fan[2] = mesh->get_tile_int(PointGrid(ix, iy + 1));
-    fan[3] = mesh->get_tile_int(PointGrid(ix + 1, iy + 1));
+    fan[0] = mesh.get_tile_int(PointGrid(ix, iy));
+    fan[1] = mesh.get_tile_int(PointGrid(ix + 1, iy));
+    fan[2] = mesh.get_tile_int(PointGrid(ix, iy + 1));
+    fan[3] = mesh.get_tile_int(PointGrid(ix + 1, iy + 1));
 
     for (cnt = 0; cnt < 4; cnt++)
     {
-        pgrid = mesh->get_pgrid(fan[cnt]);
+        pgrid = mesh.get_pgrid(fan[cnt]);
 
         if (NULL == pgrid)
         {
@@ -1588,7 +1585,7 @@ gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, in
 #if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
 
     // visible fans based on the update "need"
-    retval = ego_mesh_t::test_corners(mesh, ptile, threshold);
+    retval = mesh->test_corners(ptile, threshold);
 
     // update every 4 fans even if there is no need
     if (!retval)
@@ -1693,7 +1690,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
-        delta = ego_mesh_t::light_corners(tl._mesh.get(), ptile, reflective, local_mesh_lighting_keep);
+        delta = ego_mesh_t::light_corners(*mesh, ptile, reflective, local_mesh_lighting_keep);
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to
@@ -2084,17 +2081,17 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
             float radius;
             ego_frect_t ftmp;
 
-            dynalight_data_t * pdyna = dyl.lst + cnt;
+            dynalight_data_t& pdyna = dyl.lst[cnt];
 
-            if (pdyna->falloff <= 0.0f || 0.0f == pdyna->level) continue;
+            if (pdyna.falloff <= 0.0f || 0.0f == pdyna.level) continue;
 
-            radius = std::sqrt(pdyna->falloff * 765.0f * 0.5f);
+            radius = std::sqrt(pdyna.falloff * 765.0f * 0.5f);
 
             // find the intersection with the frustum boundary
-            ftmp.xmin = std::max(pdyna->pos[kX] - radius, mesh_bound.xmin);
-            ftmp.xmax = std::min(pdyna->pos[kX] + radius, mesh_bound.xmax);
-            ftmp.ymin = std::max(pdyna->pos[kY] - radius, mesh_bound.ymin);
-            ftmp.ymax = std::min(pdyna->pos[kY] + radius, mesh_bound.ymax);
+            ftmp.xmin = std::max(pdyna.pos[kX] - radius, mesh_bound.xmin);
+            ftmp.xmax = std::min(pdyna.pos[kX] + radius, mesh_bound.xmax);
+            ftmp.ymin = std::max(pdyna.pos[kY] - radius, mesh_bound.ymin);
+            ftmp.ymax = std::min(pdyna.pos[kY] + radius, mesh_bound.ymax);
 
             // check to see if it intersects the "frustum"
             if (ftmp.xmin >= ftmp.xmax || ftmp.ymin >= ftmp.ymax) continue;
@@ -2121,23 +2118,20 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         float dyna_weight = 0.0f;
         float dyna_weight_sum = 0.0f;
 
-		Vector3f diff;
-        dynalight_data_t *pdyna;
-
         // evaluate all the lights at the camera position
         for (cnt = 0; cnt < dyl.size; cnt++)
         {
-            pdyna = dyl.lst + cnt;
+			dynalight_data_t& pdyna = dyl.lst[cnt];
 
             // evaluate the intensity at the camera
-			diff = pdyna->pos - cam.getCenter() - Vector3f(0.0f, 0.0f, 90.0f); // evaluate at the "head height" of a character
+			Vector3f diff = pdyna.pos - cam.getCenter() - Vector3f(0.0f, 0.0f, 90.0f); // evaluate at the "head height" of a character
 
-            dyna_weight = std::abs(dyna_lighting_intensity(pdyna, diff));
+            dyna_weight = std::abs(dyna_lighting_intensity(&pdyna, diff));
 
-            fake_dynalight.distance += dyna_weight * pdyna->distance;
-            fake_dynalight.falloff += dyna_weight * pdyna->falloff;
-            fake_dynalight.level += dyna_weight * pdyna->level;
-            fake_dynalight.pos += (pdyna->pos - cam.getCenter()) * dyna_weight;
+            fake_dynalight.distance += dyna_weight * pdyna.distance;
+            fake_dynalight.falloff += dyna_weight * pdyna.falloff;
+            fake_dynalight.level += dyna_weight * pdyna.level;
+            fake_dynalight.pos += (pdyna.pos - cam.getCenter()) * dyna_weight;
 
             dyna_weight_sum += dyna_weight;
         }

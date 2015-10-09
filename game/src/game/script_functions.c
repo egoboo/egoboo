@@ -1958,7 +1958,11 @@ Uint8 scr_ChangeTile( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_mesh_t::set_texture( _currentModule->getMeshPointer().get(), pchr->getTile(), state.argument );
+	auto mesh = _currentModule->getMeshPointer();
+	if (!mesh) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
+    returncode = mesh->set_texture( pchr->getTile(), state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5228,8 +5232,13 @@ Uint8 scr_SetTileXY( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    TileIndex index = _currentModule->getMeshPointer()->get_grid(PointWorld(state.x, state.y));
-    returncode = ego_mesh_t::set_texture( _currentModule->getMeshPointer().get(), index, state.argument );
+	auto mesh = _currentModule->getMeshPointer();
+	if (!mesh) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
+
+    TileIndex index = mesh->get_grid(PointWorld(state.x, state.y));
+    returncode = mesh->set_texture( index, state.argument );
 
     SCRIPT_FUNCTION_END();
 }

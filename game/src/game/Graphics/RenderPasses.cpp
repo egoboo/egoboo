@@ -127,7 +127,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 	{
 		Uint32 tmp_itile = lst_vals[i]._tileIndex;
 
-		gfx_rv render_rv = render_fan(&mesh, tmp_itile);
+		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
 		{
 			log_warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile);
@@ -799,6 +799,11 @@ void EntityShadows::doShadowSprite(float intensity, VertexBuffer& vertexBuffer)
 }
 
 void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
+	if (!tl.getMesh())
+	{
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not bound to a mesh");
+	}
+	ego_mesh_t& mesh = *tl.getMesh().get();
 	// Restart the mesh texture code.
 	mesh_texture_invalidate();
 
@@ -807,7 +812,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(tl._mesh.get(), tl._water.lst[i].index, 1);
+			render_water_fan(mesh, tl._water.lst[i].index, 1);
 		}
 	}
 
@@ -816,7 +821,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(tl._mesh.get(), tl._water.lst[i].index, 0);
+			render_water_fan(mesh, tl._water.lst[i].index, 0);
 		}
 	}
 

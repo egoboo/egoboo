@@ -30,30 +30,23 @@
 #include "game/Module/Module.hpp"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-static bool animate_tile( ego_mesh_t * mesh, Uint32 itile );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void animate_all_tiles( ego_mesh_t * mesh )
+void animate_all_tiles( ego_mesh_t& mesh )
 {
-    if (!mesh) return;
-
     bool small_tile_update = (animtile[0].frame_add_old != animtile[0].frame_add);
     bool big_tile_update = (animtile[1].frame_add_old != animtile[1].frame_add);
 
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
 
-    size_t tile_count = mesh->_tmem.getTileCount();
-    size_t anim_count = mesh->_fxlists.anm._idx;
+    size_t tile_count = mesh._tmem.getTileCount();
+    size_t anim_count = mesh._fxlists.anm._idx;
 
     // Scan through all the animated tiles.
     for (size_t i = 0; i < anim_count; ++i)
     {
         // Get the offset
-        Uint32 itile = mesh->_fxlists.anm._lst[i];
+        Uint32 itile = mesh._fxlists.anm._lst[i];
         if (itile >= tile_count) continue;
 
         animate_tile(mesh, itile);
@@ -61,7 +54,7 @@ void animate_all_tiles( ego_mesh_t * mesh )
 }
 
 //--------------------------------------------------------------------------------------------
-bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
+bool animate_tile( ego_mesh_t& mesh, Uint32 itile )
 {
     /// @author BB
     /// @details animate a given tile
@@ -72,14 +65,14 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     ego_tile_info_t * ptile;
 
     // do nothing if the tile is not animated
-    if ( 0 == mesh->test_fx( itile, MAPFX_ANIM ) )
+    if ( 0 == mesh.test_fx( itile, MAPFX_ANIM ) )
     {
         return true;
     }
 
     // grab a pointer to the tile
-    ptile = mesh->get_ptile(itile);
-    if ( NULL == ptile )
+    ptile = mesh.get_ptile(itile);
+    if (nullptr == ptile)
     {
         return false;
     }
@@ -105,34 +98,25 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     image    = frame_add + basetile;
 
     // actually update the animated texture info
-    return ego_mesh_t::set_texture( mesh, itile, image );
+    return mesh.set_texture( itile, image );
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
+gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 itile )
 {
     /// @author ZZ
     /// @details This function draws a mesh itile
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
-    int    cnt, entry;
-    Uint16 commands;
-
     // grab a pointer to the tile
-	const ego_tile_info_t *ptile = mesh->get_ptile(itile);
+	const ego_tile_info_t *ptile = mesh.get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
         return gfx_error;
     }
 
-    // get some info from the mesh
-    if ( NULL == mesh )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
-        return gfx_error;
-    }
-	const tile_mem_t& ptmem  = mesh->_tmem;
+	const tile_mem_t& ptmem  = mesh._tmem;
 
     // do not render the itile if the image image is invalid
     if (TILE_IS_FANOFF(ptile))  return gfx_success;
@@ -164,13 +148,11 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
         {
             GL_DEBUG( glDisableClientState )( GL_COLOR_ARRAY );
         }
-
         // grab some model info
-        commands = pdef->command_count;
+        uint16_t commands = pdef->command_count;
 
         // Render each command
-        entry = 0;
-        for ( cnt = 0; cnt < commands; cnt++ )
+        for (size_t cnt = 0, entry = 0; cnt < commands; cnt++ )
         {
             uint8_t numEntries = pdef->command_entries[cnt];
             
@@ -180,24 +162,28 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
     }
     GL_DEBUG(glPopClientAttrib)();
 
-#if defined(DEBUG_MESH_NORMALS) && defined(_DEBUG)
-    Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
-    Ego::Renderer::get().setColour(Ego::Colour4f::white());
-    entry = ptile->vrtstart;
-    for ( cnt = 0; cnt < 4; cnt++, entry++ )
-    {
-        GL_DEBUG( glBegin )( GL_LINES );
-        {
-            GL_DEBUG( glVertex3fv )( ptmem->plst[entry] );
-            GL_DEBUG( glVertex3f )(
-                ptmem->plst[entry][XX] + GRID_FSIZE*ptmem->ncache[itile][cnt][XX],
-                ptmem->plst[entry][YY] + GRID_FSIZE*ptmem->ncache[itile][cnt][YY],
-                ptmem->plst[entry][ZZ] + GRID_FSIZE*ptmem->ncache[itile][cnt][ZZ] );
+	if (egoboo_config_t::get().debug_mesh_renderNormals.getValue())
+	{
+		mesh_texture_invalidate();
+		auto& renderer = Ego::Renderer::get();
+		renderer.getTextureUnit().setActivated(nullptr);
+		renderer.setColour(Ego::Colour4f::white());
+		for (size_t i = ptile->_vrtstart, j = 0; j < 4; ++i, ++j)
+		{
+			glBegin(GL_LINES);
+			{
+				glVertex3fv(ptmem._plst[i]);
+				glVertex3f
+					(
+						ptmem._plst[i][XX] + Info<float>::Grid::Size()*(ptile->_ncache[j][XX]),
+						ptmem._plst[i][YY] + Info<float>::Grid::Size()*(ptile->_ncache[j][YY]),
+						ptmem._plst[i][ZZ] + Info<float>::Grid::Size()*(ptile->_ncache[j][ZZ])
+					);
 
-        }
-        GL_DEBUG_END();
-    }
-#endif
+			}
+			glEnd();
+		}
+	}
 
     return gfx_success;
 }
@@ -292,7 +278,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint8 layer )
+gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 itile, const Uint8 layer )
 {
     /// @author ZZ
     /// @details This function draws a water itile
@@ -309,15 +295,9 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
 
     const ego_tile_info_t * ptile = NULL;
 
-    if ( NULL == mesh )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
-        return gfx_error;
-    }
+	const ego_mesh_info_t& info = mesh._info;
 
-	const ego_mesh_info_t& pinfo = mesh->_info;
-
-    ptile = mesh->get_ptile(itile);
+    ptile = mesh.get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
@@ -330,8 +310,8 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
 
-    ix = itile % pinfo._tiles_x;
-    iy = itile / pinfo._tiles_x;
+    ix = itile % info._tiles_x;
+    iy = itile / info._tiles_x;
 
     // To make life easier
     type  = 0;                                         // Command type ( index to points in tile )
@@ -410,9 +390,9 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
             v0->t = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            TileIndex jtile = mesh->get_tile_int(PointGrid(jx, jy));
+            TileIndex jtile = mesh.get_tile_int(PointGrid(jx, jy));
             float dlight;
-            if ( ego_mesh_t::light_corner(*mesh, jtile, v0->z, nrm, &dlight) )
+            if ( ego_mesh_t::light_corner(mesh, jtile, v0->z, nrm, &dlight) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
                 v0->r = dlight * INV_FF + alight;

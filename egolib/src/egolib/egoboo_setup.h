@@ -560,6 +560,8 @@ public:
             hud_displayGameTime,
             hud_displayFramesPerSecond,
             //
+			debug_mesh_renderHeightMap,
+			debug_mesh_renderNormals,
             debug_hideMouse,
             debug_grabMouse,
             debug_developerMode_enable,
@@ -1006,6 +1008,22 @@ public:
      *  Default value is @a true.
      */
     StandardVariable<bool> debug_hideMouse;
+
+	/**
+	 * @brief
+	 *  Render mesh's height map?
+	 * @remark
+	 *  Default value is @a false.
+	 */
+	StandardVariable<bool> debug_mesh_renderHeightMap;
+
+	/**
+	 * @brief
+	 *  Render mesh's normals?
+	 * @remark
+	 *  Default value is @a false.
+	 */
+	StandardVariable<bool> debug_mesh_renderNormals;
     
     /**
      * @brief

@@ -80,17 +80,17 @@ void prt_set_texture_params(const oglx_texture_t* texture, uint8_t type)
 
 //--------------------------------------------------------------------------------------------
 
-Uint32 instance_update = (Uint32)~0;
+Uint32 instance_update = std::numeric_limits<Uint32>::max();
 
 //--------------------------------------------------------------------------------------------
 static gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting);
-static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float size, bool do_reflect);
-static void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset);
-static void prt_draw_attached_point(prt_bundle_t *pbdl_prt);
-static void render_prt_bbox(prt_bundle_t *pbdl_prt);
-static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t * pinst, Ego::Particle * pprt);
-static Matrix4f4f prt_instance_make_matrix(prt_instance_t *pinst);
-static gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
+static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& pinst, float size, bool do_reflect);
+static void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset);
+static void prt_draw_attached_point(prt_bundle_t& bdl_prt);
+static void render_prt_bbox(prt_bundle_t& bdl_prt);
+static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::Particle * pprt);
+static Matrix4f4f prt_instance_make_matrix(prt_instance_t& inst);
+static gfx_rv prt_instance_update_lighting(prt_instance_t& inst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
 
 //--------------------------------------------------------------------------------------------
 
@@ -111,14 +111,14 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
 
     // if the particle instance data is not valid, do not continue
     if (!pprt->inst.valid) return gfx_fail;
-    prt_instance_t *pinst = &(pprt->inst);
+    prt_instance_t& pinst = pprt->inst;
 
     // only render solid sprites
     if (SPRITE_SOLID != pprt->type) return gfx_fail;
 
     // billboard for the particle
     auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
-    calc_billboard_verts(*vb, pinst, pinst->size, false);
+    calc_billboard_verts(*vb, pinst, pinst.size, false);
 
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
     {
@@ -144,7 +144,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
 
         renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
 
-        renderer.setColour(Ego::Math::Colour4f(pinst->fintens, pinst->fintens, pinst->fintens, 1.0f));
+        renderer.setColour(Ego::Math::Colour4f(pinst.fintens, pinst.fintens, pinst.fintens, 1.0f));
 
         renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
     }
@@ -171,7 +171,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
 
     // if the particle instance data is not valid, do not continue
     if (!pprt->inst.valid) return gfx_fail;
-    prt_instance_t *pinst = &(pprt->inst);
+    prt_instance_t& inst = pprt->inst;
 
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
     {
@@ -199,7 +199,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-            float fintens = pinst->fintens;
+            float fintens = inst.fintens;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
             renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
@@ -213,7 +213,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
-            float fintens = pinst->fintens * pinst->falpha;
+            float fintens = inst.fintens * inst.falpha;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
             renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
@@ -230,8 +230,8 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-            float fintens = pinst->fintens;
-            float falpha = pinst->falpha;
+            float fintens = inst.fintens;
+            float falpha = inst.falpha;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
 
             renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
@@ -247,7 +247,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
         if (drawParticle)
         {
             auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
-            calc_billboard_verts(*vb, pinst, pinst->size, false);
+            calc_billboard_verts(*vb, inst, inst.size, false);
 
             renderer.setColour(particleColour);
 
@@ -276,11 +276,11 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
     if (pprt->isHidden()) return gfx_fail;
 
     if (!pprt->inst.valid || !pprt->inst.ref_valid) return gfx_fail;
-    prt_instance_t *pinst = &(pprt->inst);
+    prt_instance_t& inst = pprt->inst;
 
     // Fill in the rest of the data. (make it match the case for characters)
     startalpha = 255;
-    startalpha -= 2.0f * (pprt->enviro.floor_level - pinst->ref_pos[kZ]);
+    startalpha -= 2.0f * (pprt->enviro.floor_level - inst.ref_pos[kZ]);
     startalpha *= 0.5f;
     startalpha = CLIP(startalpha, 0, 255);
 
@@ -308,7 +308,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
             if (SPRITE_LIGHT == pprt->type)
             {
                 // do the light sprites
-                float intens = startalpha * INV_FF * pinst->falpha * pinst->fintens;
+                float intens = startalpha * INV_FF * inst.falpha * inst.fintens;
 
                 renderer.setAlphaTestEnabled(false);
 
@@ -328,7 +328,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
                 float alpha = startalpha * INV_FF;
                 if (SPRITE_ALPHA == pprt->type)
                 {
-                    alpha *= pinst->falpha;
+                    alpha *= inst.falpha;
                 }
 
                 // do not display the completely transparent portion
@@ -338,7 +338,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
                 renderer.setBlendingEnabled(true);
 				renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-                particle_colour = Ego::Math::Colour4f(pinst->fintens, pinst->fintens, pinst->fintens, alpha);
+                particle_colour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, alpha);
 
 				renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
 
@@ -355,7 +355,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
                 // Calculate the position of the four corners of the billboard
                 // used to display the particle.
                 auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
-                calc_billboard_verts(*vb, pinst, pinst->size, true);
+                calc_billboard_verts(*vb, inst, inst.size, true);
 
                 renderer.setColour(particle_colour); // GL_CURRENT_BIT
 
@@ -369,14 +369,10 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
     return gfx_success;
 }
 
-void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float size, bool do_reflect)
+void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& inst, float size, bool do_reflect)
 {
     // Calculate the position and texture coordinates of the four corners of the billboard used to display the particle.
 
-    if (!pinst)
-    {
-        throw std::invalid_argument("nullptr == pinst");
-    }
     if (vb.getNumberOfVertices() < 4)
     {
         throw std::runtime_error("vertex buffer too small");
@@ -391,7 +387,7 @@ void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float si
     int i, index;
 	Vector3f prt_pos, prt_up, prt_right;
 
-    switch (pinst->type)
+    switch (inst.type)
     {
         default:
         case SPRITE_ALPHA:
@@ -406,15 +402,15 @@ void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float si
     // use the pre-computed reflection parameters
     if (do_reflect)
     {
-        prt_pos = pinst->ref_pos;
-        prt_up = pinst->ref_up;
-        prt_right = pinst->ref_right;
+        prt_pos = inst.ref_pos;
+        prt_up = inst.ref_up;
+        prt_right = inst.ref_right;
     }
     else
     {
-        prt_pos = pinst->pos;
-        prt_up = pinst->up;
-        prt_right = pinst->right;
+        prt_pos = inst.pos;
+        prt_up = inst.up;
+        prt_right = inst.right;
     }
 
     Vertex *v = static_cast<Vertex *>(vb.lock());
@@ -442,17 +438,17 @@ void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float si
     v[3].y += (-prt_right[kY] + prt_up[kY]) * size;
     v[3].z += (-prt_right[kZ] + prt_up[kZ]) * size;
 
-    v[0].s = CALCULATE_PRT_U1(index, pinst->image_ref);
-    v[0].t = CALCULATE_PRT_V1(index, pinst->image_ref);
+    v[0].s = CALCULATE_PRT_U1(index, inst.image_ref);
+    v[0].t = CALCULATE_PRT_V1(index, inst.image_ref);
 
-    v[1].s = CALCULATE_PRT_U0(index, pinst->image_ref);
-    v[1].t = CALCULATE_PRT_V1(index, pinst->image_ref);
+    v[1].s = CALCULATE_PRT_U0(index, inst.image_ref);
+    v[1].t = CALCULATE_PRT_V1(index, inst.image_ref);
 
-    v[2].s = CALCULATE_PRT_U0(index, pinst->image_ref);
-    v[2].t = CALCULATE_PRT_V0(index, pinst->image_ref);
+    v[2].s = CALCULATE_PRT_U0(index, inst.image_ref);
+    v[2].t = CALCULATE_PRT_V0(index, inst.image_ref);
 
-    v[3].s = CALCULATE_PRT_U1(index, pinst->image_ref);
-    v[3].t = CALCULATE_PRT_V0(index, pinst->image_ref);
+    v[3].s = CALCULATE_PRT_U1(index, inst.image_ref);
+    v[3].t = CALCULATE_PRT_V0(index, inst.image_ref);
 
     vb.unlock();
 }
@@ -466,7 +462,7 @@ void render_all_prt_attachment()
         if(particle->isTerminated()) continue;
 
         prt_bundle_t prt_bdl(particle.get());
-        prt_draw_attached_point(&prt_bdl);
+        prt_draw_attached_point(prt_bdl);
     }
 }
 
@@ -477,22 +473,18 @@ void render_all_prt_bbox()
         if(particle->isTerminated()) continue;
 
         prt_bundle_t prt_bdl(particle.get());
-        render_prt_bbox(&prt_bdl);
+        render_prt_bbox(prt_bdl);
     }
 }
 
-void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset)
+void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset)
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
-    if (!pinst)
-    {
-        return;
-    }
-    uint32_t vrt = (int)pinst->vrt_count - (int)vrt_offset;
+    uint32_t vrt = (int)inst.vrt_count - (int)vrt_offset;
 
-    if (vrt >= pinst->vrt_count) return;
+    if (vrt >= inst.vrt_count) return;
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
@@ -507,10 +499,10 @@ void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset)
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG(glMatrixMode)(GL_MODELVIEW);
     GL_DEBUG(glPushMatrix)();
-    Ego::Renderer::get().multiplyMatrix(pinst->matrix);
+    Ego::Renderer::get().multiplyMatrix(inst.matrix);
     GL_DEBUG(glBegin(GL_POINTS));
     {
-        GL_DEBUG(glVertex3fv)(pinst->vrt_lst[vrt].pos);
+        GL_DEBUG(glVertex3fv)(inst.vrt_lst[vrt].pos);
     }
     GL_DEBUG_END();
 
@@ -522,14 +514,9 @@ void draw_one_attachment_point(chr_instance_t *pinst, int vrt_offset)
     GL_DEBUG(glMatrixMode)(matrix_mode[0]);
 }
 
-void prt_draw_attached_point(prt_bundle_t *pbdl_prt)
+void prt_draw_attached_point(prt_bundle_t& bdl_prt)
 {
-    if (!pbdl_prt)
-    {
-        return;
-    }
-
-    Ego::Particle *loc_pprt = pbdl_prt->_prt_ptr;
+    Ego::Particle *loc_pprt = bdl_prt._prt_ptr;
     if (loc_pprt == nullptr || loc_pprt->isTerminated())
     {
         return;
@@ -540,7 +527,7 @@ void prt_draw_attached_point(prt_bundle_t *pbdl_prt)
         return;
     }
 
-    draw_one_attachment_point(&(loc_pprt->getAttachedObject()->inst), loc_pprt->attachedto_vrt_off);
+    draw_one_attachment_point(loc_pprt->getAttachedObject()->inst, loc_pprt->attachedto_vrt_off);
 }
 
 gfx_rv update_all_prt_instance(Camera& camera)
@@ -581,15 +568,10 @@ gfx_rv update_all_prt_instance(Camera& camera)
     return retval;
 }
 
-gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::Particle *pprt)
+gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::Particle *pprt)
 {
-    if (!pinst)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
-        return gfx_error;
-    }
-    pinst->valid = false;
-    pinst->ref_valid = false;
+    inst.valid = false;
+    inst.ref_valid = false;
 
     if (pprt->isTerminated())
     {
@@ -599,24 +581,24 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
 
     const std::shared_ptr<pip_t> &ppip = pprt->getProfile();
 
-    pinst->type = pprt->type;
+    inst.type = pprt->type;
 
-    pinst->image_ref = (pprt->_image._start / EGO_ANIMATION_MULTIPLIER + pprt->_image._offset / EGO_ANIMATION_MULTIPLIER);
+    inst.image_ref = (pprt->_image._start / EGO_ANIMATION_MULTIPLIER + pprt->_image._offset / EGO_ANIMATION_MULTIPLIER);
 
 
     // Set the position.
-    pinst->pos = pprt->getPosition();
-    pinst->orientation = ppip->orientation;
+    inst.pos = pprt->getPosition();
+    inst.orientation = ppip->orientation;
 
     // Calculate the billboard vectors for the reflections.
-    pinst->ref_pos = pprt->getPosition();
-    pinst->ref_pos[kZ] = 2 * pprt->enviro.floor_level - pinst->pos[kZ];
+    inst.ref_pos = pprt->getPosition();
+    inst.ref_pos[kZ] = 2 * pprt->enviro.floor_level - inst.pos[kZ];
 
     // get the vector from the camera to the particle
-	Vector3f vfwd = pinst->pos - camera.getPosition();
+	Vector3f vfwd = inst.pos - camera.getPosition();
     vfwd.normalize();
 
-	Vector3f vfwd_ref = pinst->ref_pos - camera.getPosition();
+	Vector3f vfwd_ref = inst.ref_pos - camera.getPosition();
     vfwd_ref.normalize();
 
     // Set the up and right vectors.
@@ -637,7 +619,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
         vright_ref = vfwd_ref.cross(vup);
         vright_ref.normalize();
     }
-    else if (ORIENTATION_B == pinst->orientation)
+    else if (ORIENTATION_B == inst.orientation)
     {
         // Use the camera up vector.
         vup = camera.getUp();
@@ -651,7 +633,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
         vright_ref = vfwd_ref.cross(vup);
         vright_ref.normalize();
     }
-    else if (ORIENTATION_V == pinst->orientation)
+    else if (ORIENTATION_V == inst.orientation)
     {
         // Using just the global up vector here is too harsh.
         // Smoothly interpolate the global up vector with the camera up vector
@@ -683,7 +665,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
         vright_ref = vfwd_ref.cross(vup);
         vright_ref.normalize();
     }
-    else if (ORIENTATION_H == pinst->orientation)
+    else if (ORIENTATION_H == inst.orientation)
     {
 		Vector3f vert = Vector3f(0.0f, 0.0f, 1.0f);
 
@@ -711,7 +693,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
             // Assume that the particle "up" is in the z-direction in the object's
             // body fixed axes. Should work for the gonnes & such.
 
-            switch (pinst->orientation)
+            switch (inst.orientation)
             {
                 case ORIENTATION_X: vup = mat_getChrForward(cinst->matrix); break;
                 case ORIENTATION_Y: vup = mat_getChrRight(cinst->matrix);   break;
@@ -724,7 +706,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
         else
         {
             // Use the camera directions?
-            switch (pinst->orientation)
+            switch (inst.orientation)
             {
                 case ORIENTATION_X: vup = camera.getForward(); break;
                 case ORIENTATION_Y: vup = camera.getRight(); break;
@@ -762,11 +744,11 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
     // Calculate the actual vectors using the particle rotation.
     if (0 == pprt->rotate)
     {
-        pinst->up = vup;
-        pinst->right = vright;
+        inst.up = vup;
+        inst.right = vright;
 
-        pinst->ref_up = vup_ref;
-        pinst->ref_right = vright_ref;
+        inst.ref_up = vup_ref;
+        inst.ref_right = vright_ref;
     }
     else
     {
@@ -774,22 +756,22 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
         float cosval = turntocos[turn];
         float sinval = turntosin[turn];
 
-        pinst->up = vup * cosval - vright * sinval;
+        inst.up = vup * cosval - vright * sinval;
 
-        pinst->right = vup * sinval + vright * cosval;
+        inst.right = vup * sinval + vright * cosval;
 
-        pinst->ref_up = vup_ref * cosval - vright_ref * sinval;
+        inst.ref_up = vup_ref * cosval - vright_ref * sinval;
 
-        pinst->ref_right = vup_ref * sinval + vright_ref * cosval;
+        inst.ref_right = vup_ref * sinval + vright_ref * cosval;
     }
 
     // Calculate the billboard normal.
-    pinst->nrm = pinst->right.cross(pinst->up);
+    inst.nrm = inst.right.cross(inst.up);
 
     // Flip the normal so that the front front of the quad is toward the camera.
-    if (vfwd.dot(pinst->nrm) < 0)
+    if (vfwd.dot(inst.nrm) < 0)
     {
-        pinst->nrm *= -1;
+        inst.nrm *= -1;
     }
 
     // Now we have to calculate the mirror-like reflection of the particles.
@@ -815,7 +797,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
         // The dot product between the normal vector and the world up vector:
         // The following statement could be optimized
         // since we know the only non-zero component of the world up vector is z.
-        float ndot = pinst->nrm.dot(world_up);
+        float ndot = inst.nrm.dot(world_up);
 
         // Do nothing if the quad is basically horizontal.
         if (ndot < 1.0f - 1e-6)
@@ -825,12 +807,12 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
                 // The dot product between the right vector and the world up:
                 // The following statement could be optimized
                 // since we know the only non-zero component of the world up vector is z.
-                float zdot = pinst->ref_right.dot(world_up);
+                float zdot = inst.ref_right.dot(world_up);
 
                 if (std::abs(zdot) > 1e-6)
                 {
                     float factor = zdot / (1.0f - ndot * ndot);
-                    pinst->ref_right += ((pinst->nrm * ndot) - world_up) * 2.0f * factor;
+                    inst.ref_right += ((inst.nrm * ndot) - world_up) * 2.0f * factor;
                 }
             }
 
@@ -839,54 +821,49 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, Ego::
                 // The dot product between the up vector and the world up:
                 // The following statement could be optimized
                 // since we know the only non-zero component of the world up vector is z.
-                float zdot = pinst->ref_up.dot(world_up);
+                float zdot = inst.ref_up.dot(world_up);
 
                 if (std::abs(zdot) > 1e-6)
                 {
                     float factor = zdot / (1.0f - ndot * ndot);
-                    pinst->ref_up += (pinst->nrm * ndot - world_up) * 2.0f * factor;
+                    inst.ref_up += (inst.nrm * ndot - world_up) * 2.0f * factor;
                 }
             }
         }
     }
 
     // Set some particle dependent properties.
-    pinst->scale = pprt->getScale();
-    pinst->size = FP8_TO_FLOAT(pprt->size) * pinst->scale;
+    inst.scale = pprt->getScale();
+    inst.size = FP8_TO_FLOAT(pprt->size) * inst.scale;
 
     // This instance is now completely valid.
-    pinst->valid = true;
-    pinst->ref_valid = true;
+    inst.valid = true;
+    inst.ref_valid = true;
 
     return gfx_success;
 }
 
-Matrix4f4f prt_instance_make_matrix(prt_instance_t *pinst)
+Matrix4f4f prt_instance_make_matrix(prt_instance_t& pinst)
 {
 	Matrix4f4f mat = Matrix4f4f::identity();
 
-    mat(1, 0) = -pinst->up[kX];
-    mat(1, 1) = -pinst->up[kY];
-    mat(1, 2) = -pinst->up[kZ];
+    mat(1, 0) = -pinst.up[kX];
+    mat(1, 1) = -pinst.up[kY];
+    mat(1, 2) = -pinst.up[kZ];
 
-    mat(0, 0) = pinst->right[kX];
-    mat(0, 1) = pinst->right[kY];
-    mat(0, 2) = pinst->right[kZ];
+    mat(0, 0) = pinst.right[kX];
+    mat(0, 1) = pinst.right[kY];
+    mat(0, 2) = pinst.right[kZ];
 
-    mat(2, 0) = pinst->nrm[kX];
-    mat(2, 1) = pinst->nrm[kY];
-    mat(2, 2) = pinst->nrm[kZ];
+    mat(2, 0) = pinst.nrm[kX];
+    mat(2, 1) = pinst.nrm[kY];
+    mat(2, 2) = pinst.nrm[kZ];
 
     return mat;
 }
 
-gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
+gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
 {
-    if (!pinst)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL instance");
-        return gfx_error;
-    }
     if (!pprt)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL particle");
@@ -897,8 +874,12 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, 
     Uint32 alpha = trans;
 
     // interpolate the lighting for the origin of the object
+	auto mesh = _currentModule->getMeshPointer();
+	if (!mesh) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
     lighting_cache_t global_light;
-    grid_lighting_interpolate(_currentModule->getMeshPointer().get(), global_light, Vector2f(pinst->pos[kX], pinst->pos[kY]));
+    grid_lighting_interpolate(*mesh, global_light, Vector2f(pinst.pos[kX], pinst.pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
 	Matrix4f4f mat = prt_instance_make_matrix(pinst);
@@ -907,32 +888,32 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, Ego::Particle *pprt, 
 
     // determine the normal dependent amount of light
     float amb, dir;
-    lighting_evaluate_cache(loc_light, pinst->nrm, pinst->pos[kZ], _currentModule->getMeshPointer()->_tmem._bbox, &amb, &dir);
+    lighting_evaluate_cache(loc_light, pinst.nrm, pinst.pos[kZ], _currentModule->getMeshPointer()->_tmem._bbox, &amb, &dir);
 
     // LIGHT-blended sprites automatically glow. ALPHA-blended and SOLID
     // sprites need to convert the light channel into additional alpha
     // lighting to make them "glow"
     Sint16 self_light = 0;
-    if (SPRITE_LIGHT != pinst->type)
+    if (SPRITE_LIGHT != pinst.type)
     {
-        self_light = (255 == pinst->light) ? 0 : pinst->light;
+        self_light = (255 == pinst.light) ? 0 : pinst.light;
     }
 
     // determine the ambient lighting
-    pinst->famb = 0.9f * pinst->famb + 0.1f * (self_light + amb);
-    pinst->fdir = 0.9f * pinst->fdir + 0.1f * dir;
+    pinst.famb = 0.9f * pinst.famb + 0.1f * (self_light + amb);
+    pinst.fdir = 0.9f * pinst.fdir + 0.1f * dir;
 
     // determine the overall lighting
-    pinst->fintens = pinst->fdir * INV_FF;
+    pinst.fintens = pinst.fdir * INV_FF;
     if (do_lighting)
     {
-        pinst->fintens += pinst->famb * INV_FF;
+        pinst.fintens += pinst.famb * INV_FF;
     }
-    pinst->fintens = CLIP(pinst->fintens, 0.0f, 1.0f);
+    pinst.fintens = CLIP(pinst.fintens, 0.0f, 1.0f);
 
     // determine the alpha component
-    pinst->falpha = (alpha * INV_FF) * (pinst->alpha * INV_FF);
-    pinst->falpha = CLIP(pinst->falpha, 0.0f, 1.0f);
+    pinst.falpha = (alpha * INV_FF) * (pinst.alpha * INV_FF);
+    pinst.falpha = CLIP(pinst.falpha, 0.0f, 1.0f);
 
     return gfx_success;
 }
@@ -951,13 +932,13 @@ gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, 
     gfx_rv retval = gfx_success;
 
     // make sure that the vertices are interpolated
-    if (gfx_error == prt_instance_update_vertices(camera, &pinst, pprt.get()))
+    if (gfx_error == prt_instance_update_vertices(camera, pinst, pprt.get()))
     {
         retval = gfx_error;
     }
 
     // do the lighting
-    if (gfx_error == prt_instance_update_lighting(&pinst, pprt.get(), trans, do_lighting))
+    if (gfx_error == prt_instance_update_lighting(pinst, pprt.get(), trans, do_lighting))
     {
         retval = gfx_error;
     }
@@ -965,19 +946,15 @@ gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, 
     return retval;
 }
 
-void render_prt_bbox(prt_bundle_t *pbdl_prt)
+void render_prt_bbox(prt_bundle_t& pbdl_prt)
 {
-    if (!pbdl_prt)
-    {
-        return;
-    }
-    Ego::Particle *loc_pprt = pbdl_prt->_prt_ptr;
+    Ego::Particle *loc_pprt = pbdl_prt._prt_ptr;
     if (!loc_pprt || loc_pprt->isTerminated())
     {
         return;
     }
     
-    std::shared_ptr<pip_t> loc_ppip = pbdl_prt->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = pbdl_prt._pip_ptr;
 
     // only draw bullets
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;

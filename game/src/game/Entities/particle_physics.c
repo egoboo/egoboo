@@ -565,6 +565,11 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         return this->move_one_particle_integrate_motion_attached();
     }
 
+	auto mesh = _currentModule->getMeshPointer();
+	if (!mesh) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
+
     bool hit_a_floor = false;
     bool hit_a_wall = false;
     bool touch_a_floor = false;
@@ -583,7 +588,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 
         touch_a_floor = true;
 
-        uint8_t tmp_twist = ego_mesh_t::get_fan_twist(_currentModule->getMeshPointer().get(), loc_pprt->getTile());
+        uint8_t tmp_twist = mesh->get_fan_twist(loc_pprt->getTile());
 
         if (TWIST_FLAT != tmp_twist)
         {

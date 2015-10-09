@@ -1015,8 +1015,13 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 
     // interpolate the lighting for the origin of the object
 
+	auto mesh = _currentModule->getMeshPointer();
+	if (!mesh) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+	}
+
 	lighting_cache_t global_light;
-    grid_lighting_interpolate(_currentModule->getMeshPointer().get(), global_light, Vector2f(pchr->getPosX(), pchr->getPosY()));
+    grid_lighting_interpolate(*mesh, global_light, Vector2f(pchr->getPosX(), pchr->getPosY()));
 
     // rotate the lighting data to body_centered coordinates
 	lighting_cache_t loc_light;
