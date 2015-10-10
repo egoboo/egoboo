@@ -106,9 +106,6 @@
     <Filter Include="Source Files\Console">
       <UniqueIdentifier>{d944dd51-555f-439a-857b-a710844af634}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Mesh">
-      <UniqueIdentifier>{33c2d778-3f92-4677-a031-82d6c55401df}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -136,9 +133,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\geometry.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\IDSZ_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\input_device.c">
@@ -465,9 +459,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\input_device.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\IDSZ_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\geometry.h">

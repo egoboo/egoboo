@@ -437,7 +437,6 @@
     <ClCompile Include="src\egolib\font_bmp.c" />
     <ClCompile Include="src\egolib\frustum.c" />
     <ClCompile Include="src\egolib\geometry.c" />
-    <ClCompile Include="src\egolib\IDSZ_map.c" />
     <ClCompile Include="src\egolib\input_device.c" />
     <ClCompile Include="src\egolib\log.c" />
     <ClCompile Include="src\egolib\map_functions.c" />
@@ -455,7 +454,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\egolib\FileFormats\map_fx.hpp" />
+    <ClInclude Include="..\..\egoboo%40michaelheilmann%40github.com\egolib\src\egolib\FileFormats\map_fx.hpp" />
     <ClInclude Include="src\egolib\FileFormats\Globals.hpp" />
     <ClInclude Include="src\egolib\Console\Console.hpp" />
     <ClInclude Include="src\egolib\Console\DefaultConsole.hpp" />
@@ -605,7 +604,6 @@
     <ClInclude Include="src\egolib\font_bmp.h" />
     <ClInclude Include="src\egolib\frustum.h" />
     <ClInclude Include="src\egolib\geometry.h" />
-    <ClInclude Include="src\egolib\IDSZ_map.h" />
     <ClInclude Include="src\egolib\input_device.h" />
     <ClInclude Include="src\egolib\log.h" />
     <ClInclude Include="src\egolib\map_functions.h" />
