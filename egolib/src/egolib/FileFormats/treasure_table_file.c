@@ -30,8 +30,10 @@
 
 //--------------------------------------------------------------------------------------------
 treasure_table_t::treasure_table_t()
-	: table_name(""), size(0)
-{}
+	: size(0)
+{
+	strcpy(table_name, "");
+}
 
 void treasure_table_t::add( treasure_table_t *self, const char *name )
 {
