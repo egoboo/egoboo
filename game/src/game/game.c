@@ -727,7 +727,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
 
         // find only active quests?
         // this makes it backward-compatible with zefz's version
-        if ( quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz ) < 0 ) {
+        if ( quest_log_get_level( ppla->quest_log, idsz ) < 0 ) {
             return false;
         }
     }
@@ -2432,7 +2432,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
     pchr->is_which_player = player;
 
     // download the quest info
-    quest_log_download_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pchr->getProfile()->getPathname().c_str() );
+    quest_log_download_vfs( ppla->quest_log, pchr->getProfile()->getPathname().c_str() );
 
     //---- skeleton for using a ConfigFile to save quests
     // ppla->quest_file = quest_file_open( chr_get_dir_name(character).c_str() );
@@ -3937,7 +3937,7 @@ bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF chara
     ppla = chr_get_ppla( character );
     if ( NULL == ppla ) return false;
 
-    rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
+    rv = quest_log_upload_vfs( ppla->quest_log, szSaveName );
     return TO_C_BOOL( rv_success == rv );
 }
 

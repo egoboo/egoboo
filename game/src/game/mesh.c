@@ -375,7 +375,7 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 	{
 		std::ostringstream os;
 		os << "unable to load mesh of module `" << moduleName << "`";
-		log_error("%s:%d: %s\n", os.str().c_str());
+		log_error("%s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
 	// Create the mesh.
@@ -385,7 +385,7 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 	{
 		std::ostringstream os;
 		os << "unable to convert mesh of module `" << moduleName << "`";
-		log_error("%s:%d: %s\n", os.str().c_str());
+		log_error("%s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
 	mesh->finalize();

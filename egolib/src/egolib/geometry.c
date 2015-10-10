@@ -408,6 +408,9 @@ Ego::Math::Relation cone_intersects_sphere(const Cone3f& K, const Sphere3f& S)
 			retval = Ego::Math::Relation::inside;
             done = true;
             break;
+
+        case Ego::Math::Relation::error:
+            throw std::runtime_error("invalid cone");
     }
 
     // test for intersection with the back cone.
@@ -431,6 +434,9 @@ Ego::Math::Relation cone_intersects_sphere(const Cone3f& K, const Sphere3f& S)
 				retval = Ego::Math::Relation::intersect;
                 done = true;
                 break;
+
+            case Ego::Math::Relation::error:
+                throw std::runtime_error("invalid cone");
         }
     }
 

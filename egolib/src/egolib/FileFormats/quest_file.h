@@ -28,13 +28,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-/// @note BB@> use this forward declaration of the "struct IDSZ_node_t" instead of including
-/// "IDSZ_map.h" to remove possible circular dependencies
-    struct IDSZ_node_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /// Quest system values
     enum e_quest_values
     {
@@ -49,17 +42,12 @@
 //--------------------------------------------------------------------------------------------
 
 // Public functions
-	egolib_rv quest_log_download_vfs(IDSZ_node_t * quest_log, size_t quest_log_len, const char* player_directory);
-	egolib_rv quest_log_upload_vfs(IDSZ_node_t * quest_log, size_t quest_log_len, const char *player_directory);
-	int       quest_log_set_level(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level);
-	int       quest_log_adjust_level(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int adjustment);
-	int       quest_log_get_level(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz);
-	egolib_rv quest_log_add(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level);
+egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ, int> & quest_log, const char* player_directory);
+egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ, int> &quest_log, const char *player_directory);
+int       quest_log_set_level(std::unordered_map<IDSZ, int> & quest_log, IDSZ idsz, int level);
+int       quest_log_adjust_level(std::unordered_map<IDSZ, int> & quest_log, IDSZ idsz, int adjustment);
+int       quest_log_get_level(std::unordered_map<IDSZ, int> & quest_log, IDSZ idsz);
+egolib_rv quest_log_add(std::unordered_map<IDSZ, int> & quest_log, IDSZ idsz, int level);
 
-	std::shared_ptr<ConfigFile> quest_file_open(const char *player_directory);
-    egolib_rv quest_file_export(std::shared_ptr<ConfigFile> file);
-#if 0
-    egolib_rv quest_file_set_level(std::shared_ptr<ConfigFile> file, IDSZ idsz, int level);
-    egolib_rv quest_file_adjust_level(std::shared_ptr<ConfigFile> file, IDSZ idsz, int adjustment);
-    egolib_rv quest_file_get_level(std::shared_ptr<ConfigFile> file, IDSZ idsz);
-#endif
+std::shared_ptr<ConfigFile> quest_file_open(const char *player_directory);
+egolib_rv quest_file_export(std::shared_ptr<ConfigFile> file);

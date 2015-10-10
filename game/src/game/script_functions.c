@@ -7196,7 +7196,7 @@ Uint8 scr_AddQuest( script_state_t& state, ai_state_t& self )
     {
         player_t * ppla = PlaStack.get_ptr( ipla );
 
-        result = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), state.argument, state.distance );
+        result = quest_log_add( ppla->quest_log, state.argument, state.distance );
     }
 
     returncode = ( rv_success == result );
@@ -7227,7 +7227,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
         ichr = ppla->index;
         if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
 
-        if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )state.argument, QUEST_MAXVAL ) )
+        if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, static_cast<IDSZ>(state.argument), QUEST_MAXVAL ) )
         {
             returncode = true;
         }
@@ -7259,7 +7259,7 @@ Uint8 scr_IfTargetHasQuest( script_state_t& state, ai_state_t& self )
     {
         player_t * ppla = PlaStack.get_ptr( ipla );
 
-        quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), state.argument );
+        quest_level = quest_log_get_level( ppla->quest_log, state.argument );
     }
 
     // only find active quests
@@ -7293,7 +7293,7 @@ Uint8 scr_SetQuestLevel( script_state_t& state, ai_state_t& self )
     {
         player_t * ppla        = PlaStack.get_ptr( ipla );
 
-        int quest_level = quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), state.argument, state.distance );
+        int quest_level = quest_log_adjust_level( ppla->quest_log, state.argument, state.distance );
 
         returncode = QUEST_NONE != quest_level;
     }
@@ -7324,7 +7324,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t& state, ai_state_t& self )
         player_count++;
 
         // Try to add it or replace it if this one is higher
-        quest_level = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), state.argument, state.distance );
+        quest_level = quest_log_add( ppla->quest_log, state.argument, state.distance );
         if ( QUEST_NONE != quest_level ) success_count++;
     }
 

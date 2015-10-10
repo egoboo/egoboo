@@ -97,6 +97,7 @@ void pla_reinit( player_t * ppla )
     //reset data
     *ppla = {};
     ppla->index  = INVALID_CHR_REF;
+    ppla->quest_log.clear();
 
     // initialize the latches
     ppla->local_latch.clear();

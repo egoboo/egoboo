@@ -33,7 +33,6 @@
 #include "game/graphic_mad.h"
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"
-#include "egolib/IDSZ_map.h"
 #include "game/Inventory.hpp"
 
 //Forward declarations

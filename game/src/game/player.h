@@ -24,7 +24,6 @@
 #include "game/egoboo_typedef.h"
 #include "game/network.h"
 #include "game/input.h"
-#include "egolib/IDSZ_map.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -61,7 +60,7 @@ struct player_t
     latch_t                 local_latch;
 
     // quest log for this player
-    IDSZ_node_t             quest_log[MAX_IDSZ_MAP_SIZE];          ///< lists all the character's quests
+    std::unordered_map<IDSZ, int> quest_log;          ///< lists all the character's quests
 
     // Timed latches
     uint32_t                tlatch_count;
@@ -71,7 +70,6 @@ struct player_t
     latch_t                 net_latch;
 };
 
-//void           player_init( player_t * ppla );
 void           pla_reinit( player_t * ppla );
 
 //--------------------------------------------------------------------------------------------
