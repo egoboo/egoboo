@@ -25,7 +25,6 @@
 
 #include "egolib/egolib.h"
 #include "game/egoboo_typedef.h"
-#include "egolib/IDSZ_map.h"
 
 //Forward declarations
 class ObjectProfile;
@@ -76,8 +75,8 @@ private:
     TX_REF                          _icon;
     std::shared_ptr<ObjectProfile>  _profile;
     uint16_t                        _skinRef;
-    IDSZ_node_t                     _questLog[MAX_IDSZ_MAP_SIZE]; ///< all the quests this player has
-    int                             _selectedByPlayer;            ///< ID of player who has selected this character (-1 for none)
+    std::unordered_map<IDSZ, int>   _questLog;          ///< all the quests this player has
+    int                             _selectedByPlayer;  ///< ID of player who has selected this character (-1 for none)
     int                             _inputDevice;
     bool                            _isSelected;
 };

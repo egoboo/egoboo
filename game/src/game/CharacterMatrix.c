@@ -136,7 +136,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
         chr_update_matrix( ptarget, true );
 
         // grab the matrix cache into from the character we are overlaying
-        memcpy( mc_tmp, &( ptarget->inst.matrix_cache ), sizeof( matrix_cache_t ) );
+        *mc_tmp = ptarget->inst.matrix_cache;
 
         // just in case the overlay's matrix cannot be corrected
         // then treat it as if it is not an overlay
@@ -307,8 +307,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
 
         // update the weapon position
         pweap->setPosition(Vector3f(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
-
-        memcpy( &( pweap->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
+        pweap->inst.matrix_cache = *mc_tmp;
 
         pweap_mcache->matrix_valid = true;
     }
@@ -346,9 +345,9 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mc_tmp )
     // only apply character matrices using this function
     if ( 0 == ( MAT_CHARACTER & mc_tmp->type_bits ) ) return false;
 
-    pchr->inst.matrix_cache.matrix_valid = false;
+    if ( nullptr == pchr ) return false;
 
-    if ( nullptr == ( pchr ) ) return false;
+    pchr->inst.matrix_cache.matrix_valid = false;
 
     if ( pchr->getProfile()->hasStickyButt() )
     {
@@ -367,8 +366,7 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->pos);
     }
 
-    memcpy( &( pchr->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
-
+    pchr->inst.matrix_cache = *mc_tmp;
     pchr->inst.matrix_cache.matrix_valid = true;
 
     return true;
@@ -383,7 +381,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 
     bool applied = false;
 
-    if ( nullptr == ( pchr ) ) return false;
+    if ( nullptr == pchr ) return false;
     if ( NULL == mc_tmp || !mc_tmp->valid ) return false;
 
     if ( 0 != ( MAT_WEAPON & mc_tmp->type_bits ) )
@@ -397,7 +395,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
             matrix_cache_t * mcache = &( pchr->inst.matrix_cache );
 
             // !!!the mc_tmp was mis-labeled as a MAT_WEAPON!!!
-            make_one_character_matrix( GET_INDEX_PCHR( pchr ) );
+            make_one_character_matrix(pchr->getCharacterID());
 
             // recover the matrix_cache values from the character
             SET_BIT( mcache->type_bits, MAT_CHARACTER );
@@ -577,42 +575,40 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
     ///
     ///     Return true if a new matrix is applied to the character, false otherwise.
 
-    egolib_rv      retval;
     bool         needs_update = false;
     bool         applied      = false;
-    matrix_cache_t mc_tmp;
-    matrix_cache_t *pchr_mc = NULL;
 
-    if ( nullptr == ( pchr ) ) return rv_error;
-    pchr_mc = &( pchr->inst.matrix_cache );
+    if (nullptr == pchr) return rv_error;
 
     // recursively make sure that any mount matrices are updated
-    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
+    const std::shared_ptr<Object> &holder = pchr->getHolder();
+    if (holder)
     {
-        egolib_rv attached_update = chr_update_matrix( _currentModule->getObjectHandler().get( pchr->attachedto ), true );
+        egolib_rv attached_update = chr_update_matrix(holder.get(), true);
 
         // if this fails, we should probably do something...
         if ( rv_error == attached_update )
         {
             // there is an error so this matrix is not defined and no readon to go farther
-            pchr_mc->matrix_valid = false;
+            pchr->inst.matrix_cache.matrix_valid = false;
             return attached_update;
         }
         else if ( rv_success == attached_update )
         {
             // the holder/mount matrix has changed.
             // this matrix is no longer valid.
-            pchr_mc->matrix_valid = false;
+            pchr->inst.matrix_cache.matrix_valid = false;
         }
     }
 
     // does the matrix cache need an update at all?
-    retval = matrix_cache_needs_update( pchr, &mc_tmp );
+    matrix_cache_t mc_tmp;
+    egolib_rv retval = matrix_cache_needs_update( pchr, &mc_tmp );
     if ( rv_error == retval ) return rv_error;
     needs_update = ( rv_success == retval );
 
     // Update the grip vertices no matter what (if they are used)
-    if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && _currentModule->getObjectHandler().exists( mc_tmp.grip_chr ) )
+    if ( HAS_SOME_BITS(mc_tmp.type_bits, MAT_WEAPON) && _currentModule->getObjectHandler().exists(mc_tmp.grip_chr) )
     {
         egolib_rv grip_retval;
         Object   * ptarget = _currentModule->getObjectHandler().get( mc_tmp.grip_chr );
@@ -629,7 +625,7 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
     if ( needs_update )
     {
         // we know the matrix is not valid
-        pchr_mc->matrix_valid = false;
+        pchr->inst.matrix_cache.matrix_valid = false;
 
         applied = apply_matrix_cache( pchr, &mc_tmp );
     }

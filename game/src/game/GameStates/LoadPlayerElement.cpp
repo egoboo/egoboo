@@ -33,7 +33,7 @@ LoadPlayerElement::LoadPlayerElement(std::shared_ptr<ObjectProfile> profile) :
     _isSelected(false)
 {
     // load the quest info from "quest.txt" so we can determine the valid modules
-    quest_log_download_vfs(_questLog, SDL_arraysize(_questLog), profile->getPathname().c_str());
+    quest_log_download_vfs(_questLog, profile->getPathname().c_str());
 
     // load the chop data from "naming.txt" to generate the character name (kinda silly how it's done currently)
     RandomName randomName;
@@ -45,7 +45,7 @@ LoadPlayerElement::LoadPlayerElement(std::shared_ptr<ObjectProfile> profile) :
 
 bool LoadPlayerElement::hasQuest(const IDSZ idsz, const int requiredLevel)
 {
-    int quest_level = quest_log_get_level(_questLog, SDL_arraysize(_questLog), idsz);
+    int quest_level = quest_log_get_level(_questLog, idsz);
 
     // find beaten quests or quests with proper level
     if ( quest_level <= QUEST_BEATEN || requiredLevel <= quest_level )
