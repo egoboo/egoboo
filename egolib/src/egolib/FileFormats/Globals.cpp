@@ -75,7 +75,7 @@ egolib_rv init_random_treasure_tables_vfs(const std::string& filepath)
 	ReadContext ctxt(filepath);
 	if (!ctxt.ensureOpen())
 	{
-		log_warning("unable to load random treasure tables file `%s`\n", filepath);
+		log_warning("unable to load random treasure tables file `%s`\n", filepath.c_str());
 		return rv_error;
 	}
 
