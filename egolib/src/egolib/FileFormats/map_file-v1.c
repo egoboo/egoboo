@@ -26,22 +26,16 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-bool map_read_v1(vfs_FILE *file, map_t *map)
+bool map_read_v1(vfs_FILE& file, map_t& map)
 {
-    // Validate arguments.
-    if (!map || !file)
-    {
-        return false;
-    }
-
     // Alias.
-    auto& mem = map->_mem;
+    auto& mem = map._mem;
 
     // Load tile data.
     for (auto& tile : mem.tiles)
     {
         Uint32 ui32_tmp;
-        vfs_read_Uint32(file, &ui32_tmp);
+        vfs_read_Uint32(&file, &ui32_tmp);
 
         tile.type = CLIP_TO_08BITS( ui32_tmp >> 24 );
         tile.fx   = CLIP_TO_08BITS( ui32_tmp >> 16 );
@@ -51,16 +45,10 @@ bool map_read_v1(vfs_FILE *file, map_t *map)
     return true;
 }
 
-bool map_write_v1(vfs_FILE *file, const map_t *map)
+bool map_write_v1(vfs_FILE& file, const map_t& map)
 {
-    // Validate arguments.
-    if (!map || !file)
-    {
-        return false;
-    }
-
     // Alias.
-    const auto& mem = map->_mem;
+    const auto& mem = map._mem;
 
     // Save tile data.
     for (const auto& tile : mem.tiles)
@@ -70,7 +58,7 @@ bool map_write_v1(vfs_FILE *file, const map_t *map)
         ui32_tmp |= CLIP_TO_08BITS( tile.fx ) << 16;
         ui32_tmp |= CLIP_TO_08BITS( tile.type ) << 24;
 
-        vfs_write_Uint32(file, ui32_tmp);
+        vfs_write_Uint32(&file, ui32_tmp);
     }
 
     return true;

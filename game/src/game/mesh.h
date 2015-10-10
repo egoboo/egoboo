@@ -114,17 +114,6 @@ struct Info<float> {
 /// mesh physics
 #define SLIDE                           0.04f         ///< Acceleration for steep hills
 #define SLIDEFIX                        0.08f         ///< To make almost flat surfaces flat
-#define TWIST_FLAT                      119
-
-#define TILE_UPPER_SHIFT                8
-#define TILE_LOWER_MASK                 ((1 << TILE_UPPER_SHIFT)-1)
-#define TILE_UPPER_MASK                 (~TILE_LOWER_MASK)
-
-#define TILE_GET_LOWER_BITS(XX)         ( TILE_LOWER_MASK & (XX) )
-
-#define TILE_GET_UPPER_BITS(XX)         (( TILE_UPPER_MASK & (XX) ) >> TILE_UPPER_SHIFT )
-#define TILE_SET_UPPER_BITS(XX)         (( (XX) << TILE_UPPER_SHIFT ) & TILE_UPPER_MASK )
-
 
 //--------------------------------------------------------------------------------------------
 
@@ -323,12 +312,12 @@ const Index<_Type, _IndexSystem, _InvalidIndex> Index<_Type,_IndexSystem,_Invali
 /// @brief The index of a tile.
 /// @todo UINT32_MAX is used because of Microsoft's Visual Studio 2013 lacking constexpr support
 ///       such that we could use std::numeric_limits<Uint32>::max().
-typedef Index<Uint32, IndexSystem::Tile,UINT32_MAX> TileIndex;
+typedef Index<Uint32, IndexSystem::Tile,INVALID_BLOCK> TileIndex;
 
 /// @brief The index of a block.
 /// @todo UINT32_MAX is used because of Microsoft's Visual Studio 2013 lacking constexpr support
 ///       such that we could use std::numeric_limits<Uint32>::max().
-typedef Index<Uint32, IndexSystem::Block,UINT32_MAX> BlockIndex;
+typedef Index<Uint32, IndexSystem::Block,INVALID_TILE> BlockIndex;
 
 //--------------------------------------------------------------------------------------------
 
@@ -367,14 +356,18 @@ public:
     // the bounding boc of this tile
     oct_bb_t       _oct;                        ///< the octagonal bounding box for this tile
 	AABB2f         _aabb;
+
+	/**
+	 * @brief
+	 *  Get if the tile has its fan rendering turned off.
+	 * @return
+	 *  @a true if the tile has its fan rendering turned off, @a false otherwise
+	 */
+	bool isFanOff() const {
+		return MAP_FANOFF == _img;
+	}
 };
 
-inline bool TILE_IS_FANOFF(const std::shared_ptr<ego_tile_info_t>& tileInfo) {
-	return MAP_FANOFF == tileInfo->_img;
-}
-inline bool TILE_IS_FANOFF(const ego_tile_info_t *tileInfo) {
-	return MAP_FANOFF == tileInfo->_img;
-}
 inline bool TILE_HAS_INVALID_IMAGE(const ego_tile_info_t& tileInfo) {
 	return HAS_SOME_BITS(TILE_UPPER_MASK, tileInfo._img);
 }

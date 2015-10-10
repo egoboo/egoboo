@@ -51,37 +51,23 @@ spawn_file_info_t::spawn_file_info_t() :
     //ctor
 }
 
-spawn_file_info_t *spawn_file_info_t::init(spawn_file_info_t *self)
+void spawn_file_info_t::init(spawn_file_info_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-	*self = spawn_file_info_t();
-    return self;
+	self = spawn_file_info_t();
 }
 
-spawn_file_info_t *spawn_file_info_t::reinit(spawn_file_info_t *self)
+void spawn_file_info_t::reinit(spawn_file_info_t& self)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
     // Save the parent.
-    CHR_REF parent = self->parent;
+    CHR_REF parent = self.parent;
     // Reset the data.
     init(self);
     // Restore the parent.
-    self->parent = parent;
-    return self;
+    self.parent = parent;
 }
 
-bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
+bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
 {
-    if (!info)
-    {
-        return false;
-    }
     spawn_file_info_t::reinit(info);
 
     // Until we hit something else than newlines, whitespaces or comments.
@@ -126,71 +112,71 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
         std::string name = Ego::trim(ctxt._buffer.toString());
 
         
-        strncpy(info->spawn_coment, name.c_str(), SDL_arraysize(info->spawn_coment));
-        info->do_spawn = true;
+        strncpy(info.spawn_coment, name.c_str(), SDL_arraysize(info.spawn_coment));
+        info.do_spawn = true;
 
-        vfs_read_string_lit(ctxt, info->spawn_name, SDL_arraysize(info->spawn_name));
+        vfs_read_string_lit(ctxt, info.spawn_name, SDL_arraysize(info.spawn_name));
 
-        info->pname = info->spawn_name;
-        if (!strcmp(info->spawn_name, "NONE"))
+        info.pname = info.spawn_name;
+        if (!strcmp(info.spawn_name, "NONE"))
         {
             // A random name is selected.
-            info->pname = nullptr;
+            info.pname = nullptr;
         }
 
-        info->slot = ctxt.readInt();
+        info.slot = ctxt.readInt();
 
-        info->pos[kX] = ctxt.readReal() * Info<float>::Grid::Size();
-        info->pos[kY] = ctxt.readReal() * Info<float>::Grid::Size();
-        info->pos[kZ] = ctxt.readReal() * Info<float>::Grid::Size();
+        info.pos[kX] = ctxt.readReal() * Info<float>::Grid::Size();
+        info.pos[kY] = ctxt.readReal() * Info<float>::Grid::Size();
+        info.pos[kZ] = ctxt.readReal() * Info<float>::Grid::Size();
 
-        info->facing = FACE_NORTH;
-        info->attach = ATTACH_NONE;
+        info.facing = FACE_NORTH;
+        info.attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
         switch (Ego::toupper(chr))
         {
-            case 'S': info->facing = FACE_SOUTH;       break;
-            case 'E': info->facing = FACE_EAST;        break;
-            case 'W': info->facing = FACE_WEST;        break;
-            case 'N': info->facing = FACE_NORTH;       break;
-            case '?': info->facing = FACE_RANDOM;      break;
-            case 'L': info->attach = ATTACH_LEFT;      break;
-            case 'R': info->attach = ATTACH_RIGHT;     break;
-            case 'I': info->attach = ATTACH_INVENTORY; break;
+            case 'S': info.facing = FACE_SOUTH;       break;
+            case 'E': info.facing = FACE_EAST;        break;
+            case 'W': info.facing = FACE_WEST;        break;
+            case 'N': info.facing = FACE_NORTH;       break;
+            case '?': info.facing = FACE_RANDOM;      break;
+            case 'L': info.attach = ATTACH_LEFT;      break;
+            case 'R': info.attach = ATTACH_RIGHT;     break;
+            case 'I': info.attach = ATTACH_INVENTORY; break;
             default:
             {
                 throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
                                                     "invalid enumeration element");
             }
         };
-        info->money = ctxt.readInt();
+        info.money = ctxt.readInt();
 
         //If the skin type is a '?' character then it means random skin else it's an integer
         ctxt.skipWhiteSpaces();
         if(ctxt.is('?')) {
-            info->skin = ObjectProfile::NO_SKIN_OVERRIDE;
+            info.skin = ObjectProfile::NO_SKIN_OVERRIDE;
             ctxt.next();
         }
         else {
-            info->skin = ctxt.readInt();
+            info.skin = ctxt.readInt();
         }
 
-        info->passage = ctxt.readInt();
-        info->content = ctxt.readInt();
-        info->level = ctxt.readInt();
-        info->stat = ctxt.readBool();
+        info.passage = ctxt.readInt();
+        info.content = ctxt.readInt();
+        info.level = ctxt.readInt();
+        info.stat = ctxt.readBool();
 
         ctxt.readPrintable();   ///< BAD! Unused ghost value
 
         chr = ctxt.readPrintable();
-        info->team = (chr - 'A') % Team::TEAM_MAX;
+        info.team = (chr - 'A') % Team::TEAM_MAX;
         
         return true;
     }
     else if (ctxt.is('#'))
     {
         ctxt.next();
-        info->do_spawn = false;
+        info.do_spawn = false;
 
         std::string what = ctxt.readName();
         if (what != "dependency")
@@ -213,15 +199,15 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
             throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
                                                 "syntax error");
         }
-        if (who.length() >= SDL_arraysize(info->spawn_coment))
+        if (who.length() >= SDL_arraysize(info.spawn_coment))
         {
             throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
                                                 "syntax error");
         }
         int slot = ctxt.readInt();
         // Store the data.
-        strncpy(info->spawn_coment, who.c_str(), SDL_arraysize(info->spawn_coment));
-        info->slot = slot;
+        strncpy(info.spawn_coment, who.c_str(), SDL_arraysize(info.spawn_coment));
+        info.slot = slot;
         return true;
     }
     else if (!ctxt.is(ReadContext::Traits::endOfInput()))

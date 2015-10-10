@@ -319,6 +319,8 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\cartman\Vertex.cpp" />
+    <ClCompile Include="src\cartman\Tile.cpp" />
     <ClCompile Include="src\cartman\cartman.c" />
     <ClCompile Include="src\cartman\cartman_functions.c" />
     <ClCompile Include="src\cartman\cartman_gfx.c" />
@@ -334,6 +336,8 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <None Include="src\cartman\standard.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\cartman\Vertex.hpp" />
+    <ClInclude Include="src\cartman\Tile.hpp" />
     <ClInclude Include="src\cartman\res\resource.h" />
     <ClInclude Include="src\cartman\cartman.h" />
     <ClInclude Include="src\cartman\cartman_config.h" />

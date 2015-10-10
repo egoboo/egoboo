@@ -26,38 +26,27 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-bool map_read_v4(vfs_FILE *file, map_t *map)
+bool map_read_v4(vfs_FILE& file, map_t& map)
 {
-    // Validate arguments.
-    if (!map || !file)
-    {
-        return false;
-    }
-
     // Alias.
-    auto& mem = map->_mem;
+    auto& mem = map._mem;
 
     // Load vertex a data
     for (map_vertex_t& vertex : mem.vertices)
     {
-        vfs_read_Uint8(file, &vertex.a);
+        vfs_read_Uint8(&file, &vertex.a);
     }
 
     return true;
 }
 
-bool map_write_v4(vfs_FILE *file, const map_t *map)
+bool map_write_v4(vfs_FILE& file, const map_t& map)
 {
-    if (!map || !file)
-    {
-        return false;
-    }
-
-    const auto& mem = map->_mem;
+    const auto& mem = map._mem;
 
     for (const auto& vertex : mem.vertices)
     {
-        vfs_write_Uint8(file, vertex.a);
+        vfs_write_Uint8(&file, vertex.a);
     }
 
     return true;

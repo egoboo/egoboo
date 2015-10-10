@@ -22,6 +22,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/fileutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -36,22 +37,24 @@
     ///Data structure for one treasure table, we can have up to MAX_TABLES of these
     struct treasure_table_t
     {
-        STRING table_name;                          //< What is the name of this treasure table
-        STRING object_list[TREASURE_TABLE_SIZE];    //< List of treasure objects in this table
-        size_t size;                                //< Number of objects loaded into this table
+		/// @brief The name of this treasure table.
+        STRING table_name;
+		/// @brief List of treasure objects in this treasure table
+        STRING object_list[TREASURE_TABLE_SIZE];
+		/// @brief The size of the list
+        size_t size;
+		/// @brief Adds a new treasure object to the specified treasure table
+		/// @param self the treasure table
+		/// @param name the name of the object
+		static void add(treasure_table_t *self, const char *name);
+		treasure_table_t();
     };
 
-//--------------------------------------------------------------------------------------------
-// GLOBAL VARIABLES
-//--------------------------------------------------------------------------------------------
-
-/// @todo ZF> This should probably be moved into a game.c data structure or something like that, we should also implement
-///    so that any local module can override the default randomtreasure.txt found in basicdat folder
-    extern treasure_table_t treasureTableList[MAX_TABLES];
 
 //--------------------------------------------------------------------------------------------
 // PUBLIC FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
+//Private functions
+	void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table);
 
-    egolib_rv init_random_treasure_tables_vfs( const char* filepath );
-    egolib_rv get_random_treasure( char * buffer, size_t buffer_length );
+

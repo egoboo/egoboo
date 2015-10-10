@@ -19,8 +19,8 @@
 
 #include "egolib/egolib.h"
 
+#include "egolib/FileFormats/Globals.hpp"
 #include "cartman/cartman_map.h"
-
 #include "cartman/cartman.h"
 #include "cartman/cartman_math.h"
 
@@ -99,49 +99,6 @@ cartman_mpd_t *cartman_mpd_t::reset()
 
 //--------------------------------------------------------------------------------------------
 
-cartman_mpd_tile_t::cartman_mpd_tile_t() :
-    type(0),
-    tx_bits(MAP_FANOFF),
-    twist(TWIST_FLAT),
-    fx(MAPFX_WALL | MAPFX_IMPASS),
-    vrtstart(MAP_FAN_ENTRIES_MAX)
-{
-}
-
-void cartman_mpd_tile_t::reset()
-{
-    type = 0;
-    tx_bits = MAP_FANOFF;
-    twist = TWIST_FLAT;
-    fx = MAPFX_WALL | MAPFX_IMPASS;
-    vrtstart = MAP_FAN_ENTRIES_MAX;
-}
-
-//--------------------------------------------------------------------------------------------
-
-Cartman::mpd_vertex_t::mpd_vertex_t() :
-next(CHAINEND),
-x(0.0f), y(0.0f), z(0.0f),
-a(VERTEXUNUSED)
-{}
-
-Cartman::mpd_vertex_t::~mpd_vertex_t()
-{
-    x = 0.0f; y = 0.0f; z = 0.0f;
-    a = VERTEXUNUSED;
-    next = CHAINEND;
-}
-
-
-void Cartman::mpd_vertex_t::reset()
-{
-    x = 0.0f; y = 0.0f; z = 0.0f;
-    a = VERTEXUNUSED;
-    next = CHAINEND;
-}
-
-//--------------------------------------------------------------------------------------------
-
 cartman_mpd_info_t::cartman_mpd_info_t() :
 tiles_x(0), tiles_y(0),
 tiles_count(0), vertex_count(0),
@@ -161,26 +118,22 @@ void cartman_mpd_info_t::reset()
 }
 
 //--------------------------------------------------------------------------------------------
-bool cartman_mpd_info_init(cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y)
+void cartman_mpd_info_t::init(cartman_mpd_info_t& self, int vert_count, size_t tiles_x, size_t tiles_y)
 {
-
-    // handle default values
-    if (vert_count < 0)
-    {
-        vert_count = MAP_FAN_VERTICES_MAX * pinfo->tiles_count;
-    }
-
     // set the desired number of tiles
-    pinfo->tiles_x = tiles_x;
-    pinfo->tiles_y = tiles_y;
-    pinfo->tiles_count = pinfo->tiles_x * pinfo->tiles_y;
-    pinfo->vertex_count = vert_count;
+	self.tiles_x = tiles_x;
+	self.tiles_y = tiles_y;
+	self.tiles_count = self.tiles_x * self.tiles_y;
+	// handle default values
+	if (vert_count < 0)
+	{
+		vert_count = MAP_FAN_VERTICES_MAX * self.tiles_count;
+	}
+	self.vertex_count = vert_count;
 
-    pinfo->edgex = pinfo->tiles_x * TILE_ISIZE;
-    pinfo->edgey = pinfo->tiles_y * TILE_ISIZE;
-    pinfo->edgez = DEFAULT_Z_SIZE;
-
-    return true;
+	self.edgex = self.tiles_x * TILE_ISIZE;
+	self.edgey = self.tiles_y * TILE_ISIZE;
+	self.edgez = DEFAULT_Z_SIZE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -427,9 +380,9 @@ Uint8 cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, Uint32 fan )
     int vt3 = pmesh->vrt2[vt2].next;
 
     int zx = ( pmesh->vrt2[vt0].z + pmesh->vrt2[vt3].z - pmesh->vrt2[vt1].z - pmesh->vrt2[vt2].z )
-           / SLOPE;
+           / CARTMAN_SLOPE;
     int zy = ( pmesh->vrt2[vt2].z + pmesh->vrt2[vt3].z - pmesh->vrt2[vt0].z - pmesh->vrt2[vt1].z )
-           / SLOPE;
+           / CARTMAN_SLOPE;
 
     Uint8 twist = cartman_mpd_calc_twist( zx, zy );
 
@@ -824,7 +777,7 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
     }
 
     // set up the destination mesh from the source mesh
-    cartman_mpd_info_init(&(dst->info), info_src->vertexCount, info_src->tileCountX, info_src->tileCountY);
+    cartman_mpd_info_t::init(dst->info, info_src->vertexCount, info_src->tileCountX, info_src->tileCountY);
 
     // copy all the per-tile info
     for (int itile_src = 0; itile_src < dst->info.tiles_count; itile_src++ )

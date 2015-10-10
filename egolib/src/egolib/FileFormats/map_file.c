@@ -223,7 +223,7 @@ bool map_t::load(vfs_FILE& file)
         // version 1 data is required
         if (mapVersion > 0)
         {
-            if (!map_read_v1(&file, this))
+            if (!map_read_v1(file, *this))
             {
                 goto Fail;
             }
@@ -232,7 +232,7 @@ bool map_t::load(vfs_FILE& file)
         // version 2 data is optional-ish
         if (mapVersion > 1)
         {
-            if (!map_read_v2(&file, this))
+            if (!map_read_v2(file, *this))
             {
                 goto Fail;
             }
@@ -248,7 +248,7 @@ bool map_t::load(vfs_FILE& file)
         // version 3 data is optional-ish
         if (mapVersion > 2)
         {
-            if (!map_read_v3(&file, this))
+            if (!map_read_v3(file, *this))
             {
                 goto Fail;
             }
@@ -268,7 +268,7 @@ bool map_t::load(vfs_FILE& file)
         // version 4 data is completely optional
         if (mapVersion > 3)
         {
-            if (!map_read_v4(&file, this))
+            if (!map_read_v4(file, *this))
             {
                 goto Fail;
             }
@@ -284,14 +284,9 @@ Fail:
     return false;
 }
 
-bool map_t::load(const char *name)
+bool map_t::load(const std::string& name)
 {
-    if (INVALID_CSTR(name))
-    {
-        return false;
-    }
-
-    vfs_FILE *file = vfs_openRead(name);
+    vfs_FILE *file = vfs_openRead(name.c_str());
     if (!file)
     {
         log_warning("%s:%d: cannot find \"%s\"!!\n", __FILE__, __LINE__, name);
@@ -331,7 +326,7 @@ bool map_t::save(vfs_FILE& file) const
 
     if (mapVersion > 0)
     {
-        if (!map_write_v1(&file, this))
+        if (!map_write_v1(file, *this))
         {
             return false;
         }
@@ -339,7 +334,7 @@ bool map_t::save(vfs_FILE& file) const
 
     if (mapVersion > 1)
     {
-        if (!map_write_v2(&file, this))
+        if (!map_write_v2(file, *this))
         {
             return false;
         }
@@ -347,7 +342,7 @@ bool map_t::save(vfs_FILE& file) const
 
     if (mapVersion > 2)
     {
-        if (!map_write_v3(&file, this))
+        if (!map_write_v3(file, *this))
         {
             return false;
         }
@@ -355,7 +350,7 @@ bool map_t::save(vfs_FILE& file) const
 
     if (mapVersion > 3)
     {
-        if (!map_write_v4(&file, this))
+        if (!map_write_v4(file, *this))
         {
             return false;
         }
@@ -363,14 +358,9 @@ bool map_t::save(vfs_FILE& file) const
     return true;
 }
 
-bool map_t::save(const char *name) const
+bool map_t::save(const std::string& name) const
 {
-    if (INVALID_CSTR(name))
-    {
-        return false;
-    }
-
-    vfs_FILE *file = vfs_openWrite(name);
+    vfs_FILE *file = vfs_openWrite(name.c_str());
     if (!file)
     {
         return false;

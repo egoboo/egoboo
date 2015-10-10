@@ -21,28 +21,25 @@
 
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
+#include "egolib/FileFormats/map_tile_dictionary.h"
 #include "egolib/Math/Vector.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#   define CURRENT_MAP_VERSION_LETTER 'D'
+#define CURRENT_MAP_VERSION_LETTER 'D'
 
 // mesh constants
-#   define MAP_ID_BASE               0x4D617041 //'MapA'        ///< The string... MapA
+#define MAP_ID_BASE 0x4D617041 // The string... MapA
 
 /// The maximum number of tiles in x direction.
-#define MAP_TILE_MAX_X 1024
+constexpr uint32_t MAP_TILE_MAX_X = 1024;
 /// The maximum number of tiles in y direction.
-#define MAP_TILE_MAX_Y 1024
+constexpr uint32_t MAP_TILE_MAX_Y = 1024;
 /// The maximum number of tiles.
-#define MAP_TILE_MAX (MAP_TILE_MAX_X * MAP_TILE_MAX_Y)
+constexpr uint32_t MAP_TILE_MAX = MAP_TILE_MAX_X * MAP_TILE_MAX_Y;
 /// The maximum number of vertices.
-#define MAP_VERTICES_MAX (MAP_TILE_MAX*MAP_FAN_VERTICES_MAX)
-
-static_assert(MAP_TILE_MAX_X <= UINT32_MAX, "MAP_TILE_MAX_X may not exceed UINT32_MAX");
-static_assert(MAP_TILE_MAX_Y <= UINT32_MAX, "MAP_TILE_MAX_Y may not exceed UINT32_MAX");
-static_assert(MAP_TILE_MAX <= UINT32_MAX, "MAP_TILE_MAX may not exceed UINT32_MAX");
+constexpr uint32_t MAP_VERTICES_MAX = MAP_TILE_MAX*MAP_FAN_VERTICES_MAX;
 
 #   define TILE_BITS   7
 #   define TILE_ISIZE (1<<TILE_BITS)
@@ -52,41 +49,9 @@ static_assert(MAP_TILE_MAX <= UINT32_MAX, "MAP_TILE_MAX may not exceed UINT32_MA
 // tile constants
 #   define MAP_TILE_TYPE_MAX         256                     ///< Max number of tile images
 
-// special values
-#   define MAP_FANOFF                0xFFFF                     ///< Don't draw the fansquare if tile = this
 
-/// The bit flags for mesh tiles
-    enum e_map_fx
-    {
-        MAPFX_REF             =       0,     ///< NOT USED
-        ///< Egoboo v1.0 : "0 This tile is drawn 1st"
 
-        MAPFX_SHA             = ( 1 << 0 ),  ///< 0 == (val & MAPFX_SHA) means that the tile is reflected in the floors
-        ///< Egoboo v1.0: "0 This tile is drawn 2nd"
-        ///< aicodes.txt : FXNOREFLECT
-
-        MAPFX_REFLECTIVE      = ( 1 << 1 ),  ///< the tile reflects entities
-        ///< Egoboo v1.0: "1 Draw reflection of characters"
-        ///< aicodes.txt : FXDRAWREFLECT
-
-        MAPFX_ANIM            = ( 1 << 2 ),  ///< Egoboo v1.0: "2 Animated tile ( 4 frame )"
-        ///< aicodes.txt : FXANIM
-
-        MAPFX_WATER           = ( 1 << 3 ),  ///< Egoboo v1.0: "3 Render water above surface ( Water details are set per module )"
-        ///< aicodes.txt : FXWATER
-
-        MAPFX_WALL            = ( 1 << 4 ),  ///< Egoboo v1.0: "4 Wall ( Passable by ghosts, particles )"
-        ///< aicodes.txt : FXBARRIER
-
-        MAPFX_IMPASS          = ( 1 << 5 ),  ///< Egoboo v1.0: "5 Impassable"
-        ///< aicodes.txt : FXIMPASS
-
-        MAPFX_DAMAGE          = ( 1 << 6 ),  ///< Egoboo v1.0: "6 Damage"
-        ///< aicodes.txt : FXDAMAGE
-
-        MAPFX_SLIPPY          = ( 1 << 7 )   ///< Egoboo v1.0: "7 Ice or normal"
-        ///< aicodes.txt : FXSLIPPY
-    };
+#include "egolib/FileFormats/map_fx.hpp"
 
 #   define VALID_MPD_TILE_RANGE(VAL)   ( ((size_t)(VAL)) < MAP_TILE_MAX )
 #   define VALID_MPD_VERTEX_RANGE(VAL) ( ((size_t)(VAL)) < MAP_VERTICES_MAX )
@@ -98,11 +63,11 @@ static_assert(MAP_TILE_MAX <= UINT32_MAX, "MAP_TILE_MAX may not exceed UINT32_MA
 struct map_info_t
 {
     /// The number of vertices.
-    Uint32 vertexCount;
+	uint32_t vertexCount;
     /// The number of tiles in the x direction.
-    Uint32 tileCountX;
+	uint32_t tileCountX;
     /// The number of tiles in the y direction.
-    Uint32 tileCountY;
+	uint32_t tileCountY;
 
     /**
      * @brief
@@ -110,7 +75,7 @@ struct map_info_t
      * @return
      *  the number of vertices
      */
-    Uint32 getVertexCount() const
+    uint32_t getVertexCount() const
     {
         return vertexCount;
     }
@@ -121,7 +86,7 @@ struct map_info_t
      * @return
      *  the number of tiles in the x direction
      */
-    Uint32 getTileCountX() const
+    uint32_t getTileCountX() const
     {
         return tileCountX;
     }
@@ -189,10 +154,10 @@ struct map_info_t
 /// The information for an mpd tile.
 struct tile_info_t
 {
-    Uint8   type;   ///< Tile type
-    Uint16  img;    ///< Get texture from this
-    Uint8   fx;     ///< Special effects flags
-    Uint8   twist;
+    uint8_t   type;   ///< Tile type
+    uint16_t  img;    ///< Get texture from this
+    uint8_t   fx;     ///< Special effects flags
+    uint8_t   twist;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -201,7 +166,7 @@ struct tile_info_t
 struct map_vertex_t
 {
 	Vector3f pos; ///< Vertex position.
-    Uint8 a;      ///< Vertex base light.
+    uint8_t a;      ///< Vertex base light.
 };
 
 //--------------------------------------------------------------------------------------------
@@ -263,7 +228,7 @@ public:
      * @param name
      *  the name to load the map from
      */
-    bool load(const char *name);
+    bool load(const std::string& name);
 
     /**
      * @brief
@@ -279,7 +244,7 @@ public:
      * @param name
      *  the name to save the map to
      */
-    bool save(const char *name) const;
+    bool save(const std::string& name) const;
 
 };
 

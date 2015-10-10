@@ -27,6 +27,7 @@
 #include "cartman/cartman_select.h"
 #include "cartman/cartman_math.h"
 #include "cartman/SDL_Pixel.h"
+#include "egolib/FileFormats/Globals.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -429,6 +429,9 @@
     <ClCompile Include="src\egolib\Clock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\Globals.cpp">
+      <Filter>File Formats</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -919,6 +922,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Clock.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\Globals.hpp">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\map_fx.hpp">
+      <Filter>File Formats</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -30,8 +30,7 @@
 struct s_glTexture;
 typedef struct s_glTexture glTexture;
 
-struct s_ogl_surface;
-typedef struct s_ogl_surface ogl_surface;
+struct ogl_surface_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

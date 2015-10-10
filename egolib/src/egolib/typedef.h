@@ -492,17 +492,34 @@ struct Stack
 
 	/**
 	 * @brief
+	 *  Get a reference to the stack element at the specified index.
+	 * @param index
+	 *  the index
+	 * @return
+	 *  a reference to the stack element if @a index is within bounds
+	 * @throw Id::RuntimeErrorException
+	 *  if @a index is out of bounds
+	 */
+	ElementType& get_ref(size_t index)
+	{
+		if (index >= Capacity) throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		return lst[index];
+	}
+
+	/**
+	 * @brief
 	 *	Get a pointer to the stack element at the specified index.
 	 * @param index
 	 *	the index
 	 * @return
-	 *	a pointer to the stack element if @a index is within bounds, @a false otherwise
+	 *	a pointer to the stack element if @a index is within bounds, a null pointer otherwise
 	 * @todo
 	 *	Raise an exception of @a index is greater than or equal to @a capacity.
 	 */
 	ElementType *get_ptr(size_t index)
 	{
-		return (index >= Capacity) ? NULL : lst + index;
+		if (index >= Capacity) throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		return &(lst[index]);
 	}
 
 };

@@ -66,13 +66,13 @@ public:
 	* @brief
 	*  Assign safe values to all fields.
 	*/
-	static spawn_file_info_t *init(spawn_file_info_t *self);
+	static void init(spawn_file_info_t& self);
 	/**
 	* @brief
 	*  Assign safe values to all fields, keep the parent.
 	*/
-	static spawn_file_info_t *reinit(spawn_file_info_t *self);
+	static void reinit(spawn_file_info_t& self);
 };
 
-bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *self);
+bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info);
 

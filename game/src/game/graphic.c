@@ -45,6 +45,7 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
+#include "egolib/FileFormats/Globals.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

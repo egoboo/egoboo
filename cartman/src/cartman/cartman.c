@@ -27,19 +27,12 @@
 #include "cartman/cartman_gui.h"
 #include "cartman/cartman_gfx.h"
 #include "cartman/cartman_select.h"
-
+#include "egolib/FileFormats/Globals.hpp"
 #include "cartman/cartman_math.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-struct s_light;
-typedef struct s_light light_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct s_light
+struct light_t
 {
     int           x;
     int           y;
@@ -77,9 +70,11 @@ struct Cartman_MouseData
     float   rect_y1;     //
     float   rect_z0;     //
     float   rect_z1;     //
+
+	static Cartman_MouseData *ctor(Cartman_MouseData *self);
 };
 
-static Cartman_MouseData *cart_mouse_data_ctor(Cartman_MouseData *self);
+
 static void cart_mouse_data_toggle_fx( int fxmask );
 
 // helper functions
@@ -148,7 +143,7 @@ static void cartman_create_mesh( cartman_mpd_t * pmesh );
 static void cartman_save_mesh( const char *modname, cartman_mpd_t * pmesh );
 
 // gfx functions
-static void load_all_windows( cartman_mpd_t * pmesh );
+static void load_all_windows( cartman_mpd_t& mesh );
 
 /// The views a window may contain w.r.t. the mesh.
 struct Views
@@ -714,20 +709,18 @@ void render_all_windows()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_windows( cartman_mpd_t * pmesh )
+void load_all_windows( cartman_mpd_t& mesh )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
     for (auto window : _window_lst)
     {
         window->on = false;
         window->tex = new oglx_texture_t();
     }
 
-    load_window( _window_lst[0], 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );
-    load_window( _window_lst[1], 1, "editor/window.png", 410, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   pmesh );
-    load_window( _window_lst[2], 2, "editor/window.png", 180, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   pmesh );
-    load_window( _window_lst[3], 3, "editor/window.png", 410, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     pmesh );
+    load_window( _window_lst[0], 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, &mesh );
+    load_window( _window_lst[1], 1, "editor/window.png", 410, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   &mesh );
+    load_window( _window_lst[2], 2, "editor/window.png", 180, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   &mesh );
+    load_window( _window_lst[3], 3, "editor/window.png", 410, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     &mesh );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -739,7 +732,7 @@ void draw_window_background(std::shared_ptr<Cartman_Window> pwin)
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_all_windows( void )
+void draw_all_windows()
 {
     for (auto window : _window_lst)
     {
@@ -1067,11 +1060,11 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_h
         {
             if ( mdata.type >= tile_dict.offset )
             {
-                move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xC0);
+                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xC0);
             }
             else
             {
-                move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xF0);
+                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xF0);
             }
             bound_mouse();
         }
@@ -1081,12 +1074,12 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_h
             if ( CART_KEYDOWN( SDLK_RSHIFT ) )
             {
                 // Move the first 16 up and down
-                move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0xF0);
+                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0xF0);
             }
             else
             {
                 // Move the entire mesh up and down
-                move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0);
+                MeshEditor::move_mesh_z(mdata.win_mesh, -Input::get()._mouse.cy / zoom_vrt, 0, 0);
             }
             bound_mouse();
         }
@@ -1441,7 +1434,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom
 
         if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == select_lst_count(&(mdata.win_select))))
         {
-            raise_mesh( mdata.win_mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
+            MeshEditor::raise_mesh( mdata.win_mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
         }
     }
 }
@@ -1459,7 +1452,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     move_camera( &( pmesh->info ) );
 
     // place this after move_camera()
-    Mouse::update(&Input::get()._mouse);
+    Mouse::update(Input::get()._mouse);
 
     // handle all window-specific commands
     //if( mos.drag && NULL != mos.drag_window )
@@ -1496,7 +1489,7 @@ void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
     Input::get()._mouse.y = Input::get()._mouse.y_old;
     Input::get()._mouse.x = Input::get()._mouse.x_old;
 
-    mesh_move( pmesh, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
+    MeshEditor::mesh_move( pmesh, 0, 0, -Input::get()._mouse.cy / zoom_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1606,7 +1599,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_j ) )
     {
-        if ( 0 == select_lst_count( &( mdata.win_select ) ) ) { jitter_mesh( pmesh ); }
+        if ( 0 == select_lst_count( &( mdata.win_select ) ) ) { MeshEditor::jitter_mesh( pmesh ); }
         else { mesh_select_jitter( &( mdata.win_select ) ); }
         Input::get()._keyboard.delay = KEYDELAY;
     }
@@ -1724,7 +1717,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_q ) )
     {
-        fix_walls( pmesh );
+        MeshEditor::fix_walls( pmesh );
         Input::get()._keyboard.delay = KEYDELAY;
     }
 
@@ -1757,7 +1750,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN_MOD( SDLK_l, KMOD_SHIFT ) )
     {
-        level_vrtz( pmesh );
+        MeshEditor::level_vrtz( pmesh );
     }
 
     // brush size
@@ -2026,7 +2019,7 @@ int SDL_main( int argcnt, char* argtext[] )
 
     // Construct the input system.
     Cartman::Input::initialize();
-    cart_mouse_data_ctor(&mdata); /// @todo What is this crap?
+    Cartman_MouseData::ctor(&mdata); /// @todo What is this crap?
 
     gfx_system_begin();
 
@@ -2041,7 +2034,7 @@ int SDL_main( int argcnt, char* argtext[] )
 
     fill_fpstext();                     // Make the FPS text
     Cartman::GUI::initialize();
-    load_all_windows( &mesh );          // Load windows
+    load_all_windows( mesh );          // Load windows
     load_img();                         // Load cartman icons
 
     dunframe   = 0;                     // Timer resets
@@ -2164,7 +2157,7 @@ bool config_upload(egoboo_config_t * pcfg)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Cartman_MouseData *cart_mouse_data_ctor(Cartman_MouseData *self)
+Cartman_MouseData *Cartman_MouseData::ctor(Cartman_MouseData *self)
 {
     if (!self)
     {
@@ -2189,37 +2182,37 @@ Cartman_MouseData *cart_mouse_data_ctor(Cartman_MouseData *self)
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_mesh_set_tile( Uint16 tiletoset )
 {
-    mesh_set_tile( mdata.win_mesh, tiletoset, mdata.upper, mdata.presser, mdata.tx );
+    MeshEditor::mesh_set_tile( mdata.win_mesh, tiletoset, mdata.upper, mdata.presser, mdata.tx );
 }
 
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_flatten_mesh()
 {
-    flatten_mesh( mdata.win_mesh, mdata.win_mpos_y );
+    MeshEditor::flatten_mesh( mdata.win_mesh, mdata.win_mpos_y );
 }
 
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_clear_mesh()
 {
-    clear_mesh( mdata.win_mesh,  mdata.upper, mdata.presser, mdata.tx, mdata.type );
+	MeshEditor::clear_mesh(mdata.win_mesh, mdata.upper, mdata.presser, mdata.tx, mdata.type);
 }
 
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_three_e_mesh()
 {
-    three_e_mesh( mdata.win_mesh, mdata.upper, mdata.tx );
+    MeshEditor::three_e_mesh( mdata.win_mesh, mdata.upper, mdata.tx );
 }
 
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_mesh_replace_tile( bool tx_only, bool at_floor_level )
 {
-    mesh_replace_tile( mdata.win_mesh, mdata.win_fan_x, mdata.win_fan_y, mdata.win_fan, mdata.tx, mdata.upper, mdata.fx, mdata.type, mdata.presser, tx_only, at_floor_level );
+    MeshEditor::mesh_replace_tile( mdata.win_mesh, mdata.win_fan_x, mdata.win_fan_y, mdata.win_fan, mdata.tx, mdata.upper, mdata.fx, mdata.type, mdata.presser, tx_only, at_floor_level );
 }
 
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_mesh_set_fx()
 {
-    mesh_set_fx( mdata.win_mesh, mdata.win_fan, mdata.fx );
+    MeshEditor::setFX( mdata.win_mesh, mdata.win_fan, mdata.fx );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2254,10 +2247,10 @@ void cart_mouse_data_mesh_replace_fx()
 
     if ( type >= tile_dict.offset )
     {
-        mesh_replace_fx( mdata.win_mesh, tx_bits, 0xC0, mdata.fx );
+        MeshEditor::mesh_replace_fx( mdata.win_mesh, tx_bits, 0xC0, mdata.fx );
     }
     else
     {
-        mesh_replace_fx( mdata.win_mesh, tx_bits, 0xF0, mdata.fx );
+        MeshEditor::mesh_replace_fx( mdata.win_mesh, tx_bits, 0xF0, mdata.fx );
     }
 }

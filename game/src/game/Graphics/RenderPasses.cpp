@@ -41,6 +41,7 @@
 #include "game/char.h"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
+#include "egolib/FileFormats/Globals.hpp"
 #include "game/Module/Module.hpp"
 
 namespace Ego {
@@ -577,7 +578,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 		return;
 	}
 	// No shadow if invalid tile.
-	if (TILE_IS_FANOFF(ptile))
+	if (ptile->isFanOff())
 	{
 		return;
 	}
@@ -668,7 +669,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (NULL == ptile) return;
 
 	// no shadow if invalid tile image
-	if (TILE_IS_FANOFF(ptile)) return;
+	if (ptile->isFanOff()) return;
 
 	// no shadow if completely transparent
 	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;

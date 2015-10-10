@@ -24,36 +24,12 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/FileFormats/map_fx.hpp"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct s_tile_definition;
-    typedef struct s_tile_definition tile_definition_t;
-
-    struct s_tile_dictionary;
-    typedef struct s_tile_dictionary tile_dictionary_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// fan constants
-#   define MAP_FAN_VERTICES_MAX      16                         ///< Fansquare vertices
-#   define MAP_FAN_TYPE_MAX          64                         ///< Number of fansquare command types
-#   define MAP_FAN_MAX               4                          ///< Draw up to 4 fans
-#   define MAP_FAN_ENTRIES_MAX       32                         ///< Fansquare command list size
-#   define MAP_FAN_SIZE_MAX          32                         ///< Max trigs in each command
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// A description of a tile type that allows some compression in the way vertices are stored in the mpd file
-    struct s_tile_definition
+    struct tile_definition_t
     {
         Uint8           numvertices;                        ///< Number of vertices
         int             ref[MAP_FAN_VERTICES_MAX];          ///< encoded "position" of the vertex
@@ -71,7 +47,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     /// A a dictionary of tile types
-    struct s_tile_dictionary
+    struct tile_dictionary_t
     {
         bool              loaded;
         size_t            offset;
@@ -91,19 +67,5 @@ inline tile_definition_t* TILE_DICT_PTR(tile_dictionary_t& pdict, const uint8_t 
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-    bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    extern tile_dictionary_t tile_dict;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
+bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size );
