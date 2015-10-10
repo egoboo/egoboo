@@ -289,7 +289,7 @@ bool map_t::load(const std::string& name)
     vfs_FILE *file = vfs_openRead(name.c_str());
     if (!file)
     {
-        log_warning("%s:%d: cannot find \"%s\"!!\n", __FILE__, __LINE__, name);
+        log_warning("%s:%d: cannot find \"%s\"!!\n", __FILE__, __LINE__, name.c_str());
         goto Fail;
     }
 
