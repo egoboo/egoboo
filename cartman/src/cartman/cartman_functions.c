@@ -22,8 +22,8 @@
 #include "cartman/cartman.h"
 #include "cartman/cartman_map.h"
 #include "cartman/cartman_select.h"
-
 #include "cartman/cartman_math.h"
+#include "egolib/FileFormats/Globals.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -855,7 +855,7 @@ void mesh_select_jitter( select_lst_t * plst )
     {
 		Uint32 vert = plst->which[cnt];
 
-        move_vert( plst->pmesh,  vert, ( Random::next(2) ) - 1, ( Random::next(2) ) - 1, 0 );
+        MeshEditor::move_vert( plst->pmesh,  vert, ( Random::next(2) ) - 1, ( Random::next(2) ) - 1, 0 );
     }
 }
 
@@ -971,7 +971,7 @@ void mesh_select_weld( select_lst_t * plst )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx )
+void MeshEditor::mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx )
 {
     // ZZ> This function sets one tile type to another
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -1018,7 +1018,7 @@ void mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16
 }
 
 //--------------------------------------------------------------------------------------------
-void move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uint16 tileand )
+void MeshEditor::move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uint16 tileand )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1052,7 +1052,7 @@ void move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uint16 tileand 
 }
 
 //--------------------------------------------------------------------------------------------
-void move_vert( cartman_mpd_t * pmesh, int vert, float x, float y, float z )
+void MeshEditor::move_vert( cartman_mpd_t * pmesh, int vert, float x, float y, float z )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1075,7 +1075,7 @@ void move_vert( cartman_mpd_t * pmesh, int vert, float x, float y, float z )
 }
 
 //--------------------------------------------------------------------------------------------
-void raise_mesh( cartman_mpd_t * pmesh, Uint32 point_lst[], size_t point_cnt, float x, float y, int amount, int size )
+void MeshEditor::raise_mesh( cartman_mpd_t * pmesh, Uint32 point_lst[], size_t point_cnt, float x, float y, int amount, int size )
 {
     if ( NULL == point_lst || 0 == point_cnt ) return;
 
@@ -1099,7 +1099,7 @@ void raise_mesh( cartman_mpd_t * pmesh, Uint32 point_lst[], size_t point_cnt, fl
 }
 
 //--------------------------------------------------------------------------------------------
-void level_vrtz( cartman_mpd_t * pmesh )
+void MeshEditor::level_vrtz( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1124,7 +1124,7 @@ void level_vrtz( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void jitter_mesh( cartman_mpd_t * pmesh )
+void MeshEditor::jitter_mesh( cartman_mpd_t * pmesh )
 {
 	select_lst_t loc_lst = SELECT_LST_INIT;
 
@@ -1166,7 +1166,7 @@ void jitter_mesh( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void flatten_mesh( cartman_mpd_t * pmesh, int y0 )
+void MeshEditor::flatten_mesh( cartman_mpd_t * pmesh, int y0 )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1204,7 +1204,7 @@ void flatten_mesh( cartman_mpd_t * pmesh, int y0 )
 }
 
 //--------------------------------------------------------------------------------------------
-void clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type )
+void MeshEditor::clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type )
 {
     int loc_type = type;
 
@@ -1254,7 +1254,7 @@ void clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, U
 }
 
 //--------------------------------------------------------------------------------------------
-void three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
+void MeshEditor::three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
 {
     // ZZ> Replace all 3F tiles with 3E tiles...
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -1280,31 +1280,26 @@ void three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool fan_is_floor( cartman_mpd_t * pmesh, int mapx, int mapy )
+bool MeshEditor::fan_isPassableFloor( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-	cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
-    if ( NULL == pfan ) return false;
-
-    return !HAS_BITS( pfan->fx, ( MAPFX_WALL | MAPFX_IMPASS ) );
+    if (!pmesh ) pmesh = &mesh;
+	cartman_mpd_tile_t *ptile = pmesh->get_pfan(mapx, mapy);
+    if (!ptile) return false;
+	return ptile->isPassableFloor();
 }
 
-//--------------------------------------------------------------------------------------------
-bool fan_is_wall( cartman_mpd_t * pmesh, int mapx, int mapy )
+bool MeshEditor::isImpassableWall( cartman_mpd_t *pmesh, int mapx, int mapy )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-	cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
-    if ( NULL == pfan ) return true;
-
-    return HAS_BITS( pfan->fx, ( MAPFX_WALL | MAPFX_IMPASS ) );
+    if (!pmesh) pmesh = &mesh;
+	cartman_mpd_tile_t *ptile = pmesh->get_pfan(mapx, mapy);
+    if (!ptile) return true;
+	return ptile->isImpassableWall();
 }
 
 //--------------------------------------------------------------------------------------------
 #define BARRIER_FUNC(XX) ( 1.0f - (1.0f - (XX)) * (1.0f - (XX)) * (1.0f - (XX)) )
 
-void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
+void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     float corner_hgt[4];
 
@@ -1319,20 +1314,20 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
     if ( NULL == pdef || 0 == pdef->numvertices ) return;
     Uint32 vert_count = pdef->numvertices;
 
-    // must not be a floor
-    if ( fan_is_floor( pmesh,  mapx, mapy ) ) return;
+    // must not be a passable floor
+    if ( fan_isPassableFloor( pmesh,  mapx, mapy ) ) return;
 
     // find other walls around this tile
-    bool floor_mx = fan_is_floor( pmesh,  mapx - 1, mapy );
-    bool floor_px = fan_is_floor( pmesh,  mapx + 1, mapy );
-    bool floor_my = fan_is_floor( pmesh,  mapx, mapy - 1 );
-    bool floor_py = fan_is_floor( pmesh,  mapx, mapy + 1 );
+    bool floor_mx = fan_isPassableFloor( pmesh,  mapx - 1, mapy );
+    bool floor_px = fan_isPassableFloor( pmesh,  mapx + 1, mapy );
+    bool floor_my = fan_isPassableFloor( pmesh,  mapx, mapy - 1 );
+    bool floor_py = fan_isPassableFloor( pmesh,  mapx, mapy + 1 );
     bool noedges  = !floor_mx && !floor_px && !floor_my && !floor_py;
 
-    bool floor_mxmy = fan_is_floor( pmesh,  mapx - 1, mapy - 1 );
-    bool floor_mxpy = fan_is_floor( pmesh,  mapx - 1, mapy + 1 );
-    bool floor_pxmy = fan_is_floor( pmesh,  mapx + 1, mapy - 1 );
-    bool floor_pxpy = fan_is_floor( pmesh,  mapx + 1, mapy + 1 );
+    bool floor_mxmy = fan_isPassableFloor( pmesh,  mapx - 1, mapy - 1 );
+    bool floor_mxpy = fan_isPassableFloor( pmesh,  mapx - 1, mapy + 1 );
+    bool floor_pxmy = fan_isPassableFloor( pmesh,  mapx + 1, mapy - 1 );
+    bool floor_pxpy = fan_isPassableFloor( pmesh,  mapx + 1, mapy + 1 );
     bool nocorners  = !floor_mxmy && !floor_mxpy && !floor_pxmy && !floor_pxpy;
 
     // if it is completely surrounded by walls, there's nothing to do
@@ -1490,7 +1485,7 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 }
 
 //--------------------------------------------------------------------------------------------
-void fix_walls( cartman_mpd_t * pmesh )
+void MeshEditor::fix_walls( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1508,7 +1503,7 @@ void fix_walls( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void impass_edges( cartman_mpd_t * pmesh, int amount )
+void MeshEditor::impass_edges( cartman_mpd_t * pmesh, int amount )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1518,17 +1513,16 @@ void impass_edges( cartman_mpd_t * pmesh, int amount )
         {
             if ( dist_from_edge( pmesh,  mapx, mapy ) < amount )
             {
-				cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
-                if ( NULL == pfan ) continue;
-
-                pfan->fx |= MAPFX_IMPASS;
+				cartman_mpd_tile_t *tile = pmesh->get_pfan(mapx, mapy);
+                if (!tile) continue;
+				tile->setImpassable();
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new )
+void MeshEditor::mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new )
 {
     // ZZ> This function sets the fx for a group of tiles
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -1792,7 +1786,7 @@ void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan, Uint8 _tx, Uint8 _upper, Uint8 _fx, Uint8 _type, Uint16 _presser, bool tx_only, bool at_floor_level )
+void MeshEditor::mesh_replace_tile(cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan, Uint8 _tx, Uint8 _upper, Uint8 _fx, Uint8 _type, Uint16 _presser, bool tx_only, bool at_floor_level)
 {
     cart_vec_t pos[CORNER_COUNT];
     int tx_bits;
@@ -1886,18 +1880,17 @@ void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan,
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_set_fx( cartman_mpd_t * pmesh, int ifan, Uint8 fx )
+
+void MeshEditor::setFX( cartman_mpd_t * pmesh, int ifan, uint8_t fx )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    cartman_mpd_tile_t *pfan = pmesh->get_pfan(ifan);
-    if ( NULL == pfan ) return;
-
-    pmesh->fan2[ifan].fx = fx;
+    if (!pmesh) pmesh = &mesh;
+    cartman_mpd_tile_t *tile = pmesh->get_pfan(ifan);
+    if (!tile) return;
+	tile->setFX(fx);
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz )
+void MeshEditor::mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz )
 {
     Uint32 vert;
     int mapx, mapy, cnt;
@@ -1925,7 +1918,7 @@ void mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz )
                   cnt < count && CHAINEND != vert;
                   cnt++, vert = pmesh->vrt2[vert].next )
             {
-                move_vert( pmesh,  vert, dx, dy, dz );
+                MeshEditor::move_vert( pmesh,  vert, dx, dy, dz );
             }
         }
     }

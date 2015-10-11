@@ -24,6 +24,7 @@
 #include "game/GameStates/MainMenuState.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "egolib/Profiles/_Include.hpp"
+#include "egolib/FileFormats/Globals.hpp"
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"

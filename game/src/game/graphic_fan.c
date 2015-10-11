@@ -28,6 +28,7 @@
 #include "game/egoboo.h"
 #include "game/mesh.h"
 #include "game/Module/Module.hpp"
+#include "egolib/FileFormats/Globals.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -119,7 +120,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 itile )
 	const tile_mem_t& ptmem  = mesh._tmem;
 
     // do not render the itile if the image image is invalid
-    if (TILE_IS_FANOFF(ptile))  return gfx_success;
+    if (ptile->isFanOff())  return gfx_success;
 
 	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, ptile->_type );
     if ( NULL == pdef ) return gfx_fail;

@@ -300,21 +300,17 @@ Cartman::Mouse::~Mouse()
 {
 }
 
-void Cartman::Mouse::update(Cartman::Mouse *self)
+void Cartman::Mouse::update(Cartman::Mouse& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr != self");
-    }
-    if (!self->on) return;
+    if (!self.on) return;
 
-    self->x_old = self->x;
-    self->y_old = self->y;
+    self.x_old = self.x;
+    self.y_old = self.y;
 }
 
-bool Cartman::Mouse::isButtonDown(Cartman::Mouse *self, int button)
+bool Cartman::Mouse::isButtonDown(Cartman::Mouse& self, int button)
 {
-    return HAS_BITS(self->b, SDL_BUTTON(button));
+    return HAS_BITS(self.b, SDL_BUTTON(button));
 }
 
 Cartman::Keyboard::Keyboard() :
@@ -326,22 +322,22 @@ Cartman::Keyboard::Keyboard() :
 Cartman::Keyboard::~Keyboard()
 {}
 
-bool Cartman::Keyboard::isKeyDown(Cartman::Keyboard *self,int key)
+bool Cartman::Keyboard::isKeyDown(Cartman::Keyboard& self,int key)
 {
     SDL_Scancode actualKey = SDL_GetScancodeFromKey(key);
-    if (!self->on || self->override || (actualKey >= self->count)) return false;
-    if (!self->sdlbuffer) return false;
-    return self->sdlbuffer[actualKey];
+    if (!self.on || self.override || (actualKey >= self.count)) return false;
+    if (!self.sdlbuffer) return false;
+    return self.sdlbuffer[actualKey];
 }
 
-bool Cartman::Keyboard::isModDown(Cartman::Keyboard *self, int mod)
+bool Cartman::Keyboard::isModDown(Cartman::Keyboard& self, int mod)
 {
-    if (!self->on || self->override) return false;
-    if (!self->sdlbuffer) return false;
-    return 0 != (self->mod & mod);
+    if (!self.on || self.override) return false;
+    if (!self.sdlbuffer) return false;
+    return 0 != (self.mod & mod);
 }
 
-bool Cartman::Keyboard::isDown(Cartman::Keyboard *self, int key, int mod)
+bool Cartman::Keyboard::isDown(Cartman::Keyboard& self, int key, int mod)
 {
     return Cartman::Keyboard::isKeyDown(self, key)
         && Cartman::Keyboard::isModDown(self, mod);

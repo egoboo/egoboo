@@ -20,44 +20,27 @@
 //********************************************************************************************
 
 #include "egolib/egolib.h"
-
+#include "cartman/Vertex.hpp"
 #include "cartman/cartman_typedef.h"
-
+#include "cartman/Tile.hpp"
 #include "egolib/FileFormats/map_tile_dictionary.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define CHAINEND 0xFFFFFFFF     // End of vertex chain
-#define VERTEXUNUSED 0          // Check mesh.vrta to see if used
-
-#define INVALID_BLOCK ((Uint32)(~0))
-#define INVALID_TILE  ((Uint32)(~0))
-
 #define TINYXY   4              // Plan tiles
 #define SMALLXY 32              // Small tiles
 #define BIGXY   (2 * SMALLXY)   // Big tiles
-
-#define FIXNUM    4 // 4.129           // 4.150
 
 #define FOURNUM   ( TILE_FSIZE / (float)SMALLXY )          // Magic number
 
 #define DEFAULT_TILE 62
 
-#define TWIST_FLAT                      119
-#define SLOPE 50            // Twist stuff
 
 #define TILE_IS_FANOFF(XX)              ( MAP_FANOFF == (XX) )
 
 // handle the upper and lower bits for the tile image
-#define TILE_UPPER_SHIFT                8
-#define TILE_LOWER_MASK                 ((1 << TILE_UPPER_SHIFT)-1)
-#define TILE_UPPER_MASK                 (~TILE_LOWER_MASK)
 
-#define TILE_GET_LOWER_BITS(XX)         ( TILE_LOWER_MASK & (XX) )
-
-#define TILE_GET_UPPER_BITS(XX)         (( TILE_UPPER_MASK & (XX) ) >> TILE_UPPER_SHIFT )
-#define TILE_SET_UPPER_BITS(XX)         (( (XX) << TILE_UPPER_SHIFT ) & TILE_UPPER_MASK )
 #define TILE_SET_BITS(HI,LO)            (TILE_SET_UPPER_BITS(HI) | TILE_GET_LOWER_BITS(LO))
 
 #define TILE_HAS_INVALID_IMAGE(XX)      HAS_SOME_BITS( TILE_UPPER_MASK, (XX).img )
@@ -118,129 +101,7 @@ struct cartman_mpd_info_t
      */
     void reset();    
 
-};
-
-
-
-bool cartman_mpd_info_init(cartman_mpd_info_t *self, int vert_count, size_t tiles_x, size_t tiles_y);
-
-//--------------------------------------------------------------------------------------------
-namespace Cartman
-{
-    struct mpd_vertex_t
-    {
-
-        /**
-         * @brief
-         *  The next vertex in the fan of this vertex.
-         * @default
-         *  CHAINEND
-         */
-        Uint32 next;
-
-        /**
-         * @{
-         * @brief
-         *  The vertex position.
-         * @remark
-         *  @a z is sometimes referred to as the "elevation" of the vertex.
-         * @default
-         *  <tt>(0,0,0)</tt>
-         * @todo
-         *  Use a 3D vector type to represent the position.
-         */
-        float x, y, z;
-        /** @} */
-
-        /**
-         * @brief
-         *  The basic light of the vertex.
-         * @remark
-         *  If this is @a VERTEXUNUSED then the basic light is ignored.
-         * @default
-         *  @a VERTEXUNUSED
-         */
-        Uint8 a;
-
-        /**
-         * @brief
-         *  Construct this vertex with its default values.
-         */
-        mpd_vertex_t();
-
-        /**
-         * @brief
-         *  Destruct this vertex
-         */
-        virtual ~mpd_vertex_t();
-
-        /**
-         * @brief
-         *  Reset this vertex to its default values.
-         */
-        void reset();
-
-    };
-}
-
-/**
- * @brief
- *  Information about a tile.
- */
-struct cartman_mpd_tile_t
-{
-
-    /**
-     * @brief
-     *  The fan type of the tile.
-     * @default
-     *  <tt>0</tt>
-     */
-    Uint8 type;
-
-    /**
-     * @brief
-     *  The special effects flags of the tile.
-     * @default
-     *  <tt>MAPFX_WALL | MAPFX_IMPASS</tt>
-     */
-    Uint8 fx;
-
-    /**
-     * @brief
-     *  The texture bits and special tile bits of the tile.
-     * @default
-     *  <tt>MAP_FANOFF</tt>
-     */
-    Uint16 tx_bits;
-
-    /**
-     * @brief
-     *  The surface normal of this tile.
-     * @default
-     *  <tt>TWIST_FLAT</tt>
-     */
-    Uint8 twist;
-
-    /**
-     * @brief
-     *  The index of the first vertex of this tile in the vertex array.
-     * @default
-     *  <tt>MAP_FAN_ENTRIES_MAX</tt>
-     */
-    Uint32 vrtstart;
-
-    /**
-     * @brief
-     *  Construct this tile with its default values.
-     */
-    cartman_mpd_tile_t();
-
-    /**
-     * @brief
-     *  Reset this tile to its default values.
-     */
-    void reset();
+	static void init(cartman_mpd_info_t& self, int vert_count, size_t tiles_x, size_t tiles_y);
 
 };
 

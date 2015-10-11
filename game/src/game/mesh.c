@@ -25,6 +25,7 @@
 #include "game/lighting.h"
 #include "game/physics.h"
 #include "game/graphic.h"
+#include "egolib/FileFormats/Globals.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -2080,7 +2081,7 @@ Uint32 ego_mesh_t::test_fx(const TileIndex& index, const BIT_FIELD flags) const
     }
 
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
-    if (TILE_IS_FANOFF(_tmem.get(index)))
+    if (_tmem.get(index)->isFanOff())
     {
         return 0;
     }
@@ -2228,7 +2229,7 @@ uint8_t ego_mesh_t::get_fan_twist(const TileIndex& tile) const
     }
     ego_tile_info_t *info = _tmem.getTile(tile.getI()).get();
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
-    if (TILE_IS_FANOFF(info))
+    if (info->isFanOff())
     {
         return TWIST_FLAT;
     }

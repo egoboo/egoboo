@@ -220,7 +220,7 @@ flexible_destination:
                     ptile = mesh->get_ptile(itile);
                     if ( NULL == ptile ) continue;
 
-                    if ( TILE_IS_FANOFF( ptile ) )
+                    if ( ptile->isFanOff() )
                     {
                         // add the invalid tile to the list as a closed tile
                         AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );

@@ -48,6 +48,12 @@
     <ClCompile Include="src\cartman\SDL_PutPixel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\cartman\Tile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cartman\Vertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\cartman\standard.inl">
@@ -90,6 +96,12 @@
     </ClInclude>
     <ClInclude Include="src\cartman\res\resource.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartman\Tile.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartman\Vertex.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

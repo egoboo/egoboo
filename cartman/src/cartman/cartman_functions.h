@@ -27,15 +27,12 @@
 #include "cartman/cartman_typedef.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 struct cartman_mpd_t;
 struct cartman_mpd_tile_t;
 struct s_tile_definition_t;
+struct select_lst_t;
 
-struct s_select_lst;
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // For autoweld
@@ -45,7 +42,6 @@ struct s_select_lst;
 
 #define BARRIERHEIGHT 14.0f      //
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 float dist_from_border( cartman_mpd_t * pmesh, float x, float y );
@@ -59,36 +55,40 @@ void fix_vertices( cartman_mpd_t * pmesh, int mapx, int mapy );
 void weld_corner_verts( cartman_mpd_t * pmesh, int mapx, int mapy );
 
 // functions taking a selection as an argument
-void mesh_select_weld( struct s_select_lst * plst );
-void mesh_select_move( struct s_select_lst * plst, float x, float y, float z );
-void mesh_select_set_z_no_bound( struct s_select_lst * plst, float z );
-void mesh_select_jitter( struct s_select_lst * plst );
-void mesh_select_verts_connected( struct s_select_lst * plst );
+void mesh_select_weld( select_lst_t * plst );
+void mesh_select_move( select_lst_t * plst, float x, float y, float z );
+void mesh_select_set_z_no_bound( select_lst_t * plst, float z );
+void mesh_select_jitter( select_lst_t * plst );
+void mesh_select_verts_connected( select_lst_t * plst );
 
 // select_lst_t extensions
-struct s_select_lst * select_lst_add_rect( struct s_select_lst * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
-struct s_select_lst * select_lst_remove_rect( struct s_select_lst * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
+select_lst_t * select_lst_add_rect( select_lst_t * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
+select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
 
-// mesh functions
-void mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx );
-void move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uint16 tileand );
-void move_vert( cartman_mpd_t * pmesh, int vert, float x, float y, float z );
-void raise_mesh( cartman_mpd_t * pmesh, Uint32 point_lst[], size_t point_count, float x, float y, int amount, int size );
-void level_vrtz( cartman_mpd_t * pmesh );
-void jitter_mesh( cartman_mpd_t * pmesh );
-void flatten_mesh( cartman_mpd_t * pmesh, int y0 );
-void clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type );
-void three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx );
-bool fan_is_floor( cartman_mpd_t * pmesh, int mapx, int mapy );
-bool fan_is_wall( cartman_mpd_t * pmesh, int mapx, int mapy );
-void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy );
-void fix_walls( cartman_mpd_t * pmesh );
-void impass_edges( cartman_mpd_t * pmesh, int amount );
 
-void mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new );
-void mesh_replace_tile( cartman_mpd_t * pmesh, int xfan, int yfan, int onfan, Uint8 tx, Uint8 upper, Uint8 fx, Uint8 type, Uint16 presser, bool tx_only, bool at_floor_level );
-void mesh_set_fx( cartman_mpd_t * pmesh, int fan, Uint8 fx );
-void mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz );
+struct MeshEditor {
+
+	// mesh functions
+	static void mesh_set_tile(cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx);
+	static void move_mesh_z(cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uint16 tileand);
+	static void move_vert(cartman_mpd_t * pmesh, int vert, float x, float y, float z);
+	static void raise_mesh(cartman_mpd_t * pmesh, Uint32 point_lst[], size_t point_count, float x, float y, int amount, int size);
+	static void level_vrtz(cartman_mpd_t * pmesh);
+	static void jitter_mesh(cartman_mpd_t * pmesh);
+	static void flatten_mesh(cartman_mpd_t * pmesh, int y0);
+	static void clear_mesh(cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type);
+	static void three_e_mesh(cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx);
+	static bool fan_isPassableFloor(cartman_mpd_t * pmesh, int mapx, int mapy);
+	static bool isImpassableWall(cartman_mpd_t * pmesh, int mapx, int mapy);
+	static void set_barrier_height(cartman_mpd_t * pmesh, int mapx, int mapy);
+	static void fix_walls(cartman_mpd_t * pmesh);
+	static void impass_edges(cartman_mpd_t * pmesh, int amount);
+
+	static void mesh_replace_fx(cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new);
+	static void mesh_replace_tile(cartman_mpd_t * pmesh, int xfan, int yfan, int onfan, Uint8 tx, Uint8 upper, Uint8 fx, Uint8 type, Uint16 presser, bool tx_only, bool at_floor_level);
+	static void setFX(cartman_mpd_t *pmesh, int fan, uint8_t fx);
+	static void mesh_move(cartman_mpd_t * pmesh, float dx, float dy, float dz);
+};
 
 // indecipherable legacy code
 Uint8  tile_is_different( cartman_mpd_t * pmesh, int fan_x, int fan_y, Uint16 fx_bits, Uint16 fx_mask );

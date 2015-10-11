@@ -26,22 +26,16 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-bool map_read_v3(vfs_FILE *file, map_t *map)
+bool map_read_v3(vfs_FILE& file, map_t& map)
 {
-    // Validate arguments.
-    if (!map || !file)
-    {
-        return false;
-    }
-
     // Alias.
-    auto& mem = map->_mem;
+    auto& mem = map._mem;
 
     // Load the x-coordinate of each vertex.
     for (auto& vertex : mem.vertices)
     {
         float ieee32_tmp;
-        vfs_read_float(file, &ieee32_tmp);
+        vfs_read_float(&file, &ieee32_tmp);
         vertex.pos[kX] = ieee32_tmp;
     }
 
@@ -49,7 +43,7 @@ bool map_read_v3(vfs_FILE *file, map_t *map)
     for (auto& vertex : mem.vertices)
     {
         float ieee32_tmp;
-        vfs_read_float(file, &ieee32_tmp);
+        vfs_read_float(&file, &ieee32_tmp);
         vertex.pos[kY] = ieee32_tmp;
     }
 
@@ -57,7 +51,7 @@ bool map_read_v3(vfs_FILE *file, map_t *map)
     for (auto& vertex : mem.vertices)
     {
         float ieee32_tmp;
-        vfs_read_float(file, &ieee32_tmp);
+        vfs_read_float(&file, &ieee32_tmp);
         // Cartman scales the z-axis based off of a 4 bit fixed precision number.
         vertex.pos[kZ] = ieee32_tmp / 16.0f;
     }
@@ -65,34 +59,28 @@ bool map_read_v3(vfs_FILE *file, map_t *map)
     return true;
 }
 
-bool map_write_v3(vfs_FILE *file, const map_t *map)
+bool map_write_v3(vfs_FILE& file, const map_t& map)
 {
-    // Validate arguments.
-    if (!map || !file)
-    {
-        return false;
-    }
-
     // Alias.
-    const auto& mem  = map->_mem;
+    const auto& mem  = map._mem;
 
     // Write the x-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
-        vfs_write_float(file, vertex.pos[kX]);
+        vfs_write_float(&file, vertex.pos[kX]);
     }
 
     // Write the y-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
-        vfs_write_float(file, vertex.pos[kY]);
+        vfs_write_float(&file, vertex.pos[kY]);
     }
 
     // Write the y-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
         // Cartman scales the z-axis based off of a 4 bit fixed precision number.
-        vfs_write_float(file, vertex.pos[kZ] * 16.0f);
+        vfs_write_float(&file, vertex.pos[kZ] * 16.0f);
     }
 
     return true;

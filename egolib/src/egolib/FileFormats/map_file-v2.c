@@ -26,41 +26,29 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-bool map_read_v2(vfs_FILE *file, map_t *map)
+bool map_read_v2(vfs_FILE& file, map_t& map)
 {
-    // Validate arguments.
-    if (!map || !file)
-    {
-        return false;
-    }
-
     // Alias.
-    auto& mem = map->_mem;
+    auto& mem = map._mem;
 
     // Load twist data.
     for (auto& tile : mem.tiles)
     {
-        vfs_read_Uint8(file, &tile.twist);
+        vfs_read_Uint8(&file, &tile.twist);
     }
 
     return true;
 }
 
-bool map_write_v2(vfs_FILE *file, const map_t *map)
+bool map_write_v2(vfs_FILE& file, const map_t& map)
 {
-    // Validate arguments.
-    if (!map || !file)
-    {
-        return false;
-    }
-
     // Alias.
-    const auto& mem = map->_mem;
+    const auto& mem = map._mem;
 
     // Write twist data.
     for (const auto& tile : mem.tiles)
     {
-        vfs_write_Uint8(file, tile.twist);
+        vfs_write_Uint8(&file, tile.twist);
     }
 
     return true;
