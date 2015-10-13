@@ -76,10 +76,10 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
     if (pmesh->_mem.tiles.empty()) return pmesh;
 
     step_x = 1;
-    step_y = pmesh->_info.tileCountY;
-    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.tileCountY; mapy++, tile_y += step_y )
+    step_y = pmesh->_info.getTileCountY();
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.getTileCountY(); mapy++, tile_y += step_y )
     {
-        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.tileCountX; mapx++, tile_x += step_x )
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.getTileCountX(); mapx++, tile_x += step_x )
         {
             int itile_mx, itile_px, itile_my, itile_py;
             float hgt_mx, hgt_px, hgt_my, hgt_py;
@@ -96,7 +96,7 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
                 hgt_mx = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_mx].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
             }
 
-            itile_px = LAMBDA( mapx >= pmesh->_info.tileCountX - 1, -1, itile + step_x );
+            itile_px = LAMBDA( mapx >= pmesh->_info.getTileCountX() - 1, -1, itile + step_x );
             if ( itile_px < 0 )
             {
                 hgt_px = TILE_FSIZE;
@@ -116,7 +116,7 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
                 hgt_my = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_my].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
             }
 
-            itile_py = LAMBDA( mapy >= pmesh->_info.tileCountY - 1, -1, itile + step_y );
+            itile_py = LAMBDA( mapy >= pmesh->_info.getTileCountY() - 1, -1, itile + step_y );
             if ( itile_py < 0 )
             {
                 hgt_py = TILE_FSIZE;
@@ -143,13 +143,13 @@ int map_get_itile( map_t * pmesh, int mapx, int mapy )
     {
         itile = -1;
     }
-    else if ( mapx < 0 || mapx >= pmesh->_info.tileCountX || mapy < 0 || mapy >= pmesh->_info.tileCountY )
+    else if ( mapx < 0 || mapx >= pmesh->_info.getTileCountX() || mapy < 0 || mapy >= pmesh->_info.getTileCountY() )
     {
         itile = -1;
     }
     else
     {
-        itile = mapx + pmesh->_info.tileCountX * mapy;
+        itile = mapx + pmesh->_info.getTileCountX() * mapy;
     }
 
     return itile;
@@ -244,12 +244,12 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
     // set up some loop variables
     step_x = 1;
-    step_y = pmesh->_info.tileCountY;
+    step_y = pmesh->_info.getTileCountY();
 
     // label all transition tiles
-    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.tileCountY; mapy++, tile_y += step_y )
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.getTileCountY(); mapy++, tile_y += step_y )
     {
-        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.tileCountX; mapx++, tile_x += step_x )
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.getTileCountX(); mapx++, tile_x += step_x )
         {
             int wall_count, cnt;
             int dx, dy;
@@ -289,9 +289,9 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
         }
     }
 
-    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.tileCountY; mapy++, tile_y += step_y )
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.getTileCountY(); mapy++, tile_y += step_y )
     {
-        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.tileCountX; mapx++, tile_x += step_x )
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.getTileCountX(); mapx++, tile_x += step_x )
         {
             // the z positions of the tile's edge vertices starting from <mapx,mapy-1> and moving around clockwise
             float zpos[8];

@@ -24,6 +24,7 @@
 #include "cartman/cartman_typedef.h"
 #include "cartman/Tile.hpp"
 #include "egolib/FileFormats/map_tile_dictionary.h"
+#include "egolib/Mesh/Info.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -68,26 +69,108 @@ struct tile_line_data_t
 };
 
 //--------------------------------------------------------------------------------------------
-struct cartman_mpd_info_t
+struct cartman_mpd_info_t : public ego_mesh_info_t
 {
-    int     tiles_x;                  // Size of mesh
-    int     tiles_y;                  //
-    size_t  tiles_count;
-    size_t  vertex_count;
-
+private:
     /**
-     * @{
-     * @brief
-     *  The borders of the mesh.
+	 * @brief
+	 *  The border of the mesh along the x-axis.
      */
-    float edgex, edgey, edgez;
-    /**@}*/
+	float _edgeX;
+	/**
+	 * @brief
+	 *  The border of the mesh along the y-axis.
+	 */
+	float _edgeY;
+	/**
+	 * @brief
+	 *  The border of the mesh along the z-axis.
+	 */
+	float _edgeZ;
+
+public:
+	/**
+	 * @brief
+	 *  Get the border of the mesh along the x-axis.
+	 * @return
+	 *  the border of the mesh along the x-axis
+	 */
+	float getEdgeX() const {
+		return _edgeX;
+	}
+	/**
+	 * @brief
+	 *  Get the border of the mesh along the y-axis
+	 * @return
+	 *  the border of the mesh along the y-axis
+	 */
+	float getEdgeY() const {
+		return _edgeY;
+	}
+	/**
+	 * @brief
+	 *  Get the border of the mesh along the z-axis
+	 * @return
+	 *  the border of the mesh along the z-axis
+	 */
+	float getEdgeZ() const {
+		return _edgeZ;
+	}
 
     /**
      * @brief
-     *  Construct this map information with its default values.
+	 *  Construct this mesh information for a mesh with
+	 *  0
+	 *  tiles along the x- and y-axes.
      */
     cartman_mpd_info_t();
+	/**
+	 * @brief
+	 *  Construct this mesh information for a mesh with
+	 *  the specified number of tiles
+	  * along the x- and y-axes.
+	 */
+	cartman_mpd_info_t(size_t tileCountX, size_t tileCountY);
+	/**
+	 * @brief
+	 *  Construct this mesh information for a mesh with
+	 *  the specified number of tiles
+	 *  along the x- and y-axes and
+	 *  the specified number of vetices.
+	 */
+	cartman_mpd_info_t(size_t vertexCount, size_t tileCountX, size_t tilCountY);
+	/**
+	 * @brief
+	 *  Construct this mesh information for a mesh with
+	 *  the specified number of tiles
+	 *  along the x- and y-axes and
+	 *  the specified edges.
+	 */
+	cartman_mpd_info_t(size_t tileCountX, size_t tileCountY, float edgeX, float edgeY, float edgeZ);
+	/**
+	 * @brief
+	 *  Construct this mesh information for a mesh with
+	 *  the specified number of tiles
+	 *  along the x- and y-axes,
+	 *  the specified number of vertices and
+	 *  the specified edges.
+	 */
+	cartman_mpd_info_t(size_t vertexCount, size_t tileCountX, size_t tileCountY, float edgeX, float edgeY, float edgeZ);
+	/**
+	 * @brief
+	 * Copy - construct this mesh information.
+     * @param other
+	 *  the construction source
+	 */
+	cartman_mpd_info_t(const cartman_mpd_info_t& other);
+
+	/**
+	 * @brief
+	 *  Assign this mesh information from another mesh information.
+	 * @param other
+	 *  the assignment source
+	 */
+	cartman_mpd_info_t& operator=(const cartman_mpd_info_t& other);
 
     /**
      * @brief
@@ -99,9 +182,17 @@ struct cartman_mpd_info_t
      * @brief
      *  Reset this map information to its default values.
      */
-    void reset();    
+	virtual void reset() override;    
 
-	static void init(cartman_mpd_info_t& self, int vert_count, size_t tiles_x, size_t tiles_y);
+	/**
+	 * @brief
+	 *  Set the vertex count.
+	 * @param vertexCount
+	 *  the vertex count
+	 */
+	void setVertexCount(size_t vertexCount) {
+		_vertexCount = vertexCount;
+	}
 
 };
 

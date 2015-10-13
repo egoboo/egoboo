@@ -133,8 +133,8 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 		return gfx_fail;
 	}
 
-	int ix = index.getI() % _mesh->_info._tiles_x;
-	int iy = index.getI() / _mesh->_info._tiles_y;
+	int ix = index.getI() % _mesh->_info.getTileCountX();
+	int iy = index.getI() / _mesh->_info.getTileCountY();
 	float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter()[kX];
 	float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;

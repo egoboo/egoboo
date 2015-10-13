@@ -38,8 +38,8 @@ static bool _ogl_initialized = false;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-const SDL_Color cart_white = { 0xFF, 0xFF, 0xFF, 0xFF };
-const SDL_Color cart_black = { 0x00, 0x00, 0x00, 0xFF };
+const Ego::Math::Colour4f WHITE = Ego::Math::Colour4f::white();
+const Ego::Math::Colour4f BLACK = Ego::Math::Colour4f::black();
 
 std::shared_ptr<Ego::Font> gfx_font_ptr = NULL;
 
@@ -152,7 +152,7 @@ oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( mapx < 0 || mapx >= pmesh->info.tiles_x || mapy < 0 || mapy >= pmesh->info.tiles_y )
+    if ( mapx < 0 || mapx >= pmesh->info.getTileCountX() || mapy < 0 || mapy >= pmesh->info.getTileCountY() )
     {
         return NULL;
     }
@@ -263,14 +263,14 @@ void make_hitemap( cartman_mpd_t * pmesh )
 
     if ( bmphitemap ) SDL_FreeSurface( bmphitemap );
 
-    bmphitemap = SDL_GL_createSurface( pmesh->info.tiles_x << 2, pmesh->info.tiles_y << 2 );
+    bmphitemap = SDL_GL_createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
     if ( NULL == bmphitemap ) return;
 
-    for (int pixy = 0, y = 16; pixy < ( pmesh->info.tiles_y << 2 ); pixy++, y += 32 )
+    for (int pixy = 0, y = 16; pixy < ( pmesh->info.getTileCountY() << 2 ); pixy++, y += 32 )
     {
-        for (int pixx = 0, x = 16; pixx < ( pmesh->info.tiles_x << 2 ); pixx++, x += 32 )
+        for (int pixx = 0, x = 16; pixx < ( pmesh->info.getTileCountX() << 2 ); pixx++, x += 32 )
         {
-            int level = ( pmesh->get_level(x, y) * 255 ) / pmesh->info.edgez;  // level is 0 to 255
+            int level = ( pmesh->get_level(x, y) * 255 ) / pmesh->info.getEdgeZ();  // level is 0 to 255
             if ( level > 252 ) level = 252;
 
             cartman_mpd_tile_t *pfan = pmesh->get_pfan(pixx >> 2, pixy >> 2);
@@ -297,16 +297,16 @@ void make_planmap( cartman_mpd_t * pmesh )
     if ( NULL == pmesh ) pmesh = &mesh;
 
     if ( NULL == bmphitemap ) SDL_FreeSurface( bmphitemap );
-    bmphitemap = SDL_GL_createSurface( pmesh->info.tiles_x * TINYXY, pmesh->info.tiles_y * TINYXY );
+    bmphitemap = SDL_GL_createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
     if ( NULL == bmphitemap ) return;
 
     SDL_FillRect( bmphitemap, NULL, MAKE_BGR( bmphitemap, 0, 0, 0 ) );
 
     puty = 0;
-    for ( y = 0; y < pmesh->info.tiles_y; y++ )
+    for ( y = 0; y < pmesh->info.getTileCountY(); y++ )
     {
         putx = 0;
-        for ( x = 0; x < pmesh->info.tiles_x; x++ )
+        for ( x = 0; x < pmesh->info.getTileCountX(); x++ )
         {
             oglx_texture_t * tx_tile;
             tx_tile = tiny_tile_at( pmesh, x, y );
@@ -329,7 +329,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt )
+void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window
@@ -344,25 +344,18 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
     cart_vec_t vright = { -1, 0, 0};
     cart_vec_t vpos;
 
-    // aliases
-    cartman_mpd_t  * pmesh  = NULL;
-    tile_definition_t    * pdef   = NULL;
-    const cartman_mpd_tile_t   * pfan   = NULL;
-    tile_line_data_t     * plines = NULL;
+	select_lst_t::synch_mesh(plst, &mesh);
 
-    plst = select_lst_synch_mesh( plst, &mesh );
-    if ( NULL == plst ) return;
+	cartman_mpd_t *pmesh = select_lst_t::get_mesh(plst);
+    if (!pmesh) return;
 
-    if ( NULL == plst->pmesh ) return;
-    pmesh = plst->pmesh;
+	const cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if (!pfan) return;
 
-    pfan = CART_MPD_FAN_PTR( pmesh, fan );
-    if ( NULL == pfan ) return;
+	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if (!pdef) return;
 
-    pdef   = TILE_DICT_PTR( tile_dict, pfan->type );
-    if ( NULL == pdef ) return;
-
-    plines = tile_dict_lines + pfan->type;
+	tile_line_data_t *plines = tile_dict_lines + pfan->type;
 
     if ( 0 == pdef->numvertices || pdef->numvertices > MAP_FAN_VERTICES_MAX ) return;
 
@@ -406,7 +399,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
 
         vert = faketoreal[cnt];
 
-        size = MAXPOINTSIZE * pmesh->vrt2[vert].z / (float)pmesh->info.edgez;
+        size = MAXPOINTSIZE * pmesh->vrt2[vert].z / (float)pmesh->info.getEdgeZ();
         if ( size < 0.0f ) size = 0.0f;
         if ( size > MAXPOINTSIZE ) size = MAXPOINTSIZE;
 
@@ -417,7 +410,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
             int select_rv;
             oglx_texture_t * tx_tmp;
 
-            select_rv = select_lst_find( plst, vert );
+            select_rv = select_lst_t::find(plst, vert);
             if ( select_rv < 0 )
             {
                 tx_tmp = tx_point;
@@ -437,7 +430,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt )
+void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window ( Side view )
@@ -453,25 +446,18 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
     float size;
     float point_size;
 
-    // aliases
-    cartman_mpd_t        * pmesh  = NULL;
-    tile_definition_t    * pdef   = NULL;
-    cartman_mpd_tile_t   * pfan   = NULL;
-    tile_line_data_t     * plines = NULL;
+	select_lst_t::synch_mesh(plst, &mesh);
 
-    plst = select_lst_synch_mesh( plst, &mesh );
-    if ( NULL == plst ) return;
+	cartman_mpd_t *pmesh = select_lst_t::get_mesh(plst);
+    if (!pmesh) return;
 
-    if ( NULL == plst->pmesh ) return;
-    pmesh = plst->pmesh;
+	cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if (!pfan) return;
 
-    pfan = CART_MPD_FAN_PTR( pmesh, fan );
-    if ( NULL == pfan ) return;
+	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if (!pdef) return;
 
-    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
-    if ( NULL == pdef ) return;
-
-    plines = tile_dict_lines + pfan->type;
+	tile_line_data_t *plines = tile_dict_lines + pfan->type;
 
     OGL_MAKE_COLOR_4( color, 32, 16, 16, 31 );
     if ( pfan->type >= tile_dict.offset )
@@ -518,7 +504,7 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
 
         vert = faketoreal[cnt];
 
-        select_rv = select_lst_find( plst, vert );
+        select_rv = select_lst_t::find( plst, vert );
         if ( select_rv < 0 )
         {
             tx_tmp = tx_point;

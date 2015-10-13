@@ -24,167 +24,130 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static select_lst_t _selection =  SELECT_LST_INIT;
+/// The default selection list.
+static select_lst_t g_selection;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_default()
+/// Get the default selection list.
+select_lst_t& select_lst_default()
 {
-    return &_selection;
+    return g_selection;
 }
 
 //--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_init( select_lst_t * plst, cartman_mpd_t * pmpd )
+void select_lst_t::init(select_lst_t& self, cartman_mpd_t *pmesh)
 {
-    // get proper list
-    if ( NULL == plst ) plst = &_selection;
-
     // get proper mesh
-    if ( NULL == pmpd ) pmpd = &mesh;
+    if (!pmesh) pmesh = &mesh;
 
     // clear the list
-    select_lst_clear( plst );
+    select_lst_t::clear(self);
 
     // attach the correct mesh
-    plst->pmesh = pmpd;
-
-    return plst;
+    self._pmesh = pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_clear( select_lst_t * plst )
+void select_lst_t::clear(select_lst_t& self)
 {
-    // ZZ> This function unselects all vertices
-
-    // get proper list
-    if ( NULL == plst ) plst = &_selection;
-
-    plst->count    = 0;
-    plst->which[0] = CHAINEND;
-
-    return plst;
+    self._count = 0;
+    self._which[0] = CHAINEND;
 }
 
-//--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_add( select_lst_t * plst, int vert )
+bool select_lst_t::add(select_lst_t& self, int vertex)
 {
-    // ZZ> This function highlights a vertex
+	if (!CART_VALID_VERTEX_RANGE(vertex)) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex index out of bounds");
+	}
 
-    int find_rv;
+    // Is the vertex index in the list?
+    int index = select_lst_t::find(self, vertex);
+	if (-1 != index)
+	{
+		// The vertex is already in the list. => Do nothing and return false.
+		return false;
+	}
+	else
+	{
+		// The vertex index is not in the list. => Append it and return true.
+        self._which[self._count] = vertex;
+        self._count++;
 
-    // get proper list
-    if ( NULL == plst ) plst = &_selection;
-
-    // do not add out of range vertices
-    if ( !CART_VALID_VERTEX_RANGE( vert ) ) return plst;
-
-    // is it in the list?
-    find_rv = select_lst_find( plst, vert );
-    if ( find_rv < 0 )
-    {
-        // not found, so add it to the end
-        plst->which[plst->count] = vert;
-        plst->count++;
-
-        if ( plst->count < MAP_VERTICES_MAX )
+        if (self._count < MAP_VERTICES_MAX)
         {
-            plst->which[plst->count] = CHAINEND;
+			self._which[self._count] = CHAINEND;
         }
+		return true;
     }
-
-    return plst;
 }
 
-//--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_remove( select_lst_t * plst, int vert )
+bool select_lst_t::remove(select_lst_t& self, int vertex)
 {
-    // ZZ> This function makes sure the vertex is not highlighted
-    int cnt, find_rv;
-
-    // get proper list
-    if ( NULL == plst ) plst = &_selection;
-
-    find_rv = select_lst_find( plst, vert );
-    if ( find_rv >= 0 )
-    {
-        // the vertex was found
-
-        // shorten the gap
-        if ( plst->count > 1 )
+    int index = select_lst_t::find(self, vertex);
+	if (-1 == index)
+	{
+		// The vertex is not in the list. => Do nothing and return false.
+		return false;
+	}
+	else
+	{
+        // The vertex is in the list. => Remove it and return true.
+        if (self._count > 1 )
         {
-            for ( cnt = find_rv; cnt < plst->count - 1; cnt++ )
+            for (int i = index; i < self._count - 1; ++i)
             {
-                plst->which[cnt] = plst->which[cnt-1];
+				self._which[i] = self._which[i-1];
             }
         }
 
         // blank out the last vertex
-        plst->which[plst->count] = CHAINEND;
+		self._which[self._count] = CHAINEND;
 
         // shorten the chain
-        plst->count--;
+        self._count--;
+		return true;
     }
-
-    return plst;
 }
 
-//--------------------------------------------------------------------------------------------
-int select_lst_find( const select_lst_t * plst, int vert )
+int select_lst_t::find(const select_lst_t& self, int vertex)
 {
-    // ZZ> This function returns true if the vertex has been highlighted by user
+	if (!CART_VALID_VERTEX_RANGE(vertex)) {
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex index out of bounds");
+	}
 
-    int cnt, rv;
-
-    // get proper list
-    if ( NULL == plst ) plst = &_selection;
-
-    // a valid range?
-    if ( !CART_VALID_VERTEX_RANGE( vert ) ) return -1;
-
-    rv = -1;
-    for ( cnt = 0; cnt < plst->count; cnt++ )
+    for (int i = 0; i < self._count; ++i)
     {
-        if ( vert == plst->which[cnt] )
+        if (vertex == self._which[i])
         {
-            rv = cnt;
+            return i;
         }
     }
 
-    return rv;
+    return -1;
+}
+
+int select_lst_t::count(const select_lst_t& self)
+{
+    return self._count;
 }
 
 //--------------------------------------------------------------------------------------------
-int select_lst_count( const select_lst_t * plst )
+void select_lst_t::synch_mesh(select_lst_t& self, cartman_mpd_t *pmesh)
 {
-    // get proper list
-    if ( NULL == plst ) plst = &_selection;
-
-    return plst->count;
+    if ( NULL == self._pmesh ) self._pmesh = pmesh;
+    if ( NULL == self._pmesh ) self._pmesh = &mesh;
 }
 
-//--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_synch_mesh( select_lst_t * plst, cartman_mpd_t * pmesh )
+void select_lst_t::set_mesh( select_lst_t& self, cartman_mpd_t *pmesh )
 {
-    if ( NULL == plst ) plst = &_selection;
-    if ( NULL == plst ) return plst;
+    if (!pmesh) pmesh = &mesh;
 
-    if ( NULL == plst->pmesh ) plst->pmesh = pmesh;
-    if ( NULL == plst->pmesh ) plst->pmesh = &mesh;
-
-    return plst;
-
-}
-
-//--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_set_mesh( select_lst_t * plst, cartman_mpd_t * pmesh )
-{
-    if ( NULL == plst ) plst = &_selection;
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    if ( plst->pmesh != pmesh )
+    if (self._pmesh != pmesh)
     {
-        select_lst_init( plst, pmesh );
+        select_lst_t::init(self, pmesh);
     }
+}
 
-    return plst;
+cartman_mpd_t *select_lst_t::get_mesh(select_lst_t& self) {
+	return self._pmesh;
 }

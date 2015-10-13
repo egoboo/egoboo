@@ -142,10 +142,8 @@ void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue,
 }
 
 //--------------------------------------------------------------------------------------------
-void show_name( const char *newloadname, SDL_Color fnt_color )
-{
-    Ego::Math::Colour4f colour(fnt_color.r / 255.0f, fnt_color.g / 255.0f, fnt_color.b / 255.0f, 1.0f);
-    gfx_font_ptr->drawText(newloadname, 0, sdl_scr.y - 16, colour);
+void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour) {
+	gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.y - 16, textColour);
 }
 
 //--------------------------------------------------------------------------------------------

@@ -23,6 +23,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/lighting.h"
+#include "egolib/Mesh/Info.hpp"
 
 //--------------------------------------------------------------------------------------------
 // external types
@@ -585,44 +586,6 @@ struct mpdfx_lists_t
     bool synch(const grid_mem_t& other, bool force);
 };
 
-
-
-//--------------------------------------------------------------------------------------------
-
-/// The generic parameters describing an ego_mesh
-struct ego_mesh_info_t
-{
-    size_t _vertcount;    ///< For malloc
-
-    /**
-     * @brief
-     *  The size, in tiles, along the x-axis.
-     * @todo
-     *  Rename to @a sizeX. The type should be @a size_t.
-     */
-    int _tiles_x;
-    /**
-     * @brief
-     *  The size, in tiles, along the y-axis.
-     * @todo
-     *  Rename to @a sizeY. The type should be @a size_t.
-     */
-    int _tiles_y;
-    /**
-     * @brief
-     *  The number of tiles in the mesh.
-     * @invariant
-     *  <tt>size = sizeX * sizeY</tt>
-     * @todo
-     *  Rename to @a size. The type should be @a size_t.
-     */
-    uint32_t _tiles_count;
-
-	ego_mesh_info_t();
-	~ego_mesh_info_t();
-    void reset(int numvert, size_t tiles_x, size_t tiles_y);
-};
-
 //--------------------------------------------------------------------------------------------
 
 // struct for caching fome values for wall collisions
@@ -641,8 +604,13 @@ struct mesh_wall_data_t
 class ego_mesh_t
 {
 public:
-    ego_mesh_t();
-    ego_mesh_t(int tiles_x, int tiles_y);
+	/**
+	 * @brief
+	 *  Construct a mesh of the specified mesh info.
+	 * @param mesh_info
+	 *  the mesh info
+	 */
+    ego_mesh_t(const ego_mesh_info_t& mesh_info = ego_mesh_info_t());
 
     ~ego_mesh_t();
 

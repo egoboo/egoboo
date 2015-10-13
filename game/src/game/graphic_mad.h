@@ -23,21 +23,12 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/graphic.h"
-#if 0
-#include "egolib/Graphics/Camera.hpp"
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 struct chr_instance_t;
 class Camera;
-#if 0
-struct GLvertex;
-struct vlst_cache_t;
-struct matrix_cache_t;
-struct chr_reflection_cache_t;
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

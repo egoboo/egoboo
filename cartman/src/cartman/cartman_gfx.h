@@ -124,8 +124,8 @@ extern Uint8  damagetiletype;                      // Type of damage
 extern int GFX_WIDTH;
 extern int GFX_HEIGHT;
 
-extern const SDL_Color cart_white;
-extern const SDL_Color cart_black;
+extern const Ego::Math::Colour4f WHITE;
+extern const Ego::Math::Colour4f BLACK;
 
 extern std::shared_ptr<Ego::Font> gfx_font_ptr;
 
@@ -140,8 +140,8 @@ void make_hitemap( cartman_mpd_t * pmesh );
 void make_planmap( cartman_mpd_t * pmesh );
 
 // tile rendering routines
-void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt );
-void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt );
+void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt );
+void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, int y);
 void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
 void draw_tile_fx( float x, float y, Uint8 fx, float scale );
