@@ -3,7 +3,10 @@
 #---------------------
 # the source files
 CARTMAN_SRC := ${wildcard src/cartman/*.c}
+CARTMAN_SRC += ${wildcard src/cartman/*/*.c}
 CARTMAN_SRC_CPP := ../unix/main.cpp
+CARTMAN_SRC_CPP += ${wildcard src/cartman/*.cpp}
+CARTMAN_SRC_CPP += ${wildcard src/cartman/*/*.cpp}
 CARTMAN_OBJ := ${CARTMAN_SRC:.c=.o} ${CARTMAN_SRC_CPP:.cpp=.o}
 
 #---------------------
