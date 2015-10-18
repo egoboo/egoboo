@@ -67,20 +67,20 @@ bool map_write_v3(vfs_FILE& file, const map_t& map)
     // Write the x-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
-        vfs_write_float(&file, vertex.pos[kX]);
+        vfs_write<float>(file, vertex.pos[kX]);
     }
 
     // Write the y-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
-        vfs_write_float(&file, vertex.pos[kY]);
+        vfs_write<float>(file, vertex.pos[kY]);
     }
 
     // Write the y-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
         // Cartman scales the z-axis based off of a 4 bit fixed precision number.
-        vfs_write_float(&file, vertex.pos[kZ] * 16.0f);
+        vfs_write<float>(file, vertex.pos[kZ] * 16.0f);
     }
 
     return true;

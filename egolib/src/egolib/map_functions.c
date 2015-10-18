@@ -89,41 +89,41 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
             itile_mx = LAMBDA( mapx <= 0, -1, itile - step_x );
             if ( itile_mx < 0 )
             {
-                hgt_mx = TILE_FSIZE;
+                hgt_mx = Info<float>::Grid::Size();
             }
             else
             {
-                hgt_mx = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_mx].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
+                hgt_mx = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_mx].fx, MAPFX_WALL | MAPFX_IMPASS ), Info<float>::Grid::Size(), 0.0f );
             }
 
             itile_px = LAMBDA( mapx >= pmesh->_info.getTileCountX() - 1, -1, itile + step_x );
             if ( itile_px < 0 )
             {
-                hgt_px = TILE_FSIZE;
+                hgt_px = Info<float>::Grid::Size();
             }
             else
             {
-                hgt_px = LAMBDA( HAS_SOME_BITS(pmesh->_mem.tiles[itile_px].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
+                hgt_px = LAMBDA( HAS_SOME_BITS(pmesh->_mem.tiles[itile_px].fx, MAPFX_WALL | MAPFX_IMPASS ), Info<float>::Grid::Size(), 0.0f );
             }
 
             itile_my = LAMBDA( mapy <= 0, -1, itile - step_y );
             if ( itile_my < 0 )
             {
-                hgt_my = TILE_FSIZE;
+                hgt_my = Info<float>::Grid::Size();
             }
             else
             {
-                hgt_my = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_my].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
+                hgt_my = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_my].fx, MAPFX_WALL | MAPFX_IMPASS ), Info<float>::Grid::Size(), 0.0f );
             }
 
             itile_py = LAMBDA( mapy >= pmesh->_info.getTileCountY() - 1, -1, itile + step_y );
             if ( itile_py < 0 )
             {
-                hgt_py = TILE_FSIZE;
+                hgt_py = Info<float>::Grid::Size();
             }
             else
             {
-                hgt_py = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_py].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
+                hgt_py = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_py].fx, MAPFX_WALL | MAPFX_IMPASS ), Info<float>::Grid::Size(), 0.0f );
             }
 
             // calculate the twist of this tile
@@ -333,7 +333,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
                 else if ( ROCK == ary[jtile] )
                 {
-                    zpos[7] = zpos[0] = zpos[1] = TILE_FSIZE;
+                    zpos[7] = zpos[0] = zpos[1] = Info<float>::Grid::Size();
                 }
             }
 
@@ -346,7 +346,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
                 else if ( ROCK == ary[jtile] )
                 {
-                    zpos[1] = zpos[2] = zpos[3] = TILE_FSIZE;
+                    zpos[1] = zpos[2] = zpos[3] = Info<float>::Grid::Size();
                 }
             }
 
@@ -359,7 +359,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
                 else if ( ROCK == ary[jtile] )
                 {
-                    zpos[3] = zpos[4] = zpos[5] = TILE_FSIZE;
+                    zpos[3] = zpos[4] = zpos[5] = Info<float>::Grid::Size();
                 }
             }
 
@@ -372,7 +372,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
                 else if ( ROCK == ary[jtile] )
                 {
-                    zpos[5] = zpos[6] = zpos[7] = TILE_FSIZE;
+                    zpos[5] = zpos[6] = zpos[7] = Info<float>::Grid::Size();
                 }
             }
 
@@ -387,7 +387,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                     }
                     else if ( ROCK == ary[jtile] )
                     {
-                        zpos[1] = TILE_FSIZE;
+                        zpos[1] = Info<float>::Grid::Size();
                     }
                 }
             }
@@ -403,7 +403,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                     }
                     else if ( ROCK == ary[jtile] )
                     {
-                        zpos[3] = TILE_FSIZE;
+                        zpos[3] = Info<float>::Grid::Size();
                     }
                 }
             }
@@ -419,7 +419,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                     }
                     else if ( ROCK == ary[jtile] )
                     {
-                        zpos[5] = TILE_FSIZE;
+                        zpos[5] = Info<float>::Grid::Size();
                     }
                 }
             }
@@ -435,17 +435,17 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                     }
                     else if ( ROCK == ary[jtile] )
                     {
-                        zpos[7] = TILE_FSIZE;
+                        zpos[7] = Info<float>::Grid::Size();
                     }
                 }
             }
 
             // if any corners are still undefined, make them the
             // height of this tile
-            if ( zpos[1] < 0.0f ) zpos[1] = TILE_FSIZE;
-            if ( zpos[3] < 0.0f ) zpos[3] = TILE_FSIZE;
-            if ( zpos[5] < 0.0f ) zpos[5] = TILE_FSIZE;
-            if ( zpos[7] < 0.0f ) zpos[7] = TILE_FSIZE;
+            if ( zpos[1] < 0.0f ) zpos[1] = Info<float>::Grid::Size();
+            if ( zpos[3] < 0.0f ) zpos[3] = Info<float>::Grid::Size();
+            if ( zpos[5] < 0.0f ) zpos[5] = Info<float>::Grid::Size();
+            if ( zpos[7] < 0.0f ) zpos[7] = Info<float>::Grid::Size();
 
             // estimate the center positions
             if ( zpos[0] < 0.0f ) zpos[0] = 0.5f * ( zpos[7] + zpos[1] );
@@ -518,11 +518,11 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
     //                if ( itile < 0 )
     //                {
-    //                    tile_hgt[cnt] = TILE_FSIZE;
+    //                    tile_hgt[cnt] = Info<float>::Grid::Size();
     //                }
     //                else
     //                {
-    //                    tile_hgt[cnt] = LAMBDA( HAS_SOME_BITS( tlst[itile].fx, WALL_BITS ), TILE_FSIZE, 0.0f );
+    //                    tile_hgt[cnt] = LAMBDA( HAS_SOME_BITS( tlst[itile].fx, WALL_BITS ), Info<float>::Grid::Size(), 0.0f );
     //                }
 
     //                if ( tile_hgt[cnt] > 0.0f ) wall_count++;
@@ -538,35 +538,35 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        }
 
     //        // set the north edge
-    //        vrt_hgt[1] = vrt_hgt[2] = LAMBDA( tile_hgt[1] > 0.0f, TILE_FSIZE, 0.0f );
+    //        vrt_hgt[1] = vrt_hgt[2] = LAMBDA( tile_hgt[1] > 0.0f, Info<float>::Grid::Size(), 0.0f );
 
     //        // set the west edge
-    //        vrt_hgt[4] = vrt_hgt[8] = LAMBDA( tile_hgt[3] > 0.0f, TILE_FSIZE, 0.0f );
+    //        vrt_hgt[4] = vrt_hgt[8] = LAMBDA( tile_hgt[3] > 0.0f, Info<float>::Grid::Size(), 0.0f );
 
     //        // set the west edge
-    //        vrt_hgt[7] = vrt_hgt[11] = LAMBDA( tile_hgt[5] > 0.0f, TILE_FSIZE, 0.0f );
+    //        vrt_hgt[7] = vrt_hgt[11] = LAMBDA( tile_hgt[5] > 0.0f, Info<float>::Grid::Size(), 0.0f );
 
     //        // set the south edge
-    //        vrt_hgt[13] = vrt_hgt[14] = LAMBDA( tile_hgt[7] > 0.0f, TILE_FSIZE, 0.0f );
+    //        vrt_hgt[13] = vrt_hgt[14] = LAMBDA( tile_hgt[7] > 0.0f, Info<float>::Grid::Size(), 0.0f );
 
     //        // set the northwest corner
     //        {
     //            float hsum = 0.0f, hwgt = 0.0f;
     //            if ( tile_hgt[0] > 0.0f )
     //            {
-    //                hsum += TILE_FSIZE;
+    //                hsum += Info<float>::Grid::Size();
     //                hwgt += 1.0f;
     //            }
     //            else
     //            {
     //                if ( tile_hgt[1] > 0.0f )
     //                {
-    //                    hsum += TILE_FSIZE;
+    //                    hsum += Info<float>::Grid::Size();
     //                    hwgt += 1.0f;
     //                }
     //                if ( tile_hgt[3] > 0.0f )
     //                {
-    //                    hsum += TILE_FSIZE;
+    //                    hsum += Info<float>::Grid::Size();
     //                    hwgt += 1.0f;
     //                }
     //            }
@@ -579,19 +579,19 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //            float hsum = 0.0f, hwgt = 0.0f;
     //            if ( tile_hgt[2] > 0.0f )
     //            {
-    //                hsum += TILE_FSIZE;
+    //                hsum += Info<float>::Grid::Size();
     //                hwgt += 1.0f;
     //            }
     //            else
     //            {
     //                if ( tile_hgt[1] > 0.0f )
     //                {
-    //                    hsum += TILE_FSIZE;
+    //                    hsum += Info<float>::Grid::Size();
     //                    hwgt += 1.0f;
     //                }
     //                if ( tile_hgt[5] > 0.0f )
     //                {
-    //                    hsum += TILE_FSIZE;
+    //                    hsum += Info<float>::Grid::Size();
     //                    hwgt += 1.0f;
     //                }
     //            }
@@ -604,19 +604,19 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //            float hsum = 0.0f, hwgt = 0.0f;
     //            if ( tile_hgt[6] > 0.0f )
     //            {
-    //                hsum += TILE_FSIZE;
+    //                hsum += Info<float>::Grid::Size();
     //                hwgt += 1.0f;
     //            }
     //            else
     //            {
     //                if ( tile_hgt[3] > 0.0f )
     //                {
-    //                    hsum += TILE_FSIZE;
+    //                    hsum += Info<float>::Grid::Size();
     //                    hwgt += 1.0f;
     //                }
     //                if ( tile_hgt[7] > 0.0f )
     //                {
-    //                    hsum += TILE_FSIZE;
+    //                    hsum += Info<float>::Grid::Size();
     //                    hwgt += 1.0f;
     //                }
     //            }
@@ -629,19 +629,19 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //            float hsum = 0.0f, hwgt = 0.0f;
     //            if ( tile_hgt[0] > 0.0f )
     //            {
-    //                hsum += TILE_FSIZE;
+    //                hsum += Info<float>::Grid::Size();
     //                hwgt += 1.0f;
     //            }
     //            else
     //            {
     //                if ( tile_hgt[5] > 0.0f )
     //                {
-    //                    hsum += TILE_FSIZE;
+    //                    hsum += Info<float>::Grid::Size();
     //                    hwgt += 1.0f;
     //                }
     //                if ( tile_hgt[7] > 0.0f )
     //                {
-    //                    hsum += TILE_FSIZE;
+    //                    hsum += Info<float>::Grid::Size();
     //                    hwgt += 1.0f;
     //                }
     //            }
@@ -655,7 +655,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        {
     //            west_flat = true;
     //        }
-    //        else if ( std::max(vrt_hgt[12],vrt_hgt[0]) - std::min(vrt_hgt[12],vrt_hgt[0]) >= 0.99f * TILE_FSIZE  )
+    //        else if ( std::max(vrt_hgt[12],vrt_hgt[0]) - std::min(vrt_hgt[12],vrt_hgt[0]) >= 0.99f * Info<float>::Grid::Size()  )
     //        {
     //            west_flat = true;
     //        }
@@ -666,7 +666,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        {
     //            north_flat = true;
     //        }
-    //        else if ( std::max(vrt_hgt[0],vrt_hgt[3]) - std::min(vrt_hgt[0],vrt_hgt[3]) >= 0.99f * TILE_FSIZE )
+    //        else if ( std::max(vrt_hgt[0],vrt_hgt[3]) - std::min(vrt_hgt[0],vrt_hgt[3]) >= 0.99f * Info<float>::Grid::Size() )
     //        {
     //            north_flat = true;
     //        }
@@ -677,7 +677,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        {
     //            east_flat = true;
     //        }
-    //        else if ( std::max(vrt_hgt[3],vrt_hgt[15]) - std::min(vrt_hgt[3],vrt_hgt[15]) >= 0.99f * TILE_FSIZE )
+    //        else if ( std::max(vrt_hgt[3],vrt_hgt[15]) - std::min(vrt_hgt[3],vrt_hgt[15]) >= 0.99f * Info<float>::Grid::Size() )
     //        {
     //            east_flat = true;
     //        }
@@ -688,7 +688,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        {
     //            south_flat = true;
     //        }
-    //        else if ( std::max(vrt_hgt[15],vrt_hgt[12]) - std::min(vrt_hgt[15],vrt_hgt[12]) >= 0.99f * TILE_FSIZE )
+    //        else if ( std::max(vrt_hgt[15],vrt_hgt[12]) - std::min(vrt_hgt[15],vrt_hgt[12]) >= 0.99f * Info<float>::Grid::Size() )
     //        {
     //            south_flat = true;
     //        }

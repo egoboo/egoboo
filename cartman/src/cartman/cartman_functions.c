@@ -1227,7 +1227,7 @@ void MeshEditor::clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser,
                 if ( loc_type == 32 || loc_type == 33 ) loc_type = 32 + Random::next(1);
                 pfan->type = loc_type;
 
-                pmesh->add_pfan(pfan, mapx * TILE_ISIZE, mapy * TILE_ISIZE);
+                pmesh->add_pfan(pfan, mapx * Info<int>::Grid::Size(), mapy * Info<int>::Grid::Size());
             }
         }
     }
@@ -1829,7 +1829,7 @@ void MeshEditor::mesh_replace_tile(cartman_mpd_t * pmesh, int _xfan, int _yfan, 
     if ( !tx_only )
     {
         pfan->type = _type;
-        pmesh->add_ifan(_onfan, _xfan * TILE_ISIZE, _yfan * TILE_ISIZE);
+        pmesh->add_ifan(_onfan, _xfan * Info<int>::Grid::Size(), _yfan * Info<int>::Grid::Size());
         pfan->fx = _fx;
 
         if ( 0 /*!at_floor_level*/ )

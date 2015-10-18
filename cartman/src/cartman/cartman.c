@@ -320,11 +320,11 @@ void make_onscreen( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    int mapxstt = std::floor(( cam.x - cam.w  * 0.5f ) / TILE_FSIZE ) - 1.0f;
-    int mapystt = std::floor(( cam.y - cam.h  * 0.5f ) / TILE_FSIZE ) - 1.0f;
+    int mapxstt = std::floor(( cam.x - cam.w  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
+    int mapystt = std::floor(( cam.y - cam.h  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
 
-    int mapxend = std::ceil(( cam.x + cam.w  * 0.5f ) / TILE_FSIZE ) + 1.0f;
-    int mapyend = std::ceil(( cam.y + cam.h  * 0.5f ) / TILE_FSIZE ) + 1.0f;
+    int mapxend = std::ceil(( cam.x + cam.w  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
+    int mapyend = std::ceil(( cam.y + cam.h  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
 
     onscreen_count = 0;
     for (int mapy = mapystt; mapy <= mapyend; mapy++ )
@@ -431,21 +431,21 @@ void Views::render_tile_window(std::shared_ptr<Cartman_Window> pwin, float zoom_
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
         {
-            int mapxstt = std::floor(( cam.x - cam.w  * 0.5f ) / TILE_FSIZE ) - 1.0f;
-            int mapystt = std::floor(( cam.y - cam.h  * 0.5f ) / TILE_FSIZE ) - 1.0f;
+            int mapxstt = std::floor(( cam.x - cam.w  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
+            int mapystt = std::floor(( cam.y - cam.h  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
 
-            int mapxend = std::ceil(( cam.x + cam.w  * 0.5f ) / TILE_FSIZE ) + 1.0f;
-            int mapyend = std::ceil(( cam.y + cam.h  * 0.5f ) / TILE_FSIZE ) + 1.0f;
+            int mapxend = std::ceil(( cam.x + cam.w  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
+            int mapyend = std::ceil(( cam.y + cam.h  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
 
             for (int mapy = mapystt; mapy <= mapyend; mapy++ )
             {
                 if ( mapy < 0 || mapy >= pwin->pmesh->info.getTileCountY() ) continue;
-                int y = mapy * TILE_ISIZE;
+                int y = mapy * Info<int>::Grid::Size();
 
                 for (int mapx = mapxstt; mapx <= mapxend; mapx++ )
                 {
                     if ( mapx < 0 || mapx >= pwin->pmesh->info.getTileCountX() ) continue;
-                    int x = mapx * TILE_ISIZE;
+                    int x = mapx * Info<int>::Grid::Size();
 
                     int fan = pwin->pmesh->get_ifan(mapx, mapy);
 
@@ -493,21 +493,21 @@ void Views::render_fx_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hr
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
         {
-            int mapxstt = std::floor(( cam.x - cam.w  * 0.5f ) / TILE_FSIZE ) - 1.0f;
-            int mapystt = std::floor(( cam.y - cam.h  * 0.5f ) / TILE_FSIZE ) - 1.0f;
+            int mapxstt = std::floor(( cam.x - cam.w  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
+            int mapystt = std::floor(( cam.y - cam.h  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
 
-            int mapxend = std::ceil(( cam.x + cam.w  * 0.5f ) / TILE_FSIZE ) + 1.0f;
-            int mapyend = std::ceil(( cam.y + cam.h  * 0.5f ) / TILE_FSIZE ) + 1.0f;
+            int mapxend = std::ceil(( cam.x + cam.w  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
+            int mapyend = std::ceil(( cam.y + cam.h  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
 
             for (int mapy = mapystt; mapy <= mapyend; mapy++ )
             {
                 if ( mapy < 0 || mapy >= pwin->pmesh->info.getTileCountY() ) continue;
-                int y = mapy * TILE_ISIZE;
+                int y = mapy * Info<int>::Grid::Size();
 
                 for (int mapx = mapxstt; mapx <= mapxend; mapx++ )
                 {
                     if ( mapx < 0 || mapx >= pwin->pmesh->info.getTileCountX() ) continue;
-                    int x = mapx * TILE_ISIZE;
+                    int x = mapx * Info<int>::Grid::Size();
 
                     int fan = pwin->pmesh->get_ifan(mapx, mapy);
 
@@ -519,7 +519,7 @@ void Views::render_fx_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hr
 
                     if ( NULL != tx_tile )
                     {
-                        ogl_draw_sprite_2d( tx_tile, x, y, TILE_ISIZE, TILE_ISIZE );
+                        ogl_draw_sprite_2d( tx_tile, x, y, Info<int>::Grid::Size(), Info<int>::Grid::Size());
 
                         // water is whole tile
                         draw_tile_fx( x, y, pwin->pmesh->fan2[fan].fx, 4.0f * zoom_fx );
@@ -551,11 +551,11 @@ void Views::render_vertex_window(std::shared_ptr<Cartman_Window> pwin, float zoo
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
         {
-            int mapxstt = std::floor(( cam.x - cam.w * 0.5f ) / TILE_FSIZE ) - 1.0f;
-            int mapystt = std::floor(( cam.y - cam.h * 0.5f ) / TILE_FSIZE ) - 1.0f;
+            int mapxstt = std::floor(( cam.x - cam.w * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
+            int mapystt = std::floor(( cam.y - cam.h * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
 
-            int mapxend = std::ceil(( cam.x + cam.w * 0.5f ) / TILE_FSIZE ) + 1;
-            int mapyend = std::ceil(( cam.y + cam.h * 0.5f ) / TILE_FSIZE ) + 1;
+            int mapxend = std::ceil(( cam.x + cam.w * 0.5f ) / Info<float>::Grid::Size()) + 1;
+            int mapyend = std::ceil(( cam.y + cam.h * 0.5f ) / Info<float>::Grid::Size()) + 1;
 
             for (int mapy = mapystt; mapy <= mapyend; mapy++ )
             {
@@ -616,11 +616,11 @@ void Views::render_side_window(std::shared_ptr<Cartman_Window> pwin, float zoom_
 
         cartman_begin_ortho_camera_vrt( pwin, &cam, zoom_hrz, zoom_vrt * 2.0f );
         {
-            int mapxstt = std::floor(( cam.x - cam.w * 0.5f ) / TILE_FSIZE ) - 1.0f;
-            int mapystt = std::floor(( cam.y - cam.h * 0.5f ) / TILE_FSIZE ) - 1.0f;
+            int mapxstt = std::floor(( cam.x - cam.w * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
+            int mapystt = std::floor(( cam.y - cam.h * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
 
-            int mapxend = std::ceil(( cam.x + cam.w * 0.5f ) / TILE_FSIZE ) + 1;
-            int mapyend = std::ceil(( cam.y + cam.h * 0.5f ) / TILE_FSIZE ) + 1;
+            int mapxend = std::ceil(( cam.x + cam.w * 0.5f ) / Info<float>::Grid::Size()) + 1;
+            int mapyend = std::ceil(( cam.y + cam.h * 0.5f ) / Info<float>::Grid::Size()) + 1;
 
             for (int mapy = mapystt; mapy <= mapyend; mapy++ )
             {
@@ -959,7 +959,7 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_h
         mdata.win_mesh   = pwin->pmesh;
         mdata.win_mpos_x = mpos_x;
         mdata.win_mpos_y = mpos_z;
-        mdata.win_fan_x  = std::floor( mpix_x / TILE_FSIZE );
+        mdata.win_fan_x  = std::floor( mpix_x / Info<float>::Grid::Size());
         mdata.win_fan_y  = -1;
 
         select_lst_t::set_mesh( mdata.win_select, pwin->pmesh );
@@ -1122,8 +1122,8 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman_Window> pwin, float zoom_h
         mdata.win_mesh     = pwin->pmesh;
         mdata.win_mpos_x      = mpos_x;
         mdata.win_mpos_y      = mpos_y;
-        mdata.win_fan_x = std::floor( mpos_x / TILE_FSIZE );
-        mdata.win_fan_y = std::floor( mpos_y / TILE_FSIZE );
+        mdata.win_fan_x = std::floor( mpos_x / Info<float>::Grid::Size());
+        mdata.win_fan_y = std::floor( mpos_y / Info<float>::Grid::Size());
 
         select_lst_t::set_mesh( mdata.win_select, pwin->pmesh );
 
@@ -1235,8 +1235,8 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz
         mdata.win_mesh   = pwin->pmesh;
         mdata.win_mpos_x = mpos_x;
         mdata.win_mpos_y = mpos_y;
-        mdata.win_fan_x  = std::floor( mpos_x / TILE_FSIZE );
-        mdata.win_fan_y  = std::floor( mpos_y / TILE_FSIZE );
+        mdata.win_fan_x  = std::floor( mpos_x / Info<float>::Grid::Size());
+        mdata.win_fan_y  = std::floor( mpos_y / Info<float>::Grid::Size());
 
         select_lst_t::set_mesh( mdata.win_select, pwin->pmesh );
 
@@ -1337,8 +1337,8 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom
         mdata.win_mesh   = pwin->pmesh;
         mdata.win_mpos_x = mpos_x;
         mdata.win_mpos_y = mpos_y;
-        mdata.win_fan_x  = std::floor( mpos_x / TILE_FSIZE );
-        mdata.win_fan_y  = std::floor( mpos_y / TILE_FSIZE );
+        mdata.win_fan_x  = std::floor( mpos_x / Info<float>::Grid::Size());
+        mdata.win_fan_y  = std::floor( mpos_y / Info<float>::Grid::Size());
 
         select_lst_t::set_mesh( mdata.win_select, pwin->pmesh );
 
@@ -1405,7 +1405,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom
         if ( CART_KEYDOWN( SDLK_f ) )
         {
             //    weld_corner_verts(mdata.win_mpos_x>>7, mdata.win_mpos_y>>7);
-            fix_vertices( pwin->pmesh,  std::floor( mdata.win_mpos_x / TILE_FSIZE ), std::floor( mdata.win_mpos_y / TILE_FSIZE ) );
+            fix_vertices( pwin->pmesh,  std::floor( mdata.win_mpos_x / Info<float>::Grid::Size()), std::floor( mdata.win_mpos_y / Info<float>::Grid::Size()) );
         }
 
         if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == select_lst_t::count(mdata.win_select)))
@@ -2056,10 +2056,10 @@ void cartman_create_mesh( cartman_mpd_t * pmesh )
     int fan = 0;
     for (int mapy = 0; mapy < pmesh->info.getTileCountY(); mapy++ )
     {
-        int y = mapy * TILE_ISIZE;
+        int y = mapy * Info<int>::Grid::Size();
         for (int mapx = 0; mapx < pmesh->info.getTileCountX(); mapx++ )
         {
-            int x = mapx * TILE_ISIZE;
+            int x = mapx * Info<int>::Grid::Size();
             if (!pmesh->add_ifan(fan, x, y))
             {
                 printf( "NOT ENOUGH VERTICES!!!\n\n" );

@@ -1420,298 +1420,283 @@ int vfs_read_float( vfs_FILE * pfile, float * val )
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_write_Sint8( vfs_FILE * pfile, const Sint8 val )
+
+
+template <>
+int vfs_write<Sint8>( vfs_FILE& file, const Sint8& val )
 {
     int retval;
     bool error = false;
     
     BAIL_IF_NOT_INIT();
-    
-    if ( NULL == pfile ) return 0;
-    
+   
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        retval = fwrite( &val, 1, sizeof( Sint8 ), pfile->ptr.c );
+        retval = fwrite( &val, 1, sizeof( Sint8 ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_write(pfile->ptr.p, &val, 1, sizeof(Sint8));
+        retval = PHYSFS_write(file.ptr.p, &val, 1, sizeof(Sint8));
         
         error = ( 1 != retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_write_Uint8( vfs_FILE * pfile, const Uint8 val )
+template <>
+int vfs_write<Uint8>( vfs_FILE& file, const Uint8& val )
 {
     int retval;
     bool error = false;
     
     BAIL_IF_NOT_INIT();
-    
-    if ( NULL == pfile ) return 0;
-    
+
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
-        retval = fwrite( &val, 1, sizeof( Uint8 ), pfile->ptr.c );
+        retval = fwrite( &val, 1, sizeof( Uint8 ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_write(pfile->ptr.p, &val, 1, sizeof(Sint8));
+        retval = PHYSFS_write(file.ptr.p, &val, 1, sizeof(Sint8));
         
         error = ( 1 != retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_write_Sint16( vfs_FILE * pfile, const Sint16 val )
+template <>
+int vfs_write<Sint16>( vfs_FILE& file, const Sint16& val )
 {
     int retval;
     bool error = false;
     
     BAIL_IF_NOT_INIT();
     
-    if ( NULL == pfile ) return 0;
-    
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
         Sint16 itmp = ENDIAN_TO_FILE_INT16(val);
-        retval = fwrite( &itmp, 1, sizeof( Sint16 ), pfile->ptr.c );
+        retval = fwrite( &itmp, 1, sizeof( Sint16 ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_writeSLE16( pfile->ptr.p, val );
+        retval = PHYSFS_writeSLE16( file.ptr.p, val );
         
         error = ( 0 == retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_write_Uint16( vfs_FILE * pfile, const Uint16 val )
+template <>
+int vfs_write<Uint16>( vfs_FILE& file, const Uint16& val )
 {
     int retval;
     bool error = false;
     
     BAIL_IF_NOT_INIT();
-    
-    if ( NULL == pfile ) return 0;
-    
+   
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
         Uint16 itmp = ENDIAN_TO_FILE_INT16(val);
-        retval = fwrite( &itmp, 1, sizeof( Uint16 ), pfile->ptr.c );
+        retval = fwrite( &itmp, 1, sizeof( Uint16 ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_writeULE16( pfile->ptr.p, val );
+        retval = PHYSFS_writeULE16( file.ptr.p, val );
         
         error = ( 0 == retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_write_Sint32( vfs_FILE * pfile, const Sint32 val )
+template <>
+int vfs_write<Sint32>( vfs_FILE& file, const Sint32& val )
 {
     int retval;
     bool error = false;
     
     BAIL_IF_NOT_INIT();
     
-    if ( NULL == pfile ) return 0;
-    
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
         Sint32 itmp = ENDIAN_TO_FILE_INT32(val);
-        retval = fwrite( &itmp, 1, sizeof( Sint32 ), pfile->ptr.c );
+        retval = fwrite( &itmp, 1, sizeof( Sint32 ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_writeSLE32( pfile->ptr.p, val );
+        retval = PHYSFS_writeSLE32( file.ptr.p, val );
         
         error = ( 0 == retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_write_Uint32( vfs_FILE * pfile, const Uint32 val )
+template <>
+int vfs_write<Uint32>( vfs_FILE& file, const Uint32& val )
 {
     int retval;
     bool error = false;
     
     BAIL_IF_NOT_INIT();
     
-    if ( NULL == pfile ) return 0;
-    
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
         Uint32 itmp = ENDIAN_TO_FILE_INT32(val);
-        retval = fwrite( &itmp, 1, sizeof( Uint32 ), pfile->ptr.c );
+        retval = fwrite( &itmp, 1, sizeof( Uint32 ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_writeULE32( pfile->ptr.p, val );
+        retval = PHYSFS_writeULE32( file.ptr.p, val );
         
         error = ( 0 == retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_write_Sint64( vfs_FILE * pfile, const Sint64 val )
+template <>
+int vfs_write<Sint64>( vfs_FILE& file, const Sint64& val )
 {
     int retval;
     bool error = false;
     
     BAIL_IF_NOT_INIT();
-    
-    if ( NULL == pfile ) return 0;
-    
+   
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
         Sint64 itmp = ENDIAN_TO_FILE_INT64(val);
-        retval = fwrite( &itmp, 1, sizeof( Sint64 ), pfile->ptr.c );
+        retval = fwrite( &itmp, 1, sizeof( Sint64 ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_writeSLE64( pfile->ptr.p, val );
+        retval = PHYSFS_writeSLE64( file.ptr.p, val );
         
         error = ( 0 == retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_write_Uint64( vfs_FILE * pfile, const Uint64 val )
+template <>
+int vfs_write<Uint64>( vfs_FILE& file, const Uint64& val )
 {
     int retval;
     bool error = false;
     
-    BAIL_IF_NOT_INIT();
-    
-    if ( NULL == pfile ) return 0;
+    BAIL_IF_NOT_INIT();  
     
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
         Uint64 itmp = ENDIAN_TO_FILE_INT64(val);
-        retval = fwrite( &itmp, 1, sizeof( Uint64 ), pfile->ptr.c );
+        retval = fwrite( &itmp, 1, sizeof( Uint64 ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
-        retval = PHYSFS_writeULE64( pfile->ptr.p, val );
+        retval = PHYSFS_writeULE64( file.ptr.p, val );
         
         error = ( 0 == retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_write_float( vfs_FILE * pfile, const float val )
+template <>
+int vfs_write<float>( vfs_FILE& file, const float& val )
 {
     int retval;
     bool error = false;
     
     BAIL_IF_NOT_INIT();
     
-    if ( NULL == pfile ) return 0;
-    
     retval = 0;
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    if ( VFS_FILE_TYPE_CSTDIO == file.type )
     {
         float ftmp = ENDIAN_TO_FILE_IEEE32(val);
-        retval = fread( &ftmp, 1, sizeof( float ), pfile->ptr.c );
+        retval = fread( &ftmp, 1, sizeof( float ), file.ptr.c );
         
         error = ( 1 != retval );
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    else if ( VFS_FILE_TYPE_PHYSFS == file.type )
     {
         union { float f; Uint32 i; } convert;
         convert.f = val;
-        retval = PHYSFS_writeULE32( pfile->ptr.p, convert.i );
+        retval = PHYSFS_writeULE32( file.ptr.p, convert.i );
         
         error = ( 0 == retval );
         
-        if (error) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        else       pfile->flags &= ~VFS_FILE_FLAG_ERROR;
+        if (error) file.flags |= VFS_FILE_FLAG_ERROR;
+        else       file.flags &= ~VFS_FILE_FLAG_ERROR;
     }
     
-    if ( error ) _vfs_translate_error( pfile );
+    if ( error ) _vfs_translate_error( &file );
     
     return retval;
 }

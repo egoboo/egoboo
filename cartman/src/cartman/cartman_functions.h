@@ -38,7 +38,7 @@ struct select_lst_t;
 // For autoweld
 #define NEAR_TOLERANCE 1.0f
 #define NEAR_LOW       (0.0f + NEAR_TOLERANCE)
-#define NEAR_HGH       (TILE_FSIZE - NEAR_TOLERANCE)
+#define NEAR_HGH       (Info<float>::Grid::Size() - NEAR_TOLERANCE)
 
 #define BARRIERHEIGHT 14.0f      //
 

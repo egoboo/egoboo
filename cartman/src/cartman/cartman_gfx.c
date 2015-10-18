@@ -627,22 +627,22 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
         ivrt = pmesh->vrt2[ivrt].next;
 
         // Top Right
-        loc_vrt[1].x = x0 + TILE_FSIZE;
+        loc_vrt[1].x = x0 + Info<float>::Grid::Size();
         loc_vrt[1].y = y0;
         loc_vrt[1].z = 0;
         loc_vrt[1].l = pmesh->vrt2[ivrt].a / 255.0f;
         ivrt = pmesh->vrt2[ivrt].next;
 
         // Bottom Right
-        loc_vrt[2].x = x0 + TILE_FSIZE;
-        loc_vrt[2].y = y0 + TILE_FSIZE;
+        loc_vrt[2].x = x0 + Info<float>::Grid::Size();
+        loc_vrt[2].y = y0 + Info<float>::Grid::Size();
         loc_vrt[2].z = 0;
         loc_vrt[2].l = pmesh->vrt2[ivrt].a / 255.0f;
         ivrt = pmesh->vrt2[ivrt].next;
 
         // Bottom Left
         loc_vrt[3].x = x0;
-        loc_vrt[3].y = y0 + TILE_FSIZE;
+        loc_vrt[3].y = y0 + Info<float>::Grid::Size();
         loc_vrt[3].z = 0;
         loc_vrt[3].l = pmesh->vrt2[ivrt].a / 255.0f;
     }
@@ -681,8 +681,8 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
 //--------------------------------------------------------------------------------------------
 void draw_tile_fx( float x, float y, Uint8 fx, float scale )
 {
-    const int ioff_0 = TILE_ISIZE >> 3;
-    const int ioff_1 = TILE_ISIZE >> 4;
+    const int ioff_0 = Info<int>::Grid::Size() >> 3;
+    const int ioff_1 = Info<int>::Grid::Size() >> 4;
 
     const float foff_0 = ioff_0 * scale;
     const float foff_1 = ioff_1 * scale;
@@ -1032,8 +1032,8 @@ void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera
     float aspect;
     float left, right, bottom, top, front, back;
 
-    w = ( float )DEFAULT_RESOLUTION * TILE_FSIZE * (( float )pwin->surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
-    h = ( float )DEFAULT_RESOLUTION * TILE_FSIZE * (( float )pwin->surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
+    w = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin->surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
+    h = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin->surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
     d = DEFAULT_Z_SIZE;
 
     pcam->w = w;
@@ -1082,9 +1082,9 @@ void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera
     float aspect;
     float left, right, bottom, top, back, front;
 
-    w = pwin->surfacex * ( float )DEFAULT_RESOLUTION * TILE_FSIZE / ( float )DEFAULT_WINDOW_W / zoom_x;
+    w = pwin->surfacex * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_W / zoom_x;
     h = w;
-    d = pwin->surfacey * ( float )DEFAULT_RESOLUTION * TILE_FSIZE / ( float )DEFAULT_WINDOW_H / zoom_z;
+    d = pwin->surfacey * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_H / zoom_z;
 
     pcam->w = w;
     pcam->h = h;

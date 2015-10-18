@@ -91,13 +91,13 @@ void map_info_t::load(vfs_FILE& file)
 void map_info_t::save(vfs_FILE& file) const
 {
     // Write the vertex count.
-    vfs_write_Uint32(&file, _vertexCount);
+    vfs_write<Uint32>(file, _vertexCount);
 
     // Write the tile count in the x direction.
-    vfs_write_Uint32(&file, _tileCountX);
+    vfs_write<Uint32>(file, _tileCountX);
 
     // Write the tile count in the y direction.
-    vfs_write_Uint32(&file, _tileCountY);
+    vfs_write<Uint32>(file, _tileCountY);
 }
 
 bool map_info_t::validate() const
@@ -311,7 +311,7 @@ bool map_t::save(vfs_FILE& file) const
 {
     int mapVersion = CURRENT_MAP_VERSION_NUMBER;
     // write the file identifier
-    vfs_write_Uint32(&file, SDL_Swap32(CURRENT_MAP_ID));
+    vfs_write<Uint32>(file, SDL_Swap32(CURRENT_MAP_ID));
 
     // write the map info
     _info.save(file);

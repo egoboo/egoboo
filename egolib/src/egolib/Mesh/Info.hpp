@@ -2,11 +2,13 @@
 
 #include "egolib/platform.h"
 
+namespace Ego {
+
 /**
  * @brief
  *  Generic run-time description of a mesh.
  */
-struct ego_mesh_info_t {
+struct MeshInfo {
 protected:
 	/**
 	 * @brief
@@ -39,7 +41,7 @@ public:
 	 * @brief
 	 *  Construct this mesh information for a mesh with 0 tiles along the x- and the y-axes.
 	 */
-	ego_mesh_info_t();
+	MeshInfo();
 
 	/**
 	 * @brief
@@ -47,7 +49,7 @@ public:
 	 * @param other
 	 *  the construction source
 	 */
-	ego_mesh_info_t(const ego_mesh_info_t& other);
+	MeshInfo(const MeshInfo& other);
 
 	/**
 	 * @brief
@@ -59,7 +61,7 @@ public:
 	 * @remark
 	 *  The number of vertices is set to the maximum for the given number of tiles.
 	 */
-	ego_mesh_info_t(size_t tileCountX, size_t tileCountY);
+	MeshInfo(size_t tileCountX, size_t tileCountY);
 
 	/**
 	 * @brief
@@ -71,7 +73,7 @@ public:
 	 * @param tileCountY
 	 *  the number of tiles along the y-axis
 	 */
-	ego_mesh_info_t(size_t vertexCount, size_t tileCountX, size_t tileCountY);
+	MeshInfo(size_t vertexCount, size_t tileCountX, size_t tileCountY);
 
 	/**
 	 * @brief
@@ -79,21 +81,19 @@ public:
 	 * @param other
 	 *  the assignment source
 	 */
-	ego_mesh_info_t& operator=(const ego_mesh_info_t& other);
+	MeshInfo& operator=(const MeshInfo& other);
 
 	/**
 	 * @brief
 	 *  Destruct this mesh information.
 	 */
-	virtual ~ego_mesh_info_t();
+	virtual ~MeshInfo();
 
 	/**
 	 * @brief
 	 *  Get the size, in tiles, of the mesh along the x-axis.
 	 * @return
 	 *  the size, in tiles, of the mesh along the x-axis
-	 * @todo
-	 *  Rename to @a getTileCountX.
 	 */
 	size_t getTileCountX() const {
 		return _tileCountX;
@@ -104,8 +104,6 @@ public:
 	 *  Get the size, in tiles, of the mesh along the y-axis.
 	 * @return
 	 *  the size, in tiles, of the mesh along the y-axis
-	 * @todo
-	 *  Rename to @a getTileCountY.
 	 */
 	size_t getTileCountY() const {
 		return _tileCountY;
@@ -135,3 +133,5 @@ public:
 	virtual void reset(size_t tileCountX, size_t tileCountY);
 
 };
+
+} // namespace Ego

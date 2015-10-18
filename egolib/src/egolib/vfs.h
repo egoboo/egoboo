@@ -240,15 +240,28 @@ int vfs_read_Uint64(vfs_FILE *file, Uint64 *val);
 int vfs_read_float(vfs_FILE *file, float *val);
 
 size_t vfs_write(const void *buffer, size_t size, size_t count, vfs_FILE *file);
-int vfs_write_Sint8(vfs_FILE *file, const Sint8 val);
-int vfs_write_Uint8(vfs_FILE *file, const Uint8 val);
-int vfs_write_Sint16(vfs_FILE *file, const Sint16 val);
-int vfs_write_Uint16(vfs_FILE *file, const Uint16 val);
-int vfs_write_Sint32(vfs_FILE *file, const Sint32 val);
-int vfs_write_Uint32(vfs_FILE *file, const Uint32 val);
-int vfs_write_Sint64(vfs_FILE *file, const Sint64 val);
-int vfs_write_Uint64(vfs_FILE *file, const Uint64 val);
-int vfs_write_float(vfs_FILE *file, const float val);
+
+template <typename Type>
+int vfs_write(vfs_FILE& file, const Type& value);
+
+template <>
+int vfs_write<Sint8>(vfs_FILE& file, const Sint8& val);
+template <>
+int vfs_write<Uint8>(vfs_FILE& file, const Uint8& val);
+template <>
+int vfs_write<Sint16>(vfs_FILE& file, const Sint16& val);
+template <>
+int vfs_write<Uint16>(vfs_FILE& file, const Uint16& val);
+template <>
+int vfs_write<Sint32>(vfs_FILE& file, const Sint32& val);
+template <>
+int vfs_write<Uint32>(vfs_FILE& file, const Uint32& val);
+template <>
+int vfs_write<Sint64>(vfs_FILE& file, const Sint64& val);
+template <>
+int vfs_write<Uint64>(vfs_FILE& file, const Uint64& val);
+template <>
+int vfs_write<float>(vfs_FILE& file, const float& val);
 
 /// the file searching routines
 char **vfs_enumerateFiles(const char *directory);

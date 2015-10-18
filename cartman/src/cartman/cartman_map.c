@@ -100,31 +100,35 @@ cartman_mpd_t *cartman_mpd_t::reset()
 //--------------------------------------------------------------------------------------------
 
 cartman_mpd_info_t::cartman_mpd_info_t()
-	: ego_mesh_info_t(),
+	: Ego::MeshInfo(),
 	  _edgeX(0), _edgeY(0), _edgeZ(0)
 {}
 
 cartman_mpd_info_t::cartman_mpd_info_t(size_t tileCountX, size_t tileCountY)
-	: cartman_mpd_info_t(tileCountX, tileCountY, tileCountX * TILE_ISIZE, tileCountY * TILE_ISIZE, DEFAULT_Z_SIZE)
+	: cartman_mpd_info_t(tileCountX, tileCountY, 
+		                 tileCountX * Info<int>::Grid::Size(), tileCountY * Info<int>::Grid::Size(),
+		                 DEFAULT_Z_SIZE)
 {}
 
 cartman_mpd_info_t::cartman_mpd_info_t(size_t vertexCount, size_t tileCountX, size_t tileCountY)
-	: cartman_mpd_info_t(vertexCount, tileCountX, tileCountY, tileCountX * TILE_ISIZE, tileCountY * TILE_ISIZE, DEFAULT_Z_SIZE)
+	: cartman_mpd_info_t(vertexCount, tileCountX,
+		                 tileCountY, tileCountX * Info<int>::Grid::Size(), tileCountY * Info<int>::Grid::Size(),
+		                 DEFAULT_Z_SIZE)
 {}
 
 cartman_mpd_info_t::cartman_mpd_info_t(size_t tileCountX, size_t tileCountY, float edgeX, float edgeY, float edgeZ)
-	: ego_mesh_info_t(tileCountX, tileCountY),
+	: Ego::MeshInfo(tileCountX, tileCountY),
 	  _edgeX(edgeX), _edgeY(edgeY), _edgeZ(edgeZ)
 {}
 
 cartman_mpd_info_t::cartman_mpd_info_t(size_t vertexCount, size_t tileCountX, size_t tileCountY, float edgeX, float edgeY, float edgeZ)
-	: ego_mesh_info_t(vertexCount, tileCountX, tileCountY),
+	: Ego::MeshInfo(vertexCount, tileCountX, tileCountY),
 	  _edgeX(edgeX), _edgeY(edgeY), _edgeZ(edgeZ)
 {}
 
 
 cartman_mpd_info_t::cartman_mpd_info_t(const cartman_mpd_info_t& other)
-	: ego_mesh_info_t(other),
+	: Ego::MeshInfo(other),
 	  _edgeX(other._edgeX), _edgeY(other._edgeY), _edgeZ(other._edgeZ)
 {}
 
@@ -133,12 +137,12 @@ cartman_mpd_info_t::~cartman_mpd_info_t()
 
 void cartman_mpd_info_t::reset()
 {
-	this->ego_mesh_info_t::reset();
+	this->Ego::MeshInfo::reset();
     _edgeX = _edgeY = _edgeZ = 0;
 }
 
 cartman_mpd_info_t& cartman_mpd_info_t::operator=(const cartman_mpd_info_t& other) {
-	ego_mesh_info_t::operator=(other);
+	Ego::MeshInfo::operator=(other);
 	_edgeX = other._edgeX;
 	_edgeY = other._edgeY;
 	_edgeZ = other._edgeZ;
@@ -442,9 +446,9 @@ float cartman_mpd_t::get_level(int mapx, int mapy)
         z3 = 0;
     }
 
-    zleft = (z0 * (TILE_ISIZE - mapy) + z3 * mapy) / TILE_FSIZE;
-    zright = (z1 * (TILE_ISIZE - mapy) + z2 * mapy) / TILE_FSIZE;
-    zdone = (zleft * (TILE_ISIZE - mapx) + zright * mapx) / TILE_FSIZE;
+    zleft = (z0 * (Info<int>::Grid::Size() - mapy) + z3 * mapy) / Info<float>::Grid::Size();
+    zright = (z1 * (Info<int>::Grid::Size() - mapy) + z2 * mapy) / Info<float>::Grid::Size();
+    zdone = (zleft * (Info<int>::Grid::Size() - mapx) + zright * mapx) / Info<float>::Grid::Size();
 
     return zdone;
 }

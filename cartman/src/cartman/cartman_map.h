@@ -33,7 +33,7 @@
 #define SMALLXY 32              // Small tiles
 #define BIGXY   (2 * SMALLXY)   // Big tiles
 
-#define FOURNUM   ( TILE_FSIZE / (float)SMALLXY )          // Magic number
+#define FOURNUM   ( Info<float>::Grid::Size() / (float)SMALLXY )          // Magic number
 
 #define DEFAULT_TILE 62
 
@@ -43,15 +43,10 @@
 // handle the upper and lower bits for the tile image
 
 #define TILE_SET_BITS(HI,LO)            (TILE_SET_UPPER_BITS(HI) | TILE_GET_LOWER_BITS(LO))
-
 #define TILE_HAS_INVALID_IMAGE(XX)      HAS_SOME_BITS( TILE_UPPER_MASK, (XX).img )
-
 #define DEFAULT_Z_SIZE ( 180 << 4 )
-
 #define CART_VALID_VERTEX_RANGE(IVRT) ( (CHAINEND != (IVRT)) && VALID_MPD_VERTEX_RANGE(IVRT) )
-
-
-#define GRID_TO_POS( GRID ) ( (float)(GRID) / 3.0f * TILE_FSIZE )
+#define GRID_TO_POS( GRID ) ( (float)(GRID) / 3.0f * Info<float>::Grid::Size() )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,7 +64,7 @@ struct tile_line_data_t
 };
 
 //--------------------------------------------------------------------------------------------
-struct cartman_mpd_info_t : public ego_mesh_info_t
+struct cartman_mpd_info_t : public Ego::MeshInfo
 {
 private:
     /**
@@ -455,8 +450,8 @@ protected:
  */
 inline void worldToMap(float worldx, float worldy, int& mapx, int& mapy)
 {
-    mapx = std::floor(worldx / TILE_FSIZE);
-    mapy = std::floor(worldy / TILE_FSIZE);
+    mapx = std::floor(worldx / Info<float>::Grid::Size());
+    mapy = std::floor(worldy / Info<float>::Grid::Size());
 }
 
 /**
@@ -475,8 +470,8 @@ inline void worldToMap(float worldx, float worldy, int& mapx, int& mapy)
  */
 inline void mapToWorld(int mapx, int mapy, float& worldx, float& worldy, float tx,float ty)
 {
-    worldx = mapx * TILE_FSIZE + tx * TILE_FSIZE;
-    worldy = mapy * TILE_FSIZE + ty * TILE_FSIZE;
+    worldx = mapx * Info<float>::Grid::Size() + tx * Info<float>::Grid::Size();
+    worldy = mapy * Info<float>::Grid::Size() + ty * Info<float>::Grid::Size();
 }
 
 

@@ -27,6 +27,75 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+// The size of a grid is an positive integral power of two.
+// The grid info structure provides two static methods both
+// returning a value of type @a Type: The method Size returns
+// the grid size and the method Exponent returns the exponent
+// to which 2 is raised to in order to compute the grid size.
+template <typename Type>
+struct Info;
+
+template <>
+struct Info<int> {
+	struct Grid {
+		/// @return the number bits by which 1 is shifted to the left in order to compute the grid size
+		static constexpr int Bits() {
+			return 7;
+		}
+		/// @return the exponent = bits
+		static constexpr int Exponent() {
+			return 7;
+		}
+		/// @return the grid size
+		static constexpr int Size() {
+			return 1 << Info<int>::Grid::Bits();
+		}
+		/// @return the mask for bitwise modulus
+		static constexpr int Mask() {
+			return Info<int>::Grid::Size() - 1;
+		}
+	};
+	struct Block {
+		/// @return the number bits by which 1 is shifted to the left in order to compute the block size
+		static constexpr int Bits() {
+			return 9;
+		}
+		/// @return the exponent = bits
+		static constexpr int Exponent() {
+			return 9;
+		}
+		/// @return the block size
+		static constexpr int Size() {
+			return 1 << Info<int>::Block::Exponent();
+		}
+		/// @return the mask for bitwise modulis
+		static constexpr int Mask() {
+			return Info<int>::Block::Size() - 1;
+		}
+	};
+};
+
+template <>
+struct Info<float> {
+	struct Grid {
+		static float Exponent() {
+			return (float)Info<int>::Grid::Exponent();
+		}
+		static float Size() {
+			return (float)Info<int>::Grid::Size();
+		}
+	};
+	struct Block {
+		static float Exponent() {
+			return (float)Info<int>::Block::Exponent();
+		}
+		static float Size() {
+			return (float)Info<int>::Block::Size();
+		}
+	};
+};
+
+
 #define CURRENT_MAP_VERSION_LETTER 'D'
 
 // mesh constants
@@ -41,15 +110,8 @@ constexpr uint32_t MAP_TILE_MAX = MAP_TILE_MAX_X * MAP_TILE_MAX_Y;
 /// The maximum number of vertices.
 constexpr uint32_t MAP_VERTICES_MAX = MAP_TILE_MAX*MAP_FAN_VERTICES_MAX;
 
-#   define TILE_BITS   7
-#   define TILE_ISIZE (1<<TILE_BITS)
-#   define TILE_MASK  (TILE_ISIZE - 1)
-#   define TILE_FSIZE ((float)TILE_ISIZE)
-
 // tile constants
 #   define MAP_TILE_TYPE_MAX         256                     ///< Max number of tile images
-
-
 
 #include "egolib/FileFormats/map_fx.hpp"
 

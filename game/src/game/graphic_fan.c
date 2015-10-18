@@ -296,7 +296,7 @@ gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 itile, const Uint8
 
     const ego_tile_info_t * ptile = NULL;
 
-	const ego_mesh_info_t& info = mesh._info;
+	const Ego::MeshInfo& info = mesh._info;
 
     ptile = mesh.get_ptile(itile);
     if ( NULL == ptile )

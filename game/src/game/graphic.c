@@ -2033,7 +2033,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not attached to a mesh");
     }
 
-	ego_mesh_info_t& pinfo = mesh->_info;
+	Ego::MeshInfo& pinfo = mesh->_info;
 	grid_mem_t& pgmem = mesh->_gmem;
 	tile_mem_t& ptmem = mesh->_tmem;
 

@@ -38,8 +38,8 @@ struct s_Font;
 #define DEFAULT_WINDOW_H 200
 #define DEFAULT_RESOLUTION 8
 
-#define SCREEN_TO_REAL(VAL,CAM,ZOOM) ( (VAL) * (float)DEFAULT_RESOLUTION * TILE_FSIZE  / (float)DEFAULT_WINDOW_W / (ZOOM) + (CAM) );
-#define REAL_TO_SCREEN(VAL,CAM,ZOOM) ( ( (VAL) - (CAM) ) / (float)DEFAULT_RESOLUTION / TILE_FSIZE * (float)DEFAULT_WINDOW_W * (ZOOM)  );
+#define SCREEN_TO_REAL(VAL,CAM,ZOOM) ( (VAL) * (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size()  / (float)DEFAULT_WINDOW_W / (ZOOM) + (CAM) );
+#define REAL_TO_SCREEN(VAL,CAM,ZOOM) ( ( (VAL) - (CAM) ) / (float)DEFAULT_RESOLUTION / Info<float>::Grid::Size() * (float)DEFAULT_WINDOW_W * (ZOOM)  );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
