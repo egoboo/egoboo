@@ -2033,7 +2033,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "tile list not attached to a mesh");
     }
 
-	ego_mesh_info_t& pinfo = mesh->_info;
+	Ego::MeshInfo& pinfo = mesh->_info;
 	grid_mem_t& pgmem = mesh->_gmem;
 	tile_mem_t& ptmem = mesh->_tmem;
 
@@ -2045,7 +2045,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
         TileIndex fan = tl._all.lst[entry].index;
-        if (fan.getI() >= pinfo._tiles_count) continue;
+        if (fan.getI() >= pinfo.getTileCount()) continue;
 
         poct = &(ptmem.get(fan)->_oct);
 
@@ -2195,8 +2195,8 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         // do not update this more than once a frame
         if (pgrid->_cache_frame >= 0 && (Uint32)pgrid->_cache_frame >= game_frame_all) continue;
 
-        ix = fan.getI() % pinfo._tiles_x;
-        iy = fan.getI() / pinfo._tiles_x;
+        ix = fan.getI() % pinfo.getTileCountX();
+        iy = fan.getI() / pinfo.getTileCountX();
 
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that
@@ -2308,14 +2308,14 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
     }
 
     // get the tiles in the center of the view (TODO: calculate actual tile view from camera frustrum)
-    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / Info<float>::Grid::Size() - 10, 0, _currentModule->getMeshPointer()->_info._tiles_x);
-    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / Info<float>::Grid::Size() - 10, 0, _currentModule->getMeshPointer()->_info._tiles_y);
-    int endX = Ego::Math::constrain<int>(startX + 20, 0, _currentModule->getMeshPointer()->_info._tiles_x);
-    int endY = Ego::Math::constrain<int>(startY + 20, 0, _currentModule->getMeshPointer()->_info._tiles_y);
+    int startX = Ego::Math::constrain<int>(cam.getTrackPosition()[kX] / Info<float>::Grid::Size() - 10, 0, _currentModule->getMeshPointer()->_info.getTileCountX());
+    int startY = Ego::Math::constrain<int>(cam.getTrackPosition()[kY] / Info<float>::Grid::Size() - 10, 0, _currentModule->getMeshPointer()->_info.getTileCountY());
+    int endX = Ego::Math::constrain<int>(startX + 20, 0, _currentModule->getMeshPointer()->_info.getTileCountX());
+    int endY = Ego::Math::constrain<int>(startY + 20, 0, _currentModule->getMeshPointer()->_info.getTileCountY());
 
     for(size_t x = startX; x < endX; ++x) {
         for(size_t y = startY; y < endY; ++y) {
-            if (gfx_error == tl.add(x + y*_currentModule->getMeshPointer()->_info._tiles_y, cam))
+            if (gfx_error == tl.add(x + y*_currentModule->getMeshPointer()->_info.getTileCountY(), cam))
             {
                 return gfx_error;
             }        

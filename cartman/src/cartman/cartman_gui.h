@@ -38,8 +38,8 @@ struct s_Font;
 #define DEFAULT_WINDOW_H 200
 #define DEFAULT_RESOLUTION 8
 
-#define SCREEN_TO_REAL(VAL,CAM,ZOOM) ( (VAL) * (float)DEFAULT_RESOLUTION * TILE_FSIZE  / (float)DEFAULT_WINDOW_W / (ZOOM) + (CAM) );
-#define REAL_TO_SCREEN(VAL,CAM,ZOOM) ( ( (VAL) - (CAM) ) / (float)DEFAULT_RESOLUTION / TILE_FSIZE * (float)DEFAULT_WINDOW_W * (ZOOM)  );
+#define SCREEN_TO_REAL(VAL,CAM,ZOOM) ( (VAL) * (float)DEFAULT_RESOLUTION * Info<float>::Grid::Size()  / (float)DEFAULT_WINDOW_W / (ZOOM) + (CAM) );
+#define REAL_TO_SCREEN(VAL,CAM,ZOOM) ( ( (VAL) - (CAM) ) / (float)DEFAULT_RESOLUTION / Info<float>::Grid::Size() * (float)DEFAULT_WINDOW_W * (ZOOM)  );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -135,6 +135,6 @@ struct Cartman_GUI_Cursor
 
 void do_cursor();
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue );
-void show_name( const char *newloadname, SDL_Color fnt_color );
+void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour);
 void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
 

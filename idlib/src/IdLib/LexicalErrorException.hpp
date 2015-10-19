@@ -71,7 +71,7 @@ public:
     }
     
 	LexicalErrorException& operator=(const LexicalErrorException& other) {
-		LexicalErrorException::operator=(other);
+		AbstractLexicalErrorException::operator=(other);
         _message = other._message;
         return *this;
     }

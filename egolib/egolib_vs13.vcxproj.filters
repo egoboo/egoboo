@@ -106,6 +106,12 @@
     <Filter Include="Source Files\Console">
       <UniqueIdentifier>{d944dd51-555f-439a-857b-a710844af634}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Mesh">
+      <UniqueIdentifier>{7f6e8c34-d49a-42b6-ae5d-174827748ace}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Mesh">
+      <UniqueIdentifier>{54e24a2e-2a67-499d-9159-ec59c3dc1b89}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -425,6 +431,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\Globals.cpp">
       <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Mesh\Info.cpp">
+      <Filter>Source Files\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -919,6 +928,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\map_fx.hpp">
       <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Mesh\Info.hpp">
+      <Filter>Header Files\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -23,6 +23,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/lighting.h"
+#include "egolib/Mesh/Info.hpp"
 
 //--------------------------------------------------------------------------------------------
 // external types
@@ -30,76 +31,6 @@
 
 struct ego_mesh_info_t;
 struct oglx_texture_t;
-
-//--------------------------------------------------------------------------------------------
-
-// The size of a grid is an positive integral power of two.
-// The grid info structure provides two static methods both
-// returning a value of type @a Type: The method Size returns
-// the grid size and the method Exponent returns the exponent
-// to which 2 is raised to in order to compute the grid size.
-template <typename Type>
-struct Info;
-
-template <>
-struct Info<int> {
-	struct Grid {
-		/// @return the number bits by which 1 is shifted to the left in order to compute the grid size
-		static constexpr int Bits() {
-			return 7;
-		}
-		/// @return the exponent = bits
-		static constexpr int Exponent() {
-			return 7;
-		}
-		/// @return the grid size
-		static constexpr int Size() {
-			return 1 << Info<int>::Grid::Exponent();
-		}
-		/// @return the mask for bitwise modulus
-		static constexpr int Mask() {
-			return Info<int>::Grid::Size() - 1;
-		}
-	};
-	struct Block {
-		/// @return the number bits by which 1 is shifted to the left in order to compute the block size
-		static constexpr int Bits() {
-			return 9;
-		}
-		/// @return the exponent = bits
-		static constexpr int Exponent() {
-			return 9;
-		}
-		/// @return the block size
-		static constexpr int Size() {
-			return 1 << Info<int>::Block::Exponent();
-		}
-		/// @return the mask for bitwise modulis
-		static constexpr int Mask() {
-			return Info<int>::Block::Size() - 1;
-		}
-	};
-};
-
-template <>
-struct Info<float> {
-	struct Grid {
-		static float Exponent() {
-			return (float)Info<int>::Grid::Exponent();
-		}
-		static float Size() {
-			return (float)Info<int>::Grid::Size();
-		}
-	};
-	struct Block {
-		static float Exponent() {
-			return (float)Info<int>::Block::Exponent();
-		}
-		static float Size() {
-			return (float)Info<int>::Block::Size();
-		}
-	};
-};
 
 //--------------------------------------------------------------------------------------------
 
@@ -423,13 +354,13 @@ protected:
 public:
 	grid_mem_t();
     ~grid_mem_t();
-    bool alloc(const ego_mesh_info_t& info);
+    bool alloc(const Ego::MeshInfo& info);
     void free();
     /**
      * @brief
      *  This function builds a look up table to ease calculating the fan number given an x,y pair.
      */
-	void make_fanstart(const ego_mesh_info_t& info);
+	void make_fanstart(const Ego::MeshInfo& info);
 
 	ego_grid_info_t *get(const TileIndex& index)
 	{
@@ -468,13 +399,15 @@ public:
 struct tile_mem_t
 {
 private:
-	std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>> _tileList;   ///< tile command info
+	std::vector<std::shared_ptr<ego_tile_info_t>> _tileList;   ///< tile command info
+	size_t _vertexCount;
+	size_t _tileCountX;
+	size_t _tileCountY;
 	size_t _tileCount;
 public:
     AABB3f _bbox;                 ///< bounding box for the entire mesh
 
-    // the per-vertex info to be presented to OpenGL
-    size_t _vert_count;                 ///< number of vertices
+
     GLXvector3f *_plst;                 ///< the position list
     GLXvector2f *_tlst;                 ///< the texture coordinate list
     GLXvector3f *_nlst;                 ///< the normal list
@@ -483,7 +416,7 @@ public:
 	tile_mem_t();
 	~tile_mem_t();
     void free();
-    bool alloc(const ego_mesh_info_t& info);
+    bool alloc(const Ego::MeshInfo& info);
 
     const std::shared_ptr<ego_tile_info_t>& get(const TileIndex& index) const
     {
@@ -497,49 +430,41 @@ public:
 
 	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y)
 	{
-		if (x >= _tileList.size()) return ego_tile_info_t::NULL_TILE;
-		if (y >= _tileList[x].size()) return ego_tile_info_t::NULL_TILE;
-
+		if (y >= _tileCountY) return ego_tile_info_t::NULL_TILE;
+		if (x >= _tileCountX) return ego_tile_info_t::NULL_TILE;
 		//Retrieve the tile and return it
-		return _tileList[x][y];
+		return _tileList[y * _tileCountX + x];
 	}
 
 	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y) const
 	{
-		if (x >= _tileList.size()) return ego_tile_info_t::NULL_TILE;
-		if (y >= _tileList[x].size()) return ego_tile_info_t::NULL_TILE;
+		if (y >= _tileCountY) return ego_tile_info_t::NULL_TILE;
+		if (x >= _tileCountX) return ego_tile_info_t::NULL_TILE;
 
 		//Retrieve the tile and return it
-		return _tileList[x][y];
+		return _tileList[y * _tileCountX + x];
 	}
 
 	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t index)
 	{
-		if (index >= _tileCount) return ego_tile_info_t::NULL_TILE;
-
-		//Extract X and Y positions
-		size_t x = index % _tileList.size();
-		size_t y = index / _tileList[x].size();
-
-		//Retrieve the tile and return it
-		return getTile(x, y);
+		if (index >= _tileCount) {
+			return ego_tile_info_t::NULL_TILE;
+		}
+		return _tileList[index];
 	}
 
     const std::shared_ptr<ego_tile_info_t>& getTile(const size_t index) const
     {
         if(index >= _tileCount) return ego_tile_info_t::NULL_TILE;
-
-        //Extract X and Y positions
-        size_t x = index % _tileList.size();
-        size_t y = index / _tileList[x].size();
-
-        //Retrieve the tile and return it
-        return getTile(x, y);
+		return _tileList[index];
     }
 
-    size_t getTileCount() const {return _tileCount;}
+	size_t getTileCountX() const { return _tileCountX; }
+	size_t getTileCountY() const { return _tileCountY; }
+    size_t getTileCount() const { return _tileCount;}
+	size_t getVertexCount() const { return _vertexCount; }
 
-    std::vector<std::vector<std::shared_ptr<ego_tile_info_t>>>& getAllTiles() { return _tileList; }
+    std::vector<std::shared_ptr<ego_tile_info_t>>& getAllTiles() { return _tileList; }
 
 };
 
@@ -578,49 +503,11 @@ struct mpdfx_lists_t
 
 	mpdfx_lists_t();
 	~mpdfx_lists_t();
-    bool alloc(const ego_mesh_info_t& info);
+    bool alloc(const Ego::MeshInfo& info);
     void dealloc();
     void reset();
     int push(GRID_FX_BITS fx_bits, size_t value);
     bool synch(const grid_mem_t& other, bool force);
-};
-
-
-
-//--------------------------------------------------------------------------------------------
-
-/// The generic parameters describing an ego_mesh
-struct ego_mesh_info_t
-{
-    size_t _vertcount;    ///< For malloc
-
-    /**
-     * @brief
-     *  The size, in tiles, along the x-axis.
-     * @todo
-     *  Rename to @a sizeX. The type should be @a size_t.
-     */
-    int _tiles_x;
-    /**
-     * @brief
-     *  The size, in tiles, along the y-axis.
-     * @todo
-     *  Rename to @a sizeY. The type should be @a size_t.
-     */
-    int _tiles_y;
-    /**
-     * @brief
-     *  The number of tiles in the mesh.
-     * @invariant
-     *  <tt>size = sizeX * sizeY</tt>
-     * @todo
-     *  Rename to @a size. The type should be @a size_t.
-     */
-    uint32_t _tiles_count;
-
-	ego_mesh_info_t();
-	~ego_mesh_info_t();
-    void reset(int numvert, size_t tiles_x, size_t tiles_y);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -632,7 +519,7 @@ struct mesh_wall_data_t
 	int   ix_min, ix_max, iy_min, iy_max;
 	float fx_min, fx_max, fy_min, fy_max;
 
-	const ego_mesh_info_t *pinfo;
+	const Ego::MeshInfo *pinfo;
 	const ego_grid_info_t *glist;
 };
 
@@ -641,12 +528,17 @@ struct mesh_wall_data_t
 class ego_mesh_t
 {
 public:
-    ego_mesh_t();
-    ego_mesh_t(int tiles_x, int tiles_y);
+	/**
+	 * @brief
+	 *  Construct a mesh of the specified mesh info.
+	 * @param info
+	 *  the mesh info
+	 */
+    ego_mesh_t(const Ego::MeshInfo& info = Ego::MeshInfo());
 
     ~ego_mesh_t();
 
-    ego_mesh_info_t _info;
+    Ego::MeshInfo _info;
     tile_mem_t _tmem;
     grid_mem_t _gmem;
     mpdfx_lists_t _fxlists;

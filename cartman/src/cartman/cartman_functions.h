@@ -38,7 +38,7 @@ struct select_lst_t;
 // For autoweld
 #define NEAR_TOLERANCE 1.0f
 #define NEAR_LOW       (0.0f + NEAR_TOLERANCE)
-#define NEAR_HGH       (TILE_FSIZE - NEAR_TOLERANCE)
+#define NEAR_HGH       (Info<float>::Grid::Size() - NEAR_TOLERANCE)
 
 #define BARRIERHEIGHT 14.0f      //
 
@@ -55,15 +55,18 @@ void fix_vertices( cartman_mpd_t * pmesh, int mapx, int mapy );
 void weld_corner_verts( cartman_mpd_t * pmesh, int mapx, int mapy );
 
 // functions taking a selection as an argument
-void mesh_select_weld( select_lst_t * plst );
-void mesh_select_move( select_lst_t * plst, float x, float y, float z );
+// Weld selected vertices.
+void mesh_select_weld(select_lst_t *plst);
+// Move selected vertices.
+void mesh_select_move(select_lst_t *plst, float x, float y, float z);
 void mesh_select_set_z_no_bound( select_lst_t * plst, float z );
 void mesh_select_jitter( select_lst_t * plst );
-void mesh_select_verts_connected( select_lst_t * plst );
+void mesh_select_verts_connected( select_lst_t& plst );
 
-// select_lst_t extensions
-select_lst_t * select_lst_add_rect( select_lst_t * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
-select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
+// Ensure any vertex in the specified rectangular area is in the specified selection list.
+void select_lst_add_rect( select_lst_t& plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
+// Ensure no vertex in the specified rectangular area is in the specified selection list.
+void select_lst_remove_rect( select_lst_t& plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
 
 
 struct MeshEditor {

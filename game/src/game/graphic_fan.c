@@ -227,8 +227,8 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
     /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
 
-    ix = itile % mesh->_info._tiles_x;
-    iy = itile / mesh->_info._tiles_x;
+    ix = itile % mesh->_info.getTileCountX();
+    iy = itile / mesh->_info.getTileCountX();
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
@@ -296,7 +296,7 @@ gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 itile, const Uint8
 
     const ego_tile_info_t * ptile = NULL;
 
-	const ego_mesh_info_t& info = mesh._info;
+	const Ego::MeshInfo& info = mesh._info;
 
     ptile = mesh.get_ptile(itile);
     if ( NULL == ptile )
@@ -311,8 +311,8 @@ gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 itile, const Uint8
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
 
-    ix = itile % info._tiles_x;
-    iy = itile / info._tiles_x;
+    ix = itile % info.getTileCountX();
+    iy = itile / info.getTileCountX();
 
     // To make life easier
     type  = 0;                                         // Command type ( index to points in tile )

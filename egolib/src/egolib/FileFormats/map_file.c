@@ -48,7 +48,6 @@
 #define GET_MAP_VERSION_NUMBER(VAL) LAMBDA( (static_cast<uint32_t>(VAL)) >= (static_cast<uint32_t>(MAP_ID_BASE)), (static_cast<uint32_t>(VAL)) - (static_cast<uint32_t>(MAP_ID_BASE)) + 1, -1 )
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 bool map_t::setInfo(const map_info_t& info)
 {
@@ -60,9 +59,7 @@ bool map_t::setInfo(const map_info_t& info)
     }
 
     // Allocate the map's tile and vertex memory.
-    uint32_t tileCount = info.tileCountX * info.tileCountY,
-             vertexCount = info.vertexCount;
-    _mem.setInfo(tileCount, vertexCount);
+    _mem.setInfo(info);
 
     // Store the map info.
     _info = info;
@@ -71,60 +68,59 @@ bool map_t::setInfo(const map_info_t& info)
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 void map_info_t::reset()
 {
-    vertexCount = 0;
-    tileCountX = 0;
-    tileCountY = 0;
+    _vertexCount = 0;
+    _tileCountX = 0;
+    _tileCountY = 0;
 }
 
 void map_info_t::load(vfs_FILE& file)
 {
     // Read the vertex count.
-    vfs_read_Uint32(&file, &vertexCount);
+    vfs_read_Uint32(&file, &_vertexCount);
 
     // Read the tile count in the x direction.
-    vfs_read_Uint32(&file, &tileCountX);
+    vfs_read_Uint32(&file, &_tileCountX);
 
     // Read the tile count in the y direction.
-    vfs_read_Uint32(&file, &tileCountY);
+    vfs_read_Uint32(&file, &_tileCountY);
 }
 
 void map_info_t::save(vfs_FILE& file) const
 {
     // Write the vertex count.
-    vfs_write_Uint32(&file, vertexCount);
+    vfs_write<Uint32>(file, _vertexCount);
 
     // Write the tile count in the x direction.
-    vfs_write_Uint32(&file, tileCountX);
+    vfs_write<Uint32>(file, _tileCountX);
 
     // Write the tile count in the y direction.
-    vfs_write_Uint32(&file, tileCountY);
+    vfs_write<Uint32>(file, _tileCountY);
 }
 
 bool map_info_t::validate() const
 {
-    if (vertexCount > MAP_VERTICES_MAX)
+    if (_vertexCount > MAP_VERTICES_MAX)
     {
-        log_warning("%s:%d: too many vertices (%u/%u)!!\n", __FILE__, __LINE__, vertexCount, MAP_VERTICES_MAX);
+        log_warning("%s:%d: too many vertices (%u/%u)!!\n", __FILE__, __LINE__, _vertexCount, MAP_VERTICES_MAX);
         return false;
     }
 
-    if (tileCountX > MAP_TILE_MAX_X)
+    if (_tileCountX > MAP_TILE_MAX_X)
     {
-        log_warning("%s:%d: too many tiles in the x direction (%u/%u)!!\n", __FILE__, __LINE__, tileCountX, MAP_TILE_MAX_X);
+        log_warning("%s:%d: too many tiles in the x direction (%u/%u)!!\n", __FILE__, __LINE__, _tileCountX, MAP_TILE_MAX_X);
         return false;
     }
 
-    if (tileCountY > MAP_TILE_MAX_Y)
+    if (_tileCountY > MAP_TILE_MAX_Y)
     {
-        log_warning("%s:%d: too many tiles in the y direction (%u/%u)!!\n", __FILE__, __LINE__, tileCountY, MAP_TILE_MAX_Y);
+        log_warning("%s:%d: too many tiles in the y direction (%u/%u)!!\n", __FILE__, __LINE__, _tileCountY, MAP_TILE_MAX_Y);
         return false;
     }
 
-    uint32_t tileCount = tileCountX * tileCountY;
+    uint32_t tileCount = _tileCountX * _tileCountY;
     if (tileCount >= MAP_TILE_MAX)
     {
         log_warning("%s:%d: - unknown version and mesh is too large (%u/%u)!!\n", __FILE__, __LINE__, tileCount, MAP_TILE_MAX);
@@ -134,23 +130,23 @@ bool map_info_t::validate() const
     return true;
 }
 
-map_info_t::map_info_t() :
-    vertexCount(0),
-    tileCountX(0), tileCountY(0)
-{
-}
+map_info_t::map_info_t(uint32_t vertexCount, uint32_t tileCountX, uint32_t tileCountY)
+	: _vertexCount(vertexCount), _tileCountX(tileCountX), _tileCountY(tileCountY)
+{}
 
-map_info_t::map_info_t(const map_info_t& other) :
-    vertexCount(other.vertexCount),
-    tileCountX(other.tileCountX), tileCountY(other.tileCountY)
-{
-}
+map_info_t::map_info_t()
+	: map_info_t(0, 0, 0)
+{ }
+
+map_info_t::map_info_t(const map_info_t& other)
+    : map_info_t(other._vertexCount, other._tileCountX, other._tileCountY)
+{ }
 
 map_info_t& map_info_t::operator=(const map_info_t& other)
 {
-    vertexCount = other.vertexCount;
-    tileCountX = other.tileCountX;
-    tileCountY = other.tileCountY;
+    _vertexCount = other._vertexCount;
+    _tileCountX = other._tileCountX;
+    _tileCountY = other._tileCountY;
     return *this;
 }
 
@@ -161,21 +157,17 @@ map_mem_t::map_mem_t() :
     tiles(), vertices()
 {}
 
-map_mem_t::map_mem_t(uint32_t tileCount, uint32_t vertexCount) :
-    tiles(tileCount), vertices(vertexCount)
-{
-}
+map_mem_t::map_mem_t(const map_info_t& info)
+	: tiles(info.getTileCountX() * info.getTileCountY()), vertices(info.getVertexCount())
+{}
 
 map_mem_t::~map_mem_t()
-{
-}
+{}
 
-void map_mem_t::setInfo(uint32_t tileCount,uint32_t vertexCount)
+void map_mem_t::setInfo(const map_info_t& info)
 {
-    /// @todo If vertices.resize(vertexCount) fails, then the state of the memory is not consistent?
-    ///       Can we somehow make up for that?
-    tiles.resize(tileCount);
-    vertices.resize(vertexCount);
+	tiles.resize(info.getTileCountX() * info.getTileCountY());
+	vertices.resize(info.getVertexCount());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -319,7 +311,7 @@ bool map_t::save(vfs_FILE& file) const
 {
     int mapVersion = CURRENT_MAP_VERSION_NUMBER;
     // write the file identifier
-    vfs_write_Uint32(&file, SDL_Swap32(CURRENT_MAP_ID));
+    vfs_write<Uint32>(file, SDL_Swap32(CURRENT_MAP_ID));
 
     // write the map info
     _info.save(file);
@@ -366,7 +358,6 @@ bool map_t::save(const std::string& name) const
         return false;
     }
 
-
     if (!save(*file))
     {
         vfs_close(file);
@@ -379,7 +370,7 @@ bool map_t::save(const std::string& name) const
 }
 
 map_t::map_t(const map_info_t& info) :
-    _info(info), _mem(info.tileCountX * info.tileCountY, info.vertexCount)
+    _info(info), _mem(info)
 {}
 
 map_t::~map_t()

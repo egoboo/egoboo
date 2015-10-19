@@ -99,10 +99,37 @@ cartman_mpd_t *cartman_mpd_t::reset()
 
 //--------------------------------------------------------------------------------------------
 
-cartman_mpd_info_t::cartman_mpd_info_t() :
-tiles_x(0), tiles_y(0),
-tiles_count(0), vertex_count(0),
-edgex(0), edgey(0), edgez(0)
+cartman_mpd_info_t::cartman_mpd_info_t()
+	: Ego::MeshInfo(),
+	  _edgeX(0), _edgeY(0), _edgeZ(0)
+{}
+
+cartman_mpd_info_t::cartman_mpd_info_t(size_t tileCountX, size_t tileCountY)
+	: cartman_mpd_info_t(tileCountX, tileCountY, 
+		                 tileCountX * Info<int>::Grid::Size(), tileCountY * Info<int>::Grid::Size(),
+		                 DEFAULT_Z_SIZE)
+{}
+
+cartman_mpd_info_t::cartman_mpd_info_t(size_t vertexCount, size_t tileCountX, size_t tileCountY)
+	: cartman_mpd_info_t(vertexCount, tileCountX,
+		                 tileCountY, tileCountX * Info<int>::Grid::Size(), tileCountY * Info<int>::Grid::Size(),
+		                 DEFAULT_Z_SIZE)
+{}
+
+cartman_mpd_info_t::cartman_mpd_info_t(size_t tileCountX, size_t tileCountY, float edgeX, float edgeY, float edgeZ)
+	: Ego::MeshInfo(tileCountX, tileCountY),
+	  _edgeX(edgeX), _edgeY(edgeY), _edgeZ(edgeZ)
+{}
+
+cartman_mpd_info_t::cartman_mpd_info_t(size_t vertexCount, size_t tileCountX, size_t tileCountY, float edgeX, float edgeY, float edgeZ)
+	: Ego::MeshInfo(vertexCount, tileCountX, tileCountY),
+	  _edgeX(edgeX), _edgeY(edgeY), _edgeZ(edgeZ)
+{}
+
+
+cartman_mpd_info_t::cartman_mpd_info_t(const cartman_mpd_info_t& other)
+	: Ego::MeshInfo(other),
+	  _edgeX(other._edgeX), _edgeY(other._edgeY), _edgeZ(other._edgeZ)
 {}
 
 cartman_mpd_info_t::~cartman_mpd_info_t()
@@ -110,59 +137,39 @@ cartman_mpd_info_t::~cartman_mpd_info_t()
 
 void cartman_mpd_info_t::reset()
 {
-    tiles_x = 0;
-    tiles_y = 0;
-    tiles_count = 0;
-    vertex_count = 0;
-    edgex = edgey = edgez = 0;
+	this->Ego::MeshInfo::reset();
+    _edgeX = _edgeY = _edgeZ = 0;
 }
 
-//--------------------------------------------------------------------------------------------
-void cartman_mpd_info_t::init(cartman_mpd_info_t& self, int vert_count, size_t tiles_x, size_t tiles_y)
-{
-    // set the desired number of tiles
-	self.tiles_x = tiles_x;
-	self.tiles_y = tiles_y;
-	self.tiles_count = self.tiles_x * self.tiles_y;
-	// handle default values
-	if (vert_count < 0)
-	{
-		vert_count = MAP_FAN_VERTICES_MAX * self.tiles_count;
-	}
-	self.vertex_count = vert_count;
-
-	self.edgex = self.tiles_x * TILE_ISIZE;
-	self.edgey = self.tiles_y * TILE_ISIZE;
-	self.edgez = DEFAULT_Z_SIZE;
+cartman_mpd_info_t& cartman_mpd_info_t::operator=(const cartman_mpd_info_t& other) {
+	Ego::MeshInfo::operator=(other);
+	_edgeX = other._edgeX;
+	_edgeY = other._edgeY;
+	_edgeZ = other._edgeZ;
+	return *this;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void cartman_mpd_make_fanstart( cartman_mpd_t * pmesh )
-{
+void cartman_mpd_make_fanstart(cartman_mpd_t *pmesh) {
     // ZZ> This function builds a look up table to ease calculating the
     //     fan number given an x,y pair
-    int cnt;
-
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    for ( cnt = 0; cnt < pmesh->info.tiles_y; cnt++ )
-    {
-        pmesh->fanstart2[cnt] = pmesh->info.tiles_x * cnt;
+    if (!pmesh) pmesh = &mesh;
+    for (size_t i = 0; i < pmesh->info.getTileCountY(); ++i) {
+        pmesh->fanstart2[i] = pmesh->info.getTileCountX() * i;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_mpd_make_twist( cartman_mpd_t * pmesh )
-{
-    Uint32 fan, numfan;
-
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    numfan = pmesh->info.tiles_x * pmesh->info.tiles_y;
-    for ( fan = 0; fan < numfan; fan++ )
-    {
-        pmesh->fan2[fan].twist = cartman_mpd_get_fan_twist( pmesh, fan );
+void cartman_mpd_make_twist(cartman_mpd_t *pmesh) {
+    if (!pmesh) pmesh = &mesh;
+	/// @todo We could use pmesh->info.getTileCount() but as we do not know (yet)
+	//        if Cartman preserves the invariant pmesh->info.getTileCountX() *
+	//        pmesh->info.getTileCountX()  = pmesh->info.getTileCount() we better
+	//        do not.
+    size_t i = 0, n = pmesh->info.getTileCountX() * pmesh->info.getTileCountY();
+    for (; i < n; ++i) {
+        pmesh->fan2[i].twist = cartman_mpd_get_fan_twist(pmesh, i);
     }
 }
 
@@ -172,9 +179,9 @@ void cartman_mpd_make_twist( cartman_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 int cartman_mpd_t::get_ifan(int mapx, int mapy)
 {
-    if (mapy >= 0 && mapy < info.tiles_y && mapy < MAP_TILE_MAX_Y)
+    if (mapy >= 0 && mapy < info.getTileCountY() && mapy < MAP_TILE_MAX_Y)
     {
-        if (mapx >= 0 && mapx < info.tiles_x && mapx < MAP_TILE_MAX_X)
+        if (mapx >= 0 && mapx < info.getTileCountX() && mapx < MAP_TILE_MAX_X)
         {
             return fanstart2[mapy] + mapx;
         }
@@ -259,9 +266,9 @@ void cartman_mpd_t::free_vertex_count()
 int cartman_mpd_t::count_used_vertices()
 {
     int totalvert = 0;
-    for (int mapy = 0; mapy < info.tiles_y; mapy++)
+    for (int mapy = 0; mapy < info.getTileCountY(); mapy++)
     {
-        for (int mapx = 0; mapx < info.tiles_x; mapx++)
+        for (int mapx = 0; mapx < info.getTileCountX(); mapx++)
         {
             int ifan = get_ifan(mapx, mapy);
             if (!VALID_MPD_TILE_RANGE(ifan))
@@ -439,9 +446,9 @@ float cartman_mpd_t::get_level(int mapx, int mapy)
         z3 = 0;
     }
 
-    zleft = (z0 * (TILE_ISIZE - mapy) + z3 * mapy) / TILE_FSIZE;
-    zright = (z1 * (TILE_ISIZE - mapy) + z2 * mapy) / TILE_FSIZE;
-    zdone = (zleft * (TILE_ISIZE - mapx) + zright * mapx) / TILE_FSIZE;
+    zleft = (z0 * (Info<int>::Grid::Size() - mapy) + z3 * mapy) / Info<float>::Grid::Size();
+    zright = (z1 * (Info<int>::Grid::Size() - mapy) + z2 * mapy) / Info<float>::Grid::Size();
+    zdone = (zleft * (Info<int>::Grid::Size() - mapx) + zright * mapx) / Info<float>::Grid::Size();
 
     return zdone;
 }
@@ -449,8 +456,8 @@ float cartman_mpd_t::get_level(int mapx, int mapy)
 float cartman_mpd_t::get_level(float x, float y)
 {
     float zdone = 0.0f;
-    if (x < 0.0f || x >= info.edgex) return zdone;
-    if (y < 0.0f || y >= info.edgey) return zdone;
+    if (x < 0.0f || x >= info.getEdgeX()) return zdone;
+    if (y < 0.0f || y >= info.getEdgeY()) return zdone;
     int mapx, mapy;
     worldToMap(x, y, mapx, mapy);
     return get_level(mapx, mapy);
@@ -767,8 +774,8 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
         return nullptr;
     }
     
-    map_mem_t *mem_src = &(src->_mem);
-    map_info_t *info_src = &(src->_info);
+    map_mem_t& mem_src = src->_mem;
+    map_info_t& info_src = src->_info;
 
     // Reset the destination mesh.
     if (!dst->reset())
@@ -777,12 +784,12 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
     }
 
     // set up the destination mesh from the source mesh
-    cartman_mpd_info_t::init(dst->info, info_src->vertexCount, info_src->tileCountX, info_src->tileCountY);
+    dst->info = cartman_mpd_info_t(info_src.getVertexCount(), info_src.getTileCountX(), info_src.getTileCountY());
 
     // copy all the per-tile info
-    for (int itile_src = 0; itile_src < dst->info.tiles_count; itile_src++ )
+    for (int itile_src = 0; itile_src < dst->info.getTileCount(); itile_src++ )
     {
-        const tile_info_t& ptile_src = mem_src->tiles[itile_src];
+        const tile_info_t& ptile_src = mem_src.tiles[itile_src];
         cartman_mpd_tile_t *pfan_dst  = &(dst->fan2[itile_src]);
 
         pfan_dst->type     = ptile_src.type;
@@ -792,7 +799,7 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
     }
 
     // store the vertices in the vertex chain for editing
-    for (int ifan_dst = 0, ivrt_src = 0; ifan_dst < dst->info.tiles_count; ifan_dst++)
+    for (int ifan_dst = 0, ivrt_src = 0; ifan_dst < dst->info.getTileCount(); ifan_dst++)
     {
         int ivrt_dst, cnt;
         int vert_count, allocate_rv;
@@ -851,7 +858,7 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
                 goto cartman_mpd_convert_fail;
             }
 
-            const map_vertex_t& pvrt_src = mem_src->vertices[ivrt_src];
+            const map_vertex_t& pvrt_src = mem_src.vertices[ivrt_src];
             pvrt_dst = &(dst->vrt2[ivrt_dst]);
 
             pvrt_dst->x = pvrt_src.pos[kX];
@@ -893,19 +900,16 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
     dst->setInfo();
 
     // Make sure we have the accurate(!) vertx count.
-    info_src.vertex_count = src->count_used_vertices();
+    info_src.setVertexCount(src->count_used_vertices());
 
     // Allocate the correct size for the destination mesh.
-    map_info_t loc_info_dst;
-    loc_info_dst.tileCountX  = info_src.tiles_x;
-    loc_info_dst.tileCountY  = info_src.tiles_y;
-    loc_info_dst.vertexCount = info_src.vertex_count;
+	map_info_t loc_info_dst(info_src.getVertexCount(), info_src.getTileCountX(), info_src.getTileCountY());
     dst->setInfo(loc_info_dst);
     
     map_mem_t *pmem_dst = &(dst->_mem);
 
     // revert the tile information
-    for (size_t cnt = 0; cnt < info_src.tiles_count; cnt++ )
+    for (size_t cnt = 0; cnt < info_src.getTileCount(); cnt++ )
     {
         tile_info_t& tile_dst = pmem_dst->tiles[cnt];
         cartman_mpd_tile_t& tile_src = src->fan2[cnt];
@@ -917,7 +921,7 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
     }
 
     // revert the vertex information
-    for (int itile = 0, ivrt_dst = 0; itile < info_src.tiles_count; itile++ )
+    for (int itile = 0, ivrt_dst = 0; itile < info_src.getTileCount(); itile++ )
     {
 
         // grab the source fan
@@ -1104,16 +1108,11 @@ cartman_mpd_t *cartman_mpd_create(cartman_mpd_t *self, int tiles_x, int tiles_y)
     }
     cartman_mpd_free_vertices(self);
 
-    self->info.tiles_x = tiles_x;
-    self->info.tiles_y = tiles_y;
+	self->info = cartman_mpd_info_t(tiles_x, tiles_y);
 
-    self->info.edgex = self->info.tiles_x * TILE_ISIZE;
-    self->info.edgey = self->info.tiles_y * TILE_ISIZE;
-    self->info.edgez = 180 << 4;
-
-    for (int mapy = 0, fan = 0; mapy < self->info.tiles_y; mapy++)
+    for (size_t mapy = 0, fan = 0; mapy < self->info.getTileCountY(); mapy++)
     {
-        for (int mapx = 0; mapx < self->info.tiles_x; mapx++)
+        for (size_t mapx = 0; mapx < self->info.getTileCountX(); mapx++)
         {
             self->fan2[fan].type = 0;
             self->fan2[fan].tx_bits = (((mapx & 1) + (mapy & 1)) & 1) + DEFAULT_TILE;

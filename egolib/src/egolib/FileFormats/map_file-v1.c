@@ -58,7 +58,7 @@ bool map_write_v1(vfs_FILE& file, const map_t& map)
         ui32_tmp |= CLIP_TO_08BITS( tile.fx ) << 16;
         ui32_tmp |= CLIP_TO_08BITS( tile.type ) << 24;
 
-        vfs_write_Uint32(&file, ui32_tmp);
+        vfs_write<Uint32>(file, ui32_tmp);
     }
 
     return true;

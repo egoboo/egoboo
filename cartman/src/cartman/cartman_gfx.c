@@ -38,8 +38,8 @@ static bool _ogl_initialized = false;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-const SDL_Color cart_white = { 0xFF, 0xFF, 0xFF, 0xFF };
-const SDL_Color cart_black = { 0x00, 0x00, 0x00, 0xFF };
+const Ego::Math::Colour4f WHITE = Ego::Math::Colour4f::white();
+const Ego::Math::Colour4f BLACK = Ego::Math::Colour4f::black();
 
 std::shared_ptr<Ego::Font> gfx_font_ptr = NULL;
 
@@ -152,7 +152,7 @@ oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( mapx < 0 || mapx >= pmesh->info.tiles_x || mapy < 0 || mapy >= pmesh->info.tiles_y )
+    if ( mapx < 0 || mapx >= pmesh->info.getTileCountX() || mapy < 0 || mapy >= pmesh->info.getTileCountY() )
     {
         return NULL;
     }
@@ -263,14 +263,14 @@ void make_hitemap( cartman_mpd_t * pmesh )
 
     if ( bmphitemap ) SDL_FreeSurface( bmphitemap );
 
-    bmphitemap = SDL_GL_createSurface( pmesh->info.tiles_x << 2, pmesh->info.tiles_y << 2 );
+    bmphitemap = SDL_GL_createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
     if ( NULL == bmphitemap ) return;
 
-    for (int pixy = 0, y = 16; pixy < ( pmesh->info.tiles_y << 2 ); pixy++, y += 32 )
+    for (int pixy = 0, y = 16; pixy < ( pmesh->info.getTileCountY() << 2 ); pixy++, y += 32 )
     {
-        for (int pixx = 0, x = 16; pixx < ( pmesh->info.tiles_x << 2 ); pixx++, x += 32 )
+        for (int pixx = 0, x = 16; pixx < ( pmesh->info.getTileCountX() << 2 ); pixx++, x += 32 )
         {
-            int level = ( pmesh->get_level(x, y) * 255 ) / pmesh->info.edgez;  // level is 0 to 255
+            int level = ( pmesh->get_level(x, y) * 255 ) / pmesh->info.getEdgeZ();  // level is 0 to 255
             if ( level > 252 ) level = 252;
 
             cartman_mpd_tile_t *pfan = pmesh->get_pfan(pixx >> 2, pixy >> 2);
@@ -297,16 +297,16 @@ void make_planmap( cartman_mpd_t * pmesh )
     if ( NULL == pmesh ) pmesh = &mesh;
 
     if ( NULL == bmphitemap ) SDL_FreeSurface( bmphitemap );
-    bmphitemap = SDL_GL_createSurface( pmesh->info.tiles_x * TINYXY, pmesh->info.tiles_y * TINYXY );
+    bmphitemap = SDL_GL_createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
     if ( NULL == bmphitemap ) return;
 
     SDL_FillRect( bmphitemap, NULL, MAKE_BGR( bmphitemap, 0, 0, 0 ) );
 
     puty = 0;
-    for ( y = 0; y < pmesh->info.tiles_y; y++ )
+    for ( y = 0; y < pmesh->info.getTileCountY(); y++ )
     {
         putx = 0;
-        for ( x = 0; x < pmesh->info.tiles_x; x++ )
+        for ( x = 0; x < pmesh->info.getTileCountX(); x++ )
         {
             oglx_texture_t * tx_tile;
             tx_tile = tiny_tile_at( pmesh, x, y );
@@ -329,7 +329,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt )
+void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window
@@ -344,25 +344,18 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
     cart_vec_t vright = { -1, 0, 0};
     cart_vec_t vpos;
 
-    // aliases
-    cartman_mpd_t  * pmesh  = NULL;
-    tile_definition_t    * pdef   = NULL;
-    const cartman_mpd_tile_t   * pfan   = NULL;
-    tile_line_data_t     * plines = NULL;
+	select_lst_t::synch_mesh(plst, &mesh);
 
-    plst = select_lst_synch_mesh( plst, &mesh );
-    if ( NULL == plst ) return;
+	cartman_mpd_t *pmesh = select_lst_t::get_mesh(plst);
+    if (!pmesh) return;
 
-    if ( NULL == plst->pmesh ) return;
-    pmesh = plst->pmesh;
+	const cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if (!pfan) return;
 
-    pfan = CART_MPD_FAN_PTR( pmesh, fan );
-    if ( NULL == pfan ) return;
+	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if (!pdef) return;
 
-    pdef   = TILE_DICT_PTR( tile_dict, pfan->type );
-    if ( NULL == pdef ) return;
-
-    plines = tile_dict_lines + pfan->type;
+	tile_line_data_t *plines = tile_dict_lines + pfan->type;
 
     if ( 0 == pdef->numvertices || pdef->numvertices > MAP_FAN_VERTICES_MAX ) return;
 
@@ -406,7 +399,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
 
         vert = faketoreal[cnt];
 
-        size = MAXPOINTSIZE * pmesh->vrt2[vert].z / (float)pmesh->info.edgez;
+        size = MAXPOINTSIZE * pmesh->vrt2[vert].z / (float)pmesh->info.getEdgeZ();
         if ( size < 0.0f ) size = 0.0f;
         if ( size > MAXPOINTSIZE ) size = MAXPOINTSIZE;
 
@@ -417,7 +410,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
             int select_rv;
             oglx_texture_t * tx_tmp;
 
-            select_rv = select_lst_find( plst, vert );
+            select_rv = select_lst_t::find(plst, vert);
             if ( select_rv < 0 )
             {
                 tx_tmp = tx_point;
@@ -437,7 +430,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt )
+void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window ( Side view )
@@ -453,25 +446,18 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
     float size;
     float point_size;
 
-    // aliases
-    cartman_mpd_t        * pmesh  = NULL;
-    tile_definition_t    * pdef   = NULL;
-    cartman_mpd_tile_t   * pfan   = NULL;
-    tile_line_data_t     * plines = NULL;
+	select_lst_t::synch_mesh(plst, &mesh);
 
-    plst = select_lst_synch_mesh( plst, &mesh );
-    if ( NULL == plst ) return;
+	cartman_mpd_t *pmesh = select_lst_t::get_mesh(plst);
+    if (!pmesh) return;
 
-    if ( NULL == plst->pmesh ) return;
-    pmesh = plst->pmesh;
+	cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if (!pfan) return;
 
-    pfan = CART_MPD_FAN_PTR( pmesh, fan );
-    if ( NULL == pfan ) return;
+	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if (!pdef) return;
 
-    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
-    if ( NULL == pdef ) return;
-
-    plines = tile_dict_lines + pfan->type;
+	tile_line_data_t *plines = tile_dict_lines + pfan->type;
 
     OGL_MAKE_COLOR_4( color, 32, 16, 16, 31 );
     if ( pfan->type >= tile_dict.offset )
@@ -518,7 +504,7 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
 
         vert = faketoreal[cnt];
 
-        select_rv = select_lst_find( plst, vert );
+        select_rv = select_lst_t::find( plst, vert );
         if ( select_rv < 0 )
         {
             tx_tmp = tx_point;
@@ -641,22 +627,22 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
         ivrt = pmesh->vrt2[ivrt].next;
 
         // Top Right
-        loc_vrt[1].x = x0 + TILE_FSIZE;
+        loc_vrt[1].x = x0 + Info<float>::Grid::Size();
         loc_vrt[1].y = y0;
         loc_vrt[1].z = 0;
         loc_vrt[1].l = pmesh->vrt2[ivrt].a / 255.0f;
         ivrt = pmesh->vrt2[ivrt].next;
 
         // Bottom Right
-        loc_vrt[2].x = x0 + TILE_FSIZE;
-        loc_vrt[2].y = y0 + TILE_FSIZE;
+        loc_vrt[2].x = x0 + Info<float>::Grid::Size();
+        loc_vrt[2].y = y0 + Info<float>::Grid::Size();
         loc_vrt[2].z = 0;
         loc_vrt[2].l = pmesh->vrt2[ivrt].a / 255.0f;
         ivrt = pmesh->vrt2[ivrt].next;
 
         // Bottom Left
         loc_vrt[3].x = x0;
-        loc_vrt[3].y = y0 + TILE_FSIZE;
+        loc_vrt[3].y = y0 + Info<float>::Grid::Size();
         loc_vrt[3].z = 0;
         loc_vrt[3].l = pmesh->vrt2[ivrt].a / 255.0f;
     }
@@ -695,8 +681,8 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
 //--------------------------------------------------------------------------------------------
 void draw_tile_fx( float x, float y, Uint8 fx, float scale )
 {
-    const int ioff_0 = TILE_ISIZE >> 3;
-    const int ioff_1 = TILE_ISIZE >> 4;
+    const int ioff_0 = Info<int>::Grid::Size() >> 3;
+    const int ioff_1 = Info<int>::Grid::Size() >> 4;
 
     const float foff_0 = ioff_0 * scale;
     const float foff_1 = ioff_1 * scale;
@@ -1046,8 +1032,8 @@ void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera
     float aspect;
     float left, right, bottom, top, front, back;
 
-    w = ( float )DEFAULT_RESOLUTION * TILE_FSIZE * (( float )pwin->surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
-    h = ( float )DEFAULT_RESOLUTION * TILE_FSIZE * (( float )pwin->surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
+    w = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin->surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
+    h = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin->surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
     d = DEFAULT_Z_SIZE;
 
     pcam->w = w;
@@ -1096,9 +1082,9 @@ void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera
     float aspect;
     float left, right, bottom, top, back, front;
 
-    w = pwin->surfacex * ( float )DEFAULT_RESOLUTION * TILE_FSIZE / ( float )DEFAULT_WINDOW_W / zoom_x;
+    w = pwin->surfacex * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_W / zoom_x;
     h = w;
-    d = pwin->surfacey * ( float )DEFAULT_RESOLUTION * TILE_FSIZE / ( float )DEFAULT_WINDOW_H / zoom_z;
+    d = pwin->surfacey * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_H / zoom_z;
 
     pcam->w = w;
     pcam->h = h;

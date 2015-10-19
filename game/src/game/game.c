@@ -546,8 +546,8 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->_info._tiles_x*Info<float>::Grid::Size(),
-		                                                          _currentModule->getMeshPointer()->_info._tiles_y*Info<float>::Grid::Size());
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->_info.getTileCountX()*Info<float>::Grid::Size(),
+		                                                          _currentModule->getMeshPointer()->_info.getTileCountY()*Info<float>::Grid::Size());
 
     //---- begin the code for updating misc. game stuff
     {
@@ -3550,11 +3550,11 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
     oct_bb_t::translate(object->chr_min_cv, object->getPosition(), bump);
 
     // determine the size of this object in tiles
-    ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = CLIP( ixmin, 0, mesh->_info._tiles_x - 1 );
-    ixmax = bump._maxs[OCT_X] / Info<float>::Grid::Size(); ixmax = CLIP( ixmax, 0, mesh->_info._tiles_x - 1 );
+    ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = CLIP( ixmin, 0, int(mesh->_info.getTileCountX()) - 1 );
+    ixmax = bump._maxs[OCT_X] / Info<float>::Grid::Size(); ixmax = CLIP( ixmax, 0, int(mesh->_info.getTileCountX()) - 1 );
 
-    iymin = bump._mins[OCT_Y] / Info<float>::Grid::Size(); iymin = CLIP( iymin, 0, mesh->_info._tiles_y - 1 );
-    iymax = bump._maxs[OCT_Y] / Info<float>::Grid::Size(); iymax = CLIP( iymax, 0, mesh->_info._tiles_y - 1 );
+    iymin = bump._mins[OCT_Y] / Info<float>::Grid::Size(); iymin = CLIP( iymin, 0, int(mesh->_info.getTileCountY()) - 1 );
+    iymax = bump._maxs[OCT_Y] / Info<float>::Grid::Size(); iymax = CLIP( iymax, 0, int(mesh->_info.getTileCountY()) - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )

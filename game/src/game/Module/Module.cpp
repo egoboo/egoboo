@@ -93,10 +93,11 @@ void GameModule::loadAllPassages()
         area._bottom = ctxt.readInt();
 
         //constrain passage area within the level
-        area._left = CLIP(area._left, 0, _currentModule->getMeshPointer()->_info._tiles_x - 1);
-        area._top = CLIP(area._top, 0, _currentModule->getMeshPointer()->_info._tiles_y - 1);
-        area._right = CLIP(area._right, 0, _currentModule->getMeshPointer()->_info._tiles_x - 1);
-        area._bottom = CLIP(area._bottom, 0, _currentModule->getMeshPointer()->_info._tiles_y - 1);
+		auto& info = _currentModule->getMeshPointer()->_info;
+        area._left = CLIP(area._left, 0, int(info.getTileCountX()) - 1);
+        area._top = CLIP(area._top, 0, int(info.getTileCountY()) - 1);
+        area._right = CLIP(area._right, 0, int(info.getTileCountX()) - 1);
+        area._bottom = CLIP(area._bottom, 0, int(info.getTileCountY()) - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();

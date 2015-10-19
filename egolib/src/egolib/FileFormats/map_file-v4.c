@@ -46,7 +46,7 @@ bool map_write_v4(vfs_FILE& file, const map_t& map)
 
     for (const auto& vertex : mem.vertices)
     {
-        vfs_write_Uint8(&file, vertex.a);
+        vfs_write<Uint8>(file, vertex.a);
     }
 
     return true;
