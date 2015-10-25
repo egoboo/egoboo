@@ -435,6 +435,9 @@
     <ClCompile Include="src\egolib\Mesh\Info.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Script\Token.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -931,6 +934,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Mesh\Info.hpp">
       <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Token.hpp">
+      <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

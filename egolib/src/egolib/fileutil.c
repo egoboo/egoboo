@@ -32,9 +32,6 @@
 // includes for egoboo constants
 #include "egolib/Graphics/ModelDescriptor.hpp"                    // for ACTION_* constants
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 ReadContext::ReadContext(const std::string& loadName) :
     AbstractReader(5012),
     _loadName(loadName)
@@ -56,32 +53,6 @@ float ReadContext::toReal() const
         throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
                                         "unable to convert current lexeme `" + lexeme + "` into a value of type "
                                         "`float`");
-    }
-    return temporary;
-}
-
-int ReadContext::toInteger() const
-{
-    int temporary;
-    auto lexeme = _buffer.toString();
-    if (!Ego::Script::Decoder<int>()(lexeme, temporary))
-    {
-        throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                        "unable to convert current lexeme `" + lexeme + "` into a value of type "
-                                        "`int`");
-    }
-    return temporary;
-}
-
-unsigned int ReadContext::toNatural() const
-{
-    unsigned int temporary;
-    auto lexeme = _buffer.toString();
-    if (!Ego::Script::Decoder<unsigned int>()(lexeme, temporary))
-    {
-        throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                        "unable to convert current lexeme `" + _buffer.toString() + "` into a value of type "
-                                        "`unsigned int`");
     }
     return temporary;
 }
@@ -1091,138 +1062,242 @@ char ReadContext::readCharLit()
     return chr;
 }
 
-int ReadContext::readInt()
+Ego::Script::TextToken ReadContext::parseInt()
 {
-    skipWhiteSpaces();
-    _buffer.clear();
-    if (is(Traits::startOfInput()))
-    {
-        next();
-    }
-    if (is('+') || is('-'))
-    {
-        saveAndNext();
-    }
-    if (!isDigit())
-    {
-        if (is(Traits::error()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "read error while scanning integer literal");
-        }
-        else if (is(Traits::endOfInput()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "premature end of input while scanning integer literal");
-        }
-        else
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "unexpected character while scanning integer literal");
-        }
-    }
-    do
-    {
-        saveAndNext();
-    } while (isDigit());
-    if (is('e') || is('E'))
-    {
-        saveAndNext();
-        if (is('+'))
-        {
-            saveAndNext();
-        }
-        if (!isDigit())
-        {
-            if (is(Traits::error()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "read error while scanning integer literal");
-            }
-            else if (is(Traits::endOfInput()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "premature end of input while scanning integer literal");
-            }
-            else
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "unexpected character while scanning integer literal");
-            }
-        }
-        do
-        {
-            saveAndNext();
-        } while (isDigit());
-    }
-    return toInteger();
+	Id::Location startLocation(_loadName, _lineNumber);
+	_buffer.clear();
+	if (is(Traits::startOfInput()))
+	{
+		next();
+	}
+	if (is('+') || is('-'))
+	{
+		saveAndNext();
+	}
+	if (!isDigit())
+	{
+		if (is(Traits::error()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"read error while scanning integer literal");
+		}
+		else if (is(Traits::endOfInput()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"premature end of input while scanning integer literal");
+		}
+		else
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"unexpected character while scanning integer literal");
+		}
+	}
+	do
+	{
+		saveAndNext();
+	} while (isDigit());
+	if (is('e') || is('E'))
+	{
+		saveAndNext();
+		if (is('+'))
+		{
+			saveAndNext();
+		}
+		if (!isDigit())
+		{
+			if (is(Traits::error()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"read error while scanning integer literal");
+			}
+			else if (is(Traits::endOfInput()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"premature end of input while scanning integer literal");
+			}
+			else
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"unexpected character while scanning integer literal");
+			}
+		}
+		do
+		{
+			saveAndNext();
+		} while (isDigit());
+	}
+	return Ego::Script::TextToken(Ego::Script::TextToken::Type::Integer, startLocation, _buffer.toString());
 }
 
-unsigned int ReadContext::readNat()
+Ego::Script::TextToken ReadContext::parseNat()
 {
+	_buffer.clear();
+	Id::Location startLocation(_loadName, _lineNumber);
+	if (is(Traits::startOfInput()))
+	{
+		next();
+	}
+	if (is('+'))
+	{
+		saveAndNext();
+	}
+	if (!isDigit())
+	{
+		if (is(Traits::error()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"read error while scanning natural literal");
+		}
+		else if (is(Traits::endOfInput()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"premature end of input while scanning natural literal");
+		}
+		else
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"unexpected character while scanning natural literal");
+		}
+	}
+	do
+	{
+		saveAndNext();
+	} while (isDigit());
+	if (is('e') || is('E'))
+	{
+		saveAndNext();
+		if (is('+'))
+		{
+			saveAndNext();
+		}
+		if (!isDigit())
+		{
+			if (is(Traits::error()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"read error while scanning natural literal");
+			}
+			else if (is(Traits::endOfInput()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"premature end of input while scanning natural literal");
+			}
+			else
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"unexpected character while scanning natural literal");
+			}
+		}
+		do
+		{
+			saveAndNext();
+		} while (isDigit());
+	}
+	return Ego::Script::TextToken(Ego::Script::TextToken::Type::Integer, startLocation, _buffer.toString());
+}
+
+Ego::Script::TextToken ReadContext::parseReal()
+{
+	_buffer.clear();
+	Id::Location startLocation(_loadName, _lineNumber);
+	if (is(Traits::startOfInput()))
+	{
+		next();
+	}
+	if (is('+') || is('-'))
+	{
+		saveAndNext();
+	}
+	if (is('.'))
+	{
+		saveAndNext();
+		if (!isDigit())
+		{
+			if (is(Traits::error()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"read error while scanning real literal");
+			}
+			else if (is(Traits::endOfInput()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"premature end of input while scanning real literal");
+			}
+			else
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"unexpected character while scanning real literal");
+			}
+		}
+		do
+		{
+			saveAndNext();
+		} while (isDigit());
+	}
+	else if (isDigit())
+	{
+		do
+		{
+			saveAndNext();
+		} while (isDigit());
+		if (is('.'))
+		{
+			saveAndNext();
+			while (isDigit())
+			{
+				saveAndNext();
+			}
+		}
+	}
+	if (is('e') || is('E'))
+	{
+		saveAndNext();
+		if (is('+') || is('-'))
+		{
+			saveAndNext();
+		}
+		if (!isDigit())
+		{
+			if (is(Traits::error()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"read error while scanning real literal exponent");
+			}
+			else if (is(Traits::endOfInput()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"premature end of input while scanning real literal exponent");
+			}
+			else
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"unexpected character while scanning real literal exponent");
+			}
+		}
+		do
+		{
+			saveAndNext();
+		} while (isDigit());
+	}
+	return Ego::Script::TextToken(Ego::Script::TextToken::Type::Real, startLocation, _buffer.toString());
+}
+
+signed int ReadContext::readInt() {
+	skipWhiteSpaces();
+	auto token = parseInt();
+	return TextTokenDecoder<signed int>()(token);
+}
+
+unsigned int ReadContext::readNat() {
     skipWhiteSpaces();
-    _buffer.clear();
-    if (is(Traits::startOfInput()))
-    {
-        next();
-    }
-    if (is('+'))
-    {
-        saveAndNext();
-    }
-    if (!isDigit())
-    {
-        if (is(Traits::error()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "read error while scanning natural literal");
-        }
-        else if (is(Traits::endOfInput()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "premature end of input while scanning natural literal");
-        }
-        else
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "unexpected character while scanning natural literal");
-        }
-    }
-    do
-    {
-        saveAndNext();
-    } while (isDigit());
-    if (is('e') || is('E'))
-    {
-        saveAndNext();
-        if (is('+'))
-        {
-            saveAndNext();
-        }
-        if (!isDigit())
-        {
-            if (is(Traits::error()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "read error while scanning natural literal");
-            }
-            else if (is(Traits::endOfInput()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "premature end of input while scanning natural literal");
-            }
-            else
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "unexpected character while scanning natural literal");
-            }
-        }
-        do
-        {
-            saveAndNext();
-        } while (isDigit());
-    }
-    return toNatural();
+	auto token = parseNat();
+	return TextTokenDecoder<unsigned int>()(token);
+}
+
+float ReadContext::readReal() {
+	skipWhiteSpaces();
+	auto token = parseReal();
+	return TextTokenDecoder<float>()(token);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1308,94 +1383,6 @@ void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max)
 {
     ctxt.skipToColon(false);
     vfs_read_string_lit(ctxt, str, max);
-}
-
-//--------------------------------------------------------------------------------------------
-
-float ReadContext::readReal()
-{
-    skipWhiteSpaces();
-    _buffer.clear();
-    if (is(Traits::startOfInput()))
-    {
-        next();
-    }
-    if (is('+') || is('-'))
-    {
-        saveAndNext();
-    }
-    if (is('.'))
-    {
-        saveAndNext();
-        if (!isDigit())
-        {
-            if (is(Traits::error()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "read error while scanning real literal");
-            }
-            else if (is(Traits::endOfInput()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "premature end of input while scanning real literal");
-            }
-            else
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "unexpected character while scanning real literal");
-            }
-        }
-        do
-        {
-            saveAndNext();
-        } while (isDigit());
-    }
-    else if (isDigit())
-    {
-        do
-        {
-            saveAndNext();
-        } while (isDigit());
-        if (is('.'))
-        {
-            saveAndNext();
-            while (isDigit())
-            {
-                saveAndNext();
-            }
-        }
-    }
-    if (is('e') || is('E'))
-    {
-        saveAndNext();
-        if (is('+') || is('-'))
-        {
-            saveAndNext();
-        }
-        if (!isDigit())
-        {
-            if (is(Traits::error()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "read error while scanning real literal exponent");
-            }
-            else if (is(Traits::endOfInput()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "premature end of input while scanning real literal exponent");
-            }
-            else
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "unexpected character while scanning real literal exponent");
-            }
-        }
-        do
-        {
-            saveAndNext();
-        } while (isDigit());
-    }
-    return toReal();
 }
 
 //--------------------------------------------------------------------------------------------

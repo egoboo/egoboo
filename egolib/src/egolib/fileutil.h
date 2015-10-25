@@ -25,6 +25,7 @@
 #include "egolib/typedef.h"
 #include "egolib/Script/EnumDescriptor.hpp"
 #include "egolib/vfs.h"
+#include "egolib/Script/Token.hpp"
 #include "egolib/Script/Traits.hpp"
 #include "egolib/log.h"
 #include "egolib/file_common.h"
@@ -77,26 +78,6 @@ public:
      *  if a lexical error occurs
      */
     float toReal() const;
-
-    /**
-     * @brief
-     *  Convert the contents of the buffer to an signed int value.
-     * @return
-     *  the signed int value
-     * @throw Ego::Script::LexicalError
-     *  if a lexical error occurs
-     */
-    signed int toInteger() const;
-
-    /**
-     * @brief
-     *  Convert the contents of the buffer to an unsigned int value.
-     * @return
-     *  the unsigned int value
-     * @throw Id::LexicalErrorException
-     *  if a lexical error occurs
-     */
-    unsigned int toNatural() const;
 
     /**
      * @brief
@@ -255,7 +236,7 @@ public:
      *  integer := ('+'|'-')? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-    int readInt();
+	Ego::Script::TextToken parseInt();
 
     /**
      * @throw Id::LexicalErrorException
@@ -266,7 +247,7 @@ public:
      *  integer := '+'? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-    unsigned int readNat();
+	Ego::Script::TextToken parseNat();
 
     /**
      * @throw Id::LexicalErrorException
@@ -279,7 +260,7 @@ public:
      *  realExponent := ('e'|'E' ('+'|'-')? digit+)?
      *  @endcode
      */
-    float readReal();
+	Ego::Script::TextToken parseReal();
 
     /**
      * @throw Id::LexicalErrorException
@@ -364,6 +345,10 @@ public:
     //Disable copying class
     ReadContext(const ReadContext& copy) = delete;
     ReadContext& operator=(const ReadContext&) = delete;
+
+	int readInt();
+	unsigned int readNat();
+	float readReal();
 };
 
 // Utility functions.
