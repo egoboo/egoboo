@@ -63,23 +63,18 @@ bool animate_tile( ego_mesh_t& mesh, Uint32 itile )
     Uint16 basetile, image;
     Uint16 base_and, frame_add;
     Uint8  type;
-    ego_tile_info_t * ptile;
 
-    // do nothing if the tile is not animated
+	// do nothing if the tile is not animated
     if ( 0 == mesh.test_fx( itile, MAPFX_ANIM ) )
     {
         return true;
     }
 
     // grab a pointer to the tile
-    ptile = mesh.get_ptile(itile);
-    if (nullptr == ptile)
-    {
-        return false;
-    }
+	ego_tile_info_t& ptile = mesh.get_ptile(itile);
 
-    image = TILE_GET_LOWER_BITS( ptile->_img ); // Tile image
-    type  = ptile->_type;                       // Command type ( index to points in itile )
+    image = TILE_GET_LOWER_BITS( ptile._img ); // Tile image
+    type  = ptile._type;                       // Command type ( index to points in itile )
 
     // Animate the tiles
     if ( type >= tile_dict.offset )
@@ -110,23 +105,18 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 itile )
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
     // grab a pointer to the tile
-	const ego_tile_info_t *ptile = mesh.get_ptile(itile);
-    if ( NULL == ptile )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
-        return gfx_error;
-    }
+	const ego_tile_info_t& ptile = mesh.get_ptile(itile);
 
 	const tile_mem_t& ptmem  = mesh._tmem;
 
     // do not render the itile if the image image is invalid
-    if (ptile->isFanOff())  return gfx_success;
+    if (ptile.isFanOff())  return gfx_success;
 
-	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, ptile->_type );
+	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, ptile._type );
     if ( NULL == pdef ) return gfx_fail;
 
     // bind the correct texture
-    mesh_texture_bind( ptile );
+    mesh_texture_bind( &ptile );
     
     GL_DEBUG(glPushClientAttrib)(GL_CLIENT_VERTEX_ARRAY_BIT);
     {
@@ -135,15 +125,15 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 itile )
 
         /// @note claforte@> Put this in an initialization function.
         GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
-        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem._plst + ptile->_vrtstart );
+        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem._plst[ptile._vrtstart] );
 
         GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
-        GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem._tlst + ptile->_vrtstart );
+		GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem._tlst[ptile._vrtstart] );
 
         if (gfx.gouraudShading_enable)
         {
             GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
-            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem._clst + ptile->_vrtstart );
+            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem._clst[ptile._vrtstart] );
         }
         else
         {
@@ -169,16 +159,16 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 itile )
 		auto& renderer = Ego::Renderer::get();
 		renderer.getTextureUnit().setActivated(nullptr);
 		renderer.setColour(Ego::Colour4f::white());
-		for (size_t i = ptile->_vrtstart, j = 0; j < 4; ++i, ++j)
+		for (size_t i = ptile._vrtstart, j = 0; j < 4; ++i, ++j)
 		{
 			glBegin(GL_LINES);
 			{
 				glVertex3fv(ptmem._plst[i]);
 				glVertex3f
 					(
-						ptmem._plst[i][XX] + Info<float>::Grid::Size()*(ptile->_ncache[j][XX]),
-						ptmem._plst[i][YY] + Info<float>::Grid::Size()*(ptile->_ncache[j][YY]),
-						ptmem._plst[i][ZZ] + Info<float>::Grid::Size()*(ptile->_ncache[j][ZZ])
+						ptmem._plst[i][XX] + Info<float>::Grid::Size()*(ptile._ncache[j][XX]),
+						ptmem._plst[i][YY] + Info<float>::Grid::Size()*(ptile._ncache[j][YY]),
+						ptmem._plst[i][ZZ] + Info<float>::Grid::Size()*(ptile._ncache[j][ZZ])
 					);
 
 			}
@@ -209,12 +199,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
 
 	const tile_mem_t& ptmem  = mesh->_tmem;
 
-	const ego_tile_info_t *ptile = mesh->get_ptile(itile);
-    if ( NULL == ptile )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
-        return gfx_error;
-    }
+	const ego_tile_info_t& ptile = mesh->get_ptile(itile);
 
 	const ego_grid_info_t *pgrid = mesh->get_pgrid(itile);
     if ( NULL == pgrid )
@@ -233,13 +218,13 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    type  = ptile->_type;                     // Command type ( index to points in itile )
+    type  = ptile._type;                     // Command type ( index to points in itile )
     twist = pgrid->_twist;
 
     type &= 0x3F;
 
     // Original points
-    badvertex = ptile->_vrtstart;          // Get big reference value
+    badvertex = ptile._vrtstart;          // Get big reference value
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         float tmp;
@@ -294,16 +279,9 @@ gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 itile, const Uint8
     float x1, y1, fx_off[4], fy_off[4];
     float falpha;
 
-    const ego_tile_info_t * ptile = NULL;
-
 	const Ego::MeshInfo& info = mesh._info;
 
-    ptile = mesh.get_ptile(itile);
-    if ( NULL == ptile )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
-        return gfx_error;
-    }
+	const ego_tile_info_t& ptile = mesh.get_ptile(itile);
 
     falpha = FF_TO_FLOAT( water._layers[layer]._alpha );
     falpha = CLIP( falpha, 0.0f, 1.0f );
@@ -366,7 +344,7 @@ gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 itile, const Uint8
     Vertex *v = static_cast<Vertex *>(vb->lock());
 
     // Original points
-    badvertex = ptile->_vrtstart;
+    badvertex = ptile._vrtstart;
     {
         GLXvector3f nrm = {0, 0, 1};
         float alight;

@@ -217,17 +217,16 @@ void Passage::flashColor(uint8_t color)
         {
             TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
 
-            ego_tile_info_t *ptile = _currentModule->getMeshPointer()->get_ptile(fan);
-            if ( NULL == ptile ) continue;
+            ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(fan);
 
             for (int cnt = 0; cnt < 4; cnt++ )
             {
                 // set the color
-                ptile->_lcache[cnt]         = color;
+                ptile._lcache[cnt]         = color;
 
                 // force the lighting code to update
-                ptile->_request_clst_update = true;
-                ptile->_clst_frame          = -1;
+                ptile._request_clst_update = true;
+                ptile._clst_frame          = -1;
             }
         }
     }

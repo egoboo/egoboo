@@ -5213,12 +5213,9 @@ Uint8 scr_GetTileXY( script_state_t& state, ai_state_t& self )
     returncode = false;
     TileIndex idx = _currentModule->getMeshPointer()->get_grid(PointWorld(state.x, state.y));
 
-    ego_tile_info_t *ptr = _currentModule->getMeshPointer()->get_ptile(idx);
-    if (ptr)
-    {
-        returncode = true;
-        state.argument = ptr->_img & TILE_LOWER_MASK;
-    }
+    ego_tile_info_t& ptr = _currentModule->getMeshPointer()->get_ptile(idx);
+    returncode = true;
+    state.argument = ptr._img & TILE_LOWER_MASK;
 
     SCRIPT_FUNCTION_END();
 }

@@ -107,7 +107,6 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
     int deadend_count;
     AStar_Node_t * popen;
     float weight;
-    ego_tile_info_t * ptile;
 
 	// do not start if there is no mesh
 	if (!mesh) {
@@ -217,10 +216,9 @@ flexible_destination:
 
                     //Dont walk into pits
                     //@todo: might need to check tile Z level here instead
-                    ptile = mesh->get_ptile(itile);
-                    if ( NULL == ptile ) continue;
+                    const ego_tile_info_t& ptile = mesh->get_ptile(itile);
 
-                    if ( ptile->isFanOff() )
+                    if ( ptile.isFanOff() )
                     {
                         // add the invalid tile to the list as a closed tile
                         AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );

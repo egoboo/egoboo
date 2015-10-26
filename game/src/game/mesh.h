@@ -352,15 +352,8 @@ protected:
     // the per-grid info
     ego_grid_info_t* _grid_list;                       ///< tile command info
 public:
-	grid_mem_t();
+	grid_mem_t(const Ego::MeshInfo& info);
     ~grid_mem_t();
-    bool alloc(const Ego::MeshInfo& info);
-    void free();
-    /**
-     * @brief
-     *  This function builds a look up table to ease calculating the fan number given an x,y pair.
-     */
-	void make_fanstart(const Ego::MeshInfo& info);
 
 	ego_grid_info_t *get(const TileIndex& index)
 	{
@@ -399,7 +392,7 @@ public:
 struct tile_mem_t
 {
 private:
-	std::vector<std::shared_ptr<ego_tile_info_t>> _tileList;   ///< tile command info
+	std::vector<ego_tile_info_t> _tileList;   ///< tile command info
 	size_t _vertexCount;
 	size_t _tileCountX;
 	size_t _tileCountY;
@@ -407,55 +400,70 @@ private:
 public:
     AABB3f _bbox;                 ///< bounding box for the entire mesh
 
+	std::unique_ptr<GLXvector3f[]> _plst;                 ///< the position list
+    std::unique_ptr<GLXvector2f[]> _tlst;                 ///< the texture coordinate list
+    std::unique_ptr<GLXvector3f[]> _nlst;                 ///< the normal list
+    std::unique_ptr<GLXvector3f[]> _clst;                 ///< the color list (for lighting the mesh)
 
-    GLXvector3f *_plst;                 ///< the position list
-    GLXvector2f *_tlst;                 ///< the texture coordinate list
-    GLXvector3f *_nlst;                 ///< the normal list
-    GLXvector3f *_clst;                 ///< the color list (for lighting the mesh)
-
-	tile_mem_t();
+	tile_mem_t(const Ego::MeshInfo& info);
 	~tile_mem_t();
-    void free();
-    bool alloc(const Ego::MeshInfo& info);
 
-    const std::shared_ptr<ego_tile_info_t>& get(const TileIndex& index) const
+	ego_tile_info_t& get(const TileIndex& index)
+	{
+		// Assert that the index is within bounds.
+		if (TileIndex::Invalid == index) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
+		return getTile(index.getI());
+	}
+
+    const ego_tile_info_t& get(const TileIndex& index) const
     {
         // Assert that the index is within bounds.
-        if (TileIndex::Invalid == index)
-        {
-            return ego_tile_info_t::NULL_TILE;
+        if (TileIndex::Invalid == index) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
         }
         return getTile(index.getI());
     }
 
-	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y)
+	ego_tile_info_t& getTile(const size_t x, const size_t y)
 	{
-		if (y >= _tileCountY) return ego_tile_info_t::NULL_TILE;
-		if (x >= _tileCountX) return ego_tile_info_t::NULL_TILE;
+		if (y >= _tileCountY) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
+		if (x >= _tileCountX) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
 		//Retrieve the tile and return it
 		return _tileList[y * _tileCountX + x];
 	}
 
-	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t x, const size_t y) const
+	const ego_tile_info_t& getTile(const size_t x, const size_t y) const
 	{
-		if (y >= _tileCountY) return ego_tile_info_t::NULL_TILE;
-		if (x >= _tileCountX) return ego_tile_info_t::NULL_TILE;
+		if (y >= _tileCountY) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
+		if (x >= _tileCountX) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
 
 		//Retrieve the tile and return it
 		return _tileList[y * _tileCountX + x];
 	}
 
-	const std::shared_ptr<ego_tile_info_t>& getTile(const size_t index)
+	ego_tile_info_t& getTile(const size_t index)
 	{
 		if (index >= _tileCount) {
-			return ego_tile_info_t::NULL_TILE;
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
 		return _tileList[index];
 	}
 
-    const std::shared_ptr<ego_tile_info_t>& getTile(const size_t index) const
+    const ego_tile_info_t& getTile(const size_t index) const
     {
-        if(index >= _tileCount) return ego_tile_info_t::NULL_TILE;
+		if (index >= _tileCount) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
 		return _tileList[index];
     }
 
@@ -464,7 +472,7 @@ public:
     size_t getTileCount() const { return _tileCount;}
 	size_t getVertexCount() const { return _vertexCount; }
 
-    std::vector<std::shared_ptr<ego_tile_info_t>>& getAllTiles() { return _tileList; }
+    std::vector<ego_tile_info_t>& getAllTiles() { return _tileList; }
 
 };
 
@@ -501,10 +509,8 @@ struct mpdfx_lists_t
     mpdfx_list_ary_t dam;
     mpdfx_list_ary_t slp;
 
-	mpdfx_lists_t();
+	mpdfx_lists_t(const Ego::MeshInfo& info);
 	~mpdfx_lists_t();
-    bool alloc(const Ego::MeshInfo& info);
-    void dealloc();
     void reset();
     int push(GRID_FX_BITS fx_bits, size_t value);
     bool synch(const grid_mem_t& other, bool force);
@@ -592,7 +598,8 @@ public:
      *  a pointer to the tile information of the tile at the index in this mesh
      *  if the tiles are allocated and the index is within bounds, @a nullptr otherwise.
      */
-    ego_tile_info_t *get_ptile(const TileIndex& index) const;
+	ego_tile_info_t& get_ptile(const TileIndex& index);
+	const ego_tile_info_t& get_ptile(const TileIndex& index) const;
 
     /**
      * @brief

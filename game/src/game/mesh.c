@@ -31,7 +31,7 @@
 //--------------------------------------------------------------------------------------------
 
 
-static bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src );
+static std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source);
 
 static float grid_get_mix( float u0, float u, float v0, float v );
 
@@ -45,114 +45,51 @@ MeshStats g_meshStats;
 
 static void warnNumberOfVertices(const char *file, int line, size_t numberOfVertices)
 {
-    log_warning("%s:%d: mesh has too many vertices - %" PRIuZ " requested, but maximum is %d\n", file, line, numberOfVertices, MAP_VERTICES_MAX);
+	std::ostringstream os;
+	os << "mesh has too many vertices - " << numberOfVertices << " requested, "
+	   << "but maximum is " << MAP_VERTICES_MAX;
+    log_warning("%s:%d: %s\n", os.str().c_str());
 }
 
 //--------------------------------------------------------------------------------------------
 
-tile_mem_t::tile_mem_t()
-	: _tileList(), _tileCount(0), _bbox(), _tileCountX(0), _tileCountY(0), _vertexCount(0),
-	  _plst(nullptr), _tlst(nullptr), _nlst(nullptr), _clst(nullptr)
-{ }
+tile_mem_t::tile_mem_t(const Ego::MeshInfo& info)
+	: _tileList(info.getTileCount()),
+	  _tileCount(info.getTileCount()), _bbox(), _tileCountX(info.getTileCountX()),
+	  _tileCountY(info.getTileCountY()), _vertexCount(info.getVertexCount()) {
+	_plst = std::make_unique<GLXvector3f[]>(info.getVertexCount());
+	_tlst = std::make_unique<GLXvector2f[]>(info.getVertexCount());
+	_clst = std::make_unique<GLXvector3f[]>(info.getVertexCount());
+	_nlst = std::make_unique<GLXvector3f[]>(info.getVertexCount());
+}
 
 tile_mem_t::~tile_mem_t() {
-	free();
+	// Free the vertex data.
+	if (_plst)
+	{
+		_plst = nullptr;
+	}
+	if (_nlst)
+	{
+		_nlst = nullptr;
+	}
+	if (_clst)
+	{
+		_clst = nullptr;
+	}
+	if (_tlst)
+	{
+		_tlst = nullptr;
+	}
+
+	// Free the tile data.
+	_tileList.clear();
 }
-
-bool tile_mem_t::alloc(const Ego::MeshInfo& info)
-{
-    if (0 == info.getVertexCount())
-    {
-        return false;
-    }
-
-    // Free any memory already allocated.
-	free();
-
-    if (info.getVertexCount() > MAP_VERTICES_MAX)
-    {
-        warnNumberOfVertices(__FILE__, __LINE__, info.getVertexCount());
-        return false;
-    }
-
-    // Allocate memory
-    try
-    {
-        // Allocate per-vertex memory.
-        _plst = new GLXvector3f[info.getVertexCount()];
-        _tlst = new GLXvector2f[info.getVertexCount()];
-        _clst = new GLXvector3f[info.getVertexCount()];
-        _nlst = new GLXvector3f[info.getVertexCount()];
-
-		_vertexCount = info.getVertexCount();
-
-        // Allocate per-tile memory.
-        _tileList.reserve(info.getTileCount());
-		_tileList.clear();
-        for(size_t i = 0; i < info.getTileCount(); ++i) {
-            _tileList.push_back(std::make_shared<ego_tile_info_t>());
-        }
-		_tileCountX = info.getTileCountX();
-		_tileCountY = info.getTileCountY();
-		_tileCount  = info.getTileCount();
-    }
-    catch (std::bad_alloc& ex)
-    {
-		free();
-        log_error("%s:%d: unable to allocate tile memory - reduce the maximum number of vertices" \
-                  " (check MAP_VERTICES_MAX)\n", __FILE__, __LINE__);
-        return false;
-    }
-    return true;
-}
-
-void tile_mem_t::free()
-{
-    // Free the vertex data.
-    if (_plst)
-    {
-        delete[] _plst;
-        _plst = nullptr;
-    }
-    if (_nlst)
-    {
-        delete[] _nlst;
-        _nlst = nullptr;
-    }
-    if (_clst)
-    {
-        delete[] _clst;
-        _clst = nullptr;
-    }
-    if (_tlst)
-    {
-        delete[] _tlst;
-        _tlst = nullptr;
-    }
-
-    // Free the tile data.
-    _tileList.clear();
-
-    // Set the vertex count to 0.
-    _vertexCount = 0;
-	_tileCountX = 0;
-	_tileCountY = 0;
-	_tileCount = 0;
-}
-
 
 //--------------------------------------------------------------------------------------------
 
-ego_mesh_t::ego_mesh_t(const Ego::MeshInfo& mesh_info) :
-	_info(mesh_info),
-	_tmem(),
-	_gmem(),
-	_fxlists()
-{
-    // allocate the mesh memory
-    _tmem.alloc( _info );
-    _gmem.alloc( _info );
-    _fxlists.alloc( _info );    
+ego_mesh_t::ego_mesh_t(const Ego::MeshInfo& mesh_info)
+	: _info(mesh_info), _tmem(mesh_info), _gmem(mesh_info), _fxlists(mesh_info) {
 }
 
 ego_mesh_t::~ego_mesh_t() {
@@ -196,12 +133,12 @@ bool ego_mesh_t::set_texture(const TileIndex& index, Uint16 image)
 	}
 
     // Get the upper and lower bits for this tile image.
-	Uint16 tile_value = _tmem.getTile(index.getI())->_img;
-	Uint16 tile_lower = image & TILE_LOWER_MASK;
-	Uint16 tile_upper = tile_value & TILE_UPPER_MASK;
+	uint16_t tile_value = _tmem.getTile(index.getI())._img;
+	uint16_t tile_lower = image & TILE_LOWER_MASK;
+	uint16_t tile_upper = tile_value & TILE_UPPER_MASK;
 
     // Set the actual image.
-    _tmem.getTile(index.getI())->_img = tile_upper | tile_lower;
+    _tmem.getTile(index.getI())._img = tile_upper | tile_lower;
 
     // Update the pre-computed texture info.
     return update_texture(index);
@@ -212,18 +149,15 @@ bool ego_mesh_t::update_texture(const TileIndex& index)
 	if (!grid_is_valid(index)) {
 		return false;
 	}
-	std::shared_ptr<const ego_tile_info_t> ptile = _tmem.getTile(index.getI());
+	const ego_tile_info_t& ptile = _tmem.getTile(index.getI());
 
-	int    tile_vrt;
-	Uint8  type;
-    type  = ptile->_type & 0x3F;
+    uint8_t type  = ptile._type & 0x3F;
 
 	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, type );
     if ( NULL == pdef ) return false;
 
-    size_t mesh_vrt = ptile->_vrtstart;
-    Uint16 vertices = pdef->numvertices;
-    for ( tile_vrt = 0; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
+    size_t mesh_vrt = ptile._vrtstart;
+    for (uint16_t tile_vrt = 0; tile_vrt < pdef->numvertices; tile_vrt++, mesh_vrt++ )
     {
         _tmem._tlst[mesh_vrt][SS] = pdef->u[tile_vrt];
         _tmem._tlst[mesh_vrt][TT] = pdef->v[tile_vrt];
@@ -255,43 +189,24 @@ void ego_mesh_t::finalize()
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
+std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source)
 {
-    bool allocated_dst;
-
-    if ( NULL == pmesh_src ) return false;
-    map_mem_t& pmem_src = pmesh_src->_mem;
-    map_info_t& pinfo_src = pmesh_src->_info;
-
     // clear out all data in the destination mesh
-    *pmesh_dst = ego_mesh_t();
-	tile_mem_t& ptmem_dst  = pmesh_dst->_tmem;
-	grid_mem_t& pgmem_dst  = pmesh_dst->_gmem;
-	mpdfx_lists_t& plists_dst = pmesh_dst->_fxlists;
-	Ego::MeshInfo& pinfo_dst  = pmesh_dst->_info;
-
-    // set up the destination mesh from the source mesh
-	pinfo_dst = Ego::MeshInfo(pinfo_src.getVertexCount(), pinfo_src.getTileCountX(), pinfo_src.getTileCountY());
-
-    allocated_dst = ptmem_dst.alloc( pinfo_dst );
-    if ( !allocated_dst ) return false;
-
-    allocated_dst = pgmem_dst.alloc( pinfo_dst );
-    if ( !allocated_dst ) return false;
-
-    allocated_dst = plists_dst.alloc( pinfo_dst );
-    if ( !allocated_dst ) return false;
+    auto target = std::make_shared<ego_mesh_t>(Ego::MeshInfo(source._info.getVertexCount(), source._info.getTileCountX(), source._info.getTileCountY()));
+	tile_mem_t& tmem_dst = target->_tmem;
+	grid_mem_t& gmem_dst = target->_gmem;
+	Ego::MeshInfo& info_dst = target->_info;
 
     // copy all the per-tile info
-    for (size_t cnt = 0; cnt < pinfo_dst.getTileCount(); cnt++)
+    for (size_t cnt = 0; cnt < info_dst.getTileCount(); cnt++)
     {
-        tile_info_t& ptile_src = pmem_src.tiles[cnt];
-        const std::shared_ptr<ego_tile_info_t> &ptile_dst = ptmem_dst.getTile(cnt);
-        ego_grid_info_t *pgrid_dst = pgmem_dst.get(cnt);
+        tile_info_t& ptile_src = source._mem.tiles[cnt];
+        ego_tile_info_t& ptile_dst = tmem_dst.getTile(cnt);
+        ego_grid_info_t *pgrid_dst = gmem_dst.get(cnt);
 
         // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
-        ptile_dst->_type         = ptile_src.type;
-        ptile_dst->_img          = ptile_src.img;
+        ptile_dst._type = ptile_src.type;
+        ptile_dst._img  = ptile_src.img;
 
         // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         pgrid_dst->_base_fx = ptile_src.fx;
@@ -305,35 +220,35 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     }
 
     // copy all the per-vertex info
-    for (size_t cnt = 0; cnt < pinfo_src.getVertexCount(); cnt++ )
+    for (size_t cnt = 0; cnt < source._info.getVertexCount(); cnt++ )
     {
-		GLXvector3f     * ppos_dst = ptmem_dst._plst + cnt;
-        GLXvector3f     * pcol_dst = ptmem_dst._clst + cnt;
-        const map_vertex_t& pvrt_src = pmem_src.vertices[cnt];
+		GLXvector3f& ppos_dst = tmem_dst._plst[cnt];
+        GLXvector3f& pcol_dst = tmem_dst._clst[cnt];
+        const map_vertex_t& pvrt_src = source._mem.vertices[cnt];
 
         // copy all info from map_mem_t
-        ( *ppos_dst )[XX] = pvrt_src.pos[kX];
-        ( *ppos_dst )[YY] = pvrt_src.pos[kY];
-        ( *ppos_dst )[ZZ] = pvrt_src.pos[kZ];
+        ppos_dst[XX] = pvrt_src.pos[kX];
+        ppos_dst[YY] = pvrt_src.pos[kY];
+        ppos_dst[ZZ] = pvrt_src.pos[kZ];
 
         // default color
-        ( *pcol_dst )[RR] = ( *pcol_dst )[GG] = ( *pcol_dst )[BB] = 0.0f;
+        pcol_dst[RR] = pcol_dst[GG] = pcol_dst[BB] = 0.0f;
 
         // tlist is set below
     }
 
     // copy some of the pre-calculated grid lighting
-    for (Uint32 cnt = 0; cnt < pinfo_dst.getTileCount(); cnt++ )
+    for (Uint32 cnt = 0; cnt < info_dst.getTileCount(); cnt++ )
     {
-        size_t vertex = ptmem_dst.get(cnt)->_vrtstart;
-        ego_grid_info_t *pgrid_dst = pgmem_dst.get(cnt);
-        const map_vertex_t& pvrt_src = pmem_src.vertices[vertex];
+        size_t vertex = tmem_dst.get(cnt)._vrtstart;
+        ego_grid_info_t *pgrid_dst = gmem_dst.get(cnt);
+        const map_vertex_t& pvrt_src = source._mem.vertices[vertex];
 
         pgrid_dst->_a = pvrt_src.a;
         pgrid_dst->_l = 0.0f;
     }
 
-    return true;
+	return target;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -349,10 +264,9 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 		log_error("%s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
-	// Create the mesh.
-	std::shared_ptr<ego_mesh_t> mesh = std::make_shared<ego_mesh_t>();
-	// Convert the mpd into a mesh.
-	if (!ego_mesh_convert(mesh.get(), &local_mpd))
+	// Create the mesh from map.
+	std::shared_ptr<ego_mesh_t> mesh = ego_mesh_convert(local_mpd);
+	if (!mesh)
 	{
 		std::ostringstream os;
 		os << "unable to convert mesh of module `" << moduleName << "`";
@@ -365,116 +279,91 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-grid_mem_t::grid_mem_t()
-	: _grids_x(0), _grids_y(0), _grid_count(0),
-	  _blocks_x(0), _blocks_y(0), _blocks_count(0), 
-	  _edge_x(0.0f), _edge_y(0.0f),
-	  _blockstart(nullptr), _tilestart(nullptr), _grid_list(nullptr) {
+
+grid_mem_t::grid_mem_t(const Ego::MeshInfo& info) {
+	// Free any memory already allocated.
+	if (info.getVertexCount() > MAP_VERTICES_MAX) {
+		warnNumberOfVertices(__FILE__, __LINE__, info.getVertexCount());
+	}
+
+	// Set the desired block number of grids.
+	_grids_x = info.getTileCountX();
+	_grids_y = info.getTileCountY();
+	_grid_count = info.getTileCount();
+
+	// Set the mesh edge info.
+	_edge_x = (_grids_x + 1) * Info<int>::Grid::Size();
+	_edge_y = (_grids_y + 1) * Info<int>::Grid::Size();
+
+	// Set the desired blocknumber of blocks.
+	// This only works if BLOCK_BITS = GRID_BITS + 2.
+	_blocks_x = (info.getTileCountX() >> 2);
+	if (HAS_SOME_BITS(info.getTileCountX(), 0x03))
+	{
+		_blocks_x++;
+	}
+	_blocks_y = (info.getTileCountY() >> 2);
+	if (HAS_SOME_BITS(info.getTileCountY(), 0x03))
+	{
+		_blocks_y++;
+	}
+	_blocks_count = _blocks_x * _blocks_y;
+
+	// Allocate per-grid memory.
+	_grid_list = new ego_grid_info_t[info.getTileCount()]();
+	// Allocate the array for the block start data.
+	_blockstart = new Uint32[_blocks_y];
+
+	// Allocate the array for the tile start data.
+	_tilestart = new Uint32[info.getTileCountY()];
+	// Compute the tile start/block start data.
+	// Compute look-up table for tile starts.
+	for (int i = 0; i < info.getTileCountY(); i++)
+	{
+		_tilestart[i] = info.getTileCountX() * i;
+	}
+
+	// Calculate some of the block info
+	if (_blocks_x >= GRID_BLOCKY_MAX)
+	{
+		log_warning("%s:%d: number of mesh blocks in the x direction too large (%d out of %d).\n", __FILE__, __LINE__, \
+			_blocks_x, GRID_BLOCKY_MAX);
+	}
+
+	if (_blocks_y >= GRID_BLOCKY_MAX)
+	{
+		log_warning("%s:%d: number of mesh blocks in the y direction too large (%d out of %d).\n", __FILE__, __LINE__, \
+			_blocks_y, GRID_BLOCKY_MAX);
+	}
+
+	// Compute look-up table for block starts.
+	for (int i = 0; i < _blocks_y; i++)
+	{
+		_blockstart[i] = _blocks_x * i;
+	}
 }
 
 grid_mem_t::~grid_mem_t() {
-    free();
-}
+	// Free the block start and tile start arrays.
+	if (_blockstart)
+	{
+		delete[] _blockstart;
+		_blockstart = nullptr;
+	}
+	if (_tilestart)
+	{
+		delete[] _tilestart;
+		_tilestart = nullptr;
+	}
 
-bool grid_mem_t::alloc(const Ego::MeshInfo& info)
-{
-    if (0 == info.getVertexCount())
-    {
-        return false;
-    }
-    // Free any memory already allocated.
-	free();
-    if (info.getVertexCount() > MAP_VERTICES_MAX)
-    {
-        warnNumberOfVertices(__FILE__, __LINE__, info.getVertexCount());
-        return false;
-    }
-
-    // Set the desired block number of grids.
-    _grids_x = info.getTileCountX();
-    _grids_y = info.getTileCountY();
-	_grid_count = info.getTileCount();
-
-    // Set the mesh edge info.
-    _edge_x = (_grids_x + 1) * Info<int>::Grid::Size();
-    _edge_y = (_grids_y + 1) * Info<int>::Grid::Size();
-
-    // Set the desired blocknumber of blocks.
-    // This only works if BLOCK_BITS = GRID_BITS + 2.
-    _blocks_x = (info.getTileCountX() >> 2);
-    if (HAS_SOME_BITS(info.getTileCountX(), 0x03))
-    {
-        _blocks_x++;
-    }
-    _blocks_y = (info.getTileCountY() >> 2);
-    if (HAS_SOME_BITS(info.getTileCountY(), 0x03))
-    {
-        _blocks_y++;
-    }
-    _blocks_count = _blocks_x * _blocks_y;
-
-    // Allocate per-grid memory.
-    _grid_list  = new ego_grid_info_t[info.getTileCount()]();
-    if (!_grid_list)
-    {
-        goto grid_mem_alloc_fail;
-    }
-    // Allocate the array for the block start data.
-    try
-    {
-        _blockstart = new Uint32[_blocks_y];
-    }
-    catch (std::bad_alloc& ex)
-    {
-        goto grid_mem_alloc_fail;
-    }
-    
-    // Allocate the array for the tile start data.
-    try
-    {
-        _tilestart = new Uint32[info.getTileCountY()];
-    }
-    catch (std::bad_alloc& ex)
-    {
-        goto grid_mem_alloc_fail;
-    }
-
-    // Compute the tile start/block start data.
-    make_fanstart(info);
-
-    return true;
-
-grid_mem_alloc_fail:
-
-	free();
-    log_error("%s:%d: unable to allocate grid memory - reduce the maximum number of vertices" \
-              " (check MAP_VERTICES_MAX)\n",__FILE__,__LINE__);
-
-    return false;
-}
-
-void grid_mem_t::free()
-{
-    // Free the block start and tile start arrays.
-    if (_blockstart)
-    {
-        delete[] _blockstart;
-        _blockstart = nullptr;
-    }
-    if (_tilestart)
-    {
-        delete[] _tilestart;
-        _tilestart = nullptr;
-    }
-
-    // Destroy the grid list.
+	// Destroy the grid list.
 	if (_grid_list) {
 		delete[] _grid_list;
 		_grid_list = nullptr;
 	}
 
 
-	_grids_y = 0; 
+	_grids_y = 0;
 	_grids_x = 0;
 	_grid_count = 0;
 
@@ -486,34 +375,6 @@ void grid_mem_t::free()
 	_edge_x = 0.0f;
 }
 
-void grid_mem_t::make_fanstart(const Ego::MeshInfo& info)
-{
-    // Compute look-up table for tile starts.
-    for (int i = 0; i < info.getTileCountY(); i++)
-    {
-        _tilestart[i] = info.getTileCountX() * i;
-    }
-
-    // Calculate some of the block info
-    if (_blocks_x >= GRID_BLOCKY_MAX)
-    {
-        log_warning("%s:%d: number of mesh blocks in the x direction too large (%d out of %d).\n", __FILE__,__LINE__,\
-                    _blocks_x, GRID_BLOCKY_MAX);
-    }
-
-    if (_blocks_y >= GRID_BLOCKY_MAX)
-    {
-        log_warning("%s:%d: number of mesh blocks in the y direction too large (%d out of %d).\n", __FILE__, __LINE__,\
-                    _blocks_y, GRID_BLOCKY_MAX);
-    }
-
-    // Compute look-up table for block starts.
-    for (int i = 0; i < _blocks_y; i++)
-    {
-        _blockstart[i] = _blocks_x * i;
-    }
-}
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void ego_mesh_t::make_vrtstart()
@@ -521,11 +382,9 @@ void ego_mesh_t::make_vrtstart()
     size_t vert = 0;
     for (uint32_t tile = 0; tile < _info.getTileCount(); tile++ )
     {
-        Uint8 ttype;
+        _tmem.get(tile)._vrtstart = vert;
 
-        _tmem.get(tile)->_vrtstart = vert;
-
-        ttype = _tmem.get(tile)->_type;
+        uint8_t ttype = _tmem.get(tile)._type;
 
         // throw away any remaining upper bits
         ttype &= 0x3F;
@@ -589,33 +448,29 @@ void ego_mesh_t::make_bbox()
 
 	for (TileIndex cnt = 0; cnt.getI() < _info.getTileCount(); cnt++)
 	{
-		size_t mesh_vrt;
+        ego_tile_info_t& ptile = _tmem.getTile(cnt.getI());
+        oct_bb_t& poct = ptile._oct;
+
+
+        ptile._itile = cnt.getI();
+		uint8_t type = ptile._type & 0x3F;
+
 		int tile_vrt;
-		tile_definition_t * pdef;
-		Uint16 vertices;
-		Uint8 type;
 		oct_vec_v2_t ovec;
 
-        std::shared_ptr<ego_tile_info_t> ptile = _tmem.getTile(cnt.getI());
-        oct_bb_t& poct = ptile->_oct;
-
-        ptile->_itile = cnt.getI();
-		type = ptile->_type;
-		type &= 0x3F;
-
-		pdef = TILE_DICT_PTR(tile_dict, type);
+		tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, type);
 		if (NULL == pdef) continue;
 
-		mesh_vrt = _tmem.get(cnt)->_vrtstart;    // Number of vertices
-		vertices = pdef->numvertices;           // Number of vertices
+		size_t mesh_vrt = _tmem.get(cnt)._vrtstart;    // Number of vertices
+		uint8_t vertices = pdef->numvertices;           // Number of vertices
 
 		// initialize the bounding box
 	    ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0], _tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
         poct = oct_bb_t(ovec);
         mesh_vrt++;
 
-        ptile->_aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile->_itile % _info.getTileCountX()), Info<float>::Grid::Size() * (ptile->_itile % _info.getTileCountY()));
-        ptile->_aabb._max = Vector2f(ptile->_aabb._min[OCT_X] + Info<float>::Grid::Size(), ptile->_aabb._min[OCT_Y] + Info<float>::Grid::Size());
+        ptile._aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile._itile % _info.getTileCountX()), Info<float>::Grid::Size() * (ptile._itile % _info.getTileCountY()));
+        ptile._aabb._max = Vector2f(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size(), ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size());
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
@@ -652,30 +507,26 @@ void ego_mesh_t::make_bbox()
 //--------------------------------------------------------------------------------------------
 void ego_mesh_t::make_normals()
 {
-
-
-    int ix, iy;
-
-    int      edge_is_crease[4];
-	Vector3f nrm_lst[4], vec_sum;
-    float    weight_lst[4];
-
     // test for mesh
 
     // set the default normal for each fan, based on the calculated twist value
     for (TileIndex fan0 = 0; fan0 < _tmem.getTileCount(); fan0++ )
     {
-        Uint8 twist = _gmem.get(fan0)->_twist;
+        uint8_t twist = _gmem.get(fan0)->_twist;
 
         _tmem._nlst[fan0.getI()][XX] = g_meshLookupTables.twist_nrm[twist][kX];
         _tmem._nlst[fan0.getI()][YY] = g_meshLookupTables.twist_nrm[twist][kY];
         _tmem._nlst[fan0.getI()][ZZ] = g_meshLookupTables.twist_nrm[twist][kZ];
     }
 
+	int      edge_is_crease[4];
+	Vector3f nrm_lst[4], vec_sum;
+	float    weight_lst[4];
+
     // find an "average" normal of each corner of the tile
-    for ( iy = 0; iy < _info.getTileCountY(); iy++ )
+    for (size_t iy = 0; iy < _info.getTileCountY(); iy++ )
     {
-        for ( ix = 0; ix < _info.getTileCountX(); ix++ )
+        for (size_t ix = 0; ix < _info.getTileCountX(); ix++ )
         {
             int ix_off[4] = {0, 1, 1, 0};
             int iy_off[4] = {0, 0, 1, 1};
@@ -783,9 +634,9 @@ void ego_mesh_t::make_normals()
 
 				vec_sum.normalize();
 
-                _tmem.get(fan0)->_ncache[i][XX] = vec_sum[kX];
-                _tmem.get(fan0)->_ncache[i][YY] = vec_sum[kY];
-                _tmem.get(fan0)->_ncache[i][ZZ] = vec_sum[kZ];
+                _tmem.get(fan0)._ncache[i][XX] = vec_sum[kX];
+                _tmem.get(fan0)._ncache[i][YY] = vec_sum[kY];
+                _tmem.get(fan0)._ncache[i][ZZ] = vec_sum[kZ];
             }
         }
     }
@@ -917,15 +768,12 @@ bool ego_mesh_t::test_corners(ego_tile_info_t *ptile, float threshold) const
     for ( corner = 0; corner < 4; corner++ )
     {
         float            delta;
-        float          * pdelta;
-        float          * plight;
-        GLXvector3f    * ppos;
 
-        pdelta = ( d1_cache ) + corner;
-        plight = ( lcache ) + corner;
-        ppos   = _tmem._plst + ptile->_vrtstart + corner;
+		float *pdelta = ( d1_cache ) + corner;
+        float *plight = ( lcache ) + corner;
+        GLXvector3f& ppos = _tmem._plst[ptile->_vrtstart + corner];
 
-        test_one_corner(*ppos, &delta);
+        test_one_corner(ppos, &delta);
 
         if ( 0.0f == *plight )
         {
@@ -984,19 +832,14 @@ float ego_mesh_t::light_corners( ego_mesh_t& mesh, ego_tile_info_t * ptile, bool
     {
         float light_new, light_old, delta, light_tmp;
 
-        GLXvector3f    * pnrm;
-        float          * plight;
-        float          * pdelta1, * pdelta2;
-        GLXvector3f    * ppos;
-
-        pnrm    = ( ncache ) + corner;
-        plight  = ( lcache ) + corner;
-        pdelta1 = ( d1_cache ) + corner;
-        pdelta2 = ( d2_cache ) + corner;
-        ppos    = ptmem._plst + ptile->_vrtstart + corner;
+		GLXvector3f    *pnrm    = ( ncache ) + corner;
+		float          *plight  = ( lcache ) + corner;
+		float          *pdelta1 = ( d1_cache ) + corner;
+		float          *pdelta2 = ( d2_cache ) + corner;
+		GLXvector3f&   ppos    = ptmem._plst[ptile->_vrtstart + corner];
 
         light_new = 0.0f;
-        mesh.light_one_corner( ptile, reflective, Vector3f((*ppos)[0],(*ppos)[1],(*ppos)[2]),
+        mesh.light_one_corner( ptile, reflective, Vector3f((ppos)[0],(ppos)[1],(ppos)[2]),
 			                                      Vector3f((*pnrm)[0],(*pnrm)[1],(*pnrm)[2]), &light_new );
 
         if ( *plight != light_new )
@@ -1572,9 +1415,9 @@ float ego_mesh_t::get_max_vertex_0(const PointGrid& point) const
         return 0.0f;
     }
     // get a pointer to the tile
-    const std::shared_ptr<ego_tile_info_t> &ptile = _tmem.getTile(itile.getI());
+    const ego_tile_info_t& ptile = _tmem.getTile(itile.getI());
 
-    vstart = ptile->_vrtstart;
+    vstart = ptile._vrtstart;
     vcount = std::min(static_cast<size_t>(4), _tmem.getVertexCount());
 
     ivrt = vstart;
@@ -1596,7 +1439,7 @@ float ego_mesh_t::get_max_vertex_1( const PointGrid& point, float xmin, float ym
 
     if (TileIndex::Invalid == itile) return 0.0f;
 
-    size_t vstart = _tmem.get(itile)->_vrtstart;
+    size_t vstart = _tmem.get(itile)._vrtstart;
     size_t vcount = std::min( (size_t)4, _tmem.getVertexCount() );
 
     float zmax = -1e6;
@@ -1713,56 +1556,32 @@ bool mpdfx_list_ary_t::push(size_t value)
 
 //--------------------------------------------------------------------------------------------
 
-mpdfx_lists_t::mpdfx_lists_t()
-	: sha(), drf(), anm(), wat(), wal(), imp(), dam(), slp(), dirty(false) {
+mpdfx_lists_t::mpdfx_lists_t(const Ego::MeshInfo& info) {
+	sha.alloc(info.getTileCount());
+	drf.alloc(info.getTileCount());
+	anm.alloc(info.getTileCount());
+	wat.alloc(info.getTileCount());
+	wal.alloc(info.getTileCount());
+	imp.alloc(info.getTileCount());
+	dam.alloc(info.getTileCount());
+	slp.alloc(info.getTileCount());
+
+	// the list needs to be resynched
+	dirty = true;
 }
 
 mpdfx_lists_t::~mpdfx_lists_t() {
-    dealloc();
-}
-
-bool mpdfx_lists_t::alloc(const Ego::MeshInfo& info)
-{
-	// free any memory already allocated
-	dealloc();
-
-	if (0 == info.getTileCount()) return true;
-
-	try {
-		sha.alloc(info.getTileCount());
-		drf.alloc(info.getTileCount());
-		anm.alloc(info.getTileCount());
-		wat.alloc(info.getTileCount());
-		wal.alloc(info.getTileCount());
-		imp.alloc(info.getTileCount());
-		dam.alloc(info.getTileCount());
-		slp.alloc(info.getTileCount());
-
-		// the list needs to be resynched
-		dirty = true;
-
-		return true;
-	}
-	catch (...) {
-		dealloc();
-		log_error("%s - cannot allocate mpdfx_lists_t for this mesh!\n", __FUNCTION__);
-		throw std::current_exception();
-	}
-}
-
-void mpdfx_lists_t::dealloc()
-{
-    // free the memory
+	// free the memory
 	sha.dealloc();
-    drf.dealloc();
-    anm.dealloc();
-    wat.dealloc();
-    wal.dealloc();
-    imp.dealloc();
-    dam.dealloc();
-    slp.dealloc();
+	drf.dealloc();
+	anm.dealloc();
+	wat.dealloc();
+	wal.dealloc();
+	imp.dealloc();
+	dam.dealloc();
+	slp.dealloc();
 
-    // No memory, hence nothing is stored, hence nothing is dirty.
+	// No memory, hence nothing is stored, hence nothing is dirty.
 	dirty = false;
 }
 
@@ -1928,10 +1747,10 @@ float ego_mesh_t::getElevation(const PointWorld& point) const
                         static_cast<int>(point.getY()) & Info<int>::Grid::Mask());
 
     // Get the height of each fan corner.
-    float z0 = _tmem._plst[_tmem.get(tile)->_vrtstart + 0][ZZ];
-    float z1 = _tmem._plst[_tmem.get(tile)->_vrtstart + 1][ZZ];
-    float z2 = _tmem._plst[_tmem.get(tile)->_vrtstart + 2][ZZ];
-    float z3 = _tmem._plst[_tmem.get(tile)->_vrtstart + 3][ZZ];
+    float z0 = _tmem._plst[_tmem.get(tile)._vrtstart + 0][ZZ];
+    float z1 = _tmem._plst[_tmem.get(tile)._vrtstart + 1][ZZ];
+    float z2 = _tmem._plst[_tmem.get(tile)._vrtstart + 2][ZZ];
+    float z3 = _tmem._plst[_tmem.get(tile)._vrtstart + 3][ZZ];
 
     // Get the weighted height of each side.
     float zleft = (z0 * (Info<float>::Grid::Size() - gridPoint.getY()) + z3 * gridPoint.getY()) / Info<float>::Grid::Size();
@@ -2046,7 +1865,7 @@ Uint32 ego_mesh_t::test_fx(const TileIndex& index, const BIT_FIELD flags) const
     }
 
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
-    if (_tmem.get(index)->isFanOff())
+    if (_tmem.get(index).isFanOff())
     {
         return 0;
     }
@@ -2055,16 +1874,28 @@ Uint32 ego_mesh_t::test_fx(const TileIndex& index, const BIT_FIELD flags) const
     return ego_grid_info_t::test_all_fx(_gmem.get(index), flags);
 }
 
-ego_tile_info_t* ego_mesh_t::get_ptile(const TileIndex& index) const
+ego_tile_info_t& ego_mesh_t::get_ptile(const TileIndex& index)
+{
+	// Validate mesh and tile index.
+	if (index.getI() >= _info.getTileCount())
+	{
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+	}
+
+	// Get the tile info.
+	return _tmem.getTile(index.getI());
+}
+
+const ego_tile_info_t& ego_mesh_t::get_ptile(const TileIndex& index) const
 {
     // Validate mesh and tile index.
     if (index.getI() >= _info.getTileCount())
     {
-        return nullptr;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
     }
 
     // Get the tile info.
-    return _tmem.getTile(index.getI()).get();
+    return _tmem.getTile(index.getI());
 }
 
 ego_grid_info_t *ego_mesh_t::get_pgrid(const TileIndex& index)
@@ -2099,14 +1930,6 @@ Uint8 ego_mesh_t::get_twist(const TileIndex& index) const
         return TWIST_FLAT;
     }
     return _gmem.get(index)->_twist;
-#if 0
-    // Assert that the grids are allocated.
-    if (!_gmem.grid_list || index.getI() >= _gmem.grid_count)
-    {
-        return TWIST_FLAT;
-    }
-    return _gmem.grid_list[index].twist;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2192,13 +2015,13 @@ uint8_t ego_mesh_t::get_fan_twist(const TileIndex& tile) const
     {
         return TWIST_FLAT;
     }
-    ego_tile_info_t *info = _tmem.getTile(tile.getI()).get();
+    const ego_tile_info_t& info = _tmem.getTile(tile.getI());
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
-    if (info->isFanOff())
+	if (info.isFanOff())
     {
         return TWIST_FLAT;
     }
-    size_t vrtstart = info->_vrtstart;
+    size_t vrtstart = info._vrtstart;
 
     float z0 = _tmem._plst[vrtstart + 0][ZZ];
     float z1 = _tmem._plst[vrtstart + 1][ZZ];
