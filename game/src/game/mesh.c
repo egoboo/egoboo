@@ -48,7 +48,7 @@ static void warnNumberOfVertices(const char *file, int line, size_t numberOfVert
 	std::ostringstream os;
 	os << "mesh has too many vertices - " << numberOfVertices << " requested, "
 	   << "but maximum is " << MAP_VERTICES_MAX;
-    log_warning("%s:%d: %s\n", os.str().c_str());
+    log_warning("%s:%d: %s\n", __FILE__, __LINE__, os.str().c_str());
 }
 
 //--------------------------------------------------------------------------------------------
