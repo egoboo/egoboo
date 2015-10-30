@@ -43,7 +43,7 @@
 #include "game/char.h"
 #include "game/Physics/CollisionSystem.hpp"
 #include "game/physics.h"
-#include "game/ObjectPhysics.h"
+#include "game/Physics/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"

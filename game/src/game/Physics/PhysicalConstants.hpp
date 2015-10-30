@@ -20,18 +20,39 @@
 /// @file  game/PhysicalConstants.cpp
 /// @brief invariants & defaults of the game's physics system
 
-#include "game/PhysicalConstants.hpp"
+#pragma once
 
-const float   PhysicalConstants::gravity              = -1.0f;
+namespace Ego
+{
+namespace Physics
+{
 
-const fvec3_t PhysicalConstants::windspeed            = fvec3_t::ADDITIVE_NEUTRAL;
+/// @brief The default gravity    amount and direction.
+/// @todo Should be a vector.
+static constexpr float gravity = -1.0f;
 
-const fvec3_t PhysicalConstants::waterspeed           = fvec3_t::ADDITIVE_NEUTRAL;
+/// @brief The default windspeed  amount and direction.
+static constexpr fvec3_windspeed = Vector3f::ADDITIVE_NEUTRAL; 
 
-const float   PhysicalConstants::airfriction          = 0.91f;
+/// @brief The default waterspeed amount and direction.
+static constexpr fvec3_waterspeed = Vector3f::ADDITIVE_NEUTRAL;
 
-const float   PhysicalConstants::waterfriction        = 0.80f;
+/// @brief The default friction of   air.
+static constexpr float airfriction = 0.91f;
 
-const float   PhysicalConstants::slippyGroundFriction = 1.00f;
+/// @brief The default friction of water.
+static constexpr float waterfriction = 0.80f;
 
-const float   PhysicalConstants::normalGroundFriction = 0.91f;
+/// @brief The default friction on slippy ground.
+///        i.e. tiles for which the MAPFX_SLIPPY bit is
+///        set.
+static constexpr float slippyGroundFriction = 1.00f;
+
+/// @brief The default friction on normal ground.
+///        i.e. tiles for which the MAPFX_SLIPPY bit is
+///        NOT
+///        set.
+static constexpr float normalGroundFriction = 0.91f;
+
+} //namespace Physics
+} //namespace Ego

@@ -32,7 +32,7 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
+#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"

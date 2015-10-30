@@ -16,7 +16,7 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-#include "game/ObjectPhysics.h"
+#include "game/Physics/ObjectPhysics.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/char.h"

@@ -19,7 +19,7 @@
 #include "CollisionSystem.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h" //for update_wld
-#include "game/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
+#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
 
 #include "particle_collision.h"
 
@@ -45,6 +45,10 @@ CollisionSystem::~CollisionSystem()
 
 void CollisionSystem::update()
 {
+    uint64_t stt = SDL_GetPerformanceCounter();
+    static uint64_t totalTime = 0;
+    static uint32_t logTime = 0;
+
     // blank the accumulators
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
@@ -252,6 +256,14 @@ void CollisionSystem::update()
         {
             particle->setPosition(tmp_pos);
         }
+    }
+
+    totalTime += SDL_GetPerformanceCounter()-stt;
+    if(SDL_GetTicks() > logTime) {
+        float percent = (100.0f / SDL_GetPerformanceFrequency()) * totalTime;
+        printf("Collision update avg %.6f sec (%.2f%%)\n", totalTime/static_cast<float>(SDL_GetPerformanceFrequency()), percent);
+        totalTime = 0;
+        logTime = SDL_GetTicks() + 1000;
     }
 }
 

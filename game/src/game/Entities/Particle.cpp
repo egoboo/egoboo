@@ -28,7 +28,7 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
-#include "game/Entities/particle_physics.h"
+#include "game/Physics/particle_physics.h"
 
 namespace Ego
 {

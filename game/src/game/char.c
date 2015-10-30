@@ -45,7 +45,7 @@
 
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
-#include "game/ObjectPhysics.h"
+#include "game/Physics/ObjectPhysics.h"
 #include "game/mesh.h"
 
 //--------------------------------------------------------------------------------------------
