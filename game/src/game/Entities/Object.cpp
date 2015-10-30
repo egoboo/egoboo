@@ -1735,17 +1735,12 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 		return EMPTY_BIT_FIELD;
 	}
 
-	float radius = 0.0f;
-#if 0
     // Calculate the radius based on whether the character is on camera.
-	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
+	float radius = 0.0f;
+	if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
 	{
-		if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
-		{
-			radius = bump_1.size;
-		}
+		radius = bump_1.size;
 	}
-#endif
 
 	g_meshStats.mpdfxTests = 0;
 	g_meshStats.boundTests = 0;
