@@ -45,10 +45,6 @@ CollisionSystem::~CollisionSystem()
 
 void CollisionSystem::update()
 {
-    uint64_t stt = SDL_GetPerformanceCounter();
-    static uint64_t totalTime = 0;
-    static uint32_t logTime = 0;
-
     // blank the accumulators
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
@@ -256,14 +252,6 @@ void CollisionSystem::update()
         {
             particle->setPosition(tmp_pos);
         }
-    }
-
-    totalTime += SDL_GetPerformanceCounter()-stt;
-    if(SDL_GetTicks() > logTime) {
-        float percent = (100.0f / SDL_GetPerformanceFrequency()) * totalTime;
-        printf("Collision update avg %.6f sec (%.2f%%)\n", totalTime/static_cast<float>(SDL_GetPerformanceFrequency()), percent);
-        totalTime = 0;
-        logTime = SDL_GetTicks() + 1000;
     }
 }
 
