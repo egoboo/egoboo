@@ -45,7 +45,7 @@ endif
 
 #---------------------
 # the compiler options
-TMPFLAGS += -x c++ -std=c++11 $(LUA_CFLAGS)
+TMPFLAGS += -x c++ -std=c++14 $(LUA_CFLAGS)
 
 # for now, find a better way to do this?
 ifeq ($(PREFIX),)

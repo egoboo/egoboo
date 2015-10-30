@@ -436,8 +436,37 @@ float draw_game_icon(const oglx_texture_t* icontype, float x, float y, Uint8 spa
 void draw_blip(float sizeFactor, Uint8 color, float x, float y);
 void draw_mouse_cursor();
 
-bool grid_lighting_interpolate(const ego_mesh_t& mesh, lighting_cache_t& dst, const Vector2f& pos);
-float grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
+/// The active dynamic lights
+struct dynalist_t
+{
+	int frame; ///< The last frame in shich the list was updated. @a -1 if there was no update yet.
+	size_t size; ///< The size of the list.
+	dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
+};
+
+gfx_rv dynalist_init(dynalist_t *self);
+
+
+#define DYNALIST_INIT { -1 /* frame */, 0 /* count */, {} }
+
+/// Illuminate the "grid".
+struct GridIllumination {
+private:
+	static void test_one_corner(const ego_mesh_t& mesh, GLXvector3f pos, float& pdelta);
+	static bool test_corners(const ego_mesh_t& mesh, ego_tile_info_t& tile, float threshold);
+	static void light_one_corner(ego_mesh_t& mesh, ego_tile_info_t& tile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float& plight);
+	static float grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
+	static void light_fans_update_clst(Ego::Graphics::TileList& tl);
+	static gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold);
+	static void light_fans_update_lcache(Ego::Graphics::TileList& tl);
+public:
+	static gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& cam);
+	static void light_fans(Ego::Graphics::TileList& tl);
+	static float light_corners(ego_mesh_t& mesh, ego_tile_info_t& tile, bool reflective, float mesh_lighting_keep);
+	static bool grid_lighting_interpolate(const ego_mesh_t& mesh, lighting_cache_t& dst, const Vector2f& pos);
+	static bool light_corner(ego_mesh_t& mesh, const TileIndex& fan, float height, float nrm[], float& plight);
+};
+
 
 float  get_ambient_level();
 

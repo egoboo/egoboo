@@ -69,22 +69,6 @@ struct dynalight_registry_t
 // dynalist
 //--------------------------------------------------------------------------------------------
 
-/// The active dynamic lights
-struct dynalist_t
-{
-    int frame; ///< The last frame in shich the list was updated. @a -1 if there was no update yet.
-    size_t size; ///< The size of the list.
-    dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
-};
-
-static gfx_rv dynalist_init(dynalist_t *self);
-static gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& cam);
-
-#define DYNALIST_INIT { -1 /* frame */, 0 /* count */, {} }
-
-//--------------------------------------------------------------------------------------------
-
-static gfx_rv light_fans(Ego::Graphics::TileList& tl);
 
 
 //--------------------------------------------------------------------------------------------
@@ -209,9 +193,8 @@ static gfx_rv update_one_chr_instance(Object * pchr);
 static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el);
 
-static gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold);
-static gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl);
-static gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl);
+
+
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 
 static void   gfx_init_bar_data();
@@ -1110,7 +1093,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     {
 		ClockScope<ClockPolicy::NonRecursive> scope(do_grid_lighting_timer);
         // figure out the terrain lighting
-        if (gfx_error == do_grid_lighting(tl, dyl, cam))
+		if (gfx_error == GridIllumination::do_grid_lighting(tl, dyl, cam))
         {
             retval = gfx_error;
         }
@@ -1119,10 +1102,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     {
 		ClockScope<ClockPolicy::NonRecursive> scope(light_fans_timer);
         // apply the lighting to the characters and particles
-        if (gfx_error == light_fans(tl))
-        {
-            retval = gfx_error;
-        }
+		GridIllumination::light_fans(tl);
     }
 
     {
@@ -1384,7 +1364,7 @@ void gfx_error_clear()
 //--------------------------------------------------------------------------------------------
 // grid_lighting FUNCTIONS
 //--------------------------------------------------------------------------------------------
-float grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
+float GridIllumination::grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
 {
     const lighting_cache_t *cache_list[4];
 
@@ -1399,14 +1379,10 @@ float grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_di
 
     for (size_t cnt = 0; cnt < 4; cnt++)
     {
-        cache_list[cnt] = NULL;
+        cache_list[cnt] = nullptr;
 
-		const ego_grid_info_t  *pgrid = mesh.get_pgrid(fan[cnt]);
-        if (NULL == pgrid)
-        {
-            cache_list[cnt] = NULL;
-        }
-        else
+		const ego_grid_info_t *pgrid = mesh.get_pgrid(fan[cnt]);
+        if (pgrid)
         {
             cache_list[cnt] = &(pgrid->_cache);
         }
@@ -1419,36 +1395,104 @@ float grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_di
 }
 
 //--------------------------------------------------------------------------------------------
-bool grid_lighting_interpolate(const ego_mesh_t& mesh, lighting_cache_t& dst, const Vector2f& pos)
+float GridIllumination::light_corners(ego_mesh_t& mesh, ego_tile_info_t& tile, bool reflective, float mesh_lighting_keep)
 {
-    int ix, iy, cnt;
-    TileIndex fan[4];
-    float u, v;
-	Vector2f tpos;
+	// if no update is requested, return an "error value"
+	if (!tile._request_lcache_update)
+	{
+		return -1.0f;
+	}
 
-    const ego_grid_info_t  * pgrid;
-    const lighting_cache_t * cache_list[4];
+	// has the lighting already been calculated this frame?
+	if (tile._lcache_frame >= 0 && (uint32_t)tile._lcache_frame >= game_frame_all)
+	{
+		return -1.0f;
+	}
 
+	// get the normal and lighting cache for this tile
+	tile_mem_t& ptmem = mesh._tmem;
+	normal_cache_t& ncache = tile._ncache;
+	light_cache_t& lcache = tile._lcache;
+	light_cache_t& d1_cache = tile._d1_cache;
+	light_cache_t& d2_cache = tile._d2_cache;
+
+	float max_delta = 0.0f;
+	for (size_t corner = 0; corner < 4; corner++)
+	{
+		GLXvector3f& pnrm = ncache[corner];
+		float& plight = lcache[corner];
+		float& pdelta1 = d1_cache[corner];
+		float& pdelta2 = d2_cache[corner];
+		GLXvector3f& ppos = ptmem._plst[tile._vrtstart + corner];
+
+		float light_old, delta, light_tmp;
+		float light_new = 0.0f;
+		light_one_corner(mesh, tile, reflective, 
+			             Vector3f(ppos[0], ppos[1], ppos[2]),
+			             Vector3f(pnrm[0], pnrm[1], pnrm[2]),
+			             light_new);
+
+		if (plight != light_new)
+		{
+			light_old = plight;
+			plight = light_old * mesh_lighting_keep + light_new * (1.0f - mesh_lighting_keep);
+
+			// measure the actual delta
+			delta = std::abs(light_old - plight);
+
+			// measure the relative change of the lighting
+			light_tmp = 0.5f * (std::abs(plight) + std::abs(light_old));
+			if (0.0f == light_tmp)
+			{
+				delta = 10.0f;
+			}
+			else
+			{
+				delta /= light_tmp;
+				delta = CLIP(delta, 0.0f, 10.0f);
+			}
+
+			// add in the actual change this update
+			pdelta2 += std::abs(delta);
+
+			// update the estimate to match the actual change
+			pdelta1 = pdelta2;
+		}
+
+		max_delta = std::max(max_delta, pdelta1);
+	}
+
+	// un-mark the lcache
+	tile._request_lcache_update = false;
+	tile._lcache_frame = game_frame_all;
+
+	return max_delta;
+}
+
+bool GridIllumination::grid_lighting_interpolate(const ego_mesh_t& mesh, lighting_cache_t& dst, const Vector2f& pos)
+{
     // calculate the "tile position"
-    tpos = pos * (1.0f / Info<float>::Grid::Size());
+    Vector2f tpos = pos * (1.0f / Info<float>::Grid::Size());
 
     // grab this tile's coordinates
-    ix = std::floor(tpos[XX]);
-    iy = std::floor(tpos[YY]);
+    int ix = std::floor(tpos[XX]),
+        iy = std::floor(tpos[YY]);
 
     // find the tile id for the surrounding tiles
+	TileIndex fan[4];
     fan[0] = mesh.get_tile_int(PointGrid(ix, iy));
     fan[1] = mesh.get_tile_int(PointGrid(ix + 1, iy));
     fan[2] = mesh.get_tile_int(PointGrid(ix, iy + 1));
     fan[3] = mesh.get_tile_int(PointGrid(ix + 1, iy + 1));
 
-    for (cnt = 0; cnt < 4; cnt++)
+	const lighting_cache_t *cache_list[4];
+    for (size_t cnt = 0; cnt < 4; cnt++)
     {
-        pgrid = mesh.get_pgrid(fan[cnt]);
+		const ego_grid_info_t *pgrid = mesh.get_pgrid(fan[cnt]);
 
-        if (NULL == pgrid)
+        if (!pgrid)
         {
-            cache_list[cnt] = NULL;
+            cache_list[cnt] = nullptr;
         }
         else
         {
@@ -1457,10 +1501,136 @@ bool grid_lighting_interpolate(const ego_mesh_t& mesh, lighting_cache_t& dst, co
     }
 
     // grab the coordinates relative to the parent tile
-    u = tpos[XX] - ix;
-    v = tpos[YY] - iy;
+	float u = tpos[XX] - ix,
+		  v = tpos[YY] - iy;
 
     return lighting_cache_interpolate(dst, cache_list, u, v);
+}
+
+void GridIllumination::test_one_corner(const ego_mesh_t& mesh, GLXvector3f pos, float& pdelta)
+{
+	// interpolate the lighting for the given corner of the mesh
+	float low_delta, hgh_delta;
+	pdelta = grid_lighting_test(mesh, pos, &low_delta, &hgh_delta);
+
+	// determine the weighting
+	float hgh_wt, low_wt;
+	hgh_wt = (pos[ZZ] - mesh._tmem._bbox.getMin()[kZ]) / (mesh._tmem._bbox.getMax()[kZ] - mesh._tmem._bbox.getMin()[kZ]);
+	hgh_wt = CLIP(hgh_wt, 0.0f, 1.0f);
+	low_wt = 1.0f - hgh_wt;
+
+	pdelta = low_wt * low_delta + hgh_wt * hgh_delta;
+}
+
+bool GridIllumination::test_corners(const ego_mesh_t& mesh, ego_tile_info_t& tile, float threshold)
+{
+	if (threshold < 0.0f) threshold = 0.0f;
+
+	// get the normal and lighting cache for this tile
+	light_cache_t& lcache = tile._lcache;
+	light_cache_t& d1_cache = tile._d1_cache;
+
+	bool retval = false;
+	for (size_t corner = 0; corner < 4; corner++)
+	{
+		float& pdelta = d1_cache[corner];
+		float& plight = lcache[corner];
+		GLXvector3f& ppos = mesh._tmem._plst[tile._vrtstart + corner];
+
+		float delta;
+		test_one_corner(mesh, ppos, delta);
+
+		if (0.0f == plight)
+		{
+			delta = 10.0f;
+		}
+		else
+		{
+			delta /= plight;
+			delta = CLIP(delta, 0.0f, 10.0f);
+		}
+
+		pdelta += delta;
+
+		if (pdelta > threshold)
+		{
+			retval = true;
+		}
+	}
+
+	return retval;
+}
+
+void GridIllumination::light_one_corner(ego_mesh_t& mesh, ego_tile_info_t& tile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float& plight)
+{
+	// interpolate the lighting for the given corner of the mesh
+	lighting_cache_t grid_light;
+	grid_lighting_interpolate(mesh, grid_light, Vector2f(pos[kX], pos[kY]));
+
+	if (reflective) {
+		float light_dir, light_amb;
+		lighting_evaluate_cache(grid_light, nrm, pos[ZZ], mesh._tmem._bbox, &light_amb, &light_dir);
+
+		// make ambient light only illuminate 1/2
+		plight = light_amb + 0.5f * light_dir;
+	} else {
+		plight = lighting_evaluate_cache(grid_light, nrm, pos[ZZ], mesh._tmem._bbox, NULL, NULL);
+	}
+}
+
+bool GridIllumination::light_corner(ego_mesh_t& mesh, const TileIndex& fan, float height, float nrm[], float& plight)
+{
+	// valid grid?
+	ego_grid_info_t *pgrid = mesh.get_pgrid(fan);
+	if (NULL == pgrid)
+	{
+		// not updated
+		return false;
+	}
+
+	static const bool IGNORE_CACHING = false;
+
+	if (!IGNORE_CACHING)
+	{
+		// <ignore caching for now>
+		// max update speed is once per game frame
+		if (pgrid->_cache_frame >= 0 && (uint32_t)pgrid->_cache_frame >= game_frame_all)
+		{
+			// not updated
+			return false;
+		}
+	}
+	// get the grid lighting
+	const lighting_cache_t& lighting = pgrid->_cache;
+
+	bool reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
+
+	// evaluate the grid lighting at this node
+	if (reflective)
+	{
+		float light_dir, light_amb;
+
+		lighting_evaluate_cache(lighting, Vector3f(nrm[0], nrm[1], nrm[2]), height, mesh._tmem._bbox, &light_amb, &light_dir);
+
+		// make ambient light only illuminate 1/2
+		plight = light_amb + 0.5f * light_dir;
+	} else {
+		plight = lighting_evaluate_cache(lighting, Vector3f(nrm[0], nrm[1], nrm[2]), height, mesh._tmem._bbox, NULL, NULL);
+	}
+
+	// clip the light to a reasonable value
+	plight = CLIP(plight, 0.0f, 255.0f);
+
+
+	if (!IGNORE_CACHING)
+	{
+		// <ignore caching for now>
+		// update the cache frame
+		// figure out the correct way to cache *plight
+		pgrid->_cache_frame = game_frame_all;
+	}
+
+	return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1570,7 +1740,7 @@ void _flip_pages()
 //--------------------------------------------------------------------------------------------
 // LIGHTING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold)
+gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold)
 {
     bool       retval = false;
 
@@ -1589,7 +1759,7 @@ gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, in
 #if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
 
     // visible fans based on the update "need"
-    retval = mesh->test_corners(ptile, threshold);
+    retval = test_corners(*mesh, *ptile, threshold);
 
     // update every 4 fans even if there is no need
     if (!retval)
@@ -1613,7 +1783,7 @@ gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, in
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
+void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 {
     const int frame_skip = 1 << 2;
 #if defined(CLIP_ALL_LIGHT_FANS)
@@ -1653,23 +1823,18 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
     // cache the grid lighting
     for (entry = 0; entry < tl._all.size; entry++)
     {
-        bool reflective;
-        float delta;
-        ego_grid_info_t * pgrid;
-
         // which tile?
         int fan = tl._all.lst[entry].index;
 
         // grab a pointer to the tile
-		ego_tile_info_t *ptile = mesh->get_ptile(fan);
-        if (NULL == ptile) continue;
+		ego_tile_info_t& ptile = mesh->get_ptile(fan);
 
         // Test to see whether the lcache was already updated
         // - ptile->lcache_frame < 0 means that the cache value is invalid.
         // - ptile->lcache_frame is updated inside ego_mesh_light_corners()
 #if defined(CLIP_LIGHT_FANS)
         // clip the updated on each individual tile
-        if (ptile->_lcache_frame >= 0 && (Uint32)ptile->_lcache_frame + frame_skip >= game_frame_all)
+        if (ptile._lcache_frame >= 0 && (Uint32)ptile._lcache_frame + frame_skip >= game_frame_all)
 #else
         // let the function clip all tile updates
         if ( ptile->lcache_frame >= 0 && ( Uint32 )ptile->lcache_frame >= game_frame_all )
@@ -1679,38 +1844,36 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         }
 
         // did someone else request an update?
-        if (!ptile->_request_lcache_update)
+        if (!ptile._request_lcache_update)
         {
             // is someone else did not request an update, do we need an one?
-            gfx_rv light_fans_rv = light_fans_throttle_update(mesh.get(), ptile, fan, delta_threshold);
-            ptile->_request_lcache_update = (gfx_success == light_fans_rv);
+            gfx_rv light_fans_rv = light_fans_throttle_update(mesh.get(), &ptile, fan, delta_threshold);
+            ptile._request_lcache_update = (gfx_success == light_fans_rv);
         }
 
         // if there's no need for an update, go to the next tile
-        if (!ptile->_request_lcache_update) continue;
+        if (!ptile._request_lcache_update) continue;
 
         // is the tile reflective?
-        pgrid = mesh->get_pgrid(fan);
-        reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
+		ego_grid_info_t *pgrid = mesh->get_pgrid(fan);
+        bool reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
-        delta = ego_mesh_t::light_corners(*mesh, ptile, reflective, local_mesh_lighting_keep);
+        float delta = GridIllumination::light_corners(*mesh, ptile, reflective, local_mesh_lighting_keep);
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to
         // signal whether we need to calculate the next stage
-        ptile->_request_clst_update = (delta > delta_threshold);
+        ptile._request_clst_update = (delta > delta_threshold);
 #else
         // make sure that ego_mesh_light_corners() did not return an "error value"
         ptile->request_clst_update = ( delta > 0.0f );
 #endif
     }
-
-    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
+void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 {
     /// @author BB
     /// @details update the tile's color list, if needed
@@ -1720,7 +1883,7 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
     int ivrt, vertex;
     float light;
 
-    ego_tile_info_t   *ptile = NULL;
+
     tile_definition_t *pdef = NULL;
 
     auto mesh = tl.getMesh();
@@ -1742,26 +1905,21 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
         if (TileIndex::Invalid == fan) continue;
 
         // valid tile?
-        ptile = mesh->get_ptile(fan);
-        if (NULL == ptile)
-        {
-            retval = gfx_fail;
-            continue;
-        }
+		ego_tile_info_t& ptile = mesh->get_ptile(fan);
 
         // do nothing if this tile has not been marked as needing an update
-        if (!ptile->_request_clst_update)
+        if (!ptile._request_clst_update)
         {
             continue;
         }
 
         // do nothing if the color list has already been computed this update
-        if (ptile->_clst_frame >= 0 && (Uint32)ptile->_clst_frame >= game_frame_all)
+        if (ptile._clst_frame >= 0 && (Uint32)ptile._clst_frame >= game_frame_all)
         {
             continue;
         }
 
-        pdef = TILE_DICT_PTR(tile_dict, ptile->_type);
+        pdef = TILE_DICT_PTR(tile_dict, ptile._type);
         if (NULL != pdef)
         {
             numvertices = pdef->numvertices;
@@ -1772,55 +1930,42 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
         }
 
         // copy the 1st 4 vertices
-        for (ivrt = 0, vertex = ptile->_vrtstart; ivrt < 4; ivrt++, vertex++)
+        for (ivrt = 0, vertex = ptile._vrtstart; ivrt < 4; ivrt++, vertex++)
         {
-            GLXvector3f * pcol = ptmem._clst + vertex;
+            GLXvector3f& pcol = ptmem._clst[vertex];
 
-            light = ptile->_lcache[ivrt];
+            light = ptile._lcache[ivrt];
 
-            (*pcol)[RR] = (*pcol)[GG] = (*pcol)[BB] = INV_FF * CLIP(light, 0.0f, 255.0f);
-        };
+            pcol[RR] = pcol[GG] = pcol[BB] = INV_FF * CLIP(light, 0.0f, 255.0f);
+        }
 
         for ( /* nothing */; ivrt < numvertices; ivrt++, vertex++)
         {
-            bool was_calculated;
-
-			GLXvector3f *pcol = ptmem._clst + vertex;
-			GLXvector3f *ppos = ptmem._plst + vertex;
+			GLXvector3f& pcol = ptmem._clst[vertex];
+			GLXvector3f& ppos = ptmem._plst[vertex];
 
             light = 0;
-            was_calculated = ego_mesh_interpolate_vertex(&ptmem, ptile, *ppos, &light);
+            bool was_calculated = ego_mesh_interpolate_vertex(&ptmem, &ptile, ppos, &light);
             if (!was_calculated) continue;
 
-            (*pcol)[RR] = (*pcol)[GG] = (*pcol)[BB] = INV_FF * CLIP(light, 0.0f, 255.0f);
+            pcol[RR] = pcol[GG] = pcol[BB] = INV_FF * CLIP(light, 0.0f, 255.0f);
         };
 
         // clear out the deltas
-        BLANK_ARY(ptile->_d1_cache);
-        BLANK_ARY(ptile->_d2_cache);
+        BLANK_ARY(ptile._d1_cache);
+        BLANK_ARY(ptile._d2_cache);
 
         // untag this tile
-        ptile->_request_clst_update = false;
-        ptile->_clst_frame = game_frame_all;
+        ptile._request_clst_update = false;
+        ptile._clst_frame = game_frame_all;
     }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans(Ego::Graphics::TileList& tl)
+void GridIllumination::light_fans(Ego::Graphics::TileList& tl)
 {
-    if (gfx_error == light_fans_update_lcache(tl))
-    {
-        return gfx_error;
-    }
-
-    if (gfx_error == light_fans_update_clst(tl))
-    {
-        return gfx_error;
-    }
-
-    return gfx_success;
+	light_fans_update_lcache(tl);
+	light_fans_update_clst(tl);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1828,11 +1973,8 @@ float get_ambient_level()
 {
     /// @author BB
     /// @details get the actual global ambient level
-
-    float glob_amb, min_amb;
-
-    glob_amb = 0.0f;
-    min_amb = 0.0f;
+    float glob_amb = 0.0f;
+    float min_amb = 0.0f;
     if (gfx.usefaredge)
     {
         // for outside modules, max light_a means bright sunlight
@@ -2005,7 +2147,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& cam)
+gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& cam)
 {
     /// @author ZZ
     /// @details Do all tile lighting, dynamic and global
@@ -2023,8 +2165,6 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     dynalight_registry_t reg[TOTAL_MAX_DYNA];
 
     ego_frect_t mesh_bound, light_bound;
-    oct_bb_t        * poct;
-
     dynalight_data_t fake_dynalight;
 
 	auto mesh = tl.getMesh();
@@ -2047,12 +2187,12 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         TileIndex fan = tl._all.lst[entry].index;
         if (fan.getI() >= pinfo.getTileCount()) continue;
 
-        poct = &(ptmem.get(fan)->_oct);
+		const oct_bb_t& poct = ptmem.get(fan)._oct;
 
-        mesh_bound.xmin = std::min(mesh_bound.xmin, poct->_mins[OCT_X]);
-        mesh_bound.xmax = std::max(mesh_bound.xmax, poct->_maxs[OCT_X]);
-        mesh_bound.ymin = std::min(mesh_bound.ymin, poct->_mins[OCT_Y]);
-        mesh_bound.ymax = std::max(mesh_bound.ymax, poct->_maxs[OCT_Y]);
+        mesh_bound.xmin = std::min(mesh_bound.xmin, poct._mins[OCT_X]);
+        mesh_bound.xmax = std::max(mesh_bound.xmax, poct._maxs[OCT_X]);
+        mesh_bound.ymin = std::min(mesh_bound.ymin, poct._mins[OCT_Y]);
+        mesh_bound.ymax = std::max(mesh_bound.ymax, poct._maxs[OCT_Y]);
     }
 
     // is the visible mesh list empty?

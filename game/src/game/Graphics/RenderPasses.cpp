@@ -107,10 +107,10 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 		}
 		else
 		{
-			const std::shared_ptr<ego_tile_info_t> &tile = mesh._tmem.getTile(rlst.lst[i].index);
+			const ego_tile_info_t &tile = mesh._tmem.getTile(rlst.lst[i].index);
 
-			int img = TILE_GET_LOWER_BITS(tile->_img);
-			if (tile->_type >= tile_dict.offset)
+			int img = TILE_GET_LOWER_BITS(tile._img);
+			if (tile._type >= tile_dict.offset)
 			{
 				img += MESH_IMG_COUNT;
 			}
@@ -572,13 +572,9 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 		return;
 	}
 	// No shadow if off the mesh.
-	ego_tile_info_t *ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
-	if (!ptile)
-	{
-		return;
-	}
+	ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
 	// No shadow if invalid tile.
-	if (ptile->isFanOff())
+	if (ptile.isFanOff())
 	{
 		return;
 	}
@@ -665,11 +661,10 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (pchr->isHidden() || 0 == pchr->shadow_size) return;
 
 	// no shadow if off the mesh
-	ego_tile_info_t *ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
-	if (NULL == ptile) return;
+	ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
 
 	// no shadow if invalid tile image
-	if (ptile->isFanOff()) return;
+	if (ptile.isFanOff()) return;
 
 	// no shadow if completely transparent
 	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;

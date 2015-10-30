@@ -54,7 +54,7 @@ void animate_all_tiles(ego_mesh_t& mesh);
 
 gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 fan );
 gfx_rv render_hmap_fan( const ego_mesh_t *mesh, const Uint32 itile );
-gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 fan, const Uint8 layer );
+gfx_rv render_water_fan( ego_mesh_t& mesh, const Uint32 fan, const Uint8 layer );
 
 void animate_tiles();
 bool animate_tile(ego_mesh_t& mesh, Uint32 itile);

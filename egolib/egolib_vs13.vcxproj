@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\Token.cpp" />
     <ClCompile Include="src\egolib\Mesh\Info.cpp" />
     <ClCompile Include="src\egolib\FileFormats\Globals.cpp" />
     <ClCompile Include="src\egolib\Console\Console.cpp" />
@@ -455,6 +456,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\Token.hpp" />
     <ClInclude Include="src\egolib\FileFormats\map_fx.hpp" />
     <ClInclude Include="src\egolib\Mesh\Info.hpp" />
     <ClInclude Include="src\egolib\FileFormats\Globals.hpp" />

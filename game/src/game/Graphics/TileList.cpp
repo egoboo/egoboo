@@ -185,9 +185,9 @@ gfx_rv TileList::add(const size_t index, ::Camera& camera)
 
 	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
 	if(!_lastRenderTiles[index]) {
-		const std::shared_ptr<ego_tile_info_t> &tile = _mesh->_tmem.getTile(index);
-		tile->_request_lcache_update = true;
-		tile->_lcache_frame = -1;
+		ego_tile_info_t &tile = _mesh->_tmem.getTile(index);
+		tile._request_lcache_update = true;
+		tile._lcache_frame = -1;
 	}
 
 	if (gfx_error == insert(index, camera))
