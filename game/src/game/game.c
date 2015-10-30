@@ -2470,16 +2470,18 @@ void let_all_characters_think()
         if(object->isTerminated()) {
             continue;
         }
+
+        //Only inventory items marked as equipment has active AI scripts
+        if(object->isInsideInventory() && !object->getProfile()->isEquipment()) {
+            continue;
+        }
         
         // check for actions that must always be handled
         bool is_cleanedup = HAS_SOME_BITS( object->ai.alert, ALERTIF_CLEANEDUP );
         bool is_crushed   = HAS_SOME_BITS( object->ai.alert, ALERTIF_CRUSHED );
 
-        // let the script run sometimes even if the item is in your backpack
-        bool can_think = !object->isInsideInventory() || object->getProfile()->isEquipment();
-
         // only let dead/destroyed things think if they have beem crushed/cleanedup
-        if (( object->isAlive() && can_think ) || is_crushed || is_cleanedup )
+        if (object->isAlive() || is_crushed || is_cleanedup )
         {
             // Figure out alerts that weren't already set
             set_alerts( object->getCharacterID() );
