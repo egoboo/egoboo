@@ -463,7 +463,7 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
     //---- find the character/particle interactions
     std::unordered_set<std::shared_ptr<Object>> handledObjects;
 
-    // Find the character-character interactions. Use the ChrList.used_ref, for a change
+    // Find the character-character interactions
     for(const std::shared_ptr<Object> &pchr_a : _currentModule->getObjectHandler().iterator())
     {
         // ignore in-accessible objects
@@ -472,15 +472,19 @@ bool fill_interaction_list(std::set<CoNode_t, CollisionCmp> &collisionSet)
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
-        oct_bb_t   tmp_oct;
+        oct_bb_t tmp_oct;
         phys_expand_chr_bb(pchr_a.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
         const AABB2f aabb2d = AABB2f(Vector2f(tmp_oct._mins[OCT_X], tmp_oct._mins[OCT_Y]), Vector2f(tmp_oct._maxs[OCT_X], tmp_oct._maxs[OCT_Y]));
 
-        // Check collisions between Objects (but do not collide scenery with other scenery objects)
+        //Do not collide scenery with other scenery objects - unless they can use platforms,
+        //for example boxes stacked on top of other boxes
+        bool canCollideWithScenery = !pchr_a->isScenery() || pchr_a->canuseplatforms;
+
+        // Check collisions between Objects
         std::vector<std::shared_ptr<Object>> possibleCollisions;
-         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, !pchr_a->isScenery());
+         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, canCollideWithScenery);
         for (const std::shared_ptr<Object> &pchr_b : possibleCollisions)
         {
             //Skip invalid objects
