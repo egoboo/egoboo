@@ -30,6 +30,7 @@
 #include "game/graphic_prt.h"
 #include "game/Entities/Common.hpp"
 #include "egolib/Graphics/Animation2D.hpp"
+#include "game/Physics/Collidable.hpp"
 
 namespace Ego
 {
@@ -88,10 +89,16 @@ struct prt_environment_t
  * @brief
  *  The definition of the particle entity.
  */
-class Particle : public PhysicsData, public Id::NonCopyable
+class Particle : public PhysicsData, public Id::NonCopyable, public Collidable
 {
 public:
     Particle();
+
+    /**
+    * @return
+    *   true if this Particle can collide with Objects
+    **/
+    bool canCollide() const override;
     
     /**
      * @brief

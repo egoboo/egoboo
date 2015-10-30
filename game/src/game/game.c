@@ -33,7 +33,6 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/input.h"
-#include "game/collision.h"
 #include "game/bsp.h"
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
@@ -43,6 +42,7 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
+#include "game/Physics/CollisionSystem.hpp"
 #include "game/physics.h"
 #include "game/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
@@ -571,8 +571,8 @@ int update_game()
     //---- begin the code for updating in-game objects
     update_all_objects();
     {
-        move_all_objects();                   // clears some latches
-        bump_all_objects();                   // do the actual object interaction
+        move_all_objects();                            //movement
+        Ego::Physics::CollisionSystem::get().update(); //collisions
     }
     //---- end the code for updating in-game objects
 

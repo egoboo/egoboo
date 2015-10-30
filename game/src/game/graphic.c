@@ -33,7 +33,6 @@
 #include "game/renderer_3d.h"
 #include "game/bsp.h"
 #include "game/player.h"
-#include "game/collision.h"
 #include "egolib/Script/script.h"
 #include "game/input.h"
 #include "game/script_compile.h"

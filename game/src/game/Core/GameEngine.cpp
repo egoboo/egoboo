@@ -29,8 +29,8 @@
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
 #include "game/game.h"
-#include "game/collision.h"
 #include "game/Entities/_Include.hpp"
+#include "game/Physics/CollisionSystem.hpp"
 
 //Global singelton
 std::unique_ptr<GameEngine> _gameEngine;
@@ -359,7 +359,7 @@ bool GameEngine::initialize()
     ProfileSystem::initialize();
 
     // Initialize the collision system.
-    CollisionSystem::initialize();
+    Ego::Physics::CollisionSystem::initialize();
 
     // Load all modules
     renderPreloadText("Loading modules...");
@@ -400,7 +400,7 @@ void GameEngine::uninitialize()
     _uiManager.reset(nullptr);
 
     // Uninitialize the collision system.
-    CollisionSystem::uninitialize();
+    Ego::Physics::CollisionSystem::uninitialize();
 
     // Uninitialize the scripting system.
     scripting_system_end();

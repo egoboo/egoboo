@@ -34,6 +34,7 @@
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"
 #include "game/Inventory.hpp"
+#include "game/Physics/Collidable.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }
@@ -137,7 +138,7 @@ struct chr_spawn_data_t
 };
 
 /// The definition of the character object.
-class Object : public PhysicsData, public Id::NonCopyable
+class Object : public PhysicsData, public Id::NonCopyable, public Collidable
 {
 public:
     static const std::shared_ptr<Object> INVALID_OBJECT;            ///< Invalid object reference
@@ -164,6 +165,8 @@ public:
     *        The ObjectProfile can change for polymorphing objects.
     **/
     const std::shared_ptr<ObjectProfile>& getProfile() const;
+
+    bool canCollide() const override;
 
     /**
     * @return the unique CHR_REF associated with this character

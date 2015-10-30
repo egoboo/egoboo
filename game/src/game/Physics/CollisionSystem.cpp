@@ -1,7 +1,27 @@
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 #include "CollisionSystem.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h" //for update_wld
-#include "game/ObjectPhysics.h" //only for move_one_character_get_environment()
+#include "game/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
+
+#include "particle_collision.h"
 
 namespace Ego
 {
@@ -10,9 +30,7 @@ namespace Physics
 //C function prototypes
 static bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, float tmax, float tmin);
 static bool do_chr_platform_physics( Object * object, Object * platform );
-static float get_chr_mass(Object * pchr);
 static void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
-static bool detach_character_from_platform( Object * pchr );
 
 CollisionSystem::CollisionSystem()
 {
@@ -53,8 +71,6 @@ void CollisionSystem::update()
 
         // do the "integration" of the accumulated accelerations
         pchr->vel += pchr->phys.avel;
-
-        position_updated = false;
 
         // get a net displacement vector from aplat and acoll
         {
@@ -310,8 +326,7 @@ void CollisionSystem::updateParticleCollisions()
         //First check if this Particle is still attached to a platform
         if (particle->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(particle->onwhichplatform_ref))
         {
-            //TODO
-            //detach_particle_from_platform( particle.get() );
+            detach_particle_from_platform( particle.get() );
         }
 
         // use the object velocity to figure out where the volume that the object will occupy during this update
@@ -331,14 +346,16 @@ void CollisionSystem::updateParticleCollisions()
             }
 
             //Detect any collisions and handle it if needed
-            if(detectCollision(particle, object)) {
-                //TODO
+            float tmin, tmax;
+            if(detectCollision(particle, object, &tmin, &tmax)) {
+                do_prt_platform_detection(object->getCharacterID(), particle->getParticleID());
+                do_chr_prt_collision(object, particle, tmin, tmax);
             }
         }
     }    
 }
 
-bool CollisionSystem::detectCollision(const std::shared_ptr<Ego::Particle> &particle, const std::shared_ptr<Object> &object) const
+bool CollisionSystem::detectCollision(const std::shared_ptr<Ego::Particle> &particle, const std::shared_ptr<Object> &object, float *tmin, float *tmax) const
 {
     // particles don't "collide" with anything they are attached to.
     // that only happes through doing bump particle damage
@@ -355,11 +372,10 @@ bool CollisionSystem::detectCollision(const std::shared_ptr<Ego::Particle> &part
 
     // Some information about the estimated collision.
     //TODO: ZF> hmmm unused?
-    float tmin, tmax;
     oct_bb_t cv;
 
     // detect a when the possible collision occurred
-    return phys_intersect_oct_bb(object->chr_min_cv, object->getPosition(), object->vel, particle->prt_max_cv, particle->getPosition(), particle->vel, testPlatform, cv, &tmin, &tmax);
+    return phys_intersect_oct_bb(object->chr_min_cv, object->getPosition(), object->vel, particle->prt_max_cv, particle->getPosition(), particle->vel, testPlatform, cv, tmin, tmax);
 }
 
 bool CollisionSystem::detectCollision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, float *tmin, float *tmax) const
@@ -649,25 +665,6 @@ bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &obje
     ai_state_t::set_bumplast(platform->ai, object->getCharacterID());
 
     return true;
-}
-
-static float get_chr_mass(Object * pchr)
-{
-    /// @author BB
-    /// @details calculate a "mass" for an object, taking into account possible infinite masses.
-
-    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight )
-    {
-        return -static_cast<float>(CHR_INFINITE_WEIGHT);
-    }
-    else if ( 0.0f == pchr->phys.bumpdampen )
-    {
-        return -static_cast<float>(CHR_INFINITE_WEIGHT);
-    }
-    else
-    {
-        return pchr->phys.weight / pchr->phys.bumpdampen;
-    }
 }
 
 bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, const float tmin, const float tmax)
@@ -1062,46 +1059,6 @@ static void get_recoil_factors( float wta, float wtb, float * recoil_a, float * 
         *recoil_a = wtb / ( wta + wtb );
         *recoil_b = wta / ( wta + wtb );
     }
-}
-
-bool detach_character_from_platform( Object * pchr )
-{
-    /// @author BB
-    /// @details attach a character to a platform
-    ///
-    /// @note the function move_one_character_get_environment() has already been called from within the
-    ///  move_one_character() function, so the environment has already been determined this round
-
-    // verify that we do not have two dud pointers
-    if (!pchr || pchr->isTerminated()) {
-        return false;
-    }
-
-    // save some values
-    const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
-
-    // undo the attachment
-    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
-    pchr->onwhichplatform_update = 0;
-    pchr->targetplatform_ref     = INVALID_CHR_REF;
-    pchr->targetplatform_level   = -1e32;
-
-    // adjust the platform weight, if necessary
-    if (oldPlatform) {
-        oldPlatform->holdingweight -= pchr->phys.weight;
-    }
-
-    // update the character-platform properties
-    move_one_character_get_environment( pchr );
-
-    // update the character jumping
-    pchr->jumpready = pchr->enviro.grounded;
-    if ( pchr->jumpready )
-    {
-        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
-    }
-
-    return true;
 }
 
 } //namespace Physics

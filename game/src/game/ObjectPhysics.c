@@ -1,5 +1,4 @@
 #include "ObjectPhysics.h"
-#include "game/collision.h"                  //Only for detach_character_from_platform()
 #include "game/game.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
@@ -1564,5 +1563,64 @@ void move_all_characters()
 
         chr_update_matrix( object.get(), true );
         keep_weapons_with_holder(object);
+    }
+}
+
+bool detach_character_from_platform( Object * pchr )
+{
+    /// @author BB
+    /// @details attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    // verify that we do not have two dud pointers
+    if (!pchr || pchr->isTerminated()) {
+        return false;
+    }
+
+    // save some values
+    const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
+
+    // undo the attachment
+    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
+    pchr->onwhichplatform_update = 0;
+    pchr->targetplatform_ref     = INVALID_CHR_REF;
+    pchr->targetplatform_level   = -1e32;
+
+    // adjust the platform weight, if necessary
+    if (oldPlatform) {
+        oldPlatform->holdingweight -= pchr->phys.weight;
+    }
+
+    // update the character-platform properties
+    move_one_character_get_environment( pchr );
+
+    // update the character jumping
+    pchr->jumpready = pchr->enviro.grounded;
+    if ( pchr->jumpready )
+    {
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
+    }
+
+    return true;
+}
+
+float get_chr_mass(Object * pchr)
+{
+    /// @author BB
+    /// @details calculate a "mass" for an object, taking into account possible infinite masses.
+
+    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight )
+    {
+        return -static_cast<float>(CHR_INFINITE_WEIGHT);
+    }
+    else if ( 0.0f == pchr->phys.bumpdampen )
+    {
+        return -static_cast<float>(CHR_INFINITE_WEIGHT);
+    }
+    else
+    {
+        return pchr->phys.weight / pchr->phys.bumpdampen;
     }
 }

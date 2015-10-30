@@ -32,8 +32,7 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/collision.h"                  //Only for detach_character_from_platform()
-#include "game/ObjectPhysics.h" //only for move_one_character_get_environment()
+#include "game/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -2928,4 +2927,29 @@ void Object::dropAllItems()
         //drop out evenly in all directions
         direction += diradd;
     }
+}
+
+bool Object::canCollide() const
+{
+    //Removed from game?
+    if(isTerminated()) {
+        return false;
+    }
+
+    //Hidden state
+    if(isHidden()) {
+        return false;
+    }
+
+    //Inside inventory or being held?
+    if(isBeingHeld()) {
+        return false;
+    }
+
+    //No collision box?
+    if (oct_bb_empty(chr_max_cv)) {
+        return false;
+    }
+
+    return true;
 }

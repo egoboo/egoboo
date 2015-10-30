@@ -1356,4 +1356,61 @@ bool Particle::isEternal() const
     return is_eternal;
 }
 
+bool Particle::canCollide() const
+{
+    if(isTerminated()) {
+        return false;
+    }
+
+    if(isHidden()) {
+        return false;
+    }
+
+    //Particle is destroyed on any collision?
+    if(getProfile()->end_bump || getProfile()->end_ground) {
+        return true;
+    }
+    
+    //Has collision size?
+    /// @todo this is a stopgap solution, figure out if this is the correct place or
+    ///       we need to fix the loop in fill_interaction_list instead
+    if(getProfile()->bump_height <= 0 && getProfile()->bump_size <= 0) {
+        return false;
+    }
+
+    // Each one of these tests allows one MORE reason to include the particle, not one less.
+    // Removed bump particles. We have another loop that can detect these, and there
+    // is no reason to fill up the BSP with particles like coins.
+
+    // Make this optional? Is there any reason to fail if the particle has no profile reference?
+    if (getProfile()->spawnenchant)
+    {
+        if(LOADED_EVE(ProfileSystem::get().getProfile(getSpawnerProfile())->getEnchantRef())) {
+            return true;
+        }
+    }
+
+    // any possible damage?
+    if((std::abs(damage.base) + std::abs(damage.rand)) > 0) {
+        return true;
+    }
+
+    // the other possible status effects
+    // do not require damage
+    if((0 != getProfile()->grogTime) || (0 != getProfile()->dazeTime) || ( 0 != getProfile()->lifeDrain ) || (0 != getProfile()->manaDrain)) {
+        return true;
+    }
+
+    //Causes special effect? these are not implemented yet
+    //if(getProfile()->cause_pancake || getProfile()->cause_roll) return true;
+
+    //Can push?
+    if(getProfile()->allowpush) {
+        return true;
+    }
+
+    //No valid interactions
+    return false;
+}
+
 } //Ego
