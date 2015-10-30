@@ -37,7 +37,6 @@
 #include "game/graphic_billboard.h"
 #include "game/link.h"
 #include "game/renderer_2d.h"
-#include "game/bsp.h"
 #include "game/Module/Module.hpp"
 
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :

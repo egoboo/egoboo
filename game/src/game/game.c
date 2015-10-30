@@ -33,7 +33,6 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/input.h"
-#include "game/bsp.h"
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
 #include "game/egoboo.h"

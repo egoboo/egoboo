@@ -17,7 +17,6 @@
 //*
 //********************************************************************************************
 #include "game/ObjectPhysics.h"
-#include "game/bsp.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/char.h"

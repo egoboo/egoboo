@@ -40,7 +40,6 @@
 #include "game/graphic_billboard.h"
 #include "game/link.h"
 #include "game/renderer_2d.h"
-#include "game/bsp.h"
 #include "egolib/fileutil.h"
 
 struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, public GUIComponent

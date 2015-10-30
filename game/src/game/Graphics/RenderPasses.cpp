@@ -29,7 +29,6 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "game/bsp.h"
 #include "game/player.h"
 #include "egolib/Script/script.h"
 #include "game/input.h"
