@@ -2458,13 +2458,6 @@ void let_all_characters_think()
 {
     /// @author ZZ
     /// @details This function funst the ai scripts for all eligible objects
-
-    static uint32_t last_update = std::numeric_limits<uint32_t>::max();
-
-    // make sure there is only one script update per game update
-    if ( update_wld == last_update ) return;
-    last_update = update_wld;
-
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if(object->isTerminated()) {
@@ -2487,10 +2480,16 @@ void let_all_characters_think()
             set_alerts( object->getCharacterID() );
 
             // Cleaned up characters shouldn't be alert to anything else
-            if ( is_cleanedup )  { object->ai.alert = ALERTIF_CLEANEDUP; /*object->ai.timer = update_wld + 1;*/ }
+            if (is_cleanedup) { 
+                object->ai.alert = ALERTIF_CLEANEDUP; 
+                /*object->ai.timer = update_wld + 1;*/ 
+            }
 
             // Crushed characters shouldn't be alert to anything else
-            if ( is_crushed )  { object->ai.alert = ALERTIF_CRUSHED; object->ai.timer = update_wld + 1; }
+            if (is_crushed)  { 
+                object->ai.alert = ALERTIF_CRUSHED; 
+                object->ai.timer = update_wld + 1;  //Prevents IfTimeOut from triggering
+            }
 
             scr_run_chr_script(object.get());
         }
