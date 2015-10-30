@@ -264,53 +264,49 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 itile, const Uint8 layer )
+gfx_rv render_water_fan( ego_mesh_t& mesh, const Uint32 itile, const Uint8 layer )
 {
     /// @author ZZ
     /// @details This function draws a water itile
-    int    cnt, tnc;
-    size_t badvertex;
-    Uint16 type;
-    Uint16 frame;
-    float offu, offv;
-    int ix, iy;
-    int ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
-    int  imap[4];
-    float x1, y1, fx_off[4], fy_off[4];
-    float falpha;
+    static const int ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
+
+	int    tnc;
+	size_t badvertex;
+	int  imap[4];
+    float fx_off[4], fy_off[4];
 
 	const Ego::MeshInfo& info = mesh._info;
 
 	const ego_tile_info_t& ptile = mesh.get_ptile(itile);
 
+	float falpha;
     falpha = FF_TO_FLOAT( water._layers[layer]._alpha );
     falpha = CLIP( falpha, 0.0f, 1.0f );
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
 
-    ix = itile % info.getTileCountX();
-    iy = itile / info.getTileCountX();
+    int ix = itile % info.getTileCountX();
+    int iy = itile / info.getTileCountX();
 
     // To make life easier
-    type  = 0;                                         // Command type ( index to points in tile )
+    uint16_t type  = 0;                                         // Command type ( index to points in tile )
 	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, type );
     if ( NULL == pdef )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, type, "unknown tile type" );
         return gfx_error;
     }
-
-    offu  = water._layers[layer]._tx[XX];               // Texture offsets
-    offv  = water._layers[layer]._tx[YY];
-    frame = water._layers[layer]._frame;                // Frame
+    float offu  = water._layers[layer]._tx[XX];               // Texture offsets
+    float offv  = water._layers[layer]._tx[YY];
+	uint16_t frame = water._layers[layer]._frame;                // Frame
 
 	const oglx_texture_t *ptex = _currentModule->getWaterTexture(layer);
 
-    x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
-    y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();
+    float x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
+    float y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();
 
-    for ( cnt = 0; cnt < 4; cnt ++ )
+    for (size_t cnt = 0; cnt < 4; cnt ++ )
     {
         fx_off[cnt] = x1 * ix_off[cnt];
         fy_off[cnt] = y1 * iy_off[cnt];
@@ -352,54 +348,54 @@ gfx_rv render_water_fan( const ego_mesh_t& mesh, const Uint32 itile, const Uint8
         alight = get_ambient_level() + water._layers->_light_add;
         alight = CLIP( alight / 255.0f, 0.0f, 1.0f );
 
-        for ( cnt = 0; cnt < 4; cnt++ )
+        for (size_t cnt = 0; cnt < 4; cnt++ )
         {
-            Vertex *v0 = v + cnt;
+            Vertex& v0 = v[cnt];
 
             tnc = imap[cnt];
 
             int jx = ix + ix_off[cnt];
             int jy = iy + iy_off[cnt];
 
-            v0->x = jx * Info<float>::Grid::Size();
-            v0->y = jy * Info<float>::Grid::Size();
-            v0->z = water._layer_z_add[layer][frame][tnc] + water._layers[layer]._z;
+            v0.x = jx * Info<float>::Grid::Size();
+            v0.y = jy * Info<float>::Grid::Size();
+            v0.z = water._layer_z_add[layer][frame][tnc] + water._layers[layer]._z;
 
-            v0->s = fx_off[cnt] + offu;
-            v0->t = fy_off[cnt] + offv;
+            v0.s = fx_off[cnt] + offu;
+            v0.t = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
             TileIndex jtile = mesh.get_tile_int(PointGrid(jx, jy));
             float dlight;
-            if ( ego_mesh_t::light_corner(mesh, jtile, v0->z, nrm, &dlight) )
+            if ( GridIllumination::light_corner(mesh, jtile, v0.z, nrm, dlight) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
-                v0->r = dlight * INV_FF + alight;
-                v0->g = dlight * INV_FF + alight;
-                v0->b = dlight * INV_FF + alight;
+                v0.r = dlight * INV_FF + alight;
+                v0.g = dlight * INV_FF + alight;
+                v0.b = dlight * INV_FF + alight;
 
-                v0->r = CLIP(v0->r, 0.0f, 1.0f);
-                v0->g = CLIP(v0->g, 0.0f, 1.0f);
-                v0->b = CLIP(v0->b, 0.0f, 1.0f);
+                v0.r = CLIP(v0.r, 0.0f, 1.0f);
+                v0.g = CLIP(v0.g, 0.0f, 1.0f);
+                v0.b = CLIP(v0.b, 0.0f, 1.0f);
             }
             else
             {
-                v0->r = v0->g = v0->b = 0.0f;
+                v0.r = v0.g = v0.b = 0.0f;
             }
 
             // the application of alpha to the tile depends on the blending mode
             if ( water._light )
             {
                 // blend using light
-                v0->r *= falpha;
-                v0->g *= falpha;
-                v0->b *= falpha;
-                v0->a = 1.0f;
+                v0.r *= falpha;
+                v0.g *= falpha;
+                v0.b *= falpha;
+                v0.a = 1.0f;
             }
             else
             {
                 // blend using alpha
-                v0->a = falpha;
+                v0.a = falpha;
             }
 
             badvertex++;

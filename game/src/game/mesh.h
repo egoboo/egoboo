@@ -555,9 +555,6 @@ public:
     void remove_ambient();
 	void recalc_twist();
     void finalize();
-    void test_one_corner(GLXvector3f pos, float *pdelta) const;
-    
-    bool light_one_corner(ego_tile_info_t *ptile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float * plight);
 
 
 
@@ -654,14 +651,10 @@ public:
 	void make_texture();
 	bool set_texture(const TileIndex& tile, Uint16 image);
 	bool update_texture(const TileIndex& tile);
-	bool test_corners(ego_tile_info_t *tile, float threshold) const;
-	static float light_corners(ego_mesh_t& self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
-	static bool light_corner(const ego_mesh_t& self, const TileIndex& fan, float height, float nrm[], float *plight);
+
 	uint8_t get_fan_twist(const TileIndex& tile) const;
 	float get_max_vertex_0(const PointGrid& point) const;
 	float get_max_vertex_1(const PointGrid& point, float xmin, float ymin, float xmax, float ymax) const;
-
-public:
 
 private:
 	// mesh initialization - not accessible by scripts

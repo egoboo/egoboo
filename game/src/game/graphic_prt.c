@@ -879,7 +879,7 @@ gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, 
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
 	}
     lighting_cache_t global_light;
-    grid_lighting_interpolate(*mesh, global_light, Vector2f(pinst.pos[kX], pinst.pos[kY]));
+	GridIllumination::grid_lighting_interpolate(*mesh, global_light, Vector2f(pinst.pos[kX], pinst.pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
 	Matrix4f4f mat = prt_instance_make_matrix(pinst);
