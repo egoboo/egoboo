@@ -2459,7 +2459,7 @@ void let_all_characters_think()
     /// @author ZZ
     /// @details This function funst the ai scripts for all eligible objects
 
-    static Uint32 last_update = ( Uint32 )( ~0 );
+    static uint32_t last_update = std::numeric_limits<uint32_t>::max();
 
     // make sure there is only one script update per game update
     if ( update_wld == last_update ) return;
