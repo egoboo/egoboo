@@ -1877,7 +1877,6 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
     /// @author BB
     /// @details update the tile's color list, if needed
 
-    gfx_rv retval;
     int numvertices;
     int ivrt, vertex;
     float light;
@@ -1893,9 +1892,6 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 
     // alias the tile memory
 	tile_mem_t& ptmem = mesh->_tmem;
-
-    // assume the best
-    retval = gfx_success;
 
     // use the grid to light the tiles
     for (size_t entry = 0; entry < tl._all.size; entry++)

@@ -1655,7 +1655,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     // make sure the matrix is updated properly
     if ( update_matrix )
     {
-        // call chr_update_matrix() but pass in a false value to prevent a recursize call
+        // call chr_update_matrix() but pass in a false value to prevent a recursive call
         if ( rv_error == chr_update_matrix( pchr, false ) )
         {
             return rv_error;

@@ -982,7 +982,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 static bool do_chr_platform_physics( Object * object, Object * platform )
 {
     // we know that ichr_a is a platform and ichr_b is on it
-    Sint16 rot_a, rot_b;
+    int16_t rot_a, rot_b;
     float lerp_z, vlerp_z;
 
     if (!object || object->isTerminated()) {
