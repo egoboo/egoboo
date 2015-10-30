@@ -20,6 +20,7 @@
 /// @file game/CharacterMatrix.c
 
 #include "game/CharacterMatrix.h"
+#include "game/Physics/ObjectPhysics.h"
 #include "game/graphic_mad.h"
 #include "game/renderer_3d.h"
 #include "game/Entities/_Include.hpp"

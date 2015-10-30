@@ -138,7 +138,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
 void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
-egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
 
 std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 
