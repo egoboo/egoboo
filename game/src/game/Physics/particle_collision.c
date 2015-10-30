@@ -829,17 +829,19 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             }
 
             // handle vulnerabilities, double the damage
-            if (pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_TYPE) || 
-                pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_PARENT))
-            {
-                // Double the damage
-                modifiedDamage.base = ( modifiedDamage.base << 1 );
-                modifiedDamage.rand = ( modifiedDamage.rand << 1 ) | 1;
+            if(pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) != IDSZ_NONE) {
+                if (pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_TYPE) || 
+                    pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_PARENT))
+                {
+                    // Double the damage
+                    modifiedDamage.base = ( modifiedDamage.base << 1 );
+                    modifiedDamage.rand = ( modifiedDamage.rand << 1 ) | 1;
 
-                SET_BIT( pdata->pchr->ai.alert, ALERTIF_HITVULNERABLE );
+                    SET_BIT( pdata->pchr->ai.alert, ALERTIF_HITVULNERABLE );
 
-                // Initialize for the billboard
-                chr_make_text_billboard(pdata->pchr->getCharacterID(), "Super Effective!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+                    // Initialize for the billboard
+                    chr_make_text_billboard(pdata->pchr->getCharacterID(), "Super Effective!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+                }                
             }
 
             //Is it a critical hit?
