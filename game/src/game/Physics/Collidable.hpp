@@ -20,6 +20,11 @@
 
 #include <game/Module/Module.hpp>
 
+namespace Ego
+{
+namespace Physics
+{
+
 class Collidable
 {
 public:
@@ -218,3 +223,6 @@ private:
      */
     BlockIndex _block;
 };
+
+} //Physics
+} //Ego

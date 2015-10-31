@@ -138,7 +138,7 @@ struct chr_spawn_data_t
 };
 
 /// The definition of the character object.
-class Object : public PhysicsData, public Id::NonCopyable, public Collidable
+class Object : public PhysicsData, public Id::NonCopyable, public Ego::Physics::Collidable
 {
 public:
     static const std::shared_ptr<Object> INVALID_OBJECT;            ///< Invalid object reference

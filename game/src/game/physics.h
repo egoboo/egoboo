@@ -23,126 +23,8 @@
 
 #include "game/egoboo_typedef.h"
 #include "egolib/bbox.h"
+#include "game/Physics/PhysicalConstants.hpp"
 
-//--------------------------------------------------------------------------------------------
-
-namespace Physics
-{
-    struct Environment
-    {
-
-        /**
-         * @brief
-         *  Extra downhill force.
-         * @default
-         *  1.0f
-         * @todo
-         *  Short description of (reasonable) limits and effect.
-         */
-        float hillslide;
-
-        /**
-         * @brief
-         *  Friction on tiles that are marked with MAPFX_SLIPPY.
-         * @default
-         *  1.0f
-         * @todo
-         *  Short description of (reasonable) limits and effect.
-         */
-        float slippyfriction;
-
-        /**
-         * @brief
-         *  Air friction.
-         * @default
-         *  0.9868f
-         * @remark
-         *  0.9868f is approximately real world air friction.
-         * @todo
-         *  Short description of (reasonable) limits and effect.
-         */
-        float airfriction;
-
-        /**
-         * @brief
-         *  Ice friction.
-         * @default
-         *  0.9738f (square of air friction)
-         * @todo
-         *  Short description of (reasonable) limits and effect.
-         */
-        float icefriction;
-
-        /**
-         * @brief
-         *  Water friction.  
-         * @default
-         *  0.8f
-         * @todo     
-         *  Short description of (reasonable) limits and effect.
-         */
-        float waterfriction;
-
-        /**
-         * @brief
-         *  Friction on tiles that are not marked with MAPFX_SLIPPY.
-         * @default
-         *  0.91f
-         * @todo
-         *  Short description of (reasonable) limits and effect.
-         */
-        float noslipfriction;
-
-        /**
-         * @brief
-         *  Gravitational force.
-         * @default
-         *  -1.0f
-         * @todo
-         *  Short description of (reasonable) limits and effect.
-         */
-        float gravity;
-
-        /**
-         * @brief
-         *  The game's windspeed.
-         * @default
-         *  <tt>(0,0,0)</tt>
-         * @todo
-         *  Short description of (reasonable) limits and effect.
-         */
-		Vector3f windspeed;
-
-        /**
-         * @brief
-         *  The game's waterspeed.
-         * @default
-         *  <tt>(0,0,0)</tt>
-         * @todo
-         *  Short description of (reasonable) limits and effect.
-         */
-		Vector3f waterspeed;
-
-        /**
-         * @brief
-         *  Construct this environment with its default values.
-         */
-        Environment() :
-            hillslide(1.0f),
-            slippyfriction(1.0f),
-            airfriction(0.9868f),
-            icefriction(0.9738f),
-            waterfriction(0.80f),
-            noslipfriction(0.91),
-            gravity(-1.0f),
-            windspeed(),
-            waterspeed()
-        {}
-
-    };
-
-    extern Environment g_environment;
-}
 
 //--------------------------------------------------------------------------------------------
 
@@ -323,7 +205,7 @@ phys_data_t *phys_data_sum_avel_index(phys_data_t *self, const float v, const si
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values
 
-extern const float PLATFORM_STICKINESS;     ///< Friction between characters and platforms
+static constexpr float PLATFORM_STICKINESS = 0.1f;     ///< Friction between characters and platforms
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -331,6 +213,7 @@ extern const float PLATFORM_STICKINESS;     ///< Friction between characters and
 ///               amount of territory that an object will cover in the range [tmin,tmax].
 ///               One update equals [tmin,tmax] == [0,1].
 bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tmin, const float tmax, oct_bb_t& dst);
+
 /// @details use the object velocity to figure out where the volume that the character will
 ///               occupy during this update. Use the loser chr_max_cv and include extra height if
 ///               it is a platform.

@@ -29,30 +29,143 @@ namespace Physics
 
 /// @brief The default gravity    amount and direction.
 /// @todo Should be a vector.
-static constexpr float gravity = -1.0f;
-
-/// @brief The default windspeed  amount and direction.
-static constexpr fvec3_windspeed = Vector3f::ADDITIVE_NEUTRAL; 
-
-/// @brief The default waterspeed amount and direction.
-static constexpr fvec3_waterspeed = Vector3f::ADDITIVE_NEUTRAL;
+static constexpr float DEFAUTL_GRAVITY = -1.0f;
 
 /// @brief The default friction of   air.
-static constexpr float airfriction = 0.91f;
+static constexpr float DEFAULT_AIR_FRICTION = 0.9868f;
 
 /// @brief The default friction of water.
-static constexpr float waterfriction = 0.80f;
+static constexpr float DEFAULT_WATER_FRICTION = 0.80f;
 
 /// @brief The default friction on slippy ground.
 ///        i.e. tiles for which the MAPFX_SLIPPY bit is
 ///        set.
-static constexpr float slippyGroundFriction = 1.00f;
+static constexpr float DEFAULT_SLIPPY_GROUND_FRICTION = 1.00f;
 
 /// @brief The default friction on normal ground.
 ///        i.e. tiles for which the MAPFX_SLIPPY bit is
 ///        NOT
 ///        set.
-static constexpr float normalGroundFriction = 0.91f;
+static constexpr float DEFAULT_GROUND_FRICTION = 0.91f;
+
+static constexpr float DEFUALT_ICE_FRICTION = 0.9738f;
+
+struct Environment
+{
+
+    /**
+     * @brief
+     *  Extra downhill force.
+     * @default
+     *  1.0f
+     * @todo
+     *  Short description of (reasonable) limits and effect.
+     */
+    float hillslide;
+
+    /**
+     * @brief
+     *  Friction on tiles that are marked with MAPFX_SLIPPY.
+     * @default
+     *  1.0f
+     * @todo
+     *  Short description of (reasonable) limits and effect.
+     */
+    float slippyfriction;
+
+    /**
+     * @brief
+     *  Air friction.
+     * @default
+     *  0.9868f
+     * @remark
+     *  0.9868f is approximately real world air friction.
+     * @todo
+     *  Short description of (reasonable) limits and effect.
+     */
+    float airfriction;
+
+    /**
+     * @brief
+     *  Ice friction.
+     * @default
+     *  0.9738f (square of air friction)
+     * @todo
+     *  Short description of (reasonable) limits and effect.
+     */
+    float icefriction;
+
+    /**
+     * @brief
+     *  Water friction.  
+     * @default
+     *  0.8f
+     * @todo     
+     *  Short description of (reasonable) limits and effect.
+     */
+    float waterfriction;
+
+    /**
+     * @brief
+     *  Friction on tiles that are not marked with MAPFX_SLIPPY.
+     * @default
+     *  0.91f
+     * @todo
+     *  Short description of (reasonable) limits and effect.
+     */
+    float noslipfriction;
+
+    /**
+     * @brief
+     *  Gravitational force.
+     * @default
+     *  -1.0f
+     * @todo
+     *  Short description of (reasonable) limits and effect.
+     */
+    float gravity;
+
+    /**
+     * @brief
+     *  The game's windspeed.
+     * @default
+     *  <tt>(0,0,0)</tt>
+     * @todo
+     *  Short description of (reasonable) limits and effect.
+     */
+    Vector3f windspeed;
+
+    /**
+     * @brief
+     *  The game's waterspeed.
+     * @default
+     *  <tt>(0,0,0)</tt>
+     * @todo
+     *  Short description of (reasonable) limits and effect.
+     */
+    Vector3f waterspeed;
+
+    /**
+     * @brief
+     *  Construct this environment with its default values.
+     */
+    Environment() :
+        hillslide(DEFAULT_SLIPPY_GROUND_FRICTION),
+        slippyfriction(DEFAULT_SLIPPY_GROUND_FRICTION),
+        airfriction(DEFAULT_AIR_FRICTION),
+        icefriction(DEFUALT_ICE_FRICTION),
+        waterfriction(DEFAULT_WATER_FRICTION),
+        noslipfriction(DEFAULT_GROUND_FRICTION),
+        gravity(DEFAUTL_GRAVITY),
+        windspeed(0.0f, 0.0f, 0.0f),
+        waterspeed(0.0f, 0.0f, 0.0f)
+    {
+        //ctor
+    }
+
+};
+
+extern Environment g_environment;
 
 } //namespace Physics
 } //namespace Ego

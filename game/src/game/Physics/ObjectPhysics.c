@@ -3,6 +3,7 @@
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
+#include "game/Physics/PhysicalConstants.hpp"
 
 static void move_one_character_do_floor_friction( Object * pchr );
 static void move_one_character_do_voluntary( Object * pchr );
@@ -71,7 +72,7 @@ void move_one_character_do_voluntary( Object * pchr )
     }
 
     // this is the maximum speed that a character could go under the v2.22 system
-    float maxspeed = pchr->getAttribute(Ego::Attribute::ACCELERATION) * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
+    float maxspeed = pchr->getAttribute(Ego::Attribute::ACCELERATION) * Ego::Physics::g_environment.airfriction / (1.0f - Ego::Physics::g_environment.airfriction);
     float speedBonus = 1.0f;
 
     //Sprint perk gives +10% movement speed if above 75% life remaining
@@ -173,8 +174,8 @@ void move_one_character_do_voluntary( Object * pchr )
 
     //Slippery environment?
     if(pchr->enviro.is_slippy) {
-        new_ax *= Physics::g_environment.icefriction * 0.1f;
-        new_ay *= Physics::g_environment.icefriction * 0.1f;
+        new_ax *= Ego::Physics::g_environment.icefriction * 0.1f;
+        new_ay *= Ego::Physics::g_environment.icefriction * 0.1f;
     }
 
     //Limit movement to the max acceleration
@@ -338,7 +339,7 @@ void move_one_character_get_environment( Object * pchr )
 
         if ( enviro.is_slippy )
         {
-            enviro.traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
+            enviro.traction /= 4.00f * Ego::Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
         }
     }
     else if ( mesh->grid_is_valid( pchr->getTile() ) )
@@ -347,7 +348,7 @@ void move_one_character_get_environment( Object * pchr )
 
         if ( enviro.is_slippy )
         {
-            enviro.traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
+            enviro.traction /= 4.00f * Ego::Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
         }
     }
 
@@ -356,12 +357,12 @@ void move_one_character_get_environment( Object * pchr )
     {
         //Athletics perk halves penality for moving in water
         if(pchr->hasPerk(Ego::Perks::ATHLETICS)) {
-            enviro.fluid_friction_vrt  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
-            enviro.fluid_friction_hrz  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
+            enviro.fluid_friction_vrt  = (Ego::Physics::g_environment.waterfriction + Ego::Physics::g_environment.airfriction)*0.5f;
+            enviro.fluid_friction_hrz  = (Ego::Physics::g_environment.waterfriction + Ego::Physics::g_environment.airfriction)*0.5f;
         }
         else {
-            enviro.fluid_friction_vrt = Physics::g_environment.waterfriction;
-            enviro.fluid_friction_hrz = Physics::g_environment.waterfriction;            
+            enviro.fluid_friction_vrt = Ego::Physics::g_environment.waterfriction;
+            enviro.fluid_friction_hrz = Ego::Physics::g_environment.waterfriction;            
         }
 
     }
@@ -373,8 +374,8 @@ void move_one_character_get_environment( Object * pchr )
     else
     {
         // like real-life air friction
-        enviro.fluid_friction_hrz = Physics::g_environment.airfriction;
-        enviro.fluid_friction_vrt = Physics::g_environment.airfriction;            
+        enviro.fluid_friction_hrz = Ego::Physics::g_environment.airfriction;
+        enviro.fluid_friction_vrt = Ego::Physics::g_environment.airfriction;            
     }
 
     //---- friction
@@ -391,11 +392,11 @@ void move_one_character_get_environment( Object * pchr )
     else
     {
         // Make the characters slide
-        float temp_friction_xy = Physics::g_environment.noslipfriction;
+        float temp_friction_xy = Ego::Physics::g_environment.noslipfriction;
         if ( mesh->grid_is_valid( pchr->getTile() ) && enviro.is_slippy )
         {
             // It's slippy all right...
-            temp_friction_xy = Physics::g_environment.slippyfriction;
+            temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
         }
 
         enviro.friction_hrz = enviro.zlerp * 1.0f + ( 1.0f - enviro.zlerp ) * temp_friction_xy;
@@ -592,13 +593,13 @@ void move_one_character_do_z_motion( Object * pchr )
 
         gperp[kX] = 0       - gpara[kX];
         gperp[kY] = 0       - gpara[kY];
-        gperp[kZ] = Physics::g_environment.gravity - gpara[kZ];
+        gperp[kZ] = Ego::Physics::g_environment.gravity - gpara[kZ];
 
         pchr->vel += gpara * ( 1.0f - loc_zlerp ) + gperp * loc_zlerp;
     }
     else
     {
-        pchr->vel[kZ] += pchr->enviro.zlerp * Physics::g_environment.gravity;
+        pchr->vel[kZ] += pchr->enviro.zlerp * Ego::Physics::g_environment.gravity;
     }
 }
 
@@ -1551,7 +1552,7 @@ void move_all_characters()
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         // prime the environment
-        object->enviro.ice_friction = Physics::g_environment.icefriction;
+        object->enviro.ice_friction = Ego::Physics::g_environment.icefriction;
 
         move_one_character( object.get() );
 

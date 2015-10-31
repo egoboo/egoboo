@@ -29,6 +29,7 @@
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
 #include "game/Physics/particle_physics.h"
+#include "game/Physics/PhysicalConstants.hpp"
 
 namespace Ego
 {
@@ -1069,13 +1070,13 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     // estimate some parameters for buoyancy and air resistance
     {
         const float buoyancy_min = 0.0f;
-        const float buoyancy_max = 2.0f * std::abs(Physics::g_environment.gravity);
+        const float buoyancy_max = 2.0f * std::abs(Ego::Physics::g_environment.gravity);
         const float air_resistance_min = 0.0f;
         const float air_resistance_max = 1.0f;
 
         // find the buoyancy, assuming that the air_resistance of the particle
         // is equal to air_friction at standard gravity
-        buoyancy = -getProfile()->spdlimit * (1.0f - Physics::g_environment.airfriction) - Physics::g_environment.gravity;
+        buoyancy = -getProfile()->spdlimit * (1.0f - Ego::Physics::g_environment.airfriction) - Ego::Physics::g_environment.gravity;
         buoyancy = CLIP(buoyancy, buoyancy_min, buoyancy_max);
 
         // reduce the buoyancy if the particle falls
@@ -1084,10 +1085,10 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
         // determine if there is any left-over air resistance
         if (std::abs(getProfile()->spdlimit) > 0.0001f)
         {
-            air_resistance = 1.0f - (buoyancy + Physics::g_environment.gravity) / -getProfile()->spdlimit;
+            air_resistance = 1.0f - (buoyancy + Ego::Physics::g_environment.gravity) / -getProfile()->spdlimit;
             air_resistance = CLIP(air_resistance, air_resistance_min, air_resistance_max);
 
-            air_resistance /= Physics::g_environment.airfriction;
+            air_resistance /= Ego::Physics::g_environment.airfriction;
             air_resistance = CLIP(air_resistance, 0.0f, 1.0f);
         }
         else

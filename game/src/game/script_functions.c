@@ -47,6 +47,7 @@
 #include "game/Module/Module.hpp"
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/Physics/PhysicalConstants.hpp"
 
 #include "game/GUI/MiniMap.hpp"
 
@@ -3933,7 +3934,7 @@ Uint8 scr_StopTargetMovement( script_state_t& state, ai_state_t& self )
 
     pself_target->vel[kX] = 0;
     pself_target->vel[kY] = 0;
-    if ( pself_target->vel[kZ] > 0 ) pself_target->vel[kZ] = Physics::g_environment.gravity;
+    if ( pself_target->vel[kZ] > 0 ) pself_target->vel[kZ] = Ego::Physics::g_environment.gravity;
 
     SCRIPT_FUNCTION_END();
 }

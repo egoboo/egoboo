@@ -2321,7 +2321,19 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         if (getProfileID() == SPELLBOOK) newFat = oldFat = 1.00f;
 
         // copy all the cap size info over, as normal
-        chr_init_size(this, _profile);
+        fat_stt           = _profile->getSize();
+        shadow_size_stt   = _profile->getShadowSize();
+        bump_stt.size     = _profile->getBumpSize();
+        bump_stt.size_big = _profile->getBumpSizeBig();
+        bump_stt.height   = _profile->getBumpHeight();
+
+        //Initialize model size and collision box
+        fat                = fat_stt;
+        shadow_size_save   = shadow_size_stt;
+        bump_save.size     = bump_stt.size;
+        bump_save.size_big = bump_stt.size_big;
+        bump_save.height   = bump_stt.height;
+        recalculateCollisionSize();
 
         // make the model's size congruent
         if (0.0f != newFat && newFat != oldFat)

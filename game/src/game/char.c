@@ -593,28 +593,3 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
 
     return object;
 }
-
-//--------------------------------------------------------------------------------------------
-// IMPLEMENTATION (previously inline functions)
-//--------------------------------------------------------------------------------------------
-void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
-{
-    /// @author BB
-    /// @details initalize the character size info
-
-    if ( nullptr == ( pchr ) ) return;
-
-    pchr->fat_stt           = profile->getSize();
-    pchr->shadow_size_stt   = profile->getShadowSize();
-    pchr->bump_stt.size     = profile->getBumpSize();
-    pchr->bump_stt.size_big = profile->getBumpSizeBig();
-    pchr->bump_stt.height   = profile->getBumpHeight();
-
-    pchr->fat                = pchr->fat_stt;
-    pchr->shadow_size_save   = pchr->shadow_size_stt;
-    pchr->bump_save.size     = pchr->bump_stt.size;
-    pchr->bump_save.size_big = pchr->bump_stt.size_big;
-    pchr->bump_save.height   = pchr->bump_stt.height;
-
-    pchr->recalculateCollisionSize();
-}

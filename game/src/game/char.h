@@ -140,5 +140,3 @@ egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF moun
 void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
-
-bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );

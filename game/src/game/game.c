@@ -43,6 +43,7 @@
 #include "game/char.h"
 #include "game/Physics/CollisionSystem.hpp"
 #include "game/physics.h"
+#include "game/Physics/PhysicalConstants.hpp"
 #include "game/Physics/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
@@ -3034,12 +3035,12 @@ void upload_light_data(const wawalite_data_t& data)
 void upload_phys_data( const wawalite_physics_t& data )
 {
     // upload the physics data
-    Physics::g_environment.hillslide = data.hillslide;
-    Physics::g_environment.slippyfriction = data.slippyfriction;
-    Physics::g_environment.noslipfriction = data.noslipfriction;
-    Physics::g_environment.airfriction = data.airfriction;
-    Physics::g_environment.waterfriction = data.waterfriction;
-    Physics::g_environment.gravity = data.gravity;
+    Ego::Physics::g_environment.hillslide = data.hillslide;
+    Ego::Physics::g_environment.slippyfriction = data.slippyfriction;
+    Ego::Physics::g_environment.noslipfriction = data.noslipfriction;
+    Ego::Physics::g_environment.airfriction = data.airfriction;
+    Ego::Physics::g_environment.waterfriction = data.waterfriction;
+    Ego::Physics::g_environment.gravity = data.gravity;
 }
 
 void upload_graphics_data( const wawalite_graphics_t& data )
@@ -3129,10 +3130,10 @@ bool wawalite_finalize(wawalite_data_t *data)
     }
 
     int windspeed_count = 0;
-    Physics::g_environment.windspeed = Vector3f::zero();
+    Ego::Physics::g_environment.windspeed = Vector3f::zero();
 
     int waterspeed_count = 0;
-    Physics::g_environment.waterspeed = Vector3f::zero();
+    Ego::Physics::g_environment.waterspeed = Vector3f::zero();
 
     wawalite_water_layer_t *ilayer = wawalite_data.water.layer + 0;
     if (wawalite_data.water.background_req)
@@ -3144,15 +3145,15 @@ bool wawalite_finalize(wawalite_data_t *data)
         const float default_bg_repeat = 4.0f;
 
         windspeed_count++;
-        Physics::g_environment.windspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
-        Physics::g_environment.windspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
-        Physics::g_environment.windspeed[kZ] += -0;
+        Ego::Physics::g_environment.windspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
+        Ego::Physics::g_environment.windspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
+        Ego::Physics::g_environment.windspeed[kZ] += -0;
     }
     else
     {
         waterspeed_count++;
 		Vector3f tmp(-ilayer->tx_add[SS] * Info<float>::Grid::Size(), -ilayer->tx_add[TT] * Info<float>::Grid::Size(), 0.0f);
-        Physics::g_environment.waterspeed += tmp;
+        Ego::Physics::g_environment.waterspeed += tmp;
     }
 
     ilayer = wawalite_data.water.layer + 1;
@@ -3160,27 +3161,27 @@ bool wawalite_finalize(wawalite_data_t *data)
     {
         windspeed_count++;
 
-        Physics::g_environment.windspeed[kX] += -600 * ilayer->tx_add[SS] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
-        Physics::g_environment.windspeed[kY] += -600 * ilayer->tx_add[TT] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
-        Physics::g_environment.windspeed[kZ] += -0;
+        Ego::Physics::g_environment.windspeed[kX] += -600 * ilayer->tx_add[SS] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
+        Ego::Physics::g_environment.windspeed[kY] += -600 * ilayer->tx_add[TT] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
+        Ego::Physics::g_environment.windspeed[kZ] += -0;
     }
     else
     {
         waterspeed_count++;
 
-        Physics::g_environment.waterspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size();
-        Physics::g_environment.waterspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size();
-        Physics::g_environment.waterspeed[kZ] += -0;
+        Ego::Physics::g_environment.waterspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size();
+        Ego::Physics::g_environment.waterspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size();
+        Ego::Physics::g_environment.waterspeed[kZ] += -0;
     }
 
     if ( waterspeed_count > 1 )
     {
-        Physics::g_environment.waterspeed *= 1.0f/(float)waterspeed_count;
+        Ego::Physics::g_environment.waterspeed *= 1.0f/(float)waterspeed_count;
     }
 
     if ( windspeed_count > 1 )
     {
-        Physics::g_environment.windspeed *= 1.0f/(float)windspeed_count;
+        Ego::Physics::g_environment.windspeed *= 1.0f/(float)windspeed_count;
     }
 
     return true;

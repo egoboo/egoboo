@@ -89,7 +89,7 @@ struct prt_environment_t
  * @brief
  *  The definition of the particle entity.
  */
-class Particle : public PhysicsData, public Id::NonCopyable, public Collidable
+class Particle : public PhysicsData, public Id::NonCopyable, public Ego::Physics::Collidable
 {
 public:
     Particle();
