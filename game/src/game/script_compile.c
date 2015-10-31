@@ -908,6 +908,8 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t *pscript )
 
     inside_string = false;
 
+    _load_buffer.fill(CSTR_END);
+
     // try to trap all end of line conditions so we can properly count the lines
     tabs_warning_needed = false;
     while ( read < _load_buffer_count )
@@ -1687,7 +1689,12 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
 
     // load the file
     file_size = vfs_fileLength( fileread );
-    ps._load_buffer_count = ( int )vfs_read( ps._load_buffer, 1, file_size, fileread );
+
+    if(file_size > ps._load_buffer.size()) {
+        log_error("SCRIPT ERROR - Script file size is bigger than buffer!\n");
+    }
+
+    ps._load_buffer_count = ( int )vfs_read( ps._load_buffer.data(), 1, file_size, fileread );
     vfs_close( fileread );
 
     // if the file is empty, use the default script

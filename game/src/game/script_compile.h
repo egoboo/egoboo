@@ -129,7 +129,7 @@ protected:
 
 public:
     size_t _load_buffer_count;
-    Uint8 _load_buffer[AISMAXLOADSIZE];
+    std::array<uint8_t, AISMAXLOADSIZE> _load_buffer;
 
     /**
      * @brief
