@@ -5,6 +5,8 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
 
+static constexpr float MAX_DISPLACEMENT_XY = 20.0f; //Max velocity correction due to being inside a wall
+
 static void move_one_character_do_floor_friction( Object * pchr );
 static void move_one_character_do_voluntary( Object * pchr );
 static void move_one_character( Object * pchr );
@@ -689,29 +691,26 @@ bool move_one_character_integrate_motion( Object * pchr )
             // how is the character hitting the wall?
             if (pressure > 0.0f)
             {
-                //Figure out last safe position
-                Vector2f safePos; 
-                safePos[kX] = pchr->getSafePosition()[kX];
-                safePos[kY] = pchr->getSafePosition()[kY];
+                tmp_pos[kX] -= pchr->vel[kX];
+                tmp_pos[kY] -= pchr->vel[kY];
 
-                //Calculate velocity vector perpendicular from wall normal
-                Vector2f v_perp = Vector2f::zero();
-                float nrm2 = nrm.dot(nrm);
-                if (0.0f != nrm2) {
-                    float dot = Vector2f(pchr->vel[kX], pchr->vel[kY]).dot(nrm);
-                    v_perp = nrm * (dot / nrm2);
-                }
-
-                const float bumpdampen = 1.0f-pchr->phys.bumpdampen;
+                const float bumpdampen = std::max(0.1f, 1.0f-pchr->phys.bumpdampen);
 
                 //Bounce velocity of normal
-                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * bumpdampen;
-                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * bumpdampen;
+                Vector2f velocity = Vector2f(pchr->vel[kX], pchr->vel[kY]);
+                velocity[kX] -= 2 * (nrm.dot(velocity) * nrm[kX]);
+                velocity[kY] -= 2 * (nrm.dot(velocity) * nrm[kY]);
+
+                pchr->vel[kX] = pchr->vel[kX] * bumpdampen + velocity[kX]*(1-bumpdampen);
+                pchr->vel[kY] = pchr->vel[kY] * bumpdampen + velocity[kY]*(1-bumpdampen);
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length() * std::max(0.1f, bumpdampen);
-                pchr->vel[kX] += safeDistance * nrm[kX] * pressure;
-                pchr->vel[kY] += safeDistance * nrm[kY] * pressure;
+                float displacement = Vector2f(pchr->getSafePosition()[kX]-tmp_pos[kX], pchr->getSafePosition()[kY]-tmp_pos[kY]).length();
+                if(displacement > MAX_DISPLACEMENT_XY) {
+                    displacement = MAX_DISPLACEMENT_XY;
+                }
+                pchr->vel[kX] += displacement * bumpdampen * pressure * nrm[kX];
+                pchr->vel[kY] += displacement * bumpdampen * pressure * nrm[kY];
 
                 //Apply correction
                 tmp_pos[kX] += pchr->vel[kX];
