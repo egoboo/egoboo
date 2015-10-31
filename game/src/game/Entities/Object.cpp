@@ -263,47 +263,9 @@ bool Object::isInWater(bool anyLiquid) const
     return isOverWater(anyLiquid) && getPosZ() <= water.get_level();
 }
 
-
-bool Object::setPosition(const Vector3f& position)
-{
-    EGO_DEBUG_VALIDATE(position);
-
-    //Has our position changed?
-    if(position != pos)
-    {
-        pos = position;
-
-        _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY]));
-        _block = _currentModule->getMeshPointer()->get_block(PointWorld(pos[kX], pos[kY]));
-
-        // Update the breadcrumb list.
-		Vector2f nrm;
-        float pressure = 0.0f;
-        BIT_FIELD hit_a_wall = hit_wall(nrm, &pressure, NULL);
-        if (EMPTY_BIT_FIELD == hit_a_wall && 0.0f <= pressure)
-        {
-            //This is a safe position
-            _breadcrumbList.push_back(position);
-            if(_breadcrumbList.size() > 32) {
-                _breadcrumbList.pop_front();
-            }
-
-            //Update last safe position
-            safe_valid = true;
-            safe_pos   = getPosition();
-            safe_time  = update_wld;
-            safe_grid  = _tile;
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
 void Object::movePosition(const float x, const float y, const float z)
 {
-    pos += Vector3f(x, y, z);
+    _position += Vector3f(x, y, z);
 }
 
 void Object::setAlpha(const int alpha)
@@ -930,7 +892,7 @@ void Object::update()
 
         //Give Rally bonus to friends within 6 tiles
         if(hasPerk(Ego::Perks::RALLY)) {
-            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(pos[kX], pos[kY], WIDE, false))
+            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false))
             {
                 //Only valid objects that are on our team
                 if(object->isTerminated() || object->getTeam() != getTeam()) continue;
@@ -1037,7 +999,7 @@ void Object::updateResize()
         {
             bump.size += bump_increase;
 
-            if ( EMPTY_BIT_FIELD != test_wall( NULL ) )
+            if ( EMPTY_BIT_FIELD != Collidable::test_wall(nullptr) )
             {
                 willgetcaught = true;
             }
@@ -1195,7 +1157,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Make sure it's not dropped in a wall...
-    if (EMPTY_BIT_FIELD != test_wall(NULL))
+    if (EMPTY_BIT_FIELD != Collidable::test_wall(nullptr))
     {
         Vector3f pos_tmp = pholder->getPosition();
         pos_tmp[kZ] = getPosZ();
@@ -1723,11 +1685,6 @@ void Object::removeFromGame(Object * pchr)
 	AudioSystem::get().stopObjectLoopingSounds(ichr);
 }
 
-BIT_FIELD Object::hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
-{
-	return hit_wall(getPosition(), nrm, pressure, data);
-}
-
 BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure, mesh_wall_data_t *data)
 {
 	if (CHR_INFINITE_WEIGHT == phys.weight)
@@ -1750,14 +1707,6 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 	chr_pressure_tests += g_meshStats.pressureTests;
 
 	return result;
-}
-
-BIT_FIELD Object::test_wall(mesh_wall_data_t *data)
-{
-	if (isTerminated()) {
-		return EMPTY_BIT_FIELD;
-	}
-	return test_wall(getPosition(), data);
 }
 
 BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
@@ -1860,7 +1809,7 @@ void Object::respawn()
     careful_timer = CAREFULTIME;
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
-    setPosition(pos_stt);
+    setPosition(getSpawnPosition());
     vel = Vector3f::zero();
     team = team_base;
     canbecrushed = false;

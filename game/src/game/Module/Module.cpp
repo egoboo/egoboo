@@ -422,8 +422,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     move_one_character_get_environment( pchr.get() );
 
     pchr->setPosition(pos);
-
-    pchr->pos_stt  = pos;
+    pchr->setSpawnPosition(pos);
     pchr->pos_old  = pos;
 
     pchr->ori.facing_z     = facing;

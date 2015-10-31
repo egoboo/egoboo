@@ -690,14 +690,8 @@ bool move_one_character_integrate_motion( Object * pchr )
             {
                 //Figure out last safe position
                 Vector2f safePos; 
-                if(!pchr->getBreadcrumbList().empty()) {
-                    safePos[kX] = pchr->getBreadcrumbList().back()[kX];
-                    safePos[kY] = pchr->getBreadcrumbList().back()[kY];
-                }
-                else {
-                    safePos[kX] = pchr->pos_stt[kX];
-                    safePos[kY] = pchr->pos_stt[kY];
-                }
+                safePos[kX] = pchr->getSafePosition()[kX];
+                safePos[kY] = pchr->getSafePosition()[kY];
 
                 //Calculate velocity vector perpendicular from wall normal
                 Vector2f v_perp = Vector2f::zero();
@@ -712,7 +706,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                 pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * (1.0f-pchr->phys.bumpdampen);
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length();
+                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length() * std::max(0.1f, 1.0f-pchr->phys.bumpdampen);
                 pchr->vel[kX] += safeDistance * nrm[kX] * pressure;
                 pchr->vel[kY] += safeDistance * nrm[kY] * pressure;
 

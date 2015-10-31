@@ -1908,7 +1908,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!pchild->safe_valid) {
+        if (!pchild->hasSafePosition()) {
             log_warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
         }
@@ -2184,11 +2184,11 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
-                                                                                        pchr->ori.facing_z, 
-                                                                                        pchr->getProfileID(),
-                                                                                        LocalParticleProfileRef(state.argument), self.index,
-                                                                                        state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                                                        INVALID_CHR_REF );
+                                                   pchr->ori.facing_z, 
+                                                   pchr->getProfileID(),
+                                                   LocalParticleProfileRef(state.argument), self.index,
+                                                   state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                   INVALID_CHR_REF );
 
     returncode = (particle != nullptr);
     if ( returncode )
@@ -2206,12 +2206,12 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
         tmp_pos[kX] += state.x;
         if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
         {
-            tmp_pos[kX] = particle->pos[kX];
+            tmp_pos[kX] = particle->getPosX();
 
             tmp_pos[kY] += state.y;
             if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
             {
-                tmp_pos[kY] = particle->pos[kY];
+                tmp_pos[kY] = particle->getPosY();
             }
         }
 
@@ -5371,7 +5371,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!pchild->safe_valid)
+        if (!pchild->hasSafePosition())
         {
             log_warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
@@ -5421,7 +5421,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!pchild->safe_valid)
+        if (!pchild->hasSafePosition())
         {
             log_warning( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
             pchr->requestTerminate();

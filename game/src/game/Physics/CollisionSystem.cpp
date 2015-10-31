@@ -61,6 +61,10 @@ void CollisionSystem::update()
     // accumulate the accumulators
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
+        if(pchr->isTerminated()) {
+            continue;
+        }
+        
         float tmpx, tmpy;
         bool position_updated = false;
         Vector3f max_apos;
@@ -295,13 +299,13 @@ void CollisionSystem::updateObjectCollisions()
         _currentModule->getObjectHandler().findObjects(aabb2d, possibleCollisions, canCollideWithScenery);
         for (const std::shared_ptr<Object> &other : possibleCollisions)
         {
-            //Can it collide?
-            if(!other->canCollide()) {
+            //Skip possible interactions that have already been handled earlier this iteration
+            if(handledObjects.find(other) != handledObjects.end()) {
                 continue;
             }
 
-            //Skip possible interactions that have already been handled earlier this iteration
-            if(handledObjects.find(other) != handledObjects.end()) {
+            //Can it collide?
+            if(!other->canCollide()) {
                 continue;
             }
 

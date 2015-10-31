@@ -123,22 +123,6 @@ struct PhysicsData
 {
     phys_data_t phys;          ///< The entity's physics data.
 
-    bool safe_valid;               ///< Is the last "safe" position valid?
-	Vector3f safe_pos;             ///< The last "safe" position.
-    Uint32 safe_time;              ///< The last "safe" time.
-    TileIndex safe_grid;           ///< the last "safe" grid. @todo Should be of type @a TileIndex.
-
-    /**
-     * @brief
-     *  The tile this object is on or TileIndex::Invalid if none.
-     */
-    TileIndex _tile;
-    /**
-     * @brief
-     *  The block this object is on or BlockIndex::Invalid if none.
-     */
-    BlockIndex _block;
-
     float targetplatform_level;    ///< What is the height of the target platform?
     CHR_REF targetplatform_ref;    ///< Am I trying to attach to a platform?
     CHR_REF onwhichplatform_ref;   ///< Is the particle on a platform?
@@ -149,6 +133,7 @@ struct PhysicsData
     *  The current velocity of the entity.
     */
 	Vector3f vel;
+
     /**
     * @brief
     *  The previous velocity of the entity.
@@ -157,115 +142,36 @@ struct PhysicsData
 
     /**
     * @brief
-    *  The current position of the entity.
-    */
-	Vector3f pos;
-    /**
-    * @brief
     *  The previous position of the entity.
     */
 	Vector3f pos_old;
 
-    /**
-    * @brief
-    *  The initial/starting position.
-    */
-	Vector3f pos_stt;
-
     PhysicsData() :
         phys(),
-        safe_valid(false), safe_pos(), safe_time(0), safe_grid(TileIndex::Invalid),
-        _tile(TileIndex::Invalid), _block(BlockIndex::Invalid),
         targetplatform_level(0.0f),
         targetplatform_ref(INVALID_CHR_REF),
         onwhichplatform_ref(INVALID_CHR_REF),
         onwhichplatform_update(0),
-        pos_old(), pos(),
-        vel_old(), vel(),
-        pos_stt()
+        pos_old(),
+        vel_old(), 
+        vel()
     {
         // initialize the physics
         phys_data_t::ctor(&phys);
     }
+    
     static void reset(PhysicsData *self)
     {
         phys_data_t::reset(&self->phys);
-
-        self->safe_valid = false;
-        self->safe_pos = Vector3f::zero();
-        self->safe_time = 0;
-        self->safe_grid = TileIndex::Invalid;
-
-        self->_tile = TileIndex::Invalid;
-        self->_block = BlockIndex::Invalid;
 
         self->targetplatform_level = 0.0f;
         self->targetplatform_ref = INVALID_CHR_REF;
         self->onwhichplatform_ref = INVALID_CHR_REF;
         self->onwhichplatform_update = 0;
 
-        self->pos = Vector3f::zero();
         self->pos_old = Vector3f::zero();
 
         self->vel = Vector3f::zero();
         self->vel_old = Vector3f::zero();
-
-        self->pos_stt = Vector3f::zero();
     }
-
-    /**
-     * @brief Get the tile this object is currently on.
-     * @return the tile index of the tile this object is on.
-     * If the object is currently on no tile, TileIndex::Invalid is returned.
-     */
-    inline const TileIndex& getTile() const {
-        return _tile;
-    }
-
-    /**
-     * @brief Get the block this object is currently on.
-     * @return the block index of the block this object is on.
-     * If the object is currently on no block, BlockIndex::Invalid is returned.
-     */
-    inline const BlockIndex& getBlock() const {
-        return _block;
-    }
-
-    /**
-     * @return the current position of this object
-     */
-    inline const Vector3f& getPosition() const {
-        return pos;
-    }
-
-    /**
-     * @return the position of this object along the x-axis
-     */
-    inline float getPosX() const {
-        return pos[kX];
-    }
-
-    /**
-     * @return the position of this object along the y-axis
-     */
-    inline float getPosY() const {
-        return pos[kY];
-    }
-
-    /**
-     * @return the position of this object along the z-axis
-     */
-    inline float getPosZ() const {
-        return pos[kZ];
-    }
-
-	/// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
-	virtual BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data) = 0;
-	/// @brief Returns nonzero if the entity hit a wall that the entity is not allowed to cross.
-	virtual BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) = 0;
-	/// @brief Returns nonzero if the entity hit a wall that the entity is not allowed to cross.
-	virtual BIT_FIELD test_wall(mesh_wall_data_t *data) = 0;
-	/// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
-	virtual BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) = 0;
-
 };

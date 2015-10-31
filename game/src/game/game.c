@@ -927,7 +927,7 @@ void update_pits()
             // Kill any particles that fell in a pit, if they die in water...
             for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
             {
-                if ( particle->pos[kZ] < PITDEPTH && particle->getProfile()->end_water )
+                if ( particle->getPosZ() < PITDEPTH && particle->getProfile()->end_water )
                 {
                     particle->requestTerminate();
                 }
@@ -1033,11 +1033,11 @@ void do_weather_spawn_particles()
                 if ( particle )
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->_gmem._edge_x - EDGE )
+                    if ( particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_gmem._edge_x - EDGE )
                     {
                         particle->requestTerminate();
                     }
-                    else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
+                    else if ( particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
                     {
                         particle->requestTerminate();
                     }

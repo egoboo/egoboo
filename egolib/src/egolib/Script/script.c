@@ -1185,12 +1185,12 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFSPAWNX:
                 varname = "SELFSPAWNX";
-                iTmp = pchr->pos_stt[kX];
+                iTmp = pchr->getSpawnPosition()[kX];
                 break;
 
             case VARSELFSPAWNY:
                 varname = "SELFSPAWNY";
-                iTmp = pchr->pos_stt[kY];
+                iTmp = pchr->getSpawnPosition()[kY];
                 break;
 
             case VARSELFSTATE:
@@ -1373,8 +1373,8 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-                iTmp = std::abs( pchr->pos_stt[kX] - pchr->getPosX() )
-                     + std::abs( pchr->pos_stt[kY] - pchr->getPosY() );
+                iTmp = std::abs( pchr->getSpawnPosition()[kX] - pchr->getPosX() )
+                     + std::abs( pchr->getSpawnPosition()[kY] - pchr->getPosY() );
                 break;
 
             case VARTARGETMAXLIFE:

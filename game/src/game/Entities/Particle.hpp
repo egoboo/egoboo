@@ -136,11 +136,7 @@ public:
     **/
     void setElevation(const float level);
 
-    BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
-
     BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
-
-    BIT_FIELD test_wall(mesh_wall_data_t *data) override;
 
     BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) override;
 
@@ -152,12 +148,6 @@ public:
 
     /// @brief Get the scale factor between the "graphical size" of the particle and the actual display size.
     float getScale() const;
-
-    /**
-    * @brief
-    *   Set the position of this Particle
-    **/
-    bool setPosition(const Vector3f& position);
 
     /**
     * @brief
@@ -300,9 +290,6 @@ public:
     void destroy();
 
 private:
-    bool updateSafe(bool force);
-    bool updateSafeRaw();
-
     /**
      * @brief
      *  Handle the particle interaction with water
