@@ -1364,7 +1364,7 @@ void gfx_error_clear()
 //--------------------------------------------------------------------------------------------
 // grid_lighting FUNCTIONS
 //--------------------------------------------------------------------------------------------
-float GridIllumination::grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
+float GridIllumination::grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float& low_diff, float& hgh_diff)
 {
     const lighting_cache_t *cache_list[4];
 
@@ -1485,7 +1485,7 @@ bool GridIllumination::grid_lighting_interpolate(const ego_mesh_t& mesh, lightin
     fan[2] = mesh.get_tile_int(PointGrid(ix, iy + 1));
     fan[3] = mesh.get_tile_int(PointGrid(ix + 1, iy + 1));
 
-	const lighting_cache_t *cache_list[4];
+	std::array<const lighting_cache_t *,4> cache_list;
     for (size_t cnt = 0; cnt < 4; cnt++)
     {
 		const ego_grid_info_t *pgrid = mesh.get_pgrid(fan[cnt]);
@@ -1504,14 +1504,14 @@ bool GridIllumination::grid_lighting_interpolate(const ego_mesh_t& mesh, lightin
 	float u = tpos[XX] - ix,
 		  v = tpos[YY] - iy;
 
-    return lighting_cache_interpolate(dst, cache_list, u, v);
+    return lighting_cache_t::lighting_cache_interpolate(dst, cache_list, u, v);
 }
 
 void GridIllumination::test_one_corner(const ego_mesh_t& mesh, GLXvector3f pos, float& pdelta)
 {
 	// interpolate the lighting for the given corner of the mesh
 	float low_delta, hgh_delta;
-	pdelta = grid_lighting_test(mesh, pos, &low_delta, &hgh_delta);
+	pdelta = grid_lighting_test(mesh, pos, low_delta, hgh_delta);
 
 	// determine the weighting
 	float hgh_wt, low_wt;
@@ -1569,12 +1569,12 @@ void GridIllumination::light_one_corner(ego_mesh_t& mesh, ego_tile_info_t& tile,
 
 	if (reflective) {
 		float light_dir, light_amb;
-		lighting_evaluate_cache(grid_light, nrm, pos[ZZ], mesh._tmem._bbox, &light_amb, &light_dir);
+		lighting_cache_t::lighting_evaluate_cache(grid_light, nrm, pos[ZZ], mesh._tmem._bbox, &light_amb, &light_dir);
 
 		// make ambient light only illuminate 1/2
 		plight = light_amb + 0.5f * light_dir;
 	} else {
-		plight = lighting_evaluate_cache(grid_light, nrm, pos[ZZ], mesh._tmem._bbox, NULL, NULL);
+		plight = lighting_cache_t::lighting_evaluate_cache(grid_light, nrm, pos[ZZ], mesh._tmem._bbox, NULL, NULL);
 	}
 }
 
@@ -1610,12 +1610,12 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const TileIndex& fan, floa
 	{
 		float light_dir, light_amb;
 
-		lighting_evaluate_cache(lighting, Vector3f(nrm[0], nrm[1], nrm[2]), height, mesh._tmem._bbox, &light_amb, &light_dir);
+		lighting_cache_t::lighting_evaluate_cache(lighting, Vector3f(nrm[0], nrm[1], nrm[2]), height, mesh._tmem._bbox, &light_amb, &light_dir);
 
 		// make ambient light only illuminate 1/2
 		plight = light_amb + 0.5f * light_dir;
 	} else {
-		plight = lighting_evaluate_cache(lighting, Vector3f(nrm[0], nrm[1], nrm[2]), height, mesh._tmem._bbox, NULL, NULL);
+		plight = lighting_cache_t::lighting_evaluate_cache(lighting, Vector3f(nrm[0], nrm[1], nrm[2]), height, mesh._tmem._bbox, NULL, NULL);
 	}
 
 	// clip the light to a reasonable value

@@ -203,7 +203,7 @@ void lighting_cache_t::blend(lighting_cache_t& self, lighting_cache_t& other, fl
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void lighting_project_cache( lighting_cache_t& dst, const lighting_cache_t& src, const Matrix4f4f& mat )
+void lighting_cache_t::lighting_project_cache( lighting_cache_t& dst, const lighting_cache_t& src, const Matrix4f4f& mat )
 {
 	Vector3f fwd, right, up;
 
@@ -237,13 +237,11 @@ void lighting_project_cache( lighting_cache_t& dst, const lighting_cache_t& src,
 }
 
 //--------------------------------------------------------------------------------------------
-bool lighting_cache_interpolate( lighting_cache_t& dst, const lighting_cache_t * src[], const float u, const float v )
+bool lighting_cache_t::lighting_cache_interpolate( lighting_cache_t& dst, const std::array<const lighting_cache_t *, 4>& src, const float u, const float v )
 {
     int   tnc;
     float wt_sum;
     float loc_u, loc_v;
-
-    if ( NULL == src ) return false;
 
     lighting_cache_t::init(dst);
 
@@ -315,23 +313,19 @@ bool lighting_cache_interpolate( lighting_cache_t& dst, const lighting_cache_t *
 }
 
 //--------------------------------------------------------------------------------------------
-float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float * low_delta, float * hgh_delta )
+float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float& low_delta, float& hgh_delta )
 {
     /// @author BB
     /// @details estimate the maximum change in the lighting at this point from the
     ///               measured delta values
 
     float delta, wt_sum;
-    float loc_low_delta, loc_hgh_delta;
     float loc_u, loc_v;
 
     delta = 0.0f;
 
     if ( NULL == src ) return delta;
 
-    // handle the optional parameters
-    if ( NULL == low_delta ) low_delta = &loc_low_delta;
-    if ( NULL == hgh_delta ) hgh_delta = &loc_hgh_delta;
 
     loc_u = CLIP( u, 0.0f, 1.0f );
     loc_v = CLIP( v, 0.0f, 1.0f );
@@ -343,8 +337,8 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
         float wt = ( 1.0f - loc_u ) * ( 1.0f - loc_v );
 
         delta      += wt * src[0]->_max_delta;
-        *low_delta += wt * src[0]->low._max_delta;
-        *hgh_delta += wt * src[0]->hgh._max_delta;
+        low_delta += wt * src[0]->low._max_delta;
+        hgh_delta += wt * src[0]->hgh._max_delta;
 
         wt_sum += wt;
     }
@@ -354,8 +348,8 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
         float wt = loc_u * ( 1.0f - loc_v );
 
         delta      += wt * src[1]->_max_delta;
-        *low_delta += wt * src[1]->low._max_delta;
-        *hgh_delta += wt * src[1]->hgh._max_delta;
+        low_delta += wt * src[1]->low._max_delta;
+        hgh_delta += wt * src[1]->hgh._max_delta;
 
         wt_sum += wt;
     }
@@ -364,9 +358,9 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
     {
         float wt = ( 1.0f - loc_u ) * loc_v;
 
-        delta      += wt * src[2]->_max_delta;
-        *low_delta += wt * src[2]->low._max_delta;
-        *hgh_delta += wt * src[2]->hgh._max_delta;
+        delta     += wt * src[2]->_max_delta;
+        low_delta += wt * src[2]->low._max_delta;
+        hgh_delta += wt * src[2]->hgh._max_delta;
 
         wt_sum += wt;
     }
@@ -375,18 +369,18 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
     {
         float wt = loc_u * loc_v;
 
-        delta      += wt * src[3]->_max_delta;
-        *low_delta += wt * src[3]->low._max_delta;
-        *hgh_delta += wt * src[3]->hgh._max_delta;
+        delta     += wt * src[3]->_max_delta;
+        low_delta += wt * src[3]->low._max_delta;
+        hgh_delta += wt * src[3]->hgh._max_delta;
 
         wt_sum += wt;
     }
 
     if ( wt_sum > 0.0f )
     {
-        delta      /= wt_sum;
-        *low_delta /= wt_sum;
-        *hgh_delta /= wt_sum;
+        delta     /= wt_sum;
+        low_delta /= wt_sum;
+        hgh_delta /= wt_sum;
     }
 
     return delta;
@@ -476,8 +470,7 @@ float lighting_cache_base_t::evaluate( const lighting_cache_base_t& self, const 
     return dir + *amb;
 }
 
-//--------------------------------------------------------------------------------------------
-float lighting_evaluate_cache( const lighting_cache_t& src, const Vector3f& nrm, const float z, const AABB3f& bbox, float * light_amb, float * light_dir )
+float lighting_cache_t::lighting_evaluate_cache( const lighting_cache_t& src, const Vector3f& nrm, const float z, const AABB3f& bbox, float * light_amb, float * light_dir )
 {
     float loc_light_amb = 0.0f, loc_light_dir = 0.0f;
     float light_tot;

@@ -74,6 +74,11 @@ struct lighting_cache_t
 	static void max_light(lighting_cache_t& self);
 	/// Blend another cache into this cache.
 	static void blend(lighting_cache_t& self, lighting_cache_t& other, float keep);
+
+	static void lighting_project_cache(lighting_cache_t& dst, const lighting_cache_t& src, const Matrix4f4f& mat);
+	static bool lighting_cache_interpolate(lighting_cache_t& dst, const std::array<const lighting_cache_t *, 4>& src, const float u, const float v);
+	static float lighting_evaluate_cache(const lighting_cache_t& src, const Vector3f& nrm, const float z, const AABB3f& bbox, float *light_amb, float *light_dir);
+
 };
 
 //--------------------------------------------------------------------------------------------
@@ -99,11 +104,8 @@ extern Vector3f light_nrm;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void lighting_project_cache( lighting_cache_t& dst, const lighting_cache_t& src, const Matrix4f4f& mat );
-bool lighting_cache_interpolate( lighting_cache_t& dst, const lighting_cache_t * src[], const float u, const float v );
-float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float * low_max_diff, float * hgh_max_diff );
+float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float& low_max_diff, float& hgh_max_diff );
 
-float lighting_evaluate_cache( const lighting_cache_t& src, const Vector3f& nrm, const float z, const AABB3f& bbox, float *light_amb, float *light_dir );
 
 bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTING_VEC_SIZE> &lighting, const Vector3f& nrm );
 
