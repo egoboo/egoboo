@@ -1465,11 +1465,9 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
     /// @author ZZ
     /// @details This function keeps weapons near their holders
 
-    CHR_REF iattached = pchr->attachedto;
-    if ( _currentModule->getObjectHandler().exists( iattached ) )
+   const std::shared_ptr<Object> &holder = pchr->getHolder();
+    if (holder)
     {
-        Object * pattached = _currentModule->getObjectHandler().get( iattached );
-
         // Keep in hand weapons with iattached
         if ( chr_matrix_valid( pchr.get() ) )
         {
@@ -1477,17 +1475,17 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
         }
         else
         {
-            pchr->setPosition(pattached->getPosition());
+            pchr->setPosition(holder->getPosition());
         }
 
-        pchr->ori.facing_z = pattached->ori.facing_z;
+        pchr->ori.facing_z = holder->ori.facing_z;
 
         // Copy this stuff ONLY if it's a weapon, not for mounts
-        if ( pattached->getProfile()->transferBlending() && pchr->isitem )
+        if ( holder->getProfile()->transferBlending() && pchr->isitem )
         {
 
             // Items become partially invisible in hands of players
-            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.alpha )
+            if ( holder->isPlayer() && 255 != holder->inst.alpha )
             {
                 pchr->setAlpha(SEEINVISIBLE);
             }
@@ -1496,7 +1494,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
                 // Only if not naturally transparent
                 if ( 255 == pchr->getProfile()->getAlpha() )
                 {
-                    pchr->setAlpha(pattached->inst.alpha);
+                    pchr->setAlpha(holder->inst.alpha);
                 }
                 else
                 {
@@ -1505,7 +1503,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
             }
 
             // Do light too
-            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.light )
+            if ( holder->isPlayer() && 255 != holder->inst.light )
             {
                 pchr->setLight(SEEINVISIBLE);
             }
@@ -1514,7 +1512,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
                 // Only if not naturally transparent
                 if ( 255 == pchr->getProfile()->getLight())
                 {
-                    pchr->setLight(pattached->inst.light);
+                    pchr->setLight(holder->inst.light);
                 }
                 else
                 {
@@ -1527,16 +1525,10 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
     {
         pchr->attachedto = INVALID_CHR_REF;
 
-        // Keep inventory with iattached
-        if ( !_currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
-        {
-            for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
-            {
-                pitem->setPosition(pchr->getPosition());
-
-                // Copy olds to make SendMessageNear work
-                pitem->setOldPosition(pchr->getOldPosition());
-            }
+        // Keep inventory items with the carrier
+        const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[pchr->inwhich_inventory];
+        if (inventoryHolder) {
+            pchr->setPosition(inventoryHolder->getPosition());
         }
     }
 }
@@ -1557,7 +1549,7 @@ void move_all_characters()
 
         move_one_character( object.get() );
 
-        chr_update_matrix( object.get(), true );
+        //chr_update_matrix( object.get(), true );
         keep_weapons_with_holder(object);
     }
 }
