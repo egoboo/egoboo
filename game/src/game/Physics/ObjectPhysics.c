@@ -1531,6 +1531,9 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
             for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
             {
                 pitem->setPosition(pchr->getPosition());
+
+                // Copy olds to make SendMessageNear work
+                pitem->setOldPosition(pchr->getOldPosition());
             }
         }
     }
