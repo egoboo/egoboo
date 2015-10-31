@@ -266,7 +266,7 @@ void ParticleHandler::spawnPoof(const std::shared_ptr<Object> &object)
     FACING_T facing_z = object->ori.facing_z;
     for (int cnt = 0; cnt < object->getProfile()->getParticlePoofAmount(); cnt++)
     {
-        ParticleHandler::get().spawnParticle( object->pos_old, facing_z, object->getProfile()->getSlotNumber(), object->getProfile()->getParticlePoofProfile(),
+        ParticleHandler::get().spawnParticle( object->getOldPosition(), facing_z, object->getProfile()->getSlotNumber(), object->getProfile()->getParticlePoofProfile(),
                             INVALID_CHR_REF, GRIP_LAST, object->team, object->ai.owner, INVALID_PRT_REF, cnt);
 
         facing_z += object->getProfile()->getParticlePoofFacingAdd();

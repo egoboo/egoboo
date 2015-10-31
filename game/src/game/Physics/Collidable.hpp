@@ -30,6 +30,7 @@ class Collidable
 public:
     Collidable() :
         _position(0.0f, 0.0f, 0.0f),
+        _oldPosition(0.0f, 0.0f, 0.0f),
         _spawnPosition(0.0f, 0.0f, 0.0f),
         _safePosition(0.0f, 0.0f, 0.0f),
         _safeValid(false),
@@ -77,6 +78,10 @@ public:
         return setPosition(Vector3f(x, y, z));
     }
 
+    void setOldPosition(const Vector3f &pos) {
+        _oldPosition = pos;
+    }
+
     /**
     * @brief 
     *   Set current position of this Object
@@ -92,6 +97,7 @@ public:
         }
 
         //Change our new position
+        _oldPosition = _position;
         _position = pos;
 
         _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(getPosX(), getPosY()));
@@ -157,6 +163,14 @@ public:
     }
 
     /**
+    * @return
+    *   The previous position of this entity
+    */
+    const Vector3f& getOldPosition() const {
+        return _oldPosition;
+    }
+
+    /**
      * @brief Get the tile this object is currently on.
      * @return the tile index of the tile this object is on.
      * If the object is currently on no tile, TileIndex::Invalid is returned.
@@ -199,6 +213,13 @@ protected:
     Vector3f _position;
 
 private:
+
+    /**
+    * @brief
+    *  The previous position of the entity.
+    */
+    Vector3f _oldPosition;
+
     /**
     * @brief
     *  The initial/starting position.

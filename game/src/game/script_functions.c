@@ -2155,9 +2155,9 @@ Uint8 scr_PlaySound( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pchr->pos_old[kZ] > PITNOSOUND )
+    if ( pchr->getOldPosition()[kZ] > PITNOSOUND )
     {
-        AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(state.argument));
+        AudioSystem::get().playSound(pchr->getOldPosition(), ppro->getSoundID(state.argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -3602,7 +3602,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
     min_distance = -1;
     for(std::shared_ptr<Camera> camera : CameraSystem::get()->getCameraList())
     {
-        iTmp = std::fabs( pchr->pos_old[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->pos_old[kY] - camera->getTrackPosition()[kY] );
+        iTmp = std::fabs( pchr->getOldPosition()[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->getOldPosition()[kY] - camera->getTrackPosition()[kY] );
 
         if ( -1 == min_distance || iTmp < min_distance )
         {
@@ -4624,7 +4624,7 @@ Uint8 scr_PlaySoundVolume( script_state_t& state, ai_state_t& self )
 
     if ( state.distance > 0 )
     {
-        int channel = AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(state.argument));
+        int channel = AudioSystem::get().playSound(pchr->getOldPosition(), ppro->getSoundID(state.argument));
 
         if ( channel != INVALID_SOUND_CHANNEL )
         {
@@ -6530,7 +6530,7 @@ Uint8 scr_SetVolumeNearestTeammate( script_state_t& state, ai_state_t& self )
     {
     if(_currentModule->getObjectHandler().exists(sTmp) && ChrList.lst[sTmp].alive && ChrList.lst[sTmp].Team == pchr->Team)
     {
-    distance = ABS(PCamera->track.x-ChrList.lst[sTmp].pos_old.x)+ABS(PCamera->track.y-ChrList.lst[sTmp].pos_old.y);
+    distance = ABS(PCamera->track.x-ChrList.lst[sTmp].getOldPosition().x)+ABS(PCamera->track.y-ChrList.lst[sTmp].getOldPosition().y);
     if(distance < iTmp)  iTmp = distance;
     }
     sTmp++;

@@ -1418,11 +1418,10 @@ void move_one_character( Object * pchr )
     if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return;
 
     // save the velocity and acceleration from the last time-step
-    pchr->enviro.vel = pchr->getPosition() - pchr->pos_old;
+    pchr->enviro.vel = pchr->getPosition() - pchr->getOldPosition();
     pchr->enviro.acc = pchr->vel - pchr->vel_old;
 
     // Character's old location
-    pchr->pos_old = pchr->getPosition();
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
@@ -1532,9 +1531,6 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
             for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
             {
                 pitem->setPosition(pchr->getPosition());
-
-                // Copy olds to make SendMessageNear work
-                pitem->pos_old = pchr->pos_old;
             }
         }
     }

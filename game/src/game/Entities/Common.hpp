@@ -140,19 +140,12 @@ struct PhysicsData
     */
 	Vector3f vel_old;
 
-    /**
-    * @brief
-    *  The previous position of the entity.
-    */
-	Vector3f pos_old;
-
     PhysicsData() :
         phys(),
         targetplatform_level(0.0f),
         targetplatform_ref(INVALID_CHR_REF),
         onwhichplatform_ref(INVALID_CHR_REF),
         onwhichplatform_update(0),
-        pos_old(),
         vel_old(), 
         vel()
     {
@@ -168,8 +161,6 @@ struct PhysicsData
         self->targetplatform_ref = INVALID_CHR_REF;
         self->onwhichplatform_ref = INVALID_CHR_REF;
         self->onwhichplatform_update = 0;
-
-        self->pos_old = Vector3f::zero();
 
         self->vel = Vector3f::zero();
         self->vel_old = Vector3f::zero();

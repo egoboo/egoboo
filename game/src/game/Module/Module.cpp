@@ -435,7 +435,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
 
     pchr->setPosition(pos);
     pchr->setSpawnPosition(pos);
-    pchr->pos_old  = pos;
 
     pchr->ori.facing_z     = facing;
     pchr->ori_old.facing_z = pchr->ori.facing_z;

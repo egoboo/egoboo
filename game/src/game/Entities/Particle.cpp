@@ -678,12 +678,12 @@ void Particle::destroy()
             if(_spawnerProfile == INVALID_PRO_REF)
             {
                 //Global particle
-                ParticleHandler::get().spawnGlobalParticle(pos_old, facing, getProfile()->endspawn._lpip, tnc);
+                ParticleHandler::get().spawnGlobalParticle(getOldPosition(), facing, getProfile()->endspawn._lpip, tnc);
             }
             else
             {
                 //Local particle
-                ParticleHandler::get().spawnLocalParticle(pos_old, facing, _spawnerProfile, getProfile()->endspawn._lpip,
+                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facing, _spawnerProfile, getProfile()->endspawn._lpip,
                                                         INVALID_CHR_REF, GRIP_LAST, team, owner_ref,
                                                         _particleID, tnc, _target);
             }
@@ -917,7 +917,6 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_y - 2.0f);
 
     setPosition(tmp_pos);
-    pos_old = tmp_pos;
     setSpawnPosition(tmp_pos);
 
     //Can this particle only spawn over water?

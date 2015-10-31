@@ -690,7 +690,6 @@ bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
         // Yeah!  It worked!
 
         // update the old position
-        pos_old          = newPosition;
         ori_old.facing_z = facing_z;
 
         // update the new position

@@ -812,11 +812,11 @@ bool prt_bundle_t::move_one_particle()
     // determine the actual velocity for attached particles
     if (loc_pprt->isAttached())
     {
-        loc_pprt->vel = loc_pprt->getPosition() - loc_pprt->pos_old;
+        loc_pprt->vel = loc_pprt->getPosition() - loc_pprt->getOldPosition();
     }
 
     // Store particle's old location
-    loc_pprt->pos_old = loc_pprt->getPosition();
+    loc_pprt->setOldPosition(loc_pprt->getPosition());
     loc_pprt->vel_old = loc_pprt->vel;
 
     // what is the local environment like?
