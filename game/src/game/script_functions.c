@@ -47,6 +47,8 @@
 #include "game/Module/Module.hpp"
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/Physics/PhysicalConstants.hpp"
+#include "game/Physics/ObjectPhysics.h"
 
 #include "game/GUI/MiniMap.hpp"
 
@@ -1908,7 +1910,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!pchild->safe_valid) {
+        if (!pchild->hasSafePosition()) {
             log_warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
         }
@@ -2154,9 +2156,9 @@ Uint8 scr_PlaySound( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pchr->pos_old[kZ] > PITNOSOUND )
+    if ( pchr->getOldPosition()[kZ] > PITNOSOUND )
     {
-        AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(state.argument));
+        AudioSystem::get().playSound(pchr->getOldPosition(), ppro->getSoundID(state.argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -2184,11 +2186,11 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
-                                                                                        pchr->ori.facing_z, 
-                                                                                        pchr->getProfileID(),
-                                                                                        LocalParticleProfileRef(state.argument), self.index,
-                                                                                        state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                                                        INVALID_CHR_REF );
+                                                   pchr->ori.facing_z, 
+                                                   pchr->getProfileID(),
+                                                   LocalParticleProfileRef(state.argument), self.index,
+                                                   state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                   INVALID_CHR_REF );
 
     returncode = (particle != nullptr);
     if ( returncode )
@@ -2206,12 +2208,12 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
         tmp_pos[kX] += state.x;
         if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
         {
-            tmp_pos[kX] = particle->pos[kX];
+            tmp_pos[kX] = particle->getPosX();
 
             tmp_pos[kY] += state.y;
             if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
             {
-                tmp_pos[kY] = particle->pos[kY];
+                tmp_pos[kY] = particle->getPosY();
             }
         }
 
@@ -3601,7 +3603,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
     min_distance = -1;
     for(std::shared_ptr<Camera> camera : CameraSystem::get()->getCameraList())
     {
-        iTmp = std::fabs( pchr->pos_old[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->pos_old[kY] - camera->getTrackPosition()[kY] );
+        iTmp = std::fabs( pchr->getOldPosition()[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->getOldPosition()[kY] - camera->getTrackPosition()[kY] );
 
         if ( -1 == min_distance || iTmp < min_distance )
         {
@@ -3933,7 +3935,7 @@ Uint8 scr_StopTargetMovement( script_state_t& state, ai_state_t& self )
 
     pself_target->vel[kX] = 0;
     pself_target->vel[kY] = 0;
-    if ( pself_target->vel[kZ] > 0 ) pself_target->vel[kZ] = Physics::g_environment.gravity;
+    if ( pself_target->vel[kZ] > 0 ) pself_target->vel[kZ] = Ego::Physics::g_environment.gravity;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4623,7 +4625,7 @@ Uint8 scr_PlaySoundVolume( script_state_t& state, ai_state_t& self )
 
     if ( state.distance > 0 )
     {
-        int channel = AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(state.argument));
+        int channel = AudioSystem::get().playSound(pchr->getOldPosition(), ppro->getSoundID(state.argument));
 
         if ( channel != INVALID_SOUND_CHANNEL )
         {
@@ -5371,7 +5373,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!pchild->safe_valid)
+        if (!pchild->hasSafePosition())
         {
             log_warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
@@ -5421,7 +5423,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
     else
     {
         // was the child spawned in a "safe" spot?
-        if (!pchild->safe_valid)
+        if (!pchild->hasSafePosition())
         {
             log_warning( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
             pchr->requestTerminate();
@@ -6529,7 +6531,7 @@ Uint8 scr_SetVolumeNearestTeammate( script_state_t& state, ai_state_t& self )
     {
     if(_currentModule->getObjectHandler().exists(sTmp) && ChrList.lst[sTmp].alive && ChrList.lst[sTmp].Team == pchr->Team)
     {
-    distance = ABS(PCamera->track.x-ChrList.lst[sTmp].pos_old.x)+ABS(PCamera->track.y-ChrList.lst[sTmp].pos_old.y);
+    distance = ABS(PCamera->track.x-ChrList.lst[sTmp].getOldPosition().x)+ABS(PCamera->track.y-ChrList.lst[sTmp].getOldPosition().y);
     if(distance < iTmp)  iTmp = distance;
     }
     sTmp++;

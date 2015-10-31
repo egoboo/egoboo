@@ -28,9 +28,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-Physics::Environment Physics::g_environment;
-
-const float PLATFORM_STICKINESS =  0.01f;
+Ego::Physics::Environment Ego::Physics::g_environment;
 
 static egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct_vec_v2_t& ovel1, const oct_bb_t& src2, const oct_vec_v2_t& ovel2, int test_platform, float *tmin, float *tmax);
 static egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, const oct_vec_v2_t& ovel1, const oct_bb_t& src2, const oct_vec_v2_t& ovel2, int test_platform, float *tmin, float *tmax);
@@ -981,7 +979,7 @@ bool phys_expand_prt_bb(Ego::Particle *pprt, float tmin, float tmax, oct_bb_t& d
 
     // add in the current position to the bounding volume
     oct_bb_t tmp_oct2;
-    oct_bb_t::translate(tmp_oct1, pprt->pos, tmp_oct2);
+    oct_bb_t::translate(tmp_oct1, pprt->getPosition(), tmp_oct2);
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb(tmp_oct2, pprt->vel, tmin, tmax, dst);

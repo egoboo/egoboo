@@ -51,4 +51,4 @@ configure:
 	sudo apt-get install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev
 
 static-analysis:
-	nice cppcheck ./game ./egolib ./idlib --enable=all --std=c++14 --force --template gcc --std=posix --std=c99  -I ./src -I ../egolib/src -I ../idlib/src --suppress=missingIncludeSystem 2> static_code_analysis.txt -j8
+	nice cppcheck ./game ./egolib ./idlib --enable=all --std=c++11 --force --template gcc --std=posix --std=c99 -I ./game/src -I ./egolib/src -I ./idlib/src --suppress=missingIncludeSystem 2> static_code_analysis.txt -j8

@@ -30,6 +30,7 @@
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
 #include "game/Core/GameEngine.hpp"
+#include "game/GUI/UIManager.hpp"
 
 Billboard::Billboard(Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
     : _endTime(endTime),
@@ -293,4 +294,32 @@ void BillboardSystem::render_all(Camera& camera)
     gfx_end_3d();
 }
 
+//--------------------------------------------------------------------------------------------
+std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
+{
+    if (!_currentModule->getObjectHandler().exists(ichr)) {
+        return nullptr;
+    }
+    auto obj_ptr = _currentModule->getObjectHandler()[ichr];
 
+    // Pre-render the text.
+    std::shared_ptr<oglx_texture_t> tex;
+    try {
+        tex = std::make_shared<oglx_texture_t>();
+    } catch (...) {
+        return nullptr;
+    }
+    _gameEngine->getUIManager()->getFloatingTextFont()->drawTextToTexture(tex.get(), txt, Ego::Math::Colour3f(text_color.getRed(), text_color.getGreen(), text_color.getBlue()));
+    tex->setName("billboard text");
+
+    // Create a new billboard.
+    auto billboard = BillboardSystem::get()._billboardList.makeBillboard(lifetime_secs, tex, tint, opt_bits);
+    if (!billboard) {
+        return nullptr;
+    }
+
+    billboard->_obj_wptr = std::weak_ptr<Object>(obj_ptr);
+    billboard->_position = obj_ptr->getPosition();
+
+    return billboard;
+}

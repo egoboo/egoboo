@@ -740,9 +740,10 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 void draw_chr_bbox(Object *pchr)
 {
-    static const bool drawLeftSlot = true;
-    static const bool drawRightSlot = true;
-    static const bool drawCharacter = true;
+    static constexpr bool drawLeftSlot = true;
+    static constexpr bool drawRightSlot = true;
+    static constexpr bool drawCharacter = true;
+    
     if (!pchr || pchr->isTerminated())
     {
         return;

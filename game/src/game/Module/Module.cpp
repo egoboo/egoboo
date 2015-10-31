@@ -32,7 +32,7 @@
 #include "game/mesh.h"
 #include "game/char.h"
 
-#include "game/ObjectPhysics.h" //only for move_one_character_get_environment()
+#include "game/Physics/ObjectPhysics.h" //only for move_one_character_get_environment()
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
@@ -350,7 +350,19 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->reaffirm_damagetype = ppro->getReaffirmDamageType();
 
     // Character size and bumping
-    chr_init_size(pchr.get(), ppro);
+    pchr->fat_stt           = ppro->getSize();
+    pchr->shadow_size_stt   = ppro->getShadowSize();
+    pchr->bump_stt.size     = ppro->getBumpSize();
+    pchr->bump_stt.size_big = ppro->getBumpSizeBig();
+    pchr->bump_stt.height   = ppro->getBumpHeight();
+
+    //Initialize size and collision box
+    pchr->fat                = pchr->fat_stt;
+    pchr->shadow_size_save   = pchr->shadow_size_stt;
+    pchr->bump_save.size     = pchr->bump_stt.size;
+    pchr->bump_save.size_big = pchr->bump_stt.size_big;
+    pchr->bump_save.height   = pchr->bump_stt.height;
+    pchr->recalculateCollisionSize();
 
     // Kurse state
     if ( ppro->isItem() )
@@ -422,9 +434,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     move_one_character_get_environment( pchr.get() );
 
     pchr->setPosition(pos);
-
-    pchr->pos_stt  = pos;
-    pchr->pos_old  = pos;
+    pchr->setSpawnPosition(pos);
 
     pchr->ori.facing_z     = facing;
     pchr->ori_old.facing_z = pchr->ori.facing_z;

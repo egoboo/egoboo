@@ -34,6 +34,7 @@
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"
 #include "game/Inventory.hpp"
+#include "game/Physics/Collidable.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }
@@ -137,7 +138,7 @@ struct chr_spawn_data_t
 };
 
 /// The definition of the character object.
-class Object : public PhysicsData, public Id::NonCopyable
+class Object : public PhysicsData, public Id::NonCopyable, public Ego::Physics::Collidable
 {
 public:
     static const std::shared_ptr<Object> INVALID_OBJECT;            ///< Invalid object reference
@@ -164,6 +165,8 @@ public:
     *        The ObjectProfile can change for polymorphing objects.
     **/
     const std::shared_ptr<ObjectProfile>& getProfile() const;
+
+    bool canCollide() const override;
 
     /**
     * @return the unique CHR_REF associated with this character
@@ -251,18 +254,6 @@ public:
     *   true if it is on emerged in water (fully or partially)
     **/
     bool isInWater(bool anyLiquid) const;
-
-    /**
-    * @brief Set current X, Y, Z position of this Object
-    * @return true if the position of this object has changed
-    **/
-    bool setPosition(const Vector3f &position);
-
-    /**
-    * @brief Set current X, Y, Z position of this Object
-    * @return true if the position of this object has changed
-    **/
-    inline bool setPosition(const float x, const float y, const float z) {return setPosition(Vector3f(x, y, z));}
 
     /**
     * @brief Translate the current X, Y, Z position of this object by the specified values
@@ -493,11 +484,8 @@ public:
     int getPrice() const;
 
 	/** @override */
-	BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
-	/** @override */
 	BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
-	/** @override */
-	BIT_FIELD test_wall(mesh_wall_data_t *data) override;
+
 	/** @override */
 	BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) override;
 
@@ -764,8 +752,6 @@ public:
     **/
     bool isScenery() const;
 
-    const std::list<Vector3f>& getBreadcrumbList() const {return _breadcrumbList;}
-
     /**
     * @brief
     *   Checks if the character is wielding an item with the specified IDSZ in his or her hands
@@ -956,7 +942,6 @@ private:
     bool _showStatus;                                ///< Display stats?
     bool _isAlive;                                   ///< Is this Object alive or dead?
     std::string _name;                               ///< Name of the Object
-    std::list<Vector3f> _breadcrumbList;             ///< a list of previous valid positions that the object has passed through
 
     //Attributes
     float _currentLife;

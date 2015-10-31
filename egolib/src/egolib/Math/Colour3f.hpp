@@ -49,7 +49,7 @@ public:
      */
     static const Colour3f& red()
     {
-        static const Colour3f colour = Colour3f::parse(0xff, 0x00, 0x00);
+        static const Colour3f colour = parse(0xff, 0x00, 0x00);
         return colour;
     }
 
@@ -59,7 +59,7 @@ public:
      */
     static const Colour3f& green()
     {
-        static const Colour3f colour = Colour3f::parse(0x00, 0xff, 0x00);
+        static const Colour3f colour = parse(0x00, 0xff, 0x00);
         return colour;
     }
 
@@ -69,7 +69,7 @@ public:
      */
     static const Colour3f& blue()
     {
-        static const Colour3f colour = Colour3f::parse(0x00, 0x00, 0xff);
+        static const Colour3f colour = parse(0x00, 0x00, 0xff);
         return colour;
     }
 
@@ -79,7 +79,7 @@ public:
      */
     static const Colour3f& white()
     {
-        static const Colour3f colour = Colour3f::parse(0xff, 0xff, 0xff);
+        static const Colour3f colour = parse(0xff, 0xff, 0xff);
         return colour;
     }
 
@@ -89,7 +89,7 @@ public:
      */
     static const Colour3f& black()
     {
-        static const Colour3f colour = Colour3f::parse(0x00, 0x00, 0x00);
+        static const Colour3f colour = parse(0x00, 0x00, 0x00);
         return colour;
     }
 
@@ -100,7 +100,7 @@ public:
      */
     static const Colour3f& cyan()
     {
-        static const Colour3f colour = Colour3f::parse(0x00, 0xff, 0xff);
+        static const Colour3f colour = parse(0x00, 0xff, 0xff);
         return colour;
     }
 
@@ -111,7 +111,7 @@ public:
      */
     static const Colour3f& magenta()
     {
-        static const Colour3f colour = Colour3f::parse(0xff, 0x00, 0xff);
+        static const Colour3f colour = parse(0xff, 0x00, 0xff);
         return colour;
     }
 
@@ -122,7 +122,7 @@ public:
      */
     static const Colour3f& yellow()
     {
-        static const Colour3f colour = Colour3f::parse(0xff, 0xff, 0x00);
+        static const Colour3f colour = parse(0xff, 0xff, 0x00);
         return colour;
     }
 
@@ -132,7 +132,7 @@ public:
      */
     static const Colour3f& mauve()
     {
-        static const Colour3f colour = Colour3f::parse(0xe0, 0xb0, 0xff);
+        static const Colour3f colour = parse(0xe0, 0xb0, 0xff);
         return colour;
     }
 
@@ -142,7 +142,7 @@ public:
      */
     static const Colour3f& purple()
     {
-        static const Colour3f colour = Colour3f::parse(0x99, 0, 0x99);
+        static const Colour3f colour = parse(0x99, 0, 0x99);
         return colour;
     }
 
@@ -152,7 +152,7 @@ public:
      */
     static const Colour3f& grey()
     {
-        static const Colour3f colour = Colour3f::parse(75, 75, 75);
+        static const Colour3f colour = parse(75, 75, 75);
         return colour;
     }
 

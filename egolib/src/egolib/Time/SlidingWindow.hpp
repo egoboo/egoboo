@@ -20,7 +20,7 @@ namespace Time {
  *	Michael Heilmann
  */
 template <typename _DataPointType>
-struct SlidingWindow {
+struct SlidingWindow : Id::NonCopyable {
 
 	/**
 	 * @brief

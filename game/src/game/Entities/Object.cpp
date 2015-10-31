@@ -32,8 +32,7 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/collision.h"                  //Only for detach_character_from_platform()
-#include "game/ObjectPhysics.h" //only for move_one_character_get_environment()
+#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -264,47 +263,9 @@ bool Object::isInWater(bool anyLiquid) const
     return isOverWater(anyLiquid) && getPosZ() <= water.get_level();
 }
 
-
-bool Object::setPosition(const Vector3f& position)
-{
-    EGO_DEBUG_VALIDATE(position);
-
-    //Has our position changed?
-    if(position != pos)
-    {
-        pos = position;
-
-        _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY]));
-        _block = _currentModule->getMeshPointer()->get_block(PointWorld(pos[kX], pos[kY]));
-
-        // Update the breadcrumb list.
-		Vector2f nrm;
-        float pressure = 0.0f;
-        BIT_FIELD hit_a_wall = hit_wall(nrm, &pressure, NULL);
-        if (EMPTY_BIT_FIELD == hit_a_wall && 0.0f <= pressure)
-        {
-            //This is a safe position
-            _breadcrumbList.push_back(position);
-            if(_breadcrumbList.size() > 32) {
-                _breadcrumbList.pop_front();
-            }
-
-            //Update last safe position
-            safe_valid = true;
-            safe_pos   = getPosition();
-            safe_time  = update_wld;
-            safe_grid  = _tile;
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
 void Object::movePosition(const float x, const float y, const float z)
 {
-    pos += Vector3f(x, y, z);
+    _position += Vector3f(x, y, z);
 }
 
 void Object::setAlpha(const int alpha)
@@ -729,7 +690,6 @@ bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
         // Yeah!  It worked!
 
         // update the old position
-        pos_old          = newPosition;
         ori_old.facing_z = facing_z;
 
         // update the new position
@@ -931,7 +891,7 @@ void Object::update()
 
         //Give Rally bonus to friends within 6 tiles
         if(hasPerk(Ego::Perks::RALLY)) {
-            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(pos[kX], pos[kY], WIDE, false))
+            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false))
             {
                 //Only valid objects that are on our team
                 if(object->isTerminated() || object->getTeam() != getTeam()) continue;
@@ -1038,7 +998,7 @@ void Object::updateResize()
         {
             bump.size += bump_increase;
 
-            if ( EMPTY_BIT_FIELD != test_wall( NULL ) )
+            if ( EMPTY_BIT_FIELD != Collidable::test_wall(nullptr) )
             {
                 willgetcaught = true;
             }
@@ -1196,7 +1156,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Make sure it's not dropped in a wall...
-    if (EMPTY_BIT_FIELD != test_wall(NULL))
+    if (EMPTY_BIT_FIELD != Collidable::test_wall(nullptr))
     {
         Vector3f pos_tmp = pholder->getPosition();
         pos_tmp[kZ] = getPosZ();
@@ -1724,11 +1684,6 @@ void Object::removeFromGame(Object * pchr)
 	AudioSystem::get().stopObjectLoopingSounds(ichr);
 }
 
-BIT_FIELD Object::hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
-{
-	return hit_wall(getPosition(), nrm, pressure, data);
-}
-
 BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure, mesh_wall_data_t *data)
 {
 	if (CHR_INFINITE_WEIGHT == phys.weight)
@@ -1736,14 +1691,11 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 		return EMPTY_BIT_FIELD;
 	}
 
-	// Calculate the radius based on whether the character is on camera.
+    // Calculate the radius based on whether the character is on camera.
 	float radius = 0.0f;
-	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
+	if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
 	{
-		if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
-		{
-			radius = bump_1.size;
-		}
+		radius = bump_1.size;
 	}
 
 	g_meshStats.mpdfxTests = 0;
@@ -1754,14 +1706,6 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 	chr_pressure_tests += g_meshStats.pressureTests;
 
 	return result;
-}
-
-BIT_FIELD Object::test_wall(mesh_wall_data_t *data)
-{
-	if (isTerminated()) {
-		return EMPTY_BIT_FIELD;
-	}
-	return test_wall(getPosition(), data);
 }
 
 BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
@@ -1776,6 +1720,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 
 	// Calculate the radius based on whether the character is on camera.
 	float radius = 0.0f;
+#if 0
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
         if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
@@ -1783,11 +1728,13 @@ BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 			radius = bump_1.size;
 		}
 	}
+#endif
 
 	// Do the wall test.
 	g_meshStats.mpdfxTests = 0;
 	g_meshStats.boundTests = 0;
 	g_meshStats.pressureTests = 0;
+
 	BIT_FIELD result = _currentModule->getMeshPointer()->test_wall(pos, radius, stoppedby, data);
 	chr_stoppedby_tests += g_meshStats.mpdfxTests;
 	chr_pressure_tests += g_meshStats.pressureTests;
@@ -1861,7 +1808,7 @@ void Object::respawn()
     careful_timer = CAREFULTIME;
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
-    setPosition(pos_stt);
+    setPosition(getSpawnPosition());
     vel = Vector3f::zero();
     team = team_base;
     canbecrushed = false;
@@ -2373,7 +2320,19 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
         if (getProfileID() == SPELLBOOK) newFat = oldFat = 1.00f;
 
         // copy all the cap size info over, as normal
-        chr_init_size(this, _profile);
+        fat_stt           = _profile->getSize();
+        shadow_size_stt   = _profile->getShadowSize();
+        bump_stt.size     = _profile->getBumpSize();
+        bump_stt.size_big = _profile->getBumpSizeBig();
+        bump_stt.height   = _profile->getBumpHeight();
+
+        //Initialize model size and collision box
+        fat                = fat_stt;
+        shadow_size_save   = shadow_size_stt;
+        bump_save.size     = bump_stt.size;
+        bump_save.size_big = bump_stt.size_big;
+        bump_save.height   = bump_stt.height;
+        recalculateCollisionSize();
 
         // make the model's size congruent
         if (0.0f != newFat && newFat != oldFat)
@@ -2928,4 +2887,29 @@ void Object::dropAllItems()
         //drop out evenly in all directions
         direction += diradd;
     }
+}
+
+bool Object::canCollide() const
+{
+    //Removed from game?
+    if(isTerminated()) {
+        return false;
+    }
+
+    //Hidden state
+    if(isHidden()) {
+        return false;
+    }
+
+    //Inside inventory or being held?
+    if(isBeingHeld()) {
+        return false;
+    }
+
+    //No collision box?
+    if (oct_bb_empty(chr_max_cv)) {
+        return false;
+    }
+
+    return true;
 }
