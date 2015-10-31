@@ -10,3 +10,5 @@ bool detach_character_from_platform( Object * pchr );
 float get_chr_mass(Object * pchr);
 
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
+
+egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );

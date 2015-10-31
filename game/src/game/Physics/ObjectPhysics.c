@@ -702,12 +702,14 @@ bool move_one_character_integrate_motion( Object * pchr )
                     v_perp = nrm * (dot / nrm2);
                 }
 
+                const float bumpdampen = 1.0f-pchr->phys.bumpdampen;
+
                 //Bounce velocity of normal
-                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * (1.0f-pchr->phys.bumpdampen);
-                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * (1.0f-pchr->phys.bumpdampen);
+                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * bumpdampen;
+                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * bumpdampen;
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length() * std::max(0.1f, 1.0f-pchr->phys.bumpdampen);
+                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length() * std::max(0.1f, bumpdampen);
                 pchr->vel[kX] += safeDistance * nrm[kX] * pressure;
                 pchr->vel[kY] += safeDistance * nrm[kY] * pressure;
 
@@ -1734,6 +1736,137 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 
     // convert the level 1 bounding box to a level 0 bounding box
     oct_bb_t::downgrade(bdst, pchr->bump_stt, pchr->bump, pchr->bump_1);
+
+    return rv_success;
+}
+
+egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
+{
+    /// @author ZZ
+    /// @details This function attaches one character/item to another ( the holder/mount )
+    ///    at a certain vertex offset ( grip_off )
+    ///   - This function is called as a part of spawning a module, so the item or the holder may not
+    ///     be fully instantiated
+    ///   - This function should do very little testing to see if attachment is allowed.
+    ///     Most of that checking should be done by the calling function
+
+    Object * prider, * pmount;
+
+    // Make sure the character/item is valid
+    if ( !_currentModule->getObjectHandler().exists( irider ) ) return rv_error;
+    prider = _currentModule->getObjectHandler().get( irider );
+
+    // Make sure the holder/mount is valid
+    if ( !_currentModule->getObjectHandler().exists( imount ) ) return rv_error;
+    pmount = _currentModule->getObjectHandler().get( imount );
+
+    //Don't attach a character to itself!
+    if(irider == imount) {
+        return rv_fail;
+    }
+
+    // do not deal with packed items at this time
+    // this would have to be changed to allow for pickpocketing
+    if ( _currentModule->getObjectHandler().exists( prider->inwhich_inventory ) || _currentModule->getObjectHandler().exists( pmount->inwhich_inventory ) ) return rv_fail;
+
+    // make a reasonable time for the character to remount something
+    // for characters jumping out of pots, etc
+    if ( imount == prider->dismount_object && prider->dismount_timer > 0 ) return rv_fail;
+
+    // Figure out which slot this grip_off relates to
+    slot_t slot = grip_offset_to_slot( grip_off );
+
+    // Make sure the the slot is valid
+    if ( !pmount->getProfile()->isSlotValid(slot) ) return rv_fail;
+
+    // This is a small fix that allows special grabbable mounts not to be mountable while
+    // held by another character (such as the magic carpet for example)
+    // ( this is an example of a test that should not be done here )
+    if ( pmount->isMount() && _currentModule->getObjectHandler().exists( pmount->attachedto ) ) return rv_fail;
+
+    // Put 'em together
+    prider->inwhich_slot       = slot;
+    prider->attachedto         = imount;
+    pmount->holdingwhich[slot] = irider;
+
+    // set the grip vertices for the irider
+    set_weapongrip( irider, imount, grip_off );
+
+    chr_update_matrix( prider, true );
+
+    prider->setPosition(mat_getTranslate(prider->inst.matrix));
+
+    prider->enviro.inwater  = false;
+    prider->jump_timer = JUMPDELAY * 4;
+
+    // Run the held animation
+    if ( pmount->isMount() && ( GRIP_ONLY == grip_off ) )
+    {
+        // Riding imount
+
+        if ( _currentModule->getObjectHandler().exists( prider->holdingwhich[SLOT_LEFT] ) || _currentModule->getObjectHandler().exists( prider->holdingwhich[SLOT_RIGHT] ) )
+        {
+            // if the character is holding anything, make the animation
+            // ACTION_MH == "sitting" so that it dies not look so silly
+            chr_play_action( prider, ACTION_MH, true );
+        }
+        else
+        {
+            // if it is not holding anything, go for the riding animation
+            chr_play_action( prider, ACTION_MI, true );
+        }
+
+        // set tehis action to loop
+        chr_instance_t::set_action_loop(prider->inst, true);
+    }
+    else if ( prider->isAlive() )
+    {
+        /// @note ZF@> hmm, here is the torch holding bug. Removing
+        /// the interpolation seems to fix it...
+        chr_play_action( prider, ACTION_MM + slot, false );
+
+        chr_instance_t::remove_interpolation(prider->inst);
+
+        // set the action to keep for items
+        if ( prider->isItem() )
+        {
+            // Item grab
+            chr_instance_t::set_action_keep(prider->inst, true);
+        }
+    }
+
+    // Set the team
+    if ( prider->isItem() )
+    {
+        prider->team = pmount->team;
+
+        // Set the alert
+        if ( prider->isAlive() )
+        {
+            SET_BIT( prider->ai.alert, ALERTIF_GRABBED );
+        }
+
+        //Lore Master perk identifies everything
+        if(pmount->hasPerk(Ego::Perks::LORE_MASTER)) {
+            prider->getProfile()->makeUsageKnown();
+            prider->nameknown = true;
+            prider->ammoknown = true;
+        }
+    }
+
+    if ( pmount->isMount() )
+    {
+        pmount->team = prider->team;
+
+        // Set the alert
+        if ( !pmount->isItem() && pmount->isAlive() )
+        {
+            SET_BIT( pmount->ai.alert, ALERTIF_GRABBED );
+        }
+    }
+
+    // It's not gonna hit the floor
+    prider->hitready = false;
 
     return rv_success;
 }
