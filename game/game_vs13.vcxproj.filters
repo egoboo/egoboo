@@ -51,12 +51,15 @@
     <Filter Include="Game Header Files\Entities">
       <UniqueIdentifier>{1c38aee5-f243-43d6-ad79-52a8428b883b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Header Files\Physics">
+      <UniqueIdentifier>{09895a2a-eb20-4b52-a9c7-64bf72d7192d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\Physics">
+      <UniqueIdentifier>{b733df9f-1e7a-4594-b90b-7d88c383047d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\char.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\collision.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\egoboo.c">
@@ -114,9 +117,6 @@
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\script_implementation.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\bsp.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\graphics\Camera.cpp">
@@ -272,9 +272,6 @@
     <ClCompile Include="src\game\GameStates\DebugParticlesScreen.cpp">
       <Filter>Game Sources\GameStates</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\ObjectPhysics.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\GUI\Slider.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
@@ -284,15 +281,21 @@
     <ClCompile Include="src\game\GUI\ProgressBar.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\Entities\particle_physics.c">
-      <Filter>Game Sources\Entities</Filter>
+    <ClCompile Include="src\game\Physics\CollisionSystem.cpp">
+      <Filter>Game Sources\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Physics\ObjectPhysics.c">
+      <Filter>Game Sources\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Physics\particle_collision.c">
+      <Filter>Game Sources\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Physics\particle_physics.c">
+      <Filter>Game Sources\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\collision.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\egoboo.h">
@@ -362,9 +365,6 @@
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\script_implementation.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\bsp.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\graphics\Camera.hpp">
@@ -526,9 +526,6 @@
     <ClInclude Include="src\game\GameStates\DebugParticlesScreen.hpp">
       <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\ObjectPhysics.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\GUI\Slider.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
@@ -538,8 +535,23 @@
     <ClInclude Include="src\game\GUI\ProgressBar.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\Entities\particle_physics.h">
-      <Filter>Game Header Files\Entities</Filter>
+    <ClInclude Include="src\game\Physics\Collidable.hpp">
+      <Filter>Game Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Physics\CollisionSystem.hpp">
+      <Filter>Game Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Physics\ObjectPhysics.h">
+      <Filter>Game Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Physics\particle_collision.h">
+      <Filter>Game Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Physics\particle_physics.h">
+      <Filter>Game Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Physics\PhysicalConstants.hpp">
+      <Filter>Game Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
