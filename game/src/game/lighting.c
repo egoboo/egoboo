@@ -447,27 +447,23 @@ bool lighting_sum_project( lighting_cache_t& dst, const lighting_cache_t& src, c
 }
 
 //--------------------------------------------------------------------------------------------
-float lighting_cache_base_t::evaluate( const lighting_cache_base_t& self, const Vector3f& nrm, float * amb )
+float lighting_cache_base_t::evaluate( const lighting_cache_base_t& self, const Vector3f& nrm, float& amb )
 {
     float dir;
-    float local_amb;
-
-    // handle the optional parameter
-    if ( NULL == amb ) amb = &local_amb;
 
     // evaluate the dir vector
     if ( 0.0f == self._max_light )
     {
         // only ambient light, or black
         dir  = 0.0f;
-        *amb = self._lighting[LVEC_AMB];
+        amb = self._lighting[LVEC_AMB];
     }
     else
     {
-		lighting_vector_evaluate(self._lighting, nrm, &dir, amb );
+		lighting_vector_evaluate(self._lighting, nrm, &dir, &amb );
     }
 
-    return dir + *amb;
+    return dir + amb;
 }
 
 float lighting_cache_t::lighting_evaluate_cache( const lighting_cache_t& src, const Vector3f& nrm, const float z, const AABB3f& bbox, float * light_amb, float * light_dir )
@@ -494,14 +490,14 @@ float lighting_cache_t::lighting_evaluate_cache( const lighting_cache_t& src, co
     // optimize the use of the lighting_cache_base_t::evaluate() function
     if ( low_wt > 0.0f )
     {
-        light_tot  += low_wt * lighting_cache_base_t::evaluate( src.low, nrm, &amb );
+        light_tot  += low_wt * lighting_cache_base_t::evaluate( src.low, nrm, amb );
         *light_amb += low_wt * amb;
     }
 
     // optimize the use of the lighting_cache_base_t::evaluate() function
     if ( hgh_wt > 0.0f )
     {
-        light_tot  += hgh_wt * lighting_cache_base_t::evaluate( src.hgh, nrm, &amb );
+        light_tot  += hgh_wt * lighting_cache_base_t::evaluate( src.hgh, nrm, amb );
         *light_amb += hgh_wt * amb;
     }
 
