@@ -26,7 +26,6 @@
 #include "game/game.h"
 #include "game/renderer_2d.h"
 #include "game/char.h"
-#include "game/collision.h"
 
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"

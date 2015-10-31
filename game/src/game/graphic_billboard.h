@@ -192,3 +192,5 @@ public:
 	// A vertex buffer used by the billboard system.
     Ego::VertexBuffer _vertexBuffer;
 };
+
+std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);

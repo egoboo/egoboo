@@ -48,8 +48,8 @@ struct prt_bundle_t
     PIP_REF _pip_ref;
     std::shared_ptr<pip_t> _pip_ptr;
 
-	prt_bundle_t();
-	prt_bundle_t(Ego::Particle *prt);
+    prt_bundle_t();
+    prt_bundle_t(Ego::Particle *prt);
 
     /**
      * @brief
@@ -58,34 +58,34 @@ struct prt_bundle_t
      *  the number of new particles spawned
      */
     int do_contspawn();
-	/// @brief
-	/// The master method to compute a particle's motion.
+    /// @brief
+    /// The master method to compute a particle's motion.
     bool move_one_particle();
 private:
-	/// @brief
-	///	A helper method to compute the next valid position of this particle.
-	/// Collisions with the mesh are included in this step.
+    /// @brief
+    /// A helper method to compute the next valid position of this particle.
+    /// Collisions with the mesh are included in this step.
     prt_bundle_t *move_one_particle_integrate_motion();
-	/// @brief
-	///	A helper method to compute the next valid position of this particle.
-	/// Collisions with the mesh are included in this step.
+    /// @brief
+    /// A helper method to compute the next valid position of this particle.
+    /// Collisions with the mesh are included in this step.
     prt_bundle_t *move_one_particle_integrate_motion_attached();
-	/// @brief
-	/// A helper method to compute gravitational acceleration and buoyancy of this particle.
-	prt_bundle_t *updateParticleSimpleGravity();
+    /// @brief
+    /// A helper method to compute gravitational acceleration and buoyancy of this particle.
+    prt_bundle_t *updateParticleSimpleGravity();
     //prt_bundle_t *move_one_particle_do_z_motion();
     prt_bundle_t *move_one_particle_do_homing();
-	/// @brief
-	/// Helper method to compute the friction of this particle with the floor.
+    /// @brief
+    /// Helper method to compute the friction of this particle with the floor.
     prt_bundle_t *move_one_particle_do_floor_friction();
-	/// @brief
-	///	Helper method to compute the friction of this particle with the water.
+    /// @brief
+    /// Helper method to compute the friction of this particle with the water.
     //prt_bundle_t *move_one_particle_do_fluid_friction();
 public:
-	/// @brief
-	/// Helper method to get all of the information about the particle's environment
-	/// (like friction, etc.) that will be necessary for the other move_one_particle_*()
-	/// functions to work
+    /// @brief
+    /// Helper method to get all of the information about the particle's environment
+    /// (like friction, etc.) that will be necessary for the other move_one_particle_*()
+    /// functions to work
     prt_bundle_t *move_one_particle_get_environment();
 };
 

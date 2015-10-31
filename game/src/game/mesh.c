@@ -24,6 +24,7 @@
 #include "game/mesh.h"
 #include "game/lighting.h"
 #include "game/physics.h"
+#include "game/Physics/PhysicalConstants.hpp"
 #include "game/graphic.h"
 #include "egolib/FileFormats/Globals.hpp"
 
@@ -407,7 +408,7 @@ MeshLookupTables g_meshLookupTables;
 MeshLookupTables::MeshLookupTables() {
 	Vector3f grav = Vector3f::zero();
 
-	grav[kZ] = Physics::g_environment.gravity;
+	grav[kZ] = Ego::Physics::g_environment.gravity;
 
 	for (size_t cnt = 0; cnt < 256; cnt++)
 	{

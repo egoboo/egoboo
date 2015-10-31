@@ -32,6 +32,7 @@
 #include "game/mesh.h"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"
+#include "game/Physics/PhysicalConstants.hpp"
 
 static const float STOPBOUNCINGPART = 10.0f;        ///< To make particles stop bouncing
 
@@ -44,7 +45,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
 
     //---- character "floor" level
-    penviro->floor_level = _currentModule->getMeshPointer()->getElevation(PointWorld(loc_pprt->pos[kX], loc_pprt->pos[kY]));
+    penviro->floor_level = _currentModule->getMeshPointer()->getElevation(PointWorld(loc_pprt->getPosX(), loc_pprt->getPosY()));
     penviro->level = penviro->floor_level;
 
     //---- The actual level of the characer.
@@ -89,7 +90,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-		Vector3f platform_up;
+        Vector3f platform_up;
 
         chr_getMatUp(_currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref), platform_up);
         platform_up.normalize();
@@ -98,7 +99,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
 
         if (penviro->is_slippy)
         {
-            penviro->traction /= Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
+            penviro->traction /= Ego::Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
     else if (_currentModule->getMeshPointer()->grid_is_valid(loc_pprt->getTile()))
@@ -107,20 +108,20 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
 
         if (penviro->is_slippy)
         {
-            penviro->traction /= Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
+            penviro->traction /= Ego::Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
 
     //---- the friction of the fluid we are in
     if (penviro->is_watery)
     {
-        penviro->fluid_friction_vrt = Physics::g_environment.waterfriction;
-        penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;
+        penviro->fluid_friction_vrt = Ego::Physics::g_environment.waterfriction;
+        penviro->fluid_friction_hrz = Ego::Physics::g_environment.waterfriction;
     }
     else
     {
-        penviro->fluid_friction_hrz = Physics::g_environment.airfriction;       // like real-life air friction
-        penviro->fluid_friction_vrt = Physics::g_environment.airfriction;
+        penviro->fluid_friction_hrz = Ego::Physics::g_environment.airfriction;       // like real-life air friction
+        penviro->fluid_friction_vrt = Ego::Physics::g_environment.airfriction;
     }
 
     //---- friction
@@ -128,11 +129,11 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     if (!loc_pprt->isHoming())
     {
         // Make the characters slide
-        float temp_friction_xy = Physics::g_environment.noslipfriction;
+        float temp_friction_xy = Ego::Physics::g_environment.noslipfriction;
         if (_currentModule->getMeshPointer()->grid_is_valid(loc_pprt->getTile()) && penviro->is_slippy)
         {
             // It's slippy all right...
-            temp_friction_xy = Physics::g_environment.slippyfriction;
+            temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
         }
 
         penviro->friction_hrz = penviro->zlerp * 1.0f + (1.0f - penviro->zlerp) * temp_friction_xy;
@@ -145,17 +146,17 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
 #if 0
 prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
 {
-	Vector3f fluid_acc;
+    Vector3f fluid_acc;
 
     Ego::Particle *loc_pprt = this->_prt_ptr;
-	std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
     Ego::prt_environment_t *loc_penviro = &(loc_pprt->enviro);
 
     // if the particle is a homing-type particle, ignore friction
-	if (loc_ppip->homing) return this;
+    if (loc_ppip->homing) return this;
 
     // Light isn't affected by fluid velocity
-	if (SPRITE_LIGHT == loc_pprt->type) return this;
+    if (SPRITE_LIGHT == loc_pprt->type) return this;
 
     // assume no acceleration
     fluid_acc = fvec3_t::zero();
@@ -163,11 +164,11 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
     // get the speed relative to the fluid
     if (loc_pprt->enviro.inwater)
     {
-        fluid_acc = Physics::g_environment.waterspeed - loc_pprt->vel;
+        fluid_acc = Ego::Physics::g_environment.waterspeed - loc_pprt->vel;
     }
     else
     {
-        fluid_acc = Physics::g_environment.windspeed - loc_pprt->vel;
+        fluid_acc = Ego::Physics::g_environment.windspeed - loc_pprt->vel;
     }
 
     // get the fluid friction
@@ -175,7 +176,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
     {
         // this is a buoyant particle, like smoke
 
-        float loc_buoyancy_friction = Physics::g_environment.airfriction * loc_pprt->air_resistance;
+        float loc_buoyancy_friction = Ego::Physics::g_environment.airfriction * loc_pprt->air_resistance;
 
         if (loc_pprt->enviro.inwater)
         {
@@ -209,7 +210,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
     // apply the fluid friction
     loc_pprt->vel += fluid_acc;
 
-	return this;
+    return this;
 }
 #endif
 
@@ -217,8 +218,8 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
 prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
 {
     float temp_friction_xy;
-	Vector3f vup;
-	Vector3f floor_acc;
+    Vector3f vup;
+    Vector3f floor_acc;
 
     Ego::Particle *loc_pprt = this->_prt_ptr;
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
@@ -248,11 +249,11 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
         if (_currentModule->getMeshPointer()->grid_is_valid(loc_pprt->getTile()) && penviro->is_slippy)
         {
             // It's slippy all right...
-            temp_friction_xy = 1.0f - Physics::g_environment.slippyfriction;
+            temp_friction_xy = 1.0f - Ego::Physics::g_environment.slippyfriction;
         }
         else 
         {
-            temp_friction_xy = 1.0f - Physics::g_environment.noslipfriction;
+            temp_friction_xy = 1.0f - Ego::Physics::g_environment.noslipfriction;
         }
 
 
@@ -313,20 +314,20 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 {
     int       ival;
     float     vlen, min_length, uncertainty;
-	Vector3f  vdiff, vdither;
+    Vector3f  vdiff, vdither;
 
     if (NULL == this->_prt_ptr) return NULL;
-	Ego::Particle *loc_pprt = this->_prt_ptr;
-	std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
+    Ego::Particle *loc_pprt = this->_prt_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     // is the particle a homing type?
-	if (!loc_pprt->getProfile()->homing) return this;
+    if (!loc_pprt->getProfile()->homing) return this;
 
     // the particle update function is supposed to turn homing off if the particle looses its target
-	if (!loc_pprt->isHoming()) return this;
+    if (!loc_pprt->isHoming()) return this;
 
     // the loc_pprt->isHoming() variable is supposed to track the following, but it could have lost synch by this point
-	if (loc_pprt->isAttached() || !loc_pprt->hasValidTarget()) return this;
+    if (loc_pprt->isAttached() || !loc_pprt->hasValidTarget()) return this;
 
     // grab a pointer to the target
     const std::shared_ptr<Object> &ptarget = loc_pprt->getTarget();
@@ -373,7 +374,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 
     loc_pprt->vel = (loc_pprt->vel + vdiff * loc_ppip->homingaccel) * loc_ppip->homingfriction;
 
-	return this;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -382,7 +383,7 @@ prt_bundle_t *prt_bundle_t::updateParticleSimpleGravity()
     //Only do gravity for solid particles
     if (!this->_prt_ptr->no_gravity && this->_prt_ptr->type == SPRITE_SOLID && !this->_prt_ptr->isHoming() && !this->_prt_ptr->isAttached())
     {
-        this->_prt_ptr->vel[kZ] += Physics::g_environment.gravity * Physics::g_environment.airfriction;
+        this->_prt_ptr->vel[kZ] += Ego::Physics::g_environment.gravity * Ego::Physics::g_environment.airfriction;
     }
     return this;
 }
@@ -411,7 +412,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
     z_motion_acc = Vector3f::zero();
 
     // in higher gravity environments, buoyancy is larger
-    tmp_buoyancy = loc_pprt->buoyancy * std::abs(Physics::g_environment.gravity);
+    tmp_buoyancy = loc_pprt->buoyancy * std::abs(Ego::Physics::g_environment.gravity);
 
     // handle bouyancy near the ground
     if (loc_zlerp >= 1.0f)
@@ -426,7 +427,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
     {
         // Do particle buoyancy. This is kinda BS the way it is calculated
         loc_buoyancy = 0.0f;
-        if (tmp_buoyancy + Physics::g_environment.gravity < 0.0f)
+        if (tmp_buoyancy + Ego::Physics::g_environment.gravity < 0.0f)
         {
             // the particle cannot hold itself up
 
@@ -455,13 +456,13 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
 
         // Gravity perpendicular to the mesh.
         Vector3f gperp = -gpara;
-        gperp[kZ] += Physics::g_environment.gravity;
+        gperp[kZ] += Ego::Physics::g_environment.gravity;
 
         z_motion_acc += gpara * (1.0f - loc_zlerp) + gperp * loc_zlerp;
     }
     else
     {
-        z_motion_acc[kZ] += loc_zlerp * Physics::g_environment.gravity;
+        z_motion_acc[kZ] += loc_zlerp * Ego::Physics::g_environment.gravity;
     }
 
     loc_pprt->vel += z_motion_acc;
@@ -474,7 +475,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
 prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 {
     bool touch_a_floor, hit_a_wall;
-	Vector3f nrm_total;
+    Vector3f nrm_total;
 
     if (NULL == this->_prt_ptr) return NULL;
     Ego::Particle *loc_pprt = this->_prt_ptr;
@@ -517,7 +518,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 
         if (EMPTY_BIT_FIELD != loc_pprt->test_wall(loc_pprt->getPosition(), &wdata))
         {
-			Vector2f nrm;
+            Vector2f nrm;
             float   pressure;
 
             // how is the character hitting the wall?
@@ -547,7 +548,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 {
     float ftmp;
-	Vector3f nrm_total;
+    Vector3f nrm_total;
 
     if (NULL == this->_prt_ptr) return NULL;
 
@@ -558,17 +559,17 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     if (loc_pprt->isTerminated()) return this;
 
     // capture the position
-	Vector3f tmp_pos = loc_pprt->getPosition();
+    Vector3f tmp_pos = loc_pprt->getPosition();
 
     // no point in doing this if the particle thinks it's attached
     if (loc_pprt->isAttached()) {
         return this->move_one_particle_integrate_motion_attached();
     }
 
-	auto mesh = _currentModule->getMeshPointer();
-	if (!mesh) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
-	}
+    auto mesh = _currentModule->getMeshPointer();
+    if (!mesh) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+    }
 
     bool hit_a_floor = false;
     bool hit_a_wall = false;
@@ -584,7 +585,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     //Are we touching the floor?
     if (tmp_pos[kZ] < penviro->adj_level)
     {
-		Vector3f floor_nrm = Vector3f(0.0f, 0.0f, 1.0f);
+        Vector3f floor_nrm = Vector3f(0.0f, 0.0f, 1.0f);
 
         touch_a_floor = true;
 
@@ -660,7 +661,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         //Hitting a wall?
         if (EMPTY_BIT_FIELD != loc_pprt->test_wall(tmp_pos, &wdata))
         {
-			Vector2f nrm;
+            Vector2f nrm;
             float   pressure;
 
             // how is the character hitting the wall?
@@ -702,7 +703,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
             (hit_a_floor && (loc_pprt->vel[kZ] * nrm_total[kZ]) < 0.0f))
         {
             float vdot;
-			Vector3f vpara, vperp;
+            Vector3f vpara, vperp;
 
             nrm_total.normalize();
 
@@ -797,7 +798,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 bool prt_bundle_t::move_one_particle()
 {
     if (NULL == this->_prt_ptr) return false;
-	Ego::Particle *loc_pprt = this->_prt_ptr;
+    Ego::Particle *loc_pprt = this->_prt_ptr;
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
 
     if (loc_pprt->isTerminated()) return false;
@@ -811,16 +812,16 @@ bool prt_bundle_t::move_one_particle()
     // determine the actual velocity for attached particles
     if (loc_pprt->isAttached())
     {
-        loc_pprt->vel = loc_pprt->getPosition() - loc_pprt->pos_old;
+        loc_pprt->vel = loc_pprt->getPosition() - loc_pprt->getOldPosition();
     }
 
     // Store particle's old location
-    loc_pprt->pos_old = loc_pprt->getPosition();
+    loc_pprt->setOldPosition(loc_pprt->getPosition());
     loc_pprt->vel_old = loc_pprt->vel;
 
     // what is the local environment like?
-	if (!this->move_one_particle_get_environment()) return false;
-	if (!this->_prt_ptr) return false;
+    if (!this->move_one_particle_get_environment()) return false;
+    if (!this->_prt_ptr) return false;
 
     //ZF> Disabled, this doesn't really work yet
     // wind, current, and other fluid friction effects
@@ -828,19 +829,19 @@ bool prt_bundle_t::move_one_particle()
     //if (!this->prt_ptr) return false;
 
     // do friction with the floor before voluntary motion
-	if (!this->move_one_particle_do_floor_friction()) return false;
+    if (!this->move_one_particle_do_floor_friction()) return false;
     if (!this->_prt_ptr) return false;
 
-	if (!this->move_one_particle_do_homing()) return false;
+    if (!this->move_one_particle_do_homing()) return false;
     if (!this->_prt_ptr) return false;
 
     //ZF> Dirty hack using VERY simple gravity calculation
-	//MH> Unify this.
-	if (!this->updateParticleSimpleGravity()) return false;
+    //MH> Unify this.
+    if (!this->updateParticleSimpleGravity()) return false;
     //if (!this->move_one_particle_do_z_motion()) return false;
     if (!this->_prt_ptr) return false;
 
-	if (!this->move_one_particle_integrate_motion()) return false;
+    if (!this->move_one_particle_integrate_motion()) return false;
     if (!this->_prt_ptr) return false;
 
     return true;
@@ -858,7 +859,7 @@ void move_all_particles()
         if(particle->isTerminated()) continue;
 
         // prime the environment
-        particle->enviro.ice_friction = Physics::g_environment.icefriction;
+        particle->enviro.ice_friction = Ego::Physics::g_environment.icefriction;
 
         prt_bundle_t prt_bdl = prt_bundle_t(particle.get());
 
@@ -959,7 +960,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 dist = (pprt->getPosition() - pchr->getPosition()).length_abs();
 
                 // clear the occupied list
-                z = pprt->pos[kZ] - pchr->getPosition()[kZ];
+                z = pprt->getPosZ() - pchr->getPosZ();
                 facing = pprt->facing - pchr->ori.facing_z;
                 turn = TO_TURN(facing);
                 fsin = turntosin[turn];
@@ -1051,21 +1052,21 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
 }
 
 prt_bundle_t::prt_bundle_t()
-	: _prt_ref(INVALID_PRT_REF), _prt_ptr(nullptr),
-	  _pip_ref(INVALID_PIP_REF), _pip_ptr(nullptr) {
+    : _prt_ref(INVALID_PRT_REF), _prt_ptr(nullptr),
+      _pip_ref(INVALID_PIP_REF), _pip_ptr(nullptr) {
 }
 
 prt_bundle_t::prt_bundle_t(Ego::Particle *prt)
-	: _prt_ref(INVALID_PRT_REF), _prt_ptr(nullptr),
+    : _prt_ref(INVALID_PRT_REF), _prt_ptr(nullptr),
       _pip_ref(INVALID_PIP_REF), _pip_ptr(nullptr) {
-	if (!prt) {
-		throw std::invalid_argument("nullptr == prt");
-	}
-	_prt_ptr = prt;
-	_prt_ref = _prt_ptr->getParticleID();
+    if (!prt) {
+        throw std::invalid_argument("nullptr == prt");
+    }
+    _prt_ptr = prt;
+    _prt_ref = _prt_ptr->getParticleID();
 
-	_pip_ref = _prt_ptr->getProfileID();
-	_pip_ptr = _prt_ptr->getProfile();
+    _pip_ref = _prt_ptr->getProfileID();
+    _pip_ptr = _prt_ptr->getProfile();
 }
 
 CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)

@@ -28,7 +28,8 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
-#include "game/Entities/particle_physics.h"
+#include "game/Physics/particle_physics.h"
+#include "game/Physics/PhysicalConstants.hpp"
 
 namespace Ego
 {
@@ -136,89 +137,6 @@ const std::shared_ptr<Object>& Particle::getAttachedObject() const
     return _currentModule->getObjectHandler()[_attachedTo];
 }
 
-
-bool Particle::setPosition(const Vector3f& position)
-{
-    EGO_DEBUG_VALIDATE(position);
-
-    /// Has our position changed?
-    if (position != this->pos)
-    {
-        this->pos = position;
-
-        _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(this->pos[kX], this->pos[kY])).getI();
-        _block = _currentModule->getMeshPointer()->get_block(PointWorld(this->pos[kX], this->pos[kY])).getI();
-
-        // Update whether the current particle position is safe.
-        updateSafe(false);
-
-        return true;
-    }
-    return false;
-}
-
-bool Particle::updateSafeRaw()
-{
-    bool retval = false;
-
-    BIT_FIELD hit_a_wall;
-    float  pressure;
-
-	Vector2f nrm;
-    hit_a_wall = hit_wall(nrm, &pressure, nullptr);
-    if ((0 == hit_a_wall) && (0.0f == pressure))
-    {
-        safe_valid = true;
-        safe_pos = getPosition();
-        safe_time = update_wld;
-        safe_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY])).getI();
-
-        retval = true;
-    }
-
-    return retval;
-}
-
-bool Particle::updateSafe(bool force)
-{
-    bool retval = false;
-    bool needs_update = false;
-
-    if (force || !safe_valid)
-    {
-        needs_update = true;
-    }
-    else
-    {
-        TileIndex new_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY]));
-
-        if (TileIndex::Invalid == new_grid)
-        {
-            if (std::abs(pos[kX] - safe_pos[kX]) > Info<float>::Grid::Size() ||
-                std::abs(pos[kY] - safe_pos[kY]) > Info<float>::Grid::Size())
-            {
-                needs_update = true;
-            }
-        }
-        else if (new_grid != safe_grid)
-        {
-            needs_update = true;
-        }
-    }
-
-    if (needs_update)
-    {
-        retval = updateSafeRaw();
-    }
-
-    return retval;
-}
-
-BIT_FIELD Particle::hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
-{
-    return hit_wall(getPosition(), nrm, pressure, data);
-}
-
 BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
 {
     BIT_FIELD stoppedby = MAPFX_IMPASS;
@@ -228,11 +146,6 @@ BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure
     g_meshStats.boundTests = 0;
     g_meshStats.pressureTests = 0;
     return _currentModule->getMeshPointer()->hit_wall(pos, 0.0f, stoppedby, nrm, pressure, data);
-}
-
-BIT_FIELD Particle::test_wall(mesh_wall_data_t *data)
-{
-    return test_wall(getPosition(), data);
 }
 
 BIT_FIELD Particle::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
@@ -331,7 +244,7 @@ void Particle::setElevation(const float level)
     enviro.adj_floor += loc_height;
 
     // set the zlerp after we have done everything to the particle's level we care to
-    enviro.zlerp = (pos[kZ] - enviro.adj_level) / PLATTOLERANCE;
+    enviro.zlerp = (getPosZ() - enviro.adj_level) / PLATTOLERANCE;
     enviro.zlerp = Ego::Math::constrain(enviro.zlerp, 0.0f, 1.0f);
 }
 
@@ -429,7 +342,7 @@ void Particle::update()
 
 void Particle::updateWater()
 {
-    bool inwater = (pos[kZ] < water._surface_level) && isOverWater();
+    bool inwater = (getPosZ() < water._surface_level) && isOverWater();
 
     if (inwater && water._is_water && getProfile()->end_water)
     {
@@ -450,7 +363,7 @@ void Particle::updateWater()
     {
         bool  spawn_valid = false;
         LocalParticleProfileRef global_pip_index;
-		Vector3f vtmp = Vector3f(pos[kX], pos[kY], water._surface_level);
+		Vector3f vtmp = Vector3f(getPosX(), getPosY(), water._surface_level);
 
         if (INVALID_CHR_REF == owner_ref && (PIP_SPLASH == getProfileID() || PIP_RIPPLE == getProfileID()))
         {
@@ -476,7 +389,7 @@ void Particle::updateWater()
                 if (SPRITE_SOLID == type && !isAttached())
                 {
                     // only spawn ripples if you are touching the water surface!
-                    if (pos[kZ] + bump_real.height > water._surface_level && pos[kZ] - bump_real.height < water._surface_level)
+                    if (getPosZ() + bump_real.height > water._surface_level && getPosZ() - bump_real.height < water._surface_level)
                     {
                         int ripand = ~((~RIPPLEAND) << 1);
                         if (0 == ((update_wld + _particleID) & ripand))
@@ -765,12 +678,12 @@ void Particle::destroy()
             if(_spawnerProfile == INVALID_PRO_REF)
             {
                 //Global particle
-                ParticleHandler::get().spawnGlobalParticle(pos_old, facing, getProfile()->endspawn._lpip, tnc);
+                ParticleHandler::get().spawnGlobalParticle(getOldPosition(), facing, getProfile()->endspawn._lpip, tnc);
             }
             else
             {
                 //Local particle
-                ParticleHandler::get().spawnLocalParticle(pos_old, facing, _spawnerProfile, getProfile()->endspawn._lpip,
+                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facing, _spawnerProfile, getProfile()->endspawn._lpip,
                                                         INVALID_CHR_REF, GRIP_LAST, team, owner_ref,
                                                         _particleID, tnc, _target);
             }
@@ -804,14 +717,14 @@ void Particle::playSound(int8_t sound)
     //If we were spawned by an Object, then use that Object's sound pool
     const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(_spawnerProfile);
     if (profile) {
-        AudioSystem::get().playSound(pos, profile->getSoundID(sound));
+        AudioSystem::get().playSound(getPosition(), profile->getSoundID(sound));
     }
 
     //Else we are a global particle and use global particle sounds
     else if (sound >= 0 && sound < GSND_COUNT)
     {
         GlobalSound globalSound = static_cast<GlobalSound>(sound);
-        AudioSystem::get().playSound(pos, AudioSystem::get().getGlobalSound(globalSound));
+        AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(globalSound));
     }
 }
 
@@ -1004,8 +917,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_y - 2.0f);
 
     setPosition(tmp_pos);
-    pos_old = tmp_pos;
-    pos_stt = tmp_pos;
+    setSpawnPosition(tmp_pos);
 
     //Can this particle only spawn over water?
     if(onlyOverWater && !isOverWater()) {
@@ -1145,9 +1057,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
 	Vector2f nrm;
     if (0 == hit_wall(tmp_pos, nrm, nullptr, nullptr))
     {
-        safe_pos = tmp_pos;
-        safe_valid = true;
-        safe_grid = getTile();
+        setSafePosition(tmp_pos);
     }
 
     // get an initial value for the _isHoming variable
@@ -1159,13 +1069,13 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     // estimate some parameters for buoyancy and air resistance
     {
         const float buoyancy_min = 0.0f;
-        const float buoyancy_max = 2.0f * std::abs(Physics::g_environment.gravity);
+        const float buoyancy_max = 2.0f * std::abs(Ego::Physics::g_environment.gravity);
         const float air_resistance_min = 0.0f;
         const float air_resistance_max = 1.0f;
 
         // find the buoyancy, assuming that the air_resistance of the particle
         // is equal to air_friction at standard gravity
-        buoyancy = -getProfile()->spdlimit * (1.0f - Physics::g_environment.airfriction) - Physics::g_environment.gravity;
+        buoyancy = -getProfile()->spdlimit * (1.0f - Ego::Physics::g_environment.airfriction) - Ego::Physics::g_environment.gravity;
         buoyancy = CLIP(buoyancy, buoyancy_min, buoyancy_max);
 
         // reduce the buoyancy if the particle falls
@@ -1174,10 +1084,10 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
         // determine if there is any left-over air resistance
         if (std::abs(getProfile()->spdlimit) > 0.0001f)
         {
-            air_resistance = 1.0f - (buoyancy + Physics::g_environment.gravity) / -getProfile()->spdlimit;
+            air_resistance = 1.0f - (buoyancy + Ego::Physics::g_environment.gravity) / -getProfile()->spdlimit;
             air_resistance = CLIP(air_resistance, air_resistance_min, air_resistance_max);
 
-            air_resistance /= Physics::g_environment.airfriction;
+            air_resistance /= Ego::Physics::g_environment.airfriction;
             air_resistance = CLIP(air_resistance, 0.0f, 1.0f);
         }
         else
@@ -1354,6 +1264,63 @@ void Particle::addCollision(const std::shared_ptr<Object> &object)
 bool Particle::isEternal() const
 {
     return is_eternal;
+}
+
+bool Particle::canCollide() const
+{
+    if(isTerminated()) {
+        return false;
+    }
+
+    if(isHidden()) {
+        return false;
+    }
+
+    //Particle is destroyed on any collision?
+    if(getProfile()->end_bump || getProfile()->end_ground) {
+        return true;
+    }
+    
+    //Has collision size?
+    /// @todo this is a stopgap solution, figure out if this is the correct place or
+    ///       we need to fix the loop in fill_interaction_list instead
+    if(getProfile()->bump_height <= 0 && getProfile()->bump_size <= 0) {
+        return false;
+    }
+
+    // Each one of these tests allows one MORE reason to include the particle, not one less.
+    // Removed bump particles. We have another loop that can detect these, and there
+    // is no reason to fill up the BSP with particles like coins.
+
+    // Make this optional? Is there any reason to fail if the particle has no profile reference?
+    if (getProfile()->spawnenchant)
+    {
+        if(LOADED_EVE(ProfileSystem::get().getProfile(getSpawnerProfile())->getEnchantRef())) {
+            return true;
+        }
+    }
+
+    // any possible damage?
+    if((std::abs(damage.base) + std::abs(damage.rand)) > 0) {
+        return true;
+    }
+
+    // the other possible status effects
+    // do not require damage
+    if((0 != getProfile()->grogTime) || (0 != getProfile()->dazeTime) || ( 0 != getProfile()->lifeDrain ) || (0 != getProfile()->manaDrain)) {
+        return true;
+    }
+
+    //Causes special effect? these are not implemented yet
+    //if(getProfile()->cause_pancake || getProfile()->cause_roll) return true;
+
+    //Can push?
+    if(getProfile()->allowpush) {
+        return true;
+    }
+
+    //No valid interactions
+    return false;
 }
 
 } //Ego

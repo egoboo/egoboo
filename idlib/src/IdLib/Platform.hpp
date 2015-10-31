@@ -180,6 +180,8 @@
 #include <vector>
 #include <chrono>
 #include <set>
+#include <future>
+#include <queue>
 
 /**
 * @ingroup IdLib

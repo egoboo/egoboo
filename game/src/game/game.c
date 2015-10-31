@@ -33,8 +33,6 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/input.h"
-#include "game/collision.h"
-#include "game/bsp.h"
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
 #include "game/egoboo.h"
@@ -43,8 +41,10 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
+#include "game/Physics/CollisionSystem.hpp"
 #include "game/physics.h"
-#include "game/ObjectPhysics.h"
+#include "game/Physics/PhysicalConstants.hpp"
+#include "game/Physics/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
@@ -571,8 +571,8 @@ int update_game()
     //---- begin the code for updating in-game objects
     update_all_objects();
     {
-        move_all_objects();                   // clears some latches
-        bump_all_objects();                   // do the actual object interaction
+        move_all_objects();                            //movement
+        Ego::Physics::CollisionSystem::get().update(); //collisions
     }
     //---- end the code for updating in-game objects
 
@@ -928,7 +928,7 @@ void update_pits()
             // Kill any particles that fell in a pit, if they die in water...
             for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
             {
-                if ( particle->pos[kZ] < PITDEPTH && particle->getProfile()->end_water )
+                if ( particle->getPosZ() < PITDEPTH && particle->getProfile()->end_water )
                 {
                     particle->requestTerminate();
                 }
@@ -1034,11 +1034,11 @@ void do_weather_spawn_particles()
                 if ( particle )
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->_gmem._edge_x - EDGE )
+                    if ( particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_gmem._edge_x - EDGE )
                     {
                         particle->requestTerminate();
                     }
-                    else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
+                    else if ( particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
                     {
                         particle->requestTerminate();
                     }
@@ -2459,16 +2459,14 @@ void let_all_characters_think()
 {
     /// @author ZZ
     /// @details This function funst the ai scripts for all eligible objects
-
-    static Uint32 last_update = ( Uint32 )( ~0 );
-
-    // make sure there is only one script update per game update
-    if ( update_wld == last_update ) return;
-    last_update = update_wld;
-
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if(object->isTerminated()) {
+            continue;
+        }
+
+        //Only inventory items marked as equipment has active AI scripts
+        if(object->isInsideInventory() && !object->getProfile()->isEquipment()) {
             continue;
         }
         
@@ -2476,20 +2474,23 @@ void let_all_characters_think()
         bool is_cleanedup = HAS_SOME_BITS( object->ai.alert, ALERTIF_CLEANEDUP );
         bool is_crushed   = HAS_SOME_BITS( object->ai.alert, ALERTIF_CRUSHED );
 
-        // let the script run sometimes even if the item is in your backpack
-        bool can_think = !object->isInsideInventory() || object->getProfile()->isEquipment();
-
         // only let dead/destroyed things think if they have beem crushed/cleanedup
-        if (( object->isAlive() && can_think ) || is_crushed || is_cleanedup )
+        if (object->isAlive() || is_crushed || is_cleanedup )
         {
             // Figure out alerts that weren't already set
             set_alerts( object->getCharacterID() );
 
             // Cleaned up characters shouldn't be alert to anything else
-            if ( is_cleanedup )  { object->ai.alert = ALERTIF_CLEANEDUP; /*object->ai.timer = update_wld + 1;*/ }
+            if (is_cleanedup) { 
+                object->ai.alert = ALERTIF_CLEANEDUP; 
+                /*object->ai.timer = update_wld + 1;*/ 
+            }
 
             // Crushed characters shouldn't be alert to anything else
-            if ( is_crushed )  { object->ai.alert = ALERTIF_CRUSHED; object->ai.timer = update_wld + 1; }
+            if (is_crushed)  { 
+                object->ai.alert = ALERTIF_CRUSHED; 
+                object->ai.timer = update_wld + 1;  //Prevents IfTimeOut from triggering
+            }
 
             scr_run_chr_script(object.get());
         }
@@ -3034,12 +3035,12 @@ void upload_light_data(const wawalite_data_t& data)
 void upload_phys_data( const wawalite_physics_t& data )
 {
     // upload the physics data
-    Physics::g_environment.hillslide = data.hillslide;
-    Physics::g_environment.slippyfriction = data.slippyfriction;
-    Physics::g_environment.noslipfriction = data.noslipfriction;
-    Physics::g_environment.airfriction = data.airfriction;
-    Physics::g_environment.waterfriction = data.waterfriction;
-    Physics::g_environment.gravity = data.gravity;
+    Ego::Physics::g_environment.hillslide = data.hillslide;
+    Ego::Physics::g_environment.slippyfriction = data.slippyfriction;
+    Ego::Physics::g_environment.noslipfriction = data.noslipfriction;
+    Ego::Physics::g_environment.airfriction = data.airfriction;
+    Ego::Physics::g_environment.waterfriction = data.waterfriction;
+    Ego::Physics::g_environment.gravity = data.gravity;
 }
 
 void upload_graphics_data( const wawalite_graphics_t& data )
@@ -3129,10 +3130,10 @@ bool wawalite_finalize(wawalite_data_t *data)
     }
 
     int windspeed_count = 0;
-    Physics::g_environment.windspeed = Vector3f::zero();
+    Ego::Physics::g_environment.windspeed = Vector3f::zero();
 
     int waterspeed_count = 0;
-    Physics::g_environment.waterspeed = Vector3f::zero();
+    Ego::Physics::g_environment.waterspeed = Vector3f::zero();
 
     wawalite_water_layer_t *ilayer = wawalite_data.water.layer + 0;
     if (wawalite_data.water.background_req)
@@ -3144,15 +3145,15 @@ bool wawalite_finalize(wawalite_data_t *data)
         const float default_bg_repeat = 4.0f;
 
         windspeed_count++;
-        Physics::g_environment.windspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
-        Physics::g_environment.windspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
-        Physics::g_environment.windspeed[kZ] += -0;
+        Ego::Physics::g_environment.windspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
+        Ego::Physics::g_environment.windspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size() / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
+        Ego::Physics::g_environment.windspeed[kZ] += -0;
     }
     else
     {
         waterspeed_count++;
 		Vector3f tmp(-ilayer->tx_add[SS] * Info<float>::Grid::Size(), -ilayer->tx_add[TT] * Info<float>::Grid::Size(), 0.0f);
-        Physics::g_environment.waterspeed += tmp;
+        Ego::Physics::g_environment.waterspeed += tmp;
     }
 
     ilayer = wawalite_data.water.layer + 1;
@@ -3160,27 +3161,27 @@ bool wawalite_finalize(wawalite_data_t *data)
     {
         windspeed_count++;
 
-        Physics::g_environment.windspeed[kX] += -600 * ilayer->tx_add[SS] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
-        Physics::g_environment.windspeed[kY] += -600 * ilayer->tx_add[TT] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
-        Physics::g_environment.windspeed[kZ] += -0;
+        Ego::Physics::g_environment.windspeed[kX] += -600 * ilayer->tx_add[SS] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
+        Ego::Physics::g_environment.windspeed[kY] += -600 * ilayer->tx_add[TT] * Info<float>::Grid::Size() / wawalite_data.water.foregroundrepeat * 0.04f;
+        Ego::Physics::g_environment.windspeed[kZ] += -0;
     }
     else
     {
         waterspeed_count++;
 
-        Physics::g_environment.waterspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size();
-        Physics::g_environment.waterspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size();
-        Physics::g_environment.waterspeed[kZ] += -0;
+        Ego::Physics::g_environment.waterspeed[kX] += -ilayer->tx_add[SS] * Info<float>::Grid::Size();
+        Ego::Physics::g_environment.waterspeed[kY] += -ilayer->tx_add[TT] * Info<float>::Grid::Size();
+        Ego::Physics::g_environment.waterspeed[kZ] += -0;
     }
 
     if ( waterspeed_count > 1 )
     {
-        Physics::g_environment.waterspeed *= 1.0f/(float)waterspeed_count;
+        Ego::Physics::g_environment.waterspeed *= 1.0f/(float)waterspeed_count;
     }
 
     if ( windspeed_count > 1 )
     {
-        Physics::g_environment.windspeed *= 1.0f/(float)windspeed_count;
+        Ego::Physics::g_environment.windspeed *= 1.0f/(float)windspeed_count;
     }
 
     return true;

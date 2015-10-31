@@ -196,8 +196,7 @@ bool link_pop_module()
             if ( nullptr != pchr )
             {
                 pchr->setPosition(phero->pos);
-                pchr->pos_old  = phero->pos;
-                pchr->pos_stt  = phero->pos_stt;
+                pchr->setSpawnPosition(phero->pos_stt);
             }
         };
     }

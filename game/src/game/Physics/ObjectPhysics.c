@@ -1,9 +1,9 @@
 #include "ObjectPhysics.h"
-#include "game/collision.h"                  //Only for detach_character_from_platform()
 #include "game/game.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
+#include "game/Physics/PhysicalConstants.hpp"
 
 static void move_one_character_do_floor_friction( Object * pchr );
 static void move_one_character_do_voluntary( Object * pchr );
@@ -72,7 +72,7 @@ void move_one_character_do_voluntary( Object * pchr )
     }
 
     // this is the maximum speed that a character could go under the v2.22 system
-    float maxspeed = pchr->getAttribute(Ego::Attribute::ACCELERATION) * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
+    float maxspeed = pchr->getAttribute(Ego::Attribute::ACCELERATION) * Ego::Physics::g_environment.airfriction / (1.0f - Ego::Physics::g_environment.airfriction);
     float speedBonus = 1.0f;
 
     //Sprint perk gives +10% movement speed if above 75% life remaining
@@ -174,8 +174,8 @@ void move_one_character_do_voluntary( Object * pchr )
 
     //Slippery environment?
     if(pchr->enviro.is_slippy) {
-        new_ax *= Physics::g_environment.icefriction * 0.1f;
-        new_ay *= Physics::g_environment.icefriction * 0.1f;
+        new_ax *= Ego::Physics::g_environment.icefriction * 0.1f;
+        new_ay *= Ego::Physics::g_environment.icefriction * 0.1f;
     }
 
     //Limit movement to the max acceleration
@@ -247,15 +247,15 @@ void move_one_character_do_voluntary( Object * pchr )
 void move_one_character_get_environment( Object * pchr )
 {
     if (!pchr || pchr->isTerminated()) return;
-	chr_environment_t& enviro = pchr->enviro;
+    chr_environment_t& enviro = pchr->enviro;
 
     // determine if the character is standing on a platform
-	Object *pplatform = NULL;
+    Object *pplatform = NULL;
     if ( _currentModule->getObjectHandler().exists( pchr->onwhichplatform_ref ) )
     {
         pplatform = _currentModule->getObjectHandler().get( pchr->onwhichplatform_ref );
     }
-	ego_mesh_t *mesh = _currentModule->getMeshPointer().get();
+    ego_mesh_t *mesh = _currentModule->getMeshPointer().get();
     //---- character "floor" level
     float grid_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), false );
     float water_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), true );
@@ -330,7 +330,7 @@ void move_one_character_get_environment( Object * pchr )
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-		Vector3f platform_up = Vector3f( 0.0f, 0.0f, 1.0f );
+        Vector3f platform_up = Vector3f( 0.0f, 0.0f, 1.0f );
 
         chr_getMatUp(pplatform, platform_up);
         platform_up.normalize();
@@ -339,7 +339,7 @@ void move_one_character_get_environment( Object * pchr )
 
         if ( enviro.is_slippy )
         {
-            enviro.traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
+            enviro.traction /= 4.00f * Ego::Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
         }
     }
     else if ( mesh->grid_is_valid( pchr->getTile() ) )
@@ -348,7 +348,7 @@ void move_one_character_get_environment( Object * pchr )
 
         if ( enviro.is_slippy )
         {
-            enviro.traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
+            enviro.traction /= 4.00f * Ego::Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
         }
     }
 
@@ -357,12 +357,12 @@ void move_one_character_get_environment( Object * pchr )
     {
         //Athletics perk halves penality for moving in water
         if(pchr->hasPerk(Ego::Perks::ATHLETICS)) {
-            enviro.fluid_friction_vrt  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
-            enviro.fluid_friction_hrz  = (Physics::g_environment.waterfriction + Physics::g_environment.airfriction)*0.5f;
+            enviro.fluid_friction_vrt  = (Ego::Physics::g_environment.waterfriction + Ego::Physics::g_environment.airfriction)*0.5f;
+            enviro.fluid_friction_hrz  = (Ego::Physics::g_environment.waterfriction + Ego::Physics::g_environment.airfriction)*0.5f;
         }
         else {
-            enviro.fluid_friction_vrt = Physics::g_environment.waterfriction;
-            enviro.fluid_friction_hrz = Physics::g_environment.waterfriction;            
+            enviro.fluid_friction_vrt = Ego::Physics::g_environment.waterfriction;
+            enviro.fluid_friction_hrz = Ego::Physics::g_environment.waterfriction;            
         }
 
     }
@@ -374,8 +374,8 @@ void move_one_character_get_environment( Object * pchr )
     else
     {
         // like real-life air friction
-        enviro.fluid_friction_hrz = Physics::g_environment.airfriction;
-        enviro.fluid_friction_vrt = Physics::g_environment.airfriction;            
+        enviro.fluid_friction_hrz = Ego::Physics::g_environment.airfriction;
+        enviro.fluid_friction_vrt = Ego::Physics::g_environment.airfriction;            
     }
 
     //---- friction
@@ -392,11 +392,11 @@ void move_one_character_get_environment( Object * pchr )
     else
     {
         // Make the characters slide
-        float temp_friction_xy = Physics::g_environment.noslipfriction;
+        float temp_friction_xy = Ego::Physics::g_environment.noslipfriction;
         if ( mesh->grid_is_valid( pchr->getTile() ) && enviro.is_slippy )
         {
             // It's slippy all right...
-            temp_friction_xy = Physics::g_environment.slippyfriction;
+            temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
         }
 
         enviro.friction_hrz = enviro.zlerp * 1.0f + ( 1.0f - enviro.zlerp ) * temp_friction_xy;
@@ -505,8 +505,8 @@ void move_one_character_do_floor_friction( Object * pchr )
     // reduce the volountary acceleration peopendicular to the direction of motion?
     if (floor_acc.length_abs() > 0.0f)
     {
-		Vector3f acc_para, acc_perp;
-		Vector3f vfront;
+        Vector3f acc_para, acc_perp;
+        Vector3f vfront;
 
         // get the direction of motion
         vfront = mat_getChrForward(pchr->inst.matrix);
@@ -583,8 +583,8 @@ void move_one_character_do_z_motion( Object * pchr )
     {
         // Slippy hills make characters slide
 
-		Vector3f   gperp;    // gravity perpendicular to the mesh
-		Vector3f   gpara;    // gravity parallel      to the mesh (what pushes you)
+        Vector3f   gperp;    // gravity perpendicular to the mesh
+        Vector3f   gpara;    // gravity parallel      to the mesh (what pushes you)
 
         // RELATIVE TO THE GRID, since you might be riding a platform!
         float     loc_zlerp = pchr->enviro.grid_lerp;
@@ -593,13 +593,13 @@ void move_one_character_do_z_motion( Object * pchr )
 
         gperp[kX] = 0       - gpara[kX];
         gperp[kY] = 0       - gpara[kY];
-        gperp[kZ] = Physics::g_environment.gravity - gpara[kZ];
+        gperp[kZ] = Ego::Physics::g_environment.gravity - gpara[kZ];
 
         pchr->vel += gpara * ( 1.0f - loc_zlerp ) + gperp * loc_zlerp;
     }
     else
     {
-        pchr->vel[kZ] += pchr->enviro.zlerp * Physics::g_environment.gravity;
+        pchr->vel[kZ] += pchr->enviro.zlerp * Ego::Physics::g_environment.gravity;
     }
 }
 
@@ -610,7 +610,7 @@ bool move_one_character_integrate_motion( Object * pchr )
     /// @details Figure out the next position of the character.
     ///    Include collisions with the mesh in this step.
 
-	Vector3f tmp_pos;
+    Vector3f tmp_pos;
 
     if (!pchr || pchr->isTerminated()) return false;
 
@@ -691,14 +691,8 @@ bool move_one_character_integrate_motion( Object * pchr )
             {
                 //Figure out last safe position
                 Vector2f safePos; 
-                if(!pchr->getBreadcrumbList().empty()) {
-                    safePos[kX] = pchr->getBreadcrumbList().back()[kX];
-                    safePos[kY] = pchr->getBreadcrumbList().back()[kY];
-                }
-                else {
-                    safePos[kX] = pchr->pos_stt[kX];
-                    safePos[kY] = pchr->pos_stt[kY];
-                }
+                safePos[kX] = pchr->getSafePosition()[kX];
+                safePos[kY] = pchr->getSafePosition()[kY];
 
                 //Calculate velocity vector perpendicular from wall normal
                 Vector2f v_perp = Vector2f::zero();
@@ -708,12 +702,14 @@ bool move_one_character_integrate_motion( Object * pchr )
                     v_perp = nrm * (dot / nrm2);
                 }
 
+                const float bumpdampen = 1.0f-pchr->phys.bumpdampen;
+
                 //Bounce velocity of normal
-                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * (1.0f-pchr->phys.bumpdampen);
-                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * (1.0f-pchr->phys.bumpdampen);
+                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * bumpdampen;
+                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * bumpdampen;
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length();
+                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length() * std::max(0.1f, bumpdampen);
                 pchr->vel[kX] += safeDistance * nrm[kX] * pressure;
                 pchr->vel[kY] += safeDistance * nrm[kY] * pressure;
 
@@ -1124,7 +1120,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     CHR_REF   ichr_b;
     slot_t    slot;
     oct_vec_v2_t mids;
-	Vector3f   slot_pos;
+    Vector3f   slot_pos;
 
     bool retval;
 
@@ -1344,7 +1340,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
     if ( !retval )
     {
-		Vector3f vforward;
+        Vector3f vforward;
 
         //---- generate billboards for things that players can interact with
         if (Ego::FeedbackType::None != egoboo_config_t::get().hud_feedback.getValue() && VALID_PLA(pchr_a->is_which_player))
@@ -1424,11 +1420,10 @@ void move_one_character( Object * pchr )
     if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return;
 
     // save the velocity and acceleration from the last time-step
-    pchr->enviro.vel = pchr->getPosition() - pchr->pos_old;
+    pchr->enviro.vel = pchr->getPosition() - pchr->getOldPosition();
     pchr->enviro.acc = pchr->vel - pchr->vel_old;
 
     // Character's old location
-    pchr->pos_old = pchr->getPosition();
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
@@ -1540,7 +1535,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
                 pitem->setPosition(pchr->getPosition());
 
                 // Copy olds to make SendMessageNear work
-                pitem->pos_old = pchr->pos_old;
+                pitem->setOldPosition(pchr->getOldPosition());
             }
         }
     }
@@ -1558,11 +1553,320 @@ void move_all_characters()
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         // prime the environment
-        object->enviro.ice_friction = Physics::g_environment.icefriction;
+        object->enviro.ice_friction = Ego::Physics::g_environment.icefriction;
 
         move_one_character( object.get() );
 
         chr_update_matrix( object.get(), true );
         keep_weapons_with_holder(object);
     }
+}
+
+bool detach_character_from_platform( Object * pchr )
+{
+    /// @author BB
+    /// @details attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    // verify that we do not have two dud pointers
+    if (!pchr || pchr->isTerminated()) {
+        return false;
+    }
+
+    // save some values
+    const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
+
+    // undo the attachment
+    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
+    pchr->onwhichplatform_update = 0;
+    pchr->targetplatform_ref     = INVALID_CHR_REF;
+    pchr->targetplatform_level   = -1e32;
+
+    // adjust the platform weight, if necessary
+    if (oldPlatform) {
+        oldPlatform->holdingweight -= pchr->phys.weight;
+    }
+
+    // update the character-platform properties
+    move_one_character_get_environment( pchr );
+
+    // update the character jumping
+    pchr->jumpready = pchr->enviro.grounded;
+    if ( pchr->jumpready )
+    {
+        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
+    }
+
+    return true;
+}
+
+float get_chr_mass(Object * pchr)
+{
+    /// @author BB
+    /// @details calculate a "mass" for an object, taking into account possible infinite masses.
+
+    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight )
+    {
+        return -static_cast<float>(CHR_INFINITE_WEIGHT);
+    }
+    else if ( 0.0f == pchr->phys.bumpdampen )
+    {
+        return -static_cast<float>(CHR_INFINITE_WEIGHT);
+    }
+    else
+    {
+        return pchr->phys.weight / pchr->phys.bumpdampen;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
+{
+    /// @author BB
+    ///
+    /// @details use this function to update the pchr->chr_max_cv and  pchr->chr_min_cv with
+    ///       values that reflect the best possible collision volume
+    ///
+    /// @note This function takes quite a bit of time, so it must only be called when the
+    /// vertices change because of an animation or because the matrix changes.
+    ///
+    /// @todo it might be possible to cache the src[] array used in this function.
+    /// if the matrix changes, then you would not need to recalculate this data...
+
+    Vector4f  src[16];  // for the upper and lower octagon points
+    Vector4f  dst[16];  // for the upper and lower octagon points
+
+    if ( nullptr == pchr ) return rv_error;
+
+    // re-initialize the collision volumes
+    oct_bb_t::ctor(pchr->chr_min_cv);
+    oct_bb_t::ctor(pchr->chr_max_cv);
+    for ( size_t cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    {
+        oct_bb_t::ctor(pchr->slot_cv[cnt]);
+    }
+
+    // make sure the matrix is updated properly
+    if ( update_matrix )
+    {
+        // call chr_update_matrix() but pass in a false value to prevent a recursive call
+        if ( rv_error == chr_update_matrix( pchr, false ) )
+        {
+            return rv_error;
+        }
+    }
+
+    // make sure the bounding box is calculated properly
+    if (gfx_error == chr_instance_t::update_bbox(pchr->inst)) {
+        return rv_error;
+    }
+
+    // convert the point cloud in the GLvertex array (pchr->inst.vrt_lst) to
+    // a level 1 bounding box. Subtract off the position of the character
+    oct_bb_t bsrc = pchr->inst.bbox;
+
+    // convert the corners of the level 1 bounding box to a point cloud
+    // keep track of the actual number of vertices, in case the object is square
+    int vcount = oct_bb_to_points(bsrc, src, 16);
+
+    // transform the new point cloud
+    Utilities::transform(pchr->inst.matrix, src, dst, vcount);
+
+    // convert the new point cloud into a level 1 bounding box
+    oct_bb_t bdst;
+    points_to_oct_bb(bdst, dst, vcount);
+
+    //---- set the bounding boxes
+    pchr->chr_min_cv = bdst;
+    pchr->chr_max_cv = bdst;
+
+    oct_bb_t bmin;
+    bmin.assign(pchr->bump);
+
+    // only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
+    if ( pchr->getProfile()->getBumpOverrideSize() )
+    {
+        pchr->chr_min_cv.cut(bmin, OCT_X);
+        pchr->chr_min_cv.cut(bmin, OCT_Y);
+
+        pchr->chr_max_cv.join(bmin, OCT_X);
+        pchr->chr_max_cv.join(bmin, OCT_Y);
+    }
+
+    // only use pchr->bump.size_big if it was overridden in data.txt through the [MODL] expansion
+    if ( pchr->getProfile()->getBumpOverrideSizeBig() )
+    {
+        pchr->chr_min_cv.cut(bmin, OCT_XY);
+        pchr->chr_min_cv.cut(bmin, OCT_YX);
+
+        pchr->chr_max_cv.join(bmin, OCT_XY);
+        pchr->chr_max_cv.join(bmin, OCT_YX);
+    }
+
+    // only use pchr->bump.height if it was overridden in data.txt through the [MODL] expansion
+    if ( pchr->getProfile()->getBumpOverrideHeight() )
+    {
+        pchr->chr_min_cv.cut(bmin, OCT_Z);
+        pchr->chr_max_cv.join(bmin, OCT_Z);
+    }
+
+    //// raise the upper bound for platforms
+    //if ( pchr->platform )
+    //{
+    //    pchr->chr_max_cv.maxs[OCT_Z] += PLATTOLERANCE;
+    //}
+
+    //This makes it easier to jump on top of mounts
+    if(pchr->isMount()) {
+       pchr->chr_max_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, pchr->chr_max_cv._maxs[OCT_Z]);
+       pchr->chr_min_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, pchr->chr_min_cv._maxs[OCT_Z]);
+    }
+
+    // calculate collision volumes for various slots
+    for ( size_t cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    {
+        if ( !pchr->getProfile()->isSlotValid( static_cast<slot_t>(cnt) ) ) continue;
+
+        chr_calc_grip_cv( pchr, GRIP_LEFT, &pchr->slot_cv[cnt], false );
+
+        pchr->chr_max_cv.join(pchr->slot_cv[cnt]);
+    }
+
+    // convert the level 1 bounding box to a level 0 bounding box
+    oct_bb_t::downgrade(bdst, pchr->bump_stt, pchr->bump, pchr->bump_1);
+
+    return rv_success;
+}
+
+egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
+{
+    /// @author ZZ
+    /// @details This function attaches one character/item to another ( the holder/mount )
+    ///    at a certain vertex offset ( grip_off )
+    ///   - This function is called as a part of spawning a module, so the item or the holder may not
+    ///     be fully instantiated
+    ///   - This function should do very little testing to see if attachment is allowed.
+    ///     Most of that checking should be done by the calling function
+
+    Object * prider, * pmount;
+
+    // Make sure the character/item is valid
+    if ( !_currentModule->getObjectHandler().exists( irider ) ) return rv_error;
+    prider = _currentModule->getObjectHandler().get( irider );
+
+    // Make sure the holder/mount is valid
+    if ( !_currentModule->getObjectHandler().exists( imount ) ) return rv_error;
+    pmount = _currentModule->getObjectHandler().get( imount );
+
+    //Don't attach a character to itself!
+    if(irider == imount) {
+        return rv_fail;
+    }
+
+    // do not deal with packed items at this time
+    // this would have to be changed to allow for pickpocketing
+    if ( _currentModule->getObjectHandler().exists( prider->inwhich_inventory ) || _currentModule->getObjectHandler().exists( pmount->inwhich_inventory ) ) return rv_fail;
+
+    // make a reasonable time for the character to remount something
+    // for characters jumping out of pots, etc
+    if ( imount == prider->dismount_object && prider->dismount_timer > 0 ) return rv_fail;
+
+    // Figure out which slot this grip_off relates to
+    slot_t slot = grip_offset_to_slot( grip_off );
+
+    // Make sure the the slot is valid
+    if ( !pmount->getProfile()->isSlotValid(slot) ) return rv_fail;
+
+    // This is a small fix that allows special grabbable mounts not to be mountable while
+    // held by another character (such as the magic carpet for example)
+    // ( this is an example of a test that should not be done here )
+    if ( pmount->isMount() && _currentModule->getObjectHandler().exists( pmount->attachedto ) ) return rv_fail;
+
+    // Put 'em together
+    prider->inwhich_slot       = slot;
+    prider->attachedto         = imount;
+    pmount->holdingwhich[slot] = irider;
+
+    // set the grip vertices for the irider
+    set_weapongrip( irider, imount, grip_off );
+
+    chr_update_matrix( prider, true );
+
+    prider->setPosition(mat_getTranslate(prider->inst.matrix));
+
+    prider->enviro.inwater  = false;
+    prider->jump_timer = JUMPDELAY * 4;
+
+    // Run the held animation
+    if ( pmount->isMount() && ( GRIP_ONLY == grip_off ) )
+    {
+        // Riding imount
+
+        if ( _currentModule->getObjectHandler().exists( prider->holdingwhich[SLOT_LEFT] ) || _currentModule->getObjectHandler().exists( prider->holdingwhich[SLOT_RIGHT] ) )
+        {
+            // if the character is holding anything, make the animation
+            // ACTION_MH == "sitting" so that it dies not look so silly
+            chr_play_action( prider, ACTION_MH, true );
+        }
+        else
+        {
+            // if it is not holding anything, go for the riding animation
+            chr_play_action( prider, ACTION_MI, true );
+        }
+
+        // set tehis action to loop
+        chr_instance_t::set_action_loop(prider->inst, true);
+    }
+    else if ( prider->isAlive() )
+    {
+        /// @note ZF@> hmm, here is the torch holding bug. Removing
+        /// the interpolation seems to fix it...
+        chr_play_action( prider, ACTION_MM + slot, false );
+
+        chr_instance_t::remove_interpolation(prider->inst);
+
+        // set the action to keep for items
+        if ( prider->isItem() )
+        {
+            // Item grab
+            chr_instance_t::set_action_keep(prider->inst, true);
+        }
+    }
+
+    // Set the team
+    if ( prider->isItem() )
+    {
+        prider->team = pmount->team;
+
+        // Set the alert
+        if ( prider->isAlive() )
+        {
+            SET_BIT( prider->ai.alert, ALERTIF_GRABBED );
+        }
+
+        //Lore Master perk identifies everything
+        if(pmount->hasPerk(Ego::Perks::LORE_MASTER)) {
+            prider->getProfile()->makeUsageKnown();
+            prider->nameknown = true;
+            prider->ammoknown = true;
+        }
+    }
+
+    if ( pmount->isMount() )
+    {
+        pmount->team = prider->team;
+
+        // Set the alert
+        if ( !pmount->isItem() && pmount->isAlive() )
+        {
+            SET_BIT( pmount->ai.alert, ALERTIF_GRABBED );
+        }
+    }
+
+    // It's not gonna hit the floor
+    prider->hitready = false;
+
+    return rv_success;
 }
