@@ -449,9 +449,6 @@
     <ClInclude Include="src\egolib\timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\strutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -621,7 +621,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\egolib\strutil.h" />
-    <ClInclude Include="src\egolib\system.h" />
     <ClInclude Include="src\egolib\timer.h" />
     <ClInclude Include="src\egolib\typedef.h" />
     <ClInclude Include="src\egolib\vfs.h" />
