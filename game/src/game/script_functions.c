@@ -1905,13 +1905,13 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
     if ( !returncode )
     {
-        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
+		Log::warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
         // was the child spawned in a "safe" spot?
         if (!pchild->hasSafePosition()) {
-            log_warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
+			Log::warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
         }
         else
@@ -5368,14 +5368,14 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
     if ( !returncode )
     {
-        log_warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
+		Log::warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
         // was the child spawned in a "safe" spot?
         if (!pchild->hasSafePosition())
         {
-            log_warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
+			Log::warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
         }
         else
@@ -5425,7 +5425,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
         // was the child spawned in a "safe" spot?
         if (!pchild->hasSafePosition())
         {
-            log_warning( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
+			Log::warning( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
             pchr->requestTerminate();
             returncode = false;
         }
@@ -6995,7 +6995,7 @@ Uint8 scr_EnableListenSkill( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     {
-        log_warning("Deprecated script function used: EnableListenSkill! (%s)\n", pchr->getProfile()->getClassName().c_str());
+		Log::warning("Deprecated script function used: EnableListenSkill! (%s)\n", pchr->getProfile()->getClassName().c_str());
     }
 
     returncode = false;
@@ -7422,7 +7422,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
     if ( !returncode )
     {
-        log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->getName().c_str(), pchr->getProfile()->getClassName().c_str(), state.argument);
+		Log::warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->getName().c_str(), pchr->getProfile()->getClassName().c_str(), state.argument);
     }
     else
     {

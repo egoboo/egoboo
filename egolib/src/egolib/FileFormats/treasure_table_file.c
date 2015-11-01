@@ -45,7 +45,7 @@ void treasure_table_t::add( treasure_table_t *self, const char *name )
     //Make sure there is enough size to add one more
     if (self->size + 1 >= TREASURE_TABLE_SIZE )
     {
-        log_warning( "No more room to add object (%s) to table, consider increasing TREASURE_TABLE_SIZE (currently %i)\n", name, TREASURE_TABLE_SIZE );
+		Log::warning( "No more room to add object (%s) to table, consider increasing TREASURE_TABLE_SIZE (currently %i)\n", name, TREASURE_TABLE_SIZE );
         return;
     }
 

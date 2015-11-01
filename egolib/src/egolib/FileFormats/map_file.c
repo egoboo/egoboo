@@ -104,26 +104,26 @@ bool map_info_t::validate() const
 {
     if (_vertexCount > MAP_VERTICES_MAX)
     {
-        log_warning("%s:%d: too many vertices (%u/%u)!!\n", __FILE__, __LINE__, _vertexCount, MAP_VERTICES_MAX);
+		Log::warning("%s:%d: too many vertices (%u/%u)!!\n", __FILE__, __LINE__, _vertexCount, MAP_VERTICES_MAX);
         return false;
     }
 
     if (_tileCountX > MAP_TILE_MAX_X)
     {
-        log_warning("%s:%d: too many tiles in the x direction (%u/%u)!!\n", __FILE__, __LINE__, _tileCountX, MAP_TILE_MAX_X);
+		Log::warning("%s:%d: too many tiles in the x direction (%u/%u)!!\n", __FILE__, __LINE__, _tileCountX, MAP_TILE_MAX_X);
         return false;
     }
 
     if (_tileCountY > MAP_TILE_MAX_Y)
     {
-        log_warning("%s:%d: too many tiles in the y direction (%u/%u)!!\n", __FILE__, __LINE__, _tileCountY, MAP_TILE_MAX_Y);
+		Log::warning("%s:%d: too many tiles in the y direction (%u/%u)!!\n", __FILE__, __LINE__, _tileCountY, MAP_TILE_MAX_Y);
         return false;
     }
 
     uint32_t tileCount = _tileCountX * _tileCountY;
     if (tileCount >= MAP_TILE_MAX)
     {
-        log_warning("%s:%d: - unknown version and mesh is too large (%u/%u)!!\n", __FILE__, __LINE__, tileCount, MAP_TILE_MAX);
+		Log::warning("%s:%d: - unknown version and mesh is too large (%u/%u)!!\n", __FILE__, __LINE__, tileCount, MAP_TILE_MAX);
         return false;
     }
 
@@ -186,12 +186,12 @@ bool map_t::load(vfs_FILE& file)
     {
         if (mapVersion <= 0)
         {
-            log_warning("%s - unknown map type!!\n", __FUNCTION__);
+			Log::warning("%s - unknown map type!!\n", __FUNCTION__);
             goto Fail;
         }
         else if (mapVersion > CURRENT_MAP_VERSION_NUMBER)
         {
-            log_warning("%s - file version is too recent or invalid. Not all features will be supported %d/%d.\n", __FUNCTION__, mapVersion, CURRENT_MAP_VERSION_NUMBER);
+			Log::warning("%s - file version is too recent or invalid. Not all features will be supported %d/%d.\n", __FUNCTION__, mapVersion, CURRENT_MAP_VERSION_NUMBER);
             validate = true;
         }
 
@@ -208,7 +208,7 @@ bool map_t::load(vfs_FILE& file)
         // Allocate the mesh memory.
         if (!setInfo(loc_info))
         {
-            log_warning("%s - could not initialize the map!!\n", __FUNCTION__);
+			Log::warning("%s - could not initialize the map!!\n", __FUNCTION__);
             goto Fail;
         }
 
@@ -281,7 +281,7 @@ bool map_t::load(const std::string& name)
     vfs_FILE *file = vfs_openRead(name.c_str());
     if (!file)
     {
-        log_warning("%s:%d: cannot find \"%s\"!!\n", __FILE__, __LINE__, name.c_str());
+		Log::warning("%s:%d: cannot find \"%s\"!!\n", __FILE__, __LINE__, name.c_str());
         goto Fail;
     }
 

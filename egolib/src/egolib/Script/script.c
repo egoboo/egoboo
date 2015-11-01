@@ -776,7 +776,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     Uint8 returncode = true;
     if ( MAX_OPCODE == valuecode )
     {
-        log_message( "SCRIPT ERROR: scr_run_function() - model == %d, class name == \"%s\" - Unknown opcode found!\n", REF_TO_INT( script_error_model ), script_error_classname );
+		Log::message( "SCRIPT ERROR: scr_run_function() - model == %d, class name == \"%s\" - Unknown opcode found!\n", REF_TO_INT( script_error_model ), script_error_classname );
         return false;
     }
 
@@ -806,7 +806,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
 			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(*g_scriptFunctionClock);
 			auto result = Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.find(valuecode);
 			if (Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.cend() == result) {
-				log_message("SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", script._name.c_str(), valuecode);
+				Log::message("SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", script._name.c_str(), valuecode);
 				returncode = false;
 			} else {
 				returncode = result->second(self, aiState);
@@ -848,7 +848,7 @@ void script_state_t::set_operand( script_state_t& state, Uint8 variable )
             break;
 
         default:
-            log_warning( "scr_set_operand() - cannot assign a number to index %d\n", variable );
+			Log::warning( "scr_set_operand() - cannot assign a number to index %d\n", variable );
             break;
     }
 }
@@ -1427,7 +1427,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 break;
 
             default:
-                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", REF_TO_INT( script_error_model ), script_error_classname );
+				Log::message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", REF_TO_INT( script_error_model ), script_error_classname );
                 break;
         }
     }
@@ -1474,7 +1474,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
             }
             else
             {
-                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Cannot divide by zero!\n", REF_TO_INT( script_error_model ), script_error_classname );
+				Log::message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Cannot divide by zero!\n", REF_TO_INT( script_error_model ), script_error_classname );
             }
             break;
 
@@ -1486,12 +1486,12 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
             }
             else
             {
-                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Cannot modulo by zero!\n", REF_TO_INT( script_error_model ), script_error_classname );
+				Log::message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Cannot modulo by zero!\n", REF_TO_INT( script_error_model ), script_error_classname );
             }
             break;
 
         default:
-            log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - unknown op\n", REF_TO_INT( script_error_model ), script_error_classname );
+			Log::message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - unknown op\n", REF_TO_INT( script_error_model ), script_error_classname );
             break;
     }
 

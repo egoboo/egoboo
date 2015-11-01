@@ -42,7 +42,7 @@ UIManager::UIManager() :
     {
         if(!_fonts[i])
         {
-            log_error("UIManager missing font with ID %d!", i);
+			Log::error("UIManager missing font with ID %d!", i);
         }
     }
 #endif

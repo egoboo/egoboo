@@ -822,7 +822,7 @@ char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite
         {
             if ( write > SDL_arraysize( temp_buffer ) - 2 )
             {
-                log_error( "copy_to_delimiter_mem() - temp_buffer overflow.\n" );
+				Log::error( "copy_to_delimiter_mem() - temp_buffer overflow.\n" );
             }
 
             temp_buffer[write++] = cTmp;
@@ -1662,7 +1662,7 @@ Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint
     }
 
     if(INVALID_GL_ID == retval) {
-        log_warning("unable to load texture: %s\n", vfs_resolveReadFilename(filename));
+        Log::warning("unable to load texture: %s\n", vfs_resolveReadFilename(filename));
     }
 
     return retval;

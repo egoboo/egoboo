@@ -1010,7 +1010,7 @@ SDL_Surface *cartman_LoadIMG(const char *name)
     SDL_Surface *originalImage = IMG_Load_RW(vfs_openRWopsRead(name), 1);
     if (!originalImage)
     {
-        log_error("unable to load image `%s` - reason `%s`\n", name, IMG_GetError());
+		Log::error("unable to load image `%s` - reason `%s`\n", name, IMG_GetError());
         return nullptr;
     }
 
@@ -1019,7 +1019,7 @@ SDL_Surface *cartman_LoadIMG(const char *name)
     SDL_FreeSurface(originalImage);
     if (!convertedImage)
     {
-        log_error("unable to convert image `%s`\n", name);
+		Log::error("unable to convert image `%s`\n", name);
     }
 
     return convertedImage;
@@ -1142,61 +1142,61 @@ void load_img()
     tx_point = new oglx_texture_t;
     if (INVALID_GL_ID == tx_point->load("editor/point.png", gfx_loadImage("editor/point.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/point.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
     
     tx_pointon = new oglx_texture_t;
     if (INVALID_GL_ID == tx_pointon->load("editor/pointon.png", gfx_loadImage("editor/pointon.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
     
     tx_ref = new oglx_texture_t;
     if (INVALID_GL_ID == tx_ref->load("editor/ref.png", gfx_loadImage("editor/ref.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
     
     tx_drawref = new oglx_texture_t;
     if (INVALID_GL_ID == tx_drawref->load("editor/drawref.png", gfx_loadImage("editor/drawref.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
     
     tx_anim = new oglx_texture_t;
     if (INVALID_GL_ID == tx_anim->load("editor/anim.png", gfx_loadImage("editor/anim.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
     
     tx_water = new oglx_texture_t;
     if (INVALID_GL_ID == tx_water->load("editor/water.png", gfx_loadImage("editor/water.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/water.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
     
     tx_wall = new oglx_texture_t;
     if (INVALID_GL_ID == tx_wall->load("editor/slit.png", gfx_loadImage("editor/slit.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
     
     tx_impass = new oglx_texture_t;
     if (INVALID_GL_ID == tx_impass->load("editor/impass.png", gfx_loadImage("editor/impass.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
     
     tx_damage = new oglx_texture_t;
     if (INVALID_GL_ID == tx_damage->load("editor/damage.png", gfx_loadImage("editor/damage.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
     
     tx_slippy = new oglx_texture_t;
     if (INVALID_GL_ID == tx_slippy->load("editor/slippy.png", gfx_loadImage("editor/slippy.png")))
     {
-        log_warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
+		Log::warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
     }
 }
 
@@ -1312,18 +1312,18 @@ void gfx_system_init_SDL_graphics()
 
     oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
 
-    log_info("Opening SDL Video Mode...\n");
+	Log::info("Opening SDL Video Mode...\n");
 
     // actually set the video mode
     if (NULL == SDL_GL_set_mode(NULL, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics))
     {
-        log_message("Failed!\n");
-        log_error("I can't get SDL to set any video mode: %s\n", SDL_GetError());
+		Log::message("Failed!\n");
+		Log::error("I can't get SDL to set any video mode: %s\n", SDL_GetError());
     }
     else
     {
         GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.verticalResolution * (float)sdl_vparam.horizontalResolution;
-        log_message("Success!\n");
+		Log::message("Success!\n");
     }
     
     SDL_Window *window = sdl_scr.window;
@@ -1336,7 +1336,7 @@ void gfx_system_init_SDL_graphics()
         SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
         if (!theSurface)
         {
-            log_warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
+			Log::warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
         }
         else
         {

@@ -2005,7 +2005,7 @@ int SDL_main( int argcnt, char* argtext[] )
     // Load the module
     if (!load_module(modulename, &mesh))
     {
-        log_error("%s - cannot load module %s.\n", __FUNCTION__, modulename);
+		Log::error("%s - cannot load module %s.\n", __FUNCTION__, modulename);
     }
 
     fill_fpstext();                     // Make the FPS text

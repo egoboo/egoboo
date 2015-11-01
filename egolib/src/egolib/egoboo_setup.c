@@ -229,7 +229,7 @@ bool setup_begin()
     _lpConfigSetup = parser.parse(_config_filename);
     if (!_lpConfigSetup)
     {
-        log_warning("unable to load setup file `%s`\n", _config_filename.c_str());
+		Log::warning("unable to load setup file `%s`\n", _config_filename.c_str());
         try
         {
             _lpConfigSetup = std::make_shared<ConfigFile>(_config_filename);
@@ -242,7 +242,7 @@ bool setup_begin()
     }
     else
     {
-        log_info("loaded setup file `%s`\n", _config_filename.c_str());
+		Log::info("loaded setup file `%s`\n", _config_filename.c_str());
         _setup_started = true;
     }
     return _setup_started;
@@ -257,7 +257,7 @@ bool setup_end()
     }
     else
     {
-        log_warning("unable to save setup file `%s`\n", _lpConfigSetup->getFileName().c_str());
+		Log::warning("unable to save setup file `%s`\n", _lpConfigSetup->getFileName().c_str());
         _lpConfigSetup = nullptr;
         return false;
     }

@@ -1254,7 +1254,7 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     // make sure we have valid data
     if (self.vrt_count != pmd2->getVertexCount())
     {
-        log_warning( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
+		Log::warning( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
         return gfx_error;
     }
 
@@ -1321,7 +1321,7 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
     if ( self.frame_nxt >= frameList.size() || self.frame_lst >= frameList.size() )
     {
-        log_warning( "chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
+		Log::warning( "chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
         return gfx_error;
     }
 
@@ -1968,7 +1968,7 @@ const MD2_Frame& chr_instance_t::get_frame_nxt(const chr_instance_t& self)
 {
 	if (self.frame_nxt > self.imad->getMD2()->getFrames().size())
     {
-		log_error("%s:%d: invalid frame %d/%" PRIuZ "\n", __FILE__, __LINE__, self.frame_nxt, self.imad->getMD2()->getFrames().size());
+		Log::error("%s:%d: invalid frame %d/%" PRIuZ "\n", __FILE__, __LINE__, self.frame_nxt, self.imad->getMD2()->getFrames().size());
     }
 
 	return self.imad->getMD2()->getFrames()[self.frame_nxt];
@@ -1978,7 +1978,7 @@ const MD2_Frame& chr_instance_t::get_frame_lst(chr_instance_t& self)
 {
 	if (self.frame_lst > self.imad->getMD2()->getFrames().size())
     {
-		log_error("%s:%d: invalid frame %d/%" PRIuZ "\n", __FILE__, __LINE__, self.frame_lst, self.imad->getMD2()->getFrames().size());
+		Log::error("%s:%d: invalid frame %d/%" PRIuZ "\n", __FILE__, __LINE__, self.frame_lst, self.imad->getMD2()->getFrames().size());
     }
 
 	return self.imad->getMD2()->getFrames()[self.frame_lst];

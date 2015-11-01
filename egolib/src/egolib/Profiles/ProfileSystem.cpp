@@ -162,11 +162,11 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
         // The data file wasn't found
         if (required)
         {
-            log_debug("ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName.c_str());
+			Log::debug("ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName.c_str());
         }
         else if (required && slot_override > 4 * MAX_IMPORT_PER_PLAYER)
         {
-            log_warning("ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName.c_str());
+			Log::warning("ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName.c_str());
         }
 
         return INVALID_PRO_REF;
@@ -182,11 +182,11 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
         // Make sure global objects don't load over existing models
         if (required && SPELLBOOK == iobj)
         {
-            log_error("ProfileSystem::loadOneProfile() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName.c_str());
+			Log::error("ProfileSystem::loadOneProfile() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName.c_str());
         }
         else if (required && overrideslots)
         {
-            log_error("ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT(iobj), _profilesLoaded[iobj]->getPathname().c_str(), pathName.c_str());
+			Log::error("ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT(iobj), _profilesLoaded[iobj]->getPathname().c_str(), pathName.c_str());
         }
         else
         {
@@ -198,7 +198,7 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(pathName, iobj);
     if (!profile)
     {
-        log_warning("ProfileSystem::loadOneProfile() - Failed to load (%s) into slot number %d\n", pathName.c_str(), iobj);
+		Log::warning("ProfileSystem::loadOneProfile() - Failed to load (%s) into slot number %d\n", pathName.c_str(), iobj);
         return INVALID_PRO_REF;
     }
 
@@ -232,7 +232,7 @@ void ProfileSystem::loadModuleProfiles()
         }
         else
         {
-            log_warning("Unable to load module: %s\n", vfs_ModPath);
+			Log::warning("Unable to load module: %s\n", vfs_ModPath);
         }
 
         ctxt = vfs_findNext(&ctxt);
@@ -331,61 +331,61 @@ void ProfileSystem::loadGlobalParticleProfiles()
     loadpath = "mp_data/1money.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN1 ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/5money.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN5 ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/25money.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN25 ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/100money.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN100 ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/200money.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM200 ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/500money.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM500 ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/1000money.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM1000 ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/2000money.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM2000 ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/disintegrate_start.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_START ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/disintegrate_particle.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_PARTICLE ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 #if 0
     // Load module specific information
@@ -405,19 +405,19 @@ void ProfileSystem::loadGlobalParticleProfiles()
     loadpath = "mp_data/splash.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_SPLASH ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/ripple.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_RIPPLE ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     // This is also global...
     loadpath = "mp_data/defend.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DEFEND ) )
     {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+		Log::error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 }

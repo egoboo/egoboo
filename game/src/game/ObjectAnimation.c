@@ -181,13 +181,13 @@ void move_one_character_do_animation( Object * pchr )
         {
             if ( rv_success != chr_increment_frame( pchr ) )
             {
-                log_warning( "chr_increment_frame() did not succeed\n" );
+				Log::warning( "chr_increment_frame() did not succeed\n" );
             }
         }
 
         if ( pinst.ilip > 4 )
         {
-            log_warning( "chr_increment_frame() - invalid ilip\n" );
+			Log::warning( "chr_increment_frame() - invalid ilip\n" );
             pinst.ilip = 0;
             break;
         }
@@ -213,13 +213,13 @@ void move_one_character_do_animation( Object * pchr )
             {
                 if ( rv_success != chr_increment_frame( pchr ) )
                 {
-                    log_warning( "chr_increment_frame() did not succeed\n" );
+					Log::warning( "chr_increment_frame() did not succeed\n" );
                 }
             }
 
             if ( pinst.ilip > 4 )
             {
-                log_warning( "chr_increment_frame() - invalid ilip\n" );
+				Log::warning( "chr_increment_frame() - invalid ilip\n" );
                 pinst.ilip = 0;
             }
         }

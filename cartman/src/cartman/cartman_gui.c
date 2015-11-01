@@ -155,7 +155,7 @@ void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadn
 
     if (INVALID_GL_ID == pwin->tex->load(loadname, gfx_loadImage(loadname)))
     {
-        log_warning( "Cannot load \"%s\".\n", loadname );
+		Log::warning( "Cannot load \"%s\".\n", loadname );
     }
 
     pwin->x        = x;

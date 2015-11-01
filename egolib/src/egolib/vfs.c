@@ -57,11 +57,11 @@ typedef struct s_vfs_path_data vfs_path_data_t;
 #if defined(__EGO_CURRENT_FUNCTION__)
     #define BAIL_IF_NOT_INIT() \
         if(!_vfs_initialized) \
-            log_error("egolib VFS function called while the system was not initialized -- function `%s`\n", __ID_CURRENT_FUNCTION__);
+            Log::error("egolib VFS function called while the system was not initialized -- function `%s`\n", __ID_CURRENT_FUNCTION__);
 #else
     #define BAIL_IF_NOT_INIT() \
         if(!_vfs_initialized) \
-            log_error("egolib VFS function called while the system was not initialized -- file `%s`, line %d\n", __ID_CURRENT_FILE__, __ID_CURRENT_LINE__ );
+            Log::error("egolib VFS function called while the system was not initialized -- file `%s`, line %d\n", __ID_CURRENT_FILE__, __ID_CURRENT_LINE__ );
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ int vfs_init(const char *argv0, const char *root_dir)
     {
         // We can call log functions, they won't try to write to unopened log files
         // But mainly this is used for sys_popup
-        log_error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory());
+        Log::error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory());
         return 1;
     }
 
@@ -688,7 +688,7 @@ const char * vfs_resolveWriteFilename( const char * src_filename )
     write_dir = PHYSFS_getWriteDir();
     if ( NULL == write_dir )
     {
-        log_warning( "PhysFS could not get write directory!\n" );
+        Log::warning( "PhysFS could not get write directory!\n" );
         return NULL;
     }
 
@@ -1004,7 +1004,7 @@ bool vfs_mkdir(const std::string& pathname) {
     }
 
     if (!PHYSFS_mkdir(temporary.c_str())) {
-        log_debug("PHYSF_mkdir(%s) failed: %s\n", pathname.c_str(), vfs_getError());
+        Log::debug("PHYSF_mkdir(%s) failed: %s\n", pathname.c_str(), vfs_getError());
         return false;
     }
 
@@ -1021,7 +1021,7 @@ bool vfs_delete_file(const std::string& pathname)
     }
 
     if (!PHYSFS_delete(temporary.c_str())) {
-        log_debug("PHYSF_delete(%s) failed: %s\n", pathname.c_str(), vfs_getError());
+        Log::debug("PHYSF_delete(%s) failed: %s\n", pathname.c_str(), vfs_getError());
         return false;
     }
     return true;
@@ -1809,7 +1809,7 @@ int fake_physfs_vscanf( PHYSFS_File * pfile, const char *format, va_list args )
                         // invalid?
                     default:
                         invalid = true;
-                        log_error("got an invalid format '%s', currently at '%s'", format_start, format - 1);
+                        Log::error("got an invalid format '%s', currently at '%s'", format_start, format - 1);
                 }
             }
             
@@ -2365,7 +2365,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
 
             if ( !vfs_copyFile( srcPath, destPath ) )
             {
-                log_debug( "vfs_copyDirectory() - Failed to copy from \"%s\" to \"%s\" (%s)\n", srcPath, destPath, vfs_getError() );
+                Log::debug( "vfs_copyDirectory() - Failed to copy from \"%s\" to \"%s\" (%s)\n", srcPath, destPath, vfs_getError() );
             }
         }
         ctxt = vfs_findNext( &ctxt );

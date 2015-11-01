@@ -49,7 +49,7 @@ static void warnNumberOfVertices(const char *file, int line, size_t numberOfVert
 	std::ostringstream os;
 	os << "mesh has too many vertices - " << numberOfVertices << " requested, "
 	   << "but maximum is " << MAP_VERTICES_MAX;
-    log_warning("%s:%d: %s\n", __FILE__, __LINE__, os.str().c_str());
+	Log::warning("%s:%d: %s\n", __FILE__, __LINE__, os.str().c_str());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -262,7 +262,7 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 	{
 		std::ostringstream os;
 		os << "unable to load mesh of module `" << moduleName << "`";
-		log_error("%s\n", os.str().c_str());
+		Log::error("%s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
 	// Create the mesh from map.
@@ -271,7 +271,7 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 	{
 		std::ostringstream os;
 		os << "unable to convert mesh of module `" << moduleName << "`";
-		log_error("%s\n", os.str().c_str());
+		Log::error("%s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
 	mesh->finalize();
@@ -327,14 +327,14 @@ grid_mem_t::grid_mem_t(const Ego::MeshInfo& info) {
 	// Calculate some of the block info
 	if (_blocks_x >= GRID_BLOCKY_MAX)
 	{
-		log_warning("%s:%d: number of mesh blocks in the x direction too large (%d out of %d).\n", __FILE__, __LINE__, \
-			_blocks_x, GRID_BLOCKY_MAX);
+		Log::warning("%s:%d: number of mesh blocks in the x direction too large (%d out of %d).\n", __FILE__, __LINE__, \
+			         _blocks_x, GRID_BLOCKY_MAX);
 	}
 
 	if (_blocks_y >= GRID_BLOCKY_MAX)
 	{
-		log_warning("%s:%d: number of mesh blocks in the y direction too large (%d out of %d).\n", __FILE__, __LINE__, \
-			_blocks_y, GRID_BLOCKY_MAX);
+		Log::warning("%s:%d: number of mesh blocks in the y direction too large (%d out of %d).\n", __FILE__, __LINE__, \
+			         _blocks_y, GRID_BLOCKY_MAX);
 	}
 
 	// Compute look-up table for block starts.
@@ -398,7 +398,7 @@ void ego_mesh_t::make_vrtstart()
 
     if ( vert != _info.getVertexCount() )
     {
-		log_warning( "%s:%d: unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", __FILE__, __LINE__, vert, _info.getVertexCount() );
+		Log::warning( "%s:%d: unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", __FILE__, __LINE__, vert, _info.getVertexCount() );
     }
 }
 

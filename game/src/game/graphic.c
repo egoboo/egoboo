@@ -440,22 +440,22 @@ void GFX::initializeSDLGraphics()
 
     oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
 
-    log_info("Opening SDL Video Mode...\n");
+	Log::info("Opening SDL Video Mode...\n");
 
     bool setVideoMode = false;
 
     // Actually set the video mode.
     if (!SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics))
     {
-        log_message("Failed!\n");
+		Log::message("Failed!\n");
         if (egoboo_config_t::get().graphic_fullscreen.getValue())
         {
-            log_info("SDL error with fullscreen mode on: %s\n", SDL_GetError());
-            log_info("Trying again in windowed mode...\n");
+			Log::info("SDL error with fullscreen mode on: %s\n", SDL_GetError());
+			Log::info("Trying again in windowed mode...\n");
             sdl_vparam.flags.full_screen = SDL_FALSE;
             if (!SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics))
             {
-                log_message("Failed!\n");
+				Log::message("Failed!\n");
             }
             else
             {
@@ -471,12 +471,12 @@ void GFX::initializeSDLGraphics()
 
     if (!setVideoMode)
     {
-        log_error("I can't get SDL to set any video mode: %s\n", SDL_GetError());
+		Log::error("I can't get SDL to set any video mode: %s\n", SDL_GetError());
     }
     else
     {
         GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.verticalResolution * (float)sdl_vparam.horizontalResolution;
-        log_message("Success!\n");
+		Log::message("Success!\n");
     }
     
     SDL_Window *window = sdl_scr.window;
@@ -489,7 +489,7 @@ void GFX::initializeSDLGraphics()
         SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
         if (!theSurface)
         {
-            log_warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
+			Log::warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
         }
         else
         {

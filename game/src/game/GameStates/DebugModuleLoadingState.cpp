@@ -256,9 +256,9 @@ void DebugModuleLoadingState::loadModuleData()
         make_turntosin();
 
         // Linking system
-        log_info("Initializing module linking... ");
-        if (link_build_vfs( "mp_data/link.txt", LinkList)) log_message("Success!\n");
-        else log_message( "Failure!\n" );
+		Log::info("Initializing module linking... ");
+        if (link_build_vfs( "mp_data/link.txt", LinkList)) Log::message("Success!\n");
+        else Log::message( "Failure!\n" );
 
         // initialize the collision system
         singleThreadRedrawHack("Beautifying graphics...");
@@ -305,31 +305,31 @@ void DebugModuleLoadingState::loadModuleData()
     {
         std::string out = std::string("Ego::Exception: ") + std::string(ex);
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+		Log::warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
     }
     catch (std::exception &ex)
     {
         std::string out = std::string("std::exception: ") + ex.what();
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+		Log::warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
     }
     catch (std::string &ex)
     {
         std::string out = std::string("std::string: ") + ex;
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+		Log::warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
     }
     catch (char *ex)
     {
         std::string out = std::string("C string: ") + ex;
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+		Log::warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
     }
     catch (...)
     {
         std::string out = "unknown error";
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
+		Log::warning("error loading %s... %s\n", _loadModule->getFolderName().c_str(), out.c_str());
     }
     _toLoad.pop_front();
 }

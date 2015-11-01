@@ -31,14 +31,14 @@ namespace Ego
     void FontManager::initialize()
     {
         if (isInitialized()) return;
-        log_info( "Initializing the SDL_ttf font handler version %i.%i.%i... ", SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL );
+		Log::info( "Initializing the SDL_ttf font handler version %i.%i.%i... ", SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL );
         if ( TTF_Init() < 0 )
         {
-            log_message( "Failed!\n" );
+			Log::message( "Failed!\n" );
         }
         else
         {
-            log_message( "Success!\n" );
+			Log::message( "Success!\n" );
         }
     }
     

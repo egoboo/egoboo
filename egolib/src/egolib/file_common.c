@@ -380,7 +380,7 @@ bool fs_ensureUserFile( const char * relative_filename, bool required )
     // if it still doesn't exist, we have problems
     if (( 0 == found ) && required )
     {
-        log_error( "Cannot find the file \"%s\".\n", relative_filename );
+		Log::error( "Cannot find the file \"%s\".\n", relative_filename );
     }
 
     return ( 0 != found );

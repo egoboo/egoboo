@@ -165,7 +165,7 @@ void LoadingState::loadModuleData()
 
     // Linking system
     setProgressText("Initializing module linking... ", 20);
-    if (!link_build_vfs( "mp_data/link.txt", LinkList)) log_warning("Failed to initialize module linking\n");
+    if (!link_build_vfs( "mp_data/link.txt", LinkList)) Log::warning("Failed to initialize module linking\n");
 
     // initialize the collision system
     setProgressText("Beautifying graphics...", 40);
@@ -183,7 +183,7 @@ void LoadingState::loadModuleData()
     if(!_playersToLoad.empty()) {
         setProgressText("Loading players...", 50);
         if(!loadPlayers()) {
-            log_warning("Failed to load players!\n");
+			Log::warning("Failed to load players!\n");
             endState();
             return;
         }
@@ -192,7 +192,7 @@ void LoadingState::loadModuleData()
     // try to start a new module
     setProgressText("Loading module data...", 60);
     if(!game_begin_module(_loadModule)) {
-        log_warning("Failed to load module!\n");
+		Log::warning("Failed to load module!\n");
         endState();
         return;
     }
@@ -246,7 +246,7 @@ bool LoadingState::loadGlobalHints()
     ReadContext ctxt("mp_data/gametips.txt");
     if (!ctxt.ensureOpen())
     {
-        log_warning("Unable to load the game tips and hints file `%s`\n", ctxt.getLoadName().c_str());
+		Log::warning("Unable to load the game tips and hints file `%s`\n", ctxt.getLoadName().c_str());
         return false;
     }
 
@@ -267,7 +267,7 @@ bool LoadingState::loadGlobalHints()
     ctxt.close();
 
     if(_globalGameTips.empty()) {
-        log_warning( "Could not load the game tips and hints. (\"basicdat/gametips.txt\")\n" );
+		Log::warning( "Could not load the game tips and hints. (\"basicdat/gametips.txt\")\n" );
     }
  
     return !_globalGameTips.empty();

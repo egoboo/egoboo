@@ -75,7 +75,7 @@ void TextureManager::updateDeferredLoading()
             std::shared_ptr<oglx_texture_t> loadTexture = std::make_shared<oglx_texture_t>();
             ego_texture_load_vfs(loadTexture.get(), filePath.c_str(), TRANSCOLOR);
             _textureCache[filePath] = loadTexture;
-            log_debug("Deferred texture load: %s\n", filePath.c_str());
+			Log::debug("Deferred texture load: %s\n", filePath.c_str());
         }
         _requestedLoadDeferredTextures.clear();
     }
@@ -100,7 +100,7 @@ const std::shared_ptr<oglx_texture_t>& TextureManager::getTexture(const std::str
             //We cannot load textures, wait blocking for main thread to load it for us
             std::unique_lock<std::mutex> lock(_deferredLoadingMutex);
             _requestedLoadDeferredTextures.push_front(filePath);
-            log_debug("Wait for deferred texture: %s\n", filePath.c_str());
+			Log::debug("Wait for deferred texture: %s\n", filePath.c_str());
             _notifyDeferredLoadingComplete.wait(lock, [this]{return _requestedLoadDeferredTextures.empty();});
         }
 

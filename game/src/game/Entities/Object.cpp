@@ -2116,13 +2116,13 @@ float Object::getMana() const
 std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner)
 {
     if (enchantProfile >= ENCHANTPROFILES_MAX || !EveStack.get_ptr(enchantProfile)->_loaded) {
-        log_warning("Object::addEnchant() - Cannot add enchant with invalid enchant profile %d\n", enchantProfile);        
+		Log::warning("Object::addEnchant() - Cannot add enchant with invalid enchant profile %d\n", enchantProfile);
         return nullptr;
     }
     const std::shared_ptr<eve_t> &enchantmentProfile = EveStack.get_ptr(enchantProfile);
 
     if(!ProfileSystem::get().isValidProfileID(spawnerProfile)) {
-        log_warning("Object::addEnchant() - Cannot add enchant with invalid spawner profile %d\n", spawnerProfile);
+		Log::warning("Object::addEnchant() - Cannot add enchant with invalid spawner profile %d\n", spawnerProfile);
         return nullptr;
     }
 
@@ -2215,7 +2215,7 @@ const std::shared_ptr<ObjectProfile>& Object::getProfile() const
 void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 {
     if(!ProfileSystem::get().isValidProfileID(profileID)) {
-        log_warning("Tried to polymorph object (%s) into an invalid profile ID: %d\n", getProfile()->getClassName().c_str(), profileID);
+		Log::warning("Tried to polymorph object (%s) into an invalid profile ID: %d\n", getProfile()->getClassName().c_str(), profileID);
         return;
     }
 
