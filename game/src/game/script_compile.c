@@ -1692,7 +1692,7 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
     ps._load_buffer.fill(CSTR_END);
 
     if(file_size > ps._load_buffer.size()) {
-        log_warning("SCRIPT ERROR - Script file size is bigger than buffer!\n");
+        Log::warning("SCRIPT ERROR - Script file size is bigger than buffer!\n");
 
         ps.ai_script_upload_default( pscript );
         return rv_fail;
