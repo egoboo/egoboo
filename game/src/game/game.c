@@ -2885,7 +2885,7 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 
     for ( layer = 0; layer < layer_count; layer++ )
     {
-        BLANK_STRUCT_PTR( inst + layer );
+        BLANK_STRUCT_PTR( inst[layer] );
     }
 
     // set the frame

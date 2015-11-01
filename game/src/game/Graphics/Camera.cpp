@@ -39,44 +39,44 @@ const float Camera::CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
 const float Camera::CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
 
 Camera::Camera(const CameraOptions &options) :
-	_options(options),
-	_viewMatrix(),
-	_projectionMatrix(),
+    _options(options),
+    _viewMatrix(),
+    _projectionMatrix(),
     _frustumInvalid(true),
-	_frustum(),
-	_moveMode(CameraMovementMode::Player),
+    _frustum(),
+    _moveMode(CameraMovementMode::Player),
 
-	_turnMode(_options.turnMode),
-	_turnTime(DEFAULT_TURN_TIME),
+    _turnMode(_options.turnMode),
+    _turnTime(DEFAULT_TURN_TIME),
 
-	_position(),
-	_ori(),
+    _position(),
+    _ori(),
 
-	_trackPos(),
-	_trackLevel(0.0f),
+    _trackPos(),
+    _trackLevel(0.0f),
 
-	_zoom(CAM_ZOOM_AVG),
-	_center{0, 0, 0},
-	_zadd(CAM_ZADD_AVG),
-	_zaddGoto(CAM_ZADD_AVG),
-	_zGoto(CAM_ZADD_AVG),
+    _zoom(CAM_ZOOM_AVG),
+    _center{0, 0, 0},
+    _zadd(CAM_ZADD_AVG),
+    _zaddGoto(CAM_ZADD_AVG),
+    _zGoto(CAM_ZADD_AVG),
 
-	_turnZ_radians(-Ego::Math::piOverFour<float>()),
-	_turnZ_turns(RadiansToTurns(_turnZ_radians)),
-	_turnZAdd(0.0f),
-	_turnZSustain(0.60f),	
+    _turnZ_radians(-Ego::Math::piOverFour<float>()),
+    _turnZ_turns(RadiansToTurns(_turnZ_radians)),
+    _turnZAdd(0.0f),
+    _turnZSustain(0.60f),   
 
-	_forward{0, 0, 0},
-	_up{0, 0, 0},
-	_right{0, 0, 0},
+    _forward{0, 0, 0},
+    _up{0, 0, 0},
+    _right{0, 0, 0},
 
-	// Special effects.
-	_motionBlur(0.0f),
-	_motionBlurOld(0.0f),
-	_swing(_options.swing),
-	_swingRate(_options.swingRate),
-	_swingAmp(_options.swingAmp),
-	_roll(0.0f),
+    // Special effects.
+    _motionBlur(0.0f),
+    _motionBlurOld(0.0f),
+    _swing(_options.swing),
+    _swingRate(_options.swingRate),
+    _swingAmp(_options.swingAmp),
+    _roll(0.0f),
 
     // Extended camera data.
     _trackList(),
@@ -86,12 +86,11 @@ Camera::Camera(const CameraOptions &options) :
     _entityList(nullptr)
 {
     // Derived values.
-	_trackPos = _center;
+    _trackPos = _center;
     _position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
 
-    _turnZ_turns = RadiansToTurns( _turnZ_radians );
-    _ori.facing_z = TurnsToFacing( _turnZ_turns ) ;
-
+    _turnZ_turns = RadiansToTurns(_turnZ_radians);
+    _ori.facing_z = TurnsToFacing(_turnZ_turns);
     resetView();
 
     // Get renderlist manager pointer.
@@ -149,14 +148,14 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
 
 void Camera::resetView()
 {
-	float roll_deg = Ego::Math::radToDeg(_roll);
+    float roll_deg = Ego::Math::radToDeg(_roll);
 
     // Check for stupidity.
     if (_position != _center)
     {
-		static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
-		Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, roll_deg);
-		_viewMatrix = tmp *  Ego::Math::Transform::lookAt(_position, _center, Z);
+        static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
+        Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, roll_deg);
+        _viewMatrix = tmp *  Ego::Math::Transform::lookAt(_position, _center, Z);
     }
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -172,14 +171,14 @@ void Camera::updatePosition()
     if ( 0 != _turnTime )
     {
         _turnZRad = std::atan2(_center[kY] - pos[kY], _center[kX] - pos[kX]);  // xgg
-        _turnZOne = RadiansToTurns(_turnZRad );
+        _turnZOne = RadiansToTurns(_turnZRad);
         _ori.facing_z = TurnsToFacing(_turnZ_turns);
     }
 #endif
 
     // Update the camera position.
     TURN_T turnsin = TO_TURN(_ori.facing_z);
-	Vector3f pos_new = _center + Vector3f(_zoom * turntosin[turnsin], _zoom * turntocos[turnsin], _zGoto);
+    Vector3f pos_new = _center + Vector3f(_zoom * turntosin[turnsin], _zoom * turntocos[turnsin], _zGoto);
 
     // Make the camera motion smooth.
     _position = _position * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
@@ -191,13 +190,13 @@ void Camera::makeMatrix()
 
     // Pre-compute some camera vectors.
     mat_getCamForward(_viewMatrix, _forward);
-	_forward.normalize();
+    _forward.normalize();
 
     mat_getCamUp(_viewMatrix, _up);
-	_up.normalize();
+    _up.normalize();
 
     mat_getCamRight(_viewMatrix, _right);
-	_right.normalize();
+    _right.normalize();
 }
 
 void Camera::updateZoom()
@@ -242,7 +241,7 @@ void Camera::updateCenter()
     else
     {
         // Determine tracking direction.
-		Vector3f track_vec = _trackPos - _position;
+        Vector3f track_vec = _trackPos - _position;
 
         // Determine the size of the dead zone.
         float track_fov = DEFAULT_FOV * 0.25f;
@@ -253,21 +252,21 @@ void Camera::updateCenter()
 
         // Calculate the difference between the center of the tracked characters
         // and the center of the camera look to look at.
-		Vector2f diff = Vector2f(_trackPos[kX],_trackPos[kY]) - Vector2f(_center[kX],_center[kY]);
+        Vector2f diff = Vector2f(_trackPos[kX],_trackPos[kY]) - Vector2f(_center[kX],_center[kY]);
 
         // Get 2d versions of the camera's right and up vectors.
-		Vector2f vrt(_right[kX], _right[kY]);
-		vrt.normalize();
+        Vector2f vrt(_right[kX], _right[kY]);
+        vrt.normalize();
 
-		Vector2f vup(_up[kX], _up[kY]);
-		vup.normalize();
+        Vector2f vup(_up[kX], _up[kY]);
+        vup.normalize();
 
         // project the diff vector into this space
         float diff_rt = vrt.dot(diff);
         float diff_up = vup.dot(diff);
 
         // Get ready to scroll ...
-		Vector2f scroll;
+        Vector2f scroll;
         if (diff_rt < -track_size_x)
         {
             // Scroll left
@@ -303,153 +302,153 @@ void Camera::updateCenter()
 void Camera::updateTrack(const ego_mesh_t *mesh)
 {
     // The default camera motion is to do nothing.
-	Vector3f new_track = _trackPos;
+    Vector3f new_track = _trackPos;
     float new_track_level = _trackLevel;
 
     switch(_moveMode)
     {
     // The camera is controlled by the keypad.
     case CameraMovementMode::Free:
-	        if (SDL_KEYDOWN(keyb, SDLK_KP_8))
-	        {
-	            _trackPos[kX] -= _viewMatrix(1, 0) * 50;
-	            _trackPos[kY] -= _viewMatrix(1, 1) * 50;
-	        }
+            if (SDL_KEYDOWN(keyb, SDLK_KP_8))
+            {
+                _trackPos[kX] -= _viewMatrix(1, 0) * 50;
+                _trackPos[kY] -= _viewMatrix(1, 1) * 50;
+            }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP_2))
-	        {
-	            _trackPos[kX] += _viewMatrix(1, 0) * 50;
-	            _trackPos[kY] += _viewMatrix(1, 1) * 50;
-	        }
+            if (SDL_KEYDOWN(keyb, SDLK_KP_2))
+            {
+                _trackPos[kX] += _viewMatrix(1, 0) * 50;
+                _trackPos[kY] += _viewMatrix(1, 1) * 50;
+            }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP_4))
-	        {
-	            _trackPos[kX] += _viewMatrix(0, 0) * 50;
-	            _trackPos[kY] += _viewMatrix(0, 1) * 50;
-	        }
+            if (SDL_KEYDOWN(keyb, SDLK_KP_4))
+            {
+                _trackPos[kX] += _viewMatrix(0, 0) * 50;
+                _trackPos[kY] += _viewMatrix(0, 1) * 50;
+            }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP_6))
-	        {
-	            _trackPos[kX] -= _viewMatrix(0, 0) * 10;
-	            _trackPos[kY] -= _viewMatrix(0, 1) * 10;
-	        }
+            if (SDL_KEYDOWN(keyb, SDLK_KP_6))
+            {
+                _trackPos[kX] -= _viewMatrix(0, 0) * 10;
+                _trackPos[kY] -= _viewMatrix(0, 1) * 10;
+            }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP_7))
-	        {
-	            _turnZAdd += DEFAULT_TURN_KEY;
-	        }
+            if (SDL_KEYDOWN(keyb, SDLK_KP_7))
+            {
+                _turnZAdd += DEFAULT_TURN_KEY;
+            }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP_9))
-	        {
-	            _turnZAdd -= DEFAULT_TURN_KEY;
-	        }
+            if (SDL_KEYDOWN(keyb, SDLK_KP_9))
+            {
+                _turnZAdd -= DEFAULT_TURN_KEY;
+            }
 
-	        _trackPos[kZ] = 128 + mesh->getElevation(PointWorld(_trackPos[kX], _trackPos[kY]));
+            _trackPos[kZ] = 128 + mesh->getElevation(PointWorld(_trackPos[kX], _trackPos[kY]));
 
        break;
 
     // The camera is (re-)focuses in on a one or more objects.
     case CameraMovementMode::Reset:
-	    {
-			Vector3f sum_pos;
-	        float   sum_wt, sum_level;
+        {
+            Vector3f sum_pos;
+            float   sum_wt, sum_level;
 
-	        sum_wt    = 0.0f;
-	        sum_level = 0.0f;
-			sum_pos = Vector3f::zero();
+            sum_wt    = 0.0f;
+            sum_level = 0.0f;
+            sum_pos = Vector3f::zero();
 
-	        for(CHR_REF ichr : _trackList)
-	        {
-	            if (!_currentModule->getObjectHandler().exists(ichr)) continue;
-	            Object *pchr = _currentModule->getObjectHandler().get(ichr);
+            for(CHR_REF ichr : _trackList)
+            {
+                if (!_currentModule->getObjectHandler().exists(ichr)) continue;
+                Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
-	            if (!pchr->isAlive()) continue;
+                if (!pchr->isAlive()) continue;
 
                 sum_pos += pchr->getPosition() + Vector3f(0.0f, 0.0f, pchr->chr_min_cv._maxs[OCT_Z] * 0.9f);
-	            sum_level += pchr->enviro.level;
-	            sum_wt += 1.0f;
-	        }
+                sum_level += pchr->enviro.level;
+                sum_wt += 1.0f;
+            }
 
-	        // If any of the characters is doing anything.
-	        if (sum_wt > 0.0f)
-	        {
+            // If any of the characters is doing anything.
+            if (sum_wt > 0.0f)
+            {
                 new_track = sum_pos * (1.0f / sum_wt);
-	            new_track_level = sum_level / sum_wt;
-	        }
-	    }
-	    break;
+                new_track_level = sum_level / sum_wt;
+            }
+        }
+        break;
 
     // The camera is (re-)focuses in on a one or more player objects.
-	// "Show me the drama!"
+    // "Show me the drama!"
     case CameraMovementMode::Player:
-	    {
-	        Object *local_chr_ptrs[MAX_PLAYER];
-	        int local_chr_count = 0;
+        {
+            Object *local_chr_ptrs[MAX_PLAYER];
+            int local_chr_count = 0;
 
-	        // Count the number of local players, first.
-	        local_chr_count = 0;
-	        for(CHR_REF ichr : _trackList)
-	        {
-	            if (!_currentModule->getObjectHandler().exists(ichr)) continue;
-	            Object *pchr = _currentModule->getObjectHandler().get(ichr);
+            // Count the number of local players, first.
+            local_chr_count = 0;
+            for(CHR_REF ichr : _trackList)
+            {
+                if (!_currentModule->getObjectHandler().exists(ichr)) continue;
+                Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
-	            if (!pchr->isAlive()) continue;
+                if (!pchr->isAlive()) continue;
 
-	            local_chr_ptrs[local_chr_count] = pchr;
-	            local_chr_count++;
-	        }
+                local_chr_ptrs[local_chr_count] = pchr;
+                local_chr_count++;
+            }
 
-	        if (0 == local_chr_count)
-	        {
-	            // Do nothing.
-	        }
-	        else if (1 == local_chr_count)
-	        {
-	            // Copy from the one character.
+            if (0 == local_chr_count)
+            {
+                // Do nothing.
+            }
+            else if (1 == local_chr_count)
+            {
+                // Copy from the one character.
                 new_track = local_chr_ptrs[0]->getPosition();
-	            new_track_level = local_chr_ptrs[0]->enviro.level + 128;
-	        }
-	        else
-	        {
-	            // Use the characer's "activity" to average the position the camera is viewing.
-	            float sum_wt    = 0.0f;
-	            float sum_level = 0.0f;
-				Vector3f sum_pos = Vector3f::zero();
+                new_track_level = local_chr_ptrs[0]->enviro.level + 128;
+            }
+            else
+            {
+                // Use the characer's "activity" to average the position the camera is viewing.
+                float sum_wt    = 0.0f;
+                float sum_level = 0.0f;
+                Vector3f sum_pos = Vector3f::zero();
 
-	            for (int cnt = 0; cnt < local_chr_count; ++cnt)
-	            {
-	                // We JUST checked the validity of these characters. No need to do it again?
-	                Object *pchr = local_chr_ptrs[cnt];
+                for (int cnt = 0; cnt < local_chr_count; ++cnt)
+                {
+                    // We JUST checked the validity of these characters. No need to do it again?
+                    Object *pchr = local_chr_ptrs[cnt];
 
-	                // Weight it by the character's velocity^2, so that
-	                // inactive characters don't control the camera.
-	                float weight1 = pchr->vel.dot(pchr->vel);
+                    // Weight it by the character's velocity^2, so that
+                    // inactive characters don't control the camera.
+                    float weight1 = pchr->vel.dot(pchr->vel);
 
-	                // Make another weight based on button-pushing.
-	                float weight2 = pchr->latch.b.none() ? 0 : 127;
+                    // Make another weight based on button-pushing.
+                    float weight2 = pchr->latch.b.none() ? 0 : 127;
 
-	                // I would weight this by the amount of damage that the character just sustained,
-	                // but there is no real way to do this?
+                    // I would weight this by the amount of damage that the character just sustained,
+                    // but there is no real way to do this?
 
-	                // Get the maximum effect.
-	                float weight = std::max(weight1, weight2);
+                    // Get the maximum effect.
+                    float weight = std::max(weight1, weight2);
 
-	                // The character is on foot.
+                    // The character is on foot.
                     sum_pos += pchr->getPosition() * weight;
-	                sum_level += (pchr->enviro.level + 128) * weight;
-	                sum_wt += weight;
-	            }
+                    sum_level += (pchr->enviro.level + 128) * weight;
+                    sum_wt += weight;
+                }
 
-	            // If any of the characters is doing anything.
-	            if (sum_wt > 0.0f)
-	            {
+                // If any of the characters is doing anything.
+                if (sum_wt > 0.0f)
+                {
                     new_track = sum_pos * (1.0f / sum_wt);
-	                new_track_level = sum_level / sum_wt;
-	            }
-	        }
-	    }
-	    break;
-	}
+                    new_track_level = sum_level / sum_wt;
+                }
+            }
+        }
+        break;
+    }
 
 
     if (CameraMovementMode::Reset == _moveMode)
@@ -472,7 +471,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 /*
 std::forward_list<CHR_REF> Camera::createTrackList()
 {
-	std::forward_list<CHR_REF> trackList;
+    std::forward_list<CHR_REF> trackList;
 
     // Scan the list of player objects for objects the camera can track.
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ++ipla)
@@ -663,11 +662,11 @@ void Camera::reset(const ego_mesh_t *mesh)
     _center[kY]     = mesh->_gmem._edge_y * 0.5f;
     _center[kZ]     = 0.0f;
 
-	_trackPos = _center;
-	_position = _center;
+    _trackPos = _center;
+    _position = _center;
 
     _position[kX] += _zoom * std::sin(_turnZ_radians);
-	_position[kY] += _zoom * std::cos(_turnZ_radians);
+    _position[kY] += _zoom * std::cos(_turnZ_radians);
     _position[kZ] += CAM_ZADD_MAX;
 
     _turnZ_turns = RadiansToTurns(_turnZ_radians);
@@ -799,7 +798,7 @@ void Camera::initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::
     _screen.ymin = 0.0f;
     _screen.ymax = sdl_scr.y;
 
-	_tileList = tileList;
+    _tileList = tileList;
     _entityList = entityList;
 }
 

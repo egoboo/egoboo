@@ -199,11 +199,9 @@ Uint32 SDL_GL_getpixel(SDL_Surface *surface, int x, int y)
     switch (bpp) {
         case 1:
             return *p;
-            break;
 
         case 2:
             return *(Uint16 *)p;
-            break;
 
         case 3:
             if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
@@ -214,7 +212,6 @@ Uint32 SDL_GL_getpixel(SDL_Surface *surface, int x, int y)
 
         case 4:
             return *(Uint32 *)p;
-            break;
 
         default:
             throw std::runtime_error("unreachable code reached"); /* shouldn't happen, but avoids warnings */
