@@ -470,7 +470,7 @@ void ego_mesh_t::make_bbox()
         poct = oct_bb_t(ovec);
         mesh_vrt++;
 
-        ptile._aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile._itile % _info.getTileCountX()), Info<float>::Grid::Size() * (ptile._itile % _info.getTileCountY()));
+        ptile._aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile._itile % _info.getTileCountX()), Info<float>::Grid::Size() * (ptile._itile / _info.getTileCountY()));
         ptile._aabb._max = Vector2f(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size(), ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size());
 
         // add the rest of the points into the bounding box
