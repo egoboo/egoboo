@@ -60,7 +60,7 @@ ImageManager::ImageManager() :
 	using namespace std;
 	using namespace Ego::Core;
     if (_withSDL_image) {
-        log_info("initializing SDL_image imaging version %d.%d.%d ...", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+		Log::info("initializing SDL_image imaging version %d.%d.%d ...", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
         int flags = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF;
 #if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
         // WebP support added in SDL_image 1.2.11
@@ -71,32 +71,32 @@ ImageManager::ImageManager() :
 		if (!(flags & IMG_INIT_PNG)) {
 			Id::EnvironmentErrorException error(__FILE__, __LINE__, "ImageManager", string("Failed to initialize SDL_Image subsystem (") + SDL_GetError() + ")");
 			_withSDL_image = false;
-			log_warning(" %s\n", ((std::string)error).c_str());
+			Log::warning(" %s\n", ((std::string)error).c_str());
 			throw error;
 		}
         try {
 			registerImageLoaders(flags);
         } catch (...) {
             IMG_Quit();
-            log_warning(" failure");
+			Log::warning(" failure");
             _withSDL_image = false;
 			std::rethrow_exception(std::current_exception());
         }
     } else {
-		log_info("SDL_image imaging disable by %s = \"false\" in `setup.txt` - only support for .bmp files\n",
-			     egoboo_config_t::get().debug_sdlImage_enable.getName().c_str());
-		log_info("initializing standard SDL imaging ...");
+		Log::info("SDL_image imaging disable by %s = \"false\" in `setup.txt` - only support for .bmp files\n",
+			      egoboo_config_t::get().debug_sdlImage_enable.getName().c_str());
+		Log::info("initializing standard SDL imaging ...");
 		try {
 			// These typed are natively supported with SDL.
 			// Place them *after* the SDL_image types, so that if both are present,
 			// the other types will be preferred over ".bmp".
 			_loaders.push_back(move(unique_ptr<ImageLoader_SDL>(new ImageLoader_SDL(".bmp"))));
 		} catch (...) {
-			log_warning(" failure\n");
+			Log::warning(" failure\n");
 			std::rethrow_exception(std::current_exception());
 		}
 	}
-    log_info(" success\n");
+	Log::info(" success\n");
 }
 
 ImageManager::~ImageManager()

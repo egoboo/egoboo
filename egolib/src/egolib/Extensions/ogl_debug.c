@@ -73,11 +73,11 @@ void handle_gl_error()
     if (GL_NO_ERROR != err)
     {
         const GLubyte *err_str = getGLErrorString(err);
-        log_warning("%s (\"%s\" - %d)- %s\n", next_cmd, next_file, next_line, err_str);
+		Log::warning("%s (\"%s\" - %d)- %s\n", next_cmd, next_file, next_line, err_str);
     }
 }
 
 void print_gl_command()
 {
-    log_warning("%s (\"%s\" - %d)\n", next_cmd, next_file, next_line);
+	Log::warning("%s (\"%s\" - %d)\n", next_cmd, next_file, next_line);
 }

@@ -27,17 +27,17 @@ namespace Core
 
 TimerService::TimerService()
 {
-    log_info("Intializing SDL timer services ... ");
+	Log::info("Intializing SDL timer services ... ");
     if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0)
     {
-        log_message(" failure!\n");
+		Log::message(" failure!\n");
         Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL timer", SDL_GetError());
-        log_error("%s\n", ((std::string)error).c_str());
+		Log::error("%s\n", ((std::string)error).c_str());
         throw error;
     }
     else
     {
-        log_message(" success!\n");
+		Log::message(" success!\n");
     }
 
 }
@@ -54,17 +54,17 @@ uint32_t TimerService::getTicks()
 
 EventService::EventService()
 {
-    log_info("Intializing SDL event queue services ... ");
+	Log::info("Intializing SDL event queue services ... ");
     if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0)
     {
-        log_message(" failure!\n");
+		Log::message(" failure!\n");
         Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL events", SDL_GetError());
-        log_error("%s\n", ((std::string)error).c_str());
+		Log::error("%s\n", ((std::string)error).c_str());
         throw error;
     }
     else
     {
-        log_message(" success!\n");
+		Log::message(" success!\n");
     }
 }
 
@@ -75,17 +75,17 @@ EventService::~EventService()
 
 VideoService::VideoService()
 {
-	log_info("Intializing SDL Video ... ");
+	Log::info("Intializing SDL Video ... ");
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
 	{
-		log_message(" failure!\n");
+		Log::message(" failure!\n");
 		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Video", SDL_GetError());
-		log_error("%s\n", ((std::string)error).c_str());
+		Log::error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}
 	else
 	{
-		log_message(" success!\n");
+		Log::message(" success!\n");
 	}
 }
 
@@ -96,17 +96,17 @@ VideoService::~VideoService()
 
 AudioService::AudioService()
 {
-	log_info("Intializing SDL Audio ... ");
+	Log::info("Intializing SDL Audio ... ");
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
 	{
-		log_message(" failure!\n");
+		Log::message(" failure!\n");
 		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Audio", SDL_GetError());
-		log_error("%s\n", ((std::string)error).c_str());
+		Log::error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}
 	else
 	{
-		log_message(" success!\n");
+		Log::message(" success!\n");
 	}
 }
 
@@ -117,17 +117,17 @@ AudioService::~AudioService()
 
 InputService::InputService()
 {
-	log_info("Intializing SDL Joystick/GameController/Haptic ... ");
+	Log::info("Intializing SDL Joystick/GameController/Haptic ... ");
 	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
 	{
-		log_message(" failure!\n");
+		Log::message(" failure!\n");
 		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Joystick/GameController/Haptic", SDL_GetError());
-		log_error("%s\n", ((std::string)error).c_str());
+		Log::error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}
 	else
 	{
-		log_message(" success!\n");
+		Log::message(" success!\n");
 	}
 }
 
@@ -154,11 +154,11 @@ System::System(const char *binaryPath, const char *egobooPath)
     vfs_listSearchPaths();
     */
     // Initialize logging, so that we can use it everywhere.
-    log_initialize("/debug/log.txt", LOG_DEBUG);
+    Log::initialize("/debug/log.txt", Log::Level::Debug);
 
     // Start initializing the various subsystems.
-    log_message("Starting Egoboo Engine %s\n", VERSION.c_str());
-    log_info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
+	Log::message("Starting Egoboo Engine %s\n", VERSION.c_str());
+	Log::info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
 
     // Load "setup.txt".
     setup_begin();
@@ -167,7 +167,7 @@ System::System(const char *binaryPath, const char *egobooPath)
     setup_download(&egoboo_config_t::get());
 
     // Initialize SDL.
-    log_message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+	Log::message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
     try
     {
         _timerService = std::unique_ptr<TimerService>(new TimerService());
@@ -177,7 +177,7 @@ System::System(const char *binaryPath, const char *egobooPath)
         SDL_Quit();
         setup_end();
         /*sys_uninitialize();*/
-        log_uninitialize();
+        Log::uninitialize();
         /*vfs_uninitialize();*/
         std::rethrow_exception(std::current_exception());
     }
@@ -191,7 +191,7 @@ System::System(const char *binaryPath, const char *egobooPath)
         SDL_Quit();
         setup_end();
         /*sys_uninitialize();*/
-        log_uninitialize();
+        Log::uninitialize();
         /*vfs_uninitialize();*/
         std::rethrow_exception(std::current_exception());
     }
@@ -207,7 +207,7 @@ System::System(const char *binaryPath, const char *egobooPath)
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
-		log_uninitialize();
+		Log::uninitialize();
 		/*vfs_uninitialize();*/
 		std::rethrow_exception(std::current_exception());
 	}
@@ -225,7 +225,7 @@ System::System(const char *binaryPath, const char *egobooPath)
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
-		log_uninitialize();
+		Log::uninitialize();
 		/*vfs_uninitialize();*/
 		std::rethrow_exception(std::current_exception());
 	}
@@ -245,7 +245,7 @@ System::System(const char *binaryPath, const char *egobooPath)
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
-		log_uninitialize();
+		Log::uninitialize();
 		/*vfs_uninitialize();*/
 		std::rethrow_exception(std::current_exception());
 	}
@@ -264,8 +264,8 @@ System::~System()
     _timerService.reset();
     setup_end();
     /*sys_uninitialize();*/
-    log_message("Exiting Egoboo Engine %s.\n", VERSION.c_str());
-    log_uninitialize();
+	Log::message("Exiting Egoboo Engine %s.\n", VERSION.c_str());
+    Log::uninitialize();
     setup_clear_base_vfs_paths();
     /*vfs_uninitialize();*/
 }

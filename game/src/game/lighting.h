@@ -56,7 +56,7 @@ struct lighting_cache_base_t
 	static void max_light(lighting_cache_base_t& self);
 	// Blend another cache into this cache.
 	static void blend(lighting_cache_base_t& self, const lighting_cache_base_t& other, float keep);
-	static float evaluate(const lighting_cache_base_t& self, const Vector3f& nrm, float * amb);
+	static float evaluate(const lighting_cache_base_t& self, const Vector3f& nrm, float& amb);
 };
 
 

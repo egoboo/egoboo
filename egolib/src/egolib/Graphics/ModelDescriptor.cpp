@@ -354,7 +354,7 @@ void ModelDescriptor::ripActions()
         ModelAction action_now = stringToAction(frame.name);
         
         if (action_now == ACTION_COUNT) {
-            log_warning("Got no action for frame name '%s', ignoring (%s)\n", frame.name, _name.c_str());
+			Log::warning("Got no action for frame name '%s', ignoring (%s)\n", frame.name, _name.c_str());
             iframe++;
             continue;
         }
@@ -461,7 +461,7 @@ void ModelDescriptor::parseFrameDescriptors(const char * cFrameName, int frame)
         {
             //Ignore trailing zeros. Some older models appended zeros to all frames
             if(*ptmp != '0') {
-                log_warning( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", _name.c_str(), frame, cFrameName, ptmp );
+				Log::warning( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", _name.c_str(), frame, cFrameName, ptmp );
             }
             ptmp++;
         }
@@ -569,7 +569,7 @@ void ModelDescriptor::parseFrameDescriptors(const char * cFrameName, int frame)
 
             if ( bad_form && -1 != token_index )
             {
-                log_warning( "Model %s, frame %d, frame name \"%s\" has a frame effects command in an improper configuration \"%s\"\n", _name.c_str(), frame, cFrameName, tokens[token_index] );
+				Log::warning( "Model %s, frame %d, frame name \"%s\" has a frame effects command in an improper configuration \"%s\"\n", _name.c_str(), frame, cFrameName, tokens[token_index] );
             }
         }
     }

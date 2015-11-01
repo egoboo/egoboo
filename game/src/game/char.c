@@ -343,13 +343,13 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     }
                     else
                     {
-                        log_debug("character_swipe() - unable to spawn attack particle for %s\n", weaponProfile->getClassName().c_str());
+						Log::debug("character_swipe() - unable to spawn attack particle for %s\n", weaponProfile->getClassName().c_str());
                     }
                 }
             }
             else
             {
-                log_debug("character_swipe() - Invalid attack particle: %s\n", weaponProfile->getClassName().c_str());
+				Log::debug("character_swipe() - Invalid attack particle: %s\n", weaponProfile->getClassName().c_str());
             }
         }
         else

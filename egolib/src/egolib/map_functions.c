@@ -238,7 +238,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     ary = EGOBOO_NEW_ARY( Uint8, pmesh->_mem.tiles.size() );
     if ( NULL == ary )
     {
-        log_warning( "%s - coul not allocate a temporary array.\n", __FUNCTION__ );
+        Log::warning( "%s - coul not allocate a temporary array.\n", __FUNCTION__ );
         return pmesh;
     }
 

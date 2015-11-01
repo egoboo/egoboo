@@ -329,7 +329,7 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
     // is the vertex a corner? All corners should exist.
     if ( is_edge_x && is_edge_y )
     {
-        log_warning( "%s - something is wrong with the vertices.\n", __FUNCTION__ );
+		Log::warning( "%s - something is wrong with the vertices.\n", __FUNCTION__ );
         return false;
     }
 

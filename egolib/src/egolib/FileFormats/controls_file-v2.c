@@ -53,7 +53,7 @@ bool input_settings_load_vfs_2( const char* szFilename )
     ReadContext ctxt(szFilename);
     if (!ctxt.ensureOpen())
     {
-        log_warning("unable to read input settings file `%s`\n", szFilename);
+		Log::warning("unable to read input settings file `%s`\n", szFilename);
         return false;
     }
     // Read input for each player
@@ -109,7 +109,7 @@ bool input_settings_save_vfs_2(const char* szFilename)
     filewrite = vfs_openWrite( szFilename );
     if ( NULL == filewrite )
     {
-        log_warning( "Could not save input settings (%s)!\n", szFilename );
+		Log::warning( "Could not save input settings (%s)!\n", szFilename );
         return false;
     }
 

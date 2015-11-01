@@ -33,236 +33,312 @@
 #include <windows.h>
 #endif
 
-static constexpr size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages.
-
-static vfs_FILE *logFile = nullptr;             ///< Log file.
-static LogLevel _logLevel = LOG_WARNING;        ///< Default log level.
-
-static bool _atexit_registered = false;
-
-enum ConsoleColor
-{
-    CONSOLE_TEXT_RED,
-    CONSOLE_TEXT_YELLOW,
-    CONSOLE_TEXT_WHITE,
-    CONSOLE_TEXT_GRAY,
-    CONSOLE_TEXT_DEFAULT
+enum class ConsoleColor {
+	Red,
+	Yellow,
+	White,
+	Gray,
+	Default,
 };
 
 /**
  * Setting console colours is not cross-platform, so we have to do it with macros
  */
-static void setConsoleColor(ConsoleColor color)
-{
-
-    // Windows implementation to set console colour
+static void setConsoleColor(ConsoleColor color) {
+	// Windows implementation to set console colour
 #ifdef _WIN32
-    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    switch(color)
-    {
-        case CONSOLE_TEXT_RED:
-            SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_INTENSITY);
-        break;
+	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	switch (color) {
+	case ConsoleColor::Red:
+		SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_INTENSITY);
+		break;
 
-        case CONSOLE_TEXT_YELLOW:
-            SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-        break;
+	case ConsoleColor::Yellow:
+		SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+		break;
 
-        case CONSOLE_TEXT_WHITE:
-            SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-        break;
+	case ConsoleColor::White:
+		SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+		break;
 
-        case CONSOLE_TEXT_GRAY:
-        case CONSOLE_TEXT_DEFAULT:
-            SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
-        break;
-    }
+	case ConsoleColor::Gray:
+	case ConsoleColor::Default:
+		SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
+		break;
+	}
 #endif
 
-    // Linux implementation to set console colour
+	// Linux implementation to set console colour
 #if defined(ID_LINUX)
-    switch(color)
-    {
-        case CONSOLE_TEXT_RED:
-            fputs("\e[0;31m", stdout);
-        break;
-        
-        case CONSOLE_TEXT_YELLOW:
-            fputs("\e[1;33m", stdout);
-        break;
+	switch (color) {
+	case ConsoleColor::Red:
+		fputs("\e[0;31m", stdout);
+		break;
 
-        case CONSOLE_TEXT_WHITE:
-            fputs("\e[0;37m", stdout);
-        break;
+	case ConsoleColor::Yellow:
+		fputs("\e[1;33m", stdout);
+		break;
 
-        case CONSOLE_TEXT_GRAY:
-            fputs("\e[0;30m", stdout);
-        break;
-        
-        case CONSOLE_TEXT_DEFAULT:
-            fputs("\e[0m", stdout);
-        break;
-    }
-    fflush(stdout);
+	case ConsoleColor::White:
+		fputs("\e[0;37m", stdout);
+		break;
+
+	case ConsoleColor::Gray:
+		fputs("\e[0;30m", stdout);
+		break;
+
+	case ConsoleColor::Default:
+		fputs("\e[0m", stdout);
+		break;
+	}
+	fflush(stdout);
 #endif
 }
 
-static void writeLogMessage(LogLevel logLevel, const char *format, va_list args)
-{
-    char logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
+namespace Log {
 
-    // Add prefix
-    const char *prefix;
-    switch(logLevel)
-    {
-        case LOG_ERROR:
-            setConsoleColor(CONSOLE_TEXT_RED);
-            prefix = "FATAL ERROR: ";
-        break;
+	Target::Target(Level level) : _level(level) {}
 
-        case LOG_WARNING:
-            setConsoleColor(CONSOLE_TEXT_YELLOW);
-            prefix = "WARNING: ";
-        break;
+	Target::~Target() {}
 
-        case LOG_INFO:
-            setConsoleColor(CONSOLE_TEXT_WHITE);
-            prefix = "INFO: ";
-        break;
+	Level Target::getLevel() const {
+		return _level;
+	}
 
-        case LOG_DEBUG:
-            setConsoleColor(CONSOLE_TEXT_GRAY);
-            prefix = "DEBUG: ";
-        break;
+	void Target::log(Level level, const char *format, va_list args) {
+		if (getLevel() >= level) {
+			write(level, format, args);
+		}
+	}
 
-        default:
-        case LOG_NONE:
-            setConsoleColor(CONSOLE_TEXT_WHITE);
-            prefix = ""; // no prefix
-        break;
-    }
+	void Target::log(Level level, const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		write(level, format, args);
+		va_end(args);
+	}
 
-    // Build log message
-    vsnprintf(logBuffer, MAX_LOG_MESSAGE - 1, format, args);
+	void Target::message(const char *format, va_list args) {
+		log(Level::Message, format, args);
+	}
 
-    if (nullptr != logFile)
-    {
-        // Log to file
-        vfs_puts(prefix, logFile);
-        vfs_puts(logBuffer, logFile);
-    }
+	void Target::message(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		log(Level::Message, format, args);
+		va_end(args);
+	}
 
-    // Log to console
-    fputs(prefix, stdout);
-    fputs(logBuffer, stdout);
+	void Target::debug(const char *format, va_list args) {
+		// Only if developer mode is enabled.
+		if (!egoboo_config_t::get().debug_developerMode_enable.getValue()) {
+			return;
+		}
+		log(Level::Debug, format, args);
+	}
 
-    // Restore default color
-    setConsoleColor(CONSOLE_TEXT_DEFAULT);
+	void Target::debug(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		log(Level::Debug, format, args);
+		va_end(args);
+	}
+
+	void Target::info(const char *format, va_list args) {
+		log(Level::Info, format, args);
+	}
+
+	void Target::info(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		log(Level::Info, format, args);
+		va_end(args);
+	}
+
+	void Target::warn(const char *format, va_list args) {
+		log(Level::Warning, format, args);
+	}
+
+	void Target::warn(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		log(Level::Warning, format, args);
+		va_end(args);
+	}
+
+	void error(const char *format, va_list args) {
+		log(Level::Error, format, args);
+	}
+
+	void Target::error(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		log(Level::Error, format, args);
+		va_end(args);
+	}
+
 }
 
-void log_initialize(const char *logname, LogLevel logLevel)
-{
-    _logLevel = logLevel;
+static constexpr size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages.
 
-    if (nullptr == logFile)
-    {
-        logFile = vfs_openWrite(logname);
-        if (!logFile)
-        {
-            _logLevel = LOG_WARNING;
-            throw std::runtime_error("unable to initialize logging system");
-        }
-    }
-    if (!_atexit_registered)
-    {
-        if (atexit(log_uninitialize))
-        {
-            vfs_close(logFile);
-            logFile = nullptr;
-            _logLevel = LOG_WARNING;
-            throw std::runtime_error("unable to initialize logging system");
-        }
-        _atexit_registered = true;
-    }
+namespace Log {
+	struct DefaultTarget : Target {
+		/**
+		 * @brief
+		 *  The log file.
+		 */
+		vfs_FILE *_file;
+		DefaultTarget(const std::string& filename, Level level = Level::Warning);
+		virtual ~DefaultTarget();
+		void write(Level level, const char *format, va_list args) override;
+	};
+
+	DefaultTarget::DefaultTarget(const std::string& filename, Level level)
+		: Target(level) {
+		_file = vfs_openWrite(filename);
+		if (!_file) {
+			throw std::runtime_error("unable to open log file `" + filename + "`");
+		}
+	}
+	DefaultTarget::~DefaultTarget() {
+		if (_file) {
+			vfs_close(_file);
+			_file = nullptr;
+		}
+	}
+	void DefaultTarget::write(Level level, const char *format, va_list args) {
+		char logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
+
+		// Add prefix
+		const char *prefix;
+		switch (level) {
+		case Log::Level::Error:
+			setConsoleColor(ConsoleColor::Red);
+			prefix = "FATAL ERROR: ";
+			break;
+
+		case Level::Warning:
+			setConsoleColor(ConsoleColor::Yellow);
+			prefix = "WARNING: ";
+			break;
+
+		case Level::Info:
+			setConsoleColor(ConsoleColor::White);
+			prefix = "INFO: ";
+			break;
+
+		case Level::Debug:
+			setConsoleColor(ConsoleColor::Gray);
+			prefix = "DEBUG: ";
+			break;
+
+		default:
+		case Level::Message:
+			setConsoleColor(ConsoleColor::White);
+			prefix = ""; // no prefix
+			break;
+		}
+
+		// Build log message
+		vsnprintf(logBuffer, MAX_LOG_MESSAGE - 1, format, args);
+
+		if (nullptr != _file)
+		{
+			// Log to file
+			vfs_puts(prefix, _file);
+			vfs_puts(logBuffer, _file);
+		}
+
+		// Log to console
+		fputs(prefix, stdout);
+		fputs(logBuffer, stdout);
+
+		// Restore default color
+		setConsoleColor(ConsoleColor::Default);
+	}
 }
 
-void log_uninitialize()
-{
-    if (nullptr != logFile)
-    {
-        vfs_close(logFile);
-        logFile = nullptr;
-    }
-    _logLevel = LOG_WARNING;
+/**
+ * @brief
+ *  The single target of this log system.
+ */
+static std::unique_ptr<Log::Target> g_target = nullptr;
+static bool _atexit_registered = false;
+
+void Log::initialize(const std::string& filename, Log::Level level) {
+	if (!g_target) {
+		g_target = std::make_unique<DefaultTarget>(filename, level);
+	}
+	if (!_atexit_registered) {
+		if (atexit(Log::uninitialize)) {
+			g_target = nullptr;
+			throw std::runtime_error("unable to initialize logging system");
+		}
+		_atexit_registered = true;
+	}
 }
 
-void logv(LogLevel level, const char *format, va_list args)
-{
-    writeLogMessage(level, format, args);
+void Log::uninitialize() {
+	if (g_target) {
+		g_target = nullptr;
+	}
 }
 
-void log(LogLevel level, const char *format, ...)
-{
+Log::Target& Log::get() {
+	if (!g_target) {
+		throw std::logic_error("logging system is not initialized");
+	}
+	return *g_target;
+}
+
+void log(Log::Level level, const char *format, va_list args) {
+	g_target->log(level, format, args);
+}
+
+void log(Log::Level level, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    writeLogMessage(level, format, args);
+	g_target->log(level, format, args);
     va_end(args);
 }
 
-void log_message(const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    logv(LOG_NONE, format, args);
-    va_end(args);
+void Log::message(const char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	g_target->message(format, args);
+	va_end(args);
 }
 
-void log_debug(const char *format, ...)
-{
-    // Only if developer mode is enabled.
-    if (!egoboo_config_t::get().debug_developerMode_enable.getValue())
-    {
-        return;
-    }
-
-    va_list args;
-    va_start(args, format);
-    if (_logLevel >= LOG_DEBUG)
-    {
-        logv(LOG_DEBUG, format, args);
-    }
-    va_end(args);
+void Log::debug(const char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	g_target->debug(format, args);
+	va_end(args);
 }
 
-void log_info(const char *format, ...)
+void Log::info(const char *format, ...)
 {
-    if (_logLevel >= LOG_INFO)
-    {
-        va_list args;
-        va_start(args, format);
-        logv(LOG_INFO, format, args);
-        va_end(args);
-    }
+	va_list args;
+	va_start(args, format);
+	g_target->info(format, args);
+	va_end(args);
 }
 
-void log_warning(const char *format, ...)
+void Log::warning(const char *format, ...)
 {
-    if (_logLevel >= LOG_WARNING)
-    {
-        va_list args;
-        va_start(args, format);
-        logv(LOG_WARNING, format, args);
-        va_end(args);
-    }
+	va_list args;
+	va_start(args, format);
+	g_target->warn(format, args);
+	va_end(args);
 }
 
-void log_error(const char *format, ...)
+void Log::error(const char *format, ...)
 {
     va_list args, args2;
 
     va_start(args, format);
     va_copy(args2, args);
-    logv(LOG_ERROR, format, args);
+    log(Log::Level::Error, format, args);
 
     // Display an OS messagebox.
     char buffer[MAX_LOG_MESSAGE];
@@ -274,11 +350,4 @@ void log_error(const char *format, ...)
 
     va_end(args);
     va_end(args2);
-
-    exit(EXIT_FAILURE);
-}
-
-vfs_FILE *log_get_file()
-{
-    return logFile;
 }

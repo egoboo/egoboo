@@ -494,7 +494,7 @@ void Renderer::setMultisamplesEnabled(bool enabled)
 	SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &multiSamples);
 	// If MSAA is not supported => Warn.
 	if (!(multiSampleBuffers == 1 && multiSamples > 0)) {
-		log_warning("%s:%d: multisample antialiasing not supported\n", __FILE__, __LINE__);
+		Log::warning("%s:%d: multisample antialiasing not supported\n", __FILE__, __LINE__);
 	// Otherwise => Enable/disable it depending on the argument of this function.
 	} else {
 		if (enabled) {

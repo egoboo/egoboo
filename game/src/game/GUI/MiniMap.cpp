@@ -46,7 +46,7 @@ MiniMap::MiniMap() :
         _minimapTexture = std::make_shared<Ego::DeferredOpenGLTexture>("mp_data/plan");
     }
     else {
-        log_warning("mp_data/plan - Cannot load file!\n");
+		Log::warning("mp_data/plan - Cannot load file!\n");
     }
 }
 

@@ -68,7 +68,7 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
     ReadContext ctxt(szFilename);
     if (!ctxt.ensureOpen())
     {
-        log_warning("unable to read input settings file `%s`\n",szFilename);
+		Log::warning("unable to read input settings file `%s`\n",szFilename);
         return false;
     }
     file_version = vfs_get_version(ctxt);
@@ -77,7 +77,7 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
     // check for a version conflict
     if ( -1 != required_version && file_version != required_version )
     {
-        log_warning( "File version (%d) did match the required version (%d)\n", file_version, required_version );
+		Log::warning( "File version (%d) did match the required version (%d)\n", file_version, required_version );
 
         return false;
     }
@@ -98,7 +98,7 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
             break;
 
         default:
-            log_warning( "Cannot load the given controls.txt file because required version %d is not supported.\n", file_version );
+			Log::warning( "Cannot load the given controls.txt file because required version %d is not supported.\n", file_version );
             retval = false;
             break;
     }
@@ -136,7 +136,7 @@ bool input_settings_save_vfs(const char* szFilename, int version)
             break;
 
         default:
-            log_warning( "Cannot save the given setting.txt file because version %d is not supported.\n", version );
+			Log::warning( "Cannot save the given setting.txt file because version %d is not supported.\n", version );
             retval = false;
             break;
     }

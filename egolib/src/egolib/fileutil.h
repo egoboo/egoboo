@@ -158,8 +158,8 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            log_warning("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
-                        ctxt._loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
+			Log::warning("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
+                         ctxt._loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
             return defaultValue;
         }
         return it->second;

@@ -81,7 +81,7 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     const std::shared_ptr<oglx_texture_t> &fontTexture = TextureManager::get().getTexture(szBitmap);
     if (INVALID_GL_ID == fontTexture->getTextureID())
     {
-        log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
+		Log::error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
@@ -89,14 +89,14 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     int ysize = fontTexture->getSourceHeight();
     if ( 0 == xsize || 0 == ysize )
     {
-        log_error( "Bad font size! (%i, %i)\n", xsize, ysize );
+		Log::error( "Bad font size! (%i, %i)\n", xsize, ysize );
     }
 
     // Figure out where each font is and its spacing
     ReadContext ctxt(szSpacing);
     if (!ctxt.ensureOpen())
     {
-        log_error("unable to read font spacing file %s for spacing (%i,%i)\n", szSpacing, xsize, ysize);
+		Log::error("unable to read font spacing file %s for spacing (%i,%i)\n", szSpacing, xsize, ysize);
     }
 
     int stt_x = 0;

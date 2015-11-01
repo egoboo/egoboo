@@ -129,7 +129,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
 		{
-			log_warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile);
+			Log::warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile);
 		}
 	}
 
@@ -826,7 +826,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 void EntityReflections::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	auto mesh = tl.getMesh();
 	if (!mesh) {
-		log_warning("%s:%d: tile list not attached to a mesh - skipping pass\n", __FILE__, __LINE__);
+		Log::warning("%s:%d: tile list not attached to a mesh - skipping pass\n", __FILE__, __LINE__);
 		return;
 	}
 
