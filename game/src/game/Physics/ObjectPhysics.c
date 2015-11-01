@@ -5,6 +5,8 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
 
+static constexpr float MAX_DISPLACEMENT_XY = 20.0f; //Max velocity correction due to being inside a wall
+
 static void move_one_character_do_floor_friction( Object * pchr );
 static void move_one_character_do_voluntary( Object * pchr );
 static void move_one_character( Object * pchr );
@@ -689,29 +691,26 @@ bool move_one_character_integrate_motion( Object * pchr )
             // how is the character hitting the wall?
             if (pressure > 0.0f)
             {
-                //Figure out last safe position
-                Vector2f safePos; 
-                safePos[kX] = pchr->getSafePosition()[kX];
-                safePos[kY] = pchr->getSafePosition()[kY];
+                tmp_pos[kX] -= pchr->vel[kX];
+                tmp_pos[kY] -= pchr->vel[kY];
 
-                //Calculate velocity vector perpendicular from wall normal
-                Vector2f v_perp = Vector2f::zero();
-                float nrm2 = nrm.dot(nrm);
-                if (0.0f != nrm2) {
-                    float dot = Vector2f(pchr->vel[kX], pchr->vel[kY]).dot(nrm);
-                    v_perp = nrm * (dot / nrm2);
-                }
-
-                const float bumpdampen = 1.0f-pchr->phys.bumpdampen;
+                const float bumpdampen = std::max(0.1f, 1.0f-pchr->phys.bumpdampen);
 
                 //Bounce velocity of normal
-                pchr->vel[kX] = pchr->vel[kX] - v_perp[kX] * bumpdampen;
-                pchr->vel[kY] = pchr->vel[kY] - v_perp[kY] * bumpdampen;
+                Vector2f velocity = Vector2f(pchr->vel[kX], pchr->vel[kY]);
+                velocity[kX] -= 2 * (nrm.dot(velocity) * nrm[kX]);
+                velocity[kY] -= 2 * (nrm.dot(velocity) * nrm[kY]);
+
+                pchr->vel[kX] = pchr->vel[kX] * bumpdampen + velocity[kX]*(1-bumpdampen);
+                pchr->vel[kY] = pchr->vel[kY] * bumpdampen + velocity[kY]*(1-bumpdampen);
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float safeDistance = (Vector2f(tmp_pos[kX], tmp_pos[kY]) - safePos).length() * std::max(0.1f, bumpdampen);
-                pchr->vel[kX] += safeDistance * nrm[kX] * pressure;
-                pchr->vel[kY] += safeDistance * nrm[kY] * pressure;
+                float displacement = Vector2f(pchr->getSafePosition()[kX]-tmp_pos[kX], pchr->getSafePosition()[kY]-tmp_pos[kY]).length();
+                if(displacement > MAX_DISPLACEMENT_XY) {
+                    displacement = MAX_DISPLACEMENT_XY;
+                }
+                pchr->vel[kX] += displacement * bumpdampen * pressure * nrm[kX];
+                pchr->vel[kY] += displacement * bumpdampen * pressure * nrm[kY];
 
                 //Apply correction
                 tmp_pos[kX] += pchr->vel[kX];
@@ -1465,11 +1464,9 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
     /// @author ZZ
     /// @details This function keeps weapons near their holders
 
-    CHR_REF iattached = pchr->attachedto;
-    if ( _currentModule->getObjectHandler().exists( iattached ) )
+   const std::shared_ptr<Object> &holder = pchr->getHolder();
+    if (holder)
     {
-        Object * pattached = _currentModule->getObjectHandler().get( iattached );
-
         // Keep in hand weapons with iattached
         if ( chr_matrix_valid( pchr.get() ) )
         {
@@ -1477,17 +1474,17 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
         }
         else
         {
-            pchr->setPosition(pattached->getPosition());
+            pchr->setPosition(holder->getPosition());
         }
 
-        pchr->ori.facing_z = pattached->ori.facing_z;
+        pchr->ori.facing_z = holder->ori.facing_z;
 
         // Copy this stuff ONLY if it's a weapon, not for mounts
-        if ( pattached->getProfile()->transferBlending() && pchr->isitem )
+        if ( holder->getProfile()->transferBlending() && pchr->isitem )
         {
 
             // Items become partially invisible in hands of players
-            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.alpha )
+            if ( holder->isPlayer() && 255 != holder->inst.alpha )
             {
                 pchr->setAlpha(SEEINVISIBLE);
             }
@@ -1496,7 +1493,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
                 // Only if not naturally transparent
                 if ( 255 == pchr->getProfile()->getAlpha() )
                 {
-                    pchr->setAlpha(pattached->inst.alpha);
+                    pchr->setAlpha(holder->inst.alpha);
                 }
                 else
                 {
@@ -1505,7 +1502,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
             }
 
             // Do light too
-            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.light )
+            if ( holder->isPlayer() && 255 != holder->inst.light )
             {
                 pchr->setLight(SEEINVISIBLE);
             }
@@ -1514,7 +1511,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
                 // Only if not naturally transparent
                 if ( 255 == pchr->getProfile()->getLight())
                 {
-                    pchr->setLight(pattached->inst.light);
+                    pchr->setLight(holder->inst.light);
                 }
                 else
                 {
@@ -1527,16 +1524,10 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
     {
         pchr->attachedto = INVALID_CHR_REF;
 
-        // Keep inventory with iattached
-        if ( !_currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
-        {
-            for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
-            {
-                pitem->setPosition(pchr->getPosition());
-
-                // Copy olds to make SendMessageNear work
-                pitem->setOldPosition(pchr->getOldPosition());
-            }
+        // Keep inventory items with the carrier
+        const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[pchr->inwhich_inventory];
+        if (inventoryHolder) {
+            pchr->setPosition(inventoryHolder->getPosition());
         }
     }
 }
@@ -1557,7 +1548,7 @@ void move_all_characters()
 
         move_one_character( object.get() );
 
-        chr_update_matrix( object.get(), true );
+        //chr_update_matrix( object.get(), true );
         keep_weapons_with_holder(object);
     }
 }

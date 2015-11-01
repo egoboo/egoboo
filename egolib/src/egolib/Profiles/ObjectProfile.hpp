@@ -270,6 +270,8 @@ public:
     **/
     bool isSlotValid(slot_t slot) const;
 
+    bool hasReflection() const { return _hasReflection; }
+
     inline bool canCarryToNextModule() const {return _canCarryToNextModule;}
 
     inline bool hasResistBumpSpawn() const {return _resistBumpSpawn;}

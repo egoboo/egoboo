@@ -517,6 +517,11 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
 	Object *pchr = _currentModule->getObjectHandler().get(ichr);
 	chr_instance_t& pinst = pchr->inst;
 
+    //Does this object have a reflection?
+    if(!pchr->getProfile()->hasReflection()) {
+        return gfx_fail;        
+    }
+
     if ( pchr->isHidden() ) return gfx_fail;
 
     // assume the best

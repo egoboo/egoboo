@@ -125,7 +125,7 @@ ObjectProfile::ObjectProfile() :
     _textureMovementRateX(0),
     _textureMovementRateY(0),
     _uniformLit(false),
-    _hasReflection(false),
+    _hasReflection(true),
     _alwaysDraw(false),
     _forceShadow(false),
     _causesRipples(false),
@@ -721,7 +721,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'M', 'P' ):
-                _hasReflection = !(0 != ctxt.readInt());
+                _hasReflection = (0 == ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'D', 'R', 'A', 'W' ):

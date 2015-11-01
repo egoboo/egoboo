@@ -1687,7 +1687,18 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
 
     // load the file
     file_size = vfs_fileLength( fileread );
-    ps._load_buffer_count = ( int )vfs_read( ps._load_buffer, 1, file_size, fileread );
+
+    //Reset read buffer first
+    ps._load_buffer.fill(CSTR_END);
+
+    if(file_size > ps._load_buffer.size()) {
+        log_warning("SCRIPT ERROR - Script file size is bigger than buffer!\n");
+
+        ps.ai_script_upload_default( pscript );
+        return rv_fail;
+    }
+
+    ps._load_buffer_count = ( int )vfs_read( ps._load_buffer.data(), 1, file_size, fileread );
     vfs_close( fileread );
 
     // if the file is empty, use the default script
