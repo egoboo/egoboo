@@ -1026,7 +1026,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 
     // rotate the lighting data to body_centered coordinates
 	lighting_cache_t loc_light;
-    lighting_project_cache(loc_light, global_light, self.matrix);
+	lighting_cache_t::lighting_project_cache(loc_light, global_light, self.matrix);
 
     self.color_amb = 0.9f * self.color_amb + 0.1f * (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
 
@@ -1044,15 +1044,15 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
         if (pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f)
         {
             // this is the "ambient only" index, but it really means to sum up all the light
-            lite  = lighting_evaluate_cache(loc_light, Vector3f(+1.0f,+1.0f,+1.0f), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
-            lite += lighting_evaluate_cache(loc_light, Vector3f(-1.0f,-1.0f,-1.0f), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
+            lite  = lighting_cache_t::lighting_evaluate_cache(loc_light, Vector3f(+1.0f,+1.0f,+1.0f), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
+            lite += lighting_cache_t::lighting_evaluate_cache(loc_light, Vector3f(-1.0f,-1.0f,-1.0f), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite  = lighting_evaluate_cache( loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, NULL, NULL );
+            lite  = lighting_cache_t::lighting_evaluate_cache( loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, NULL, NULL );
         }
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;

@@ -385,11 +385,13 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\game\Entities\particle_physics.c" />
+    <ClCompile Include="src\game\Physics\CollisionSystem.cpp" />
+    <ClCompile Include="src\game\Physics\ObjectPhysics.c" />
+    <ClCompile Include="src\game\Physics\particle_collision.c" />
+    <ClCompile Include="src\game\Physics\particle_physics.c" />
     <ClCompile Include="src\game\GUI\ProgressBar.cpp" />
     <ClCompile Include="src\game\GameStates\AudioOptionsScreen.cpp" />
     <ClCompile Include="src\game\GUI\Slider.cpp" />
-    <ClCompile Include="src\game\ObjectPhysics.c" />
     <ClCompile Include="src\game\GameStates\DebugParticlesScreen.cpp" />
     <ClCompile Include="src\game\GUI\CharacterWindow.cpp" />
     <ClCompile Include="src\game\GUI\InternalWindow.cpp" />
@@ -441,9 +443,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\graphics\Camera.cpp" />
     <ClCompile Include="src\game\graphics\CameraSystem.cpp" />
     <ClCompile Include="src\game\module\Passage.cpp" />
-    <ClCompile Include="src\game\bsp.c" />
     <ClCompile Include="src\game\char.c" />
-    <ClCompile Include="src\game\collision.c" />
     <ClCompile Include="src\game\egoboo.c" />
     <ClCompile Include="src\game\game.c" />
     <ClCompile Include="src\game\graphic.c" />
@@ -465,11 +465,15 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\game\Entities\particle_physics.h" />
+    <ClInclude Include="src\game\Physics\Collidable.hpp" />
+    <ClInclude Include="src\game\Physics\CollisionSystem.hpp" />
+    <ClInclude Include="src\game\Physics\ObjectPhysics.h" />
+    <ClInclude Include="src\game\Physics\particle_collision.h" />
+    <ClInclude Include="src\game\Physics\particle_physics.h" />
+    <ClInclude Include="src\game\Physics\PhysicalConstants.hpp" />
     <ClInclude Include="src\game\GUI\ProgressBar.hpp" />
     <ClInclude Include="src\game\GameStates\AudioOptionsScreen.hpp" />
     <ClInclude Include="src\game\GUI\Slider.hpp" />
-    <ClInclude Include="src\game\ObjectPhysics.h" />
     <ClInclude Include="src\game\GameStates\DebugParticlesScreen.hpp" />
     <ClInclude Include="src\game\GUI\CharacterWindow.hpp" />
     <ClInclude Include="src\game\GUI\InternalWindow.hpp" />
@@ -523,9 +527,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\graphics\Camera.hpp" />
     <ClInclude Include="src\game\graphics\CameraSystem.hpp" />
     <ClInclude Include="src\game\module\Passage.hpp" />
-    <ClInclude Include="src\game\bsp.h" />
     <ClInclude Include="src\game\char.h" />
-    <ClInclude Include="src\game\collision.h" />
     <ClInclude Include="src\game\egoboo.h" />
     <ClInclude Include="src\game\egoboo_config.h" />
     <ClInclude Include="src\game\egoboo_doxygen.h" />
