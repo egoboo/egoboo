@@ -91,6 +91,11 @@ public:
     bool setPosition(const Vector3f &pos) {
         EGO_DEBUG_VALIDATE(pos);
 
+        //Never allow positions outside the map
+        if(!_currentModule->isInside(pos[kX], pos[kY])) {
+            return false;
+        }
+
         //No change?
         if(pos == _position) {
             return false;
