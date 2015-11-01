@@ -2879,24 +2879,23 @@ void game_reset_players()
 //--------------------------------------------------------------------------------------------
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count )
 {
-    int layer;
+    if ( nullptr == inst || 0 == layer_count ) return false;
 
-    if ( NULL == inst || 0 == layer_count ) return false;
-
-    for ( layer = 0; layer < layer_count; layer++ )
+    for ( int layer = 0; layer < layer_count; layer++ )
     {
-        BLANK_STRUCT_PTR( inst[layer] );
+        //Reset to default
+        inst[layer] = water_instance_layer_t();
     }
 
     // set the frame
-    for ( layer = 0; layer < layer_count; layer++ )
+    for ( int layer = 0; layer < layer_count; layer++ )
     {
-        inst[layer]._frame = ( Uint16 )Random::next(WATERFRAMEAND);
+        inst[layer]._frame = Random::next<uint16_t>(WATERFRAMEAND);
     }
 
-    if ( NULL != data )
+    if ( nullptr != data )
     {
-        for ( layer = 0; layer < layer_count; layer++ )
+        for ( int layer = 0; layer < layer_count; layer++ )
         {
             const wawalite_water_layer_t * pwawa  = data + layer;
             water_instance_layer_t       * player = inst + layer;
