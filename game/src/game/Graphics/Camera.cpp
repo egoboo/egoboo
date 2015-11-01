@@ -64,7 +64,7 @@ Camera::Camera(const CameraOptions &options) :
     _turnZ_radians(-Ego::Math::piOverFour<float>()),
     _turnZ_turns(RadiansToTurns(_turnZ_radians)),
     _turnZAdd(0.0f),
-    _turnZSustain(0.60f),   
+    _turnZSustain(0.60f),
 
     _forward{0, 0, 0},
     _up{0, 0, 0},
@@ -202,7 +202,7 @@ void Camera::makeMatrix()
 void Camera::updateZoom()
 {
     // Update zadd.
-    _zaddGoto = CLIP(_zaddGoto, CAM_ZADD_MIN, CAM_ZADD_MAX );
+    _zaddGoto = Ego::Math::constrain(_zaddGoto, CAM_ZADD_MIN, CAM_ZADD_MAX);
     _zadd = 0.9f * _zadd  + 0.1f * _zaddGoto; /// @todo Use Ego::Math::lerp.
 
     // Update zoom.
@@ -219,15 +219,17 @@ void Camera::updateZoom()
     {
         //Make it wrap around
         float newAngle = static_cast<float>(_ori.facing_z) +_turnZAdd;
-        if(newAngle < 0.0f) newAngle += 0xFFFF;
-        else if(newAngle > 0xFFFF) newAngle -= 0xFFFF;
+        if (newAngle < 0.0f) {
+            newAngle += 0xFFFF;
+        } else if(newAngle > 0xFFFF) {
+            newAngle -= 0xFFFF;
+        }
         _ori.facing_z = newAngle;
 
-        _turnZ_turns = FacingToTurns( _ori.facing_z );
-        _turnZ_radians = TurnsToRadians( _turnZ_turns );
+        _turnZ_turns = FacingToTurns(_ori.facing_z);
+        _turnZ_radians = TurnsToRadians(_turnZ_turns);
     }
     _turnZAdd *= _turnZSustain;
-
 }
 
 void Camera::updateCenter()
@@ -252,7 +254,7 @@ void Camera::updateCenter()
 
         // Calculate the difference between the center of the tracked characters
         // and the center of the camera look to look at.
-        Vector2f diff = Vector2f(_trackPos[kX],_trackPos[kY]) - Vector2f(_center[kX],_center[kY]);
+        Vector2f diff = Vector2f(_trackPos[kX], _trackPos[kY]) - Vector2f(_center[kX], _center[kY]);
 
         // Get 2d versions of the camera's right and up vectors.
         Vector2f vrt(_right[kX], _right[kY]);
@@ -670,7 +672,7 @@ void Camera::reset(const ego_mesh_t *mesh)
     _position[kZ] += CAM_ZADD_MAX;
 
     _turnZ_turns = RadiansToTurns(_turnZ_radians);
-    _ori.facing_z = TurnsToFacing(_turnZ_turns) ;
+    _ori.facing_z = TurnsToFacing(_turnZ_turns);
 
     // Get optional parameters.
     _swing = _options.swing;
@@ -714,7 +716,7 @@ void Camera::resetTarget(const ego_mesh_t *mesh)
 void Camera::updateEffects()
 {
     float local_swingamp = _swingAmp;
-    
+
     _motionBlurOld = _motionBlur;
 
     // Fade out the motion blur
@@ -728,14 +730,14 @@ void Camera::updateEffects()
     if ( local_stats.grog_level > 0 )
     {
         float zoom_add;
-        _swing = ( _swing + 120 ) & 0x3FFF;
-        local_swingamp = std::max( local_swingamp, 0.175f );
+        _swing = (_swing + 120) & 0x3FFF;
+        local_swingamp = std::max(local_swingamp, 0.175f);
 
         zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * DEFAULT_TURN_KEY * local_stats.grog_level * 0.35f;
 
         _zaddGoto   = _zaddGoto + zoom_add;
 
-        _zaddGoto = CLIP( _zaddGoto, CAM_ZADD_MIN, CAM_ZADD_MAX );
+        _zaddGoto = Ego::Math::constrain(_zaddGoto, CAM_ZADD_MIN, CAM_ZADD_MAX);
     }
 
     //Rotate camera if they are dazed
@@ -746,7 +748,7 @@ void Camera::updateEffects()
     
     // Apply motion blur
     if ( local_stats.daze_level > 0 || local_stats.grog_level > 0 ) {
-        _motionBlur = std::min( 0.95f, 0.5f + 0.03f * std::max( local_stats.daze_level, local_stats.grog_level ));
+        _motionBlur = std::min(0.95f, 0.5f + 0.03f * std::max(local_stats.daze_level, local_stats.grog_level));
     }
 
     //Apply camera swinging
