@@ -577,12 +577,10 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
     ///     Return true if a new matrix is applied to the character, false otherwise.
 
     bool         needs_update = false;
-    bool         applied      = false;
-
-    if (nullptr == pchr) return rv_error;
 
     // recursively make sure that any mount matrices are updated
     const std::shared_ptr<Object> &holder = pchr->getHolder();
+
     if (holder)
     {
         egolib_rv attached_update = chr_update_matrix(holder.get(), true);
@@ -609,35 +607,35 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
     needs_update = ( rv_success == retval );
 
     // Update the grip vertices no matter what (if they are used)
-    if ( HAS_SOME_BITS(mc_tmp.type_bits, MAT_WEAPON) && _currentModule->getObjectHandler().exists(mc_tmp.grip_chr) )
+    const std::shared_ptr<Object> &heldItem = _currentModule->getObjectHandler()[mc_tmp.grip_chr];
+    if ( HAS_SOME_BITS(mc_tmp.type_bits, MAT_WEAPON) && heldItem)
     {
         egolib_rv grip_retval;
-        Object   * ptarget = _currentModule->getObjectHandler().get( mc_tmp.grip_chr );
 
         // has that character changes its animation?
-        grip_retval = ( egolib_rv )chr_instance_t::update_grip_verts(ptarget->inst, mc_tmp.grip_verts.data(), GRIP_VERTS);
+        grip_retval = ( egolib_rv )chr_instance_t::update_grip_verts(heldItem->inst, mc_tmp.grip_verts.data(), GRIP_VERTS);
 
         if ( rv_error   == grip_retval ) return rv_error;
         if ( rv_success == grip_retval ) needs_update = true;
     }
 
     // if it is not the same, make a new matrix with the new data
-    applied = false;
-    if ( needs_update )
+    if (needs_update)
     {
         // we know the matrix is not valid
         pchr->inst.matrix_cache.matrix_valid = false;
 
-        applied = apply_matrix_cache( pchr, &mc_tmp );
+        if(apply_matrix_cache(pchr, &mc_tmp)) {
+            if(update_size) {
+                // call chr_update_collision_size() but pass in a false value to prevent a recursize call
+                chr_update_collision_size( pchr, false );                
+            }
+            return rv_success;
+        }
+
     }
 
-    if ( applied && update_size )
-    {
-        // call chr_update_collision_size() but pass in a false value to prevent a recursize call
-        chr_update_collision_size( pchr, false );
-    }
-
-    return applied ? rv_success : rv_fail;
+    return rv_fail;
 }
 
 

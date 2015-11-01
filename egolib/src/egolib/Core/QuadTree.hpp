@@ -48,6 +48,21 @@ public:
 
 	/**
 	* @brief
+	*	Constructor with bounded limits
+	**/
+	QuadTree(const float minX, const float minY, const float maxX, const float maxY) :
+		_bounds(Vector2f(minX, minY), Vector2f(maxX, maxY)),
+		_nodes(),
+		_northWest(nullptr),
+		_northEast(nullptr),
+		_southWest(nullptr),
+		_southEast(nullptr)
+	{
+		//ctor
+	}
+
+	/**
+	* @brief
 	*	Inserts an element into this QuadTree
 	* @return
 	*	true if the object fits within the bounds of this tree
@@ -141,10 +156,10 @@ public:
 
 		//Clear children and all elements
 		_nodes.clear();
-		_northWest.reset(nullptr);
-		_northEast.reset(nullptr);
-		_southWest.reset(nullptr);
-		_southEast.reset(nullptr);
+		_northWest.reset();
+		_northEast.reset();
+		_southWest.reset();
+		_southEast.reset();
 	}
 
 private:
@@ -164,29 +179,14 @@ private:
 		float midY = (topLeftY + bottomRightY) * 0.5f;
 
 		//Allocate memory for the subdivision
-		_northWest = std::unique_ptr<QuadTree<T>>(new QuadTree<T>(topLeftX, topLeftY, midX, midY));
-		_northEast = std::unique_ptr<QuadTree<T>>(new QuadTree<T>(midX, topLeftY, bottomRightX, midY));
-		_southWest = std::unique_ptr<QuadTree<T>>(new QuadTree<T>(topLeftX, midY, midX, bottomRightY));
-		_southEast = std::unique_ptr<QuadTree<T>>(new QuadTree<T>(midX, midY, bottomRightX, bottomRightY));
-	}
-
-	/**
-	* @brief
-	*	Private constructor with bounded limits
-	**/
-	QuadTree(const float minX, const float minY, const float maxX, const float maxY) :
-		_bounds(Vector2f(minX, minY), Vector2f(maxX, maxY)),
-		_nodes(),
-		_northWest(nullptr),
-		_northEast(nullptr),
-		_southWest(nullptr),
-		_southEast(nullptr)
-	{
-		//ctor
+		_northWest = std::make_unique<QuadTree<T>>(topLeftX, topLeftY, midX, midY);
+		_northEast = std::make_unique<QuadTree<T>>(midX, topLeftY, bottomRightX, midY);
+		_southWest = std::make_unique<QuadTree<T>>(topLeftX, midY, midX, bottomRightY);
+		_southEast = std::make_unique<QuadTree<T>>(midX, midY, bottomRightX, bottomRightY);
 	}
 
 private:
-	static const size_t QUAD_TREE_NODE_CAPACITY = 8;	//< Maximum number of nodes in tree before subdivision
+	static const size_t QUAD_TREE_NODE_CAPACITY = 4;	//< Maximum number of nodes in tree before subdivision
 
 	AABB2f _bounds;									    //< 2D AABB
 
