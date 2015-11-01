@@ -1227,29 +1227,6 @@ float ego_mesh_t::get_max_vertex_1( const PointGrid& point, float xmin, float ym
 }
 
 //--------------------------------------------------------------------------------------------
-// ego_tile_info_t
-//--------------------------------------------------------------------------------------------
-ego_tile_info_t::ego_tile_info_t() :
-    _itile(0),
-    _type(0),
-    _img(0),
-    _vrtstart(0),
-    _fanoff(true),
-    _ncache{0, 0, 0, 0},
-    _lcache{0, 0, 0, 0},
-    _request_lcache_update(true),
-    _lcache_frame(-1),
-    _request_clst_update(true),
-    _clst_frame(-1),
-    _d1_cache{0, 0, 0, 0},
-    _d2_cache{0, 0, 0, 0},
-    _oct(),
-    _aabb()
-{
-    //ctor
-}
-
-//--------------------------------------------------------------------------------------------
 // ego_grid_info_t
 //--------------------------------------------------------------------------------------------
 ego_grid_info_t::ego_grid_info_t()
