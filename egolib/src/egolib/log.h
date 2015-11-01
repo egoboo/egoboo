@@ -88,7 +88,7 @@ namespace Log {
 		 * @param format, ...
 		 *  printf-style format string and variadic argument list
 		 */
-		virtual void log(Level level, const char *format, ...) GCC_PRINTF_FUNC(2);
+		virtual void log(Level level, const char *format, ...) GCC_PRINTF_FUNC(3);
 
 		/** @{ */
 
@@ -106,7 +106,7 @@ namespace Log {
 		 * @param format, ...
 		 *  printf-style format string and variadic argument list
 		 */
-		void message(const char *format, ...) GCC_PRINTF_FUNC(1);
+		void message(const char *format, ...) GCC_PRINTF_FUNC(2);
 
 		/** @} */
 
@@ -126,7 +126,7 @@ namespace Log {
 		 * @param format, ...
 		 *  printf-style format string and variadic argument list
 		 */
-		void debug(const char *format, ...) GCC_PRINTF_FUNC(1);
+		void debug(const char *format, ...) GCC_PRINTF_FUNC(2);
 
 		/** @} */
 
@@ -147,7 +147,7 @@ namespace Log {
 		 * @param format, ...
 		 *  printf-style format string and variadic argument list
 		 */
-		void info(const char *format, ...) GCC_PRINTF_FUNC(1);
+		void info(const char *format, ...) GCC_PRINTF_FUNC(2);
 
 		/** @} */
 
@@ -167,7 +167,7 @@ namespace Log {
 		 * @param format, ....
 		 *  printf-style format string and variadic argument list
 		 */
-		void warn(const char *format, ...) GCC_PRINTF_FUNC(1);
+		void warn(const char *format, ...) GCC_PRINTF_FUNC(2);
 
 		/** @} */
 
@@ -187,7 +187,7 @@ namespace Log {
 		 * @param format, ...
 		 *  printf-style format string and variadic argument list
 		 */
-		void error(const char *format, ...) GCC_PRINTF_FUNC(1);
+		void error(const char *format, ...) GCC_PRINTF_FUNC(2);
 
 		/** @} */
 
