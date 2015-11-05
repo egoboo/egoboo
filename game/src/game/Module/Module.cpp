@@ -237,7 +237,7 @@ uint8_t GameModule::getMinPlayers() const
 
 bool GameModule::isInside(const float x, const float y) const
 {
-	auto& gmem = _currentModule->getMeshPointer()->_gmem;
+	const auto& gmem = _currentModule->getMeshPointer()->_gmem;
     return x >= 0 && x < gmem._edge_x && y >= 0 && y < gmem._edge_y;
 }
 

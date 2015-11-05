@@ -496,7 +496,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
     //Only allow scenery objects on top of other scenery objects
     if(objectA->isScenery() != objectB->isScenery()) {
         platform_a &= objectA->isScenery();
-        platform_b &= objectA->isScenery();
+        platform_b &= objectB->isScenery();
     }
 
     if ( !platform_a && !platform_b ) return false;
