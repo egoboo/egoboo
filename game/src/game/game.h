@@ -122,11 +122,11 @@ struct animtile_instance_t
 {
     int    update_and;            ///< how often to update the tile
 
-    Uint16 frame_and;             ///< how many images within the "tile set"?
-    Uint16 base_and;              ///< animated "tile set"
-    Uint16 frame_add;             ///< which image within the tile set?
-    Uint16 frame_add_old;         ///< the frame offset, the last time it was updated
-    Uint32 frame_update_old;
+    uint16_t frame_and;             ///< how many images within the "tile set"?
+    uint16_t base_and;              ///< animated "tile set"
+    uint16_t frame_add;             ///< which image within the tile set?
+    uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
+    uint32_t frame_update_old;
 };
 
 bool upload_animtile_data( animtile_instance_t dst[], const wawalite_animtile_t* src, const size_t animtile_count );
@@ -143,7 +143,7 @@ struct damagetile_instance_t
 	DamageType damagetype;
 
     LocalParticleProfileRef part_gpip;
-    Uint32 partand;
+    uint32_t partand;
     int    sound_index;
 
 	void upload(const wawalite_damagetile_t& source);
