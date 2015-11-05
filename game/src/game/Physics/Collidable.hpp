@@ -128,6 +128,7 @@ public:
     *   might patrol.
     **/
     void setSpawnPosition(const Vector3f &pos) {
+        assert(_currentModule->isInside(pos[kX], pos[kY]));
         _spawnPosition = pos;
     }
 
