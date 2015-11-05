@@ -102,7 +102,7 @@ void oglx_Get_Screen_Info(oglx_caps_t *self)
         throw std::invalid_argument("nullptr == self");
     }
 
-    BLANK_STRUCT_PTR(self);
+    memset(self, 0, sizeof(oglx_caps_t));
 
     // Get any pure OpenGL device caps.
 

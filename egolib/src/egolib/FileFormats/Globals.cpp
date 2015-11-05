@@ -1,7 +1,7 @@
 #include "egolib/FileFormats/Globals.hpp"
 #include "egolib/strutil.h"
 
-tile_dictionary_t tile_dict = TILE_DICTIONARY_INIT;
+tile_dictionary_t tile_dict;
 treasure_table_t treasureTableList[MAX_TABLES];
 wawalite_data_t wawalite_data;
 

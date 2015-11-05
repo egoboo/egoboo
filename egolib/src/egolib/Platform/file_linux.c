@@ -278,8 +278,7 @@ void fs_findClose(fs_find_context_t *fs_search)
     globfree(&(pcnt->last_find));
 
     EGOBOO_DELETE(pcnt);
-
-    BLANK_STRUCT_PTR(fs_search)
+    memset(fs_search, 0, sizeof(fs_find_context_t));
 }
 
 const char *fs_getBinaryDirectory()

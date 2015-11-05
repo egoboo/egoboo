@@ -808,13 +808,13 @@ int vfs_close(vfs_FILE *file)
     if (VFS_FILE_TYPE_CSTDIO == file->type)
     {
         retval = fclose(file->ptr.c);
-		BLANK_STRUCT_PTR(file);
+        memset(file, 0, sizeof(vfs_FILE));
 		EGOBOO_DELETE(file);
     }
     else if (VFS_FILE_TYPE_PHYSFS == file->type)
     {
         retval = PHYSFS_close(file->ptr.p);
-		BLANK_STRUCT_PTR(file);
+        memset(file, 0, sizeof(vfs_FILE));
 		EGOBOO_DELETE(file);
     }
     else
