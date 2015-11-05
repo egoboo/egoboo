@@ -569,13 +569,6 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	{
 		return;
 	}
-	// No shadow if off the mesh.
-	ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
-	// No shadow if invalid tile.
-	if (ptile.isFanOff())
-	{
-		return;
-	}
 
 	// No shadow if completely transparent or completely glowing.
 	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
@@ -657,12 +650,6 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 
 	// if the character is hidden, not drawn at all, so no shadow
 	if (pchr->isHidden() || 0 == pchr->shadow_size) return;
-
-	// no shadow if off the mesh
-	ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
-
-	// no shadow if invalid tile image
-	if (ptile.isFanOff()) return;
 
 	// no shadow if completely transparent
 	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;

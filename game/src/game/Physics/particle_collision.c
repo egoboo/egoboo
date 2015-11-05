@@ -79,8 +79,6 @@ public:
     bool terminate_particle;
     bool prt_bumps_chr;
     bool prt_damages_chr;
-
-    static void init(chr_prt_collision_data_t& self);
 };
 
 static bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata);
@@ -105,7 +103,7 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
     is_pressure(false),
     is_collision(false),
     dot(0.0f),
-    nrm(),
+    nrm(0.0f, 0.0f, 1.0f),
 
     mana_paid(false),
     max_damage(0),
@@ -992,7 +990,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
 {
     if ( NULL == pdata ) return false;
 
-    BLANK_STRUCT_PTR(pdata);
+    *pdata = chr_prt_collision_data_t();
 
     if ( !ParticleHandler::get()[iprt] ) return false;
     pdata->iprt = iprt;
@@ -1145,7 +1143,6 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
     bool retval = false;
 
     chr_prt_collision_data_t cn_data;
-    chr_prt_collision_data_t::init(cn_data);
 
     bool intialized = do_chr_prt_collision_init(object->getCharacterID(), particle->getParticleID(), &cn_data );
     if ( !intialized ) return false;
@@ -1302,56 +1299,6 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-void chr_prt_collision_data_t::init(chr_prt_collision_data_t& self)
-{
-    //---- invalidate the object parameters
-    self.ichr = INVALID_CHR_REF;
-    self.pchr = NULL;
-
-    self.iprt = INVALID_PRT_REF;
-    self.pprt = NULL;
-    self.ppip = NULL;
-
-    //---- collision parameters
-
-    // true collisions
-    self.int_min = 0;
-    self.depth_min = 0.0f;
-
-    // hit-box collisions
-    self.int_max = 0;
-    self.depth_max = 0.0f;
-
-    // platform interactions
-    //self.int_plat = false;
-    //self.plat_lerp = 0.0f;
-
-    // basic parameters
-    self.is_impact    = false;
-    self.is_pressure  = false;
-    self.is_collision = false;
-    self.dot = 0.0f;
-    self.nrm = Vector3f(0, 0, 1);
-
-    //---- collision modifications
-    self.mana_paid = false;
-    self.max_damage = self.actual_damage = 0;
-    self.vdiff = Vector3f::zero();
-    self.vdiff_para = Vector3f::zero();
-    self.vdiff_perp = Vector3f::zero();
-    self.block_factor = 0.0f;
-
-    //---- collision reaction
-    //self.vimpulse = Vector3f::zero();
-    //self.pimpulse = Vector3f::zero();
-    self.terminate_particle = false;
-    self.prt_bumps_chr = false;
-    self.prt_damages_chr = false;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -975,6 +975,6 @@ void render_prt_bbox(prt_bundle_t& pbdl_prt)
 
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-        render_oct_bb(&loc_bb, true, true);
+        render_oct_bb(&loc_bb, true, true, Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
     }
 }

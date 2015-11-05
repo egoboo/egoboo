@@ -45,12 +45,11 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
     int definition_count;
     int itmp;
     float ftmp;
-    tile_definition_t * pdef_sml, * pdef_big;
 
     if ( NULL == pdict ) return false;
 
     // "delete" the old list
-    BLANK_STRUCT_PTR( pdict );
+    *pdict = tile_dictionary_t();
 
     if ( !VALID_CSTR( filename ) ) return false;
 
@@ -74,12 +73,12 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
     if ( definition_count > MAP_FAN_TYPE_MAX )
     {
 		Log::error( "%s - tile dictionary has too many tile definitions (%d/%d).\n", __FUNCTION__, definition_count, MAP_FAN_TYPE_MAX );
-        goto tile_dictionary_load_vfs_fail;
+        return false;
     }
     else if ( definition_count > max_dict_size )
     {
-		Log::warning( "%s - the number of tile difinitions has exceeded the requested number (%d/%d).\n", __FUNCTION__, definition_count, max_dict_size );
-        goto tile_dictionary_load_vfs_fail;
+		Log::error( "%s - the number of tile difinitions has exceeded the requested number (%d/%d).\n", __FUNCTION__, definition_count, max_dict_size );
+        return false;
     }
 
     pdict->offset    = fantype_offset;
@@ -87,50 +86,50 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
 
     for ( fantype = 0; fantype < fantype_count; fantype++ )
     {
-        pdef_sml = pdict->def_lst + fantype;
-        pdef_big = pdict->def_lst + fantype + fantype_offset;
+        tile_definition_t& pdef_sml = pdict->def_lst[fantype];
+        tile_definition_t& pdef_big = pdict->def_lst[fantype + fantype_offset];
 
         vertices = vfs_get_next_int(ctxt);
 
-        pdef_sml->numvertices = vertices;
-        pdef_big->numvertices = vertices;  // Dupe
+        pdef_sml.numvertices = vertices;
+        pdef_big.numvertices = vertices;  // Dupe
 
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
             itmp = vfs_get_next_int(ctxt);
-            pdef_sml->ref[cnt]    = itmp;
-            pdef_sml->grid_ix[cnt] = itmp & 3;
-            pdef_sml->grid_iy[cnt] = ( itmp >> 2 ) & 3;
+            pdef_sml.ref[cnt]    = itmp;
+            pdef_sml.grid_ix[cnt] = itmp & 3;
+            pdef_sml.grid_iy[cnt] = ( itmp >> 2 ) & 3;
 
             ftmp = vfs_get_next_float(ctxt);
-            pdef_sml->u[cnt] = ftmp;
+            pdef_sml.u[cnt] = ftmp;
 
             ftmp = vfs_get_next_float(ctxt);
-            pdef_sml->v[cnt] = ftmp;
+            pdef_sml.v[cnt] = ftmp;
 
             // Dupe
-            pdef_big->ref[cnt]    = pdef_sml->ref[cnt];
-            pdef_big->grid_ix[cnt] = pdef_sml->grid_ix[cnt];
-            pdef_big->grid_iy[cnt] = pdef_sml->grid_iy[cnt];
-            pdef_big->u[cnt]      = pdef_sml->u[cnt];
-            pdef_big->v[cnt]      = pdef_sml->v[cnt];
+            pdef_big.ref[cnt]    = pdef_sml.ref[cnt];
+            pdef_big.grid_ix[cnt] = pdef_sml.grid_ix[cnt];
+            pdef_big.grid_iy[cnt] = pdef_sml.grid_iy[cnt];
+            pdef_big.u[cnt]      = pdef_sml.u[cnt];
+            pdef_big.v[cnt]      = pdef_sml.v[cnt];
         }
 
         command_count = vfs_get_next_int(ctxt);
-        pdef_sml->command_count = command_count;
-        pdef_big->command_count = command_count;  // Dupe
+        pdef_sml.command_count = command_count;
+        pdef_big.command_count = command_count;  // Dupe
 
         for ( entry = 0, command = 0; command < command_count; command++ )
         {
             commandsize = vfs_get_next_int(ctxt);
-            pdef_sml->command_entries[command] = commandsize;
-            pdef_big->command_entries[command] = commandsize;  // Dupe
+            pdef_sml.command_entries[command] = commandsize;
+            pdef_big.command_entries[command] = commandsize;  // Dupe
 
             for ( cnt = 0; cnt < commandsize; cnt++ )
             {
                 itmp = vfs_get_next_int(ctxt);
-                pdef_sml->command_verts[entry] = itmp;
-                pdef_big->command_verts[entry] = itmp;  // Dupe
+                pdef_sml.command_verts[entry] = itmp;
+                pdef_big.command_verts[entry] = itmp;  // Dupe
 
                 entry++;
             }
@@ -142,12 +141,6 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
     tile_dictionary_finalize( pdict );
 
     return true;
-
-tile_dictionary_load_vfs_fail:
-
-    BLANK_STRUCT_PTR( pdict );
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -157,26 +150,22 @@ tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
     const int   tile_pix_big = tile_pix_sml * 2;
     const float texture_offset = 0.5f;
 
-    int vertex_count;
-    tile_definition_t * pdef_sml, * pdef_big;
-
     if ( NULL == pdict ) return pdict;
 
     // Correct all of them silly texture positions for seamless tiling
     size_t fantype_offset = pdict->offset;
-    for ( Uint32 entry = 0; entry < fantype_offset; entry++ )
+    for (size_t entry = 0; entry < fantype_offset; entry++)
     {
-        pdef_sml = pdict->def_lst + entry;
-        pdef_big = pdict->def_lst + entry + fantype_offset;
+        tile_definition_t& pdef_sml = pdict->def_lst[entry];
+        tile_definition_t& pdef_big = pdict->def_lst[entry + fantype_offset];
 
-        vertex_count = pdef_sml->numvertices;
-        for ( Uint32 cnt = 0; cnt < vertex_count; cnt++ )
+        for (size_t cnt = 0; cnt < pdef_sml.numvertices; cnt++ )
         {
-            pdef_sml->u[cnt] = ( texture_offset + pdef_sml->u[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
-            pdef_sml->v[cnt] = ( texture_offset + pdef_sml->v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
+            pdef_sml.u[cnt] = ( texture_offset + pdef_sml.u[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
+            pdef_sml.v[cnt] = ( texture_offset + pdef_sml.v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
 
-            pdef_big->u[cnt] = ( texture_offset + pdef_big->u[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
-            pdef_big->v[cnt] = ( texture_offset + pdef_big->v[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
+            pdef_big.u[cnt] = ( texture_offset + pdef_big.u[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
+            pdef_big.v[cnt] = ( texture_offset + pdef_big.v[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
         }
     }
 

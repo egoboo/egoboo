@@ -119,9 +119,7 @@ void lighting_cache_base_t::init(lighting_cache_base_t& self)
 {
 	self._max_delta = 0.0f;
 	self._max_light = 0.0f;
-	for (size_t i = 0; i < LIGHTING_VEC_SIZE; ++i) {
-		self._lighting[i] = 0.0f;
-	}
+    self._lighting.fill(0.0f);
 }
 
 void lighting_cache_base_t::max_light(lighting_cache_base_t& self)

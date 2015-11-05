@@ -1509,7 +1509,8 @@ bool GridIllumination::grid_lighting_interpolate(const ego_mesh_t& mesh, lightin
 void GridIllumination::test_one_corner(const ego_mesh_t& mesh, GLXvector3f pos, float& pdelta)
 {
 	// interpolate the lighting for the given corner of the mesh
-	float low_delta, hgh_delta;
+	float low_delta = 0.0f; 
+    float hgh_delta = 0.0f;
 	pdelta = grid_lighting_test(mesh, pos, low_delta, hgh_delta);
 
 	// determine the weighting
@@ -1536,7 +1537,7 @@ bool GridIllumination::test_corners(const ego_mesh_t& mesh, ego_tile_info_t& til
 		float& plight = lcache[corner];
 		GLXvector3f& ppos = mesh._tmem._plst[tile._vrtstart + corner];
 
-		float delta;
+		float delta = 0.0f;
 		test_one_corner(mesh, ppos, delta);
 
 		if (0.0f == plight)
@@ -1546,7 +1547,7 @@ bool GridIllumination::test_corners(const ego_mesh_t& mesh, ego_tile_info_t& til
 		else
 		{
 			delta /= plight;
-			delta = CLIP(delta, 0.0f, 10.0f);
+			delta = Ego::Math::constrain(delta, 0.0f, 10.0f);
 		}
 
 		pdelta += delta;
@@ -1749,7 +1750,7 @@ gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_
     }
 	grid_mem_t& pgmem = mesh->_gmem;
 
-    if (NULL == ptile)
+    if (!ptile)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "no valid tile");
         return gfx_error;
@@ -1947,8 +1948,8 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
         };
 
         // clear out the deltas
-        BLANK_ARY(ptile._d1_cache);
-        BLANK_ARY(ptile._d2_cache);
+        ptile._d1_cache.fill(0.0f);
+        ptile._d2_cache.fill(0.0f);
 
         // untag this tile
         ptile._request_clst_update = false;

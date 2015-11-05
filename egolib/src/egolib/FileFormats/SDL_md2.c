@@ -283,8 +283,6 @@ SDL_md2_model_t * SDL_md2_new( SDL_md2_model_t * mdl )
 //--------------------------------------------------------------------------------------------
 void SDL_md2_free( SDL_md2_model_t * mdl )
 {
-    int i;
-
     if ( mdl->skins )
     {
         SDL_free( mdl->skins );
@@ -311,7 +309,7 @@ void SDL_md2_free( SDL_md2_model_t * mdl )
 
     if ( mdl->frames )
     {
-        for ( i = 0; i < mdl->header.num_frames; ++i )
+        for ( int i = 0; i < mdl->header.num_frames; ++i )
         {
             SDL_free( mdl->frames[i].verts );
             mdl->frames[i].verts = NULL;

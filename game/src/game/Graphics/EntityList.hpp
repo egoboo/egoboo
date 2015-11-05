@@ -41,20 +41,25 @@ struct EntityList
      * @brief
      *    The (fixed) capacity of a do list.
      */
-    static const size_t CAPACITY = OBJECTS_MAX + PARTICLES_MAX;
+    static constexpr size_t CAPACITY = OBJECTS_MAX + PARTICLES_MAX;
     /**
      * @brief
      *    An eleemnt of a do list.
      */
     struct element_t
     {
+        element_t(CHR_REF chr, PRT_REF prt) :
+            ichr(chr), 
+            iprt(prt), 
+            dist(0.0f)
+        {
+            //ctor
+        }
+
         CHR_REF ichr;
         PRT_REF iprt;
         float dist;
         
-        element_t() :
-            ichr(INVALID_CHR_REF), iprt(INVALID_PRT_REF), dist(0.0f)
-        {}
 #if XX == 1
         element_t(const element_t& other) :
             ichr(other.ichr), iprt(other.iprt), dist(other.dist)
@@ -70,22 +75,16 @@ struct EntityList
         {}
 #endif
 
-        static element_t *init(element_t *self);
         static int cmp(const void *left, const void *right);
     };
 protected:
 
     /**
-     * @brief
-     *  The size of the dolist i.e. the number of character and particle entities in the dolist.
-     */
-    size_t _size;
-    /**
-     * @brief
-     *  An array of dolist elements.
-     *  The first @a _size entries of this array have meaningful values.
-     */
-    element_t _lst[CAPACITY];
+    * @brief
+    *  An array of dolist elements.
+    */
+    std::vector<element_t> _lst;
+
 public:
     EntityList();
 #if XX == 1
@@ -93,26 +92,30 @@ public:
     {}
 #endif
     EntityList *init();
+    
     const element_t& get(size_t index) const
     {
-        if (index >= _size)
+        if (index >= _lst.size())
         {
             throw std::out_of_range("index out of range");
         }
         return _lst[index];
     }
+
     element_t& get(size_t index)
     {
-        if (index >= _size)
+        if (index >= _lst.size())
         {
             throw std::out_of_range("index out of range");
         }
         return _lst[index];
     }
+    
     size_t getSize() const
     {
-        return _size;
+        return _lst.size();
     }
+
     gfx_rv reset();
     gfx_rv sort(Camera& camera, const bool reflect);
 

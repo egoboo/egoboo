@@ -303,7 +303,7 @@ void fs_findClose(fs_find_context_t *fs_search)
         pcnt->hFind = NULL;
     }
     EGOBOO_DELETE(pcnt);
-    BLANK_STRUCT_PTR(fs_search)
+    memset(fs_search, 0, sizeof(fs_find_context_t));
 }
 
 int DirGetAttrib(const char *fromdir)

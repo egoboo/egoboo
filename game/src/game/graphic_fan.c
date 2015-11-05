@@ -147,7 +147,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 itile )
         {
             uint8_t numEntries = pdef->command_entries[cnt];
             
-            GL_DEBUG(glDrawElements)(GL_TRIANGLE_FAN, numEntries, GL_UNSIGNED_SHORT, pdef->command_verts + entry);
+            GL_DEBUG(glDrawElements)(GL_TRIANGLE_FAN, numEntries, GL_UNSIGNED_SHORT, &pdef->command_verts[entry]);
             entry += numEntries;
         }
     }

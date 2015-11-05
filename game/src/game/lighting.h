@@ -48,6 +48,14 @@ void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const Vect
 //--------------------------------------------------------------------------------------------
 struct lighting_cache_base_t
 {
+    lighting_cache_base_t() :
+        _max_light(0.0f),
+        _max_delta(0.0f),
+        _lighting{}
+    {
+        _lighting.fill(0.0f);
+    }
+
     float             _max_light;  ///< max amplitude of direct light
     float             _max_delta;  ///< max change in the light amplitude
     std::array<float, LIGHTING_VEC_SIZE> _lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
@@ -64,6 +72,15 @@ struct lighting_cache_base_t
 //--------------------------------------------------------------------------------------------
 struct lighting_cache_t
 {
+    lighting_cache_t() :
+        _max_light(0.0f),
+        _max_delta(0.0f),
+        low(),
+        hgh()
+    {
+
+    }
+
     float                 _max_light;              ///< max amplitude of direct light
     float                 _max_delta;              ///< max change in amplitude of all light
 

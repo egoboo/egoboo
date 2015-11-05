@@ -492,6 +492,13 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
     // only check possible object-platform interactions
     bool platform_a = objectB->canuseplatforms && !_currentModule->getObjectHandler().exists(objectB->onwhichplatform_ref) && objectA->platform;
     bool platform_b = objectA->canuseplatforms && !_currentModule->getObjectHandler().exists(objectA->onwhichplatform_ref) && objectB->platform;
+
+    //Only allow scenery objects on top of other scenery objects
+    if(objectA->isScenery() != objectB->isScenery()) {
+        platform_a &= objectA->isScenery();
+        platform_b &= objectB->isScenery();
+    }
+
     if ( !platform_a && !platform_b ) return false;
 
     odepth[OCT_Z] = std::min(objectB->chr_min_cv._maxs[OCT_Z] + objectB->getPosZ(), objectA->chr_min_cv._maxs[OCT_Z] + objectA->getPosZ()) -

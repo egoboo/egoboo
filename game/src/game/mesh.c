@@ -205,11 +205,9 @@ std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source)
         ego_tile_info_t& ptile_dst = tmem_dst.getTile(cnt);
         ego_grid_info_t *pgrid_dst = gmem_dst.get(cnt);
 
-        // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         ptile_dst._type = ptile_src.type;
         ptile_dst._img  = ptile_src.img;
 
-        // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         pgrid_dst->_base_fx = ptile_src.fx;
         pgrid_dst->_twist   = ptile_src.twist;
 
@@ -470,7 +468,7 @@ void ego_mesh_t::make_bbox()
         poct = oct_bb_t(ovec);
         mesh_vrt++;
 
-        ptile._aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile._itile % _info.getTileCountX()), Info<float>::Grid::Size() * (ptile._itile % _info.getTileCountY()));
+        ptile._aabb._min = Vector2f(Info<float>::Grid::Size() * (ptile._itile % _info.getTileCountX()), Info<float>::Grid::Size() * (ptile._itile / _info.getTileCountY()));
         ptile._aabb._max = Vector2f(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size(), ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size());
 
         // add the rest of the points into the bounding box
@@ -1224,29 +1222,6 @@ float ego_mesh_t::get_max_vertex_1( const PointGrid& point, float xmin, float ym
     if ( -1e6 == zmax ) zmax = 0.0f;
 
     return zmax;
-}
-
-//--------------------------------------------------------------------------------------------
-// ego_tile_info_t
-//--------------------------------------------------------------------------------------------
-ego_tile_info_t::ego_tile_info_t() :
-    _itile(0),
-    _type(0),
-    _img(0),
-    _vrtstart(0),
-    _fanoff(true),
-    _ncache{0, 0, 0, 0},
-    _lcache{0, 0, 0, 0},
-    _request_lcache_update(true),
-    _lcache_frame(-1),
-    _request_clst_update(true),
-    _clst_frame(-1),
-    _d1_cache{0, 0, 0, 0},
-    _d2_cache{0, 0, 0, 0},
-    _oct(),
-    _aabb()
-{
-    //ctor
 }
 
 //--------------------------------------------------------------------------------------------

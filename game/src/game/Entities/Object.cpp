@@ -172,9 +172,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
         const FRange& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
-
-    // set the insance values to safe values
-    chr_instance_t::ctor(inst);
 }
 
 Object::~Object()
