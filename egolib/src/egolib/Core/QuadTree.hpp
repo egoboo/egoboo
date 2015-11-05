@@ -33,169 +33,166 @@ class QuadTree
 {
 public:
 
-	/**
-	* @brief
-	*	Construct a root QuadTree node with infinite bounds
-	**/
-	QuadTree() : QuadTree(
-		std::numeric_limits<float>::lowest(), 
-		std::numeric_limits<float>::lowest(), 
-		std::numeric_limits<float>::max(), 
-		std::numeric_limits<float>::max())
-	{
-		//ctor	
-	}
+    /**
+    * @brief
+    *   Construct a root QuadTree node with infinite bounds
+    **/
+    QuadTree() : QuadTree(
+        std::numeric_limits<float>::lowest(), 
+        std::numeric_limits<float>::lowest(), 
+        std::numeric_limits<float>::max(), 
+        std::numeric_limits<float>::max())
+    {
+        //ctor  
+    }
 
-	/**
-	* @brief
-	*	Constructor with bounded limits
-	**/
-	QuadTree(const float minX, const float minY, const float maxX, const float maxY) :
-		_bounds(Vector2f(minX, minY), Vector2f(maxX, maxY)),
-		_nodes(),
-		_northWest(nullptr),
-		_northEast(nullptr),
-		_southWest(nullptr),
-		_southEast(nullptr)
-	{
-		//ctor
-	}
+    /**
+    * @brief
+    *   Constructor with bounded limits
+    **/
+    QuadTree(const float minX, const float minY, const float maxX, const float maxY) :
+        _bounds(Vector2f(minX, minY), Vector2f(maxX, maxY)),
+        _nodes(),
+        _northWest(nullptr),
+        _northEast(nullptr),
+        _southWest(nullptr),
+        _southEast(nullptr)
+    {
+        //ctor
+    }
 
-	/**
-	* @brief
-	*	Inserts an element into this QuadTree
-	* @return
-	*	true if the object fits within the bounds of this tree
-	**/
-	bool insert(const std::shared_ptr<T> &element)
-	{
-		//Element does not belong in this tree
-		if(!element->getAABB2D().overlaps(_bounds)) {
-			return false;
-		}
+    /**
+    * @brief
+    *   Inserts an element into this QuadTree
+    * @return
+    *   true if the object fits within the bounds of this tree
+    **/
+    bool insert(const std::shared_ptr<T> &element)
+    {
+        //Element does not belong in this tree
+        if(!_bounds.overlaps(element->getAABB2D())) {
+            return false;
+        }
 
-		//Check if we have room
-		if(_nodes.size() < QUAD_TREE_NODE_CAPACITY) {
-			_nodes.push_back(element);
-			return true;
-		}
+        //Check if we have room
+        if(_nodes.size() < QUAD_TREE_NODE_CAPACITY) {
+            _nodes.push_back(element);
+            return true;
+        }
 
-		// Otherwise, subdivide and then add the point to whichever node will accept it
-		if(_northWest == nullptr) {
-			subdivide();
-		}
+        // Otherwise, subdivide and then add the point to whichever node will accept it
+        if(_northWest == nullptr) {
+            subdivide();
+        }
 
-		//Add element to a sub-tree
-		if(_northWest->insert(element)) {
-			return true;
-		}
-		if(_northEast->insert(element)) {
-			return true;
-		}
-		if(_southWest->insert(element)) {
-			return true;
-		}
-		if(_southEast->insert(element)) {
-			return true;
-		}
+        //Add element to a sub-tree
+        _northWest->insert(element);
+        _northEast->insert(element);
+        _southWest->insert(element);
+        _southEast->insert(element);
 
-		//Should never happen
-		throw std::logic_error("unable to add element to QuadTree");
-	}
+        //Should be added to at least 1
+        return true;
+    }
 
-	/**
-	* @brief
-	*	Find all elements that are within range of a specified point in this QuadTree's
-	*	bounding box.
-	* @param searchArea
-	*	The bounding box which is used for finding elements
-	* @param result
-	*	Vector of all elements that fit within the search area
-	**/
-	void find(const AABB2f &searchArea, std::vector<std::shared_ptr<T>> &result) const
-	{
-		//Search grid is not part of our bounds
-		if(!_bounds.overlaps(searchArea)) {
-			return;
-		}
+    /**
+    * @brief
+    *   Find all elements that are within range of a specified point in this QuadTree's
+    *   bounding box.
+    * @param searchArea
+    *   The bounding box which is used for finding elements
+    * @param result
+    *   Vector of all elements that fit within the search area
+    **/
+    void find(const AABB2f &searchArea, std::vector<std::shared_ptr<T>> &result) const
+    {
+        //Search grid is not part of our bounds
+        if(!_bounds.overlaps(searchArea)) {
+            return;
+        }
 
-		//Check all nodes in this QuadTree
-		for(const std::weak_ptr<T> &weakElement : _nodes) {
-			std::shared_ptr<T> element = weakElement.lock();
+        //Check all nodes in this QuadTree
+        for(const std::weak_ptr<T> &weakElement : _nodes) {
+            std::shared_ptr<T> element = weakElement.lock();
 
-			//Make sure element still exists
-			if(element != nullptr) {
+            //Make sure element still exists
+            if(element != nullptr) {
 
-				//Check if element is within search area
-				if(element->getAABB2D().overlaps(searchArea)) {
-					result.push_back(element);
-				}
-			}
-		}
+                //Already added?
+                if(std::find(result.begin(), result.end(), element) != result.end()) {
+                    continue;
+                }
 
-		//Check subtrees (if any)
-		if(_northWest != nullptr) {
-			_northWest->find(searchArea, result);
-			_northEast->find(searchArea, result);
-			_southWest->find(searchArea, result);
-			_southEast->find(searchArea, result);
-		}
-	}
+                //Check if element is within search area
+                if(element->getAABB2D().overlaps(searchArea)) {
+                    result.push_back(element);
+                }
+            }
+        }
 
-	/**
-	* @brief
-	*	Clears all elements from this QuadTree and all its children
-	**/
-	void clear(const float minX, const float minY, const float maxX, const float maxY)
-	{
-		//Reset bounds
-		_bounds._min[kX] = minX;
-		_bounds._min[kY] = minY;
-		_bounds._max[kX] = maxX;
-		_bounds._max[kY] = maxY;
+        //Check subtrees (if any)
+        if(_northWest != nullptr) {
+            _northWest->find(searchArea, result);
+            _northEast->find(searchArea, result);
+            _southWest->find(searchArea, result);
+            _southEast->find(searchArea, result);
+        }
+    }
 
-		//Clear children and all elements
-		_nodes.clear();
-		_northWest.reset();
-		_northEast.reset();
-		_southWest.reset();
-		_southEast.reset();
-	}
+    /**
+    * @brief
+    *   Clears all elements from this QuadTree and all its children
+    **/
+    void clear(const float minX, const float minY, const float maxX, const float maxY)
+    {
+        //Reset bounds
+        _bounds._min[kX] = minX;
+        _bounds._min[kY] = minY;
+        _bounds._max[kX] = maxX;
+        _bounds._max[kY] = maxY;
+
+        //Clear children and all elements
+        _nodes.clear();
+        _northWest.reset();
+        _northEast.reset();
+        _southWest.reset();
+        _southEast.reset();
+    }
 
 private:
-	/**
-	* @brief
-	*	Helper function to subdivide this QuadTree into four more QuadTrees
-	**/
-	void subdivide()
-	{
-		float topLeftX = _bounds.getMin()[kX];
-		float topLeftY = _bounds.getMin()[kY];
+    /**
+    * @brief
+    *   Helper function to subdivide this QuadTree into four more QuadTrees
+    **/
+    void subdivide()
+    {
+        float topLeftX = _bounds.getMin()[kX];
+        float topLeftY = _bounds.getMin()[kY];
 
-		float bottomRightX = _bounds.getMax()[kX];
-		float bottomRightY = _bounds.getMax()[kY];
+        float bottomRightX = _bounds.getMax()[kX];
+        float bottomRightY = _bounds.getMax()[kY];
 
-		float midX = (topLeftX + bottomRightX) * 0.5f;
-		float midY = (topLeftY + bottomRightY) * 0.5f;
+        float midX = (topLeftX + bottomRightX) * 0.5f;
+        float midY = (topLeftY + bottomRightY) * 0.5f;
 
-		//Allocate memory for the subdivision
-		_northWest = std::make_unique<QuadTree<T>>(topLeftX, topLeftY, midX, midY);
-		_northEast = std::make_unique<QuadTree<T>>(midX, topLeftY, bottomRightX, midY);
-		_southWest = std::make_unique<QuadTree<T>>(topLeftX, midY, midX, bottomRightY);
-		_southEast = std::make_unique<QuadTree<T>>(midX, midY, bottomRightX, bottomRightY);
-	}
+        //Allocate memory for the subdivision
+        _northWest = std::make_unique<QuadTree<T>>(topLeftX, topLeftY, midX, midY);
+        _northEast = std::make_unique<QuadTree<T>>(midX, topLeftY, bottomRightX, midY);
+        _southWest = std::make_unique<QuadTree<T>>(topLeftX, midY, midX, bottomRightY);
+        _southEast = std::make_unique<QuadTree<T>>(midX, midY, bottomRightX, bottomRightY);
+    }
 
 private:
-	static const size_t QUAD_TREE_NODE_CAPACITY = 4;	//< Maximum number of nodes in tree before subdivision
+    static const size_t QUAD_TREE_NODE_CAPACITY = 4;    //< Maximum number of nodes in tree before subdivision
 
-	AABB2f _bounds;									    //< 2D AABB
+    AABB2f _bounds;                                     //< 2D AABB
 
-	std::vector<std::weak_ptr<T>> _nodes;				//< List of nodes contained in this QuadTree
+    std::vector<std::weak_ptr<T>> _nodes;               //< List of nodes contained in this QuadTree
 
-	std::unique_ptr<QuadTree<T>> _northWest;
-	std::unique_ptr<QuadTree<T>> _northEast;
-	std::unique_ptr<QuadTree<T>> _southWest;
-	std::unique_ptr<QuadTree<T>> _southEast;
+    std::unique_ptr<QuadTree<T>> _northWest;
+    std::unique_ptr<QuadTree<T>> _northEast;
+    std::unique_ptr<QuadTree<T>> _southWest;
+    std::unique_ptr<QuadTree<T>> _southEast;
 };
 
 } //namespace Ego

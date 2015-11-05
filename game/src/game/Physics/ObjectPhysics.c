@@ -1549,6 +1549,10 @@ void move_all_characters()
     // Move every character
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
+        if(object->isTerminated()) {
+            continue;
+        }
+        
         // prime the environment
         object->enviro.ice_friction = Ego::Physics::g_environment.icefriction;
 
