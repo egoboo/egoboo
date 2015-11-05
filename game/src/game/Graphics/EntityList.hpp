@@ -53,8 +53,13 @@ struct EntityList
         float dist;
         
         element_t() :
-            ichr(INVALID_CHR_REF), iprt(INVALID_PRT_REF), dist(0.0f)
-        {}
+            ichr(INVALID_CHR_REF), 
+            iprt(INVALID_PRT_REF), 
+            dist(0.0f)
+        {
+            //ctor
+        }
+
 #if XX == 1
         element_t(const element_t& other) :
             ichr(other.ichr), iprt(other.iprt), dist(other.dist)
@@ -70,7 +75,6 @@ struct EntityList
         {}
 #endif
 
-        static element_t *init(element_t *self);
         static int cmp(const void *left, const void *right);
     };
 protected:

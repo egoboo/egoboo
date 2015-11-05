@@ -205,11 +205,9 @@ std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source)
         ego_tile_info_t& ptile_dst = tmem_dst.getTile(cnt);
         ego_grid_info_t *pgrid_dst = gmem_dst.get(cnt);
 
-        // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         ptile_dst._type = ptile_src.type;
         ptile_dst._img  = ptile_src.img;
 
-        // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         pgrid_dst->_base_fx = ptile_src.fx;
         pgrid_dst->_twist   = ptile_src.twist;
 

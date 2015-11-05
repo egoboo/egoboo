@@ -120,6 +120,17 @@ enum e_time
 /// The actual state of the animated tiles in-game
 struct animtile_instance_t
 {
+    animtile_instance_t() :
+        update_and(0),
+        frame_and(0),
+        base_and(0),
+        frame_add(0),
+        frame_add_old(0),
+        frame_update_old(0)
+    {
+        //ctor
+    }
+
     int    update_and;            ///< how often to update the tile
 
     uint16_t frame_and;             ///< how many images within the "tile set"?

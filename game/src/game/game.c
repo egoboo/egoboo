@@ -2963,26 +2963,26 @@ void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
 //--------------------------------------------------------------------------------------------
 bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t * pdata, const size_t animtile_count )
 {
-    Uint32 cnt;
+    if ( nullptr == inst || 0 == animtile_count ) return false;
 
-    if ( NULL == inst || 0 == animtile_count ) return false;
+    for(size_t cnt = 0; cnt < animtile_count; ++cnt) {
+        inst[cnt] = animtile_instance_t();
+    }
 
-    BLANK_STRUCT_PTR( inst )
-
-    for ( cnt = 0; cnt < animtile_count; cnt++ )
+    for (size_t cnt = 0; cnt < animtile_count; cnt++ )
     {
         inst[cnt].frame_and  = ( 1 << ( cnt + 2 ) ) - 1;
         inst[cnt].base_and   = ~inst[cnt].frame_and;
         inst[cnt].frame_add  = 0;
     }
 
-    if ( NULL != pdata )
+    if ( nullptr != pdata )
     {
         inst[0].update_and = pdata->update_and;
         inst[0].frame_and  = pdata->frame_and;
         inst[0].base_and   = ~inst[0].frame_and;
 
-        for ( cnt = 1; cnt < animtile_count; cnt++ )
+        for (size_t cnt = 1; cnt < animtile_count; cnt++ )
         {
             inst[cnt].update_and = pdata->update_and;
             inst[cnt].frame_and  = ( inst[cnt-1].frame_and << 1 ) | 1;

@@ -6,18 +6,6 @@
 namespace Ego {
 namespace Graphics {
 
-EntityList::element_t *EntityList::element_t::init(EntityList::element_t * ptr)
-{
-	if (NULL == ptr) return NULL;
-
-	BLANK_STRUCT_PTR(ptr)
-
-	ptr->ichr = INVALID_CHR_REF;
-	ptr->iprt = INVALID_PRT_REF;
-
-	return ptr;
-}
-
 int EntityList::element_t::cmp(const void * pleft, const void * pright)
 {
 	element_t * dleft = (element_t *)pleft;
@@ -52,7 +40,7 @@ EntityList *EntityList::init()
 {
     for (size_t i = 0; i < CAPACITY; ++i)
     {
-        element_t::init(&(_lst[i]));
+        _lst[i] = element_t();
     }
     _size = 0;
     return this;

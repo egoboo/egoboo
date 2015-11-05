@@ -1682,11 +1682,9 @@ void chr_instance_t::clear_cache(chr_instance_t& self)
     /// @details force chr_instance_update_vertices() recalculate the vertices the next time
     ///     the function is called
 
-	vlst_cache_t::init(self.save);
-
-	matrix_cache_t::init(self.matrix_cache);
-
-	chr_reflection_cache_t::init(self.ref);
+    self.save = vlst_cache_t();
+    self.matrix_cache = matrix_cache_t();
+    self.ref = chr_reflection_cache_t();
 
     self.lighting_update_wld = -1;
     self.lighting_frame_all  = -1;
@@ -1698,53 +1696,73 @@ chr_instance_t *chr_instance_t::dtor(chr_instance_t& self)
 
     EGOBOO_ASSERT(!self.vrt_lst);
 
-    self.imad = nullptr;
-	BLANK_STRUCT_PTR(&(self)); //TODO: BAD destroys self.imad which is a shared_ptr
+    //Reset data
+    self = chr_instance_t();
 
     return &self;
 }
 
-chr_instance_t *chr_instance_t::ctor(chr_instance_t& self)
-{
-    self.imad = nullptr;
-	BLANK_STRUCT_PTR(&(self)); //TODO: BAD destroys self.imad which is a shared_ptr
+chr_instance_t::chr_instance_t() :
+    // set the update frame to an invalid value
+    update_frame(-1),
+
+    matrix(Matrix4f4f::identity()),
+    matrix_cache(),
+
+    facing_z(0),
+
+    alpha(0xFF),
+    light(0),
+    sheen(0),
+    enviro(false),
+    dont_cull_backfaces(false),
+    skin_has_transparency(false),
+
+    redshift(0),
+    grnshift(0),
+    blushift(0),
+
+    texture(nullptr),
+    uoffset(0),
+    voffset(0),
 
     // model parameters
-    self.imad = nullptr;
-    self.vrt_count = 0;
+    imad(nullptr),
 
-    // set the initial cache parameters
-    chr_instance_t::clear_cache(self);
-
-    // Set up initial fade in lighting
-    self.color_amb = 0;
-    for (size_t i = 0; i < self.vrt_count; ++i) {
-        self.vrt_lst[i].color_dir = 0;
-    }
-
-    // clear out the matrix cache
-	matrix_cache_t::init(self.matrix_cache);
-
-    // the matrix should never be referenced if the cache is not valid,
-    // but it never pays to have a 0 matrix...
-	self.matrix = Matrix4f4f::identity();
+    // animation info
+    frame_nxt(0),
+    frame_lst(0),
+    ilip(0),
+    flip(0.0f),
+    rate(1.0f),
 
     // set the animation state
-	self.rate = 1.0f;
-	self.action_next = ACTION_DA;
-    self.action_ready = true;                     // argh! this must be set at the beginning, script's spawn animations do not work!
-	self.frame_lst = 0;
-	self.frame_nxt = 0;
+    action_ready(true),         // argh! this must be set at the beginning, script's spawn animations do not work!
+    action_which(ACTION_DA),
+    action_keep(false),
+    action_loop(false),
+    action_next(ACTION_DA),
 
-    // the vlst_cache parameters are not valid
-    self.save.valid = false;
+    // lighting info
+    color_amb(0),
+    col_amb(),
+    max_light(0),
+    min_light(0),
+    lighting_update_wld(-1),
+    lighting_frame_all(-1),
 
-    // set the update frame to an invalid value
-	self.update_frame = -1;
-	self.lighting_update_wld = -1;
-	self.lighting_frame_all = -1;
+    // linear interpolated frame vertices
+    vrt_count(0),
+    vrt_lst(nullptr),
+    bbox(),
 
-	return &self;
+    // graphical optimizations
+    indolist(false),
+    save(),
+    ref()
+{
+    // set the initial cache parameters
+    chr_instance_t::clear_cache(*this);
 }
 
 void chr_instance_t::dealloc(chr_instance_t& self)
@@ -1846,12 +1864,12 @@ void chr_instance_t::update_ref(chr_instance_t& self, float grid_level, bool nee
 gfx_rv chr_instance_t::spawn(chr_instance_t& self, const PRO_REF profileID, const int skin)
 {
     // Remember any previous color shifts in case of lasting enchantments
-	Sint8 greensave = self.grnshift;
-	Sint8 redsave = self.redshift;
-	Sint8 bluesave = self.blushift;
+	int8_t greensave = self.grnshift;
+	int8_t redsave = self.redshift;
+	int8_t bluesave = self.blushift;
 
     // clear the instance
-    chr_instance_t::ctor(self);
+    self = chr_instance_t();
 
     const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(profileID);
     if (!profile) {
@@ -2168,29 +2186,6 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 }
 
 
-//--------------------------------------------------------------------------------------------
-
-chr_reflection_cache_t *chr_reflection_cache_t::init(chr_reflection_cache_t& self)
-{
-	BLANK_STRUCT_PTR(&(self));
-
-    self.alpha = 127;
-    self.light = 255;
-
-    return &self;
-}
-
-//--------------------------------------------------------------------------------------------
-vlst_cache_t *vlst_cache_t::init(vlst_cache_t& self)
-{
-	BLANK_STRUCT_PTR(&(self));
-
-    self.vmin = -1;
-    self.vmax = -1;
-
-    return &self;
-}
-
 gfx_rv vlst_cache_t::test(vlst_cache_t& self, chr_instance_t *instance)
 {
 	if (!self.valid) {
@@ -2215,28 +2210,6 @@ gfx_rv vlst_cache_t::test(vlst_cache_t& self, chr_instance_t *instance)
     }
 
     return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-matrix_cache_t *matrix_cache_t::init(matrix_cache_t& self)
-{
-    /// @author BB
-    /// @details clear out the matrix cache data
-
-	BLANK_STRUCT_PTR(&(self));
-
-	self.type_bits = MAT_UNKNOWN;
-	self.grip_chr = INVALID_CHR_REF;
-
-    for (size_t i = 0; i < (size_t)GRIP_VERTS; ++i) {
-        self.grip_verts[i] = 0xFFFF;
-    }
-
-    self.rotate[kX] = 0;
-    self.rotate[kY] = 0;
-    self.rotate[kZ] = 0;
-
-    return &self;
 }
 
 void chr_instance_flash(chr_instance_t& self, Uint8 value)
