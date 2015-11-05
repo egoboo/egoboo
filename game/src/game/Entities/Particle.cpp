@@ -533,6 +533,20 @@ size_t Particle::updateContinuousSpawning()
         return spawn_count;
     }
 
+    //Optimization: Only spawn cosmetic sub-particles if we ourselves were rendered
+    //This prevents a lot of cosmetic particles from spawning visible range
+    const std::shared_ptr<pip_t>& childProfile = PipStack.get_ptr(getProfile()->contspawn._lpip.get());
+    if(!childProfile->force && !inst.indolist) {
+
+        //Is is something that spawns often? (often = every 2 seconds)
+        if(contspawn_timer < GameEngine::GAME_TARGET_UPS * 2) {
+
+            //Don't spawn this particle
+            return spawn_count;
+        }
+    }
+
+
     // reset the spawn timer
     contspawn_timer = getProfile()->contspawn._delay;
 
