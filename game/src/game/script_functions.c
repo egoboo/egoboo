@@ -5364,31 +5364,22 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 	Vector3f pos = Vector3f(state.x, state.y, state.distance);
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF );
-    returncode = pchild != nullptr;
-
-    if ( !returncode )
+    if (pchild == nullptr)
     {
 		Log::warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
+        returncode = false;
     }
     else
     {
-        // was the child spawned in a "safe" spot?
-        if (!pchild->hasSafePosition())
-        {
-			Log::warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
-            pchild->requestTerminate();
-        }
-        else
-        {
-            self.child = pchild->getCharacterID();
+        self.child = pchild->getCharacterID();
 
-            pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
-            pchild->ai.passage = self.passage;
-            pchild->ai.owner   = self.owner;
+        pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
+        pchild->ai.passage = self.passage;
+        pchild->ai.owner   = self.owner;
 
-            pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-            pchild->dismount_object = self.index;
-        }
+        pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+        pchild->dismount_object = self.index;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
