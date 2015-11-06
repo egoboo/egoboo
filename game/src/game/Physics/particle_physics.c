@@ -876,7 +876,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
     FACING_T direction;
     float    fsin, fcos;
 
-    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iparticle];
     if(!pprt || pprt->isTerminated()) {
         return 0;
     }
