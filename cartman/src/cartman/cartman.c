@@ -850,7 +850,7 @@ void fan_calc_vrta( cartman_mpd_t * pmesh, int fan )
     pfan = CART_MPD_FAN_PTR( pmesh, fan );
     if ( NULL == pfan ) return;
 
-    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    pdef = tile_dict.get( pfan->type );
     if ( NULL == pdef ) return;
 
     num = pdef->numvertices;
@@ -2215,7 +2215,7 @@ void cart_mouse_data_mesh_replace_fx()
     if ( !VALID_MPD_TILE_RANGE( mdata.win_fan ) ) return;
     Uint8 type = mdata.win_mesh->fan2[mdata.win_fan].type;
 
-    tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, type);
+    tile_definition_t *pdef = tile_dict.get(type);
     if ( NULL == pdef ) return;
 
     Uint16 tx_bits = mdata.win_mesh->fan2[mdata.win_fan].tx_bits;

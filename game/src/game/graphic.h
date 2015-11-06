@@ -442,9 +442,10 @@ struct dynalist_t
 	int frame; ///< The last frame in shich the list was updated. @a -1 if there was no update yet.
 	size_t size; ///< The size of the list.
 	dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
+	static void init(dynalist_t& self);
 };
 
-gfx_rv dynalist_init(dynalist_t *self);
+
 
 
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */, {} }

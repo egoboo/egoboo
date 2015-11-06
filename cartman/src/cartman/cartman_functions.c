@@ -132,7 +132,7 @@ void fix_vertices( cartman_mpd_t * pmesh, int mapx, int mapy )
 	cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
     if ( NULL == pfan ) return;
 
-	tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+	tile_definition_t *pdef = tile_dict.get(pfan->type);
     if ( NULL == pdef ) return;
 
     for ( int cnt = 4; cnt < pdef->numvertices; cnt++ )
@@ -240,7 +240,7 @@ int get_fan_vertex_by_coord( const cartman_mpd_t * pmesh, const cartman_mpd_tile
     if ( grid_iy < 0 || grid_iy >= 4 ) return -1;
 
     // get the tile definition
-	tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+	tile_definition_t *pdef = tile_dict.get(pfan->type);
     if ( NULL == pdef ) return -1;
 
     // handle optional parameters
@@ -735,7 +735,7 @@ int nearest_edge_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, float nearx,
 	cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
     if ( NULL == pfan ) return -1;
 
-	tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+	tile_definition_t *pdef = tile_dict.get(pfan->type);
     if ( NULL == pdef ) return -1;
 
     // assume the worst
@@ -867,7 +867,7 @@ void mesh_select_verts_connected(select_lst_t& plst) {
 			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
             if ( NULL == pfan ) continue;
 
-			tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+			tile_definition_t *pdef = tile_dict.get(pfan->type);
             if ( NULL == pdef ) continue;
 
 			bool select_vertsfan = false;
@@ -1018,10 +1018,10 @@ void MeshEditor::move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uin
 			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
             if ( NULL == pfan ) continue;
 
-			tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+			tile_definition_t *pdef = tile_dict.get(pfan->type);
             if ( NULL == pdef ) continue;
 
-            if ( tiletype == ( pfan->tx_bits&tileand ) )
+            if ( tiletype == ( pfan->tx_bits & tileand ) )
             {
                 int vert = pfan->vrtstart;
                 for ( int cnt = 0; cnt < pdef->numvertices; cnt++ )
@@ -1091,7 +1091,7 @@ void MeshEditor::level_vrtz( cartman_mpd_t * pmesh )
 			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
             if ( NULL == pfan ) continue;
 
-			tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+			tile_definition_t *pdef = tile_dict.get(pfan->type);
             if ( NULL == pdef ) continue;
 
             Uint32 vert = pfan->vrtstart;
@@ -1122,7 +1122,7 @@ void MeshEditor::jitter_mesh( cartman_mpd_t * pmesh )
 			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
             if ( NULL == pfan ) continue;
 
-			tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+			tile_definition_t *pdef = tile_dict.get(pfan->type);
             if ( NULL == pdef ) continue;
 
             int num = pdef->numvertices;
@@ -1161,7 +1161,7 @@ void MeshEditor::flatten_mesh( cartman_mpd_t * pmesh, int y0 )
 			cartman_mpd_tile_t *pfan = pmesh->get_pfan(mapx, mapy);
             if ( NULL == pfan ) continue;
 
-			tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+			tile_definition_t *pdef = tile_dict.get(pfan->type);
             if ( NULL == pdef ) continue;
 
             int num = pdef->numvertices;
@@ -1290,7 +1290,7 @@ void MeshEditor::set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
     if ( NULL == pfan ) return;
 
     // fan is defined?
-	tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+	tile_definition_t *pdef = tile_dict.get(pfan->type);
     if ( NULL == pdef || 0 == pdef->numvertices ) return;
     Uint32 vert_count = pdef->numvertices;
 
@@ -1889,7 +1889,7 @@ void MeshEditor::mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz 
             pfan = pmesh->get_pfan(mapx, mapy);
             if ( NULL == pfan ) continue;
 
-            pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+            pdef = tile_dict.get(pfan->type );
             if ( NULL == pdef ) continue;
 
             count = pdef->numvertices;

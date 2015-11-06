@@ -424,7 +424,6 @@
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Random.asm</AssemblerListingLocation>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Random.o</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="src\egolib\mem.c" />
     <ClCompile Include="src\egolib\bbox.c" />
     <ClCompile Include="src\egolib\Clock.cpp" />
     <ClCompile Include="src\egolib\egoboo_setup.c" />
@@ -450,7 +449,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\egolib\strutil.c" />
-    <ClCompile Include="src\egolib\timer.c" />
     <ClCompile Include="src\egolib\typedef.c" />
     <ClCompile Include="src\egolib\vfs.c" />
     <ClCompile Include="src\egolib\_math.c" />
@@ -591,7 +589,6 @@
     <ClInclude Include="src\egolib\math\Sphere.h" />
     <ClInclude Include="src\egolib\math\Plane.hpp" />
     <ClInclude Include="src\egolib\math\Random.hpp" />
-    <ClInclude Include="src\egolib\bv.h" />
     <ClInclude Include="src\egolib\bbox.h" />
     <ClInclude Include="src\egolib\Clock.hpp" />
     <ClInclude Include="src\egolib\egoboo_setup.h" />
@@ -611,7 +608,6 @@
     <ClInclude Include="src\egolib\input_device.h" />
     <ClInclude Include="src\egolib\log.h" />
     <ClInclude Include="src\egolib\map_functions.h" />
-    <ClInclude Include="src\egolib\mem.h" />
     <ClInclude Include="src\egolib\network.h" />
     <ClInclude Include="src\egolib\platform.h" />
     <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">

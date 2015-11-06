@@ -27,9 +27,6 @@
 #include "egolib/egolib_config.h"
 #include "egolib/Debug.hpp"
 
-// this include must be the absolute last include
-#include "egolib/mem.h"
-
 //--------------------------------------------------------------------------------------------
 // place the definition of the lambda operator in a macro
 #define LAMBDA(AA,BB,CC) ((AA) ? (BB) : (CC))

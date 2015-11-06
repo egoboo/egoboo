@@ -947,17 +947,14 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
 
             if (vertices != 0)
             {
-                PRT_REF *vertex_occupied;
-                float   *vertex_distance;
-                float    dist;
                 TURN_T   turn;
 
-                vertex_occupied = EGOBOO_NEW_ARY(PRT_REF, vertices);
-                vertex_distance = EGOBOO_NEW_ARY(float, vertices);
+				auto vertex_occupied = std::make_unique<PRT_REF[]>(vertices);
+                auto vertex_distance = std::make_unique<float[]>(vertices);
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                dist = (pprt->getPosition() - pchr->getPosition()).length_abs();
+                float dist = (pprt->getPosition() - pchr->getPosition()).length_abs();
 
                 // clear the occupied list
                 z = pprt->getPosZ() - pchr->getPosZ();
@@ -1041,9 +1038,6 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 //        }
                 //    }
                 //}
-
-                EGOBOO_DELETE_ARY(vertex_occupied);
-                EGOBOO_DELETE_ARY(vertex_distance);
             }
         }
     }

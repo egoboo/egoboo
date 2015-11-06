@@ -602,7 +602,7 @@ int cartman_mpd_add_fan_verts(cartman_mpd_t *self, cartman_mpd_tile_t *pfan)
     fan_type = pfan->type;
 
     // get the tile definition
-    pdef = TILE_DICT_PTR( tile_dict, fan_type );
+    pdef = tile_dict.get( fan_type );
     if ( NULL == pdef )
     {
 		Log::warning( "%s - tried to add invalid fan_idx type %d\n", __FUNCTION__, fan_type );
@@ -637,7 +637,7 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
         return -1;
     }
 
-    tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+    tile_definition_t *pdef = tile_dict.get(pfan->type);
     if (!pdef)
     {
 		Log::warning("%s - invalid fan type %d\n", __FUNCTION__, pfan->type);
@@ -693,7 +693,7 @@ void cartman_mpd_t::remove_pfan(cartman_mpd_tile_t *pfan)
 {
     if (!pfan) return;
 
-    tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+    tile_definition_t *pdef = tile_dict.get(pfan->type);
     if (!pdef) return;
 
     Uint32 numvert = pdef->numvertices;
@@ -727,7 +727,7 @@ int cartman_mpd_t::get_ivrt_pfan(cartman_mpd_tile_t *pfan, int index)
     if ( NULL == pfan ) return -1;
 
     // find the tile definition
-    tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
+    tile_definition_t *pdef = tile_dict.get(pfan->type);
     if ( NULL == pdef ) return -1;
 
     // is it a valid vertex index?
@@ -811,7 +811,7 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
         cartman_mpd_tile_t& fan_dst = dst->fan2[ifan_dst];
 
         // check for valid fan type
-        tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, fan_dst.type);
+        tile_definition_t *pdef = tile_dict.get(fan_dst.type);
         if (!pdef)
         {
 			Log::warning( "%s - invalid fan type in fan # %d\n", __FUNCTION__, ifan_dst );
@@ -928,7 +928,7 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
         const cartman_mpd_tile_t& fan_src = src->fan2[itile];
 
         // is the type valid?
-        tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, fan_src.type);
+        tile_definition_t *pdef = tile_dict.get(fan_src.type);
         if (!pdef)
         {
 			Log::warning("%s:%d: invalid fan type %d used in the mesh\n", __FILE__, __LINE__, fan_src.type);
@@ -1137,7 +1137,7 @@ void cartman_tile_dictionary_load_vfs()
     {
         int entry, command;
 
-        pdef = TILE_DICT_PTR( tile_dict, fantype );
+        pdef = tile_dict.get( fantype );
         if ( NULL == pdef || 0 == pdef->numvertices ) continue;
 
         for ( command = 0, entry = 0; command < pdef->command_count; command++ )

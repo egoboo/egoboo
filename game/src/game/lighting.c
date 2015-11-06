@@ -239,75 +239,71 @@ void lighting_cache_t::lighting_project_cache( lighting_cache_t& dst, const ligh
 //--------------------------------------------------------------------------------------------
 bool lighting_cache_t::lighting_cache_interpolate( lighting_cache_t& dst, const std::array<const lighting_cache_t *, 4>& src, const float u, const float v )
 {
-    int   tnc;
-    float wt_sum;
-    float loc_u, loc_v;
-
     lighting_cache_t::init(dst);
 
-    loc_u = CLIP( u, 0.0f, 1.0f );
-    loc_v = CLIP( v, 0.0f, 1.0f );
+	float loc_u = CLIP(u, 0.0f, 1.0f);
+    float loc_v = CLIP(v, 0.0f, 1.0f);
 
-    wt_sum = 0.0f;
+	float wt_sum = 0.0f;
 
-    if ( NULL != src[0] )
-    {
-        float wt = ( 1.0f - loc_u ) * ( 1.0f - loc_v );
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            dst.low._lighting[tnc] += src[0]->low._lighting[tnc] * wt;
-            dst.hgh._lighting[tnc] += src[0]->hgh._lighting[tnc] * wt;
-        }
-        wt_sum += wt;
-    }
+	if (NULL != src[0])
+	{
+		float wt = (1.0f - loc_u) * (1.0f - loc_v);
+		for (size_t tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+		{
+			dst.low._lighting[tnc] += src[0]->low._lighting[tnc] * wt;
+			dst.hgh._lighting[tnc] += src[0]->hgh._lighting[tnc] * wt;
+		}
+		wt_sum += wt;
+	}
 
-    if ( NULL != src[1] )
-    {
-        float wt = loc_u * ( 1.0f - loc_v );
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            dst.low._lighting[tnc] += src[1]->low._lighting[tnc] * wt;
-            dst.hgh._lighting[tnc] += src[1]->hgh._lighting[tnc] * wt;
-        }
-        wt_sum += wt;
-    }
+	if (NULL != src[1])
+	{
+		float wt = loc_u * (1.0f - loc_v);
+		for (size_t tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+		{
+			dst.low._lighting[tnc] += src[1]->low._lighting[tnc] * wt;
+			dst.hgh._lighting[tnc] += src[1]->hgh._lighting[tnc] * wt;
+		}
+		wt_sum += wt;
+	}
 
-    if ( NULL != src[2] )
-    {
-        float wt = ( 1.0f - loc_u ) * loc_v;
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            dst.low._lighting[tnc] += src[2]->low._lighting[tnc] * wt;
-            dst.hgh._lighting[tnc] += src[2]->hgh._lighting[tnc] * wt;
-        }
-        wt_sum += wt;
-    }
+	if (NULL != src[2])
+	{
+		float wt = (1.0f - loc_u) * loc_v;
+		for (size_t tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+		{
+			dst.low._lighting[tnc] += src[2]->low._lighting[tnc] * wt;
+			dst.hgh._lighting[tnc] += src[2]->hgh._lighting[tnc] * wt;
+		}
+		wt_sum += wt;
+	}
 
-    if ( NULL != src[3] )
-    {
-        float wt = loc_u * loc_v;
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            dst.low._lighting[tnc] += src[3]->low._lighting[tnc] * wt;
-            dst.hgh._lighting[tnc] += src[3]->hgh._lighting[tnc] * wt;
-        }
-        wt_sum += wt;
-    }
+	if (NULL != src[3])
+	{
+		float wt = loc_u * loc_v;
+		for (size_t tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+		{
+			dst.low._lighting[tnc] += src[3]->low._lighting[tnc] * wt;
+			dst.hgh._lighting[tnc] += src[3]->hgh._lighting[tnc] * wt;
+		}
+		wt_sum += wt;
+	}
 
-    if ( wt_sum > 0.0f )
-    {
-        if ( wt_sum != 1.0f )
-        {
-            for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-            {
-                dst.low._lighting[tnc] /= wt_sum;
-                dst.hgh._lighting[tnc] /= wt_sum;
-            }
-        }
+	if (wt_sum > 0.0f)
+	{
+		if (wt_sum != 1.0f)
+		{
+			for (size_t tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+			{
+				dst.low._lighting[tnc] /= wt_sum;
+				dst.hgh._lighting[tnc] /= wt_sum;
+			}
+		}
 
-        // determine the lighting extents
-        lighting_cache_t::max_light( dst );
-    }
+		// determine the lighting extents
+		lighting_cache_t::max_light(dst);
+	}
 
     return wt_sum > 0.0f;
 }

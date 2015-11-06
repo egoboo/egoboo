@@ -19,16 +19,10 @@
 
 /// @file egolib/map_functions.c
 /// @brief mpd functionality ported from cartman and EgoMap
-/// @details
 
 #include "egolib/map_functions.h"
-
-#include "egolib/log.h"
 #include "egolib/FileFormats/map_file.h"
 
-//--------------------------------------------------------------------------------------------
-// Generic functions
-//--------------------------------------------------------------------------------------------
 bool twist_to_normal( Uint8 twist, Vector3f& v, float slide )
 {
     float diff_xy = 128.0f / slide;
@@ -59,7 +53,6 @@ bool twist_to_normal( Uint8 twist, Vector3f& v, float slide )
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
 map_t * map_generate_tile_twist_data( map_t * pmesh )
 {
     /// @author BB
@@ -133,87 +126,21 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
 
     return pmesh;
 }
-
-//--------------------------------------------------------------------------------------------
-int map_get_itile( map_t * pmesh, int mapx, int mapy )
-{
-    int itile = -1;
-
-    if ( NULL == pmesh )
-    {
-        itile = -1;
-    }
-    else if ( mapx < 0 || mapx >= pmesh->_info.getTileCountX() || mapy < 0 || mapy >= pmesh->_info.getTileCountY() )
-    {
-        itile = -1;
-    }
-    else
-    {
-        itile = mapx + pmesh->_info.getTileCountX() * mapy;
-    }
-
-    return itile;
-}
-
-//--------------------------------------------------------------------------------------------
-int map_get_fx_itile( map_t * pmesh, int itile )
-{
-    Uint8 WALL_BITS = MAPFX_WALL | MAPFX_IMPASS;
-    Uint8 tile_fx = 0;
-
-    if ( NULL == pmesh )
-    {
-        tile_fx = WALL_BITS;
-    }
-    else if (pmesh->_mem.tiles.empty())
-    {
-        tile_fx = WALL_BITS;
-    }
-    else if ( itile < 0 || itile >= pmesh->_mem.tiles.size() )
-    {
-        tile_fx = WALL_BITS;
-    }
-    else
-    {
-        tile_fx = pmesh->_mem.tiles[itile].fx;
-    }
-
-    return tile_fx;
-}
-
-//--------------------------------------------------------------------------------------------
-bool map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
-{
-    Uint8 tile_fx;
-
-    tile_fx = map_get_fx_itile( pmesh, itile );
-
+bool map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx ) {
+	if (!pmesh) {
+		throw std::runtime_error("nullptr == pmesh");
+	}
+	uint8_t tile_fx = (*pmesh)(itile).fx;
     return HAS_SOME_BITS( tile_fx, test_fx );
 }
 
-//--------------------------------------------------------------------------------------------
-bool map_has_some_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx )
-{
-    return map_has_some_fx_itile( pmesh, map_get_itile( pmesh, mapx, mapy ), test_fx );
+bool map_has_some_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx ) {
+	if (!pmesh) {
+		throw std::runtime_error("nullptr == pmesh");
+	}
+    return map_has_some_fx_itile( pmesh, pmesh->getTileIndex( mapx, mapy ), test_fx );
 }
 
-//--------------------------------------------------------------------------------------------
-bool map_has_no_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
-{
-    Uint8 tile_fx;
-
-    tile_fx = map_get_fx_itile( pmesh, itile );
-
-    return HAS_NO_BITS( tile_fx, test_fx );
-}
-
-//--------------------------------------------------------------------------------------------
-bool map_has_no_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx )
-{
-    return map_has_no_fx_itile( pmesh, map_get_itile( pmesh, mapx, mapy ), test_fx );
-}
-
-//--------------------------------------------------------------------------------------------
 map_t * map_generate_fan_type_data( map_t * pmesh )
 {
     /// @author BB
@@ -235,12 +162,12 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     if (pmesh->_mem.tiles.empty()) return pmesh;
 
     // allocate a temp array
-    ary = EGOBOO_NEW_ARY( Uint8, pmesh->_mem.tiles.size() );
-    if ( NULL == ary )
-    {
-        Log::warning( "%s - coul not allocate a temporary array.\n", __FUNCTION__ );
-        return pmesh;
-    }
+	try {
+		ary = new Uint8[pmesh->_mem.tiles.size()];
+	} catch (...) {
+		Log::warning("%s - unable to allocate a temporary array.\n", __FUNCTION__);
+		throw;
+	}
 
     // set up some loop variables
     step_x = 1;
@@ -324,7 +251,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             // this must be a "wall" tile
             // check the neighboring tiles to set the corner positions
 
-            jtile = map_get_itile( pmesh, mapx, mapy - 1 );
+            jtile = pmesh->getTileIndex(mapx, mapy - 1);
             if ( jtile > 0 )
             {
                 if ( FLOOR == ary[jtile] )
@@ -337,7 +264,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
             }
 
-            jtile = map_get_itile( pmesh, mapx + 1, mapy );
+            jtile = pmesh->getTileIndex(mapx + 1, mapy );
             if ( jtile > 0 )
             {
                 if ( FLOOR == ary[jtile] )
@@ -350,7 +277,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
             }
 
-            jtile = map_get_itile( pmesh, mapx, mapy + 1 );
+            jtile = pmesh->getTileIndex( mapx, mapy + 1 );
             if ( jtile > 0 )
             {
                 if ( FLOOR == ary[jtile] )
@@ -363,7 +290,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
             }
 
-            jtile = map_get_itile( pmesh, mapx - 1, mapy );
+            jtile = pmesh->getTileIndex( mapx - 1, mapy );
             if ( jtile > 0 )
             {
                 if ( FLOOR == ary[jtile] )
@@ -378,7 +305,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             if ( zpos[1] < 0.0f )
             {
-                jtile = map_get_itile( pmesh, mapx + 1, mapy - 1 );
+                jtile = pmesh->getTileIndex( mapx + 1, mapy - 1 );
                 if ( jtile > 0 )
                 {
                     if ( FLOOR == ary[jtile] )
@@ -394,7 +321,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             if ( zpos[3] < 0.0f )
             {
-                jtile = map_get_itile( pmesh, mapx + 1, mapy + 1 );
+                jtile = pmesh->getTileIndex( mapx + 1, mapy + 1 );
                 if ( jtile > 0 )
                 {
                     if ( FLOOR == ary[jtile] )
@@ -410,7 +337,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             if ( zpos[5] < 0.0f )
             {
-                jtile = map_get_itile( pmesh, mapx - 1, mapy + 1 );
+                jtile = pmesh->getTileIndex( mapx - 1, mapy + 1 );
                 if ( jtile > 0 )
                 {
                     if ( FLOOR == ary[jtile] )
@@ -426,7 +353,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             if ( zpos[7] < 0.0f )
             {
-                jtile = map_get_itile( pmesh, mapx - 1, mapy + 1 );
+                jtile = pmesh->getTileIndex( mapx - 1, mapy + 1 );
                 if ( jtile > 0 )
                 {
                     if ( FLOOR == ary[jtile] )
@@ -726,25 +653,10 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //    }
     //}
     
-    EGOBOO_DELETE_ARY(ary)
+	delete[] ary;
 
     return pmesh;
 }
-
-//--------------------------------------------------------------------------------------------
-map_t * map_generate_vertex_data( map_t * pmesh )
-{
-    /// @author BB
-    /// @details generate vertices for an empty mesh
-    /// @todo everything
-
-    return pmesh;
-}
-
-//--------------------------------------------------------------------------------------------
-// Cartman functions
-//--------------------------------------------------------------------------------------------
-
 Uint8 cartman_calc_twist( int x, int y )
 {
     Uint8 twist;

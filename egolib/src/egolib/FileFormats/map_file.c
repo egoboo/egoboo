@@ -170,6 +170,13 @@ void map_mem_t::setInfo(const map_info_t& info)
 	vertices.resize(info.getVertexCount());
 }
 
+const tile_info_t& map_mem_t::operator()(size_t i) const {
+	if (i < 0 || i >= tiles.size()) {
+		throw std::runtime_error("index out of bounds");
+	}
+	return tiles[i];
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -248,10 +255,6 @@ bool map_t::load(vfs_FILE& file)
         else
         {
             if (!map_generate_fan_type_data(this))
-            {
-                goto Fail;
-            }
-            if (!map_generate_vertex_data(this))
             {
                 goto Fail;
             }
@@ -375,3 +378,27 @@ map_t::map_t(const map_info_t& info) :
 
 map_t::~map_t()
 {}
+
+size_t map_t::getTileIndex(int x, int y) const {
+	if (x < 0 || x >= _info.getTileCountX() || y < 0 || y >= _info.getTileCountY()) {
+		throw std::runtime_error("index out of bounds");
+	} else {
+		return x + _info.getTileCountX() * y;
+	}
+}
+
+const tile_info_t& map_t::operator()(size_t i) const {
+	if (i >= _info.getTileCount()) {
+		throw std::runtime_error("index out of bounds");
+	} else {
+		return _mem(i);
+	}
+}
+
+const tile_info_t& map_t::operator()(size_t x, size_t y) const {
+	if (x >= _info.getTileCountX() || y >= _info.getTileCountY()) {
+		throw std::runtime_error("index out of bounds");
+	} else {
+		return _mem(x + _info.getTileCountX() * y);
+	}
+}

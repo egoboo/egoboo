@@ -54,17 +54,26 @@
 
         size_t            def_count;
         tile_definition_t def_lst[MAP_FAN_TYPE_MAX];
+
+		inline const tile_definition_t* get(const uint8_t type) const
+		{
+			if (!loaded || type > def_count) {
+				return nullptr;
+			}
+			return def_lst + type;
+		}
+
+		inline tile_definition_t* get(const uint8_t type)
+		{
+			if (!loaded || type > def_count) {
+				return nullptr;
+			}
+			return def_lst + type;
+		}
     };
 
 #   define TILE_DICTIONARY_INIT { false, 0, 0, {} }
 
-inline tile_definition_t* TILE_DICT_PTR(tile_dictionary_t& pdict, const uint8_t type)
-{
-    if(!pdict.loaded || type > pdict.def_count) {
-        return nullptr;
-    }
-    return pdict.def_lst + type;
-}
 
 //--------------------------------------------------------------------------------------------
 

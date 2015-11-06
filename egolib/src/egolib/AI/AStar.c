@@ -113,7 +113,7 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
 	}
     // do not start if the initial point is off the mesh
-    if (TileIndex::Invalid == mesh->get_tile_int(PointGrid(src_ix, src_iy)))
+    if (TileIndex::Invalid == mesh->getTileIndex(PointGrid(src_ix, src_iy)))
     {
 #ifdef DEBUG_ASTAR
         printf( "AStar failed because source position is off the mesh.\n" );
@@ -194,7 +194,7 @@ flexible_destination:
                     }
 
                     // is the test node on the mesh?
-                    TileIndex itile = mesh->get_tile_int(PointGrid(tmp_x, tmp_y));
+                    TileIndex itile = mesh->getTileIndex(PointGrid(tmp_x, tmp_y));
                     if (TileIndex::Invalid == itile)
                     {
                         deadend_count++;

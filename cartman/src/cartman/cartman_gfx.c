@@ -352,7 +352,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 	const cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
     if (!pfan) return;
 
-	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+	tile_definition_t *pdef = tile_dict.get( pfan->type );
     if (!pdef) return;
 
 	tile_line_data_t *plines = tile_dict_lines + pfan->type;
@@ -454,7 +454,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 	cartman_mpd_tile_t *pfan = CART_MPD_FAN_PTR( pmesh, fan );
     if (!pfan) return;
 
-	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+	tile_definition_t *pdef = tile_dict.get( pfan->type );
     if (!pdef) return;
 
 	tile_line_data_t *plines = tile_dict_lines + pfan->type;
@@ -535,7 +535,7 @@ void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, in
     tile_line_data_t     * plines = NULL;
     tile_definition_t    * pdef   = NULL;
 
-    pdef   = TILE_DICT_PTR( tile_dict, fantype );
+    pdef   = tile_dict.get(fantype );
     if ( NULL == pdef ) return;
 
     plines = tile_dict_lines + fantype;

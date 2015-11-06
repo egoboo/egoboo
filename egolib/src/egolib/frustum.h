@@ -24,7 +24,6 @@
 
 #include "egolib/geometry.h"
 #include "egolib/bbox.h"
-#include "egolib/bv.h"
 #include "egolib/Math/_Include.hpp"
 
 namespace Ego {
@@ -159,19 +158,6 @@ public:
      */
 	Math::Relation intersects_aabb(const Vector3f& corner1, const Vector3f& corner2, bool doEnds) const;
 	Math::Relation intersects(const AABB3f& aabb, bool doEnds) const;
-
-	/**
-	 * @brief
-	 *	Get the relation of a BV to this frustum.
-	 * @return
-	 *	wether the BV is inside the frustum, intersects with the frustum or is outside the frustum.
-	 *	<ul>
-	 *		<li>geometry_error     - an error occured</li>
-	 *		<li>geometry_outside   - the BV volume is outside the frustum</li>
-	 *		<li>geometry_intersect - the BV and the frustum partially overlap</li>
-	 *		<li>geometry_inside    - the bounding volume is completely inside the frustum</li>
-	 */
-	Math::Relation intersects(const bv_t& bv, bool doEnds) const;
 
 	/// @todo Should return geometry_rv.
 	bool intersects(const oct_bb_t& oct, const bool doEnds) const;

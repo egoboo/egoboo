@@ -70,7 +70,7 @@ void Passage::open()
             {
                 //clear impassable and wall bits
 				auto mesh = _currentModule->getMeshPointer();
-                TileIndex fan = mesh->get_tile_int(PointGrid(x, y));
+                TileIndex fan = mesh->getTileIndex(PointGrid(x, y));
 				mesh->clear_fx( fan, MAPFX_WALL | MAPFX_IMPASS );
             }
         }
@@ -134,7 +134,7 @@ bool Passage::close()
     {
         for ( int x = _area._left; x <= _area._right; x++ )
         {
-            TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
+            TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
 			_currentModule->getMeshPointer()->add_fx( fan, _mask );
         }
     }
@@ -215,18 +215,18 @@ void Passage::flashColor(uint8_t color)
     {
         for (int x = _area._left; x <= _area._right; x++ )
         {
-            TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
+            TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
 
             ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(fan);
 
-            for (int cnt = 0; cnt < 4; cnt++ )
+            for (size_t cnt = 0; cnt < 4; ++cnt)
             {
                 // set the color
-                ptile._lcache[cnt]         = color;
+                ptile._lightingCache._contents[cnt] = color;
 
                 // force the lighting code to update
-                ptile._request_clst_update = true;
-                ptile._clst_frame          = -1;
+                ptile._vertexLightingCache.setNeedUpdate(true);
+                ptile._vertexLightingCache._lastFrame = -1;
             }
         }
     }

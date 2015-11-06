@@ -1749,24 +1749,19 @@ chr_instance_t *chr_instance_t::ctor(chr_instance_t& self)
 
 void chr_instance_t::dealloc(chr_instance_t& self)
 {
-	EGOBOO_DELETE_ARY(self.vrt_lst);
+	if (self.vrt_lst) {
+		delete[] self.vrt_lst;
+		self.vrt_lst = nullptr;
+	}
     self.vrt_count = 0;
 }
 
 gfx_rv chr_instance_t::alloc(chr_instance_t& self, size_t vlst_size)
 {
 	chr_instance_t::dealloc(self);
-
-	if (0 == vlst_size) {
-		return gfx_success;
-	}
-
-	self.vrt_lst = EGOBOO_NEW_ARY(GLvertex, vlst_size);
-	if (self.vrt_lst) {
-        self.vrt_count = vlst_size;
-    }
-
-	return self.vrt_lst ? gfx_success : gfx_fail;
+	self.vrt_lst = new GLvertex[vlst_size];
+    self.vrt_count = vlst_size;
+	return gfx_success;
 }
 
 gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::ModelDescriptor> &model)

@@ -23,7 +23,6 @@
 #pragma once
 
 #include "egolib/Math/_Include.hpp"
-#include "egolib/bv.h"
 
 //--------------------------------------------------------------------------------------------
 
@@ -365,19 +364,6 @@
             }
             return AABB3f(Vector3f(_mins[OCT_X], _mins[OCT_Y], _mins[OCT_Z]),
 				          Vector3f(_maxs[OCT_X], _maxs[OCT_Y], _maxs[OCT_Z]));
-        }
-
-        /**
-         * @brief
-         *  Get the smallest bounding volume enclosing this octagonal bounding box.
-         * @return
-         *   the bounding volume
-         */
-        bv_t toBV() const {
-            if (_empty) {
-                throw std::logic_error("unable to convert an empty OBB into a BV");
-            }
-            return bv_t(toAABB());
         }
 
         void assign(const bumper_t& other)

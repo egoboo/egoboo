@@ -34,9 +34,6 @@
 #include "egolib/strutil.h"
 #include "egolib/platform.h"
 
-// this include must be the absolute last include
-#include "egolib/mem.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -226,40 +223,29 @@ const char *fs_findFirstFile(const char *searchDir, const char *searchExtension,
 
     if (INVALID_CSTR(searchDir) || !fs_search)
     {
-        return NULL;
+        return nullptr;
     }
 
-    win32_find_context_t *pcnt = EGOBOO_NEW(win32_find_context_t);
-    if (!pcnt)
-    {
-        return NULL;
-    }
+	win32_find_context_t *pcnt = new win32_find_context_t();
     fs_search->type = win32_find;
     fs_search->ptr.w = pcnt;
 
     size_t len = strlen(searchDir) + 1;
-    if (C_SLASH_CHR != searchDir[len] || C_BACKSLASH_CHR != searchDir[len])
-    {
+    if (C_SLASH_CHR != searchDir[len] || C_BACKSLASH_CHR != searchDir[len]) {
         _snprintf(searchSpec, MAX_PATH, "%s" SLASH_STR, searchDir);
-    }
-    else
-    {
+    } else {
         strncpy(searchSpec, searchDir, MAX_PATH);
     }
-    if (NULL != searchExtension)
-    {
+    if (nullptr != searchExtension) {
         _snprintf(searchSpec, MAX_PATH, "%s*.%s", searchSpec, searchExtension);
-    }
-    else
-    {
+    } else {
         strncat(searchSpec, "*", MAX_PATH);
     }
 
     pcnt->hFind = FindFirstFile( searchSpec, &pcnt->wfdData );
-    if ( pcnt->hFind == INVALID_HANDLE_VALUE )
-    {
-        return NULL;
-    }
+	if (pcnt->hFind == INVALID_HANDLE_VALUE) {
+		return nullptr;
+	}
 
     return pcnt->wfdData.cFileName;
 }
@@ -302,7 +288,7 @@ void fs_findClose(fs_find_context_t *fs_search)
         FindClose(pcnt->hFind);
         pcnt->hFind = NULL;
     }
-    EGOBOO_DELETE(pcnt);
+    delete pcnt;
     BLANK_STRUCT_PTR(fs_search)
 }
 

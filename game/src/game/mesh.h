@@ -34,11 +34,12 @@ struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
 
-/// @todo max blocks in the x direction
-/// max blocks in the y direction
-#define GRID_BLOCKY_MAX (( MAP_TILE_MAX_Y >> (Info<int>::Block::Exponent()-Info<int>::Grid::Exponent()) )+1)  
-
-
+constexpr uint32_t GRIDS_X_MAX =
+	MAP_TILE_MAX_X;
+constexpr uint32_t GRIDS_Y_MAX =
+	MAP_TILE_MAX_Y;
+constexpr uint32_t GRIDS_MAX =
+	GRIDS_X_MAX * GRIDS_Y_MAX;
 
 #define VALID_GRID(PMPD, ID) ( (INVALID_TILE!=(ID)) && (NULL != (PMPD)) && (ID < (PMPD)->info.tiles_count) )
 
@@ -69,11 +70,6 @@ enum class CoordinateSystem
      *  "grid" coordinates.
      */
     Grid,
-    /**
-     * @brief
-     *  "block" coordinates.
-     */
-    Block,
 };
 
 /**
@@ -121,7 +117,6 @@ public:
 
 };
 
-typedef Point<int, CoordinateSystem::Block> PointBlock;
 typedef Point<int, CoordinateSystem::Grid> PointGrid;
 typedef Point<float, CoordinateSystem::World> PointWorld;
 
@@ -137,11 +132,6 @@ enum class IndexSystem
      */
     Tile,
 
-    /**
-     * @brief
-     *  "block" indices.
-     */
-    Block,
 };
 
 /**
@@ -245,11 +235,6 @@ const Index<_Type, _IndexSystem, _InvalidIndex> Index<_Type,_IndexSystem,_Invali
 ///       such that we could use std::numeric_limits<Uint32>::max().
 typedef Index<Uint32, IndexSystem::Tile,INVALID_BLOCK> TileIndex;
 
-/// @brief The index of a block.
-/// @todo UINT32_MAX is used because of Microsoft's Visual Studio 2013 lacking constexpr support
-///       such that we could use std::numeric_limits<Uint32>::max().
-typedef Index<Uint32, IndexSystem::Block,INVALID_TILE> BlockIndex;
-
 //--------------------------------------------------------------------------------------------
 
 /// The data describing an Egoboo tile
@@ -272,17 +257,101 @@ public:
     // some extra flags
     bool _fanoff;                            ///< display this tile?
 
+	struct Cache {
+		/**
+		 * @brief
+		 *  Do Do the cache contents need an update?
+		 */
+		bool _needUpdate;
+		/**
+		 * @brief
+		 *  The last frame in which the cache was updated.
+		 * @remark
+		 *  If negative, the cache contents are marked as "invalid".
+		 */
+		int _lastFrame;
+		/**
+		 * @brief
+		 *  Construct this cache.
+		 *  Its contents are marked as "invalid" and as "needing an update".
+		 */
+		Cache()
+			: _lastFrame(-1), _needUpdate(true) {
+		}
+		/**
+		 * @brief
+		 *  Get if the cache contents need an update.
+		 * @return
+		 *  @a true if the cache contents an update, @a false otherwise
+		 */
+		bool getNeedUpdate() const { return _needUpdate; }
+		/**
+		 * @brief
+		 *  Set if the cache contents need an update..
+		 * @param needUpdate @a true if ache contents need an update, @a false otherwise
+		 */
+		void setNeedUpdate(bool needUpdate) { _needUpdate = needUpdate; }
+		/**
+		 * @brief
+		 *  Set the last frame in which the cache was updated.
+		 * @param lastFrame
+		 *  the last frame in which the cache was updated.
+		 *  If negative, the cache contents are marked as "invalid".
+		 */
+		void setLastFrame(int lastFrame) {
+			_lastFrame = lastFrame;
+		}
+		/**
+		 * @brief
+		 *  Get the last frame in which the cache was updated.
+		 * @return
+		 *  the last frame in which the cache was updated.
+		 *  If negative, the cache contents are marked as "invalid".
+		 */
+		int getLastFrame() const {
+			return _lastFrame;
+		}
+		/**
+		 * @brief
+		 *  Get if the cache contents need an update.
+		 * @param frame
+		 *  the current frame
+		 * @param framesSkip
+		 *  the frame skip
+		 * @return
+		 * - If the cache contents are marked as "valid" and if
+		 * - if the cache was updated at a frame frame such that
+		 *   that frame + frameSkip >= thisFrame,
+		 * then this method returns @a true, and @a false otherwise
+		 */
+		bool isValid(uint32_t thisFrame, uint32_t frameSkip = 0) {
+			return (getLastFrame() >= 0 &&
+				(uint32_t)getLastFrame() + frameSkip >= thisFrame);
+		}
+	};
+
     // tile corner lighting parameters
     normal_cache_t _ncache;                     ///< the normals at the corners of this tile
-    light_cache_t  _lcache;                     ///< the light at the corners of this tile
-    bool           _request_lcache_update;      ///< has this tile been tagged for a lcache update?
-    int            _lcache_frame;               ///< the last frame in which the lighting cache was updated
+    
+	struct LightingCache : Cache {
+		LightingCache()
+			: Cache(), _contents{ 0, 0, 0, 0 } {
+		}
+		light_cache_t _contents;
 
-    // tile vertex lighting parameters
-    bool           _request_clst_update;        ///< has this tile been tagged for a color list update?
-    int            _clst_frame;                 ///< the last frame in which the color list was updated
-    light_cache_t  _d1_cache;                   ///< the estimated change in the light at the corner of the tile
-    light_cache_t  _d2_cache;                   ///< the estimated change in the light at the corner of the tile
+	};
+	LightingCache _lightingCache;
+
+	/// A cache for per-vertex lighting of a tile.
+	struct VertexLightingCache : Cache {
+		VertexLightingCache()
+			: Cache(), _d1_cache{ 0,0,0,0 }, _d2_cache{ 0,0,0,0 } {
+		}
+		light_cache_t  _d1_cache; ///< the estimated change in the light at the corner of the tile
+		light_cache_t  _d2_cache; ///< the estimated change in the light at the corner of the tile
+	};
+	/// The vertex lighting cache of this tile.
+	VertexLightingCache _vertexLightingCache;
 
     // the bounding boc of this tile
     oct_bb_t       _oct;                        ///< the octagonal bounding box for this tile
@@ -338,14 +407,9 @@ struct grid_mem_t
     int _grids_y;
     size_t _grid_count;   ///< How many grids.
 
-    int _blocks_x;        ///< Size in blocks
-    int _blocks_y;
-    Uint32 _blocks_count; ///< Number of blocks (collision areas)
-
     float _edge_x; ///< Limits.
     float _edge_y;
 
-    Uint32 *_blockstart; ///< List of blocks that start each row.
     Uint32 *_tilestart;  ///< List of tiles  that start each row.
 
 protected:
@@ -407,6 +471,12 @@ public:
 
 	tile_mem_t(const Ego::MeshInfo& info);
 	~tile_mem_t();
+
+	/**
+	 * @brief (Re)compute the vertex indices of the tiles infos.
+	 * @param dict the tile dictionary to compute the vertex indices over 
+	 */
+	void computeVertexIndices(const tile_dictionary_t& dict);
 
 	ego_tile_info_t& get(const TileIndex& index)
 	{
@@ -556,31 +626,17 @@ public:
 	void recalc_twist();
     void finalize();
 
-
-
-    /// @brief Get the block index of the block at a given point (world coordinates).
-    /// @param point the point (world coordinates)
-    /// @return the block index of the block at the given point if there is a block at that point,
-    ///         #INVALID_BLOCK otherwise
-    BlockIndex get_block(const PointWorld& point) const;
-
     /// @brief Get the grid index of the grid at a given point (world coordinates).
     /// @param point the point (world coordinates)
     /// @return the grid index of the grid at the given point if there is a grid at that point,
     ///         #INVALID_TILE otherwise
-    TileIndex get_grid(const PointWorld& point) const;
-
-    /// @brief Get the block index of the block at a given point (block coordinates).
-    /// @param point the point (block coordinates)
-    /// @return the block index of the block at the given point if there is a block at that point,
-    ///         #INVALID_BLOCK otherwise
-    BlockIndex get_block_int(const PointBlock& point) const;
+    TileIndex getTileIndex(const PointWorld& point) const;
 
     /// @brief Get the tile index of the tile at a given point (grid coordinates).
     /// @param point the point (grid coordinates)
     /// @return the tile index of the tile at the given point if there is a tile at that point,
     ///         #INVALID_TILE otherwise
-    TileIndex get_tile_int(const PointGrid& point) const;
+    TileIndex getTileIndex(const PointGrid& point) const;
 
     bool grid_is_valid(const TileIndex& id) const;
 
@@ -658,7 +714,6 @@ public:
 
 private:
 	// mesh initialization - not accessible by scripts
-	void make_vrtstart();
 	/// Calculate a set of normals for the 4 corner of a given tile.
 	/// It is supposed to generate smooth normals for most tiles, but where there is a creas
 	/// (i.e. between the floor and a wall) the normals should not be smoothed.
@@ -711,6 +766,6 @@ extern MeshStats g_meshStats;
 /// loading/saving
 std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName);
 
-bool ego_mesh_interpolate_vertex(tile_mem_t *self, ego_tile_info_t *tile, float pos[], float *plight);
+float ego_mesh_interpolate_vertex(const ego_tile_info_t& info, const GLXvector3f& position);
 
 Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);
