@@ -1199,7 +1199,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 		ClockScope<ClockPolicy::NonRecursive> clockScope(render_scene_mesh_timer);
         {
 			// Sort dolist for reflected rendering.
-			ClockScope<ClockPolicy::NonRecursive> clockScope(sortDoListReflected_timer);
+			ClockScope<ClockPolicy::NonRecursive> clockScope2(sortDoListReflected_timer);
 			el.sort(cam, true);
         }
         // Render the mesh tiles and reflections of entities.

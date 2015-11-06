@@ -336,7 +336,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     return has_ride_anim;
 }
 
-int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
+int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
                    const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
 {
     int action;
@@ -474,13 +474,14 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     {
                         ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                                               ObjectRef::Invalid, GRIP_LAST, team, _objRef);
+                                            INVALID_CHR_REF, GRIP_LAST, attackerTeam, _characterID);
                     }
                 }
 
                 // Set attack alert if it wasn't an accident
                 if ( base_damage > HURTDAMAGE )
                 {
-                    if ( team == Team::TEAM_DAMAGE )
+                    if ( attackerTeam == Team::TEAM_DAMAGE )
                     {
                         ai.setLastAttacker(ObjectRef::Invalid);
                     }
@@ -576,7 +577,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         heal(attacker, -actual_damage, ignore_invictus);
 
         // Isssue an alert
-        if ( team == Team::TEAM_DAMAGE )
+        if ( attackerTeam == Team::TEAM_DAMAGE )
         {
             ai.setLastAttacker(ObjectRef::Invalid);
         }

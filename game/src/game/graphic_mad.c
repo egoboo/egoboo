@@ -47,12 +47,14 @@ static const float flip_tolerance = 0.25f * 0.5f;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if _DEBUG
 static void draw_chr_verts( Object * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, int slot );
 static void draw_one_grip( chr_instance_t * pinst, int slot );
 //static void draw_chr_grips( Object * pchr );
 static void draw_chr_attached_grip( Object * pchr );
 static void draw_chr_bbox( Object * pchr );
+#endif
 
 // these functions are only called by render_one_mad()
 
@@ -465,7 +467,7 @@ gfx_rv MadRenderer::render( Camera& cam, ObjectRef character, GLXvector4f tint, 
         retval = render_tex( cam, character, tint, bits );
     }
 
-#if defined(DRAW_CHR_BBOX)
+#if defined(DRAW_CHR_BBOX) && defined(_DEBUG)
     // don't draw the debug stuff for reflections
     if ( 0 == ( bits & CHR_REFLECT ) )
     {
@@ -815,6 +817,7 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
 }
 #endif
 
+#if _DEBUG
 void draw_one_grip( chr_instance_t * pinst, int slot )
 {
     GLint matrix_mode[1];
@@ -903,6 +906,7 @@ void draw_chr_attached_grip( Object * pchr )
 
     draw_one_grip( &( pholder->inst ), pchr->inwhich_slot );
 }
+#endif
 
 #if 0
 void draw_chr_grips( Object * pchr )

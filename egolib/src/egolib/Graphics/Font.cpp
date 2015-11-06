@@ -135,7 +135,7 @@ namespace Ego
 			Log::get().warn("Got a null surface from SDL_TTF: %s", TTF_GetError());
             return;
         }
-        std::shared_ptr<SDL_Surface> surface = std::shared_ptr<SDL_Surface>(textSurface, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+        std::shared_ptr<SDL_Surface> surface = std::shared_ptr<SDL_Surface>(textSurface, [ ](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
         std::string name = "Font text '" + text + "'";
         tex->load(name, surface);
         tex->setAddressModeS(Ego::TextureAddressMode::Clamp);

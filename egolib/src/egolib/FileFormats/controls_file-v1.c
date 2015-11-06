@@ -38,7 +38,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
     /// @author ZZ
     /// @details This function reads the settings.txt file, version 3
 
-    int i, cnt;
+    int cnt;
     INPUT_DEVICE idevice;
 
     std::string currenttag;
@@ -77,7 +77,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
     // Read the mouse input devices.
     idevice = INPUT_DEVICE_MOUSE;
     pdevice = InputDevices.lst[idevice];
-    for ( i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
+    for (size_t i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
     {
         ctxt.skipToColon(false);
         currenttag = ctxt.readToEndOfLine();
@@ -94,7 +94,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
     {
         idevice = ( INPUT_DEVICE )( INPUT_DEVICE_JOY + cnt );
         pdevice = InputDevices.lst[idevice];
-        for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
+        for (size_t i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
         {
             ctxt.skipToColon(false);
             currenttag = ctxt.readToEndOfLine();

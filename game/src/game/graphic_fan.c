@@ -103,7 +103,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
     /// @author ZZ
     /// @details This function draws a mesh itile
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
-
+return gfx_success;
     // grab a pointer to the tile
 	const ego_tile_info_t& ptile = mesh.getTileInfo(i);
 

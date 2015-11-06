@@ -14,19 +14,23 @@ SANITIZER_FLAGS := -fno-sanitize=all
 #Silence warnings we do not care about
 COMPILE_WARNINGS += -Wno-sign-compare -Wno-reorder -Wno-unused-parameter
 
+#Enable some extra warnings
+COMPILE_WARNINGS += -Wcast-align -Wpointer-arith -Wwrite-strings -Wunreachable-code
+#-Wcast-qual -Wswitch-enum -Wstrict-overflow=5 -Wshadow
+
 set_debug_flags:
-	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -D_DEBUG)
-	$(eval COMPILE_OPTIMIZE :=-Og)
-#$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
-#$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)
-#$(eval SANITIZER_FLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr)
-#$(eval SANITIZER_FLAGS += -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow -fsanitize=bool -fsanitize=alignment)
-#$(eval SANITIZER_FLAGS += -fsanitize-undefined-trap-on-error)
-#-fsanitize=bounds-strict 
+	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -D_DEBUG -fvar-tracking-assignments -pg)
+	$(eval COMPILE_OPTIMIZE := -Og)
+	$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
+	$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)
+	$(eval SANITIZER_FLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr)
+	$(eval SANITIZER_FLAGS += -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow -fsanitize=bool -fsanitize=alignment)
+	$(eval SANITIZER_FLAGS += -fsanitize-undefined-trap-on-error) 
 
 set_release_flags:
-	$(eval COMPILE_DEBUG_FLAGS+=-DNDEBUG)
-	$(eval COMPILE_OPTIMIZE:=-O3)
+	$(eval COMPILE_DEBUG_FLAGS += -DNDEBUG)
+	$(eval COMPILE_OPTIMIZE := -O3)
+	$(eval SANITIZER_FLAGS := -fno-sanitize=all)
 
 export COMPILE_FLAGS COMPILE_OPTIMIZE COMPILE_WARNINGS COMPILE_DEBUG_FLAGS SANITIZER_FLAGS
 
