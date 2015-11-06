@@ -474,6 +474,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     {
                         ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                             ObjectRef::Invalid, GRIP_LAST, attackerTeam, _objRef);
+                                            INVALID_CHR_REF, GRIP_LAST, attackerTeam, _characterID);
                     }
                 }
 
