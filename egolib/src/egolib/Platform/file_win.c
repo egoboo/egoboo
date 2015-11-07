@@ -289,7 +289,9 @@ void fs_findClose(fs_find_context_t *fs_search)
         pcnt->hFind = NULL;
     }
     delete pcnt;
-    BLANK_STRUCT_PTR(fs_search)
+
+	fs_search->type = unknown_find;
+	fs_search->ptr.v = nullptr;
 }
 
 int DirGetAttrib(const char *fromdir)

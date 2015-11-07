@@ -3939,7 +3939,7 @@ bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF chara
     if ( NULL == ppla ) return false;
 
     rv = quest_log_upload_vfs( ppla->quest_log, szSaveName );
-    return TO_C_BOOL( rv_success == rv );
+    return rv_success == rv;
 }
 
 //--------------------------------------------------------------------------------------------

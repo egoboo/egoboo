@@ -1929,8 +1929,8 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
         }
 
         // clear out the deltas
-        BLANK_ARY(ptile._vertexLightingCache._d1_cache);
-        BLANK_ARY(ptile._vertexLightingCache._d2_cache);
+        ptile._vertexLightingCache._d1_cache.fill(0.0f);
+        ptile._vertexLightingCache._d2_cache.fill(0.0f);
 
         // This tile was updated this frame and does not require an update (for some time).
 		ptile._vertexLightingCache.setNeedUpdate(false);

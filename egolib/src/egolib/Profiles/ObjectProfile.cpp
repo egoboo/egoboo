@@ -1159,7 +1159,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_bool(fileTemp, fileWrite, profile->_stickyButt);
 
     // Invulnerability data
-    template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->invictus) );
+    template_put_bool( fileTemp, fileWrite, character->invictus );
     template_put_int( fileTemp, fileWrite, profile->nframefacing );
     template_put_int( fileTemp, fileWrite, profile->nframeangle );
     template_put_int( fileTemp, fileWrite, profile->iframefacing );
@@ -1239,10 +1239,10 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_VULNERABILITY] );
 
     // Item and damage flags
-    template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->isitem) );  //Note overriden by chr
+    template_put_bool( fileTemp, fileWrite, character->isitem);  //Note overriden by chr
     template_put_bool( fileTemp, fileWrite, profile->_isMount );
     template_put_bool( fileTemp, fileWrite, profile->_isStackable );
-    template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->nameknown || character->ammoknown)); // make sure that identified items are saved as identified );
+    template_put_bool( fileTemp, fileWrite, character->nameknown || character->ammoknown); // make sure that identified items are saved as identified );
     template_put_bool( fileTemp, fileWrite, profile->_usageIsKnown );
     template_put_bool( fileTemp, fileWrite, profile->_canCarryToNextModule );
     template_put_bool( fileTemp, fileWrite, profile->_needSkillIDToUse );
@@ -1343,7 +1343,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'Q', 'U', 'A' ), 1 );
 
     if ( profile->_drawIcon != profile->_usageIsKnown )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), TO_C_BOOL( character->draw_icon ) ); //note: overridden by chr
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), character->draw_icon ); //note: overridden by chr
 
     if ( profile->_forceShadow )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'H', 'A', 'D' ), 1 );

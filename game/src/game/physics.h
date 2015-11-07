@@ -131,43 +131,20 @@ struct apos_t
         return *this;
     }
 
-    static void ctor(apos_t *self)
-    {
-        if (!self)
-        {
-            throw std::invalid_argument("nullptr == self");
-        }
-        self->mins = Vector3f::zero();
-        self->maxs = Vector3f::zero();
-        self->sum  = Vector3f::zero();
-    }
-
-
-    static apos_t *reset(apos_t *self)
-    {
-        if (!self)
-        {
-            throw std::invalid_argument("nullptr == self");
-        }
-        self->mins = Vector3f::zero();
-        self->maxs = Vector3f::zero();
-        self->sum  = Vector3f::zero();
-    
-        return self;
-    }
-
-    static bool self_union(apos_t *self, const apos_t *other);
-    static bool self_union(apos_t *self, const Vector3f& other);
+	/// Update the displacement extrema.
+    void join(const apos_t& other);
+	/// Update this displacement extrema.
+    void join(const Vector3f& other);
     /**
      * @brief
-     *  Update the maximum displacement at a given axis.
+     *  Update this displacement extrema at a given axis.
      * @param t
      *  the translation along the axis
      * @param i
      *  the index of the axis
      */
-    static bool self_union_index(apos_t *self, const float displacement, const size_t index);
-    static bool evaluate(const apos_t *self, Vector3f& dst);
+    void join(const float displacement, const size_t index);
+    static void evaluate(const apos_t& self, Vector3f& dst);
 };
 
 
@@ -183,24 +160,16 @@ struct phys_data_t
 	Vector3f       avel;
 
     float          bumpdampen;                    ///< "Mass" = weight / bumpdampen
-    Uint32         weight;                        ///< Weight
+    uint32_t       weight;                        ///< Weight
     float          dampen;                        ///< Bounciness
 
-    static void reset(phys_data_t *self);
-    static phys_data_t *ctor(phys_data_t *self);
+	phys_data_t();
+	void sum_acoll(const Vector3f& v);
+	void sum_avel(const Vector3f& v);
+	void sum_aplat(const float v, const size_t index);
+	void sum_avel(const float v, const size_t index);
+	void clear();
 };
-
-phys_data_t *phys_data_clear(phys_data_t *self);
-
-
-phys_data_t *phys_data_sum_aplat(phys_data_t *self, const Vector3f& v);
-phys_data_t *phys_data_sum_acoll(phys_data_t *self, const Vector3f& v);
-phys_data_t *phys_data_sum_avel(phys_data_t *self, const Vector3f& v);
-
-phys_data_t *phys_data_sum_aplat_index(phys_data_t *self, const float v, const size_t index);
-phys_data_t *phys_data_sum_acoll_index(phys_data_t *self, const float v, const size_t index);
-phys_data_t *phys_data_sum_avel_index(phys_data_t *self, const float v, const size_t index);
-
 
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values
@@ -227,30 +196,3 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1, const Vector3f& pos1, const Vec
 
 bool get_prt_mass(Ego::Particle *pprt, Object *pchr, float *wt);
 void get_recoil_factors(float wta, float wtb, float * recoil_a, float * recoil_b);
-
-/// @brief Test whether two objects could interact based on the "collision bounding box".
-///        This version is for character-particle collisions.
-bool test_interaction_0(bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform);
-bool test_interaction_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform);
-/// @brief Test whether two objects could interact based on the "collision bounding box".
-///        This version is for character-character collisions
-bool test_interaction_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, int test_platform);
-/// @brief Test whether two objects could interact based on the "collision bounding box".
-///        This version is for character-particle collisions.
-bool test_interaction_close_0( bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform);
-/// @brief Test whether two objects could interact based on the "collision bounding box".
-///        This version is for character-particle collisions.
-bool test_interaction_close_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform);
-/// @brief Test whether two objects could interact based on the "collision bounding box".
-///        This version is for character-particle collisions.
-bool test_interaction_close_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, int test_platform);
-
-/// @brief Estimate the depth of collision based on the "collision bounding box".
-///        This version is for character-particle collisions.
-bool get_depth_0( bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth);
-/// @brief Estimate the depth of collision based on the "collision bounding box".
-///        This version is for character-particle collisions.
-bool get_depth_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth);
-/// @brief Estimate the depth of collision based on the "collision bounding box".
-///        This version is for character-character collisions
-bool get_depth_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth);

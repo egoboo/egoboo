@@ -274,7 +274,8 @@ void fs_findClose(fs_find_context_t *fs_search)
 
     delete pcnt;
 
-    BLANK_STRUCT_PTR(fs_search)
+	fs_search->type = unknown_find;
+	fs_search->ptr.v = nullptr;
 }
 
 const char *fs_getBinaryDirectory()

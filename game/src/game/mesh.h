@@ -231,9 +231,7 @@ template <typename _Type, IndexSystem _IndexSystem, _Type _InvalidIndex>
 const Index<_Type, _IndexSystem, _InvalidIndex> Index<_Type,_IndexSystem,_InvalidIndex>::Invalid;
 
 /// @brief The index of a tile.
-/// @todo UINT32_MAX is used because of Microsoft's Visual Studio 2013 lacking constexpr support
-///       such that we could use std::numeric_limits<Uint32>::max().
-typedef Index<Uint32, IndexSystem::Tile,INVALID_BLOCK> TileIndex;
+typedef Index<Uint32, IndexSystem::Tile, std::numeric_limits<uint32_t>::max()> TileIndex;
 
 //--------------------------------------------------------------------------------------------
 

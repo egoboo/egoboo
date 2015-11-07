@@ -910,7 +910,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
     // see if the character can play this action
     action       = pchr->getProfile()->getModel()->getAction(hand_action);
-    action_valid = TO_C_BOOL( ACTION_COUNT != action );
+    action_valid = ACTION_COUNT != action;
 
     // Can it do it?
     allowedtoattack = true;

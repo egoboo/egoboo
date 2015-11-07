@@ -48,11 +48,11 @@ void CollisionSystem::update()
     // blank the accumulators
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
-        phys_data_clear( &(object->phys) );
+        object->phys.clear();
     }
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        phys_data_clear( &particle->phys );
+        particle->phys.clear();
     }
 
     updateObjectCollisions();
@@ -69,9 +69,7 @@ void CollisionSystem::update()
         bool position_updated = false;
         Vector3f max_apos;
 
-        Vector3f tmp_pos;
-
-        tmp_pos = pchr->getPosition();
+		Vector3f tmp_pos = pchr->getPosition();
 
         // do the "integration" of the accumulated accelerations
         pchr->vel += pchr->phys.avel;
@@ -85,10 +83,10 @@ void CollisionSystem::update()
             apos_tmp = pchr->phys.aplat;
 
             // get the resultant apos_t
-            apos_t::self_union( &apos_tmp, &( pchr->phys.acoll ) );
+            apos_tmp.join(pchr->phys.acoll);
 
             // turn this into a vector
-            apos_t::evaluate(&apos_tmp, max_apos);
+            apos_t::evaluate(apos_tmp, max_apos);
         }
 
         // limit the size of the displacement
@@ -182,10 +180,10 @@ void CollisionSystem::update()
             apos_tmp = particle->phys.aplat;
 
             // get the resultant apos_t
-            apos_t::self_union( &apos_tmp, &( particle->phys.acoll ) );
+            apos_tmp.join(particle->phys.acoll);
 
             // turn this into a vector
-            apos_t::evaluate(&apos_tmp, max_apos);
+            apos_t::evaluate(apos_tmp, max_apos);
         }
 
         max_apos[kX] = CLIP( max_apos[kX], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
@@ -441,23 +439,13 @@ void CollisionSystem::handleCollision(const std::shared_ptr<Object> &objectA, co
 
 bool CollisionSystem::handleMountingCollision(const std::shared_ptr<Object> &character, const std::shared_ptr<Object> &mount)
 {
-    bool characterWantsToMount = false;
-    bool collideXY = false;
-    bool collideZ = false;
-
     //Do some collision checks
-    if((Vector2f(character->getPosX(), character->getPosY()) - Vector2f(mount->getPosX(), mount->getPosY())).length() < MOUNTTOLERANCE) {
-        collideXY = true;
-    }
+	bool collideXY = (Vector2f(character->getPosX(), character->getPosY()) - Vector2f(mount->getPosX(), mount->getPosY())).length() < MOUNTTOLERANCE;
 
-    if((mount->getPosZ() + mount->chr_min_cv._maxs[OCT_Z]) < character->getPosZ()) {
-        collideZ = true;
-    }
+	bool collideZ = (mount->getPosZ() + mount->chr_min_cv._maxs[OCT_Z]) < character->getPosZ();
 
     //If we are falling on top of the mount, then we are trying to mount
-    if (collideXY && collideZ) {
-        characterWantsToMount = true;
-    }
+	bool characterWantsToMount = collideXY && collideZ;
 
     //If we are facing the mount and jumping towards it, then we are trying to mount
     //else if(collideXY) {
@@ -479,12 +467,6 @@ bool CollisionSystem::handleMountingCollision(const std::shared_ptr<Object> &cha
 bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB)
 {
     oct_vec_v2_t odepth;
-    bool collide_x  = false;
-    bool collide_y  = false;
-    bool collide_xy = false;
-    bool collide_yx = false;
-    bool collide_z  = false;
-    bool chara_on_top;
 
     const CHR_REF ichr_a = objectA->getCharacterID();
     const CHR_REF ichr_b = objectB->getCharacterID();
@@ -504,12 +486,12 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
     odepth[OCT_Z] = std::min(objectB->chr_min_cv._maxs[OCT_Z] + objectB->getPosZ(), objectA->chr_min_cv._maxs[OCT_Z] + objectA->getPosZ()) -
                     std::max( objectB->chr_min_cv._mins[OCT_Z] + objectB->getPosZ(), objectA->chr_min_cv._mins[OCT_Z] + objectA->getPosZ() );
 
-    collide_z  = odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE;
+    bool collide_z  = odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE;
 
     if ( !collide_z ) return false;
 
     // determine how the characters can be attached
-    chara_on_top = true;
+    bool chara_on_top = true;
     odepth[OCT_Z] = 2 * PLATTOLERANCE;
     if ( platform_a && platform_b )
     {
@@ -595,10 +577,10 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
 
     }
 
-    collide_x  = odepth[OCT_X]  > 0.0f;
-    collide_y  = odepth[OCT_Y]  > 0.0f;
-    collide_xy = odepth[OCT_XY] > 0.0f;
-    collide_yx = odepth[OCT_YX] > 0.0f;
+    bool collide_x  = odepth[OCT_X]  > 0.0f;
+    bool collide_y  = odepth[OCT_Y]  > 0.0f;
+    bool collide_xy = odepth[OCT_XY] > 0.0f;
+    bool collide_yx = odepth[OCT_YX] > 0.0f;
     collide_z  = odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE;
 
     if ( collide_x && collide_y && collide_xy && collide_yx && collide_z )
@@ -680,19 +662,6 @@ bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &obje
 
 bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, const float tmin, const float tmax)
 {
-    float depth_min;
-
-    float recoil_a, recoil_b;
-
-    // object bounding boxes shifted so that they are in the correct place on the map
-    oct_bb_t map_bb_a, map_bb_b;
-
-    Vector3f nrm;
-
-    oct_vec_v2_t odepth;
-    bool collision = false;
-    bool bump = false;
-
     const CHR_REF ichr_a = objectA->getCharacterID();
     const CHR_REF ichr_b = objectB->getCharacterID();
 
@@ -796,6 +765,9 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         }
     }
 
+	// object bounding boxes shifted so that they are in the correct place on the map
+	oct_bb_t map_bb_a, map_bb_b;
+
     // shift the character bounding boxes to be centered on their positions
     oct_bb_t::translate(objectA->chr_min_cv, objectA->getPosition(), map_bb_a);
     oct_bb_t::translate(objectB->chr_min_cv, objectB->getPosition(), map_bb_b);
@@ -805,21 +777,27 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     if ( objectA->canuseplatforms && objectB->platform ) exponent += 2;
     if ( objectB->canuseplatforms && objectA->platform ) exponent += 2;
 
+	float recoil_a, recoil_b;
+
+
+
+	Vector3f nrm;
+	oct_vec_v2_t odepth;
+	bool bump = false;
+
     // use the info from the collision volume to determine whether the objects are colliding
-    collision = tmin > 0.0f;
+    bool collision = tmin > 0.0f;
 
     // estimate the collision normal at the point of contact
     bool valid_normal = false;
-    depth_min    = 0.0f;
+    float depth_min    = 0.0f;
     if ( collision )
     {
         // find the collision volumes at 10% overlap
         oct_bb_t exp1, exp2;
 
-        float tmp_min, tmp_max;
-
-        tmp_min = tmin;
-        tmp_max = tmin + ( tmax - tmin ) * 0.1f;
+        float tmp_min = tmin;
+        float tmp_max = tmin + ( tmax - tmin ) * 0.1f;
 
         // determine the expanded collision volumes for both objects
         phys_expand_oct_bb(map_bb_a, objectA->vel, tmp_min, tmp_max, exp1);
@@ -884,7 +862,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
             // add a small amount to the pressure difference so that
             // the function will actually separate the objects in a finite number
             // of iterations
-            need_displacement = TO_C_BOOL(( recoil_a > 0.0f ) || ( recoil_b > 0.0f ) );
+            need_displacement = (recoil_a > 0.0f) || (recoil_b > 0.0f);
             pdiff_a = nrm * (depth_min + 1.0f);
         }
 
@@ -894,7 +872,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         need_velocity = false;
         if (vdiff_a.length_abs() > 1e-6)
         {
-            need_velocity = TO_C_BOOL(( recoil_a > 0.0f ) || ( recoil_b > 0.0f ) );
+            need_velocity = (recoil_a > 0.0f) || (recoil_b > 0.0f);
         }
 
         //---- handle the relative velocity
@@ -919,13 +897,13 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
                 if (recoil_a > 0.0f)
                 {
                     Vector3f vimp_a = vdiff_perp_a * +(recoil_a * (1.0f + cr) * interaction_strength);
-                    phys_data_sum_avel(&(objectA->phys), vimp_a);
+                    objectA->phys.sum_avel(vimp_a);
                 }
 
                 if (recoil_b > 0.0f)
                 {
                     Vector3f vimp_b = vdiff_perp_a * -(recoil_b * (1.0f + cr) * interaction_strength);
-                    phys_data_sum_avel(&(objectB->phys), vimp_b);
+                    objectB->phys.sum_avel(vimp_b);
                 }
 
                 // this was definitely a bump
@@ -947,12 +925,12 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
                 distance /= std::max(objectA->bump.size, objectB->bump.size);
                 if(distance > 0.0f)
                 {
-                    phys_data_sum_avel(&objectA->phys,  nrm * distance * recoil_a * interaction_strength);
-                    phys_data_sum_avel(&objectB->phys, -nrm * distance * recoil_b * interaction_strength);
+                    objectA->phys.sum_avel(nrm * distance * recoil_a * interaction_strength);
+                    objectB->phys.sum_avel(-nrm * distance * recoil_b * interaction_strength);
 
                     // you could "bump" something if you changed your velocity, even if you were still touching
-                    bump = TO_C_BOOL(( objectA->vel.dot(nrm) * objectA->vel_old.dot(nrm) < 0 ) ||
-                                     ( objectB->vel.dot(nrm) * objectB->vel_old.dot(nrm) < 0 ) );   
+                    bump = ((objectA->vel.dot(nrm) * objectA->vel_old.dot(nrm)) < 0) ||
+                           ((objectB->vel.dot(nrm) * objectB->vel_old.dot(nrm)) < 0);   
                 }
             }
 
@@ -964,13 +942,13 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
             if ( recoil_a > 0.0f )
             {
                 Vector3f pimp_a = pdiff_a * +(recoil_a * pressure_strength);
-                phys_data_sum_acoll(&(objectA->phys), pimp_a);
+                objectA->phys.sum_acoll(pimp_a);
             }
 
             if ( recoil_b > 0.0f )
             {
                 Vector3f pimp_b = pdiff_a * -(recoil_b * pressure_strength);
-                phys_data_sum_acoll(&(objectB->phys), pimp_b);
+                objectB->phys.sum_acoll(pimp_b);
             }
         }
     }
@@ -1021,14 +999,14 @@ static bool do_chr_platform_physics( Object * object, Object * platform )
 
     if ( lerp_z == 1.0f )
     {
-        phys_data_sum_aplat_index( &( object->phys ), ( object->enviro.level - object->getPosZ() ) * 0.125f, kZ );
-        phys_data_sum_avel_index( &( object->phys ), ( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f, kZ );
+        object->phys.sum_aplat(( object->enviro.level - object->getPosZ() ) * 0.125f, kZ );
+        object->phys.sum_avel(( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f, kZ );
         object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
     }
     else
     {
-        phys_data_sum_aplat_index( &( object->phys ), ( object->enviro.level - object->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
-        phys_data_sum_avel_index( &( object->phys ), ( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
+        object->phys.sum_aplat(( object->enviro.level - object->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
+        object->phys.sum_avel(( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
         object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
     };
 
