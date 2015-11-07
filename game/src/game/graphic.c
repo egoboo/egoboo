@@ -1802,7 +1802,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 #if defined(CLIP_ALL_LIGHT_FANS)
 	// Update all visible fans once every 4 frames.
 	if (0 != (game_frame_all & frame_mask)) {
-		return gfx_success;
+		return;
 }
 #endif
 
@@ -2401,7 +2401,10 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 {
-    // because the main loop of the program will always flip the
+	// @a true if clipping is enabled, @a false otherwise.
+	static const bool clippingEnabled = true;
+
+    // Because the main loop of the program will always flip the
     // page before rendering the 1st frame of the actual game,
     // game_frame_all will always start at 1
     if (1 != (game_frame_all & 3))
@@ -2416,14 +2419,24 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
     }
 
     // get the tiles in the center of the view (TODO: calculate actual tile view from camera frustrum)
-	static const float offset = 10;
-	static const float centerX = cam.getTrackPosition()[kX] / Info<float>::Grid::Size();
-	static const float centerY = cam.getTrackPosition()[kY] / Info<float>::Grid::Size();
-    int startX = Ego::Math::constrain<int>(centerX - offset, 0, _currentModule->getMeshPointer()->_info.getTileCountX());
-    int startY = Ego::Math::constrain<int>(centerY - offset, 0, _currentModule->getMeshPointer()->_info.getTileCountY());
-    int endX = Ego::Math::constrain<int>(centerX + offset, 0, _currentModule->getMeshPointer()->_info.getTileCountX());
-    int endY = Ego::Math::constrain<int>(centerY + offset, 0, _currentModule->getMeshPointer()->_info.getTileCountY());
-
+	int startX, startY, endX, endY;
+	if (clippingEnabled)
+	{
+		static const float offset = 10;
+		float centerX = cam.getTrackPosition()[kX] / Info<float>::Grid::Size();
+		float centerY = cam.getTrackPosition()[kY] / Info<float>::Grid::Size();
+		startX = Ego::Math::constrain<int>(centerX - offset, 0, _currentModule->getMeshPointer()->_info.getTileCountX());
+		startY = Ego::Math::constrain<int>(centerY - offset, 0, _currentModule->getMeshPointer()->_info.getTileCountY());
+		endX = Ego::Math::constrain<int>(centerX + offset, 0, _currentModule->getMeshPointer()->_info.getTileCountX());
+		endY = Ego::Math::constrain<int>(centerY + offset, 0, _currentModule->getMeshPointer()->_info.getTileCountY());
+	}
+	else
+	{
+		startX = 0;
+		startY = 0;
+		endX = _currentModule->getMeshPointer()->_info.getTileCountX();
+		endY = _currentModule->getMeshPointer()->_info.getTileCountY();
+	}
     for(size_t x = startX; x < endX; ++x) {
         for(size_t y = startY; y < endY; ++y) {
             if (gfx_error == tl.add(x + y * _currentModule->getMeshPointer()->_info.getTileCountX(), cam))
