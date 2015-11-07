@@ -34,7 +34,7 @@ bool map_read_v2(vfs_FILE& file, map_t& map)
     // Load twist data.
     for (auto& tile : mem.tiles)
     {
-        vfs_read_Uint8(&file, &tile.twist);
+        vfs_read_Uint8(file, &tile.twist);
     }
 
     return true;

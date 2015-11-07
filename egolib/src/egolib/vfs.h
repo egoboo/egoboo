@@ -229,15 +229,15 @@ bool vfs_isDirectory(const std::string& pathname);
 
 // binary reading and writing
 size_t vfs_read(void *buffer, size_t size, size_t count, vfs_FILE *file);
-int vfs_read_Sint8(vfs_FILE *file, Sint8 *val);
-int vfs_read_Uint8(vfs_FILE *file, Uint8 *val);
-int vfs_read_Sint16(vfs_FILE *file, Sint16 *val);
-int vfs_read_Uint16(vfs_FILE *file, Uint16 *val);
-int vfs_read_Sint32(vfs_FILE *file, Sint32 *val);
-int vfs_read_Uint32(vfs_FILE *file, Uint32 *val);
-int vfs_read_Sint64(vfs_FILE *file, Sint64 *val);
-int vfs_read_Uint64(vfs_FILE *file, Uint64 *val);
-int vfs_read_float(vfs_FILE *file, float *val);
+int vfs_read_Sint8(vfs_FILE& file, Sint8 *val);
+int vfs_read_Uint8(vfs_FILE& file, Uint8 *val);
+int vfs_read_Sint16(vfs_FILE& file, Sint16 *val);
+int vfs_read_Uint16(vfs_FILE& file, Uint16 *val);
+int vfs_read_Sint32(vfs_FILE& file, Sint32 *val);
+int vfs_read_Uint32(vfs_FILE& file, Uint32 *val);
+int vfs_read_Sint64(vfs_FILE& file, Sint64 *val);
+int vfs_read_Uint64(vfs_FILE& file, Uint64 *val);
+int vfs_read_float(vfs_FILE& file, float *val);
 
 size_t vfs_write(const void *buffer, size_t size, size_t count, vfs_FILE *file);
 

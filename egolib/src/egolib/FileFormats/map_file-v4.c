@@ -34,7 +34,7 @@ bool map_read_v4(vfs_FILE& file, map_t& map)
     // Load vertex a data
     for (map_vertex_t& vertex : mem.vertices)
     {
-        vfs_read_Uint8(&file, &vertex.a);
+        vfs_read_Uint8(file, &vertex.a);
     }
 
     return true;
