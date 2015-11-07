@@ -149,13 +149,11 @@ struct PhysicsData
         vel_old(), 
         vel()
     {
-        // initialize the physics
-        phys_data_t::ctor(&phys);
     }
     
     static void reset(PhysicsData *self)
     {
-        phys_data_t::reset(&self->phys);
+        self->phys = phys_data_t();
 
         self->targetplatform_level = 0.0f;
         self->targetplatform_ref = INVALID_CHR_REF;

@@ -258,7 +258,7 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
         }
 
         // check to see if the "ray" collides with the mesh
-        TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(ix, iy));
+        TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(ix, iy));
         if (TileIndex::Invalid != fan && fan != fan_last )
         {
             Uint32 collide_fx = _currentModule->getMeshPointer()->test_fx( fan, plos->stopped_by );
@@ -517,7 +517,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        TileIndex fan = mesh->get_grid(PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex fan = mesh->getTileIndex(PointWorld(pchr->getPosX(), pchr->getPosY()));
 
 		ego_tile_info_t& ptile = mesh->get_ptile(fan);
         {
@@ -614,7 +614,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( /*nothing*/; x <= passage->getRight(); x++ )
         {
-            TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
+            TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
 
 			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(fan);
             if (tiletype == ( ptile._img & TILE_LOWER_MASK ) )
@@ -632,7 +632,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( x = passage->getLeft(); x <= passage->getRight(); x++ )
         {
-            TileIndex fan = _currentModule->getMeshPointer()->get_tile_int(PointGrid(x, y));
+            TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
 
 			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(fan);
             if (tiletype == ( ptile._img & TILE_LOWER_MASK ) )

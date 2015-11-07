@@ -112,7 +112,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Uint32 itile )
     // do not render the itile if the image image is invalid
     if (ptile.isFanOff())  return gfx_success;
 
-	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, ptile._type );
+	tile_definition_t *pdef = tile_dict.get( ptile._type );
     if ( NULL == pdef ) return gfx_fail;
 
     // bind the correct texture
@@ -291,7 +291,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Uint32 itile, const Uint8 layer
 
     // To make life easier
     uint16_t type  = 0;                                         // Command type ( index to points in tile )
-	tile_definition_t *pdef = TILE_DICT_PTR( tile_dict, type );
+	tile_definition_t *pdef = tile_dict.get( type );
     if ( NULL == pdef )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, type, "unknown tile type" );
@@ -365,7 +365,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Uint32 itile, const Uint8 layer
             v0.t = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            TileIndex jtile = mesh.get_tile_int(PointGrid(jx, jy));
+            TileIndex jtile = mesh.getTileIndex(PointGrid(jx, jy));
             float dlight;
             if ( GridIllumination::light_corner(mesh, jtile, v0.z, nrm, dlight) )
             {

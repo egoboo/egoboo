@@ -27,9 +27,6 @@
 #include "egolib/egolib_config.h"
 #include "egolib/Debug.hpp"
 
-// this include must be the absolute last include
-#include "egolib/mem.h"
-
 //--------------------------------------------------------------------------------------------
 // place the definition of the lambda operator in a macro
 #define LAMBDA(AA,BB,CC) ((AA) ? (BB) : (CC))
@@ -42,14 +39,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // definitions for the compiler environment
-
-
-//--------------------------------------------------------------------------------------------
-// a replacement for memset()
-
-#    if !defined(BLANK_ARY)
-#       define BLANK_ARY(XX)  memset( XX, 0, sizeof( XX ) );
-#    endif
 
 //--------------------------------------------------------------------------------------------
 // BOOLEAN

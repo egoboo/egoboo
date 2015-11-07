@@ -34,8 +34,7 @@ public:
         _spawnPosition(0.0f, 0.0f, 0.0f),
         _safePosition(0.0f, 0.0f, 0.0f),
         _safeValid(false),
-        _tile(TileIndex::Invalid),
-        _block(BlockIndex::Invalid)
+		_tile(TileIndex::Invalid)
     {
         //ctor
     }
@@ -105,8 +104,7 @@ public:
         _oldPosition = _position;
         _position = pos;
 
-        _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(getPosX(), getPosY()));
-        _block = _currentModule->getMeshPointer()->get_block(PointWorld(getPosX(), getPosY()));
+        _tile = _currentModule->getMeshPointer()->getTileIndex(PointWorld(getPosX(), getPosY()));
 
         //Are we inside a wall now?
         Vector2f nrm;
@@ -185,15 +183,6 @@ public:
         return _tile;
     }
 
-    /**
-     * @brief Get the block this object is currently on.
-     * @return the block index of the block this object is on.
-     * If the object is currently on no block, BlockIndex::Invalid is returned.
-     */
-    inline const BlockIndex& getBlock() const {
-        return _block;
-    }
-
     /// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
     inline BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
     {
@@ -244,11 +233,7 @@ private:
      *  The tile this object is on or TileIndex::Invalid if none.
      */
     TileIndex _tile;
-    /**
-     * @brief
-     *  The block this object is on or BlockIndex::Invalid if none.
-     */
-    BlockIndex _block;
+
 };
 
 } //Physics

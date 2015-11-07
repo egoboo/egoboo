@@ -31,36 +31,17 @@
 /// A description of a tile type that allows some compression in the way vertices are stored in the mpd file
     struct tile_definition_t
     {
-        tile_definition_t() :
-            numvertices(0),
-            ref(),
-            grid_ix(),
-            grid_iy(),
-            u(),
-            v(),
-            command_count(0),
-            command_entries(),
-            command_verts()
-        {
-            ref.fill(0);
-            grid_ix.fill(0);
-            grid_iy.fill(0);
-            u.fill(0);
-            v.fill(0);
-            command_entries.fill(0);
-            command_verts.fill(0);
-        }
+        Uint8           numvertices;                        ///< Number of vertices
+        int             ref[MAP_FAN_VERTICES_MAX];          ///< encoded "position" of the vertex
+        int             grid_ix[MAP_FAN_VERTICES_MAX];      ///< decoded x-index
+        int             grid_iy[MAP_FAN_VERTICES_MAX];      ///< decoded y-index
 
-        uint8_t         numvertices;                        ///< Number of vertices
-        std::array<int, MAP_FAN_VERTICES_MAX> ref;          ///< encoded "position" of the vertex
-        std::array<int, MAP_FAN_VERTICES_MAX> grid_ix;      ///< decoded x-index
-        std::array<int, MAP_FAN_VERTICES_MAX> grid_iy;      ///< decoded y-index
-        std::array<float, MAP_FAN_VERTICES_MAX> u;          ///< "horizontal" texture position
-        std::array<float, MAP_FAN_VERTICES_MAX> v;          ///< "vertical" texture position
+        float           u[MAP_FAN_VERTICES_MAX];            ///< "horizontal" texture position
+        float           v[MAP_FAN_VERTICES_MAX];            ///< "vertical" texture position
 
-        uint8_t         command_count;                      ///< Number of commands
-        std::array<uint8_t, MAP_FAN_MAX> command_entries;       ///< Entries in each command
-        std::array<uint16_t, MAP_FAN_ENTRIES_MAX> command_verts; ///< Fansquare vertex list
+        Uint8           command_count;                      ///< Number of commands
+        Uint8           command_entries[MAP_FAN_MAX];       ///< Entries in each command
+        Uint16          command_verts[MAP_FAN_ENTRIES_MAX]; ///< Fansquare vertex list
     };
 
 //--------------------------------------------------------------------------------------------
@@ -68,29 +49,31 @@
     /// A a dictionary of tile types
     struct tile_dictionary_t
     {
-        tile_dictionary_t() :
-            loaded(false),
-            offset(0),
-            def_count(0),
-            def_lst()
-        {
-            //ctor
-        }
-
         bool              loaded;
         size_t            offset;
 
         size_t            def_count;
-        std::array<tile_definition_t, MAP_FAN_TYPE_MAX> def_lst;
+        tile_definition_t def_lst[MAP_FAN_TYPE_MAX];
+
+		inline const tile_definition_t* get(const uint8_t type) const
+		{
+			if (!loaded || type > def_count) {
+				return nullptr;
+			}
+			return def_lst + type;
+		}
+
+		inline tile_definition_t* get(const uint8_t type)
+		{
+			if (!loaded || type > def_count) {
+				return nullptr;
+			}
+			return def_lst + type;
+		}
     };
 
-inline tile_definition_t* TILE_DICT_PTR(tile_dictionary_t& pdict, const uint8_t type)
-{
-    if(!pdict.loaded || type > pdict.def_count) {
-        return nullptr;
-    }
-    return &pdict.def_lst[type];
-}
+#   define TILE_DICTIONARY_INIT { false, 0, 0, {} }
+
 
 //--------------------------------------------------------------------------------------------
 

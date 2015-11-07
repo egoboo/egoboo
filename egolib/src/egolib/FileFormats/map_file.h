@@ -201,6 +201,16 @@ public:
 		return _tileCountY;
 	}
 
+	/**
+	 * @brief
+	 *  Get the number of tiles
+	 * @return
+	 *  the number of tiles
+	 */
+	uint32_t getTileCount() const {
+		return getTileCountX() * getTileCountY();
+	}
+
 public:
     /**
      * @brief
@@ -281,6 +291,18 @@ struct map_mem_t
 	 */
 	void setInfo(const map_info_t& info);
 
+	/**
+	 * @brief
+	 *  Get the tile at the specified index.
+	 * @param i
+	 *  the index
+	 * @return
+	 *  the tile at the specified index
+	 * @throw std::runtime_error
+	 *  if the index is greater than or equal to the number of tiles
+	 */
+	const tile_info_t& operator()(size_t i) const;
+
 };
 
 //--------------------------------------------------------------------------------------------
@@ -347,5 +369,36 @@ public:
      */
     bool save(const std::string& name) const;
 
-};
+	/**
+	 * @brief
+	 *  Get the index of a tile in a 1D tile array given its index in a 2D tile array.
+	 * @param x, y
+	 *  the 2D index of the tile
+	 * @return
+	 *  the 1D index of the tile \f$y \cdot w + x\f$ where \f$w\f$ is the width of the map
+	 */
+	size_t getTileIndex(int x, int y) const;
 
+	/**
+	 * @brief
+	 *  Get the tile at the specified index.
+	 * @param x, y
+	 *  the index of the tile
+	 * @return
+	 *  the tile
+	 * @throw std::runtime_error
+	 *  if @a x (@a y) is greater than or equal to the size of the map along the x-axis (y-axis) 
+	 */
+	const tile_info_t& operator()(size_t x, size_t y) const;
+	/**
+	 * @brief
+	 *  Get the tile at the specified index.
+	 * @param i
+	 *  the index of the tile
+	 * @return
+	 *  the tile
+	 * @throw std::runtime_error
+	 *  if @a i is greater than or equal to the size of the map
+	 */
+	const tile_info_t& operator()(size_t i) const;
+};

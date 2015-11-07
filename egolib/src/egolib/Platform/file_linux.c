@@ -36,9 +36,6 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-// this include must be the absolute last include
-#include "egolib/mem.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -210,32 +207,27 @@ const char *fs_findFirstFile(const char *directory, const char *extension, fs_fi
     {
         return NULL;
     }
-    linux_find_context_t *pcnt = EGOBOO_NEW(linux_find_context_t);
+    linux_find_context_t *pcnt = new linux_find_context_t();
     fs_search->type = linux_find;
     fs_search->ptr.l = pcnt;
 
-    if (extension)
-    {
+    if (extension) {
         snprintf(pattern, PATH_MAX, "%s" SLASH_STR "*.%s", directory, extension);
-    }
-    else
-    {
+    } else {
         snprintf(pattern, PATH_MAX, "%s" SLASH_STR "*", directory);
     }
  
     pcnt->last_find.gl_offs = 0;
     glob(pattern, GLOB_NOSORT, NULL, &pcnt->last_find);
-    if (!pcnt->last_find.gl_pathc)
-    {
-        return NULL;
+    if (!pcnt->last_find.gl_pathc) {
+        return nullptr;
     }
     pcnt->find_index = 0;
     char *last_slash = strrchr(pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR);
-    if (last_slash)
-    {
+    if (last_slash) {
         return last_slash + 1;
     }
-    return NULL; /* should never happen */
+    return nullptr; /* should never happen */
 }
 
 const char *fs_findNextFile(fs_find_context_t *fs_search)
@@ -277,8 +269,10 @@ void fs_findClose(fs_find_context_t *fs_search)
     }
     globfree(&(pcnt->last_find));
 
-    EGOBOO_DELETE(pcnt);
-    memset(fs_search, 0, sizeof(fs_find_context_t));
+    delete pcnt;
+
+	fs_search->type = unknown_find;
+	fs_search->ptr.v = nullptr;
 }
 
 const char *fs_getBinaryDirectory()

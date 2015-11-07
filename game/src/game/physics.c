@@ -825,92 +825,6 @@ egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, con
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const Vector3f& pos1, const Vector3f& vel1, const oct_bb_t& src2_orig, const Vector3f& pos2, const Vector3f& vel2, int test_platform, oct_bb_t& dst, float *tmin, float *tmax)
-{
-    if (!tmin)
-    {
-        throw std::invalid_argument("nullptr == tmin");
-    }
-    if (!tmax)
-    {
-        throw std::invalid_argument("nullptr == tmax");
-    }
-
-    // Do the objects interact at the very beginning of the update?
-    if (test_interaction_2(src1_orig, pos2, src2_orig, pos2, test_platform))
-    {
-        oct_bb_t::intersection(src1_orig, src2_orig, dst);
-        return true;
-    }
-
-    // convert the position and velocity vectors to octagonal format
-    oct_vec_v2_t opos1(pos1), opos2(pos2),
-                 ovel1(vel1), ovel2(vel2);
-
-    oct_bb_t src1, src2;
-
-    oct_bb_t::translate(src1_orig, opos1, src1);
-    oct_bb_t::translate(src2_orig, opos2, src2);
-
-    // Cycle through the coordinates to see when the two volumes might coincide.
-    bool found = false;
-    *tmin = *tmax = -1.0f;
-    for (size_t i = 0; i < OCT_COUNT; ++i)
-    {
-        egolib_rv retval;
-        float tmp_min, tmp_max;
-
-        retval = phys_intersect_oct_bb_close_index(i, src1, ovel1, src2, ovel2, test_platform, &tmp_min, &tmp_max);
-        if (rv_fail == retval) return false;
-
-        if (rv_success == retval)
-        {
-            if (!found)
-            {
-                *tmin = tmp_min;
-                *tmax = tmp_max;
-                found = true;
-            }
-            else
-            {
-                *tmin = std::max(*tmin, tmp_min);
-                *tmax = std::min(*tmax, tmp_max);
-            }
-        }
-
-        if (*tmax < *tmin) return false;
-    }
-
-    // If the objects do not interact this frame let the caller know.
-    if (*tmin > 1.0f || *tmax < 0.0f) return false;
-
-    // Determine the expanded collision volumes for both objects.
-    oct_bb_t exp1, exp2;
-    phys_expand_oct_bb(src1, vel1, *tmin, *tmax, exp1);
-    phys_expand_oct_bb(src2, vel2, *tmin, *tmax, exp2);
-
-    // determine the intersection of these two volumes
-    oct_bb_t intersection;
-    oct_bb_t::intersection(exp1, exp2, intersection);
-
-    // check to see if there is any possibility of interaction at all
-    for (size_t i = 0; i < OCT_Z; ++i)
-    {
-        if (intersection._mins[i] > intersection._maxs[i]) return false;
-    }
-
-    float tolerance = (0 == test_platform) ? 0.0f : PLATTOLERANCE;
-    if (intersection._mins[OCT_Z] > intersection._maxs[OCT_Z] + tolerance)
-    {
-        return false;
-    }
-    return true;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tmin, const float tmax, oct_bb_t& dst)
 {
     if (0.0f == vel.length_abs())
@@ -1008,360 +922,100 @@ static Vector3f snap(const Vector3f& p)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-phys_data_t *phys_data_clear(phys_data_t *self)
+void phys_data_t::clear()
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-
-    apos_t::reset(&(self->aplat));
-    apos_t::reset(&(self->acoll));
-    self->avel = Vector3f::zero();
+	aplat = apos_t();
+	acoll = apos_t();
+    avel = Vector3f::zero();
     /// @todo Seems like dynamic and loaded data are mixed here;
     /// We may not blank bumpdampen, weight or dampen for now.
 #if 0
-    self->bumpdampen = 1.0f;
-    self->weight = 1.0f;
-    self->dampen = 0.5f;
+    bumpdampen = 1.0f;
+    weight = 1.0f;
+    dampen = 0.5f;
 #endif
-    return self;
 }
 
-void phys_data_t::reset(phys_data_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    apos_t::reset(&(self->aplat));
-    apos_t::reset(&(self->acoll));
-    self->avel = Vector3f::zero();
-    self->bumpdampen = 1.0f;
-    self->weight = 1.0f;
-    self->dampen = 0.5f;
-}
-
-phys_data_t *phys_data_t::ctor(phys_data_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    apos_t::ctor(&(self->aplat));
-    apos_t::ctor(&(self->acoll));
-    self->avel = Vector3f::zero();
-    self->bumpdampen = 1.0f;
-    self->weight = 1.0f;
-    self->dampen = 0.5f;
-
-    return self;
-}
+phys_data_t::phys_data_t()
+	: aplat(), acoll(), avel(),
+	  bumpdampen(1.0f), weight(1.0f), dampen(0.5f)
+{}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool apos_t::self_union(apos_t *self, const apos_t *other)
-{
-    if (!self || !other)
-    {
-        return false;
+void apos_t::join(const apos_t& other) {
+    for (size_t i = 0; i < 3; ++i) {
+        mins[i] = std::min(mins[i], other.mins[i]);
+        maxs[i] = std::max(maxs[i], other.maxs[i]);
+        sum[i] += other.sum[i];
     }
-    // Scan through the components of the vector and find the maximum displacement.
-    for (size_t i = 0; i < 3; ++i)
-    {
-        self->mins[i] = std::min(self->mins[i], other->mins[i]);
-        self->maxs[i] = std::max(self->maxs[i], other->maxs[i]);
-        self->sum[i] += other->sum[i];
-    }
-
-    return true;
 }
 
-bool apos_t::self_union(apos_t *self, const Vector3f& other)
-{
-    if (!self)
-    {
-        return false;
-    }
-    // Scan through the components of the vector and find the maximum displacement.
-    for (size_t i = 0; i < 3; ++i)
-    {
-        // Find the extrema of the displacement.
-        if (other[i] > 0.0f)
-        {
-            self->maxs[i] = std::max(self->maxs[i], other[i]);
+void apos_t::join(const Vector3f& other) {
+    for (size_t i = 0; i < 3; ++i) {
+        if (other[i] > 0.0f) {
+            maxs[i] = std::max(maxs[i], other[i]);
+        } else if (other[i] < 0.0f) {
+            mins[i] = std::min(mins[i], other[i]);
         }
-        else if (other[i] < 0.0f)
-        {
-            self->mins[i] = std::min(self->mins[i], other[i]);
-        }
-
-        // Find the sum of the displacement.
-        self->sum[i] += other[i];
+        sum[i] += other[i];
     }
-
-    return true;
 }
 
-bool apos_t::self_union_index(apos_t *self, const float t, const size_t index)
-{
-    // find the maximum displacement at the given index
-
-    if (!self || index > 2)
-    {
-        return false;
+void apos_t::join(const float t, const size_t index) {
+    if (index > 2) {
+		throw std::runtime_error("index out of bounds");
     }
 
     LOG_NAN(t);
 
-    // Update extrema.
-    if (t > 0.0f )
-    {
-        self->maxs[index] = std::max(self->maxs[index], t);
-    }
-    else if (t < 0.0f)
-    {
-        self->mins[index] = std::min(self->mins[index], t);
+    if (t > 0.0f) {
+        maxs[index] = std::max(maxs[index], t);
+    } else if (t < 0.0f) {
+        mins[index] = std::min(mins[index], t);
     }
 
-    // Update sum.
-    self->sum[index] += t;
-
-    return true;
+	sum[index] += t;
 }
 
-bool apos_t::evaluate(const apos_t *self, Vector3f& dst)
-{
-    if (!self)
-    {
-		dst = Vector3f::zero();
-		return true;
+void apos_t::evaluate(const apos_t& self, Vector3f& dst) {
+    for (size_t i = 0; i < 3; ++i) {
+        dst[i] = self.maxs[i] + self.mins[i];
     }
-
-    for (size_t i = 0; i < 3; ++i)
-    {
-        dst[i] = self->maxs[i] + self->mins[i];
-    }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-phys_data_t *phys_data_sum_aplat(phys_data_t *self, const Vector3f& v)
+
+void phys_data_t::sum_acoll(const Vector3f& v)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    apos_t::self_union(&(self->aplat ), v);
-    return self;
+    acoll.join(v);
 }
 
-phys_data_t *phys_data_sum_acoll(phys_data_t *self, const Vector3f& v)
+void phys_data_t::sum_avel(const Vector3f& v)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    apos_t::self_union(&(self->acoll), v);
-    return self;
+    avel += v;
 }
 
-phys_data_t *phys_data_sum_avel(phys_data_t *self, const Vector3f& v)
+void phys_data_t::sum_aplat(const float val, const size_t index)
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    self->avel += v;
+	if (index > 2)
+	{
+		throw std::runtime_error("index out of bounds");
+	}
 
-    return self;
+    LOG_NAN(val);
+
+    aplat.join(val, index);
 }
 
-phys_data_t *phys_data_sum_aplat_index(phys_data_t *self, const float val, const size_t index)
+void phys_data_t::sum_avel(const float val, const size_t index)
 {
-    if (!self)
+    if (index > 2)
     {
-        return nullptr;
+		throw std::runtime_error("index out of bounds");
     }
 
     LOG_NAN(val);
 
-    apos_t::self_union_index(&(self->aplat), val, index);
-
-    return self;
-}
-
-phys_data_t *phys_data_sum_acoll_index(phys_data_t *self, const float val, const size_t index)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-
-    LOG_NAN(val);
-
-    apos_t::self_union_index(&(self->acoll), val, index);
-
-    return self;
-}
-
-phys_data_t *phys_data_sum_avel_index(phys_data_t *self, const float val, const size_t index)
-{
-    if (!self || index > 2)
-    {
-        return nullptr;
-    }
-
-    LOG_NAN(val);
-
-    self->avel[index] += val;
-
-    return self;
-}
-
-//--------------------------------------------------------------------------------------------
-//Inline below
-//--------------------------------------------------------------------------------------------
-bool test_interaction_close_0( bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform )
-{
-    oct_bb_t cv_a, cv_b;
-
-    // convert the bumpers to the correct format
-    cv_a.assign(bump_a);
-    cv_b.assign(bump_b);
-
-    return test_interaction_close_2(cv_a, pos_a, cv_b, pos_b, test_platform);
-}
-
-//--------------------------------------------------------------------------------------------
-bool test_interaction_0(bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform)
-{
-    oct_bb_t cv_a, cv_b;
-
-    // convert the bumpers to the correct format
-    cv_a.assign(bump_a);
-    cv_b.assign(bump_b);
-
-    return test_interaction_2(cv_a, pos_a, cv_b, pos_b, test_platform);
-}
-
-//--------------------------------------------------------------------------------------------
-bool test_interaction_close_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform)
-{
-    oct_bb_t cv_b;
-
-    // convert the bumper to the correct format
-    cv_b.assign(bump_b);
-
-    return test_interaction_close_2(cv_a, pos_a, cv_b, pos_b, test_platform);
-}
-
-//--------------------------------------------------------------------------------------------
-bool test_interaction_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, int test_platform)
-{
-    oct_bb_t cv_b;
-
-    // convert the bumper to the correct format
-    cv_b.assign(bump_b);
-
-    return test_interaction_2(cv_a, pos_a, cv_b, pos_b, test_platform);
-}
-
-//--------------------------------------------------------------------------------------------
-bool test_interaction_close_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, int test_platform)
-{
-    // Translate the vector positions to octagonal vector positions.
-    oct_vec_v2_t oa(pos_a), ob(pos_b);
-
-    // calculate the depth
-    float depth;
-    for (size_t i = 0; i < OCT_Z; ++i)
-    {
-        float ftmp1 = std::min((ob[i] + cv_b._maxs[i]) - oa[i], oa[i] - (ob[i] + cv_b._mins[i]));
-        float ftmp2 = std::min((oa[i] + cv_a._maxs[i]) - ob[i], ob[i] - (oa[i] + cv_a._mins[i]));
-        depth = std::max(ftmp1, ftmp2);
-        if (depth <= 0.0f) return false;
-    }
-
-    // treat the z coordinate the same as always
-    depth = std::min(cv_b._maxs[OCT_Z] + ob[OCT_Z], cv_a._maxs[OCT_Z] + oa[OCT_Z]) -
-            std::max(cv_b._mins[OCT_Z] + ob[OCT_Z], cv_a._mins[OCT_Z] + oa[OCT_Z]);
-
-    return TO_C_BOOL(test_platform ? (depth > -PLATTOLERANCE) : (depth > 0.0f));
-}
-
-//--------------------------------------------------------------------------------------------
-bool test_interaction_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, int test_platform)
-{
-    // Convert the vector positions to octagonal vector positions.
-    oct_vec_v2_t oa(pos_a), ob(pos_b);
-
-    // calculate the depth
-    float depth;
-    for (size_t i = 0; i < OCT_Z; ++i)
-    {
-        depth  = std::min(cv_b._maxs[i] + ob[i], cv_a._maxs[i] + oa[i]) -
-                 std::max(cv_b._mins[i] + ob[i], cv_a._mins[i] + oa[i]);
-
-        if (depth <= 0.0f) return false;
-    }
-
-    // treat the z coordinate the same as always
-    depth = std::min(cv_b._maxs[OCT_Z] + ob[OCT_Z], cv_a._maxs[OCT_Z] + oa[OCT_Z]) -
-            std::max(cv_b._mins[OCT_Z] + ob[OCT_Z], cv_a._mins[OCT_Z] + oa[OCT_Z]);
-
-    return TO_C_BOOL((0 != test_platform) ? (depth > -PLATTOLERANCE) : (depth > 0.0f));
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool get_depth_0(bumper_t bump_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth)
-{
-    oct_bb_t cv_a, cv_b;
-
-    // convert the bumpers to the correct format
-    cv_a.assign(bump_a);
-    cv_b.assign(bump_b);
-
-    return get_depth_2(cv_a, pos_a, cv_b, pos_b, break_out, depth);
-}
-
-//--------------------------------------------------------------------------------------------
-bool get_depth_1(const oct_bb_t& cv_a, const Vector3f& pos_a, bumper_t bump_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth)
-{
-    oct_bb_t cv_b;
-
-    // convert the bumper to the correct format
-    cv_b.assign(bump_b);
-
-    return get_depth_2(cv_a, pos_a, cv_b, pos_b, break_out, depth);
-}
-
-//--------------------------------------------------------------------------------------------
-bool get_depth_2(const oct_bb_t& cv_a, const Vector3f& pos_a, const oct_bb_t& cv_b, const Vector3f& pos_b, bool break_out, oct_vec_v2_t& depth)
-{
-    // Translate the vector positions to octagonal vector positions.
-    oct_vec_v2_t oa(pos_a), ob(pos_b);
-
-    // calculate the depth
-    bool valid = true;
-    for (size_t i = 0; i < OCT_COUNT; ++i)
-    {
-        depth[i] = std::min(cv_b._maxs[i] + ob[i], cv_a._maxs[i] + oa[i]) -
-                   std::max(cv_b._mins[i] + ob[i], cv_a._mins[i] + oa[i]);
-
-        if (depth[i] <= 0.0f)
-        {
-            valid = false;
-            if (break_out) return false;
-        }
-    }
-
-    // scale the diagonal components so that they are actually distances
-    depth[OCT_XY] *= Ego::Math::invSqrtTwo<float>();
-    depth[OCT_YX] *= Ego::Math::invSqrtTwo<float>();
-
-    return valid;
+    avel[index] += val;
 }

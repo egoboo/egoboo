@@ -156,9 +156,6 @@
     <ClCompile Include="src\egolib\strutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\timer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\typedef.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -182,9 +179,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\platform\file_linux.c">
       <Filter>Platforms</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\mem.c">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\math\Random.cpp">
       <Filter>Source Files\Math</Filter>
@@ -458,9 +452,6 @@
     <ClInclude Include="src\egolib\network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\mem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\map_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -520,9 +511,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">
       <Filter>Platforms</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\bv.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\math\Random.hpp">
       <Filter>Header Files\Math</Filter>

@@ -3476,7 +3476,7 @@ float get_mesh_max_vertex_1( ego_mesh_t *mesh, const PointGrid& point, oct_bb_t&
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
-        TileIndex tile = mesh->get_tile_int( point );
+        TileIndex tile = mesh->getTileIndex( point );
 
         if ( 0 != mesh->test_fx( tile, MAPFX_WATER ) )
         {
@@ -3578,7 +3578,7 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump._mins[OCT_YX] || ftmp > bump._maxs[OCT_YX] ) continue;
 
-            TileIndex itile = mesh->get_tile_int(PointGrid(ix, iy));
+            TileIndex itile = mesh->getTileIndex(PointGrid(ix, iy));
             if (TileIndex::Invalid == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
@@ -3915,7 +3915,7 @@ float ego_mesh_t::getElevation(const PointWorld& point, bool waterwalk) const
 {
     float zdone = getElevation(point);
     if (waterwalk && water._surface_level > zdone && water._is_water) {
-        TileIndex tile = get_grid(point);
+        TileIndex tile = getTileIndex(point);
 
 		if (0 != test_fx(tile, MAPFX_WATER)) {
 			zdone = water._surface_level;
@@ -3939,7 +3939,7 @@ bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF chara
     if ( NULL == ppla ) return false;
 
     rv = quest_log_upload_vfs( ppla->quest_log, szSaveName );
-    return TO_C_BOOL( rv_success == rv );
+    return rv_success == rv;
 }
 
 //--------------------------------------------------------------------------------------------

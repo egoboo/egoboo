@@ -277,7 +277,7 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     odepth[OCT_Z]  = std::min( pprt_b->prt_max_cv._maxs[OCT_Z] + pprt_b->getPosZ(), pchr_a->chr_min_cv._maxs[OCT_Z] + pchr_a->getPosZ() ) -
                      std::max( pprt_b->prt_max_cv._mins[OCT_Z] + pprt_b->getPosZ(), pchr_a->chr_min_cv._mins[OCT_Z] + pchr_a->getPosZ() );
 
-    collide_z = TO_C_BOOL(odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE);
+    collide_z = (odepth[OCT_Z] > -PLATTOLERANCE) && (odepth[OCT_Z] < PLATTOLERANCE);
 
     if ( !collide_z ) return false;
 
@@ -298,11 +298,11 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv._maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pprt_b->getPosX() + pprt_b->getPosY() ),
                               ( -pprt_b->getPosX() + pprt_b->getPosY() ) - ( pchr_a->chr_min_cv._mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
-    collide_x  = TO_C_BOOL( odepth[OCT_X]  > 0.0f );
-    collide_y  = TO_C_BOOL( odepth[OCT_Y]  > 0.0f );
-    collide_xy = TO_C_BOOL( odepth[OCT_XY] > 0.0f );
-    collide_yx = TO_C_BOOL( odepth[OCT_YX] > 0.0f );
-    collide_z  = TO_C_BOOL( odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE );
+    collide_x  = odepth[OCT_X]  > 0.0f;
+    collide_y  = odepth[OCT_Y]  > 0.0f;
+    collide_xy = odepth[OCT_XY] > 0.0f;
+    collide_yx = odepth[OCT_YX] > 0.0f;
+    collide_z  = odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE;
 
     if ( collide_x && collide_y && collide_xy && collide_yx && collide_z )
     {
@@ -365,7 +365,7 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t * pdata, const fl
         handled = true;
         if ( tmin <= 0.0f )
         {
-            handled = TO_C_BOOL( pdata->depth_min > 0.0f );
+            handled = pdata->depth_min > 0.0f;
         }
 
         // tag the type of interaction
@@ -404,7 +404,7 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t * pdata, const fl
             handled = true;
             if ( tmin <= 0.0f )
             {
-                handled = TO_C_BOOL( pdata->depth_max > 0.0f );
+                handled = pdata->depth_max > 0.0f;
             }
 
             // tag the type of interaction
@@ -872,12 +872,6 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
 {
-    bool prt_belongs_to_chr;
-    bool prt_hates_chr, prt_attacks_chr;
-    bool valid_onlydamagefriendly;
-    bool valid_friendlyfire;
-    bool valid_onlydamagehate;
-
     if ( NULL == pdata ) return false;
 
     const float maxDamage = std::abs(pdata->pprt->damage.base) + std::abs(pdata->pprt->damage.rand);
@@ -896,7 +890,7 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
         return false;
     }
 
-    prt_belongs_to_chr = TO_C_BOOL(pdata->pchr->getCharacterID() == pdata->pprt->owner_ref);
+    bool prt_belongs_to_chr = (pdata->pchr->getCharacterID() == pdata->pprt->owner_ref);
 
     if ( !prt_belongs_to_chr )
     {
@@ -910,31 +904,31 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
             if ( !_currentModule->getObjectHandler().exists( chr_wielder ) ) chr_wielder = pdata->pchr->getCharacterID();
             if ( !_currentModule->getObjectHandler().exists( prt_wielder ) ) prt_wielder = prt_owner;
 
-            prt_belongs_to_chr = TO_C_BOOL(chr_wielder == prt_wielder);
+            prt_belongs_to_chr = (chr_wielder == prt_wielder);
         }
     }
 
     // does the particle team hate the character's team
-    prt_hates_chr = team_hates_team( pdata->pprt->team, pdata->pchr->team );
+    bool prt_hates_chr = team_hates_team( pdata->pprt->team, pdata->pchr->team );
 
     // Only bump into hated characters?
-    valid_onlydamagehate = TO_C_BOOL( prt_hates_chr && pdata->pprt->getProfile()->hateonly );
+    bool valid_onlydamagehate = prt_hates_chr && pdata->pprt->getProfile()->hateonly;
 
     // allow neutral particles to attack anything
-    prt_attacks_chr = false;
+    bool prt_attacks_chr = false;
     if(prt_hates_chr || ((Team::TEAM_NULL != pdata->pchr->team) && (Team::TEAM_NULL == pdata->pprt->team)) ) {
         prt_attacks_chr = (maxDamage > 0);
     }
 
     // this is the onlydamagefriendly condition from the particle search code
-    valid_onlydamagefriendly = TO_C_BOOL(( pdata->ppip->onlydamagefriendly && pdata->pprt->team == pdata->pchr->team ) ||
-                                         ( !pdata->ppip->onlydamagefriendly && prt_attacks_chr ) );
+    bool valid_onlydamagefriendly = (pdata->ppip->onlydamagefriendly && pdata->pprt->team == pdata->pchr->team)
+		                         || (!pdata->ppip->onlydamagefriendly && prt_attacks_chr);
 
     // I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
-    valid_friendlyfire = TO_C_BOOL(( pdata->ppip->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr ) ||
-                                   ( !pdata->ppip->friendlyfire && prt_attacks_chr ) );
+    bool valid_friendlyfire = (pdata->ppip->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr)
+		                   || (!pdata->ppip->friendlyfire && prt_attacks_chr);
 
-    pdata->prt_bumps_chr =  TO_C_BOOL( valid_friendlyfire || valid_onlydamagefriendly || valid_onlydamagehate );
+    pdata->prt_bumps_chr = valid_friendlyfire || valid_onlydamagefriendly || valid_onlydamagehate;
 
     return pdata->prt_bumps_chr;
 }

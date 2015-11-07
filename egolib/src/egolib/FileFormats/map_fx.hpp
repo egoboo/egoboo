@@ -6,11 +6,6 @@
 #define CARTMAN_FIXNUM 4.125f ///< 4.150f        ///< Magic number
 #define CARTMAN_SLOPE 50                        ///< increments for terrain slope (related to twist?).
 
-// Block index value indicating an invalid block index.
-constexpr uint32_t INVALID_BLOCK = std::numeric_limits<uint32_t>::max();
-// Tile index value indicating an invalid tile index.
-constexpr uint32_t INVALID_TILE = std::numeric_limits<uint32_t>::max();
-
 constexpr uint16_t TILE_UPPER_SHIFT = 8;
 constexpr uint16_t TILE_LOWER_MASK = ((1 << TILE_UPPER_SHIFT) - 1);
 constexpr uint16_t TILE_UPPER_MASK = (~TILE_LOWER_MASK);

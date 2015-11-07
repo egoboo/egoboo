@@ -88,6 +88,3 @@
 
 #include "egolib/Console/Console.hpp"
 
-//!!! watch this one. if you are using the Fluid Studios memory manager,
-//!!! this must be the absolute last include file.
-#include "egolib/mem.h"

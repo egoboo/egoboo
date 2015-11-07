@@ -33,9 +33,6 @@
 #include "egolib/fileutil.h"
 #include "egolib/platform.h"
 
-// this include must be the absolute last include
-#include "egolib/mem.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -296,11 +293,12 @@ vfs_FILE *vfs_openRead(const std::string& pathname)
         return nullptr;
     }
 
-    vfs_FILE *vfs_file = EGOBOO_NEW(vfs_FILE);
-    if (!vfs_file)
-    {
+	vfs_FILE *vfs_file;
+	try {
+		vfs_file = new vfs_FILE();
+	} catch (...) {
         PHYSFS_close(ftmp);
-        return NULL;
+        return nullptr;
     }
 
     vfs_file->flags = VFS_FILE_FLAG_READING;
@@ -336,12 +334,13 @@ vfs_FILE *vfs_openWrite(const std::string& pathname)
     }
 
     // Open the VFS file.
-    vfs_FILE *vfs_file = EGOBOO_NEW(vfs_FILE);
-    if (!vfs_file)
-    {
-        PHYSFS_close(ftmp);
-        return nullptr;
-    }
+	vfs_FILE *vfs_file;
+	try {
+		vfs_file = new vfs_FILE();
+	} catch (...) {
+		PHYSFS_close(ftmp);
+		return nullptr;
+	}
     vfs_file->flags = VFS_FILE_FLAG_WRITING;
     vfs_file->type  = VFS_FILE_TYPE_PHYSFS;
     vfs_file->ptr.p = ftmp;
@@ -367,11 +366,12 @@ vfs_FILE *vfs_openAppend(const std::string& pathname)
         return NULL;
     }
 
-    vfs_FILE *vfs_file = EGOBOO_NEW(vfs_FILE);
-    if (!vfs_file)
-    {
+	vfs_FILE *vfs_file;
+	try {
+		vfs_file = new vfs_FILE();
+	} catch (...) {
         PHYSFS_close(ftmp);
-        return NULL;
+        return nullptr;
     }
     vfs_file->flags = VFS_FILE_FLAG_WRITING;
     vfs_file->type  = VFS_FILE_TYPE_PHYSFS;
@@ -808,14 +808,12 @@ int vfs_close(vfs_FILE *file)
     if (VFS_FILE_TYPE_CSTDIO == file->type)
     {
         retval = fclose(file->ptr.c);
-        memset(file, 0, sizeof(vfs_FILE));
-		EGOBOO_DELETE(file);
+		delete file;
     }
     else if (VFS_FILE_TYPE_PHYSFS == file->type)
     {
         retval = PHYSFS_close(file->ptr.p);
-        memset(file, 0, sizeof(vfs_FILE));
-		EGOBOO_DELETE(file);
+		delete file;
     }
     else
     {
@@ -2206,13 +2204,10 @@ _vfs_search_file_error:
 //--------------------------------------------------------------------------------------------
 vfs_search_context_t * vfs_findFirst( const char * search_path, const char * search_extension, Uint32 search_bits )
 {
-    vfs_search_context_t * ctxt;
-
     BAIL_IF_NOT_INIT();
 
     // create the new context
-    ctxt = EGOBOO_NEW( vfs_search_context_t );
-    if ( NULL == ctxt ) return NULL;
+	vfs_search_context_t *ctxt = new vfs_search_context_t();
 
     // grab all the files
     ctxt->file_list = vfs_enumerateFiles( vfs_convert_fname( search_path ) );
@@ -2282,10 +2277,11 @@ void vfs_findClose( vfs_search_context_t ** ctxt )
 {
     BAIL_IF_NOT_INIT();
 
-    if ( NULL != ctxt )
+    if ( nullptr != ctxt )
     {
         _vfs_findClose( *ctxt );
-        EGOBOO_DELETE(( *ctxt ) );
+        delete *ctxt;
+		*ctxt = nullptr;
     }
 }
 

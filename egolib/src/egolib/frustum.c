@@ -268,10 +268,6 @@ void Frustum::calculate(const Matrix4f4f& projection, const Matrix4f4f& view)
     }
 }
 
-Math::Relation Frustum::intersects(const bv_t& bv, bool doEnds) const {
-	return intersects_aabb(bv.getAABB().getMin(), bv.getAABB().getMax(), doEnds);
-}
-
 Math::Relation Frustum::intersects(const Vector3f& point, const bool doEnds) const {
 	// Handle optional parameters.
 	int start = 0,

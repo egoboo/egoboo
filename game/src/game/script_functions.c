@@ -5213,7 +5213,7 @@ Uint8 scr_GetTileXY( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    TileIndex idx = _currentModule->getMeshPointer()->get_grid(PointWorld(state.x, state.y));
+    TileIndex idx = _currentModule->getMeshPointer()->getTileIndex(PointWorld(state.x, state.y));
 
     ego_tile_info_t& ptr = _currentModule->getMeshPointer()->get_ptile(idx);
     returncode = true;
@@ -5236,7 +5236,7 @@ Uint8 scr_SetTileXY( script_state_t& state, ai_state_t& self )
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
 	}
 
-    TileIndex index = mesh->get_grid(PointWorld(state.x, state.y));
+    TileIndex index = mesh->getTileIndex(PointWorld(state.x, state.y));
     returncode = mesh->set_texture( index, state.argument );
 
     SCRIPT_FUNCTION_END();
