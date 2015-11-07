@@ -533,6 +533,20 @@ size_t Particle::updateContinuousSpawning()
         return spawn_count;
     }
 
+    //Optimization: Only spawn cosmetic sub-particles if we ourselves were rendered
+    //This prevents a lot of cosmetic particles from spawning visible range
+    const std::shared_ptr<pip_t>& childProfile = PipStack.get_ptr(getProfile()->contspawn._lpip.get());
+    if(!childProfile->force && !inst.indolist) {
+
+        //Is is something that spawns often? (often = at least once every 2 seconds)
+        if(contspawn_timer < GameEngine::GAME_TARGET_UPS * 2) {
+
+            //Don't spawn this particle
+            return spawn_count;
+        }
+    }
+
+
     // reset the spawn timer
     contspawn_timer = getProfile()->contspawn._delay;
 
@@ -913,8 +927,9 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     tmp_pos[kX] += offset[kX];
     tmp_pos[kY] += offset[kY];
 
-    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_x - 2.0f);
-    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_y - 2.0f);
+    //Particles can only spawn inside the map bounds
+    tmp_pos[kX] = Ego::Math::constrain(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_x - 2.0f);
+    tmp_pos[kY] = Ego::Math::constrain(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_y - 2.0f);
 
     setPosition(tmp_pos);
     setSpawnPosition(tmp_pos);

@@ -44,10 +44,6 @@
 //--------------------------------------------------------------------------------------------
 // a replacement for memset()
 
-#    if !defined(BLANK_STRUCT_PTR)
-#       define BLANK_STRUCT_PTR(XX)  memset( XX, 0, sizeof( *(XX) ) );
-#    endif
-
 #    if !defined(BLANK_ARY)
 #       define BLANK_ARY(XX)  memset( XX, 0, sizeof( XX ) );
 #    endif

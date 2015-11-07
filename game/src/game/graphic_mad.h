@@ -76,8 +76,8 @@ struct matrix_cache_t
     matrix_cache_t() :
         valid(false),
         matrix_valid(false),
-        type_bits(0),
-        rotate(),
+        type_bits(MAT_UNKNOWN),
+        rotate(0, 0, 0),
         pos(),
         grip_chr(INVALID_CHR_REF),
         grip_slot(SLOT_LEFT),
@@ -85,10 +85,8 @@ struct matrix_cache_t
         grip_scale(),
         self_scale()
     {
-        //ctor
+        grip_verts.fill(0xFFFF);
     }
-
-	static matrix_cache_t *init(matrix_cache_t& self);
 
     // is the cache data valid?
     bool valid;
@@ -102,22 +100,22 @@ struct matrix_cache_t
     //---- MAT_CHARACTER data
 
     // the "Euler" rotation angles in 16-bit form
-	Vector3f   rotate;
+    Vector3f   rotate;
 
     // the translate vector
-	Vector3f   pos;
+    Vector3f   pos;
 
     //---- MAT_WEAPON data
 
     CHR_REF grip_chr;                   ///< != INVALID_CHR_REF if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     std::array<uint16_t, GRIP_VERTS> grip_verts;     ///< Vertices which describe the weapon grip
-	Vector3f grip_scale;
+    Vector3f grip_scale;
 
     //---- data used for both
 
     // the body fixed scaling
-	Vector3f  self_scale;
+    Vector3f  self_scale;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -125,18 +123,30 @@ struct matrix_cache_t
 /// some pre-computed parameters for reflection
 struct chr_reflection_cache_t
 {
-	Matrix4f4f matrix;
+    chr_reflection_cache_t() :
+        matrix(Matrix4f4f::identity()),
+        matrix_valid(false),
+        alpha(127),
+        light(0xFF),
+        sheen(0),
+        redshift(0),
+        grnshift(0),
+        blushift(0),
+        update_wld(0)
+    {
+        //ctor
+    };
+
+    Matrix4f4f matrix;
     bool       matrix_valid;
-    Uint8      alpha;
-    Uint8      light;
-    Uint8      sheen;
-    Uint8      redshift;
-    Uint8      grnshift;
-    Uint8      blushift;
+    uint8_t    alpha;
+    uint8_t    light;
+    uint8_t    sheen;
+    uint8_t    redshift;
+    uint8_t    grnshift;
+    uint8_t    blushift;
 
-    Uint32     update_wld;
-
-	static chr_reflection_cache_t *init(chr_reflection_cache_t& self);
+    uint32_t   update_wld;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -144,17 +154,29 @@ struct chr_reflection_cache_t
 /// the data to determine whether re-calculation of vlst is necessary
 struct vlst_cache_t
 {
+    vlst_cache_t() :
+        valid(false),
+        flip(0.0f),
+        frame_nxt(0),
+        frame_lst(0),
+        frame_wld(0),
+        vmin(-1),
+        vmax(-1),
+        vert_wld(0)
+    {
+        //ctor
+    }
+
     bool valid;             ///< do we know whether this cache is valid or not?
 
     float  flip;              ///< the in-betweening  the last time the animation was updated
-    Uint16 frame_nxt;         ///< the initial frame  the last time the animation was updated
-    Uint16 frame_lst;         ///< the final frame  the last time the animation was updated
-    Uint32 frame_wld;         ///< the update_wld the last time the animation was updated
+    uint16_t frame_nxt;         ///< the initial frame  the last time the animation was updated
+    uint16_t frame_lst;         ///< the final frame  the last time the animation was updated
+    uint32_t frame_wld;         ///< the update_wld the last time the animation was updated
 
     int    vmin;              ///< the minimum clean vertex the last time the vertices were updated
     int    vmax;              ///< the maximum clean vertex the last time the vertices were updated
-    Uint32 vert_wld;          ///< the update_wld the last time the vertices were updated
-	static vlst_cache_t *init(vlst_cache_t& self);
+    uint32_t vert_wld;          ///< the update_wld the last time the vertices were updated
 	static gfx_rv test(vlst_cache_t& self, chr_instance_t *instance);
 };
 
@@ -166,15 +188,15 @@ struct chr_instance_t
     int update_frame;                ///< the last frame that the instance was calculated in
 
     // position info
-	Matrix4f4f     matrix;           ///< Character's matrix
+    Matrix4f4f     matrix;           ///< Character's matrix
     matrix_cache_t matrix_cache;     ///< Did we make one yet?
 
     FACING_T       facing_z;
 
     // render mode info
-    Uint8          alpha;                 ///< 255 = Solid, 0 = Invisible
-    Uint8          light;                 ///< 1 = Light, 0 = Normal
-    Uint8          sheen;                 ///< 0-15, how shiny it is
+    uint8_t          alpha;                 ///< 255 = Solid, 0 = Invisible
+    uint8_t          light;                 ///< 1 = Light, 0 = Normal
+    uint8_t          sheen;                 ///< 0-15, how shiny it is
     bool         enviro;                ///< Environment map?
     bool         dont_cull_backfaces;   ///< Do we cull backfaces for this character or not?
     bool         skin_has_transparency; ///< The object skin has partial transparency
@@ -193,9 +215,9 @@ struct chr_instance_t
     std::shared_ptr<Ego::ModelDescriptor> imad;            ///< Character's model
 
     // animation info
-    Uint16         frame_nxt;       ///< Character's frame
-    Uint16         frame_lst;       ///< Character's last frame
-    Uint8          ilip;            ///< Character's frame in betweening
+    uint16_t         frame_nxt;       ///< Character's frame
+    uint16_t         frame_lst;       ///< Character's last frame
+    uint8_t          ilip;            ///< Character's frame in betweening
     float          flip;            ///< Character's frame in betweening
     float          rate;
 
@@ -207,8 +229,8 @@ struct chr_instance_t
     int            action_next;                    ///< Character's action to play next
 
     // lighting info
-    Sint32         color_amb;
-	Vector4f       col_amb;
+    int32_t         color_amb;
+    Vector4f       col_amb;
     int            max_light, min_light;
     int            lighting_update_wld;            ///< update some lighting info no more than once an update
     int            lighting_frame_all;             ///< update some lighting info no more than once a frame
@@ -223,7 +245,9 @@ struct chr_instance_t
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 
-	static chr_instance_t *ctor(chr_instance_t& self);
+public:
+	chr_instance_t();
+
 	static chr_instance_t *dtor(chr_instance_t& self);
 
 	static gfx_rv increment_action(chr_instance_t& self);

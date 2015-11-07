@@ -1139,8 +1139,9 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     if ( slot >= SLOT_COUNT ) return false;
 
     // Make sure the character doesn't have something already, and that it has hands
-    if ( _currentModule->getObjectHandler().exists( pchr_a->holdingwhich[slot] ) || !pchr_a->getProfile()->isSlotValid(slot) )
+    if (_currentModule->getObjectHandler().exists( pchr_a->holdingwhich[slot] ) || !pchr_a->getProfile()->isSlotValid(slot)) {        
         return false;
+    }
 
     //Determine the position of the grip
     mids = pchr_a->slot_cv[slot].getMid();
@@ -1165,7 +1166,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         if (pchr_a == pchr_c) continue;
 
         // Dont do hidden objects
-        if ( pchr_c->isHidden() ) continue;
+        if (pchr_c->isHidden()) continue;
 
         // pickpocket not allowed yet
         if ( _currentModule->getObjectHandler().exists( pchr_c->inwhich_inventory ) ) continue;
@@ -1178,7 +1179,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
              pchr_c->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
 
         // do not notice completely broken items?
-        if ( pchr_c->isitem && !pchr_c->isAlive() ) continue;
+        if (pchr_c->isitem && !pchr_c->isAlive()) continue;
 
         // reasonable carrying capacity
         if ( pchr_c->phys.weight > pchr_a->phys.weight + FLOAT_TO_FP8(pchr_a->getAttribute(Ego::Attribute::MIGHT)) * INV_FF )
@@ -1214,13 +1215,18 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             maxHorizontalGrabDistance *= 0.5f;
         }
 
-        //Halve grab distance for objects behind us
-        if(!grabData.isFacingObject) {
+        //Halve grab distance for items behind us
+        if(!grabData.isFacingObject && !grab_people) {
             maxHorizontalGrabDistance *= 0.5f;
         }
 
         //Bigger characters have bigger grab size
         maxHorizontalGrabDistance += pchr_a->bump.size / 4.0f;
+
+        //Double grab distance for monsters that are trying to grapple
+        if(grab_people) {
+            maxHorizontalGrabDistance *= 2.0f;
+        }
 
         // is it too far away to grab?
         if (grabData.horizontalDistance > maxHorizontalGrabDistance + pchr_a->bump.size / 4.0f && grabData.horizontalDistance > pchr_a->bump.size)
@@ -1543,6 +1549,10 @@ void move_all_characters()
     // Move every character
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
+        if(object->isTerminated()) {
+            continue;
+        }
+        
         // prime the environment
         object->enviro.ice_friction = Ego::Physics::g_environment.icefriction;
 

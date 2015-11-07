@@ -120,13 +120,24 @@ enum e_time
 /// The actual state of the animated tiles in-game
 struct animtile_instance_t
 {
+    animtile_instance_t() :
+        update_and(0),
+        frame_and(0),
+        base_and(0),
+        frame_add(0),
+        frame_add_old(0),
+        frame_update_old(0)
+    {
+        //ctor
+    }
+
     int    update_and;            ///< how often to update the tile
 
-    Uint16 frame_and;             ///< how many images within the "tile set"?
-    Uint16 base_and;              ///< animated "tile set"
-    Uint16 frame_add;             ///< which image within the tile set?
-    Uint16 frame_add_old;         ///< the frame offset, the last time it was updated
-    Uint32 frame_update_old;
+    uint16_t frame_and;             ///< how many images within the "tile set"?
+    uint16_t base_and;              ///< animated "tile set"
+    uint16_t frame_add;             ///< which image within the tile set?
+    uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
+    uint32_t frame_update_old;
 };
 
 bool upload_animtile_data( animtile_instance_t dst[], const wawalite_animtile_t* src, const size_t animtile_count );
@@ -143,7 +154,7 @@ struct damagetile_instance_t
 	DamageType damagetype;
 
     LocalParticleProfileRef part_gpip;
-    Uint32 partand;
+    uint32_t partand;
     int    sound_index;
 
 	void upload(const wawalite_damagetile_t& source);
@@ -169,8 +180,23 @@ struct weather_instance_t
 /// The data descibing the state of a water layer
 struct water_instance_layer_t
 {
-    Uint16 _frame;        ///< Frame
-    Uint32 _frame_add;    ///< Speed
+    water_instance_layer_t() :
+        _frame(0),
+        _frame_add(0),
+        _z(0.0f),
+        _amp(0.0f),
+        _dist(),
+        _tx(),
+        _light_dir(0.0f),
+        _light_add(0.0f),
+        _alpha(0),
+        _tx_add()
+    {
+
+    }
+
+    uint16_t _frame;        ///< Frame
+    uint32_t _frame_add;    ///< Speed
 
 	/**
 	 * @brief
@@ -190,7 +216,7 @@ struct water_instance_layer_t
     float _light_dir;    ///< direct  reflectivity 0 - 1
     float _light_add;    ///< ambient reflectivity 0 - 1
 
-    Uint8 _alpha;        ///< layer transparency
+    uint8_t _alpha;        ///< layer transparency
 
 	Vector2f _tx_add;            ///< Texture movement
 

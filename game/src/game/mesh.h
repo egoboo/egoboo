@@ -50,7 +50,7 @@ constexpr uint32_t GRIDS_MAX =
 //--------------------------------------------------------------------------------------------
 
 typedef GLXvector3f normal_cache_t[4];
-typedef float       light_cache_t[4];
+typedef std::array<float, 4> light_cache_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -243,7 +243,27 @@ class ego_tile_info_t
 public:
     static const std::shared_ptr<ego_tile_info_t> NULL_TILE;
 
-    ego_tile_info_t();
+    ego_tile_info_t() :
+        _itile(0),
+        _type(0),
+        _img(0),
+        _vrtstart(0),
+        _fanoff(true),
+        _ncache{},
+        _lcache{},
+        _request_lcache_update(true),
+        _lcache_frame(-1),
+        _request_clst_update(true),
+        _clst_frame(-1),
+        _d1_cache{},
+        _d2_cache{},
+        _oct(),
+        _aabb()
+    {
+        _lcache.fill(0.0f);
+        _d1_cache.fill(0.0f);
+        _d2_cache.fill(0.0f);
+    }
 
     const AABB2f& getAABB2D() const { return _aabb; }
 

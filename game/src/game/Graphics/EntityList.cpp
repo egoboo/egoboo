@@ -6,18 +6,6 @@
 namespace Ego {
 namespace Graphics {
 
-EntityList::element_t *EntityList::element_t::init(EntityList::element_t * ptr)
-{
-	if (NULL == ptr) return NULL;
-
-	BLANK_STRUCT_PTR(ptr)
-
-	ptr->ichr = INVALID_CHR_REF;
-	ptr->iprt = INVALID_PRT_REF;
-
-	return ptr;
-}
-
 int EntityList::element_t::cmp(const void * pleft, const void * pright)
 {
 	element_t * dleft = (element_t *)pleft;
@@ -45,51 +33,48 @@ int EntityList::element_t::cmp(const void * pleft, const void * pright)
 }
 
 EntityList::EntityList() :
-    _size(0), _lst()
-{}
+    _lst()
+{
+    //ctor
+}
 
 EntityList *EntityList::init()
 {
-    for (size_t i = 0; i < CAPACITY; ++i)
-    {
-        element_t::init(&(_lst[i]));
-    }
-    _size = 0;
+    reset();
     return this;
 }
 
 gfx_rv EntityList::reset()
 {
     // If there is nothing in the dolist, we are done.
-    if (0 == _size)
+    if (_lst.empty())
     {
         return gfx_success;
     }
 
-    for (size_t i = 0, n = _size; i < n; ++i)
+    for(element_t &element : _lst)
     {
-        element_t *element = &(_lst[i]);
-
         // Tell all valid objects that they are removed from this dolist.
-        if (INVALID_CHR_REF == element->ichr && element->iprt != INVALID_PRT_REF)
+        if (INVALID_CHR_REF == element.ichr && element.iprt != INVALID_PRT_REF)
         {
-            const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element->iprt];
+            const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element.iprt];
             if (nullptr != pprt) pprt->inst.indolist = false;
         }
-        else if (INVALID_PRT_REF == element->iprt && INVALID_CHR_REF != element->ichr)
+        else if (INVALID_PRT_REF == element.iprt && INVALID_CHR_REF != element.ichr)
         {
-            Object *pobj = _currentModule->getObjectHandler().get(element->ichr);
+            const std::shared_ptr<Object> &pobj = _currentModule->getObjectHandler()[element.ichr];
             if (nullptr != pobj) pobj->inst.indolist = false;
         }
     }
-    _size = 0;
+
+    _lst.clear();
     return gfx_success;
 }
 
 gfx_rv EntityList::test_obj(const Object& obj)
 {
     // The entity is not a candidate if the list is full.
-    if (_size == CAPACITY)
+    if (_lst.size() == CAPACITY)
     {
         return gfx_fail;
     }
@@ -120,9 +105,7 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
     }
 
     // Add!
-    _lst[_size].ichr = GET_INDEX_PCHR(&obj);
-    _lst[_size].iprt = INVALID_PRT_REF;
-    _size++;
+    _lst.emplace_back(obj.getCharacterID(), INVALID_PRT_REF);
 
     // Notify it that it is in a do list.
     obj.inst.indolist = true;
@@ -130,12 +113,12 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
     // Add any weapons it is holding.
     Object *holding;
     holding = _currentModule->getObjectHandler().get(obj.holdingwhich[SLOT_LEFT]);
-    if (holding && _size < CAPACITY)
+    if (holding && _lst.size() < CAPACITY)
     {
         add_obj_raw(*holding);
     }
     holding = _currentModule->getObjectHandler().get(obj.holdingwhich[SLOT_RIGHT]);
-    if (holding && _size < CAPACITY)
+    if (holding && _lst.size() < CAPACITY)
     {
         add_obj_raw(*holding);
     }
@@ -145,7 +128,7 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
 gfx_rv EntityList::test_prt(const std::shared_ptr<Ego::Particle>& prt)
 {
     // The entity is not a candidate if the list is full.
-    if (_size == CAPACITY)
+    if (_lst.size() == CAPACITY)
     {
         return gfx_fail;
     }
@@ -170,10 +153,7 @@ gfx_rv EntityList::add_prt_raw(const std::shared_ptr<Ego::Particle>& prt)
     /// @author ZZ
     /// @details This function puts an entity in the list
 
-    _lst[_size].ichr = INVALID_CHR_REF;
-    _lst[_size].iprt = prt->getParticleID();
-    _size++;
-
+    _lst.emplace_back(INVALID_CHR_REF, prt->getParticleID());
     prt->inst.indolist = true;
 
     return gfx_success;
@@ -185,7 +165,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
     /// @details This function orders the entity list based on distance from camera,
     ///    which is needed for reflections to properly clip themselves.
     ///    Order from closest to farthest
-    if (_size >= CAPACITY)
+    if (_lst.size() >= CAPACITY)
     {
         throw std::logic_error("invalid entity list size");
     }
@@ -195,7 +175,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
 
     // Figure the distance of each.
     size_t count = 0;
-    for (size_t i = 0; i < _size; ++i)
+    for (size_t i = 0; i < _lst.size(); ++i)
     {
 		Vector3f vtmp;
 
@@ -243,12 +223,11 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
             count++;
         }
     }
-    _size = count;
 
     // use qsort to sort the list in-place
-    if (_size > 1)
+    if (count > 1)
     {
-        qsort(_lst, _size, sizeof(element_t), element_t::cmp);
+        qsort(_lst.data(), _lst.size(), sizeof(element_t), element_t::cmp);
     }
 
     return gfx_success;
