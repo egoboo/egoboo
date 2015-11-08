@@ -136,12 +136,12 @@ bool ego_mesh_t::set_texture(const TileIndex& index, Uint16 image)
 	}
 
     // Get the upper and lower bits for this tile image.
-	uint16_t tile_value = _tmem.getTile(index.getI())._img;
+	uint16_t tile_value = _tmem.get(index)._img;
 	uint16_t tile_lower = image & TILE_LOWER_MASK;
 	uint16_t tile_upper = tile_value & TILE_UPPER_MASK;
 
     // Set the actual image.
-    _tmem.getTile(index.getI())._img = tile_upper | tile_lower;
+    _tmem.get(index)._img = tile_upper | tile_lower;
 
     // Update the pre-computed texture info.
     return update_texture(index);
@@ -152,7 +152,7 @@ bool ego_mesh_t::update_texture(const TileIndex& index)
 	if (!grid_is_valid(index)) {
 		return false;
 	}
-	const ego_tile_info_t& ptile = _tmem.getTile(index.getI());
+	const ego_tile_info_t& ptile = _tmem.get(index);
 
     uint8_t type  = ptile._type & 0x3F;
 
@@ -202,10 +202,10 @@ std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source)
 	Ego::MeshInfo& info_dst = target->_info;
 
     // copy all the per-tile info
-    for (size_t cnt = 0; cnt < info_dst.getTileCount(); cnt++)
+    for (TileIndex cnt(0); cnt < info_dst.getTileCount(); cnt++)
     {
-        tile_info_t& ptile_src = source._mem.tiles[cnt];
-        ego_tile_info_t& ptile_dst = tmem_dst.getTile(cnt);
+        tile_info_t& ptile_src = source._mem.tiles[cnt.getI()];
+        ego_tile_info_t& ptile_dst = tmem_dst.get(cnt);
         ego_grid_info_t *pgrid_dst = gmem_dst.get(cnt);
 
         // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
@@ -381,7 +381,7 @@ void ego_mesh_t::make_bbox()
 
 	for (TileIndex cnt = 0; cnt.getI() < _info.getTileCount(); cnt++)
 	{
-        ego_tile_info_t& ptile = _tmem.getTile(cnt.getI());
+        ego_tile_info_t& ptile = _tmem.get(cnt);
         oct_bb_t& poct = ptile._oct;
 
 
@@ -1113,7 +1113,7 @@ float ego_mesh_t::get_max_vertex_0(const PointGrid& point) const
         return 0.0f;
     }
     // get a pointer to the tile
-    const ego_tile_info_t& ptile = _tmem.getTile(itile.getI());
+    const ego_tile_info_t& ptile = _tmem.get(itile);
 
     vstart = ptile._vrtstart;
     vcount = std::min(static_cast<size_t>(4), _tmem.getVertexCount());
@@ -1551,7 +1551,7 @@ ego_tile_info_t& ego_mesh_t::get_ptile(const TileIndex& index)
 	}
 
 	// Get the tile info.
-	return _tmem.getTile(index.getI());
+	return _tmem.get(index);
 }
 
 const ego_tile_info_t& ego_mesh_t::get_ptile(const TileIndex& index) const
@@ -1563,7 +1563,7 @@ const ego_tile_info_t& ego_mesh_t::get_ptile(const TileIndex& index) const
     }
 
     // Get the tile info.
-    return _tmem.getTile(index.getI());
+    return _tmem.get(index);
 }
 
 ego_grid_info_t *ego_mesh_t::get_pgrid(const TileIndex& index)
@@ -1683,7 +1683,7 @@ uint8_t ego_mesh_t::get_fan_twist(const TileIndex& tile) const
     {
         return TWIST_FLAT;
     }
-    const ego_tile_info_t& info = _tmem.getTile(tile.getI());
+    const ego_tile_info_t& info = _tmem.get(tile);
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
 	if (info.isFanOff())
     {

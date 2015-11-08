@@ -458,7 +458,7 @@ private:
 	static void light_one_corner(ego_mesh_t& mesh, ego_tile_info_t& tile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float& plight);
 	static float grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f pos, float& low_diff, float& hgh_diff);
 	static void light_fans_update_clst(Ego::Graphics::TileList& tl);
-	static gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold);
+	static gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t& tile, const TileIndex& tileIndex, float threshold);
 	static void light_fans_update_lcache(Ego::Graphics::TileList& tl);
 public:
 	static gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& cam);

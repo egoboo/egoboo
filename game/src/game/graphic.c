@@ -1172,7 +1172,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 		// render the heighmap
 		for (size_t i = 0; i < tl._all.size; ++i)
 		{
-			render_hmap_fan(tl._mesh.get(), tl._all.lst[i].index);
+			render_hmap_fan(tl._mesh.get(), tl._all.lst[i]._index);
 		}
 
 		// let the mesh texture code know that someone else is in control now
@@ -1735,7 +1735,7 @@ void _flip_pages()
 //--------------------------------------------------------------------------------------------
 // LIGHTING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold)
+gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t& tile, const TileIndex& tileIndex, float threshold)
 {
     bool       retval = false;
 
@@ -1745,25 +1745,17 @@ gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_
     }
 	grid_mem_t& pgmem = mesh->_gmem;
 
-    if (NULL == ptile)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "no valid tile");
-        return gfx_error;
-    }
-
 #if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
 
     // visible fans based on the update "need"
-    retval = test_corners(*mesh, *ptile, threshold);
+    retval = test_corners(*mesh, tile, threshold);
 
     // update every 4 fans even if there is no need
     if (!retval)
     {
-        int ix, iy;
-
         // use a kind of checkerboard pattern
-        ix = fan % pgmem._grids_x;
-        iy = fan / pgmem._grids_x;
+        int ix = tileIndex.getI() % pgmem._grids_x;
+        int iy = tileIndex.getI() / pgmem._grids_x;
         if (0 != (((ix ^ iy) + game_frame_all) & 0x03))
         {
             retval = true;
@@ -1818,7 +1810,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
         // which tile?
-        uint32_t fan = tl._all.lst[entry].index;
+        TileIndex fan = tl._all.lst[entry]._index;
 
         // grab a pointer to the tile
 		ego_tile_info_t& ptile = mesh->get_ptile(fan);
@@ -1841,7 +1833,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
         if (!ptile._lightingCache.getNeedUpdate())
         {
 			// ... do we need one?
-            gfx_rv light_fans_rv = light_fans_throttle_update(mesh.get(), &ptile, fan, delta_threshold);
+            gfx_rv light_fans_rv = light_fans_throttle_update(mesh.get(), ptile, fan, delta_threshold);
             ptile._lightingCache.setNeedUpdate(gfx_success == light_fans_rv);
         }
 
@@ -1885,7 +1877,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
     // use the grid to light the tiles
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
-        TileIndex fan = tl._all.lst[entry].index;
+        TileIndex fan = tl._all.lst[entry]._index;
         if (TileIndex::Invalid == fan) continue;
 
         // valid tile?
@@ -2152,7 +2144,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     mesh_bound.ymax = 0;
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
-        TileIndex fan = tl._all.lst[entry].index;
+        TileIndex fan = tl._all.lst[entry]._index;
         if (fan.getI() >= pinfo.getTileCount()) continue;
 
 		const oct_bb_t& poct = ptmem.get(fan)._oct;
@@ -2294,7 +2286,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         int                dynalight_count = 0;
 
         // grab each grid box in the "frustum"
-        TileIndex fan = tl._all.lst[entry].index;
+        TileIndex fan = tl._all.lst[entry]._index;
 
         // a valid tile?
         ego_grid_info_t  *pgrid = mesh->get_pgrid(fan);

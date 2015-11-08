@@ -27,8 +27,6 @@
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 
-#define Ego_Graphics_TileList_enableCPP 0
-
 namespace Ego {
 namespace Graphics {
 
@@ -36,24 +34,24 @@ struct renderlist_lst_t
 {
 	struct element_t
 	{
-		Uint32 index;             ///< which tile
-		float distance;          ///< how far it is
-#if defined(Ego_Graphics_TileList_enableCPP) && 1 == Ego_Graphics_TileList_enableCPP
+		TileIndex _index;  ///< The index of the tile.
+		float _distance;   ///< The distance of the tile.
 		element_t() :
-			index(), distance(-1.0f)
+			_index(), _distance(-1.0f)
+		{}
+		element_t(const TileIndex& index, float distance) :
+			_index(index), _distance(distance)
 		{}
 		element_t(const element_t& other) :
-			index(other.index), distance(other.distance)
+			_index(other._index), _distance(other._distance)
 		{}
 		virtual ~element_t()
 		{}
-		element_t& operator=(const element_t& other)
-		{
-			index = other.index;
-			distance = other.distance;
+		element_t& operator=(const element_t& other) {
+			_index = other._index;
+			_distance = other._distance;
 			return *this;
 		}
-#endif
 	};
 	/**
 	* @brief
@@ -62,19 +60,24 @@ struct renderlist_lst_t
 	*    i.e. the maximum number of tiles to draw.
 	*/
 	static const size_t CAPACITY = 1024;
-	size_t size;              ///< how many in the list
-	element_t lst[CAPACITY];  ///< the list
+	size_t size;                          ///< The number of entries.
+	std::array<element_t, CAPACITY> lst;  ///< The entries.
 
-#if defined(Ego_Graphics_TileList_enableCPP) && 1 == Ego_Graphics_TileList_enableCPP
 	renderlist_lst_t() :
-		size(0), lst(),
-		{}
-		virtual ~renderlist_lst_t()
+		size(0), lst()
 	{}
-#endif
+	
+	virtual ~renderlist_lst_t()
+	{}
 
-	static gfx_rv reset(renderlist_lst_t *self);
-	static gfx_rv push(renderlist_lst_t *self, const TileIndex& index, float distance);
+	void reset();
+	/**
+	 * @brief Add an entry
+	 * @param index the index of the tile
+	 * @param distance the distance of the tile
+	 * @return @a true if the entry was added, @a false otherwise
+	 */
+	bool push(const TileIndex& index, float distance);
 };
 
 /// Which tiles are to be drawn, arranged by MAPFX_* bits
@@ -107,11 +110,8 @@ struct TileList
 	renderlist_lst_t _water;
 
 	TileList();
-#if defined(Ego_Graphics_TileList_enableCPP) && 1 == Ego_Graphics_TileList_enableCPP
-	virtual ~TileList() :
-	{}
-#endif
-	TileList *init();
+	virtual ~TileList();
+	void init();
 	/// @brief Clear a render list
 	gfx_rv reset();
 	/// @brief Insert a tile into this render list.
@@ -131,7 +131,7 @@ struct TileList
 	/// @brief Insert a tile into this render list.
 	/// @param the index of the tile to insert
 	/// @param camera the camera
-	gfx_rv add(const size_t index, ::Camera& camera);
+	gfx_rv add(const TileIndex& index, ::Camera& camera);
 
 	/**
 	* @brief
