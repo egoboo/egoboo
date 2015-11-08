@@ -669,8 +669,6 @@ bool move_one_character_integrate_motion( Object * pchr )
 
     //if (std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) > 0.0f)
     {
-        mesh_wall_data_t wdata;
-
         float old_x = tmp_pos[kX]; LOG_NAN( old_x );
         float old_y = tmp_pos[kY]; LOG_NAN( old_y );
 
@@ -681,12 +679,12 @@ bool move_one_character_integrate_motion( Object * pchr )
         tmp_pos[kY] = new_y;
 
         //Wall collision?
-        if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos, &wdata ) )
+        if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos ) )
         {            
             Vector2f nrm;
             float   pressure;
 
-            pchr->hit_wall(tmp_pos, nrm, &pressure, &wdata);
+            pchr->hit_wall(tmp_pos, nrm, &pressure );
 
             // how is the character hitting the wall?
             if (pressure > 0.0f)

@@ -224,11 +224,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                             // NOT ATTACHED
 
                             // Don't spawn in walls
-                            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL))
+                            if (EMPTY_BIT_FIELD != particle->test_wall( tmp_pos ))
                             {
                                 tmp_pos[kX] = pweapon->getPosX();
                                 tmp_pos[kY] = pweapon->getPosY();
-                                if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL ) )
+                                if (EMPTY_BIT_FIELD != particle->test_wall( tmp_pos ))
                                 {
                                     tmp_pos[kX] = pchr->getPosX();
                                     tmp_pos[kY] = pchr->getPosY();

@@ -102,11 +102,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t *pgrid = _mesh->_gmem.get(index);
-	if (!pgrid)
-	{
-		return gfx_fail;
-	}
+	ego_grid_info_t& pgrid = _mesh->_gmem.get(index);
 
 	// we can only accept so many tiles
 	if (_all.size >= renderlist_lst_t::CAPACITY)
@@ -124,7 +120,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	_all.push(index, distance);
 
 	// Put each tile in one other list, for shadows and relections
-	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_SHA))
+	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_SHA))
 	{
 		_sha.push(index, distance);
 	}
@@ -133,7 +129,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 		_ref.push(index, distance);
 	}
 
-	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE))
+	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE))
 	{
 		_reflective.push(index, distance);
 	}
@@ -142,7 +138,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 		_nonReflective.push(index, distance);
 	}
 
-	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_WATER))
+	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_WATER))
 	{
 		_water.push(index, distance);
 	}

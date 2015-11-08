@@ -71,7 +71,7 @@ bool animate_tile( ego_mesh_t& mesh, Uint32 itile )
     }
 
     // grab a pointer to the tile
-	ego_tile_info_t& ptile = mesh.get_ptile(itile);
+	ego_tile_info_t& ptile = mesh.getTileInfo(itile);
 
     image = TILE_GET_LOWER_BITS( ptile._img ); // Tile image
     type  = ptile._type;                       // Command type ( index to points in itile )
@@ -105,7 +105,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const TileIndex& tileIndex )
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
     // grab a pointer to the tile
-	const ego_tile_info_t& ptile = mesh.get_ptile(tileIndex);
+	const ego_tile_info_t& ptile = mesh.getTileInfo(tileIndex);
 
 	const tile_mem_t& ptmem  = mesh._tmem;
 
@@ -199,14 +199,9 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const TileIndex& tileIndex )
 
 	const tile_mem_t& ptmem  = mesh->_tmem;
 
-	const ego_tile_info_t& ptile = mesh->get_ptile(tileIndex);
+	const ego_tile_info_t& ptile = mesh->getTileInfo(tileIndex);
 
-	const ego_grid_info_t *pgrid = mesh->get_pgrid(tileIndex);
-    if ( NULL == pgrid )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, tileIndex.getI(), "invalid grid" );
-        return gfx_error;
-    }
+	const ego_grid_info_t& pgrid = mesh->getGridInfo(tileIndex);
 
     /// @author BB
     /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
@@ -219,7 +214,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const TileIndex& tileIndex )
     // badvertex is a value that references the actual vertex number
 
     type  = ptile._type;                     // Command type ( index to points in itile )
-    twist = pgrid->_twist;
+    twist = pgrid._twist;
 
     type &= 0x3F;
 
@@ -277,7 +272,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const TileIndex& tileIndex, const Uin
 
 	const Ego::MeshInfo& info = mesh._info;
 
-	const ego_tile_info_t& ptile = mesh.get_ptile(tileIndex);
+	const ego_tile_info_t& ptile = mesh.getTileInfo(tileIndex);
 
 	float falpha;
     falpha = FF_TO_FLOAT( water._layers[layer]._alpha );

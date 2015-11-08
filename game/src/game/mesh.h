@@ -101,7 +101,7 @@ private:
 
     _Type _y;
 
-	typedef typename Point<_Type, _CoordinateSystem> MyType;
+	typedef Point<_Type, _CoordinateSystem> MyType;
 
 public:
 
@@ -118,6 +118,7 @@ public:
 	MyType& operator=(const MyType& other) {
         _x = other._x;
         _y = other._y;
+		return *this;
     }
 
 public:
@@ -436,34 +437,24 @@ public:
 	grid_mem_t(const Ego::MeshInfo& info);
     ~grid_mem_t();
 
-	ego_grid_info_t *get(const TileIndex& index)
-	{
-		// Validate arguments.
-		if (TileIndex::Invalid == index)
-		{
-			return nullptr;
+	ego_grid_info_t& get(const TileIndex& index) {
+		if (TileIndex::Invalid == index) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
 		}
-		// Assert that the grids are allocated and the index is within bounds.
-		if (!_grid_list || index.getI() >= _grid_count)
-		{
-			return nullptr;
+		if (index.getI() >= _grid_count) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		return _grid_list + index.getI();
+		return _grid_list[index.getI()];
 	}
 
-    const ego_grid_info_t *get(const TileIndex& index) const
-    {
-        // Validate arguments.
-        if (TileIndex::Invalid == index)
-        {
-            return nullptr;
+    const ego_grid_info_t& get(const TileIndex& index) const {
+        if (TileIndex::Invalid == index) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
         }
-        // Assert that the grids are allocated and the index is within bounds.
-        if (!_grid_list || index.getI() >= _grid_count)
-        {
-            return nullptr;
+        if (index.getI() >= _grid_count) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
         }
-        return _grid_list + index.getI();
+        return _grid_list[index.getI()];
     }
 };
 
@@ -526,7 +517,7 @@ public:
 		}
 		return _tileList[index.getY() * _tileCountX + index.getX()];
 	}
-	const ego_tile_info_t& getTile(const PointGrid& index) const {
+	const ego_tile_info_t& get(const PointGrid& index) const {
 		if (index.getY() >= _tileCountY) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
@@ -589,17 +580,33 @@ struct mpdfx_lists_t
 
 //--------------------------------------------------------------------------------------------
 
-// struct for caching fome values for wall collisions
-/// MH: This seems to be used like an iterator.
-struct mesh_wall_data_t
-{
-	int   ix_min, ix_max, iy_min, iy_max;
-	float fx_min, fx_max, fy_min, fy_max;
+class ego_mesh_t;
 
-	const Ego::MeshInfo *pinfo;
-	const ego_grid_info_t *glist;
+template <typename _Type,CoordinateSystem _CoordinateSystem>
+struct mesh_rect {
+	Point<_Type, _CoordinateSystem> _min, _max;
+	
+	// Only for world coordinates.
+	template <typename = typename std::enable_if<_CoordinateSystem == CoordinateSystem::World, float>::type>
+	mesh_rect(const Vector3f& pos, float radius)
+		: _min(PointWorld(pos[kX] - radius, pos[kY] - radius)), 
+		  _max(PointWorld(pos[kX] + radius, pos[kY] + radius))
+	{}
+	mesh_rect(const Point<_Type, _CoordinateSystem>& min, const Point<_Type, _CoordinateSystem>& max)
+		: _min(min), _max(max)
+	{}
 };
-
+/// struct for caching fome values for wall collisions
+/// MH: This seems to be used like an iterator.
+struct mesh_wall_data_t {
+	mesh_rect<float, CoordinateSystem::World> _f;
+	mesh_rect<int, CoordinateSystem::Grid> _i;
+	const ego_mesh_t *_mesh;
+	mesh_wall_data_t(const ego_mesh_t *mesh,
+		             const mesh_rect<float, CoordinateSystem::World>& f,
+		             const mesh_rect<int, CoordinateSystem::Grid>& i);
+	mesh_wall_data_t(const ego_mesh_t *mesh, const Vector3f& pos, float radius);
+};
 
 /// Egoboo's representation of the .mpd mesh file
 class ego_mesh_t
@@ -652,8 +659,8 @@ public:
      *  a pointer to the tile information of the tile at the index in this mesh
      *  if the tiles are allocated and the index is within bounds, @a nullptr otherwise.
      */
-	ego_tile_info_t& get_ptile(const TileIndex& index);
-	const ego_tile_info_t& get_ptile(const TileIndex& index) const;
+	ego_tile_info_t& getTileInfo(const TileIndex& index);
+	const ego_tile_info_t& getTileInfo(const TileIndex& index) const;
 
     /**
      * @brief
@@ -666,8 +673,8 @@ public:
      *  a pointer to the grid information of the tile at the index in this mesh
      *  if the grids are allocated and the index is within bounds, @a nullptr otherwise.
      */
-	const ego_grid_info_t *get_pgrid(const TileIndex& index) const;
-	ego_grid_info_t *get_pgrid(const TileIndex& index);
+	const ego_grid_info_t& getGridInfo(const TileIndex& index) const;
+	ego_grid_info_t& getGridInfo(const TileIndex& index);
 
     Uint32 test_fx(const TileIndex& index, const BIT_FIELD flags) const;
 
@@ -676,9 +683,11 @@ public:
 	Uint8 get_twist(const TileIndex& index) const;
 
 	/// @todo @a pos and @a radius should be passed as a sphere.
-	BIT_FIELD hit_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t *private_data) const;
+	BIT_FIELD hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t& data) const;
+	BIT_FIELD hit_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure) const;
 	/// @todo @a pos and @a radius should be passed as a sphere.
-	BIT_FIELD test_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data) const;
+	BIT_FIELD test_wall(const BIT_FIELD bits, mesh_wall_data_t& data) const;
+	BIT_FIELD test_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits) const;
 
 	/**
 	 * @brief

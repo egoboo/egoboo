@@ -136,9 +136,10 @@ public:
     **/
     void setElevation(const float level);
 
-    BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
+	BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure) override;
+    BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t& data) override;
 
-    BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) override;
+	BIT_FIELD test_wall(const Vector3f& pos) override;
 
     /**
     * @brief

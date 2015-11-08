@@ -1375,12 +1375,11 @@ float GridIllumination::grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f p
     for (size_t cnt = 0; cnt < 4; cnt++)
     {
         cache_list[cnt] = nullptr;
-
-		const ego_grid_info_t *pgrid = mesh.get_pgrid(fan[cnt]);
-        if (pgrid)
-        {
-            cache_list[cnt] = &(pgrid->_cache);
-        }
+		if (fan[cnt] == TileIndex::Invalid) {
+			cache_list[cnt] = nullptr;
+		} else {
+			cache_list[cnt] = &(mesh.getGridInfo(fan[cnt])._cache);
+		}
     }
 
     float u = pos[XX] / Info<float>::Grid::Size() - ix;
@@ -1466,12 +1465,9 @@ float GridIllumination::light_corners(ego_mesh_t& mesh, ego_tile_info_t& tile, b
 
 bool GridIllumination::grid_lighting_interpolate(const ego_mesh_t& mesh, lighting_cache_t& dst, const Vector2f& pos)
 {
-    // calculate the "tile position"
-    Vector2f tpos = pos * (1.0f / Info<float>::Grid::Size());
-
     // grab this tile's coordinates
-    int ix = std::floor(tpos[XX]),
-        iy = std::floor(tpos[YY]);
+    int ix = std::floor(pos[XX] / Info<float>::Grid::Size()),
+        iy = std::floor(pos[YY] / Info<float>::Grid::Size());
 
     // find the tile id for the surrounding tiles
 	TileIndex fan[4];
@@ -1483,21 +1479,16 @@ bool GridIllumination::grid_lighting_interpolate(const ego_mesh_t& mesh, lightin
 	std::array<const lighting_cache_t *,4> cache_list;
     for (size_t cnt = 0; cnt < 4; cnt++)
     {
-		const ego_grid_info_t *pgrid = mesh.get_pgrid(fan[cnt]);
-
-        if (!pgrid)
-        {
-            cache_list[cnt] = nullptr;
-        }
-        else
-        {
-            cache_list[cnt] = &(pgrid->_cache);
-        }
+		if (fan[cnt] == TileIndex::Invalid) {
+			cache_list[cnt] = nullptr;
+		} else {
+			cache_list[cnt] = &(mesh.getGridInfo(fan[cnt])._cache);
+		}
     }
 
     // grab the coordinates relative to the parent tile
-	float u = tpos[XX] - ix,
-		  v = tpos[YY] - iy;
+	float u = pos[XX] / Info<float>::Grid::Size() - ix,
+		  v = pos[YY] / Info<float>::Grid::Size() - iy;
 
     return lighting_cache_t::lighting_cache_interpolate(dst, cache_list, u, v);
 }
@@ -1575,13 +1566,7 @@ void GridIllumination::light_one_corner(ego_mesh_t& mesh, ego_tile_info_t& tile,
 
 bool GridIllumination::light_corner(ego_mesh_t& mesh, const TileIndex& fan, float height, float nrm[], float& plight)
 {
-	// valid grid?
-	ego_grid_info_t *pgrid = mesh.get_pgrid(fan);
-	if (NULL == pgrid)
-	{
-		// not updated
-		return false;
-	}
+	ego_grid_info_t& pgrid = mesh.getGridInfo(fan);
 
 	static const bool IGNORE_CACHING = false;
 
@@ -1589,16 +1574,16 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const TileIndex& fan, floa
 	{
 		// <ignore caching for now>
 		// max update speed is once per game frame
-		if (pgrid->_cache_frame >= 0 && (uint32_t)pgrid->_cache_frame >= game_frame_all)
+		if (pgrid._cache_frame >= 0 && (uint32_t)pgrid._cache_frame >= game_frame_all)
 		{
 			// not updated
 			return false;
 		}
 	}
 	// get the grid lighting
-	const lighting_cache_t& lighting = pgrid->_cache;
+	const lighting_cache_t& lighting = pgrid._cache;
 
-	bool reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
+	bool reflective = (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE));
 
 	// evaluate the grid lighting at this node
 	if (reflective)
@@ -1622,7 +1607,7 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const TileIndex& fan, floa
 		// <ignore caching for now>
 		// update the cache frame
 		// figure out the correct way to cache *plight
-		pgrid->_cache_frame = game_frame_all;
+		pgrid._cache_frame = game_frame_all;
 	}
 
 	return true;
@@ -1813,7 +1798,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
         TileIndex fan = tl._all.lst[entry]._index;
 
         // grab a pointer to the tile
-		ego_tile_info_t& ptile = mesh->get_ptile(fan);
+		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
 
         // Test to see whether the lcache was already updated
         // - ptile->_lcache_frame < 0 means that the cache value is invalid.
@@ -1843,8 +1828,8 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 		}
 
         // is the tile reflective?
-		ego_grid_info_t *pgrid = mesh->get_pgrid(fan);
-        bool reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
+		ego_grid_info_t& pgrid = mesh->getGridInfo(fan);
+        bool reflective = (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
         float delta = GridIllumination::light_corners(*mesh, ptile, reflective, local_mesh_lighting_keep);
@@ -1881,7 +1866,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
         if (TileIndex::Invalid == fan) continue;
 
         // valid tile?
-		ego_tile_info_t& ptile = mesh->get_ptile(fan);
+		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
 
         // Do nothing if this tile does not need an update.
         if (!ptile._vertexLightingCache.getNeedUpdate()) {
@@ -2289,11 +2274,10 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         TileIndex fan = tl._all.lst[entry]._index;
 
         // a valid tile?
-        ego_grid_info_t  *pgrid = mesh->get_pgrid(fan);
-        if (!pgrid) continue;
+        ego_grid_info_t& pgrid = mesh->getGridInfo(fan);
 
         // do not update this more than once a frame
-        if (pgrid->_cache_frame >= 0 && (Uint32)pgrid->_cache_frame >= game_frame_all) continue;
+        if (pgrid._cache_frame >= 0 && (uint32_t)pgrid._cache_frame >= game_frame_all) continue;
 
         ix = fan.getI() % pinfo.getTileCountX();
         iy = fan.getI() / pinfo.getTileCountX();
@@ -2306,7 +2290,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         if (resist_lighting_calculation) continue;
 
         // this is not a "bad" grid box, so grab the lighting info
-        lighting_cache_t& pcache_old = pgrid->_cache;
+        lighting_cache_t& pcache_old = pgrid._cache;
 
         lighting_cache_t cache_new;
         lighting_cache_t::init(cache_new);
@@ -2385,7 +2369,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         // find the max intensity
         lighting_cache_t::max_light(pcache_old);
 
-        pgrid->_cache_frame = game_frame_all;
+        pgrid._cache_frame = game_frame_all;
     }
 
     return gfx_success;

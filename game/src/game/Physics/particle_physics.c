@@ -514,15 +514,13 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
     hit_a_wall = false;
     if (std::abs(loc_pprt->vel[kX]) + std::abs(loc_pprt->vel[kY]) > 0.0f)
     {
-        mesh_wall_data_t wdata;
-
-        if (EMPTY_BIT_FIELD != loc_pprt->test_wall(loc_pprt->getPosition(), &wdata))
+        if (EMPTY_BIT_FIELD != loc_pprt->test_wall(loc_pprt->getPosition()))
         {
             Vector2f nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            BIT_FIELD hit_bits = loc_pprt->hit_wall(loc_pprt->getPosition(), nrm, &pressure, &wdata);
+            BIT_FIELD hit_bits = loc_pprt->hit_wall(loc_pprt->getPosition(), nrm, &pressure);
 
             if (0 != hit_bits)
             {
@@ -653,19 +651,17 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     hit_a_wall = false;
     if (std::abs(loc_pprt->vel[kX]) + std::abs(loc_pprt->vel[kY]) > 0.0f)
     {
-        mesh_wall_data_t wdata;
-
         tmp_pos[kX] += loc_pprt->vel[kX];
         tmp_pos[kY] += loc_pprt->vel[kY];
 
         //Hitting a wall?
-        if (EMPTY_BIT_FIELD != loc_pprt->test_wall(tmp_pos, &wdata))
+        if (EMPTY_BIT_FIELD != loc_pprt->test_wall(tmp_pos))
         {
             Vector2f nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            if (EMPTY_BIT_FIELD != loc_pprt->hit_wall(tmp_pos, nrm, &pressure, &wdata))
+            if (EMPTY_BIT_FIELD != loc_pprt->hit_wall(tmp_pos, nrm, &pressure))
             {
                 touch_a_wall = true;
 

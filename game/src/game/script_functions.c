@@ -2206,12 +2206,12 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
 
         // Don't spawn in walls
         tmp_pos[kX] += state.x;
-        if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
+        if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos))
         {
             tmp_pos[kX] = particle->getPosX();
 
             tmp_pos[kY] += state.y;
-            if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos, nullptr))
+            if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos))
             {
                 tmp_pos[kY] = particle->getPosY();
             }
@@ -5215,7 +5215,7 @@ Uint8 scr_GetTileXY( script_state_t& state, ai_state_t& self )
     returncode = false;
     TileIndex idx = _currentModule->getMeshPointer()->getTileIndex(PointWorld(state.x, state.y));
 
-    ego_tile_info_t& ptr = _currentModule->getMeshPointer()->get_ptile(idx);
+    const ego_tile_info_t& ptr = _currentModule->getMeshPointer()->getTileInfo(idx);
     returncode = true;
     state.argument = ptr._img & TILE_LOWER_MASK;
 

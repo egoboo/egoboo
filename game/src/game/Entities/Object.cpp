@@ -682,7 +682,7 @@ bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
 
     //Cannot teleport inside a wall
 	Vector2f nrm;
-    if ( !hit_wall(newPosition, nrm, NULL, NULL) )
+    if ( !hit_wall(newPosition, nrm, NULL) )
     {
         // Yeah!  It worked!
 
@@ -995,7 +995,7 @@ void Object::updateResize()
         {
             bump.size += bump_increase;
 
-            if ( EMPTY_BIT_FIELD != Collidable::test_wall(nullptr) )
+            if ( EMPTY_BIT_FIELD != Collidable::test_wall() )
             {
                 willgetcaught = true;
             }
@@ -1153,7 +1153,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Make sure it's not dropped in a wall...
-    if (EMPTY_BIT_FIELD != Collidable::test_wall(nullptr))
+    if (EMPTY_BIT_FIELD != Collidable::test_wall())
     {
         Vector3f pos_tmp = pholder->getPosition();
         pos_tmp[kZ] = getPosZ();
@@ -1681,7 +1681,31 @@ void Object::removeFromGame(Object * pchr)
 	AudioSystem::get().stopObjectLoopingSounds(ichr);
 }
 
-BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure, mesh_wall_data_t *data)
+BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
+{
+	if (CHR_INFINITE_WEIGHT == phys.weight)
+	{
+		return EMPTY_BIT_FIELD;
+	}
+
+	// Calculate the radius based on whether the character is on camera.
+	float radius = 0.0f;
+	if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
+	{
+		radius = bump_1.size;
+	}
+
+	g_meshStats.mpdfxTests = 0;
+	g_meshStats.boundTests = 0;
+	g_meshStats.pressureTests = 0;
+	BIT_FIELD result = _currentModule->getMeshPointer()->hit_wall(pos, radius, stoppedby, nrm, pressure);
+	chr_stoppedby_tests += g_meshStats.mpdfxTests;
+	chr_pressure_tests += g_meshStats.pressureTests;
+
+	return result;
+}
+
+BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure, mesh_wall_data_t& data)
 {
 	if (CHR_INFINITE_WEIGHT == phys.weight)
 	{
@@ -1705,7 +1729,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure,
 	return result;
 }
 
-BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
+BIT_FIELD Object::test_wall(const Vector3f& pos)
 {
 	if (isTerminated()) {
 		return EMPTY_BIT_FIELD;
@@ -1720,7 +1744,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 #if 0
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-        if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
+		if (CameraSystem::get() && CameraSystem::get()->getMainCamera()->getTileList()->inRenderList(getTile()))
 		{
 			radius = bump_1.size;
 		}
@@ -1732,7 +1756,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
 	g_meshStats.boundTests = 0;
 	g_meshStats.pressureTests = 0;
 
-	BIT_FIELD result = _currentModule->getMeshPointer()->test_wall(pos, radius, stoppedby, data);
+	BIT_FIELD result = _currentModule->getMeshPointer()->test_wall(pos, radius, stoppedby);
 	chr_stoppedby_tests += g_meshStats.mpdfxTests;
 	chr_pressure_tests += g_meshStats.pressureTests;
 
