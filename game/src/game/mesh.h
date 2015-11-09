@@ -587,8 +587,8 @@ struct mesh_rect {
 	Point<_Type, _CoordinateSystem> _min, _max;
 	
 	// Only for world coordinates.
-	template <typename = typename std::enable_if<_CoordinateSystem == CoordinateSystem::World, float>::type>
-	mesh_rect(const Vector3f& pos, float radius)
+	template<typename _Type0 = _Type, CoordinateSystem _CoordinateSystem0 = _CoordinateSystem>
+	mesh_rect(const Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<_Type0>, 3>>& pos, typename std::enable_if<_CoordinateSystem0 == CoordinateSystem::World, _Type0>::type radius)
 		: _min(PointWorld(pos[kX] - radius, pos[kY] - radius)), 
 		  _max(PointWorld(pos[kX] + radius, pos[kY] + radius))
 	{}
