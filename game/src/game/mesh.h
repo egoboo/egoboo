@@ -683,10 +683,10 @@ public:
 	Uint8 get_twist(const TileIndex& index) const;
 
 	/// @todo @a pos and @a radius should be passed as a sphere.
-	BIT_FIELD hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t& data) const;
+	BIT_FIELD hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, const mesh_wall_data_t& data) const;
 	BIT_FIELD hit_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure) const;
 	/// @todo @a pos and @a radius should be passed as a sphere.
-	BIT_FIELD test_wall(const BIT_FIELD bits, mesh_wall_data_t& data) const;
+	BIT_FIELD test_wall(const BIT_FIELD bits, const mesh_wall_data_t& data) const;
 	BIT_FIELD test_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits) const;
 
 	/**

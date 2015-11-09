@@ -647,7 +647,7 @@ float grid_get_mix(float u0, float u, float v0, float v) {
 	return wt_u * wt_v;
 }
 
-BIT_FIELD ego_mesh_t::test_wall(const BIT_FIELD bits, mesh_wall_data_t& data) const
+BIT_FIELD ego_mesh_t::test_wall(const BIT_FIELD bits, const mesh_wall_data_t& data) const
 {
 	// if there is no interaction with the mesh or the mesh is empty, return 0.
 	if (EMPTY_BIT_FIELD == bits || 0 == _info.getTileCount() || _tmem.getTileCount() == 0) {
@@ -883,7 +883,7 @@ Vector3f ego_mesh_t::get_diff(const Vector3f& pos, float radius, float center_pr
     return diff;
 }
 
-BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t& data) const {
+BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, const mesh_wall_data_t& data) const {
 	BIT_FIELD loc_pass;
 	Uint32 pass;
 	bool invalid;
