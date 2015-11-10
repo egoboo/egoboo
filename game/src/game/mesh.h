@@ -67,27 +67,41 @@ enum class CoordinateSystem
     World,
     /**
      * @brief
-     *  "grid" coordinates.
+     *  "tile grid" coordinates.
      */
     Grid,
+	/**
+	 * @brief
+	 *  "tile list" coordinates.
+	 */
+	List,
 };
 
 /**
  * @brief
- *  A template of a point.
- * @param _Type
- *  the type of the coordinate values of the point
- * @param _CoordinateSystem
- *  the coordinate system of the point
+ *  A point in "world", "tile grid" or "tile list" coordinates.
+ */
+template <typename _Type, CoordinateSystem _CoordinateSystem, typename _Enabled = void>
+struct Point;
+
+/**
+ * @brief
+ *  A "world" or "tile grid" point.
  */
 template <typename _Type, CoordinateSystem _CoordinateSystem>
-struct Point
-{
+struct Point<_Type, _CoordinateSystem,
+	         typename std::enable_if
+				<
+					(_CoordinateSystem == CoordinateSystem::World && std::is_same<_Type,float>::value)
+	              ||(_CoordinateSystem == CoordinateSystem::Grid && std::is_same<_Type,int>::value)
+                >::type> {
 private:
 
     _Type _x;
 
     _Type _y;
+
+	typedef Point<_Type, _CoordinateSystem> MyType;
 
 public:
 
@@ -95,143 +109,149 @@ public:
         _x(x), _y(y)
     {}
 
-    Point(const Point<_Type, _CoordinateSystem>& other) :
+public:
+
+    Point(const MyType& other) :
         _x(other._x), _y(other._y)
     {}
 
-    Point<_Type, _CoordinateSystem>& operator=(const Point<_Type, _CoordinateSystem>& other)
-    {
+	MyType& operator=(const MyType& other) {
         _x = other._x;
         _y = other._y;
+		return *this;
     }
 
-    const _Type& getX() const
-    {
+public:
+
+	bool operator==(const MyType& other) const {
+		return _x == other._x
+			&& _y == other._y;
+	}
+
+	bool operator!=(const MyType& other) const {
+		return _x != other._x
+			|| _y != other._y;
+	}
+
+public:
+
+    const _Type& getX() const {
         return _x;
     }
 
-    const _Type& getY() const
-    {
+    const _Type& getY() const {
         return _y;
     }
 
 };
 
-typedef Point<int, CoordinateSystem::Grid> PointGrid;
 typedef Point<float, CoordinateSystem::World> PointWorld;
+typedef Point<int, CoordinateSystem::Grid> PointGrid;
+
 
 /**
  * @brief
- *  An enumeration of index systems used by/for/together with meshes.
+ *  A "tile list" point.
  */
-enum class IndexSystem
-{
-    /**
-     * @brief
-     *  "tile" indices.
-     */
-    Tile,
-
-};
-
-/**
- * @brief
- *  A template of an index.
- * @param _Type
- *  the type of the index value of the index
- * @param _IndexSystem
- *  the index type of the index
- * @param _InvalidIndex
- *   the index value for an invalid index of the index
- * @todo
- *  Because of (and as always just because of) Microsoft (and always only Microsoft) is
- *  incapable of providing proper C++ 11 support in time (unlike other compiler vendors)
- *  <tt>_Type _InvalidIndex = std::numeric_limits<_Type>::max()</tt> can't be used.
- */
-template <typename _Type, IndexSystem _IndexSystem, _Type _InvalidIndex>
-struct Index
-{
+template <typename _Type, CoordinateSystem _CoordinateSystem>
+struct Point<_Type, _CoordinateSystem,
+	         typename std::enable_if
+			 <
+				_CoordinateSystem == CoordinateSystem::List && std::is_same<_Type, uint32_t>::value
+			 >::type> {
 
 private:
 
     _Type _i;
 
+	static const _Type _InvalidIndex = std::numeric_limits<_Type>::max();
+
 public:
 
-    static const Index<_Type, _IndexSystem, _InvalidIndex> Invalid;
+	typedef Point<_Type, _CoordinateSystem> MyType;
 
-    Index() :
+	static const MyType Invalid;
+
+public:
+
+	Point() :
         _i(_InvalidIndex)
     {}
 
-    Index(const _Type& i) :
+	Point(const _Type& i) :
         _i(i)
     {}
 
-    Index(const Index<_Type, _IndexSystem, _InvalidIndex>& other) :
+public:
+
+	Point(const MyType& other) :
         _i(other._i)
     {}
 
-    Index<_Type, _IndexSystem, _InvalidIndex>& operator=(const Index<_Type, _IndexSystem, _InvalidIndex>& other)
+	MyType& operator=(const MyType& other)
     {
         _i = other._i;
         return *this;
     }
 
-    bool operator==(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
-    {
+public:
+
+    bool operator==(const MyType& other) const {
         return _i == other._i;
     }
 
-    bool operator!=(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
-    {
+    bool operator!=(const MyType& other) const {
         return _i != other._i;
     }
 
-    bool operator<(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
-    {
+public:
+
+    bool operator<(const MyType& other) const {
         return _i < other._i;
     }
 
-    bool operator<=(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
-    {
+    bool operator<=(const MyType& other) const {
         return _i <= other._i;
     }
 
-    bool operator>(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
-    {
+    bool operator>(const MyType& other) const {
         return _i > other._i;
     }
 
-    bool operator>=(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
-    {
+    bool operator>=(const MyType& other) const {
         return _i >= other._i;
     }
 
-    const _Type& getI() const
-    {
+public:
+
+    const _Type& getI() const {
         return _i;
     }
 
-    Index<_Type, _IndexSystem, _InvalidIndex>& operator++()
-    {
+public:
+
+	MyType& operator++() {
         _i++;
         return *this;
     }
-    Index<_Type, _IndexSystem, _InvalidIndex> operator++(int)
-    {
+
+	MyType operator++(int) {
         _Type j = _i;
         _i++;
-        return Index<_Type,_IndexSystem,_InvalidIndex>(j);
+        return MyType(j);
     }
 
 };
 
-template <typename _Type, IndexSystem _IndexSystem, _Type _InvalidIndex>
-const Index<_Type, _IndexSystem, _InvalidIndex> Index<_Type,_IndexSystem,_InvalidIndex>::Invalid;
+template <typename _Type, CoordinateSystem _CoordinateSystem>
+const Point<_Type, _CoordinateSystem> Point<_Type, _CoordinateSystem,
+	                                        typename std::enable_if
+	                                        <
+	                                        _CoordinateSystem == CoordinateSystem::List && std::is_same<_Type, uint32_t>::value
+	                                        >::type>::Invalid;
 
 /// @brief The index of a tile.
-typedef Index<Uint32, IndexSystem::Tile, std::numeric_limits<uint32_t>::max()> TileIndex;
+typedef Point<uint32_t, CoordinateSystem::List> TileIndex;
 
 //--------------------------------------------------------------------------------------------
 
@@ -417,34 +437,24 @@ public:
 	grid_mem_t(const Ego::MeshInfo& info);
     ~grid_mem_t();
 
-	ego_grid_info_t *get(const TileIndex& index)
-	{
-		// Validate arguments.
-		if (TileIndex::Invalid == index)
-		{
-			return nullptr;
+	ego_grid_info_t& get(const TileIndex& index) {
+		if (TileIndex::Invalid == index) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
 		}
-		// Assert that the grids are allocated and the index is within bounds.
-		if (!_grid_list || index.getI() >= _grid_count)
-		{
-			return nullptr;
+		if (index.getI() >= _grid_count) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		return _grid_list + index.getI();
+		return _grid_list[index.getI()];
 	}
 
-    const ego_grid_info_t *get(const TileIndex& index) const
-    {
-        // Validate arguments.
-        if (TileIndex::Invalid == index)
-        {
-            return nullptr;
+    const ego_grid_info_t& get(const TileIndex& index) const {
+        if (TileIndex::Invalid == index) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
         }
-        // Assert that the grids are allocated and the index is within bounds.
-        if (!_grid_list || index.getI() >= _grid_count)
-        {
-            return nullptr;
+        if (index.getI() >= _grid_count) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
         }
-        return _grid_list + index.getI();
+        return _grid_list[index.getI()];
     }
 };
 
@@ -476,70 +486,54 @@ public:
 	 */
 	void computeVertexIndices(const tile_dictionary_t& dict);
 
-	ego_tile_info_t& get(const TileIndex& index)
-	{
-		// Assert that the index is within bounds.
+public:
+	ego_tile_info_t& get(const TileIndex& index) {
 		if (TileIndex::Invalid == index) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invaliid index");
+		}
+		if (index >= _tileCount) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		return getTile(index.getI());
+		return _tileList[index.getI()];
 	}
-
-    const ego_tile_info_t& get(const TileIndex& index) const
-    {
+    const ego_tile_info_t& get(const TileIndex& index) const {
         // Assert that the index is within bounds.
         if (TileIndex::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
         }
-        return getTile(index.getI());
-    }
-
-	ego_tile_info_t& getTile(const size_t x, const size_t y)
-	{
-		if (y >= _tileCountY) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		if (x >= _tileCountX) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		//Retrieve the tile and return it
-		return _tileList[y * _tileCountX + x];
-	}
-
-	const ego_tile_info_t& getTile(const size_t x, const size_t y) const
-	{
-		if (y >= _tileCountY) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		if (x >= _tileCountX) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-
-		//Retrieve the tile and return it
-		return _tileList[y * _tileCountX + x];
-	}
-
-	ego_tile_info_t& getTile(const size_t index)
-	{
 		if (index >= _tileCount) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		return _tileList[index];
-	}
-
-    const ego_tile_info_t& getTile(const size_t index) const
-    {
-		if (index >= _tileCount) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[index];
+		return _tileList[index.getI()];
     }
 
+public:
+	ego_tile_info_t& get(const PointGrid& index) {
+		if (index.getY() >= _tileCountY) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
+		if (index.getX() >= _tileCountX) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
+		return _tileList[index.getY() * _tileCountX + index.getX()];
+	}
+	const ego_tile_info_t& get(const PointGrid& index) const {
+		if (index.getY() >= _tileCountY) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
+		if (index.getX() >= _tileCountX) {
+			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+		}
+		return _tileList[index.getY() * _tileCountX + index.getX()];
+	}
+
+public:
 	size_t getTileCountX() const { return _tileCountX; }
 	size_t getTileCountY() const { return _tileCountY; }
     size_t getTileCount() const { return _tileCount;}
 	size_t getVertexCount() const { return _vertexCount; }
 
+public:
     std::vector<ego_tile_info_t>& getAllTiles() { return _tileList; }
 
 };
@@ -586,17 +580,33 @@ struct mpdfx_lists_t
 
 //--------------------------------------------------------------------------------------------
 
-// struct for caching fome values for wall collisions
-/// MH: This seems to be used like an iterator.
-struct mesh_wall_data_t
-{
-	int   ix_min, ix_max, iy_min, iy_max;
-	float fx_min, fx_max, fy_min, fy_max;
+class ego_mesh_t;
 
-	const Ego::MeshInfo *pinfo;
-	const ego_grid_info_t *glist;
+template <typename _Type,CoordinateSystem _CoordinateSystem>
+struct mesh_rect {
+	Point<_Type, _CoordinateSystem> _min, _max;
+	
+	// Only for world coordinates.
+	template<typename _Type0 = _Type, CoordinateSystem _CoordinateSystem0 = _CoordinateSystem>
+	mesh_rect(const Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<_Type0>, 3>>& pos, typename std::enable_if<_CoordinateSystem0 == CoordinateSystem::World, _Type0>::type radius)
+		: _min(PointWorld(pos[kX] - radius, pos[kY] - radius)), 
+		  _max(PointWorld(pos[kX] + radius, pos[kY] + radius))
+	{}
+	mesh_rect(const Point<_Type, _CoordinateSystem>& min, const Point<_Type, _CoordinateSystem>& max)
+		: _min(min), _max(max)
+	{}
 };
-
+/// struct for caching fome values for wall collisions
+/// MH: This seems to be used like an iterator.
+struct mesh_wall_data_t {
+	mesh_rect<float, CoordinateSystem::World> _f;
+	mesh_rect<int, CoordinateSystem::Grid> _i;
+	const ego_mesh_t *_mesh;
+	mesh_wall_data_t(const ego_mesh_t *mesh,
+		             const mesh_rect<float, CoordinateSystem::World>& f,
+		             const mesh_rect<int, CoordinateSystem::Grid>& i);
+	mesh_wall_data_t(const ego_mesh_t *mesh, const Vector3f& pos, float radius);
+};
 
 /// Egoboo's representation of the .mpd mesh file
 class ego_mesh_t
@@ -649,8 +659,8 @@ public:
      *  a pointer to the tile information of the tile at the index in this mesh
      *  if the tiles are allocated and the index is within bounds, @a nullptr otherwise.
      */
-	ego_tile_info_t& get_ptile(const TileIndex& index);
-	const ego_tile_info_t& get_ptile(const TileIndex& index) const;
+	ego_tile_info_t& getTileInfo(const TileIndex& index);
+	const ego_tile_info_t& getTileInfo(const TileIndex& index) const;
 
     /**
      * @brief
@@ -663,8 +673,8 @@ public:
      *  a pointer to the grid information of the tile at the index in this mesh
      *  if the grids are allocated and the index is within bounds, @a nullptr otherwise.
      */
-	const ego_grid_info_t *get_pgrid(const TileIndex& index) const;
-	ego_grid_info_t *get_pgrid(const TileIndex& index);
+	const ego_grid_info_t& getGridInfo(const TileIndex& index) const;
+	ego_grid_info_t& getGridInfo(const TileIndex& index);
 
     Uint32 test_fx(const TileIndex& index, const BIT_FIELD flags) const;
 
@@ -673,9 +683,11 @@ public:
 	Uint8 get_twist(const TileIndex& index) const;
 
 	/// @todo @a pos and @a radius should be passed as a sphere.
-	BIT_FIELD hit_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, mesh_wall_data_t *private_data) const;
+	BIT_FIELD hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, const mesh_wall_data_t& data) const;
+	BIT_FIELD hit_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure) const;
 	/// @todo @a pos and @a radius should be passed as a sphere.
-	BIT_FIELD test_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data) const;
+	BIT_FIELD test_wall(const BIT_FIELD bits, const mesh_wall_data_t& data) const;
+	BIT_FIELD test_wall(const Vector3f& pos, const float radius, const BIT_FIELD bits) const;
 
 	/**
 	 * @brief

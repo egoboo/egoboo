@@ -35,7 +35,7 @@ bool map_read_v3(vfs_FILE& file, map_t& map)
     for (auto& vertex : mem.vertices)
     {
         float ieee32_tmp;
-        vfs_read_float(&file, &ieee32_tmp);
+        vfs_read_float(file, &ieee32_tmp);
         vertex.pos[kX] = ieee32_tmp;
     }
 
@@ -43,7 +43,7 @@ bool map_read_v3(vfs_FILE& file, map_t& map)
     for (auto& vertex : mem.vertices)
     {
         float ieee32_tmp;
-        vfs_read_float(&file, &ieee32_tmp);
+        vfs_read_float(file, &ieee32_tmp);
         vertex.pos[kY] = ieee32_tmp;
     }
 
@@ -51,7 +51,7 @@ bool map_read_v3(vfs_FILE& file, map_t& map)
     for (auto& vertex : mem.vertices)
     {
         float ieee32_tmp;
-        vfs_read_float(&file, &ieee32_tmp);
+        vfs_read_float(file, &ieee32_tmp);
         // Cartman scales the z-axis based off of a 4 bit fixed precision number.
         vertex.pos[kZ] = ieee32_tmp / 16.0f;
     }

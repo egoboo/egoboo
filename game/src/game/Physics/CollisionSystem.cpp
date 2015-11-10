@@ -99,7 +99,7 @@ void CollisionSystem::update()
         {
             tmpx = tmp_pos[kX];
             tmp_pos[kX] += max_apos[kX];
-            if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos ) )
             {
                 // restore the old values
                 tmp_pos[kX] = tmpx;
@@ -115,7 +115,7 @@ void CollisionSystem::update()
         {
             tmpy = tmp_pos[kY];
             tmp_pos[kY] += max_apos[kY];
-            if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos ) )
             {
                 // restore the old values
                 tmp_pos[kY] = tmpy;
@@ -195,7 +195,7 @@ void CollisionSystem::update()
         {
             tmpx = tmp_pos[kX];
             tmp_pos[kX] += max_apos[kX];
-            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos ) )
             {
                 // restore the old values
                 tmp_pos[kX] = tmpx;
@@ -211,7 +211,7 @@ void CollisionSystem::update()
         {
             tmpy = tmp_pos[kY];
             tmp_pos[kY] += max_apos[kY];
-            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos ) )
             {
                 // restore the old values
                 tmp_pos[kY] = tmpy;

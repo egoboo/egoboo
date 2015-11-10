@@ -216,7 +216,7 @@ flexible_destination:
 
                     //Dont walk into pits
                     //@todo: might need to check tile Z level here instead
-                    const ego_tile_info_t& ptile = mesh->get_ptile(itile);
+					const ego_tile_info_t& ptile = mesh->getTileInfo(itile);
 
                     if ( ptile.isFanOff() )
                     {

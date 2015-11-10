@@ -519,7 +519,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
         TileIndex fan = mesh->getTileIndex(PointWorld(pchr->getPosX(), pchr->getPosY()));
 
-		ego_tile_info_t& ptile = mesh->get_ptile(fan);
+		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
         {
             Uint16 img      = ptile._img & TILE_LOWER_MASK;
             Uint16 highbits = ptile._img & TILE_UPPER_MASK;
@@ -616,7 +616,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
         {
             TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
 
-			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(fan);
+			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->getTileInfo(fan);
             if (tiletype == ( ptile._img & TILE_LOWER_MASK ) )
             {
                 *px1 = ( x * Info<int>::Grid::Size()) + 64;
@@ -634,7 +634,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
         {
             TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
 
-			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->get_ptile(fan);
+			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->getTileInfo(fan);
             if (tiletype == ( ptile._img & TILE_LOWER_MASK ) )
             {
                 *px1 = x * Info<int>::Grid::Size() + 64;

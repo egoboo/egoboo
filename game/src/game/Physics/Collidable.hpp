@@ -109,7 +109,7 @@ public:
         //Are we inside a wall now?
         Vector2f nrm;
         float pressure = 0.0f;
-        BIT_FIELD hit_a_wall = hit_wall(nrm, &pressure, NULL);
+        BIT_FIELD hit_a_wall = hit_wall(nrm, &pressure);
         if (EMPTY_BIT_FIELD == hit_a_wall && 0.0f <= pressure)
         {
             //Nope, this is a safe position
@@ -184,21 +184,26 @@ public:
     }
 
     /// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
-    inline BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
+	inline BIT_FIELD hit_wall(Vector2f& nrm, float *pressure)
+	{
+		return hit_wall(getPosition(), nrm, pressure);
+	}
+	inline BIT_FIELD hit_wall(Vector2f& nrm, float *pressure, mesh_wall_data_t& data)
     {
         return hit_wall(getPosition(), nrm, pressure, data);
     }
 
     /// @brief Returns nonzero if the entity hit a wall that the entity is not allowed to cross.
-    virtual BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) = 0;
+	virtual BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure) = 0;
+	virtual BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t& data) = 0;
 
-    inline BIT_FIELD test_wall(mesh_wall_data_t *data)
-    {
-        return test_wall(getPosition(), data);
-    }
+	inline BIT_FIELD test_wall()
+	{
+		return test_wall(getPosition());
+	}
 
     /// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
-    virtual BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) = 0;
+	virtual BIT_FIELD test_wall(const Vector3f& pos) = 0;
 
 protected:
     /**

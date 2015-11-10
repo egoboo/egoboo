@@ -50,7 +50,7 @@ namespace Ego
     
     bool FontManager::isInitialized()
     {
-        return TTF_WasInit();
+        return 1 == TTF_WasInit();
     }
     
     std::shared_ptr<Font> FontManager::loadFont(const std::string &fileName, int pointSize)

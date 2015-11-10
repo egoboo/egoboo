@@ -35,7 +35,7 @@ bool map_read_v1(vfs_FILE& file, map_t& map)
     for (auto& tile : mem.tiles)
     {
         Uint32 ui32_tmp;
-        vfs_read_Uint32(&file, &ui32_tmp);
+        vfs_read_Uint32(file, &ui32_tmp);
 
         tile.type = CLIP_TO_08BITS( ui32_tmp >> 24 );
         tile.fx   = CLIP_TO_08BITS( ui32_tmp >> 16 );

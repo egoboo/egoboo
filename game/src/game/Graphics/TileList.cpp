@@ -27,35 +27,17 @@
 namespace Ego {
 namespace Graphics {
 
-gfx_rv renderlist_lst_t::reset(renderlist_lst_t *self)
-{
-	if (nullptr == self)
-	{
-		return gfx_error;
-	}
-	self->size = 0;
-	self->lst[0].index = TileIndex::Invalid.getI(); /// @todo index should be of type TileIndex.
-
-	return gfx_success;
+void renderlist_lst_t::reset() {
+	size = 0;
+	lst[0]._index = TileIndex::Invalid;
 }
 
-gfx_rv renderlist_lst_t::push(renderlist_lst_t *self, const TileIndex& index, float distance)
-{
-	if (!self)
-	{
-		return gfx_error;
+bool renderlist_lst_t::push(const TileIndex& index, float distance) {
+	if (size >= renderlist_lst_t::CAPACITY) {
+		return false;
 	}
-
-	if (self->size >= renderlist_lst_t::CAPACITY)
-	{
-		return gfx_fail;
-	}
-	self->lst[self->size].index = index.getI();
-	self->lst[self->size].distance = distance;
-
-	self->size++;
-
-	return gfx_success;
+	lst[size++] = element_t(index, distance);
+	return true;
 }
 
 TileList::TileList() :
@@ -69,23 +51,22 @@ TileList::TileList() :
 
 	_renderTiles(),
 	_lastRenderTiles()
-{
-	//ctor
-}
+{}
 
-TileList *TileList::init()
+TileList::~TileList()
+{}
+
+void TileList::init()
 {
 	// Initialize the render list lists.
-	renderlist_lst_t::reset(&_all);
-	renderlist_lst_t::reset(&_ref);
-	renderlist_lst_t::reset(&_sha);
-	renderlist_lst_t::reset(&_reflective);
-	renderlist_lst_t::reset(&_nonReflective);
-	renderlist_lst_t::reset(&_water);
+	_all.reset();
+	_ref.reset();
+	_sha.reset();
+	_reflective.reset();
+	_nonReflective.reset();
+	_water.reset();
 
 	_mesh = nullptr;
-
-	return this;
 }
 
 gfx_rv TileList::reset()
@@ -121,11 +102,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t *pgrid = _mesh->_gmem.get(index);
-	if (!pgrid)
-	{
-		return gfx_fail;
-	}
+	ego_grid_info_t& pgrid = _mesh->_gmem.get(index);
 
 	// we can only accept so many tiles
 	if (_all.size >= renderlist_lst_t::CAPACITY)
@@ -140,30 +117,30 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	float distance = dx * dx + dy * dy;
 
 	// Put each tile in basic list
-	renderlist_lst_t::push(&(_all), index, distance);
+	_all.push(index, distance);
 
 	// Put each tile in one other list, for shadows and relections
-	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_SHA))
+	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_SHA))
 	{
-		renderlist_lst_t::push(&(_sha), index, distance);
+		_sha.push(index, distance);
 	}
 	else
 	{
-		renderlist_lst_t::push(&(_ref), index, distance);
+		_ref.push(index, distance);
 	}
 
-	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE))
+	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE))
 	{
-		renderlist_lst_t::push(&(_reflective), index, distance);
+		_reflective.push(index, distance);
 	}
 	else
 	{
-		renderlist_lst_t::push(&(_nonReflective), index, distance);
+		_nonReflective.push(index, distance);
 	}
 
-	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_WATER))
+	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_WATER))
 	{
-		renderlist_lst_t::push(&(_water), index, distance);
+		_water.push(index, distance);
 	}
 
 	return gfx_success;
@@ -179,13 +156,13 @@ void TileList::setMesh(std::shared_ptr<ego_mesh_t> mesh)
 	_mesh = mesh;
 }
 
-gfx_rv TileList::add(const size_t index, ::Camera& camera)
+gfx_rv TileList::add(const TileIndex& index, ::Camera& camera)
 {
-	_renderTiles[index] = true;
+	_renderTiles[index.getI()] = true;
 
 	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
-	if(!_lastRenderTiles[index]) {
-		ego_tile_info_t &tile = _mesh->_tmem.getTile(index);
+	if(!_lastRenderTiles[index.getI()]) {
+		ego_tile_info_t& tile = _mesh->_tmem.get(index);
 		tile._lightingCache.setNeedUpdate(true);
 		tile._lightingCache.setLastFrame(-1);
 	}

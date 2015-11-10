@@ -50,12 +50,12 @@ namespace Internal {
 
 struct by_element2_t {
 	float _distance;
-	uint32_t _tileIndex;
+	TileIndex _tileIndex;
 	uint32_t _textureIndex;
 	by_element2_t()
-		: by_element2_t(std::numeric_limits<float>::infinity(), std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()) {
+		: by_element2_t(std::numeric_limits<float>::infinity(), TileIndex::Invalid, std::numeric_limits<uint32_t>::max()) {
 	}
-	by_element2_t(float distance, uint32_t tileIndex, uint32_t textureIndex)
+	by_element2_t(float distance, const TileIndex& tileIndex, uint32_t textureIndex)
 		: _distance(distance), _tileIndex(tileIndex), _textureIndex(textureIndex) {
 	}
 	by_element2_t(const by_element2_t& other)
@@ -96,16 +96,16 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 	std::vector<by_element2_t> lst_vals(rlst.size);
 	for (size_t i = 0; i < rlst.size; ++i)
 	{
-		lst_vals[i]._tileIndex = rlst.lst[i].index;
-		lst_vals[i]._distance = rlst.lst[i].distance;
+		lst_vals[i]._tileIndex = rlst.lst[i]._index;
+		lst_vals[i]._distance = rlst.lst[i]._distance;
 
-		if (rlst.lst[i].index >= tcnt)
+		if (rlst.lst[i]._index >= tcnt)
 		{
 			lst_vals[i]._textureIndex = std::numeric_limits<uint32_t>::max();
 		}
 		else
 		{
-			const ego_tile_info_t &tile = mesh._tmem.getTile(rlst.lst[i].index);
+			const ego_tile_info_t& tile = mesh._tmem.get(rlst.lst[i]._index);
 
 			int img = TILE_GET_LOWER_BITS(tile._img);
 			if (tile._type >= tile_dict.offset)
@@ -124,12 +124,12 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 
 	for (size_t i = 0; i < rlst.size; ++i)
 	{
-		Uint32 tmp_itile = lst_vals[i]._tileIndex;
+		TileIndex tmp_itile = lst_vals[i]._tileIndex;
 
 		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
 		{
-			Log::warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile);
+			Log::warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile.getI());
 		}
 	}
 
@@ -793,7 +793,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(mesh, tl._water.lst[i].index, 1);
+			render_water_fan(mesh, tl._water.lst[i]._index, 1);
 		}
 	}
 
@@ -802,7 +802,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(mesh, tl._water.lst[i].index, 0);
+			render_water_fan(mesh, tl._water.lst[i]._index, 0);
 		}
 	}
 

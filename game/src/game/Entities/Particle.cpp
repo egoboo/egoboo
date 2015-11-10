@@ -137,7 +137,18 @@ const std::shared_ptr<Object>& Particle::getAttachedObject() const
     return _currentModule->getObjectHandler()[_attachedTo];
 }
 
-BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data)
+BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
+{
+	BIT_FIELD stoppedby = MAPFX_IMPASS;
+	if (0 != getProfile()->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
+
+	g_meshStats.mpdfxTests = 0;
+	g_meshStats.boundTests = 0;
+	g_meshStats.pressureTests = 0;
+	return _currentModule->getMeshPointer()->hit_wall(pos, 0.0f, stoppedby, nrm, pressure);
+}
+
+BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t& data)
 {
     BIT_FIELD stoppedby = MAPFX_IMPASS;
     if (0 != getProfile()->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
@@ -148,16 +159,16 @@ BIT_FIELD Particle::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure
     return _currentModule->getMeshPointer()->hit_wall(pos, 0.0f, stoppedby, nrm, pressure, data);
 }
 
-BIT_FIELD Particle::test_wall(const Vector3f& pos, mesh_wall_data_t *data)
+BIT_FIELD Particle::test_wall(const Vector3f& pos)
 {
-    BIT_FIELD  stoppedby = MAPFX_IMPASS;
-    if (0 != getProfile()->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
+	BIT_FIELD  stoppedby = MAPFX_IMPASS;
+	if (0 != getProfile()->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
 
-    // Do the wall test.
-    g_meshStats.mpdfxTests = 0;
+	// Do the wall test.
+	g_meshStats.mpdfxTests = 0;
 	g_meshStats.boundTests = 0;
 	g_meshStats.pressureTests = 0;
-    return _currentModule->getMeshPointer()->test_wall(pos, 0.0f, stoppedby, data);
+	return _currentModule->getMeshPointer()->test_wall(pos, 0.0f, stoppedby);
 }
 
 const std::shared_ptr<pip_t>& Particle::getProfile() const
@@ -1070,7 +1081,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
 
     // is the spawn location safe?
 	Vector2f nrm;
-    if (0 == hit_wall(tmp_pos, nrm, nullptr, nullptr))
+    if (0 == hit_wall(tmp_pos, nrm, nullptr))
     {
         setSafePosition(tmp_pos);
     }

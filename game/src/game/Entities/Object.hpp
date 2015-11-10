@@ -484,10 +484,12 @@ public:
     int getPrice() const;
 
 	/** @override */
-	BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t *data) override;
+	BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure) override;
+	/** @override */
+	BIT_FIELD hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure, mesh_wall_data_t& data) override;
 
 	/** @override */
-	BIT_FIELD test_wall(const Vector3f& pos, mesh_wall_data_t *data) override;
+	BIT_FIELD test_wall(const Vector3f& pos) override;
 
     inline AABB2f getAABB2D() const
     {
