@@ -1583,7 +1583,7 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const TileIndex& fan, floa
 	// get the grid lighting
 	const lighting_cache_t& lighting = pgrid._cache;
 
-	bool reflective = (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE));
+	bool reflective = (0 != pgrid.testFX(MAPFX_REFLECTIVE));
 
 	// evaluate the grid lighting at this node
 	if (reflective)
@@ -1829,7 +1829,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 
         // is the tile reflective?
 		ego_grid_info_t& pgrid = mesh->getGridInfo(fan);
-        bool reflective = (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE));
+        bool reflective = (0 != pgrid.testFX(MAPFX_REFLECTIVE));
 
         // light the corners of this tile
         float delta = GridIllumination::light_corners(*mesh, ptile, reflective, local_mesh_lighting_keep);

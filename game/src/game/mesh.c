@@ -195,7 +195,7 @@ void ego_mesh_t::finalize()
 //--------------------------------------------------------------------------------------------
 std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source)
 {
-    // clear out all data in the destination mesh
+    // Create a mesh.
     auto target = std::make_shared<ego_mesh_t>(Ego::MeshInfo(source._info.getVertexCount(), source._info.getTileCountX(), source._info.getTileCountY()));
 	tile_mem_t& tmem_dst = target->_tmem;
 	grid_mem_t& gmem_dst = target->_gmem;
@@ -671,7 +671,7 @@ BIT_FIELD ego_mesh_t::test_wall(const BIT_FIELD bits, const mesh_wall_data_t& da
 	for (int iy = data._i._min.getY(); iy <= data._i._max.getY(); ++iy) {
 		for (int ix = data._i._min.getX(); ix <= data._i._max.getX(); ++ix) {
 			TileIndex tileIndex(ix + iy * data._mesh->_gmem._grids_x);
-			BIT_FIELD pass = ego_grid_info_t::test_all_fx(&(data._mesh->getGridInfo(tileIndex)), bits);
+			BIT_FIELD pass = data._mesh->getGridInfo(tileIndex).testFX(bits);
 			if (EMPTY_BIT_FIELD != pass) {
 				return pass;
 			}
@@ -761,7 +761,7 @@ float ego_mesh_t::get_pressure(const Vector3f& pos, float radius, const BIT_FIEL
                 }
                 else
                 {
-                    is_blocked = ( 0 != ego_grid_info_t::test_all_fx( &(_gmem.get(itile)), bits ) );
+                    is_blocked = 0 != _gmem.get(itile).testFX(bits);
                 }
             }
 
@@ -947,7 +947,7 @@ BIT_FIELD ego_mesh_t::hit_wall(const Vector3f& pos, float radius, const BIT_FIEL
 				TileIndex itile = getTileIndex(PointGrid(ix, iy));
 				if (grid_is_valid(itile))
 				{
-					BIT_FIELD mpdfx = ego_grid_info_t::get_all_fx(&(data._mesh->getGridInfo(itile)));
+					BIT_FIELD mpdfx = data._mesh->getGridInfo(itile).getFX();
 					bool is_blocked = HAS_SOME_BITS(mpdfx, bits);
 
 					if (is_blocked)
@@ -1317,9 +1317,7 @@ bool mpdfx_lists_t::synch( const grid_mem_t& gmem, bool force )
 
     for (size_t i = 0; i < gmem._grid_count; i++ )
     {
-		GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(&(gmem.get(i)));
-
-        push(fx, i);
+		push(gmem.get(i).getFX(), i);
     }
 
     // we're done calculating
@@ -1344,7 +1342,7 @@ bool ego_mesh_t::tile_has_bits( const PointGrid& point, const BIT_FIELD bits ) c
     }
 
     // Since we KNOW that this is in range, allow raw access to the data structure.
-    GRID_FX_BITS fx = ego_grid_info_t::get_all_fx(&(_gmem.get(tileRef)));
+    GRID_FX_BITS fx = _gmem.get(tileRef).getFX();
 
     return HAS_SOME_BITS(fx, bits);
 }
@@ -1426,7 +1424,7 @@ bool ego_mesh_t::clear_fx( const TileIndex& itile, const BIT_FIELD flags )
     if ( itile > _info.getTileCount() ) return false;
 
 	g_meshStats.mpdfxTests++;
-    retval = ego_grid_info_t::sub_pass_fx(&(_gmem.get(itile)), flags );
+    retval = _gmem.get(itile).removeFX( flags );
 
     if ( retval )
     {
@@ -1447,7 +1445,7 @@ bool ego_mesh_t::add_fx(const TileIndex& index, const BIT_FIELD flags)
 
     // Succeed only of something actually changed.
 	g_meshStats.mpdfxTests++;
-    bool retval = ego_grid_info_t::add_pass_fx(&(_gmem.get(index)), flags);
+    bool retval = _gmem.get(index).addFX(flags);
 
     if ( retval )
     {
@@ -1476,7 +1474,7 @@ Uint32 ego_mesh_t::test_fx(const TileIndex& index, const BIT_FIELD flags) const
     }
 
 	g_meshStats.mpdfxTests++;
-    return ego_grid_info_t::test_all_fx(&(_gmem.get(index)), flags);
+    return _gmem.get(index).testFX(flags);
 }
 
 ego_tile_info_t& ego_mesh_t::getTileInfo(const TileIndex& index) {
@@ -1519,78 +1517,55 @@ Uint8 ego_mesh_t::get_twist(const TileIndex& index) const
 
 //--------------------------------------------------------------------------------------------
 
-GRID_FX_BITS ego_grid_info_t::get_all_fx(const ego_grid_info_t *self)
-{
-    if (!self) return MAPFX_WALL | MAPFX_IMPASS;
 
-    return self->_pass_fx;
+GRID_FX_BITS ego_grid_info_t::testFX(const GRID_FX_BITS bits) const {
+	return getFX() & bits;
 }
 
-GRID_FX_BITS ego_grid_info_t::test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits)
-{
-    GRID_FX_BITS grid_bits;
-
-    if (!self)
-    {
-        grid_bits = MAPFX_WALL | MAPFX_IMPASS;
-    }
-    else
-    {
-        grid_bits = ego_grid_info_t::get_all_fx(self);
-    }
-
-    return grid_bits & bits;
+GRID_FX_BITS ego_grid_info_t::getFX() const {
+	return _pass_fx;
 }
 
-bool ego_grid_info_t::add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits)
-{
-    if (!self) return false;
+bool ego_grid_info_t::setFX(const GRID_FX_BITS bits) {
+	// Save the old bits.
+	GRID_FX_BITS oldBits = getFX();
 
-    // save the old bits
-	GRID_FX_BITS old_bits = ego_grid_info_t::get_all_fx(self);
+	// Modify the bits.
+	_pass_fx = bits;
 
-    // set the bits that we can modify
-    SET_BIT(self->_pass_fx, bits);
+	// Get the new bits.
+	GRID_FX_BITS newBits = getFX();
 
-    // get the new bits
-	GRID_FX_BITS new_bits = ego_grid_info_t::get_all_fx(self);
-
-    // let the caller know if they changed anything
-    return old_bits != new_bits;
+	// Return if the bits were actually modified.
+	return oldBits != newBits;
 }
 
-bool ego_grid_info_t::sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits)
-{
-    if ( NULL == self) return false;
+bool ego_grid_info_t::addFX(const GRID_FX_BITS bits) {
+    // Save the old bits.
+	GRID_FX_BITS oldBits = getFX();
 
-    // save the old bits
-	GRID_FX_BITS old_bits = ego_grid_info_t::get_all_fx(self);
+	// Modify the bits.
+    SET_BIT(_pass_fx, bits);
 
-    // set the bits that we can modify
-    UNSET_BIT(self->_pass_fx, bits );
+    // Get the new bits.
+	GRID_FX_BITS newBits = getFX();
 
-    // get the new bits
-	GRID_FX_BITS new_bits = ego_grid_info_t::get_all_fx(self);
-
-    // let the caller know if they changed anything
-    return old_bits != new_bits;
+    // Return if the bits were actually modified.
+    return oldBits != newBits;
 }
 
-bool ego_grid_info_t::set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits)
-{
-    if ( NULL == self) return false;
+bool ego_grid_info_t::removeFX(const GRID_FX_BITS bits) {
+    // Save the old bits.
+	GRID_FX_BITS oldBits = getFX();
 
-    // save the old bits
-	GRID_FX_BITS old_bits = ego_grid_info_t::get_all_fx(self);
+	// Modify the bits.
+    UNSET_BIT(_pass_fx, bits);
 
-    // set the bits that we can modify
-	self->_pass_fx = bits;
+    // Get the new bits.
+	GRID_FX_BITS newBits = getFX();
 
-    // get the new bits
-	GRID_FX_BITS new_bits = ego_grid_info_t::get_all_fx(self);
-
-    // let the caller know if they changed anything
-    return old_bits != new_bits;
+	// Return if the bits were actually modified.
+    return oldBits != newBits;
 }
 
 uint8_t ego_mesh_t::get_fan_twist(const TileIndex& tile) const

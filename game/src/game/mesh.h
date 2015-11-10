@@ -399,9 +399,24 @@ typedef BIT_FIELD GRID_FX_BITS;
 struct ego_grid_info_t
 {
     // MODIFY THESE FLAGS
-    GRID_FX_BITS    _base_fx;                   ///< the special effects flags in the mpd
-    GRID_FX_BITS    _pass_fx;                   ///< the working copy of base_fx, which might be modified by passages
-    Uint8           _twist;                     ///< The orientation of the tile
+	/**
+	 * @brief
+	 *  The special effect flags in the MPD.
+	 * @warning
+	 *  Do not modify.
+	 */
+    GRID_FX_BITS _base_fx;
+	/**
+	 * @brief
+	 *  The orientation of the file in the MPD.
+	 * @warning
+	 *  Do not modify.
+	 */
+	uint8_t _twist;
+
+	// 
+	GRID_FX_BITS    _pass_fx;                   ///< the working copy of base_fx, which might be modified by passages
+
 
     // the lighting info in the upper left hand corner of a grid
     Uint8            _a, _l;                   ///< the raw mesh lighting... pretty much ignored
@@ -410,11 +425,47 @@ struct ego_grid_info_t
 
 	ego_grid_info_t();
 	~ego_grid_info_t();
-    static GRID_FX_BITS get_all_fx(const ego_grid_info_t *self);
-    static GRID_FX_BITS test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits);
-	static bool add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
-	static bool sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
-	static bool set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
+    GRID_FX_BITS testFX(const GRID_FX_BITS bits) const;
+public:
+	/**
+	 * @brief
+	 *  Get the FX of this grid point.
+	 * @return
+	 *  the FX of this grid point
+	 */
+	GRID_FX_BITS getFX() const;
+	/**
+	 * @brief
+	 *  Set the FX of this grid point.
+	 * @param fx
+	 *  the FX
+	 * @return
+	 *  @a true if the FX of this grid point changed,
+	 *  @a false otherwise
+	 */
+	bool setFX(const GRID_FX_BITS bits);
+public:
+	/**
+	 * @brief
+	 *  Add FX to this grid point.
+	 * @param fx
+	 *  the FX
+	 * @return
+	 *  @a true if the FX of this grid point changed,
+	 *  @a false otherwise
+	 */
+	bool addFX(const GRID_FX_BITS bits);
+	/**
+	 * @brief
+	 *  Remove FX from this grid point.
+	 * @param fx
+	 *  the FX
+	 * @return
+	 *  @a true if the FX of this grid point changed,
+	 *  @a false otherwise
+	 */
+	bool removeFX(const GRID_FX_BITS bits);
+
 };
 
 //--------------------------------------------------------------------------------------------
