@@ -57,10 +57,10 @@ struct wawalite_data_t;
             frame_add(0),
             z(0.0f),
             amp(0.0f),
-            dist(0, 0),
+            dist(0.0f, 0.0f),
             light_dir(0),
             light_add(0),
-            tx_add(0, 0),
+            tx_add(0.0f, 0.0f),
             alpha(0)
         {
             // default ctor

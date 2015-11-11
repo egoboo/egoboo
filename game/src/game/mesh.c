@@ -402,10 +402,10 @@ void ego_mesh_t::make_bbox()
         poct = oct_bb_t(ovec);
         mesh_vrt++;
 
-        ptile._aabb._min = Vector2f(ptile._itile % _info.getTileCountX(), 
-			                        ptile._itile % _info.getTileCountY()) * Info<float>::Grid::Size();
-        ptile._aabb._max = Vector2f(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size(), 
-			                        ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size());
+        ptile._aabb._min = Vector2f(float(ptile._itile % _info.getTileCountX()), 
+			                        float(ptile._itile % _info.getTileCountY())) * Info<float>::Grid::Size();
+        ptile._aabb._max = Vector2f(float(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size()), 
+			                        float(ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size()));
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
@@ -517,7 +517,7 @@ void ego_mesh_t::make_normals()
                     }
                     else
                     {
-                        nrm_lst[j] = Vector3f(0, 0, 1);
+                        nrm_lst[j] = Vector3f(0.0f, 0.0f, 1.0f);
                     }
                 }
 

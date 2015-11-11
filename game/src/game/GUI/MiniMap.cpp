@@ -36,7 +36,7 @@ MiniMap::MiniMap() :
     _blips(),
     _mouseOver(false),
     _isDragging(false),
-    _mouseDragOffset(0, 0),
+    _mouseDragOffset(0.0f, 0.0f),
     _minimapTexture(nullptr)
 {
     //The minimap is by default not visible

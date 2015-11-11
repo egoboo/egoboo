@@ -89,7 +89,7 @@ public:
     *  The default plane has the plane normal @a (0,0,1) and a distance from the origin of @a 0.
     */
     Plane3() :
-        _n(0, 0, 1), _d(0)
+        _n(0.0f, 0.0f, 1.0f), _d(0.0f)
     {
         /* Intentionally empty. */
     }

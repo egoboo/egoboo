@@ -36,7 +36,7 @@ spawn_file_info_t::spawn_file_info_t() :
     spawn_name(),
     pname(nullptr),
     slot(-1),
-    pos(0, 0, 0),
+    pos(0.0f, 0.0f, 0.0f),
     passage(-1),
     content(0),
     money(0),

@@ -923,6 +923,9 @@
     <ClInclude Include="src\egolib\Script\Token.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\Rect2.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

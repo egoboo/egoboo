@@ -343,7 +343,7 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t * pdata, const fl
     if ( SPRITE_SOLID == pdata->pprt->type && pdata->pchr->platform ) exponent += 2;
 
     // assume the simplest interaction normal
-    pdata->nrm = Vector3f(0, 0, 1);
+    pdata->nrm = Vector3f(0.0f, 0.0f, 1.0f);
 
     // no valid interactions, yet
     handled = false;

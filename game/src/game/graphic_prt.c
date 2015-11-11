@@ -644,7 +644,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::P
 		Vector3f vup_cam = camera.getUp();
 
         // Use the global up vector.
-        vup = Vector3f(0, 0, 1);
+        vup = Vector3f(0.0f, 0.0f, 1.0f);
 
         // Adjust the vector so that the particle doesn't disappear if
         // you are viewing it from from the top or the bottom.
@@ -792,7 +792,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::P
 
     {
         // The normal sense of "up".
-		Vector3f world_up = Vector3f(0, 0, 1);
+		Vector3f world_up = Vector3f(0.0f, 0.0f, 1.0f);
 
         // The dot product between the normal vector and the world up vector:
         // The following statement could be optimized

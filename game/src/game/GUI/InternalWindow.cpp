@@ -63,7 +63,7 @@ InternalWindow::InternalWindow(const std::string &title) :
     _mouseOver(false),
     _mouseOverCloseButton(false),
     _isDragging(false),
-    _mouseDragOffset(0, 0),
+    _mouseDragOffset(0.0f, 0.0f),
     _transparency(0.33f),
     _firstDraw(true)
 {

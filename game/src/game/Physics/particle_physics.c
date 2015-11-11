@@ -262,7 +262,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
         //Is floor flat or sloped?
         if (TWIST_FLAT == penviro->twist)
         {
-            vup = Vector3f(0, 0, 1);
+            vup = Vector3f(0.0f, 0.0f, 1.0f);
         }
         else
         {

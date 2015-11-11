@@ -1898,7 +1898,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	Vector3f pos = Vector3f(state.x, state.y, 0);
+	Vector3f pos = Vector3f(float(state.x), float(state.y), 0.0f);
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
@@ -2860,7 +2860,7 @@ Uint8 scr_TeleportTarget( script_state_t& state, ai_state_t& self )
         return false;
     }
 
-    returncode = target->teleport(Vector3f(state.x, state.y, state.distance), state.turn);
+    returncode = target->teleport(Vector3f(float(state.x), float(state.y), float(state.distance)), state.turn);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4047,9 +4047,9 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 		Vector3f vtmp =
 			Vector3f
             (
-            state.x,
-            state.y,
-            state.distance
+				float(state.x),
+				float(state.y),
+				float(state.distance)
             );
 
         returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
@@ -4711,7 +4711,7 @@ Uint8 scr_Teleport( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->teleport(Vector3f(state.x, state.y, pchr->getPosZ()), pchr->ori.facing_z);
+    returncode = pchr->teleport(Vector3f(float(state.x), float(state.y), pchr->getPosZ()), pchr->ori.facing_z);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5361,7 +5361,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	Vector3f pos = Vector3f(state.x, state.y, state.distance);
+	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF );
     if (pchild == nullptr)
@@ -5400,9 +5400,9 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 	Vector3f pos =
 		Vector3f
         (
-        state.x,
-        state.y,
-        state.distance
+			float(state.x),
+			float(state.y),
+			float(state.distance)
         );
 
     const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), "", INVALID_CHR_REF);
@@ -5509,9 +5509,9 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 		Vector3f vtmp =
 			Vector3f
             (
-            state.x,
-            state.y,
-            state.distance
+				float(state.x),
+				float(state.y),
+				float(state.distance)
             );
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
@@ -6730,9 +6730,9 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 		Vector3f vtmp =
 			Vector3f
             (
-            state.x,
-            state.y,
-            state.distance
+				float(state.x),
+				float(state.y),
+				float(state.distance)
             );
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
@@ -7406,7 +7406,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-	Vector3f pos = Vector3f(state.x, state.y, state.distance);
+	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", INVALID_CHR_REF);
     returncode = pchild != nullptr;

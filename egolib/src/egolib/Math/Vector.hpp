@@ -116,29 +116,10 @@ struct Vector : public Tuple<_VectorSpaceType> {
 
 public:
 
-	/**
-	 * @brief
-	 *	@a VectorSpaceType is the type of the vector space.
-	 */
-	typedef _VectorSpaceType VectorSpaceType;
-
-    /**
-     * @brief
-     *  @a ScalarType is the type of the underlaying scalars.
-     */
-	typedef typename VectorSpaceType::ScalarType ScalarType;
-
-    /**
-     * @brief
-     *  @a ScalarFieldType is the type of the underlaying scalar field.
-     */
-	typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
-
-	/**
-	 * @brief
-	 *  @a MyType is the type of the vector.
-	 */
-	typedef Vector<_VectorSpaceType> MyType;
+	typedef _VectorSpaceType VectorSpaceType;                          ///< @brief The type of the vector space.
+	typedef typename VectorSpaceType::ScalarType ScalarType;           ///< @brief The type of the underlaying scalars.
+	typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType; ///< @brief The type of the underlaying scalar field.
+	typedef Vector<_VectorSpaceType> MyType;                           ///< @brief This type.
 
 public:
 

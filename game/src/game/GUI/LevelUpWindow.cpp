@@ -129,8 +129,8 @@ LevelUpWindow::LevelUpWindow(const std::shared_ptr<Object> &object) : InternalWi
     _attributeValues(),
     _attributeIncrease(),
     _selectedPerk(nullptr),
-    _animationSpeed(0, 0),
-    _animationPos(0, 0),
+    _animationSpeed(0.0f, 0.0f),
+    _animationPos(0.0f, 0.0f),
     _attributeRevealTime(0)
 {
     setSize(510, 340);
@@ -365,8 +365,8 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
     addComponent(_selectedPerk);
 
     //Make icon move into the corner and use about 1 second to do so
-    const Vector2f DESIRED_ICON_POS = Vector2f(getX() - PERK_THUMBNAIL_SIZE - 10, 
-                                               getY() + getHeight() - PERK_THUMBNAIL_SIZE - 20);
+    const Vector2f DESIRED_ICON_POS = Vector2f(float(getX() - PERK_THUMBNAIL_SIZE - 10), 
+                                               float(getY() + getHeight() - PERK_THUMBNAIL_SIZE - 20));
     _animationPos[0] = _selectedPerk->getX();
     _animationPos[1] = _selectedPerk->getY();
     _animationSpeed = (DESIRED_ICON_POS - _animationPos) * (1.0f / GameEngine::GAME_TARGET_FPS);

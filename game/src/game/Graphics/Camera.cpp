@@ -56,7 +56,7 @@ Camera::Camera(const CameraOptions &options) :
     _trackLevel(0.0f),
 
     _zoom(CAM_ZOOM_AVG),
-    _center{0, 0, 0},
+    _center{0.0f, 0.0f, 0.0f},
     _zadd(CAM_ZADD_AVG),
     _zaddGoto(CAM_ZADD_AVG),
     _zGoto(CAM_ZADD_AVG),
@@ -66,9 +66,9 @@ Camera::Camera(const CameraOptions &options) :
     _turnZAdd(0.0f),
     _turnZSustain(0.60f),
 
-    _forward{0, 0, 0},
-    _up{0, 0, 0},
-    _right{0, 0, 0},
+    _forward{0.0f, 0.0f, 0.0f},
+    _up{0.0f, 0.0f, 0.0f},
+    _right{0.0f, 0.0f, 0.0f},
 
     // Special effects.
     _motionBlur(0.0f),
