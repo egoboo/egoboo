@@ -122,9 +122,9 @@ static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 static void game_reset_module_data();
 
 static void load_all_profiles_import();
-static void import_dir_profiles_vfs(const std::string &importDirectory);
+static void import_dir_profiles_vfs(const std::string& importDirectory);
 static void game_load_global_profiles();
-static void game_load_module_profiles( const char *modname );
+static void game_load_module_profiles( const std::string& modname );
 
 static void update_all_objects();
 static void move_all_objects();
@@ -519,7 +519,7 @@ int update_game()
 
         if ( !pchr->isAlive() )
         {
-            if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && local_stats.allpladead && SDL_KEYDOWN(keyb, SDLK_SPACE) && _currentModule->isRespawnValid() && 0 == local_stats.revivetimer)
+            if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && local_stats.allpladead && keyb.is_key_down(SDLK_SPACE) && _currentModule->isRespawnValid() && 0 == local_stats.revivetimer)
             {
                 pchr->respawn();
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
@@ -539,9 +539,9 @@ int update_game()
     _currentModule->getMeshPointer()->_fxlists.synch( _currentModule->getMeshPointer()->_gmem, false );
     
     // Get immediate mode state for the rest of the game
-    input_read_keyboard();
-    input_read_mouse();
-    input_read_joysticks();
+    InputSystem::read_keyboard();
+    InputSystem::read_mouse();
+    InputSystem::read_joysticks();
 
     set_local_latches();
 
@@ -842,7 +842,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
                 los_info.y1 = ptst->getPosition()[kY];
                 los_info.z1 = ptst->getPosition()[kZ] + std::max( 1.0f, ptst->bump.height );
 
-                if ( line_of_sight_blocked( &los_info ) ) continue;
+                if ( line_of_sight_info_t::blocked( &los_info ) ) continue;
             }
 
             //Set the new best target found
@@ -1294,7 +1294,7 @@ void set_local_latches()
     }
 
     // Let the players respawn
-    if (SDL_KEYDOWN(keyb, SDLK_SPACE)
+    if (keyb.is_key_down(SDLK_SPACE)
         && (local_stats.allpladead || _currentModule->canRespawnAnyTime())
         && _currentModule->isRespawnValid()
         && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
@@ -1370,7 +1370,7 @@ void check_stats()
         return;
 
     // Show map cheat
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_m) && SDL_KEYDOWN(keyb, SDLK_LSHIFT))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_m) && keyb.is_key_down(SDLK_LSHIFT))
     {
         _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
         _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
@@ -1378,13 +1378,13 @@ void check_stats()
     }
 
     // XP CHEAT
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_x))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_x))
     {
         PLA_REF docheat = INVALID_PLA_REF;
-        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  docheat = 0;
-        else if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  docheat = 1;
-        else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
-        else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
+        if (keyb.is_key_down( SDLK_1 ) )  docheat = 0;
+        else if (keyb.is_key_down( SDLK_2 ) )  docheat = 1;
+        else if (keyb.is_key_down( SDLK_3 ) )  docheat = 2;
+        else if (keyb.is_key_down( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
         if ( docheat != INVALID_PLA_REF )
@@ -1401,14 +1401,14 @@ void check_stats()
     }
 
     // LIFE CHEAT
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_z))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_z))
     {
         PLA_REF docheat = INVALID_PLA_REF;
 
-        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  docheat = 0;
-        else if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  docheat = 1;
-        else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
-        else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
+        if (keyb.is_key_down( SDLK_1 ) )  docheat = 0;
+        else if (keyb.is_key_down( SDLK_2 ) )  docheat = 1;
+        else if (keyb.is_key_down( SDLK_3 ) )  docheat = 2;
+        else if (keyb.is_key_down( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
         if(docheat != INVALID_PLA_REF) {
@@ -1425,56 +1425,56 @@ void check_stats()
     }
 
     // Display armor stats?
-    if ( SDL_KEYDOWN( keyb, SDLK_LSHIFT ) )
+    if (keyb.is_key_down( SDLK_LSHIFT ) )
     {
-        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
     }
 
     // Display enchantment stats?
-    else if ( SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
+    else if (keyb.is_key_down( SDLK_LCTRL ) )
     {
-        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
     }
 
     // Display character special powers?
-    else if ( SDL_KEYDOWN( keyb, SDLK_LALT ) )
+    else if (keyb.is_key_down( SDLK_LALT ) )
     {
-        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
     }
 
 #if 0
     // Display character stats?
     else
     {
-        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  { show_stat( 0 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  { show_stat( 1 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  { show_stat( 2 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  { show_stat( 3 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_5 ) )  { show_stat( 4 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_6 ) )  { show_stat( 5 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
-        if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_1 ) )  { show_stat( 0 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_2 ) )  { show_stat( 1 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_3 ) )  { show_stat( 2 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_4 ) )  { show_stat( 3 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_5 ) )  { show_stat( 4 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_6 ) )  { show_stat( 5 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
+        if (keyb.is_key_down( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
     }
 #endif
 }
@@ -1755,7 +1755,7 @@ void game_load_profile_ai()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_load_module_profiles( const char *modname )
+void game_load_module_profiles( const std::string& modname )
 {
     /// @author BB
     /// @details Search for .obj directories in the module directory and load them
@@ -1765,7 +1765,7 @@ void game_load_module_profiles( const char *modname )
     STRING newloadname;
 
     import_data.slot = -100;
-    make_newloadname( modname, "objects", newloadname );
+    make_newloadname( modname.c_str(), "objects", newloadname );
 
     ctxt = vfs_findFirst( newloadname, "obj", VFS_SEARCH_DIR );
     filehandle = vfs_search_context_get_current( ctxt );
@@ -2175,9 +2175,7 @@ bool game_load_module_data( const char *smallname )
     }
 
     // generate the module directory
-    STRING modname;
-    strncpy( modname, smallname, SDL_arraysize( modname ) );
-    str_append_slash( modname, SDL_arraysize( modname ) );
+    std::string modname = str_append_slash(smallname);
 
     // load a bunch of assets that are used in the module
     AudioSystem::get().loadGlobalSounds();
@@ -2306,9 +2304,6 @@ void game_quit_module()
 
     // get rid of the game/module data
     game_release_module_data();
-
-    // reset the "ui" mouse state
-    input_cursor_reset();
 
     // re-initialize all game/module data
     game_reset_module_data();

@@ -45,14 +45,11 @@
 #define SPELLBOOK           127                     ///< The spellbook model
 
 /// Messaging stuff
-#define DAMAGERAISE         25                      ///< Tolerance for damage tiles
+#define DAMAGERAISE    25    ///< Tolerance for damage tiles
 
-/* SDL_GetTicks() always returns milli seconds */
-#define TICKS_PER_SEC                   1000.0f
+#define ONESECOND      50    ///< How many game loop updates represent 1 second (50 UPS = 1 second)
 
-#define ONESECOND                       50    ///< How many game loop updates represent 1 second (50 UPS = 1 second)
-
-#define WRAP_TOLERANCE 90       ///< Status bar
+#define WRAP_TOLERANCE 90    ///< Status bar
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -60,8 +57,6 @@
 
 #define STABILIZED_KEEP  0.65f
 #define STABILIZED_COVER (1.0f - STABILIZED_KEEP)
-
-EXTERN Uint32 game_fps_loops EQ(0);             ///< The number of frames drawn this second
 
 EXTERN Sint32 gfx_clear_loops EQ(0);            ///< The number of times the screen has been cleared
 

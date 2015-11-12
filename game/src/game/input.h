@@ -25,69 +25,22 @@
 #include "game/egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct control_t;
-struct input_device_t;
-struct device_list_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct cursor_t;
-struct mouse_data_t;
-struct keyboard_data_t;
-struct joystick_data_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// old user interface variables
-struct cursor_t
-{
-    int   x;
-    int   y;
-    int   z;
-    bool  pressed;
-    bool  clicked;
-    bool  pending_click;
-    bool  wheel_event;
-};
-
-/** @todo Remove this. */
-typedef cursor_t input_cursor_t;
-
-//--------------------------------------------------------------------------------------------
-// DEVICE DATA
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
-// MOUSE
 
 /// The internal representation of the mouse data
 struct mouse_data_t
 {
-    bool                  on;              ///< Is it alive?
-    float                   sense;           ///< Sensitivity threshold
+    bool    on;              ///< Is it alive?
+    float   sense;           ///< Sensitivity threshold
 
-    Sint32                  x;               ///< Mouse X movement counter
-    Sint32                  y;               ///< Mouse Y movement counter
+    Sint32  x;               ///< Mouse X movement counter
+    Sint32  y;               ///< Mouse Y movement counter
 
-    Uint8                   button[4];       ///< Mouse button states
-    Uint32                  b;               ///< Button masks
+    Uint8   button[4];       ///< Mouse button states
+    Uint32  b;               ///< Button masks
+
+	mouse_data_t();
+	void init();
 };
-
-mouse_data_t * mouse_data__init( mouse_data_t * ptr );
-
-#define MOUSE_INIT \
-    {\
-        false,    /* on */         \
-        0.9f,      /* sense */      \
-        0,         /* x */          \
-        0,         /* y */          \
-        {0,0,0,0}, /* button[4] */  \
-        0,         /* b */          \
-    }
 
 //--------------------------------------------------------------------------------------------
 // KEYBOARD
@@ -102,22 +55,11 @@ struct keyboard_data_t
 
     int     state_size;
     const Uint8 *state_ptr;
+
+	keyboard_data_t();
+	void init();
+	bool is_key_down(int keycode) const;
 };
-
-#define KEYBOARD_INIT \
-    {\
-        false,   /* on */           \
-        false,   /* chat_mode */    \
-        false,   /* chat_done */    \
-        0,        /* state_size */   \
-        NULL,     /* state_ptr */    \
-    }
-
-keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr );
-bool keyboard_is_key_down(const keyboard_data_t &KEYB, int keycode);
-
-
-#define SDL_KEYDOWN(KEYB,k) keyboard_is_key_down(KEYB, k)
 
 //--------------------------------------------------------------------------------------------
 // JOYSTICK
@@ -134,9 +76,10 @@ struct joystick_data_t
     Uint32  b;                 ///< Button masks
 
     SDL_Joystick * sdl_ptr;
-};
 
-joystick_data_t * joystick_data__init( joystick_data_t * );
+	joystick_data_t();
+	void init();
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -145,21 +88,25 @@ extern mouse_data_t    mous;
 extern keyboard_data_t keyb;
 extern joystick_data_t joy_lst[MAX_JOYSTICK];
 
-extern input_cursor_t input_cursor;
-
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
 struct InputSystem {
+	/// @details initialize the input system.
 	static void initialize();
 	static void uninitialize();
+	static void read_mouse();
+	static void read_keyboard();
+	static void read_joysticks();
+	static void read_joystick(int which);
+protected:
+	/// @details Initialize the devices.
+	static void init_devices();
+	/// @details Initialize the keyboard.
+	static void init_keyboard();
+	/// @details Initialize the mouse.
+	static void init_mouse();
+	/// @details Initialize the joysticks.
+	static void init_joysticks();
+
 };
-void input_read_all_devices();
-
-void input_cursor_reset();
-void input_cursor_finish_wheel_event();
-bool input_cursor_wheel_event_pending();
-
-void input_read_mouse();
-void input_read_keyboard();
-void input_read_joysticks();

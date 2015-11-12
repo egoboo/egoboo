@@ -209,7 +209,7 @@ void GameEngine::updateOneFrame()
     _currentGameState->update();
 
     // Check for screenshots
-    if (SDL_KEYDOWN(keyb, SDLK_F11))
+    if (keyb.is_key_down(SDLK_F11))
     {
         requestScreenshot();
     }
@@ -505,13 +505,10 @@ void GameEngine::pollEvents()
                 
             case SDL_MOUSEWHEEL:
                 _currentGameState->notifyMouseScrolled(event.wheel.y);
-                input_cursor.z += event.wheel.y;
-                input_cursor.wheel_event = true;
             break;
                 
             case SDL_MOUSEBUTTONDOWN:
                 _currentGameState->notifyMouseClicked(event.button.button, event.button.x, event.button.y);
-                input_cursor.pending_click = true;
             break;
 
             case SDL_MOUSEBUTTONUP:

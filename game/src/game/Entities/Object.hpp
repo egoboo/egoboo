@@ -840,7 +840,7 @@ public:
     float          fat_stt;                       ///< Character's initial size
     float          fat;                           ///< Character's size
     float          fat_goto;                      ///< Character's size goto
-    int16_t         fat_goto_time;                 ///< Time left in size change
+    int16_t        fat_goto_time;                 ///< Time left in size change
 
     // jump stuff
     uint8_t          jump_timer;                      ///< Delay until next jump

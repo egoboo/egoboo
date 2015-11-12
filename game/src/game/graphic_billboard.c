@@ -107,7 +107,7 @@ void BillboardList::update()
     update(SDL_GetTicks());
 }
 
-std::shared_ptr<Billboard> BillboardList::makeBillboard(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
+std::shared_ptr<Billboard> BillboardList::makeBillboard(uint32_t lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
     auto billboard = std::make_shared<Billboard>(SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, texture);
     billboard->_tint = tint;
     if (HAS_SOME_BITS(options, Billboard::Flags::RandomPosition))

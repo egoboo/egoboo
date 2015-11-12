@@ -819,7 +819,7 @@ float draw_fps(float y)
 //--------------------------------------------------------------------------------------------
 float draw_help(float y)
 {
-    if (SDL_KEYDOWN(keyb, SDLK_F1))
+    if (keyb.is_key_down(SDLK_F1))
     {
         // In-Game help
         y = draw_string_raw(0, y, "!!!MOUSE HELP!!!");
@@ -831,7 +831,7 @@ float draw_help(float y)
         y = draw_string_raw(0, y, "~~A and S keys do stuff");
         y = draw_string_raw(0, y, "~~Right Drag to move camera");
     }
-    if (SDL_KEYDOWN(keyb, SDLK_F2))
+    if (keyb.is_key_down(SDLK_F2))
     {
         // In-Game help
         y = draw_string_raw(0, y, "!!!JOYSTICK HELP!!!");
@@ -839,7 +839,7 @@ float draw_help(float y)
         y = draw_string_raw(0, y, "~~Hit the buttons");
         y = draw_string_raw(0, y, "~~You'll figure it out");
     }
-    if (SDL_KEYDOWN(keyb, SDLK_F3))
+    if (keyb.is_key_down(SDLK_F3))
     {
         // In-Game help
         y = draw_string_raw(0, y, "!!!KEYBOARD HELP!!!");
@@ -862,7 +862,7 @@ float draw_debug(float y)
         return y;
     }
 
-    if (SDL_KEYDOWN(keyb, SDLK_F5))
+    if (keyb.is_key_down(SDLK_F5))
     {
         CHR_REF ichr;
         PLA_REF ipla;
@@ -896,7 +896,7 @@ float draw_debug(float y)
         }
     }
 
-    if (SDL_KEYDOWN(keyb, SDLK_F6))
+    if (keyb.is_key_down(SDLK_F6))
     {
         // More debug information
         y = draw_string_raw(0, y, "!!!DEBUG MODE-6!!!");
@@ -915,7 +915,7 @@ float draw_debug(float y)
         // y = draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
 
-    if (SDL_KEYDOWN(keyb, SDLK_F7))
+    if (keyb.is_key_down(SDLK_F7))
     {
         std::shared_ptr<Camera> camera = CameraSystem::get()->getMainCamera();
 

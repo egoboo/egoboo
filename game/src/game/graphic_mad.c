@@ -754,7 +754,7 @@ void draw_chr_bbox(Object *pchr)
         return;
     }
     // Draw the object bounding box as a part of the graphics debug mode F7.
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_F7))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7))
     {
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         {
@@ -784,7 +784,7 @@ void draw_chr_bbox(Object *pchr)
 
 #if _DEBUG
     //// The grips and vertrices of all objects.
-    if (SDL_KEYDOWN(keyb, SDLK_F6))
+    if (keyb.is_key_down(SDLK_F6))
     {
         draw_chr_attached_grip( pchr );
 

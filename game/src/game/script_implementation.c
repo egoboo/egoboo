@@ -39,17 +39,6 @@
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros
 //--------------------------------------------------------------------------------------------
-BIT_FIELD bool_to_bit( bool val )
-{
-    return BOOL_TO_BIT( val );
-}
-
-//--------------------------------------------------------------------------------------------
-bool bit_to_bool( BIT_FIELD val )
-{
-    return BIT_TO_BOOL( val );
-}
-
 //--------------------------------------------------------------------------------------------
 Uint8  BIT_FIELD_clip_to_08_bits( BIT_FIELD val )  { return val & 0xFF;      }
 
@@ -151,9 +140,9 @@ bool BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits )
 // line_of_sight_info_t
 //--------------------------------------------------------------------------------------------
 
-bool line_of_sight_blocked( line_of_sight_info_t * plos )
+bool line_of_sight_info_t::blocked( line_of_sight_info_t * plos )
 {
-    bool mesh_hit = line_of_sight_with_mesh( plos );
+    bool mesh_hit = line_of_sight_info_t::with_mesh( plos );
 
     //if ( mesh_hit )
     //{
@@ -167,7 +156,7 @@ bool line_of_sight_blocked( line_of_sight_info_t * plos )
 }
 
 //--------------------------------------------------------------------------------------------
-bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
+bool line_of_sight_info_t::with_mesh( line_of_sight_info_t * plos )
 {
     int Dx, Dy;
     int ix, ix_stt, ix_end;
@@ -292,7 +281,7 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
 }
 
 //--------------------------------------------------------------------------------------------
-bool line_of_sight_with_characters( line_of_sight_info_t * plos )
+bool line_of_sight_info_t::with_characters( line_of_sight_info_t * plos )
 {
 
     if ( NULL == plos ) return false;
@@ -408,7 +397,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     los_info.z1 = 0;
 
     // test for the simple case... a straight line
-    straight_line = !line_of_sight_blocked( &los_info );
+    straight_line = !line_of_sight_info_t::blocked( &los_info );
 
     if ( !straight_line )
     {
@@ -705,9 +694,6 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
 
     for(const std::shared_ptr<Object> &pweapon : _currentModule->getObjectHandler().iterator())
     {
-        float dist;
-		Vector3f diff;
-
         //only do items on the ground
         if ( _currentModule->getObjectHandler().exists( pweapon->attachedto ) || !pweapon->isitem ) continue;
         const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
@@ -728,8 +714,8 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
         }
 
         //check distance
-		diff = pchr->getPosition() - pweapon->getPosition();
-        dist = diff.length_2();
+		Vector3f diff = pchr->getPosition() - pweapon->getPosition();
+        float dist = diff.length_2();
         if ( dist < best_dist )
         {
             //finally, check line of sight. we only care for weapons we can see
@@ -737,7 +723,7 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
             los.y1 = pweapon->getPosY();
             los.z1 = pweapon->getPosZ();
 
-            if ( !use_line_of_sight || !line_of_sight_blocked( &los ) )
+            if ( !use_line_of_sight || !line_of_sight_info_t::blocked( &los ) )
             {
                 //found a valid weapon!
                 best_target = pweapon->getCharacterID();

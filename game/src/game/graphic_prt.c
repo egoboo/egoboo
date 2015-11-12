@@ -960,7 +960,7 @@ void render_prt_bbox(prt_bundle_t& pbdl_prt)
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if ((egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_F7)))
+    if ((egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7)))
     {
         // copy the bounding volume
         oct_bb_t tmp_bb = loc_pprt->prt_max_cv;

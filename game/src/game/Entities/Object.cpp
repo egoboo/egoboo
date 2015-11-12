@@ -932,7 +932,7 @@ void Object::update()
                 lineOfSightInfo.x1 = target->getPosX();
                 lineOfSightInfo.y1 = target->getPosY();
                 lineOfSightInfo.z1 = target->getPosZ() + std::max(1.0f, target->bump.height);
-                if (line_of_sight_blocked(&lineOfSightInfo)) {
+                if (line_of_sight_info_t::blocked(&lineOfSightInfo)) {
                     continue;
                 }
 
@@ -2547,7 +2547,7 @@ bool Object::activateStealth()
         lineOfSightInfo.y0         = object->getPosY();
         lineOfSightInfo.z0         = object->getPosZ() + std::max(1.0f, object->bump.height);
         lineOfSightInfo.stopped_by = object->stoppedby;
-        if (line_of_sight_blocked(&lineOfSightInfo)) {
+        if (line_of_sight_info_t::blocked(&lineOfSightInfo)) {
             continue;
         }
         
