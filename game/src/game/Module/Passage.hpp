@@ -35,7 +35,7 @@ public:
     static constexpr int32_t NO_MUSIC = -1;				///< For passages that play no music
     static constexpr uint32_t CLOSE_TOLERANCE = 3;		///< For closing doors
     static constexpr size_t MAX_PASSAGES = 256;			///< Maximum allowed passages
-    static constexpr CHR_REF SHOP_NOOWNER = 0xFFFF;		///< Shop has no owner
+    static constexpr const ObjectRef& SHOP_NOOWNER = ObjectRef::Invalid;	///< Shop has no owner
     static constexpr uint32_t SHOP_STOLEN = 0xFFFF;
 
 	/// The pre-defined orders for communicating with shopkeepers
@@ -117,7 +117,7 @@ public:
     *    	 Finds living ones, then items and corpses
     * @return CHR_REF of the character found which fullfills all specified requirements or INVALID_CHR_REF if none found
     **/
-    CHR_REF whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const;
+    ObjectRef whoIsBlockingPassage( const ObjectRef& isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const;
 
 
     /**
@@ -141,9 +141,9 @@ public:
     **/
     bool isShop() const;
 
-    CHR_REF getShopOwner() const;
+	const ObjectRef& getShopOwner() const;
 
-    void makeShop(CHR_REF owner);
+    void makeShop(const ObjectRef& owner);
 
     void removeShop();
 
@@ -154,5 +154,5 @@ private:
     bool _open;   			///< Is the passage open?
 
     bool _isShop;			///< True if this passage is a shop
-    CHR_REF _shopOwner;		///< CHR_REF of the owner of this shop
+    ObjectRef _shopOwner;	///< object reference of the owner of this shop
 };

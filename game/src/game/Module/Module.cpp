@@ -144,7 +144,7 @@ void GameModule::checkPassageMusic()
     }
 }
 
-CHR_REF GameModule::getShopOwner(const float x, const float y)
+const ObjectRef& GameModule::getShopOwner(const float x, const float y)
 {
     // Loop through every passage.
     for(const std::shared_ptr<Passage>& passage : _passages)
@@ -165,7 +165,7 @@ CHR_REF GameModule::getShopOwner(const float x, const float y)
     return Passage::SHOP_NOOWNER;       
 }
 
-void GameModule::removeShopOwner(CHR_REF owner)
+void GameModule::removeShopOwner(const ObjectRef& owner)
 {
     // Loop through every passage:
     for(const std::shared_ptr<Passage> &passage : _passages)

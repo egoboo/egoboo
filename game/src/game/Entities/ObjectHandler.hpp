@@ -33,8 +33,8 @@
 class Object;
 
 //ZF> Some macros from C Egoboo (TODO: remove these macros)
-CHR_REF GET_INDEX_PCHR(const Object *pobj);
-CHR_REF GET_INDEX_PCHR(const std::shared_ptr<Object> pobj);
+const ObjectRef& GET_INDEX_PCHR(const Object *pobj);
+const ObjectRef& GET_INDEX_PCHR(const std::shared_ptr<Object> pobj);
 bool INGAME_PCHR(const Object *pobj);
 
 /**
@@ -109,29 +109,33 @@ public:
 	ObjectIterator iterator();
 
 	/**
-	 * @brief Remove the specified CHR_REF for the game. 
+	 * @brief Remove the specified object for the game. 
 	 * @return false if it didnt exist or was already removed, true otherwise
 	 */
-	bool remove(const CHR_REF ichr);
+	bool remove(const CHR_REF ref) { return remove(ObjectRef(ref)); } ///< @todo Remove this.
+	bool remove(const ObjectRef& ref);
 
 	/**
-	 * @brief Get if the specified CHR_REF exists and is not terminated yet.
-	 * @return true if the specified CHR_REF exists and is not terminated yet
+	 * @brief Get if the specified object exists and is not terminated yet.
+	 * @return true if the specified object exists and is not terminated yet
 	 */
-	bool exists(const CHR_REF ichr) const;
+	bool exists(const CHR_REF ref) const { return exists(ObjectRef(ref)); } ///< @todo Remove this.
+	bool exists(const ObjectRef& ref) const;
 
 	/**
 	 * @brief Allocates and creates new Object object. A valid PRO_REF is required to spawn a object.
 	 * @return the std::shared_ptr<Object> for that object or nullptr if it failed
 	 */
-	std::shared_ptr<Object> insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
+	std::shared_ptr<Object> insert(const PRO_REF profileRef, const CHR_REF overrideRef = INVALID_CHR_REF) { return insert(profileRef, ObjectRef(overrideRef)); } ///< @todo Remove this.
+	std::shared_ptr<Object> insert(const PRO_REF profileRef, const ObjectRef& overrideRef = ObjectRef::Invalid);
 
 	/**
 	 * @brief Return a pointer object for the specifiec CHR_REF.
 	 * @return a pointer object for the specified CHR_REF.
 	 *		   Return nullptr object if CHR_REF was not found.
 	 */
-	const std::shared_ptr<Object>& operator[] (const CHR_REF index);
+	const std::shared_ptr<Object>& operator[] (const CHR_REF ref) { return (*this)[ObjectRef(ref)]; }
+	const std::shared_ptr<Object>& operator[] (const ObjectRef& ref);
 
 	/**
 	 * @brief Return number of object currently active in the game.
@@ -148,7 +152,8 @@ public:
 	 * @brief Return a raw pointer referenced by CHR_REF
 	 * @return a raw pointer referenced by CHR_REF
 	 */
-	Object* get(const CHR_REF index) const;
+	Object *get(const CHR_REF ref) const { return get(ObjectRef(ref)); } ///< @todo Remove this.
+	Object *get(const ObjectRef& index) const;
 
 
 	/**
