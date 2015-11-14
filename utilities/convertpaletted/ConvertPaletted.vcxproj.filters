@@ -18,9 +18,15 @@
     <ClCompile Include="src\convertpaletted.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\Main.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\filters.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\convertpaletted.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

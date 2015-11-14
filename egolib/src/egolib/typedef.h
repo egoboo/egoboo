@@ -353,31 +353,7 @@ typedef uint16_t FACING_T;
     void floats_to_pair( float vmin, float vmax, IPair * ppair );
 
 //--------------------------------------------------------------------------------------------
-// IDSZ
-typedef Uint32 IDSZ;
 
-#if !defined(MAKE_IDSZ)
-#define MAKE_IDSZ(C0,C1,C2,C3)                 \
-    ((IDSZ)(                                   \
-             ((((C0)-'A')&0x1F) << 15) |       \
-             ((((C1)-'A')&0x1F) << 10) |       \
-             ((((C2)-'A')&0x1F) <<  5) |       \
-             ((((C3)-'A')&0x1F) <<  0)         \
-           ))
-#endif
-
-#define IDSZ_NONE MAKE_IDSZ('N','O','N','E')       ///< [NONE]
-/**
- * @brief
- *	Convert an integer IDSZ to a text IDSZ.
- * @param idsz
- *	the integer IDSZ
- * @return
- *	a pointer to a text IDSZ
- * @todo
- *	This currently uses a static bufer. Change this.
- */
-const char *undo_idsz(IDSZ idsz);
 
 //--------------------------------------------------------------------------------------------
 // STRING

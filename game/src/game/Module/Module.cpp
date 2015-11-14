@@ -87,10 +87,10 @@ void GameModule::loadAllPassages()
     {
         //read passage area
         irect_t area;
-        area._left = ctxt.readInt();
-        area._top = ctxt.readInt();
-        area._right = ctxt.readInt();
-        area._bottom = ctxt.readInt();
+        area._left = ctxt.readIntegerLiteral();
+        area._top = ctxt.readIntegerLiteral();
+        area._right = ctxt.readIntegerLiteral();
+        area._bottom = ctxt.readIntegerLiteral();
 
         //constrain passage area within the level
 		auto& info = _currentModule->getMeshPointer()->_info;

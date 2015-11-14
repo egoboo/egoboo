@@ -173,7 +173,7 @@ private:
 	static size_t surround_space(size_t position, char buffer[], size_t buffer_size, const size_t buffer_max);
 	static size_t insert_space(size_t position, char buffer[], size_t buffer_length, const size_t buffer_max);
 	static size_t fix_operators(char buffer[], size_t buffer_size, const size_t buffer_max);
-	static void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t *pscript);
+	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t *pscript);
 
 	static Uint32 jump_goto(int index, int index_end, script_info_t *pscript);
 public:

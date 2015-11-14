@@ -85,7 +85,7 @@ egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ, int> &quest_log, const
     while (ctxt.skipToColon(true))
     {
         IDSZ idsz = ctxt.readIDSZ();
-        int  level = ctxt.readInt();
+        int  level = ctxt.readIntegerLiteral();
 
         // Try to add a single quest to the map
         quest_log[idsz] = level;

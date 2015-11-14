@@ -115,82 +115,84 @@ void ReadContext::skipWhiteSpaces()
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+IDSZ2 ReadContext::readIDSZ2() {
+	char c[4];
+	if (is(Traits::startOfInput()))
+	{
+		next();
+	}
+	skipWhiteSpaces();
+	// `'['`
+	if (!is('['))
+	{
+		if (is(Traits::error()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"read error while scanning IDSZ");
+		}
+		else if (is(Traits::endOfInput()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"premature end of input while scanning IDSZ");
+		}
+		else
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"unexpected character while scanning IDSZ");
+		}
+	}
+	next();
+	// `(<alphabetic>|<digit>|'_')^4`
+	for (size_t i = 0; i < 4; ++i)
+	{
+		if (!isAlpha() && !isDigit() && !is('_'))
+		{
+			if (is(Traits::error()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"read error while scanning IDSZ");
+			}
+			else if (is(Traits::endOfInput()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"premature end of input while scanning IDSZ");
+			}
+			else
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"unexpected character while scanning IDSZ");
+			}
+		}
+		c[i] = static_cast<char>(current());
+		next();
+	}
+	// `']'`
+	if (!is(']'))
+	{
+		if (is(Traits::error()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"read error while scanning IDSZ");
+		}
+		else if (is(Traits::endOfInput()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+				"premature end of input while scanning IDSZ");
+		}
+		else
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+				"unexpected character while scanning IDSZ");
+		}
+	}
+	next();
+	return IDSZ2(c[0], c[1], c[2], c[3]);
+}
+
 IDSZ ReadContext::readIDSZ()
 {
-    /// @author ZZ
-    /// @details This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
-
-    char c[4];
-    if (is(Traits::startOfInput()))
-    {
-        next();
-    }
-    skipWhiteSpaces();
-    // `'['`
-    if (!is('['))
-    {
-        if (is(Traits::error()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "read error while scanning IDSZ");
-        }
-        else if (is(Traits::endOfInput()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "premature end of input while scanning IDSZ");
-        }
-        else
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "unexpected character while scanning IDSZ");
-        }
-    }
-    next();
-    // `(<alphabetic>|<digit>|'_')^4`
-    for (size_t i = 0; i < 4; ++i)
-    {
-        if (!isAlpha() && !isDigit() && !is('_'))
-        {
-            if (is(Traits::error()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "read error while scanning IDSZ");
-            }
-            else if (is(Traits::endOfInput()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "premature end of input while scanning IDSZ");
-            }
-            else
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "unexpected character while scanning IDSZ");
-            }
-        }
-        c[i] = static_cast<char>(current());
-        next();
-    }
-    // `']'`
-    if (!is(']'))
-    {
-        if (is(Traits::error()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "read error while scanning IDSZ");
-        }
-        else if (is(Traits::endOfInput()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
-                                            "premature end of input while scanning IDSZ");
-        }
-        else
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
-                                            "unexpected character while scanning IDSZ");
-        }
-    }
-    next();
-    return MAKE_IDSZ(c[0], c[1], c[2], c[3]);
+	auto idsz = readIDSZ2();
+	return idsz.get();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -392,7 +394,7 @@ bool read_to_colon_vfs(ReadContext& ctxt,std::string& buffer, bool optional)
 //--------------------------------------------------------------------------------------------
 void vfs_read_string_lit(ReadContext& ctxt, char *buffer, size_t max)
 {
-    std::string _literal = ctxt.readStringLit();
+    std::string _literal = ctxt.readStringLiteral();
     strncpy(buffer,_literal.c_str(), max);
     str_decode(buffer, max, buffer);
 }
@@ -669,7 +671,7 @@ bool vfs_get_range(ReadContext& ctxt, FRange *range)
 {
     // Read minimum.
     ctxt.skipWhiteSpaces();
-    float from = ctxt.readReal();
+    float from = ctxt.readRealLiteral();
     float to = from;
     // Read hyphen and maximum if present.
     ctxt.skipWhiteSpaces();
@@ -679,7 +681,7 @@ bool vfs_get_range(ReadContext& ctxt, FRange *range)
 
         // Read maximum.
         ctxt.skipWhiteSpaces();
-        to = ctxt.readReal();
+        to = ctxt.readRealLiteral();
     }
 
     if (range)
@@ -774,7 +776,7 @@ int vfs_get_version(ReadContext& ctxt)
     }
     
     // Get the version number.
-    return ctxt.readInt();
+    return ctxt.readIntegerLiteral();
     
 }
 
@@ -960,112 +962,144 @@ char ReadContext::readPrintable()
     return tmp;
 }
 
-char ReadContext::readCharLit()
+Ego::Script::TextToken ReadContext::parseStringLiteral()
 {
-    if (is(Traits::startOfInput()))
-    {
-        next();
-    }
-    skipWhiteSpaces();
-    if (is(Traits::endOfInput()) || is(Traits::error()))
-    {
-        if (is(Traits::error()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "read error while scanning character literal");
-        }
-        else if (is(Traits::endOfInput()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "premature end of input while scanning character literal");
-        }
-    }
-    char chr;
-    if (!is('\''))
-    {
-        if (is(Traits::error()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "read error while scanning character literal");
-        }
-        else if (is(Traits::endOfInput()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "premature end of input while scanning character literal");
-        }
-        else
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "unexpected character while scanning character literal");
-        }
-    }
-    next();
-    if (is('\\'))
-    {
-        next();
-        if (is('\''))
-        {
-            chr = '\'';
-        }
-        else if (is('n'))
-        {
-            chr = '\n';
-        }
-        else if (is('t'))
-        {
-            chr = '\t';
-        }
-        else if (is('\\'))
-        {
-            chr = '\\';
-        }
-        else
-        {
-            if (is(Traits::error()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "read error while scanning character literal");
-            }
-            else if (is(Traits::endOfInput()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "premature end of input while scanning character literal");
-            }
-            else
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "unknown/unsupported escape sequence");
-            }
-        }
-        next();
-    }
-    else
-    {
-        if (is(Traits::endOfInput()) || is(Traits::error()))
-        {
-            if (is(Traits::error()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "read error while scanning character literal");
-            }
-            else if (is(Traits::endOfInput()))
-            {
-                throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                                "empty character literal");
-            }
-        }
-        chr = static_cast<char>(current());
-        next();
-    }
-    if (!is('\''))
-    {
-        throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),'\'');
-    }
-    next();
-    return chr;
+	Id::Location startLocation(_loadName, _lineNumber);
+	_buffer.clear();
+	if (is(Traits::startOfInput()))
+	{
+		next();
+	}
+	_buffer.clear();
+	while (true)
+	{
+		if (is(Traits::error()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"read error");
+		}
+		else if (is('~'))
+		{
+			writeAndNext('\t');
+		}
+		else if (is('_'))
+		{
+			writeAndNext(' ');
+		}
+		else if (isNewLine() || isWhiteSpace() || is(Traits::endOfInput()))
+		{
+			break;
+		}
+		else
+		{
+			saveAndNext();
+		}
+	}
+	return Ego::Script::TextToken(Ego::Script::TextToken::Type::String, startLocation, _buffer.toString());
 }
 
-Ego::Script::TextToken ReadContext::parseInt()
+Ego::Script::TextToken ReadContext::parseCharacterLiteral() {
+	Id::Location startLocation(_loadName, _lineNumber);
+	_buffer.clear();
+	if (is(Traits::startOfInput()))
+	{
+		next();
+	}
+	if (is(Traits::endOfInput()) || is(Traits::error()))
+	{
+		if (is(Traits::error()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"read error while scanning character literal");
+		}
+		else if (is(Traits::endOfInput()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"premature end of input while scanning character literal");
+		}
+	}
+	if (!is('\''))
+	{
+		if (is(Traits::error()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"read error while scanning character literal");
+		}
+		else if (is(Traits::endOfInput()))
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"premature end of input while scanning character literal");
+		}
+		else
+		{
+			throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+				"unexpected character while scanning character literal");
+		}
+	}
+	next();
+	if (is('\\'))
+	{
+		next();
+		if (is('\''))
+		{
+			writeAndNext('\'');
+		}
+		else if (is('n'))
+		{
+			writeAndNext('\n');
+		}
+		else if (is('t'))
+		{
+			writeAndNext('\t');
+		}
+		else if (is('\\'))
+		{
+			writeAndNext('\\');
+		}
+		else
+		{
+			if (is(Traits::error()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"read error while scanning character literal");
+			}
+			else if (is(Traits::endOfInput()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"premature end of input while scanning character literal");
+			}
+			else
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"unknown/unsupported escape sequence");
+			}
+		}
+	}
+	else
+	{
+		if (is(Traits::endOfInput()) || is(Traits::error()))
+		{
+			if (is(Traits::error()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"read error while scanning character literal");
+			}
+			else if (is(Traits::endOfInput()))
+			{
+				throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
+					"empty character literal");
+			}
+		}
+		saveAndNext();
+	}
+	if (!is('\'')) {
+		throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber), '\'');
+	}
+	next();
+	return Ego::Script::TextToken(Ego::Script::TextToken::Type::Character, startLocation, _buffer.toString());
+}
+
+Ego::Script::TextToken ReadContext::parseIntegerLiteral()
 {
 	Id::Location startLocation(_loadName, _lineNumber);
 	_buffer.clear();
@@ -1132,7 +1166,7 @@ Ego::Script::TextToken ReadContext::parseInt()
 	return Ego::Script::TextToken(Ego::Script::TextToken::Type::Integer, startLocation, _buffer.toString());
 }
 
-Ego::Script::TextToken ReadContext::parseNat()
+Ego::Script::TextToken ReadContext::parseNaturalLiteral()
 {
 	_buffer.clear();
 	Id::Location startLocation(_loadName, _lineNumber);
@@ -1199,7 +1233,7 @@ Ego::Script::TextToken ReadContext::parseNat()
 	return Ego::Script::TextToken(Ego::Script::TextToken::Type::Integer, startLocation, _buffer.toString());
 }
 
-Ego::Script::TextToken ReadContext::parseReal()
+Ego::Script::TextToken ReadContext::parseRealLiteral()
 {
 	_buffer.clear();
 	Id::Location startLocation(_loadName, _lineNumber);
@@ -1285,28 +1319,40 @@ Ego::Script::TextToken ReadContext::parseReal()
 	return Ego::Script::TextToken(Ego::Script::TextToken::Type::Real, startLocation, _buffer.toString());
 }
 
-signed int ReadContext::readInt() {
+std::string ReadContext::readStringLiteral() {
 	skipWhiteSpaces();
-	auto token = parseInt();
+	auto token = parseStringLiteral();
+	return TextTokenDecoder<std::string>()(token);
+}
+
+char ReadContext::readCharacterLiteral() {
+	skipWhiteSpaces();
+	auto token = parseCharacterLiteral();
+	return TextTokenDecoder<char>()(token);
+}
+
+signed int ReadContext::readIntegerLiteral() {
+	skipWhiteSpaces();
+	auto token = parseIntegerLiteral();
 	return TextTokenDecoder<signed int>()(token);
 }
 
-unsigned int ReadContext::readNat() {
+unsigned int ReadContext::readNaturalLiteral() {
     skipWhiteSpaces();
-	auto token = parseNat();
+	auto token = parseNaturalLiteral();
 	return TextTokenDecoder<unsigned int>()(token);
 }
 
-float ReadContext::readReal() {
+float ReadContext::readRealLiteral() {
 	skipWhiteSpaces();
-	auto token = parseReal();
+	auto token = parseRealLiteral();
 	return TextTokenDecoder<float>()(token);
 }
 
 //--------------------------------------------------------------------------------------------
 UFP8_T vfs_get_ufp8(ReadContext& ctxt)
 {
-    float x = ctxt.readReal();
+    float x = ctxt.readRealLiteral();
     if (x < 0.0f)
     {
         throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName,ctxt._lineNumber),
@@ -1318,7 +1364,7 @@ UFP8_T vfs_get_ufp8(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 SFP8_T vfs_get_sfp8(ReadContext& ctxt)
 {
-    float x = ctxt.readReal();
+    float x = ctxt.readRealLiteral();
     return FLOAT_TO_FP8(x);
 }
 
@@ -1326,13 +1372,13 @@ SFP8_T vfs_get_sfp8(ReadContext& ctxt)
 int vfs_get_next_int(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
-    return ctxt.readInt();
+    return ctxt.readIntegerLiteral();
 }
 
 unsigned int vfs_get_next_nat(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
-    return ctxt.readNat();
+    return ctxt.readNaturalLiteral();
 }
 
 UFP8_T vfs_get_next_ufp8(ReadContext& ctxt)
@@ -1392,7 +1438,7 @@ void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max)
 float vfs_get_next_float(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
-    return ctxt.readReal();
+    return ctxt.readRealLiteral();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1419,7 +1465,7 @@ IDSZ vfs_get_next_idsz(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 
 LocalParticleProfileRef vfs_get_local_particle_profile_ref(ReadContext& ctxt) {
-    return LocalParticleProfileRef(ctxt.readInt());
+    return LocalParticleProfileRef(ctxt.readIntegerLiteral());
 }
 
 DamageType vfs_get_damage_type(ReadContext& ctxt)
@@ -1482,41 +1528,6 @@ DamageType vfs_get_next_damage_type(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
-std::string ReadContext::readStringLit()
-{
-    if (is(Traits::startOfInput()))
-    {
-        next();
-    }
-    skipWhiteSpaces();
-    _buffer.clear();
-    while (true)
-    {
-        if (is(Traits::error()))
-        {
-            throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                            "read error");
-        }
-        else if (is('~'))
-        {
-            writeAndNext('\t');
-        }
-        else if (is('_'))
-        {
-            writeAndNext(' ');
-        }
-        else if (isNewLine() || isWhiteSpace() || is(Traits::endOfInput()))
-        {
-            break;
-        }
-        else
-        {
-            saveAndNext();
-        }
-    }
-    return toString();
-}
-
 void ReadContext::readName0()
 {
     if (!isAlpha() && !is('_'))
@@ -1692,7 +1703,7 @@ DamageModifier vfs_get_damage_modifier(ReadContext& ctxt)
 float vfs_get_damage_resist(ReadContext& ctxt)
 {
     /// @todo Ugly hack to allow it to work with the old damage system assume that numbers below 4 are shifts.
-    float resistance = ctxt.readReal();
+    float resistance = ctxt.readRealLiteral();
 
     //@note ZF> uncomment to get damage reduction roughly same as old system
     //if (resistance == 1) resistance = 16.7f;         //~50% reduction, about same as shift 1

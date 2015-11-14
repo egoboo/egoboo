@@ -538,7 +538,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     ctxt.skipToColon(false);
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
-        _skinInfo[cnt].defence = Ego::Math::constrain(ctxt.readInt(), 0, 0xFF);
+        _skinInfo[cnt].defence = Ego::Math::constrain(ctxt.readIntegerLiteral(), 0, 0xFF);
     }
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
@@ -573,7 +573,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     ctxt.skipToColon(false);
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
-        _skinInfo[cnt].maxAccel = ctxt.readReal() / 80.0f;
+        _skinInfo[cnt].maxAccel = ctxt.readRealLiteral() / 80.0f;
     }
 
     // Experience and level data
@@ -705,39 +705,39 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
         switch(idsz)
         {
             case MAKE_IDSZ( 'D', 'R', 'E', 'S' ):
-                _skinInfo[ctxt.readInt()].dressy = true;
+                _skinInfo[ctxt.readIntegerLiteral()].dressy = true;
             break;
 
             case MAKE_IDSZ( 'G', 'O', 'L', 'D' ):
-                _money = ctxt.readInt();
+                _money = ctxt.readIntegerLiteral();
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'U', 'K' ):
-                _resistBumpSpawn = (0 != (1 - ctxt.readInt()));
+                _resistBumpSpawn = (0 != (1 - ctxt.readIntegerLiteral()));
             break;
 
             case MAKE_IDSZ( 'P', 'A', 'C', 'K' ):
-                _isBigItem = !(0 != ctxt.readInt());
+                _isBigItem = !(0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'M', 'P' ):
-                _hasReflection = (0 == ctxt.readInt());
+                _hasReflection = (0 == ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'D', 'R', 'A', 'W' ):
-                _alwaysDraw = (0 != ctxt.readInt());
+                _alwaysDraw = (0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'R', 'A', 'N', 'G' ):
-                _isRanged = (0 != ctxt.readInt());
+                _isRanged = (0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'H', 'I', 'D', 'E' ):
-                _hideState = ctxt.readInt();
+                _hideState = ctxt.readIntegerLiteral();
             break;
 
             case MAKE_IDSZ( 'E', 'Q', 'U', 'I' ):
-                _isEquipment = (0 != ctxt.readInt());
+                _isEquipment = (0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'S', 'Q', 'U', 'A' ):
@@ -745,11 +745,11 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'I', 'C', 'O', 'N' ):
-                _drawIcon = (0 != ctxt.readInt());
+                _drawIcon = (0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'S', 'H', 'A', 'D' ):
-                _forceShadow = (0 != ctxt.readInt());
+                _forceShadow = (0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'S', 'K', 'I', 'N' ):
@@ -758,7 +758,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 ///            It should(!) correspond to a valid skin for this object,
                 ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX)
 
-                int iTmp = ctxt.readInt();
+                int iTmp = ctxt.readIntegerLiteral();
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
                 _skinOverride = iTmp;  
@@ -766,58 +766,58 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'C', 'O', 'N', 'T' ): 
-                _contentOverride = ctxt.readInt();
+                _contentOverride = ctxt.readIntegerLiteral();
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'A', 'T' ): 
-                _stateOverride = ctxt.readInt();
+                _stateOverride = ctxt.readIntegerLiteral();
             break;
 
             case MAKE_IDSZ( 'L', 'E', 'V', 'L' ): 
-                _levelOverride = ctxt.readInt();
+                _levelOverride = ctxt.readIntegerLiteral();
             break;
 
             case MAKE_IDSZ( 'P', 'L', 'A', 'T' ): 
-                _canUsePlatforms = (0 != ctxt.readInt());
+                _canUsePlatforms = (0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'R', 'I', 'P', 'P' ): 
-                _causesRipples = (0 != ctxt.readInt());
+                _causesRipples = (0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'L', 'U' ): 
-                _isValuable = ctxt.readInt();
+                _isValuable = ctxt.readIntegerLiteral();
             break;
 
             case MAKE_IDSZ( 'L', 'I', 'F', 'E' ): 
-                _spawnLife = 0xff * ctxt.readReal();
+                _spawnLife = 0xff * ctxt.readRealLiteral();
             break;
 
             case MAKE_IDSZ( 'M', 'A', 'N', 'A' ): 
-                _spawnMana = 0xff * ctxt.readReal();
+                _spawnMana = 0xff * ctxt.readRealLiteral();
             break;
 
             case MAKE_IDSZ( 'B', 'O', 'O', 'K' ):
             {
-                _spellEffectType = ctxt.readInt();
+                _spellEffectType = ctxt.readIntegerLiteral();
             }
             break;
 
             //Damage bonuses from stats
             case MAKE_IDSZ( 'F', 'A', 'S', 'T' ):
-                _attackFast = (0 != ctxt.readInt());
+                _attackFast = (0 != ctxt.readIntegerLiteral());
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'R', 'D' ):
-                _strengthBonus = ctxt.readReal();
+                _strengthBonus = ctxt.readRealLiteral();
             break;
 
             case MAKE_IDSZ( 'I', 'N', 'T', 'D' ):
-                _intelligenceBonus = ctxt.readReal();
+                _intelligenceBonus = ctxt.readRealLiteral();
             break;
 
             case MAKE_IDSZ( 'D', 'E', 'X', 'D' ):
-                _dexterityBonus = ctxt.readReal();
+                _dexterityBonus = ctxt.readRealLiteral();
             break;
 
             case MAKE_IDSZ( 'M', 'O', 'D', 'L' ):
@@ -862,13 +862,13 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
             case MAKE_IDSZ('B', 'L', 'O', 'C'):
             {
-                _blockRating = ctxt.readInt();
+                _blockRating = ctxt.readIntegerLiteral();
             }
             break;
 
             //Random Seed for level ups
             case  MAKE_IDSZ( 'S', 'E', 'E', 'D' ):
-                _levelUpRandomSeedOverride = ctxt.readInt();
+                _levelUpRandomSeedOverride = ctxt.readIntegerLiteral();
             break;
 
             //Perks known

@@ -454,6 +454,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Log\Entry.hpp" />
     <ClInclude Include="src\egolib\Math\Rect2.hpp" />
     <ClInclude Include="src\egolib\Script\Token.hpp" />
     <ClInclude Include="src\egolib\FileFormats\map_fx.hpp" />

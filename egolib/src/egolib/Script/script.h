@@ -23,6 +23,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/Logic/Damage.hpp"
+#include "egolib/IDSZ.hpp"
 #include "egolib/Clock.hpp"
 #include "egolib/AI/WaypointList.h"
 

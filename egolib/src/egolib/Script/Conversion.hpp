@@ -60,19 +60,48 @@ struct Decoder
 
 };
 
-/** 
+/**
  * @brief
- *  Specialization for signed integral types without the @a bool type.
+ *  Specialization for character type.
  * @todo
  *  Should be mor terse and more efficient.
  */
 template <typename TargetType>
-struct Decoder<TargetType, typename enable_if<is_integral<TargetType>::value && !is_same<TargetType, bool>::value && is_signed<TargetType>::value >::type>
+struct Decoder<TargetType, typename enable_if< is_same<TargetType, char>::value >::type>
+{
+	bool operator()(const string& source, TargetType& target)
+	{
+		static_assert(is_same<TargetType, char>::value,
+			          "TargetType must be `char`");
+		try
+		{
+			if (source.length() != 1)
+			{
+				throw invalid_argument("not a valid EgoScript character integral");
+			}
+			target = source[0];
+		}
+		catch (invalid_argument&)
+		{
+			return false;
+		}
+		return true;
+	}
+};
+
+/** 
+ * @brief
+ *  Specialization for signed integral types without the @a bool and @a char type.
+ * @todo
+ *  Should be mor terse and more efficient.
+ */
+template <typename TargetType>
+struct Decoder<TargetType, typename enable_if<is_integral<TargetType>::value && !is_same<TargetType, bool>::value && !is_same<TargetType, char>::value && is_signed<TargetType>::value >::type>
 {
     bool operator()(const string& source, TargetType& target)
     {
-        static_assert(is_integral<TargetType>::value && !is_same<TargetType, bool>::value && is_signed<TargetType>::value,
-                      "TargetType must be an signed integral type and must not be bool");
+        static_assert(is_integral<TargetType>::value && !is_same<TargetType, bool>::value && !is_same<TargetType, char>::value && is_signed<TargetType>::value,
+                      "TargetType must be an signed integral type and must not be bool nor char");
         try
         {
             try

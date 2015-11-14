@@ -116,8 +116,8 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     fontoffset = yspacing;
     for (size_t cnt = 0; cnt < NUMFONT && ctxt.skipToColon(true); ++cnt)
     {
-        char chr = ctxt.readCharLit();
-        int xspacing = ctxt.readInt();
+        char chr = ctxt.readCharacterLiteral();
+        int xspacing = ctxt.readIntegerLiteral();
         if ( asciitofont[( Uint8 )chr] == 255 ) asciitofont[( Uint8 )chr] = ( Uint8 ) cnt;
         if ( stt_x + xspacing + 1 > 255 )
         {

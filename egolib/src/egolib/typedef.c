@@ -33,30 +33,6 @@ static void va_non_fatal_assert( const char *format, va_list args );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-const char * undo_idsz( IDSZ idsz )
-{
-    static char value_string[5] = {"NONE"};
-
-    if ( idsz == IDSZ_NONE )
-    {
-        strncpy( value_string, "NONE", SDL_arraysize( value_string ) );
-    }
-    else
-    {
-        // Bad! both function return and return to global variable!
-        value_string[0] = (( idsz >> 15 ) & 0x1F ) + 'A';
-        value_string[1] = (( idsz >> 10 ) & 0x1F ) + 'A';
-        value_string[2] = (( idsz >> 5 ) & 0x1F ) + 'A';
-        value_string[3] = (( idsz ) & 0x1F ) + 'A';
-        value_string[4] = 0;
-    }
-
-    return value_string;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void pair_to_range( IPair pair, FRange * prange )
 {
     /// @author ZZ

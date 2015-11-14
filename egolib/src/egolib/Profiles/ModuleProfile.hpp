@@ -26,6 +26,7 @@
 #endif
 
 #include "egolib/typedef.h"
+#include "egolib/IDSZ.hpp"
 #include "egolib/Renderer/Texture.hpp"
 
 enum ModuleFilter : uint8_t

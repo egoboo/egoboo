@@ -25,6 +25,7 @@
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
 #include "egolib/Profiles/LocalParticleProfileRef.hpp"
+#include "egolib/IDSZ.hpp"
 
 vfs_FILE* template_open_vfs( const char * filename );
 int template_close_vfs( vfs_FILE* filetemp );

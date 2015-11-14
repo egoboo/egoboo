@@ -124,11 +124,11 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
             info.pname = nullptr;
         }
 
-        info.slot = ctxt.readInt();
+        info.slot = ctxt.readIntegerLiteral();
 
-        info.pos[kX] = ctxt.readReal() * Info<float>::Grid::Size();
-        info.pos[kY] = ctxt.readReal() * Info<float>::Grid::Size();
-        info.pos[kZ] = ctxt.readReal() * Info<float>::Grid::Size();
+        info.pos[kX] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
+        info.pos[kY] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
+        info.pos[kZ] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
 
         info.facing = FACE_NORTH;
         info.attach = ATTACH_NONE;
@@ -149,7 +149,7 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
                                                     "invalid enumeration element");
             }
         };
-        info.money = ctxt.readInt();
+        info.money = ctxt.readIntegerLiteral();
 
         //If the skin type is a '?' character then it means random skin else it's an integer
         ctxt.skipWhiteSpaces();
@@ -158,12 +158,12 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
             ctxt.next();
         }
         else {
-            info.skin = ctxt.readInt();
+            info.skin = ctxt.readIntegerLiteral();
         }
 
-        info.passage = ctxt.readInt();
-        info.content = ctxt.readInt();
-        info.level = ctxt.readInt();
+        info.passage = ctxt.readIntegerLiteral();
+        info.content = ctxt.readIntegerLiteral();
+        info.level = ctxt.readIntegerLiteral();
         info.stat = ctxt.readBool();
 
         ctxt.readPrintable();   ///< BAD! Unused ghost value
@@ -204,7 +204,7 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
             throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
                                                 "syntax error");
         }
-        int slot = ctxt.readInt();
+        int slot = ctxt.readIntegerLiteral();
         // Store the data.
         strncpy(info.spawn_coment, who.c_str(), SDL_arraysize(info.spawn_coment));
         info.slot = slot;

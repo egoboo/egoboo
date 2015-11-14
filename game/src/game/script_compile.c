@@ -25,6 +25,19 @@
 #include "game/game.h"
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
+#include "egolib/Log/Entry.hpp"
+
+namespace Log {
+struct CompilerEntry : Entry {
+	std::string _scriptName;
+	int _scriptLine;
+	CompilerEntry(Level level, const std::string& file, int line, const std::string& function,
+		          const std::string& scriptName, int scriptLine)
+		: Entry(level, file, line, function), _scriptName(scriptName), _scriptLine(scriptLine) {
+		getSink() << ": " << scriptName << ":" << scriptLine << ": ";
+	}
+};
+}
 
 static bool load_ai_codes_vfs();
 
@@ -328,8 +341,10 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t *pscript )
 
     if ( _line_buffer_count > 0  && tabs_warning_needed )
     {
-		Log::get().message("%s:%d:%s: compilation error - tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", \
-			               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+		e << "compilation error - tab character used to define spacing will cause an error `"
+		  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+		Log::get() << e;
     }
 
     // scan to the beginning of the next line
@@ -379,16 +394,20 @@ int parser_state_t::get_indentation(script_info_t *pscript )
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-		Log::get().message("%s:%d:%s: compilation error - invalid indentation \"%s\"(%d) - \"%s\"\n", \
-			               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+		e << "invalid indention - number of spaces must be even - \n"
+			<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+		Log::get() << e;
         _error = true;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-		Log::get().message("%s:%d:%s: compilation error - too many levels of indentation \"%s\"(%d) - \"%s\"\n", \
-			               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+		e << "invalid indention - too many spaces - \n"
+	      << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+		Log::get() << e;
         _error = true;
         cnt = 15;
     }
@@ -512,8 +531,10 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         }
         else
         {
-			Log::get().message("%s:%d:%s: compilation error - the string in line %d is too long\n", \
-				               __FILE__, __LINE__, __FUNCTION__, tok.getLine() );
+			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+			e << "string literal is too long - \n"
+	          << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+			Log::get() << e;
         }
     }
     else
@@ -584,9 +605,10 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         if ( CSTR_END == tok.szWord[1] || C_DOUBLE_QUOTE_CHAR == tok.szWord[1] )
         {
             // some kind of empty string
-
-			Log::get().message("%s:%d:%s: compilation error - the string in line %d is empty\n.", \
-				               __FILE__, __LINE__, __FUNCTION__, tok.getLine() );
+			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+			e << "string literal is empty - \n"
+				<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+			Log::get() << e;
 
             // some kind of error
             parsed = true;
@@ -634,8 +656,10 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
             // Failed to load object!
             if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
             {
-				Log::get().message("%s:%d:%s: compialtion error - failed to load object: %s through an AI script. %s (line %d)\n", \
-					               __FILE__, __LINE__, __FUNCTION__, tok.szWord, pscript->_name.c_str(), tok.getLine() );
+				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+				e << "failed to load object " << tok.szWord << " - \n"
+					<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+				Log::get() << e;
             }
 
             tok.setType(Token::Type::Constant);
@@ -678,8 +702,10 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     // We couldn't figure out what this is, throw out an error code
     if ( !parsed )
     {
-		Log::get().message("%s:%d:%s: compilation error - \"%s\"(%d) - unknown opcode \"%s\"\n", __FILE__, __LINE__, __FUNCTION__, \
-			               pscript->_name.c_str(), tok.getLine(), tok.szWord );
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+		e << "unknown opcode " << tok.szWord << " - \n"
+		  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+		Log::get() << e;
 
         // put the token in an error state
         tok.setValue(-1);
@@ -713,7 +739,10 @@ void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_i
     }
     else
     {
-		Log::get().message( "SCRIPT ERROR: %s() - emit_opcode() - Script index larger than array\n", __FUNCTION__ );
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+		e << "script index larger than array - \n"
+			<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+		Log::get() << e;
     }
 
 }
@@ -786,8 +815,9 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
             parseposition = parse_token(_token, ppro, pscript, parseposition );  // EQUALS
 			if ( Token::Type::Operator != _token.getType() || 0 != strcmp( _token.szWord, "=" ) )
             {
-				Log::get().message("%s:%d:%s: invalid equation \"%s\"(%d) - \"%s\"\n", \
-					               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+				e << "invalid equation - \n"
+					<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
             }
 
             //------------------------------
@@ -805,8 +835,10 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
             else if ( Token::Type::Operator != _token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-				Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
-					               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+				e << "invalid operand " << _token.szWord << " - \n"
+					<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+				Log::get() << e;
 
                 emit_opcode( _token, 0, pscript );
                 operands++;
@@ -821,8 +853,10 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
                 if ( Token::Type::Operator != _token.getType() )
                 {
                     // problem with the loop
-					Log::get().message("%s:%d:%s: compilation error - expected an operator \"%s\"(%d) - \"%s\"\n", \
-						               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+					Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+					e << "expected operator - \n"
+						<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+					Log::get() << e;
                     break;
                 }
 

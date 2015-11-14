@@ -112,6 +112,9 @@
     <Filter Include="Source Files\Mesh">
       <UniqueIdentifier>{54e24a2e-2a67-499d-9159-ec59c3dc1b89}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Log">
+      <UniqueIdentifier>{eb675241-8df7-4d8d-bef3-e6dd577e491f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -925,6 +928,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Rect2.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Log\Entry.hpp">
+      <Filter>Header Files\Log</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

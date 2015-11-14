@@ -1971,7 +1971,7 @@ int SDL_main( int argcnt, char* argtext[] )
     if ( argcnt < 2 || argcnt > 3 )
     {
         printf( "USAGE: CARTMAN [PATH] MODULE ( without .MOD )\n\n" );
-        exit( 0 );
+		return EXIT_FAILURE;
     }
     else if ( argcnt < 3 )
     {
@@ -2008,7 +2008,7 @@ int SDL_main( int argcnt, char* argtext[] )
 		std::ostringstream os;
 		os << __FUNCTION__ << ": cannot load module `" << modulename << "`" << std::endl;
 		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
+		return EXIT_FAILURE;
     }
 
     fill_fpstext();                     // Make the FPS text

@@ -71,60 +71,60 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     profile->_set[eve_t::SETDAMAGETYPE].value = vfs_get_damage_type(ctxt);
 
     profile->_set[eve_t::SETNUMBEROFJUMPS].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETNUMBEROFJUMPS].value = ctxt.readInt();
+    profile->_set[eve_t::SETNUMBEROFJUMPS].value = ctxt.readIntegerLiteral();
 
     profile->_set[eve_t::SETLIFEBARCOLOR].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETLIFEBARCOLOR].value = ctxt.readInt();
+    profile->_set[eve_t::SETLIFEBARCOLOR].value = ctxt.readIntegerLiteral();
 
     profile->_set[eve_t::SETMANABARCOLOR].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETMANABARCOLOR].value = ctxt.readInt();
+    profile->_set[eve_t::SETMANABARCOLOR].value = ctxt.readIntegerLiteral();
 
     profile->_set[eve_t::SETSLASHMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETSLASHMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDSLASHRESIST].value = ctxt.readReal();
+    profile->_add[eve_t::ADDSLASHRESIST].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETCRUSHMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETCRUSHMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDCRUSHRESIST].value = ctxt.readReal();
+    profile->_add[eve_t::ADDCRUSHRESIST].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETPOKEMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETPOKEMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDPOKERESIST].value = ctxt.readReal();
+    profile->_add[eve_t::ADDPOKERESIST].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETHOLYMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETHOLYMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDHOLYRESIST].value = ctxt.readReal();
+    profile->_add[eve_t::ADDHOLYRESIST].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETEVILMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETEVILMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDEVILRESIST].value = ctxt.readReal();
+    profile->_add[eve_t::ADDEVILRESIST].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETFIREMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETFIREMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDFIRERESIST].value = ctxt.readReal();
+    profile->_add[eve_t::ADDFIRERESIST].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETICEMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETICEMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDICERESIST].value = ctxt.readReal();
+    profile->_add[eve_t::ADDICERESIST].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETZAPMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETZAPMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDZAPRESIST].value = ctxt.readReal();
+    profile->_add[eve_t::ADDZAPRESIST].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETFLASHINGAND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETFLASHINGAND].value = ctxt.readInt();
+    profile->_set[eve_t::SETFLASHINGAND].value = ctxt.readIntegerLiteral();
 
     profile->_set[eve_t::SETLIGHTBLEND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETLIGHTBLEND].value = ctxt.readInt();
+    profile->_set[eve_t::SETLIGHTBLEND].value = ctxt.readIntegerLiteral();
 
     profile->_set[eve_t::SETALPHABLEND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETALPHABLEND].value = ctxt.readInt();
+    profile->_set[eve_t::SETALPHABLEND].value = ctxt.readIntegerLiteral();
 
     profile->_set[eve_t::SETSHEEN].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETSHEEN].value = ctxt.readInt();
+    profile->_set[eve_t::SETSHEEN].value = ctxt.readIntegerLiteral();
 
     profile->_set[eve_t::SETFLYTOHEIGHT].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETFLYTOHEIGHT].value = ctxt.readInt();
+    profile->_set[eve_t::SETFLYTOHEIGHT].value = ctxt.readIntegerLiteral();
 
     profile->_set[eve_t::SETWALKONWATER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETWALKONWATER].value = ctxt.readBool();
@@ -139,7 +139,7 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     else profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_NORMAL;
 
     profile->_set[eve_t::SETCOSTFOREACHMISSILE].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETCOSTFOREACHMISSILE].value = ctxt.readReal();
+    profile->_set[eve_t::SETCOSTFOREACHMISSILE].value = ctxt.readRealLiteral();
 
     profile->_set[eve_t::SETMORPH].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETMORPH].value = true;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
@@ -184,16 +184,16 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     {
         switch(ctxt.readIDSZ())
         {
-            case MAKE_IDSZ('A', 'M', 'O', 'U'): profile->contspawn._amount = ctxt.readInt(); break;
+            case MAKE_IDSZ('A', 'M', 'O', 'U'): profile->contspawn._amount = ctxt.readIntegerLiteral(); break;
             case MAKE_IDSZ('T', 'Y', 'P', 'E'): profile->contspawn._lpip = vfs_get_local_particle_profile_ref(ctxt); break;
-            case MAKE_IDSZ('T', 'I', 'M', 'E'): profile->contspawn._delay = ctxt.readInt(); break;
-            case MAKE_IDSZ('F', 'A', 'C', 'E'): profile->contspawn._facingAdd = ctxt.readInt(); break;
-            case MAKE_IDSZ('S', 'E', 'N', 'D'): profile->endsound_index = ctxt.readInt(); break;
-            case MAKE_IDSZ('S', 'T', 'A', 'Y'): profile->_owner._stay = (0 != ctxt.readInt()); break;
-            case MAKE_IDSZ('O', 'V', 'E', 'R'): profile->spawn_overlay = (0 != ctxt.readInt()); break;
-            case MAKE_IDSZ('D', 'E', 'A', 'D'): profile->_target._stay = (0 != ctxt.readInt()); break;
-            case MAKE_IDSZ('C', 'K', 'U', 'R'): profile->seeKurses = ctxt.readInt(); break;
-            case MAKE_IDSZ('D', 'A', 'R', 'K'): profile->darkvision = ctxt.readInt(); break;
+            case MAKE_IDSZ('T', 'I', 'M', 'E'): profile->contspawn._delay = ctxt.readIntegerLiteral(); break;
+            case MAKE_IDSZ('F', 'A', 'C', 'E'): profile->contspawn._facingAdd = ctxt.readIntegerLiteral(); break;
+            case MAKE_IDSZ('S', 'E', 'N', 'D'): profile->endsound_index = ctxt.readIntegerLiteral(); break;
+            case MAKE_IDSZ('S', 'T', 'A', 'Y'): profile->_owner._stay = (0 != ctxt.readIntegerLiteral()); break;
+            case MAKE_IDSZ('O', 'V', 'E', 'R'): profile->spawn_overlay = (0 != ctxt.readIntegerLiteral()); break;
+            case MAKE_IDSZ('D', 'E', 'A', 'D'): profile->_target._stay = (0 != ctxt.readIntegerLiteral()); break;
+            case MAKE_IDSZ('C', 'K', 'U', 'R'): profile->seeKurses = ctxt.readIntegerLiteral(); break;
+            case MAKE_IDSZ('D', 'A', 'R', 'K'): profile->darkvision = ctxt.readIntegerLiteral(); break;
             case MAKE_IDSZ('N', 'A', 'M', 'E'): profile->setEnchantName(ctxt.readName()); break;
             default: /*TODO: log error*/ break;
         }

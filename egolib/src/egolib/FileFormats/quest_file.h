@@ -23,7 +23,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
-
+#include "egolib/IDSZ.hpp"
 #include "egolib/FileFormats/configfile.h"
 
 //--------------------------------------------------------------------------------------------
