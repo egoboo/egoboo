@@ -234,7 +234,7 @@ void Enchantment::update()
                 ParticleHandler::get().spawnLocalParticle(target->getPosition(), facing, _spawnerProfileID, _enchantProfile->contspawn._lpip,
                                                           INVALID_CHR_REF, GRIP_LAST, 
                                                           owner != nullptr ? owner->getTeam().toRef() : static_cast<TEAM_REF>(Team::TEAM_DAMAGE), 
-                                                          owner != nullptr ? owner->getCharacterID() : INVALID_CHR_REF,
+                                                          owner != nullptr ? owner->getObjRef().get() : INVALID_CHR_REF,
                                                           INVALID_PRT_REF, i, INVALID_CHR_REF);
 
                 facing += _enchantProfile->contspawn._facingAdd;
@@ -348,7 +348,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         if (overlay)
         {
             _overlay = overlay;                             //Kill this character on end...
-            overlay->ai.target   = target->getCharacterID();
+            overlay->ai.target   = target->getObjRef().get();
             overlay->is_overlay  = true;
             overlay->ai.state = _enchantProfile->spawn_overlay; // ??? WHY DO THIS ???
 
@@ -469,13 +469,13 @@ std::shared_ptr<Object> Enchantment::getOwner() const
     return _owner.lock();
 }
 
-CHR_REF Enchantment::getOwnerID() const
+ObjectRef Enchantment::getOwnerRef() const
 {
     std::shared_ptr<Object> owner = _owner.lock();
     if(!owner || owner->isTerminated()) {
-        return INVALID_CHR_REF;
+        return ObjectRef::Invalid;
     }
-    return owner->getCharacterID();
+    return owner->getObjRef();
 }
 
 void Enchantment::setBoostValues(float ownerManaSustain, float ownerLifeSustain, float targetManaDrain, float targetLifeDrain)

@@ -105,7 +105,7 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
     }
 
     // Add!
-    _lst.emplace_back(obj.getCharacterID(), INVALID_PRT_REF);
+    _lst.emplace_back(obj.getObjRef().get(), INVALID_PRT_REF);
 
     // Notify it that it is in a do list.
     obj.inst.indolist = true;

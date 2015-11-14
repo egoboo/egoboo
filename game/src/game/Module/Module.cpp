@@ -380,7 +380,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     }
 
     // AI stuff
-    ai_state_t::spawn( pchr->ai, pchr->getCharacterID(), pchr->getProfileID(), getTeamList()[team].getMorale() );
+    ai_state_t::spawn( pchr->ai, pchr->getObjRef().get(), pchr->getProfileID(), getTeamList()[team].getMorale() );
 
     // Team stuff
     pchr->team     = team;
@@ -459,7 +459,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
         ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
-                            pchr->getCharacterID(), GRIP_LAST + tnc, pchr->team, pchr->getCharacterID(), INVALID_PRT_REF, tnc);
+                            pchr->getObjRef().get(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef().get(), INVALID_PRT_REF, tnc);
     }
 
     // is the object part of a shop's inventory?
@@ -467,7 +467,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     {
         // Items that are spawned inside shop passages are more expensive than normal
 
-        CHR_REF shopOwner = getShopOwner(pchr->getPosX(), pchr->getPosY());
+        ObjectRef shopOwner = getShopOwner(pchr->getPosX(), pchr->getPosY());
         if(shopOwner != Passage::SHOP_NOOWNER) {
             pchr->isshopitem = true;               // Full value
             pchr->iskursed   = false;              // Shop items are never kursed

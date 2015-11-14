@@ -414,12 +414,12 @@ bool game_finish_module();
 bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
 
 /// Exporting stuff
-egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool is_local );
+egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_obj_index, bool is_local );
 egolib_rv export_all_players( bool require_local );
 
 // save character functions
-bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
-bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
+bool  export_one_character_quest_vfs( const char *szSaveName, ObjectRef character );
+bool  export_one_character_name_vfs( const char *szSaveName, ObjectRef character );
 
 /// Messages
 void show_stat( int statindex );
@@ -431,19 +431,23 @@ void show_magic_status( int statindex );
 void reset_end_text();
 
 /// Particles
-int     number_of_attached_particles( const CHR_REF character );
-int     spawn_bump_particles( const CHR_REF character, const PRT_REF particle );
-void    disaffirm_attached_particles( const CHR_REF character );
-int     reaffirm_attached_particles( const CHR_REF character );
+/// @brief Get the number of particles attached to an object.
+int number_of_attached_particles(ObjectRef objectRef);
+/// @brief Make sure an object has no particles attached
+/// @return the number of particles removed
+void    disaffirm_attached_particles(ObjectRef objectRef);
+/// @brief Make sure an object has all particles attached
+/// @return the number of particles added
+int reaffirm_attached_particles(ObjectRef objectRef);
 
 /// Player
 void   set_one_player_latch( const PLA_REF player );
-bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice );
+bool add_player(ObjectRef objectRef, const PLA_REF playerRef, input_device_t *device);
 
 /// AI targeting
-bool  chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const BIT_FIELD targeting_bits );
-CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
-CHR_REF prt_find_target( const Vector3f& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget, FACING_T *targetAngle);
+bool  chr_check_target( Object * psrc, ObjectRef iObjectTest, IDSZ idsz, const BIT_FIELD targeting_bits );
+ObjectRef chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
+ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, ObjectRef dontTarget, ObjectRef oldTarget, FACING_T *targetAngle);
 
 /// object initialization
 void  free_all_objects();
@@ -456,11 +460,11 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );
 
-bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem );
+bool do_shop_drop( ObjectRef idropper, ObjectRef iitem );
 
-bool do_shop_buy( const CHR_REF ipicker, const CHR_REF ichr );
-bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem );
-bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
+bool do_shop_buy( ObjectRef ipicker, ObjectRef ichr );
+bool do_shop_steal( ObjectRef ithief, ObjectRef iitem );
+bool can_grab_item_in_shop( ObjectRef ichr, ObjectRef iitem );
 
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );

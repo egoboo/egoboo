@@ -26,7 +26,7 @@ void InventorySlot::draw()
 
 
     if(item) {
-        icon_ref = chr_get_txtexture_icon_ref(item->getCharacterID());
+        icon_ref = chr_get_txtexture_icon_ref(item->getObjRef().get());
     }
     else {
         icon_ref = TextureManager::get().getTexture("mp_data/nullicon").get();
@@ -87,7 +87,7 @@ bool InventorySlot::notifyMouseClicked(const int button, const int x, const int 
     if(pchr->isAlive() && pchr->inst.action_ready && 0 == pchr->reload_timer)
     {
         //put it away and swap with any existing item
-        Inventory::swap_item( pchr->getCharacterID(), _slotNumber, button == SDL_BUTTON_LEFT ? SLOT_LEFT : SLOT_RIGHT, false );
+        Inventory::swap_item( pchr->getObjRef(), _slotNumber, button == SDL_BUTTON_LEFT ? SLOT_LEFT : SLOT_RIGHT, false );
 
         // Make it take a little time
         chr_play_action( pchr.get(), ACTION_MG, false );

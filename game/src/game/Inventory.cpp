@@ -15,14 +15,12 @@ Inventory::Inventory() :
     //ctor
 }
 
-CHR_REF Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly)
-{
-    if (!pobj || pobj->isTerminated())
-    {
-        return INVALID_CHR_REF;
-    }
+ObjectRef Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly) {
+	if (!pobj || pobj->isTerminated()) {
+		return ObjectRef::Invalid;
+	}
 
-    CHR_REF result = INVALID_CHR_REF;
+    ObjectRef result = ObjectRef::Invalid;
 
     for(const std::shared_ptr<Object> pitem : pobj->getInventory().iterate())
     {
@@ -30,7 +28,7 @@ CHR_REF Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly)
 
         if (pitem->getProfile()->hasTypeIDSZ(idsz) && matches_equipped)
         {
-            result = pitem->getCharacterID();
+            result = pitem->getObjRef();
             break;
         }
     }
@@ -38,91 +36,94 @@ CHR_REF Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly)
     return result;
 }
 
-CHR_REF Inventory::findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly)
+ObjectRef Inventory::findItem(ObjectRef iowner, IDSZ idsz, bool equippedOnly)
 {
-    if (!_currentModule->getObjectHandler().exists(iobj))
+    if (!_currentModule->getObjectHandler().exists(iowner))
     {
-        return INVALID_CHR_REF;
+        return ObjectRef::Invalid;
     }
-    return Inventory::findItem(_currentModule->getObjectHandler().get(iobj), idsz, equippedOnly);
+    return findItem(_currentModule->getObjectHandler().get(iowner), idsz, equippedOnly);
 }
 
 //--------------------------------------------------------------------------------------------
-bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse )
+bool Inventory::add_item( ObjectRef iowner, ObjectRef iitem, uint8_t inventorySlot, bool ignoreKurse )
 {
-    Object *pchr;
-    int newammo;
+    // Are owner and item valid?
+	if (!_currentModule->getObjectHandler().exists(iowner) || !_currentModule->getObjectHandler().exists(iitem)) {
+		return false;
+	}
+	Object *powner = _currentModule->getObjectHandler().get(iowner);
+    const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[iitem];
 
-    //valid character?
-    if ( !_currentModule->getObjectHandler().exists( ichr ) || !_currentModule->getObjectHandler().exists( item ) ) return false;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-    const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
-
-    //try get the first free slot found?
-    if(inventory_slot >= pchr->getInventory().getMaxItems()) {
+    // Does the owner have free slot in her inventory?
+    if (inventorySlot >= powner->getInventory().getMaxItems()) {
         return false;
     }
 
-    //don't override existing items
-    if ( pchr->getInventory().getItem(inventory_slot) ) return false;
+    // If there is an item in the slot, do nothing.
+	if (powner->getInventory().getItem(inventorySlot)) {
+		return false;
+	}
 
-    // don't allow sub-inventories
-    if ( pitem->isInsideInventory() ) return false;
+    // Don't allow sub-inventories.
+	if (pitem->isInsideInventory()) {
+		return false;
+	}
 
-    //kursed?
-    if ( pitem->iskursed && !ignorekurse )
-    {
-        // Flag the item as not put away
-        SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->isPlayer() ) DisplayMsg_printf("%s is sticky...", pitem->getName().c_str());
-        return false;
-    }
+    // Kursed?
+	if (pitem->iskursed && !ignoreKurse)
+	{
+		// Flag the item as not put away.
+		SET_BIT(pitem->ai.alert, ALERTIF_NOTPUTAWAY);
+		if (powner->isPlayer()) DisplayMsg_printf("%s is sticky...", pitem->getName().c_str());
+		return false;
+	}
 
-    //too big item?
-    if ( pitem->getProfile()->isBigItem() )
-    {
-        SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->isPlayer() ) DisplayMsg_printf("%s is too big to be put away...", pitem->getName().c_str());
-        return false;
-    }
+    // too big item?
+	if (pitem->getProfile()->isBigItem())
+	{
+		SET_BIT(pitem->ai.alert, ALERTIF_NOTPUTAWAY);
+		if (powner->isPlayer()) DisplayMsg_printf("%s is too big to be put away...", pitem->getName().c_str());
+		return false;
+	}
 
-    //put away inhand item
-    CHR_REF stack = Inventory::hasStack( item, ichr );
+    // Check if item can be stacked on other items.
+    CHR_REF stack = Inventory::hasStack(iitem.get(), iowner.get());
     if ( _currentModule->getObjectHandler().exists( stack ) )
     {
-        // We found a similar, stackable item in the pack
-        Object  * pstack      = _currentModule->getObjectHandler().get( stack );
+        // We found a similar, stackable item in the inventory.
+        Object *pstack = _currentModule->getObjectHandler().get( stack );
 
-        // reveal the name of the item or the stack
-        if ( pitem->nameknown || pstack->getProfile()->isNameKnown() )
-        {
-            pitem->nameknown  = true;
-            pstack->nameknown = true;
-        }
+        // Reveal the name of the item or the stack.
+		if (pitem->nameknown || pstack->getProfile()->isNameKnown())
+		{
+			pitem->nameknown = true;
+			pstack->nameknown = true;
+		}
 
-        // reveal the usage of the item or the stack
-        if ( pitem->getProfile()->isUsageKnown() || pstack->getProfile()->isUsageKnown() )
-        {
-            pitem->getProfile()->makeUsageKnown();
-            pstack->getProfile()->makeUsageKnown();
-        }
+        // Reveal the usage of the item or the stack.
+		if (pitem->getProfile()->isUsageKnown() || pstack->getProfile()->isUsageKnown())
+		{
+			pitem->getProfile()->makeUsageKnown();
+			pstack->getProfile()->makeUsageKnown();
+		}
 
-        // add the item ammo to the stack
-        newammo = pitem->ammo + pstack->ammo;
-        if ( newammo <= pstack->ammomax )
-        {
-            // All transfered, so kill the in hand item
-            pstack->ammo = newammo;
-            
-            pitem->requestTerminate();
-            return true;
-        }
+        // Add the item ammo to the stack.
+        int newammo = pitem->ammo + pstack->ammo;
+		if (newammo <= pstack->ammomax)
+		{
+			// All transfered, so kill the in hand item
+			pstack->ammo = newammo;
+
+			pitem->requestTerminate();
+			return true;
+		}
         else
         {
             // Only some were transfered,
             pitem->ammo     = pitem->ammo + pstack->ammo - pstack->ammomax;
             pstack->ammo    = pstack->ammomax;
-            SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
+            SET_BIT( powner->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
         }
     }
     else
@@ -131,7 +132,7 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
         // Make sure we have room for another item
         //if ( pchr_pack->count >= Inventory::MAXNUMINPACK )
         // {
-        //    SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
+        //    SET_BIT( powner->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
         //    return false;
         //}
 
@@ -143,15 +144,15 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
 
         //now put the item into the inventory
         pitem->attachedto = INVALID_CHR_REF;
-        pitem->inwhich_inventory = ichr;
-        pchr->getInventory()._items[inventory_slot] = pitem;
+        pitem->inwhich_inventory = iowner.get();
+        powner->getInventory()._items[inventorySlot] = pitem;
 
 
         // fix the flags
-        if ( pitem->getProfile()->isEquipment() )
-        {
-            SET_BIT( pitem->ai.alert, ALERTIF_PUTAWAY );  // same as ALERTIF_ATLASTWAYPOINT;
-        }
+		if (pitem->getProfile()->isEquipment())
+		{
+			SET_BIT(pitem->ai.alert, ALERTIF_PUTAWAY);  // same as ALERTIF_ATLASTWAYPOINT;
+		}
 
         //@todo: add in the equipment code here
     }
@@ -159,24 +160,24 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     return true;
 }
 
-bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse )
+bool Inventory::swap_item( ObjectRef iobj, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse )
 {
     //valid character?
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[ichr];
-    if(!pchr) {
+    const std::shared_ptr<Object> &pobj = _currentModule->getObjectHandler()[iobj];
+    if(!pobj) {
         return false;
     }
 
     //Validate slot number
-    if(inventory_slot >= pchr->getInventory().getMaxItems()) {
+    if(inventory_slot >= pobj->getInventory().getMaxItems()) {
         return false;
     }
 
     // Make sure everything is hunkydori
-    if ( pchr->isItem() || pchr->isInsideInventory() ) return false;
+    if ( pobj->isItem() || pobj->isInsideInventory() ) return false;
 
-    const std::shared_ptr<Object> &inventory_item = pchr->getInventory().getItem(inventory_slot);
-    const std::shared_ptr<Object> &item           = _currentModule->getObjectHandler()[pchr->holdingwhich[grip_off]];
+    const std::shared_ptr<Object> &inventory_item = pobj->getInventory().getItem(inventory_slot);
+    const std::shared_ptr<Object> &item           = _currentModule->getObjectHandler()[pobj->holdingwhich[grip_off]];
 
     //Nothing to do?
     if(!item && !inventory_item) {
@@ -189,7 +190,7 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
         if(item && item->iskursed) {
             // Flag the last found_item as not put away
             SET_BIT( item->ai.alert, ALERTIF_NOTPUTAWAY );  // Same as ALERTIF_NOTTAKENOUT
-            if ( pchr->isPlayer() ) DisplayMsg_printf("%s is sticky...", item->getName().c_str());
+            if ( pobj->isPlayer() ) DisplayMsg_printf("%s is sticky...", item->getName().c_str());
             return false;
 
         }
@@ -197,7 +198,7 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
         if(inventory_item && inventory_item->iskursed) {
             // Flag the last found_item as not removed
             SET_BIT( inventory_item->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-            if ( pchr->isPlayer() ) DisplayMsg_printf( "%s won't go out!", inventory_item->getName().c_str() );
+            if ( pobj->isPlayer() ) DisplayMsg_printf( "%s won't go out!", inventory_item->getName().c_str() );
             return false;
 
         }
@@ -206,19 +207,19 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
     //remove existing item
     if (inventory_item)
     {
-        pchr->getInventory().removeItem(inventory_item, ignorekurse);
+        pobj->getInventory().removeItem(inventory_item, ignorekurse);
     }
 
     //put in the new item
     if (item)
     {
-        Inventory::add_item(pchr->getCharacterID(), item->getCharacterID(), inventory_slot, ignorekurse);
+        add_item(pobj->getObjRef(), item->getObjRef(), inventory_slot, ignorekurse);
     }
 
     //now put the inventory item into the character's hand
     if (inventory_item)
     {
-        attach_character_to_mount( inventory_item->getCharacterID(), pchr->getCharacterID(), grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
+        attach_character_to_mount( inventory_item->getObjRef(), pobj->getObjRef(), grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
 
         //fix flags
         UNSET_BIT( inventory_item->ai.alert, ALERTIF_GRABBED );
@@ -228,31 +229,37 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
     return true;
 }
 
-bool Inventory::remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse )
+bool Inventory::remove_item( ObjectRef iholder, const size_t inventory_slot, const bool ignorekurse )
 {
-    Object *pholder;
+    // Ignore invalid holders.
+	if (!_currentModule->getObjectHandler().exists(iholder)) {
+		return false;
+	}
+	Object *pholder = _currentModule->getObjectHandler().get(iholder);
 
-    //valid char?
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
-    pholder = _currentModule->getObjectHandler().get( ichr );
+    // Ignore invalid slots indices.
+	if (inventory_slot >= pholder->getInventory().getMaxItems()) {
+		return false;
+	}
 
-    //ignore invalid slots
-    if ( inventory_slot >= pholder->getInventory().getMaxItems() )  return false;
-
-    //valid item?
+    // Is there an item?
     const std::shared_ptr<Object> &pitem = pholder->getInventory().getItem(inventory_slot);
-    if ( !pitem ) return false;
+	if (!pitem) {
+		return false;
+	}
 
-    //is it kursed?
+    // Is the item kursed?
     if ( pitem->iskursed && !ignorekurse )
     {
-        // Flag the last found_item as not removed
-        SET_BIT( pitem->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-        if ( pholder->isPlayer() ) DisplayMsg_printf( "%s won't go out!", pitem->getName().c_str() );
-        return false;
+        // Flag the last found_item as not removed.
+        SET_BIT(pitem->ai.alert, ALERTIF_NOTTAKENOUT);  // Same as ALERTIF_NOTPUTAWAY.
+		if (pholder->isPlayer()) {
+			DisplayMsg_printf("%s won't go out!", pitem->getName().c_str());
+		}
+		return false;
     }
 
-    //no longer in an inventory
+    // The item is no longer in an inventory.
     pitem->inwhich_inventory = INVALID_CHR_REF;
     pholder->getInventory()._items[inventory_slot].reset();
 
@@ -299,7 +306,7 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
 
         if ( found )
         {
-            istack = pstack->getCharacterID();
+            istack = pstack->getObjRef().get();
             break;
         }
     }
@@ -307,13 +314,13 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
     return istack;
 }
 
-CHR_REF Inventory::getItemID(const size_t slotNumber) const
+ObjectRef Inventory::getItemID(const size_t slotNumber) const
 {
     std::shared_ptr<Object> item = getItem(slotNumber);
     if(!item) {
-        return INVALID_CHR_REF;
+        return ObjectRef::Invalid;
     }
-    return item->getCharacterID();
+    return item->getObjRef();
 }
 
 std::shared_ptr<Object> Inventory::getItem(const size_t slotNumber) const

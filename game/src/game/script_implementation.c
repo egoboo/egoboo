@@ -554,26 +554,22 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
     /// @author ZZ
     /// @details This function appends a message to the end-module text
 
-    size_t length;
-    CHR_REF ichr;
-    char * dst, * dst_end;
-
     Uint8 returncode = true;
 
-    if ( nullptr == ( pchr ) ) return false;
+    if ( nullptr == pchr) return false;
 
     if ( !pchr->getProfile()->isValidMessageID( message_index ) ) return false;
 
-    ichr           = GET_INDEX_PCHR( pchr );
-    length = pchr->getProfile()->getMessage(message_index).length();
+    auto objRef = GET_INDEX_PCHR( pchr );
+    size_t length = pchr->getProfile()->getMessage(message_index).length();
 
-    dst     = endtext + endtext_carat;
-    dst_end = endtext + MAXENDTEXT - 1;
+    char *dst     = endtext + endtext_carat;
+    char *dst_end = endtext + MAXENDTEXT - 1;
 
     char buffer[256];
     strncpy(buffer, pchr->getProfile()->getMessage(message_index).c_str(), 256);
 
-    expand_escape_codes( ichr, pstate, buffer, buffer + length, dst, dst_end );
+    expand_escape_codes(objRef.get(), pstate, buffer, buffer + length, dst, dst_end);
     endtext_carat = strlen( endtext );
 
     str_add_linebreaks( endtext, strlen( endtext ), 30 );
@@ -726,7 +722,7 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
             if ( !use_line_of_sight || !line_of_sight_info_t::blocked( &los ) )
             {
                 //found a valid weapon!
-                best_target = pweapon->getCharacterID();
+                best_target = pweapon->getObjRef().get();
                 best_dist = dist;
             }
         }

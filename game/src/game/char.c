@@ -162,7 +162,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
                     //1% chance per Intellect
                     if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::INTELLECT)) {
-                        chr_make_text_billboard(pchr->getCharacterID(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Billboard::Flags::All);
+                        chr_make_text_billboard(pchr->getObjRef(), "Wand Mastery!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 3, Billboard::Flags::All);
                     }
                     else {
                         pweapon->ammo--;  // Ammo usage
@@ -182,7 +182,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 //1% chance per Agility
                 if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::AGILITY) && pweapon->ammo > 0) {
                     NR_OF_ATTACK_PARTICLES = 2;
-                    chr_make_text_billboard(pchr->getCharacterID(), "Double Shot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);                    
+                    chr_make_text_billboard(pchr->getObjRef(), "Double Shot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);                    
 
                     //Spend one extra ammo
                     pweapon->ammo--;

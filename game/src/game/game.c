@@ -132,7 +132,7 @@ static void move_all_objects();
 //--------------------------------------------------------------------------------------------
 // Random Things
 //--------------------------------------------------------------------------------------------
-egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool is_local )
+egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_obj_index, bool is_local )
 {
     /// @author ZZ
     /// @details This function exports a character
@@ -246,7 +246,7 @@ egolib_rv export_all_players( bool require_local )
     bool is_local;
     PLA_REF ipla;
     int number;
-    CHR_REF character;
+    ObjectRef character;
 
     // Stop if export isnt valid
     if ( !_currentModule->isExportValid() ) return rv_fail;
@@ -257,7 +257,7 @@ egolib_rv export_all_players( bool require_local )
     // Check each player
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF item;
+        ObjectRef item;
         player_t * ppla;
         Object    * pchr;
 
@@ -269,7 +269,7 @@ egolib_rv export_all_players( bool require_local )
 
         // Is it alive?
         if ( !_currentModule->getObjectHandler().exists( ppla->index ) ) continue;
-        character = ppla->index;
+        character = ObjectRef(ppla->index);
         pchr      = _currentModule->getObjectHandler().get( character );
 
         // don't export dead characters
@@ -283,7 +283,7 @@ egolib_rv export_all_players( bool require_local )
         }
 
         // Export the left hand item
-        item = pchr->holdingwhich[SLOT_LEFT];
+        item = ObjectRef(pchr->holdingwhich[SLOT_LEFT]);
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
             export_chr_rv = export_one_character( item, character, SLOT_LEFT, is_local );
@@ -294,7 +294,7 @@ egolib_rv export_all_players( bool require_local )
         }
 
         // Export the right hand item
-        item = pchr->holdingwhich[SLOT_RIGHT];
+        item = ObjectRef(pchr->holdingwhich[SLOT_RIGHT]);
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
             export_chr_rv = export_one_character( item, character, SLOT_RIGHT, is_local );
@@ -310,7 +310,7 @@ egolib_rv export_all_players( bool require_local )
         {
             if ( number >= pchr->getInventory().getMaxItems() ) break;
 
-            export_chr_rv = export_one_character( pitem->getCharacterID(), character, number + SLOT_COUNT, is_local );
+            export_chr_rv = export_one_character( pitem->getObjRef(), character, number + SLOT_COUNT, is_local );
             if ( rv_error == export_chr_rv )
             {
                 retval = rv_error;
@@ -618,8 +618,9 @@ void game_reset_timers()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF prt_find_target( const Vector3f& pos, FACING_T facing,
-                         const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget, FACING_T *targetAngle )
+ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
+                           const PIP_REF particletype, const TEAM_REF team, 
+	                       ObjectRef donttarget, ObjectRef oldtarget, FACING_T *targetAngle )
 {
     /// @author ZF
     /// @details This is the new improved targeting system for particles. Also includes distance in the Z direction.
@@ -628,10 +629,10 @@ CHR_REF prt_find_target( const Vector3f& pos, FACING_T facing,
 
     std::shared_ptr<pip_t> ppip;
 
-    CHR_REF besttarget = INVALID_CHR_REF;
+    ObjectRef besttarget = ObjectRef::Invalid;
     float  longdist2 = max_dist2;
 
-    if ( !LOADED_PIP( particletype ) ) return INVALID_CHR_REF;
+    if ( !LOADED_PIP( particletype ) ) return ObjectRef::Invalid;
     ppip = PipStack.get_ptr( particletype );
 
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
@@ -652,7 +653,7 @@ CHR_REF prt_find_target( const Vector3f& pos, FACING_T facing,
         if ( !ppip->homing && ( 0 != pchr->damage_timer ) ) continue;
 
         // Don't retarget someone we already had or not supposed to target
-        if ( pchr->getCharacterID() == oldtarget || pchr->getCharacterID() == donttarget ) continue;
+        if ( pchr->getObjRef() == oldtarget || pchr->getObjRef() == donttarget ) continue;
 
         Team &particleTeam = _currentModule->getTeamList()[team];
 
@@ -671,7 +672,7 @@ CHR_REF prt_find_target( const Vector3f& pos, FACING_T facing,
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {
                     (*targetAngle) = angle;
-                    besttarget = pchr->getCharacterID();
+                    besttarget = pchr->getObjRef();
                     longdist2 = dist2;
                 }
             }
@@ -683,7 +684,7 @@ CHR_REF prt_find_target( const Vector3f& pos, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const BIT_FIELD targeting_bits )
+bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     bool retval = false;
 
@@ -692,7 +693,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     // Skip non-existing objects
     if (!psrc || psrc->isTerminated()) return false;
 
-    const std::shared_ptr<Object> &ptst = _currentModule->getObjectHandler()[iObjectest];
+    const std::shared_ptr<Object> &ptst = _currentModule->getObjectHandler()[iObjectTest];
     if(!ptst) {
         return false;
     }
@@ -710,7 +711,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     if ( psrc == ptst.get() && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
 
     // Don't target our holder if we are an item and being held
-    if ( psrc->isitem && psrc->attachedto == ptst->getCharacterID() ) return false;
+    if ( psrc->isitem && psrc->attachedto == ptst->getObjRef().get() ) return false;
 
     // Allow to target dead stuff?
     if ( ptst->isAlive() == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return false;
@@ -769,7 +770,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
+ObjectRef chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     /// @author ZF
     /// @details This is the new improved AI targeting algorithm. Also includes distance in the Z direction.
@@ -777,7 +778,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
 
     line_of_sight_info_t los_info;
 
-    if (!psrc || psrc->isTerminated()) return INVALID_CHR_REF;
+    if (!psrc || psrc->isTerminated()) return ObjectRef::Invalid;
 
     std::vector<std::shared_ptr<Object>> searchList;
 
@@ -820,7 +821,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     los_info.z0         = psrc->getPosZ() + psrc->bump.height;
     los_info.stopped_by = psrc->stoppedby;
 
-    CHR_REF best_target = INVALID_CHR_REF;
+    ObjectRef best_target = ObjectRef::Invalid;
     float best_dist2  = (max_dist == NEAREST) ? std::numeric_limits<float>::max() : max_dist*max_dist + 1.0f;
     for(const std::shared_ptr<Object> &ptst : searchList)
     {
@@ -829,7 +830,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
         //Skip held items
         if(ptst->isBeingHeld()) continue;
 
-        if ( !chr_check_target( psrc, ptst->getCharacterID(), idsz, targeting_bits ) ) continue;
+        if ( !chr_check_target( psrc, ptst->getObjRef(), idsz, targeting_bits ) ) continue;
 
 		float dist2 = (psrc->getPosition() - ptst->getPosition()).length_2();
         if (dist2 < best_dist2)
@@ -846,7 +847,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
             }
 
             //Set the new best target found
-            best_target = ptst->getCharacterID();
+            best_target = ptst->getObjRef();
             best_dist2  = dist2;
         }
     }
@@ -883,7 +884,7 @@ void do_damage_tiles()
             {
                 if ( 0 == ( update_wld & TILE_REAFFIRM_AND ) )
                 {
-                    reaffirm_attached_particles(pchr->getCharacterID());
+                    reaffirm_attached_particles(pchr->getObjRef());
                 }
             }
         }
@@ -1242,7 +1243,7 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) || input_device_control_active(pdevice, CONTROL_LEFT_GET) )
             {
                 //put it away and swap with any existing item
-                Inventory::swap_item( ppla->index, ppla->inventory_slot, SLOT_LEFT, false );
+                Inventory::swap_item(ObjectRef(ppla->index), ppla->inventory_slot, SLOT_LEFT, false );
 
                 // Make it take a little time
                 chr_play_action( pchr, ACTION_MG, false );
@@ -1253,7 +1254,7 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE) || input_device_control_active( pdevice, CONTROL_RIGHT_GET) )
             {
                 // put it away and swap with any existing item
-                Inventory::swap_item( ppla->index, ppla->inventory_slot, SLOT_RIGHT, false );
+                Inventory::swap_item(ObjectRef(ppla->index), ppla->inventory_slot, SLOT_RIGHT, false);
 
                 // Make it take a little time
                 chr_play_action( pchr, ACTION_MG, false );
@@ -1808,7 +1809,7 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        Inventory::add_item( pinfo->parent, pchr->getCharacterID(), pchr->getInventory().getFirstFreeSlotNumber(), true );
+        Inventory::add_item(ObjectRef(pinfo->parent), pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true );
 
         //If the character got merged into a stack, then it will be marked as terminated
         if(pchr->isTerminated()) {
@@ -1823,11 +1824,11 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
         // Wielded character
         grip_offset_t grip_off = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
 
-        if ( rv_success == attach_character_to_mount( pchr->getCharacterID(), pinfo->parent, grip_off ) )
-        {
-            // Handle the "grabbed" messages
-            //scr_run_chr_script(pchr);
-        }
+		if (rv_success == attach_character_to_mount(pchr->getObjRef(), ObjectRef(pinfo->parent), grip_off))
+		{
+			// Handle the "grabbed" messages
+			//scr_run_chr_script(pchr);
+		}
     }
 
     // Set the starting pinfo->level
@@ -1930,8 +1931,8 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     if (psp_info->attach == ATTACH_NONE)
     {
         // Free character
-        psp_info->parent = pobject->getCharacterID();
-        make_one_character_matrix( pobject->getCharacterID() );
+        psp_info->parent = pobject->getObjRef().get();
+        make_one_character_matrix( pobject->getObjRef().get() );
     }
 
     chr_setup_apply(pobject, psp_info);
@@ -1951,7 +1952,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             bool player_added;
 
-            player_added = add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
+            player_added = add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
 
             if ( _currentModule->getImportAmount() == 0 && player_added )
             {
@@ -1981,12 +1982,12 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
+                add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
             }
             else
             {
                 // It's a remote PlaStack.count
-                add_player( pobject->getCharacterID(), ( PLA_REF )PlaStack.count, NULL );
+                add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, NULL );
             }
         }
     }
@@ -2213,87 +2214,56 @@ bool game_load_module_data( const char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
-void disaffirm_attached_particles( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function makes sure a character has no attached particles
-
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-    {
-        if(particle->isTerminated()) continue;
-
-        if (particle->getAttachedObjectID() == character) {
+void disaffirm_attached_particles(ObjectRef objectRef) {
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
+        if (!particle->isTerminated() && particle->getAttachedObjectID() == objectRef.get()) {
             particle->requestTerminate();
         }
     }
-
-    if ( _currentModule->getObjectHandler().exists( character ) )
-    {
-        // Set the alert for disaffirmation ( wet torch )
-        SET_BIT( _currentModule->getObjectHandler().get(character)->ai.alert, ALERTIF_DISAFFIRMED );
+    if (_currentModule->getObjectHandler().exists(objectRef)) {
+        // Set the alert for disaffirmation (wet torch).
+        SET_BIT( _currentModule->getObjectHandler().get(objectRef)->ai.alert, ALERTIF_DISAFFIRMED );
     }
 }
 
-//--------------------------------------------------------------------------------------------
-int number_of_attached_particles( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function returns the number of particles attached to the given character
-
-    int     cnt = 0;
-
-    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-    {
-        if(!particle->isAttached() || particle->isTerminated()) continue;
-
-        if ( particle->getAttachedObject()->getCharacterID() == character )
-        {
+int number_of_attached_particles(ObjectRef objectRef) {
+    int cnt = 0;
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
+		if (particle->isAttached() && !particle->isTerminated() && particle->getAttachedObject()->getObjRef() == objectRef) {
             cnt++;
         }
     }
-
     return cnt;
 }
 
-//--------------------------------------------------------------------------------------------
-int reaffirm_attached_particles( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function makes sure a character has all of it's particles
-
-    int     number_added, number_attached;
-    int     amount, attempts;
-
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
-    if(!pchr) {
+int reaffirm_attached_particles(ObjectRef objectRef) {
+    const std::shared_ptr<Object>& object = _currentModule->getObjectHandler()[objectRef];
+    if(!object) {
         return 0;
     }
 
-    amount = pchr->getProfile()->getAttachedParticleAmount();
-    if ( 0 == amount ) return 0;
+    int amount = object->getProfile()->getAttachedParticleAmount();
+    if (0 == amount) return 0;
 
-    number_attached = number_of_attached_particles( character );
-    if ( number_attached >= amount ) return 0;
+    int number_attached = number_of_attached_particles(objectRef);
+    if (number_attached >= amount) return 0;
 
-    number_added = 0;
-    for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
-    {
+    int number_added = 0;
+    for (int attempts = 0; attempts < amount && number_attached < amount; ++attempts) {
         std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
-                pchr->getPosition(), pchr->ori.facing_z, pchr->getProfile()->getSlotNumber(), 
-                pchr->getProfile()->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, 
-                pchr->getTeam().toRef(), character, INVALID_PRT_REF, number_attached);
+			object->getPosition(), object->ori.facing_z, object->getProfile()->getSlotNumber(),
+			object->getProfile()->getAttachedParticleProfile(), objectRef.get(), GRIP_LAST + number_attached,
+			object->getTeam().toRef(), objectRef.get(), INVALID_PRT_REF, number_attached);
 
-        if (particle)
-        {
-            particle->placeAtVertex(pchr, particle->attachedto_vrt_off);
-
+        if (particle) {
+            particle->placeAtVertex(object, particle->attachedto_vrt_off);
             number_added++;
             number_attached++;
         }
     }
 
     // Set the alert for reaffirmation ( for exploding barrels with fire )
-    SET_BIT( pchr->ai.alert, ALERTIF_REAFFIRMED );
+    SET_BIT(object->ai.alert, ALERTIF_REAFFIRMED);
 
     return number_added;
 }
@@ -2409,43 +2379,41 @@ void game_release_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice )
+bool add_player( ObjectRef objRef, const PLA_REF playerRef, input_device_t *pdevice )
 {
     /// @author ZZ
     /// @details This function adds a player, returning false if it fails, true otherwise
 
-    player_t * ppla = NULL;
-    Object    * pchr = NULL;
 
-    if ( !VALID_PLA_RANGE( player ) ) return false;
-    ppla = PlaStack.get_ptr( player );
+	if (!VALID_PLA_RANGE(playerRef)) return false;
+	player_t *player = PlaStack.get_ptr(playerRef);
 
     // does the player already exist?
-    if ( ppla->valid ) return false;
+    if (player->valid) return false;
 
     // re-construct the players
-    pla_reinit( ppla );
+    pla_reinit(player);
 
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
-    pchr = _currentModule->getObjectHandler().get( character );
+    if (!_currentModule->getObjectHandler().exists(objRef)) return false;
+    Object *obj = _currentModule->getObjectHandler().get(objRef);
 
     // set the reference to the player
-    pchr->is_which_player = player;
+    obj->is_which_player = playerRef;
 
     // download the quest info
-    quest_log_download_vfs( ppla->quest_log, pchr->getProfile()->getPathname().c_str() );
+    quest_log_download_vfs(player->quest_log, obj->getProfile()->getPathname().c_str());
 
     //---- skeleton for using a ConfigFile to save quests
     // ppla->quest_file = quest_file_open( chr_get_dir_name(character).c_str() );
 
-    ppla->index              = character;
-    ppla->valid              = true;
-    ppla->pdevice            = pdevice;
+    player->index     = objRef.get();
+	player->valid     = true;
+	player->pdevice   = pdevice;
 
-    if ( pdevice != NULL )
+    if (pdevice)
     {
         local_stats.noplayers = false;
-        pchr->islocalplayer = true;
+        obj->islocalplayer = true;
         local_stats.player_count++;
     }
 
@@ -2478,7 +2446,7 @@ void let_all_characters_think()
         if (object->isAlive() || is_crushed || is_cleanedup )
         {
             // Figure out alerts that weren't already set
-            set_alerts( object->getCharacterID() );
+            set_alerts(object->getObjRef().get());
 
             // Cleaned up characters shouldn't be alert to anything else
             if (is_cleanedup) { 
@@ -3250,46 +3218,40 @@ Uint8 get_light( int light, float seedark_mag )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
+bool do_shop_drop( ObjectRef idropper, ObjectRef iitem )
 {
-    Object * pdropper, * pitem;
-    bool inshop;
-
     if ( !_currentModule->getObjectHandler().exists( iitem ) ) return false;
-    pitem = _currentModule->getObjectHandler().get( iitem );
+    Object *pitem = _currentModule->getObjectHandler().get( iitem );
 
     if ( !_currentModule->getObjectHandler().exists( idropper ) ) return false;
-    pdropper = _currentModule->getObjectHandler().get( idropper );
+    Object *pdropper = _currentModule->getObjectHandler().get( idropper );
 
-    inshop = false;
+    bool inshop = false;
     if ( pitem->isitem )
     {
-        CHR_REF iowner;
-
-        iowner = _currentModule->getShopOwner(pitem->getPosX(), pitem->getPosY());
-        if ( _currentModule->getObjectHandler().exists( iowner ) )
+		ObjectRef ownerRef = _currentModule->getShopOwner(pitem->getPosX(), pitem->getPosY());
+        if ( _currentModule->getObjectHandler().exists(ownerRef) )
         {
-            int price;
-            Object * powner = _currentModule->getObjectHandler().get( iowner );
+            Object *owner = _currentModule->getObjectHandler().get(ownerRef);
 
             inshop = true;
 
-            price = pitem->getPrice();
+            int price = pitem->getPrice();
 
             // Are they are trying to sell junk or quest items?
             if ( 0 == price )
             {
-                ai_state_t::add_order(powner->ai, (Uint32)price, Passage::SHOP_BUY);
+                ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_BUY);
             }
             else
             {
                 pdropper->money  = pdropper->money + price;
                 pdropper->money  = CLIP( pdropper->money, (Sint16)0, (Sint16)MAXMONEY );
 
-                powner->money  = powner->money - price;
-                powner->money  = CLIP( powner->money, (Sint16)0, (Sint16)MAXMONEY );
+                owner->money  = owner->money - price;
+                owner->money  = CLIP( owner->money, (Sint16)0, (Sint16)MAXMONEY );
 
-                ai_state_t::add_order(powner->ai, ( Uint32 ) price, Passage::SHOP_BUY);
+                ai_state_t::add_order(owner->ai, ( Uint32 ) price, Passage::SHOP_BUY);
             }
         }
     }
@@ -3298,58 +3260,46 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
+bool do_shop_buy( ObjectRef ibuyer, ObjectRef iitem )
 {
-    bool can_grab;
-    int price;
-
-    Object * ppicker, * pitem;
-
     if ( !_currentModule->getObjectHandler().exists( iitem ) ) return false;
-    pitem = _currentModule->getObjectHandler().get( iitem );
+    Object *item = _currentModule->getObjectHandler().get( iitem );
 
-    if ( !_currentModule->getObjectHandler().exists( ipicker ) ) return false;
-    ppicker = _currentModule->getObjectHandler().get( ipicker );
+    if ( !_currentModule->getObjectHandler().exists(ibuyer) ) return false;
+    Object *buyer = _currentModule->getObjectHandler().get(ibuyer);
 
-    can_grab = true;
-    //bool can_pay  = true;
-    //bool in_shop  = false;
+    bool canGrab = true;
+	if (item->isitem)
+	{
+		ObjectRef ownerRef = _currentModule->getShopOwner(item->getPosX(), item->getPosY());
+		if (_currentModule->getObjectHandler().exists(ownerRef))
+		{
+			Object *owner = _currentModule->getObjectHandler().get(ownerRef);
 
-    if ( pitem->isitem )
-    {
-        CHR_REF iowner;
+			//in_shop = true;
+			int price = item->getPrice();
 
-        iowner = _currentModule->getShopOwner( pitem->getPosX(), pitem->getPosY() );
-        if ( _currentModule->getObjectHandler().exists( iowner ) )
-        {
-            Object * powner = _currentModule->getObjectHandler().get( iowner );
+			if (buyer->money >= price)
+			{
+				// Okay to sell
+				ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_SELL);
 
-            //in_shop = true;
-            price   = pitem->getPrice();
+				buyer->money = buyer->money - price;
+				buyer->money = CLIP((int)buyer->money, 0, MAXMONEY);
 
-            if ( ppicker->money >= price )
-            {
-                // Okay to sell
-                ai_state_t::add_order(powner->ai, ( Uint32 ) price, Passage::SHOP_SELL);
+				owner->money = owner->money + price;
+				owner->money = CLIP((int)owner->money, 0, MAXMONEY);
 
-                ppicker->money  = ppicker->money - price;
-                ppicker->money  = CLIP( (int)ppicker->money, 0, MAXMONEY );
-
-                powner->money   = powner->money + price;
-                powner->money   = CLIP( (int)powner->money, 0, MAXMONEY );
-
-                can_grab = true;
-                //can_pay  = true;
-            }
-            else
-            {
-                // Don't allow purchase
-                ai_state_t::add_order(powner->ai, price, Passage::SHOP_NOAFFORD);
-                can_grab = false;
-                //can_pay  = false;
-            }
-        }
-    }
+				canGrab = true;
+			}
+			else
+			{
+				// Don't allow purchase
+				ai_state_t::add_order(owner->ai, price, Passage::SHOP_NOAFFORD);
+				canGrab = false;
+			}
+		}
+	}
 
     /// @note some of these are handled in scripts, so they could be disabled
     // print some feedback messages
@@ -3372,11 +3322,11 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         }
     }*/
 
-    return can_grab;
+    return canGrab;
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
+bool do_shop_steal( ObjectRef ithief, ObjectRef iitem )
 {
     // Pets can try to steal in addition to invisible characters
 
@@ -3395,19 +3345,17 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     can_steal = true;
     if ( pitem->isitem )
     {
-        CHR_REF iowner;
-
-        iowner = _currentModule->getShopOwner( pitem->getPosX(), pitem->getPosY() );
-        if ( _currentModule->getObjectHandler().exists( iowner ) )
+        ObjectRef ownerRef = _currentModule->getShopOwner( pitem->getPosX(), pitem->getPosY() );
+        if ( _currentModule->getObjectHandler().exists(ownerRef) )
         {
             int detection = Random::getPercent();
-            Object * powner = _currentModule->getObjectHandler().get( iowner );
+            Object *owner = _currentModule->getObjectHandler().get(ownerRef);
 
             can_steal = true;
-            if ( powner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + powner->getAttribute(Ego::Attribute::INTELLECT) ) > 50 )
+            if ( owner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + owner->getAttribute(Ego::Attribute::INTELLECT) ) > 50 )
             {
-                ai_state_t::add_order(powner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
-                powner->ai.target = ithief;
+                ai_state_t::add_order(owner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
+                owner->ai.target = ithief.get();
                 can_steal = false;
             }
         }
@@ -3417,57 +3365,52 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
+bool can_grab_item_in_shop( ObjectRef igrabber, ObjectRef iitem )
 {
-    bool can_grab;
-    bool is_invis, can_steal;
-    Object *pkeeper;
-    CHR_REF shop_keeper;
-
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[ichr];
-    if(!pchr) {
+    const std::shared_ptr<Object> &grabber = _currentModule->getObjectHandler()[igrabber];
+    if(!grabber) {
         return false;
     }
 
-    Object *pitem = _currentModule->getObjectHandler().get( iitem );
-    if(!pitem) {
+    Object *item = _currentModule->getObjectHandler().get( iitem );
+    if(!item) {
         return false;
     }
 
-    // assume that there is no shop so that the character can grab anything
-    can_grab = true;
+    // Assume there is no shop so that the character can grab anything.
+    bool canGrab = true;
 
     // check if we are doing this inside a shop
-    shop_keeper = _currentModule->getShopOwner(pitem->getPosX(), pitem->getPosY());
-    pkeeper = _currentModule->getObjectHandler().get( shop_keeper );
-    if ( INGAME_PCHR( pkeeper ) )
-    {
-        // check for a stealthy pickup
-        is_invis  = !pkeeper->canSeeObject(pchr);
+    ObjectRef shopKeeper_ref = _currentModule->getShopOwner(item->getPosX(), item->getPosY());
+    Object *shopKeeper = _currentModule->getObjectHandler().get(shopKeeper_ref);
+	if (INGAME_PCHR(shopKeeper))
+	{
+		// check for a stealthy pickup
+		bool isInvisible = !shopKeeper->canSeeObject(grabber);
 
-        // pets are automatically stealthy
-        can_steal = is_invis || pchr->isItem();
+		// pets are automatically stealthy
+		bool canSteal = isInvisible || grabber->isItem();
 
-        if ( can_steal )
-        {
-            can_grab = do_shop_steal( ichr, iitem );
+		if (canSteal)
+		{
+			canGrab = do_shop_steal(igrabber, iitem);
 
-            if ( !can_grab )
-            {
-                DisplayMsg_printf( "%s was detected!!", pchr->getName().c_str());
-            }
-            else
-            {
-                DisplayMsg_printf( "%s stole %s", pchr->getName().c_str(), pitem->getName(true, false, false).c_str());
-            }
-        }
-        else
-        {
-            can_grab = do_shop_buy( ichr, iitem );
-        }
-    }
+			if (!canGrab)
+			{
+				DisplayMsg_printf("%s was detected!!", grabber->getName().c_str());
+			}
+			else
+			{
+				DisplayMsg_printf("%s stole %s", grabber->getName().c_str(), item->getName(true, false, false).c_str());
+			}
+		}
+		else
+		{
+			canGrab = do_shop_buy(igrabber, iitem);
+		}
+	}
 
-    return can_grab;
+    return canGrab;
 }
 //--------------------------------------------------------------------------------------------
 float get_mesh_max_vertex_1( ego_mesh_t *mesh, const PointGrid& point, oct_bb_t& bump, bool waterwalk )
@@ -3925,25 +3868,21 @@ float ego_mesh_t::getElevation(const PointWorld& point, bool waterwalk) const
 }
 
 //--------------------------------------------------------------------------------------------
-bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character )
+bool export_one_character_quest_vfs( const char *szSaveName, ObjectRef character )
 {
     /// @author ZZ
     /// @details This function makes the naming.txt file for the character
 
-    player_t *ppla;
-    egolib_rv rv;
+    if (!_currentModule->getObjectHandler().exists(character)) return false;
+    player_t *ppla = chr_get_ppla(character.get());
+    if (!ppla) return false;
 
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
-
-    ppla = chr_get_ppla( character );
-    if ( NULL == ppla ) return false;
-
-    rv = quest_log_upload_vfs( ppla->quest_log, szSaveName );
+	egolib_rv rv = quest_log_upload_vfs( ppla->quest_log, szSaveName );
     return rv_success == rv;
 }
 
 //--------------------------------------------------------------------------------------------
-bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF character )
+bool export_one_character_name_vfs( const char *szSaveName, ObjectRef character )
 {
     /// @author ZZ
     /// @details This function makes the naming.txt file for the character

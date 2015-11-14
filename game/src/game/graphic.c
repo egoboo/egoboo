@@ -2885,7 +2885,7 @@ gfx_rv update_one_chr_instance(Object *pchr)
 {
     if (!pchr || pchr->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr), "invalid character");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr).get(), "invalid character");
         return gfx_error;
     }
     chr_instance_t& pinst = pchr->inst;

@@ -109,16 +109,12 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 {
     /// @author BB
     /// @details grab the matrix cache data for a given character and put it into mc_tmp.
-
-    bool handled;
-    CHR_REF itarget, ichr;
-
     if ( NULL == mc_tmp ) return false;
     if ( nullptr == ( pchr ) ) return false;
-    ichr = GET_INDEX_PCHR( pchr );
+    auto ichr = GET_INDEX_PCHR( pchr );
 
-    handled = false;
-    itarget = INVALID_CHR_REF;
+    bool handled = false;
+    auto itarget = ObjectRef::Invalid;
 
     // initialize xome parameters in case we fail
     mc_tmp->valid     = false;
@@ -127,7 +123,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
     mc_tmp->self_scale[kX] = mc_tmp->self_scale[kY] = mc_tmp->self_scale[kZ] = pchr->fat;
 
     // handle the overlay first of all
-    if ( !handled && pchr->is_overlay && ichr != pchr->ai.target && _currentModule->getObjectHandler().exists( pchr->ai.target ) )
+    if ( !handled && pchr->is_overlay && ichr.get() != pchr->ai.target && _currentModule->getObjectHandler().exists( pchr->ai.target ) )
     {
         // this will pretty much fail the cmp_matrix_cache() every time...
 
@@ -169,7 +165,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
                 mc_tmp->grip_slot = pchr->inwhich_slot;
                 get_grip_verts( mc_tmp->grip_verts.data(), pchr->attachedto, slot_to_grip_offset( pchr->inwhich_slot ) );
 
-                itarget = pchr->attachedto;
+                itarget = ObjectRef(pchr->attachedto);
             }
         }
 
@@ -396,7 +392,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
             matrix_cache_t * mcache = &( pchr->inst.matrix_cache );
 
             // !!!the mc_tmp was mis-labeled as a MAT_WEAPON!!!
-            make_one_character_matrix(pchr->getCharacterID());
+            make_one_character_matrix(pchr->getObjRef().get());
 
             // recover the matrix_cache values from the character
             SET_BIT( mcache->type_bits, MAT_CHARACTER );

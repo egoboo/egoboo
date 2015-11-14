@@ -1012,7 +1012,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 
     // reduce the amount of updates to one every frame_skip frames, but dither
     // the updating so that not all objects update on the same frame
-    self.lighting_frame_all = game_frame_all + ((game_frame_all + pchr->getCharacterID()) & frame_mask);
+    self.lighting_frame_all = game_frame_all + ((game_frame_all + pchr->getObjRef().get()) & frame_mask);
 
 	if (!self.imad) {
 		return;

@@ -389,7 +389,7 @@ void CharacterStatus::draw()
     }
 
     // draw the character's main icon
-    draw_one_character_icon(pchr->getCharacterID(), getX() + 40, yOffset, false, levelUp ? COLOR_YELLOW : NOSPARKLE);
+    draw_one_character_icon(pchr->getObjRef().get(), getX() + 40, yOffset, false, levelUp ? COLOR_YELLOW : NOSPARKLE);
 
     // draw the left hand item icon
     draw_one_character_icon(pchr->holdingwhich[SLOT_LEFT], getX() + 8, yOffset, true, NOSPARKLE);
@@ -401,7 +401,7 @@ void CharacterStatus::draw()
     yOffset += 32;
 
     //Draw the small XP progress bar
-    yOffset = draw_character_xp_bar(pchr->getCharacterID(), getX() + 16, yOffset);
+    yOffset = draw_character_xp_bar(pchr->getObjRef().get(), getX() + 16, yOffset);
 
     // Draw the life bar
     if (pchr->isAlive())

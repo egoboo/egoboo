@@ -111,13 +111,13 @@ public:
 	void flashColor(uint8_t color);
 
     /**
-    * @brief This function returns INVALID_CHR_REF if there is no character in the passage,
-    *    	 otherwise the index of the first character found is returned...
-    *    	 Can also look for characters with a specific quest or item in his or her inventory
-    *    	 Finds living ones, then items and corpses
-    * @return CHR_REF of the character found which fullfills all specified requirements or INVALID_CHR_REF if none found
+    * @brief This function returns ObjectRef::Invalid if there is no object in the passage,
+    *    	 otherwise the index of the first object found is returned.
+	* @remark Can also look for objects with a specific quest or item in his or her inventory
+    *    	  First finds living ones, then items and corpses
+    * @return the object reference of the object found which fullfills all specified requirements or ObjectRef::Invalid if none found
     **/
-    ObjectRef whoIsBlockingPassage( const ObjectRef& isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const;
+    ObjectRef whoIsBlockingPassage(ObjectRef objRef, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item) const;
 
 
     /**
@@ -129,7 +129,7 @@ public:
     * @brief Plays the passage music assigned to this passage if the specified character is inside this passage
     * @return true if a new song is now playing
     **/
-    bool checkPassageMusic(const Object * pchr) const;
+    bool checkPassageMusic(const Object *pobj) const;
 
     /**
     * @return Sets the MusicID of this passage. If a player character enters this passage, the specified MusicID will be played
@@ -141,9 +141,9 @@ public:
     **/
     bool isShop() const;
 
-	const ObjectRef& getShopOwner() const;
+	ObjectRef getShopOwner() const;
 
-    void makeShop(const ObjectRef& owner);
+    void makeShop(ObjectRef owner);
 
     void removeShop();
 

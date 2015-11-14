@@ -284,7 +284,7 @@ void ParticleHandler::spawnDefencePing(const std::shared_ptr<Object> &object, co
 
     // For the ones attacking a shield
     if(attacker != nullptr && !attacker->isTerminated()) {
-        object->ai.attacklast = attacker->getCharacterID();
+        object->ai.attacklast = attacker->getObjRef().get();
     }
     else {
         object->ai.attacklast = INVALID_CHR_REF;

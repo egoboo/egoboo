@@ -361,7 +361,7 @@ void Particle::updateWater()
         if (isAttached() && owner_ref == _attachedTo)
         {
             // Disaffirm the whole character
-            disaffirm_attached_particles(_attachedTo);
+            disaffirm_attached_particles(ObjectRef(_attachedTo));
         }
         else
         {
@@ -600,11 +600,11 @@ void Particle::updateAttachedDamage()
     const std::shared_ptr<Object> &attachedObject = getAttachedObject();
 
     // find out who is holding the owner of this object
-    CHR_REF iholder = chr_get_lowest_attachment(attachedObject->getCharacterID(), true);
-    if (INVALID_CHR_REF == iholder) iholder = attachedObject->getCharacterID();
+    CHR_REF iholder = chr_get_lowest_attachment(attachedObject->getObjRef().get(), true);
+    if (INVALID_CHR_REF == iholder) iholder = attachedObject->getObjRef().get();
 
     // do nothing if you are attached to your owner
-    if ((INVALID_CHR_REF != owner_ref) && (iholder == owner_ref || attachedObject->getCharacterID() == owner_ref)) return;
+    if ((INVALID_CHR_REF != owner_ref) && (iholder == owner_ref || attachedObject->getObjRef().get() == owner_ref)) return;
 
     //---- only do damage in certain cases:
 
@@ -848,7 +848,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
 
             // Find a target
             FACING_T targetAngle;
-            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
+            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, ObjectRef(owner_ref), ObjectRef(spawnTarget), &targetAngle).get();
             const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
 
             if (target && !getProfile()->homing)
@@ -1273,7 +1273,7 @@ bool Particle::hasCollided(const std::shared_ptr<Object> &object) const
 {
     for(const CHR_REF &ref : _collidedObjects)
     {
-        if(ref == object->getCharacterID())
+        if(ref == object->getObjRef().get())
         {
             return true;
         }
@@ -1284,7 +1284,7 @@ bool Particle::hasCollided(const std::shared_ptr<Object> &object) const
 void Particle::addCollision(const std::shared_ptr<Object> &object)
 {
     if(isTerminated()) return;
-    _collidedObjects.push_front(object->getCharacterID());
+    _collidedObjects.push_front(object->getObjRef().get());
 }
 
 bool Particle::isEternal() const

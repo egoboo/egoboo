@@ -24,11 +24,11 @@
 
 const ObjectRef& GET_INDEX_PCHR(const Object *pobj)
 {
-    return (nullptr == pobj) ? ObjectRef::Invalid : pobj->getCharacterID();
+    return (nullptr == pobj) ? ObjectRef::Invalid : pobj->getObjRef();
 }
 const ObjectRef& GET_INDEX_PCHR(const std::shared_ptr<Object> &pobj)
 {
-    return (nullptr == pobj) ? ObjectRef::Invalid : pobj->getCharacterID();
+    return (nullptr == pobj) ? ObjectRef::Invalid : pobj->getObjRef();
 }
 bool INGAME_PCHR(const Object *pobj)
 {
@@ -199,7 +199,7 @@ void ObjectHandler::dumpAllocateList()
 			}
 			else
 			{
-				std::cout << "  " << chr->getCharacterID().get() << std::endl;
+				std::cout << "  " << chr->getObjRef().get() << std::endl;
 			}
 		}
 		std::cout << "}" << std::endl;
@@ -254,7 +254,7 @@ void ObjectHandler::maybeRunDeferred()
                         if (chr->isTerminated() || chr == element) continue;
 						ai_state_t *ai = &(chr->ai);
 
-                        if (ai->target == element->getCharacterID())
+                        if (ai->target == element->getObjRef().get())
                         {
                             SET_BIT(ai->alert, ALERTIF_TARGETKILLED);
                         }

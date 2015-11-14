@@ -193,4 +193,4 @@ public:
     Ego::VertexBuffer _vertexBuffer;
 };
 
-std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
+std::shared_ptr<Billboard> chr_make_text_billboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);

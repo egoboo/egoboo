@@ -43,7 +43,7 @@
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
 
-Object::Object(const PRO_REF profile, const CHR_REF id) : 
+Object::Object(const PRO_REF proRef, const ObjectRef& objRef) : 
     spawn_data(),
     ai(),
     latch(),
@@ -102,7 +102,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     shadow_size_save(0),
     is_overlay(false),
     skin(0),
-    basemodel_ref(profile),
+    basemodel_ref(proRef),
     inst(),
 
     bump_stt(),
@@ -127,8 +127,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     dismount_object(INVALID_CHR_REF),
     
     _terminateRequested(false),
-    _characterID(id),
-    _profileID(profile),
+    _objRef(objRef),
+    _profileID(proRef),
     _profile(ProfileSystem::get().getProfile(_profileID)),
     _showStatus(false),
     _isAlive(true),
@@ -148,7 +148,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _reallyDuration(0),
     _stealth(false),
     _stealthTimer(0),
-    _observationTimer((id % ONESECOND) + update_wld), //spread observations so all characters don't happen at the same time
+    _observationTimer((objRef.get() % ONESECOND) + update_wld), //spread observations so all characters don't happen at the same time
 
     //Enchants
     _activeEnchants(),
@@ -201,7 +201,7 @@ Object::~Object()
         }
 
         // remove any attached particles
-        disaffirm_attached_particles( getCharacterID() );    
+        disaffirm_attached_particles(getObjRef());    
     }
 
     chr_instance_t::dtor(inst);
@@ -439,7 +439,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
             //Only draw "Immune!" if we are truly completely immune and it was not simply a weak attack
             if(HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || damage.base + damage.rand <= damage_threshold) {
-                chr_make_text_billboard(_characterID, "Immune!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(0, 0.5, 0, 1), 3, Billboard::Flags::All);
+                chr_make_text_billboard(_objRef, "Immune!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(0, 0.5, 0, 1), 3, Billboard::Flags::All);
             }
         }
     }
@@ -473,7 +473,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
                         ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
-                                            INVALID_CHR_REF, GRIP_LAST, team, _characterID);
+                                            INVALID_CHR_REF, GRIP_LAST, team, _objRef.get());
                     }
                 }
 
@@ -564,7 +564,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     //Size depends on the amount of damage (more = bigger)
                     //TODO: not implemented                    
 
-                    chr_make_text_billboard(_characterID, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All );
+                    chr_make_text_billboard(_objRef, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All );
                 }
             }
         }
@@ -596,7 +596,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             // write the string into the buffer
             snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
 
-            chr_make_text_billboard(_characterID, text_buffer, text_color, tint, lifetime, Billboard::Flags::All );
+            chr_make_text_billboard(_objRef, text_buffer, text_color, tint, lifetime, Billboard::Flags::All );
         }
 #endif
     }
@@ -617,7 +617,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     // Figure out who is the real attacker, in case we are a held item or a controlled mount
     if(attacker)
     {
-        actual_attacker = attacker->getCharacterID();
+        actual_attacker = attacker->getObjRef().get();
 
         //Dont alert if the attacker/healer was on the null team
         if(attacker->getTeam() == Team::TEAM_NULL) {
@@ -660,7 +660,7 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
     }
 
     // Set alerts, but don't alert that we healed ourselves
-    if (healer && this != healer.get() && healer->attachedto != _characterID && amount > HURTDAMAGE)
+    if (healer && this != healer.get() && healer->attachedto != _objRef.get() && amount > HURTDAMAGE)
     {
         updateLastAttacker(healer, true);
     }
@@ -784,7 +784,7 @@ void Object::update()
                         ripand = RIPPLEAND >> ( -ripple_suppression );
                     }
 
-                    if ( 0 == ( (update_wld + getCharacterID()) & ripand ))
+                    if ( 0 == ( (update_wld + getObjRef().get()) & ripand ))
                     {
                         ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
@@ -1088,7 +1088,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
 void Object::requestTerminate() 
 {
     //Mark object as terminated
-    _currentModule->getObjectHandler().remove(getCharacterID());
+    _currentModule->getObjectHandler().remove(getObjRef());
 }
 
 
@@ -1102,7 +1102,7 @@ void Object::requestTerminate()
 bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 {
     // Make sure the character is actually held by something first
-    CHR_REF holder = attachedto;
+    ObjectRef holder = ObjectRef(attachedto);
     const std::shared_ptr<Object> &pholder = _currentModule->getObjectHandler()[holder];
     if (!pholder) {
         return false;  
@@ -1117,18 +1117,20 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 
     // set the dismount timer
     dismount_timer  = PHYS_DISMOUNT_TIME;
-    dismount_object = holder;
+    dismount_object = holder.get();
 
     // Figure out which hand it's in
     uint16_t hand = inwhich_slot;
 
     // Rip 'em apart
     attachedto = INVALID_CHR_REF;
-    if ( pholder->holdingwhich[SLOT_LEFT] == getCharacterID() )
-        pholder->holdingwhich[SLOT_LEFT] = INVALID_CHR_REF;
+	if (pholder->holdingwhich[SLOT_LEFT] == getObjRef().get()) {
+		pholder->holdingwhich[SLOT_LEFT] = INVALID_CHR_REF;
+	}
 
-    if ( pholder->holdingwhich[SLOT_RIGHT] == getCharacterID() )
-        pholder->holdingwhich[SLOT_RIGHT] = INVALID_CHR_REF;
+	if (pholder->holdingwhich[SLOT_RIGHT] == getObjRef().get()) {
+		pholder->holdingwhich[SLOT_RIGHT] = INVALID_CHR_REF;
+	}
 
     if ( isAlive() )
     {
@@ -1165,7 +1167,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     bool inshop = false;
     if ( doShop )
     {
-        inshop = do_shop_drop(holder, getCharacterID());
+        inshop = do_shop_drop(holder, getObjRef());
     }
 
     // Make sure it works right
@@ -1374,7 +1376,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         {
             //Refill to full Life instead!
             _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
-            chr_make_text_billboard(getCharacterID(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
+            chr_make_text_billboard(getObjRef(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
             DisplayMsg_printf("%s decided not to die after all!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_DRUMS));
             return;
@@ -1389,7 +1391,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         {
             //Refill to full Life instead!
             _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
-            chr_make_text_billboard(getCharacterID(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
+            chr_make_text_billboard(getObjRef(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
             DisplayMsg_printf("%s was saved by a Guardian Angel!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_ANGEL_CHOIR));
             return;
@@ -1436,8 +1438,10 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     if (actualKiller)
     {
         // Set target
-        ai.target = actualKiller->getCharacterID();
-        if ( actualKiller->getTeam() == Team::TEAM_DAMAGE || actualKiller->getTeam() == Team::TEAM_NULL )  ai.target = getCharacterID();
+        ai.target = actualKiller->getObjRef().get();
+		if (actualKiller->getTeam() == Team::TEAM_DAMAGE || actualKiller->getTeam() == Team::TEAM_NULL) {
+			ai.target = getObjRef().get();
+		}
 
         // Award experience for kill?
         if ( actualKiller->getTeam().hatesTeam(getTeam()) )
@@ -1460,8 +1464,8 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         
             //Crusader Perk regains 1 mana per Undead kill
             if(actualKiller->hasPerk(Ego::Perks::CRUSADER) && getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('U','N','D','E')) {
-                actualKiller->costMana(-1, actualKiller->getCharacterID());
-                chr_make_text_billboard(actualKiller->getCharacterID(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+                actualKiller->costMana(-1, actualKiller->getObjRef().get());
+                chr_make_text_billboard(actualKiller->getObjRef(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
             }
         }
     }
@@ -1488,7 +1492,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         }
 
         // Let the other characters know it died
-        if ( listener->ai.target == getCharacterID() )
+        if ( listener->ai.target == getObjRef().get() )
         {
             SET_BIT( listener->ai.alert, ALERTIF_TARGETKILLED );
         }
@@ -1640,45 +1644,45 @@ bool Object::isInsideInventory() const
     return true;
 }
 
-void Object::removeFromGame(Object * pchr)
+void Object::removeFromGame(Object *obj)
 {
-	CHR_REF ichr = pchr->getCharacterID();
+	auto objRef = obj->getObjRef();
 
-	pchr->sparkle = NOSPARKLE;
+	obj->sparkle = NOSPARKLE;
 
 	// Remove it from the team
-	pchr->team = pchr->team_base;
-	_currentModule->getTeamList()[pchr->team].decreaseMorale();
+	obj->team = obj->team_base;
+	_currentModule->getTeamList()[obj->team].decreaseMorale();
 
-	if (_currentModule->getTeamList()[pchr->team].getLeader().get() == pchr)
+	if (_currentModule->getTeamList()[obj->team].getLeader().get() == obj)
 	{
 		// The team now has no leader if the character is the leader
-		_currentModule->getTeamList()[pchr->team].setLeader(Object::INVALID_OBJECT);
+		_currentModule->getTeamList()[obj->team].setLeader(Object::INVALID_OBJECT);
 	}
 
 	// Clear all shop passages that it owned..
-	_currentModule->removeShopOwner(ichr);
+	_currentModule->removeShopOwner(objRef);
 
 	// detach from any mount
-	if (_currentModule->getObjectHandler().exists(pchr->attachedto))
+	if (_currentModule->getObjectHandler().exists(obj->attachedto))
 	{
-		pchr->detatchFromHolder(true, false);
+		obj->detatchFromHolder(true, false);
 	}
 
 	// drop your left item
-	const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
+	const std::shared_ptr<Object> &leftItem = obj->getLeftHandItem();
 	if (leftItem && leftItem->isItem()) {
 		leftItem->detatchFromHolder(true, false);
 	}
 
 	// drop your right item
-	const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
+	const std::shared_ptr<Object> &rightItem = obj->getRightHandItem();
 	if (rightItem && rightItem->isItem()) {
 		rightItem->detatchFromHolder(true, false);
 	}
 
 	// Stop all sound loops for this object
-	AudioSystem::get().stopObjectLoopingSounds(ichr);
+	AudioSystem::get().stopObjectLoopingSounds(objRef.get());
 }
 
 BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
@@ -1781,7 +1785,7 @@ bool Object::costMana(int amount, const CHR_REF killer)
 
             if (_currentLife <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
             {
-                kill(pkiller != nullptr ? pkiller : _currentModule->getObjectHandler()[this->getCharacterID()], false);
+                kill(pkiller != nullptr ? pkiller : _currentModule->getObjectHandler()[this->getObjRef()], false);
             }
 
             manaPaid = true;
@@ -1822,7 +1826,7 @@ void Object::respawn()
     const std::shared_ptr<ObjectProfile> &profile = getProfile();
 
     ParticleHandler::get().spawnPoof(this->toSharedPointer());
-    disaffirm_attached_particles( getCharacterID() );
+    disaffirm_attached_particles(getObjRef());
 
     _isAlive = true;
     bore_timer = BORETIME;
@@ -1835,7 +1839,7 @@ void Object::respawn()
     canbecrushed = false;
     ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     ori.map_twist_facing_x = MAP_TURN_OFFSET;
-    if ( !getTeam().getLeader() )  getTeam().setLeader( _currentModule->getObjectHandler()[getCharacterID()] );
+    if ( !getTeam().getLeader() )  getTeam().setLeader( _currentModule->getObjectHandler()[getObjRef()] );
     if ( !isInvincible() )         getTeam().increaseMorale();
 
     // start the character out in the "dance" animation
@@ -1863,7 +1867,7 @@ void Object::respawn()
     phys.bumpdampen = profile->getBumpDampen();
 
     ai.alert = ALERTIF_CLEANEDUP;
-    ai.target = getCharacterID();
+    ai.target = getObjRef().get();
     ai.timer  = 0;
 
     grog_timer = 0;
@@ -1885,7 +1889,7 @@ void Object::respawn()
 
     if ( !isHidden() )
     {
-        reaffirm_attached_particles( getCharacterID() );
+        reaffirm_attached_particles(getObjRef());
     }
 
     chr_instance_t::update_ref(inst, enviro.grid_level, true );
@@ -2210,7 +2214,7 @@ std::shared_ptr<Ego::Enchantment> Object::getLastEnchantmentSpawned() const
 
 const std::shared_ptr<Object>& Object::toSharedPointer() const 
 { 
-    return _currentModule->getObjectHandler()[getCharacterID()]; 
+    return _currentModule->getObjectHandler()[getObjRef()]; 
 }
 
 void Object::setMana(const float value)
@@ -2371,7 +2375,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     }
 
     //Remove attached particles before changing our model
-    disaffirm_attached_particles(getCharacterID());
+    disaffirm_attached_particles(getObjRef());
 
     //Actually change the model
     chr_instance_t::spawn(inst, profileID, newSkin);
@@ -2397,19 +2401,19 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     // Must set the wepon grip AFTER the model is changed in chr_instance_t::spawn()
     if (isBeingHeld())
     {
-        set_weapongrip(getCharacterID(), attachedto, slot_to_grip_offset(inwhich_slot) );
+        set_weapongrip(getObjRef().get(), attachedto, slot_to_grip_offset(inwhich_slot) );
     }
 
     if (leftItem)
     {
-        EGOBOO_ASSERT(leftItem->attachedto == getCharacterID());
-        set_weapongrip(leftItem->getCharacterID(), getCharacterID(), GRIP_LEFT);
+        EGOBOO_ASSERT(leftItem->attachedto == getObjRef().get());
+        set_weapongrip(leftItem->getObjRef().get(), getObjRef().get(), GRIP_LEFT);
     }
 
     if (rightItem)
     {
-        EGOBOO_ASSERT(rightItem->attachedto == getCharacterID());
-        set_weapongrip(rightItem->getCharacterID(), getCharacterID(), GRIP_RIGHT);
+        EGOBOO_ASSERT(rightItem->attachedto == getObjRef().get());
+        set_weapongrip(rightItem->getObjRef().get(), getObjRef().get(), GRIP_RIGHT);
     }
 
     /// @note ZF@> disabled so that books dont burn when dropped
@@ -2489,7 +2493,7 @@ void Object::deactivateStealth()
     _stealthTimer = std::max<uint16_t>(_stealthTimer, ONESECOND);
     _stealth = false;
 
-    chr_make_text_billboard(getCharacterID(), "Revealed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+    chr_make_text_billboard(getObjRef(), "Revealed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
     AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
     setAlpha(0xFF);
 }
@@ -2558,7 +2562,7 @@ bool Object::activateStealth()
 
         //We can't stealth while an enemy is nearby
         if(isPlayer()) {
-            chr_make_text_billboard(getCharacterID(), "Hide Failed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+            chr_make_text_billboard(getObjRef(), "Hide Failed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH_END));
         }
         return false;
@@ -2567,7 +2571,7 @@ bool Object::activateStealth()
     //All good, we are now stealthed!
     _stealth = true;
     setAlpha(0);
-    chr_make_text_billboard(getCharacterID(), "Hidden!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
+    chr_make_text_billboard(getObjRef(), "Hidden!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 2, Billboard::Flags::All);
     AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_STEALTH));
    
     return true;
@@ -2674,7 +2678,7 @@ void Object::setTeam(TEAM_REF team_new, bool permanent)
 
     // we are the new leader if there isn't one already
     if (canHaveTeam && !getTeam().getLeader()) {
-        getTeam().setLeader(_currentModule->getObjectHandler()[getCharacterID()]);
+        getTeam().setLeader(_currentModule->getObjectHandler()[getObjRef()]);
     }
 
     if(permanent) {
@@ -2826,7 +2830,7 @@ void Object::dropKeys()
 
         // fix the attachments
         pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pkey->dismount_object        = getCharacterID();
+        pkey->dismount_object        = getObjRef().get();
         pkey->onwhichplatform_ref    = onwhichplatform_ref;
         pkey->onwhichplatform_update = onwhichplatform_update;
 
@@ -2884,7 +2888,7 @@ void Object::dropAllItems()
 
         // fix the attachments
         pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pitem->dismount_object        = getCharacterID();
+        pitem->dismount_object        = getObjRef().get();
         pitem->onwhichplatform_ref    = onwhichplatform_ref;
         pitem->onwhichplatform_update = onwhichplatform_update;
 

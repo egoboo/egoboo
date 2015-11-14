@@ -436,7 +436,6 @@ bool chr_handle_madfx( Object * pchr )
     ///@details This handles special commands an animation frame might execute, for example
     ///         grabbing stuff or spawning attack particles.
 
-    CHR_REF ichr;
     Uint32 framefx;
 
     if ( nullptr == pchr ) return false;
@@ -444,37 +443,37 @@ bool chr_handle_madfx( Object * pchr )
     framefx = chr_instance_t::get_framefx(pchr->inst);
     if ( 0 == framefx ) return true;
 
-    ichr    = GET_INDEX_PCHR( pchr );
+    auto objRef = GET_INDEX_PCHR( pchr );
 
     // Check frame effects
     if ( HAS_SOME_BITS( framefx, MADFX_ACTLEFT ) )
     {
-        character_swipe( ichr, SLOT_LEFT );
+        character_swipe( objRef.get(), SLOT_LEFT );
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_ACTRIGHT ) )
     {
-        character_swipe( ichr, SLOT_RIGHT );
+        character_swipe( objRef.get(), SLOT_RIGHT );
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_GRABLEFT ) )
     {
-        character_grab_stuff( ichr, GRIP_LEFT, false );
+        character_grab_stuff( objRef, GRIP_LEFT, false );
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_GRABRIGHT ) )
     {
-        character_grab_stuff( ichr, GRIP_RIGHT, false );
+        character_grab_stuff( objRef, GRIP_RIGHT, false );
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_CHARLEFT ) )
     {
-        character_grab_stuff( ichr, GRIP_LEFT, true );
+        character_grab_stuff( objRef, GRIP_LEFT, true );
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_CHARRIGHT ) )
     {
-        character_grab_stuff( ichr, GRIP_RIGHT, true );
+        character_grab_stuff( objRef, GRIP_RIGHT, true );
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_DROPLEFT ) )
