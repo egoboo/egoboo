@@ -184,7 +184,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
         vfs_removeDirectoryAndContents( todir, VFS_TRUE );
         if ( !vfs_mkdir( todir ) )
         {
-			Log::warning( "export_one_character() - cannot create object directory \"%s\"\n", todir );
+			Log::get().warn("%s:%d:%s: cannot create object directory `%s`\n", __FILE__, __LINE__, __FUNCTION__, todir);
             return rv_error;
         }
     }
@@ -194,7 +194,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
 
     // Build the DATA.TXT file
     if(!ObjectProfile::exportCharacterToFile(std::string(todir) + "/data.txt", object.get())) {
-		Log::warning( "export_one_character() - unable to save data.txt \"%s/data.txt\"\n", todir );
+		Log::get().warn( "export_one_character() - unable to save data.txt \"%s/data.txt\"\n", todir );
         return rv_error;
     }
 
@@ -1900,7 +1900,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 
         if(!vfs_exists(filename)) {
             if(psp_info->slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
-				Log::warning("activate_spawn_file_load_object() - Object does not exist: %s\n", filename);
+				Log::get().warn("activate_spawn_file_load_object() - Object does not exist: %s\n", filename);
             }
 
             return false;
@@ -2009,7 +2009,10 @@ void activate_spawn_file_vfs()
     ReadContext ctxt("mp_data/spawn.txt");
     if (!ctxt.ensureOpen())
     {
-		Log::error("unable to read spawn file `%s`", ctxt.getLoadName().c_str());
+		std::ostringstream os;
+		os << "unable to read spawn file `" << ctxt.getLoadName() << "`" << std::endl;
+		Log::get().error("%s", os.str().c_str());
+		throw std::runtime_error(os.str());
     }
     {
         CHR_REF parent = INVALID_CHR_REF;
@@ -2029,14 +2032,14 @@ void activate_spawn_file_vfs()
             //Spit out a warning if they break the limit
             if ( objectsToSpawn.size() >= OBJECTS_MAX )
             {
-				Log::warning("Too many objects in file \"%s\"! Maximum number of objects is %d.\n", ctxt.getLoadName().c_str(), OBJECTS_MAX );
+				Log::get().warn("Too many objects in file \"%s\"! Maximum number of objects is %d.\n", ctxt.getLoadName().c_str(), OBJECTS_MAX );
                 break;
             }
 
             // check to see if the slot is valid
             if ( entry.slot >= INVALID_PRO_REF )
             {
-				Log::warning("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_coment, ctxt.getLoadName().c_str() );
+				Log::get().warn("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_coment, ctxt.getLoadName().c_str() );
                 continue;
             }
 
@@ -2086,7 +2089,7 @@ void activate_spawn_file_vfs()
 
             //If all slots are reserved, spit out a warning (very unlikely unless there is a bug somewhere)
             if ( profileSlot == INVALID_PRO_REF ) {
-				Log::warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", spawnName.c_str(), INVALID_PRO_REF );
+				Log::get().warn( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", spawnName.c_str(), INVALID_PRO_REF );
             }
         }
 
@@ -2120,7 +2123,9 @@ void activate_spawn_file_vfs()
                     // no, give a warning if it is useful
                     if ( import_object )
                     {
-						Log::warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", spawnInfo.spawn_coment, spawnInfo.slot, ctxt.getLoadName().c_str() );
+						Log::get().warn("%s:%d:%s: the object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", \
+							            __FILE__, __LINE__, __FUNCTION__, spawnInfo.spawn_coment, spawnInfo.slot, \
+							            ctxt.getLoadName().c_str() );
                     }
                     continue;
                 }
@@ -2146,7 +2151,7 @@ void activate_spawn_file_vfs()
 void game_reset_module_data()
 {
     // reset all
-	Log::info( "Resetting module data\n" );
+	Log::get().info( "Resetting module data\n" );
 
     // unload a lot of data
     ProfileSystem::get().reset();
@@ -2163,14 +2168,14 @@ void game_reset_module_data()
 bool game_load_module_data( const char *smallname )
 {
     //TODO: ZF> this should be moved to Module.cpp
-	Log::info( "Loading module \"%s\"\n", smallname );
+	Log::get().info( "Loading module \"%s\"\n", smallname );
 
     // ensure that the script parser exists
     parser_state_t& ps = parser_state_t::get();
     ps.clear_error();
     if ( load_ai_script_vfs( ps, "mp_data/script.txt", NULL, NULL ) != rv_success )
     {
-		Log::warning( "game_load_module_data() - cannot load the default script\n" );
+		Log::get().warn( "game_load_module_data() - cannot load the default script\n" );
         return false;
     }
 
@@ -2182,7 +2187,7 @@ bool game_load_module_data( const char *smallname )
     ProfileSystem::get().loadGlobalParticleProfiles();
 
     if (read_wawalite_vfs() == nullptr) {
-		Log::warning( "wawalite.txt not loaded for %s.\n", modname );
+		Log::get().warn( "wawalite.txt not loaded for %s.\n", modname );
     }
     upload_wawalite();
 
@@ -2196,7 +2201,7 @@ bool game_load_module_data( const char *smallname )
 	} catch (Id::Exception& ex) {
 		// do not cause the program to fail, in case we are using a script function to load a module
 		// just return a failure value and log a warning message for debugging purposes
-		Log::warning("%s\n", static_cast<std::string>(ex).c_str());
+		Log::get().warn("%s\n", static_cast<std::string>(ex).c_str());
 		return false;
 	}
 	_currentModule->setMeshPointer(mesh);
@@ -3019,7 +3024,7 @@ void upload_light_data(const wawalite_data_t& data)
     }
     else
     {
-		Log::warning("%s:%d: directional light vector is 0\n", __FILE__, __LINE__);
+		Log::get().warn("%s:%d: directional light vector is 0\n", __FILE__, __LINE__);
     }
 
     //make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
@@ -3116,7 +3121,7 @@ bool wawalite_finalize(wawalite_data_t *data)
         {
             if(weather_name != "none") 
             {
-				Log::warning("%s:%d: failed to load weather type from wawalite.txt: %s - (%s)\n", __FILE__,__LINE__, weather_name.c_str(), prt_file.c_str());
+				Log::get().warn("%s:%d: failed to load weather type from wawalite.txt: %s - (%s)\n", __FILE__,__LINE__, weather_name.c_str(), prt_file.c_str());
             }
             data->weather.part_gpip = LocalParticleProfileRef::Invalid;
             data->weather.weather_name = "*NONE*";
@@ -3646,7 +3651,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
     // make sure the directory exists
     if ( !vfs_mkdir( "/import" ) )
     {
-		Log::warning( "mnu_copy_local_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
+		Log::get().warn("%s:%d:%s: unable to create import folder `%s`\n", __FILE__, __LINE__, __FUNCTION__, vfs_getError() );
         return rv_error;
     }
     vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );
@@ -3662,7 +3667,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
         if ( !vfs_copyDirectory( import_ptr->srcDir, import_ptr->dstDir ) )
         {
             retval = rv_error;
-			Log::warning( "mnu_copy_local_imports() - Failed to copy an import character \"%s\" to \"%s\" (%s)\n", import_ptr->srcDir, import_ptr->dstDir, vfs_getError() );
+			Log::get().warn( "mnu_copy_local_imports() - Failed to copy an import character \"%s\" to \"%s\" (%s)\n", import_ptr->srcDir, import_ptr->dstDir, vfs_getError() );
         }
 
         // Copy all of the character's items to the import directory
@@ -3677,7 +3682,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
                 if ( !vfs_copyDirectory( tmp_src_dir, tmp_dst_dir ) )
                 {
                     retval = rv_error;
-					Log::warning( "mnu_copy_local_imports() - Failed to copy an import inventory item \"%s\" to \"%s\" (%s)\n", tmp_src_dir, tmp_dst_dir, vfs_getError() );
+					Log::get().warn( "mnu_copy_local_imports() - Failed to copy an import inventory item \"%s\" to \"%s\" (%s)\n", tmp_src_dir, tmp_dst_dir, vfs_getError() );
                 }
             }
         }
@@ -3764,7 +3769,7 @@ bool check_time( Uint32 check )
         case TIME_DAY: return !check_time( TIME_NIGHT );
 
 		// Unhandled check
-        default: Log::warning( "Unhandled time enum in check_time()\n" ); return false;
+        default: Log::get().warn( "Unhandled time enum in check_time()\n" ); return false;
     }
 }
 

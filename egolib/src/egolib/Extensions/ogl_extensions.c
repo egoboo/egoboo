@@ -35,58 +35,58 @@ oglx_caps_t g_ogl_caps;
 
 void oglx_caps_t::report(oglx_caps_t& self)
 {
-    Log::message("\nOpenGL state parameters\n");
-	Log::message("\tgl_version    == %s\n", self.gl_version);
-	Log::message("\tgl_vendor     == %s\n", self.gl_vendor);
-	Log::message("\tgl_renderer   == %s\n", self.gl_renderer);
-	Log::message("\tgl_extensions == %s\n", self.gl_extensions);
-	Log::message("\n");
+    Log::get().message("\nOpenGL state parameters\n");
+	Log::get().message("\tgl_version    == %s\n", self.gl_version);
+	Log::get().message("\tgl_vendor     == %s\n", self.gl_vendor);
+	Log::get().message("\tgl_renderer   == %s\n", self.gl_renderer);
+	Log::get().message("\tgl_extensions == %s\n", self.gl_extensions);
+	Log::get().message("\n");
 
-	Log::message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", self.max_modelview_stack_depth);
-	Log::message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", self.max_projection_stack_depth);
-	Log::message("\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", self.max_texture_stack_depth);
-	Log::message("\tGL_MAX_NAME_STACK_DEPTH          == %d\n", self.max_name_stack_depth);
-	Log::message("\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", self.max_attrib_stack_depth);
-	Log::message("\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", self.max_client_attrib_stack_depth);
+	Log::get().message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", self.max_modelview_stack_depth);
+	Log::get().message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", self.max_projection_stack_depth);
+	Log::get().message("\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", self.max_texture_stack_depth);
+	Log::get().message("\tGL_MAX_NAME_STACK_DEPTH          == %d\n", self.max_name_stack_depth);
+	Log::get().message("\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", self.max_attrib_stack_depth);
+	Log::get().message("\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", self.max_client_attrib_stack_depth);
 
-	Log::message("\tGL_SUBPIXEL_BITS          == %d\n", self.subpixel_bits);
-	Log::message("\tGL_POINT_SIZE_RANGE       == %f - %f\n", self.point_size_range[0], self.point_size_range[1]);
-	Log::message("\tGL_POINT_SIZE_GRANULARITY == %f\n", self.point_size_granularity);
-	Log::message("\tGL_LINE_WIDTH_RANGE       == %f - %f\n", self.line_width_range[0], self.line_width_range[1]);
-	Log::message("\tGL_LINE_WIDTH_GRANULARITY == %f\n\n", self.line_width_granularity);
+	Log::get().message("\tGL_SUBPIXEL_BITS          == %d\n", self.subpixel_bits);
+	Log::get().message("\tGL_POINT_SIZE_RANGE       == %f - %f\n", self.point_size_range[0], self.point_size_range[1]);
+	Log::get().message("\tGL_POINT_SIZE_GRANULARITY == %f\n", self.point_size_granularity);
+	Log::get().message("\tGL_LINE_WIDTH_RANGE       == %f - %f\n", self.line_width_range[0], self.line_width_range[1]);
+	Log::get().message("\tGL_LINE_WIDTH_GRANULARITY == %f\n\n", self.line_width_granularity);
 
-	Log::message("\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", self.max_viewport_dims[0], self.max_viewport_dims[1]);
-	Log::message("\tGL_AUX_BUFFERS       == %d\n", self.aux_buffers);
-	Log::message("\tGL_RGBA_MODE         == %s\n", self.rgba_mode ? "TRUE" : "FALSE");
-	Log::message("\tGL_INDEX_MODE        == %s\n", self.index_mode ? "TRUE" : "FALSE");
-	Log::message("\tGL_DOUBLEBUFFER      == %s\n", self.doublebuffer ? "TRUE" : "FALSE");
-	Log::message("\tGL_STEREO            == %s\n", self.stereo ? "TRUE" : "FALSE");
-	Log::message("\tGL_RED_BITS          == %d\n", self.red_bits);
-	Log::message("\tGL_GREEN_BITS        == %d\n", self.green_bits);
-	Log::message("\tGL_BLUE_BITS         == %d\n", self.blue_bits);
-	Log::message("\tGL_ALPHA_BITS        == %d\n", self.alpha_bits);
-	Log::message("\tGL_INDEX_BITS        == %d\n", self.index_bits);
-	Log::message("\tGL_DEPTH_BITS        == %d\n", self.depth_bits);
-	Log::message("\tGL_STENCIL_BITS      == %d\n", self.stencil_bits);
-	Log::message("\tGL_ACCUM_RED_BITS    == %d\n", self.accum_red_bits);
-	Log::message("\tGL_ACCUM_GREEN_BITS  == %d\n", self.accum_green_bits);
-	Log::message("\tGL_ACCUM_BLUE_BITS   == %d\n", self.accum_blue_bits);
-	Log::message("\tGL_ACCUM_ALPHA_BITS  == %d\n\n", self.accum_alpha_bits);
+	Log::get().message("\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", self.max_viewport_dims[0], self.max_viewport_dims[1]);
+	Log::get().message("\tGL_AUX_BUFFERS       == %d\n", self.aux_buffers);
+	Log::get().message("\tGL_RGBA_MODE         == %s\n", self.rgba_mode ? "TRUE" : "FALSE");
+	Log::get().message("\tGL_INDEX_MODE        == %s\n", self.index_mode ? "TRUE" : "FALSE");
+	Log::get().message("\tGL_DOUBLEBUFFER      == %s\n", self.doublebuffer ? "TRUE" : "FALSE");
+	Log::get().message("\tGL_STEREO            == %s\n", self.stereo ? "TRUE" : "FALSE");
+	Log::get().message("\tGL_RED_BITS          == %d\n", self.red_bits);
+	Log::get().message("\tGL_GREEN_BITS        == %d\n", self.green_bits);
+	Log::get().message("\tGL_BLUE_BITS         == %d\n", self.blue_bits);
+	Log::get().message("\tGL_ALPHA_BITS        == %d\n", self.alpha_bits);
+	Log::get().message("\tGL_INDEX_BITS        == %d\n", self.index_bits);
+	Log::get().message("\tGL_DEPTH_BITS        == %d\n", self.depth_bits);
+	Log::get().message("\tGL_STENCIL_BITS      == %d\n", self.stencil_bits);
+	Log::get().message("\tGL_ACCUM_RED_BITS    == %d\n", self.accum_red_bits);
+	Log::get().message("\tGL_ACCUM_GREEN_BITS  == %d\n", self.accum_green_bits);
+	Log::get().message("\tGL_ACCUM_BLUE_BITS   == %d\n", self.accum_blue_bits);
+	Log::get().message("\tGL_ACCUM_ALPHA_BITS  == %d\n\n", self.accum_alpha_bits);
 
-	Log::message("\tGL_MAX_LIGHTS        == %d\n", self.max_lights);
-	Log::message("\tGL_MAX_CLIP_PLANES   == %d\n", self.max_clip_planes);
-	Log::message("\tGL_MAX_TEXTURE_SIZE  == %d\n\n", self.max_texture_size);
+	Log::get().message("\tGL_MAX_LIGHTS        == %d\n", self.max_lights);
+	Log::get().message("\tGL_MAX_CLIP_PLANES   == %d\n", self.max_clip_planes);
+	Log::get().message("\tGL_MAX_TEXTURE_SIZE  == %d\n\n", self.max_texture_size);
 
-	Log::message("\tGL_MAX_PIXEL_MAP_TABLE == %d\n", self.max_pixel_map_table);
-	Log::message("\tGL_MAX_LIST_NESTING    == %d\n", self.max_list_nesting);
-	Log::message("\tGL_MAX_EVAL_ORDER      == %d\n\n", self.max_eval_order);
+	Log::get().message("\tGL_MAX_PIXEL_MAP_TABLE == %d\n", self.max_pixel_map_table);
+	Log::get().message("\tGL_MAX_LIST_NESTING    == %d\n", self.max_list_nesting);
+	Log::get().message("\tGL_MAX_EVAL_ORDER      == %d\n\n", self.max_eval_order);
 
     if (self.anisotropic_supported)
     {
-		Log::message("\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", self.maxAnisotropy);
+		Log::get().message("\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", self.maxAnisotropy);
     }
 
-	Log::message("==============================================================\n");
+	Log::get().message("==============================================================\n");
 }
 
 void oglx_report_caps()
@@ -230,27 +230,27 @@ bool Utilities::isError()
         switch (error)
         {
             case GL_INVALID_ENUM:
-                Log::warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_ENUM");
+                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_ENUM");
                 break;
             case GL_INVALID_VALUE:
-                Log::warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_VALUE");
+                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_VALUE");
                 break;
             case GL_INVALID_OPERATION:
-                Log::warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_OPERATION");
+                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_OPERATION");
                 break;
         #if defined(GL_INVALID_FRAMEBUFFER_OPERATION)
             case GL_INVALID_FRAMEBUFFER_OPERATION:
-                Log::warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_FRAMEBUFFER_OPERATION");
+                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_FRAMEBUFFER_OPERATION");
                 break;
         #endif
             case GL_OUT_OF_MEMORY:
-                Log::warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_OUT_OF_MEMORY");
+                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_OUT_OF_MEMORY");
                 break;
             case GL_STACK_UNDERFLOW:
-                Log::warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_STACK_UNDERFLOW");
+                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_STACK_UNDERFLOW");
                 break;
             case GL_STACK_OVERFLOW:
-                Log::warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_STACK_OVERFLOW");
+                Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, "GL_STACK_OVERFLOW");
                 break;
         };
         clearError();

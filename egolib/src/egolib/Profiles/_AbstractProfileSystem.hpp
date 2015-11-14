@@ -161,7 +161,7 @@ public:
     REFTYPE load_one(const std::string& pathname, const REFTYPE _override)
     {
         if(isLoaded(_override)) {
-			Log::warning("Loaded over existing profile\n");
+			Log::get().warn("%s:%d:%s: loaded over existing profile\n", __FILE__, __LINE__, __FUNCTION__);
         }
 
         REFTYPE ref = INVALIDREF;

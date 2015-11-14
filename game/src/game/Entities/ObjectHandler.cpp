@@ -96,14 +96,14 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_R
     // Make sure the profile is valid.
     if (!ProfileSystem::get().isValidProfileID(profile))
     {
-		Log::warning("ObjectHandler - Tried to spawn character with invalid ProfileID: %d\n", profile);
+		Log::get().warn("%s:%d: tried to spawn character with invalid prrofile ID %d\n", __FILE__, __LINE__, profile);
         return nullptr;
     }
 
     // Limit total number of characters active at the same time.
     if(getObjectCount() > OBJECTS_MAX)
     {
-		Log::warning("ObjectHandler - No free character slots available\n");
+		Log::get().warn("%s:%d: no free character slots available\n", __FILE__, __LINE__);
         return nullptr;
     }
 
@@ -117,7 +117,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_R
         }
         else
         {
-			Log::warning( "ObjectHandler - failed to override a character? character %d already spawned? \n", REF_TO_INT( override ) );
+			Log::get().warn("%s:%d: failed to override a character %d: - character already spawned\n", __FILE__, __LINE__, REF_TO_INT( override ) );
 			return nullptr;
 		}
     }
@@ -135,7 +135,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_R
 
         if(!object)
 		{
-			Log::warning("ObjectHandler - Unable to allocate object memory\n");
+			Log::get().warn("ObjectHandler - Unable to allocate object memory\n");
             return nullptr;
         }
 

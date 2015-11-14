@@ -262,14 +262,14 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     if ( _texturesLoaded.empty() )
     {
         _texturesLoaded[0] = Ego::DeferredOpenGLTexture("mp_data/waterlow");
-		Log::warning("Object is missing a skin (%s)!\n", getPathname().c_str());
+		Log::get().warn("Object is missing a skin (%s)!\n", getPathname().c_str());
     }
 
     // If we didn't get a icon, set it to the NULL icon
     if ( _iconsLoaded.empty())
     {
         _iconsLoaded[0] = Ego::DeferredOpenGLTexture("mp_data/nullicon");
-		Log::debug("Object is missing an icon (%s)!\n", getPathname().c_str());
+		Log::get().debug("Object is missing an icon (%s)!\n", getPathname().c_str());
     }
 }
 
@@ -883,7 +883,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 }
                 else
                 {
-					Log::warning("Unknown [PERK] parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
+					Log::get().warn("Unknown [PERK] parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
                 }
             }
             break;
@@ -900,7 +900,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 }
                 else
                 {
-					Log::warning("Unknown [POOL] perk parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
+					Log::get().warn("Unknown [POOL] perk parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
                 }
             }
             break;
@@ -918,7 +918,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             case MAKE_IDSZ( 'D', 'A', 'R', 'K' ): _startingPerks[Ego::Perks::NIGHT_VISION] = true; break;
 
             default:
-				Log::warning("Unknown IDSZ parsed: [%4s] (%s)\n", undo_idsz(idsz), filePath.c_str());
+				Log::get().warn("Unknown IDSZ parsed: [%4s] (%s)\n", undo_idsz(idsz), filePath.c_str());
             break;
         }
     }
@@ -976,7 +976,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     //Make sure slot number is valid
     if(slotNumber == INVALID_PRO_REF)
     {
-		Log::warning("ObjectProfile::loadFromFile() - Invalid PRO_REF (%d)\n", slotNumber);
+		Log::get().warn("ObjectProfile::loadFromFile() - Invalid PRO_REF (%d)\n", slotNumber);
         return nullptr;
     }
 
@@ -995,7 +995,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
             profile->_model = std::make_shared<Ego::ModelDescriptor>(folderPath.c_str());
         }
         catch (const std::runtime_error &ex) {
-			Log::warning("ObjectProfile::loadFromFile() - Unable to load model (%s)\n", folderPath.c_str());
+			Log::get().warn("ObjectProfile::loadFromFile() - Unable to load model (%s)\n", folderPath.c_str());
             return nullptr;
         }
 
@@ -1042,12 +1042,12 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     // Do after loading particle and sound profiles
     try {
         if(!profile->loadDataFile(folderPath + "/data.txt")) {
-			Log::warning("Unable to load data.txt for profile: %s\n", folderPath.c_str());
+			Log::get().warn("Unable to load data.txt for profile: %s\n", folderPath.c_str());
             return nullptr;
         }
     }
     catch (const std::runtime_error &ex) {
-		Log::warning("ProfileSystem::loadFromFile() - Failed to parse (%s/data.txt): (%s)\n", folderPath.c_str(), ex.what());
+		Log::get().warn("ProfileSystem::loadFromFile() - Failed to parse (%s/data.txt): (%s)\n", folderPath.c_str(), ex.what());
         return nullptr;
     }
 

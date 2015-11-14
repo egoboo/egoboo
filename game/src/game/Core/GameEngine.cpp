@@ -245,7 +245,7 @@ void GameEngine::renderOneFrame()
             if (!dump_screenshot())
             {
                 DisplayMsg_printf("Error writing screenshot!"); // send a failure message to the screen
-				Log::warning("Error writing screenshot\n");      // Log the error in log.txt
+				Log::get().warn("Error writing screenshot\n");      // Log the error in log.txt
             }
         }
     }
@@ -381,7 +381,7 @@ bool GameEngine::initialize()
 
 void GameEngine::uninitialize()
 {
-	Log::message("Uninitializing Egoboo %s\n",GAME_VERSION.c_str());
+	Log::get().message("Uninitializing Egoboo %s\n",GAME_VERSION.c_str());
 
     _gameStateStack.clear();
     _currentGameState.reset();
@@ -427,7 +427,7 @@ void GameEngine::uninitialize()
 	InputSystem::uninitialize();
 
     // Shut down the log services.
-	Log::message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());
+	Log::get().message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());
 }
 
 void GameEngine::setGameState(std::shared_ptr<GameState> gameState)

@@ -57,7 +57,7 @@ egolib_rv quest_file_export(std::shared_ptr<ConfigFile> file)
     }
     if (!ConfigFileUnParser().unparse(file))
     {
-		Log::warning("%s:%d: unable to export quest file `%s`\n", __FILE__, __LINE__, file->getFileName().c_str());
+		Log::get().warn("%s:%d: unable to export quest file `%s`\n", __FILE__, __LINE__, file->getFileName().c_str());
         return rv_fail;
     }
     return rv_success;
@@ -105,7 +105,7 @@ egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ, int> &quest_log, c
     filewrite = vfs_openWrite( player_directory );
     if ( NULL == filewrite )
     {
-		Log::warning( "Cannot create quest file! (%s)\n", player_directory );
+		Log::get().warn( "Cannot create quest file! (%s)\n", player_directory );
         return rv_fail;
     }
 

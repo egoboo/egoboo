@@ -62,7 +62,7 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
     // Try to open a context.
     ReadContext ctxt(filename);
     if (!ctxt.ensureOpen()) {
-		Log::error("unable to load tile definitions file `%s`\n", filename);
+		Log::get().error("unable to load tile definitions file `%s`\n", filename);
         return false;
     }
 
@@ -72,12 +72,12 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
 
     if ( definition_count > MAP_FAN_TYPE_MAX )
     {
-		Log::error( "%s - tile dictionary has too many tile definitions (%d/%d).\n", __FUNCTION__, definition_count, MAP_FAN_TYPE_MAX );
+		Log::get().error( "%s - tile dictionary has too many tile definitions (%d/%d).\n", __FUNCTION__, definition_count, MAP_FAN_TYPE_MAX );
         return false;
     }
     else if ( definition_count > max_dict_size )
     {
-		Log::error( "%s - the number of tile difinitions has exceeded the requested number (%d/%d).\n", __FUNCTION__, definition_count, max_dict_size );
+		Log::get().error( "%s - the number of tile difinitions has exceeded the requested number (%d/%d).\n", __FUNCTION__, definition_count, max_dict_size );
         return false;
     }
 

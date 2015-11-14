@@ -63,7 +63,7 @@ int translate_string_to_input_type( const char *string )
     if ( INPUT_DEVICE_UNKNOWN == retval )
     {
         retval = INPUT_DEVICE_KEYBOARD;
-        Log::warning( "Unknown device controller parsed (%s) - defaulted to Keyboard\n", string );
+        Log::get().warn( "Unknown device controller parsed (%s) - defaulted to Keyboard\n", string );
     }
 
     return retval;

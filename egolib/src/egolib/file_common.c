@@ -380,7 +380,10 @@ bool fs_ensureUserFile( const char * relative_filename, bool required )
     // if it still doesn't exist, we have problems
     if (( 0 == found ) && required )
     {
-		Log::error( "Cannot find the file \"%s\".\n", relative_filename );
+		std::ostringstream os;
+		os << "cannot find the file `" << relative_filename << "`" << std::endl;
+		Log::get().error(os.str().c_str());
+		throw std::runtime_error(os.str());
     }
 
     return ( 0 != found );

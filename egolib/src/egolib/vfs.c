@@ -48,18 +48,16 @@ typedef struct s_vfs_path_data vfs_path_data_t;
  */
 #undef _VFS_DEBUG
 
-//--------------------------------------------------------------------------------------------
+ //--------------------------------------------------------------------------------------------
 #define VFS_MAX_PATH 1024
 
-#if defined(__EGO_CURRENT_FUNCTION__)
-    #define BAIL_IF_NOT_INIT() \
-        if(!_vfs_initialized) \
-            Log::error("egolib VFS function called while the system was not initialized -- function `%s`\n", __ID_CURRENT_FUNCTION__);
-#else
-    #define BAIL_IF_NOT_INIT() \
-        if(!_vfs_initialized) \
-            Log::error("egolib VFS function called while the system was not initialized -- file `%s`, line %d\n", __ID_CURRENT_FILE__, __ID_CURRENT_LINE__ );
-#endif
+#define BAIL_IF_NOT_INIT() \
+	if(!_vfs_initialized) { \
+		std::ostringstream os; \
+		os << __FUNCTION__ << ": EgoLib VFS function called while the VFS was not initialized" << std::endl; \
+		Log::get().error("%s", os.str().c_str()); \
+		throw std::runtime_error(os.str()); \
+	}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -179,7 +177,7 @@ int vfs_init(const char *argv0, const char *root_dir)
     {
         // We can call log functions, they won't try to write to unopened log files
         // But mainly this is used for sys_popup
-        Log::error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory());
+        Log::get().error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory());
         return 1;
     }
 
@@ -686,11 +684,11 @@ const char * vfs_resolveWriteFilename( const char * src_filename )
     strncpy( szTemp, src_filename, SDL_arraysize( szTemp ) );
 
     write_dir = PHYSFS_getWriteDir();
-    if ( NULL == write_dir )
-    {
-        Log::warning( "PhysFS could not get write directory!\n" );
-        return NULL;
-    }
+	if (nullptr == write_dir)
+	{
+		Log::get().warn("PhysFS could not get write directory!\n");
+		return nullptr;
+	}
 
     // append the write_dir to the szTemp to get the total path
     snprintf( szFname, SDL_arraysize( szFname ), "%s" SLASH_STR "%s", write_dir, szTemp );
@@ -1002,7 +1000,7 @@ bool vfs_mkdir(const std::string& pathname) {
     }
 
     if (!PHYSFS_mkdir(temporary.c_str())) {
-        Log::debug("PHYSF_mkdir(%s) failed: %s\n", pathname.c_str(), vfs_getError());
+        Log::get().debug("PHYSF_mkdir(%s) failed: %s\n", pathname.c_str(), vfs_getError());
         return false;
     }
 
@@ -1019,7 +1017,7 @@ bool vfs_delete_file(const std::string& pathname)
     }
 
     if (!PHYSFS_delete(temporary.c_str())) {
-        Log::debug("PHYSF_delete(%s) failed: %s\n", pathname.c_str(), vfs_getError());
+        Log::get().debug("PHYSF_delete(%s) failed: %s\n", pathname.c_str(), vfs_getError());
         return false;
     }
     return true;
@@ -1789,7 +1787,10 @@ int fake_physfs_vscanf( PHYSFS_File * pfile, const char *format, va_list args )
                         // invalid?
                     default:
                         invalid = true;
-                        Log::error("got an invalid format '%s', currently at '%s'", format_start, format - 1);
+						std::ostringstream os;
+						os << "invalid format specifier `%" << format_start << "` at `" << (format - 1) << "`" << std::endl;
+                        Log::get().error("%s",os.str().c_str());
+						throw std::runtime_error(os.str());
                 }
             }
             
@@ -2343,7 +2344,8 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
 
             if ( !vfs_copyFile( srcPath, destPath ) )
             {
-                Log::debug( "vfs_copyDirectory() - Failed to copy from \"%s\" to \"%s\" (%s)\n", srcPath, destPath, vfs_getError() );
+                Log::get().debug("%s:%d:%s:  failed to copy from \"%s\" to \"%s\" (%s)\n", \
+					             __FILE__, __LINE__, __FUNCTION__, srcPath, destPath, vfs_getError() );
             }
         }
         ctxt = vfs_findNext( &ctxt );

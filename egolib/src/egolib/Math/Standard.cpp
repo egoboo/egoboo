@@ -10,7 +10,10 @@ namespace Debug {
 template <>
 void validate<float>(const char *file, int line, const float& object) {
     if (float_bad(object)) {
-		Log::error("%s:%d: invalid floating point value\n", file, line);
+		std::ostringstream os;
+		os << file << ":" << line << ": invalid floating point value" << std::endl;
+		Log::get().error("%s", os.str());
+		throw std::runtime_error(os.str());
     }
 }
 

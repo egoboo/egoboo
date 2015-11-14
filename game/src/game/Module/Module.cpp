@@ -249,7 +249,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     {
         if ( profile > getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
-			Log::warning( "spawnObject() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
+			Log::get().warn( "spawnObject() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
         }
         return Object::INVALID_OBJECT;
     }
@@ -260,7 +260,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     // allocate a new character
     std::shared_ptr<Object> pchr = getObjectHandler().insert(profile, override);
     if (!pchr) {
-		Log::warning( "spawnObject() - failed to spawn character\n" );
+		Log::get().warn( "spawnObject() - failed to spawn character\n" );
         return Object::INVALID_OBJECT;
     }
 

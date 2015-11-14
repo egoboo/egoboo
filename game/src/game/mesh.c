@@ -49,7 +49,7 @@ static void warnNumberOfVertices(const char *file, int line, size_t numberOfVert
 	std::ostringstream os;
 	os << "mesh has too many vertices - " << numberOfVertices << " requested, "
 	   << "but maximum is " << MAP_VERTICES_MAX;
-	Log::warning("%s:%d: %s\n", __FILE__, __LINE__, os.str().c_str());
+	Log::get().warn("%s:%d: %s\n", __FILE__, __LINE__, os.str().c_str());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void tile_mem_t::computeVertexIndices(const tile_dictionary_t& dict)
 	}
 
 	if (vertexIndex != getVertexCount()) {
-		Log::warning("%s:%d: unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", __FILE__, __LINE__, vertexIndex, getVertexCount());
+		Log::get().warn("%s:%d: unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", __FILE__, __LINE__, vertexIndex, getVertexCount());
 	}
 }
 
@@ -265,7 +265,7 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 	{
 		std::ostringstream os;
 		os << "unable to load mesh of module `" << moduleName << "`";
-		Log::error("%s\n", os.str().c_str());
+		Log::get().error("%s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
 	// Create the mesh from map.
@@ -274,7 +274,7 @@ std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
 	{
 		std::ostringstream os;
 		os << "unable to convert mesh of module `" << moduleName << "`";
-		Log::error("%s\n", os.str().c_str());
+		Log::get().error("%s\n", os.str().c_str());
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
 	}
 	mesh->finalize();

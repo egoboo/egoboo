@@ -328,7 +328,8 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t *pscript )
 
     if ( _line_buffer_count > 0  && tabs_warning_needed )
     {
-		Log::message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+		Log::get().message("%s:%d:%s: compilation error - tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", \
+			               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
     }
 
     // scan to the beginning of the next line
@@ -378,14 +379,16 @@ int parser_state_t::get_indentation(script_info_t *pscript )
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-		Log::message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+		Log::get().message("%s:%d:%s: compilation error - invalid indentation \"%s\"(%d) - \"%s\"\n", \
+			               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
         _error = true;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-		Log::message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+		Log::get().message("%s:%d:%s: compilation error - too many levels of indentation \"%s\"(%d) - \"%s\"\n", \
+			               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
         _error = true;
         cnt = 15;
     }
@@ -509,7 +512,8 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         }
         else
         {
-			Log::message( "SCRIPT ERROR: %s() - The string in line %d is too long\n.", __FUNCTION__, tok.getLine() );
+			Log::get().message("%s:%d:%s: compilation error - the string in line %d is too long\n", \
+				               __FILE__, __LINE__, __FUNCTION__, tok.getLine() );
         }
     }
     else
@@ -581,7 +585,8 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         {
             // some kind of empty string
 
-			Log::message( "SCRIPT ERROR: %s() - The string in line %d is empty\n.", __FUNCTION__, tok.getLine() );
+			Log::get().message("%s:%d:%s: compilation error - the string in line %d is empty\n.", \
+				               __FILE__, __LINE__, __FUNCTION__, tok.getLine() );
 
             // some kind of error
             parsed = true;
@@ -629,7 +634,8 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
             // Failed to load object!
             if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
             {
-				Log::message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, tok.szWord, pscript->_name.c_str(), tok.getLine() );
+				Log::get().message("%s:%d:%s: compialtion error - failed to load object: %s through an AI script. %s (line %d)\n", \
+					               __FILE__, __LINE__, __FUNCTION__, tok.szWord, pscript->_name.c_str(), tok.getLine() );
             }
 
             tok.setType(Token::Type::Constant);
@@ -672,7 +678,8 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     // We couldn't figure out what this is, throw out an error code
     if ( !parsed )
     {
-		Log::message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), tok.getLine(), tok.szWord );
+		Log::get().message("%s:%d:%s: compilation error - \"%s\"(%d) - unknown opcode \"%s\"\n", __FILE__, __LINE__, __FUNCTION__, \
+			               pscript->_name.c_str(), tok.getLine(), tok.szWord );
 
         // put the token in an error state
         tok.setValue(-1);
@@ -706,7 +713,7 @@ void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_i
     }
     else
     {
-		Log::message( "SCRIPT ERROR: %s() - emit_opcode() - Script index larger than array\n", __FUNCTION__ );
+		Log::get().message( "SCRIPT ERROR: %s() - emit_opcode() - Script index larger than array\n", __FUNCTION__ );
     }
 
 }
@@ -779,7 +786,8 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
             parseposition = parse_token(_token, ppro, pscript, parseposition );  // EQUALS
 			if ( Token::Type::Operator != _token.getType() || 0 != strcmp( _token.szWord, "=" ) )
             {
-				Log::message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+				Log::get().message("%s:%d:%s: invalid equation \"%s\"(%d) - \"%s\"\n", \
+					               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
             }
 
             //------------------------------
@@ -797,7 +805,8 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
             else if ( Token::Type::Operator != _token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-				Log::message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+				Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
+					               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
 
                 emit_opcode( _token, 0, pscript );
                 operands++;
@@ -812,7 +821,8 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
                 if ( Token::Type::Operator != _token.getType() )
                 {
                     // problem with the loop
-					Log::message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
+					Log::get().message("%s:%d:%s: compilation error - expected an operator \"%s\"(%d) - \"%s\"\n", \
+						               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _line_buffer );
                     break;
                 }
 
@@ -824,7 +834,8 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
                 if ( Token::Type::Constant != _token.getType() && Token::Type::Variable != _token.getType() )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-					Log::message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+					Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
+						               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
                     break;
                 }
 
@@ -838,16 +849,19 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
         }
         else if ( Token::Type::Constant == _token.getType() )
         {
-			Log::message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+			Log::get().message("%s:%d:%s: compilation error - invalid constant \"%s\"(%d) - \"%s\"\n", \
+				               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
         }
         else if ( Token::Type::Unknown == _token.getType() )
         {
             // unknown opcode, do not process this line
-			Log::message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+			Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
+				               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
         }
         else
         {
-			Log::message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+			Log::get().message("%s:%d:%s: compilation error - compiler is broken \"%s\"(%d) - \"%s\"\n", \
+				               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
             break;
         }
     }
@@ -1678,8 +1692,8 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
     // No such file
     if ( NULL == fileread )
     {
-		Log::message( "SCRIPT ERROR: %s() - I am missing a AI script (%s)\n", __FUNCTION__, loadname.c_str() );
-		Log::message( "              Using the default AI script instead (\"mp_data/script.txt\")\n" );
+		Log::get().message("%s:%d:%s: missing a AI script (%s).\n", __FILE__, __LINE__, __FUNCTION__, loadname.c_str() );
+		Log::get().message("          Using the default AI script instead (\"mp_data/script.txt\")\n" );
 
         ps.ai_script_upload_default( pscript );
         return rv_fail;
@@ -1692,8 +1706,7 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
     ps._load_buffer.fill(CSTR_END);
 
     if(file_size > ps._load_buffer.size()) {
-        Log::warning("SCRIPT ERROR - Script file size is bigger than buffer!\n");
-
+        Log::get().warn("%s:%d:%s: compilation error - script file size is bigger than buffer!\n", __FILE__, __LINE__, __FUNCTION__);
         ps.ai_script_upload_default( pscript );
         return rv_fail;
     }
@@ -1704,7 +1717,8 @@ egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, O
     // if the file is empty, use the default script
     if ( 0 == ps._load_buffer_count )
     {
-		Log::message( "SCRIPT ERROR: %s() - Script file is empty. \"%s\"\n", __FUNCTION__, loadname.c_str() );
+		Log::get().message("%s:%d:%s: compilation error - script file is empty. \"%s\"\n", \
+			               __FILE__, __LINE__, __FUNCTION__, loadname.c_str() );
 
         ps.ai_script_upload_default( pscript );
         return rv_fail;

@@ -73,7 +73,7 @@ gfx_rv TileList::reset()
 {
 	if (!_mesh)
 	{
-		Log::error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
+		Log::get().error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
 
@@ -93,7 +93,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 {
 	if (!_mesh)
 	{
-		Log::error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
+		Log::get().error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
 

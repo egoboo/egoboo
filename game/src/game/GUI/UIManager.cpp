@@ -42,7 +42,10 @@ UIManager::UIManager() :
     {
         if(!_fonts[i])
         {
-			Log::error("UIManager missing font with ID %d!", i);
+			std::ostringstream os;
+			os << __FILE__ << ":" << __LINE__ << ": UI manager is missing font with ID " << i << std::endl;
+			Log::get().error("%s",os.str().c_str());
+			throw std::runtime_error(os.str());
         }
     }
 #endif

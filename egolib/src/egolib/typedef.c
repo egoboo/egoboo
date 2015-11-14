@@ -64,12 +64,12 @@ void pair_to_range( IPair pair, FRange * prange )
 
     if ( pair.base < 0 )
     {
-        Log::warning( "We got a randomization error again! (Base is less than 0)\n" );
+        Log::get().warn( "We got a randomization error again! (Base is less than 0)\n" );
     }
 
     if ( pair.rand < 0 )
     {
-        Log::warning( "We got a randomization error again! (rand is less than 0)\n" );
+        Log::get().warn( "We got a randomization error again! (rand is less than 0)\n" );
     }
 
     if ( NULL != prange )
@@ -92,15 +92,13 @@ void range_to_pair( FRange range, IPair * ppair )
 
     if ( range.from > range.to )
     {
-		Log::warning( "We got a range error! (to is less than from)\n" );
+		Log::get().warn( "We got a range error! (to is less than from)\n" );
     }
 
     if ( NULL != ppair )
     {
-        float fFrom, fTo;
-
-        fFrom = std::min( range.from, range.to );
-        fTo   = std::max( range.from, range.to );
+        float fFrom = std::min( range.from, range.to );
+        float fTo   = std::max( range.from, range.to );
 
         ppair->base = FLOAT_TO_FP8( fFrom );
         ppair->rand = FLOAT_TO_FP8( fTo - fFrom );
