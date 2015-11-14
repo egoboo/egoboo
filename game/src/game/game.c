@@ -2187,7 +2187,7 @@ bool game_load_module_data( const char *smallname )
     ProfileSystem::get().loadGlobalParticleProfiles();
 
     if (read_wawalite_vfs() == nullptr) {
-		Log::get().warn( "wawalite.txt not loaded for %s.\n", modname );
+		Log::get().warn( "wawalite.txt not loaded for %s.\n", modname.c_str() );
     }
     upload_wawalite();
 
