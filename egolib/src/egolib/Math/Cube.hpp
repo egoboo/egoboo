@@ -34,23 +34,10 @@ struct Cube : public Internal::Entity<_VectorSpaceType>, public Translatable<_Ve
 
 public:
 
-    /**
-     * @brief
-     *  @a MyType is the type of this template/template specialization.
-     */
-    typedef Cube<_VectorSpaceType> MyType;
-
-    /**
-     * @brief
-     *  The scalar type.
-     */
-	typedef typename Internal::Entity<_VectorSpaceType>::ScalarType ScalarType;
-
-    /**
-     * @brief
-     *  The vector type.
-     */
-	typedef typename Internal::Entity<_VectorSpaceType>::VectorType VectorType;
+    typedef Cube<_VectorSpaceType> MyType;                 ///< @brief This type.
+	typedef Internal::Entity<_VectorSpaceType> EntityType; ///< @brief The type of the entity.
+	typedef typename EntityType::ScalarType ScalarType;    ///< @brief The type of the underlaying scalars.
+	typedef typename EntityType::VectorType VectorType;    ///< @brief The type of the underlaying vectors.
 
 private:
 

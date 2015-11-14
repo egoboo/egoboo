@@ -59,8 +59,12 @@
     char * str_convert_slash_net( char * str, size_t size );
     char * str_convert_slash_sys( char * str, size_t size );
 
-    char * str_append_slash( char * str, size_t size );
-    char * str_append_slash_net( char * str, size_t size );
+	/// Append a operating system slash to a filename
+	/// if there is no slash or backslash.
+    std::string str_append_slash(const std::string& filename);
+	/// Append a network slash to a filename
+	/// if there is no slash or backslash.
+    std::string str_append_slash_net(const std::string& filename);
 
     void   str_trim( char *pStr );
     void   str_add_linebreaks( char * text, size_t text_len, size_t line_len );

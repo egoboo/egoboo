@@ -204,3 +204,4 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
 } // namespace Internal
 } // namespace Math
 } // namespace Ego
+

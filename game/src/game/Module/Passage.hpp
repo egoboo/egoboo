@@ -35,7 +35,7 @@ public:
     static constexpr int32_t NO_MUSIC = -1;				///< For passages that play no music
     static constexpr uint32_t CLOSE_TOLERANCE = 3;		///< For closing doors
     static constexpr size_t MAX_PASSAGES = 256;			///< Maximum allowed passages
-    static constexpr CHR_REF SHOP_NOOWNER = 0xFFFF;		///< Shop has no owner
+    static constexpr const ObjectRef& SHOP_NOOWNER = ObjectRef::Invalid;	///< Shop has no owner
     static constexpr uint32_t SHOP_STOLEN = 0xFFFF;
 
 	/// The pre-defined orders for communicating with shopkeepers
@@ -111,13 +111,13 @@ public:
 	void flashColor(uint8_t color);
 
     /**
-    * @brief This function returns INVALID_CHR_REF if there is no character in the passage,
-    *    	 otherwise the index of the first character found is returned...
-    *    	 Can also look for characters with a specific quest or item in his or her inventory
-    *    	 Finds living ones, then items and corpses
-    * @return CHR_REF of the character found which fullfills all specified requirements or INVALID_CHR_REF if none found
+    * @brief This function returns ObjectRef::Invalid if there is no object in the passage,
+    *    	 otherwise the index of the first object found is returned.
+	* @remark Can also look for objects with a specific quest or item in his or her inventory
+    *    	  First finds living ones, then items and corpses
+    * @return the object reference of the object found which fullfills all specified requirements or ObjectRef::Invalid if none found
     **/
-    CHR_REF whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const;
+    ObjectRef whoIsBlockingPassage(ObjectRef objRef, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item) const;
 
 
     /**
@@ -129,7 +129,7 @@ public:
     * @brief Plays the passage music assigned to this passage if the specified character is inside this passage
     * @return true if a new song is now playing
     **/
-    bool checkPassageMusic(const Object * pchr) const;
+    bool checkPassageMusic(const Object *pobj) const;
 
     /**
     * @return Sets the MusicID of this passage. If a player character enters this passage, the specified MusicID will be played
@@ -141,9 +141,9 @@ public:
     **/
     bool isShop() const;
 
-    CHR_REF getShopOwner() const;
+	ObjectRef getShopOwner() const;
 
-    void makeShop(CHR_REF owner);
+    void makeShop(ObjectRef owner);
 
     void removeShop();
 
@@ -154,5 +154,5 @@ private:
     bool _open;   			///< Is the passage open?
 
     bool _isShop;			///< True if this passage is a shop
-    CHR_REF _shopOwner;		///< CHR_REF of the owner of this shop
+    ObjectRef _shopOwner;	///< object reference of the owner of this shop
 };

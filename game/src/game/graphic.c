@@ -436,22 +436,22 @@ void GFX::initializeSDLGraphics()
 
     oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
 
-	Log::info("Opening SDL Video Mode...\n");
+	Log::get().info("Opening SDL Video Mode...\n");
 
     bool setVideoMode = false;
 
     // Actually set the video mode.
     if (!SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics))
     {
-		Log::message("Failed!\n");
+		Log::get().message("Failed!\n");
         if (egoboo_config_t::get().graphic_fullscreen.getValue())
         {
-			Log::info("SDL error with fullscreen mode on: %s\n", SDL_GetError());
-			Log::info("Trying again in windowed mode...\n");
+			Log::get().info("SDL error with fullscreen mode on: %s\n", SDL_GetError());
+			Log::get().info("Trying again in windowed mode...\n");
             sdl_vparam.flags.full_screen = SDL_FALSE;
             if (!SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics))
             {
-				Log::message("Failed!\n");
+				Log::get().message("Failed!\n");
             }
             else
             {
@@ -467,12 +467,16 @@ void GFX::initializeSDLGraphics()
 
     if (!setVideoMode)
     {
-		Log::error("I can't get SDL to set any video mode: %s\n", SDL_GetError());
+		Log::get().message("Failed!\n");
+		std::ostringstream os;
+		os << "unable to set any video mode - SDL_GetError() = " << SDL_GetError() << std::endl;
+		Log::get().error("%s", os.str().c_str());
+		throw std::runtime_error(os.str());
     }
     else
     {
         GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.verticalResolution * (float)sdl_vparam.horizontalResolution;
-		Log::message("Success!\n");
+		Log::get().message("Success!\n");
     }
     
     SDL_Window *window = sdl_scr.window;
@@ -485,7 +489,7 @@ void GFX::initializeSDLGraphics()
         SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
         if (!theSurface)
         {
-			Log::warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
+			Log::get().warn("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
         }
         else
         {
@@ -819,7 +823,7 @@ float draw_fps(float y)
 //--------------------------------------------------------------------------------------------
 float draw_help(float y)
 {
-    if (SDL_KEYDOWN(keyb, SDLK_F1))
+    if (keyb.is_key_down(SDLK_F1))
     {
         // In-Game help
         y = draw_string_raw(0, y, "!!!MOUSE HELP!!!");
@@ -831,7 +835,7 @@ float draw_help(float y)
         y = draw_string_raw(0, y, "~~A and S keys do stuff");
         y = draw_string_raw(0, y, "~~Right Drag to move camera");
     }
-    if (SDL_KEYDOWN(keyb, SDLK_F2))
+    if (keyb.is_key_down(SDLK_F2))
     {
         // In-Game help
         y = draw_string_raw(0, y, "!!!JOYSTICK HELP!!!");
@@ -839,7 +843,7 @@ float draw_help(float y)
         y = draw_string_raw(0, y, "~~Hit the buttons");
         y = draw_string_raw(0, y, "~~You'll figure it out");
     }
-    if (SDL_KEYDOWN(keyb, SDLK_F3))
+    if (keyb.is_key_down(SDLK_F3))
     {
         // In-Game help
         y = draw_string_raw(0, y, "!!!KEYBOARD HELP!!!");
@@ -862,7 +866,7 @@ float draw_debug(float y)
         return y;
     }
 
-    if (SDL_KEYDOWN(keyb, SDLK_F5))
+    if (keyb.is_key_down(SDLK_F5))
     {
         CHR_REF ichr;
         PLA_REF ipla;
@@ -896,7 +900,7 @@ float draw_debug(float y)
         }
     }
 
-    if (SDL_KEYDOWN(keyb, SDLK_F6))
+    if (keyb.is_key_down(SDLK_F6))
     {
         // More debug information
         y = draw_string_raw(0, y, "!!!DEBUG MODE-6!!!");
@@ -915,7 +919,7 @@ float draw_debug(float y)
         // y = draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
 
-    if (SDL_KEYDOWN(keyb, SDLK_F7))
+    if (keyb.is_key_down(SDLK_F7))
     {
         std::shared_ptr<Camera> camera = CameraSystem::get()->getMainCamera();
 
@@ -1583,7 +1587,7 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const TileIndex& fan, floa
 	// get the grid lighting
 	const lighting_cache_t& lighting = pgrid._cache;
 
-	bool reflective = (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE));
+	bool reflective = (0 != pgrid.testFX(MAPFX_REFLECTIVE));
 
 	// evaluate the grid lighting at this node
 	if (reflective)
@@ -1829,7 +1833,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 
         // is the tile reflective?
 		ego_grid_info_t& pgrid = mesh->getGridInfo(fan);
-        bool reflective = (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE));
+        bool reflective = (0 != pgrid.testFX(MAPFX_REFLECTIVE));
 
         // light the corners of this tile
         float delta = GridIllumination::light_corners(*mesh, ptile, reflective, local_mesh_lighting_keep);
@@ -2881,7 +2885,7 @@ gfx_rv update_one_chr_instance(Object *pchr)
 {
     if (!pchr || pchr->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr), "invalid character");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr).get(), "invalid character");
         return gfx_error;
     }
     chr_instance_t& pinst = pchr->inst;

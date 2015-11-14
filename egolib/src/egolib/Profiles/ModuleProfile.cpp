@@ -124,7 +124,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     ctxt.skipWhiteSpaces();
     if (!ctxt.isNewLine() && !ctxt.is(ReadContext::Traits::endOfInput()))
     {
-        result->_unlockQuestLevel = ctxt.readInt();
+        result->_unlockQuestLevel = ctxt.readIntegerLiteral();
     }
     result->_importAmount = vfs_get_next_int(ctxt);
     result->_allowExport  = vfs_get_next_bool(ctxt);

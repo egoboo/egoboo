@@ -104,13 +104,13 @@ Image *Image::load(const char *pathname)
     SDL_RWops *rwops = vfs_openRWopsRead(pathname);
     if (!rwops)
     {
-		Log::warning("%s:%d: unable to load image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, SDL_GetError());
+		Log::get().warn("%s:%d: unable to load image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, SDL_GetError());
         return nullptr;
     }
     SDL_Surface *surface = IMG_Load_RW(rwops, 1);
     if (!surface)
     {
-		Log::warning("%s:%d: unable to load image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, IMG_GetError());
+		Log::get().warn("%s:%d: unable to load image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, IMG_GetError());
         return nullptr;
     }
     // b) If surface is palettized, convert to unpalettized.
@@ -121,13 +121,13 @@ Image *Image::load(const char *pathname)
             SDL_Surface *newSurface = getR8G8B8A8(surface->w, surface->h);
             if (!newSurface)
             {
-				Log::warning("%s:%d: unable to convert image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, SDL_GetError());
+				Log::get().warn("%s:%d: unable to convert image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, SDL_GetError());
                 SDL_FreeSurface(surface);
                 return nullptr;
             }
             if (SDL_BlitSurface(surface, nullptr, newSurface, nullptr) < 0)
             {
-				Log::warning("%s:%d: unable to convert image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, SDL_GetError());
+				Log::get().warn("%s:%d: unable to convert image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, SDL_GetError());
                 SDL_FreeSurface(newSurface);
                 SDL_FreeSurface(surface);
                 return nullptr;
@@ -152,7 +152,7 @@ Image *Image::load(const char *pathname)
             SDL_Surface *newSurface = getR8G8B8A8(surface->w, surface->h);
             if (!newSurface)
             {
-				Log::warning("%s:%d: unable to convert image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, SDL_GetError());
+				Log::get().warn("%s:%d: unable to convert image `%s` - reason `%s`\n", __FILE__, __LINE__, pathname, SDL_GetError());
                 SDL_FreeSurface(surface);
                 return nullptr;
             }

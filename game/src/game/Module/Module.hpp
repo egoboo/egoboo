@@ -112,13 +112,13 @@ public:
 
     /// @author ZZ
     /// @details This function returns the owner of a item in a shop
-    CHR_REF getShopOwner(const float x, const float y);
+    const ObjectRef& getShopOwner(const float x, const float y);
 
     /**
      * @brief
      *  Mark all shop passages having this owner as no longer a shop
      */
-    void removeShopOwner(CHR_REF owner);
+    void removeShopOwner(const ObjectRef& owner);
 
     /**
      * @return

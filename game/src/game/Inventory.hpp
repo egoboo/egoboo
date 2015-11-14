@@ -36,7 +36,7 @@ public:
      * @details
      *  Note that you still have to handle it falling out.
      */
-    static bool remove_item(const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse);
+    static bool remove_item(ObjectRef ichr, const size_t inventory_slot, const bool ignorekurse);
 
     /**
      * @brief
@@ -44,14 +44,14 @@ public:
      * @details
      *  This fails if there already is an item there.
      */
-    static bool add_item(const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse);
+    static bool add_item(ObjectRef iowner, const ObjectRef iitem, uint8_t inventorySlot, bool ignoreKurse);
     /**
      * @brief
      *  Swap item between inventory slot and grip slot.
      * @remark
      *  This swaps an item between the specified inventory slot and the specified grip
      */
-    static bool swap_item(const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse);
+    static bool swap_item(ObjectRef iowner, uint8_t inventorySlot, const slot_t grip_off, bool ignoreKurse);
 
     /**
      * @brief
@@ -69,7 +69,7 @@ public:
      *  @a true, then in addition the item must be equipped in order to match the search
      *  criterion.
      */
-    static CHR_REF findItem(Object *pobj, IDSZ idsz, bool equippedOnly);
+    static ObjectRef findItem(Object *powner, IDSZ idsz, bool equippedOnly);
     /**
      * @brief
      *  Find an item in the pack.
@@ -86,7 +86,7 @@ public:
      *  @a true, then in addition the item must be equipped in order to match the search
      *  criterion.
      */
-    static CHR_REF findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly);
+    static ObjectRef findItem(ObjectRef iowner, IDSZ idsz, bool equippedOnly);
 
     /**
     * @brief
@@ -97,7 +97,7 @@ public:
     *   The CHR_REF of the Object in the specified slot number in this inventory
     *   Returns INVALID_CHR_REF if slotNumber is out of bounds or if slot is empty
     **/
-    CHR_REF getItemID(const size_t slotNumber) const;
+    ObjectRef getItemID(const size_t slotNumber) const;
 
     /**
     * @brief

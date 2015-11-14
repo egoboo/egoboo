@@ -754,7 +754,7 @@ void draw_chr_bbox(Object *pchr)
         return;
     }
     // Draw the object bounding box as a part of the graphics debug mode F7.
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_F7))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7))
     {
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         {
@@ -784,7 +784,7 @@ void draw_chr_bbox(Object *pchr)
 
 #if _DEBUG
     //// The grips and vertrices of all objects.
-    if (SDL_KEYDOWN(keyb, SDLK_F6))
+    if (keyb.is_key_down(SDLK_F6))
     {
         draw_chr_attached_grip( pchr );
 
@@ -1012,7 +1012,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 
     // reduce the amount of updates to one every frame_skip frames, but dither
     // the updating so that not all objects update on the same frame
-    self.lighting_frame_all = game_frame_all + ((game_frame_all + pchr->getCharacterID()) & frame_mask);
+    self.lighting_frame_all = game_frame_all + ((game_frame_all + pchr->getObjRef().get()) & frame_mask);
 
 	if (!self.imad) {
 		return;
@@ -1259,7 +1259,7 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     // make sure we have valid data
     if (self.vrt_count != pmd2->getVertexCount())
     {
-		Log::warning( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
+		Log::get().warn( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
         return gfx_error;
     }
 
@@ -1326,7 +1326,7 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
     if ( self.frame_nxt >= frameList.size() || self.frame_lst >= frameList.size() )
     {
-		Log::warning( "chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
+		Log::get().warn("%s:%d:%s: character instance frame is outside the range of its MD2\n", __FILE__, __LINE__, __FUNCTION__ );
         return gfx_error;
     }
 
@@ -1986,7 +1986,10 @@ const MD2_Frame& chr_instance_t::get_frame_nxt(const chr_instance_t& self)
 {
 	if (self.frame_nxt > self.imad->getMD2()->getFrames().size())
     {
-		Log::error("%s:%d: invalid frame %d/%" PRIuZ "\n", __FILE__, __LINE__, self.frame_nxt, self.imad->getMD2()->getFrames().size());
+		std::ostringstream os;
+		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.frame_nxt << "/" << self.imad->getMD2()->getFrames().size() << std::endl;
+		Log::get().error("%s",os.str().c_str());
+		throw std::runtime_error(os.str());
     }
 
 	return self.imad->getMD2()->getFrames()[self.frame_nxt];
@@ -1996,7 +1999,10 @@ const MD2_Frame& chr_instance_t::get_frame_lst(chr_instance_t& self)
 {
 	if (self.frame_lst > self.imad->getMD2()->getFrames().size())
     {
-		Log::error("%s:%d: invalid frame %d/%" PRIuZ "\n", __FILE__, __LINE__, self.frame_lst, self.imad->getMD2()->getFrames().size());
+		std::ostringstream os;
+		os << __FILE__ << ":" << __LINE__ << ": invalid frame " << self.frame_lst << "/" << self.imad->getMD2()->getFrames().size() << std::endl;
+		Log::get().error("%s", os.str().c_str());
+		throw std::runtime_error(os.str());
     }
 
 	return self.imad->getMD2()->getFrames()[self.frame_lst];

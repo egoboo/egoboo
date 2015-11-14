@@ -69,13 +69,13 @@ namespace Ego
         SDL_RWops *rwops = vfs_openRWopsRead(fileName.c_str());
         if (rwops == nullptr)
         {
-			Log::warning("Failed to open '%s' via vfs: %s\n", fileName.c_str(), vfs_getError());
+			Log::get().warn("Failed to open '%s' via vfs: %s\n", fileName.c_str(), vfs_getError());
             return;
         }
         _ttfFont = TTF_OpenFontRW(rwops, 1, pointSize);
         if (_ttfFont == nullptr)
         {
-			Log::warning("Failed to open '%s' via SDL_ttf: %s\n", fileName.c_str(), TTF_GetError());
+			Log::get().warn("Failed to open '%s' via SDL_ttf: %s\n", fileName.c_str(), TTF_GetError());
             return;
         }
     }
@@ -131,7 +131,7 @@ namespace Ego
         SDL_Surface *textSurface = TTF_RenderUTF8_Blended(_ttfFont, text.c_str(), sdlColor);
         if (!textSurface)
         {
-			Log::warning("Got a null surface from SDL_TTF: %s", TTF_GetError());
+			Log::get().warn("Got a null surface from SDL_TTF: %s", TTF_GetError());
             return;
         }
         std::shared_ptr<SDL_Surface> surface = std::shared_ptr<SDL_Surface>(textSurface, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });

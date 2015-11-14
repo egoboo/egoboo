@@ -262,7 +262,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
         //Is floor flat or sloped?
         if (TWIST_FLAT == penviro->twist)
         {
-            vup = Vector3f(0, 0, 1);
+            vup = Vector3f(0.0f, 0.0f, 1.0f);
         }
         else
         {
@@ -864,7 +864,7 @@ void move_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
+int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
 {
     /// @author ZZ
     /// @details This function is for catching characters on fire and such
@@ -1006,8 +1006,9 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                             }
                         }
 
-                        std::shared_ptr<Ego::Particle> bs_part = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pprt->getSpawnerProfile(), ppip->bumpspawn._lpip,
-                                                                            character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
+                        std::shared_ptr<Ego::Particle> bs_part = 
+							ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pprt->getSpawnerProfile(), ppip->bumpspawn._lpip,
+                                                                      character.get(), bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character.get());
 
                         if (bs_part)
                         {

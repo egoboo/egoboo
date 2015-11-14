@@ -31,6 +31,7 @@
 #include "egolib/file_common.h"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/Logic/Gender.hpp"
+#include "egolib/IDSZ.hpp"
 #include "egolib/Profiles/LocalParticleProfileRef.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 
@@ -158,8 +159,8 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-			Log::warning("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
-                         ctxt._loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
+			Log::get().warn("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
+                            ctxt._loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
             return defaultValue;
         }
         return it->second;
@@ -204,28 +205,30 @@ public:
      */
     char readPrintable();
 
-    /**
-     * @throw Id::LexicalErrorException
-     *  if a lexical error occurs
-     * @remark
-     *  A character literal in this revision are the strings
-     *  @code
-     *  charLit := '\'' charLitBody '\''
-     *  charLitBody := (any - '\'') | ('\\n' | '\\t' | '\\\'')
-     *  @endcode
-     * @todo
-     *  Use Unicode notation for better readbility.
-     */
-    char readCharLit();
+public:
 
-    /**
-     * @remark
-     *  A string literal in this revision are the strings
-     *  @code
-     *  stringLiteral := (character|digit|'~'|'_')*
-     *  @endcode
-     */
-    std::string readStringLit();
+	/**
+	 * @remark
+	 *  A string literal in this revision are the strings
+	 *  @code
+	 *  stringLiteral := (character|digit|'~'|'_')*
+	 *  @endcode
+	 */
+	Ego::Script::TextToken parseStringLiteral();
+
+	/**
+	 * @throw Id::LexicalErrorException
+	 *  if a lexical error occurs
+	 * @remark
+	 *  A character literal in this revision are the strings
+	 *  @code
+	 *  charLit := '\'' charLitBody '\''
+	 *  charLitBody := (any - '\'') | ('\\n' | '\\t' | '\\\'')
+	 *  @endcode
+	 * @todo
+	 *  Use Unicode notation for better readbility.
+	 */
+	Ego::Script::TextToken parseCharacterLiteral();
 
     /**
      * @throw Id::LexicalErrorException
@@ -236,7 +239,7 @@ public:
      *  integer := ('+'|'-')? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-	Ego::Script::TextToken parseInt();
+	Ego::Script::TextToken parseIntegerLiteral();
 
     /**
      * @throw Id::LexicalErrorException
@@ -247,7 +250,7 @@ public:
      *  integer := '+'? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
-	Ego::Script::TextToken parseNat();
+	Ego::Script::TextToken parseNaturalLiteral();
 
     /**
      * @throw Id::LexicalErrorException
@@ -260,7 +263,9 @@ public:
      *  realExponent := ('e'|'E' ('+'|'-')? digit+)?
      *  @endcode
      */
-	Ego::Script::TextToken parseReal();
+	Ego::Script::TextToken parseRealLiteral();
+
+public:
 
     /**
      * @throw Id::LexicalErrorException
@@ -268,7 +273,7 @@ public:
      * @remark
      *   A boolean literal in this revision are the strings
      *   @code
-     *   boolean := 'T' | 'F'
+     *   boolean := 'T' | 'F' | 'true' | 'false'
      *   @endcode
      */
     bool readBool();
@@ -307,6 +312,7 @@ public:
      *  @endcode
      */
     IDSZ readIDSZ();
+	IDSZ2 readIDSZ2();
 
     /**
      * @brief
@@ -346,9 +352,13 @@ public:
     ReadContext(const ReadContext& copy) = delete;
     ReadContext& operator=(const ReadContext&) = delete;
 
-	int readInt();
-	unsigned int readNat();
-	float readReal();
+public:
+
+	std::string readStringLiteral();
+	char readCharacterLiteral();
+	int readIntegerLiteral();
+	unsigned int readNaturalLiteral();
+	float readRealLiteral();
 };
 
 // Utility functions.

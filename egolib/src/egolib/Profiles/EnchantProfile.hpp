@@ -26,6 +26,8 @@
 #include "egolib/Profiles/AbstractProfile.hpp"
 #undef EGBOLIB_PROFILES_PRIVATE
 
+#include "egolib/IDSZ.hpp"
+
 /// Special modes for particle reflections from characters
 enum MissileTreatmentType
 {

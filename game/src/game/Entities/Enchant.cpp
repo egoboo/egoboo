@@ -119,7 +119,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::ADDMANA: type = Ego::Attribute::MAX_MANA; break;
             case eve_t::ADDLIFE: type = Ego::Attribute::MAX_LIFE; break;
             case eve_t::ADDSTRENGTH: type = Ego::Attribute::MIGHT; break;
-            case eve_t::ADDWISDOM: Log::warning("Spawned enchant with deprecated ADDWISDOM\n"); continue;
+            case eve_t::ADDWISDOM: Log::get().warn("spawned enchant with deprecated ADDWISDOM\n"); continue;
             case eve_t::ADDINTELLIGENCE: type = Ego::Attribute::INTELLECT; break;
             case eve_t::ADDDEXTERITY: type = Ego::Attribute::AGILITY; break;
             case eve_t::ADDSLASHRESIST: type = Ego::Attribute::SLASH_RESIST; break;
@@ -234,7 +234,7 @@ void Enchantment::update()
                 ParticleHandler::get().spawnLocalParticle(target->getPosition(), facing, _spawnerProfileID, _enchantProfile->contspawn._lpip,
                                                           INVALID_CHR_REF, GRIP_LAST, 
                                                           owner != nullptr ? owner->getTeam().toRef() : static_cast<TEAM_REF>(Team::TEAM_DAMAGE), 
-                                                          owner != nullptr ? owner->getCharacterID() : INVALID_CHR_REF,
+                                                          owner != nullptr ? owner->getObjRef().get() : INVALID_CHR_REF,
                                                           INVALID_PRT_REF, i, INVALID_CHR_REF);
 
                 facing += _enchantProfile->contspawn._facingAdd;
@@ -285,7 +285,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
 {
     //Invalid target?
     if( target->isTerminated() || (!target->isAlive() && !_enchantProfile->_target._stay) ) {
-		Log::warning("Enchantment::applyEnchantment() - Invalid target\n");
+		Log::get().warn("%s:%d: invalid target\n", __FILE__, __LINE__);
         requestTerminate();
         return;
     }
@@ -309,7 +309,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         }
         else {
             // No weapons to pick, make it fail
-			Log::debug("Enchantment::applyEnchantment() - failed because target has no valid items in hand\n");
+			Log::get().debug("Enchantment::applyEnchantment() - failed because target has no valid items in hand\n");
             requestTerminate();
             return;
         }
@@ -321,7 +321,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     // Check damage type, 90% damage resistance is enough to resist the enchant
     if (_enchantProfile->required_damagetype < DAMAGE_COUNT) {
         if (target->getDamageReduction(_enchantProfile->required_damagetype) >= 0.90f) {
-			Log::debug("Enchantment::applyEnchantment() - failed because the target is immune to the enchant.\n");
+			Log::get().debug("Enchantment::applyEnchantment() - failed because the target is immune to the enchant.\n");
             requestTerminate();
             return;
         }
@@ -330,7 +330,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     // Check if target has the required damage type we need
     if (_enchantProfile->require_damagetarget_damagetype < DAMAGE_COUNT) {
         if (target->damagetarget_damagetype != _enchantProfile->require_damagetarget_damagetype) {
-			Log::warning("Enchantment::applyEnchantment() - failed because the target not have the right damagetarget_damagetype.\n");
+			Log::get().warn("%s:%d: application of enchantment failed because the target not have the right damagetarget_damagetype.\n", __FILE__, __LINE__);
             requestTerminate();
             return;
         }
@@ -348,7 +348,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         if (overlay)
         {
             _overlay = overlay;                             //Kill this character on end...
-            overlay->ai.target   = target->getCharacterID();
+            overlay->ai.target   = target->getObjRef().get();
             overlay->is_overlay  = true;
             overlay->ai.state = _enchantProfile->spawn_overlay; // ??? WHY DO THIS ???
 
@@ -469,13 +469,13 @@ std::shared_ptr<Object> Enchantment::getOwner() const
     return _owner.lock();
 }
 
-CHR_REF Enchantment::getOwnerID() const
+ObjectRef Enchantment::getOwnerRef() const
 {
     std::shared_ptr<Object> owner = _owner.lock();
     if(!owner || owner->isTerminated()) {
-        return INVALID_CHR_REF;
+        return ObjectRef::Invalid;
     }
-    return owner->getCharacterID();
+    return owner->getObjRef();
 }
 
 void Enchantment::setBoostValues(float ownerManaSustain, float ownerLifeSustain, float targetManaDrain, float targetLifeDrain)

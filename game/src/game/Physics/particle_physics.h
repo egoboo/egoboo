@@ -97,4 +97,5 @@ public:
 //--------------------------------------------------------------------------------------------
 void move_all_particles();
 
+int  spawn_bump_particles(ObjectRef objectRef, const PRT_REF particle);
 CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);

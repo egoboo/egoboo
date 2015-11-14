@@ -27,17 +27,17 @@ namespace Core
 
 TimerService::TimerService()
 {
-	Log::info("Intializing SDL timer services ... ");
+	Log::get().info("Intializing SDL timer services ... ");
     if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0)
     {
-		Log::message(" failure!\n");
+		Log::get().message(" failure!\n");
         Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL timer", SDL_GetError());
-		Log::error("%s\n", ((std::string)error).c_str());
+		Log::get().error("%s\n", ((std::string)error).c_str());
         throw error;
     }
     else
     {
-		Log::message(" success!\n");
+		Log::get().message(" success!\n");
     }
 
 }
@@ -54,17 +54,17 @@ uint32_t TimerService::getTicks()
 
 EventService::EventService()
 {
-	Log::info("Intializing SDL event queue services ... ");
+	Log::get().info("Intializing SDL event queue services ... ");
     if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0)
     {
-		Log::message(" failure!\n");
+		Log::get().message(" failure!\n");
         Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL events", SDL_GetError());
-		Log::error("%s\n", ((std::string)error).c_str());
+		Log::get().error("%s\n", ((std::string)error).c_str());
         throw error;
     }
     else
     {
-		Log::message(" success!\n");
+		Log::get().message(" success!\n");
     }
 }
 
@@ -75,17 +75,17 @@ EventService::~EventService()
 
 VideoService::VideoService()
 {
-	Log::info("Intializing SDL Video ... ");
+	Log::get().info("Intializing SDL Video ... ");
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
 	{
-		Log::message(" failure!\n");
+		Log::get().message(" failure!\n");
 		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Video", SDL_GetError());
-		Log::error("%s\n", ((std::string)error).c_str());
+		Log::get().error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}
 	else
 	{
-		Log::message(" success!\n");
+		Log::get().message(" success!\n");
 	}
 }
 
@@ -96,17 +96,17 @@ VideoService::~VideoService()
 
 AudioService::AudioService()
 {
-	Log::info("Intializing SDL Audio ... ");
+	Log::get().info("Intializing SDL Audio ... ");
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
 	{
-		Log::message(" failure!\n");
+		Log::get().message(" failure!\n");
 		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Audio", SDL_GetError());
-		Log::error("%s\n", ((std::string)error).c_str());
+		Log::get().error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}
 	else
 	{
-		Log::message(" success!\n");
+		Log::get().message(" success!\n");
 	}
 }
 
@@ -117,17 +117,17 @@ AudioService::~AudioService()
 
 InputService::InputService()
 {
-	Log::info("Intializing SDL Joystick/GameController/Haptic ... ");
+	Log::get().info("Intializing SDL Joystick/GameController/Haptic ... ");
 	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
 	{
-		Log::message(" failure!\n");
+		Log::get().message(" failure!\n");
 		Id::EnvironmentErrorException error(__FILE__, __LINE__, "SDL Joystick/GameController/Haptic", SDL_GetError());
-		Log::error("%s\n", ((std::string)error).c_str());
+		Log::get().error("%s\n", ((std::string)error).c_str());
 		throw error;
 	}
 	else
 	{
-		Log::message(" success!\n");
+		Log::get().message(" success!\n");
 	}
 }
 
@@ -157,8 +157,8 @@ System::System(const char *binaryPath, const char *egobooPath)
     Log::initialize("/debug/log.txt", Log::Level::Debug);
 
     // Start initializing the various subsystems.
-	Log::message("Starting Egoboo Engine %s\n", VERSION.c_str());
-	Log::info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
+	Log::get().message("Starting Egoboo Engine %s\n", VERSION.c_str());
+	Log::get().info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
 
     // Load "setup.txt".
     setup_begin();
@@ -167,7 +167,7 @@ System::System(const char *binaryPath, const char *egobooPath)
     setup_download(&egoboo_config_t::get());
 
     // Initialize SDL.
-	Log::message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+	Log::get().message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
     try
     {
         _timerService = std::unique_ptr<TimerService>(new TimerService());
@@ -264,7 +264,7 @@ System::~System()
     _timerService.reset();
     setup_end();
     /*sys_uninitialize();*/
-	Log::message("Exiting Egoboo Engine %s.\n", VERSION.c_str());
+	Log::get().message("Exiting Egoboo Engine %s.\n", VERSION.c_str());
     Log::uninitialize();
     setup_clear_base_vfs_paths();
     /*vfs_uninitialize();*/

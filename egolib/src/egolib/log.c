@@ -105,69 +105,65 @@ namespace Log {
 		return _level;
 	}
 
-	void Target::log(Level level, const char *format, va_list args) {
+	void Target::logv(Level level, const char *format, va_list args) {
 		if (getLevel() >= level) {
-			write(level, format, args);
+			writev(level, format, args);
 		}
 	}
 
 	void Target::log(Level level, const char *format, ...) {
 		va_list args;
 		va_start(args, format);
-		write(level, format, args);
+		writev(level, format, args);
 		va_end(args);
 	}
 
-	void Target::message(const char *format, va_list args) {
-		log(Level::Message, format, args);
+	void Target::messagev(const char *format, va_list args) {
+		logv(Level::Message, format, args);
 	}
 
 	void Target::message(const char *format, ...) {
 		va_list args;
 		va_start(args, format);
-		log(Level::Message, format, args);
+		logv(Level::Message, format, args);
 		va_end(args);
 	}
 
-	void Target::debug(const char *format, va_list args) {
+	void Target::debugv(const char *format, va_list args) {
 		// Only if developer mode is enabled.
 		if (!egoboo_config_t::get().debug_developerMode_enable.getValue()) {
 			return;
 		}
-		log(Level::Debug, format, args);
+		logv(Level::Debug, format, args);
 	}
 
 	void Target::debug(const char *format, ...) {
 		va_list args;
 		va_start(args, format);
-		log(Level::Debug, format, args);
+		logv(Level::Debug, format, args);
 		va_end(args);
 	}
 
-	void Target::info(const char *format, va_list args) {
-		log(Level::Info, format, args);
+	void Target::infov(const char *format, va_list args) {
+		logv(Level::Info, format, args);
 	}
 
 	void Target::info(const char *format, ...) {
 		va_list args;
 		va_start(args, format);
-		log(Level::Info, format, args);
+		logv(Level::Info, format, args);
 		va_end(args);
 	}
 
-	void Target::warn(const char *format, va_list args) {
-		log(Level::Warning, format, args);
+	void Target::warnv(const char *format, va_list args) {
+		logv(Level::Warning, format, args);
 	}
 
 	void Target::warn(const char *format, ...) {
 		va_list args;
 		va_start(args, format);
-		log(Level::Warning, format, args);
+		logv(Level::Warning, format, args);
 		va_end(args);
-	}
-
-	void error(const char *format, va_list args) {
-		log(Level::Error, format, args);
 	}
 
 	void Target::error(const char *format, ...) {
@@ -190,7 +186,7 @@ namespace Log {
 		vfs_FILE *_file;
 		DefaultTarget(const std::string& filename, Level level = Level::Warning);
 		virtual ~DefaultTarget();
-		void write(Level level, const char *format, va_list args) override;
+		void writev(Level level, const char *format, va_list args) override;
 	};
 
 	DefaultTarget::DefaultTarget(const std::string& filename, Level level)
@@ -206,7 +202,7 @@ namespace Log {
 			_file = nullptr;
 		}
 	}
-	void DefaultTarget::write(Level level, const char *format, va_list args) {
+	void DefaultTarget::writev(Level level, const char *format, va_list args) {
 		char logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
 
 		// Add prefix
@@ -289,65 +285,4 @@ Log::Target& Log::get() {
 		throw std::logic_error("logging system is not initialized");
 	}
 	return *g_target;
-}
-
-void log(Log::Level level, const char *format, va_list args) {
-	g_target->log(level, format, args);
-}
-
-void log(Log::Level level, const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-	g_target->log(level, format, args);
-    va_end(args);
-}
-
-void Log::message(const char *format, ...) {
-	va_list args;
-	va_start(args, format);
-	g_target->message(format, args);
-	va_end(args);
-}
-
-void Log::debug(const char *format, ...) {
-	va_list args;
-	va_start(args, format);
-	g_target->debug(format, args);
-	va_end(args);
-}
-
-void Log::info(const char *format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	g_target->info(format, args);
-	va_end(args);
-}
-
-void Log::warning(const char *format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	g_target->warn(format, args);
-	va_end(args);
-}
-
-void Log::error(const char *format, ...)
-{
-    va_list args, args2;
-
-    va_start(args, format);
-    va_copy(args2, args);
-    log(Log::Level::Error, format, args);
-
-    // Display an OS messagebox.
-    char buffer[MAX_LOG_MESSAGE];
-    vsnprintf(buffer, MAX_LOG_MESSAGE - 1, format, args2);
-
-    char message[MAX_LOG_MESSAGE];
-    snprintf(message, MAX_LOG_MESSAGE - 1, "Egoboo has encountered a problem and is exiting.\nThis is the error report: \n%s", buffer);
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Egoboo: Fatal Error", message, nullptr);
-
-    va_end(args);
-    va_end(args2);
 }

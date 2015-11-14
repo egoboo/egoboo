@@ -56,7 +56,7 @@ Camera::Camera(const CameraOptions &options) :
     _trackLevel(0.0f),
 
     _zoom(CAM_ZOOM_AVG),
-    _center{0, 0, 0},
+    _center{0.0f, 0.0f, 0.0f},
     _zadd(CAM_ZADD_AVG),
     _zaddGoto(CAM_ZADD_AVG),
     _zGoto(CAM_ZADD_AVG),
@@ -66,9 +66,9 @@ Camera::Camera(const CameraOptions &options) :
     _turnZAdd(0.0f),
     _turnZSustain(0.60f),
 
-    _forward{0, 0, 0},
-    _up{0, 0, 0},
-    _right{0, 0, 0},
+    _forward{0.0f, 0.0f, 0.0f},
+    _up{0.0f, 0.0f, 0.0f},
+    _right{0.0f, 0.0f, 0.0f},
 
     // Special effects.
     _motionBlur(0.0f),
@@ -311,36 +311,36 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
     {
     // The camera is controlled by the keypad.
     case CameraMovementMode::Free:
-            if (SDL_KEYDOWN(keyb, SDLK_KP_8))
+            if (keyb.is_key_down(SDLK_KP_8))
             {
                 _trackPos[kX] -= _viewMatrix(1, 0) * 50;
                 _trackPos[kY] -= _viewMatrix(1, 1) * 50;
             }
 
-            if (SDL_KEYDOWN(keyb, SDLK_KP_2))
+            if (keyb.is_key_down(SDLK_KP_2))
             {
                 _trackPos[kX] += _viewMatrix(1, 0) * 50;
                 _trackPos[kY] += _viewMatrix(1, 1) * 50;
             }
 
-            if (SDL_KEYDOWN(keyb, SDLK_KP_4))
+            if (keyb.is_key_down(SDLK_KP_4))
             {
                 _trackPos[kX] += _viewMatrix(0, 0) * 50;
                 _trackPos[kY] += _viewMatrix(0, 1) * 50;
             }
 
-            if (SDL_KEYDOWN(keyb, SDLK_KP_6))
+            if (keyb.is_key_down(SDLK_KP_6))
             {
                 _trackPos[kX] -= _viewMatrix(0, 0) * 10;
                 _trackPos[kY] -= _viewMatrix(0, 1) * 10;
             }
 
-            if (SDL_KEYDOWN(keyb, SDLK_KP_7))
+            if (keyb.is_key_down(SDLK_KP_7))
             {
                 _turnZAdd += DEFAULT_TURN_KEY;
             }
 
-            if (SDL_KEYDOWN(keyb, SDLK_KP_9))
+            if (keyb.is_key_down(SDLK_KP_9))
             {
                 _turnZAdd -= DEFAULT_TURN_KEY;
             }

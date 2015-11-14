@@ -28,97 +28,52 @@
 #include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 // Raw input devices
-mouse_data_t    mous = MOUSE_INIT;
-keyboard_data_t keyb = KEYBOARD_INIT;
+mouse_data_t mous;
+keyboard_data_t keyb;
 joystick_data_t joy_lst[MAX_JOYSTICK];
-input_cursor_t  input_cursor = {0, 0, 0, false, false, false, false};
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-static void input_system_init_keyboard();
-static void input_system_init_mouse();
-static void input_system_init_joysticks();
-static void input_system_init_devices();
-
-static void input_read_joystick(int which);
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void input_system_init_keyboard()
-{
-    // set up the keyboard
-    keyboard_data__init( &keyb );
-
-    // turn the keyboard on
-    keyb.on         = true;
+void InputSystem::init_keyboard() {
+    keyb.init();
+    keyb.on = true;
 }
 
-//--------------------------------------------------------------------------------------------
-void input_system_init_mouse()
-{
-    /// @author BB
-    /// @details set up the mouse
-
-    mouse_data__init( &mous );
-
+void InputSystem::init_mouse() {
+    mous.init();
     mous.on = true;
 }
 
-//--------------------------------------------------------------------------------------------
-void input_system_init_joysticks()
-{
-    /// @author BB
-    /// @details init the joysticks
-
-    int i;
-
-    for ( i = 0; i < MAX_JOYSTICK; i++ )
-    {
-        joystick_data__init( joy_lst + i );
-
-        if ( i < SDL_NumJoysticks() )
-        {
-            joy_lst[i].sdl_ptr = SDL_JoystickOpen( i );
-            joy_lst[i].on      = ( NULL != joy_lst[i].sdl_ptr );
-        }
+void InputSystem::init_joysticks() {
+    for (size_t i = 0; i < MAX_JOYSTICK; ++i) {
+        joy_lst[i].init();
+		if (i < SDL_NumJoysticks()) {
+			joy_lst[i].sdl_ptr = SDL_JoystickOpen(i);
+			joy_lst[i].on = (NULL != joy_lst[i].sdl_ptr);
+		}
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void input_system_init_devices()
-{
-    int cnt;
-
-    for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
-    {
-        InputDevices.lst[cnt].clear();
+void InputSystem::init_devices() {
+    for (size_t i = 0; i < MAX_LOCAL_PLAYERS; ++i) {
+        InputDevices.lst[i].clear();
     }
     InputDevices.count = 0;
 }
 
-//--------------------------------------------------------------------------------------------
-void InputSystem::initialize()
-{
-    /// @author BB
-    /// @details initialize the inputs
-    input_system_init_keyboard();
-    input_system_init_mouse();
-    input_system_init_joysticks();
-    input_system_init_devices();
+void InputSystem::initialize() {
+    init_keyboard();
+    init_mouse();
+    init_joysticks();
+    init_devices();
 }
 
-void InputSystem::uninitialize()
-{
-
+void InputSystem::uninitialize() {
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void input_read_mouse()
+void InputSystem::read_mouse()
 {
     int x, y, b;
 
@@ -139,14 +94,12 @@ void input_read_mouse()
     mous.b = ( mous.button[3] << 3 ) | ( mous.button[2] << 2 ) | ( mous.button[1] << 1 ) | ( mous.button[0] << 0 );
 }
 
-//--------------------------------------------------------------------------------------------
-void input_read_keyboard()
+void InputSystem::read_keyboard()
 {
     keyb.state_ptr = SDL_GetKeyboardState( &( keyb.state_size ) );
 }
 
-//--------------------------------------------------------------------------------------------
-void input_read_joystick( int which )
+void InputSystem::read_joystick( int which )
 {
     int dead_zone = 0x8000 / 10;
     int i, button_count, x, y;
@@ -191,45 +144,15 @@ void input_read_joystick( int which )
     return;
 }
 
-//--------------------------------------------------------------------------------------------
-void input_read_joysticks()
+void InputSystem::read_joysticks()
 {
     int cnt;
 
     SDL_JoystickUpdate();
     for ( cnt = 0; cnt < MAX_JOYSTICK; cnt++ )
     {
-        input_read_joystick( cnt );
+        InputSystem::read_joystick( cnt );
     }
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void input_cursor_reset()
-{
-    input_cursor.pressed       = false;
-    input_cursor.clicked       = false;
-    input_cursor.pending_click = false;
-    input_cursor.wheel_event   = false;
-    input_cursor.z             = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-void input_cursor_finish_wheel_event()
-{
-    input_cursor.wheel_event   = false;
-    input_cursor.z             = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-bool input_cursor_wheel_event_pending()
-{
-    if ( input_cursor.wheel_event && 0 == input_cursor.z )
-    {
-        input_cursor.wheel_event = false;
-    }
-
-    return input_cursor.wheel_event;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -312,7 +235,7 @@ bool input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontr
     // how many tags does this control have?
     for(uint32_t keycode : pcontrol.mappedKeys)
     {
-        if ( !SDL_KEYDOWN( keyb, keycode ) )
+        if (!keyb.is_key_down(keycode))
         {
             return false;
         }
@@ -323,64 +246,54 @@ bool input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontr
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mouse_data_t * mouse_data__init( mouse_data_t * ptr )
-{
-    int cnt;
+mouse_data_t::mouse_data_t()
+	: on(true), sense(12), x(0), y(0), b(0),
+	  button{ 0, 0, 0, 0 } {
+}
 
-    if ( NULL == ptr ) return ptr;
+void mouse_data_t::init() {
+    on = true;
+    sense = 12;
+    x = y = 0.0f;
+    b = 0;
 
-    ptr->on = true;
-    ptr->sense = 12;
-    ptr->x = ptr->y = 0.0f;
-    ptr->b = 0;
-
-    for ( cnt = 0; cnt < 4; cnt++ )
-    {
-        ptr->button[cnt] = 0;
+    for (size_t i = 0; i < 4; ++i) {
+        button[i] = 0;
     }
-
-    return ptr;
-
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr )
-{
-    if ( NULL == ptr ) return ptr;
-
-    // defaults
-    ptr->on         = false;
-    ptr->chat_mode  = false;
-    ptr->chat_done  = false;
-    ptr->state_size = 0;
-    ptr->state_ptr  = NULL;
-
-    return ptr;
+keyboard_data_t::keyboard_data_t()
+	: on(false), chat_mode(false), chat_done(false), state_size(0), state_ptr(nullptr) {
 }
 
-bool keyboard_is_key_down(const keyboard_data_t &KEYB, int key) {
+void keyboard_data_t::init() {
+    on         = false;
+    chat_mode  = false;
+    chat_done  = false;
+    state_size = 0;
+    state_ptr  = NULL;
+}
+
+bool keyboard_data_t::is_key_down(int key) const {
     int k = SDL_GetScancodeFromKey(key);
-    return !KEYB.chat_mode && KEYB.state_ptr && k < KEYB.state_size && KEYB.state_ptr[k];
+    return !chat_mode && state_ptr && k < state_size && state_ptr[k];
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-joystick_data_t * joystick_data__init( joystick_data_t * ptr )
-{
-    int cnt;
+joystick_data_t::joystick_data_t()
+	: on(false), x(0.0f), y(0.0f), b(0), sdl_ptr(nullptr), button() {
 
-    if ( NULL == ptr ) return NULL;
+}
+void joystick_data_t::init() {
+    on = false;
+    x = y = 0.0f;
+    b = 0;
+    sdl_ptr = NULL;
 
-    ptr->on = false;
-    ptr->x = ptr->y = 0.0f;
-    ptr->b = 0;
-    ptr->sdl_ptr = NULL;
-
-    for ( cnt = 0; cnt < JOYBUTTON; cnt++ )
-    {
-        ptr->button[cnt] = 0;
+    for (size_t i = 0; i < JOYBUTTON; ++i) {
+        button[i] = 0;
     }
-
-    return ptr;
 }

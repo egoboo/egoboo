@@ -77,7 +77,7 @@ struct matrix_cache_t
         valid(false),
         matrix_valid(false),
         type_bits(MAT_UNKNOWN),
-        rotate(0, 0, 0),
+        rotate(0.0f, 0.0f, 0.0f),
         pos(),
         grip_chr(INVALID_CHR_REF),
         grip_slot(SLOT_LEFT),

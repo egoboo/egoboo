@@ -64,7 +64,7 @@ DebugParticlesScreen::DebugParticlesScreen()
     {
         if(particle->getProfileID() == INVALID_PIP_REF || !PipStack.isLoaded(particle->getProfileID())) {
             invalidParticles++;
-			Log::warning("Invalid particle with ID: %d (CHR_REF=%d)\n", particle->getProfileID(), particle->getSpawnerProfile());
+			Log::get().warn("Invalid particle with ID: %d (CHR_REF=%d)\n", particle->getProfileID(), particle->getSpawnerProfile());
             continue;
         }
 

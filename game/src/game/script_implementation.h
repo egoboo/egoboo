@@ -63,23 +63,13 @@ struct line_of_sight_info_t
     Uint32  collide_fx;
     int     collide_x;
     int     collide_y;
+
+	static bool blocked(line_of_sight_info_t * plos);
+	static bool with_mesh(line_of_sight_info_t * plos);
+	static bool with_characters(line_of_sight_info_t * plos);
 };
 
-bool line_of_sight_blocked( line_of_sight_info_t * plos );
-bool line_of_sight_with_mesh( line_of_sight_info_t * plos );
-bool line_of_sight_with_characters( line_of_sight_info_t * plos );
 
-//--------------------------------------------------------------------------------------------
-// wrap generic bitwise conversion macros
-//--------------------------------------------------------------------------------------------
-
-/// @ingroup _bitwise_functions_
-/// @details formal conversion of a boolean value to an integer (false = 0, true = 1)
-BIT_FIELD bool_to_bit( bool val );
-
-/// @ingroup _bitwise_functions_
-/// @details formal conversion of an integer to a boolean value ( 0 = false, all other values are true )
-bool bit_to_bool( BIT_FIELD val );
 
 //--------------------------------------------------------------------------------------------
 // wrap the BIT_FIELD macros, since lua doesn't recognize bitwise functions

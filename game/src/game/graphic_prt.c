@@ -644,7 +644,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::P
 		Vector3f vup_cam = camera.getUp();
 
         // Use the global up vector.
-        vup = Vector3f(0, 0, 1);
+        vup = Vector3f(0.0f, 0.0f, 1.0f);
 
         // Adjust the vector so that the particle doesn't disappear if
         // you are viewing it from from the top or the bottom.
@@ -792,7 +792,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::P
 
     {
         // The normal sense of "up".
-		Vector3f world_up = Vector3f(0, 0, 1);
+		Vector3f world_up = Vector3f(0.0f, 0.0f, 1.0f);
 
         // The dot product between the normal vector and the world up vector:
         // The following statement could be optimized
@@ -960,7 +960,7 @@ void render_prt_bbox(prt_bundle_t& pbdl_prt)
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if ((egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_F7)))
+    if ((egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7)))
     {
         // copy the bounding volume
         oct_bb_t tmp_bb = loc_pprt->prt_max_cv;

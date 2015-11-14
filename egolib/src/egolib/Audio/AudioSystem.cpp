@@ -74,11 +74,11 @@ AudioSystem::AudioSystem() :
     if (egoboo_config_t::get().sound_effects_enable.getValue() || egoboo_config_t::get().sound_music_enable.getValue())
     {
         const SDL_version* link_version = Mix_Linked_Version();
-		Log::info("initializing SDL mixer audio services version %d.%d.%d ... ", link_version->major, link_version->minor, link_version->patch);
+		Log::get().info("initializing SDL mixer audio services version %d.%d.%d ... ", link_version->major, link_version->minor, link_version->patch);
         if (Mix_OpenAudio(egoboo_config_t::get().sound_highQuality_enable.getValue() ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, egoboo_config_t::get().sound_outputBuffer_size.getValue()) < 0)
         {
-			Log::message(" failure!\n");
-			Log::warning("unable to initialize audio: \"%s\"\n", Mix_GetError());
+			Log::get().message(" failure!\n");
+			Log::get().warn("unable to initialize audio: \"%s\"\n", Mix_GetError());
             throw std::runtime_error("unable to initialize audio system");
         }
         else
@@ -88,10 +88,10 @@ AudioSystem::AudioSystem() :
 
             //Check if we can load OGG Vorbis music (this is non-fatal, game runs fine without music)
             if (!Mix_Init(MIX_INIT_OGG)) {
-				Log::warning(" failed! (%s)\n", Mix_GetError());
+				Log::get().warn(" failed! (%s)\n", Mix_GetError());
             }
             else {
-				Log::message(" ... success!\n");
+				Log::get().message(" ... success!\n");
             }
         }
     }
@@ -115,7 +115,7 @@ void AudioSystem::loadGlobalSounds()
         _globalSounds[i] = loadSound(std::string("mp_data/") + wavenames[i]);
         if (_globalSounds[i] == INVALID_SOUND_ID)
         {
-			Log::warning("global sound not loaded: %s\n", wavenames[i]);
+			Log::get().warn("global sound not loaded: %s\n", wavenames[i]);
         }
     }
 
@@ -155,7 +155,7 @@ void AudioSystem::reconfigure(egoboo_config_t& cfg)
         }
         else
         {
-			Log::warning("AudioSystem::reset() - Cannot get AudioSystem to start. (%s)\n", Mix_GetError());
+			Log::get().warn("AudioSystem::reset() - Cannot get AudioSystem to start. (%s)\n", Mix_GetError());
         }
     }
 
@@ -192,7 +192,7 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
     // Valid filename?
     if (fileName.empty())
     {
-		Log::warning("trying to load empty string sound");
+		Log::get().warn("trying to load empty string sound");
         return INVALID_SOUND_ID;
     }
 
@@ -224,7 +224,7 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
     {
         // there is an error only if the file exists and can't be loaded
         if (fileExists) {
-			Log::warning("Sound file not found/loaded %s.\n", fileName.c_str());
+			Log::get().warn("Sound file not found/loaded %s.\n", fileName.c_str());
         }
 
         return INVALID_SOUND_ID;
@@ -247,7 +247,7 @@ MusicID AudioSystem::loadMusic(const std::string &fileName)
 
     if (!loadedMusic)
     {
-		Log::warning("Failed to load music (%s): %s.\n", fileName.c_str(), Mix_GetError());
+		Log::get().warn("Failed to load music (%s): %s.\n", fileName.c_str(), Mix_GetError());
         return INVALID_SOUND_ID;
     }
 
@@ -282,7 +282,7 @@ void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
 
     // Mix_FadeOutMusic(fadetime);      // Stops the game too
     if (Mix_FadeInMusic(_musicLoaded[musicID], -1, fadetime) == -1) {
-		Log::warning("failed to play music! %s\n", Mix_GetError());
+		Log::get().warn("failed to play music! %s\n", Mix_GetError());
     }
 }
 
@@ -294,7 +294,7 @@ void AudioSystem::loadAllMusic()
     ReadContext ctxt("mp_data/music/playlist.txt");
     if (!ctxt.ensureOpen())
     {
-		Log::warning("Unable to read playlist file `%s`\n", ctxt.getLoadName().c_str());
+		Log::get().warn("Unable to read playlist file `%s`\n", ctxt.getLoadName().c_str());
         return;
     }
 

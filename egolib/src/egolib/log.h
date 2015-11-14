@@ -50,7 +50,7 @@ namespace Log {
 		 */
 		Level _level;
 	protected:
-		virtual void write(Level level, const char *format, va_list args) = 0;
+		virtual void writev(Level level, const char *format, va_list args) = 0;
 	public:
 		/**
 		 * @brief
@@ -79,7 +79,7 @@ namespace Log {
 		 * @param format, args
 		 *  printf-style format string and variadic argument list
 		 */
-		virtual void log(Level level, const char *format, va_list args);
+		virtual void logv(Level level, const char *format, va_list args);
 		/**
 		 * @brief
 		 *  Write a log message on the specified log level.
@@ -98,7 +98,7 @@ namespace Log {
 		 * @param format, args
 		 *  printf-style format string and variadic argument list
 		 */
-		void message(const char *format, va_list args);
+		void messagev(const char *format, va_list args);
 
 		/**
 		 * @brief
@@ -118,7 +118,7 @@ namespace Log {
 		 * @param format, args
 		 *  printf-style format string and variadic argument list
 		 */
-		void debug(const char *format, va_list args);
+		void debugv(const char *format, va_list args);
 
 		/**
 		 * @brief
@@ -139,7 +139,7 @@ namespace Log {
 		 * @param format, args
 		 *  printf-style format string and variadic argument list
 		 */
-		void info(const char *format, va_list args);
+		void infov(const char *format, va_list args);
 
 		/**
 		 * @brief
@@ -159,7 +159,7 @@ namespace Log {
 		 * @param format, args
 		 *  printf-style format string and variadic argument list
 		 */
-		void warn(const char *format, va_list args);
+		void warnv(const char *format, va_list args);
 
 		/**
 		 * @brief
@@ -179,7 +179,7 @@ namespace Log {
 		 * @param format, args
 		 *  printf-style format string and variadic argument list
 		 */
-		void error(const char *format, va_list args);
+		void errorv(const char *format, va_list args);
 
 		/**
 		 * @brief
@@ -224,67 +224,4 @@ namespace Log {
 	 */
 	Target& get();
 
-	/**
-	 * @brief
-	 *  Write a log message on log level "message".
-	 * @param format, ...
-	 *  printf-style format string and variadic argument list
-	 */
-	void message(const char *format, ...) GCC_PRINTF_FUNC(1);
-
-	/**
-	 * @brief
-	 *  Write a log message on log level "debug".
-	 * @param format, ...
-	 *  printf-style format string and variadic argument list
-	 */
-	void debug(const char *format, ...) GCC_PRINTF_FUNC(1);
-
-	/**
-	 * @brief
-	 *  Write a log message on log level "info".
-	 * @param format, ...
-	 *  printf-style format string and variadic argument list
-	 */
-	void info(const char *format, ...) GCC_PRINTF_FUNC(1);
-
-	/**
-	 * @brief
-	 *  Write a log message on log level "warning".
-	 * @param format, ...
-	 *  printf-style format string and variadic argument list
-	 */
-	void warning(const char *format, ...) GCC_PRINTF_FUNC(1);
-
-	/**
-	 * @brief
-	 *  Write a log message on log level "warning".
-	 * @param format, ...
-	 *  printf-style format string and variadic argument list
-	 * @todo
-	 *  "logging" should have no side effects except of (eventually)
-	 *  writing the log entry. However, log_error in fact terminates the
-	 *  program.
-	 */
-	void error(const char *format, ...) GCC_PRINTF_FUNC(1);
 }
-
-/**
-* @brief
-*  Write a log message on the specified log level.
-* @param level
-*   the log level
-* @param format, args
-*  printf-style format string and variadic argument list
-*/
-void log(Log::Level level, const char *format, va_list args);
-
-/**
-* @brief
-*  Write a log message on the specified log level.
-* @param level
-*   the log level
-* @param format, ...
-*  printf-style format string and variadic argument list
-*/
-void log(Log::Level level, const char *format, ...) GCC_PRINTF_FUNC(2);

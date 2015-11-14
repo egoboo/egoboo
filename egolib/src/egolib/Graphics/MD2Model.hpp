@@ -33,8 +33,8 @@ class MD2_Vertex
 {
 public:
 	MD2_Vertex() :
-		pos(0, 0, 0),
-		nrm(0, 0, 0),
+		pos(0.0f, 0.0f, 0.0f),
+		nrm(0.0f, 0.0f, 0.0f),
 		normal(0)
 	{
 		//ctor
@@ -49,7 +49,7 @@ class MD2_TexCoord
 {
 public:
     MD2_TexCoord() :
-    	tex(0, 0)
+    	tex(0.0f, 0.0f)
     {
     	//ctor
     }

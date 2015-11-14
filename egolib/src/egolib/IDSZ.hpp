@@ -2,8 +2,33 @@
 
 #include "egolib/platform.h"
 
-struct IDSZ2
-{
+// IDSZ
+typedef uint32_t IDSZ;
+
+#if !defined(MAKE_IDSZ)
+#define MAKE_IDSZ(C0,C1,C2,C3)                 \
+    ((IDSZ)(                                   \
+             ((((C0)-'A')&0x1F) << 15) |       \
+             ((((C1)-'A')&0x1F) << 10) |       \
+             ((((C2)-'A')&0x1F) <<  5) |       \
+             ((((C3)-'A')&0x1F) <<  0)         \
+           ))
+#endif
+
+#define IDSZ_NONE MAKE_IDSZ('N','O','N','E')       ///< [NONE]
+/**
+ * @brief
+ *	Convert an integer IDSZ to a text IDSZ.
+ * @param idsz
+ *	the integer IDSZ
+ * @return
+ *	a pointer to a text IDSZ
+ * @todo
+ *	This currently uses a static bufer. Change this.
+ */
+const char *undo_idsz(IDSZ idsz);
+
+struct IDSZ2 {
 
 private:
 
@@ -13,42 +38,18 @@ public:
 
 	static const IDSZ2 None;
 
-	IDSZ2(const IDSZ2& idsz):
-		_value(idsz._value)
-	{
-	}
+	IDSZ2(const IDSZ2& idsz);
 
-	IDSZ2(char C0, char C1, char C2, char C3) :
-		_value(static_cast<uint32_t>
-			(
-				(((C0-'A') & 0x1F) << 15) |
-				(((C1-'A') & 0x1F) << 10) |
-				(((C2-'A') & 0x1F) <<  5) |
-				(((C3-'A') & 0x1F) <<  0)
-			))
-	{
-		//ctor
-	}
+	IDSZ2(char C0, char C1, char C2, char C3);
 	
-	IDSZ2& operator=(const IDSZ2& other)
-	{
-		_value = other._value;
-        return *this;
-	}
+	IDSZ2& operator=(const IDSZ2& other);
 	
-	bool operator==(const IDSZ2& other)
-	{
-		return _value == other._value;
-	}
+	bool operator==(const IDSZ2& other) const;
 	
-	bool operator!=(const IDSZ2& other)
-	{
-		return _value != other._value;
-	}
+	bool operator!=(const IDSZ2& other) const;
 	
-	uint32_t get() const
-	{
-		return _value;
-	}
+	uint32_t get() const;
+
+	std::string toString() const;
 	
 };

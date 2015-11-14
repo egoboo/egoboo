@@ -25,12 +25,6 @@
 #include "egolib/typedef.h"
 #include "egolib/network.h"
 
-struct s_control_tag;
-typedef struct s_control_tag control_tag_t;
-
-struct input_device_t;
-struct device_list_t;
-
 //--------------------------------------------------------------------------------------------
 /// The latch used by the input system
 struct latch_t

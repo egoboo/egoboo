@@ -89,9 +89,9 @@ public:
 
     /**
     * @return
-    *   character ID of the Owner of this enchant or INVALID_CHR_REF if there is no valid owner
+    *   object reference of the owner of this enchant or the invalid object reference if there is no valid owner
     **/
-    CHR_REF getOwnerID() const;
+	ObjectRef getOwnerRef() const;
 
     /**
     * @return

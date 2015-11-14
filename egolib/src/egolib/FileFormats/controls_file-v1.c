@@ -56,7 +56,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
     ReadContext ctxt(szFilename);
     if (!ctxt.ensureOpen())
     {
-		Log::error("unable to read input settings file `%s`\n",szFilename);
+		Log::get().error("unable to read input settings file `%s`\n",szFilename);
         return false;
     }
 
@@ -126,7 +126,7 @@ bool input_settings_save_vfs_1(const char* szFilename)
     filewrite = vfs_openWrite( szFilename );
     if ( NULL == filewrite )
     {
-		Log::warning( "Could not save input settings (%s)!\n", szFilename );
+		Log::get().warn( "Could not save input settings (%s)!\n", szFilename );
         return false;
     }
 

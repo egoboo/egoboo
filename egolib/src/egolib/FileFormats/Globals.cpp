@@ -60,7 +60,7 @@ egolib_rv get_random_treasure(char * buffer, size_t buffer_length)
 	{
 		// give a warning
 		tmp_buffer[0] = CSTR_END;
-		Log::warning("Could not find treasure table: %s!\n", buffer);
+		Log::get().warn("Could not find treasure table: %s!\n", buffer);
 	}
 
 	return found ? rv_success : rv_fail;
@@ -75,7 +75,7 @@ egolib_rv init_random_treasure_tables_vfs(const std::string& filepath)
 	ReadContext ctxt(filepath);
 	if (!ctxt.ensureOpen())
 	{
-		Log::warning("unable to load random treasure tables file `%s`\n", filepath.c_str());
+		Log::get().warn("unable to load random treasure tables file `%s`\n", filepath.c_str());
 		return rv_error;
 	}
 
@@ -90,7 +90,7 @@ egolib_rv init_random_treasure_tables_vfs(const std::string& filepath)
 		//Stop here if we are already full
 		if (num_table >= MAX_TABLES)
 		{
-			Log::warning("Cannot load random treasure table: %s (We only support up to %i tables, consider increasing MAX_TABLES) \n", temporary, MAX_TABLES);
+			Log::get().warn("Cannot load random treasure table: %s (We only support up to %i tables, consider increasing MAX_TABLES) \n", temporary, MAX_TABLES);
 			break;
 		}
 

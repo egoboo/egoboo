@@ -29,7 +29,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3
                                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget)
 {
     if(!ProfileSystem::get().isValidProfileID(iprofile)) {
-		Log::debug("spawnLocalParticle() - cannot spawn particle with invalid PRO_REF %d\n", iprofile);
+		Log::get().debug("spawnLocalParticle() - cannot spawn particle with invalid PRO_REF %d\n", iprofile);
         return Ego::Particle::INVALID_PARTICLE;
     }
 
@@ -76,9 +76,9 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
 
     if (!ppip)
     {
-		Log::debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                   REF_TO_INT(particleProfile), REF_TO_INT(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler()[spawnOrigin]->getName().c_str() : "INVALID",
-                   REF_TO_INT(spawnProfile), ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID");
+		Log::get().debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+                         REF_TO_INT(particleProfile), REF_TO_INT(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler()[spawnOrigin]->getName().c_str() : "INVALID",
+                         REF_TO_INT(spawnProfile), ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID");
 
         return Ego::Particle::INVALID_PARTICLE;
     }
@@ -103,10 +103,10 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
     }
 
     if(!particle) {
-		Log::debug("spawn_one_particle() - cannot allocate a particle!    owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-                   static_cast<int>(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->getName().c_str() : "INVALID",
-                   spawnProfile, LOADED_PIP(spawnProfile) ? PipStack.get_ptr(spawnProfile)->_name.c_str() : "INVALID",
-                   particleProfile, ProfileSystem::get().isValidProfileID(particleProfile) ? ProfileSystem::get().getProfile(particleProfile)->getPathname().c_str() : "INVALID");        
+		Log::get().debug("spawn_one_particle() - cannot allocate a particle!    owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+                         static_cast<int>(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->getName().c_str() : "INVALID",
+                         spawnProfile, LOADED_PIP(spawnProfile) ? PipStack.get_ptr(spawnProfile)->_name.c_str() : "INVALID",
+                         particleProfile, ProfileSystem::get().isValidProfileID(particleProfile) ? ProfileSystem::get().getProfile(particleProfile)->getPathname().c_str() : "INVALID");        
     }
 
     return particle;
@@ -284,7 +284,7 @@ void ParticleHandler::spawnDefencePing(const std::shared_ptr<Object> &object, co
 
     // For the ones attacking a shield
     if(attacker != nullptr && !attacker->isTerminated()) {
-        object->ai.attacklast = attacker->getCharacterID();
+        object->ai.attacklast = attacker->getObjRef().get();
     }
     else {
         object->ai.attacklast = INVALID_CHR_REF;

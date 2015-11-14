@@ -249,41 +249,27 @@ char * str_convert_slash_sys( char * str, size_t size )
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_append_slash_net( char * str, size_t size )
-{
-    /// @author BB
-    /// @details appends a network-type slash to a string, if it does not already have one
-
-    size_t len;
-
-    if ( INVALID_CSTR( str ) ) return str;
-
-    len = strlen( str );
-    if ( C_SLASH_CHR != str[len-1] && C_BACKSLASH_CHR != str[len-1] )
-    {
-        strncat( str, NET_SLASH_STR, size );
-    }
-
-    return str;
+std::string str_append_slash_net(const std::string& filename) {
+	size_t l = filename.length();
+	if (!l) {
+		return NET_SLASH_STR;
+	} else if (C_SLASH_CHR != filename[l - 1] && C_BACKSLASH_CHR != filename[l - 1]) {
+		return filename + NET_SLASH_STR;
+	} else {
+		return filename;
+	}
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_append_slash( char * str, size_t size )
-{
-    /// @author BB
-    /// @details appends this system's slash to a string, if it does not already have one
-
-    size_t len;
-
-    if ( INVALID_CSTR( str ) ) return NULL;
-
-    len = strlen( str );
-    if ( C_SLASH_CHR != str[len-1] && C_BACKSLASH_CHR != str[len-1] )
-    {
-        strncat( str, SLASH_STR, size );
-    }
-
-    return str;
+std::string str_append_slash( const std::string& filename ) {
+    size_t l = filename.length();
+	if (!l) {
+		return SLASH_STR;
+	} else if (C_SLASH_CHR != filename[l-1] && C_BACKSLASH_CHR != filename[l-1]) {
+		return filename + SLASH_STR;
+	} else {
+		return filename;
+	}
 }
 
 //--------------------------------------------------------------------------------------------

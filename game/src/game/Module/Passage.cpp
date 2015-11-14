@@ -157,14 +157,14 @@ bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
     return tmp_rect.point_inside(xpos, ypos);
 }
 
-CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const
+ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const
 {
     // Skip if the one who is looking doesn't exist
-    if ( !_currentModule->getObjectHandler().exists( isrc ) ) return INVALID_CHR_REF;
-    Object *psrc = _currentModule->getObjectHandler().get( isrc );
+    if ( !_currentModule->getObjectHandler().exists(objRef) ) return ObjectRef::Invalid;
+    Object *psrc = _currentModule->getObjectHandler().get(objRef);
 
     // Look at each character
-    for ( CHR_REF character = 0; character < OBJECTS_MAX; character++ )
+    for ( ObjectRef character(0); character.get() < OBJECTS_MAX; character++ )
     {
         if ( !_currentModule->getObjectHandler().exists( character ) ) continue;
         Object * pchr = _currentModule->getObjectHandler().get( character );
@@ -206,7 +206,7 @@ CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_
     }
 
     // No characters found
-    return INVALID_CHR_REF;
+    return ObjectRef::Invalid;
 }
 
 void Passage::flashColor(uint8_t color)
@@ -269,15 +269,14 @@ void Passage::setMusic(const int32_t musicID)
 
 bool Passage::isShop() const
 {
-    return _shopOwner != INVALID_CHR_REF;
+    return ObjectRef::Invalid != _shopOwner;
 }
 
-CHR_REF Passage::getShopOwner() const
-{
+ObjectRef Passage::getShopOwner() const {
     return _shopOwner;
 }
 
-void Passage::makeShop(CHR_REF owner)
+void Passage::makeShop(ObjectRef owner)
 {
     //Make sure owner is valid
     const std::shared_ptr<Object> &powner = _currentModule->getObjectHandler()[owner];

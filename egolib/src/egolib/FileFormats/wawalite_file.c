@@ -229,7 +229,7 @@ wawalite_fog_t *wawalite_fog_t::read(ReadContext &ctxt, wawalite_data_t *enclosi
     if (ctxt.skipToColon(true))
     {
         profile->found = true;
-        profile->top = ctxt.readReal();
+        profile->top = ctxt.readRealLiteral();
         profile->bottom = vfs_get_next_float(ctxt);
         profile->red = vfs_get_next_float(ctxt) * 255;
         profile->grn = vfs_get_next_float(ctxt) * 255;
@@ -257,7 +257,7 @@ wawalite_data_t *wawalite_data_read(const std::string& filename, wawalite_data_t
     ReadContext ctxt(filename);
     if (!ctxt.ensureOpen())
     {
-		Log::warning("unable to read water and weather file `%s`\n", filename.c_str());
+		Log::get().warn("unable to read water and weather file `%s`\n", filename.c_str());
         return nullptr;
     }
 
@@ -474,7 +474,7 @@ bool wawalite_data_write(const std::string& filename,const wawalite_data_t *prof
                                                });
     if (!filewrite)
     {
-		Log::warning("%s:%d: unable to write file `%s`\n", __FILE__, __LINE__, filename.c_str());
+		Log::get().warn("%s:%d: unable to write file `%s`\n", __FILE__, __LINE__, filename.c_str());
         return false;
     }
 

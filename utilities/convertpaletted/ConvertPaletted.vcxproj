@@ -288,6 +288,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\convertpaletted.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -308,6 +309,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\convertpaletted.hpp" />
     <ClInclude Include="src\filters.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

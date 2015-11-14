@@ -36,7 +36,7 @@ MiniMap::MiniMap() :
     _blips(),
     _mouseOver(false),
     _isDragging(false),
-    _mouseDragOffset(0, 0),
+    _mouseDragOffset(0.0f, 0.0f),
     _minimapTexture(nullptr)
 {
     //The minimap is by default not visible
@@ -46,7 +46,7 @@ MiniMap::MiniMap() :
         _minimapTexture = std::make_shared<Ego::DeferredOpenGLTexture>("mp_data/plan");
     }
     else {
-		Log::warning("mp_data/plan - Cannot load file!\n");
+		Log::get().warn("mp_data/plan - Cannot load file!\n");
     }
 }
 
@@ -150,7 +150,7 @@ void MiniMap::addBlip(const float x, const float y, const std::shared_ptr<Object
         return;
     }
 
-    _blips.push_back(Blip(x, y, chr_get_txtexture_icon_ref(object->getCharacterID())));
+    _blips.push_back(Blip(x, y, chr_get_txtexture_icon_ref(object->getObjRef().get())));
 }
 
 bool MiniMap::notifyMouseMoved(const int x, const int y)

@@ -118,7 +118,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     vfs_FILE *f = vfs_openRead(fileName);
     if(!f)
     {
-		Log::warning("MD2Model::loadFromFile() - could not open model (%s)\n", fileName.c_str());
+		Log::get().warn("MD2Model::loadFromFile() - could not open model (%s)\n", fileName.c_str());
         return nullptr;
     }
 
@@ -146,16 +146,16 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     if (md2Header.ident != MD2_MAGIC_NUMBER || md2Header.version != MD2_VERSION)
     {
         vfs_close( f );
-		Log::warning( "MD2Model::loadFromFile() - model does not have valid header or identifier (%s)\n", fileName.c_str() );
-        return NULL;
+		Log::get().warn( "MD2Model::loadFromFile() - model does not have valid header or identifier (%s)\n", fileName.c_str() );
+        return nullptr;
     }
 
     // Allocate a MD2_Model_t to hold all this stuff
     std::shared_ptr<MD2Model> model = std::make_shared<MD2Model>();
     if(!model)
     {
-		Log::error( "MD2Model::loadFromFile() - could create MD2Model\n" );
-        return NULL;
+		Log::get().error( "MD2Model::loadFromFile() - could create MD2Model\n" );
+        return nullptr;
     }
 
     //Allocate memory for the data

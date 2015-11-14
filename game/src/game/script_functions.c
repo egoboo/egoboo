@@ -76,7 +76,7 @@
 #define FUNCTION_END() \
     return returncode;
 
-#define SET_TARGET_0(ITARGET)         self.target = ITARGET;
+#define SET_TARGET_0(ITARGET)         self.target = ITARGET.get();
 #define SET_TARGET_1(ITARGET,PTARGET) if( NULL != PTARGET ) { PTARGET = _currentModule->getObjectHandler().get(ITARGET); }
 #define SET_TARGET(ITARGET,PTARGET)   SET_TARGET_0( ITARGET ); SET_TARGET_1(ITARGET,PTARGET)
 
@@ -665,11 +665,11 @@ Uint8 scr_SetTargetToNearbyEnemy( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    CHR_REF ichr = chr_find_target(pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES);
+    auto ichr = chr_find_target(pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES);
 
     if ( _currentModule->getObjectHandler().exists(ichr) )
     {
-        self.target = ichr;
+        self.target = ichr.get();
         returncode = true;
     }
     else
@@ -688,14 +688,13 @@ Uint8 scr_SetTargetToTargetLeftHand( script_state_t& state, ai_state_t& self )
     /// @details This function sets the target to the item in the target's left hand,
     /// failing if the target has no left hand item
 
-    CHR_REF ichr;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    ichr = pself_target->holdingwhich[SLOT_LEFT];
+    auto ichr = ObjectRef(pself_target->holdingwhich[SLOT_LEFT]);
     returncode = false;
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -714,14 +713,13 @@ Uint8 scr_SetTargetToTargetRightHand( script_state_t& state, ai_state_t& self )
     /// @details This function sets the target to the item in the target's right hand,
     /// failing if the target has no right hand item
 
-    CHR_REF ichr;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    ichr = pself_target->holdingwhich[SLOT_RIGHT];
+    auto ichr = ObjectRef(pself_target->holdingwhich[SLOT_RIGHT]);
     returncode = false;
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -743,7 +741,7 @@ Uint8 scr_SetTargetToWhoeverAttacked( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( self.attacklast ) )
     {
-        SET_TARGET_0( self.attacklast );
+        SET_TARGET_0(ObjectRef(self.attacklast));
     }
     else
     {
@@ -764,7 +762,7 @@ Uint8 scr_SetTargetToWhoeverBumped( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( self.bumplast ) )
     {
-        SET_TARGET_0( self.bumplast );
+        SET_TARGET_0(ObjectRef(self.bumplast));
     }
     else
     {
@@ -789,7 +787,7 @@ Uint8 scr_SetTargetToWhoeverCalledForHelp( script_state_t& state, ai_state_t& se
 
         if ( sissy )
         {
-            SET_TARGET_0( sissy->getCharacterID() );
+            SET_TARGET_0(sissy->getObjRef());
         }
         else
         {
@@ -816,7 +814,7 @@ Uint8 scr_SetTargetToOldTarget( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( self.target_old ) )
     {
-        SET_TARGET_0( self.target_old );
+        SET_TARGET_0(ObjectRef(self.target_old));
     }
     else
     {
@@ -924,13 +922,13 @@ Uint8 scr_IfTargetHasItemID( script_state_t& state, ai_state_t& self )
     returncode = false;
 
     //Check hands
-    if(pself_target->isWieldingItemIDSZ(state.argument) != nullptr) {
+    if (nullptr != pself_target->isWieldingItemIDSZ(state.argument)) {
         returncode = true;
     }
 
     //Check inventory
-    if(!returncode) {
-        if(Inventory::findItem(pself_target->getCharacterID(), state.argument, false) != INVALID_CHR_REF) {
+    if (!returncode) {
+        if (ObjectRef::Invalid != Inventory::findItem(pself_target->getObjRef(), state.argument, false)) {
             returncode = true;
         }
     }
@@ -1514,7 +1512,7 @@ Uint8 scr_SetTargetToWhoeverIsHolding( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        SET_TARGET_0( pchr->attachedto );
+        SET_TARGET_0(ObjectRef(pchr->attachedto));
     }
     else
     {
@@ -1693,7 +1691,7 @@ Uint8 scr_SetTargetToTargetOfLeader( script_state_t& state, ai_state_t& self )
 
         if ( leader )
         {
-            CHR_REF itarget = leader->ai.target;
+            auto itarget = ObjectRef(leader->ai.target);
 
             if ( _currentModule->getObjectHandler().exists( itarget ) )
             {
@@ -1876,7 +1874,7 @@ Uint8 scr_SetTargetToLeader( script_state_t& state, ai_state_t& self )
         const std::shared_ptr<Object> &leader = _currentModule->getTeamList()[pchr->team].getLeader();
         if ( leader )
         {
-            SET_TARGET_0( leader->getCharacterID() );
+            SET_TARGET_0(leader->getObjRef());
             returncode = true;
         }
     }
@@ -1898,26 +1896,26 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	Vector3f pos = Vector3f(state.x, state.y, 0);
+	Vector3f pos = Vector3f(float(state.x), float(state.y), 0.0f);
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-		Log::warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
+		Log::get().warn( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
     }
     else
     {
         // was the child spawned in a "safe" spot?
         if (!pchild->hasSafePosition()) {
-			Log::warning( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
+			Log::get().warn( "Object %s failed to spawn a copy of itself (no safe location)\n", pchr->getName().c_str() );
             pchild->requestTerminate();
         }
         else
         {
             TURN_T turn;
-            self.child = pchild->getCharacterID();
+            self.child = pchild->getObjRef().get();
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pchild->vel[kX] += turntocos[ turn ] * state.distance;
@@ -2265,7 +2263,7 @@ Uint8 scr_DisaffirmCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    disaffirm_attached_particles( self.index );
+    disaffirm_attached_particles(ObjectRef(self.index));
 
     SCRIPT_FUNCTION_END();
 }
@@ -2280,7 +2278,7 @@ Uint8 scr_ReaffirmCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reaffirm_attached_particles( self.index );
+    reaffirm_attached_particles(ObjectRef(self.index));
 
     SCRIPT_FUNCTION_END();
 }
@@ -2343,7 +2341,7 @@ Uint8 scr_SetTargetToSelf( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_TARGET_0( self.index );
+    SET_TARGET_0(ObjectRef(self.index));
 
     SCRIPT_FUNCTION_END();
 }
@@ -2360,7 +2358,7 @@ Uint8 scr_SetTargetToRider( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
     {
-        SET_TARGET_0( pchr->holdingwhich[SLOT_LEFT] );
+        SET_TARGET_0(ObjectRef(pchr->holdingwhich[SLOT_LEFT]));
     }
     else
     {
@@ -2503,11 +2501,9 @@ Uint8 scr_TranslateOrder( script_state_t& state, ai_state_t& self )
     /// See CreateOrder for more.  This function sets tmpx, tmpy, tmpargument,
     /// and sets the target ( if valid )
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = CLIP_TO_16BITS( self.order_value >> 24 );
+    auto ichr = ObjectRef(CLIP_TO_16BITS( self.order_value >> 24 ));
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -2536,7 +2532,7 @@ Uint8 scr_SetTargetToWhoeverWasHit( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( self.hitlast ) )
     {
-        SET_TARGET_0( self.hitlast );
+        SET_TARGET_0(ObjectRef(self.hitlast));
     }
     else
     {
@@ -2554,10 +2550,9 @@ Uint8 scr_SetTargetToWideEnemy( script_state_t& state, ai_state_t& self )
     /// @details This function sets the target to an enemy in the vicinity around the
     /// character, failing if there are none
 
-    CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, WIDE, IDSZ_NONE, TARGET_ENEMIES );
+    auto ichr = chr_find_target( pchr, WIDE, IDSZ_NONE, TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -2814,7 +2809,7 @@ Uint8 scr_EnchantTarget( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[self.target];
     if(target) {
-        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
+        returncode = target->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getObjRef()]) != nullptr;
     }   
     else {
         returncode = false;
@@ -2836,7 +2831,7 @@ Uint8 scr_EnchantChild( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> child = _currentModule->getObjectHandler()[self.child];
     if(child) {
-        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getCharacterID()]) != nullptr;
+        returncode = child->addEnchant(pchr->getProfile()->getEnchantRef(), pchr->getProfileID(), _currentModule->getObjectHandler()[self.owner], _currentModule->getObjectHandler()[pchr->getObjRef()]) != nullptr;
     }   
     else {
         returncode = false;
@@ -2860,7 +2855,7 @@ Uint8 scr_TeleportTarget( script_state_t& state, ai_state_t& self )
         return false;
     }
 
-    returncode = target->teleport(Vector3f(state.x, state.y, state.distance), state.turn);
+    returncode = target->teleport(Vector3f(float(state.x), float(state.y), float(state.distance)), state.turn);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2975,7 +2970,7 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t& state, ai_state_t& self )
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += RestockAmmo( pitem->getCharacterID(), state.argument );
+        iTmp += RestockAmmo( pitem->getObjRef().get(), state.argument );
     }
 
     state.argument = iTmp;
@@ -3015,7 +3010,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t& state, ai_state_t& self )
     {
         for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += RestockAmmo( pitem->getCharacterID(), state.argument );
+            iTmp += RestockAmmo( pitem->getObjRef().get(), state.argument );
             if ( 0 != iTmp ) break;
         }
     }
@@ -4047,9 +4042,9 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 		Vector3f vtmp =
 			Vector3f
             (
-            state.x,
-            state.y,
-            state.distance
+				float(state.x),
+				float(state.y),
+				float(state.distance)
             );
 
         returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
@@ -4135,11 +4130,11 @@ Uint8 scr_SetTargetToLowestTarget( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	CHR_REF itarget = chr_get_lowest_attachment( self.target, false );
+	auto itarget = chr_get_lowest_attachment( self.target, false );
 
     if ( _currentModule->getObjectHandler().exists( itarget ) )
     {
-        SET_TARGET_0( itarget );
+        SET_TARGET_0(ObjectRef(itarget));
     }
     else
     {
@@ -4249,7 +4244,7 @@ Uint8 scr_HealSelf( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->heal(_currentModule->getObjectHandler()[pchr->getCharacterID()], state.argument, true);
+    pchr->heal(_currentModule->getObjectHandler()[pchr->getObjRef()], state.argument, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4276,13 +4271,11 @@ Uint8 scr_IfTargetHasItemIDEquipped( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function proceeds if the target already wearing a matching item
 
-    CHR_REF item;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    item = Inventory::findItem( self.target, state.argument, true );
+	auto iitem = Inventory::findItem( ObjectRef(self.target), state.argument, true );
 
-    returncode = _currentModule->getObjectHandler().exists( item );
+    returncode = _currentModule->getObjectHandler().exists(iitem);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4314,7 +4307,7 @@ Uint8 scr_SetTargetToOwner( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( self.owner ) )
     {
-        SET_TARGET_0( self.owner );
+        SET_TARGET_0(ObjectRef(self.owner));
     }
     else
     {
@@ -4393,12 +4386,10 @@ Uint8 scr_SetTargetToWideBlahID( script_state_t& state, ai_state_t& self )
     /// @details This function sets the target to a character that matches the description,
     /// and who is located in the general vicinity of the character
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     // Try to find one
-    ichr = chr_find_target( pchr, WIDE, state.argument, state.distance );
+    auto ichr = chr_find_target( pchr, WIDE, state.argument, state.distance );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -4441,7 +4432,7 @@ Uint8 scr_PoofTarget( script_state_t& state, ai_state_t& self )
             // Poof others now
             pself_target->ai.poof_time = update_wld;
 
-            SET_TARGET( self.index, pself_target );
+            SET_TARGET(ObjectRef(self.index), pself_target );
         }
     }
 
@@ -4683,15 +4674,13 @@ Uint8 scr_SetTargetToDistantEnemy( script_state_t& state, ai_state_t& self )
     /// @details This function finds a character within a certain distance of the
     /// character, failing if there are none
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, state.distance, IDSZ_NONE, TARGET_ENEMIES );
+    auto ichr = chr_find_target( pchr, state.distance, IDSZ_NONE, TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
-        SET_TARGET_0( ichr );
+        SET_TARGET_0(ObjectRef(ichr));
     }
     else
     {
@@ -4711,7 +4700,7 @@ Uint8 scr_Teleport( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->teleport(Vector3f(state.x, state.y, pchr->getPosZ()), pchr->ori.facing_z);
+    returncode = pchr->teleport(Vector3f(float(state.x), float(state.y), pchr->getPosZ()), pchr->ori.facing_z);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4792,7 +4781,7 @@ Uint8 scr_GiveLifeToTarget( script_state_t& state, ai_state_t& self )
     if ( pself_target->isAlive() )
     {
         pself_target->increaseBaseAttribute(Ego::Attribute::MAX_LIFE, FP8_TO_FLOAT(state.argument));
-        pself_target->heal(_currentModule->getObjectHandler()[pchr->getCharacterID()], state.argument, true);
+        pself_target->heal(_currentModule->getObjectHandler()[pchr->getObjRef()], state.argument, true);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4864,7 +4853,7 @@ Uint8 scr_ShowBlipXY( script_state_t& state, ai_state_t& self )
     if ( state.argument >= 0 )
     {
         //_gameEngine->getActivePlayingState()->getMiniMap()->addBlip(state.x, state.y, static_cast<HUDColors>(state.argument % COLOR_MAX));
-        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(state.x, state.y, _currentModule->getObjectHandler()[pchr->getCharacterID()]);
+        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(state.x, state.y, _currentModule->getObjectHandler()[pchr->getObjRef()]);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4911,7 +4900,7 @@ Uint8 scr_PumpTarget( script_state_t& state, ai_state_t& self )
 
     if ( pself_target->isAlive() && state.argument > 0)
     {
-        pself_target->costMana(-state.argument, pchr->getCharacterID());
+        pself_target->costMana(-state.argument, pchr->getObjRef().get());
     }
 
     SCRIPT_FUNCTION_END();
@@ -5291,8 +5280,6 @@ Uint8 scr_SetTargetToWhoeverIsInPassage( script_state_t& state, ai_state_t& self
     /// @details This function sets the target to whoever is blocking the given passage
     /// This function lets passage rectangles be used as event triggers
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
@@ -5300,11 +5287,11 @@ Uint8 scr_SetTargetToWhoeverIsInPassage( script_state_t& state, ai_state_t& self
     returncode = false;
     if(passage)
     {
-        ichr = passage->whoIsBlockingPassage(self.index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE);
+        auto objRef = passage->whoIsBlockingPassage(ObjectRef(self.index), IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE);
 
-        if ( _currentModule->getObjectHandler().exists( ichr ) )
+        if (_currentModule->getObjectHandler().exists(objRef))
         {
-            SET_TARGET_0( ichr );
+            SET_TARGET_0(objRef);
             returncode = true;
         }
     }
@@ -5361,17 +5348,17 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	Vector3f pos = Vector3f(state.x, state.y, state.distance);
+	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF );
     if (pchild == nullptr)
     {
-		Log::warning( "Object %s failed to spawn a copy of itself\n", pchr->getName().c_str() );
+		Log::get().warn("%s:%d: object %s failed to spawn a copy of itself\n", __FILE__, __LINE__, pchr->getName().c_str() );
         returncode = false;
     }
     else
     {
-        self.child = pchild->getCharacterID();
+        self.child = pchild->getObjRef().get();
 
         pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
         pchild->ai.passage = self.passage;
@@ -5400,9 +5387,9 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 	Vector3f pos =
 		Vector3f
         (
-        state.x,
-        state.y,
-        state.distance
+			float(state.x),
+			float(state.y),
+			float(state.distance)
         );
 
     const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), "", INVALID_CHR_REF);
@@ -5416,13 +5403,13 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
         // was the child spawned in a "safe" spot?
         if (!pchild->hasSafePosition())
         {
-			Log::warning( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
+			Log::get().warn( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
             pchr->requestTerminate();
             returncode = false;
         }
         else
         {
-            self.child = pchild->getCharacterID();
+            self.child = pchild->getObjRef().get();
 
             pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = self.passage;
@@ -5509,9 +5496,9 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 		Vector3f vtmp =
 			Vector3f
             (
-            state.x,
-            state.y,
-            state.distance
+				float(state.x),
+				float(state.y),
+				float(state.distance)
             );
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
@@ -5711,12 +5698,10 @@ Uint8 scr_SetTargetToNearestBlahID( script_state_t& state, ai_state_t& self )
     /// @details This function finds the NEAREST ( exact ) character that fits the given
     /// parameters, failing if it finds none
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     // Try to find one
-    ichr = chr_find_target( pchr, NEAREST, state.argument, state.distance );
+    auto ichr = chr_find_target( pchr, NEAREST, state.argument, state.distance );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -5737,11 +5722,9 @@ Uint8 scr_SetTargetToNearestEnemy( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function finds the NEAREST ( exact ) enemy, failing if it finds none
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ENEMIES );
+    auto ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -5762,11 +5745,9 @@ Uint8 scr_SetTargetToNearestFriend( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function finds the NEAREST ( exact ) friend, failing if it finds none
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_FRIENDS );
+    auto ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_FRIENDS );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -5789,11 +5770,9 @@ Uint8 scr_SetTargetToNearestLifeform( script_state_t& state, ai_state_t& self )
     /// @details This function finds the NEAREST ( exact ) friend or enemy, failing if it
     /// finds none
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ITEMS | TARGET_FRIENDS | TARGET_ENEMIES );
+    auto ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ITEMS | TARGET_FRIENDS | TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -5860,7 +5839,7 @@ Uint8 scr_IfHeldInLeftHand( script_state_t& state, ai_state_t& self )
     const std::shared_ptr<Object> holder = _currentModule->getObjectHandler()[pchr->attachedto];
     if (holder)
     {
-        returncode = holder->holdingwhich[SLOT_LEFT] == pchr->getCharacterID();
+        returncode = holder->holdingwhich[SLOT_LEFT] == pchr->getObjRef().get();
     }
 
     SCRIPT_FUNCTION_END();
@@ -6554,7 +6533,7 @@ Uint8 scr_AddShopPassage( script_state_t& state, ai_state_t& self )
 
     std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     if(passage) {
-        passage->makeShop(self.index);
+        passage->makeShop(ObjectRef(self.index));
         returncode = true;
     }
     else {
@@ -6680,10 +6659,10 @@ Uint8 scr_SetTargetToPassageID( script_state_t& state, ai_state_t& self )
 
     returncode = false;
     if(passage) {
-        CHR_REF ichr = passage->whoIsBlockingPassage(self.index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, state.distance);
-        if ( _currentModule->getObjectHandler().exists( ichr ) )
+        ObjectRef objRef = passage->whoIsBlockingPassage(ObjectRef(self.index), IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, state.distance);
+        if ( _currentModule->getObjectHandler().exists(objRef) )
         {
-            SET_TARGET_0( ichr );
+            SET_TARGET_0(objRef);
             returncode = true;
         }
     }
@@ -6730,9 +6709,9 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 		Vector3f vtmp =
 			Vector3f
             (
-            state.x,
-            state.y,
-            state.distance
+				float(state.x),
+				float(state.y),
+				float(state.distance)
             );
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
@@ -6931,7 +6910,7 @@ Uint8 scr_IfHolderBlocked( script_state_t& state, ai_state_t& self )
 
         if ( HAS_SOME_BITS( bits, ALERTIF_BLOCKED ) )
         {
-            CHR_REF iattacked = _currentModule->getObjectHandler().get(iattached)->ai.attacklast;
+            auto iattacked = ObjectRef(_currentModule->getObjectHandler().get(iattached)->ai.attacklast);
 
             if ( _currentModule->getObjectHandler().exists( iattacked ) )
             {
@@ -6986,7 +6965,7 @@ Uint8 scr_EnableListenSkill( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     {
-		Log::warning("Deprecated script function used: EnableListenSkill! (%s)\n", pchr->getProfile()->getClassName().c_str());
+		Log::get().warn("deprecated script function used: EnableListenSkill! (%s)\n", pchr->getProfile()->getClassName().c_str());
     }
 
     returncode = false;
@@ -7005,7 +6984,7 @@ Uint8 scr_SetTargetToLastItemUsed( script_state_t& state, ai_state_t& self )
 
     if ( self.lastitemused != self.index && _currentModule->getObjectHandler().exists( self.lastitemused ) )
     {
-        SET_TARGET_0( self.lastitemused );
+        SET_TARGET_0(ObjectRef(self.lastitemused));
     }
     else
     {
@@ -7406,14 +7385,15 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-	Vector3f pos = Vector3f(state.x, state.y, state.distance);
+	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
     std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
     {
-		Log::warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->getName().c_str(), pchr->getProfile()->getClassName().c_str(), state.argument);
+		Log::get().warn("%s:%d: object \"%s\"(\"%s\") failed to spawn profile index %d\n", __FILE__, __LINE__, \
+			            pchr->getName().c_str(), pchr->getProfile()->getClassName().c_str(), state.argument);
     }
     else
     {
@@ -7422,16 +7402,16 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( Inventory::add_item( self.target, pchild->getCharacterID(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
+            if ( Inventory::add_item( ObjectRef(self.target), pchild->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = self.target;  // Make grab work
-                scr_run_chr_script( pchild->getCharacterID() );  // Empty the grabbed messages
+                scr_run_chr_script( pchild->getObjRef().get() );  // Empty the grabbed messages
 
                 pchild->attachedto = INVALID_CHR_REF;  // Fix grab
 
                 //Set some AI values
-                self.child = pchild->getCharacterID();
+                self.child = pchild->getObjRef().get();
                 pchild->ai.passage = self.passage;
                 pchild->ai.owner   = self.owner;
             }
@@ -7449,14 +7429,14 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
 
-                if ( rv_success == attach_character_to_mount( pchild->getCharacterID(), self.target, grip_off ) )
+                if ( rv_success == attach_character_to_mount( pchild->getObjRef(), ObjectRef(self.target), grip_off ) )
                 {
                     // Handle the "grabbed" messages
-                    scr_run_chr_script( pchild->getCharacterID() );
+                    scr_run_chr_script( pchild->getObjRef().get() );
                 }
 
                 //Set some AI values
-                self.child = pchild->getCharacterID();
+                self.child = pchild->getObjRef().get();
                 pchild->ai.passage = self.passage;
                 pchild->ai.owner   = self.owner;
             }
@@ -7473,7 +7453,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
             // still allow the character to spawn if it is not in an invalid area
 
             //Set some AI values
-            self.child = pchild->getCharacterID();
+            self.child = pchild->getObjRef().get();
             pchild->ai.passage = self.passage;
             pchild->ai.owner   = self.owner;                
         }
@@ -7493,7 +7473,7 @@ Uint8 scr_SetTargetToChild( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists( self.child ) )
     {
-        SET_TARGET_0( self.child );
+        SET_TARGET_0(ObjectRef(self.child));
     }
     else
     {
@@ -8010,7 +7990,7 @@ Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
         case COLOR_BLUE:    tint = &tint_blue;    break;
     }
 
-    returncode = NULL != chr_make_text_billboard(self.index, ppro->getMessage(state.argument).c_str(), text_color, *tint, state.distance, Billboard::Flags::Fade);
+    returncode = NULL != chr_make_text_billboard(ObjectRef(self.index), ppro->getMessage(state.argument).c_str(), text_color, *tint, state.distance, Billboard::Flags::Fade);
 
     SCRIPT_FUNCTION_END();
 }
@@ -8028,11 +8008,11 @@ Uint8 scr_SetTargetToBlahInPassage( script_state_t& state, ai_state_t& self )
     std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     returncode = false;
     if(passage) {
-        CHR_REF ichr = passage->whoIsBlockingPassage(self.index, state.turn, TARGET_SELF | state.distance, IDSZ_NONE );
+        auto objRef = passage->whoIsBlockingPassage(ObjectRef(self.index), state.turn, TARGET_SELF | state.distance, IDSZ_NONE );
 
-        if ( _currentModule->getObjectHandler().exists( ichr ) )
+        if ( _currentModule->getObjectHandler().exists(objRef) )
         {
-            SET_TARGET_0( ichr );
+            SET_TARGET_0(objRef);
             returncode = true;
         }
     }
@@ -8180,11 +8160,11 @@ uint8_t scr_SetTargetToDistantFriend( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    CHR_REF ichr = chr_find_target(pchr, state.distance, IDSZ_NONE, TARGET_FRIENDS);
+    auto ichr = chr_find_target(pchr, state.distance, IDSZ_NONE, TARGET_FRIENDS);
 
     if (_currentModule->getObjectHandler().exists(ichr))
     {
-        SET_TARGET_0( ichr );
+        SET_TARGET_0(ichr);
     }
     else
     {
@@ -8204,7 +8184,7 @@ uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self)
     SCRIPT_FUNCTION_BEGIN();
 
     //We ourselves must be a player or our holder must be one
-    std::shared_ptr<Object> player = _currentModule->getObjectHandler()[pchr->getCharacterID()];
+    std::shared_ptr<Object> player = _currentModule->getObjectHandler()[pchr->getObjRef()];
     if(!player->isPlayer() && player->isBeingHeld()) {
         player = _currentModule->getObjectHandler()[pchr->attachedto];
     }

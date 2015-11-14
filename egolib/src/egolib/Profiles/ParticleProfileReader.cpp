@@ -192,44 +192,44 @@ bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::stri
             idsz = ctxt.readIDSZ();
 
             if (idsz == MAKE_IDSZ('N', 'O', 'N', 'E')) {
-                if (ctxt.readInt() != 0) {
+                if (ctxt.readIntegerLiteral() != 0) {
                     SET_BIT(profile->damfx, DAMFX_NONE);
                 }
             }
             else if (idsz == MAKE_IDSZ('T', 'U', 'R', 'N')) {
-                if (ctxt.readInt() != 0) {
+                if (ctxt.readIntegerLiteral() != 0) {
                     SET_BIT(profile->damfx, DAMFX_TURN);
                 }
             }
             else if (idsz == MAKE_IDSZ('A', 'R', 'M', 'O')) {
-                if (ctxt.readInt() != 0) {
+                if (ctxt.readIntegerLiteral() != 0) {
                     SET_BIT(profile->damfx, DAMFX_ARMO);
                 }
             }
             else if (idsz == MAKE_IDSZ('B', 'L', 'O', 'C')) {
-                if (ctxt.readInt() != 0) {
+                if (ctxt.readIntegerLiteral() != 0) {
                     SET_BIT(profile->damfx, DAMFX_NBLOC);
                 }
             }
             else if (idsz == MAKE_IDSZ('A', 'R', 'R', 'O')) {
-                if (ctxt.readInt() != 0) {
+                if (ctxt.readIntegerLiteral() != 0) {
                     SET_BIT(profile->damfx, DAMFX_ARRO);
                 }
             }
             else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E')) {
-                if (ctxt.readInt() != 0) {
+                if (ctxt.readIntegerLiteral() != 0) {
                     SET_BIT(profile->damfx, DAMFX_TIME);
                 }
             }
-            else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = ctxt.readReal();
-            else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = ctxt.readInt();
-            else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = ctxt.readInt();
-            else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != ctxt.readInt());
-            else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != ctxt.readInt());
-            else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = ctxt.readInt() / 1000.0f;
-            else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = ctxt.readInt() / 1000.0f;
-            else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->_intellectDamageBonus = (0 != ctxt.readInt());
-            else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readInt());
+            else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = ctxt.readRealLiteral();
+            else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = ctxt.readIntegerLiteral();
+            else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = ctxt.readIntegerLiteral();
+            else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != ctxt.readIntegerLiteral());
+            else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != ctxt.readIntegerLiteral());
+            else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = ctxt.readIntegerLiteral() / 1000.0f;
+            else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = ctxt.readIntegerLiteral() / 1000.0f;
+            else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->_intellectDamageBonus = (0 != ctxt.readIntegerLiteral());
+            else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readIntegerLiteral());
             else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
             {
                 switch (Ego::toupper(ctxt.readPrintable()))

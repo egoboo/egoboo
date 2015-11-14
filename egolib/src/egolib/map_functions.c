@@ -165,7 +165,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 	try {
 		ary = new Uint8[pmesh->_mem.tiles.size()];
 	} catch (...) {
-		Log::warning("%s - unable to allocate a temporary array.\n", __FUNCTION__);
+		Log::get().warn("%s - unable to allocate a temporary array.\n", __FUNCTION__);
 		throw;
 	}
 

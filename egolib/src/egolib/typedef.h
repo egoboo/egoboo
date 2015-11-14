@@ -353,31 +353,7 @@ typedef uint16_t FACING_T;
     void floats_to_pair( float vmin, float vmax, IPair * ppair );
 
 //--------------------------------------------------------------------------------------------
-// IDSZ
-typedef Uint32 IDSZ;
 
-#if !defined(MAKE_IDSZ)
-#define MAKE_IDSZ(C0,C1,C2,C3)                 \
-    ((IDSZ)(                                   \
-             ((((C0)-'A')&0x1F) << 15) |       \
-             ((((C1)-'A')&0x1F) << 10) |       \
-             ((((C2)-'A')&0x1F) <<  5) |       \
-             ((((C3)-'A')&0x1F) <<  0)         \
-           ))
-#endif
-
-#define IDSZ_NONE MAKE_IDSZ('N','O','N','E')       ///< [NONE]
-/**
- * @brief
- *	Convert an integer IDSZ to a text IDSZ.
- * @param idsz
- *	the integer IDSZ
- * @return
- *	a pointer to a text IDSZ
- * @todo
- *	This currently uses a static bufer. Change this.
- */
-const char *undo_idsz(IDSZ idsz);
 
 //--------------------------------------------------------------------------------------------
 // STRING
@@ -561,9 +537,9 @@ enum DamageModifier : uint8_t
 
 #include "egolib/Ref.hpp"
 
-typedef Ref < size_t, 0, std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Object> ObjectRef;
+typedef Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Object> ObjectRef;
 typedef size_t CHR_REF;
-#define INVALID_CHR_REF std::numeric_limits<CHR_REF>::max()
+#define INVALID_CHR_REF (ObjectRef::Invalid.get())
 
 DECLARE_REF(TEAM_REF);
 

@@ -99,42 +99,49 @@ struct bitmap_filter : public std::unary_function<std::string, bool> {
 };
 
 #include "filters.hpp"
+#include <sstream>
 
-int SDL_main(int argc, char **argv) {
-    if (argc == 1) {
-        std::cerr << argv[0] << ": no arguments" << std::endl;
-        return 1;
-    }
-    
-    SDL_Init(0);
-    IMG_Init(IMG_INIT_PNG);
-    std::deque<std::string> queue;
-    RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?(?:tris|tile)[0-9]+\\.bmp$");
-    /// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
-    for (int i = 1; i < argc; i++) {
-        queue.emplace_back(FileSystem::sanitize(argv[i]));
-    }
-    while (!queue.empty()) {
-        std::string path = queue[0];
-        queue.pop_front();
-        switch (stat(path)) {
-            case PathStat::FILE:
-                if (filter(path)) {
-                    convert(path);
-                }
-                break;
-            case PathStat::DIRECTORY:
-                recurDir(path, queue);
-                break;
-            case PathStat::FAILURE:
-                break; // stat complains
-            default:
-                std::cerr << std::string("'") << path << "' not a file or directory" << std::endl;
-        }
-    }
-    IMG_Quit();
-    SDL_Quit();
-    return EXIT_SUCCESS;
+namespace ConvertPaletted {
+	void run(int argc, char **argv) {
+		if (argc == 1) {
+			std::ostringstream os;
+			os << "wrong number of arguments" << std::endl;
+			throw std::runtime_error(os.str());
+		}
+
+		SDL_Init(0);
+		IMG_Init(IMG_INIT_PNG);
+		std::deque<std::string> queue;
+		RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?(?:tris|tile)[0-9]+\\.bmp$");
+		/// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
+		for (int i = 1; i < argc; i++) {
+			queue.emplace_back(FileSystem::sanitize(argv[i]));
+		}
+		while (!queue.empty()) {
+			std::string path = queue[0];
+			queue.pop_front();
+			switch (stat(path)) {
+			case PathStat::FILE:
+				if (filter(path)) {
+					convert(path);
+				}
+				break;
+			case PathStat::DIRECTORY:
+				recurDir(path, queue);
+				break;
+			case PathStat::FAILURE:
+				break; // stat complains
+			default:
+				{
+					std::ostringstream os;
+					os << "skipping '" << path << "' - not a file or directory" << std::endl;
+					std::cerr << os.str();
+				}
+			}
+		}
+		IMG_Quit();
+		SDL_Quit();
+	}
 }
 
 #if defined(_WIN32)

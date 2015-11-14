@@ -147,12 +147,12 @@ public:
     /**
      * @brief
      *  Constructor
-     * @param profile
-     *  which character profile this character should be spawned with
-     * @param id
-     *  the unique CHR_REF associated with this character
+     * @param proRef
+     *  the profile reference of the profile this object should be spawned with
+     * @param objRef
+     *  the unique object reference of this object
      */
-    Object(const PRO_REF profile, const CHR_REF id);
+    Object(const PRO_REF proRef, const ObjectRef& objRef);
 
     /**
      * @brief
@@ -169,9 +169,10 @@ public:
     bool canCollide() const override;
 
     /**
-    * @return the unique CHR_REF associated with this character
-    **/
-    inline CHR_REF getCharacterID() const {return _characterID;}
+	 * @brief Get the unique object reference of this object.
+     * @return the unique object reference of this object
+     */
+    inline const ObjectRef& getObjRef() const {return _objRef;}
 
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
@@ -840,7 +841,7 @@ public:
     float          fat_stt;                       ///< Character's initial size
     float          fat;                           ///< Character's size
     float          fat_goto;                      ///< Character's size goto
-    int16_t         fat_goto_time;                 ///< Time left in size change
+    int16_t        fat_goto_time;                 ///< Time left in size change
 
     // jump stuff
     uint8_t          jump_timer;                      ///< Delay until next jump
@@ -938,7 +939,7 @@ public:
 
 private:
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
-    CHR_REF _characterID;                            ///< Our unique CHR_REF id
+    ObjectRef _objRef;                               ///< The unique object reference of this object
     PRO_REF _profileID;                              ///< The ID of our profile
     std::shared_ptr<ObjectProfile> _profile;         ///< Our Profile
     bool _showStatus;                                ///< Display stats?

@@ -73,7 +73,7 @@ gfx_rv TileList::reset()
 {
 	if (!_mesh)
 	{
-		Log::error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
+		Log::get().error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
 
@@ -93,7 +93,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 {
 	if (!_mesh)
 	{
-		Log::error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
+		Log::get().error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
 
@@ -111,7 +111,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	}
 
 	int ix = index.getI() % _mesh->_info.getTileCountX();
-	int iy = index.getI() / _mesh->_info.getTileCountY();
+	int iy = index.getI() / _mesh->_info.getTileCountX();
 	float dx = (ix + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kX];
 	float dy = (iy + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
@@ -120,7 +120,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	_all.push(index, distance);
 
 	// Put each tile in one other list, for shadows and relections
-	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_SHA))
+	if (0 != pgrid.testFX(MAPFX_SHA))
 	{
 		_sha.push(index, distance);
 	}
@@ -129,7 +129,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 		_ref.push(index, distance);
 	}
 
-	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_REFLECTIVE))
+	if (0 != pgrid.testFX(MAPFX_REFLECTIVE))
 	{
 		_reflective.push(index, distance);
 	}
@@ -138,7 +138,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 		_nonReflective.push(index, distance);
 	}
 
-	if (0 != ego_grid_info_t::test_all_fx(&pgrid, MAPFX_WATER))
+	if (0 != pgrid.testFX(MAPFX_WATER))
 	{
 		_water.push(index, distance);
 	}

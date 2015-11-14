@@ -130,7 +130,7 @@ public:
     // List of used billboards.
     std::list<std::shared_ptr<Billboard>> _used;
 private:
-    void update(Uint32 ticks);
+    void update(uint32_t ticks);
 public:
     BillboardList();
     void update();
@@ -165,7 +165,7 @@ public:
      *  The billboard is kept around as long as a reference to the billboard exists,
      *  however, it might exprire during that time.
      */
-    std::shared_ptr<Billboard> makeBillboard(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options);
+    std::shared_ptr<Billboard> makeBillboard(uint32_t lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options);
 
 };
 
@@ -193,4 +193,4 @@ public:
     Ego::VertexBuffer _vertexBuffer;
 };
 
-std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
+std::shared_ptr<Billboard> chr_make_text_billboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);

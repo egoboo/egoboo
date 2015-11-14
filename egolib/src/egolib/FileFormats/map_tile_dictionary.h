@@ -72,9 +72,6 @@
 		}
     };
 
-#   define TILE_DICTIONARY_INIT { false, 0, 0, {} }
-
-
 //--------------------------------------------------------------------------------------------
 
 bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size );

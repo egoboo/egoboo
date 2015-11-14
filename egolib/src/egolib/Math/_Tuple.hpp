@@ -70,13 +70,13 @@ struct TupleConstructorEnable
  */
 template <typename _UnderlayingType>
 struct Tuple {
-    
+
 public:
-    
-    /**
-     * @brief
-     *  @a MyType is the type of this template/template specialization.
-     */
+
+	/**
+	 * @brief
+	 *  @a MyType is the type of this template/template specialization.
+	 */
 	typedef Tuple<_UnderlayingType> MyType;
 
 	/**
@@ -97,14 +97,10 @@ public:
 	 */
 	typedef typename _UnderlayingType::ScalarFieldType::ScalarType ScalarType;
 
-
-    
-
-    
-    /**
-     * @invariant
-     *  The dimensionality be a positive integral constant.
-     */
+	/**
+	 * @invariant
+	 *  The dimensionality be a positive integral constant.
+	 */
 	static_assert(IsDimensionality<_UnderlayingType::dimensionality()>::value, "_UnderlayingType::Dimensionality must fulfil the dimensionality concept");
 
 	/**
@@ -116,14 +112,14 @@ public:
 	constexpr static size_t dimensionality() {
 		return _UnderlayingType::dimensionality();
 	}
-    
+
 protected:
 
-    /**
-     * @brief
-     *  The elements of this tuple.
-     */
-	ScalarType _elements[_UnderlayingType::dimensionality()];
+	/**
+	 * @brief
+	 *  The elements of this tuple.
+	 */
+	std::array<ScalarType, _UnderlayingType::dimensionality()> _elements;
 
 	/**
 	 * @brief
@@ -132,17 +128,16 @@ protected:
 	 *	the element values
 	 */
 	template<typename ... ArgTypes, typename = typename std::enable_if<Internal::TupleConstructorEnable<_UnderlayingType, ArgTypes ...>::value>::type>
-	Tuple(ScalarType v, ArgTypes&& ... args) {
+	Tuple(ScalarType v, ArgTypes&& ... args)
+		: _elements{ v, args ... } {
 		static_assert(_UnderlayingType::dimensionality() - 1 == sizeof ... (args), "wrong number of arguments");
-		Internal::unpack<float, _UnderlayingType::dimensionality()>(_elements, std::forward<ScalarType>(v), args ...);
 	}
 
 	/**
 	 * @brief
 	 *	Default-construct this tuple.
 	 */
-	Tuple() :
-		_elements() {}
+	Tuple() : _elements() {}
 
 	/**
 	 * @brief
@@ -150,11 +145,7 @@ protected:
 	 * @param other
 	 *  the other tuple
 	 */
-	Tuple(const MyType& other) {
-		for (size_t i = 0; i < dimensionality(); ++i) {
-			_elements[i] = other._elements[i];
-		}
-	}
+	Tuple(const MyType& other) : _elements(other._elements) {}
 
 	/**
 	 * @brief
@@ -163,9 +154,7 @@ protected:
 	 *  the other tuple
 	 */
 	void assign(const MyType& other) {
-		for (size_t i = 0; i < dimensionality(); ++i) {
-			_elements[i] = other._elements[i];
-		}
+		_elements = other._elements;
 	}
 
 	/**

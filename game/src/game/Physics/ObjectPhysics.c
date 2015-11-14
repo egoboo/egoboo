@@ -44,7 +44,7 @@ void move_one_character_do_voluntary( Object * pchr )
     // do voluntary motion
     if (!pchr || pchr->isTerminated()) return;
 
-    CHR_REF ichr = GET_INDEX_PCHR( pchr );
+    auto ichr = GET_INDEX_PCHR( pchr );
 
     if ( !pchr->isAlive() || pchr->getAttribute(Ego::Attribute::ACCELERATION) == 0.00f ) return;
 
@@ -225,7 +225,7 @@ void move_one_character_do_voluntary( Object * pchr )
             // Face the target
             case TURNMODE_WATCHTARGET:
                 {
-                    if ( ichr != pchr->ai.target )
+                    if ( ichr.get() != pchr->ai.target )
                     {
                         pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.target)->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.target)->getPosY() - pchr->getPosY() ), 8 );
                     }
@@ -731,7 +731,7 @@ bool chr_do_latch_button( Object * pchr )
     bool attack_handled;
 
     if (!pchr || pchr->isTerminated()) return false;
-    CHR_REF ichr = pchr->getCharacterID();
+    auto ichr = pchr->getObjRef();
 
     if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;
 
@@ -876,7 +876,7 @@ bool chr_do_latch_button( Object * pchr )
 
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 {
-    CHR_REF ichr, iweapon;
+    CHR_REF iweapon;
 
     int    base_action, hand_action, action;
     bool action_valid, allowedtoattack;
@@ -884,7 +884,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     bool retval = false;
 
     if (!pchr || pchr->isTerminated()) return false;
-    ichr = GET_INDEX_PCHR( pchr );
+    auto iobj = GET_INDEX_PCHR( pchr );
 
 
     if (which_slot >= SLOT_COUNT) return false;
@@ -893,13 +893,13 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     iweapon = pchr->holdingwhich[which_slot];
     if ( !_currentModule->getObjectHandler().exists( iweapon ) )
     {
-        // Unarmed means character itself is the iweapon
-        iweapon = ichr;
+        // Unarmed means object itself is the weapon
+        iweapon = iobj.get();
     }
-    Object *pweapon     = _currentModule->getObjectHandler().get(iweapon);
+    Object *pweapon = _currentModule->getObjectHandler().get(iweapon);
     const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
-    //No need to continue if we have an attack cooldown
+    // No need to continue if we have an attack cooldown
     if ( 0 != pweapon->reload_timer ) return false;
 
     // grab the iweapon's action
@@ -981,7 +981,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     {
                         chr_play_action( pmount.get(), Random::next((int)ACTION_UA, ACTION_UA + 1), false );
                         SET_BIT( pmount->ai.alert, ALERTIF_USED );
-                        pchr->ai.lastitemused = pmount->getCharacterID();
+                        pchr->ai.lastitemused = pmount->getObjRef().get();
 
                         retval = true;
                     }
@@ -999,11 +999,11 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
         if ( pchr->inst.action_ready && action_valid )
         {
             //Check if we are attacking unarmed and cost mana to do so
-            if(iweapon == pchr->getCharacterID())
+            if(iweapon == pchr->getObjRef().get())
             {
                 if(pchr->getProfile()->getUseManaCost() <= pchr->getMana())
                 {
-                    pchr->costMana(pchr->getProfile()->getUseManaCost(), pchr->getCharacterID());
+                    pchr->costMana(pchr->getProfile()->getUseManaCost(), pchr->getObjRef().get());
                 }
                 else
                 {
@@ -1031,10 +1031,10 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     chr_play_action( pchr, action, false );
 
                     // Make the weapon animate the attack as well as the character holding it
-                    if ( iweapon != ichr )
-                    {
-                        chr_play_action( pweapon, ACTION_MJ, false );
-                    }
+					if (iweapon != iobj.get())
+					{
+						chr_play_action(pweapon, ACTION_MJ, false);
+					}
 
                     //Crossbow Mastery increases XBow attack speed by 30%
                     if(pchr->hasPerk(Ego::Perks::CROSSBOW_MASTERY) && 
@@ -1049,7 +1049,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     //If Quick Strike perk triggers then we have fastest possible attack (10% chance)
                     if(pchr->hasPerk(Ego::Perks::QUICK_STRIKE) && pweapon->getProfile()->isMeleeWeapon() && Random::getPercent() <= 10) {
                         pchr->inst.rate = 3.00f;
-                        chr_make_text_billboard(pchr->getCharacterID(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                        chr_make_text_billboard(pchr->getObjRef(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
                     }
 
                     //Add some reload time as a true limit to attacks per second
@@ -1098,7 +1098,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 }
 
 //--------------------------------------------------------------------------------------------
-bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool grab_people )
+bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_people )
 {
     /// @author ZZ
     /// @details This function makes the character pick up an item if there's one around
@@ -1114,7 +1114,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     //Max grab distance is 2/3rds of a tile
     const float MAX_DIST_GRAB = Info<float>::Grid::Size() * 0.66f;
 
-    CHR_REF   ichr_b;
+    ObjectRef   ichr_b;
     slot_t    slot;
     oct_vec_v2_t mids;
     Vector3f   slot_pos;
@@ -1173,8 +1173,8 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         if ( INVALID_CHR_REF != pchr_c->attachedto ) continue;
 
         // do not pick up your mount
-        if ( pchr_c->holdingwhich[SLOT_LEFT] == ichr_a ||
-             pchr_c->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
+        if ( pchr_c->holdingwhich[SLOT_LEFT] == ichr_a.get() ||
+             pchr_c->holdingwhich[SLOT_RIGHT] == ichr_a.get() ) continue;
 
         // do not notice completely broken items?
         if (pchr_c->isitem && !pchr_c->isAlive()) continue;
@@ -1314,12 +1314,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 continue;
             } 
 
-            bool can_grab = can_grab_item_in_shop(ichr_a, grabData.object->getCharacterID());
+            bool can_grab = can_grab_item_in_shop(ichr_a, grabData.object->getObjRef());
 
             if ( can_grab )
             {
                 // Stick 'em together and quit
-                if ( rv_success == attach_character_to_mount(grabData.object->getCharacterID(), ichr_a, grip_off) )
+                if ( rv_success == attach_character_to_mount(grabData.object->getObjRef(), ObjectRef(ichr_a), grip_off) )
                 {
                     if (grab_people)
                     {
@@ -1351,7 +1351,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             // things that can be grabbed
             for(const grab_data_t &grabData : grabList)
             {
-                ichr_b = grabData.object->getCharacterID();
+                ichr_b = grabData.object->getObjRef();
                 if (!grabData.visible)
                 {
                     // (5 secs and blue)
@@ -1367,7 +1367,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             // things that can't be grabbed
             for(const grab_data_t &grabData : ungrabList)
             {
-                ichr_b = grabData.object->getCharacterID();
+                ichr_b = grabData.object->getObjRef();
                 if (!grabData.visible)
                 {
                     // (5 secs and blue)
@@ -1405,7 +1405,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 // (ignore vertical displacement)
                 if (grabData.isFacingObject && grabData.horizontalDistance < MAX_DIST_GRAB)
                 {
-                    ai_state_t::set_bumplast(grabData.object->ai, ichr_a);
+                    ai_state_t::set_bumplast(grabData.object->ai, ichr_a.get());
                     break;
                 }
             }
@@ -1739,133 +1739,132 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     return rv_success;
 }
 
-egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
+egolib_rv attach_character_to_mount( ObjectRef riderRef, ObjectRef mountRef, grip_offset_t grip_off )
 {
     /// @author ZZ
-    /// @details This function attaches one character/item to another ( the holder/mount )
-    ///    at a certain vertex offset ( grip_off )
-    ///   - This function is called as a part of spawning a module, so the item or the holder may not
+    /// @details This function attaches one object (rider) to another object (mount)
+    ///          at a certain vertex offset ( grip_off )
+    ///   - This function is called as a part of spawning a module, so the rider or the mount may not
     ///     be fully instantiated
     ///   - This function should do very little testing to see if attachment is allowed.
     ///     Most of that checking should be done by the calling function
 
-    Object * prider, * pmount;
-
     // Make sure the character/item is valid
-    if ( !_currentModule->getObjectHandler().exists( irider ) ) return rv_error;
-    prider = _currentModule->getObjectHandler().get( irider );
+    if (!_currentModule->getObjectHandler().exists(riderRef)) return rv_error;
+    Object *rider = _currentModule->getObjectHandler().get(riderRef);
 
     // Make sure the holder/mount is valid
-    if ( !_currentModule->getObjectHandler().exists( imount ) ) return rv_error;
-    pmount = _currentModule->getObjectHandler().get( imount );
+    if (!_currentModule->getObjectHandler().exists(mountRef)) return rv_error;
+    Object *mount = _currentModule->getObjectHandler().get(mountRef);
 
     //Don't attach a character to itself!
-    if(irider == imount) {
+    if (riderRef == mountRef) {
         return rv_fail;
     }
 
     // do not deal with packed items at this time
     // this would have to be changed to allow for pickpocketing
-    if ( _currentModule->getObjectHandler().exists( prider->inwhich_inventory ) || _currentModule->getObjectHandler().exists( pmount->inwhich_inventory ) ) return rv_fail;
+    if (_currentModule->getObjectHandler().exists(rider->inwhich_inventory) || 
+		_currentModule->getObjectHandler().exists(mount->inwhich_inventory)) return rv_fail;
 
     // make a reasonable time for the character to remount something
     // for characters jumping out of pots, etc
-    if ( imount == prider->dismount_object && prider->dismount_timer > 0 ) return rv_fail;
+    if (mountRef.get() == rider->dismount_object && rider->dismount_timer > 0) return rv_fail;
 
     // Figure out which slot this grip_off relates to
-    slot_t slot = grip_offset_to_slot( grip_off );
+    slot_t slot = grip_offset_to_slot(grip_off);
 
     // Make sure the the slot is valid
-    if ( !pmount->getProfile()->isSlotValid(slot) ) return rv_fail;
+    if (!mount->getProfile()->isSlotValid(slot)) return rv_fail;
 
     // This is a small fix that allows special grabbable mounts not to be mountable while
     // held by another character (such as the magic carpet for example)
     // ( this is an example of a test that should not be done here )
-    if ( pmount->isMount() && _currentModule->getObjectHandler().exists( pmount->attachedto ) ) return rv_fail;
+    if (mount->isMount() && _currentModule->getObjectHandler().exists(mount->attachedto)) return rv_fail;
 
     // Put 'em together
-    prider->inwhich_slot       = slot;
-    prider->attachedto         = imount;
-    pmount->holdingwhich[slot] = irider;
+    rider->inwhich_slot        = slot;
+    rider->attachedto          = mountRef.get();
+    mount->holdingwhich[slot] = riderRef.get();
 
     // set the grip vertices for the irider
-    set_weapongrip( irider, imount, grip_off );
+    set_weapongrip(riderRef.get(), mountRef.get(), grip_off);
 
-    chr_update_matrix( prider, true );
+    chr_update_matrix(rider, true);
 
-    prider->setPosition(mat_getTranslate(prider->inst.matrix));
+    rider->setPosition(mat_getTranslate(rider->inst.matrix));
 
-    prider->enviro.inwater  = false;
-    prider->jump_timer = JUMPDELAY * 4;
+    rider->enviro.inwater  = false;
+    rider->jump_timer = JUMPDELAY * 4;
 
     // Run the held animation
-    if ( pmount->isMount() && ( GRIP_ONLY == grip_off ) )
+    if (mount->isMount() && (GRIP_ONLY == grip_off))
     {
         // Riding imount
-
-        if ( _currentModule->getObjectHandler().exists( prider->holdingwhich[SLOT_LEFT] ) || _currentModule->getObjectHandler().exists( prider->holdingwhich[SLOT_RIGHT] ) )
+        if (_currentModule->getObjectHandler().exists(rider->holdingwhich[SLOT_LEFT] ) || 
+			_currentModule->getObjectHandler().exists(rider->holdingwhich[SLOT_RIGHT] ) )
         {
             // if the character is holding anything, make the animation
             // ACTION_MH == "sitting" so that it dies not look so silly
-            chr_play_action( prider, ACTION_MH, true );
+            chr_play_action(rider, ACTION_MH, true);
         }
         else
         {
             // if it is not holding anything, go for the riding animation
-            chr_play_action( prider, ACTION_MI, true );
+            chr_play_action(rider, ACTION_MI, true);
         }
 
         // set tehis action to loop
-        chr_instance_t::set_action_loop(prider->inst, true);
+        chr_instance_t::set_action_loop(rider->inst, true);
     }
-    else if ( prider->isAlive() )
+    else if (rider->isAlive())
     {
         /// @note ZF@> hmm, here is the torch holding bug. Removing
         /// the interpolation seems to fix it...
-        chr_play_action( prider, ACTION_MM + slot, false );
+        chr_play_action(rider, ACTION_MM + slot, false );
 
-        chr_instance_t::remove_interpolation(prider->inst);
+        chr_instance_t::remove_interpolation(rider->inst);
 
         // set the action to keep for items
-        if ( prider->isItem() )
+        if (rider->isItem())
         {
             // Item grab
-            chr_instance_t::set_action_keep(prider->inst, true);
+            chr_instance_t::set_action_keep(rider->inst, true);
         }
     }
 
     // Set the team
-    if ( prider->isItem() )
+    if (rider->isItem())
     {
-        prider->team = pmount->team;
+        rider->team = mount->team;
 
         // Set the alert
-        if ( prider->isAlive() )
+        if (rider->isAlive())
         {
-            SET_BIT( prider->ai.alert, ALERTIF_GRABBED );
+            SET_BIT(rider->ai.alert, ALERTIF_GRABBED);
         }
 
-        //Lore Master perk identifies everything
-        if(pmount->hasPerk(Ego::Perks::LORE_MASTER)) {
-            prider->getProfile()->makeUsageKnown();
-            prider->nameknown = true;
-            prider->ammoknown = true;
+        // Lore Master perk identifies everything
+        if (mount->hasPerk(Ego::Perks::LORE_MASTER)) {
+            rider->getProfile()->makeUsageKnown();
+            rider->nameknown = true;
+            rider->ammoknown = true;
         }
     }
 
-    if ( pmount->isMount() )
+    if (mount->isMount())
     {
-        pmount->team = prider->team;
+        mount->team = rider->team;
 
         // Set the alert
-        if ( !pmount->isItem() && pmount->isAlive() )
+        if (!mount->isItem() && mount->isAlive())
         {
-            SET_BIT( pmount->ai.alert, ALERTIF_GRABBED );
+            SET_BIT(mount->ai.alert, ALERTIF_GRABBED);
         }
     }
 
     // It's not gonna hit the floor
-    prider->hitready = false;
+    rider->hitready = false;
 
     return rv_success;
 }

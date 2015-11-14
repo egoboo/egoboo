@@ -22,13 +22,13 @@
 #include "game/char.h"
 #include "egolib/Profiles/_Include.hpp"
 
-CHR_REF GET_INDEX_PCHR(const Object *pobj)
+const ObjectRef& GET_INDEX_PCHR(const Object *pobj)
 {
-    return (nullptr == pobj) ? INVALID_CHR_REF : pobj->getCharacterID();
+    return (nullptr == pobj) ? ObjectRef::Invalid : pobj->getObjRef();
 }
-CHR_REF GET_INDEX_PCHR(const std::shared_ptr<Object> &pobj)
+const ObjectRef& GET_INDEX_PCHR(const std::shared_ptr<Object> &pobj)
 {
-    return (nullptr == pobj) ? INVALID_CHR_REF : pobj->getCharacterID();
+    return (nullptr == pobj) ? ObjectRef::Invalid : pobj->getObjRef();
 }
 bool INGAME_PCHR(const Object *pobj)
 {
@@ -50,134 +50,120 @@ ObjectHandler::ObjectHandler() :
     _iteratorList.reserve(OBJECTS_MAX);
 }
 
-bool ObjectHandler::remove(const CHR_REF ichr)
-{
-    if (!exists(ichr))
-	{
-    	return false;
-    }
+bool ObjectHandler::remove(const ObjectRef& ref) {
+	if (!exists(ref)) {
+		return false;
+	}
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
-    chr_log_script_time( ichr );
+	chr_log_script_time(ref.get());
 #endif
 
-    //Remove us from any holder first
-    _internalCharacterList[ichr]->detatchFromHolder(true, false);
+	//Remove us from any holder first
+	_internalCharacterList[ref.get()]->detatchFromHolder(true, false);
 
-    // If we are inside a list loop, do not actually change the length of the
-    // list. Else this can cause some problems later.
-    _internalCharacterList[ichr]->_terminateRequested = true; //bad: private access
-    _deletedCharacters++;
+	// If we are inside a list loop, do not actually change the length of the
+	// list. Else this can cause some problems later.
+	_internalCharacterList[ref.get()]->_terminateRequested = true; //bad: private access
+	_deletedCharacters++;
 
-    // We can safely modify the map, it is not iterable from the outside.
-    _internalCharacterList.erase(ichr);
-    
-    return true;
+	// We can safely modify the map, it is not iterable from the outside.
+	_internalCharacterList.erase(ref.get());
+
+	return true;
 }
 
-bool ObjectHandler::exists(const CHR_REF character) const
-{
-    if(character == INVALID_CHR_REF || character >= _totalCharactersSpawned) {
-        return false;
-    }
+bool ObjectHandler::exists(const ObjectRef& ref) const {
+	if (ref == ObjectRef::Invalid || ref.get() >= _totalCharactersSpawned) {
+		return false;
+	}
 
-    //Check if object exists in map
-    const auto& result = _internalCharacterList.find(character);
-    if(result == _internalCharacterList.end()) {
-        return false;
-    }
+	// Check if object exists in map.
+	const auto& result = _internalCharacterList.find(ref.get());
+	if (result == _internalCharacterList.end()) {
+		return false;
+	}
 
-    return !(*result).second->isTerminated();
+	return !(*result).second->isTerminated();
 }
 
-
-std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
+std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, const ObjectRef& overrideRef)
 {
-    // Make sure the profile is valid.
-    if (!ProfileSystem::get().isValidProfileID(profile))
-    {
-		Log::warning("ObjectHandler - Tried to spawn character with invalid ProfileID: %d\n", profile);
-        return nullptr;
-    }
+	// Make sure the profile is valid.
+	if (!ProfileSystem::get().isValidProfileID(profileRef)) {
+		Log::get().warn("%s:%d: tried to spawn object with invalid profile reference %d\n", __FILE__, __LINE__, profileRef);
+		return nullptr;
+	}
 
-    // Limit total number of characters active at the same time.
-    if(getObjectCount() > OBJECTS_MAX)
-    {
-		Log::warning("ObjectHandler - No free character slots available\n");
-        return nullptr;
-    }
+	// Limit total number of characters active at the same time.
+	if (getObjectCount() > OBJECTS_MAX) {
+		Log::get().warn("%s:%d: no free object slots available\n", __FILE__, __LINE__);
+		return nullptr;
+	}
 
-    CHR_REF ichr = INVALID_CHR_REF;
+	ObjectRef objRef = ObjectRef::Invalid;
 
-    if(override != INVALID_CHR_REF)
-    {
-        if(!exists(override))
-        {
-            ichr = override;
-        }
-        else
-        {
-			Log::warning( "ObjectHandler - failed to override a character? character %d already spawned? \n", REF_TO_INT( override ) );
+	if (ObjectRef::Invalid != overrideRef) {
+		if (!exists(overrideRef)) {
+			objRef = overrideRef;
+		} else {
+			Log::get().warn("%s:%d: failed to override a object %" PRIuZ ": - object already spawned\n", __FILE__, __LINE__,\
+				            overrideRef.get());
 			return nullptr;
 		}
-    }
+	}
+	// No override specified, generate new reference.
+	else
+	{
+		// Increment counter.
+		objRef = ObjectRef(_totalCharactersSpawned++);
+	}
 
-    //No override specified, generate new ID
-    else
-    {
-        // Increment counter.
-        ichr = _totalCharactersSpawned++;
-    }
+	if (ObjectRef::Invalid != objRef) {
+		const std::shared_ptr<Object> objPtr = std::make_shared<Object>(profileRef, objRef);
+		if (!objPtr) {
+			Log::get().warn("unable to create object\n");
+			return nullptr;
+		}
 
-    if (ichr != INVALID_CHR_REF)
-    {
-        const std::shared_ptr<Object> object = std::make_shared<Object>(profile, ichr);
+		// Allocate the new one (we can safely modify the internal map, it isn't iterable from outside).
+		_internalCharacterList[objRef.get()] = objPtr;
 
-        if(!object)
-		{
-			Log::warning("ObjectHandler - Unable to allocate object memory\n");
-            return nullptr;
-        }
+		// Wait to adding it to the iterable list.
+		_allocateList.push_back(objPtr);
+		return objPtr;
+	}
 
-        // Allocate the new one (we can safely modify the internal map, it isn't iterable from outside).
-        _internalCharacterList[ichr] = object;
-
-        // Wait to adding it to the iterable list.
-        _allocateList.push_back(object);
-        return object;
-    }
-
-    return nullptr;
+	return nullptr;
 }
 
-Object* ObjectHandler::get(const CHR_REF index) const
-{
-    if(index == INVALID_CHR_REF || index >= _totalCharactersSpawned) {
-        return nullptr;
-    }
+Object *ObjectHandler::get(const ObjectRef& ref) const {
+	if (ref == ObjectRef::Invalid || ref.get() >= _totalCharactersSpawned) {
+		return nullptr;
+	}
 
-    //Check if object exists in map
-    const auto& result = _internalCharacterList.find(index);
-    if(result == _internalCharacterList.end()) {
-        return nullptr;
-    }
+	// Check if object exists in map.
+	const auto& result = _internalCharacterList.find(ref.get());
+	if (result == _internalCharacterList.end()) {
+		return nullptr;
+	}
 
-    return (*result).second.get();
+	return (*result).second.get();
 }
 
-const std::shared_ptr<Object>& ObjectHandler::operator[] (const CHR_REF index)
+const std::shared_ptr<Object>& ObjectHandler::operator[] (const ObjectRef& ref)
 {
-    if(index == INVALID_CHR_REF || index >= _totalCharactersSpawned) {
-        return Object::INVALID_OBJECT;
-    }
+	if (ref == ObjectRef::Invalid || ref.get() >= _totalCharactersSpawned) {
+		return Object::INVALID_OBJECT;
+	}
 
-    //Check if object exists in map
-    const auto& result = _internalCharacterList.find(index);
-    if(result == _internalCharacterList.end()) {
-        return Object::INVALID_OBJECT;
-    }
+	// Check if object exists in map.
+	const auto& result = _internalCharacterList.find(ref.get());
+	if (result == _internalCharacterList.end()) {
+		return Object::INVALID_OBJECT;
+	}
 
-    return (*result).second;
+	return (*result).second;
 }
 
 void ObjectHandler::clear()
@@ -213,7 +199,7 @@ void ObjectHandler::dumpAllocateList()
 			}
 			else
 			{
-				std::cout << "  " << chr->getCharacterID() << std::endl;
+				std::cout << "  " << chr->getObjRef().get() << std::endl;
 			}
 		}
 		std::cout << "}" << std::endl;
@@ -268,7 +254,7 @@ void ObjectHandler::maybeRunDeferred()
                         if (chr->isTerminated() || chr == element) continue;
 						ai_state_t *ai = &(chr->ai);
 
-                        if (ai->target == element->getCharacterID())
+                        if (ai->target == element->getObjRef().get())
                         {
                             SET_BIT(ai->alert, ALERTIF_TARGETKILLED);
                         }

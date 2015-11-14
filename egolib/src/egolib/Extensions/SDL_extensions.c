@@ -55,14 +55,14 @@ static void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt );
 //--------------------------------------------------------------------------------------------
 void SDLX_screen_info_t::report(SDLX_screen_info_t& self)
 {
-	Log::message("\nSDL using video driver - %s\n", self.szDriver.c_str());
+	Log::get().message("\nSDL using video driver - %s\n", self.szDriver.c_str());
 
     if (!self.video_mode_list.empty())
     {
-		Log::message("\tAvailable full-screen video modes...\n");
+		Log::get().message("\tAvailable full-screen video modes...\n");
         for (const auto &mode : self.video_mode_list)
         {
-			Log::message("    \tVideo Mode - %d x %d, %d Hz\n", mode.w, mode.h, mode.refresh_rate);
+			Log::get().message("    \tVideo Mode - %d x %d, %d Hz\n", mode.w, mode.h, mode.refresh_rate);
         }
     }
 }
@@ -76,12 +76,12 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
     if ( 0 == init_flags )
     {
-        if ( make_report ) Log::message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL\n");
+        if ( make_report ) Log::get().message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL\n");
         return false;
     }
     else if ( HAS_NO_BITS( init_flags, SDL_INIT_VIDEO ) )
     {
-        if ( make_report ) Log::message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL video driver\n");
+        if ( make_report ) Log::get().message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL video driver\n");
         return false;
     }
 
@@ -123,57 +123,57 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
 //--------------------------------------------------------------------------------------------
 void SDLX_sdl_gl_attrib_t::report(SDLX_sdl_gl_attrib_t& self)
 {
-	Log::message("\nSDL_GL_Attribtes\n");
+	Log::get().message("\nSDL_GL_Attribtes\n");
 
-	Log::message("\tSDL_GL_RED_SIZE           == %d\n", self.color[0]);
-	Log::message("\tSDL_GL_GREEN_SIZE         == %d\n", self.color[1]);
-	Log::message("\tSDL_GL_BLUE_SIZE          == %d\n", self.color[2]);
-	Log::message("\tSDL_GL_ALPHA_SIZE         == %d\n", self.color[3]);
-	Log::message("\tSDL_GL_BUFFER_SIZE        == %d\n", self.buffer_size);
-	Log::message("\tSDL_GL_DEPTH_SIZE         == %d\n", self.depth_size);
+	Log::get().message("\tSDL_GL_RED_SIZE           == %d\n", self.color[0]);
+	Log::get().message("\tSDL_GL_GREEN_SIZE         == %d\n", self.color[1]);
+	Log::get().message("\tSDL_GL_BLUE_SIZE          == %d\n", self.color[2]);
+	Log::get().message("\tSDL_GL_ALPHA_SIZE         == %d\n", self.color[3]);
+	Log::get().message("\tSDL_GL_BUFFER_SIZE        == %d\n", self.buffer_size);
+	Log::get().message("\tSDL_GL_DEPTH_SIZE         == %d\n", self.depth_size);
 
-	Log::message("\tSDL_GL_DOUBLEBUFFER       == %d\n", self.doublebuffer);
-	Log::message("\tSDL_GL_STENCIL_SIZE       == %d\n", self.stencil_size);
-	Log::message("\tSDL_GL_ACCUM_RED_SIZE     == %d\n", self.accum[0]);
-	Log::message("\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", self.accum[1]);
-	Log::message("\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", self.accum[2]);
-	Log::message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", self.accum[3]);
-	Log::message("\tSDL_GL_STEREO             == %d\n", self.stereo);
+	Log::get().message("\tSDL_GL_DOUBLEBUFFER       == %d\n", self.doublebuffer);
+	Log::get().message("\tSDL_GL_STENCIL_SIZE       == %d\n", self.stencil_size);
+	Log::get().message("\tSDL_GL_ACCUM_RED_SIZE     == %d\n", self.accum[0]);
+	Log::get().message("\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", self.accum[1]);
+	Log::get().message("\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", self.accum[2]);
+	Log::get().message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", self.accum[3]);
+	Log::get().message("\tSDL_GL_STEREO             == %d\n", self.stereo);
 
-	Log::message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", self.multi_buffers);
-	Log::message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", self.multi_samples);
+	Log::get().message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", self.multi_buffers);
+	Log::get().message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", self.multi_samples);
 #if !defined(ID_LINUX)
-	Log::message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", self.accelerated_visual);
+	Log::get().message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", self.accelerated_visual);
 #endif
 
-	Log::message("\tSDL_GL_SWAP_CONTROL       == %d\n", self.swap_control);
+	Log::get().message("\tSDL_GL_SWAP_CONTROL       == %d\n", self.swap_control);
 }
 
 //--------------------------------------------------------------------------------------------
 void SDLX_sdl_video_flags_t::report(SDLX_sdl_video_flags_t& self)
 {
-	Log::message("\nSDL flags\n");
+	Log::get().message("\nSDL flags\n");
 
-	Log::message("\t%s\n", self.full_screen ? "fullscreen" : "windowed");
+	Log::get().message("\t%s\n", self.full_screen ? "fullscreen" : "windowed");
 
     if (self.opengl)
     {
-		Log::message("\tOpenGL support\n");
+		Log::get().message("\tOpenGL support\n");
     }
 
     if (self.resizable)
     {
-		Log::message("\tresizable window\n");
+		Log::get().message("\tresizable window\n");
     }
 
     if (self.borderless)
     {
-		Log::message("\tborderless window\n");
+		Log::get().message("\tborderless window\n");
     }
     
     if (self.highdpi)
     {
-		Log::message("\thigh DPI (Apple 'Retina') support");
+		Log::get().message("\thigh DPI (Apple 'Retina') support");
     }
 }
 
@@ -212,7 +212,7 @@ void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
     /// @author BB
     /// @details make a report
 
-	Log::message("\thorizontalResolution == %d, verticalResolution == %d, colorBufferDepth == %d\n", self.horizontalResolution, self.verticalResolution, self.colorBufferDepth);
+	Log::get().message("\thorizontalResolution == %d, verticalResolution == %d, colorBufferDepth == %d\n", self.horizontalResolution, self.verticalResolution, self.colorBufferDepth);
 
     SDLX_sdl_video_flags_t::report(self.flags);
 
@@ -320,7 +320,7 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
         ret = SDL_CreateWindow("SDL App", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
         if (!ret)
         {
-			Log::message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
+			Log::get().message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
         }
     }
     else
@@ -373,11 +373,11 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
         // if it fails, then it tries to get the closest possible valid video mode
         ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
         if ( nullptr == ret ) {
-			Log::message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
+			Log::get().warn("unable to create SDL window: %s\n", SDL_GetError());
         } else {
             SDL_GLContext context = SDL_GL_CreateContext(ret);
             if (!context) {
-				Log::message("SDL WARN: Unable to create GL context: %s\n", SDL_GetError());
+				Log::get().warn("unable to create GL context: %s\n", SDL_GetError());
                 SDL_DestroyWindow(ret);
                 ret = nullptr;
             }
@@ -396,11 +396,11 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
                     
                     ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
                     if ( nullptr == ret ) {
-						Log::message("SDL WARN: Unable to create SDL window (%d multisamples): %s\n", v->gl_att.multi_samples, SDL_GetError());
+						Log::get().warn("unable to create SDL window (%d multisamples): %s\n", v->gl_att.multi_samples, SDL_GetError());
                     } else {
                         SDL_GLContext context = SDL_GL_CreateContext(ret);
                         if (!context) {
-							Log::message("SDL WARN: Unable to create GL context (%d multisamples): %s\n", v->gl_att.multi_samples, SDL_GetError());
+							Log::get().warn("unable to create GL context (%d multisamples): %s\n", v->gl_att.multi_samples, SDL_GetError());
                             SDL_DestroyWindow(ret);
                             ret = nullptr;
                         }
@@ -421,11 +421,11 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
 
             ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
             if ( nullptr == ret ) {
-				Log::message("SDL WARN: Unable to create SDL window (no multisamples): %s\n", SDL_GetError());
+				Log::get().warn("unable to create SDL window (no multisamples): %s\n", SDL_GetError());
             } else {
                 SDL_GLContext context = SDL_GL_CreateContext(ret);
                 if (!context) {
-					Log::message("SDL WARN: Unable to create GL context (no multisamples): %s\n", SDL_GetError());
+					Log::get().warn("unable to create GL context (no multisamples): %s\n", SDL_GetError());
                     SDL_DestroyWindow(ret);
                     ret = nullptr;
                 }
@@ -526,23 +526,23 @@ void SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t& v)
 
     if ( NULL == surface )
     {
-		Log::message("\n==============================================================\n");
-		Log::message("!!!! SDL unable to set video mode with current parameters !!!! - \n    \"%s\"\n", SDL_GetError());
+		Log::get().message("\n==============================================================\n");
+		Log::get().message("!!!! SDL unable to set video mode with current parameters !!!! - \n    \"%s\"\n", SDL_GetError());
         SDLX_video_parameters_t::report( v );
-		Log::message("==============================================================\n");
+		Log::get().message("==============================================================\n");
     }
     else
     {
-		Log::message("\n==============================================================\n");
-		Log::message("SDL set video mode to the current parameters\n");
-		Log::message("\nSDL window parameters\n");
+		Log::get().message("\n==============================================================\n");
+		Log::get().message("SDL set video mode to the current parameters\n");
+		Log::get().message("\nSDL window parameters\n");
 
         // report the SDL screen info
         SDLX_Get_Screen_Info( sdl_scr, SDL_FALSE );
         SDLX_video_parameters_t::report( v );
         SDLX_screen_info_t::report( sdl_scr );
 
-		Log::message("==============================================================\n");
+		Log::get().message("==============================================================\n");
     }
 }
 
@@ -611,8 +611,8 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
 
         if ( NULL == surface )
         {
-			Log::message("Could not restore the old video mode. Terminating.\n");
-            exit( -1 );
+			Log::get().error("could not restore the old video mode. Terminating.\n");
+			throw std::runtime_error("unable to restore the old video mode\n");
         }
         else
         {

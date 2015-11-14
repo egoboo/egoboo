@@ -87,10 +87,10 @@ void GameModule::loadAllPassages()
     {
         //read passage area
         irect_t area;
-        area._left = ctxt.readInt();
-        area._top = ctxt.readInt();
-        area._right = ctxt.readInt();
-        area._bottom = ctxt.readInt();
+        area._left = ctxt.readIntegerLiteral();
+        area._top = ctxt.readIntegerLiteral();
+        area._right = ctxt.readIntegerLiteral();
+        area._bottom = ctxt.readIntegerLiteral();
 
         //constrain passage area within the level
 		auto& info = _currentModule->getMeshPointer()->_info;
@@ -144,7 +144,7 @@ void GameModule::checkPassageMusic()
     }
 }
 
-CHR_REF GameModule::getShopOwner(const float x, const float y)
+const ObjectRef& GameModule::getShopOwner(const float x, const float y)
 {
     // Loop through every passage.
     for(const std::shared_ptr<Passage>& passage : _passages)
@@ -165,7 +165,7 @@ CHR_REF GameModule::getShopOwner(const float x, const float y)
     return Passage::SHOP_NOOWNER;       
 }
 
-void GameModule::removeShopOwner(CHR_REF owner)
+void GameModule::removeShopOwner(const ObjectRef& owner)
 {
     // Loop through every passage:
     for(const std::shared_ptr<Passage> &passage : _passages)
@@ -249,7 +249,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     {
         if ( profile > getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
-			Log::warning( "spawnObject() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
+			Log::get().warn( "spawnObject() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
         }
         return Object::INVALID_OBJECT;
     }
@@ -260,7 +260,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     // allocate a new character
     std::shared_ptr<Object> pchr = getObjectHandler().insert(profile, override);
     if (!pchr) {
-		Log::warning( "spawnObject() - failed to spawn character\n" );
+		Log::get().warn( "spawnObject() - failed to spawn character\n" );
         return Object::INVALID_OBJECT;
     }
 
@@ -380,7 +380,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     }
 
     // AI stuff
-    ai_state_t::spawn( pchr->ai, pchr->getCharacterID(), pchr->getProfileID(), getTeamList()[team].getMorale() );
+    ai_state_t::spawn( pchr->ai, pchr->getObjRef().get(), pchr->getProfileID(), getTeamList()[team].getMorale() );
 
     // Team stuff
     pchr->team     = team;
@@ -459,7 +459,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
         ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
-                            pchr->getCharacterID(), GRIP_LAST + tnc, pchr->team, pchr->getCharacterID(), INVALID_PRT_REF, tnc);
+                            pchr->getObjRef().get(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef().get(), INVALID_PRT_REF, tnc);
     }
 
     // is the object part of a shop's inventory?
@@ -467,7 +467,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     {
         // Items that are spawned inside shop passages are more expensive than normal
 
-        CHR_REF shopOwner = getShopOwner(pchr->getPosX(), pchr->getPosY());
+        ObjectRef shopOwner = getShopOwner(pchr->getPosX(), pchr->getPosY());
         if(shopOwner != Passage::SHOP_NOOWNER) {
             pchr->isshopitem = true;               // Full value
             pchr->iskursed   = false;              // Shop items are never kursed

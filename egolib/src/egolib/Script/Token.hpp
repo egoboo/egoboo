@@ -48,9 +48,29 @@ struct TextToken {
 		Real,
 		/**
 		 * @brief
+		 *  A character literal.
+		 */
+		Character,
+		/**
+		 * @brief
 		 *  A string literal.
 		 */
 		String,
+		/**
+		 * @brief
+		 *  A boolean literal.
+		 */
+		Boolean,
+		/**
+		 * @brief
+		 *  A name (aka identifier).
+		 */
+		Name,
+		/**
+		 * @brief
+		 *  A comment.
+		 */
+		Comment,
 	};
 private:
 	/**
@@ -134,6 +154,19 @@ struct TextTokenDecoder {
 };
 
 template<>
+struct TextTokenDecoder<char> {
+	char operator()(const TextToken& token) const {
+		char temporary;
+		if (!Decoder<char>()(token.getLexeme(), temporary)) {
+			throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+				"unable to convert lexeme `" + token.getLexeme() +
+				"` into a value of type " + "`char`");
+		}
+		return temporary;
+	}
+};
+
+template<>
 struct TextTokenDecoder<float> {
 	float operator()(const TextToken& token) const {
 		float temporary;
@@ -168,6 +201,20 @@ struct TextTokenDecoder<unsigned int> {
 			throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
 				"unable to convert lexeme `" + token.getLexeme() +
 				"` into a value of type " + "`unsigned int`");
+		}
+		return temporary;
+	}
+};
+
+template<>
+struct TextTokenDecoder<std::string> {
+
+	std::string operator()(const TextToken& token) const {
+		std::string temporary;
+		if (!Decoder<std::string>()(token.getLexeme(), temporary)) {
+			throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+				"unable to convert lexeme `" + token.getLexeme() +
+				"` into a value of type " + "`std::string`");
 		}
 		return temporary;
 	}

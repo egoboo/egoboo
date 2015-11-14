@@ -350,7 +350,7 @@ void CollisionSystem::updateParticleCollisions()
             //Detect any collisions and handle it if needed
             float tmin, tmax;
             if(detectCollision(particle, object, &tmin, &tmax)) {
-                do_prt_platform_detection(object->getCharacterID(), particle->getParticleID());
+                do_prt_platform_detection(object->getObjRef().get(), particle->getParticleID());
                 do_chr_prt_collision(object, particle, tmin, tmax);
             }
         }
@@ -389,10 +389,10 @@ bool CollisionSystem::detectCollision(const std::shared_ptr<Object> &objectA, co
     }
 
     // handle the dismount exception
-    if (objectA->dismount_timer > 0 && objectA->dismount_object == objectB->getCharacterID()) {
+    if (objectA->dismount_timer > 0 && objectA->dismount_object == objectB->getObjRef().get()) {
         return false;
     }
-    if (objectB->dismount_timer > 0 && objectB->dismount_object == objectA->getCharacterID()) {
+    if (objectB->dismount_timer > 0 && objectB->dismount_object == objectA->getObjRef().get()) {
         return false;
     }
 
@@ -456,7 +456,7 @@ bool CollisionSystem::handleMountingCollision(const std::shared_ptr<Object> &cha
 
     //Attempt to mount?
     if(characterWantsToMount) {
-        if(rv_success == attach_character_to_mount(character->getCharacterID(), mount->getCharacterID(), GRIP_ONLY)) {
+        if(rv_success == attach_character_to_mount(character->getObjRef(), mount->getObjRef(), GRIP_ONLY)) {
             return true;
         }
     }
@@ -468,8 +468,8 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
 {
     oct_vec_v2_t odepth;
 
-    const CHR_REF ichr_a = objectA->getCharacterID();
-    const CHR_REF ichr_b = objectB->getCharacterID();
+    const auto ichr_a = objectA->getObjRef();
+    const auto ichr_b = objectB->getObjRef();
 
     // only check possible object-platform interactions
     bool platform_a = objectB->canuseplatforms && !_currentModule->getObjectHandler().exists(objectB->onwhichplatform_ref) && objectA->platform;
@@ -484,7 +484,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
     if ( !platform_a && !platform_b ) return false;
 
     odepth[OCT_Z] = std::min(objectB->chr_min_cv._maxs[OCT_Z] + objectB->getPosZ(), objectA->chr_min_cv._maxs[OCT_Z] + objectA->getPosZ()) -
-                    std::max( objectB->chr_min_cv._mins[OCT_Z] + objectB->getPosZ(), objectA->chr_min_cv._mins[OCT_Z] + objectA->getPosZ() );
+                    std::max(objectB->chr_min_cv._mins[OCT_Z] + objectB->getPosZ(), objectA->chr_min_cv._mins[OCT_Z] + objectA->getPosZ() );
 
     bool collide_z  = odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE;
 
@@ -591,7 +591,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
             if ( objectB->getPosZ() + objectB->chr_min_cv._maxs[OCT_Z] > objectA->targetplatform_level )
             {
                 objectA->targetplatform_level = objectB->getPosZ() + objectB->chr_min_cv._maxs[OCT_Z];
-                objectA->targetplatform_ref   = ichr_b;
+                objectA->targetplatform_ref   = ichr_b.get();
 
                 return attachObjectToPlatform(objectA, objectB);
             }
@@ -601,7 +601,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
             if ( objectA->getPosZ() + objectA->chr_min_cv._maxs[OCT_Z] > objectB->targetplatform_level )
             {
                 objectB->targetplatform_level = objectA->getPosZ() + objectA->chr_min_cv._maxs[OCT_Z];
-                objectB->targetplatform_ref   = ichr_a;
+                objectB->targetplatform_ref   = ichr_a.get();
 
                 return attachObjectToPlatform(objectB, objectA);
             }
@@ -623,7 +623,7 @@ bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &obje
     }
 
     // do the attachment
-    object->onwhichplatform_ref    = platform->getCharacterID();
+    object->onwhichplatform_ref    = platform->getObjRef().get();
     object->onwhichplatform_update = update_wld;
     object->targetplatform_ref     = INVALID_CHR_REF;
 
@@ -655,15 +655,15 @@ bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &obje
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
-    ai_state_t::set_bumplast(platform->ai, object->getCharacterID());
+    ai_state_t::set_bumplast(platform->ai, object->getObjRef().get());
 
     return true;
 }
 
 bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, const float tmin, const float tmax)
 {
-    const CHR_REF ichr_a = objectA->getCharacterID();
-    const CHR_REF ichr_b = objectB->getCharacterID();
+    const CHR_REF ichr_a = objectA->getObjRef().get();
+    const CHR_REF ichr_b = objectB->getObjRef().get();
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
@@ -981,7 +981,7 @@ static bool do_chr_platform_physics( Object * object, Object * platform )
         return false;
     }
     //Are we attached to this platform?
-    if ( object->onwhichplatform_ref != platform->getCharacterID() ) return false;
+    if ( object->onwhichplatform_ref != platform->getObjRef().get() ) return false;
 
     // grab the pre-computed zlerp value, and map it to our needs
     lerp_z = 1.0f - object->enviro.zlerp;

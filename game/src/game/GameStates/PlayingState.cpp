@@ -105,7 +105,7 @@ void PlayingState::updateStatusBarPosition()
                 std::shared_ptr<Object> object = status->getObject();
                 if(object)
                 {
-                    const std::shared_ptr<Camera> &camera = _cameraSystem->getCameraByChrID(object->getCharacterID());
+                    const std::shared_ptr<Camera> &camera = _cameraSystem->getCameraByChrID(object->getObjRef().get());
 
                     //Shift component down a bit if required
                     status->setPosition(status->getX(), maxY[camera] + 10.0f);
@@ -224,7 +224,7 @@ void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
     }
 
     //Get the camera that is following this object (defaults to main camera)
-    const std::shared_ptr<Camera> &camera = CameraSystem::get()->getCameraByChrID(object->getCharacterID());
+    const std::shared_ptr<Camera> &camera = CameraSystem::get()->getCameraByChrID(object->getObjRef().get());
 
     std::shared_ptr<CharacterStatus> status = std::make_shared<CharacterStatus>(object);
 

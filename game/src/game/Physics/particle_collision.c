@@ -343,7 +343,7 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t * pdata, const fl
     if ( SPRITE_SOLID == pdata->pprt->type && pdata->pchr->platform ) exponent += 2;
 
     // assume the simplest interaction normal
-    pdata->nrm = Vector3f(0, 0, 1);
+    pdata->nrm = Vector3f(0.0f, 0.0f, 1.0f);
 
     // no valid interactions, yet
     handled = false;
@@ -446,7 +446,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
     if ( pdata->pchr->isInvincible() ) return true;
 
     //Don't deflect money or particles spawned by the Object itself
-    bool prt_wants_deflection = (pdata->pprt->owner_ref != pdata->pchr->getCharacterID()) && !pdata->ppip->bump_money;
+    bool prt_wants_deflection = (pdata->pprt->owner_ref != pdata->pchr->getObjRef().get()) && !pdata->ppip->bump_money;
     if(!prt_wants_deflection) {
         return false;
     }
@@ -510,7 +510,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
 
                 // Change the owner of the missile
                 pdata->pprt->team       = pdata->pchr->team;
-                pdata->pprt->owner_ref  = pdata->pchr->getCharacterID();
+                pdata->pprt->owner_ref  = pdata->pchr->getObjRef().get();
             }
         }
     }
@@ -589,10 +589,10 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
         {
             ParticleHandler::get().spawnDefencePing(pdata->pchr->toSharedPointer(), _currentModule->getObjectHandler()[pdata->pprt->owner_ref]);
             if(using_shield) {
-                chr_make_text_billboard(pdata->pchr->getCharacterID(), "Blocked!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
+                chr_make_text_billboard(pdata->pchr->getObjRef(), "Blocked!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
             }
             else {
-                chr_make_text_billboard(pdata->pchr->getCharacterID(), "Deflected!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
+                chr_make_text_billboard(pdata->pchr->getObjRef(), "Deflected!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(getBlockActionColour(), 1.0f), 3, Billboard::Flags::All);
             }
         }
     }
@@ -672,7 +672,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->grog_timer = std::max(static_cast<unsigned>(pdata->pchr->grog_timer), pdata->ppip->grogTime );
 
-        chr_make_text_billboard(powner->getCharacterID(), "Groggy!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);
+        chr_make_text_billboard(powner->getObjRef(), "Groggy!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::green(), 3, Billboard::Flags::All);
     }
 
     // Do daze
@@ -681,7 +681,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->daze_timer = std::max(static_cast<unsigned>(pdata->pchr->daze_timer), pdata->ppip->dazeTime );
 
-        chr_make_text_billboard(powner->getCharacterID(), "Dazed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+        chr_make_text_billboard(powner->getObjRef(), "Dazed!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
     }
 
     //---- Damage the character, if necessary
@@ -715,7 +715,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                             SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
                             pdata->pchr->daze_timer += 3;
 
-                            chr_make_text_billboard(powner->getCharacterID(), "Crackshot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                            chr_make_text_billboard(powner->getObjRef(), "Crackshot!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
                         }
                     }
 
@@ -724,7 +724,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
                         pdata->pchr->grog_timer += 2;
 
-                        chr_make_text_billboard(powner->getCharacterID(), "Brutal Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
+                        chr_make_text_billboard(powner->getObjRef(), "Brutal Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
                         AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                     }
                 }
@@ -753,7 +753,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     if(pdata->pprt->damagetype == DAMAGE_ZAP && powner->hasPerk(Ego::Perks::DISINTEGRATE)) {
                         if(Random::nextFloat()*100.0f <= powner->getAttribute(Ego::Attribute::INTELLECT) * 0.025f) {
                             modifiedDamage.base += FLOAT_TO_FP8(100.0f);
-                            chr_make_text_billboard(pdata->pchr->getCharacterID(), "Disintegrated!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 6, Billboard::Flags::All);
+                            chr_make_text_billboard(pdata->pchr->getObjRef(), "Disintegrated!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 6, Billboard::Flags::All);
 
                             //Disintegrate effect
                             ParticleHandler::get().spawnGlobalParticle(pdata->pchr->getPosition(), ATK_FRONT, LocalParticleProfileRef(PIP_DISINTEGRATE_START), 0);
@@ -763,15 +763,15 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
                 // Notify the attacker of a scored hit
                 SET_BIT(powner->ai.alert, ALERTIF_SCOREDAHIT);
-                powner->ai.hitlast = pdata->pchr->getCharacterID();
+                powner->ai.hitlast = pdata->pchr->getObjRef().get();
 
                 // Tell the weapons who the attacker hit last
                 bool meleeAttack = false;
                 const std::shared_ptr<Object> &leftHanditem = powner->getRightHandItem();
                 if (leftHanditem)
                 {
-                    leftHanditem->ai.hitlast = pdata->pchr->getCharacterID();
-                    if (powner->ai.lastitemused == leftHanditem->getCharacterID()) {
+                    leftHanditem->ai.hitlast = pdata->pchr->getObjRef().get();
+                    if (powner->ai.lastitemused == leftHanditem->getObjRef().get()) {
                         SET_BIT(leftHanditem->ai.alert, ALERTIF_SCOREDAHIT);  
                         if(leftHanditem->getProfile()->getIDSZ(IDSZ_SPECIAL) == MAKE_IDSZ('X', 'W', 'E', 'P') && !leftHanditem->getProfile()->isRangedWeapon()) {
                             meleeAttack = true;
@@ -782,8 +782,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 const std::shared_ptr<Object> &rightHandItem = powner->getRightHandItem();
                 if (rightHandItem)
                 {
-                    rightHandItem->ai.hitlast = pdata->pchr->getCharacterID();
-                    if (powner->ai.lastitemused == rightHandItem->getCharacterID()) {
+                    rightHandItem->ai.hitlast = pdata->pchr->getObjRef().get();
+                    if (powner->ai.lastitemused == rightHandItem->getObjRef().get()) {
                         SET_BIT(rightHandItem->ai.alert, ALERTIF_SCOREDAHIT);  
                         if(rightHandItem->getProfile()->getIDSZ(IDSZ_SPECIAL) == MAKE_IDSZ('X', 'W', 'E', 'P') && !rightHandItem->getProfile()->isRangedWeapon()) {
                             meleeAttack = true;
@@ -792,7 +792,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 }
 
                 //Unarmed attack?
-                if (powner->ai.lastitemused == powner->getCharacterID()) {
+                if (powner->ai.lastitemused == powner->getObjRef().get()) {
                     meleeAttack = true;
                 }
 
@@ -808,7 +808,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                             grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
                             grimReaperDamage.rand = 0.0f;
                             pdata->pchr->damage(direction, grimReaperDamage, DAMAGE_EVIL, pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], DAMFX_TIME, false);
-                            chr_make_text_billboard(powner->getCharacterID(), "Grim Reaper!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);                                
+                            chr_make_text_billboard(powner->getObjRef(), "Grim Reaper!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);                                
                             AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                         }
                     }
@@ -820,7 +820,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     if(powner->hasPerk(Ego::Perks::DEADLY_STRIKE) && powner->getExperienceLevel() >= Random::getPercent() && DamageType_isPhysical(pdata->pprt->damagetype)){
                         //Gain +0.25 damage per Agility
                         modifiedDamage.base += FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::AGILITY) * 0.25f);
-                        chr_make_text_billboard(powner->getCharacterID(), "Deadly Strike", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
+                        chr_make_text_billboard(powner->getObjRef(), "Deadly Strike", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
                         AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                     }
                 }
@@ -838,7 +838,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     SET_BIT( pdata->pchr->ai.alert, ALERTIF_HITVULNERABLE );
 
                     // Initialize for the billboard
-                    chr_make_text_billboard(pdata->pchr->getCharacterID(), "Super Effective!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
+                    chr_make_text_billboard(pdata->pchr->getObjRef(), "Super Effective!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
                 }                
             }
 
@@ -855,7 +855,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 if(Random::getPercent() <= critChance) {
                     modifiedDamage.base += modifiedDamage.rand;
                     modifiedDamage.rand = 0;
-                    chr_make_text_billboard(powner->getCharacterID(), "Critical Hit!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
+                    chr_make_text_billboard(powner->getObjRef(), "Critical Hit!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
                     AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                 }
             }
@@ -886,11 +886,11 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     }
 
     //Only allow one collision per particle unless that particle is eternal
-    if(!pdata->pprt->isEternal() && pdata->pprt->hasCollided(_currentModule->getObjectHandler()[pdata->pchr->getCharacterID()])) {
+    if(!pdata->pprt->isEternal() && pdata->pprt->hasCollided(_currentModule->getObjectHandler()[pdata->pchr->getObjRef().get()])) {
         return false;
     }
 
-    bool prt_belongs_to_chr = (pdata->pchr->getCharacterID() == pdata->pprt->owner_ref);
+    bool prt_belongs_to_chr = (pdata->pchr->getObjRef().get() == pdata->pprt->owner_ref);
 
     if ( !prt_belongs_to_chr )
     {
@@ -898,10 +898,10 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
         CHR_REF prt_owner = prt_get_iowner( pdata->pprt->getParticleID(), 0 );
         if ( _currentModule->getObjectHandler().exists( prt_owner ) )
         {
-            CHR_REF chr_wielder = chr_get_lowest_attachment( pdata->pchr->getCharacterID(), true );
+            CHR_REF chr_wielder = chr_get_lowest_attachment( pdata->pchr->getObjRef().get(), true );
             CHR_REF prt_wielder = chr_get_lowest_attachment( prt_owner, true );
 
-            if ( !_currentModule->getObjectHandler().exists( chr_wielder ) ) chr_wielder = pdata->pchr->getCharacterID();
+            if ( !_currentModule->getObjectHandler().exists( chr_wielder ) ) chr_wielder = pdata->pchr->getObjRef().get();
             if ( !_currentModule->getObjectHandler().exists( prt_wielder ) ) prt_wielder = prt_owner;
 
             prt_belongs_to_chr = (chr_wielder == prt_wielder);
@@ -941,7 +941,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
     if ( !pdata->prt_bumps_chr ) return false;
 
     // Catch on fire
-    spawn_bump_particles( pdata->pchr->getCharacterID(), pdata->pprt->getParticleID() );
+    spawn_bump_particles( pdata->pchr->getObjRef(), pdata->pprt->getParticleID() );
 
     // handle some special particle interactions
     if ( pdata->pprt->getProfile()->end_bump )
@@ -1064,7 +1064,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
             float chance = attacker->getAttribute(Ego::Attribute::INTELLECT) * 0.03f - pdata.pchr->getAttribute(Ego::Attribute::MIGHT)*0.01f;
             if(Random::nextFloat() <= chance) {
                 knockbackFactor += 5.0f;
-                chr_make_text_billboard(attacker->getCharacterID(), "Telekinetic Staff!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 2, Billboard::Flags::All);
+                chr_make_text_billboard(attacker->getObjRef(), "Telekinetic Staff!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 2, Billboard::Flags::All);
             }
         }
     }
@@ -1138,7 +1138,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
 
     chr_prt_collision_data_t cn_data;
 
-    bool intialized = do_chr_prt_collision_init(object->getCharacterID(), particle->getParticleID(), &cn_data );
+    bool intialized = do_chr_prt_collision_init(object->getObjRef().get(), particle->getParticleID(), &cn_data );
     if ( !intialized ) return false;
 
     // ignore dead characters
@@ -1212,7 +1212,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
             // This prevents items in shops from being burned
             if ( !cn_data.pchr->isshopitem )
             {
-                if ( 0 != reaffirm_attached_particles( cn_data.ichr ) )
+                if ( 0 != reaffirm_attached_particles( ObjectRef(cn_data.ichr) ) )
                 {
                     retval = true;
                 }
@@ -1251,7 +1251,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
                 if ( cn_data.prt_damages_chr )
                 {
                     //Remember the collision so that this doesn't happen again
-                    cn_data.pprt->addCollision(_currentModule->getObjectHandler()[cn_data.pchr->getCharacterID()]);
+                    cn_data.pprt->addCollision(_currentModule->getObjectHandler()[cn_data.pchr->getObjRef()]);
                     retval = true;
                 }
             }
@@ -1265,13 +1265,13 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
         //Attack was dodged!
         else {
             //Cannot collide again
-            cn_data.pprt->addCollision(_currentModule->getObjectHandler()[cn_data.pchr->getCharacterID()]);
+            cn_data.pprt->addCollision(_currentModule->getObjectHandler()[cn_data.pchr->getObjRef()]);
 
             //Play sound effect
             AudioSystem::get().playSound(cn_data.pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_DODGE));
 
             // Initialize for the billboard
-            chr_make_text_billboard( cn_data.pchr->getCharacterID(), "Dodged!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(1.0f, 0.6f, 0.0f, 1.0f), 3, Billboard::Flags::All);
+            chr_make_text_billboard( cn_data.pchr->getObjRef(), "Dodged!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f(1.0f, 0.6f, 0.0f, 1.0f), 3, Billboard::Flags::All);
         }
 
 
@@ -1309,7 +1309,7 @@ static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
     if ( !pplat->platform ) return false;
 
     // do the attachment
-    pprt->onwhichplatform_ref    = pplat->getCharacterID();
+    pprt->onwhichplatform_ref    = pplat->getObjRef().get();
     pprt->onwhichplatform_update = update_wld;
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 

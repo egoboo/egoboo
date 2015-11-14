@@ -107,7 +107,7 @@ void BillboardList::update()
     update(SDL_GetTicks());
 }
 
-std::shared_ptr<Billboard> BillboardList::makeBillboard(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
+std::shared_ptr<Billboard> BillboardList::makeBillboard(uint32_t lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
     auto billboard = std::make_shared<Billboard>(SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, texture);
     billboard->_tint = tint;
     if (HAS_SOME_BITS(options, Billboard::Flags::RandomPosition))
@@ -295,12 +295,12 @@ void BillboardSystem::render_all(Camera& camera)
 }
 
 //--------------------------------------------------------------------------------------------
-std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
+std::shared_ptr<Billboard> chr_make_text_billboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
-    if (!_currentModule->getObjectHandler().exists(ichr)) {
+    if (!_currentModule->getObjectHandler().exists(obj_ref)) {
         return nullptr;
     }
-    auto obj_ptr = _currentModule->getObjectHandler()[ichr];
+    auto obj_ptr = _currentModule->getObjectHandler()[obj_ref];
 
     // Pre-render the text.
     std::shared_ptr<oglx_texture_t> tex;
@@ -309,7 +309,7 @@ std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const ch
     } catch (...) {
         return nullptr;
     }
-    _gameEngine->getUIManager()->getFloatingTextFont()->drawTextToTexture(tex.get(), txt, Ego::Math::Colour3f(text_color.getRed(), text_color.getGreen(), text_color.getBlue()));
+    _gameEngine->getUIManager()->getFloatingTextFont()->drawTextToTexture(tex.get(), text, Ego::Math::Colour3f(textColor.getRed(), textColor.getGreen(), textColor.getBlue()));
     tex->setName("billboard text");
 
     // Create a new billboard.

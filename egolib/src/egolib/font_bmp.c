@@ -81,7 +81,10 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     const std::shared_ptr<oglx_texture_t> &fontTexture = TextureManager::get().getTexture(szBitmap);
     if (INVALID_GL_ID == fontTexture->getTextureID())
     {
-		Log::error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
+		std::ostringstream os;
+		os << "load_font() - unable to load file `" << szBitmap << "`" << std::endl;
+		Log::get().error("%s", os.str().c_str());
+		throw std::runtime_error(os.str());
     }
 
     // Get the size of the bitmap
@@ -89,14 +92,20 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     int ysize = fontTexture->getSourceHeight();
     if ( 0 == xsize || 0 == ysize )
     {
-		Log::error( "Bad font size! (%i, %i)\n", xsize, ysize );
+		std::ostringstream os;
+		os << "bad font size (" << xsize << ", " << ysize << ")" << std::endl;
+		Log::get().error("%s", os.str().c_str());
+		throw std::runtime_error(os.str());
     }
 
     // Figure out where each font is and its spacing
     ReadContext ctxt(szSpacing);
     if (!ctxt.ensureOpen())
     {
-		Log::error("unable to read font spacing file %s for spacing (%i,%i)\n", szSpacing, xsize, ysize);
+		std::ostringstream os;
+		os << "unable to read font spacing file `" << szSpacing << "` for spacing (" << xsize << ", " << ysize << ")";
+		Log::get().error("%s", os.str().c_str());
+		throw std::runtime_error(os.str());
     }
 
     int stt_x = 0;
@@ -107,8 +116,8 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     fontoffset = yspacing;
     for (size_t cnt = 0; cnt < NUMFONT && ctxt.skipToColon(true); ++cnt)
     {
-        char chr = ctxt.readCharLit();
-        int xspacing = ctxt.readInt();
+        char chr = ctxt.readCharacterLiteral();
+        int xspacing = ctxt.readIntegerLiteral();
         if ( asciitofont[( Uint8 )chr] == 255 ) asciitofont[( Uint8 )chr] = ( Uint8 ) cnt;
         if ( stt_x + xspacing + 1 > 255 )
         {
