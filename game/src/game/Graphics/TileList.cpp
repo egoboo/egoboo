@@ -111,7 +111,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	}
 
 	int ix = index.getI() % _mesh->_info.getTileCountX();
-	int iy = index.getI() / _mesh->_info.getTileCountY();
+	int iy = index.getI() / _mesh->_info.getTileCountX();
 	float dx = (ix + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kX];
 	float dy = (iy + Info<float>::Grid::Size() * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
