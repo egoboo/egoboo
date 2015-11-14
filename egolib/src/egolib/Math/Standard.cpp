@@ -12,7 +12,7 @@ void validate<float>(const char *file, int line, const float& object) {
     if (float_bad(object)) {
 		std::ostringstream os;
 		os << file << ":" << line << ": invalid floating point value" << std::endl;
-		Log::get().error("%s", os.str());
+		Log::get().error("%s", os.str().c_str());
 		throw std::runtime_error(os.str());
     }
 }

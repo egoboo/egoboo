@@ -171,7 +171,7 @@ void map_mem_t::setInfo(const map_info_t& info)
 }
 
 const tile_info_t& map_mem_t::operator()(size_t i) const {
-	if (i < 0 || i >= tiles.size()) {
+	if (i >= tiles.size()) {
 		throw std::runtime_error("index out of bounds");
 	}
 	return tiles[i];

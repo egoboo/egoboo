@@ -382,7 +382,7 @@ bool fs_ensureUserFile( const char * relative_filename, bool required )
     {
 		std::ostringstream os;
 		os << "cannot find the file `" << relative_filename << "`" << std::endl;
-		Log::get().error(os.str().c_str());
+		Log::get().error("%s", os.str().c_str());
 		throw std::runtime_error(os.str());
     }
 

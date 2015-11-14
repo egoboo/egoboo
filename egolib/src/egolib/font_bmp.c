@@ -104,7 +104,7 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     {
 		std::ostringstream os;
 		os << "unable to read font spacing file `" << szSpacing << "` for spacing (" << xsize << ", " << ysize << ")";
-		Log::get().error(os.str().c_str());
+		Log::get().error("%s", os.str().c_str());
 		throw std::runtime_error(os.str());
     }
 
