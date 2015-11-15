@@ -169,7 +169,7 @@ namespace Log {
 	void Target::error(const char *format, ...) {
 		va_list args;
 		va_start(args, format);
-		log(Level::Error, format, args);
+		logv(Level::Error, format, args);
 		va_end(args);
 	}
 
