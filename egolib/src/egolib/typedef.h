@@ -106,11 +106,8 @@ signed SFP8_TO_SINT(const T& val)
 /// Some custom Egoboo unit within the bounds of \f$[0,2^16-1]\f$.
 typedef uint16_t FACING_T;
 
-    /// the type for the 14-bit value used to store angles
-    typedef FACING_T TURN_T;
-
-#   define TO_FACING(X) ((FACING_T)(X))
-#   define TO_TURN(X)   ((TURN_T)((TO_FACING(X)>>2) & TRIG_TABLE_MASK))
+/// the type for the 14-bit value used to store angles
+typedef FACING_T TURN_T;
 
 //--------------------------------------------------------------------------------------------
 // 16.16 fixed point types
@@ -161,11 +158,6 @@ typedef uint16_t FACING_T;
 #    if !defined(MISSING_BITS)
 #       define MISSING_BITS(XX,YY)  (HAS_SOME_BITS(XX,YY) && !HAS_ALL_BITS(XX,YY))
 #    endif
-
-#   define CLIP_TO_08BITS( V1 )  ( (V1) & 0xFF       )
-#   define CLIP_TO_16BITS( V1 )  ( (V1) & 0xFFFF     )
-#   define CLIP_TO_24BITS( V1 )  ( (V1) & 0xFFFFFF   )
-#   define CLIP_TO_32BITS( V1 )  ( (V1) & 0xFFFFFFFF )
 
 //--------------------------------------------------------------------------------------------
 // RECTANGLE

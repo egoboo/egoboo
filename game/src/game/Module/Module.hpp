@@ -112,7 +112,7 @@ public:
 
     /// @author ZZ
     /// @details This function returns the owner of a item in a shop
-    const ObjectRef& getShopOwner(const float x, const float y);
+    ObjectRef getShopOwner(const float x, const float y);
 
     /**
      * @brief

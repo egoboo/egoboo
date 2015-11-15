@@ -144,7 +144,7 @@ void GameModule::checkPassageMusic()
     }
 }
 
-const ObjectRef& GameModule::getShopOwner(const float x, const float y)
+ObjectRef GameModule::getShopOwner(const float x, const float y)
 {
     // Loop through every passage.
     for(const std::shared_ptr<Passage>& passage : _passages)

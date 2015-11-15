@@ -1095,7 +1095,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 else
                 {
                     iTmp = vec_to_facing( ptarget->getPosX() - pchr->getPosX() , ptarget->getPosY() - pchr->getPosY() );
-                    iTmp = CLIP_TO_16BITS( iTmp );
+                    iTmp = Ego::Math::clipBits<16>( iTmp );
                 }
                 break;
 
@@ -1310,14 +1310,14 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 else
                 {
                     iTmp = vec_to_facing( powner->getPosX() - pchr->getPosX() , powner->getPosY() - pchr->getPosY() );
-                    iTmp = CLIP_TO_16BITS( iTmp );
+                    iTmp = Ego::Math::clipBits<16>( iTmp );
                 }
                 break;
 
             case VARXYTURNTO:
                 varname = "XYTURNTO";
                 iTmp = vec_to_facing( state.x - pchr->getPosX() , state.y - pchr->getPosY() );
-                iTmp = CLIP_TO_16BITS( iTmp );
+                iTmp = Ego::Math::clipBits<16>( iTmp );
                 break;
 
             case VARSELFMONEY:
@@ -1359,7 +1359,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
                 else
                 {
                     iTmp = vec_to_facing( ptarget->getPosX() - pchr->getPosX() , ptarget->getPosY() - pchr->getPosY() );
-                    iTmp = CLIP_TO_16BITS( iTmp );
+                    iTmp = Ego::Math::clipBits<16>( iTmp );
                 }
                 break;
 
