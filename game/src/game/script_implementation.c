@@ -486,7 +486,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     if ( !passage ) return false;
 
     // limit the start tile the the 256 tile images that we have
-	int loc_starttile = CLIP_TO_08BITS( starttile );
+	int loc_starttile = Ego::Math::clipBits<8>( starttile );
 
     // same with the end tile
 	Uint32 endtile = Ego::Math::constrain(loc_starttile + frames - 1, 0, 255);

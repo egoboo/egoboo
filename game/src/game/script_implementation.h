@@ -80,7 +80,7 @@ struct line_of_sight_info_t
 Uint8 BIT_FIELD_clip_to_08_bits( BIT_FIELD val );
 
 /// @ingroup _bitwise_functions_
-/// @details wrapper for CLIP_TO_16BITS() macro
+/// @details wrapper for Ego::Math::clipBits<16>() macro
 Uint16 BIT_FIELD_clip_to_16_bits( BIT_FIELD val );
 
 /// @ingroup _bitwise_functions_

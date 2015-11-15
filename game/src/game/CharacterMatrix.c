@@ -177,8 +177,8 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->valid   = true;
             SET_BIT( mc_tmp->type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
-            mc_tmp->rotate[kX] = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-            mc_tmp->rotate[kY] = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+            mc_tmp->rotate[kX] = Ego::Math::clipBits<16>( ptarget->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+            mc_tmp->rotate[kY] = Ego::Math::clipBits<16>( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
             mc_tmp->rotate[kZ] = ptarget->ori.facing_z;
 
             mc_tmp->pos = ptarget->getPosition();
@@ -407,8 +407,8 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 
                 mcache->grip_scale = mcache->self_scale;
 
-                mcache->rotate[kX] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-                mcache->rotate[kY] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+                mcache->rotate[kX] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+                mcache->rotate[kY] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
                 mcache->rotate[kZ] = pchr->ori.facing_z;
 
                 mcache->pos =pchr->getPosition();
@@ -1004,8 +1004,8 @@ void make_one_character_matrix( const CHR_REF ichr )
         pinst->matrix_cache.self_scale[kY] = pchr->fat;
         pinst->matrix_cache.self_scale[kZ] = pchr->fat;
 
-        pinst->matrix_cache.rotate[kX] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-        pinst->matrix_cache.rotate[kY] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate[kX] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate[kY] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate[kZ] = pchr->ori.facing_z;
 
         pinst->matrix_cache.pos = pchr->getPosition();

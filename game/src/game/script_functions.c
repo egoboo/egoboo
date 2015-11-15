@@ -1898,7 +1898,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), 0.0f);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, Ego::Math::clipBits<16>( state.turn ), "", INVALID_CHR_REF);
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -2503,7 +2503,7 @@ Uint8 scr_TranslateOrder( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto ichr = ObjectRef(CLIP_TO_16BITS( self.order_value >> 24 ));
+    auto ichr = ObjectRef(Ego::Math::clipBits<16>( self.order_value >> 24 ));
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -4644,7 +4644,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
         ichr = pchr->attachedto;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( state.turn ),
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Ego::Math::clipBits<16>( state.turn ),
                                                                       pchr->getProfileID(), LocalParticleProfileRef(state.argument),
                                                                       self.index, state.distance, pchr->team, ichr, INVALID_PRT_REF,
                                                                       0, INVALID_CHR_REF);
@@ -5350,7 +5350,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, Ego::Math::clipBits<16>( state.turn ), "", INVALID_CHR_REF );
     if (pchild == nullptr)
     {
 		Log::get().warn("%s:%d: object %s failed to spawn a copy of itself\n", __FILE__, __LINE__, pchr->getName().c_str() );
@@ -5392,7 +5392,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 			float(state.distance)
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), "", INVALID_CHR_REF);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, Ego::Math::clipBits<16>(state.turn), "", INVALID_CHR_REF);
 
     if ( !pchild )
     {
@@ -6254,7 +6254,7 @@ Uint8 scr_FlashVariableHeight( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const uint8_t valuelow = CLIP_TO_16BITS(state.turn);
+    const uint8_t valuelow = Ego::Math::clipBits<16>(state.turn);
     const int16_t low = state.x;
     const uint8_t valuehigh = state.distance;
     const int16_t high = state.y;
