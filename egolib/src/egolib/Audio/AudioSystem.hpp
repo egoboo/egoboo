@@ -53,7 +53,7 @@ public:
     
     inline const ObjectRef& getOwnerRef() const
     {
-        return _ownerRef;
+        return _ownerRef; // Immutable object references can be returned by constant reference.
     }
     
     inline void setChannel(int channel)

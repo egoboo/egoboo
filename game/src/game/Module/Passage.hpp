@@ -32,10 +32,10 @@ class Object;
 class Passage
 {
 public:
-    static constexpr int32_t NO_MUSIC = -1;				///< For passages that play no music
-    static constexpr uint32_t CLOSE_TOLERANCE = 3;		///< For closing doors
-    static constexpr size_t MAX_PASSAGES = 256;			///< Maximum allowed passages
-    static constexpr const ObjectRef& SHOP_NOOWNER = ObjectRef::Invalid;	///< Shop has no owner
+    static constexpr int32_t NO_MUSIC = -1;		    ///< For passages that play no music
+    static constexpr uint32_t CLOSE_TOLERANCE = 3;  ///< For closing doors
+    static constexpr size_t MAX_PASSAGES = 256;	    ///< Maximum allowed passages
+    static const ObjectRef SHOP_NOOWNER;	        ///< Shop has no owner
     static constexpr uint32_t SHOP_STOLEN = 0xFFFF;
 
 	/// The pre-defined orders for communicating with shopkeepers

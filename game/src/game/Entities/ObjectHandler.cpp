@@ -22,12 +22,10 @@
 #include "game/char.h"
 #include "egolib/Profiles/_Include.hpp"
 
-const ObjectRef& GET_INDEX_PCHR(const Object *pobj)
-{
+ObjectRef GET_INDEX_PCHR(const Object *pobj) {
     return (nullptr == pobj) ? ObjectRef::Invalid : pobj->getObjRef();
 }
-const ObjectRef& GET_INDEX_PCHR(const std::shared_ptr<Object> &pobj)
-{
+ObjectRef GET_INDEX_PCHR(const std::shared_ptr<Object> &pobj) {
     return (nullptr == pobj) ? ObjectRef::Invalid : pobj->getObjRef();
 }
 bool INGAME_PCHR(const Object *pobj)
@@ -50,7 +48,7 @@ ObjectHandler::ObjectHandler() :
     _iteratorList.reserve(OBJECTS_MAX);
 }
 
-bool ObjectHandler::remove(const ObjectRef& ref) {
+bool ObjectHandler::remove(ObjectRef ref) {
 	if (!exists(ref)) {
 		return false;
 	}
@@ -73,7 +71,7 @@ bool ObjectHandler::remove(const ObjectRef& ref) {
 	return true;
 }
 
-bool ObjectHandler::exists(const ObjectRef& ref) const {
+bool ObjectHandler::exists(ObjectRef ref) const {
 	if (ref == ObjectRef::Invalid || ref.get() >= _totalCharactersSpawned) {
 		return false;
 	}
@@ -87,7 +85,7 @@ bool ObjectHandler::exists(const ObjectRef& ref) const {
 	return !(*result).second->isTerminated();
 }
 
-std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, const ObjectRef& overrideRef)
+std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, ObjectRef overrideRef)
 {
 	// Make sure the profile is valid.
 	if (!ProfileSystem::get().isValidProfileID(profileRef)) {
@@ -137,7 +135,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, const Ob
 	return nullptr;
 }
 
-Object *ObjectHandler::get(const ObjectRef& ref) const {
+Object *ObjectHandler::get(ObjectRef ref) const {
 	if (ref == ObjectRef::Invalid || ref.get() >= _totalCharactersSpawned) {
 		return nullptr;
 	}
@@ -151,7 +149,7 @@ Object *ObjectHandler::get(const ObjectRef& ref) const {
 	return (*result).second.get();
 }
 
-const std::shared_ptr<Object>& ObjectHandler::operator[] (const ObjectRef& ref)
+const std::shared_ptr<Object>& ObjectHandler::operator[] (ObjectRef ref)
 {
 	if (ref == ObjectRef::Invalid || ref.get() >= _totalCharactersSpawned) {
 		return Object::INVALID_OBJECT;

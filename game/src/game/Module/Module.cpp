@@ -144,14 +144,11 @@ void GameModule::checkPassageMusic()
     }
 }
 
-const ObjectRef& GameModule::getShopOwner(const float x, const float y)
-{
+ObjectRef GameModule::getShopOwner(const float x, const float y) {
     // Loop through every passage.
-    for(const std::shared_ptr<Passage>& passage : _passages)
-    {
+    for(const std::shared_ptr<Passage>& passage : _passages) {
         // Only check actual shops.
-        if(!passage->isShop()) 
-        {
+        if(!passage->isShop()) {
             continue;
         }
 
@@ -165,7 +162,7 @@ const ObjectRef& GameModule::getShopOwner(const float x, const float y)
     return Passage::SHOP_NOOWNER;       
 }
 
-void GameModule::removeShopOwner(const ObjectRef& owner)
+void GameModule::removeShopOwner(ObjectRef owner)
 {
     // Loop through every passage:
     for(const std::shared_ptr<Passage> &passage : _passages)

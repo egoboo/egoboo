@@ -43,7 +43,7 @@
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
 
-Object::Object(const PRO_REF proRef, const ObjectRef& objRef) : 
+Object::Object(const PRO_REF proRef, ObjectRef objRef) : 
     spawn_data(),
     ai(),
     latch(),

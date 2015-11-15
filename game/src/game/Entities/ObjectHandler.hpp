@@ -33,8 +33,8 @@
 class Object;
 
 //ZF> Some macros from C Egoboo (TODO: remove these macros)
-const ObjectRef& GET_INDEX_PCHR(const Object *pobj);
-const ObjectRef& GET_INDEX_PCHR(const std::shared_ptr<Object> pobj);
+ObjectRef GET_INDEX_PCHR(const Object *pobj);
+ObjectRef GET_INDEX_PCHR(const std::shared_ptr<Object> pobj);
 bool INGAME_PCHR(const Object *pobj);
 
 /**
@@ -113,21 +113,21 @@ public:
 	 * @return false if it didnt exist or was already removed, true otherwise
 	 */
 	bool remove(const CHR_REF ref) { return remove(ObjectRef(ref)); } ///< @todo Remove this.
-	bool remove(const ObjectRef& ref);
+	bool remove(ObjectRef ref);
 
 	/**
 	 * @brief Get if the specified object exists and is not terminated yet.
 	 * @return true if the specified object exists and is not terminated yet
 	 */
 	bool exists(const CHR_REF ref) const { return exists(ObjectRef(ref)); } ///< @todo Remove this.
-	bool exists(const ObjectRef& ref) const;
+	bool exists(ObjectRef ref) const;
 
 	/**
 	 * @brief Allocates and creates new Object object. A valid PRO_REF is required to spawn a object.
 	 * @return the std::shared_ptr<Object> for that object or nullptr if it failed
 	 */
 	std::shared_ptr<Object> insert(const PRO_REF profileRef, const CHR_REF overrideRef = INVALID_CHR_REF) { return insert(profileRef, ObjectRef(overrideRef)); } ///< @todo Remove this.
-	std::shared_ptr<Object> insert(const PRO_REF profileRef, const ObjectRef& overrideRef = ObjectRef::Invalid);
+	std::shared_ptr<Object> insert(const PRO_REF profileRef, ObjectRef overrideRef = ObjectRef::Invalid);
 
 	/**
 	 * @brief Return a pointer object for the specifiec CHR_REF.
@@ -135,7 +135,7 @@ public:
 	 *		   Return nullptr object if CHR_REF was not found.
 	 */
 	const std::shared_ptr<Object>& operator[] (const CHR_REF ref) { return (*this)[ObjectRef(ref)]; }
-	const std::shared_ptr<Object>& operator[] (const ObjectRef& ref);
+	const std::shared_ptr<Object>& operator[] (ObjectRef ref);
 
 	/**
 	 * @brief Return number of object currently active in the game.
@@ -153,7 +153,7 @@ public:
 	 * @return a raw pointer referenced by CHR_REF
 	 */
 	Object *get(const CHR_REF ref) const { return get(ObjectRef(ref)); } ///< @todo Remove this.
-	Object *get(const ObjectRef& index) const;
+	Object *get(ObjectRef ref) const;
 
 
 	/**

@@ -27,6 +27,8 @@
 #include "game/mesh.h"
 #include "game/Entities/_Include.hpp"
 
+const ObjectRef Passage::SHOP_NOOWNER = ObjectRef::Invalid;
+
 Passage::Passage() :
     _area(),
     _music(NO_MUSIC),

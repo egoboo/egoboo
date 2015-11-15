@@ -152,7 +152,7 @@ public:
      * @param objRef
      *  the unique object reference of this object
      */
-    Object(const PRO_REF proRef, const ObjectRef& objRef);
+    Object(const PRO_REF proRef, ObjectRef objRef);
 
     /**
      * @brief
@@ -172,12 +172,12 @@ public:
 	 * @brief Get the unique object reference of this object.
      * @return the unique object reference of this object
      */
-    inline const ObjectRef& getObjRef() const {return _objRef;}
+    inline ObjectRef getObjRef() const { return _objRef; }
 
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
     **/
-    Team& getTeam() const {return _currentModule->getTeamList()[team];}
+    Team& getTeam() const { return _currentModule->getTeamList()[team]; }
 
     /**
     * @brief
