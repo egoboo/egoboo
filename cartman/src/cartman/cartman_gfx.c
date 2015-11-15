@@ -1321,7 +1321,7 @@ void gfx_system_init_SDL_graphics()
 		Log::get().message("Failed!\n");
 		std::ostringstream os;
 		os << "unable to set any SDL video mode - SDL_GetError() = " << SDL_GetError() << std::endl;
-		Log::get().error("%s",os.str());
+		Log::get().error("%s",os.str().c_str());
 		throw std::runtime_error(os.str());
     }
     else
