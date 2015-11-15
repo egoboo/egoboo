@@ -320,13 +320,13 @@ bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y
         {
 			// yes it is safe. add it.
 			returncode = true;
-            waypoint_list_push( wplst, pos_x, pos_y );
+            waypoint_list_t::push( wplst, pos_x, pos_y );
         }
         else
         {
             // no it is not safe. what to do? nothing, or add the current position?
 			//returncode = true;
-			//waypoint_list_push( wplst, pchr->loc_pos.x, pchr->loc_pos.y );
+			//waypoint_list_t::push( wplst, pchr->loc_pos.x, pchr->loc_pos.y );
 
             log_warning( "%s - failed to add a waypoint because object was \"inside\" a wall.\n"
                          "\tcharacter %d (\"%s\", \"%s\")\n"
@@ -344,7 +344,7 @@ bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y
     }
 #else
 	returncode = true;
-    waypoint_list_push( wplst, pos_x, pos_y );
+    waypoint_list_t::push( wplst, pos_x, pos_y );
 #endif
 
     return returncode;
@@ -378,7 +378,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     dst_iy = dst_y / Info<int>::Grid::Size();
 
     //Always clear any old waypoints
-    waypoint_list_clear( wplst );
+    waypoint_list_t::clear( wplst );
 
     //Don't do need to do anything if there is no need to move
     if ( src_ix == dst_ix && src_iy == dst_iy ) return false;
@@ -420,7 +420,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     if ( !returncode )
     {
         // just use a straight line path
-        waypoint_list_push( wplst, dst_x, dst_y );
+        waypoint_list_t::push( wplst, dst_x, dst_y );
     }
 
     return returncode;

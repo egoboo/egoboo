@@ -32,24 +32,28 @@ typedef float waypoint_t[3];
 
 struct waypoint_list_t
 {
-	int          tail;         ///< Which waypoint
-	int          head;         ///< Where to stick next
-	waypoint_t   pos[MAXWAY];  ///< Waypoint
+	int          _tail;         ///< Which waypoint
+	int          _head;         ///< Where to stick next
+	waypoint_t   _pos[MAXWAY];  ///< Waypoint
+
+	static bool peek(waypoint_list_t& self, waypoint_t wp);
+	/**
+	* @brief
+	* Append a waypoint to a waypoint list.
+	*	If the capacity of the waypoint list is reached, the last waypoint in the list is overwritten.
+	* @param self
+	*	the waypoint list
+	* @param x, y
+	*	the waypoint
+	*/
+	static void push(waypoint_list_t& self, int x, int y);
+	/// @details reset the waypoint list to the beginning
+	static void reset(waypoint_list_t& self);
+	/// @details Clear out all waypoints
+	static void clear(waypoint_list_t& self);
+	static bool empty(waypoint_list_t& self);
+	static bool finished(waypoint_list_t& self);
+	static bool advance(waypoint_list_t& self);
 };
 
-bool waypoint_list_peek(waypoint_list_t& self, waypoint_t wp);
-/**
- * @brief
- * Append a waypoint to a waypoint list.
- *	If the capacity of the waypoint list is reached, the last waypoint in the list is overwritten.
- * @param self
- *	the waypoint list
- * @param x, y
- *	the waypoint
- */
-void waypoint_list_push(waypoint_list_t& self, int x, int y);
-void waypoint_list_reset(waypoint_list_t& self);
-void waypoint_list_clear(waypoint_list_t& self);
-bool waypoint_list_empty(waypoint_list_t& self);
-bool waypoint_list_finished(waypoint_list_t& self);
-bool waypoint_list_advance(waypoint_list_t& self);
+

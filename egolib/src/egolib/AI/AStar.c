@@ -357,7 +357,7 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
 
             // add the node to the waypoint list
             last_waypoint = safe_waypoint;
-            waypoint_list_push( wplst, way_x, way_y );
+            waypoint_list_t::push( wplst, way_x, way_y );
             waypoint_num++;
 
             //This one is now safe
