@@ -9,12 +9,12 @@
 
 #include "egolib/file_common.h"
 
-struct s_mac_find_context
+struct s_mac_find_context : Id::NonCopyable
 {
     NSDirectoryEnumerator *dirEnum;
     NSString *dirEnumExtension;
     NSString *dirEnumPath;
-    NSString *currentFile;
+    std::string currentFile;
 };
 
 static NSString *binaryPath = nil;
@@ -135,7 +135,7 @@ bool fs_copyFile(const char *source, const char *dest)
 
         [srcPath release];
         [destPath release];
-        return didCopy == YES;
+        return didCopy;
     }
 }
 
@@ -154,12 +154,7 @@ int fs_fileIsDirectory(const char *filename)
         fileExists = [manager fileExistsAtPath:path isDirectory:&isDir];
         [path release];
 
-        if (fileExists && isDir)
-        {
-            return 1;
-        }
-
-        return 0;
+        return fileExists && isDir;
     }
 }
 
@@ -174,8 +169,8 @@ const char *fs_findNextFile(fs_find_context_t *fs_search)
         NSString *fileName;
         NSString *pathName;
 
-        if (fs_search == NULL || fs_search->ptr.m == NULL || fs_search->type != mac_find)
-            return NULL;
+        if (fs_search == nullptr || fs_search->ptr.m == nullptr || fs_search->type != mac_find)
+            return nullptr;
 
         s_mac_find_context *context = fs_search->ptr.m;
 
@@ -192,24 +187,18 @@ const char *fs_findNextFile(fs_find_context_t *fs_search)
             {
                 if ([[fileName pathExtension] isEqualToString: context->dirEnumExtension])
                 {
-                    if (context->currentFile != nil)
-                        [context->currentFile release];
-                    context->currentFile = fileName;
-                    [context->currentFile retain];
-                    return [fileName UTF8String];
+                    context->currentFile = [fileName UTF8String];
+                    return context->currentFile.c_str();
                 }
             }
             else
             {
-                if (context->currentFile != nil)
-                    [context->currentFile release];
-                context->currentFile = fileName;
-                [context->currentFile retain];
-                return [fileName UTF8String];
+                context->currentFile = [fileName UTF8String];
+                return context->currentFile.c_str();
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -217,42 +206,37 @@ const char *fs_findNextFile(fs_find_context_t *fs_search)
 void fs_findClose(fs_find_context_t *fs_search)
 {
     @autoreleasepool {
-        if (fs_search == NULL || fs_search->ptr.m == NULL || fs_search->type != mac_find)
+        if (fs_search == nullptr || fs_search->ptr.m == nullptr || fs_search->type != mac_find)
             return;
 
         s_mac_find_context *context = fs_search->ptr.m;
-
-        if (context->dirEnum != nil)
-            [context->dirEnum release];
-
-        if (context->dirEnumPath != nil)
-            [context->dirEnumPath release];
-
-        if (context->dirEnumExtension != nil)
-            [context->dirEnumExtension release];
-
-        if (context->currentFile != nil)
-            [context->currentFile release];
-
-        EGOBOO_DELETE(context);
+        
+        [context->dirEnum release];
+        [context->dirEnumPath release];
+        [context->dirEnumExtension release];
+    
+        delete context;
+        
+        fs_search->type = unknown_find;
+        fs_search->ptr.v = nullptr;
     }
 }
 
 // Begin enumerating files in a directory.  The enumeration is not recursive; subdirectories
-// won't be searched.  If 'extension' is not NULL, only files with the given extension will
+// won't be searched.  If 'extension' is not nullptr, only files with the given extension will
 // be returned.
 const char *fs_findFirstFile(const char *path, const char *extension, fs_find_context_t *fs_search)
 {
     @autoreleasepool {
         NSString *searchPath;
 
-        if (fs_search == NULL)
-            return NULL;
+        if (fs_search == nullptr)
+            return nullptr;
 
         fs_search->type = mac_find;
-        fs_search->ptr.m = EGOBOO_NEW(s_mac_find_context);
-        if (fs_search->ptr.m == NULL)
-            return NULL;
+        fs_search->ptr.m = new s_mac_find_context();
+        if (fs_search->ptr.m == nullptr)
+            return nullptr;
 
         s_mac_find_context *context = fs_search->ptr.m;
 
@@ -271,14 +255,14 @@ const char *fs_findFirstFile(const char *path, const char *extension, fs_find_co
         if (context->dirEnum == nil)
         {
             [searchPath release];
-            EGOBOO_DELETE(context);
+            delete context;
             fs_search->type = unknown_find;
-            return NULL;
+            return nullptr;
         }
         
         [context->dirEnum retain];
 
-        if (extension != NULL)
+        if (extension != nullptr)
         {
             context->dirEnumExtension = [[NSString alloc] initWithUTF8String:extension];
         }
