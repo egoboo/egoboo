@@ -94,7 +94,7 @@ inline double INV_FFFF<double>() {
  */
 inline FACING_T RAD_TO_FACING(float x) {
 	// UINT16_MAX / (2 * PI).
-	return x * 10430.378350470452724949566316381f;
+	return Ego::Math::clipBits<16>(x * (std::numeric_limits<FACING_T>::max() / Ego::Math::twoPi<float>()));
 }
 
 /**
@@ -107,7 +107,7 @@ inline FACING_T RAD_TO_FACING(float x) {
  */
 inline float FACING_TO_RAD(FACING_T facing) {
 	// (2 * PI) / UINT16_MAX
-	return facing * 0.000095873799242852576857380474343257f;
+	return facing * (Ego::Math::twoPi<float>() / std::numeric_limits<FACING_T>::max());
 }
 
 /**
@@ -119,7 +119,7 @@ inline float FACING_TO_RAD(FACING_T facing) {
  *  the angle in "facing"
  */
 inline FACING_T TurnsToFacing(float x) {
-	return CLIP_TO_16BITS((int)(x * (float)0x00010000));
+	return Ego::Math::clipBits<16>((int)(x * (float)0x00010000));
 }
 
 /**
@@ -131,7 +131,7 @@ inline FACING_T TurnsToFacing(float x) {
  *  the angle in turns
  */
 inline float FacingToTurns(FACING_T x) {
-	return ((float)CLIP_TO_16BITS(x) / (float)0x00010000);
+	return ((float)Ego::Math::clipBits<16>(x) / (float)0x00010000);
 }
 
 /**
@@ -183,6 +183,11 @@ extern "C"
 #define FACE_NORTH   0x4000                                 ///< Character facings
 #define FACE_EAST    0x8000
 #define FACE_SOUTH   0xC000
+
+inline TURN_T TO_TURN(const FACING_T &facing)
+{
+    return static_cast<TURN_T>( (static_cast<FACING_T>(facing) >> 2) & TRIG_TABLE_MASK);
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

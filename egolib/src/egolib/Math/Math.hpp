@@ -27,157 +27,6 @@ namespace Ego
 {
 namespace Math
 {
-    /**
-     * @brief
-     *  Constrain a value within a specified range (same as clamping or clipping).
-     * @param n
-     *  the value
-     * @param lower
-     *  the minimum
-     * @param upper
-     *  the maximum
-     * @return
-     *  the constrained value
-     */
-    template <typename T>
-    T constrain(const T& n, const T& lower, const T& upper)
-    {
-        return std::max(lower, std::min(n, upper));
-    }
-
-    /**
-     * @brief
-     *  Calculates the square of a number, this is same as X^2.
-     *  This is much faster than using pow(val, 2)
-     * @param val
-     *  the number to square
-     **/
-    template <typename T>
-    T sq(const T &value)
-    {
-        return value * value;
-    }
-} // namespace Math
-} // namespace Ego
-
-namespace Ego
-{
-namespace Math
-{
-/**
- * @brief
- *  Convert an angle from degree to radian.
- * @param x
- *  the angle in degree
- * @return
- *  the angle in radian
- */
-inline float degToRad(float x)
-{
-    return x * 0.017453292519943295769236907684886f;
-}
-
-/**
- * @brief
- *  Convert an angle from degree to radian.
- * @param x
- *  the angle in degree
- * @return
- *  the angle in radian
- */
-inline double degToRad(double x)
-{
-    return x * 0.017453292519943295769236907684886;
-}
-
-/**
- * @brief
- *  Convert an angle from radian to degree.
- * @param x
- *  the angle in radian
- * @return
- *  the angle in degree
- */
-inline float radToDeg(float x)
-{
-    return x * 57.295779513082320876798154814105f;
-}
-
-/**
- * @brief
- *  Convert an angle from radian to degree.
- * @param x
- *  the angle in radian
- * @return
- *  the angle in degree
- */
-inline double radToDeg(double x)
-{
-    return x * 57.295779513082320876798154814105;
-}
-
-} // namespace Math
-} // namespace Ego
-
-namespace Ego
-{
-namespace Math
-{
-/**
- * @brief
- *  Get \f$\sqrt{2}\f$.
- * @return
- *  \f$\sqrt{2}\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type sqrtTwo();
-
-template <>
-inline float sqrtTwo<float>()
-{
-    return 1.4142135623730950488016887242097f;
-}
-
-template <>
-inline double sqrtTwo<double>()
-{
-    return 1.4142135623730950488016887242097;
-}
-
-/**
- * @brief
- *  Get \f$\frac{1}{\sqrt{2}}\f$.
- * @return
- *  \f$\frac{1}{\sqrt{2}}\f$
- * @remark
- *  Specializations for @a float and @a double are provided.
- */
-template <typename Type>
-Type invSqrtTwo();
-
-template <>
-inline float invSqrtTwo()
-{
-    return 0.70710678118654752440084436210485f;
-}
-
-template <>
-inline double invSqrtTwo()
-{
-    //      .70710678118654757
-    //      .70710678118654752440
-    return 0.70710678118654752440084436210485;
-}
-
-} // namespace Math
-} // namespace Ego
-
-namespace Ego
-{
-namespace Math
-{
 
 /**
  * @brief
@@ -370,6 +219,135 @@ inline int powerOfTwo<int>(int x)
         y <<= 1;
     }
     return y;
+}
+
+} // namespace Math
+} // namespace Ego
+
+namespace Ego
+{
+namespace Math
+{
+    /**
+     * @brief
+     *  Constrain a value within a specified range (same as clamping or clipping).
+     * @param n
+     *  the value
+     * @param lower
+     *  the minimum
+     * @param upper
+     *  the maximum
+     * @return
+     *  the constrained value
+     */
+    template <typename T>
+    const T& constrain(const T& n, const T& lower, const T& upper)
+    {
+        return std::max(lower, std::min(n, upper));
+    }
+
+    /**
+     * @brief
+     *  Calculates the square of a number, this is same as X^2.
+     *  This is much faster than using pow(val, 2)
+     * @param val
+     *  the number to square
+     **/
+    template <typename T>
+    T sq(const T &value)
+    {
+        return value * value;
+    }
+
+    template<size_t BITS, typename T>
+    int clipBits(const T &value)
+    {
+        return static_cast<int>(value) & (1 << BITS);
+    }
+
+    /**
+     * @brief
+     *  Convert an angle from degree to radian.
+     * @param x
+     *  the angle in degree
+     * @return
+     *  the angle in radian
+     */
+    template<typename T>
+    inline T degToRad(const T &x)
+    {
+        static_assert(std::is_floating_point<T>::value, "T must be of floating point type");
+        return (x * Ego::Math::pi<T>()) / static_cast<T>(180);
+    }
+
+    /**
+     * @brief
+     *  Convert an angle from degree to radian.
+     * @param x
+     *  the angle in degree
+     * @return
+     *  the angle in radian
+     */
+    template<typename T>
+    inline T radToDeg(const T &x)
+    {
+        static_assert(std::is_floating_point<T>::value, "T must be of floating point type");
+        return (x * static_cast<T>(180)) / Ego::Math::pi<T>();
+    }
+
+} // namespace Math
+} // namespace Ego
+
+namespace Ego
+{
+namespace Math
+{
+/**
+ * @brief
+ *  Get \f$\sqrt{2}\f$.
+ * @return
+ *  \f$\sqrt{2}\f$
+ * @remark
+ *  Specializations for @a float and @a double are provided.
+ */
+template <typename Type>
+Type sqrtTwo();
+
+template <>
+inline float sqrtTwo<float>()
+{
+    return 1.4142135623730950488016887242097f;
+}
+
+template <>
+inline double sqrtTwo<double>()
+{
+    return 1.4142135623730950488016887242097;
+}
+
+/**
+ * @brief
+ *  Get \f$\frac{1}{\sqrt{2}}\f$.
+ * @return
+ *  \f$\frac{1}{\sqrt{2}}\f$
+ * @remark
+ *  Specializations for @a float and @a double are provided.
+ */
+template <typename Type>
+Type invSqrtTwo();
+
+template <>
+inline float invSqrtTwo()
+{
+    return 0.70710678118654752440084436210485f;
+}
+
+template <>
+inline double invSqrtTwo()
+{
+    //      .70710678118654757
+    //      .70710678118654752440
+    return 0.70710678118654752440084436210485;
 }
 
 } // namespace Math

@@ -887,7 +887,7 @@ void parser_state_t::parse_jumps( script_info_t& script )
             index++;
             auto iTmp = script._instructions[index];              //AisCompiled_buffer[index];
             index++;
-			index += CLIP_TO_08BITS( iTmp._value );
+			index += Ego::Math::clipBits<8>( iTmp._value );
         }
     }
 }
