@@ -746,7 +746,7 @@ bool FlashObject( Object * pchr, Uint8 value )
 	if (!pchr) {
 		return false;
 	}
-	chr_instance_flash(pchr->inst, value);
+	chr_instance_t::flash(pchr->inst, value);
 	return true;
 }
 

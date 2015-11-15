@@ -850,7 +850,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				{
 					renderer.setColour(Colour4f::white());
 
-					render_one_mad_ref(camera, ichr);
+					MadRenderer::render_ref(camera, ObjectRef(ichr));
 				}
 			}
 			else if (INVALID_CHR_REF == el.get(i).ichr && INVALID_PRT_REF != el.get(i).iprt)
@@ -896,7 +896,7 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 
 			if (INVALID_PRT_REF == el.get(i).iprt && INVALID_CHR_REF != el.get(i).ichr)
 			{
-				render_one_mad_solid(camera, el.get(i).ichr);
+				MadRenderer::render_solid(camera, ObjectRef(el.get(i).ichr));
 			}
 			else if (INVALID_CHR_REF == el.get(i).ichr && ParticleHandler::get()[el.get(i).iprt] != nullptr)
 			{
@@ -931,7 +931,7 @@ void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const Enti
 			// A character.
 			if (INVALID_PRT_REF == el.get(j).iprt && INVALID_CHR_REF != el.get(j).ichr)
 			{
-				render_one_mad_trans(camera, el.get(j).ichr);
+				MadRenderer::render_trans(camera, ObjectRef(el.get(j).ichr));
 			}
 			// A particle.
 			else if (INVALID_CHR_REF == el.get(j).ichr && INVALID_PRT_REF != el.get(j).iprt)

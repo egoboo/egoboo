@@ -2556,7 +2556,7 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
         {
             if (HAS_NO_BITS(game_frame_all, pchr->getProfile()->getFlashAND()))
             {
-				chr_instance_flash(pinst, 255);
+				chr_instance_t::flash(pinst, 255);
             }
         }
 
@@ -2568,7 +2568,7 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
         {
             if (HAS_NO_BITS(game_frame_all, SEEKURSEAND))
             {
-				chr_instance_flash(pinst, 255.0f *(1.0f - tmp_seekurse_level));
+				chr_instance_t::flash(pinst, 255.0f *(1.0f - tmp_seekurse_level));
             }
         }
     }

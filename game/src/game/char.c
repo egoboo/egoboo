@@ -54,24 +54,20 @@ int chr_stoppedby_tests = 0;
 int chr_pressure_tests = 0;
 
 //--------------------------------------------------------------------------------------------
-void character_swipe( const CHR_REF ichr, slot_t slot )
+void character_swipe( ObjectRef ichr, slot_t slot )
 {
     /// @author ZZ
     /// @details This function spawns an attack particle
-    int    spawn_vrt_offset;
-    TURN_T turn;
-    float  velocity;
-
-
     const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[ichr];
     if(!pchr) {
         return;
     }
 
-    CHR_REF iweapon = pchr->holdingwhich[slot];
+    ObjectRef iweapon = pchr->holdingwhich[slot];
 
     // See if it's an unarmed attack...
     bool unarmed_attack;
+	int spawn_vrt_offset;
     if ( !_currentModule->getObjectHandler().exists(iweapon) )
     {
         unarmed_attack   = true;
@@ -88,7 +84,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
     // find the 1st non-item that is holding the weapon
-    CHR_REF iholder = chr_get_lowest_attachment( iweapon, true );
+    ObjectRef iholder = chr_get_lowest_attachment( iweapon, true );
     const std::shared_ptr<Object> &pholder = _currentModule->getObjectHandler()[iholder];
 
     /*
@@ -122,7 +118,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             SET_BIT( pthrown->ai.alert, ALERTIF_THROWN );
 
             // deterimine the throw velocity
-            velocity = MINTHROWVELOCITY;
+            float velocity = MINTHROWVELOCITY;
             if ( 0 == pthrown->phys.weight )
             {
                 velocity += MAXTHROWVELOCITY;
@@ -133,7 +129,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             }
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
-            turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
+			TURN_T turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pthrown->vel[kX] += turntocos[ turn ] * velocity;
             pthrown->vel[kY] += turntosin[ turn ] * velocity;
             pthrown->vel[kZ] = DROPZVEL;
@@ -198,8 +194,8 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     // will this mess up wands?
                     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
                         pchr->ori.facing_z, weaponProfile->getSlotNumber(), 
-                        attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : INVALID_CHR_REF,  
-                        spawn_vrt_offset, pholder->getTeam().toRef(), iholder);
+                        attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon.get() : INVALID_CHR_REF,  
+                        spawn_vrt_offset, pholder->getTeam().toRef(), iholder.get());
 
                     if (particle)
                     {
@@ -383,7 +379,7 @@ const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
+ObjectRef chr_get_lowest_attachment( ObjectRef ichr, bool non_item )
 {
     /// @author BB
     /// @details Find the lowest attachment for a given object.
@@ -394,38 +390,36 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     ///               To prevent possible loops in the data structures, use a counter to limit
     ///               the depth of the search, and make sure that ichr != _currentModule->getObjectHandler().get(object)->attachedto
 
-    int cnt;
-    CHR_REF original_object, object, object_next;
+    if (!_currentModule->getObjectHandler().exists(ichr)) return ObjectRef::Invalid;
 
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return INVALID_CHR_REF;
-
+	ObjectRef original_object, object;
     original_object = object = ichr;
-    for ( cnt = 0, object = ichr; cnt < OBJECTS_MAX; cnt++ )
-    {
-        // check for one of the ending condiitons
-        if ( non_item && !_currentModule->getObjectHandler().get(object)->isitem )
-        {
-            break;
-        }
+	for (size_t cnt = 0; cnt < OBJECTS_MAX; cnt++)
+	{
+		// check for one of the ending condiitons
+		if (non_item && !_currentModule->getObjectHandler().get(object)->isitem)
+		{
+			break;
+		}
 
-        // grab the next object in the list
-        object_next = _currentModule->getObjectHandler().get(object)->attachedto;
+		// grab the next object in the list
+		ObjectRef object_next = ObjectRef(_currentModule->getObjectHandler().get(object)->attachedto);
 
-        // check for an end of the list
-        if ( !_currentModule->getObjectHandler().exists( object_next ) )
-        {
-            break;
-        }
+		// check for an end of the list
+		if (!_currentModule->getObjectHandler().exists(object_next))
+		{
+			break;
+		}
 
-        // check for a list with a loop. shouldn't happen, but...
-        if ( object_next == original_object )
-        {
-            break;
-        }
+		// check for a list with a loop. shouldn't happen, but...
+		if (object_next == original_object)
+		{
+			break;
+		}
 
-        // go to the next object
-        object = object_next;
-    }
+		// go to the next object
+		object = object_next;
+	}
 
     return object;
 }

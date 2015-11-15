@@ -130,6 +130,6 @@ extern int chr_pressure_tests;
 // Function prototypes
 const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
 
-void character_swipe( const CHR_REF cnt, slot_t slot );
+void character_swipe( ObjectRef cnt, slot_t slot );
 
-CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
+ObjectRef chr_get_lowest_attachment(ObjectRef object_ref, bool non_item );

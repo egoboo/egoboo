@@ -392,10 +392,10 @@ void CharacterStatus::draw()
     draw_one_character_icon(pchr->getObjRef().get(), getX() + 40, yOffset, false, levelUp ? COLOR_YELLOW : NOSPARKLE);
 
     // draw the left hand item icon
-    draw_one_character_icon(pchr->holdingwhich[SLOT_LEFT], getX() + 8, yOffset, true, NOSPARKLE);
+    draw_one_character_icon(pchr->holdingwhich[SLOT_LEFT].get(), getX() + 8, yOffset, true, NOSPARKLE);
 
     // draw the right hand item icon
-    draw_one_character_icon(pchr->holdingwhich[SLOT_RIGHT], getX() + 72, yOffset, true, NOSPARKLE);
+    draw_one_character_icon(pchr->holdingwhich[SLOT_RIGHT].get(), getX() + 72, yOffset, true, NOSPARKLE);
 
     // skip to the next row
     yOffset += 32;

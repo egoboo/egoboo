@@ -508,14 +508,11 @@ int update_game()
     // check for autorespawn
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF ichr;
-        Object * pchr;
-
         if ( !PlaStack.lst[ipla].valid ) continue;
 
-        ichr = PlaStack.lst[ipla].index;
+        CHR_REF ichr = PlaStack.lst[ipla].index;
         if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
-        pchr = _currentModule->getObjectHandler().get( ichr );
+        Object *pchr = _currentModule->getObjectHandler().get( ichr );
 
         if ( !pchr->isAlive() )
         {
@@ -1056,52 +1053,44 @@ void set_one_player_latch( const PLA_REF ipla )
     /// @details This function converts input readings to latch settings, so players can
     ///    move around
 
-    TURN_T turnsin;
-    float dist, scale;
-    float fsin, fcos;
-    latch_t sum;
-    bool fast_camera_turn;
-	Vector2f joy_pos, joy_new;
-
-    player_t       * ppla;
-    input_device_t * pdevice;
-
     // skip invalid players
     if ( INVALID_PLA( ipla ) ) return;
-    ppla = PlaStack.get_ptr( ipla );
+	player_t       *ppla = PlaStack.get_ptr( ipla );
 
     // is the device a local device or an internet device?
-    pdevice = ppla->pdevice;
+	input_device_t *pdevice = ppla->pdevice;
     if ( NULL == pdevice ) return;
 
     //No need to continue if device is not enabled
     if ( !input_device_is_enabled( pdevice ) ) return;
 
     // find the camera that is pointing at this character
-    std::shared_ptr<Camera> pcam = CameraSystem::get()->getCameraByChrID(ppla->index);
-    if ( nullptr == pcam ) return;
+    auto pcam = CameraSystem::get()->getCamera(ObjectRef(ppla->index));
+    if (!pcam) return;
 
     // fast camera turn if it is enabled and there is only 1 local player
-    fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
+	bool fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
 
+	latch_t sum;
     // Clear the player's latch buffers
     sum.clear();
-    joy_new = Vector2f::zero();
-    joy_pos = Vector2f::zero();
+	Vector2f joy_new = Vector2f::zero(),
+             joy_pos = Vector2f::zero();
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera
-    turnsin = TO_TURN( pcam->getOrientation().facing_z );
-    fsin    = turntosin[ turnsin ];
-    fcos    = turntocos[ turnsin ];
+	TURN_T turnsin = TO_TURN( pcam->getOrientation().facing_z );
+    float fsin    = turntosin[ turnsin ];
+    float fcos    = turntocos[ turnsin ];
 
+	float scale;
     if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
     {
         // Mouse routines
 
         if ( fast_camera_turn || !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
         {
-            dist = std::sqrt( mous.x * mous.x + mous.y * mous.y );
+            float dist = std::sqrt( mous.x * mous.x + mous.y * mous.y );
             if ( dist > 0 )
             {
                 scale = mous.sense / dist;
@@ -1156,7 +1145,7 @@ void set_one_player_latch( const PLA_REF ipla )
             joy_pos[XX] = joystick->x;
             joy_pos[YY] = joystick->y;
 
-            dist = joy_pos.length_2();
+            float dist = joy_pos.length_2();
             if ( dist > 1.0f )
             {
                 scale = 1.0f / std::sqrt( dist );

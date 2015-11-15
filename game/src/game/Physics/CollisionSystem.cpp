@@ -591,7 +591,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
             if ( objectB->getPosZ() + objectB->chr_min_cv._maxs[OCT_Z] > objectA->targetplatform_level )
             {
                 objectA->targetplatform_level = objectB->getPosZ() + objectB->chr_min_cv._maxs[OCT_Z];
-                objectA->targetplatform_ref   = ichr_b.get();
+                objectA->targetplatform_ref   = ichr_b;
 
                 return attachObjectToPlatform(objectA, objectB);
             }
@@ -601,7 +601,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
             if ( objectA->getPosZ() + objectA->chr_min_cv._maxs[OCT_Z] > objectB->targetplatform_level )
             {
                 objectB->targetplatform_level = objectA->getPosZ() + objectA->chr_min_cv._maxs[OCT_Z];
-                objectB->targetplatform_ref   = ichr_a.get();
+                objectB->targetplatform_ref   = ichr_a;
 
                 return attachObjectToPlatform(objectB, objectA);
             }
@@ -623,9 +623,9 @@ bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &obje
     }
 
     // do the attachment
-    object->onwhichplatform_ref    = platform->getObjRef().get();
+    object->onwhichplatform_ref    = platform->getObjRef();
     object->onwhichplatform_update = update_wld;
-    object->targetplatform_ref     = INVALID_CHR_REF;
+    object->targetplatform_ref     = ObjectRef::Invalid;
 
     // update the character's relationship to the ground
     object->enviro.level     = std::max(object->enviro.floor_level, platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z]);
@@ -662,8 +662,8 @@ bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &obje
 
 bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, const float tmin, const float tmax)
 {
-    const CHR_REF ichr_a = objectA->getObjRef().get();
-    const CHR_REF ichr_b = objectB->getObjRef().get();
+    const ObjectRef ichr_a = objectA->getObjRef();
+    const ObjectRef ichr_b = objectB->getObjRef();
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
@@ -693,7 +693,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     }
 
     // don't interact with your mount, or your held items
-    if (ichr_a == objectB->attachedto || ichr_b == objectA->attachedto) {
+    if (ichr_a.get() == objectB->attachedto || ichr_b.get() == objectA->attachedto) {
         return false;
     }
 
@@ -709,7 +709,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     //interaction_strength *= objectB->inst.alpha * INV_FF;
 
     // reduce your interaction strength if you have just detached from an object
-    if ( objectA->dismount_object == ichr_b )
+    if ( objectA->dismount_object == ichr_b.get() )
     {
         float dismount_lerp = ( float )objectA->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
         dismount_lerp = Ego::Math::constrain( dismount_lerp, 0.0f, 1.0f );
@@ -717,7 +717,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         interaction_strength *= dismount_lerp;
     }
 
-    if ( objectB->dismount_object == ichr_a )
+    if ( objectB->dismount_object == ichr_a.get() )
     {
         float dismount_lerp = ( float )objectB->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
         dismount_lerp = Ego::Math::constrain( dismount_lerp, 0.0f, 1.0f );
@@ -727,15 +727,15 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 
     // seriously reduce the interaction_strength with mounts
     // this thould allow characters to mount certain mounts a lot easier
-    if (( objectA->isMount() && INVALID_CHR_REF == objectA->holdingwhich[SLOT_LEFT] && !objectB->isMount() ) ||
-        ( objectB->isMount() && INVALID_CHR_REF == objectB->holdingwhich[SLOT_LEFT] && !objectA->isMount() ) )
+    if (( objectA->isMount() && ObjectRef::Invalid == objectA->holdingwhich[SLOT_LEFT] && !objectB->isMount() ) ||
+        ( objectB->isMount() && ObjectRef::Invalid == objectB->holdingwhich[SLOT_LEFT] && !objectA->isMount() ) )
     {
         interaction_strength *= 0.75f;
     }
 
     // reduce the interaction strength with platforms
     // that are overlapping with the platform you are actually on
-    if ( objectB->canuseplatforms && objectA->platform && INVALID_CHR_REF != objectB->onwhichplatform_ref && ichr_a != objectB->onwhichplatform_ref )
+    if ( objectB->canuseplatforms && objectA->platform && ObjectRef::Invalid != objectB->onwhichplatform_ref && ichr_a != objectB->onwhichplatform_ref )
     {
         float lerp_z = ( objectB->getPosZ() - ( objectA->getPosZ() + objectA->chr_min_cv._maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = Ego::Math::constrain(lerp_z, -1.0f, 1.0f);
@@ -750,7 +750,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         }
     }
 
-    if ( objectA->canuseplatforms && objectB->platform && INVALID_CHR_REF != objectA->onwhichplatform_ref && ichr_b != objectA->onwhichplatform_ref )
+    if ( objectA->canuseplatforms && objectB->platform && ObjectRef::Invalid != objectA->onwhichplatform_ref && ichr_b != objectA->onwhichplatform_ref )
     {
         float lerp_z = ( objectA->getPosZ() - ( objectB->getPosZ() + objectB->chr_min_cv._maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, +1.0f );
@@ -955,8 +955,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 
     if ( bump )
     {
-        ai_state_t::set_bumplast(objectA->ai, ichr_b);
-        ai_state_t::set_bumplast(objectB->ai, ichr_a);
+        ai_state_t::set_bumplast(objectA->ai, ichr_b.get());
+        ai_state_t::set_bumplast(objectB->ai, ichr_a.get());
 
         //Destroy stealth for both objects if they are not friendly
         if(!objectA->isScenery() && !objectB->isScenery() && objectA->getTeam().hatesTeam(objectB->getTeam())) {
@@ -981,7 +981,7 @@ static bool do_chr_platform_physics( Object * object, Object * platform )
         return false;
     }
     //Are we attached to this platform?
-    if ( object->onwhichplatform_ref != platform->getObjRef().get() ) return false;
+    if ( object->onwhichplatform_ref != platform->getObjRef() ) return false;
 
     // grab the pre-computed zlerp value, and map it to our needs
     lerp_z = 1.0f - object->enviro.zlerp;

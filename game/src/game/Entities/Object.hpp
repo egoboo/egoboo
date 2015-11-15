@@ -641,7 +641,7 @@ public:
     * @return
     *   true if this Object can detect and see invisible objects
     **/
-    bool canSeeInvisible() const { return getAttribute(Ego::Attribute::SEE_INVISIBLE); }
+    bool canSeeInvisible() const { return getAttribute(Ego::Attribute::SEE_INVISIBLE) > 0.0f; }
 
     /**
     * @return
@@ -831,8 +831,8 @@ public:
     uint16_t       ammo;
 
     // equipment and inventory
-    std::array<CHR_REF, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
-    std::array<CHR_REF, INVEN_COUNT> equipment;   ///< != INVALID_CHR_REF if character has equipped something
+    std::array<ObjectRef, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
+    std::array<ObjectRef, INVEN_COUNT> equipment;   ///< != INVALID_CHR_REF if character has equipped something
 
     // team stuff
     TEAM_REF       team;            ///< Character's team

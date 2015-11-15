@@ -35,9 +35,9 @@ static constexpr SoundID INVALID_SOUND_ID = -1;
 class LoopingSound
 {
 public:
-    LoopingSound(CHR_REF ref, SoundID soundID) :
+    LoopingSound(ObjectRef ownerRef, SoundID soundID) :
         _channel(INVALID_SOUND_CHANNEL),
-        _object(ref),
+        _ownerRef(ownerRef),
         _soundID(soundID)
     {
         /* Nothing to do. */
@@ -51,9 +51,9 @@ public:
         return _channel;
     }
     
-    inline CHR_REF getOwner() const
+    inline const ObjectRef& getOwnerRef() const
     {
-        return _object;
+        return _ownerRef;
     }
     
     inline void setChannel(int channel)
@@ -69,7 +69,7 @@ public:
 
 private:
     int _channel;
-    const CHR_REF _object;
+    const ObjectRef _ownerRef;
     const SoundID _soundID;
 };
 
@@ -157,11 +157,16 @@ public:
     void updateLoopingSounds();
 
     /**
-     *  @author ZF
-     *  @details stops looping of a specific sound for all characters.
-     *           If soundID is INVALID_SOUND_ID, then all sounds belonging to this character is stopped
-     **/
-    bool stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soundID = INVALID_SOUND_ID);
+     * @brief
+	 *  Stop looping of sounds of an specified owner.
+	 * @param ownerRef
+	 *  the owner
+	 * @param soundID
+	 *  the sound ID of the sound to stop. If INVALID_SOUND_ID is passed, then all sounds of the owner are stopped
+	 * @return
+	 *  the number of sounds stopped by the call to this method
+     */
+    size_t stopObjectLoopingSounds(ObjectRef ownerRef, const SoundID soundID = INVALID_SOUND_ID);
 
     /**
      * @todo
@@ -177,15 +182,27 @@ public:
     void freeAllMusic();
     void freeAllSounds();
 
-    /// @author ZF
-    /// @details This function plays a specified sound and returns which channel it's using
-    int playSound(const Vector3f& snd_pos, const SoundID soundID);
+	/**
+	 * @brief
+	 *  Play a sound at the given position.
+	 * @param position
+	 *  the position
+	 * @param soundID
+	 *  the sound ID
+	 * @return
+	 *  the channel the sound is played over
+	 */
+    int playSound(const Vector3f& position, const SoundID soundID);
 
     /**
      * @brief
-     *  Loops the specified sound until it is explicitly stopped.
+     *  Loop the specified sound until it is explicitly stopped.
+	 * @param soundID
+	 *  the sound ID
+	 * @param ownerRef
+	 *  the reference of the object the sound is owned by
      */
-    void playSoundLooped(const SoundID soundID, const CHR_REF owner);
+    void playSoundLooped(const SoundID soundID, ObjectRef ownerRef);
 
     /// @author ZF
     /// @details This function plays a specified sound at full possible volume and returns which channel it's using

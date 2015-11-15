@@ -1238,13 +1238,8 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
             case VARSWINGTURN:
                 varname = "SWINGTURN";
                 {
-					std::shared_ptr<Camera> camera = CameraSystem::get()->getCameraByChrID(aiState.index);
-
-                    iTmp = 0;
-                    if ( camera )
-                    {
-                        iTmp = camera->getSwing() << 2;
-                    }
+					auto camera = CameraSystem::get()->getCamera(ObjectRef(aiState.index));
+                    iTmp = nullptr != camera ? camera->getSwing() << 2 : 0;
                 }
                 break;
 

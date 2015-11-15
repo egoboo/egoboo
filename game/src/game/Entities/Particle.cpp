@@ -600,11 +600,11 @@ void Particle::updateAttachedDamage()
     const std::shared_ptr<Object> &attachedObject = getAttachedObject();
 
     // find out who is holding the owner of this object
-    CHR_REF iholder = chr_get_lowest_attachment(attachedObject->getObjRef().get(), true);
-    if (INVALID_CHR_REF == iholder) iholder = attachedObject->getObjRef().get();
+    ObjectRef iholder = chr_get_lowest_attachment(attachedObject->getObjRef(), true);
+    if (ObjectRef::Invalid == iholder) iholder = attachedObject->getObjRef();
 
     // do nothing if you are attached to your owner
-    if ((INVALID_CHR_REF != owner_ref) && (iholder == owner_ref || attachedObject->getObjRef().get() == owner_ref)) return;
+    if ((INVALID_CHR_REF != owner_ref) && (iholder.get() == owner_ref || attachedObject->getObjRef().get() == owner_ref)) return;
 
     //---- only do damage in certain cases:
 

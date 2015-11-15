@@ -124,8 +124,8 @@ struct PhysicsData
     phys_data_t phys;          ///< The entity's physics data.
 
     float targetplatform_level;    ///< What is the height of the target platform?
-    CHR_REF targetplatform_ref;    ///< Am I trying to attach to a platform?
-    CHR_REF onwhichplatform_ref;   ///< Is the particle on a platform?
+    ObjectRef targetplatform_ref;  ///< Am I trying to attach to a platform?
+    ObjectRef onwhichplatform_ref; ///< Is the particle on a platform?
     Uint32 onwhichplatform_update; ///< When was the last platform attachment made?
 
     /**
@@ -143,8 +143,8 @@ struct PhysicsData
     PhysicsData() :
         phys(),
         targetplatform_level(0.0f),
-        targetplatform_ref(INVALID_CHR_REF),
-        onwhichplatform_ref(INVALID_CHR_REF),
+        targetplatform_ref(),
+        onwhichplatform_ref(),
         onwhichplatform_update(0),
         vel_old(), 
         vel()
@@ -156,8 +156,8 @@ struct PhysicsData
         self->phys = phys_data_t();
 
         self->targetplatform_level = 0.0f;
-        self->targetplatform_ref = INVALID_CHR_REF;
-        self->onwhichplatform_ref = INVALID_CHR_REF;
+        self->targetplatform_ref = ObjectRef::Invalid;
+        self->onwhichplatform_ref = ObjectRef::Invalid;
         self->onwhichplatform_update = 0;
 
         self->vel = Vector3f::zero();

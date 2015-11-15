@@ -159,17 +159,14 @@ egolib_rv CameraSystem::renderAll(std::function<void(std::shared_ptr<Camera>, st
     return rv_success;
 }
 
-size_t CameraSystem::getCameraIndexByID(const CHR_REF target) const
-{
-    if (target == INVALID_CHR_REF)  {
+size_t CameraSystem::getCameraIndex(ObjectRef targetRef) const {
+    if (ObjectRef::Invalid == targetRef) {
         return 0;
     }
 
-    for(size_t i = 0; i < _cameraList.size(); ++i)
-    {
-        for(CHR_REF id : _cameraList[i]->getTrackList())
-        {
-            if(id == target) {
+    for(size_t i = 0; i < _cameraList.size(); ++i) {
+        for (ObjectRef objectRef : _cameraList[i]->getTrackList()) {
+            if(objectRef == targetRef) {
                 return i;
             }
         }
@@ -178,17 +175,15 @@ size_t CameraSystem::getCameraIndexByID(const CHR_REF target) const
     return 0;
 }
 
-std::shared_ptr<Camera> CameraSystem::getCameraByChrID(const CHR_REF target) const
+std::shared_ptr<Camera> CameraSystem::getCamera(ObjectRef targetRef) const
 {
-    if (target == INVALID_CHR_REF)  {
+    if (ObjectRef::Invalid == targetRef)  {
     	return _mainCamera;
     }
 
-    for(const std::shared_ptr<Camera> &camera : _cameraList) 
-    {
-    	for(CHR_REF id : camera->getTrackList())
-    	{
-    		if(id == target) {
+    for(const std::shared_ptr<Camera> &camera : _cameraList) {
+    	for(ObjectRef objectRef : camera->getTrackList()) {
+    		if(objectRef == targetRef) {
     			return camera;
     		}
     	}
@@ -332,7 +327,7 @@ void CameraSystem::autoSetTargets()
         }
 
         // store the target
-        _cameraList[cameraIndex]->addTrackTarget(ppla->index);
+        _cameraList[cameraIndex]->addTrackTarget(ObjectRef(ppla->index));
         cameraIndex++;
     }
 }

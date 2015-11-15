@@ -29,6 +29,11 @@ class ego_mesh_t;
 
 static constexpr size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
 
+/**
+ * @brief
+ *  A multi-camera system consisting of 1 to @a n cameras with indices @a 0 to <tt>n-1</tt>.
+ *  The camera at index @a 0 is called the "main camera".
+ */
 class CameraSystem
 {
 public:	
@@ -47,9 +52,27 @@ public:
 
 	egolib_rv renderAll(std::function<void(std::shared_ptr<Camera>, std::shared_ptr<Ego::Graphics::TileList>, std::shared_ptr<Ego::Graphics::EntityList>)> renderFunction);
 
-	std::shared_ptr<Camera> getCameraByChrID(const CHR_REF target) const;
+	/**
+	 * @brief
+	 *  Get the first camera tracking a target.
+	 * @param targetRef
+	 *  the target reference
+	 * @return
+	 *  the first camera tracking the target.
+	 *  If no camera is tracking the target or the target reference is invalid, the main camera is returned.
+	 */
+	std::shared_ptr<Camera> getCamera(ObjectRef targetRef) const;
 
-	size_t getCameraIndexByID(const CHR_REF target) const;
+	/**
+	 * @brief
+	 *  Get the first camera tracking a target.
+	 * @param targetRef
+	 *  the target reference
+	 * @return
+	 *  the first camera tracking the target.
+	 *  If no camera is tracking the target or the target reference is invalid, the index of the main camera is returned.
+	 */
+	size_t getCameraIndex(ObjectRef targetRef) const;
 
 	inline const std::vector<std::shared_ptr<Camera>>& getCameraList() const {return _cameraList;}
 

@@ -250,6 +250,9 @@ public:
 
 	static chr_instance_t *dtor(chr_instance_t& self);
 
+	/// This function sets a object's lighting.
+	static void flash(chr_instance_t& self, uint8_t value);
+
 	static gfx_rv increment_action(chr_instance_t& self);
 	static gfx_rv play_action(chr_instance_t& self, int action, bool actionready);
 	static void set_action_keep(chr_instance_t& self, bool val);
@@ -298,20 +301,22 @@ private:
 	static void interpolate_vertices_raw(GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
 };
 
-void chr_instance_flash(chr_instance_t& self, Uint8 value);
-
-
-
-
-
-
-
 
 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( Camera& cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
-gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr );
-gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr );
-gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr );
+struct MadRenderer {
+	static gfx_rv render(Camera& cam, ObjectRef ichr, GLXvector4f tint, const BIT_FIELD bits);
+	/// @brief Draw object reflected in the floor.
+	static gfx_rv render_ref(Camera& cam, ObjectRef ichr);
+	/// @brief Dispatch rendering of transparent objects to the correct function.
+	/// @remark Does not handle reflections in the floor.
+	static gfx_rv render_trans(Camera& cam, ObjectRef ichr);
+	static gfx_rv render_solid(Camera& cam, ObjectRef ichr);
+private:
+	/// Draw model with environment mapping.
+	static gfx_rv render_enviro(Camera& cam, ObjectRef ichr, GLXvector4f tint, const BIT_FIELD bits);
+	/// Draw model with texturing.
+	static gfx_rv render_tex(Camera& cam, ObjectRef ichr, GLXvector4f tint, const BIT_FIELD bits);
+};

@@ -155,13 +155,13 @@ Object::Object(const PRO_REF proRef, const ObjectRef& objRef) :
     _lastEnchantSpawned()
 {
     // Grip info
-    holdingwhich.fill(INVALID_CHR_REF);
+    holdingwhich.fill(ObjectRef::Invalid);
 
     //Clear initial base attributes
     _baseAttribute.fill(0.0f);
 
     // pack/inventory info
-    equipment.fill(INVALID_CHR_REF);
+    equipment.fill(ObjectRef::Invalid);
 
     // Set up position
     ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
@@ -612,12 +612,12 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     // Don't alert the character too much if under constant fire
     if (0 != careful_timer) return;
 
-    CHR_REF actual_attacker = INVALID_CHR_REF;
+    ObjectRef actual_attacker = ObjectRef::Invalid;
 
     // Figure out who is the real attacker, in case we are a held item or a controlled mount
     if(attacker)
     {
-        actual_attacker = attacker->getObjRef().get();
+        actual_attacker = attacker->getObjRef();
 
         //Dont alert if the attacker/healer was on the null team
         if(attacker->getTeam() == Team::TEAM_NULL) {
@@ -630,7 +630,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         //If we are held, the holder is the real attacker... unless the holder is a mount
         if ( attacker->isBeingHeld() && !_currentModule->getObjectHandler().get(attacker->attachedto)->isMount() )
         {
-            actual_attacker = attacker->attachedto;
+            actual_attacker = ObjectRef(attacker->attachedto);
         }
 
         //If the attacker is a mount, try to blame the rider
@@ -641,7 +641,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     }
 
     //Update alerts and timers
-    ai.attacklast = actual_attacker;
+    ai.attacklast = actual_attacker.get();
     SET_BIT(ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED);
     careful_timer = CAREFULTIME;
 }
@@ -1124,12 +1124,12 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 
     // Rip 'em apart
     attachedto = INVALID_CHR_REF;
-	if (pholder->holdingwhich[SLOT_LEFT] == getObjRef().get()) {
-		pholder->holdingwhich[SLOT_LEFT] = INVALID_CHR_REF;
+	if (pholder->holdingwhich[SLOT_LEFT] == getObjRef()) {
+		pholder->holdingwhich[SLOT_LEFT] = ObjectRef::Invalid;
 	}
 
-	if (pholder->holdingwhich[SLOT_RIGHT] == getObjRef().get()) {
-		pholder->holdingwhich[SLOT_RIGHT] = INVALID_CHR_REF;
+	if (pholder->holdingwhich[SLOT_RIGHT] == getObjRef()) {
+		pholder->holdingwhich[SLOT_RIGHT] = ObjectRef::Invalid;
 	}
 
     if ( isAlive() )
@@ -1682,7 +1682,7 @@ void Object::removeFromGame(Object *obj)
 	}
 
 	// Stop all sound loops for this object
-	AudioSystem::get().stopObjectLoopingSounds(objRef.get());
+	AudioSystem::get().stopObjectLoopingSounds(objRef);
 }
 
 BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)

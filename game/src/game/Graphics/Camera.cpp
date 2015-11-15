@@ -352,22 +352,19 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
     // The camera is (re-)focuses in on a one or more objects.
     case CameraMovementMode::Reset:
         {
-            Vector3f sum_pos;
-            float   sum_wt, sum_level;
+            float sum_wt    = 0.0f;
+            float sum_level = 0.0f;
+            Vector3f sum_pos = Vector3f::zero();
 
-            sum_wt    = 0.0f;
-            sum_level = 0.0f;
-            sum_pos = Vector3f::zero();
-
-            for(CHR_REF ichr : _trackList)
+            for(ObjectRef objectRef : _trackList)
             {
-                if (!_currentModule->getObjectHandler().exists(ichr)) continue;
-                Object *pchr = _currentModule->getObjectHandler().get(ichr);
+                if (!_currentModule->getObjectHandler().exists(objectRef)) continue;
+                Object *object = _currentModule->getObjectHandler().get(objectRef);
 
-                if (!pchr->isAlive()) continue;
+                if (!object->isAlive()) continue;
 
-                sum_pos += pchr->getPosition() + Vector3f(0.0f, 0.0f, pchr->chr_min_cv._maxs[OCT_Z] * 0.9f);
-                sum_level += pchr->enviro.level;
+                sum_pos += object->getPosition() + Vector3f(0.0f, 0.0f, object->chr_min_cv._maxs[OCT_Z] * 0.9f);
+                sum_level += object->enviro.level;
                 sum_wt += 1.0f;
             }
 
@@ -389,14 +386,14 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 
             // Count the number of local players, first.
             local_chr_count = 0;
-            for(CHR_REF ichr : _trackList)
+            for(ObjectRef objectRef : _trackList)
             {
-                if (!_currentModule->getObjectHandler().exists(ichr)) continue;
-                Object *pchr = _currentModule->getObjectHandler().get(ichr);
+                if (!_currentModule->getObjectHandler().exists(objectRef)) continue;
+                Object *object = _currentModule->getObjectHandler().get(objectRef);
 
-                if (!pchr->isAlive()) continue;
+                if (!object->isAlive()) continue;
 
-                local_chr_ptrs[local_chr_count] = pchr;
+                local_chr_ptrs[local_chr_count] = object;
                 local_chr_count++;
             }
 
@@ -469,27 +466,6 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
         _trackLevel = 0.9f * _trackLevel + 0.1f * new_track_level; /// @todo Use Ego::Math::lerp.
     }
 }
-
-/*
-std::forward_list<CHR_REF> Camera::createTrackList()
-{
-    std::forward_list<CHR_REF> trackList;
-
-    // Scan the list of player objects for objects the camera can track.
-    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ++ipla)
-    {
-        // Add any valid player object.
-        player_t *ppla = PlaStack_get_ptr(ipla);
-        if (!ppla->valid || !_currentModule->getObjectHandler().exists(ppla->index))
-        {
-            continue;
-        }
-        trackList.push_front(ppla->index);
-    }
-
-    return trackList;
-}
-*/
 
 void Camera::update(const ego_mesh_t *mesh)
 {
@@ -804,7 +780,7 @@ void Camera::initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::
     _entityList = entityList;
 }
 
-void Camera::addTrackTarget(const CHR_REF target)
+void Camera::addTrackTarget(ObjectRef targetRef)
 {
-    _trackList.push_front(target);
+    _trackList.push_front(targetRef);
 }

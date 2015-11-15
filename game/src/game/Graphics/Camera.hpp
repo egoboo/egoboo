@@ -222,7 +222,7 @@ public:
     inline std::shared_ptr<Ego::Graphics::TileList> getTileList() const {return _tileList;}
     inline std::shared_ptr<Ego::Graphics::EntityList> getEntityList() const {return _entityList;}
 
-    inline const std::forward_list<CHR_REF>& getTrackList() const {return _trackList;}
+    inline const std::forward_list<ObjectRef>& getTrackList() const { return _trackList; }
 
     inline const ego_frect_t& getScreen() const { return _screen; }
     
@@ -237,10 +237,10 @@ public:
     /**
      * @brief
      *  Makes this camera track the specified target.
-     * @param object
-     *  the object
+     * @param targetRef
+     *  the target
      */
-    void addTrackTarget(const CHR_REF object);
+    void addTrackTarget(ObjectRef targetRef);
 
     /// @details This function moves the camera
     void update(const ego_mesh_t *mesh);
@@ -379,8 +379,8 @@ private:
     float _roll;
 
     // Extended camera data.
-    std::forward_list<CHR_REF> _trackList;  ///< List of objects this camera is tracking.
-    ego_frect_t                _screen;
+    std::forward_list<ObjectRef> _trackList;  ///< List of objects this camera is tracking.
+    ego_frect_t                  _screen;
 
     int _lastFrame;         ///< Number of last update frame.
     std::shared_ptr<Ego::Graphics::TileList> _tileList;     ///< A pointer to a tile list or a null pointer.
