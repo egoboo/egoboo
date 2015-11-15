@@ -30,7 +30,7 @@
 #include <shlwapi.h>
 
 #include "egolib/file_common.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/strutil.h"
 #include "egolib/platform.h"
 

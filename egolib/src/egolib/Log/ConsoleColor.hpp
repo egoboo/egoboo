@@ -17,39 +17,28 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/map_file-v2.c
-/// @brief Functions for raw read and write access to the .mpd file type
-/// @details
+#pragma once
 
-#include "egolib/FileFormats/map_file-v2.h"
+#include "egolib/platform.h"
 
-#include "egolib/Log/_Include.hpp"
-#include "egolib/strutil.h"
+namespace Log {
 
-bool map_read_v2(vfs_FILE& file, map_t& map)
-{
-    // Alias.
-    auto& mem = map._mem;
+/**
+ * @brief
+ *  An enumeration of colored console output supported on most platforms.
+ */
+enum class ConsoleColor {
+	Red,
+	Yellow,
+	White,
+	Gray,
+	Default,
+};
 
-    // Load twist data.
-    for (auto& tile : mem.tiles)
-    {
-        vfs_read_Uint8(file, &tile.twist);
-    }
+/**
+ * @brief 
+ *  Set the color of console output..
+ */
+void setConsoleColor(ConsoleColor color);
 
-    return true;
-}
-
-bool map_write_v2(vfs_FILE& file, const map_t& map)
-{
-    // Alias.
-    const auto& mem = map._mem;
-
-    // Write twist data.
-    for (const auto& tile : mem.tiles)
-    {
-        vfs_write<Uint8>(file, tile.twist);
-    }
-
-    return true;
-}
+} // namespace Log

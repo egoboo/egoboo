@@ -24,7 +24,7 @@
 #pragma once
 
 #include "egolib/Math/VectorSpace.hpp"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/Float.hpp"
 #include "egolib/Debug.hpp"
 #include "egolib/Math/Math.hpp"

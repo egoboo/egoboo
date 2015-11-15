@@ -1,5 +1,5 @@
 #include "egolib/Math/Standard.hpp"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/_math.h"
 
 

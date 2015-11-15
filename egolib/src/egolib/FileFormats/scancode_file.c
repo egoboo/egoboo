@@ -25,13 +25,12 @@
 
 #include "egolib/Core/StringUtilities.hpp"
 
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/input_device.h"
 
 #include "egolib/vfs.h"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
-#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

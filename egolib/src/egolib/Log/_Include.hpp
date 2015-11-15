@@ -17,39 +17,48 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/map_file-v2.c
-/// @brief Functions for raw read and write access to the .mpd file type
-/// @details
+/// @file egolib/Log/_Include.hpp
+/// @details Basic logging system
 
-#include "egolib/FileFormats/map_file-v2.h"
+#pragma once
 
-#include "egolib/Log/_Include.hpp"
-#include "egolib/strutil.h"
+#define EGOLIB_LOG_PRIVATE 1
+#include "egolib/Log/Entry.hpp"
+#include "egolib/Log/Target.hpp"
+#include "egolib/Log/Level.hpp"
 
-bool map_read_v2(vfs_FILE& file, map_t& map)
-{
-    // Alias.
-    auto& mem = map._mem;
+namespace Log {
 
-    // Load twist data.
-    for (auto& tile : mem.tiles)
-    {
-        vfs_read_Uint8(file, &tile.twist);
-    }
+	/**
+	 * @brief
+	 *  Initialize the logging system.
+	 * @param filename
+	 *  the file name
+	 * @param level
+	 *  the level
+	 * @return
+	 *  Returns if the logging system is already initialized.
+	 * @throw std::runtime_error
+	 *  if initialization fails
+	 */
+	void initialize(const std::string& filename, Level level);
 
-    return true;
-}
+	/**
+	 * @brief
+	 *  Uninitialize the logging system
+	 * @remark
+	 *  Returns if the logging system is not initialized.
+	 */
+	void uninitialize();
 
-bool map_write_v2(vfs_FILE& file, const map_t& map)
-{
-    // Alias.
-    const auto& mem = map._mem;
+	/**
+	 * @brief
+	 *  Get the default target.
+	 * @return
+	 *  the default target
+	 * @throw std::logic_error
+	 *  if the logging system is not initialized
+	 */
+	Target& get();
 
-    // Write twist data.
-    for (const auto& tile : mem.tiles)
-    {
-        vfs_write<Uint8>(file, tile.twist);
-    }
-
-    return true;
-}
+} // namespace Log

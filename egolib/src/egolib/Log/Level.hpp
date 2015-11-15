@@ -17,39 +17,21 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/map_file-v2.c
-/// @brief Functions for raw read and write access to the .mpd file type
-/// @details
+#pragma once
 
-#include "egolib/FileFormats/map_file-v2.h"
+#include "egolib/platform.h"
 
-#include "egolib/Log/_Include.hpp"
-#include "egolib/strutil.h"
+namespace Log {
+	/**
+	* @brief
+	*  An enumeration of log levels.
+	*/
+	enum class Level : uint8_t {
+		Message,    ///< No log level, always printed directly to output.
+		Error,      ///< Fatal unrecoverable error (also terminates program).
+		Warning,    ///< Warning, something went wrong but nothing critical.
+		Info,       ///< Information logging, default level.
+		Debug,      ///< Verbose debug logging, useful for developers and debugging.
+	};
 
-bool map_read_v2(vfs_FILE& file, map_t& map)
-{
-    // Alias.
-    auto& mem = map._mem;
-
-    // Load twist data.
-    for (auto& tile : mem.tiles)
-    {
-        vfs_read_Uint8(file, &tile.twist);
-    }
-
-    return true;
-}
-
-bool map_write_v2(vfs_FILE& file, const map_t& map)
-{
-    // Alias.
-    const auto& mem = map._mem;
-
-    // Write twist data.
-    for (const auto& tile : mem.tiles)
-    {
-        vfs_write<Uint8>(file, tile.twist);
-    }
-
-    return true;
-}
+} // namespace Log

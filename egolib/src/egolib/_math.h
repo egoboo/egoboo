@@ -24,8 +24,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/Math/_Include.hpp"
-#include "egolib/platform.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 #include "egolib/Extensions/ogl_include.h"
 #include "egolib/Extensions/ogl_debug.h"

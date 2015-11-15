@@ -27,7 +27,7 @@
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Renderer/Renderer.hpp"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/vfs.h"
 
 //--------------------------------------------------------------------------------------------

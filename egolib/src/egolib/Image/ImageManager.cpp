@@ -20,7 +20,7 @@
 
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/egoboo_setup.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/Image/ImageLoader_SDL.hpp"
 #include "egolib/Image/ImageLoader_SDL_image.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"

@@ -42,7 +42,6 @@
 #include "egolib/_math.h"
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/input_device.h"
-#include "egolib/log.h"
 #include "egolib/map_functions.h"
 #include "egolib/network.h"
 #include "egolib/platform.h"
@@ -69,6 +68,7 @@
 
 #include "egolib/Renderer/Renderer.hpp"
 
+#include "egolib/Log/_Include.hpp"
 #include "egolib/Profiles/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------

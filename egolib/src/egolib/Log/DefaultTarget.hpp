@@ -17,39 +17,27 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/map_file-v2.c
-/// @brief Functions for raw read and write access to the .mpd file type
-/// @details
+/// @file  egolib/Log/DefaultTarget.hpp
+/// @brief Log default target
 
-#include "egolib/FileFormats/map_file-v2.h"
+#pragma once
 
-#include "egolib/Log/_Include.hpp"
-#include "egolib/strutil.h"
+#include "egolib/Log/Target.hpp"
+#include "egolib/vfs.h"
 
-bool map_read_v2(vfs_FILE& file, map_t& map)
-{
-    // Alias.
-    auto& mem = map._mem;
+namespace Log {
 
-    // Load twist data.
-    for (auto& tile : mem.tiles)
-    {
-        vfs_read_Uint8(file, &tile.twist);
-    }
+struct DefaultTarget : Target {
+private:
+	/**
+	* @brief
+	*  The log file.
+	*/
+	vfs_FILE *_file;
+public:
+	DefaultTarget(const std::string& filename, Level level = Level::Warning);
+	virtual ~DefaultTarget();
+	void writev(Level level, const char *format, va_list args) override;
+};
 
-    return true;
-}
-
-bool map_write_v2(vfs_FILE& file, const map_t& map)
-{
-    // Alias.
-    const auto& mem = map._mem;
-
-    // Write twist data.
-    for (const auto& tile : mem.tiles)
-    {
-        vfs_write<Uint8>(file, tile.twist);
-    }
-
-    return true;
-}
+} // namespace Log

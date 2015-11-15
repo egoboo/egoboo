@@ -22,7 +22,7 @@
 
 #include "egolib/FileFormats/quest_file.h"
 
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 #include "egolib/fileutil.h"
 #include "egolib/vfs.h"

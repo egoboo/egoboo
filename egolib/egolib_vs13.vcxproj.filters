@@ -115,6 +115,9 @@
     <Filter Include="Header Files\Log">
       <UniqueIdentifier>{eb675241-8df7-4d8d-bef3-e6dd577e491f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Log">
+      <UniqueIdentifier>{60328b20-1a6d-4465-96f8-7be5cc632f9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -145,9 +148,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\input_device.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\log.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\map_functions.c">
@@ -435,6 +435,24 @@
     <ClCompile Include="src\egolib\Script\Token.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Log\_Include.cpp">
+      <Filter>Source Files\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Log\Entry.cpp">
+      <Filter>Source Files\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Log\Target.cpp">
+      <Filter>Source Files\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Log\DefaultTarget.cpp">
+      <Filter>Source Files\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Log\ConsoleColor.cpp">
+      <Filter>Source Files\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Log\Level.cpp">
+      <Filter>Source Files\Log</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -456,9 +474,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\map_functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\input_device.h">
@@ -930,6 +945,21 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Log\Entry.hpp">
+      <Filter>Header Files\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Log\Target.hpp">
+      <Filter>Header Files\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Log\Level.hpp">
+      <Filter>Header Files\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Log\DefaultTarget.hpp">
+      <Filter>Header Files\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Log\ConsoleColor.hpp">
+      <Filter>Header Files\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Log\_Include.hpp">
       <Filter>Header Files\Log</Filter>
     </ClInclude>
   </ItemGroup>

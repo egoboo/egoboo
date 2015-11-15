@@ -24,7 +24,7 @@
 #include "egolib/FileFormats/wawalite_file.h"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Core/StringUtilities.hpp"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 #include "egolib/_math.h"

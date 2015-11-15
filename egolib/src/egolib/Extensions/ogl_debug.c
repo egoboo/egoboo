@@ -25,7 +25,7 @@
 
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/file_common.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 const char *next_cmd = NULL;
 int next_line = -1;
