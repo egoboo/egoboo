@@ -234,8 +234,8 @@ uint8_t GameModule::getMinPlayers() const
 
 bool GameModule::isInside(const float x, const float y) const
 {
-	const auto& gmem = _currentModule->getMeshPointer()->_gmem;
-    return x >= 0 && x < gmem._edge_x && y >= 0 && y < gmem._edge_y;
+	const auto& tmem = _currentModule->getMeshPointer()->_tmem;
+    return x >= 0 && x < tmem._edge_x && y >= 0 && y < tmem._edge_y;
 }
 
 std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,

@@ -1382,7 +1382,7 @@ float GridIllumination::grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f p
 		if (fan[cnt] == Index1D::Invalid) {
 			cache_list[cnt] = nullptr;
 		} else {
-			cache_list[cnt] = &(mesh.getGridInfo(fan[cnt])._cache);
+			cache_list[cnt] = &(mesh.getTileInfo(fan[cnt])._cache);
 		}
     }
 
@@ -1486,7 +1486,7 @@ bool GridIllumination::grid_lighting_interpolate(const ego_mesh_t& mesh, lightin
 		if (fan[cnt] == Index1D::Invalid) {
 			cache_list[cnt] = nullptr;
 		} else {
-			cache_list[cnt] = &(mesh.getGridInfo(fan[cnt])._cache);
+			cache_list[cnt] = &(mesh.getTileInfo(fan[cnt])._cache);
 		}
     }
 
@@ -1570,7 +1570,7 @@ void GridIllumination::light_one_corner(ego_mesh_t& mesh, ego_tile_info_t& tile,
 
 bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float height, float nrm[], float& plight)
 {
-	ego_grid_info_t& pgrid = mesh.getGridInfo(fan);
+	ego_tile_info_t& ptile = mesh.getTileInfo(fan);
 
 	static const bool IGNORE_CACHING = false;
 
@@ -1578,16 +1578,16 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 	{
 		// <ignore caching for now>
 		// max update speed is once per game frame
-		if (pgrid._cache_frame >= 0 && (uint32_t)pgrid._cache_frame >= game_frame_all)
+		if (ptile._cache_frame >= 0 && (uint32_t)ptile._cache_frame >= game_frame_all)
 		{
 			// not updated
 			return false;
 		}
 	}
 	// get the grid lighting
-	const lighting_cache_t& lighting = pgrid._cache;
+	const lighting_cache_t& lighting = ptile._cache;
 
-	bool reflective = (0 != pgrid.testFX(MAPFX_REFLECTIVE));
+	bool reflective = (0 != ptile.testFX(MAPFX_REFLECTIVE));
 
 	// evaluate the grid lighting at this node
 	if (reflective)
@@ -1611,7 +1611,7 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 		// <ignore caching for now>
 		// update the cache frame
 		// figure out the correct way to cache *plight
-		pgrid._cache_frame = game_frame_all;
+		ptile._cache_frame = game_frame_all;
 	}
 
 	return true;
@@ -1732,7 +1732,7 @@ gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_
     {
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
     }
-	grid_mem_t& pgmem = mesh->_gmem;
+	tile_mem_t& tmem = mesh->_tmem;
 
 #if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
 
@@ -1743,8 +1743,8 @@ gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_
     if (!retval)
     {
         // use a kind of checkerboard pattern
-        int ix = tileIndex.getI() % pgmem._grids_x;
-        int iy = tileIndex.getI() / pgmem._grids_x;
+        int ix = tileIndex.getI() % tmem.getInfo().getTileCountX();
+        int iy = tileIndex.getI() / tmem.getInfo().getTileCountX();
         if (0 != (((ix ^ iy) + game_frame_all) & 0x03))
         {
             retval = true;
@@ -1832,8 +1832,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 		}
 
         // is the tile reflective?
-		ego_grid_info_t& pgrid = mesh->getGridInfo(fan);
-        bool reflective = (0 != pgrid.testFX(MAPFX_REFLECTIVE));
+        bool reflective = (0 != ptile.testFX(MAPFX_REFLECTIVE));
 
         // light the corners of this tile
         float delta = GridIllumination::light_corners(*mesh, ptile, reflective, local_mesh_lighting_keep);
@@ -2123,20 +2122,19 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     }
 
 	Ego::MeshInfo& pinfo = mesh->_info;
-	grid_mem_t& pgmem = mesh->_gmem;
-	tile_mem_t& ptmem = mesh->_tmem;
+	tile_mem_t& tmem = mesh->_tmem;
 
     // find a bounding box for the "frustum"
-    mesh_bound.xmin = pgmem._edge_x;
+    mesh_bound.xmin = tmem._edge_x;
     mesh_bound.xmax = 0;
-    mesh_bound.ymin = pgmem._edge_y;
+    mesh_bound.ymin = tmem._edge_y;
     mesh_bound.ymax = 0;
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
         Index1D fan = tl._all.lst[entry]._index;
         if (fan.getI() >= pinfo.getTileCount()) continue;
 
-		const oct_bb_t& poct = ptmem.get(fan)._oct;
+		const oct_bb_t& poct = tmem.get(fan)._oct;
 
         mesh_bound.xmin = std::min(mesh_bound.xmin, poct._mins[OCT_X]);
         mesh_bound.xmax = std::max(mesh_bound.xmax, poct._maxs[OCT_X]);
@@ -2161,9 +2159,9 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     dynalight_data_t::init(fake_dynalight);
 
     // initialize the light_bound
-    light_bound.xmin = pgmem._edge_x;
+    light_bound.xmin = tmem._edge_x;
     light_bound.xmax = 0;
-    light_bound.ymin = pgmem._edge_y;
+    light_bound.ymin = tmem._edge_y;
     light_bound.ymax = 0;
 
     // make bounding boxes for each dynamic light
@@ -2278,10 +2276,10 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         Index1D fan = tl._all.lst[entry]._index;
 
         // a valid tile?
-        ego_grid_info_t& pgrid = mesh->getGridInfo(fan);
+        ego_tile_info_t& ptile = mesh->getTileInfo(fan);
 
         // do not update this more than once a frame
-        if (pgrid._cache_frame >= 0 && (uint32_t)pgrid._cache_frame >= game_frame_all) continue;
+        if (ptile._cache_frame >= 0 && (uint32_t)ptile._cache_frame >= game_frame_all) continue;
 
         ix = fan.getI() % pinfo.getTileCountX();
         iy = fan.getI() / pinfo.getTileCountX();
@@ -2294,7 +2292,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         if (resist_lighting_calculation) continue;
 
         // this is not a "bad" grid box, so grab the lighting info
-        lighting_cache_t& pcache_old = pgrid._cache;
+        lighting_cache_t& pcache_old = ptile._cache;
 
         lighting_cache_t cache_new;
         lighting_cache_t::init(cache_new);
@@ -2352,10 +2350,10 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
 
                         nrm[kX] = pdyna->pos[kX] - x0;
                         nrm[kY] = pdyna->pos[kY] - y0;
-                        nrm[kZ] = pdyna->pos[kZ] - ptmem._bbox.getMin()[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - tmem._bbox.getMin()[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.low._lighting, nrm);
 
-                        nrm[kZ] = pdyna->pos[kZ] - ptmem._bbox.getMax()[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - tmem._bbox.getMax()[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.hgh._lighting, nrm);
                     }
                 }
@@ -2373,7 +2371,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         // find the max intensity
         lighting_cache_t::max_light(pcache_old);
 
-        pgrid._cache_frame = game_frame_all;
+        ptile._cache_frame = game_frame_all;
     }
 
     return gfx_success;

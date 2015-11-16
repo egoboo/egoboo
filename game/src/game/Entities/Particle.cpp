@@ -939,8 +939,8 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     tmp_pos[kY] += offset[kY];
 
     //Particles can only spawn inside the map bounds
-    tmp_pos[kX] = Ego::Math::constrain(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_x - 2.0f);
-    tmp_pos[kY] = Ego::Math::constrain(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->_gmem._edge_y - 2.0f);
+    tmp_pos[kX] = Ego::Math::constrain(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->_tmem._edge_x - 2.0f);
+    tmp_pos[kY] = Ego::Math::constrain(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->_tmem._edge_y - 2.0f);
 
     setPosition(tmp_pos);
     setSpawnPosition(tmp_pos);

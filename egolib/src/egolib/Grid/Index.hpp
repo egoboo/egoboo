@@ -180,7 +180,8 @@ const Index<_Type, _CoordinateSystem> Index<_Type, _CoordinateSystem,
 } // namespace Grid
 
 namespace Grid {
-Index<int, CoordinateSystem::List> toList(Index<int, CoordinateSystem::Grid> source, int width) {
+template <typename _Type>
+Index<_Type, CoordinateSystem::List> toList(Index<_Type, CoordinateSystem::Grid> source, _Type width) {
 	// Assume a grid of 3 x 3 elements as displayed below:
 	// 0  1  2
 	// 3  4  5
@@ -188,12 +189,13 @@ Index<int, CoordinateSystem::List> toList(Index<int, CoordinateSystem::Grid> sou
 	// 9 10 11
 	// The grid index row y = 3 and the column x = 1 should map to list index i = 10.
 	// Using the formula we obtain i = 3 * 3 + 1 = 10 as desired.
-	return Index<int, CoordinateSystem::List>(source.getX() + source.getY() * width);
+	return Index<_Type, CoordinateSystem::List>(source.getX() + source.getY() * width);
 }
 } // namespace Grid
 
 namespace Grid {
-Index<int, CoordinateSystem::Grid> toGrid(Index<int, CoordinateSystem::List> source, int width) {
+template <typename _Type>
+Index<_Type, CoordinateSystem::Grid> toGrid(Index<_Type, CoordinateSystem::List> source, _Type width) {
 	// Assume a grid of 3 x 3 elements as displayed below:
 	// 0  1  2
 	// 3  4  5
@@ -201,6 +203,6 @@ Index<int, CoordinateSystem::Grid> toGrid(Index<int, CoordinateSystem::List> sou
 	// 9 10 11
 	// The index i = 10 should map to row y = 3 and to column x = 1.
 	// Using the formula we obtain x = 10 % 3 = 1 and y = 10 / 3 = 3 as desired.
-	return Index<int, CoordinateSystem::Grid>(source.getI() % width, source.getI() / width);
+	return Index<_Type, CoordinateSystem::Grid>(source.getI() % width, source.getI() / width);
 }
 } // namespace Grid

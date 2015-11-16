@@ -7332,7 +7332,7 @@ Uint8 scr_PitsFall( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->_gmem._edge_x - EDGE && state.y < _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
+    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->_tmem._edge_x - EDGE && state.y < _currentModule->getMeshPointer()->_tmem._edge_y - EDGE )
     {
         g_pits.teleport = true;
         g_pits.teleport_pos[kX] = state.x;

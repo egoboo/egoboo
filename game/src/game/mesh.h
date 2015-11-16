@@ -62,7 +62,7 @@ typedef Grid::Index<int, Grid::CoordinateSystem::List> Index1D;
 typedef Grid::Rect<int, Grid::CoordinateSystem::Grid> IndexRect;
 
 //--------------------------------------------------------------------------------------------
-
+typedef BIT_FIELD GRID_FX_BITS;
 /// The data describing an Egoboo tile
 class ego_tile_info_t
 {
@@ -70,6 +70,7 @@ public:
     static const std::shared_ptr<ego_tile_info_t> NULL_TILE;
 
     ego_tile_info_t();
+	~ego_tile_info_t() { lighting_cache_t::init(_cache); }
 
     const AABB2f& getAABB2D() const { return _aabb; }
 
@@ -192,130 +193,76 @@ public:
 	bool isFanOff() const {
 		return MAP_FANOFF == _img;
 	}
-};
 
-inline bool TILE_HAS_INVALID_IMAGE(const ego_tile_info_t& tileInfo) {
-	return HAS_SOME_BITS(TILE_UPPER_MASK, tileInfo._img);
-}
-
-
-//--------------------------------------------------------------------------------------------
-
-typedef BIT_FIELD GRID_FX_BITS;
-
-/// The data describing an Egoboo grid
-struct ego_grid_info_t
-{
-    // MODIFY THESE FLAGS
+	// MODIFY THESE FLAGS
 	/**
-	 * @brief
-	 *  The special effect flags in the MPD.
-	 * @warning
-	 *  Do not modify.
-	 */
-    GRID_FX_BITS _base_fx;
+	* @brief
+	*  The special effect flags in the MPD.
+	* @warning
+	*  Do not modify.
+	*/
+	GRID_FX_BITS _base_fx;
 	/**
-	 * @brief
-	 *  The orientation of the file in the MPD.
-	 * @warning
-	 *  Do not modify.
-	 */
+	* @brief
+	*  The orientation of the file in the MPD.
+	* @warning
+	*  Do not modify.
+	*/
 	uint8_t _twist;
 
 	// 
 	GRID_FX_BITS    _pass_fx;                   ///< the working copy of base_fx, which might be modified by passages
 
 
-    // the lighting info in the upper left hand corner of a grid
-    Uint8            _a, _l;                   ///< the raw mesh lighting... pretty much ignored
-    lighting_cache_t _cache;                   ///< the per-grid lighting info
-    int              _cache_frame;             ///< the last frame in which the cache was calculated
+												// the lighting info in the upper left hand corner of a grid
+	Uint8            _a, _l;                   ///< the raw mesh lighting... pretty much ignored
+	lighting_cache_t _cache;                   ///< the per-grid lighting info
+	int              _cache_frame;             ///< the last frame in which the cache was calculated
 
-	ego_grid_info_t();
-	~ego_grid_info_t();
-    GRID_FX_BITS testFX(const GRID_FX_BITS bits) const;
-public:
+	GRID_FX_BITS testFX(const GRID_FX_BITS bits) const;
 	/**
-	 * @brief
-	 *  Get the FX of this grid point.
-	 * @return
-	 *  the FX of this grid point
-	 */
+	* @brief
+	*  Get the FX of this grid point.
+	* @return
+	*  the FX of this grid point
+	*/
 	GRID_FX_BITS getFX() const;
 	/**
-	 * @brief
-	 *  Set the FX of this grid point.
-	 * @param fx
-	 *  the FX
-	 * @return
-	 *  @a true if the FX of this grid point changed,
-	 *  @a false otherwise
-	 */
+	* @brief
+	*  Set the FX of this grid point.
+	* @param fx
+	*  the FX
+	* @return
+	*  @a true if the FX of this grid point changed,
+	*  @a false otherwise
+	*/
 	bool setFX(const GRID_FX_BITS bits);
 public:
 	/**
-	 * @brief
-	 *  Add FX to this grid point.
-	 * @param fx
-	 *  the FX
-	 * @return
-	 *  @a true if the FX of this grid point changed,
-	 *  @a false otherwise
-	 */
+	* @brief
+	*  Add FX to this grid point.
+	* @param fx
+	*  the FX
+	* @return
+	*  @a true if the FX of this grid point changed,
+	*  @a false otherwise
+	*/
 	bool addFX(const GRID_FX_BITS bits);
 	/**
-	 * @brief
-	 *  Remove FX from this grid point.
-	 * @param fx
-	 *  the FX
-	 * @return
-	 *  @a true if the FX of this grid point changed,
-	 *  @a false otherwise
-	 */
+	* @brief
+	*  Remove FX from this grid point.
+	* @param fx
+	*  the FX
+	* @return
+	*  @a true if the FX of this grid point changed,
+	*  @a false otherwise
+	*/
 	bool removeFX(const GRID_FX_BITS bits);
-
 };
 
-//--------------------------------------------------------------------------------------------
-
-struct grid_mem_t
-{
-    int _grids_x;         ///< Size in grids
-    int _grids_y;
-    size_t _grid_count;   ///< How many grids.
-
-    float _edge_x; ///< Limits.
-    float _edge_y;
-
-    Uint32 *_tilestart;  ///< List of tiles  that start each row.
-
-protected:
-    // the per-grid info
-    ego_grid_info_t* _grid_list;                       ///< tile command info
-public:
-	grid_mem_t(const Ego::MeshInfo& info);
-    ~grid_mem_t();
-
-	ego_grid_info_t& get(const Index1D& index) {
-		if (Index1D::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
-		}
-		if (index.getI() >= _grid_count) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _grid_list[index.getI()];
-	}
-
-    const ego_grid_info_t& get(const Index1D& index) const {
-        if (Index1D::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
-        }
-        if (index.getI() >= _grid_count) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-        }
-        return _grid_list[index.getI()];
-    }
-};
+inline bool TILE_HAS_INVALID_IMAGE(const ego_tile_info_t& tileInfo) {
+	return HAS_SOME_BITS(TILE_UPPER_MASK, tileInfo._img);
+}
 
 //--------------------------------------------------------------------------------------------
 
@@ -324,11 +271,10 @@ struct tile_mem_t
 {
 private:
 	std::vector<ego_tile_info_t> _tileList;   ///< tile command info
-	size_t _vertexCount;
-	size_t _tileCountX;
-	size_t _tileCountY;
-	size_t _tileCount;
+	Ego::MeshInfo _info;
 public:
+	float _edge_x; ///< Limits.
+	float _edge_y;
     AABB3f _bbox;                 ///< bounding box for the entire mesh
 
 	std::unique_ptr<GLXvector3f[]> _plst;                 ///< the position list
@@ -350,7 +296,7 @@ public:
 		if (Index1D::Invalid == index) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invaliid index");
 		}
-		if (index >= _tileCount) {
+		if (index >= _info.getTileCount()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
 		return _tileList[index.getI()];
@@ -360,7 +306,7 @@ public:
         if (Index1D::Invalid == index) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
         }
-		if (index >= _tileCount) {
+		if (index >= _info.getTileCount()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
 		return _tileList[index.getI()];
@@ -368,31 +314,29 @@ public:
 
 public:
 	ego_tile_info_t& get(const Index2D& i) {
-		if (i.getY() >= _tileCountY) {
+		if (i.getY() >= _info.getTileCountY()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		if (i.getX() >= _tileCountX) {
+		if (i.getX() >= _info.getTileCountX()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		return _tileList[i.getY() * _tileCountX + i.getX()];
+		return _tileList[i.getY() * _info.getTileCountX() + i.getX()];
 	}
 	const ego_tile_info_t& get(const Index2D& index) const {
-		if (index.getY() >= _tileCountY) {
+		if (index.getY() >= _info.getTileCountY()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		if (index.getX() >= _tileCountX) {
+		if (index.getX() >= _info.getTileCountX()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		return _tileList[index.getY() * _tileCountX + index.getX()];
+		return _tileList[index.getY() * _info.getTileCountX() + index.getX()];
 	}
 
 public:
-	size_t getTileCountX() const { return _tileCountX; }
-	size_t getTileCountY() const { return _tileCountY; }
-    size_t getTileCount() const { return _tileCount;}
-	size_t getVertexCount() const { return _vertexCount; }
+	const Ego::MeshInfo& getInfo() const {
+		return _info;
+	}
 
-public:
     std::vector<ego_tile_info_t>& getAllTiles() { return _tileList; }
 
 };
@@ -434,7 +378,7 @@ struct mpdfx_lists_t
 	~mpdfx_lists_t();
     void reset();
     int push(GRID_FX_BITS fx_bits, size_t value);
-    bool synch(const grid_mem_t& other, bool force);
+    bool synch(const tile_mem_t& other, bool force);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -479,7 +423,6 @@ public:
 
     Ego::MeshInfo _info;
     tile_mem_t _tmem;
-    grid_mem_t _gmem;
     mpdfx_lists_t _fxlists;
 
     Vector3f get_diff(const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits);
@@ -516,20 +459,6 @@ public:
      */
 	ego_tile_info_t& getTileInfo(const Index1D& i);
 	const ego_tile_info_t& getTileInfo(const Index1D& i) const;
-
-    /**
-     * @brief
-     *  Get the grid information for at a tile index in a mesh.
-     * @param self
-     *  the mesh
-     * @param index
-     *  the tile index
-     * @return
-     *  a pointer to the grid information of the tile at the index in this mesh
-     *  if the grids are allocated and the index is within bounds, @a nullptr otherwise.
-     */
-	const ego_grid_info_t& getGridInfo(const Index1D& i) const;
-	ego_grid_info_t& getGridInfo(const Index1D& i);
 
     Uint32 test_fx(const Index1D& i, const BIT_FIELD flags) const;
 

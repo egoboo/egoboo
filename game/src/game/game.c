@@ -533,7 +533,7 @@ int update_game()
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
-    _currentModule->getMeshPointer()->_fxlists.synch( _currentModule->getMeshPointer()->_gmem, false );
+    _currentModule->getMeshPointer()->_fxlists.synch( _currentModule->getMeshPointer()->_tmem, false );
     
     // Get immediate mode state for the rest of the game
     InputSystem::read_keyboard();
@@ -1032,11 +1032,11 @@ void do_weather_spawn_particles()
                 if ( particle )
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if ( particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_gmem._edge_x - EDGE )
+                    if ( particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_tmem._edge_x - EDGE )
                     {
                         particle->requestTerminate();
                     }
-                    else if ( particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
+                    else if ( particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_tmem._edge_y - EDGE )
                     {
                         particle->requestTerminate();
                     }

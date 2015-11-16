@@ -40,7 +40,7 @@ void animate_all_tiles( ego_mesh_t& mesh )
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
 
-    size_t tile_count = mesh._tmem.getTileCount();
+    size_t tile_count = mesh._tmem.getInfo().getTileCount();
     size_t anim_count = mesh._fxlists.anm._idx;
 
     // Scan through all the animated tiles.
@@ -201,8 +201,6 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Index1D& tileIndex )
 
 	const ego_tile_info_t& ptile = mesh->getTileInfo(tileIndex);
 
-	const ego_grid_info_t& pgrid = mesh->getGridInfo(tileIndex);
-
     /// @author BB
     /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
@@ -214,7 +212,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Index1D& tileIndex )
     // badvertex is a value that references the actual vertex number
 
     type  = ptile._type;                     // Command type ( index to points in itile )
-    twist = pgrid._twist;
+    twist = ptile._twist;
 
     type &= 0x3F;
 
