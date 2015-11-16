@@ -413,14 +413,12 @@ float set_character_animation_rate( Object * pchr )
 //--------------------------------------------------------------------------------------------
 egolib_rv chr_invalidate_child_instances( Object * pchr )
 {
-    int cnt;
-
     if (!pchr || pchr->isTerminated()) return rv_error;
 
     // invalidate vlst_cache of everything in this character's holdingwhich array
-    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    for (size_t cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        CHR_REF iitem = pchr->holdingwhich[cnt];
+        ObjectRef iitem = pchr->holdingwhich[cnt];
         if ( !_currentModule->getObjectHandler().exists( iitem ) ) continue;
 
         // invalidate the matrix_cache
@@ -448,12 +446,12 @@ bool chr_handle_madfx( Object * pchr )
     // Check frame effects
     if ( HAS_SOME_BITS( framefx, MADFX_ACTLEFT ) )
     {
-        character_swipe( objRef.get(), SLOT_LEFT );
+        character_swipe( objRef, SLOT_LEFT );
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_ACTRIGHT ) )
     {
-        character_swipe( objRef.get(), SLOT_RIGHT );
+        character_swipe( objRef, SLOT_RIGHT );
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_GRABLEFT ) )

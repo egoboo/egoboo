@@ -24,14 +24,13 @@
 #include "egolib/FileFormats/controls_file-v2.h"
 #include "egolib/FileFormats/scancode_file.h"
 
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/input_device.h"
 
 #include "egolib/typedef.h"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 #include "egolib/vfs.h"
-#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 bool input_settings_load_vfs_2( const char* szFilename )

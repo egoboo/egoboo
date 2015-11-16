@@ -23,6 +23,7 @@
 #include "egolib/Graphics/MD2Model.hpp"
 #include "egolib/_math.h"
 #include "egolib/bbox.h"
+#include "egolib/vfs.h"
 
 static const float MD2_NORMALS[EGO_NORMAL_COUNT][3] =
 {

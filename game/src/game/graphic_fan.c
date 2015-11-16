@@ -40,7 +40,7 @@ void animate_all_tiles( ego_mesh_t& mesh )
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
 
-    size_t tile_count = mesh._tmem.getTileCount();
+    size_t tile_count = mesh._tmem.getInfo().getTileCount();
     size_t anim_count = mesh._fxlists.anm._idx;
 
     // Scan through all the animated tiles.
@@ -98,14 +98,14 @@ bool animate_tile( ego_mesh_t& mesh, Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fan( const ego_mesh_t& mesh, const TileIndex& tileIndex )
+gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
 {
     /// @author ZZ
     /// @details This function draws a mesh itile
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
     // grab a pointer to the tile
-	const ego_tile_info_t& ptile = mesh.getTileInfo(tileIndex);
+	const ego_tile_info_t& ptile = mesh.getTileInfo(i);
 
 	const tile_mem_t& ptmem  = mesh._tmem;
 
@@ -180,7 +180,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const TileIndex& tileIndex )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const TileIndex& tileIndex )
+gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Index1D& tileIndex )
 {
     /// @author ZZ
     /// @details This function draws a mesh itile
@@ -201,8 +201,6 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const TileIndex& tileIndex )
 
 	const ego_tile_info_t& ptile = mesh->getTileInfo(tileIndex);
 
-	const ego_grid_info_t& pgrid = mesh->getGridInfo(tileIndex);
-
     /// @author BB
     /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
@@ -214,7 +212,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const TileIndex& tileIndex )
     // badvertex is a value that references the actual vertex number
 
     type  = ptile._type;                     // Command type ( index to points in itile )
-    twist = pgrid._twist;
+    twist = ptile._twist;
 
     type &= 0x3F;
 
@@ -259,7 +257,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const TileIndex& tileIndex )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water_fan( ego_mesh_t& mesh, const TileIndex& tileIndex, const Uint8 layer )
+gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer )
 {
     /// @author ZZ
     /// @details This function draws a water itile
@@ -360,7 +358,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const TileIndex& tileIndex, const Uin
             v0.t = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            TileIndex jtile = mesh.getTileIndex(PointGrid(jx, jy));
+			Index1D jtile = mesh.getTileIndex(Index2D(jx, jy));
             float dlight;
             if ( GridIllumination::light_corner(mesh, jtile, v0.z, nrm, dlight) )
             {

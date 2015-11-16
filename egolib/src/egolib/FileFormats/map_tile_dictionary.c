@@ -25,7 +25,7 @@
 
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 #include "egolib/_math.h"
 

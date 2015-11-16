@@ -113,7 +113,7 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
 	}
     // do not start if the initial point is off the mesh
-    if (TileIndex::Invalid == mesh->getTileIndex(PointGrid(src_ix, src_iy)))
+    if (Index1D::Invalid == mesh->getTileIndex(Index2D(src_ix, src_iy)))
     {
 #ifdef DEBUG_ASTAR
         printf( "AStar failed because source position is off the mesh.\n" );
@@ -122,7 +122,7 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
     }
 
     //be a bit flexible if the destination is inside a wall
-    if ( mesh->tile_has_bits( PointGrid(dst_ix, dst_iy), stoppedby ) )
+    if ( mesh->tile_has_bits( Index2D(dst_ix, dst_iy), stoppedby ) )
     {
         //check all tiles edging to this one, including corners
         for ( j = -1; j <= 1; j++ )
@@ -132,7 +132,7 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
                 if ( j == 0 && k == 0 ) continue;
 
                 //Did we find a free tile?
-                if ( !mesh->tile_has_bits(PointGrid(dst_ix + j, dst_iy + k), stoppedby ) )
+                if ( !mesh->tile_has_bits(Index2D(dst_ix + j, dst_iy + k), stoppedby ) )
                 {
                     dst_ix = dst_ix + j;
                     dst_iy = dst_iy + k;
@@ -194,8 +194,8 @@ flexible_destination:
                     }
 
                     // is the test node on the mesh?
-                    TileIndex itile = mesh->getTileIndex(PointGrid(tmp_x, tmp_y));
-                    if (TileIndex::Invalid == itile)
+                    Index1D itile = mesh->getTileIndex(Index2D(tmp_x, tmp_y));
+                    if (Index1D::Invalid == itile)
                     {
                         deadend_count++;
                         continue;
@@ -227,7 +227,7 @@ flexible_destination:
                     }
 
                     // is this a wall or impassable?
-                    if ( mesh->tile_has_bits( PointGrid(tmp_x, tmp_y), stoppedby ) )
+                    if ( mesh->tile_has_bits( Index2D(tmp_x, tmp_y), stoppedby ) )
                     {
                         // add the invalid tile to the list as a closed tile
                         AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );
@@ -357,7 +357,7 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
 
             // add the node to the waypoint list
             last_waypoint = safe_waypoint;
-            waypoint_list_push( wplst, way_x, way_y );
+            waypoint_list_t::push( wplst, way_x, way_y );
             waypoint_num++;
 
             //This one is now safe

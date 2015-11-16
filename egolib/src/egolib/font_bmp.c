@@ -22,7 +22,7 @@
 /// @details
 
 #include "egolib/font_bmp.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/Graphics/TextureManager.hpp"
 
 #include "egolib/vfs.h"

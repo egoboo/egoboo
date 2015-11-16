@@ -144,14 +144,11 @@ void GameModule::checkPassageMusic()
     }
 }
 
-const ObjectRef& GameModule::getShopOwner(const float x, const float y)
-{
+ObjectRef GameModule::getShopOwner(const float x, const float y) {
     // Loop through every passage.
-    for(const std::shared_ptr<Passage>& passage : _passages)
-    {
+    for(const std::shared_ptr<Passage>& passage : _passages) {
         // Only check actual shops.
-        if(!passage->isShop()) 
-        {
+        if(!passage->isShop()) {
             continue;
         }
 
@@ -165,7 +162,7 @@ const ObjectRef& GameModule::getShopOwner(const float x, const float y)
     return Passage::SHOP_NOOWNER;       
 }
 
-void GameModule::removeShopOwner(const ObjectRef& owner)
+void GameModule::removeShopOwner(ObjectRef owner)
 {
     // Loop through every passage:
     for(const std::shared_ptr<Passage> &passage : _passages)
@@ -237,8 +234,8 @@ uint8_t GameModule::getMinPlayers() const
 
 bool GameModule::isInside(const float x, const float y) const
 {
-	const auto& gmem = _currentModule->getMeshPointer()->_gmem;
-    return x >= 0 && x < gmem._edge_x && y >= 0 && y < gmem._edge_y;
+	const auto& tmem = _currentModule->getMeshPointer()->_tmem;
+    return x >= 0 && x < tmem._edge_x && y >= 0 && y < tmem._edge_y;
 }
 
 std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,

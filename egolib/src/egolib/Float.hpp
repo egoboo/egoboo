@@ -20,7 +20,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/Debug.hpp"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 #define IEEE32_FRACTION 0x007FFFFFL
 #define IEEE32_EXPONENT 0x7F800000L

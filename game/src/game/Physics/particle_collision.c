@@ -310,7 +310,7 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
         if ( pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] > pprt_b->targetplatform_level )
         {
             pprt_b->targetplatform_level = pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z];
-            pprt_b->targetplatform_ref   = ichr_a;
+            pprt_b->targetplatform_ref   = ObjectRef(ichr_a);
 
             attach_prt_to_platform(pprt_b.get(), pchr_a);
             return true;
@@ -523,13 +523,13 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
         if ( chr_is_invictus && ACTION_IS_TYPE(pdata->pchr->inst.action_which, P) )
         {
             // Figure out if we are really using a shield or if it is just a invictus frame
-            CHR_REF item = INVALID_CHR_REF;
+            ObjectRef item = ObjectRef::Invalid;
 
             // Check right hand for a shield
             if ( !using_shield )
             {
                 item = pdata->pchr->holdingwhich[SLOT_RIGHT];
-                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
+                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item.get() )
                 {
                     using_shield = true;
                 }
@@ -539,7 +539,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
             if ( !using_shield )
             {
                 item = pdata->pchr->holdingwhich[SLOT_LEFT];
-                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
+                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item.get() )
                 {
                     using_shield = true;
                 }
@@ -895,13 +895,13 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
-        CHR_REF prt_owner = prt_get_iowner( pdata->pprt->getParticleID(), 0 );
+		ObjectRef prt_owner = ObjectRef(prt_get_iowner( pdata->pprt->getParticleID(), 0 ));
         if ( _currentModule->getObjectHandler().exists( prt_owner ) )
         {
-            CHR_REF chr_wielder = chr_get_lowest_attachment( pdata->pchr->getObjRef().get(), true );
-            CHR_REF prt_wielder = chr_get_lowest_attachment( prt_owner, true );
+            ObjectRef chr_wielder = chr_get_lowest_attachment( pdata->pchr->getObjRef(), true );
+			ObjectRef prt_wielder = chr_get_lowest_attachment( prt_owner, true );
 
-            if ( !_currentModule->getObjectHandler().exists( chr_wielder ) ) chr_wielder = pdata->pchr->getObjRef().get();
+            if ( !_currentModule->getObjectHandler().exists( chr_wielder ) ) chr_wielder = pdata->pchr->getObjRef();
             if ( !_currentModule->getObjectHandler().exists( prt_wielder ) ) prt_wielder = prt_owner;
 
             prt_belongs_to_chr = (chr_wielder == prt_wielder);
@@ -1309,9 +1309,9 @@ static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
     if ( !pplat->platform ) return false;
 
     // do the attachment
-    pprt->onwhichplatform_ref    = pplat->getObjRef().get();
+    pprt->onwhichplatform_ref    = pplat->getObjRef();
     pprt->onwhichplatform_update = update_wld;
-    pprt->targetplatform_ref     = INVALID_CHR_REF;
+    pprt->targetplatform_ref     = ObjectRef::Invalid;
 
     // update the character's relationship to the ground
     pprt->setElevation( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] ) );
@@ -1333,9 +1333,9 @@ bool detach_particle_from_platform( Ego::Particle * pprt )
     prt_bundle_t bdl_prt(pprt);
 
     // undo the attachment
-    pprt->onwhichplatform_ref    = INVALID_CHR_REF;
+    pprt->onwhichplatform_ref    = ObjectRef::Invalid;
     pprt->onwhichplatform_update = 0;
-    pprt->targetplatform_ref     = INVALID_CHR_REF;
+    pprt->targetplatform_ref     = ObjectRef::Invalid;
     pprt->targetplatform_level   = -1e32;
 
     // get the correct particle environment

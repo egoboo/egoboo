@@ -23,7 +23,7 @@
 
 #include "egolib/FileFormats/map_file-v1.h"
 
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/strutil.h"
 
 bool map_read_v1(vfs_FILE& file, map_t& map)

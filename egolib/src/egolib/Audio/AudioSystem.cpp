@@ -327,7 +327,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
     int channel = sound->getChannel();
 
     //skip dead stuff
-    if (!_currentModule->getObjectHandler().exists(sound->getOwner())) {
+    if (!_currentModule->getObjectHandler().exists(sound->getOwnerRef())) {
 
         //Stop loop if we just died
         if (channel != INVALID_SOUND_CHANNEL) {
@@ -338,7 +338,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
         return;
     }
 
-    const Vector3f soundPosition = _currentModule->getObjectHandler().get(sound->getOwner())->getPosition();
+    const Vector3f soundPosition = _currentModule->getObjectHandler().get(sound->getOwnerRef())->getPosition();
     const float distance = getSoundDistance(soundPosition);
 
     //Sound is close enough to be heard?
@@ -372,44 +372,35 @@ void AudioSystem::updateLoopingSounds()
     }
 }
 
-bool AudioSystem::stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soundID)
-{
-    if (!_currentModule->getObjectHandler().exists(ichr)) return false;
-
+size_t AudioSystem::stopObjectLoopingSounds(ObjectRef ownerRef, const SoundID soundID) {
+	if (!_currentModule->getObjectHandler().exists(ownerRef)) {
+		return 0;
+	}
+	size_t removedLoopCount = 0;
     std::forward_list<std::shared_ptr<LoopingSound>> removeLoops;
-    for (const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
-    {
-        //Either the sound id must match or if INVALID_SOUND_ID is given,
-        //stop all sounds that this character owns
+    for (const std::shared_ptr<LoopingSound> &sound : _loopingSounds) {
+        // Either the sound ID must match or if INVALID_SOUND_ID is given,
+        // stop all sounds that this character owns.
         if (soundID != INVALID_SOUND_ID && sound->getSoundID() != soundID) {
             continue;
         }
-
-        if (sound->getOwner() == ichr)
-        {
+        if (sound->getOwnerRef() == ownerRef) {
             removeLoops.push_front(sound);
+			removedLoopCount++;
         }
     }
 
     // Remove all looping sounds from list.
-    for (const std::shared_ptr<LoopingSound> &sound : removeLoops)
-    {
+    for (const std::shared_ptr<LoopingSound> &sound : removeLoops) {
         _loopingSounds.remove(sound);
         Mix_HaltChannel(sound->getChannel());
     }
 
-    return !removeLoops.empty();
+    return removedLoopCount;
 }
 
 void AudioSystem::fadeAllSounds()
 {
-#if 0
-    if (!_initialized)
-    {
-        return;
-    }
-#endif
-
     // Stop all sounds that are playing.
     Mix_FadeOutChannel(-1, 500);
 }
@@ -494,14 +485,14 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const Ve
     Mix_SetPosition(channel, angle, distance);
 }
 
-void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
+void AudioSystem::playSoundLooped(const SoundID soundID, ObjectRef ownerRef)
 {
-    //Avoid invalid characters
-    if (!_currentModule->getObjectHandler().exists(owner)) {
+    // Avoid invalid characters
+    if (!_currentModule->getObjectHandler().exists(ownerRef)) {
         return;
     }
 
-    //Check for invalid sounds
+    // Check for invalid sounds
     if (soundID < 0 || soundID >= _soundsLoaded.size()) {
         return;
     }
@@ -509,13 +500,13 @@ void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
     //Only allow one looping sound instance per character
     for (const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
     {
-        if (sound->getOwner() == owner && sound->getSoundID() == soundID) {
+        if (sound->getOwnerRef() == ownerRef && sound->getSoundID() == soundID) {
             return;
         }
     }
 
     //Create new looping sound
-    std::shared_ptr<LoopingSound> sound = std::make_shared<LoopingSound>(owner, soundID);
+    std::shared_ptr<LoopingSound> sound = std::make_shared<LoopingSound>(ownerRef, soundID);
 
     // add the sound to the LoopedList
     _loopingSounds.push_front(sound);

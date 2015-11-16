@@ -32,7 +32,7 @@
 
 #include "egolib/map_functions.h"
 
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 #include "egolib/endian.h"
 #include "egolib/fileutil.h"

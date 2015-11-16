@@ -23,7 +23,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/Script/EnumDescriptor.hpp"
 #include "egolib/FileFormats/configfile.h"
 #include "egolib/Script/Conversion.hpp"

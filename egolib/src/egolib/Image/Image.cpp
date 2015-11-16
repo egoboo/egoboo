@@ -20,7 +20,7 @@
 
 #include "egolib/Image/Image.hpp"
 #include "egolib/vfs.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0)
 int SDL_GetColorKey(SDL_Surface *surface, Uint32 *key)

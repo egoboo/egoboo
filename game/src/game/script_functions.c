@@ -489,7 +489,7 @@ Uint8 scr_ClearWaypoints( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
 	returncode = true;
-	waypoint_list_clear(self.wp_lst);
+	waypoint_list_t::clear(self.wp_lst);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2171,10 +2171,10 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	CHR_REF ichr = self.index;
+	ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        ichr = pchr->attachedto;
+        ichr = ObjectRef(pchr->attachedto);
     }
 
     //If we are a mount, our rider is the owner of this particle
@@ -2187,7 +2187,7 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
                                                    pchr->ori.facing_z, 
                                                    pchr->getProfileID(),
                                                    LocalParticleProfileRef(state.argument), self.index,
-                                                   state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                   state.distance, pchr->team, ichr.get(), INVALID_PRT_REF, 0,
                                                    INVALID_CHR_REF );
 
     returncode = (particle != nullptr);
@@ -2952,21 +2952,20 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t& state, ai_state_t& self )
     /// @details This function restocks the ammo of every item the character is holding,
     /// if the item matches the ID given ( parent or child type )
 
-    CHR_REF ichr;
-    int iTmp;
-    Object * pself_target;
+    Object *pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    iTmp = 0;  // Amount of ammo given
+    int iTmp = 0;  // Amount of ammo given
 
+	ObjectRef ichr;
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += RestockAmmo( ichr, state.argument );
+    iTmp += RestockAmmo( ichr.get(), state.argument );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    iTmp += RestockAmmo( ichr, state.argument );
+    iTmp += RestockAmmo( ichr.get(), state.argument );
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
@@ -2987,23 +2986,21 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t& state, ai_state_t& self )
     /// @details This function restocks the ammo of the first item the character is holding,
     /// if the item matches the ID given ( parent or child type )
 
-    int     iTmp;
-    int     ichr;
-    Object * pself_target;
+    Object *pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    iTmp = 0;  // Amount of ammo given
+    int iTmp = 0;  // Amount of ammo given
     
-    ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += RestockAmmo(ichr, state.argument);
+    ObjectRef ichr = pself_target->holdingwhich[SLOT_LEFT];
+    iTmp += RestockAmmo(ichr.get(), state.argument);
     
     if (iTmp == 0)
     {
         ichr = pself_target->holdingwhich[SLOT_RIGHT];
-        iTmp += RestockAmmo(ichr, state.argument);
+        iTmp += RestockAmmo(ichr.get(), state.argument);
     }
 
     if (iTmp == 0)
@@ -4007,16 +4004,16 @@ Uint8 scr_SpawnAttachedParticle( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     //If we are a weapon, our holder is the owner of this particle
-	CHR_REF ichr = self.index;
-	CHR_REF iholder = chr_get_lowest_attachment( ichr, true );
-    if ( _currentModule->getObjectHandler().exists( iholder ) )
+	ObjectRef iself = ObjectRef(self.index);
+	ObjectRef iholder = chr_get_lowest_attachment(iself, true);
+    if (_currentModule->getObjectHandler().exists(iholder))
     {
-        ichr = iholder;
+		iself = iholder;
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
                                                                       LocalParticleProfileRef(state.argument), self.index,
-                                                                      state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                                      state.distance, pchr->team, iself.get(), INVALID_PRT_REF, 0,
                                                                       INVALID_CHR_REF);
     SCRIPT_FUNCTION_END();
 }
@@ -4130,7 +4127,7 @@ Uint8 scr_SetTargetToLowestTarget( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	auto itarget = chr_get_lowest_attachment( self.target, false );
+	auto itarget = chr_get_lowest_attachment( ObjectRef(self.target), false );
 
     if ( _currentModule->getObjectHandler().exists( itarget ) )
     {
@@ -4206,13 +4203,13 @@ Uint8 scr_PlaySoundLooped( script_state_t& state, ai_state_t& self )
     if ( INVALID_SOUND_ID == sound )
     {
         // Stop existing sound loop (if any)
-        AudioSystem::get().stopObjectLoopingSounds(self.index);
+        AudioSystem::get().stopObjectLoopingSounds(ObjectRef(self.index));
     }
     else
     {
         // check whatever might be playing on the channel now
         //ZF> TODO: check if character is already playing a looped sound first!
-        AudioSystem::get().playSoundLooped(sound, self.index);
+        AudioSystem::get().playSoundLooped(sound, ObjectRef(self.index));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4227,7 +4224,7 @@ Uint8 scr_StopSound( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    AudioSystem::get().stopObjectLoopingSounds(self.index, ppro->getSoundID(state.argument));
+    AudioSystem::get().stopObjectLoopingSounds(ObjectRef(self.index), ppro->getSoundID(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -5202,7 +5199,7 @@ Uint8 scr_GetTileXY( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    TileIndex idx = _currentModule->getMeshPointer()->getTileIndex(PointWorld(state.x, state.y));
+    Index1D idx = _currentModule->getMeshPointer()->getTileIndex(Vector2f(float(state.x), float(state.y)));
 
     const ego_tile_info_t& ptr = _currentModule->getMeshPointer()->getTileInfo(idx);
     returncode = true;
@@ -5225,7 +5222,7 @@ Uint8 scr_SetTileXY( script_state_t& state, ai_state_t& self )
 		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
 	}
 
-    TileIndex index = mesh->getTileIndex(PointWorld(state.x, state.y));
+    Index1D index = mesh->getTileIndex(Vector2f(float(state.x), float(state.y)));
     returncode = mesh->set_texture( index, state.argument );
 
     SCRIPT_FUNCTION_END();
@@ -5562,13 +5559,13 @@ Uint8 scr_UnkurseTargetInventory( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function unkurses all items held and in the pockets of the target
 
-    CHR_REF ichr;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
+	ObjectRef ichr;
     ichr = pself_target->holdingwhich[SLOT_LEFT];
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -5839,7 +5836,7 @@ Uint8 scr_IfHeldInLeftHand( script_state_t& state, ai_state_t& self )
     const std::shared_ptr<Object> holder = _currentModule->getObjectHandler()[pchr->attachedto];
     if (holder)
     {
-        returncode = holder->holdingwhich[SLOT_LEFT] == pchr->getObjRef().get();
+        returncode = holder->holdingwhich[SLOT_LEFT] == pchr->getObjRef();
     }
 
     SCRIPT_FUNCTION_END();
@@ -7335,7 +7332,7 @@ Uint8 scr_PitsFall( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->_gmem._edge_x - EDGE && state.y < _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
+    if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->_tmem._edge_x - EDGE && state.y < _currentModule->getMeshPointer()->_tmem._edge_y - EDGE )
     {
         g_pits.teleport = true;
         g_pits.teleport_pos[kX] = state.x;

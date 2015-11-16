@@ -24,13 +24,12 @@
 #include "egolib/FileFormats/controls_file-v3.h"
 #include "egolib/FileFormats/scancode_file.h"
 
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 #include "egolib/typedef.h"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 #include "egolib/vfs.h"
-#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

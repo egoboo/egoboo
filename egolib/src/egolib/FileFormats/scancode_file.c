@@ -25,13 +25,12 @@
 
 #include "egolib/Core/StringUtilities.hpp"
 
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/input_device.h"
 
 #include "egolib/vfs.h"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
-#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -258,10 +257,10 @@ void scantag_parse_control( const char * tag_string, control_t &pcontrol )
         if ( tag_index < 0 || tag_index >= scantag_count )
         {
             if(token != "N/A") {
+				Log::get().warn("%s - unknown tag token, \"%s\".\n", __FUNCTION__, tag_token);
             }
             break;
         }
-				Log::get().warn("%s - unknown tag token, \"%s\".\n", __FUNCTION__, tag_token);
 
         tag_name = scantag_get_name( tag_index );
         if ( NULL == tag_name )

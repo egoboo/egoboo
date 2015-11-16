@@ -282,6 +282,21 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Log\ConsoleColor.cpp" />
+    <ClCompile Include="src\egolib\Log\DefaultTarget.cpp" />
+    <ClCompile Include="src\egolib\Log\Entry.cpp" />
+    <ClCompile Include="src\egolib\Log\Level.cpp" />
+    <ClCompile Include="src\egolib\Log\_Include.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Log\_Include.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Log\_Include.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Log\_Include.asm</AssemblerListingLocation>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Log\_Include.asm</AssemblerListingLocation>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Log\_Include.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Log\_Include.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Log\_Include.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Log\_Include.o</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Log\Target.cpp" />
     <ClCompile Include="src\egolib\Script\Token.cpp" />
     <ClCompile Include="src\egolib\Mesh\Info.cpp" />
     <ClCompile Include="src\egolib\FileFormats\Globals.cpp" />
@@ -439,7 +454,6 @@
     <ClCompile Include="src\egolib\frustum.c" />
     <ClCompile Include="src\egolib\geometry.c" />
     <ClCompile Include="src\egolib\input_device.c" />
-    <ClCompile Include="src\egolib\log.c" />
     <ClCompile Include="src\egolib\map_functions.c" />
     <ClCompile Include="src\egolib\network.c" />
     <ClCompile Include="src\egolib\platform\file_linux.c">
@@ -454,6 +468,14 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Grid\Index.hpp" />
+    <ClInclude Include="src\egolib\Grid\Info.hpp" />
+    <ClInclude Include="src\egolib\Grid\Rect.hpp" />
+    <ClInclude Include="src\egolib\Log\ConsoleColor.hpp" />
+    <ClInclude Include="src\egolib\Log\DefaultTarget.hpp" />
+    <ClInclude Include="src\egolib\Log\Level.hpp" />
+    <ClInclude Include="src\egolib\Log\Target.hpp" />
+    <ClInclude Include="src\egolib\Log\_Include.hpp" />
     <ClInclude Include="src\egolib\Log\Entry.hpp" />
     <ClInclude Include="src\egolib\Math\Rect2.hpp" />
     <ClInclude Include="src\egolib\Script\Token.hpp" />
@@ -608,7 +630,6 @@
     <ClInclude Include="src\egolib\frustum.h" />
     <ClInclude Include="src\egolib\geometry.h" />
     <ClInclude Include="src\egolib\input_device.h" />
-    <ClInclude Include="src\egolib\log.h" />
     <ClInclude Include="src\egolib\map_functions.h" />
     <ClInclude Include="src\egolib\network.h" />
     <ClInclude Include="src\egolib\platform.h" />

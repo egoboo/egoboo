@@ -580,8 +580,8 @@ void scr_run_chr_script(Object *pchr) {
 		vfs_printf(scr_file, "\tcounter == %d\n", aiState.order_counter);
 
 		// waypoints
-		vfs_printf(scr_file, "\twp_tail == %d\n", aiState.wp_lst.tail);
-		vfs_printf(scr_file, "\twp_head == %d\n\n", aiState.wp_lst.head);
+		vfs_printf(scr_file, "\twp_tail == %d\n", aiState.wp_lst._tail);
+		vfs_printf(scr_file, "\twp_head == %d\n\n", aiState.wp_lst._head);
 	}
 
 	// Clear the button latches.
@@ -1238,13 +1238,8 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
             case VARSWINGTURN:
                 varname = "SWINGTURN";
                 {
-					std::shared_ptr<Camera> camera = CameraSystem::get()->getCameraByChrID(aiState.index);
-
-                    iTmp = 0;
-                    if ( camera )
-                    {
-                        iTmp = camera->getSwing() << 2;
-                    }
+					auto camera = CameraSystem::get()->getCamera(ObjectRef(aiState.index));
+                    iTmp = nullptr != camera ? camera->getSwing() << 2 : 0;
                 }
                 break;
 
@@ -1537,7 +1532,7 @@ bool ai_state_t::get_wp( ai_state_t& self )
 
     if ( !_currentModule->getObjectHandler().exists( self.index ) ) return false;
 
-    self.wp_valid = waypoint_list_peek( self.wp_lst, self.wp );
+    self.wp_valid = waypoint_list_t::peek( self.wp_lst, self.wp );
 
     return true;
 }
@@ -1570,7 +1565,7 @@ void set_alerts( const CHR_REF character )
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	ai_state_t& aiState = pchr->ai;
 
-	if (waypoint_list_empty(aiState.wp_lst)) {
+	if (waypoint_list_t::empty(aiState.wp_lst)) {
 		return;
 	}
 
@@ -1595,7 +1590,7 @@ void set_alerts( const CHR_REF character )
     {
 		SET_BIT(aiState.alert, ALERTIF_ATWAYPOINT);
 
-		if (waypoint_list_finished(aiState.wp_lst))
+		if (waypoint_list_t::finished(aiState.wp_lst))
         {
             // we are now at the last waypoint
             // if the object can be alerted to last waypoint, do it
@@ -1607,12 +1602,12 @@ void set_alerts( const CHR_REF character )
             }
 
             // !!!!restart the waypoint list, do not clear them!!!!
-			waypoint_list_reset(aiState.wp_lst);
+			waypoint_list_t::reset(aiState.wp_lst);
 
             // load the top waypoint
 			ai_state_t::get_wp(aiState);
         }
-		else if (waypoint_list_advance(aiState.wp_lst))
+		else if (waypoint_list_t::advance(aiState.wp_lst))
         {
             // load the top waypoint
 			ai_state_t::get_wp(aiState);
@@ -1702,7 +1697,7 @@ ai_state_t::ai_state_t() {
 
 	// waypoints
 	wp_valid = false;
-	wp_lst.head = wp_lst.tail = 0;
+	wp_lst._head = wp_lst._tail = 0;
 	astar_timer = 0;
 }
 
@@ -1753,7 +1748,7 @@ void ai_state_t::reset(ai_state_t& self)
 
 	// waypoints
 	self.wp_valid = false;
-	self.wp_lst.head = self.wp_lst.tail = 0;
+	self.wp_lst._head = self.wp_lst._tail = 0;
 	self.astar_timer = 0;
 }
 

@@ -29,10 +29,10 @@ namespace Graphics {
 
 void renderlist_lst_t::reset() {
 	size = 0;
-	lst[0]._index = TileIndex::Invalid;
+	lst[0]._index = Index1D::Invalid;
 }
 
-bool renderlist_lst_t::push(const TileIndex& index, float distance) {
+bool renderlist_lst_t::push(const Index1D& index, float distance) {
 	if (size >= renderlist_lst_t::CAPACITY) {
 		return false;
 	}
@@ -89,7 +89,7 @@ gfx_rv TileList::reset()
 	return gfx_success;
 }
 
-gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
+gfx_rv TileList::insert(const Index1D& index, const ::Camera &cam)
 {
 	if (!_mesh)
 	{
@@ -98,11 +98,11 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	}
 
 	// check for a valid tile
-	if (index >= _mesh->_gmem._grid_count)
+	if (index >= _mesh->_tmem.getInfo().getTileCount())
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t& pgrid = _mesh->_gmem.get(index);
+	ego_tile_info_t& ptile = _mesh->_tmem.get(index);
 
 	// we can only accept so many tiles
 	if (_all.size >= renderlist_lst_t::CAPACITY)
@@ -120,7 +120,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 	_all.push(index, distance);
 
 	// Put each tile in one other list, for shadows and relections
-	if (0 != pgrid.testFX(MAPFX_SHA))
+	if (0 != ptile.testFX(MAPFX_SHA))
 	{
 		_sha.push(index, distance);
 	}
@@ -129,7 +129,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 		_ref.push(index, distance);
 	}
 
-	if (0 != pgrid.testFX(MAPFX_REFLECTIVE))
+	if (0 != ptile.testFX(MAPFX_REFLECTIVE))
 	{
 		_reflective.push(index, distance);
 	}
@@ -138,7 +138,7 @@ gfx_rv TileList::insert(const TileIndex& index, const ::Camera &cam)
 		_nonReflective.push(index, distance);
 	}
 
-	if (0 != pgrid.testFX(MAPFX_WATER))
+	if (0 != ptile.testFX(MAPFX_WATER))
 	{
 		_water.push(index, distance);
 	}
@@ -156,7 +156,7 @@ void TileList::setMesh(std::shared_ptr<ego_mesh_t> mesh)
 	_mesh = mesh;
 }
 
-gfx_rv TileList::add(const TileIndex& index, ::Camera& camera)
+gfx_rv TileList::add(const Index1D& index, ::Camera& camera)
 {
 	_renderTiles[index.getI()] = true;
 
@@ -175,9 +175,9 @@ gfx_rv TileList::add(const TileIndex& index, ::Camera& camera)
 	return gfx_success;
 }
 
-bool TileList::inRenderList(const TileIndex &index) const
+bool TileList::inRenderList(const Index1D& index) const
 {
-	if(index == TileIndex::Invalid) return false;
+	if(index == Index1D::Invalid) return false;
 	return _renderTiles[index.getI()];
 }
 

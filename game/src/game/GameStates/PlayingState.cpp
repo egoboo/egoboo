@@ -99,13 +99,13 @@ void PlayingState::updateStatusBarPosition()
         std::unordered_map<std::shared_ptr<Camera>, float> maxY;
         for(const std::weak_ptr<CharacterStatus> &weakStatus : _statusList)
         {
-            std::shared_ptr<CharacterStatus> status = weakStatus.lock();
+            auto status = weakStatus.lock();
             if(status)
             {
                 std::shared_ptr<Object> object = status->getObject();
                 if(object)
                 {
-                    const std::shared_ptr<Camera> &camera = _cameraSystem->getCameraByChrID(object->getObjRef().get());
+                    auto camera = _cameraSystem->getCamera(object->getObjRef());
 
                     //Shift component down a bit if required
                     status->setPosition(status->getX(), maxY[camera] + 10.0f);
@@ -224,9 +224,9 @@ void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
     }
 
     //Get the camera that is following this object (defaults to main camera)
-    const std::shared_ptr<Camera> &camera = CameraSystem::get()->getCameraByChrID(object->getObjRef().get());
+    auto camera = CameraSystem::get()->getCamera(object->getObjRef());
 
-    std::shared_ptr<CharacterStatus> status = std::make_shared<CharacterStatus>(object);
+    auto status = std::make_shared<CharacterStatus>(object);
 
     status->setSize(BARX, BARY);
     status->setPosition(camera->getScreen().xmax - status->getWidth(), camera->getScreen().ymin);

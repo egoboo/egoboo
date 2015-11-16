@@ -877,24 +877,16 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 //--------------------------------------------------------------------------------------------
 bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off )
 {
-    int i;
-
-    bool needs_update;
-    Uint16 grip_verts[GRIP_VERTS];
-
-    matrix_cache_t * mcache;
-    Object * pitem;
-
-    needs_update = false;
+    uint16_t grip_verts[GRIP_VERTS];
 
     if ( !_currentModule->getObjectHandler().exists( iitem ) ) return false;
-    pitem = _currentModule->getObjectHandler().get( iitem );
-    mcache = &( pitem->inst.matrix_cache );
+	Object *pitem = _currentModule->getObjectHandler().get( iitem );
+	matrix_cache_t& mcache = pitem->inst.matrix_cache;
 
     // is the item attached to this valid holder?
     if ( pitem->attachedto != iholder ) return false;
 
-    needs_update  = true;
+    bool needs_update  = true;
 
     if ( GRIP_VERTS == get_grip_verts( grip_verts, iholder, vrt_off ) )
     {
@@ -902,20 +894,20 @@ bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off 
 
         needs_update  = false;
 
-        if ( iholder != mcache->grip_chr || pitem->attachedto != iholder )
+        if ( iholder != mcache.grip_chr || pitem->attachedto != iholder )
         {
             needs_update  = true;
         }
 
-        if ( pitem->inwhich_slot != mcache->grip_slot )
+        if ( pitem->inwhich_slot != mcache.grip_slot )
         {
             needs_update  = true;
         }
 
         // check to see if any of the
-        for ( i = 0; i < GRIP_VERTS; i++ )
+        for (size_t i = 0; i < GRIP_VERTS; i++ )
         {
-            if ( grip_verts[i] != mcache->grip_verts[i] )
+            if ( grip_verts[i] != mcache.grip_verts[i] )
             {
                 needs_update = true;
                 break;
@@ -926,14 +918,14 @@ bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off 
     if ( needs_update )
     {
         // cannot create the matrix, therefore the current matrix must be invalid
-        mcache->matrix_valid = false;
+        mcache.matrix_valid = false;
 
-        mcache->grip_chr  = iholder;
-        mcache->grip_slot = pitem->inwhich_slot;
+        mcache.grip_chr  = iholder;
+        mcache.grip_slot = pitem->inwhich_slot;
 
-        for ( i = 0; i < GRIP_VERTS; i++ )
+        for (size_t i = 0; i < GRIP_VERTS; i++ )
         {
-            mcache->grip_verts[i] = grip_verts[i];
+            mcache.grip_verts[i] = grip_verts[i];
         }
     }
 

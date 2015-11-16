@@ -508,14 +508,11 @@ int update_game()
     // check for autorespawn
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF ichr;
-        Object * pchr;
-
         if ( !PlaStack.lst[ipla].valid ) continue;
 
-        ichr = PlaStack.lst[ipla].index;
+        CHR_REF ichr = PlaStack.lst[ipla].index;
         if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
-        pchr = _currentModule->getObjectHandler().get( ichr );
+        Object *pchr = _currentModule->getObjectHandler().get( ichr );
 
         if ( !pchr->isAlive() )
         {
@@ -536,7 +533,7 @@ int update_game()
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
-    _currentModule->getMeshPointer()->_fxlists.synch( _currentModule->getMeshPointer()->_gmem, false );
+    _currentModule->getMeshPointer()->_fxlists.synch( _currentModule->getMeshPointer()->_tmem, false );
     
     // Get immediate mode state for the rest of the game
     InputSystem::read_keyboard();
@@ -1035,11 +1032,11 @@ void do_weather_spawn_particles()
                 if ( particle )
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if ( particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_gmem._edge_x - EDGE )
+                    if ( particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_tmem._edge_x - EDGE )
                     {
                         particle->requestTerminate();
                     }
-                    else if ( particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_gmem._edge_y - EDGE )
+                    else if ( particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_tmem._edge_y - EDGE )
                     {
                         particle->requestTerminate();
                     }
@@ -1056,52 +1053,44 @@ void set_one_player_latch( const PLA_REF ipla )
     /// @details This function converts input readings to latch settings, so players can
     ///    move around
 
-    TURN_T turnsin;
-    float dist, scale;
-    float fsin, fcos;
-    latch_t sum;
-    bool fast_camera_turn;
-	Vector2f joy_pos, joy_new;
-
-    player_t       * ppla;
-    input_device_t * pdevice;
-
     // skip invalid players
     if ( INVALID_PLA( ipla ) ) return;
-    ppla = PlaStack.get_ptr( ipla );
+	player_t       *ppla = PlaStack.get_ptr( ipla );
 
     // is the device a local device or an internet device?
-    pdevice = ppla->pdevice;
+	input_device_t *pdevice = ppla->pdevice;
     if ( NULL == pdevice ) return;
 
     //No need to continue if device is not enabled
     if ( !input_device_is_enabled( pdevice ) ) return;
 
     // find the camera that is pointing at this character
-    std::shared_ptr<Camera> pcam = CameraSystem::get()->getCameraByChrID(ppla->index);
-    if ( nullptr == pcam ) return;
+    auto pcam = CameraSystem::get()->getCamera(ObjectRef(ppla->index));
+    if (!pcam) return;
 
     // fast camera turn if it is enabled and there is only 1 local player
-    fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
+	bool fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
 
+	latch_t sum;
     // Clear the player's latch buffers
     sum.clear();
-    joy_new = Vector2f::zero();
-    joy_pos = Vector2f::zero();
+	Vector2f joy_new = Vector2f::zero(),
+             joy_pos = Vector2f::zero();
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera
-    turnsin = TO_TURN( pcam->getOrientation().facing_z );
-    fsin    = turntosin[ turnsin ];
-    fcos    = turntocos[ turnsin ];
+	TURN_T turnsin = TO_TURN( pcam->getOrientation().facing_z );
+    float fsin    = turntosin[ turnsin ];
+    float fcos    = turntocos[ turnsin ];
 
+	float scale;
     if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
     {
         // Mouse routines
 
         if ( fast_camera_turn || !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
         {
-            dist = std::sqrt( mous.x * mous.x + mous.y * mous.y );
+            float dist = std::sqrt( mous.x * mous.x + mous.y * mous.y );
             if ( dist > 0 )
             {
                 scale = mous.sense / dist;
@@ -1156,7 +1145,7 @@ void set_one_player_latch( const PLA_REF ipla )
             joy_pos[XX] = joystick->x;
             joy_pos[YY] = joystick->y;
 
-            dist = joy_pos.length_2();
+            float dist = joy_pos.length_2();
             if ( dist > 1.0f )
             {
                 scale = 1.0f / std::sqrt( dist );
@@ -3413,13 +3402,13 @@ bool can_grab_item_in_shop( ObjectRef igrabber, ObjectRef iitem )
     return canGrab;
 }
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t *mesh, const PointGrid& point, oct_bb_t& bump, bool waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t *mesh, const Index2D& point, oct_bb_t& bump, bool waterwalk )
 {
     float zdone = mesh->get_max_vertex_1( point, bump._mins[OCT_X], bump._mins[OCT_Y], bump._maxs[OCT_X], bump._maxs[OCT_Y] );
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
-        TileIndex tile = mesh->getTileIndex( point );
+        Index1D tile = mesh->getTileIndex( point );
 
         if ( 0 != mesh->test_fx( tile, MAPFX_WATER ) )
         {
@@ -3456,10 +3445,10 @@ float get_mesh_max_vertex_2( ego_mesh_t *mesh, Object *object)
         pos_y[corner] = object->getPosY() + (( 0 == iy_off[corner] ) ? object->chr_min_cv._mins[OCT_Y] : object->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = mesh->getElevation( PointWorld(pos_x[0], pos_y[0]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+    zmax = mesh->getElevation(Vector2f(pos_x[0], pos_y[0]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = mesh->getElevation( PointWorld(pos_x[corner], pos_y[corner]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        float fval = mesh->getElevation(Vector2f(pos_x[corner], pos_y[corner]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         zmax = std::max( zmax, fval );
     }
 
@@ -3484,7 +3473,7 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == object->bump_stt.size )
     {
-        return mesh->getElevation(PointWorld(object->getPosX(), object->getPosY()),
+        return mesh->getElevation(Vector2f(object->getPosX(), object->getPosY()),
 			                      object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
     }
 
@@ -3521,8 +3510,8 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump._mins[OCT_YX] || ftmp > bump._maxs[OCT_YX] ) continue;
 
-            TileIndex itile = mesh->getTileIndex(PointGrid(ix, iy));
-            if (TileIndex::Invalid == itile ) continue;
+            Index1D itile = mesh->getTileIndex(Index2D(ix, iy));
+            if (Index1D::Invalid == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
             grid_vert_y[grid_vert_count] = iy;
@@ -3543,10 +3532,10 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        zmax = get_mesh_max_vertex_1( mesh, Index2D(grid_vert_x[0], grid_vert_y[0]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+            fval = get_mesh_max_vertex_1( mesh, Index2D(grid_vert_x[cnt], grid_vert_y[cnt]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
             zmax = std::max( zmax, fval );
         }
     }
@@ -3854,11 +3843,11 @@ float water_instance_t::get_level() const
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_t::getElevation(const PointWorld& point, bool waterwalk) const
+float ego_mesh_t::getElevation(const Vector2f& p, bool waterwalk) const
 {
-    float zdone = getElevation(point);
+    float zdone = getElevation(p);
     if (waterwalk && water._surface_level > zdone && water._is_water) {
-        TileIndex tile = getTileIndex(point);
+        Index1D tile = getTileIndex(p);
 
 		if (0 != test_fx(tile, MAPFX_WATER)) {
 			zdone = water._surface_level;

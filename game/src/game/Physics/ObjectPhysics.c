@@ -259,8 +259,8 @@ void move_one_character_get_environment( Object * pchr )
     }
     ego_mesh_t *mesh = _currentModule->getMeshPointer().get();
     //---- character "floor" level
-    float grid_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), false );
-    float water_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), true );
+    float grid_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false );
+    float water_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), true );
 
     // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
     if (grid_level != pchr->enviro.grid_level) {
@@ -876,9 +876,7 @@ bool chr_do_latch_button( Object * pchr )
 
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 {
-    CHR_REF iweapon;
-
-    int    base_action, hand_action, action;
+    int base_action, hand_action, action;
     bool action_valid, allowedtoattack;
 
     bool retval = false;
@@ -890,11 +888,11 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     if (which_slot >= SLOT_COUNT) return false;
 
     // Which iweapon?
-    iweapon = pchr->holdingwhich[which_slot];
+    auto iweapon = pchr->holdingwhich[which_slot];
     if ( !_currentModule->getObjectHandler().exists( iweapon ) )
     {
         // Unarmed means object itself is the weapon
-        iweapon = iobj.get();
+        iweapon = iobj;
     }
     Object *pweapon = _currentModule->getObjectHandler().get(iweapon);
     const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
@@ -999,7 +997,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
         if ( pchr->inst.action_ready && action_valid )
         {
             //Check if we are attacking unarmed and cost mana to do so
-            if(iweapon == pchr->getObjRef().get())
+            if(iweapon == pchr->getObjRef())
             {
                 if(pchr->getProfile()->getUseManaCost() <= pchr->getMana())
                 {
@@ -1031,7 +1029,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     chr_play_action( pchr, action, false );
 
                     // Make the weapon animate the attack as well as the character holding it
-					if (iweapon != iobj.get())
+					if (iweapon != iobj)
 					{
 						chr_play_action(pweapon, ACTION_MJ, false);
 					}
@@ -1073,7 +1071,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 }
 
                 // let everyone know what we did
-                pchr->ai.lastitemused = iweapon;
+                pchr->ai.lastitemused = iweapon.get();
 
                 /// @note ZF@> why should there any reason the weapon should NOT be alerted when it is used?
                 // grab the MADFX_* flags for this action
@@ -1173,8 +1171,8 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
         if ( INVALID_CHR_REF != pchr_c->attachedto ) continue;
 
         // do not pick up your mount
-        if ( pchr_c->holdingwhich[SLOT_LEFT] == ichr_a.get() ||
-             pchr_c->holdingwhich[SLOT_RIGHT] == ichr_a.get() ) continue;
+        if ( pchr_c->holdingwhich[SLOT_LEFT] == ichr_a ||
+             pchr_c->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
 
         // do not notice completely broken items?
         if (pchr_c->isitem && !pchr_c->isAlive()) continue;
@@ -1578,9 +1576,9 @@ bool detach_character_from_platform( Object * pchr )
     const std::shared_ptr<Object> &oldPlatform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
 
     // undo the attachment
-    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
+    pchr->onwhichplatform_ref    = ObjectRef::Invalid;
     pchr->onwhichplatform_update = 0;
-    pchr->targetplatform_ref     = INVALID_CHR_REF;
+    pchr->targetplatform_ref     = ObjectRef::Invalid;
     pchr->targetplatform_level   = -1e32;
 
     // adjust the platform weight, if necessary
@@ -1783,9 +1781,9 @@ egolib_rv attach_character_to_mount( ObjectRef riderRef, ObjectRef mountRef, gri
     if (mount->isMount() && _currentModule->getObjectHandler().exists(mount->attachedto)) return rv_fail;
 
     // Put 'em together
-    rider->inwhich_slot        = slot;
-    rider->attachedto          = mountRef.get();
-    mount->holdingwhich[slot] = riderRef.get();
+    rider->inwhich_slot       = slot;
+    rider->attachedto         = mountRef.get();
+    mount->holdingwhich[slot] = riderRef;
 
     // set the grip vertices for the irider
     set_weapongrip(riderRef.get(), mountRef.get(), grip_off);

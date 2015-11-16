@@ -50,12 +50,12 @@ namespace Internal {
 
 struct by_element2_t {
 	float _distance;
-	TileIndex _tileIndex;
+	Index1D _tileIndex;
 	uint32_t _textureIndex;
 	by_element2_t()
-		: by_element2_t(std::numeric_limits<float>::infinity(), TileIndex::Invalid, std::numeric_limits<uint32_t>::max()) {
+		: by_element2_t(std::numeric_limits<float>::infinity(), Index1D::Invalid, std::numeric_limits<uint32_t>::max()) {
 	}
-	by_element2_t(float distance, const TileIndex& tileIndex, uint32_t textureIndex)
+	by_element2_t(float distance, const Index1D& tileIndex, uint32_t textureIndex)
 		: _distance(distance), _tileIndex(tileIndex), _textureIndex(textureIndex) {
 	}
 	by_element2_t(const by_element2_t& other)
@@ -86,7 +86,7 @@ struct by_element2_t {
 
 void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist_lst_t& rlst)
 {
-	size_t tcnt = mesh._tmem.getTileCount();
+	size_t tcnt = mesh._tmem.getInfo().getTileCount();
 
 	if (0 == rlst.size) {
 		return;
@@ -124,7 +124,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 
 	for (size_t i = 0; i < rlst.size; ++i)
 	{
-		TileIndex tmp_itile = lst_vals[i]._tileIndex;
+		Index1D tmp_itile = lst_vals[i]._tileIndex;
 
 		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
@@ -144,7 +144,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		return;
 	}
 
-	grid_mem_t *pgmem = &(_currentModule->getMeshPointer()->_gmem);
+	tile_mem_t& tmem = _currentModule->getMeshPointer()->_tmem;
 
 	// which layer
 	water_instance_layer_t *ilayer = water._layers + 0;
@@ -175,32 +175,32 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		VertexBufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
 		// Figure out the coordinates of its corners
-		Qx = -pgmem->_edge_x;
-		Qy = -pgmem->_edge_y;
+		Qx = -tmem._edge_x;
+		Qy = -tmem._edge_y;
 		vertices[0].x = Qx;
 		vertices[0].y = Qy;
 		vertices[0].z = cam.getPosition()[kZ] - z0;
 		vertices[0].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[0].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = 2 * pgmem->_edge_x;
-		Qy = -pgmem->_edge_y;
+		Qx = 2 * tmem._edge_x;
+		Qy = -tmem._edge_y;
 		vertices[1].x = Qx;
 		vertices[1].y = Qy;
 		vertices[1].z = cam.getPosition()[kZ] - z0;
 		vertices[1].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[1].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = 2 * pgmem->_edge_x;
-		Qy = 2 * pgmem->_edge_y;
+		Qx = 2 * tmem._edge_x;
+		Qy = 2 * tmem._edge_y;
 		vertices[2].x = Qx;
 		vertices[2].y = Qy;
 		vertices[2].z = cam.getPosition()[kZ] - z0;
 		vertices[2].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[2].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = -pgmem->_edge_x;
-		Qy = 2 * pgmem->_edge_y;
+		Qx = -tmem._edge_x;
+		Qy = 2 * tmem._edge_y;
 		vertices[3].x = Qx;
 		vertices[3].y = Qy;
 		vertices[3].z = cam.getPosition()[kZ] - z0;
@@ -844,13 +844,13 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				// use the alpha channel to modulate the transparency
 				renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 				CHR_REF ichr = el.get(i).ichr;
-				TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
+				Index1D itile = _currentModule->getObjectHandler().get(ichr)->getTile();
 
 				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Colour4f::white());
 
-					render_one_mad_ref(camera, ichr);
+					MadRenderer::render_ref(camera, ObjectRef(ichr));
 				}
 			}
 			else if (INVALID_CHR_REF == el.get(i).ichr && INVALID_PRT_REF != el.get(i).iprt)
@@ -864,7 +864,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				// set the default particle blending
 				renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 				PRT_REF iprt = el.get(i).iprt;
-				TileIndex itile = ParticleHandler::get()[iprt]->getTile();
+				Index1D itile = ParticleHandler::get()[iprt]->getTile();
 
 				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
 				{
@@ -896,7 +896,7 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 
 			if (INVALID_PRT_REF == el.get(i).iprt && INVALID_CHR_REF != el.get(i).ichr)
 			{
-				render_one_mad_solid(camera, el.get(i).ichr);
+				MadRenderer::render_solid(camera, ObjectRef(el.get(i).ichr));
 			}
 			else if (INVALID_CHR_REF == el.get(i).ichr && ParticleHandler::get()[el.get(i).iprt] != nullptr)
 			{
@@ -931,7 +931,7 @@ void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const Enti
 			// A character.
 			if (INVALID_PRT_REF == el.get(j).iprt && INVALID_CHR_REF != el.get(j).ichr)
 			{
-				render_one_mad_trans(camera, el.get(j).ichr);
+				MadRenderer::render_trans(camera, ObjectRef(el.get(j).ichr));
 			}
 			// A particle.
 			else if (INVALID_CHR_REF == el.get(j).ichr && INVALID_PRT_REF != el.get(j).iprt)

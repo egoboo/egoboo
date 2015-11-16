@@ -25,7 +25,7 @@
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
 #include <fstream>
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 /**
  * @brief

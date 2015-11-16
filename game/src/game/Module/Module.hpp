@@ -112,13 +112,13 @@ public:
 
     /// @author ZZ
     /// @details This function returns the owner of a item in a shop
-    const ObjectRef& getShopOwner(const float x, const float y);
+    ObjectRef getShopOwner(const float x, const float y);
 
     /**
      * @brief
      *  Mark all shop passages having this owner as no longer a shop
      */
-    void removeShopOwner(const ObjectRef& owner);
+    void removeShopOwner(ObjectRef owner);
 
     /**
      * @return

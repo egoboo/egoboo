@@ -55,72 +55,61 @@ static void draw_chr_attached_grip( Object * pchr );
 static void draw_chr_bbox( Object * pchr );
 
 // these functions are only called by render_one_mad()
-static gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
-static gfx_rv render_one_mad_tex( Camera& cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv MadRenderer::render_enviro( Camera& cam, ObjectRef character, GLXvector4f tint, const BIT_FIELD bits )
 {
-    /// @author ZZ
-    /// @details This function draws an environment mapped model
+	if (!_currentModule->getObjectHandler().exists(character))
+	{
+		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, character.get(), "invalid character");
+		return gfx_error;
+	}
+    Object *pchr  = _currentModule->getObjectHandler().get( character );
+	chr_instance_t& pinst = pchr->inst;
 
-    GLint matrix_mode[1];
-    float  uoffset;
-
-    Object          * pchr;
-    chr_instance_t * pinst;
-    oglx_texture_t   * ptex;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) )
+    if (!pinst.imad)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
-        return gfx_error;
-    }
-    pchr  = _currentModule->getObjectHandler().get( character );
-    pinst = &( pchr->inst );
-
-    if ( !pinst->imad )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid mad" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character.get(), "invalid mad" );
         return gfx_error;
     }
     const std::shared_ptr<MD2Model>& pmd2 = pchr->getProfile()->getModel()->getMD2();
 
-    ptex = nullptr;
-    if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
-    {
+	oglx_texture_t *ptex = nullptr;
+	if (HAS_SOME_BITS(bits, CHR_PHONG))
+	{
 		ptex = TextureManager::get().getTexture("mp_data/phong").get();
-    }
+	}
 
-    if ( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
-    {
-        return gfx_fail;
-    }
+	if (!GL_DEBUG(glIsEnabled)(GL_BLEND))
+	{
+		return gfx_fail;
+	}
 
-    if ( nullptr == ptex )
-    {
-        ptex = pinst->texture;
-    }
+	if (nullptr == ptex)
+	{
+		ptex = pinst.texture;
+	}
 
-    uoffset = pinst->uoffset - cam.getTurnZ_turns();
+    float uoffset = pinst.uoffset - cam.getTurnZ_turns();
 
     // save the matrix mode
+	GLint matrix_mode[1];
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
 
-    if ( HAS_SOME_BITS( bits, CHR_REFLECT ) )
-    {
-		Ego::Renderer::get().multiplyMatrix(pinst->ref.matrix);
-    }
-    else
-    {
-		Ego::Renderer::get().multiplyMatrix(pinst->matrix);
-    }
+	if (HAS_SOME_BITS(bits, CHR_REFLECT))
+	{
+		Ego::Renderer::get().multiplyMatrix(pinst.ref.matrix);
+	}
+	else
+	{
+		Ego::Renderer::get().multiplyMatrix(pinst.matrix);
+	}
 
     // Choose texture and matrix
 	Ego::Renderer::get().getTextureUnit().setActivated(ptex);
@@ -144,9 +133,9 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
                     GLvertex   *pvrt;
 
                     uint16_t vertex = cmd.index;
-                    if ( vertex >= pinst->vrt_count ) continue;
+                    if ( vertex >= pinst.vrt_count ) continue;
 
-                    pvrt   = pinst->vrt_lst + vertex;
+                    pvrt   = pinst.vrt_lst + vertex;
 
                     // normalize the color so it can be modulated by the phong/environment map
                     col[RR] = pvrt->color_dir * INV_FF;
@@ -247,22 +236,17 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits)
+gfx_rv MadRenderer::render_tex(Camera& camera, ObjectRef character, GLXvector4f tint, const BIT_FIELD bits)
 {
-    /// @author ZZ
-    /// @details This function draws a model
-
-    GLint matrix_mode;
-
     if (!_currentModule->getObjectHandler().exists(character))
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, character, "invalid character");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, character.get(), "invalid character");
         return gfx_error;
     }
     Object *pchr = _currentModule->getObjectHandler().get(character);
-    chr_instance_t *pinst = &(pchr->inst);
+    chr_instance_t& pinst = pchr->inst;
 
-    if (!pinst->imad)
+    if (!pinst.imad)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid mad");
         return gfx_error;
@@ -271,17 +255,17 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
     const std::shared_ptr<MD2Model> &pmd2 = pchr->getProfile()->getModel()->getMD2();
 
     // To make life easier
-    oglx_texture_t *ptex = pinst->texture;
+    oglx_texture_t *ptex = pinst.texture;
 
-    float uoffset = pinst->uoffset * INV_FFFF;
-    float voffset = pinst->voffset * INV_FFFF;
+    float uoffset = pinst.uoffset * INV_FFFF;
+    float voffset = pinst.voffset * INV_FFFF;
 
     float base_amb = 0.0f;
     if (0 == (bits & CHR_LIGHT))
     {
         // Convert the "light" parameter to self-lighting for
         // every object that is not being rendered using CHR_LIGHT.
-        base_amb = (255 == pinst->light) ? 0 : (pinst->light * INV_FF);
+        base_amb = (255 == pinst.light) ? 0 : (pinst.light * INV_FF);
     }
 
     // Get the maximum number of vertices per command.
@@ -301,6 +285,7 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
     auto vertexBuffer = std::unique_ptr<Vertex[]>(new Vertex[vertexBufferCapacity]);
 
     // save the matrix mode
+	GLint matrix_mode;
     glGetIntegerv(GL_MATRIX_MODE, &matrix_mode);
     Ego::OpenGL::Utilities::isError();
 
@@ -310,11 +295,11 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
     Ego::OpenGL::Utilities::isError();
     if (0 != (bits & CHR_REFLECT))
     {
-        Ego::Renderer::get().multiplyMatrix(pinst->ref.matrix);
+        Ego::Renderer::get().multiplyMatrix(pinst.ref.matrix);
     }
     else
     {
-        Ego::Renderer::get().multiplyMatrix(pinst->matrix);
+        Ego::Renderer::get().multiplyMatrix(pinst.matrix);
     }
 
     // Choose texture.
@@ -330,18 +315,18 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
             for (const id_glcmd_packed_t &cmd : glcommand.data)
             {
                 Uint16 vertexIndex = cmd.index;
-                if (vertexIndex >= pinst->vrt_count)
+                if (vertexIndex >= pinst.vrt_count)
                 {
                     continue;
                 }
                 auto& v = vertexBuffer[vertexBufferSize++];
-                GLvertex *pvrt = &(pinst->vrt_lst[vertexIndex]);
-                v.px = pvrt->pos[XX];
-                v.py = pvrt->pos[YY];
-                v.pz = pvrt->pos[ZZ];
-                v.nx = pvrt->nrm[XX];
-                v.ny = pvrt->nrm[YY];
-                v.nz = pvrt->nrm[ZZ];
+                GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
+                v.px = pvrt.pos[XX];
+                v.py = pvrt.pos[YY];
+                v.pz = pvrt.pos[ZZ];
+                v.nx = pvrt.nrm[XX];
+                v.ny = pvrt.nrm[YY];
+                v.nz = pvrt.nrm[ZZ];
 
                 // Determine the texture coordinates.
                 v.s = cmd.s + uoffset;
@@ -351,7 +336,7 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
                 if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA))
                 {
                     // The directional lighting.
-                    float fcol = pvrt->color_dir * INV_FF;
+                    float fcol = pvrt.color_dir * INV_FF;
 
                     v.r = fcol;
                     v.g = fcol;
@@ -364,7 +349,7 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
                         // Convert the "light" parameter to self-lighting for
                         // every object that is not being rendered using CHR_LIGHT.
 
-                        float acol = base_amb + pinst->color_amb * INV_FF;
+                        float acol = base_amb + pinst.color_amb * INV_FF;
 
                         v.r += acol;
                         v.g += acol;
@@ -455,31 +440,29 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
     }
 */
 
-//--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( Camera& cam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv MadRenderer::render( Camera& cam, ObjectRef character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @author ZZ
     /// @details This function picks the actual function to use
 
-    Object * pchr;
     gfx_rv retval;
 
     if ( !_currentModule->getObjectHandler().exists( character ) )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character.get(), "invalid character" );
         return gfx_error;
     }
-    pchr = _currentModule->getObjectHandler().get( character );
+    Object *pchr = _currentModule->getObjectHandler().get( character );
 
     if ( pchr->isHidden() || tint[AA] <= 0.0f || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS(bits, CHR_PHONG) )
     {
-        retval = render_one_mad_enviro( cam, character, tint, bits );
+        retval = render_enviro( cam, character, tint, bits );
     }
     else
     {
-        retval = render_one_mad_tex( cam, character, tint, bits );
+        retval = render_tex( cam, character, tint, bits );
     }
 
 #if defined(DRAW_CHR_BBOX)
@@ -501,19 +484,13 @@ gfx_rv render_one_mad( Camera& cam, const CHR_REF character, GLXvector4f tint, c
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
+gfx_rv MadRenderer::render_ref( Camera& cam, ObjectRef ichr )
 {
-    /// @author ZZ
-    /// @details This function draws characters reflected in the floor
-
-    GLXvector4f tint;
-    gfx_rv retval;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
-        return gfx_error;
-    }
+	if (!_currentModule->getObjectHandler().exists(ichr))
+	{
+		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, ichr.get(), "invalid character");
+		return gfx_error;
+	}
 	Object *pchr = _currentModule->getObjectHandler().get(ichr);
 	chr_instance_t& pinst = pchr->inst;
 
@@ -525,7 +502,7 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
     if ( pchr->isHidden() ) return gfx_fail;
 
     // assume the best
-    retval = gfx_success;
+	gfx_rv retval = gfx_success;
 
     if ( !pinst.ref.matrix_valid )
     {
@@ -546,11 +523,12 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
         {
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_ALPHA | CHR_REFLECT ) )
+            if ( gfx_error == render( cam, ichr, tint, CHR_ALPHA | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -560,11 +538,12 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
         {
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_LIGHT | CHR_REFLECT ) )
+            if ( gfx_error == MadRenderer::render( cam, ichr, tint, CHR_LIGHT | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -576,9 +555,10 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
         {
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
-            if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
+            if ( gfx_error == MadRenderer::render( cam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -590,19 +570,11 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
+gfx_rv MadRenderer::render_trans( Camera& cam, ObjectRef ichr )
 {
-    /// @author ZZ
-    /// @details This function dispatches the rendering of transparent characters
-    ///               to the correct function. (this does not handle characer reflection)
-
-    GLXvector4f tint;
-    bool rendered;
-
     if ( !_currentModule->getObjectHandler().exists( ichr ) )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr.get(), "invalid character" );
         return gfx_error;
     }
 	Object *pchr = _currentModule->getObjectHandler().get(ichr);
@@ -611,7 +583,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
     if ( pchr->isHidden() ) return gfx_fail;
 
     // there is an outside chance the object will not be rendered
-    rendered = false;
+    bool rendered = false;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT )
     {
@@ -632,9 +604,10 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::One);
 
+			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_ALPHA );
 
-            if ( render_one_mad( cam, ichr, tint, CHR_ALPHA ) )
+            if (render( cam, ichr, tint, CHR_ALPHA ) )
             {
                 rendered = true;
             }
@@ -650,23 +623,25 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
+			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_LIGHT );
 
-            if ( render_one_mad( cam, ichr, tint, CHR_LIGHT ) )
-            {
-                rendered = true;
-            }
+			if (render(cam, ichr, tint, CHR_LIGHT))
+			{
+				rendered = true;
+			}
         }
 
-        //Render shining effect on top of model
+        // Render shining effect on top of model
         if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
         {
             renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
+			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_PHONG );
 
-            if ( render_one_mad( cam, ichr, tint, CHR_PHONG ) )
+            if (render( cam, ichr, tint, CHR_PHONG ) )
             {
                 rendered = true;
             }
@@ -677,14 +652,11 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
     return rendered ? gfx_success : gfx_fail;
 }
 
-//--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
+gfx_rv MadRenderer::render_solid( Camera& cam, ObjectRef ichr )
 {
-    gfx_rv retval = gfx_error;
-
     if ( !_currentModule->getObjectHandler().exists( ichr ) )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr.get(), "invalid character" );
         return gfx_error;
     }
     Object *pchr = _currentModule->getObjectHandler().get( ichr );
@@ -693,7 +665,7 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
     if ( pchr->isHidden() ) return gfx_fail;
 
     // assume the best
-    retval = gfx_success;
+	gfx_rv retval = gfx_success;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT );
     {
@@ -731,7 +703,7 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
 
             chr_instance_t::get_tint( pinst, tint, CHR_SOLID );
 
-            if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_SOLID ) )
+            if ( gfx_error == render( cam, ichr, tint, CHR_SOLID ) )
             {
                 retval = gfx_error;
             }
@@ -2213,10 +2185,8 @@ gfx_rv vlst_cache_t::test(vlst_cache_t& self, chr_instance_t *instance)
     return gfx_success;
 }
 
-void chr_instance_flash(chr_instance_t& self, Uint8 value)
+void chr_instance_t::flash(chr_instance_t& self, uint8_t value)
 {
-	/// @details This function sets a character's lighting
-	
 	const float flash_val = value * INV_FF;
 
 	// flash the ambient color

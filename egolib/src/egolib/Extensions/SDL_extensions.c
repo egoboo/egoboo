@@ -24,7 +24,7 @@
 /// @details
 
 #include "egolib/Extensions/SDL_extensions.h"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 // SDL 2.0.1 adds high DPI support
 #if !SDL_VERSION_ATLEAST(2, 0, 1)

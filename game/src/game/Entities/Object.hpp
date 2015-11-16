@@ -152,7 +152,7 @@ public:
      * @param objRef
      *  the unique object reference of this object
      */
-    Object(const PRO_REF proRef, const ObjectRef& objRef);
+    Object(const PRO_REF proRef, ObjectRef objRef);
 
     /**
      * @brief
@@ -172,12 +172,12 @@ public:
 	 * @brief Get the unique object reference of this object.
      * @return the unique object reference of this object
      */
-    inline const ObjectRef& getObjRef() const {return _objRef;}
+    inline ObjectRef getObjRef() const { return _objRef; }
 
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
     **/
-    Team& getTeam() const {return _currentModule->getTeamList()[team];}
+    Team& getTeam() const { return _currentModule->getTeamList()[team]; }
 
     /**
     * @brief
@@ -641,7 +641,7 @@ public:
     * @return
     *   true if this Object can detect and see invisible objects
     **/
-    bool canSeeInvisible() const { return getAttribute(Ego::Attribute::SEE_INVISIBLE); }
+    bool canSeeInvisible() const { return getAttribute(Ego::Attribute::SEE_INVISIBLE) > 0.0f; }
 
     /**
     * @return
@@ -831,8 +831,8 @@ public:
     uint16_t       ammo;
 
     // equipment and inventory
-    std::array<CHR_REF, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
-    std::array<CHR_REF, INVEN_COUNT> equipment;   ///< != INVALID_CHR_REF if character has equipped something
+    std::array<ObjectRef, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
+    std::array<ObjectRef, INVEN_COUNT> equipment;   ///< != INVALID_CHR_REF if character has equipped something
 
     // team stuff
     TEAM_REF       team;            ///< Character's team

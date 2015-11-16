@@ -20,6 +20,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/vfs.h"
 #include "egolib/_math.h"
 #include "egolib/FileFormats/map_tile_dictionary.h"
 #include "egolib/Math/Vector.hpp"

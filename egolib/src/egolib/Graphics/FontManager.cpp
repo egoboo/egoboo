@@ -24,7 +24,7 @@
 
 #include "egolib/Graphics/FontManager.hpp"
 
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 
 namespace Ego
 {

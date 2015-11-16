@@ -27,7 +27,7 @@
 #include "egolib/vfs.h"
 #include "egolib/Script/Token.hpp"
 #include "egolib/Script/Traits.hpp"
-#include "egolib/log.h"
+#include "egolib/Log/_Include.hpp"
 #include "egolib/file_common.h"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/Logic/Gender.hpp"

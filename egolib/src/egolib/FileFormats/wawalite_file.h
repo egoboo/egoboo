@@ -23,6 +23,7 @@
 #pragma once
 
 #include "egolib/_math.h"
+#include "egolib/vfs.h"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Profiles/LocalParticleProfileRef.hpp"

@@ -54,207 +54,15 @@ typedef std::array<float, 4> light_cache_t;
 
 //--------------------------------------------------------------------------------------------
 
-/**
- * @brief
- *  An enumeration of coordinate system used by/for/together with meshes.
- */
-enum class CoordinateSystem
-{
-    /**
-     * @brief
-     *  "world" coordinates.
-     */
-    World,
-    /**
-     * @brief
-     *  "tile grid" coordinates.
-     */
-    Grid,
-	/**
-	 * @brief
-	 *  "tile list" coordinates.
-	 */
-	List,
-};
+#include "egolib/Grid/Index.hpp"
+#include "egolib/Grid/Rect.hpp"
 
-/**
- * @brief
- *  A point in "world", "tile grid" or "tile list" coordinates.
- */
-template <typename _Type, CoordinateSystem _CoordinateSystem, typename _Enabled = void>
-struct Point;
-
-/**
- * @brief
- *  A "world" or "tile grid" point.
- */
-template <typename _Type, CoordinateSystem _CoordinateSystem>
-struct Point<_Type, _CoordinateSystem,
-	         typename std::enable_if
-				<
-					(_CoordinateSystem == CoordinateSystem::World && std::is_same<_Type,float>::value)
-	              ||(_CoordinateSystem == CoordinateSystem::Grid && std::is_same<_Type,int>::value)
-                >::type> {
-private:
-
-    _Type _x;
-
-    _Type _y;
-
-	typedef Point<_Type, _CoordinateSystem> MyType;
-
-public:
-
-    Point(const _Type& x, const _Type& y) :
-        _x(x), _y(y)
-    {}
-
-public:
-
-    Point(const MyType& other) :
-        _x(other._x), _y(other._y)
-    {}
-
-	MyType& operator=(const MyType& other) {
-        _x = other._x;
-        _y = other._y;
-		return *this;
-    }
-
-public:
-
-	bool operator==(const MyType& other) const {
-		return _x == other._x
-			&& _y == other._y;
-	}
-
-	bool operator!=(const MyType& other) const {
-		return _x != other._x
-			|| _y != other._y;
-	}
-
-public:
-
-    const _Type& getX() const {
-        return _x;
-    }
-
-    const _Type& getY() const {
-        return _y;
-    }
-
-};
-
-typedef Point<float, CoordinateSystem::World> PointWorld;
-typedef Point<int, CoordinateSystem::Grid> PointGrid;
-
-
-/**
- * @brief
- *  A "tile list" point.
- */
-template <typename _Type, CoordinateSystem _CoordinateSystem>
-struct Point<_Type, _CoordinateSystem,
-	         typename std::enable_if
-			 <
-				_CoordinateSystem == CoordinateSystem::List && std::is_same<_Type, uint32_t>::value
-			 >::type> {
-
-private:
-
-    _Type _i;
-
-	static const _Type _InvalidIndex = std::numeric_limits<_Type>::max();
-
-public:
-
-	typedef Point<_Type, _CoordinateSystem> MyType;
-
-	static const MyType Invalid;
-
-public:
-
-	Point() :
-        _i(_InvalidIndex)
-    {}
-
-	Point(const _Type& i) :
-        _i(i)
-    {}
-
-public:
-
-	Point(const MyType& other) :
-        _i(other._i)
-    {}
-
-	MyType& operator=(const MyType& other)
-    {
-        _i = other._i;
-        return *this;
-    }
-
-public:
-
-    bool operator==(const MyType& other) const {
-        return _i == other._i;
-    }
-
-    bool operator!=(const MyType& other) const {
-        return _i != other._i;
-    }
-
-public:
-
-    bool operator<(const MyType& other) const {
-        return _i < other._i;
-    }
-
-    bool operator<=(const MyType& other) const {
-        return _i <= other._i;
-    }
-
-    bool operator>(const MyType& other) const {
-        return _i > other._i;
-    }
-
-    bool operator>=(const MyType& other) const {
-        return _i >= other._i;
-    }
-
-public:
-
-    const _Type& getI() const {
-        return _i;
-    }
-
-public:
-
-	MyType& operator++() {
-        _i++;
-        return *this;
-    }
-
-	MyType operator++(int) {
-        _Type j = _i;
-        _i++;
-        return MyType(j);
-    }
-
-};
-
-template <typename _Type, CoordinateSystem _CoordinateSystem>
-const Point<_Type, _CoordinateSystem> Point<_Type, _CoordinateSystem,
-	                                        typename std::enable_if
-	                                        <
-	                                        _CoordinateSystem == CoordinateSystem::List && std::is_same<_Type, uint32_t>::value
-	                                        >::type>::Invalid;
-
-/// @brief The index of a tile.
-typedef Point<uint32_t, CoordinateSystem::List> TileIndex;
+typedef Grid::Index<int, Grid::CoordinateSystem::Grid> Index2D;
+typedef Grid::Index<int, Grid::CoordinateSystem::List> Index1D;
+typedef Grid::Rect<int, Grid::CoordinateSystem::Grid> IndexRect;
 
 //--------------------------------------------------------------------------------------------
-
+typedef BIT_FIELD GRID_FX_BITS;
 /// The data describing an Egoboo tile
 class ego_tile_info_t
 {
@@ -262,6 +70,7 @@ public:
     static const std::shared_ptr<ego_tile_info_t> NULL_TILE;
 
     ego_tile_info_t();
+	~ego_tile_info_t() { lighting_cache_t::init(_cache); }
 
     const AABB2f& getAABB2D() const { return _aabb; }
 
@@ -384,130 +193,76 @@ public:
 	bool isFanOff() const {
 		return MAP_FANOFF == _img;
 	}
-};
 
-inline bool TILE_HAS_INVALID_IMAGE(const ego_tile_info_t& tileInfo) {
-	return HAS_SOME_BITS(TILE_UPPER_MASK, tileInfo._img);
-}
-
-
-//--------------------------------------------------------------------------------------------
-
-typedef BIT_FIELD GRID_FX_BITS;
-
-/// The data describing an Egoboo grid
-struct ego_grid_info_t
-{
-    // MODIFY THESE FLAGS
+	// MODIFY THESE FLAGS
 	/**
-	 * @brief
-	 *  The special effect flags in the MPD.
-	 * @warning
-	 *  Do not modify.
-	 */
-    GRID_FX_BITS _base_fx;
+	* @brief
+	*  The special effect flags in the MPD.
+	* @warning
+	*  Do not modify.
+	*/
+	GRID_FX_BITS _base_fx;
 	/**
-	 * @brief
-	 *  The orientation of the file in the MPD.
-	 * @warning
-	 *  Do not modify.
-	 */
+	* @brief
+	*  The orientation of the file in the MPD.
+	* @warning
+	*  Do not modify.
+	*/
 	uint8_t _twist;
 
 	// 
 	GRID_FX_BITS    _pass_fx;                   ///< the working copy of base_fx, which might be modified by passages
 
 
-    // the lighting info in the upper left hand corner of a grid
-    Uint8            _a, _l;                   ///< the raw mesh lighting... pretty much ignored
-    lighting_cache_t _cache;                   ///< the per-grid lighting info
-    int              _cache_frame;             ///< the last frame in which the cache was calculated
+												// the lighting info in the upper left hand corner of a grid
+	Uint8            _a, _l;                   ///< the raw mesh lighting... pretty much ignored
+	lighting_cache_t _cache;                   ///< the per-grid lighting info
+	int              _cache_frame;             ///< the last frame in which the cache was calculated
 
-	ego_grid_info_t();
-	~ego_grid_info_t();
-    GRID_FX_BITS testFX(const GRID_FX_BITS bits) const;
-public:
+	GRID_FX_BITS testFX(const GRID_FX_BITS bits) const;
 	/**
-	 * @brief
-	 *  Get the FX of this grid point.
-	 * @return
-	 *  the FX of this grid point
-	 */
+	* @brief
+	*  Get the FX of this grid point.
+	* @return
+	*  the FX of this grid point
+	*/
 	GRID_FX_BITS getFX() const;
 	/**
-	 * @brief
-	 *  Set the FX of this grid point.
-	 * @param fx
-	 *  the FX
-	 * @return
-	 *  @a true if the FX of this grid point changed,
-	 *  @a false otherwise
-	 */
+	* @brief
+	*  Set the FX of this grid point.
+	* @param fx
+	*  the FX
+	* @return
+	*  @a true if the FX of this grid point changed,
+	*  @a false otherwise
+	*/
 	bool setFX(const GRID_FX_BITS bits);
 public:
 	/**
-	 * @brief
-	 *  Add FX to this grid point.
-	 * @param fx
-	 *  the FX
-	 * @return
-	 *  @a true if the FX of this grid point changed,
-	 *  @a false otherwise
-	 */
+	* @brief
+	*  Add FX to this grid point.
+	* @param fx
+	*  the FX
+	* @return
+	*  @a true if the FX of this grid point changed,
+	*  @a false otherwise
+	*/
 	bool addFX(const GRID_FX_BITS bits);
 	/**
-	 * @brief
-	 *  Remove FX from this grid point.
-	 * @param fx
-	 *  the FX
-	 * @return
-	 *  @a true if the FX of this grid point changed,
-	 *  @a false otherwise
-	 */
+	* @brief
+	*  Remove FX from this grid point.
+	* @param fx
+	*  the FX
+	* @return
+	*  @a true if the FX of this grid point changed,
+	*  @a false otherwise
+	*/
 	bool removeFX(const GRID_FX_BITS bits);
-
 };
 
-//--------------------------------------------------------------------------------------------
-
-struct grid_mem_t
-{
-    int _grids_x;         ///< Size in grids
-    int _grids_y;
-    size_t _grid_count;   ///< How many grids.
-
-    float _edge_x; ///< Limits.
-    float _edge_y;
-
-    Uint32 *_tilestart;  ///< List of tiles  that start each row.
-
-protected:
-    // the per-grid info
-    ego_grid_info_t* _grid_list;                       ///< tile command info
-public:
-	grid_mem_t(const Ego::MeshInfo& info);
-    ~grid_mem_t();
-
-	ego_grid_info_t& get(const TileIndex& index) {
-		if (TileIndex::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
-		}
-		if (index.getI() >= _grid_count) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _grid_list[index.getI()];
-	}
-
-    const ego_grid_info_t& get(const TileIndex& index) const {
-        if (TileIndex::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
-        }
-        if (index.getI() >= _grid_count) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-        }
-        return _grid_list[index.getI()];
-    }
-};
+inline bool TILE_HAS_INVALID_IMAGE(const ego_tile_info_t& tileInfo) {
+	return HAS_SOME_BITS(TILE_UPPER_MASK, tileInfo._img);
+}
 
 //--------------------------------------------------------------------------------------------
 
@@ -516,11 +271,10 @@ struct tile_mem_t
 {
 private:
 	std::vector<ego_tile_info_t> _tileList;   ///< tile command info
-	size_t _vertexCount;
-	size_t _tileCountX;
-	size_t _tileCountY;
-	size_t _tileCount;
+	Ego::MeshInfo _info;
 public:
+	float _edge_x; ///< Limits.
+	float _edge_y;
     AABB3f _bbox;                 ///< bounding box for the entire mesh
 
 	std::unique_ptr<GLXvector3f[]> _plst;                 ///< the position list
@@ -538,53 +292,51 @@ public:
 	void computeVertexIndices(const tile_dictionary_t& dict);
 
 public:
-	ego_tile_info_t& get(const TileIndex& index) {
-		if (TileIndex::Invalid == index) {
+	ego_tile_info_t& get(const Index1D& index) {
+		if (Index1D::Invalid == index) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invaliid index");
 		}
-		if (index >= _tileCount) {
+		if (index >= _info.getTileCount()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
 		return _tileList[index.getI()];
 	}
-    const ego_tile_info_t& get(const TileIndex& index) const {
+    const ego_tile_info_t& get(const Index1D& index) const {
         // Assert that the index is within bounds.
-        if (TileIndex::Invalid == index) {
+        if (Index1D::Invalid == index) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
         }
-		if (index >= _tileCount) {
+		if (index >= _info.getTileCount()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
 		return _tileList[index.getI()];
     }
 
 public:
-	ego_tile_info_t& get(const PointGrid& index) {
-		if (index.getY() >= _tileCountY) {
+	ego_tile_info_t& get(const Index2D& i) {
+		if (i.getY() >= _info.getTileCountY()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		if (index.getX() >= _tileCountX) {
+		if (i.getX() >= _info.getTileCountX()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		return _tileList[index.getY() * _tileCountX + index.getX()];
+		return _tileList[i.getY() * _info.getTileCountX() + i.getX()];
 	}
-	const ego_tile_info_t& get(const PointGrid& index) const {
-		if (index.getY() >= _tileCountY) {
+	const ego_tile_info_t& get(const Index2D& index) const {
+		if (index.getY() >= _info.getTileCountY()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		if (index.getX() >= _tileCountX) {
+		if (index.getX() >= _info.getTileCountX()) {
 			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
 		}
-		return _tileList[index.getY() * _tileCountX + index.getX()];
+		return _tileList[index.getY() * _info.getTileCountX() + index.getX()];
 	}
 
 public:
-	size_t getTileCountX() const { return _tileCountX; }
-	size_t getTileCountY() const { return _tileCountY; }
-    size_t getTileCount() const { return _tileCount;}
-	size_t getVertexCount() const { return _vertexCount; }
+	const Ego::MeshInfo& getInfo() const {
+		return _info;
+	}
 
-public:
     std::vector<ego_tile_info_t>& getAllTiles() { return _tileList; }
 
 };
@@ -626,37 +378,33 @@ struct mpdfx_lists_t
 	~mpdfx_lists_t();
     void reset();
     int push(GRID_FX_BITS fx_bits, size_t value);
-    bool synch(const grid_mem_t& other, bool force);
+    bool synch(const tile_mem_t& other, bool force);
 };
 
 //--------------------------------------------------------------------------------------------
 
 class ego_mesh_t;
 
-template <typename _Type,CoordinateSystem _CoordinateSystem>
-struct mesh_rect {
-	Point<_Type, _CoordinateSystem> _min, _max;
-	
-	// Only for world coordinates.
-	template<typename _Type0 = _Type, CoordinateSystem _CoordinateSystem0 = _CoordinateSystem>
-	mesh_rect(const Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<_Type0>, 3>>& pos, typename std::enable_if<_CoordinateSystem0 == CoordinateSystem::World, _Type0>::type radius)
-		: _min(PointWorld(pos[kX] - radius, pos[kY] - radius)), 
-		  _max(PointWorld(pos[kX] + radius, pos[kY] + radius))
-	{}
-	mesh_rect(const Point<_Type, _CoordinateSystem>& min, const Point<_Type, _CoordinateSystem>& max)
-		: _min(min), _max(max)
-	{}
+struct Rect2f {
+	Vector2f _min, _max;
+	Rect2f(const Vector2f& point, float radius)
+		: _min(point - Vector2f(radius, radius)), _max(point + Vector2f(radius, radius)) {}
+	Rect2f(const Rect2f& other)
+		: _min(other._min), _max(other._max) {}
+	Rect2f(const Vector2f& min, const Vector2f& max)
+		: _min(min), _max(max) {}
 };
+
 /// struct for caching fome values for wall collisions
 /// MH: This seems to be used like an iterator.
 struct mesh_wall_data_t {
-	mesh_rect<float, CoordinateSystem::World> _f;
-	mesh_rect<int, CoordinateSystem::Grid> _i;
+	Rect2f _f;
+	IndexRect _i;
 	const ego_mesh_t *_mesh;
 	mesh_wall_data_t(const ego_mesh_t *mesh,
-		             const mesh_rect<float, CoordinateSystem::World>& f,
-		             const mesh_rect<int, CoordinateSystem::Grid>& i);
-	mesh_wall_data_t(const ego_mesh_t *mesh, const Vector3f& pos, float radius);
+		             const Rect2f& f,
+		             const IndexRect& i);
+	mesh_wall_data_t(const ego_mesh_t *mesh, const Vector2f& pos, float radius);
 };
 
 /// Egoboo's representation of the .mpd mesh file
@@ -675,7 +423,6 @@ public:
 
     Ego::MeshInfo _info;
     tile_mem_t _tmem;
-    grid_mem_t _gmem;
     mpdfx_lists_t _fxlists;
 
     Vector3f get_diff(const Vector3f& pos, float radius, float center_pressure, const BIT_FIELD bits);
@@ -689,15 +436,15 @@ public:
     /// @param point the point (world coordinates)
     /// @return the grid index of the grid at the given point if there is a grid at that point,
     ///         #INVALID_TILE otherwise
-    TileIndex getTileIndex(const PointWorld& point) const;
+    Index1D getTileIndex(const Vector2f& point) const;
 
     /// @brief Get the tile index of the tile at a given point (grid coordinates).
     /// @param point the point (grid coordinates)
     /// @return the tile index of the tile at the given point if there is a tile at that point,
     ///         #INVALID_TILE otherwise
-    TileIndex getTileIndex(const PointGrid& point) const;
+    Index1D getTileIndex(const Index2D& i) const;
 
-    bool grid_is_valid(const TileIndex& id) const;
+    bool grid_is_valid(const Index1D& i) const;
 
     /**
      * @brief
@@ -710,28 +457,14 @@ public:
      *  a pointer to the tile information of the tile at the index in this mesh
      *  if the tiles are allocated and the index is within bounds, @a nullptr otherwise.
      */
-	ego_tile_info_t& getTileInfo(const TileIndex& index);
-	const ego_tile_info_t& getTileInfo(const TileIndex& index) const;
+	ego_tile_info_t& getTileInfo(const Index1D& i);
+	const ego_tile_info_t& getTileInfo(const Index1D& i) const;
 
-    /**
-     * @brief
-     *  Get the grid information for at a tile index in a mesh.
-     * @param self
-     *  the mesh
-     * @param index
-     *  the tile index
-     * @return
-     *  a pointer to the grid information of the tile at the index in this mesh
-     *  if the grids are allocated and the index is within bounds, @a nullptr otherwise.
-     */
-	const ego_grid_info_t& getGridInfo(const TileIndex& index) const;
-	ego_grid_info_t& getGridInfo(const TileIndex& index);
+    Uint32 test_fx(const Index1D& i, const BIT_FIELD flags) const;
 
-    Uint32 test_fx(const TileIndex& index, const BIT_FIELD flags) const;
-
-	bool clear_fx(const TileIndex& index, const BIT_FIELD flags);
-	bool add_fx(const TileIndex& index, const BIT_FIELD flags);
-	Uint8 get_twist(const TileIndex& index) const;
+	bool clear_fx(const Index1D& i, const BIT_FIELD flags);
+	bool add_fx(const Index1D& i, const BIT_FIELD flags);
+	Uint8 get_twist(const Index1D& i) const;
 
 	/// @todo @a pos and @a radius should be passed as a sphere.
 	BIT_FIELD hit_wall(const Vector3f& pos, float radius, const BIT_FIELD bits, Vector2f& nrm, float *pressure, const mesh_wall_data_t& data) const;
@@ -743,7 +476,7 @@ public:
 	/**
 	 * @brief
 	 *  Get the precise height of the mesh at a given point (world coordinates).
-	 * @param point
+	 * @param p
 	 *	the point (world coordinates)
 	 * @param waterwalk
 	 *	if @a true and the fan is watery, then the height returned is the water level
@@ -751,27 +484,27 @@ public:
 	 *  the precise height of the mesh at the given point if there is a height at that point,
 	 *  0 otherwise
 	 */
-	float getElevation(const PointWorld& point, bool waterwalk) const;
+	float getElevation(const Vector2f& p, bool waterwalk) const;
 	/**
 	 * @brief
 	 *  Get the precise height of the mesh at a given point (world coordinates).
-	 * @param point
+	 * @param p
 	 *  the point (world coordinates)
 	 * @return
 	 *  the precise height of the mesh at the given point if there is a height at that point,
 	 *  0 otherwise
 	 **/
-	float getElevation(const PointWorld& point) const;
+	float getElevation(const Vector2f& p) const;
 
-	bool tile_has_bits(const PointGrid& point, const BIT_FIELD bits) const;
+	bool tile_has_bits(const Index2D& i, const BIT_FIELD bits) const;
 
 	void make_texture();
-	bool set_texture(const TileIndex& tile, Uint16 image);
-	bool update_texture(const TileIndex& tile);
+	bool set_texture(const Index1D& i, Uint16 image);
+	bool update_texture(const Index1D& i);
 
-	uint8_t get_fan_twist(const TileIndex& tile) const;
-	float get_max_vertex_0(const PointGrid& point) const;
-	float get_max_vertex_1(const PointGrid& point, float xmin, float ymin, float xmax, float ymax) const;
+	uint8_t get_fan_twist(const Index1D& i) const;
+	float get_max_vertex_0(const Index2D& i) const;
+	float get_max_vertex_1(const Index2D& i, float xmin, float ymin, float xmax, float ymax) const;
 
 private:
 	// mesh initialization - not accessible by scripts

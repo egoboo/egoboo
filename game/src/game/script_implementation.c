@@ -232,7 +232,7 @@ bool line_of_sight_info_t::with_mesh( line_of_sight_info_t * plos )
     TwoDsmallMinusTwoDbig = TwoDsmall - 2 * Dbig;
     TwoDsmallMinusDbig    = TwoDsmall - Dbig;
 
-    TileIndex fan_last = TileIndex::Invalid;
+    Index1D fan_last = Index1D::Invalid;
     for ( ibig = ibig_stt, ismall = ismall_stt;  ibig != ibig_end;  ibig += dbig )
     {
         if ( steep )
@@ -247,8 +247,8 @@ bool line_of_sight_info_t::with_mesh( line_of_sight_info_t * plos )
         }
 
         // check to see if the "ray" collides with the mesh
-        TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(ix, iy));
-        if (TileIndex::Invalid != fan && fan != fan_last )
+        Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(ix, iy));
+        if (Index1D::Invalid != fan && fan != fan_last )
         {
             Uint32 collide_fx = _currentModule->getMeshPointer()->test_fx( fan, plos->stopped_by );
             // collide the ray with the mesh
@@ -320,13 +320,13 @@ bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y
         {
 			// yes it is safe. add it.
 			returncode = true;
-            waypoint_list_push( wplst, pos_x, pos_y );
+            waypoint_list_t::push( wplst, pos_x, pos_y );
         }
         else
         {
             // no it is not safe. what to do? nothing, or add the current position?
 			//returncode = true;
-			//waypoint_list_push( wplst, pchr->loc_pos.x, pchr->loc_pos.y );
+			//waypoint_list_t::push( wplst, pchr->loc_pos.x, pchr->loc_pos.y );
 
             log_warning( "%s - failed to add a waypoint because object was \"inside\" a wall.\n"
                          "\tcharacter %d (\"%s\", \"%s\")\n"
@@ -344,7 +344,7 @@ bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y
     }
 #else
 	returncode = true;
-    waypoint_list_push( wplst, pos_x, pos_y );
+    waypoint_list_t::push( wplst, pos_x, pos_y );
 #endif
 
     return returncode;
@@ -378,7 +378,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     dst_iy = dst_y / Info<int>::Grid::Size();
 
     //Always clear any old waypoints
-    waypoint_list_clear( wplst );
+    waypoint_list_t::clear( wplst );
 
     //Don't do need to do anything if there is no need to move
     if ( src_ix == dst_ix && src_iy == dst_iy ) return false;
@@ -420,7 +420,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     if ( !returncode )
     {
         // just use a straight line path
-        waypoint_list_push( wplst, dst_x, dst_y );
+        waypoint_list_t::push( wplst, dst_x, dst_y );
     }
 
     return returncode;
@@ -506,7 +506,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        TileIndex fan = mesh->getTileIndex(PointWorld(pchr->getPosX(), pchr->getPosY()));
+        Index1D fan = mesh->getTileIndex(Vector2f(pchr->getPosX(), pchr->getPosY()));
 
 		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
         {
@@ -599,7 +599,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( /*nothing*/; x <= passage->getRight(); x++ )
         {
-            TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
+            Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
 
 			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->getTileInfo(fan);
             if (tiletype == ( ptile._img & TILE_LOWER_MASK ) )
@@ -617,7 +617,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( x = passage->getLeft(); x <= passage->getRight(); x++ )
         {
-            TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
+            Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
 
 			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->getTileInfo(fan);
             if (tiletype == ( ptile._img & TILE_LOWER_MASK ) )
@@ -746,7 +746,7 @@ bool FlashObject( Object * pchr, Uint8 value )
 	if (!pchr) {
 		return false;
 	}
-	chr_instance_flash(pchr->inst, value);
+	chr_instance_t::flash(pchr->inst, value);
 	return true;
 }
 
