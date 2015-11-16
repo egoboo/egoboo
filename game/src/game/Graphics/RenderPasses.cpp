@@ -86,7 +86,7 @@ struct by_element2_t {
 
 void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist_lst_t& rlst)
 {
-	size_t tcnt = mesh._tmem.getTileCount();
+	size_t tcnt = mesh._tmem.getInfo().getTileCount();
 
 	if (0 == rlst.size) {
 		return;
@@ -144,7 +144,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		return;
 	}
 
-	grid_mem_t *pgmem = &(_currentModule->getMeshPointer()->_gmem);
+	tile_mem_t& tmem = _currentModule->getMeshPointer()->_tmem;
 
 	// which layer
 	water_instance_layer_t *ilayer = water._layers + 0;
@@ -175,32 +175,32 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		VertexBufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
 		// Figure out the coordinates of its corners
-		Qx = -pgmem->_edge_x;
-		Qy = -pgmem->_edge_y;
+		Qx = -tmem._edge_x;
+		Qy = -tmem._edge_y;
 		vertices[0].x = Qx;
 		vertices[0].y = Qy;
 		vertices[0].z = cam.getPosition()[kZ] - z0;
 		vertices[0].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[0].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = 2 * pgmem->_edge_x;
-		Qy = -pgmem->_edge_y;
+		Qx = 2 * tmem._edge_x;
+		Qy = -tmem._edge_y;
 		vertices[1].x = Qx;
 		vertices[1].y = Qy;
 		vertices[1].z = cam.getPosition()[kZ] - z0;
 		vertices[1].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[1].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = 2 * pgmem->_edge_x;
-		Qy = 2 * pgmem->_edge_y;
+		Qx = 2 * tmem._edge_x;
+		Qy = 2 * tmem._edge_y;
 		vertices[2].x = Qx;
 		vertices[2].y = Qy;
 		vertices[2].z = cam.getPosition()[kZ] - z0;
 		vertices[2].s = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
 		vertices[2].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-		Qx = -pgmem->_edge_x;
-		Qy = 2 * pgmem->_edge_y;
+		Qx = -tmem._edge_x;
+		Qy = 2 * tmem._edge_y;
 		vertices[3].x = Qx;
 		vertices[3].y = Qy;
 		vertices[3].z = cam.getPosition()[kZ] - z0;
