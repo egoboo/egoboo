@@ -45,7 +45,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     Ego::prt_environment_t *penviro = &(loc_pprt->enviro);
 
     //---- character "floor" level
-    penviro->floor_level = _currentModule->getMeshPointer()->getElevation(PointWorld(loc_pprt->getPosX(), loc_pprt->getPosY()));
+    penviro->floor_level = _currentModule->getMeshPointer()->getElevation(Vector2f(loc_pprt->getPosX(), loc_pprt->getPosY()));
     penviro->level = penviro->floor_level;
 
     //---- The actual level of the characer.

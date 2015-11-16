@@ -177,10 +177,9 @@ template <typename _Type, CoordinateSystem _CoordinateSystem>
 const Index<_Type, _CoordinateSystem> Index<_Type, _CoordinateSystem,
 	        typename std::enable_if<(_CoordinateSystem == CoordinateSystem::List) && std::is_same<_Type, int>::value>::type
            >::Invalid;
-}
+} // namespace Grid
 
-
-#if 0
+namespace Grid {
 Index<int, CoordinateSystem::List> toList(Index<int, CoordinateSystem::Grid> source, int width) {
 	// Assume a grid of 3 x 3 elements as displayed below:
 	// 0  1  2
@@ -191,7 +190,9 @@ Index<int, CoordinateSystem::List> toList(Index<int, CoordinateSystem::Grid> sou
 	// Using the formula we obtain i = 3 * 3 + 1 = 10 as desired.
 	return Index<int, CoordinateSystem::List>(source.getX() + source.getY() * width);
 }
+} // namespace Grid
 
+namespace Grid {
 Index<int, CoordinateSystem::Grid> toGrid(Index<int, CoordinateSystem::List> source, int width) {
 	// Assume a grid of 3 x 3 elements as displayed below:
 	// 0  1  2
@@ -200,6 +201,6 @@ Index<int, CoordinateSystem::Grid> toGrid(Index<int, CoordinateSystem::List> sou
 	// 9 10 11
 	// The index i = 10 should map to row y = 3 and to column x = 1.
 	// Using the formula we obtain x = 10 % 3 = 1 and y = 10 / 3 = 3 as desired.
-	return Index<uint32_t, CoordinateSystem::Grid>(source.getI() % width, source.getI() / width);
+	return Index<int, CoordinateSystem::Grid>(source.getI() % width, source.getI() / width);
 }
-#endif
+} // namespace Grid

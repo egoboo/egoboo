@@ -259,8 +259,8 @@ void move_one_character_get_environment( Object * pchr )
     }
     ego_mesh_t *mesh = _currentModule->getMeshPointer().get();
     //---- character "floor" level
-    float grid_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), false );
-    float water_level = mesh->getElevation(PointWorld(pchr->getPosX(), pchr->getPosY()), true );
+    float grid_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false );
+    float water_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), true );
 
     // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
     if (grid_level != pchr->enviro.grid_level) {
