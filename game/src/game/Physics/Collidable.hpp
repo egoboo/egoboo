@@ -34,7 +34,7 @@ public:
         _spawnPosition(0.0f, 0.0f, 0.0f),
         _safePosition(0.0f, 0.0f, 0.0f),
         _safeValid(false),
-		_tile(TileIndex::Invalid)
+		_tile(Index1D::Invalid)
     {
         //ctor
     }
@@ -104,7 +104,7 @@ public:
         _oldPosition = _position;
         _position = pos;
 
-        _tile = _currentModule->getMeshPointer()->getTileIndex(PointWorld(getPosX(), getPosY()));
+        _tile = _currentModule->getMeshPointer()->getTileIndex(Vector2f(getPosX(), getPosY()));
 
         //Are we inside a wall now?
         Vector2f nrm;
@@ -179,7 +179,7 @@ public:
      * @return the tile index of the tile this object is on.
      * If the object is currently on no tile, TileIndex::Invalid is returned.
      */
-    inline const TileIndex& getTile() const {
+    inline const Index1D& getTile() const {
         return _tile;
     }
 
@@ -237,7 +237,7 @@ private:
      * @brief
      *  The tile this object is on or TileIndex::Invalid if none.
      */
-    TileIndex _tile;
+    Index1D _tile;
 
 };
 

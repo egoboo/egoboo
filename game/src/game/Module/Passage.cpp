@@ -72,7 +72,7 @@ void Passage::open()
             {
                 //clear impassable and wall bits
 				auto mesh = _currentModule->getMeshPointer();
-                TileIndex fan = mesh->getTileIndex(PointGrid(x, y));
+                Index1D fan = mesh->getTileIndex(Index2D(x, y));
 				mesh->clear_fx( fan, MAPFX_WALL | MAPFX_IMPASS );
             }
         }
@@ -136,7 +136,7 @@ bool Passage::close()
     {
         for ( int x = _area._left; x <= _area._right; x++ )
         {
-            TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
+            Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
 			_currentModule->getMeshPointer()->add_fx( fan, _mask );
         }
     }
@@ -217,7 +217,7 @@ void Passage::flashColor(uint8_t color)
     {
         for (int x = _area._left; x <= _area._right; x++ )
         {
-            TileIndex fan = _currentModule->getMeshPointer()->getTileIndex(PointGrid(x, y));
+            Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
 
             ego_tile_info_t& ptile = _currentModule->getMeshPointer()->getTileInfo(fan);
 

@@ -118,6 +118,12 @@
     <Filter Include="Source Files\Log">
       <UniqueIdentifier>{60328b20-1a6d-4465-96f8-7be5cc632f9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Grid">
+      <UniqueIdentifier>{e898f2e9-599e-43b7-b93f-861629aa904f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Grid">
+      <UniqueIdentifier>{d7424ce7-77b8-4fb9-b88c-7b9e19bf74a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -961,6 +967,15 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Log\_Include.hpp">
       <Filter>Header Files\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Grid\Index.hpp">
+      <Filter>Header Files\Grid</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Grid\Info.hpp">
+      <Filter>Header Files\Grid</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Grid\Rect.hpp">
+      <Filter>Header Files\Grid</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

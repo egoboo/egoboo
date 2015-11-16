@@ -3402,13 +3402,13 @@ bool can_grab_item_in_shop( ObjectRef igrabber, ObjectRef iitem )
     return canGrab;
 }
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t *mesh, const PointGrid& point, oct_bb_t& bump, bool waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t *mesh, const Index2D& point, oct_bb_t& bump, bool waterwalk )
 {
     float zdone = mesh->get_max_vertex_1( point, bump._mins[OCT_X], bump._mins[OCT_Y], bump._maxs[OCT_X], bump._maxs[OCT_Y] );
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
-        TileIndex tile = mesh->getTileIndex( point );
+        Index1D tile = mesh->getTileIndex( point );
 
         if ( 0 != mesh->test_fx( tile, MAPFX_WATER ) )
         {
@@ -3445,10 +3445,10 @@ float get_mesh_max_vertex_2( ego_mesh_t *mesh, Object *object)
         pos_y[corner] = object->getPosY() + (( 0 == iy_off[corner] ) ? object->chr_min_cv._mins[OCT_Y] : object->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = mesh->getElevation( PointWorld(pos_x[0], pos_y[0]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+    zmax = mesh->getElevation(Vector2f(pos_x[0], pos_y[0]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = mesh->getElevation( PointWorld(pos_x[corner], pos_y[corner]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        float fval = mesh->getElevation(Vector2f(pos_x[corner], pos_y[corner]), object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         zmax = std::max( zmax, fval );
     }
 
@@ -3473,7 +3473,7 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == object->bump_stt.size )
     {
-        return mesh->getElevation(PointWorld(object->getPosX(), object->getPosY()),
+        return mesh->getElevation(Vector2f(object->getPosX(), object->getPosY()),
 			                      object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0);
     }
 
@@ -3510,8 +3510,8 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump._mins[OCT_YX] || ftmp > bump._maxs[OCT_YX] ) continue;
 
-            TileIndex itile = mesh->getTileIndex(PointGrid(ix, iy));
-            if (TileIndex::Invalid == itile ) continue;
+            Index1D itile = mesh->getTileIndex(Index2D(ix, iy));
+            if (Index1D::Invalid == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
             grid_vert_y[grid_vert_count] = iy;
@@ -3532,10 +3532,10 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+        zmax = get_mesh_max_vertex_1( mesh, Index2D(grid_vert_x[0], grid_vert_y[0]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
+            fval = get_mesh_max_vertex_1( mesh, Index2D(grid_vert_x[cnt], grid_vert_y[cnt]), bump, object->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 );
             zmax = std::max( zmax, fval );
         }
     }
@@ -3843,11 +3843,11 @@ float water_instance_t::get_level() const
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_t::getElevation(const PointWorld& point, bool waterwalk) const
+float ego_mesh_t::getElevation(const Vector2f& p, bool waterwalk) const
 {
-    float zdone = getElevation(point);
+    float zdone = getElevation(p);
     if (waterwalk && water._surface_level > zdone && water._is_water) {
-        TileIndex tile = getTileIndex(point);
+        Index1D tile = getTileIndex(p);
 
 		if (0 != test_fx(tile, MAPFX_WATER)) {
 			zdone = water._surface_level;

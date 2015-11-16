@@ -60,7 +60,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
 
     //---- the "twist" of the floor
     penviro->twist = TWIST_FLAT;
-    TileIndex itile = TileIndex::Invalid;
+    Index1D itile = Index1D::Invalid;
     if (_currentModule->getObjectHandler().exists(loc_pprt->onwhichplatform_ref))
     {
         // this only works for 1 level of attachment

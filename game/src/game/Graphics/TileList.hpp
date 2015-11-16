@@ -34,12 +34,12 @@ struct renderlist_lst_t
 {
 	struct element_t
 	{
-		TileIndex _index;  ///< The index of the tile.
+		Index1D _index;  ///< The index of the tile.
 		float _distance;   ///< The distance of the tile.
 		element_t() :
 			_index(), _distance(-1.0f)
 		{}
-		element_t(const TileIndex& index, float distance) :
+		element_t(const Index1D& index, float distance) :
 			_index(index), _distance(distance)
 		{}
 		element_t(const element_t& other) :
@@ -77,7 +77,7 @@ struct renderlist_lst_t
 	 * @param distance the distance of the tile
 	 * @return @a true if the entry was added, @a false otherwise
 	 */
-	bool push(const TileIndex& index, float distance);
+	bool push(const Index1D& index, float distance);
 };
 
 /// Which tiles are to be drawn, arranged by MAPFX_* bits
@@ -117,7 +117,7 @@ struct TileList
 	/// @brief Insert a tile into this render list.
 	/// @param index the tile index
 	/// @param camera the camera
-	gfx_rv insert(const TileIndex& index, const ::Camera& camera);
+	gfx_rv insert(const Index1D& index, const ::Camera& camera);
 	/// @brief Get mesh this render list is attached to.
 	/// @return the mesh or @a nullptr
 	/// @post If the render list is attached to a mesh, that mesh is returned.
@@ -131,7 +131,7 @@ struct TileList
 	/// @brief Insert a tile into this render list.
 	/// @param the index of the tile to insert
 	/// @param camera the camera
-	gfx_rv add(const TileIndex& index, ::Camera& camera);
+	gfx_rv add(const Index1D& index, ::Camera& camera);
 
 	/**
 	* @brief
@@ -141,7 +141,7 @@ struct TileList
 	* @return
 	*	true if the specified tile is currently in the render list for this render frame
 	**/
-	bool inRenderList(const TileIndex &index) const;
+	bool inRenderList(const Index1D& index) const;
 
 private:
 	std::bitset<MAP_TILE_MAX> _renderTiles;		//index of all tiles to be rendered

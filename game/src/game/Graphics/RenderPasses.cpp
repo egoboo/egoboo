@@ -50,12 +50,12 @@ namespace Internal {
 
 struct by_element2_t {
 	float _distance;
-	TileIndex _tileIndex;
+	Index1D _tileIndex;
 	uint32_t _textureIndex;
 	by_element2_t()
-		: by_element2_t(std::numeric_limits<float>::infinity(), TileIndex::Invalid, std::numeric_limits<uint32_t>::max()) {
+		: by_element2_t(std::numeric_limits<float>::infinity(), Index1D::Invalid, std::numeric_limits<uint32_t>::max()) {
 	}
-	by_element2_t(float distance, const TileIndex& tileIndex, uint32_t textureIndex)
+	by_element2_t(float distance, const Index1D& tileIndex, uint32_t textureIndex)
 		: _distance(distance), _tileIndex(tileIndex), _textureIndex(textureIndex) {
 	}
 	by_element2_t(const by_element2_t& other)
@@ -124,7 +124,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 
 	for (size_t i = 0; i < rlst.size; ++i)
 	{
-		TileIndex tmp_itile = lst_vals[i]._tileIndex;
+		Index1D tmp_itile = lst_vals[i]._tileIndex;
 
 		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
@@ -844,7 +844,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				// use the alpha channel to modulate the transparency
 				renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 				CHR_REF ichr = el.get(i).ichr;
-				TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
+				Index1D itile = _currentModule->getObjectHandler().get(ichr)->getTile();
 
 				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
 				{
@@ -864,7 +864,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				// set the default particle blending
 				renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 				PRT_REF iprt = el.get(i).iprt;
-				TileIndex itile = ParticleHandler::get()[iprt]->getTile();
+				Index1D itile = ParticleHandler::get()[iprt]->getTile();
 
 				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
 				{

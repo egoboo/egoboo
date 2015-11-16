@@ -98,14 +98,14 @@ bool animate_tile( ego_mesh_t& mesh, Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fan( const ego_mesh_t& mesh, const TileIndex& tileIndex )
+gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
 {
     /// @author ZZ
     /// @details This function draws a mesh itile
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
     // grab a pointer to the tile
-	const ego_tile_info_t& ptile = mesh.getTileInfo(tileIndex);
+	const ego_tile_info_t& ptile = mesh.getTileInfo(i);
 
 	const tile_mem_t& ptmem  = mesh._tmem;
 
@@ -180,7 +180,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const TileIndex& tileIndex )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const TileIndex& tileIndex )
+gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Index1D& tileIndex )
 {
     /// @author ZZ
     /// @details This function draws a mesh itile
@@ -259,7 +259,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const TileIndex& tileIndex )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water_fan( ego_mesh_t& mesh, const TileIndex& tileIndex, const Uint8 layer )
+gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer )
 {
     /// @author ZZ
     /// @details This function draws a water itile
@@ -360,7 +360,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const TileIndex& tileIndex, const Uin
             v0.t = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            TileIndex jtile = mesh.getTileIndex(PointGrid(jx, jy));
+			Index1D jtile = mesh.getTileIndex(Index2D(jx, jy));
             float dlight;
             if ( GridIllumination::light_corner(mesh, jtile, v0.z, nrm, dlight) )
             {

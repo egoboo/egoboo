@@ -1370,16 +1370,16 @@ float GridIllumination::grid_lighting_test(const ego_mesh_t& mesh, GLXvector3f p
     int ix = std::floor(pos[XX] / Info<float>::Grid::Size());
     int iy = std::floor(pos[YY] / Info<float>::Grid::Size());
 
-    TileIndex fan[4];
-    fan[0] = mesh.getTileIndex(PointGrid(ix, iy));
-    fan[1] = mesh.getTileIndex(PointGrid(ix + 1, iy));
-    fan[2] = mesh.getTileIndex(PointGrid(ix, iy + 1));
-    fan[3] = mesh.getTileIndex(PointGrid(ix + 1, iy + 1));
+    Index1D fan[4];
+    fan[0] = mesh.getTileIndex(Index2D(ix, iy));
+    fan[1] = mesh.getTileIndex(Index2D(ix + 1, iy));
+    fan[2] = mesh.getTileIndex(Index2D(ix, iy + 1));
+    fan[3] = mesh.getTileIndex(Index2D(ix + 1, iy + 1));
 
     for (size_t cnt = 0; cnt < 4; cnt++)
     {
         cache_list[cnt] = nullptr;
-		if (fan[cnt] == TileIndex::Invalid) {
+		if (fan[cnt] == Index1D::Invalid) {
 			cache_list[cnt] = nullptr;
 		} else {
 			cache_list[cnt] = &(mesh.getGridInfo(fan[cnt])._cache);
@@ -1474,16 +1474,16 @@ bool GridIllumination::grid_lighting_interpolate(const ego_mesh_t& mesh, lightin
         iy = std::floor(pos[YY] / Info<float>::Grid::Size());
 
     // find the tile id for the surrounding tiles
-	TileIndex fan[4];
-    fan[0] = mesh.getTileIndex(PointGrid(ix, iy));
-    fan[1] = mesh.getTileIndex(PointGrid(ix + 1, iy));
-    fan[2] = mesh.getTileIndex(PointGrid(ix, iy + 1));
-    fan[3] = mesh.getTileIndex(PointGrid(ix + 1, iy + 1));
+	Index1D fan[4];
+    fan[0] = mesh.getTileIndex(Index2D(ix, iy));
+    fan[1] = mesh.getTileIndex(Index2D(ix + 1, iy));
+    fan[2] = mesh.getTileIndex(Index2D(ix, iy + 1));
+    fan[3] = mesh.getTileIndex(Index2D(ix + 1, iy + 1));
 
 	std::array<const lighting_cache_t *,4> cache_list;
     for (size_t cnt = 0; cnt < 4; cnt++)
     {
-		if (fan[cnt] == TileIndex::Invalid) {
+		if (fan[cnt] == Index1D::Invalid) {
 			cache_list[cnt] = nullptr;
 		} else {
 			cache_list[cnt] = &(mesh.getGridInfo(fan[cnt])._cache);
@@ -1568,7 +1568,7 @@ void GridIllumination::light_one_corner(ego_mesh_t& mesh, ego_tile_info_t& tile,
 	}
 }
 
-bool GridIllumination::light_corner(ego_mesh_t& mesh, const TileIndex& fan, float height, float nrm[], float& plight)
+bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float height, float nrm[], float& plight)
 {
 	ego_grid_info_t& pgrid = mesh.getGridInfo(fan);
 
@@ -1724,7 +1724,7 @@ void _flip_pages()
 //--------------------------------------------------------------------------------------------
 // LIGHTING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t& tile, const TileIndex& tileIndex, float threshold)
+gfx_rv GridIllumination::light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t& tile, const Index1D& tileIndex, float threshold)
 {
     bool       retval = false;
 
@@ -1799,7 +1799,7 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
         // which tile?
-        TileIndex fan = tl._all.lst[entry]._index;
+        Index1D fan = tl._all.lst[entry]._index;
 
         // grab a pointer to the tile
 		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
@@ -1866,8 +1866,8 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
     // use the grid to light the tiles
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
-        TileIndex fan = tl._all.lst[entry]._index;
-        if (TileIndex::Invalid == fan) continue;
+        Index1D fan = tl._all.lst[entry]._index;
+        if (Index1D::Invalid == fan) continue;
 
         // valid tile?
 		ego_tile_info_t& ptile = mesh->getTileInfo(fan);
@@ -2133,7 +2133,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     mesh_bound.ymax = 0;
     for (size_t entry = 0; entry < tl._all.size; entry++)
     {
-        TileIndex fan = tl._all.lst[entry]._index;
+        Index1D fan = tl._all.lst[entry]._index;
         if (fan.getI() >= pinfo.getTileCount()) continue;
 
 		const oct_bb_t& poct = ptmem.get(fan)._oct;
@@ -2275,7 +2275,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         int                dynalight_count = 0;
 
         // grab each grid box in the "frustum"
-        TileIndex fan = tl._all.lst[entry]._index;
+        Index1D fan = tl._all.lst[entry]._index;
 
         // a valid tile?
         ego_grid_info_t& pgrid = mesh->getGridInfo(fan);

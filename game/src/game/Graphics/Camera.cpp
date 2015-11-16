@@ -345,7 +345,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
                 _turnZAdd -= DEFAULT_TURN_KEY;
             }
 
-            _trackPos[kZ] = 128 + mesh->getElevation(PointWorld(_trackPos[kX], _trackPos[kY]));
+            _trackPos[kZ] = 128 + mesh->getElevation(Vector2f(_trackPos[kX], _trackPos[kY]));
 
        break;
 

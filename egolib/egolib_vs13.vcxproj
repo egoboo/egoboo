@@ -468,6 +468,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Grid\Index.hpp" />
+    <ClInclude Include="src\egolib\Grid\Info.hpp" />
+    <ClInclude Include="src\egolib\Grid\Rect.hpp" />
     <ClInclude Include="src\egolib\Log\ConsoleColor.hpp" />
     <ClInclude Include="src\egolib\Log\DefaultTarget.hpp" />
     <ClInclude Include="src\egolib\Log\Level.hpp" />
