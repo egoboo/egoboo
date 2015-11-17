@@ -132,10 +132,37 @@ public:
      *  Append a byte to this buffer growing this buffer if necessary.
      * @param byte
      *  the byte
-     * @throw std::bad_alloc
+     * @throw std::bad_array_new_length
      *  if not enough memory is available
      */
     void append(char byte);
+
+	/**
+	 * @brief
+	 *  Append bytes to this buffer growing the buffer if necessary.
+	 * @param bytes
+	 *  a pointer to an array of @a numberOfBytes Bytes
+	 * @param numberOfBytes
+	 *  the length, in Bytes, of the array pointed to by @a bytes
+	 * @throw std::bad_array_new_length
+	 *  if not enough memory is available
+	 * @post
+	 *  All bytes have been appended or the buffer was not modified.
+	 *  Otherwise no bytes have been appene
+	 */
+	void append(const char *bytes, size_t numberOfBytes);
+
+	/**
+	 * @brief
+	 *  Get the Byte at the specified in index in this buffer.
+	 * @param index
+	 *  the index
+	 * @return
+	 *  the Byte
+	 * @throw std::runtime_error
+	 *  if the index is greater than or equal to the size of this buffer
+	 */
+	char get(size_t index) const;
 
 	/**
 	 * @brief
