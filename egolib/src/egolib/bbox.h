@@ -121,7 +121,7 @@
             _v[OCT_YX] = 0.0f;
         }
 
-        oct_vec_v2_t(const Vector3f& point)
+		oct_vec_v2_t(const Vector3f& point)
         {
             _v[OCT_X] = point[kX];
             _v[OCT_Y] = point[kY];
@@ -221,16 +221,7 @@
                 _v[i] = 0.0f;
             }
         }
-        void ctor(const Vector3f& point)
-        {
-            _v[OCT_X]  = point[kX];
-            _v[OCT_Y]  = point[kY];
-            _v[OCT_Z]  = point[kZ];
-            // x + y
-            _v[OCT_XY] = point[kX] + point[kY];
-            // y - x
-            _v[OCT_YX] = point[kY] - point[kX];
-        }
+
         const float& operator[] (const size_t index) const
         {
             if (index >= OCT_COUNT)
@@ -438,6 +429,8 @@
         static egolib_rv validate(oct_bb_t& self);
         static bool empty_raw(const oct_bb_t& self);
 
+	public:
+
         /**
          * @brief
          *  Assign this octagonal bounding box the join of itself with a octagonal vector.
@@ -448,7 +441,7 @@
          * @post
          *  This octagonal bounding box was assigned the join of itself with the octagonal vector.
          */
-        egolib_rv join(const oct_vec_v2_t& other);
+        void join(const oct_vec_v2_t& other);
 
         /**
          * @brief
@@ -458,7 +451,23 @@
          * @post
          *  This octagonal bounding box was assigned the join of itself with the other octagonal bounding box.
          */
-        egolib_rv join(const oct_bb_t& other);
+        void join(const oct_bb_t& other);
+
+		/**
+		 * @brief
+		 *  Assign this octagonal bounding box the restricted join of itself with another octagonal bounding box.
+		 * @param other
+		 *  the other octagonal bounding box
+		 * @param index
+		 *  the axis the join is restricted to
+		 * @post
+		 *  This octagonal bounding box was asisigned the restricted join of itself with the other octagonal bounding box.
+		 */
+		void join(const oct_bb_t& other, int index);
+
+		static void join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
+
+	public:
 
         /**
          * @brief
@@ -469,18 +478,6 @@
          *  This octagonal bounding box was assigned the cut of itself with the other octagonal bounding box.
          */
         egolib_rv cut(const oct_bb_t& other);
-
-        /**
-         * @brief
-         *  Assign this octagonal bounding box the restricted join of itself with another octagonal bounding box.
-         * @param other
-         *  the other octagonal bounding box
-         * @param index
-         *  the axis the join is restricted to
-         * @post
-         *  This octagonal bounding box was asisigned the restricted intersection of itself with the other octagonal bounding box.
-         */
-        egolib_rv join(const oct_bb_t& other, int index);
 
         /**
          * @brief
@@ -504,13 +501,13 @@
 		 * @param dst
 		 *	the target bounding box
 		 */
-		static egolib_rv translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst);
-		static egolib_rv translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst);
+		static void translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst);
+		static void translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst);
 
 		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, oct_bb_t& pdst_bb);
 		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, bumper_t& pdst_bump);
 
-		static egolib_rv join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
+
 		static egolib_rv intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
 
 		static void interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip);
@@ -520,11 +517,9 @@
 		static bool empty_index(const oct_bb_t& self, int index);
 		static void copy(oct_bb_t& dst, const oct_bb_t& src);
 
+		static void self_grow(oct_bb_t& self, const oct_vec_v2_t& v);
+
+		static int to_points(const oct_bb_t& self, Vector4f pos[], size_t pos_count);
+		static void points_to_oct_bb(oct_bb_t& self, const Vector4f pos[], const size_t pos_count);
+		static bool empty(const oct_bb_t& self);
     };
-    
-egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v);
-int oct_bb_to_points(const oct_bb_t& self, Vector4f pos[], size_t pos_count);
-void points_to_oct_bb(oct_bb_t& self, const Vector4f pos[], const size_t pos_count);
-bool oct_bb_empty(const oct_bb_t& self);
-
-

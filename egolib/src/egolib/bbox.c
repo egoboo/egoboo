@@ -25,7 +25,7 @@
 #include "egolib/_math.h"
 #include "egolib/Math/AABB.hpp"
 
-int oct_bb_to_points(const oct_bb_t& self, Vector4f pos[], size_t pos_count)
+int oct_bb_t::to_points(const oct_bb_t& self, Vector4f pos[], size_t pos_count)
 {
     /// @author BB
     /// @details convert the corners of the level 1 bounding box to a point cloud
@@ -296,7 +296,7 @@ int oct_bb_to_points(const oct_bb_t& self, Vector4f pos[], size_t pos_count)
  * @param numberOfPoints
  *  the number of points in the array
  */
-void points_to_oct_bb(oct_bb_t& self, const Vector4f points[], const size_t numberOfPoints)
+void oct_bb_t::points_to_oct_bb(oct_bb_t& self, const Vector4f points[], const size_t numberOfPoints)
 {
     if (!points)
     {
@@ -317,7 +317,7 @@ void points_to_oct_bb(oct_bb_t& self, const Vector4f points[], const size_t numb
     // Join the octagonal bounding box (containing only the first point) with all other points.
     for (size_t i = 1; i < numberOfPoints; ++i)
     {
-        otmp.ctor(Vector3f(points[i][kX], points[i][kY], points[i][kZ]));
+        otmp = oct_vec_v2_t(Vector3f(points[i][kX], points[i][kY], points[i][kZ]));
 
         for (size_t j = 0; j < OCT_COUNT; ++j)
         {
@@ -441,7 +441,7 @@ void oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t&
 //--------------------------------------------------------------------------------------------
 bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const Vector3f& fvec, oct_vec_v2_t& odst)
 {
-    odst.ctor(fvec);
+    odst = oct_vec_v2_t(fvec);
 	{
 		for (size_t cnt = 0; cnt < OCT_COUNT; cnt++)
 		{
@@ -496,7 +496,7 @@ bool oct_bb_t::empty_raw(const oct_bb_t& self)
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_empty(const oct_bb_t& self)
+bool oct_bb_t::empty(const oct_bb_t& self)
 {
     if (self._empty ) return true;
 
@@ -532,11 +532,11 @@ bool oct_bb_t::empty_index(const oct_bb_t& self, int index)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_t::join(const oct_bb_t& other, int index)
+void oct_bb_t::join(const oct_bb_t& other, int index)
 {
     if (index < 0 || index >= OCT_COUNT)
     {
-        return rv_error;
+		throw std::runtime_error("index out of bounds");
     }
 
     // No simple cases, do the hard work.
@@ -544,7 +544,41 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other, int index)
     _maxs[index] = std::max(_maxs[index], other._maxs[index] );
 
     oct_bb_t::validate_index(*this, index);
-	return rv_success;
+}
+
+void oct_bb_t::join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
+{
+	// @todo Obviously the author does not know how set union works.
+	// no simple case, do the hard work
+	for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
+		dst._mins[i] = std::min(src1._mins[i], src2._mins[i]);
+		dst._maxs[i] = std::max(src1._maxs[i], src2._maxs[i]);
+	}
+
+	oct_bb_t::validate(dst);
+}
+
+void oct_bb_t::join(const oct_vec_v2_t& v)
+{
+	// @todo Obviously the author does not know how set union works.
+	for (size_t i = 0; i < OCT_COUNT; ++i)
+	{
+		_mins[i] = std::min(_mins[i], v[i]);
+		_maxs[i] = std::max(_maxs[i], v[i]);
+	}
+	oct_bb_t::validate(*this);
+}
+
+void oct_bb_t::join(const oct_bb_t& other)
+{
+	// @todo Obviously the author does not know how set union works.
+	// No simple case, do the hard work.
+	for (size_t i = 0; i < OCT_COUNT; ++i)
+	{
+		_mins[i] = std::min(_mins[i], other._mins[i]);
+		_maxs[i] = std::max(_maxs[i], other._maxs[i]);
+	}
+	oct_bb_t::validate(*this);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -552,7 +586,7 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
 {
     if (index < 0 || index >= OCT_COUNT)
     {
-        return rv_error;
+		throw std::runtime_error("index out of bounds");
     }
 
 	// @todo Obviously the author does not know how set intersection works.
@@ -565,19 +599,6 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
     _maxs[index]  = std::min(_maxs[index], other._maxs[index]);
 
     oct_bb_t::validate_index(*this, index);
-	return rv_success;
-}
-
-egolib_rv oct_bb_t::join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
-{
-	// @todo Obviously the author does not know how set union works.
-	// no simple case, do the hard work
-    for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
-        dst._mins[i]  = std::min(src1._mins[i], src2._mins[i]);
-        dst._maxs[i]  = std::max(src1._maxs[i], src2._maxs[i]);
-    }
-
-    oct_bb_t::validate(dst);
 	return rv_success;
 }
 
@@ -596,33 +617,6 @@ egolib_rv oct_bb_t::intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct
     }
 
     oct_bb_t::validate(dst);
-	return rv_success;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_t::join(const oct_vec_v2_t& v)
-{
-	// @todo Obviously the author does not know how set union works.
-    for (size_t i = 0; i < OCT_COUNT; ++i)
-    {
-        _mins[i] = std::min(_mins[i], v[i]);
-        _maxs[i] = std::max(_maxs[i], v[i]);
-    }
-    oct_bb_t::validate(*this);
-	return rv_success;
-}
-
-egolib_rv oct_bb_t::join(const oct_bb_t& other)
-{
-	// @todo Obviously the author does not know how set union works.
-    // No simple case, do the hard work.
-    for (size_t i = 0; i < OCT_COUNT; ++i)
-    {
-        _mins[i] = std::min(_mins[i], other._mins[i]);
-        _maxs[i] = std::max(_maxs[i], other._maxs[i]);
-    }
-
-    oct_bb_t::validate(*this);
 	return rv_success;
 }
 
@@ -646,22 +640,20 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_t::translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst) {
+void oct_bb_t::translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(t);
 	oct_bb_t::validate(dst);
-	return rv_success;
 }
 
-egolib_rv oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
+void oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(oct_vec_v2_t(t));
     oct_bb_t::validate(dst);
-	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v)
+void oct_bb_t::self_grow(oct_bb_t& self, const oct_vec_v2_t& v)
 {
     for (size_t i = 0; i < OCT_COUNT; ++i) 
     {
@@ -670,7 +662,6 @@ egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v)
     }
 
     oct_bb_t::validate(self);
-	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------

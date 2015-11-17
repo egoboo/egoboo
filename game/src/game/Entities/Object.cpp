@@ -2932,7 +2932,7 @@ bool Object::canCollide() const
     }
 
     //No collision box?
-    if (oct_bb_empty(chr_max_cv)) {
+    if (oct_bb_t::empty(chr_max_cv)) {
         return false;
     }
 

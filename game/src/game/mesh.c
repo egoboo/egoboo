@@ -263,7 +263,7 @@ void ego_mesh_t::make_bbox()
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            ovec.ctor(Vector3f(_tmem._plst[mesh_vrt][0],_tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
+            ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0],_tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
             poct.join(ovec);
         }
 
@@ -279,7 +279,7 @@ void ego_mesh_t::make_bbox()
         {
             ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 0.1;
             ovec[OCT_XY] = ovec[OCT_YX] = Ego::Math::sqrtTwo<float>() * ovec[OCT_X];
-            oct_bb_self_grow(poct, ovec);
+            oct_bb_t::self_grow(poct, ovec);
         }
 
         // extend the mesh bounding box
