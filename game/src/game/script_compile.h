@@ -126,6 +126,11 @@ protected:
     size_t _line_buffer_count;
     char _line_buffer[MAXLINESIZE];
 	void clear_line_buffer();
+    void line_buffer_append(char c) {
+        _line_buffer[_line_buffer_count] = c;
+        _line_buffer[_line_buffer_count+1] = CSTR_END;
+        _line_buffer_count++;
+    }
 
 public:
     size_t _load_buffer_count;
@@ -173,15 +178,15 @@ private:
 	static size_t surround_space(size_t position, char buffer[], size_t buffer_size, const size_t buffer_max);
 	static size_t insert_space(size_t position, char buffer[], size_t buffer_length, const size_t buffer_max);
 	static size_t fix_operators(char buffer[], size_t buffer_size, const size_t buffer_max);
-	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t *pscript);
+	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t& script);
 
-	static Uint32 jump_goto(int index, int index_end, script_info_t *pscript);
+	static Uint32 jump_goto(int index, int index_end, script_info_t& script);
 public:
-	static void parse_jumps(script_info_t *pscript);
-	static egolib_rv ai_script_upload_default(script_info_t *pscript);
+	static void parse_jumps(script_info_t& script);
+
 private:
-	size_t parse_token(Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read);
-	size_t load_one_line(size_t read, script_info_t *pscript);
+	size_t parse_token(Token& tok, ObjectProfile *ppro, script_info_t& script, size_t read);
+	size_t load_one_line(size_t read, script_info_t& script);
 	/**
 	 * @brief
 	 *  Compute the indention level of a line.
@@ -190,9 +195,9 @@ private:
 	 *  The indention level $j$ of a line with \f$2k\f$ leading spaces for some $k=0,1,\ldots$ is given by \f$\frac{2k
 	 *  }{2}=k\f$. The indention level \f$j\f$ of a line may not exceed \f$15\f$.
 	 */
-	int get_indentation(script_info_t *pscript);
+	int get_indentation(script_info_t& script);
 public:
-	void parse_line_by_line(ObjectProfile *ppro, script_info_t *pscript);
+	void parse_line_by_line(ObjectProfile *ppro, script_info_t& script);
 
 };
 
@@ -214,4 +219,4 @@ public:
  *		If this fails, then it tries to load the default script.
  *			If this fails, then the call to this function fails.
  */
-egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript);
+egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t& script);

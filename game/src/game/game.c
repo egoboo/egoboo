@@ -1740,7 +1740,7 @@ void game_load_profile_ai()
         // Load the AI script for this iobj
         std::string filePath = profile->getPathname() + "/script.txt";
 
-        load_ai_script_vfs( ps, filePath, profile.get(), &profile->getAIScript() );
+        load_ai_script_vfs( ps, filePath, profile.get(), profile->getAIScript() );
     }
 }
 

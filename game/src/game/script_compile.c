@@ -206,7 +206,7 @@ void parser_state_t::clear_line_buffer()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parser_state_t::load_one_line( size_t read, script_info_t *pscript )
+size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 {
     /// @author ZZ
     /// @details This function loads a line into the line buffer
@@ -255,11 +255,9 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t *pscript )
             break;
         }
 
-        _line_buffer[_line_buffer_count] = ' ';
-        _line_buffer[_line_buffer_count+1] = CSTR_END;
+        line_buffer_append(' ');
 
         read++;
-        _line_buffer_count++;
     }
 
     // Parse to comment or end of line
@@ -311,8 +309,7 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t *pscript )
         {
             foundtext = true;
 
-            _line_buffer[_line_buffer_count] = cTmp;
-            _line_buffer_count++;
+            line_buffer_append(cTmp);
         }
 
         read++;
@@ -320,15 +317,12 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t *pscript )
 
     if ( !foundtext )
     {
-        _line_buffer_count = 0;
+        clear_line_buffer();
     }
-
-    // terminate the line buffer properly
-    _line_buffer[_line_buffer_count] = CSTR_END;
 
     if ( _line_buffer_count > 0  && tabs_warning_needed )
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
 		e << "compilation error - tab character used to define spacing will cause an error `"
 		  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -370,7 +364,7 @@ size_t parser_state_t::surround_space( size_t position, char buffer[], size_t bu
 }
 
 //--------------------------------------------------------------------------------------------
-int parser_state_t::get_indentation(script_info_t *pscript )
+int parser_state_t::get_indentation(script_info_t& script )
 {
     int cnt = 0;
     char cTmp = _line_buffer[cnt];
@@ -381,9 +375,9 @@ int parser_state_t::get_indentation(script_info_t *pscript )
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
 		e << "invalid indention - number of spaces must be even - \n"
-			<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+		  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 		Log::get() << e;
         _error = true;
     }
@@ -391,7 +385,7 @@ int parser_state_t::get_indentation(script_info_t *pscript )
     cnt >>= 1;
     if ( cnt > 15 )
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
 		e << "invalid indention - too many spaces - \n"
 	      << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -440,7 +434,7 @@ size_t parser_state_t::fix_operators( char buffer[], size_t buffer_size, const s
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read)
+size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_t& script, size_t read)
 {
     /// @author ZZ
     /// @details This function tells what code is being indexed by read, it
@@ -453,9 +447,6 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     bool parsed = false;
 
     size_t       szWord_length_max = 0;
-
-    // check for bad pointers
-    if (!pscript) return AISMAXLOADSIZE;
 
     // figure out what the max word length actually is
     szWord_length_max = SDL_arraysize( tok.szWord );
@@ -518,7 +509,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         }
         else
         {
-			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
 			e << "string literal is too long - \n"
 	          << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 			Log::get() << e;
@@ -592,9 +583,9 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
         if ( CSTR_END == tok.szWord[1] || C_DOUBLE_QUOTE_CHAR == tok.szWord[1] )
         {
             // some kind of empty string
-			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+			Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
 			e << "string literal is empty - \n"
-				<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+			  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 			Log::get() << e;
 
             // some kind of error
@@ -643,9 +634,9 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
             // Failed to load object!
             if (!ProfileSystem::get().isValidProfileID((PRO_REF)tok.getValue()))
             {
-				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
 				e << "failed to load object " << tok.szWord << " - \n"
-					<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+				  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 				Log::get() << e;
             }
 
@@ -689,7 +680,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     // We couldn't figure out what this is, throw out an error code
     if ( !parsed )
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
 		e << "unknown opcode " << tok.szWord << " - \n"
 		  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -709,7 +700,7 @@ parse_token_end:
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t *pscript )
+void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_info_t& script )
 {
     BIT_FIELD loc_highbits = highbits;
 
@@ -720,22 +711,22 @@ void parser_state_t::emit_opcode( Token& tok, const BIT_FIELD highbits, script_i
     }
 
     // emit the opcode
-    if (!pscript->_instructions.isFull())
+    if (!script._instructions.isFull())
     {
-		pscript->_instructions.append(Instruction(loc_highbits | tok.getValue()));
+		script._instructions.append(Instruction(loc_highbits | tok.getValue()));
     }
     else
     {
-		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), tok.getLine());
+		Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), tok.getLine());
 		e << "script index larger than array - \n"
-			<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+		  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 		Log::get() << e;
     }
 
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *pscript )
+void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& script )
 {
     /// @author ZF
     /// @details This parses an AI script line by line
@@ -747,7 +738,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
     read = 0;
     for ( _token.setLine(0); read < _load_buffer_count; _token.setLine(_token.getLine() + 1) )
     {
-        read = load_one_line( read, pscript );
+        read = load_one_line( read, script );
         if ( 0 == _line_buffer_count ) continue;
 
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
@@ -760,8 +751,8 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
         //------------------------------
         // grab the first opcode
 
-        highbits = SetDataBits( get_indentation( pscript ) );
-        parseposition = parse_token(_token, ppro, pscript, parseposition );
+        highbits = SetDataBits( get_indentation( script ) );
+        parseposition = parse_token(_token, ppro, script, parseposition );
         if ( Token::Type::Function == _token.getType() )
         {
             if ( Ego::ScriptFunctions::End == _token.getValue() && 0 == highbits )
@@ -774,11 +765,11 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
             // the code type is a function
 
             // save the opcode
-            emit_opcode( _token, highbits, pscript );
+            emit_opcode( _token, highbits, script );
 
             // leave a space for the control code
             _token.setValue(0);
-            emit_opcode( _token, 0, pscript );
+            emit_opcode( _token, 0, script );
 
         }
         else if ( Token::Type::Variable == _token.getType() )
@@ -790,47 +781,47 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
             int operands = 0;
 
             // save in the value's opcode
-            emit_opcode( _token, highbits, pscript );
+            emit_opcode( _token, highbits, script );
 
             // save a position for the operand count
             _token.setValue(0);
-            operand_index = pscript->_instructions.getLength();    //AisCompiled_offset;
-            emit_opcode( _token, 0, pscript );
+            operand_index = script._instructions.getLength();    //AisCompiled_offset;
+            emit_opcode( _token, 0, script );
 
             // handle the "="
             highbits = 0;
-            parseposition = parse_token(_token, ppro, pscript, parseposition );  // EQUALS
+            parseposition = parse_token(_token, ppro, script, parseposition );  // EQUALS
 			if ( Token::Type::Operator != _token.getType() || 0 != strcmp( _token.szWord, "=" ) )
             {
-				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
 				e << "invalid equation - \n"
-					<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+				  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
             }
 
             //------------------------------
             // grab the next opcode
 
-            parseposition = parse_token( _token, ppro, pscript, parseposition );
+            parseposition = parse_token( _token, ppro, script, parseposition );
             if ( Token::Type::Variable == _token.getType() || Token::Type::Constant == _token.getType() )
             {
                 // this is a value or a constant
-                emit_opcode( _token, 0, pscript );
+                emit_opcode( _token, 0, script );
                 operands++;
 
-                parseposition = parse_token(_token, ppro, pscript, parseposition );
+                parseposition = parse_token(_token, ppro, script, parseposition );
             }
             else if ( Token::Type::Operator != _token.getType() )
             {
                 // this is a function or an unknown value. do not break the script.
-				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+				Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
 				e << "invalid operand " << _token.szWord << " - \n"
-					<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+				  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 				Log::get() << e;
 
-                emit_opcode( _token, 0, pscript );
+                emit_opcode( _token, 0, script );
                 operands++;
 
-                parseposition = parse_token(_token, ppro, pscript, parseposition );
+                parseposition = parse_token(_token, ppro, script, parseposition );
             }
 
             // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
@@ -840,9 +831,9 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
                 if ( Token::Type::Operator != _token.getType() )
                 {
                     // problem with the loop
-					Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, pscript->getName(), _token.getLine());
+					Log::CompilerEntry e(Log::Level::Message, __FILE__, __LINE__, __FUNCTION__, script.getName(), _token.getLine());
 					e << "expected operator - \n"
-						<< " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
+					  << " - \n`" << _line_buffer << "`" << Log::EndOfEntry;
 					Log::get() << e;
                     break;
                 }
@@ -851,51 +842,51 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t *psc
 				highbits = SetDataBits( _token.getValue() );
 
                 // VALUE
-                parseposition = parse_token(_token, ppro, pscript, parseposition );
+                parseposition = parse_token(_token, ppro, script, parseposition );
                 if ( Token::Type::Constant != _token.getType() && Token::Type::Variable != _token.getType() )
                 {
                     // not having a constant or a value here breaks the function. stop processing
 					Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
-						               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+						               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.szWord );
                     break;
                 }
 
-                emit_opcode( _token, highbits, pscript );
+                emit_opcode( _token, highbits, script );
                 operands++;
 
                 // OPERATOR
-                parseposition = parse_token( _token, ppro, pscript, parseposition );
+                parseposition = parse_token( _token, ppro, script, parseposition );
             }
-            pscript->_instructions[operand_index]._value = operands;
+            script._instructions[operand_index]._value = operands;
         }
         else if ( Token::Type::Constant == _token.getType() )
         {
 			Log::get().message("%s:%d:%s: compilation error - invalid constant \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.szWord );
         }
         else if ( Token::Type::Unknown == _token.getType() )
         {
             // unknown opcode, do not process this line
 			Log::get().message("%s:%d:%s: compilation error - invalid operand \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.szWord );
         }
         else
         {
 			Log::get().message("%s:%d:%s: compilation error - compiler is broken \"%s\"(%d) - \"%s\"\n", \
-				               __FILE__, __LINE__, __FUNCTION__, pscript->_name.c_str(), _token.getLine(), _token.szWord );
+				               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), _token.getLine(), _token.szWord );
             break;
         }
     }
 
     _token.setValue(Ego::ScriptFunctions::End);
     _token.setType(Token::Type::Function);
-    emit_opcode( _token, 0, pscript );
-    _token.setValue(pscript->_instructions.getLength() + 1);
-    emit_opcode( _token, 0, pscript );
+    emit_opcode( _token, 0, script );
+    _token.setValue(script._instructions.getLength() + 1);
+    emit_opcode( _token, 0, script );
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t *pscript )
+Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t& script )
 {
     /// @author ZZ
     /// @details This function figures out where to jump to on a fail based on the
@@ -904,13 +895,13 @@ Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t *pscri
 
     int targetindent, indent;
 
-    auto value = pscript->_instructions[index]; /*AisCompiled_buffer[index];*/  index += 2;
+    auto value = script._instructions[index]; /*AisCompiled_buffer[index];*/  index += 2;
     targetindent = GetDataBits( value._value );
     indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
-        value = pscript->_instructions[index]; //AisCompiled_buffer[index];
+        value = script._instructions[index]; //AisCompiled_buffer[index];
         indent = GetDataBits ( value._value );
         if ( indent > targetindent )
         {
@@ -925,7 +916,7 @@ Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t *pscri
             {
                 // Operations cover each operand
                 index++;
-                value = pscript->_instructions[index]; //AisCompiled_buffer[index];
+                value = script._instructions[index]; //AisCompiled_buffer[index];
                 index++;
                 index += ( value._value & 255 );
             }
@@ -936,7 +927,7 @@ Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t *pscri
 }
 
 //--------------------------------------------------------------------------------------------
-void parser_state_t::parse_jumps( script_info_t *pscript )
+void parser_state_t::parse_jumps( script_info_t& script )
 {
     /// @author ZZ
     /// @details This function sets up the fail jumps for the down and dirty code
@@ -944,27 +935,27 @@ void parser_state_t::parse_jumps( script_info_t *pscript )
     Uint32 index, index_end;
 
     index     = 0;                    //AisStorage.ary[ainumber].iStartPosition;
-    index_end = pscript->_instructions.getLength();   //AisStorage.ary[ainumber].iEndPosition;
+    index_end = script._instructions.getLength();   //AisStorage.ary[ainumber].iEndPosition;
 
-    auto value = pscript->_instructions[index];             //AisCompiled_buffer[index];
+    auto value = script._instructions[index];             //AisCompiled_buffer[index];
     while ( index < index_end )
     {
-        value = pscript->_instructions[index];         //AisCompiled_buffer[index];
+        value = script._instructions[index];         //AisCompiled_buffer[index];
 
         // Was it a function
         if (value.isInv())
         {
             // Each function needs a jump
-            auto iTmp = jump_goto( index, index_end, pscript );
+            auto iTmp = jump_goto( index, index_end, script );
             index++;
-            pscript->_instructions[index]._value = iTmp;              //AisCompiled_buffer[index] = iTmp;
+            script._instructions[index]._value = iTmp;              //AisCompiled_buffer[index] = iTmp;
             index++;
         }
         else
         {
             // Operations cover each operand
             index++;
-            auto iTmp = pscript->_instructions[index];              //AisCompiled_buffer[index];
+            auto iTmp = script._instructions[index];              //AisCompiled_buffer[index];
             index++;
 			index += CLIP_TO_08BITS( iTmp._value );
         }
@@ -1677,11 +1668,8 @@ bool load_ai_codes_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript)
+egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t& script)
 {
-	/// @author ZZ
-	/// @details This function loads a script to memory
-
 	ps.clear_error();
 	ps._line_count = 0;
 	auto fileread = std::unique_ptr<vfs_FILE,void(*)(vfs_FILE *)>
@@ -1704,8 +1692,7 @@ egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, O
 
 	// load the file
 	size_t file_size = vfs_fileLength(fileread.get());
-	if (-1 == file_size)
-	{
+	if (-1 == file_size) {
 		Log::Entry e(Log::Level::Error,__FILE__, __LINE__, __FUNCTION__);
 		e << "unable to load AI script `" << loadname << "`" << Log::EndOfEntry;
 		Log::get() << e;
@@ -1724,7 +1711,7 @@ egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, O
 	}
 
 	ps._load_buffer_count = (int)vfs_read(ps._load_buffer.data(), 1, file_size, fileread.get());
-	vfs_close(fileread.get());
+    fileread = nullptr;
 
 	// if the file is empty, use the default script
 	if (0 == ps._load_buffer_count)
@@ -1736,29 +1723,29 @@ egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, O
 	}
 
 	// save the filename for error logging
-	pscript->_name = loadname;
+	script._name = loadname;
 
 	// we have parsed nothing yet
-	pscript->_instructions._length = 0;
+	script._instructions._length = 0;
 
 	// parse/compile the scripts
-	ps.parse_line_by_line(ppro, pscript);
+	ps.parse_line_by_line(ppro, script);
 
 	// determine the correct jumps
-	parser_state_t::parse_jumps(pscript);
+	parser_state_t::parse_jumps(script);
 
 	return rv_success;
 }
-egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript)
+egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t& script)
 {
 	/// @author ZZ
 	/// @details This function loads a script to memory
 
-	if (rv_success != load_ai_script_vfs0(ps, loadname, ppro, pscript)) {
-		Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
+	if (rv_success != load_ai_script_vfs0(ps, loadname, ppro, script)) {
+		Log::Entry e(Log::Level::Info, __FILE__, __LINE__, __FUNCTION__);
 		e << "unable to load script file `" << loadname << "` - loading default script `" << "mp_data/script.txt" << "` instead" << Log::EndOfEntry;
 		Log::get() << e;
-		if (rv_success != load_ai_script_vfs0(ps, "mp_data/script.txt", ppro, pscript)) {
+		if (rv_success != load_ai_script_vfs0(ps, "mp_data/script.txt", ppro, script)) {
 			return rv_fail;
 		}
 	}
