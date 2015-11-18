@@ -117,18 +117,21 @@ void Buffer::append(const char *bytes, size_t numberOfBytes)
 {
 	size_t maximalFreeCapacity = SIZE_MAX - _size;
 	// If the maximal free capacity is smaller than the number of Bytes to append ...
-	if (maximalFreeCapacity < numberOfBytes) {
+	if (maximalFreeCapacity < numberOfBytes)
+	{
 		// ... then raise an exception.
 		throw std::bad_array_new_length();
 	}
 	size_t capacity = _capacity;
 	size_t requiredCapacity = _size + numberOfBytes;
 	// If the capacity is smaller than the required capacity ...
-	if (capacity < requiredCapacity) {
-		// ... increase the capacity by the difference of the required capacity and the capacity.
+	if (capacity < requiredCapacity)
+	{
+		// ... then increase the capacity by the difference of the required capacity and the capacity.
 		increaseCapacity(requiredCapacity - capacity);
 	}
-	for (size_t i = 0, n = numberOfBytes; i < n; ++i) {
+	for (size_t i = 0, n = numberOfBytes; i < n; ++i)
+	{
 		_elements[i] = bytes[i];
 	}
 	_size += numberOfBytes;

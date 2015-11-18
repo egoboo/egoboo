@@ -86,11 +86,6 @@ parser_state_t * parser_state_t::_singleton = nullptr;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static script_info_t default_ai_script;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 StaticArray<opcode_data_t, MAX_OPCODE> OpList;
 
 bool debug_scripts = false;
@@ -120,22 +115,14 @@ const char *script_operator_names[SCRIPT_OPERATORS_COUNT] =
 
 //--------------------------------------------------------------------------------------------
 
-//Private functions
-
-
-
-
-
-// functions for debugging the scripts
+/// Emit a token to standard output in debug mode.
+void print_token(const Token& token);
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
-    static void print_token();
     static void print_line();
 #else
-    #define print_token()
     #define print_line()
 #endif
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 parser_state_t *parser_state_t::initialize()
@@ -165,7 +152,7 @@ parser_state_t& parser_state_t::get()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 size_t parser_state_t::insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max )
 {
     /// @author ZZ
@@ -717,7 +704,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
 
 parse_token_end:
 
-    print_token();
+    print_token(tok);
     return read;
 }
 
@@ -1690,107 +1677,102 @@ bool load_ai_codes_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv parser_state_t::ai_script_upload_default( script_info_t * pscript )
+egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript)
 {
-    /// @author ZF
-    /// @details This loads the default AI script into a character profile ai
-    //           It's not optimal since it duplicates the AI script data.
+	/// @author ZZ
+	/// @details This function loads a script to memory
 
-    if ( NULL == pscript ) return rv_error;
+	ps.clear_error();
+	ps._line_count = 0;
+	auto fileread = std::unique_ptr<vfs_FILE,void(*)(vfs_FILE *)>
+		(
+			vfs_openRead(loadname.c_str()),
+			[](vfs_FILE *file)
+			{
+				if (file) vfs_close(file);
+			}
+		);
 
-	pscript->_name = default_ai_script._name;
-	pscript->_instructions = default_ai_script._instructions;
+	// No such file
+	if (!fileread)
+	{
+		Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
+		e << "AI script `" << loadname << "` was not found" << Log::EndOfEntry;
+		Log::get() << e;
+		return rv_fail;
+	}
 
-    pscript->indent = 0;
-    pscript->indent_last = 0;
-    pscript->set_pos(0);
+	// load the file
+	size_t file_size = vfs_fileLength(fileread.get());
+	if (-1 == file_size)
+	{
+		Log::Entry e(Log::Level::Error,__FILE__, __LINE__, __FUNCTION__);
+		e << "unable to load AI script `" << loadname << "`" << Log::EndOfEntry;
+		Log::get() << e;
+		return rv_fail;
+	}
 
-    return rv_success;
-}
+	//Reset read buffer first
+	ps._load_buffer.fill(CSTR_END);
 
-//--------------------------------------------------------------------------------------------
-egolib_rv load_ai_script_vfs( parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript )
-{
-    /// @author ZZ
-    /// @details This function loads a script to memory
+	if (file_size > ps._load_buffer.size()) {
+		Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
+		e << "file size " << file_size << " of script file `" << loadname << "` exceeds maximum file size " << ps._load_buffer.size()
+		  << Log::EndOfEntry;
+		Log::get() << e;
+		return rv_fail;
+	}
 
-    vfs_FILE* fileread;
-    size_t file_size;
+	ps._load_buffer_count = (int)vfs_read(ps._load_buffer.data(), 1, file_size, fileread.get());
+	vfs_close(fileread.get());
 
-    //Handle default AI
-    if ( NULL == pscript ) pscript = &( default_ai_script );
+	// if the file is empty, use the default script
+	if (0 == ps._load_buffer_count)
+	{
+		Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
+		e << "script file `" << loadname << "` is empty" << Log::EndOfEntry;
+		Log::get() << e;
+		return rv_fail;
+	}
 
-    ps._line_count = 0;
-    fileread = vfs_openRead( loadname.c_str() );
-
-    // No such file
-    if ( NULL == fileread )
-    {
-		Log::get().message("%s:%d:%s: missing a AI script (%s).\n", __FILE__, __LINE__, __FUNCTION__, loadname.c_str() );
-		Log::get().message("          Using the default AI script instead (\"mp_data/script.txt\")\n" );
-
-        ps.ai_script_upload_default( pscript );
-        return rv_fail;
-    }
-
-    // load the file
-    file_size = vfs_fileLength( fileread );
-
-    //Reset read buffer first
-    ps._load_buffer.fill(CSTR_END);
-
-    if(file_size > ps._load_buffer.size()) {
-        Log::get().warn("%s:%d:%s: compilation error - script file size is bigger than buffer!\n", __FILE__, __LINE__, __FUNCTION__);
-        ps.ai_script_upload_default( pscript );
-        return rv_fail;
-    }
-
-    ps._load_buffer_count = ( int )vfs_read( ps._load_buffer.data(), 1, file_size, fileread );
-    vfs_close( fileread );
-
-    // if the file is empty, use the default script
-    if ( 0 == ps._load_buffer_count )
-    {
-		Log::get().message("%s:%d:%s: compilation error - script file is empty. \"%s\"\n", \
-			               __FILE__, __LINE__, __FUNCTION__, loadname.c_str() );
-
-        ps.ai_script_upload_default( pscript );
-        return rv_fail;
-    }
-
-    // save the filename for error logging
+	// save the filename for error logging
 	pscript->_name = loadname;
 
-    // we have parsed nothing yet
-    pscript->_instructions._length = 0;
+	// we have parsed nothing yet
+	pscript->_instructions._length = 0;
 
-    // parse/compile the scripts
-    ps.parse_line_by_line( ppro, pscript );
+	// parse/compile the scripts
+	ps.parse_line_by_line(ppro, pscript);
 
-    // determine the correct jumps
-    parser_state_t::parse_jumps( pscript );
+	// determine the correct jumps
+	parser_state_t::parse_jumps(pscript);
 
-    return rv_success;
+	return rv_success;
 }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
-void print_token( token_t * ptok )
+egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript)
 {
-    if ( NULL != ptok )
-    {
-        printf( "------------\n", globalparsename, ptok->iLine );
-        printf( "\tToken.iIndex == %d\n", ptok->iIndex );
-        printf( "\tToken.iValue == %d\n", ptok->iValue );
-        printf( "\tToken.cType  == \'%c\'\n", ptok->cType );
-        printf( "\tToken.szWord  == \"%s\"\n", szWord );
-    }
+	/// @author ZZ
+	/// @details This function loads a script to memory
+
+	if (rv_success != load_ai_script_vfs0(ps, loadname, ppro, pscript)) {
+		Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
+		e << "unable to load script file `" << loadname << "` - loading default script `" << "mp_data/script.txt" << "` instead" << Log::EndOfEntry;
+		Log::get() << e;
+		if (rv_success != load_ai_script_vfs0(ps, "mp_data/script.txt", ppro, pscript)) {
+			return rv_fail;
+		}
+	}
+	return rv_success;
 }
 
-#endif
-
 //--------------------------------------------------------------------------------------------
+
+void print_token(const Token& token) {
+#if defined(_DEBUG)
+	std::cout << token;
+#endif
+}
+
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 void print_line( parser_state_t * ps )
 {

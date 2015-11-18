@@ -197,15 +197,21 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// function prototypes
-
 
 /**
  * @brief
  *	Load an AI script.
  * @param parser
  *	the parser
+ * @param loadname
+ *  the loadname
+ * @param objectProfile
+ *  the object profile
+ * @param script
+ * the script
+ * @remark
+ *  A call to this function tries to load the script.
+ *		If this fails, then it tries to load the default script.
+ *			If this fails, then the call to this function fails.
  */
 egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript);

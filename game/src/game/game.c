@@ -1740,7 +1740,7 @@ void game_load_profile_ai()
         // Load the AI script for this iobj
         std::string filePath = profile->getPathname() + "/script.txt";
 
-        load_ai_script_vfs( ps, filePath.c_str(), profile.get(), &profile->getAIScript() );
+        load_ai_script_vfs( ps, filePath, profile.get(), &profile->getAIScript() );
     }
 }
 
@@ -2162,12 +2162,6 @@ bool game_load_module_data( const char *smallname )
 
     // ensure that the script parser exists
     parser_state_t& ps = parser_state_t::get();
-    ps.clear_error();
-    if ( load_ai_script_vfs( ps, "mp_data/script.txt", NULL, NULL ) != rv_success )
-    {
-		Log::get().warn( "game_load_module_data() - cannot load the default script\n" );
-        return false;
-    }
 
     // generate the module directory
     std::string modname = str_append_slash(smallname);
