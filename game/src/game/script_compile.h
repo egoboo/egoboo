@@ -123,14 +123,58 @@ public:
     int _line_count;
 
 protected:
-    size_t _line_buffer_count;
-    char _line_buffer[MAXLINESIZE];
-	void clear_line_buffer();
-    void line_buffer_append(char c) {
-        _line_buffer[_line_buffer_count] = c;
-        _line_buffer[_line_buffer_count+1] = CSTR_END;
-        _line_buffer_count++;
-    }
+    struct linebuffer_t {
+        size_t _size;
+        char _elements[MAXLINESIZE];
+        linebuffer_t() {
+            _size = 0;
+            _elements[0] = CSTR_END;
+        }
+        size_t capacity() const {
+            return MAXLINESIZE;
+        }
+        char& operator[](size_t i) {
+            return _elements[i];
+        }
+        size_t size() const {
+            return _size;
+        }
+        void clear() {
+            _elements[0] = CSTR_END;
+            _size = 0;
+        }
+        void append(char c) {
+            if (_size >= MAXLINESIZE) {
+                throw std::runtime_error("line buffer overflow");
+            }
+            _elements[_size++] = c;
+            _elements[_size] = CSTR_END;
+        }
+        const char *data() const {
+            return _elements;
+        }
+        // 0 (before the first character) and n-1 (before the last character), n (behind the last character)
+        void insert(char c, size_t i) {
+            if (i > _size) {
+                throw std::runtime_error("index out of bounds");
+            }
+            if (_size >= MAXLINESIZE) {
+                throw std::runtime_error("line buffer overflow");
+            }
+            size_t j = i;
+            char d = c;
+            // Bubble the values starting at i (inclusive) up.
+            while (j <= _size)
+            {
+                std::swap(_elements[j], d); // Swap the existing value with the incoming value.
+                j++;
+            }
+            _elements[++_size] = CSTR_END;
+
+        }
+    };
+
+    linebuffer_t _linebuffer;
 
 public:
     size_t _load_buffer_count;
