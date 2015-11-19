@@ -156,8 +156,6 @@ size_t parser_state_t::insert_space( size_t position, char buffer[], size_t buff
     /// @author ZZ
     /// @details This function adds a space into the load line if there isn't one there already
 
-    char cTmp, cSwap;
-
     // fail if the new length will be too long
     if (buffer_length >= buffer_max)
     {
@@ -166,32 +164,15 @@ size_t parser_state_t::insert_space( size_t position, char buffer[], size_t buff
 
     if (!Ego::isspace(buffer[position]))
     {
-        // we are definitely going to add one character to the length
-        buffer_length++;
-
-        // save the old value
-        cTmp = buffer[position];
-
-        // insert a space
-        buffer[position] = ' ';
-        position++;
+        char cTmp = ' ';
 
         // bubble the values up
-        while ( position < buffer_length )
+        while ( position <= buffer_length )
         {
-            // save the old one
-            cSwap = buffer[position];
-
-            // insert the saves one
-            buffer[position] = cTmp;
-
-            // save the new one
-            cTmp = cSwap;
-
+            std::swap(cTmp, buffer[position]);
             position++;
         }
-
-        buffer[buffer_length] = CSTR_END;
+        buffer[++buffer_length] = CSTR_END;
     }
 
     return buffer_length;
@@ -346,13 +327,10 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parser_state_t::surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max )
+void parser_state_t::surround_space( size_t position, linebuffer_t& buffer )
 {
-    buffer_size = insert_space( position + 1, buffer, buffer_size, buffer_max );
-
-    buffer_size = insert_space( position, buffer, buffer_size, buffer_max );
-
-    return buffer_size;
+    buffer._size = insert_space( position + 1, (char *)buffer.data(), buffer.size(), buffer.capacity());
+    buffer._size = insert_space( position, (char *)buffer.data(), buffer.size(), buffer.capacity());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -389,7 +367,7 @@ int parser_state_t::get_indentation(script_info_t& script )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parser_state_t::fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max )
+size_t parser_state_t::fix_operators( linebuffer_t& buffer )
 {
     /// @author ZZ
     /// @details This function puts spaces around operators to seperate words better
@@ -399,7 +377,7 @@ size_t parser_state_t::fix_operators( char buffer[], size_t buffer_size, const s
     bool inside_string = false;
 
     cnt = 0;
-    while ( cnt < buffer_size )
+    while ( cnt < buffer.size() )
     {
         cTmp = buffer[cnt];
         if ( C_DOUBLE_QUOTE_CHAR == cTmp )
@@ -414,7 +392,7 @@ size_t parser_state_t::fix_operators( char buffer[], size_t buffer_size, const s
                  '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
                  '=' == cTmp )
             {
-                buffer_size = surround_space( cnt, buffer, buffer_size, buffer_max );
+                surround_space( cnt, buffer);
                 cnt++;
             }
         }
@@ -422,7 +400,7 @@ size_t parser_state_t::fix_operators( char buffer[], size_t buffer_size, const s
         cnt++;
     }
 
-    return buffer_size;
+    return buffer.size();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -737,7 +715,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
         print_line();
 #endif
 
-        _linebuffer._size = fix_operators( (char *)_linebuffer.data(), _linebuffer.size(), _linebuffer.capacity() );
+        fix_operators( _linebuffer );
         parseposition = 0;
 
         //------------------------------
