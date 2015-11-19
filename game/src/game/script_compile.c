@@ -349,14 +349,12 @@ size_t parser_state_t::fix_operators( linebuffer_t& buffer )
     /// @author ZZ
     /// @details This function puts spaces around operators to seperate words better
 
-    size_t cnt;
-    char   cTmp;
     bool inside_string = false;
 
-    cnt = 0;
+    size_t cnt = 0;
     while ( cnt < buffer.size() )
     {
-        cTmp = buffer[cnt];
+        char cTmp = buffer[cnt];
         if ( C_DOUBLE_QUOTE_CHAR == cTmp )
         {
             inside_string = !inside_string;
@@ -389,14 +387,9 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     ///    in ptok->iIndex
 
     int cnt;
-    char cTmp;
-    IDSZ idsz;
-    bool parsed = false;
-
-    size_t       szWord_length_max = 0;
 
     // figure out what the max word length actually is
-    szWord_length_max = SDL_arraysize( tok.szWord );
+    const size_t szWord_length_max = SDL_arraysize( tok.szWord );
 
     // Reset the token
 	tok = Token();
@@ -408,10 +401,10 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     }
 
     // nothing is parsed yet
-    parsed = false;
+    bool parsed = false;
 
     // Skip any initial spaces
-    cTmp = _linebuffer[read];
+    char cTmp = _linebuffer[read];
     while (Ego::isspace(cTmp) && read < _linebuffer.size())
     {
         read++;
@@ -502,7 +495,7 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     // Check for IDSZ constant
     if ( !parsed && ( '[' == tok.szWord[0] ) )
     {
-        idsz = MAKE_IDSZ( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
+        IDSZ idsz = MAKE_IDSZ( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
 
         tok.setValue(idsz);
         tok.setType(Token::Type::Constant);
@@ -678,11 +671,7 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
     /// @author ZF
     /// @details This parses an AI script line by line
 
-    size_t read;
-    Uint32 highbits;
-    size_t parseposition;
-
-    read = 0;
+    size_t read = 0;
     for ( _token.setLine(0); read < _load_buffer_count; _token.setLine(_token.getLine() + 1) )
     {
         read = load_one_line( read, script );
@@ -693,13 +682,12 @@ void parser_state_t::parse_line_by_line( ObjectProfile *ppro, script_info_t& scr
 #endif
 
         fix_operators( _linebuffer );
-        parseposition = 0;
 
         //------------------------------
         // grab the first opcode
 
-        highbits = SetDataBits( get_indentation( script ) );
-        parseposition = parse_token(_token, ppro, script, parseposition );
+        uint32_t highbits = SetDataBits( get_indentation( script ) );
+        size_t parseposition = parse_token(_token, ppro, script, 0 );
         if ( Token::Type::Function == _token.getType() )
         {
             if ( Ego::ScriptFunctions::End == _token.getValue() && 0 == highbits )
@@ -840,11 +828,9 @@ Uint32 parser_state_t::jump_goto( int index, int index_end, script_info_t& scrip
     ///    starting location and the following code.  The starting location
     ///    should always be a function code with indentation
 
-    int targetindent, indent;
-
     auto value = script._instructions[index]; /*AisCompiled_buffer[index];*/  index += 2;
-    targetindent = GetDataBits( value._value );
-    indent = 100;
+    int targetindent = GetDataBits( value._value );
+    int indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
@@ -879,15 +865,13 @@ void parser_state_t::parse_jumps( script_info_t& script )
     /// @author ZZ
     /// @details This function sets up the fail jumps for the down and dirty code
 
-    Uint32 index, index_end;
+    uint32_t index     = 0;
+    uint32_t index_end = script._instructions.getLength();
 
-    index     = 0;                    //AisStorage.ary[ainumber].iStartPosition;
-    index_end = script._instructions.getLength();   //AisStorage.ary[ainumber].iEndPosition;
-
-    auto value = script._instructions[index];             //AisCompiled_buffer[index];
+    auto value = script._instructions[index];
     while ( index < index_end )
     {
-        value = script._instructions[index];         //AisCompiled_buffer[index];
+        value = script._instructions[index];
 
         // Was it a function
         if (value.isInv())
