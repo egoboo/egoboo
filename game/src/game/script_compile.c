@@ -150,44 +150,52 @@ parser_state_t& parser_state_t::get()
 }
 
 //--------------------------------------------------------------------------------------------
+static bool isNewline(char x) {
+    return ASCII_LINEFEED_CHAR == x || C_CARRIAGE_RETURN_CHAR == x;
+}
+
+bool parser_state_t::skipNewline(size_t& read, script_info_t& script) {
+    size_t newread = read;
+    if (newread < _load_buffer_count) {
+        char current = _load_buffer[newread];
+        if (isNewline(current)) {
+            newread++;
+            if (newread < _load_buffer_count) {
+                char old = current;
+                current = _load_buffer[newread];
+                if (isNewline(current) && old != current) {
+                    newread++;
+                }
+            }
+        }
+    }
+    if (read != newread) {
+        read = newread;
+        return true;
+    } else {
+        return false;
+    }
+}
 size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 {
     /// @author ZZ
     /// @details This function loads a line into the line buffer
 
-    int foundtext;
     char cTmp;
-    bool tabs_warning_needed, inside_string;
 
     // Parse to start to maintain indentation
 	_linebuffer.clear();
 
-    inside_string = false;
-
     // try to trap all end of line conditions so we can properly count the lines
-    tabs_warning_needed = false;
+    bool tabs_warning_needed = false;
     while ( read < _load_buffer_count )
     {
+        if (skipNewline(read, script)) {
+            _linebuffer.clear();
+            return read;
+        }
+
         cTmp = _load_buffer[read];
-
-        if ( ASCII_LINEFEED_CHAR == cTmp && C_CARRIAGE_RETURN_CHAR == _load_buffer[read+1] )
-        {
-			_linebuffer.clear();
-            return read + 2;
-        }
-
-        if ( C_CARRIAGE_RETURN_CHAR == cTmp && ASCII_LINEFEED_CHAR == _load_buffer[read+1] )
-        {
-            _linebuffer.clear();
-            return read + 2;
-        }
-
-        if ( ASCII_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp )
-        {
-            _linebuffer.clear();
-            return read + 1;
-        }
-
         if ( C_TAB_CHAR == cTmp )
         {
             tabs_warning_needed = true;
@@ -205,14 +213,14 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
     }
 
     // Parse to comment or end of line
-    foundtext = false;
-    inside_string = false;
+    bool foundtext = false;
+    bool inside_string = false;
     while ( read < _load_buffer_count )
     {
         cTmp = _load_buffer[read];
 
         // we reached endline
-        if ( C_CARRIAGE_RETURN_CHAR == cTmp || ASCII_LINEFEED_CHAR == cTmp )
+        if (isNewline(cTmp))
         {
             break;
         }
@@ -275,18 +283,9 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
     // scan to the beginning of the next line
     while ( read < _load_buffer_count )
     {
-        if ( ASCII_LINEFEED_CHAR == _load_buffer[read] && C_CARRIAGE_RETURN_CHAR == _load_buffer[read+1] )
-        {
-            read += 2;
+        if (skipNewline(read, script)) {
             break;
-        }
-        else if ( C_CARRIAGE_RETURN_CHAR == _load_buffer[read] && ASCII_LINEFEED_CHAR == _load_buffer[read+1] )
-        {
-            read += 2;
-            break;
-        }
-        else if ( CSTR_END == _load_buffer[read] || ASCII_LINEFEED_CHAR == _load_buffer[read] || C_CARRIAGE_RETURN_CHAR == _load_buffer[read] )
-        {
+        } else if (CSTR_END == _load_buffer[read]) {
             read += 1;
             break;
         }

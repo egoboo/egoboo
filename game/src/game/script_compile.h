@@ -94,6 +94,58 @@ extern const char *script_operator_names[SCRIPT_OPERATORS_COUNT];
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
+template <size_t Capacity>
+struct buffer_t {
+    size_t _size;
+    char _elements[Capacity];
+    buffer_t() {
+        _size = 0;
+        _elements[0] = CSTR_END;
+    }
+    size_t capacity() const {
+        return Capacity;
+    }
+    char& operator[](size_t i) {
+        return _elements[i];
+    }
+    size_t size() const {
+        return _size;
+    }
+    void clear() {
+        _elements[0] = CSTR_END;
+        _size = 0;
+    }
+    void append(char c) {
+        if (_size >= Capacity) {
+            throw std::runtime_error("buffer overflow");
+        }
+        _elements[_size++] = c;
+        _elements[_size] = CSTR_END;
+    }
+    const char *data() const {
+        return _elements;
+    }
+    // 0 (before the first character) and n-1 (before the last character), n (behind the last character)
+    void insert(char c, size_t i) {
+        if (i > _size) {
+            throw std::runtime_error("index out of bounds");
+        }
+        if (size() >= capacity()) {
+            throw std::runtime_error("buffer overflow");
+        }
+        size_t j = i;
+        char d = c;
+        // Bubble the values starting at i (inclusive) up.
+        while (j <= _size)
+        {
+            std::swap(_elements[j], d); // Swap the existing value with the incoming value.
+            j++;
+        }
+        _elements[++_size] = CSTR_END;
+
+    }
+};
+
 // the current state of the parser
 struct parser_state_t
 {
@@ -123,56 +175,11 @@ public:
     int _line_count;
 
 protected:
-    struct linebuffer_t {
-        size_t _size;
-        char _elements[MAXLINESIZE];
-        linebuffer_t() {
-            _size = 0;
-            _elements[0] = CSTR_END;
-        }
-        size_t capacity() const {
-            return MAXLINESIZE;
-        }
-        char& operator[](size_t i) {
-            return _elements[i];
-        }
-        size_t size() const {
-            return _size;
-        }
-        void clear() {
-            _elements[0] = CSTR_END;
-            _size = 0;
-        }
-        void append(char c) {
-            if (_size >= MAXLINESIZE) {
-                throw std::runtime_error("line buffer overflow");
-            }
-            _elements[_size++] = c;
-            _elements[_size] = CSTR_END;
-        }
-        const char *data() const {
-            return _elements;
-        }
-        // 0 (before the first character) and n-1 (before the last character), n (behind the last character)
-        void insert(char c, size_t i) {
-            if (i > _size) {
-                throw std::runtime_error("index out of bounds");
-            }
-            if (size() >= capacity()) {
-                throw std::runtime_error("line buffer overflow");
-            }
-            size_t j = i;
-            char d = c;
-            // Bubble the values starting at i (inclusive) up.
-            while (j <= _size)
-            {
-                std::swap(_elements[j], d); // Swap the existing value with the incoming value.
-                j++;
-            }
-            _elements[++_size] = CSTR_END;
-
-        }
-    };
+    // @brief Skip '\n', '\r', '\n\r' or '\r\n'.
+    // @return @a true if input symbols were consumed, @a false otherwise
+    // @post @a read was incremented by the number of input symbols consumed
+    bool skipNewline(size_t& read, script_info_t& script);
+    struct linebuffer_t : buffer_t<MAXLINESIZE> {};
 
     linebuffer_t _linebuffer;
 
