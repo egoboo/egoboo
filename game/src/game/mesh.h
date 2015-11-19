@@ -52,14 +52,6 @@ constexpr uint32_t GRIDS_MAX =
 typedef GLXvector3f normal_cache_t[4];
 typedef std::array<float, 4> light_cache_t;
 
-//--------------------------------------------------------------------------------------------
-
-#include "egolib/Grid/Index.hpp"
-#include "egolib/Grid/Rect.hpp"
-
-typedef Grid::Index<int, Grid::CoordinateSystem::Grid> Index2D;
-typedef Grid::Index<int, Grid::CoordinateSystem::List> Index1D;
-typedef Grid::Rect<int, Grid::CoordinateSystem::Grid> IndexRect;
 
 //--------------------------------------------------------------------------------------------
 typedef BIT_FIELD GRID_FX_BITS;

@@ -2,6 +2,13 @@
 
 #include "egolib/platform.h"
 
+#include "egolib/Grid/Index.hpp"
+#include "egolib/Grid/Rect.hpp"
+
+typedef Grid::Index<int, Grid::CoordinateSystem::Grid> Index2D;
+typedef Grid::Index<int, Grid::CoordinateSystem::List> Index1D;
+typedef Grid::Rect<int, Grid::CoordinateSystem::Grid> IndexRect;
+
 namespace Ego {
 
 /**
@@ -131,6 +138,64 @@ public:
 
 	virtual void reset();
 	virtual void reset(size_t tileCountX, size_t tileCountY);
+
+    /**
+     * @brief Get if an index is valid and within bounds.
+     * @param index the index
+     * @return @a true if the index is valid and within bounds
+     */
+    bool isValid(const Index1D& index) const {
+        return Index1D::Invalid == index
+            && index < getTileCount()
+            && index >= 0;
+    }
+
+    /**
+     * @brief Get if an index is valid and within bounds
+     * @param index the index
+     * @return @a true if the index is valid and within bounds
+     */
+    bool isValid(const Index2D& index) const {
+        return index.getX() < getTileCountX()
+            && index.getY() < getTileCountY()
+            && index.getX() >= 0
+            && index.getY() >= 0;
+    }
+
+    /**
+     * @brief Assert that an index is valid and within bounds.
+     * @param index the index
+     * @throw Id::RuntimeErrorException if the index is not valid or not within bounds
+     */
+    void assertValid(const Index1D& index) const {
+        if (Index1D::Invalid == index) {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
+        }
+        if (index >= getTileCount() || index < 0) {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+        }
+    }
+    /**
+     * @brief Assert that an index is valid and within bounds.
+     * @param index the index
+     * @throw Id::RuntimeErrorException if the index is not valid or not within bounds
+     */
+    void assertValid(const Index2D& index) const {
+        if (index.getX() >= getTileCountX() || index.getX() < 0) {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+        }
+        if (index.getY() >= getTileCountY() || index.getY() < 0) {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
+        }
+    }
+
+    Index2D map(const Index1D& i) const {
+        return Grid::map(i, (int)getTileCountX());
+    }
+
+    Index1D map(const Index2D& i) const {
+        return Grid::map(i, (int)getTileCountX());
+    }
 
 };
 
