@@ -151,15 +151,15 @@ parser_state_t& parser_state_t::get()
 
 //--------------------------------------------------------------------------------------------
 
-size_t parser_state_t::insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max )
+void parser_state_t::insert_space( size_t position, linebuffer_t& buffer)
 {
     /// @author ZZ
     /// @details This function adds a space into the load line if there isn't one there already
 
     // fail if the new length will be too long
-    if (buffer_length >= buffer_max)
+    if (buffer.size() >= buffer.capacity())
     {
-        return std::min( buffer_length, buffer_max );
+        throw std::runtime_error("buffer overflow");
     }
 
     if (!Ego::isspace(buffer[position]))
@@ -167,15 +167,13 @@ size_t parser_state_t::insert_space( size_t position, char buffer[], size_t buff
         char cTmp = ' ';
 
         // bubble the values up
-        while ( position <= buffer_length )
+        while (position <= buffer._size)
         {
             std::swap(cTmp, buffer[position]);
             position++;
         }
-        buffer[++buffer_length] = CSTR_END;
+        buffer[++buffer._size] = CSTR_END;
     }
-
-    return buffer_length;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -329,8 +327,8 @@ size_t parser_state_t::load_one_line( size_t read, script_info_t& script )
 //--------------------------------------------------------------------------------------------
 void parser_state_t::surround_space( size_t position, linebuffer_t& buffer )
 {
-    buffer._size = insert_space( position + 1, (char *)buffer.data(), buffer.size(), buffer.capacity());
-    buffer._size = insert_space( position, (char *)buffer.data(), buffer.size(), buffer.capacity());
+    insert_space( position + 1, buffer);
+    insert_space( position + 0, buffer);
 }
 
 //--------------------------------------------------------------------------------------------
