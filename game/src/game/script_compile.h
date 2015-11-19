@@ -158,7 +158,7 @@ protected:
             if (i > _size) {
                 throw std::runtime_error("index out of bounds");
             }
-            if (_size >= MAXLINESIZE) {
+            if (size() >= capacity()) {
                 throw std::runtime_error("line buffer overflow");
             }
             size_t j = i;
@@ -220,7 +220,6 @@ public:
 
 private:
 	static void surround_space(size_t position, linebuffer_t& buffer);
-	static void insert_space(size_t position, linebuffer_t& buffer);
 	static size_t fix_operators(linebuffer_t& buffer);
 	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t& script);
 
