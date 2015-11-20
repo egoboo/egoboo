@@ -239,29 +239,18 @@ void ego_mesh_t::make_bbox()
 
 
         ptile._itile = cnt.getI();
-		uint8_t type = ptile._type & 0x3F;
 
-		int tile_vrt;
-		oct_vec_v2_t ovec;
-
-		tile_definition_t *pdef = tile_dict.get(type);
+		tile_definition_t *pdef = tile_dict.get(ptile._type & 0x3F);
 		if (NULL == pdef) continue;
 
-		size_t mesh_vrt = _tmem.get(cnt)._vrtstart;    // Number of vertices
-		uint8_t vertices = pdef->numvertices;           // Number of vertices
-
-		// initialize the bounding box
-	    ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0], _tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
+		// Initialize the octagonal bounding box of the tile with the first vertex of the tile ...
+        size_t mesh_vrt = _tmem.get(cnt)._vrtstart;
+        oct_vec_v2_t ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0], _tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
         poct = oct_bb_t(ovec);
         mesh_vrt++;
-
-        ptile._aabb._min = Vector2f(float(ptile._itile % _info.getTileCountX()), 
-			                        float(ptile._itile % _info.getTileCountY())) * Info<float>::Grid::Size();
-        ptile._aabb._max = Vector2f(float(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size()), 
-			                        float(ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size()));
-
-        // add the rest of the points into the bounding box
-        for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
+        
+        // ... then add the other vertex of the tile to it.
+        for (uint8_t i = 1, n = pdef->numvertices; i < n; i++, mesh_vrt++ )
         {
             ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0],_tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
             poct.join(ovec);
@@ -282,13 +271,13 @@ void ego_mesh_t::make_bbox()
             oct_bb_t::self_grow(poct, ovec);
         }
 
-        // extend the mesh bounding box
-        _tmem._bbox = AABB3f(Vector3f(std::min(_tmem._bbox.getMin()[XX], poct._mins[XX]),
-                                      std::min(_tmem._bbox.getMin()[YY], poct._mins[YY]),
-                                      std::min(_tmem._bbox.getMin()[ZZ], poct._mins[ZZ])),
-                             Vector3f(std::max(_tmem._bbox.getMax()[XX], poct._maxs[XX]),
-                                      std::max(_tmem._bbox.getMax()[YY], poct._maxs[YY]),
-                                      std::max(_tmem._bbox.getMax()[ZZ], poct._maxs[ZZ])));
+        // Add the bounds of the tile to the bounds of the mesh.
+        _tmem._bbox.join(poct.toAABB());
+
+        ptile._aabb._min = Vector2f(float(ptile._itile % _info.getTileCountX()),
+                                    float(ptile._itile % _info.getTileCountY())) * Info<float>::Grid::Size();
+        ptile._aabb._max = Vector2f(float(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size()),
+                                    float(ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size()));
     }
 }
 
