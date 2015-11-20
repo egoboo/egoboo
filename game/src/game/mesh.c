@@ -273,11 +273,6 @@ void ego_mesh_t::make_bbox()
 
         // Add the bounds of the tile to the bounds of the mesh.
         _tmem._bbox.join(poct.toAABB());
-
-        ptile._aabb._min = Vector2f(float(ptile._itile % _info.getTileCountX()),
-                                    float(ptile._itile % _info.getTileCountY())) * Info<float>::Grid::Size();
-        ptile._aabb._max = Vector2f(float(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size()),
-                                    float(ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size()));
     }
 }
 
@@ -455,9 +450,6 @@ float ego_mesh_interpolate_vertex(const ego_tile_info_t& info, const GLXvector3f
     }
 	return light;
 }
-
-#define BLAH_MIX_1(DU,UU) (4.0f/9.0f*((UU)-(-1+(DU)))*((2+(DU))-(UU)))
-#define BLAH_MIX_2(DU,UU,DV,VV) (BLAH_MIX_1(DU,UU)*BLAH_MIX_1(DV,VV))
 
 float grid_get_mix(float u0, float u, float v0, float v) {
 	// Get the distance of u and v from u0 and v0.
@@ -694,7 +686,6 @@ ego_tile_info_t::ego_tile_info_t() :
 	_lightingCache(),
 	_vertexLightingCache(),
     _oct(),
-    _aabb(),
 	_base_fx(0), _pass_fx(0), _a(0), _l(0), _cache_frame(-1), _twist(TWIST_FLAT)
 {
     //ctor
@@ -981,14 +972,27 @@ bool ego_mesh_t::grid_is_valid(const Index1D& i) const
     return _info.isValid(i);
 }
 
+// Map world coordinates to a tile index.
+// This function does not assume the point to be within the bounds of the mesh.
+// If a point is passed which is outside the bounds, the resulting index will
+// be invalid w.r.t. to the mesh.
+Index2D fromWorld(const Vector2f& p)
+{
+    return Index2D(static_cast<int>(p[kX]) / Info<int>::Grid::Size(),
+                   static_cast<int>(p[kY]) / Info<int>::Grid::Size());
+}
+
+Vector2f toWorldLT(const Index2D i) {
+    return Vector2f((float)i.getX(), (float)i.getY()) * Info<float>::Grid::Size();
+}
+
 float ego_mesh_t::getElevation(const Vector2f& p) const
 {
     Index1D i1 = this->getTileIndex(p);
 	if (!grid_is_valid(i1)) {
 		return 0;
 	}
-	Index2D i2(static_cast<int>(p[kX]) % Info<int>::Grid::Size(),
-               static_cast<int>(p[kY]) % Info<int>::Grid::Size());
+    Index2D i2 = fromWorld(p);
 
     // Get the height of each fan corner.
     float z0 = _tmem._plst[_tmem.get(i1)._vrtstart + 0][ZZ];
@@ -1009,8 +1013,7 @@ Index1D ego_mesh_t::getTileIndex(const Vector2f& p) const
     if (p[kX] >= 0.0f && p[kX] < _tmem._edge_x && 
 		p[kY] >= 0.0f && p[kY] < _tmem._edge_y)
     {
-        Index2D i2(static_cast<int>(p[kX]) / Info<int>::Grid::Size(), 
-                   static_cast<int>(p[kY]) / Info<int>::Grid::Size());
+        Index2D i2 = fromWorld(p);
         return getTileIndex(i2);
     }
     return Index1D::Invalid;
@@ -1388,7 +1391,6 @@ ego_mesh_t::ego_mesh_t(const Ego::MeshInfo& mesh_info)
 
 ego_mesh_t::~ego_mesh_t() {
 }
-
 
 void ego_mesh_t::remove_ambient() {
 	/// @brief Remove ambient.

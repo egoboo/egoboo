@@ -64,8 +64,6 @@ public:
     ego_tile_info_t();
 	~ego_tile_info_t() { lighting_cache_t::init(_cache); }
 
-    const AABB2f& getAABB2D() const { return _aabb; }
-
 public:
     // the "inherited" tile info
     size_t _itile;
@@ -174,7 +172,6 @@ public:
 
     // the bounding boc of this tile
     oct_bb_t       _oct;                        ///< the octagonal bounding box for this tile
-	AABB2f         _aabb;
 
 	/**
 	 * @brief
