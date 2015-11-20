@@ -145,7 +145,7 @@ public:
      * @return @a true if the index is valid and within bounds
      */
     bool isValid(const Index1D& index) const {
-        return Index1D::Invalid == index
+        return Index1D::Invalid != index
             && index < getTileCount()
             && index >= 0;
     }

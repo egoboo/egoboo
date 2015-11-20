@@ -978,11 +978,7 @@ Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test )
 bool ego_mesh_t::grid_is_valid(const Index1D& i) const
 {
 	g_meshStats.boundTests++;
-
-    if (Index1D::Invalid == i) {
-        return false;
-    }
-    return i < _info.getTileCount();
+    return _info.isValid(i);
 }
 
 float ego_mesh_t::getElevation(const Vector2f& p) const
@@ -1022,42 +1018,33 @@ Index1D ego_mesh_t::getTileIndex(const Vector2f& p) const
 
 Index1D ego_mesh_t::getTileIndex(const Index2D& i) const
 {
-    if (i.getX() < 0 || i.getX() >= _info.getTileCountX())
-    {
+    if (!_info.isValid(i)) {
         return Index1D::Invalid;
     }
-	if (i.getY() < 0 || i.getY() >= _info.getTileCountY())
-    {
-        return Index1D::Invalid;
-    }
-	return Index1D(i.getX() + i.getY() * this->_info.getTileCountX());
+	return _info.map(i);
 }
 
 bool ego_mesh_t::clear_fx( const Index1D& i, const BIT_FIELD flags )
 {
-    bool retval;
-
-    // test for invalid tile
 	g_meshStats.boundTests++;
-    if ( i > _info.getTileCount() ) return false;
-
-	g_meshStats.mpdfxTests++;
-    retval = _tmem.get(i).removeFX( flags );
-
-    if ( retval )
-    {
-        _fxlists.dirty = true;
+    if (!_info.isValid(i)) {
+        return false;
     }
+	g_meshStats.mpdfxTests++;
 
-    return retval;
+    if (_tmem.get(i).removeFX(flags)) {
+        _fxlists.dirty = true;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool ego_mesh_t::add_fx(const Index1D& i, const BIT_FIELD flags)
 {
     // Validate tile index.
 	g_meshStats.boundTests++;
-    if (i > _info.getTileCount())
-    {
+    if (!_info.isValid(i)) {
         return false;
     }
 
@@ -1080,9 +1067,8 @@ Uint32 ego_mesh_t::test_fx(const Index1D& i, const BIT_FIELD flags) const
 
     // test for invalid tile
 	g_meshStats.boundTests++;
-    if (i > _info.getTileCount())
-    {
-        return flags & ( MAPFX_WALL | MAPFX_IMPASS );
+    if (!_info.isValid(i)) {
+        return flags & (MAPFX_WALL | MAPFX_IMPASS);
     }
 
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
@@ -1096,24 +1082,18 @@ Uint32 ego_mesh_t::test_fx(const Index1D& i, const BIT_FIELD flags) const
 }
 
 ego_tile_info_t& ego_mesh_t::getTileInfo(const Index1D& i) {
-	if (i >= _info.getTileCount()) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-	}
+    _info.assertValid(i);
 	return _tmem.get(i);
 }
 
 const ego_tile_info_t& ego_mesh_t::getTileInfo(const Index1D& i) const {
-    if (i >= _info.getTileCount()) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-    }
+    _info.assertValid(i);
     return _tmem.get(i);
 }
 
 uint8_t ego_mesh_t::get_twist(const Index1D& i) const
 {
-    // Validate arguments.
-    if (i >= _info.getTileCount())
-    {
+    if (!_info.isValid(i)) {
         return TWIST_FLAT;
     }
     return _tmem.get(i)._twist;
@@ -1121,9 +1101,7 @@ uint8_t ego_mesh_t::get_twist(const Index1D& i) const
 
 uint8_t ego_mesh_t::get_fan_twist(const Index1D& i) const
 {
-    // check for a valid tile
-    if (Index1D::Invalid == i || i > _info.getTileCount())
-    {
+    if (!_info.isValid(i)) {
         return TWIST_FLAT;
     }
     const ego_tile_info_t& info = _tmem.get(i);
@@ -1148,13 +1126,13 @@ uint8_t ego_mesh_t::get_fan_twist(const Index1D& i) const
 float ego_mesh_t::get_max_vertex_0(const Index2D& i) const
 {
 	Index1D j = getTileIndex(i);
-	if (Index1D::Invalid == j) {
-		return 0.0f;
-	}
-	// get a pointer to the tile
-	const ego_tile_info_t& ptile = _tmem.get(j);
+    if (!_info.isValid(j)) {
+        return 0.0f;
+    }
 
-	size_t vstart = ptile._vrtstart;
+    const ego_tile_info_t& tile = _tmem.get(j);
+
+	size_t vstart = tile._vrtstart;
 	size_t vcount = std::min(static_cast<size_t>(4), _tmem.getInfo().getVertexCount());
 
 	size_t cnt;
@@ -1175,7 +1153,9 @@ float ego_mesh_t::get_max_vertex_1(const Index2D& i, float xmin, float ymin, flo
 
 	Index1D j = getTileIndex(i);
 
-	if (Index1D::Invalid == j) return 0.0f;
+    if (!_info.isValid(j)) {
+        return 0.0f;
+    }
 
 	size_t vstart = _tmem.get(j)._vrtstart;
 	size_t vcount = std::min((size_t)4, _tmem.getInfo().getVertexCount());

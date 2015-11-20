@@ -284,44 +284,23 @@ public:
 	void computeVertexIndices(const tile_dictionary_t& dict);
 
 public:
-	ego_tile_info_t& get(const Index1D& index) {
-		if (Index1D::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invaliid index");
-		}
-		if (index >= _info.getTileCount()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[index.getI()];
+	ego_tile_info_t& get(const Index1D& i) {
+        _info.assertValid(i);
+		return _tileList[i.getI()];
 	}
-    const ego_tile_info_t& get(const Index1D& index) const {
-        // Assert that the index is within bounds.
-        if (Index1D::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
-        }
-		if (index >= _info.getTileCount()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[index.getI()];
+    const ego_tile_info_t& get(const Index1D& i) const {
+        _info.assertValid(i);
+		return _tileList[i.getI()];
     }
 
 public:
 	ego_tile_info_t& get(const Index2D& i) {
-		if (i.getY() >= _info.getTileCountY()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		if (i.getX() >= _info.getTileCountX()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[i.getY() * _info.getTileCountX() + i.getX()];
+        _info.assertValid(i);
+		return _tileList[_info.map(i).getI()];
 	}
-	const ego_tile_info_t& get(const Index2D& index) const {
-		if (index.getY() >= _info.getTileCountY()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		if (index.getX() >= _info.getTileCountX()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[index.getY() * _info.getTileCountX() + index.getX()];
+	const ego_tile_info_t& get(const Index2D& i) const {
+        _info.assertValid(i);
+		return _tileList[_info.map(i).getI()];
 	}
 
 public:
