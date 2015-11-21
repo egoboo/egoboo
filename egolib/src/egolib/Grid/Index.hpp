@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "egolib/typedef.h"
 
 namespace Grid {
 /**
@@ -181,7 +181,7 @@ const Index<_Type, _CoordinateSystem> Index<_Type, _CoordinateSystem,
 
 namespace Grid {
 template <typename _Type>
-Index<_Type, CoordinateSystem::List> toList(Index<_Type, CoordinateSystem::Grid> source, _Type width) {
+Index<_Type, CoordinateSystem::List> map(Index<_Type, CoordinateSystem::Grid> source, _Type width) {
 	// Assume a grid of 3 x 3 elements as displayed below:
 	// 0  1  2
 	// 3  4  5
@@ -195,7 +195,7 @@ Index<_Type, CoordinateSystem::List> toList(Index<_Type, CoordinateSystem::Grid>
 
 namespace Grid {
 template <typename _Type>
-Index<_Type, CoordinateSystem::Grid> toGrid(Index<_Type, CoordinateSystem::List> source, _Type width) {
+Index<_Type, CoordinateSystem::Grid> map(Index<_Type, CoordinateSystem::List> source, _Type width) {
 	// Assume a grid of 3 x 3 elements as displayed below:
 	// 0  1  2
 	// 3  4  5

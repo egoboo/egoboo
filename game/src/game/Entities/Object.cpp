@@ -2401,19 +2401,19 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     // Must set the wepon grip AFTER the model is changed in chr_instance_t::spawn()
     if (isBeingHeld())
     {
-        set_weapongrip(getObjRef().get(), attachedto, slot_to_grip_offset(inwhich_slot) );
+        set_weapongrip(getObjRef(), ObjectRef(attachedto), slot_to_grip_offset(inwhich_slot) );
     }
 
     if (leftItem)
     {
         EGOBOO_ASSERT(leftItem->attachedto == getObjRef().get());
-        set_weapongrip(leftItem->getObjRef().get(), getObjRef().get(), GRIP_LEFT);
+        set_weapongrip(leftItem->getObjRef(), getObjRef(), GRIP_LEFT);
     }
 
     if (rightItem)
     {
         EGOBOO_ASSERT(rightItem->attachedto == getObjRef().get());
-        set_weapongrip(rightItem->getObjRef().get(), getObjRef().get(), GRIP_RIGHT);
+        set_weapongrip(rightItem->getObjRef(), getObjRef(), GRIP_RIGHT);
     }
 
     /// @note ZF@> disabled so that books dont burn when dropped
@@ -2932,7 +2932,7 @@ bool Object::canCollide() const
     }
 
     //No collision box?
-    if (oct_bb_empty(chr_max_cv)) {
+    if (oct_bb_t::empty(chr_max_cv)) {
         return false;
     }
 

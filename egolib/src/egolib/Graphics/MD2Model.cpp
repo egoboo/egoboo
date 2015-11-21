@@ -67,7 +67,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
 
 			vertex.nrm.normalize();
 
-            opos.ctor(vertex.pos);
+            opos = oct_vec_v2_t(vertex.pos);
 
             // Re-calculate the bounding box for this frame
             if (!boundingBoxFound)
@@ -93,7 +93,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
 
                 ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 1e-6;
                 ovec[OCT_XY] = ovec[OCT_YX] = Ego::Math::sqrtTwo<float>() * ovec[OCT_X];
-                oct_bb_self_grow(frame.bb, ovec);
+                oct_bb_t::self_grow(frame.bb, ovec);
             }
         }
 #endif
@@ -252,7 +252,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             vertex.nrm[kZ] = MD2_NORMALS[frame_vert.normalIndex][2];
 
             // Calculate the bounding box for this frame
-            ovec.ctor(vertex.pos);
+            ovec = oct_vec_v2_t(vertex.pos);
             if (!boundingBoxFound)
             {
                 frame.bb = oct_bb_t(ovec);

@@ -94,6 +94,58 @@ extern const char *script_operator_names[SCRIPT_OPERATORS_COUNT];
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
+template <size_t Capacity>
+struct buffer_t {
+    size_t _size;
+    char _elements[Capacity];
+    buffer_t() {
+        _size = 0;
+        _elements[0] = CSTR_END;
+    }
+    size_t capacity() const {
+        return Capacity;
+    }
+    char& operator[](size_t i) {
+        return _elements[i];
+    }
+    size_t size() const {
+        return _size;
+    }
+    void clear() {
+        _elements[0] = CSTR_END;
+        _size = 0;
+    }
+    void append(char c) {
+        if (_size >= Capacity) {
+            throw std::runtime_error("buffer overflow");
+        }
+        _elements[_size++] = c;
+        _elements[_size] = CSTR_END;
+    }
+    const char *data() const {
+        return _elements;
+    }
+    // 0 (before the first character) and n-1 (before the last character), n (behind the last character)
+    void insert(char c, size_t i) {
+        if (i > _size) {
+            throw std::runtime_error("index out of bounds");
+        }
+        if (size() >= capacity()) {
+            throw std::runtime_error("buffer overflow");
+        }
+        size_t j = i;
+        char d = c;
+        // Bubble the values starting at i (inclusive) up.
+        while (j <= _size)
+        {
+            std::swap(_elements[j], d); // Swap the existing value with the incoming value.
+            j++;
+        }
+        _elements[++_size] = CSTR_END;
+
+    }
+};
+
 // the current state of the parser
 struct parser_state_t
 {
@@ -123,9 +175,13 @@ public:
     int _line_count;
 
 protected:
-    size_t _line_buffer_count;
-    char _line_buffer[MAXLINESIZE];
-	void clear_line_buffer();
+    // @brief Skip '\n', '\r', '\n\r' or '\r\n'.
+    // @return @a true if input symbols were consumed, @a false otherwise
+    // @post @a read was incremented by the number of input symbols consumed
+    bool skipNewline(size_t& read, script_info_t& script);
+    struct linebuffer_t : buffer_t<MAXLINESIZE> {};
+
+    linebuffer_t _linebuffer;
 
 public:
     size_t _load_buffer_count;
@@ -170,18 +226,17 @@ public:
     void clear_error();
 
 private:
-	static size_t surround_space(size_t position, char buffer[], size_t buffer_size, const size_t buffer_max);
-	static size_t insert_space(size_t position, char buffer[], size_t buffer_length, const size_t buffer_max);
-	static size_t fix_operators(char buffer[], size_t buffer_size, const size_t buffer_max);
-	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t *pscript);
+	static void surround_space(size_t position, linebuffer_t& buffer);
+	static size_t fix_operators(linebuffer_t& buffer);
+	void emit_opcode(Token& tok, const BIT_FIELD highbits, script_info_t& script);
 
-	static Uint32 jump_goto(int index, int index_end, script_info_t *pscript);
+	static Uint32 jump_goto(int index, int index_end, script_info_t& script);
 public:
-	static void parse_jumps(script_info_t *pscript);
-	static egolib_rv ai_script_upload_default(script_info_t *pscript);
+	static void parse_jumps(script_info_t& script);
+
 private:
-	size_t parse_token(Token& tok, ObjectProfile *ppro, script_info_t *pscript, size_t read);
-	size_t load_one_line(size_t read, script_info_t *pscript);
+	size_t parse_token(Token& tok, ObjectProfile *ppro, script_info_t& script, size_t read);
+	size_t load_one_line(size_t read, script_info_t& script);
 	/**
 	 * @brief
 	 *  Compute the indention level of a line.
@@ -190,22 +245,28 @@ private:
 	 *  The indention level $j$ of a line with \f$2k\f$ leading spaces for some $k=0,1,\ldots$ is given by \f$\frac{2k
 	 *  }{2}=k\f$. The indention level \f$j\f$ of a line may not exceed \f$15\f$.
 	 */
-	int get_indentation(script_info_t *pscript);
+	int get_indentation(script_info_t& script);
 public:
-	void parse_line_by_line(ObjectProfile *ppro, script_info_t *pscript);
+	void parse_line_by_line(ObjectProfile *ppro, script_info_t& script);
 
 };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// function prototypes
-
 
 /**
  * @brief
  *	Load an AI script.
  * @param parser
  *	the parser
+ * @param loadname
+ *  the loadname
+ * @param objectProfile
+ *  the object profile
+ * @param script
+ * the script
+ * @remark
+ *  A call to this function tries to load the script.
+ *		If this fails, then it tries to load the default script.
+ *			If this fails, then the call to this function fails.
  */
-egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t *pscript);
+egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, ObjectProfile *ppro, script_info_t& script);

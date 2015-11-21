@@ -34,22 +34,22 @@ Token::~Token() {
 
 std::ostream& operator<<(std::ostream& os, const Token::Type& tokenType) {
 	switch (tokenType) {
-	case Token::Type::Constant: os << "Constant"; break;
-	case Token::Type::Function: os << "Function"; break;
-	case Token::Type::Operator: os << "Operator"; break;
-	case Token::Type::Unknown:  os << "Unknown" ; break;
-	case Token::Type::Variable: os << "Variable"; break;
+		case Token::Type::Constant: os << "Constant"; break;
+		case Token::Type::Function: os << "Function"; break;
+		case Token::Type::Operator: os << "Operator"; break;
+		case Token::Type::Unknown:  os << "Unknown" ; break;
+		case Token::Type::Variable: os << "Variable"; break;
 	};
 	return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
 	os << "token {";
-	os << "line = " << token.getLine() << "," << " ";
-	os << "value = " << token.getValue() << "," << " ";
-	os << "index = " << token._index << "," << " ";
-	os << "type = " << token.getType() << "," << " ";
-	os << "word = " << token.szWord << " ";
-	os << "}";
+	os << "line = " << token.getLine() << "," << std::endl;
+	os << "value = " << token.getValue() << "," << std::endl;
+	os << "index = " << token._index << "," << std::endl;
+	os << "type = " << token.getType() << "," << std::endl;
+	os << "word = " << token.szWord << std::endl;
+	os << "}" << std::endl;
 	return os;
 }

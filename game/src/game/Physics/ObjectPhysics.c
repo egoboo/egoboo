@@ -1666,14 +1666,14 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 
     // convert the corners of the level 1 bounding box to a point cloud
     // keep track of the actual number of vertices, in case the object is square
-    int vcount = oct_bb_to_points(bsrc, src, 16);
+    int vcount = oct_bb_t::to_points(bsrc, src, 16);
 
     // transform the new point cloud
     Utilities::transform(pchr->inst.matrix, src, dst, vcount);
 
     // convert the new point cloud into a level 1 bounding box
     oct_bb_t bdst;
-    points_to_oct_bb(bdst, dst, vcount);
+    oct_bb_t::points_to_oct_bb(bdst, dst, vcount);
 
     //---- set the bounding boxes
     pchr->chr_min_cv = bdst;
@@ -1786,7 +1786,7 @@ egolib_rv attach_character_to_mount( ObjectRef riderRef, ObjectRef mountRef, gri
     mount->holdingwhich[slot] = riderRef;
 
     // set the grip vertices for the irider
-    set_weapongrip(riderRef.get(), mountRef.get(), grip_off);
+    set_weapongrip(riderRef, mountRef, grip_off);
 
     chr_update_matrix(rider, true);
 

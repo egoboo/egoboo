@@ -843,7 +843,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
     {
 		Vector3f tmp_diff = vel * tmin;
         // Adjust the bounding box to take in the position at the next step.
-        if (!oct_bb_t::translate(src, tmp_diff, tmp_min)) return false;
+        oct_bb_t::translate(src, tmp_diff, tmp_min);
     }
 
     // Determine the bounding volume at t == tmax.
@@ -855,11 +855,11 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const Vector3f& vel, const float tm
     {
 		Vector3f tmp_diff = vel * tmax;
         // Adjust the bounding box to take in the position at the next step.
-        if (!oct_bb_t::translate(src, tmp_diff, tmp_max)) return false;
-    }
+		oct_bb_t::translate(src, tmp_diff, tmp_max);
+	}
 
     // Determine bounding box for the range of times.
-    if (!oct_bb_t::join(tmp_min, tmp_max, dst)) return false;
+	oct_bb_t::join(tmp_min, tmp_max, dst);
 
     return true;
 }

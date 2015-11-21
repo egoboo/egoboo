@@ -239,31 +239,20 @@ void ego_mesh_t::make_bbox()
 
 
         ptile._itile = cnt.getI();
-		uint8_t type = ptile._type & 0x3F;
 
-		int tile_vrt;
-		oct_vec_v2_t ovec;
-
-		tile_definition_t *pdef = tile_dict.get(type);
+		tile_definition_t *pdef = tile_dict.get(ptile._type & 0x3F);
 		if (NULL == pdef) continue;
 
-		size_t mesh_vrt = _tmem.get(cnt)._vrtstart;    // Number of vertices
-		uint8_t vertices = pdef->numvertices;           // Number of vertices
-
-		// initialize the bounding box
-	    ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0], _tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
+		// Initialize the octagonal bounding box of the tile with the first vertex of the tile ...
+        size_t mesh_vrt = _tmem.get(cnt)._vrtstart;
+        oct_vec_v2_t ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0], _tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
         poct = oct_bb_t(ovec);
         mesh_vrt++;
-
-        ptile._aabb._min = Vector2f(float(ptile._itile % _info.getTileCountX()), 
-			                        float(ptile._itile % _info.getTileCountY())) * Info<float>::Grid::Size();
-        ptile._aabb._max = Vector2f(float(ptile._aabb._min[OCT_X] + Info<float>::Grid::Size()), 
-			                        float(ptile._aabb._min[OCT_Y] + Info<float>::Grid::Size()));
-
-        // add the rest of the points into the bounding box
-        for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
+        
+        // ... then add the other vertex of the tile to it.
+        for (uint8_t i = 1, n = pdef->numvertices; i < n; i++, mesh_vrt++ )
         {
-            ovec.ctor(Vector3f(_tmem._plst[mesh_vrt][0],_tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
+            ovec = oct_vec_v2_t(Vector3f(_tmem._plst[mesh_vrt][0],_tmem._plst[mesh_vrt][1],_tmem._plst[mesh_vrt][2]));
             poct.join(ovec);
         }
 
@@ -279,16 +268,11 @@ void ego_mesh_t::make_bbox()
         {
             ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 0.1;
             ovec[OCT_XY] = ovec[OCT_YX] = Ego::Math::sqrtTwo<float>() * ovec[OCT_X];
-            oct_bb_self_grow(poct, ovec);
+            oct_bb_t::self_grow(poct, ovec);
         }
 
-        // extend the mesh bounding box
-        _tmem._bbox = AABB3f(Vector3f(std::min(_tmem._bbox.getMin()[XX], poct._mins[XX]),
-                                      std::min(_tmem._bbox.getMin()[YY], poct._mins[YY]),
-                                      std::min(_tmem._bbox.getMin()[ZZ], poct._mins[ZZ])),
-                             Vector3f(std::max(_tmem._bbox.getMax()[XX], poct._maxs[XX]),
-                                      std::max(_tmem._bbox.getMax()[YY], poct._maxs[YY]),
-                                      std::max(_tmem._bbox.getMax()[ZZ], poct._maxs[ZZ])));
+        // Add the bounds of the tile to the bounds of the mesh.
+        _tmem._bbox.join(poct.toAABB());
     }
 }
 
@@ -466,9 +450,6 @@ float ego_mesh_interpolate_vertex(const ego_tile_info_t& info, const GLXvector3f
     }
 	return light;
 }
-
-#define BLAH_MIX_1(DU,UU) (4.0f/9.0f*((UU)-(-1+(DU)))*((2+(DU))-(UU)))
-#define BLAH_MIX_2(DU,UU,DV,VV) (BLAH_MIX_1(DU,UU)*BLAH_MIX_1(DV,VV))
 
 float grid_get_mix(float u0, float u, float v0, float v) {
 	// Get the distance of u and v from u0 and v0.
@@ -705,7 +686,6 @@ ego_tile_info_t::ego_tile_info_t() :
 	_lightingCache(),
 	_vertexLightingCache(),
     _oct(),
-    _aabb(),
 	_base_fx(0), _pass_fx(0), _a(0), _l(0), _cache_frame(-1), _twist(TWIST_FLAT)
 {
     //ctor
@@ -989,11 +969,21 @@ Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test )
 bool ego_mesh_t::grid_is_valid(const Index1D& i) const
 {
 	g_meshStats.boundTests++;
+    return _info.isValid(i);
+}
 
-    if (Index1D::Invalid == i) {
-        return false;
-    }
-    return i < _info.getTileCount();
+// Map world coordinates to a tile index.
+// This function does not assume the point to be within the bounds of the mesh.
+// If a point is passed which is outside the bounds, the resulting index will
+// be invalid w.r.t. to the mesh.
+Index2D fromWorld(const Vector2f& p)
+{
+    return Index2D(static_cast<int>(p[kX]) / Info<int>::Grid::Size(),
+                   static_cast<int>(p[kY]) / Info<int>::Grid::Size());
+}
+
+Vector2f toWorldLT(const Index2D i) {
+    return Vector2f((float)i.getX(), (float)i.getY()) * Info<float>::Grid::Size();
 }
 
 float ego_mesh_t::getElevation(const Vector2f& p) const
@@ -1002,8 +992,7 @@ float ego_mesh_t::getElevation(const Vector2f& p) const
 	if (!grid_is_valid(i1)) {
 		return 0;
 	}
-	Index2D i2(static_cast<int>(p[kX]) % Info<int>::Grid::Size(),
-               static_cast<int>(p[kY]) % Info<int>::Grid::Size());
+    Index2D i2 = fromWorld(p);
 
     // Get the height of each fan corner.
     float z0 = _tmem._plst[_tmem.get(i1)._vrtstart + 0][ZZ];
@@ -1024,8 +1013,7 @@ Index1D ego_mesh_t::getTileIndex(const Vector2f& p) const
     if (p[kX] >= 0.0f && p[kX] < _tmem._edge_x && 
 		p[kY] >= 0.0f && p[kY] < _tmem._edge_y)
     {
-        Index2D i2(static_cast<int>(p[kX]) / Info<int>::Grid::Size(), 
-                   static_cast<int>(p[kY]) / Info<int>::Grid::Size());
+        Index2D i2 = fromWorld(p);
         return getTileIndex(i2);
     }
     return Index1D::Invalid;
@@ -1033,42 +1021,33 @@ Index1D ego_mesh_t::getTileIndex(const Vector2f& p) const
 
 Index1D ego_mesh_t::getTileIndex(const Index2D& i) const
 {
-    if (i.getX() < 0 || i.getX() >= _info.getTileCountX())
-    {
+    if (!_info.isValid(i)) {
         return Index1D::Invalid;
     }
-	if (i.getY() < 0 || i.getY() >= _info.getTileCountY())
-    {
-        return Index1D::Invalid;
-    }
-	return Index1D(i.getX() + i.getY() * this->_info.getTileCountX());
+	return _info.map(i);
 }
 
 bool ego_mesh_t::clear_fx( const Index1D& i, const BIT_FIELD flags )
 {
-    bool retval;
-
-    // test for invalid tile
 	g_meshStats.boundTests++;
-    if ( i > _info.getTileCount() ) return false;
-
-	g_meshStats.mpdfxTests++;
-    retval = _tmem.get(i).removeFX( flags );
-
-    if ( retval )
-    {
-        _fxlists.dirty = true;
+    if (!_info.isValid(i)) {
+        return false;
     }
+	g_meshStats.mpdfxTests++;
 
-    return retval;
+    if (_tmem.get(i).removeFX(flags)) {
+        _fxlists.dirty = true;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool ego_mesh_t::add_fx(const Index1D& i, const BIT_FIELD flags)
 {
     // Validate tile index.
 	g_meshStats.boundTests++;
-    if (i > _info.getTileCount())
-    {
+    if (!_info.isValid(i)) {
         return false;
     }
 
@@ -1091,9 +1070,8 @@ Uint32 ego_mesh_t::test_fx(const Index1D& i, const BIT_FIELD flags) const
 
     // test for invalid tile
 	g_meshStats.boundTests++;
-    if (i > _info.getTileCount())
-    {
-        return flags & ( MAPFX_WALL | MAPFX_IMPASS );
+    if (!_info.isValid(i)) {
+        return flags & (MAPFX_WALL | MAPFX_IMPASS);
     }
 
     // if the tile is actually labelled as MAP_FANOFF, ignore it completely
@@ -1107,24 +1085,18 @@ Uint32 ego_mesh_t::test_fx(const Index1D& i, const BIT_FIELD flags) const
 }
 
 ego_tile_info_t& ego_mesh_t::getTileInfo(const Index1D& i) {
-	if (i >= _info.getTileCount()) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-	}
+    _info.assertValid(i);
 	return _tmem.get(i);
 }
 
 const ego_tile_info_t& ego_mesh_t::getTileInfo(const Index1D& i) const {
-    if (i >= _info.getTileCount()) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-    }
+    _info.assertValid(i);
     return _tmem.get(i);
 }
 
 uint8_t ego_mesh_t::get_twist(const Index1D& i) const
 {
-    // Validate arguments.
-    if (i >= _info.getTileCount())
-    {
+    if (!_info.isValid(i)) {
         return TWIST_FLAT;
     }
     return _tmem.get(i)._twist;
@@ -1132,9 +1104,7 @@ uint8_t ego_mesh_t::get_twist(const Index1D& i) const
 
 uint8_t ego_mesh_t::get_fan_twist(const Index1D& i) const
 {
-    // check for a valid tile
-    if (Index1D::Invalid == i || i > _info.getTileCount())
-    {
+    if (!_info.isValid(i)) {
         return TWIST_FLAT;
     }
     const ego_tile_info_t& info = _tmem.get(i);
@@ -1159,13 +1129,13 @@ uint8_t ego_mesh_t::get_fan_twist(const Index1D& i) const
 float ego_mesh_t::get_max_vertex_0(const Index2D& i) const
 {
 	Index1D j = getTileIndex(i);
-	if (Index1D::Invalid == j) {
-		return 0.0f;
-	}
-	// get a pointer to the tile
-	const ego_tile_info_t& ptile = _tmem.get(j);
+    if (!_info.isValid(j)) {
+        return 0.0f;
+    }
 
-	size_t vstart = ptile._vrtstart;
+    const ego_tile_info_t& tile = _tmem.get(j);
+
+	size_t vstart = tile._vrtstart;
 	size_t vcount = std::min(static_cast<size_t>(4), _tmem.getInfo().getVertexCount());
 
 	size_t cnt;
@@ -1186,7 +1156,9 @@ float ego_mesh_t::get_max_vertex_1(const Index2D& i, float xmin, float ymin, flo
 
 	Index1D j = getTileIndex(i);
 
-	if (Index1D::Invalid == j) return 0.0f;
+    if (!_info.isValid(j)) {
+        return 0.0f;
+    }
 
 	size_t vstart = _tmem.get(j)._vrtstart;
 	size_t vcount = std::min((size_t)4, _tmem.getInfo().getVertexCount());
@@ -1419,7 +1391,6 @@ ego_mesh_t::ego_mesh_t(const Ego::MeshInfo& mesh_info)
 
 ego_mesh_t::~ego_mesh_t() {
 }
-
 
 void ego_mesh_t::remove_ambient() {
 	/// @brief Remove ambient.

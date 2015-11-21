@@ -29,6 +29,6 @@ class Object;
 //Function prototypes
 bool    chr_matrix_valid( const Object * pchr );
 egolib_rv chr_update_matrix( Object * pchr, bool update_size );
-bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, uint16_t vrt_off );
+bool set_weapongrip( const ObjectRef iitem, const ObjectRef iholder, uint16_t vrt_off );
 bool chr_getMatUp(Object *pchr, Vector3f& up);
-void make_one_character_matrix( const CHR_REF cnt );
+void make_one_character_matrix( const ObjectRef object_ref );

@@ -52,14 +52,6 @@ constexpr uint32_t GRIDS_MAX =
 typedef GLXvector3f normal_cache_t[4];
 typedef std::array<float, 4> light_cache_t;
 
-//--------------------------------------------------------------------------------------------
-
-#include "egolib/Grid/Index.hpp"
-#include "egolib/Grid/Rect.hpp"
-
-typedef Grid::Index<int, Grid::CoordinateSystem::Grid> Index2D;
-typedef Grid::Index<int, Grid::CoordinateSystem::List> Index1D;
-typedef Grid::Rect<int, Grid::CoordinateSystem::Grid> IndexRect;
 
 //--------------------------------------------------------------------------------------------
 typedef BIT_FIELD GRID_FX_BITS;
@@ -71,8 +63,6 @@ public:
 
     ego_tile_info_t();
 	~ego_tile_info_t() { lighting_cache_t::init(_cache); }
-
-    const AABB2f& getAABB2D() const { return _aabb; }
 
 public:
     // the "inherited" tile info
@@ -182,7 +172,6 @@ public:
 
     // the bounding boc of this tile
     oct_bb_t       _oct;                        ///< the octagonal bounding box for this tile
-	AABB2f         _aabb;
 
 	/**
 	 * @brief
@@ -292,44 +281,23 @@ public:
 	void computeVertexIndices(const tile_dictionary_t& dict);
 
 public:
-	ego_tile_info_t& get(const Index1D& index) {
-		if (Index1D::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invaliid index");
-		}
-		if (index >= _info.getTileCount()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[index.getI()];
+	ego_tile_info_t& get(const Index1D& i) {
+        _info.assertValid(i);
+		return _tileList[i.getI()];
 	}
-    const ego_tile_info_t& get(const Index1D& index) const {
-        // Assert that the index is within bounds.
-        if (Index1D::Invalid == index) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "invalid index");
-        }
-		if (index >= _info.getTileCount()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[index.getI()];
+    const ego_tile_info_t& get(const Index1D& i) const {
+        _info.assertValid(i);
+		return _tileList[i.getI()];
     }
 
 public:
 	ego_tile_info_t& get(const Index2D& i) {
-		if (i.getY() >= _info.getTileCountY()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		if (i.getX() >= _info.getTileCountX()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[i.getY() * _info.getTileCountX() + i.getX()];
+        _info.assertValid(i);
+		return _tileList[_info.map(i).getI()];
 	}
-	const ego_tile_info_t& get(const Index2D& index) const {
-		if (index.getY() >= _info.getTileCountY()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		if (index.getX() >= _info.getTileCountX()) {
-			throw Id::RuntimeErrorException(__FILE__, __LINE__, "index out of bounds");
-		}
-		return _tileList[index.getY() * _info.getTileCountX() + index.getX()];
+	const ego_tile_info_t& get(const Index2D& i) const {
+        _info.assertValid(i);
+		return _tileList[_info.map(i).getI()];
 	}
 
 public:
