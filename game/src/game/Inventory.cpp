@@ -143,8 +143,8 @@ bool Inventory::add_item( ObjectRef iowner, ObjectRef iitem, uint8_t inventorySl
         UNSET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
 
         //now put the item into the inventory
-        pitem->attachedto = INVALID_CHR_REF;
-        pitem->inwhich_inventory = iowner.get();
+        pitem->attachedto = ObjectRef::Invalid;
+        pitem->inwhich_inventory = iowner;
         powner->getInventory()._items[inventorySlot] = pitem;
 
 
@@ -260,7 +260,7 @@ bool Inventory::remove_item( ObjectRef iholder, const size_t inventory_slot, con
     }
 
     // The item is no longer in an inventory.
-    pitem->inwhich_inventory = INVALID_CHR_REF;
+    pitem->inwhich_inventory = ObjectRef::Invalid;
     pholder->getInventory()._items[inventory_slot].reset();
 
     return true;
@@ -391,7 +391,7 @@ bool Inventory::removeItem(const std::shared_ptr<Object> &item, const bool ignor
             }
 
             //Remove it from the inventory!
-            item->inwhich_inventory = INVALID_CHR_REF;
+            item->inwhich_inventory = ObjectRef::Invalid;
             _items[i].reset();
             return true;
         }

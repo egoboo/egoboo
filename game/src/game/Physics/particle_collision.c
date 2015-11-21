@@ -446,7 +446,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
     if ( pdata->pchr->isInvincible() ) return true;
 
     //Don't deflect money or particles spawned by the Object itself
-    bool prt_wants_deflection = (pdata->pprt->owner_ref != pdata->pchr->getObjRef().get()) && !pdata->ppip->bump_money;
+    bool prt_wants_deflection = (pdata->pprt->owner_ref != pdata->pchr->getObjRef()) && !pdata->ppip->bump_money;
     if(!prt_wants_deflection) {
         return false;
     }
@@ -510,7 +510,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
 
                 // Change the owner of the missile
                 pdata->pprt->team       = pdata->pchr->team;
-                pdata->pprt->owner_ref  = pdata->pchr->getObjRef().get();
+                pdata->pprt->owner_ref  = pdata->pchr->getObjRef();
             }
         }
     }
@@ -886,11 +886,11 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     }
 
     //Only allow one collision per particle unless that particle is eternal
-    if(!pdata->pprt->isEternal() && pdata->pprt->hasCollided(_currentModule->getObjectHandler()[pdata->pchr->getObjRef().get()])) {
+    if(!pdata->pprt->isEternal() && pdata->pprt->hasCollided(_currentModule->getObjectHandler()[pdata->pchr->getObjRef()])) {
         return false;
     }
 
-    bool prt_belongs_to_chr = (pdata->pchr->getObjRef().get() == pdata->pprt->owner_ref);
+    bool prt_belongs_to_chr = (pdata->pchr->getObjRef() == pdata->pprt->owner_ref);
 
     if ( !prt_belongs_to_chr )
     {

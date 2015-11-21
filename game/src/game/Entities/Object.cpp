@@ -625,7 +625,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         }
     
         //Do not alert items damaging (or healing) their holders, healing potions for example
-        if ( attacker->attachedto == ai.index ) return;
+        if ( attacker->attachedto == ObjectRef(ai.index) ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
         if ( attacker->isBeingHeld() && !_currentModule->getObjectHandler().get(attacker->attachedto)->isMount() )
@@ -660,7 +660,7 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
     }
 
     // Set alerts, but don't alert that we healed ourselves
-    if (healer && this != healer.get() && healer->attachedto != _objRef.get() && amount > HURTDAMAGE)
+    if (healer && this != healer.get() && healer->attachedto != _objRef && amount > HURTDAMAGE)
     {
         updateLastAttacker(healer, true);
     }
@@ -1123,7 +1123,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     uint16_t hand = inwhich_slot;
 
     // Rip 'em apart
-    attachedto = INVALID_CHR_REF;
+    attachedto = ObjectRef::Invalid;
 	if (pholder->holdingwhich[SLOT_LEFT] == getObjRef()) {
 		pholder->holdingwhich[SLOT_LEFT] = ObjectRef::Invalid;
 	}
@@ -1464,7 +1464,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         
             //Crusader Perk regains 1 mana per Undead kill
             if(actualKiller->hasPerk(Ego::Perks::CRUSADER) && getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('U','N','D','E')) {
-                actualKiller->costMana(-1, actualKiller->getObjRef().get());
+                actualKiller->costMana(-1, actualKiller->getObjRef());
                 chr_make_text_billboard(actualKiller->getObjRef(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
             }
         }
@@ -1767,7 +1767,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos)
 	return result;
 }
 
-bool Object::costMana(int amount, const CHR_REF killer)
+bool Object::costMana(int amount, const ObjectRef killer)
 {
     const std::shared_ptr<Object> &pkiller = _currentModule->getObjectHandler()[killer];
 

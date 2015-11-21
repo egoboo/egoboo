@@ -192,7 +192,7 @@ public:
     * @return
     *   get the ID of the Object that this Particle is currently attached to (or INVALID_CHR_REF if not attached)
     **/
-    CHR_REF getAttachedObjectID() const {return _attachedTo;}
+    ObjectRef getAttachedObjectID() const {return _attachedTo;}
 
     /**
     * @return
@@ -337,7 +337,7 @@ public:
      *  The object owning this particle.
      *  Example: A fire particle is owned by a torch.
      */
-    CHR_REF owner_ref;
+    ObjectRef owner_ref;
     /**
      * @brief
      *  The original parent particle if any.
@@ -457,14 +457,14 @@ private:
      *  The object the particle is attached to.
      *  Example: A fire particle is attached to a torch.
      */
-    CHR_REF _attachedTo;
+    ObjectRef _attachedTo;
 
     /**
      * @brief
      *  The object targeted by this particle.
      *  Example: Target-seeking arrows/bolts or similar particles.
      */
-    CHR_REF _target;
+    ObjectRef _target;
 
     /**
      * @brief

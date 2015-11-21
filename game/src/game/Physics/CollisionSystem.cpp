@@ -693,7 +693,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     }
 
     // don't interact with your mount, or your held items
-    if (ichr_a.get() == objectB->attachedto || ichr_b.get() == objectA->attachedto) {
+    if (ichr_a == objectB->attachedto || ichr_b == objectA->attachedto) {
         return false;
     }
 
