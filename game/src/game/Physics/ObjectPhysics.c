@@ -1786,7 +1786,7 @@ egolib_rv attach_character_to_mount( ObjectRef riderRef, ObjectRef mountRef, gri
     mount->holdingwhich[slot] = riderRef;
 
     // set the grip vertices for the irider
-    set_weapongrip(riderRef.get(), mountRef.get(), grip_off);
+    set_weapongrip(riderRef, mountRef, grip_off);
 
     chr_update_matrix(rider, true);
 

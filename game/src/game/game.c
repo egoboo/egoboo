@@ -1921,7 +1921,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     {
         // Free character
         psp_info->parent = pobject->getObjRef().get();
-        make_one_character_matrix( pobject->getObjRef().get() );
+        make_one_character_matrix( pobject->getObjRef() );
     }
 
     chr_setup_apply(pobject, psp_info);
