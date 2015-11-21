@@ -2186,16 +2186,16 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
                                                    pchr->ori.facing_z, 
                                                    pchr->getProfileID(),
-                                                   LocalParticleProfileRef(state.argument), self.index,
-                                                   state.distance, pchr->team, ichr.get(), INVALID_PRT_REF, 0,
-                                                   INVALID_CHR_REF );
+                                                   LocalParticleProfileRef(state.argument), ObjectRef(self.index),
+                                                   state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                   ObjectRef::Invalid );
 
     returncode = (particle != nullptr);
     if ( returncode )
     {
         // attach the particle
         particle->placeAtVertex(_currentModule->getObjectHandler()[self.index], state.distance);
-        particle->attach(INVALID_CHR_REF);
+        particle->attach(ObjectRef::Invalid);
 
 		Vector3f tmp_pos = particle->getPosition();
 
@@ -4012,9 +4012,9 @@ Uint8 scr_SpawnAttachedParticle( script_state_t& state, ai_state_t& self )
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
-                                                                      LocalParticleProfileRef(state.argument), self.index,
-                                                                      state.distance, pchr->team, iself.get(), INVALID_PRT_REF, 0,
-                                                                      INVALID_CHR_REF);
+                                                                      LocalParticleProfileRef(state.argument), ObjectRef(self.index),
+                                                                      state.distance, pchr->team, iself, INVALID_PRT_REF, 0,
+                                                                      ObjectRef::Invalid);
     SCRIPT_FUNCTION_END();
 }
 
@@ -4027,10 +4027,10 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    CHR_REF ichr = self.index;
+    ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        ichr = pchr->attachedto.get();
+        ichr = pchr->attachedto;
     }
 
     {
@@ -4044,8 +4044,8 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 
         returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                                           LocalParticleProfileRef(state.argument),
-                                                                          INVALID_CHR_REF, 0, pchr->team, ichr,
-                                                                          INVALID_PRT_REF, 0, INVALID_CHR_REF);
+                                                                          ObjectRef::Invalid, 0, pchr->team, ichr,
+                                                                          INVALID_PRT_REF, 0, ObjectRef::Invalid);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4521,16 +4521,16 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    CHR_REF ichr = self.index;
+    ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        ichr = pchr->attachedto.get();
+        ichr = pchr->attachedto;
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, 
-                                                                                        pchr->getProfileID(), LocalParticleProfileRef(state.argument), self.index,
+                                                                                        pchr->getProfileID(), LocalParticleProfileRef(state.argument), ObjectRef(self.index),
                                                                                         state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                                                        INVALID_CHR_REF);
+                                                                                        ObjectRef::Invalid);
 
     returncode = (particle != nullptr);
 
@@ -4631,16 +4631,16 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	CHR_REF ichr = self.index;
+	ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        ichr = pchr->attachedto.get();
+        ichr = pchr->attachedto;
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( state.turn ),
                                                                       pchr->getProfileID(), LocalParticleProfileRef(state.argument),
-                                                                      self.index, state.distance, pchr->team, ichr, INVALID_PRT_REF,
-                                                                      0, INVALID_CHR_REF);
+                                                                      ObjectRef(self.index), state.distance, pchr->team, ichr, INVALID_PRT_REF,
+                                                                      0, ObjectRef::Invalid);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4959,16 +4959,16 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    CHR_REF ichr = self.index;
+    ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        ichr = pchr->attachedto.get();
+        ichr = pchr->attachedto;
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
                                                                       LocalParticleProfileRef(state.argument), ichr,
                                                                       state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                                      INVALID_CHR_REF);
+                                                                      ObjectRef::Invalid);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5475,10 +5475,10 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    CHR_REF ichr = self.index;
+    ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        ichr = pchr->attachedto.get();
+        ichr = pchr->attachedto;
     }
 
     {
@@ -5492,15 +5492,15 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
-                                                             INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
-                                                             0, INVALID_CHR_REF);
+                                                             ObjectRef::Invalid, 0, pchr->team, ichr, INVALID_PRT_REF,
+                                                             0, ObjectRef::Invalid);
     }
 
     returncode = (particle != nullptr);
 
     if ( returncode )
     {
-        particle->setTarget(self.target);
+        particle->setTarget(ObjectRef(self.target));
     }
 
     SCRIPT_FUNCTION_END();
@@ -6688,10 +6688,10 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	CHR_REF ichr = self.index;
+	ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        ichr = pchr->attachedto.get();
+        ichr = pchr->attachedto;
     }
 
     {
@@ -6705,8 +6705,8 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
-                                                             INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
-                                                             0, INVALID_CHR_REF);
+                                                             ObjectRef::Invalid, 0, pchr->team, ichr, INVALID_PRT_REF,
+                                                             0, ObjectRef::Invalid);
     }
 
     returncode = (particle != nullptr);

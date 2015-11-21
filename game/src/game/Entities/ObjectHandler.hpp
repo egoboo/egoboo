@@ -112,7 +112,6 @@ public:
 	 * @brief Remove the specified object for the game. 
 	 * @return false if it didnt exist or was already removed, true otherwise
 	 */
-	bool remove(const CHR_REF ref) { return remove(ObjectRef(ref)); } ///< @todo Remove this.
 	bool remove(ObjectRef ref);
 
 	/**
@@ -232,7 +231,7 @@ private:
 	Ego::QuadTree<Object> _staticObjects;			//Objects that rarely move - if ever (Trees, pillars, chairs)
 	int _updateStaticTreeClock;
 
-	std::unordered_map<CHR_REF, std::shared_ptr<Object>> _internalCharacterList; ///< Maps CHR_REF to Objects
+	std::unordered_map<ObjectRef, std::shared_ptr<Object>> _internalCharacterList; ///< Maps CHR_REF to Objects
 	std::vector<std::shared_ptr<Object>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
 
 	std::vector<std::shared_ptr<Object>> _allocateList;					///< List of all objects that should be added
@@ -240,7 +239,7 @@ private:
 	size_t _semaphore;
 	size_t _deletedCharacters;
 
-	CHR_REF _totalCharactersSpawned;										///< Total count of characters spawned (includes removed)
+	size_t _totalCharactersSpawned;										///< Total count of characters spawned (includes removed)
 
 	friend class ObjectIterator;
 };

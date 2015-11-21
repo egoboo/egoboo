@@ -1008,7 +1008,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
 
                         std::shared_ptr<Ego::Particle> bs_part = 
 							ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pprt->getSpawnerProfile(), ppip->bumpspawn._lpip,
-                                                                      character.get(), bestvertex + 1, pprt->team, pprt->owner_ref.get(), particle, cnt, character.get());
+                                                                      character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
 
                         if (bs_part)
                         {

@@ -38,11 +38,11 @@ const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 Particle::Particle() :
     _particleID(INVALID_PRT_REF),
     _collidedObjects(),
-    _attachedTo(INVALID_CHR_REF),
+    _attachedTo(),
     _particleProfileID(INVALID_PIP_REF),
     _particleProfile(nullptr),
     _isTerminated(true),
-    _target(INVALID_CHR_REF),
+    _target(),
     _spawnerProfile(INVALID_PRO_REF),
     _isHoming(false)
 {
@@ -570,7 +570,7 @@ size_t Particle::updateContinuousSpawning()
         }
         else {
             prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
-                                                                  INVALID_CHR_REF, GRIP_LAST, team, owner_ref.get(), _particleID, tnc, _target.get());
+                                                                  ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
         }
 
         if (prt_child)
@@ -709,8 +709,8 @@ void Particle::destroy()
             {
                 //Local particle
                 ParticleHandler::get().spawnLocalParticle(getOldPosition(), facing, _spawnerProfile, getProfile()->endspawn._lpip,
-                                                          INVALID_CHR_REF, GRIP_LAST, team, owner_ref.get(),
-                                                          _particleID, tnc, _target.get());
+                                                          ObjectRef::Invalid, GRIP_LAST, team, owner_ref,
+                                                          _particleID, tnc, _target);
             }
 
             facing += getProfile()->endspawn._facingAdd;
@@ -754,8 +754,8 @@ void Particle::playSound(int8_t sound)
 }
 
 bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
-                          const PIP_REF particleProfile, const CHR_REF spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
-                          const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
+                          const PIP_REF particleProfile, const ObjectRef spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
+                          const ObjectRef spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                           const bool onlyOverWater)
 {
     const int INFINITE_UPDATES = std::numeric_limits<int>::max();
@@ -794,12 +794,12 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
 
     // try to get an idea of who our owner is even if we are
     // given bogus info
-    CHR_REF loc_chr_origin = spawnOrigin;
+    ObjectRef loc_chr_origin = spawnOrigin;
     if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin])
     {
-        loc_chr_origin = prt_get_iowner(spawnParticleOrigin, 0);
+        loc_chr_origin = ObjectRef(prt_get_iowner(spawnParticleOrigin, 0));
     }
-    owner_ref = ObjectRef(loc_chr_origin);
+    owner_ref = loc_chr_origin;
 
     // Lighting and sound
     dynalight = getProfile()->dynalight;
@@ -1149,7 +1149,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     //Attach ourselves to an Object if needed
     if (ObjectRef::Invalid != _attachedTo)
     {
-        attach(_attachedTo.get());
+        attach(_attachedTo);
     }
 
     //Spawn sound effect
@@ -1158,14 +1158,14 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     return true;
 }
 
-bool Particle::attach(const CHR_REF attach)
+bool Particle::attach(const ObjectRef attach)
 {
     const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[attach];
     if(!pchr) {
         return false;
     }
 
-    _attachedTo = ObjectRef(attach);
+    _attachedTo = attach;
 
     if(!placeAtVertex(pchr, attachedto_vrt_off)) {
         return false;
@@ -1254,9 +1254,9 @@ bool Particle::isOverWater() const
     return (0 != mesh->test_fx(getTile(), MAPFX_WATER));
 }
 
-void Particle::setTarget(const CHR_REF target)
+void Particle::setTarget(const ObjectRef target)
 {
-    _target = ObjectRef(target);
+    _target = target;
 }
 
 PRT_REF Particle::getParticleID() const 
@@ -1271,9 +1271,9 @@ void Particle::setHoming(bool homing)
 
 bool Particle::hasCollided(const std::shared_ptr<Object> &object) const
 {
-    for(const CHR_REF &ref : _collidedObjects)
+    for(const ObjectRef ref : _collidedObjects)
     {
-        if(ref == object->getObjRef().get())
+        if(ref == object->getObjRef())
         {
             return true;
         }
@@ -1284,7 +1284,7 @@ bool Particle::hasCollided(const std::shared_ptr<Object> &object) const
 void Particle::addCollision(const std::shared_ptr<Object> &object)
 {
     if(isTerminated()) return;
-    _collidedObjects.push_front(object->getObjRef().get());
+    _collidedObjects.push_front(object->getObjRef());
 }
 
 bool Particle::isEternal() const

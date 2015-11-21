@@ -456,7 +456,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
         ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
-                            pchr->getObjRef().get(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef().get(), INVALID_PRT_REF, tnc);
+                                              pchr->getObjRef(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef(), INVALID_PRT_REF, tnc);
     }
 
     // is the object part of a shop's inventory?

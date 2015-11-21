@@ -88,7 +88,7 @@ bool Inventory::add_item( ObjectRef iowner, ObjectRef iitem, uint8_t inventorySl
 	}
 
     // Check if item can be stacked on other items.
-    CHR_REF stack = Inventory::hasStack(iitem.get(), iowner.get());
+    ObjectRef stack = Inventory::hasStack(iitem, iowner);
     if ( _currentModule->getObjectHandler().exists( stack ) )
     {
         // We found a similar, stackable item in the inventory.
@@ -266,19 +266,19 @@ bool Inventory::remove_item( ObjectRef iholder, const size_t inventory_slot, con
     return true;
 }
 
-CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
+ObjectRef Inventory::hasStack( const ObjectRef item, const ObjectRef character )
 {
     bool found  = false;
-    CHR_REF istack = INVALID_CHR_REF;
+    ObjectRef istack = ObjectRef::Invalid;
 
     std::shared_ptr<Object> pitem = _currentModule->getObjectHandler()[item];
     if(!pitem) {
-        return INVALID_CHR_REF;
+        return ObjectRef::Invalid;
     }
 
     //Only check items that are actually stackable
     if(!pitem->getProfile()->isStackable()) {
-        return INVALID_CHR_REF;
+        return ObjectRef::Invalid;
     }
 
     for(const std::shared_ptr<Object> pstack : _currentModule->getObjectHandler().get(character)->getInventory().iterate())
@@ -306,7 +306,7 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
 
         if ( found )
         {
-            istack = pstack->getObjRef().get();
+            istack = pstack->getObjRef();
             break;
         }
     }

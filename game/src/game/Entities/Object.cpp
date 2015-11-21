@@ -473,7 +473,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
                         ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
-                                            INVALID_CHR_REF, GRIP_LAST, team, _objRef.get());
+                                                              ObjectRef::Invalid, GRIP_LAST, team, _objRef);
                     }
                 }
 
@@ -2406,13 +2406,13 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     if (leftItem)
     {
-        EGOBOO_ASSERT(leftItem->attachedto == getObjRef().get());
+        EGOBOO_ASSERT(leftItem->attachedto == getObjRef());
         set_weapongrip(leftItem->getObjRef(), getObjRef(), GRIP_LEFT);
     }
 
     if (rightItem)
     {
-        EGOBOO_ASSERT(rightItem->attachedto == getObjRef().get());
+        EGOBOO_ASSERT(rightItem->attachedto == getObjRef());
         set_weapongrip(rightItem->getObjRef(), getObjRef(), GRIP_RIGHT);
     }
 

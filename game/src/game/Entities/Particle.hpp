@@ -217,13 +217,13 @@ public:
     * @return
     *   true if successfull
     **/
-    bool attach(const CHR_REF attach);
+    bool attach(const ObjectRef attach);
 
     /**
     * @brief
     *   Sets the target of this Particle
     **/
-    void setTarget(const CHR_REF target);
+    void setTarget(const ObjectRef target);
 
     PRO_REF getSpawnerProfile() const { return _spawnerProfile; }
 
@@ -278,8 +278,8 @@ public:
     *   Should only ever be used by the ParticleHandler! *Do not use*
     **/
     bool initialize(const PRT_REF particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
-                    const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                    const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
+                    const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                    const ObjectRef spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                     const bool onlyOverWater);
 
     /**
@@ -444,7 +444,7 @@ private:
     PRT_REF       _particleID;                 ///< Unique identifier
 
     //Collisions
-    std::forward_list<CHR_REF> _collidedObjects;    ///< List of the ID's of all Object this particle has collided with
+    std::forward_list<ObjectRef> _collidedObjects;    ///< List of the ID's of all Object this particle has collided with
 
     //Profile
     PIP_REF _particleProfileID;                ///< The particle profile
