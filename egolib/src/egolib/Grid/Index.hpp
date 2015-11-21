@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "egolib/typedef.h"
 
 namespace Grid {
 /**
