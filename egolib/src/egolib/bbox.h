@@ -70,7 +70,7 @@
 
         void add(const Vector3f& other)
         {
-            sub(oct_vec_v2_t(other));
+            add(oct_vec_v2_t(other));
         }
 
         void add(const oct_vec_v2_t& other)
