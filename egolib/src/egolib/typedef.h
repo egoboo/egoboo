@@ -538,6 +538,14 @@ enum DamageModifier : uint8_t
 #include "egolib/Ref.hpp"
 
 typedef Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Object> ObjectRef;
+namespace std {
+    template <>
+    struct hash<ObjectRef> {
+        size_t operator()(const ObjectRef& x) const {
+            return hash<ObjectRef::Type>()(x.get());
+        }
+    };
+}
 typedef size_t CHR_REF;
 #define INVALID_CHR_REF (ObjectRef::Invalid.get())
 

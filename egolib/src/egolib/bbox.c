@@ -25,6 +25,8 @@
 #include "egolib/_math.h"
 #include "egolib/Math/AABB.hpp"
 
+const oct_vec_v2_t oct_vec_v2_t::Zero = oct_vec_v2_t();
+
 int oct_bb_t::to_points(const oct_bb_t& self, Vector4f pos[], size_t pos_count)
 {
     /// @author BB
@@ -416,13 +418,13 @@ egolib_rv oct_bb_t::downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt,
 void oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip)
 {
 	if (src1._empty && src2._empty) {
-        oct_bb_t::ctor(dst);
+        dst = oct_bb_t();
     } else if (!src1._empty && 0.0f == flip) {
         oct_bb_t::copy(dst, src1);
     } else if (!src2._empty && 1.0f == flip) {
         oct_bb_t::copy(dst, src2);
     } else if (src1._empty || src2._empty) {
-        oct_bb_t::ctor(dst);
+        dst = oct_bb_t();
     }
 
     for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
@@ -431,39 +433,6 @@ void oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t&
     }
 
     oct_bb_t::validate(dst);
-}
-
-//--------------------------------------------------------------------------------------------
-//inline
-//--------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------
-bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const Vector3f& fvec, oct_vec_v2_t& odst)
-{
-    odst = oct_vec_v2_t(fvec);
-	{
-		for (size_t cnt = 0; cnt < OCT_COUNT; cnt++)
-		{
-			odst[cnt] += osrc[cnt];
-		}
-	}
-	return true;
-}
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void oct_bb_t::ctor(oct_bb_t& self)
-{
-    self._mins.setZero();
-    self._maxs.setZero();
-    self._empty = true;
-}
-
-void oct_bb_t::dtor(oct_bb_t& self)
-{
-	self._empty = true;
-    self._maxs.setZero();
-    self._mins.setZero();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -606,7 +575,7 @@ egolib_rv oct_bb_t::intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct
 {
 	/// @todo Obviously the author does not know how set intersection works.
     if (src1._empty && src2._empty) {
-        oct_bb_t::ctor(dst);
+        dst = oct_bb_t();
         return rv_fail;
     }
 

@@ -66,6 +66,8 @@
 
         float _v[OCT_COUNT];
 
+        static const oct_vec_v2_t Zero;
+
     public:
 
         void add(const Vector3f& other)
@@ -113,33 +115,16 @@
     public:
 
         oct_vec_v2_t()
-        {
-            _v[OCT_X] = 0.0f;
-            _v[OCT_Y] = 0.0f;
-            _v[OCT_Z] = 0.0f;
-            _v[OCT_XY] = 0.0f;
-            _v[OCT_YX] = 0.0f;
-        }
+            : oct_vec_v2_t(0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
+        { }
 
 		oct_vec_v2_t(const Vector3f& point)
-        {
-            _v[OCT_X] = point[kX];
-            _v[OCT_Y] = point[kY];
-            _v[OCT_Z] = point[kZ];
-            // x + y
-            _v[OCT_XY] = point[kX] + point[kY];
-            // y - x
-            _v[OCT_YX] = point[kY] - point[kX];
-        }
+            : oct_vec_v2_t(point[kX], point[kY], point[kZ], point[kX] + point[kY], point[kY] - point[kX])
+        { }
 
         oct_vec_v2_t(float x, float y, float z, float xy, float yx)
-        {
-            _v[OCT_X] = x;
-            _v[OCT_Y] = y;
-            _v[OCT_Z] = z;
-            _v[OCT_XY] = xy;
-            _v[OCT_YX] = yx;
-        }
+            : _v { x, y, z, xy, yx }
+        { }
 
         oct_vec_v2_t(const oct_vec_v2_t& other)
         {
@@ -156,11 +141,11 @@
             return
                 oct_vec_v2_t
                 (
-                _v[OCT_X]  + other._v[OCT_X],
-                _v[OCT_Y]  + other._v[OCT_Y],
-                _v[OCT_Z]  + other._v[OCT_Z],
-                _v[OCT_XY] + other._v[OCT_XY],
-                _v[OCT_YX] + other._v[OCT_YX]
+                    _v[OCT_X]  + other._v[OCT_X],
+                    _v[OCT_Y]  + other._v[OCT_Y],
+                    _v[OCT_Z]  + other._v[OCT_Z],
+                    _v[OCT_XY] + other._v[OCT_XY],
+                    _v[OCT_YX] + other._v[OCT_YX]
                 );
         }
 
@@ -170,16 +155,18 @@
             return *this;
         }
 
+    public:
+
         oct_vec_v2_t operator-(const oct_vec_v2_t& other) const
         {
             return
                 oct_vec_v2_t
                 (
-                _v[OCT_X]  - other._v[OCT_X],
-                _v[OCT_Y]  - other._v[OCT_Y],
-                _v[OCT_Z]  - other._v[OCT_Z],
-                _v[OCT_XY] - other._v[OCT_XY],
-                _v[OCT_YX] - other._v[OCT_YX]
+                    _v[OCT_X]  - other._v[OCT_X],
+                    _v[OCT_Y]  - other._v[OCT_Y],
+                    _v[OCT_Z]  - other._v[OCT_Z],
+                    _v[OCT_XY] - other._v[OCT_XY],
+                    _v[OCT_YX] - other._v[OCT_YX]
                 );
         }
 
@@ -188,6 +175,8 @@
             sub(other);
             return *this;
         }
+
+    public:
 
         oct_vec_v2_t& operator*=(const float scalar)
         {
@@ -209,18 +198,16 @@
                 _v[OCT_YX] * scalar
                 );
         }
+
+    public:
+
         oct_vec_v2_t& operator=(const oct_vec_v2_t& other)
         {
             assign(other);
             return *this;
         }
-        void setZero()
-        {
-            for (size_t i = 0; i < OCT_COUNT; ++i)
-            {
-                _v[i] = 0.0f;
-            }
-        }
+
+    public:
 
         const float& operator[] (const size_t index) const
         {
@@ -230,6 +217,7 @@
             }
             return _v[index];
         }
+
         float& operator[](const size_t index)
         {
             if (index >= OCT_COUNT)
@@ -240,8 +228,6 @@
         }
         
     };
-
-    bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const Vector3f& fvec, oct_vec_v2_t& odst);
 
 //--------------------------------------------------------------------------------------------
 
@@ -396,8 +382,8 @@
          */
         void translate(const oct_vec_v2_t& t)
         {
-            _mins.add(t);
-            _maxs.add(t);
+            _mins += t;
+            _maxs += t;
         }
 
         /**
@@ -423,9 +409,7 @@
          *  @a true if this bounding volume contains the other bounding volume, @a false otherwise
          */
         static bool contains(const oct_bb_t& self, const oct_bb_t& other);
-        
-		static void ctor(oct_bb_t& self);
-		static void dtor(oct_bb_t& self);
+
         static egolib_rv validate(oct_bb_t& self);
         static bool empty_raw(const oct_bb_t& self);
 
