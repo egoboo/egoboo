@@ -1638,11 +1638,11 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     if ( nullptr == pchr ) return rv_error;
 
     // re-initialize the collision volumes
-    oct_bb_t::ctor(pchr->chr_min_cv);
-    oct_bb_t::ctor(pchr->chr_max_cv);
+    pchr->chr_min_cv = oct_bb_t();
+    pchr->chr_max_cv = oct_bb_t();
     for ( size_t cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        oct_bb_t::ctor(pchr->slot_cv[cnt]);
+        pchr->slot_cv[cnt] = oct_bb_t();
     }
 
     // make sure the matrix is updated properly

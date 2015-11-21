@@ -46,7 +46,7 @@ static bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b,
 //--------------------------------------------------------------------------------------------
 bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_vec_v2_t& odepth)
 {
-    odepth.setZero();
+    odepth = oct_vec_v2_t();
 
     // are the initial volumes any good?
     if (bb_a._empty || bb_b._empty) return false;
@@ -84,7 +84,7 @@ bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_ve
 //--------------------------------------------------------------------------------------------
 bool phys_get_pressure_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_vec_v2_t& odepth)
 {
-    odepth.setZero();
+    odepth = oct_vec_v2_t();
 
     // assume the best
     bool result = true;
