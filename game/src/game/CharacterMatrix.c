@@ -117,11 +117,11 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
     mc_tmp.self_scale = Vector3f(pchr->fat, pchr->fat, pchr->fat);
 
     // handle the overlay first of all
-    if ( !handled && pchr->is_overlay && ichr != pchr->ai.target && _currentModule->getObjectHandler().exists( pchr->ai.target ) )
+    if ( !handled && pchr->is_overlay && ichr != pchr->ai.getTarget() && _currentModule->getObjectHandler().exists( pchr->ai.getTarget() ) )
     {
         // this will pretty much fail the cmp_matrix_cache() every time...
 
-        Object * ptarget = _currentModule->getObjectHandler().get( pchr->ai.target );
+        Object * ptarget = _currentModule->getObjectHandler().get( pchr->ai.getTarget() );
 
         // make sure we have the latst info from the target
         chr_update_matrix( ptarget, true );
@@ -933,9 +933,9 @@ void make_one_character_matrix( const ObjectRef ichr )
     {
         // This character is an overlay and its ai.target points to the object it is overlaying
         // Overlays are kept with their target...
-        if ( _currentModule->getObjectHandler().exists( pchr->ai.target ) )
+        if ( _currentModule->getObjectHandler().exists( pchr->ai.getTarget() ) )
         {
-            Object * ptarget = _currentModule->getObjectHandler().get( pchr->ai.target );
+            Object * ptarget = _currentModule->getObjectHandler().get( pchr->ai.getTarget() );
 
             pchr->setPosition(ptarget->getPosition());
 

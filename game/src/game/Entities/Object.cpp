@@ -482,7 +482,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 {
                     if ( team == Team::TEAM_DAMAGE )
                     {
-                        ai.attacklast = ObjectRef::Invalid;
+                        ai.setLastAttacker(ObjectRef::Invalid);
                     }
                     else
                     {
@@ -578,7 +578,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         // Isssue an alert
         if ( team == Team::TEAM_DAMAGE )
         {
-            ai.attacklast = ObjectRef::Invalid;
+            ai.setLastAttacker(ObjectRef::Invalid);
         }
 
         /// @test spawn a fly-away heal indicator?
@@ -625,7 +625,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         }
     
         //Do not alert items damaging (or healing) their holders, healing potions for example
-        if ( attacker->attachedto == ObjectRef(ai.index) ) return;
+        if ( attacker->attachedto == ObjectRef(ai.getSelf()) ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
         if ( attacker->isBeingHeld() && !_currentModule->getObjectHandler().get(attacker->attachedto)->isMount() )
@@ -641,7 +641,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     }
 
     //Update alerts and timers
-    ai.attacklast = actual_attacker;
+    ai.setLastAttacker(actual_attacker);
     SET_BIT(ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED);
     careful_timer = CAREFULTIME;
 }
@@ -1438,9 +1438,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     if (actualKiller)
     {
         // Set target
-        ai.target = actualKiller->getObjRef();
+        ai.setTarget(actualKiller->getObjRef());
 		if (actualKiller->getTeam() == Team::TEAM_DAMAGE || actualKiller->getTeam() == Team::TEAM_NULL) {
-			ai.target = getObjRef();
+			ai.setTarget(getObjRef());
 		}
 
         // Award experience for kill?
@@ -1492,7 +1492,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         }
 
         // Let the other characters know it died
-        if ( listener->ai.target == getObjRef() )
+        if ( listener->ai.getTarget() == getObjRef() )
         {
             SET_BIT( listener->ai.alert, ALERTIF_TARGETKILLED );
         }
@@ -1867,7 +1867,7 @@ void Object::respawn()
     phys.bumpdampen = profile->getBumpDampen();
 
     ai.alert = ALERTIF_CLEANEDUP;
-    ai.target = getObjRef();
+    ai.setTarget(getObjRef());
     ai.timer  = 0;
 
     grog_timer = 0;
