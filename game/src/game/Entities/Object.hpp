@@ -62,14 +62,12 @@ struct chr_environment_t
         level(0.0f),
         fly_level(0.0f),
         zlerp(0.0f),
-        floor_speed(),
         is_slipping(false),
         is_slippy(false),
         is_watery(false),
         ice_friction(0.0f),
         fluid_friction_hrz(0.0f),
         fluid_friction_vrt(0.0f),
-        traction(0.0f),
         friction_hrz(0.0f),
         inwater(false),
         grounded(true),
@@ -94,14 +92,12 @@ struct chr_environment_t
 
     float  zlerp;
 
-    Vector3f floor_speed;
-
     // friction stuff
     bool is_slipping;
     bool is_slippy,    is_watery;
     float  ice_friction;
     float  fluid_friction_hrz, fluid_friction_vrt;
-    float  traction, friction_hrz;
+    float  friction_hrz;
 
     // misc states
     bool inwater;

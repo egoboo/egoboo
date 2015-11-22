@@ -7,11 +7,10 @@
 
 static constexpr float MAX_DISPLACEMENT_XY = 20.0f; //Max velocity correction due to being inside a wall
 
-static void move_one_character_do_floor_friction( Object * pchr );
-static void move_one_character_do_voluntary( Object * pchr );
-static void move_one_character( Object * pchr );
-static void move_one_character_do_z_motion( Object * pchr );
-static bool move_one_character_integrate_motion( Object * pchr );
+void move_one_character_do_floor_friction( Object * pchr );
+void move_one_character( Object * pchr );
+void move_one_character_do_z_motion( Object * pchr );
+bool move_one_character_integrate_motion( Object * pchr );
 
 static bool chr_do_latch_button( Object * pchr );
 static bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
@@ -39,228 +38,23 @@ struct grab_data_t
     bool isFacingObject;
 };
 
-void move_one_character_do_voluntary( Object * pchr )
-{
-    // do voluntary motion
-    if (!pchr || pchr->isTerminated()) return;
-
-    auto ichr = GET_INDEX_PCHR( pchr );
-
-    if ( !pchr->isAlive() || pchr->getAttribute(Ego::Attribute::ACCELERATION) == 0.00f ) return;
-
-    pchr->enviro.new_v[kX] = pchr->vel[kX];
-    pchr->enviro.new_v[kY] = pchr->vel[kY];
-
-    //Mounted?
-    if ( pchr->isBeingHeld() ) return;
-
-    float new_ax = 0.0f, new_ay = 0.0f;
-
-    // Character latches for generalized movement
-    float dvx = pchr->latch.x;
-    float dvy = pchr->latch.y;
-
-    // Reverse movements for daze
-    if ( pchr->daze_timer > 0 )
-    {
-        dvx = -dvx;
-        dvy = -dvy;
-    }
-
-    // Switch x and y for grog
-    if ( pchr->grog_timer > 0 )
-    {
-        std::swap(dvx, dvy);
-    }
-
-    // this is the maximum speed that a character could go under the v2.22 system
-    float maxspeed = pchr->getAttribute(Ego::Attribute::ACCELERATION) * Ego::Physics::g_environment.airfriction / (1.0f - Ego::Physics::g_environment.airfriction);
-    float speedBonus = 1.0f;
-
-    //Sprint perk gives +10% movement speed if above 75% life remaining
-    if(pchr->hasPerk(Ego::Perks::SPRINT) && pchr->getLife() >= pchr->getAttribute(Ego::Attribute::MAX_LIFE)*0.75f) {
-        speedBonus += 0.1f;
-
-        //Uninjured? (Dash perk can give another 10% extra speed)
-        if(pchr->hasPerk(Ego::Perks::DASH) && pchr->getAttribute(Ego::Attribute::MAX_LIFE)-pchr->getLife() < 1.0f) {
-            speedBonus += 0.1f;
-        }
-    }
-
-    //Rally Bonus? (+10%)
-    if(pchr->hasPerk(Ego::Perks::RALLY) && update_wld < pchr->getRallyDuration()) {
-        speedBonus += 0.1f;
-    }    
-
-    //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
-    speedBonus += (pchr->getAttribute(Ego::Attribute::AGILITY)-10.0f) * 0.01f;
-
-    //Now apply speed modifiers
-    maxspeed *= speedBonus;
-
-    //Check animation frame freeze movement
-    if ( chr_instance_t::get_framefx(pchr->inst) & MADFX_STOP )
-    {
-        //Allow 50% movement while using Shield and have the Mobile Defence perk
-        if(pchr->hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(pchr->inst.action_which, P))
-        {
-            maxspeed *= 0.5f;
-        }
-        //Allow 50% movement with Mobility perk and attacking with a weapon
-        else if(pchr->hasPerk(Ego::Perks::MOBILITY) && pchr->isAttacking())
-        {
-            maxspeed *= 0.5f;
-        }
-        else
-        {
-            //No movement allowed
-            maxspeed = 0.0f;
-        }
-    }
-
-    //Check if AI has limited movement rate
-    else if(!pchr->isPlayer())
-    {
-        maxspeed *= pchr->ai.maxSpeed;
-    }
-
-    bool sneak_mode_active = pchr->isStealthed();
-
-    //Reduce speed while stealthed
-    if(pchr->isStealthed()) {
-        if(pchr->hasPerk(Ego::Perks::SHADE)) {
-            maxspeed *= 0.75f;  //Shade allows 75% movement speed while stealthed
-        }
-        else if(pchr->hasPerk(Ego::Perks::STALKER)) {
-            maxspeed *= 0.50f;  //Stalker allows 50% movement speed while stealthed
-        }
-        else {
-            maxspeed *= 0.33f;  //Can only move at 33% speed while stealthed
-        }
-    }
-    
-    pchr->enviro.new_v[kX] = pchr->enviro.new_v[kY] = 0.0f;
-    if (std::abs(dvx) + std::abs(dvy) > 0.05f)
-    {
-        pchr->enviro.new_v[kX] = dvx * maxspeed;
-        pchr->enviro.new_v[kY] = dvy * maxspeed;
-    }
-
-    if ( sneak_mode_active )
-    {
-        // sneak mode
-        pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
-    }
-    else
-    {
-        // non-sneak mode
-        pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
-    }
-
-    // do platform friction
-    if ( _currentModule->getObjectHandler().exists( pchr->onwhichplatform_ref ) )
-    {
-        Object * pplat = _currentModule->getObjectHandler().get( pchr->onwhichplatform_ref );
-
-        new_ax += ( pplat->vel[kX] + pchr->enviro.new_v[kX] - ( pchr->vel[kX] ) );
-        new_ay += ( pplat->vel[kY] + pchr->enviro.new_v[kY] - ( pchr->vel[kY] ) );
-    }
-    else
-    {
-        new_ax += ( pchr->enviro.new_v[kX] - pchr->vel[kX] );
-        new_ay += ( pchr->enviro.new_v[kY] - pchr->vel[kY] );
-    }
-
-    new_ax *= pchr->enviro.traction;
-    new_ay *= pchr->enviro.traction;
-
-    //Slippery environment?
-    if(pchr->enviro.is_slippy) {
-        new_ax *= Ego::Physics::g_environment.icefriction * 0.1f;
-        new_ay *= Ego::Physics::g_environment.icefriction * 0.1f;
-    }
-
-    //Limit movement to the max acceleration
-    float accelerationMagnitude = std::sqrt(new_ax*new_ax + new_ay*new_ay);
-    if(accelerationMagnitude > pchr->getAttribute(Ego::Attribute::ACCELERATION)) {
-        new_ax *= pchr->getAttribute(Ego::Attribute::ACCELERATION) / accelerationMagnitude;
-        new_ay *= pchr->getAttribute(Ego::Attribute::ACCELERATION) / accelerationMagnitude;
-    }
-
-    //Figure out how to turn around
-    if ( 0 != pchr->getAttribute(Ego::Attribute::ACCELERATION) )
-    {
-        switch ( pchr->turnmode )
-        {
-            // Get direction from ACTUAL change in velocity
-            default:
-            case TURNMODE_VELOCITY:
-                {
-                    if (std::abs(dvx) > TURNSPD || std::abs(dvy) > TURNSPD)
-                    {
-                        if ( VALID_PLA( pchr->is_which_player ) )
-                        {
-                            // Players turn quickly
-                            pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 2 );
-                        }
-                        else
-                        {
-                            // AI turn slowly
-                            pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
-                        }
-                    }
-                }
-                break;
-
-            // Get direction from the DESIRED change in velocity
-            case TURNMODE_WATCH:
-                {
-                    if (( std::abs( dvx ) > WATCHMIN || std::abs( dvy ) > WATCHMIN ) )
-                    {
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
-                    }
-                }
-                break;
-
-            // Face the target
-            case TURNMODE_WATCHTARGET:
-                {
-                    if ( ichr != pchr->ai.getTarget() )
-                    {
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosY() - pchr->getPosY() ), 8 );
-                    }
-                }
-                break;
-
-            // Otherwise make it spin
-            case TURNMODE_SPIN:
-                {
-                    pchr->ori.facing_z += SPINRATE;
-                }
-                break;
-        }
-    }
-
-    //Update velocity
-    pchr->vel[kX] += new_ax;
-    pchr->vel[kY] += new_ay;
-}
-
 void move_one_character_get_environment( Object * pchr )
 {
     if (!pchr || pchr->isTerminated()) return;
     chr_environment_t& enviro = pchr->enviro;
 
     // determine if the character is standing on a platform
-    Object *pplatform = NULL;
+    Object *pplatform = nullptr;
     if ( _currentModule->getObjectHandler().exists( pchr->onwhichplatform_ref ) )
     {
         pplatform = _currentModule->getObjectHandler().get( pchr->onwhichplatform_ref );
     }
+
     ego_mesh_t *mesh = _currentModule->getMeshPointer().get();
+
     //---- character "floor" level
-    float grid_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false );
-    float water_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), true );
+    float grid_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false);
+    float water_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), true);
 
     // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
     if (grid_level != pchr->enviro.grid_level) {
@@ -277,20 +71,20 @@ void move_one_character_get_environment( Object * pchr )
     enviro.water_lerp  = Ego::Math::constrain( enviro.water_lerp, 0.0f, 1.0f );
 
     // The actual level of the floor underneath the character.
-    if ( NULL != pplatform )
+    if (pplatform)
     {
         enviro.floor_level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
     }
     else
     {
-        enviro.floor_level = pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) ? water_level : grid_level;
+        enviro.floor_level = pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? water_level : grid_level;
     }
 
     //---- The actual level of the characer.
     //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
     //     last loop
     enviro.level = enviro.floor_level;
-    if ( NULL != pplatform )
+    if (pplatform)
     {
         enviro.level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
     }
@@ -319,14 +113,14 @@ void move_one_character_get_environment( Object * pchr )
     enviro.is_watery = water._is_water && enviro.inwater;
     enviro.is_slippy = !enviro.is_watery && ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_SLIPPY ) );
 
+/*
     //---- traction
     enviro.traction = 1.0f;
     if ( pchr->isFlying() )
     {
         // any traction factor here
-        /* traction = ??; */
     }
-    else if ( NULL != pplatform )
+    else if (pplatform)
     {
         // in case the platform is tilted
         // unfortunately platforms are attached in the collision section
@@ -341,18 +135,19 @@ void move_one_character_get_environment( Object * pchr )
 
         if ( enviro.is_slippy )
         {
-            enviro.traction /= 4.00f * Ego::Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
+            enviro.traction /= 4.00f * Ego::Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + enviro.zlerp;
         }
     }
-    else if ( mesh->grid_is_valid( pchr->getTile() ) )
+    else if ( mesh->grid_is_valid(pchr->getTile()) )
     {
-        enviro.traction = std::abs(g_meshLookupTables.twist_nrm[enviro.grid_twist][kZ] ) * ( 1.0f - enviro.zlerp ) + 0.25f * enviro.zlerp;
+        enviro.traction = std::abs(g_meshLookupTables.twist_nrm[enviro.grid_twist][kZ]) * (1.0f - enviro.zlerp) + 0.25f * enviro.zlerp;
 
         if ( enviro.is_slippy )
         {
-            enviro.traction /= 4.00f * Ego::Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + 1.0f * enviro.zlerp;
+            enviro.traction /= 4.00f * Ego::Physics::g_environment.hillslide * (1.0f - enviro.zlerp) + enviro.zlerp;
         }
     }
+*/
 
     //---- the friction of the fluid we are in
     if (enviro.is_watery)
@@ -368,7 +163,7 @@ void move_one_character_get_environment( Object * pchr )
         }
 
     }
-    else if ( NULL != pplatform )
+    else if (pplatform)
     {
         enviro.fluid_friction_hrz = 1.0f;
         enviro.fluid_friction_vrt = 1.0f;
@@ -382,7 +177,7 @@ void move_one_character_get_environment( Object * pchr )
 
     //---- friction
     enviro.friction_hrz = 1.0f;
-    if ( pchr->isFlying() )
+    if (pchr->isFlying())
     {
         if ( pchr->platform )
         {
@@ -395,13 +190,13 @@ void move_one_character_get_environment( Object * pchr )
     {
         // Make the characters slide
         float temp_friction_xy = Ego::Physics::g_environment.noslipfriction;
-        if ( mesh->grid_is_valid( pchr->getTile() ) && enviro.is_slippy )
+        if (enviro.is_slippy)
         {
             // It's slippy all right...
             temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
         }
 
-        enviro.friction_hrz = enviro.zlerp * 1.0f + ( 1.0f - enviro.zlerp ) * temp_friction_xy;
+        enviro.friction_hrz = enviro.zlerp * 1.0f + (1.0f - enviro.zlerp) * temp_friction_xy;
     }
 
     //---- jump stuff
@@ -443,17 +238,6 @@ void move_one_character_get_environment( Object * pchr )
             pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
         }
     }
-
-    // add in something for the "ground speed"
-    if ( NULL == pplatform )
-    {
-        enviro.floor_speed = Vector3f::zero();
-    }
-    else
-    {
-        enviro.floor_speed = pplatform->vel;
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -461,78 +245,78 @@ void move_one_character_do_floor_friction( Object * pchr )
 {
     /// @author BB
     /// @details Friction is complicated when you want to have sliding characters :P
+    if (!pchr || pchr->isTerminated()) {
+        return;
+    }
 
-    if (!pchr || pchr->isTerminated()) return;
-    chr_environment_t * penviro = &( pchr->enviro );
-
-    if ( pchr->isFlying() ) return;
+    //There is no floor friction while the character is levitating above the ground
+    if (pchr->isFlying()) {
+        return;
+    }
 
     // assume the best
-    Vector3f floor_acc = Vector3f::zero();
+    Vector3f floorAcceleration = Vector3f::zero();
     float temp_friction_xy = 1.0f;
     Vector3f vup = Vector3f(0.0f, 0.0f, 1.0f);
 
     // figure out the acceleration due to the current "floor"
     const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
-    if (platform != nullptr)
+    if (platform)
     {
+        //Platform
         chr_getMatUp(platform.get(), vup);
-        temp_friction_xy = std::min(1.0f, penviro->friction_hrz - PLATFORM_STICKINESS);
-        floor_acc = platform->vel - pchr->vel;
-    }
-    else if (!pchr->isAlive() || pchr->isItem())
-    {
-        temp_friction_xy = 0.5f;
-        floor_acc = -pchr->vel;
-
-        if ( TWIST_FLAT != penviro->grid_twist )
-        {
-            vup = g_meshLookupTables.twist_nrm[penviro->grid_twist];
-        }
-
+        temp_friction_xy = std::min(1.0f, pchr->enviro.friction_hrz - PLATFORM_STICKINESS);
+        floorAcceleration = platform->vel - pchr->vel;
     }
     else
     {
-        temp_friction_xy = penviro->friction_hrz;
-        floor_acc = -pchr->vel;
-
-        if ( TWIST_FLAT != penviro->grid_twist )
-        {
-            vup = g_meshLookupTables.twist_nrm[penviro->grid_twist];
+        if (!pchr->isAlive() || pchr->isItem()) {
+            //Dead creatures or items
+            temp_friction_xy = 0.5f;
         }
+        else {
+            //Living beings
+            temp_friction_xy = pchr->enviro.friction_hrz;
+        }
+
+        floorAcceleration = -pchr->vel;
+
+        if ( TWIST_FLAT != pchr->enviro.grid_twist )
+        {
+            vup = g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist];
+        }
+
     }
 
-    floor_acc *= 1.0f - penviro->zlerp;
+    floorAcceleration *= 1.0f - pchr->enviro.zlerp;
 
     // reduce the volountary acceleration peopendicular to the direction of motion?
-    if (floor_acc.length_abs() > 0.0f)
+    if (floorAcceleration.length_abs() > 0.0f)
     {
-        Vector3f acc_para, acc_perp;
-        Vector3f vfront;
-
         // get the direction of motion
-        vfront = mat_getChrForward(pchr->inst.matrix);
+        Vector3f vfront = mat_getChrForward(pchr->inst.matrix);
         vfront.normalize();
 
         // decompose the acceleration into parallel and perpendicular components
-        fvec3_decompose(floor_acc, vfront, acc_para, acc_perp);
+        Vector3f acc_para, acc_perp;
+        fvec3_decompose(floorAcceleration, vfront, acc_para, acc_perp);
 
         // re-compose the acceleration with 1/2 of the perpendicular taken away
-        floor_acc = acc_perp * 0.5f;
-        floor_acc += acc_para;
+        floorAcceleration = acc_perp * 0.5f;
+        floorAcceleration += acc_para;
     }
 
     // the first guess about the floor friction
-    Vector3f fric_floor = floor_acc * (penviro->traction * (1.0f - temp_friction_xy));
+    Vector3f fric_floor = floorAcceleration;
 
     // the total "friction" with to the floor
-    Vector3f fric = fric_floor + penviro->acc;
+    Vector3f fric = fric_floor + pchr->enviro.acc;
 
     // limit the friction to whatever is horizontal to the mesh
     if (std::abs(vup[kZ]) >= 1.0f)
     {
         fric[kZ] = 0.0f;
-        floor_acc[kZ] = 0.0f;
+        floorAcceleration[kZ] = 0.0f;
     }
     else
     {
@@ -541,31 +325,30 @@ void move_one_character_do_floor_friction( Object * pchr )
         fvec3_decompose(fric, vup, acc_perp, acc_para);
         fric = acc_para;
 
-        fvec3_decompose(floor_acc, vup, acc_perp, acc_para);
-        floor_acc = acc_para;
+        fvec3_decompose(floorAcceleration, vup, acc_perp, acc_para);
+        floorAcceleration = acc_para;
     }        
 
     // test to see if the player has any more friction left?
-    penviro->is_slipping = (fric.length_abs() > penviro->friction_hrz);
+    pchr->enviro.is_slipping = (fric.length_abs() > pchr->enviro.friction_hrz);
 
-    if (penviro->is_slipping)
+    if (pchr->enviro.is_slipping)
     {
-        penviro->traction *= 0.5f;
         temp_friction_xy = std::sqrt( temp_friction_xy );
 
         // the first guess about the floor friction
-        fric_floor = floor_acc * (penviro->traction * (1.0f - temp_friction_xy));
+        fric_floor = floorAcceleration * (1.0f - temp_friction_xy);
     }
 
     // Apply the floor friction
     pchr->vel += fric_floor;
 
     // Apply fluid friction from last time
-    if(!penviro->is_slippy) {
-        pchr->vel[kX] -= pchr->vel[kX] * (1.0f - penviro->fluid_friction_hrz);
-        pchr->vel[kY] -= pchr->vel[kY] * (1.0f - penviro->fluid_friction_hrz);
-        pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - penviro->fluid_friction_vrt);
-    }
+    //if(!pchr->enviro.is_slippy) {
+    //    pchr->vel[kX] -= pchr->vel[kX] * (1.0f - pchr->enviro.fluid_friction_hrz);
+    //    pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
+    //    pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
+    //}
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1413,13 +1196,228 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
     return retval;
 }
 
+float getMaxSpeed(Object *object)
+{
+    // this is the maximum speed that a character could go under the v2.22 system
+    float maxspeed = object->getAttribute(Ego::Attribute::ACCELERATION) * Ego::Physics::g_environment.airfriction / (1.0f - Ego::Physics::g_environment.airfriction);
+    float speedBonus = 1.0f;
+
+    //Sprint perk gives +10% movement speed if above 75% life remaining
+    if(object->hasPerk(Ego::Perks::SPRINT) && object->getLife() >= object->getAttribute(Ego::Attribute::MAX_LIFE)*0.75f) {
+        speedBonus += 0.1f;
+
+        //Uninjured? (Dash perk can give another 10% extra speed)
+        if(object->hasPerk(Ego::Perks::DASH) && object->getAttribute(Ego::Attribute::MAX_LIFE)-object->getLife() < 1.0f) {
+            speedBonus += 0.1f;
+        }
+    }
+
+    //Rally Bonus? (+10%)
+    if(object->hasPerk(Ego::Perks::RALLY) && update_wld < object->getRallyDuration()) {
+        speedBonus += 0.1f;
+    }    
+
+    //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
+    speedBonus += (object->getAttribute(Ego::Attribute::AGILITY)-10.0f) * 0.01f;
+
+    //Now apply speed modifiers
+    maxspeed *= speedBonus;
+
+    //Check animation frame freeze movement
+    if ( chr_instance_t::get_framefx(object->inst) & MADFX_STOP )
+    {
+        //Allow 50% movement while using Shield and have the Mobile Defence perk
+        if(object->hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(object->inst.action_which, P))
+        {
+            maxspeed *= 0.5f;
+        }
+        //Allow 50% movement with Mobility perk and attacking with a weapon
+        else if(object->hasPerk(Ego::Perks::MOBILITY) && object->isAttacking())
+        {
+            maxspeed *= 0.5f;
+        }
+        else
+        {
+            //No movement allowed
+            maxspeed = 0.0f;
+        }
+    }
+
+    //Check if AI has limited movement rate
+    else if(!object->isPlayer())
+    {
+        maxspeed *= object->ai.maxSpeed;
+    }
+
+    bool sneak_mode_active = object->isStealthed();
+
+    //Reduce speed while stealthed
+    if(object->isStealthed()) {
+        if(object->hasPerk(Ego::Perks::SHADE)) {
+            maxspeed *= 0.75f;  //Shade allows 75% movement speed while stealthed
+        }
+        else if(object->hasPerk(Ego::Perks::STALKER)) {
+            maxspeed *= 0.50f;  //Stalker allows 50% movement speed while stealthed
+        }
+        else {
+            maxspeed *= 0.33f;  //Can only move at 33% speed while stealthed
+        }
+    }
+
+    if ( sneak_mode_active )
+    {
+        // sneak mode
+        object->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
+    }
+    else
+    {
+        // non-sneak mode
+        object->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
+    }
+    return maxspeed;    
+}
+
+void updateFacing(Object *pchr, const Vector2f &acceleration)
+{
+    //Figure out how to turn around
+    if ( 0 != pchr->getAttribute(Ego::Attribute::ACCELERATION) )
+    {
+        switch ( pchr->turnmode )
+        {
+            // Get direction from ACTUAL change in velocity
+            default:
+            case TURNMODE_VELOCITY:
+                {
+                    if (std::abs(acceleration[kX]) > TURNSPD || std::abs(acceleration[kY]) > TURNSPD)
+                    {
+                        if (pchr->isPlayer())
+                        {
+                            // Players turn quickly
+                            pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( acceleration[kX] , acceleration[kY] ), 2 );
+                        }
+                        else
+                        {
+                            // AI turn slowly
+                            pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( acceleration[kX] , acceleration[kY] ), 8 );
+                        }
+                    }
+                }
+                break;
+
+            // Get direction from the DESIRED change in velocity
+            case TURNMODE_WATCH:
+                {
+                    if (( std::abs( acceleration[kX] ) > WATCHMIN || std::abs( acceleration[kY] ) > WATCHMIN ) )
+                    {
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( acceleration[kX] , acceleration[kY] ), 8 );
+                    }
+                }
+                break;
+
+            // Face the target
+            case TURNMODE_WATCHTARGET:
+                {
+                    if ( pchr->getObjRef().get() != pchr->ai.target )
+                    {
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.target)->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.target)->getPosY() - pchr->getPosY() ), 8 );
+                    }
+                }
+                break;
+
+            // Otherwise make it spin
+            case TURNMODE_SPIN:
+                {
+                    pchr->ori.facing_z += SPINRATE;
+                }
+                break;
+        }
+    }
+}
+
+void updateMovement(Object *object)
+{
+    if (!object->isAlive() || object->getAttribute(Ego::Attribute::ACCELERATION) == 0.00f)  {
+        return;
+    }
+
+    //Mounted?
+    if (object->isBeingHeld()) {
+        return;
+    }
+
+    //Desired acceleration in scaled space [-1 , 1]
+    Vector2f acceleration = Vector2f(object->latch.x, object->latch.y);
+
+    // do platform friction
+    const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[object->onwhichplatform_ref];
+    if (platform)
+    {
+        acceleration[kX] += platform->vel[kX];
+        acceleration[kY] += platform->vel[kY];
+    }
+
+    //Slippery environment?
+    //if(object->enviro.is_slippy) {
+    //    acceleration[kX] *= Ego::Physics::g_environment.icefriction * 0.1f;
+    //    acceleration[kY] *= Ego::Physics::g_environment.icefriction * 0.1f;
+    //}
+
+    // Reverse movements for daze
+    if (object->daze_timer > 0) {
+        acceleration[kX] = -acceleration[kX];
+        acceleration[kY] = -acceleration[kY];
+    }
+
+    // Switch x and y for grog
+    if (object->grog_timer > 0) {
+        std::swap(acceleration[kX], acceleration[kY]);
+    }
+
+    //Is there any movement going on?
+    object->enviro.new_v[kX] = object->enviro.new_v[kY] = 0.0f;
+    if (acceleration.length_abs() > 0.05f)
+    {
+        const float maxSpeed = getMaxSpeed(object);
+
+        //Scale [-1 , 1] to max acceleration of the object
+        acceleration *= maxSpeed;
+
+        //Limit total acceleration to the max acceleration
+        if(acceleration.length() > maxSpeed) {
+            acceleration *= maxSpeed / acceleration.length();
+        }
+
+        //Apply movement friction
+        acceleration -= acceleration * (1.0f - object->enviro.friction_hrz);
+
+        //Store acceleration this update
+        object->enviro.new_v[kX] = acceleration[kX];
+        object->enviro.new_v[kY] = acceleration[kY];
+
+        //Finally apply acceleration to velocity
+        object->vel[kX] += object->enviro.new_v[kX];
+        object->vel[kY] += object->enviro.new_v[kY];
+    }
+    else {
+        //De-accellerate when no movement is desired
+        object->vel[kX] -= object->vel[kX] * (1.0f - object->enviro.friction_hrz);
+        object->vel[kY] -= object->vel[kY] * (1.0f - object->enviro.friction_hrz);        
+    }
+
+    //Apply gravity
+    object->vel[kZ] += object->enviro.zlerp * Ego::Physics::g_environment.gravity;
+
+    //Apply floor friction
+    object->vel[kX] -= object->vel[kX] * (1.0f - object->enviro.friction_hrz);
+    object->vel[kY] -= object->vel[kY] * (1.0f - object->enviro.friction_hrz);
+
+    //Update which way we are looking
+    updateFacing(object, acceleration);
+}
+
 //--------------------------------------------------------------------------------------------
 void move_one_character( Object * pchr )
 {
-    if (!pchr || pchr->isTerminated()) return;
-
-    if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return;
-
     // save the velocity and acceleration from the last time-step
     pchr->enviro.vel = pchr->getPosition() - pchr->getOldPosition();
     pchr->enviro.acc = pchr->vel - pchr->vel_old;
@@ -1434,13 +1432,16 @@ void move_one_character( Object * pchr )
     move_one_character_get_environment( pchr );
 
     // do friction with the floor before voluntary motion
-    move_one_character_do_floor_friction( pchr );
+    //move_one_character_do_floor_friction( pchr );
 
-    move_one_character_do_voluntary( pchr );
+    //move_one_character_do_voluntary( pchr );
 
     chr_do_latch_button( pchr );
 
-    move_one_character_do_z_motion( pchr );
+    updateMovement(pchr);
+
+
+    //move_one_character_do_z_motion( pchr );
 
     move_one_character_integrate_motion( pchr );
 
@@ -1458,6 +1459,9 @@ void move_one_character( Object * pchr )
             pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[pchr->enviro.grid_twist] * fnew;
         }
     }
+
+    keep_weapons_with_holder(pchr->getLeftHandItem());
+    keep_weapons_with_holder(pchr->getRightHandItem());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1465,6 +1469,11 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
 {
     /// @author ZZ
     /// @details This function keeps weapons near their holders
+
+    //Ignore invalid objects
+    if(!pchr || pchr->isTerminated()) {
+        return;
+    }
 
    const std::shared_ptr<Object> &holder = pchr->getHolder();
     if (holder)
@@ -1552,10 +1561,12 @@ void move_all_characters()
         // prime the environment
         object->enviro.ice_friction = Ego::Physics::g_environment.icefriction;
 
-        move_one_character( object.get() );
+        //Skip objects that are inside inventories
+        if(!object->isInsideInventory()) {
+            move_one_character( object.get() );
+        }
 
         //chr_update_matrix( object.get(), true );
-        keep_weapons_with_holder(object);
     }
 }
 

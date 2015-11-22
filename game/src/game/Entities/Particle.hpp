@@ -54,7 +54,7 @@ struct prt_environment_t
     float  air_friction, ice_friction;
     float  fluid_friction_hrz, fluid_friction_vrt;
     float  friction_hrz;
-    float  traction;
+    float traction;
 
     // misc states
     bool   inwater;
@@ -78,7 +78,7 @@ struct prt_environment_t
         fluid_friction_hrz = fluid_friction_vrt = 0.0f;
         friction_hrz = 0.0f;
         traction = 0.0f;
-
+        
         // misc states
         inwater = false;
         acc = Vector3f::zero();

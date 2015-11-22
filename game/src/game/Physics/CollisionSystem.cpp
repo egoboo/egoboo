@@ -19,7 +19,7 @@
 #include "CollisionSystem.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h" //for update_wld
-#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
+#include "game/Physics/ObjectPhysics.h" //for detach_character_from_platform()
 
 #include "particle_collision.h"
 
@@ -645,13 +645,6 @@ bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &obje
         object->jumpready = true;
         object->jumpnumber = object->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
-
-    // what to do about traction if the platform is tilted... hmmm?
-    Vector3f platformUp = Vector3f( 0.0f, 0.0f, 1.0f );
-    chr_getMatUp(platform.get(), platformUp);
-    platformUp.normalize();
-
-    object->enviro.traction = std::abs(platformUp[kZ]) * (1.0f - object->enviro.zlerp) + 0.25f * object->enviro.zlerp;
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
