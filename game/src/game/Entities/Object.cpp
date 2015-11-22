@@ -473,7 +473,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
                         ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
-                                            INVALID_CHR_REF, GRIP_LAST, team, _objRef.get());
+                                                              ObjectRef::Invalid, GRIP_LAST, team, _objRef);
                     }
                 }
 
@@ -625,7 +625,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         }
     
         //Do not alert items damaging (or healing) their holders, healing potions for example
-        if ( attacker->attachedto == ai.index ) return;
+        if ( attacker->attachedto == ObjectRef(ai.index) ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
         if ( attacker->isBeingHeld() && !_currentModule->getObjectHandler().get(attacker->attachedto)->isMount() )
@@ -660,7 +660,7 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
     }
 
     // Set alerts, but don't alert that we healed ourselves
-    if (healer && this != healer.get() && healer->attachedto != _objRef.get() && amount > HURTDAMAGE)
+    if (healer && this != healer.get() && healer->attachedto != _objRef && amount > HURTDAMAGE)
     {
         updateLastAttacker(healer, true);
     }
@@ -1123,7 +1123,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     uint16_t hand = inwhich_slot;
 
     // Rip 'em apart
-    attachedto = INVALID_CHR_REF;
+    attachedto = ObjectRef::Invalid;
 	if (pholder->holdingwhich[SLOT_LEFT] == getObjRef()) {
 		pholder->holdingwhich[SLOT_LEFT] = ObjectRef::Invalid;
 	}
@@ -1464,7 +1464,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         
             //Crusader Perk regains 1 mana per Undead kill
             if(actualKiller->hasPerk(Ego::Perks::CRUSADER) && getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('U','N','D','E')) {
-                actualKiller->costMana(-1, actualKiller->getObjRef().get());
+                actualKiller->costMana(-1, actualKiller->getObjRef());
                 chr_make_text_billboard(actualKiller->getObjRef(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
             }
         }
@@ -1767,7 +1767,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos)
 	return result;
 }
 
-bool Object::costMana(int amount, const CHR_REF killer)
+bool Object::costMana(int amount, const ObjectRef killer)
 {
     const std::shared_ptr<Object> &pkiller = _currentModule->getObjectHandler()[killer];
 
@@ -2406,13 +2406,13 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     if (leftItem)
     {
-        EGOBOO_ASSERT(leftItem->attachedto == getObjRef().get());
+        EGOBOO_ASSERT(leftItem->attachedto == getObjRef());
         set_weapongrip(leftItem->getObjRef(), getObjRef(), GRIP_LEFT);
     }
 
     if (rightItem)
     {
-        EGOBOO_ASSERT(rightItem->attachedto == getObjRef().get());
+        EGOBOO_ASSERT(rightItem->attachedto == getObjRef());
         set_weapongrip(rightItem->getObjRef(), getObjRef(), GRIP_RIGHT);
     }
 

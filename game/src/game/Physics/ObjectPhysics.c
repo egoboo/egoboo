@@ -1001,7 +1001,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
             {
                 if(pchr->getProfile()->getUseManaCost() <= pchr->getMana())
                 {
-                    pchr->costMana(pchr->getProfile()->getUseManaCost(), pchr->getObjRef().get());
+                    pchr->costMana(pchr->getProfile()->getUseManaCost(), pchr->getObjRef());
                 }
                 else
                 {
@@ -1168,7 +1168,7 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
         if ( _currentModule->getObjectHandler().exists( pchr_c->inwhich_inventory ) ) continue;
 
         // disarm not allowed yet
-        if ( INVALID_CHR_REF != pchr_c->attachedto ) continue;
+        if ( ObjectRef::Invalid != pchr_c->attachedto ) continue;
 
         // do not pick up your mount
         if ( pchr_c->holdingwhich[SLOT_LEFT] == ichr_a ||
@@ -1524,7 +1524,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
     }
     else
     {
-        pchr->attachedto = INVALID_CHR_REF;
+        pchr->attachedto = ObjectRef::Invalid;
 
         // Keep inventory items with the carrier
         const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[pchr->inwhich_inventory];
@@ -1782,7 +1782,7 @@ egolib_rv attach_character_to_mount( ObjectRef riderRef, ObjectRef mountRef, gri
 
     // Put 'em together
     rider->inwhich_slot       = slot;
-    rider->attachedto         = mountRef.get();
+    rider->attachedto         = mountRef;
     mount->holdingwhich[slot] = riderRef;
 
     // set the grip vertices for the irider

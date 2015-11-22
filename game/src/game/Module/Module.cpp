@@ -268,7 +268,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->spawn_data.skin     = skin;
     pchr->spawn_data.facing   = facing;
     strncpy( pchr->spawn_data.name, name.c_str(), SDL_arraysize( pchr->spawn_data.name ) );
-    pchr->spawn_data.override = override;
+    pchr->spawn_data.override = ObjectRef(override);
 
     // download all the values from the character spawn_ptr->profile
     // Set up model stuff
@@ -456,7 +456,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
         ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
-                            pchr->getObjRef().get(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef().get(), INVALID_PRT_REF, tnc);
+                                              pchr->getObjRef(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef(), INVALID_PRT_REF, tnc);
     }
 
     // is the object part of a shop's inventory?

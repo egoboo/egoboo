@@ -232,10 +232,10 @@ void Enchantment::update()
             for (uint8_t i = 0; i < _enchantProfile->contspawn._amount; ++i)
             {
                 ParticleHandler::get().spawnLocalParticle(target->getPosition(), facing, _spawnerProfileID, _enchantProfile->contspawn._lpip,
-                                                          INVALID_CHR_REF, GRIP_LAST, 
+                                                          ObjectRef::Invalid, GRIP_LAST, 
                                                           owner != nullptr ? owner->getTeam().toRef() : static_cast<TEAM_REF>(Team::TEAM_DAMAGE), 
-                                                          owner != nullptr ? owner->getObjRef().get() : INVALID_CHR_REF,
-                                                          INVALID_PRT_REF, i, INVALID_CHR_REF);
+                                                          owner != nullptr ? owner->getObjRef() : ObjectRef::Invalid,
+                                                          INVALID_PRT_REF, i, ObjectRef::Invalid);
 
                 facing += _enchantProfile->contspawn._facingAdd;
             }

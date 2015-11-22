@@ -58,15 +58,15 @@ bool ObjectHandler::remove(ObjectRef ref) {
 #endif
 
 	//Remove us from any holder first
-	_internalCharacterList[ref.get()]->detatchFromHolder(true, false);
+	_internalCharacterList[ref]->detatchFromHolder(true, false);
 
 	// If we are inside a list loop, do not actually change the length of the
 	// list. Else this can cause some problems later.
-	_internalCharacterList[ref.get()]->_terminateRequested = true; //bad: private access
+	_internalCharacterList[ref]->_terminateRequested = true; //bad: private access
 	_deletedCharacters++;
 
 	// We can safely modify the map, it is not iterable from the outside.
-	_internalCharacterList.erase(ref.get());
+	_internalCharacterList.erase(ref);
 
 	return true;
 }
@@ -77,7 +77,7 @@ bool ObjectHandler::exists(ObjectRef ref) const {
 	}
 
 	// Check if object exists in map.
-	const auto& result = _internalCharacterList.find(ref.get());
+	const auto& result = _internalCharacterList.find(ref);
 	if (result == _internalCharacterList.end()) {
 		return false;
 	}
@@ -125,7 +125,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profileRef, ObjectRe
 		}
 
 		// Allocate the new one (we can safely modify the internal map, it isn't iterable from outside).
-		_internalCharacterList[objRef.get()] = objPtr;
+		_internalCharacterList[objRef] = objPtr;
 
 		// Wait to adding it to the iterable list.
 		_allocateList.push_back(objPtr);
@@ -141,7 +141,7 @@ Object *ObjectHandler::get(ObjectRef ref) const {
 	}
 
 	// Check if object exists in map.
-	const auto& result = _internalCharacterList.find(ref.get());
+	const auto& result = _internalCharacterList.find(ref);
 	if (result == _internalCharacterList.end()) {
 		return nullptr;
 	}
@@ -156,7 +156,7 @@ const std::shared_ptr<Object>& ObjectHandler::operator[] (ObjectRef ref)
 	}
 
 	// Check if object exists in map.
-	const auto& result = _internalCharacterList.find(ref.get());
+	const auto& result = _internalCharacterList.find(ref);
 	if (result == _internalCharacterList.end()) {
 		return Object::INVALID_OBJECT;
 	}

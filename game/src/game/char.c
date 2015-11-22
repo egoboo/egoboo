@@ -194,8 +194,8 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                     // will this mess up wands?
                     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
                         pchr->ori.facing_z, weaponProfile->getSlotNumber(), 
-                        attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon.get() : INVALID_CHR_REF,  
-                        spawn_vrt_offset, pholder->getTeam().toRef(), iholder.get());
+                        attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : ObjectRef::Invalid,  
+                        spawn_vrt_offset, pholder->getTeam().toRef(), iholder);
 
                     if (particle)
                     {

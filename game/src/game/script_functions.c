@@ -2186,16 +2186,16 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
                                                    pchr->ori.facing_z, 
                                                    pchr->getProfileID(),
-                                                   LocalParticleProfileRef(state.argument), self.index,
-                                                   state.distance, pchr->team, ichr.get(), INVALID_PRT_REF, 0,
-                                                   INVALID_CHR_REF );
+                                                   LocalParticleProfileRef(state.argument), ObjectRef(self.index),
+                                                   state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                   ObjectRef::Invalid );
 
     returncode = (particle != nullptr);
     if ( returncode )
     {
         // attach the particle
         particle->placeAtVertex(_currentModule->getObjectHandler()[self.index], state.distance);
-        particle->attach(INVALID_CHR_REF);
+        particle->attach(ObjectRef::Invalid);
 
 		Vector3f tmp_pos = particle->getPosition();
 
@@ -3212,7 +3212,7 @@ Uint8 scr_KillTarget( script_state_t& state, ai_state_t& self )
     //Weapons don't kill people, people kill people...
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && !_currentModule->getObjectHandler().get(pchr->attachedto)->isMount() )
     {
-        ichr = pchr->attachedto;
+        ichr = pchr->attachedto.get();
     }
 
     const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
@@ -3272,7 +3272,7 @@ Uint8 scr_CostTargetMana( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[self.target];
     if(target) {
-        returncode = target->costMana(state.argument, self.index);
+        returncode = target->costMana(state.argument, ObjectRef(self.index));
     }
     else {
         returncode = false;
@@ -4012,9 +4012,9 @@ Uint8 scr_SpawnAttachedParticle( script_state_t& state, ai_state_t& self )
     }
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
-                                                                      LocalParticleProfileRef(state.argument), self.index,
-                                                                      state.distance, pchr->team, iself.get(), INVALID_PRT_REF, 0,
-                                                                      INVALID_CHR_REF);
+                                                                      LocalParticleProfileRef(state.argument), ObjectRef(self.index),
+                                                                      state.distance, pchr->team, iself, INVALID_PRT_REF, 0,
+                                                                      ObjectRef::Invalid);
     SCRIPT_FUNCTION_END();
 }
 
@@ -4025,11 +4025,9 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function spawns a particle at a specific x, y, z position
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = self.index;
+    ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -4045,9 +4043,9 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
             );
 
         returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
-                                                         LocalParticleProfileRef(state.argument),
-                                                         INVALID_CHR_REF, 0, pchr->team, ichr,
-                                                         INVALID_PRT_REF, 0, INVALID_CHR_REF);
+                                                                          LocalParticleProfileRef(state.argument),
+                                                                          ObjectRef::Invalid, 0, pchr->team, ichr,
+                                                                          INVALID_PRT_REF, 0, ObjectRef::Invalid);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4521,20 +4519,18 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t& state, ai_state_t& self )
     /// @details This function spawns a particle of the specific size attached to the
     /// character. For spell charging effects
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = self.index;
+    ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, 
-                                                                                        pchr->getProfileID(), LocalParticleProfileRef(state.argument), self.index,
+                                                                                        pchr->getProfileID(), LocalParticleProfileRef(state.argument), ObjectRef(self.index),
                                                                                         state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                                                        INVALID_CHR_REF);
+                                                                                        ObjectRef::Invalid);
 
     returncode = (particle != nullptr);
 
@@ -4635,7 +4631,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	CHR_REF ichr = self.index;
+	ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -4643,8 +4639,8 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( state.turn ),
                                                                       pchr->getProfileID(), LocalParticleProfileRef(state.argument),
-                                                                      self.index, state.distance, pchr->team, ichr, INVALID_PRT_REF,
-                                                                      0, INVALID_CHR_REF);
+                                                                      ObjectRef(self.index), state.distance, pchr->team, ichr, INVALID_PRT_REF,
+                                                                      0, ObjectRef::Invalid);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4800,7 +4796,7 @@ Uint8 scr_GiveManaToTarget( script_state_t& state, ai_state_t& self )
     if ( pself_target->isAlive() )
     {
         pself_target->increaseBaseAttribute(Ego::Attribute::MAX_MANA, FP8_TO_FLOAT(state.argument));
-        pself_target->costMana(-state.argument, INVALID_CHR_REF);
+        pself_target->costMana(-state.argument, ObjectRef::Invalid);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4897,7 +4893,7 @@ Uint8 scr_PumpTarget( script_state_t& state, ai_state_t& self )
 
     if ( pself_target->isAlive() && state.argument > 0)
     {
-        pself_target->costMana(-state.argument, pchr->getObjRef().get());
+        pself_target->costMana(-state.argument, pchr->getObjRef());
     }
 
     SCRIPT_FUNCTION_END();
@@ -4961,11 +4957,9 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function spawns a particle attached to the character's holder, or to the character if no holder
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = self.index;
+    ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -4974,7 +4968,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
                                                                       LocalParticleProfileRef(state.argument), ichr,
                                                                       state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
-                                                                      INVALID_CHR_REF);
+                                                                      ObjectRef::Invalid);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5133,7 +5127,6 @@ Uint8 scr_IfTargetIsMounted( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function proceeds if the target is riding a mount
 
-    CHR_REF ichr;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5142,7 +5135,7 @@ Uint8 scr_IfTargetIsMounted( script_state_t& state, ai_state_t& self )
 
     returncode = false;
 
-    ichr = pself_target->attachedto;
+    ObjectRef ichr = pself_target->attachedto;
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         returncode = _currentModule->getObjectHandler().get(ichr)->isMount();
@@ -5479,11 +5472,10 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
     /// that will home in on the character's target
 
     std::shared_ptr<Ego::Particle> particle;
-    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = self.index;
+    ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -5500,15 +5492,15 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
-                                                             INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
-                                                             0, INVALID_CHR_REF);
+                                                             ObjectRef::Invalid, 0, pchr->team, ichr, INVALID_PRT_REF,
+                                                             0, ObjectRef::Invalid);
     }
 
     returncode = (particle != nullptr);
 
     if ( returncode )
     {
-        particle->setTarget(self.target);
+        particle->setTarget(ObjectRef(self.target));
     }
 
     SCRIPT_FUNCTION_END();
@@ -6696,7 +6688,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	CHR_REF ichr = self.index;
+	ObjectRef ichr = ObjectRef(self.index);
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
@@ -6713,8 +6705,8 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
-                                                             INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF,
-                                                             0, INVALID_CHR_REF);
+                                                             ObjectRef::Invalid, 0, pchr->team, ichr, INVALID_PRT_REF,
+                                                             0, ObjectRef::Invalid);
     }
 
     returncode = (particle != nullptr);
@@ -6895,11 +6887,9 @@ Uint8 scr_IfHolderBlocked( script_state_t& state, ai_state_t& self )
     /// @author ZF
     /// @details This function passes if the holder blocked an attack
 
-    CHR_REF iattached;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iattached = pchr->attachedto;
+    ObjectRef iattached = pchr->attachedto;
 
     if ( _currentModule->getObjectHandler().exists( iattached ) )
     {
@@ -7402,10 +7392,10 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
             if ( Inventory::add_item( ObjectRef(self.target), pchild->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
-                pchild->attachedto = self.target;  // Make grab work
+                pchild->attachedto = ObjectRef(self.target);  // Make grab work
                 scr_run_chr_script( pchild->getObjRef().get() );  // Empty the grabbed messages
 
-                pchild->attachedto = INVALID_CHR_REF;  // Fix grab
+                pchild->attachedto = ObjectRef::Invalid;  // Fix grab
 
                 //Set some AI values
                 self.child = pchild->getObjRef().get();

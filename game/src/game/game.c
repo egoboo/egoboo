@@ -708,7 +708,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, co
     if ( psrc == ptst.get() && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
 
     // Don't target our holder if we are an item and being held
-    if ( psrc->isitem && psrc->attachedto == ptst->getObjRef().get() ) return false;
+    if ( psrc->isitem && psrc->attachedto == ptst->getObjRef() ) return false;
 
     // Allow to target dead stuff?
     if ( ptst->isAlive() == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return false;
@@ -2199,7 +2199,7 @@ bool game_load_module_data( const char *smallname )
 //--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles(ObjectRef objectRef) {
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
-        if (!particle->isTerminated() && particle->getAttachedObjectID() == objectRef.get()) {
+        if (!particle->isTerminated() && particle->getAttachedObjectID() == objectRef) {
             particle->requestTerminate();
         }
     }
@@ -2235,8 +2235,8 @@ int reaffirm_attached_particles(ObjectRef objectRef) {
     for (int attempts = 0; attempts < amount && number_attached < amount; ++attempts) {
         std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
 			object->getPosition(), object->ori.facing_z, object->getProfile()->getSlotNumber(),
-			object->getProfile()->getAttachedParticleProfile(), objectRef.get(), GRIP_LAST + number_attached,
-			object->getTeam().toRef(), objectRef.get(), INVALID_PRT_REF, number_attached);
+			object->getProfile()->getAttachedParticleProfile(), objectRef, GRIP_LAST + number_attached,
+			object->getTeam().toRef(), objectRef, INVALID_PRT_REF, number_attached);
 
         if (particle) {
             particle->placeAtVertex(object, particle->attachedto_vrt_off);

@@ -123,7 +123,7 @@ struct chr_spawn_data_t
         skin(0),
         facing(0),
         name(),
-        override(INVALID_CHR_REF)
+        override()
     {
         //ctor
     }
@@ -134,7 +134,7 @@ struct chr_spawn_data_t
     int         skin;
     FACING_T    facing;
     STRING      name;
-    CHR_REF     override;
+    ObjectRef   override;
 };
 
 /// The definition of the character object.
@@ -509,7 +509,7 @@ public:
     * @return
     *   true if all the requested mana was successfully consumed by the Object
     **/
-    bool costMana(int amount, const CHR_REF killer);
+    bool costMana(int amount, const ObjectRef killer);
 
     /**
     * @return
@@ -831,8 +831,8 @@ public:
     uint16_t       ammo;
 
     // equipment and inventory
-    std::array<ObjectRef, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
-    std::array<ObjectRef, INVEN_COUNT> equipment;   ///< != INVALID_CHR_REF if character has equipped something
+    std::array<ObjectRef, SLOT_COUNT> holdingwhich; ///< != ObjectRef::Invalid if character is holding something
+    std::array<ObjectRef, INVEN_COUNT> equipment;   ///< != ObjectRef::Invalid if character has equipped something
 
     // team stuff
     TEAM_REF       team;            ///< Character's team
@@ -844,14 +844,14 @@ public:
     int16_t        fat_goto_time;                 ///< Time left in size change
 
     // jump stuff
-    uint8_t          jump_timer;                      ///< Delay until next jump
+    uint8_t          jump_timer;                    ///< Delay until next jump
     uint8_t          jumpnumber;                    ///< Number of jumps remaining
     bool             jumpready;                     ///< For standing on a platform character
 
     // attachments
-    CHR_REF        attachedto;                    ///< != INVALID_CHR_REF if character is a held weapon
+    ObjectRef      attachedto;                    ///< != ObjectRef::Invalid if character is a held weapon
     slot_t         inwhich_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
-    CHR_REF        inwhich_inventory;             ///< != INVALID_CHR_REF if character is inside an inventory
+    ObjectRef      inwhich_inventory;             ///< != ObjectRef::Invalid if character is inside an inventory
 
     // platform stuff
     bool         platform;                      ///< Can it be stood on

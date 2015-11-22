@@ -32,15 +32,6 @@
 #define LAMBDA(AA,BB,CC) ((AA) ? (BB) : (CC))
 
 //--------------------------------------------------------------------------------------------
-// portable definition of assert. the c++ version can be activated below.
-// make assert into a warning if _DEBUG is not defined
-//void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// definitions for the compiler environment
-
-//--------------------------------------------------------------------------------------------
 // BOOLEAN
 
 #if !defined(TO_EGO_BOOL)
@@ -274,12 +265,6 @@ typedef uint16_t FACING_T;
 	typedef Ego::Rectangle<int> irect_t;
 	/** @todo Remove this. */
 	typedef Ego::Rectangle<float> frect_t;
-
-	struct ego_irect_t
-    {
-        int xmin, ymin;
-        int xmax, ymax;
-    };
 
     struct ego_frect_t
     {

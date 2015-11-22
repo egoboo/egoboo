@@ -192,7 +192,7 @@ public:
     * @return
     *   get the ID of the Object that this Particle is currently attached to (or INVALID_CHR_REF if not attached)
     **/
-    CHR_REF getAttachedObjectID() const {return _attachedTo;}
+    ObjectRef getAttachedObjectID() const {return _attachedTo;}
 
     /**
     * @return
@@ -217,13 +217,13 @@ public:
     * @return
     *   true if successfull
     **/
-    bool attach(const CHR_REF attach);
+    bool attach(const ObjectRef attach);
 
     /**
     * @brief
     *   Sets the target of this Particle
     **/
-    void setTarget(const CHR_REF target);
+    void setTarget(const ObjectRef target);
 
     PRO_REF getSpawnerProfile() const { return _spawnerProfile; }
 
@@ -278,8 +278,8 @@ public:
     *   Should only ever be used by the ParticleHandler! *Do not use*
     **/
     bool initialize(const PRT_REF particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
-                    const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                    const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget,
+                    const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                    const ObjectRef spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                     const bool onlyOverWater);
 
     /**
@@ -337,7 +337,7 @@ public:
      *  The object owning this particle.
      *  Example: A fire particle is owned by a torch.
      */
-    CHR_REF owner_ref;
+    ObjectRef owner_ref;
     /**
      * @brief
      *  The original parent particle if any.
@@ -444,7 +444,7 @@ private:
     PRT_REF       _particleID;                 ///< Unique identifier
 
     //Collisions
-    std::forward_list<CHR_REF> _collidedObjects;    ///< List of the ID's of all Object this particle has collided with
+    std::forward_list<ObjectRef> _collidedObjects;    ///< List of the ID's of all Object this particle has collided with
 
     //Profile
     PIP_REF _particleProfileID;                ///< The particle profile
@@ -457,14 +457,14 @@ private:
      *  The object the particle is attached to.
      *  Example: A fire particle is attached to a torch.
      */
-    CHR_REF _attachedTo;
+    ObjectRef _attachedTo;
 
     /**
      * @brief
      *  The object targeted by this particle.
      *  Example: Target-seeking arrows/bolts or similar particles.
      */
-    CHR_REF _target;
+    ObjectRef _target;
 
     /**
      * @brief

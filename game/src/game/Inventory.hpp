@@ -90,12 +90,12 @@ public:
 
     /**
     * @brief
-    *   Retrieve the CHR_REF of an item in this inventory
+    *   Retrieve the object reference of an item in this inventory
     * @param slotNumber
     *   Index number of the inventory slot to get
     * @return
-    *   The CHR_REF of the Object in the specified slot number in this inventory
-    *   Returns INVALID_CHR_REF if slotNumber is out of bounds or if slot is empty
+    *   The object reference of the object in the specified slot number in this inventory
+    *   Returns the invalid object reference if slot number is out of bounds or if slot is empty
     **/
     ObjectRef getItemID(const size_t slotNumber) const;
 
@@ -153,7 +153,7 @@ private:
     *    to the one given.  If it finds one, it returns the similar item's
     *    index number, otherwise it returns INVALID_CHR_REF.
 	**/
-	static CHR_REF hasStack(const CHR_REF item, const CHR_REF character);
+	static ObjectRef hasStack(const ObjectRef item, const ObjectRef character);
 
     std::array<std::weak_ptr<Object>, MAXNUMINPACK> _items;
 };
