@@ -814,7 +814,7 @@ void Object::update()
     if ( dismount_timer > 0 ) dismount_timer--;
 
     if ( 0 == dismount_timer ) {
-        dismount_object = INVALID_CHR_REF;
+        dismount_object = ObjectRef::Invalid;
     }
 
     // Down that ol' damage timer
@@ -1102,7 +1102,7 @@ void Object::requestTerminate()
 bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 {
     // Make sure the character is actually held by something first
-    ObjectRef holder = ObjectRef(attachedto);
+    ObjectRef holder = attachedto;
     const std::shared_ptr<Object> &pholder = _currentModule->getObjectHandler()[holder];
     if (!pholder) {
         return false;  
@@ -1117,7 +1117,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 
     // set the dismount timer
     dismount_timer  = PHYS_DISMOUNT_TIME;
-    dismount_object = holder.get();
+    dismount_object = holder;
 
     // Figure out which hand it's in
     uint16_t hand = inwhich_slot;
@@ -2830,7 +2830,7 @@ void Object::dropKeys()
 
         // fix the attachments
         pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pkey->dismount_object        = getObjRef().get();
+        pkey->dismount_object        = getObjRef();
         pkey->onwhichplatform_ref    = onwhichplatform_ref;
         pkey->onwhichplatform_update = onwhichplatform_update;
 
@@ -2888,7 +2888,7 @@ void Object::dropAllItems()
 
         // fix the attachments
         pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pitem->dismount_object        = getObjRef().get();
+        pitem->dismount_object        = getObjRef();
         pitem->onwhichplatform_ref    = onwhichplatform_ref;
         pitem->onwhichplatform_update = onwhichplatform_update;
 

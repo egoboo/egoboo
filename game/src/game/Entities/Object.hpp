@@ -907,26 +907,26 @@ public:
     ///        The old bumper data that is read from the data.txt file will be kept in
     ///        the struct "bump". A new bumper that actually matches the size of the object will
     ///        be kept in the struct "collision"
-    bumper_t     bump_stt;
-    bumper_t     bump;
-    bumper_t     bump_save;
+    bumper_t bump_stt;
+    bumper_t bump;
+    bumper_t bump_save;
 
-    bumper_t     bump_1;       ///< the loosest collision volume that mimics the current bump
-    oct_bb_t     chr_max_cv;   ///< a looser collision volume for chr-prt interactions
-    oct_bb_t     chr_min_cv;   ///< the tightest collision volume for chr-chr interactions
+    bumper_t bump_1;       ///< the loosest collision volume that mimics the current bump
+    oct_bb_t chr_max_cv;   ///< a looser collision volume for chr-prt interactions
+    oct_bb_t chr_min_cv;   ///< the tightest collision volume for chr-chr interactions
 
-    std::array<oct_bb_t, SLOT_COUNT>     slot_cv;  ///< the cv's for the object's slots
+    std::array<oct_bb_t, SLOT_COUNT> slot_cv;     ///< the cv's for the object's slots
 
-    uint8_t        stoppedby;                     ///< Collision mask
+    uint8_t stoppedby;                            ///< Collision mask
 
     orientation_t  ori;                           ///< Character's orientation
     orientation_t  ori_old;                       ///< Character's last orientation
 
 
-    CHR_REF        bumplist_next;                 ///< Next character on fanblock
+    ObjectRef bumplist_next;                      ///< Next character on fanblock
 
     // movement properties
-    turn_mode_t  turnmode;                      ///< Turning mode
+    turn_mode_t  turnmode;                        ///< Turning mode
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
 
@@ -935,7 +935,7 @@ public:
     chr_environment_t enviro;
 
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
-    CHR_REF           dismount_object;               ///< the object that you were dismounting from
+    ObjectRef         dismount_object;               ///< the object that you were dismounting from
 
 private:
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed

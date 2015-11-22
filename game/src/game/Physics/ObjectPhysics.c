@@ -1767,7 +1767,7 @@ egolib_rv attach_character_to_mount( ObjectRef riderRef, ObjectRef mountRef, gri
 
     // make a reasonable time for the character to remount something
     // for characters jumping out of pots, etc
-    if (mountRef.get() == rider->dismount_object && rider->dismount_timer > 0) return rv_fail;
+    if (mountRef == rider->dismount_object && rider->dismount_timer > 0) return rv_fail;
 
     // Figure out which slot this grip_off relates to
     slot_t slot = grip_offset_to_slot(grip_off);

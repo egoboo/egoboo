@@ -1060,7 +1060,7 @@ prt_bundle_t::prt_bundle_t(Ego::Particle *prt)
     _pip_ptr = _prt_ptr->getProfile();
 }
 
-CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
+ObjectRef prt_get_iowner(const PRT_REF iprt, int depth)
 {
     /// @author BB
     /// @details A helper function for determining the owner of a paricle
@@ -1080,18 +1080,18 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
     // be careful because this can be recursive
     if (depth > (int)ParticleHandler::get().getCount() - (int)ParticleHandler::get().getFreeCount())
     {
-        return INVALID_CHR_REF;
+        return ObjectRef::Invalid;
     }
 
     const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
     if(pprt == nullptr || pprt->isTerminated()) {
-        return INVALID_CHR_REF;
+        return ObjectRef::Invalid;
     }
 
-    CHR_REF iowner = INVALID_CHR_REF;
+    ObjectRef iowner = ObjectRef::Invalid;
     if (_currentModule->getObjectHandler().exists(pprt->owner_ref))
     {
-        iowner = pprt->owner_ref.get();
+        iowner = pprt->owner_ref;
     }
     else
     {

@@ -46,7 +46,7 @@ public:
 
 public:
     // object parameters
-    CHR_REF ichr;
+    ObjectRef ichr;
     Object *pchr;
 
     PRT_REF iprt;
@@ -992,7 +992,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
 
     // make sure that it is on
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
-    pdata->ichr = ichr;
+    pdata->ichr = ObjectRef(ichr);
     pdata->pchr = _currentModule->getObjectHandler().get( ichr );
 
     pdata->ppip = pdata->pprt->getProfile();

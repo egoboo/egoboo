@@ -1926,7 +1926,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
             pchild->ai.owner   = self.owner;
 
             pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-            pchild->dismount_object = self.index;
+            pchild->dismount_object = ObjectRef(self.index);
         }
     }
 
@@ -5355,7 +5355,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
         pchild->ai.owner   = self.owner;
 
         pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-        pchild->dismount_object = self.index;
+        pchild->dismount_object = ObjectRef(self.index);
         returncode = true;
     }
 
@@ -5406,7 +5406,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
             pchild->ai.owner   = self.owner;
 
             pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-            pchild->dismount_object = self.index;
+            pchild->dismount_object = ObjectRef(self.index);
             returncode = true;
         }
     }

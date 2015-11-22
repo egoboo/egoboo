@@ -389,10 +389,10 @@ bool CollisionSystem::detectCollision(const std::shared_ptr<Object> &objectA, co
     }
 
     // handle the dismount exception
-    if (objectA->dismount_timer > 0 && objectA->dismount_object == objectB->getObjRef().get()) {
+    if (objectA->dismount_timer > 0 && objectA->dismount_object == objectB->getObjRef()) {
         return false;
     }
-    if (objectB->dismount_timer > 0 && objectB->dismount_object == objectA->getObjRef().get()) {
+    if (objectB->dismount_timer > 0 && objectB->dismount_object == objectA->getObjRef()) {
         return false;
     }
 
@@ -709,7 +709,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     //interaction_strength *= objectB->inst.alpha * INV_FF;
 
     // reduce your interaction strength if you have just detached from an object
-    if ( objectA->dismount_object == ichr_b.get() )
+    if ( objectA->dismount_object == ichr_b )
     {
         float dismount_lerp = ( float )objectA->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
         dismount_lerp = Ego::Math::constrain( dismount_lerp, 0.0f, 1.0f );
@@ -717,7 +717,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
         interaction_strength *= dismount_lerp;
     }
 
-    if ( objectB->dismount_object == ichr_a.get() )
+    if ( objectB->dismount_object == ichr_a )
     {
         float dismount_lerp = ( float )objectB->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
         dismount_lerp = Ego::Math::constrain( dismount_lerp, 0.0f, 1.0f );

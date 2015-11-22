@@ -155,11 +155,11 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
                 mc_tmp.valid     = true;
                 SET_BIT( mc_tmp.type_bits, MAT_WEAPON );        // add in the weapon data
 
-                mc_tmp.grip_chr  = pchr->attachedto.get();
+                mc_tmp.grip_chr  = pchr->attachedto;
                 mc_tmp.grip_slot = pchr->inwhich_slot;
-                get_grip_verts( mc_tmp.grip_verts.data(), ObjectRef(pchr->attachedto), slot_to_grip_offset( pchr->inwhich_slot ) );
+                get_grip_verts( mc_tmp.grip_verts.data(), pchr->attachedto, slot_to_grip_offset( pchr->inwhich_slot ) );
 
-                itarget = ObjectRef(pchr->attachedto);
+                itarget = pchr->attachedto;
             }
         }
 
@@ -282,7 +282,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t& mc_tmp )
     pweap_mcache.matrix_valid = false;
 
     // grab the grip points in world coordinates
-    iweap_points = convert_grip_to_global_points( mc_tmp.grip_chr, mc_tmp.grip_verts.data(), nupoint );
+    iweap_points = convert_grip_to_global_points( mc_tmp.grip_chr.get(), mc_tmp.grip_verts.data(), nupoint );
 
     if ( 4 == iweap_points )
     {
@@ -471,7 +471,7 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
     //---- check for differences in the MAT_WEAPON data
     if ( HAS_SOME_BITS( plhs->type_bits, MAT_WEAPON ) )
     {
-        itmp = ( signed )REF_TO_INT( plhs->grip_chr ) - ( signed )REF_TO_INT( prhs->grip_chr );
+        itmp = ( signed )REF_TO_INT( plhs->grip_chr.get() ) - ( signed )REF_TO_INT( prhs->grip_chr.get() );
         if ( 0 != itmp ) goto cmp_matrix_cache_end;
 
         itmp = ( signed )plhs->grip_slot - ( signed )prhs->grip_slot;
@@ -878,7 +878,7 @@ bool set_weapongrip( const ObjectRef iitem, const ObjectRef iholder, Uint16 vrt_
 
         needs_update  = false;
 
-        if ( iholder.get() != mcache.grip_chr || pitem->attachedto != iholder )
+        if ( iholder != mcache.grip_chr || pitem->attachedto != iholder )
         {
             needs_update  = true;
         }
@@ -904,7 +904,7 @@ bool set_weapongrip( const ObjectRef iitem, const ObjectRef iholder, Uint16 vrt_
         // cannot create the matrix, therefore the current matrix must be invalid
         mcache.matrix_valid = false;
 
-        mcache.grip_chr  = iholder.get();
+        mcache.grip_chr  = iholder;
         mcache.grip_slot = pitem->inwhich_slot;
 
         for (size_t i = 0; i < GRIP_VERTS; i++ )
