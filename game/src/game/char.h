@@ -71,9 +71,9 @@ struct chr_spawn_data_t;
 
 #define RAISE               12                  ///< Helps correct z level
 
-#define TURNSPD             0.01f                 ///< Cutoff for turning or same direction
+#define TURNSPD             0.1f                 ///< Cutoff for turning or same direction
 #define SPINRATE            200                   ///< How fast spinners spin
-#define WATCHMIN            0.01f                 ///< Tolerance for TURNMODE_WATCH
+#define WATCHMIN            0.1f                 ///< Tolerance for TURNMODE_WATCH
 
 #define PITDEPTH            -60                     ///< Depth to kill character
 #define HURTDAMAGE           256                    ///< Minimum damage for hurt animation

@@ -29,7 +29,7 @@ namespace Physics
 
 /// @brief The default gravity    amount and direction.
 /// @todo Should be a vector.
-static constexpr float DEFAUTL_GRAVITY = -1.0f;
+static constexpr float DEFAULT_GRAVITY = -1.0f;
 
 /// @brief The default friction of   air.
 static constexpr float DEFAULT_AIR_FRICTION = 0.9868f;
@@ -48,7 +48,7 @@ static constexpr float DEFAULT_SLIPPY_GROUND_FRICTION = 1.00f;
 ///        set.
 static constexpr float DEFAULT_GROUND_FRICTION = 0.91f;
 
-static constexpr float DEFUALT_ICE_FRICTION = 0.9738f;
+static constexpr float DEFAULT_ICE_FRICTION = 0.9738f;
 
 struct Environment
 {
@@ -153,10 +153,10 @@ struct Environment
         hillslide(DEFAULT_SLIPPY_GROUND_FRICTION),
         slippyfriction(DEFAULT_SLIPPY_GROUND_FRICTION),
         airfriction(DEFAULT_AIR_FRICTION),
-        icefriction(DEFUALT_ICE_FRICTION),
+        icefriction(DEFAULT_ICE_FRICTION),
         waterfriction(DEFAULT_WATER_FRICTION),
         noslipfriction(DEFAULT_GROUND_FRICTION),
-        gravity(DEFAUTL_GRAVITY),
+        gravity(DEFAULT_GRAVITY),
         windspeed(0.0f, 0.0f, 0.0f),
         waterspeed(0.0f, 0.0f, 0.0f)
     {

@@ -71,7 +71,6 @@ struct chr_environment_t
         friction_hrz(0.0f),
         inwater(false),
         grounded(true),
-        new_v(),
         acc(),
         vel()
     {
@@ -104,7 +103,6 @@ struct chr_environment_t
     bool grounded;              ///< standing on something?
 
     // various motion parameters
-    Vector3f  new_v;
     Vector3f  acc;
     Vector3f  vel;
 };

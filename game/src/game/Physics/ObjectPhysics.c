@@ -193,7 +193,7 @@ void move_one_character_get_environment( Object * pchr )
         if (enviro.is_slippy)
         {
             // It's slippy all right...
-            temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
+            //temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
         }
 
         enviro.friction_hrz = enviro.zlerp * 1.0f + (1.0f - enviro.zlerp) * temp_friction_xy;
@@ -344,11 +344,11 @@ void move_one_character_do_floor_friction( Object * pchr )
     pchr->vel += fric_floor;
 
     // Apply fluid friction from last time
-    //if(!pchr->enviro.is_slippy) {
-    //    pchr->vel[kX] -= pchr->vel[kX] * (1.0f - pchr->enviro.fluid_friction_hrz);
-    //    pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
-    //    pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
-    //}
+    if(!pchr->enviro.is_slippy) {
+        pchr->vel[kX] -= pchr->vel[kX] * (1.0f - pchr->enviro.fluid_friction_hrz);
+        pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
+        pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1274,68 +1274,67 @@ float getMaxSpeed(Object *object)
         // non-sneak mode
         object->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
     }
+
     return maxspeed;    
 }
 
-void updateFacing(Object *pchr, const Vector2f &acceleration)
+void updateFacing(Object *pchr, const Vector2f &desiredVelocity)
 {
     //Figure out how to turn around
-    if ( 0 != pchr->getAttribute(Ego::Attribute::ACCELERATION) )
+    switch ( pchr->turnmode )
     {
-        switch ( pchr->turnmode )
-        {
-            // Get direction from ACTUAL change in velocity
-            default:
-            case TURNMODE_VELOCITY:
+        // Get direction from ACTUAL change in velocity
+        default:
+        case TURNMODE_VELOCITY:
+            {
+                if (desiredVelocity.length_abs() > TURNSPD)
                 {
-                    if (std::abs(acceleration[kX]) > TURNSPD || std::abs(acceleration[kY]) > TURNSPD)
+                    if (pchr->isPlayer())
                     {
-                        if (pchr->isPlayer())
-                        {
-                            // Players turn quickly
-                            pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( acceleration[kX] , acceleration[kY] ), 2 );
-                        }
-                        else
-                        {
-                            // AI turn slowly
-                            pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( acceleration[kX] , acceleration[kY] ), 8 );
-                        }
+                        // Players turn quickly
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(desiredVelocity[kX], desiredVelocity[kY]), 2 );
+                    }
+                    else
+                    {
+                        // AI turn slowly
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(desiredVelocity[kX], desiredVelocity[kY]), 8 );
                     }
                 }
-                break;
+            }
+            break;
 
-            // Get direction from the DESIRED change in velocity
-            case TURNMODE_WATCH:
+        // Get direction from the DESIRED change in velocity
+        case TURNMODE_WATCH:
+            {
+                if (desiredVelocity.length_abs() > WATCHMIN )
                 {
-                    if (( std::abs( acceleration[kX] ) > WATCHMIN || std::abs( acceleration[kY] ) > WATCHMIN ) )
-                    {
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( acceleration[kX] , acceleration[kY] ), 8 );
-                    }
+                    pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(desiredVelocity[kX], desiredVelocity[kY]), 8 );
                 }
-                break;
+            }
+            break;
 
-            // Face the target
-            case TURNMODE_WATCHTARGET:
+        // Face the target
+        case TURNMODE_WATCHTARGET:
+            {
+                if ( pchr->getObjRef().get() != pchr->ai.target )
                 {
-                    if ( pchr->getObjRef().get() != pchr->ai.target )
-                    {
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.target)->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.target)->getPosY() - pchr->getPosY() ), 8 );
-                    }
+                    pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.target)->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.target)->getPosY() - pchr->getPosY() ), 8 );
                 }
-                break;
+            }
+            break;
 
-            // Otherwise make it spin
-            case TURNMODE_SPIN:
-                {
-                    pchr->ori.facing_z += SPINRATE;
-                }
-                break;
-        }
+        // Otherwise make it spin
+        case TURNMODE_SPIN:
+            {
+                pchr->ori.facing_z += SPINRATE;
+            }
+            break;
     }
 }
 
 void updateMovement(Object *object)
 {
+    //Can it move?
     if (!object->isAlive() || object->getAttribute(Ego::Attribute::ACCELERATION) == 0.00f)  {
         return;
     }
@@ -1345,74 +1344,91 @@ void updateMovement(Object *object)
         return;
     }
 
-    //Desired acceleration in scaled space [-1 , 1]
-    Vector2f acceleration = Vector2f(object->latch.x, object->latch.y);
-
-    // do platform friction
-    const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[object->onwhichplatform_ref];
-    if (platform)
-    {
-        acceleration[kX] += platform->vel[kX];
-        acceleration[kY] += platform->vel[kY];
-    }
-
-    //Slippery environment?
-    //if(object->enviro.is_slippy) {
-    //    acceleration[kX] *= Ego::Physics::g_environment.icefriction * 0.1f;
-    //    acceleration[kY] *= Ego::Physics::g_environment.icefriction * 0.1f;
-    //}
+    //Desired velocity in scaled space [-1 , 1]
+    Vector2f desiredVelocity = Vector2f(object->latch.x, object->latch.y);
 
     // Reverse movements for daze
     if (object->daze_timer > 0) {
-        acceleration[kX] = -acceleration[kX];
-        acceleration[kY] = -acceleration[kY];
+        desiredVelocity[kX] = -desiredVelocity[kX];
+        desiredVelocity[kY] = -desiredVelocity[kY];
     }
 
     // Switch x and y for grog
     if (object->grog_timer > 0) {
-        std::swap(acceleration[kX], acceleration[kY]);
+        std::swap(desiredVelocity[kX], desiredVelocity[kY]);
     }
 
     //Is there any movement going on?
-    object->enviro.new_v[kX] = object->enviro.new_v[kY] = 0.0f;
-    if (acceleration.length_abs() > 0.05f)
-    {
-        const float maxSpeed = getMaxSpeed(object);
+    const float maxSpeed = getMaxSpeed(object);
 
-        //Scale [-1 , 1] to max acceleration of the object
-        acceleration *= maxSpeed;
+    //Scale [-1 , 1] to desired velocity of the object
+    desiredVelocity *= maxSpeed;
 
-        //Limit total acceleration to the max acceleration
-        if(acceleration.length() > maxSpeed) {
-            acceleration *= maxSpeed / acceleration.length();
-        }
-
-        //Apply movement friction
-        acceleration -= acceleration * (1.0f - object->enviro.friction_hrz);
-
-        //Store acceleration this update
-        object->enviro.new_v[kX] = acceleration[kX];
-        object->enviro.new_v[kY] = acceleration[kY];
-
-        //Finally apply acceleration to velocity
-        object->vel[kX] += object->enviro.new_v[kX];
-        object->vel[kY] += object->enviro.new_v[kY];
-    }
-    else {
-        //De-accellerate when no movement is desired
-        object->vel[kX] -= object->vel[kX] * (1.0f - object->enviro.friction_hrz);
-        object->vel[kY] -= object->vel[kY] * (1.0f - object->enviro.friction_hrz);        
+    //Limit to max velocity
+    if(desiredVelocity.length() > maxSpeed) {
+        desiredVelocity *= maxSpeed / desiredVelocity.length();
     }
 
-    //Apply gravity
-    object->vel[kZ] += object->enviro.zlerp * Ego::Physics::g_environment.gravity;
+    //Determine acceleration/deceleration from motion and friction
+    Vector2f acceleration;
+    acceleration[kX] = (desiredVelocity[kX] - object->vel[kX]) * object->enviro.friction_hrz;
+    acceleration[kY] = (desiredVelocity[kY] - object->vel[kY]) * object->enviro.friction_hrz;
 
-    //Apply floor friction
-    object->vel[kX] -= object->vel[kX] * (1.0f - object->enviro.friction_hrz);
-    object->vel[kY] -= object->vel[kY] * (1.0f - object->enviro.friction_hrz);
+    //Make it very hard to walk up hills
+    if(TWIST_FLAT != object->enviro.grid_twist && object->enviro.is_slippy && !object->isFlying()) {
+        acceleration *= Ego::Physics::g_environment.icefriction * 0.1f * (1.0f - object->enviro.zlerp);
+    }
+
+    //Finally apply acceleration to velocity
+    object->vel[kX] += acceleration[kX];
+    object->vel[kY] += acceleration[kY];
 
     //Update which way we are looking
-    updateFacing(object, acceleration);
+    updateFacing(object, desiredVelocity);
+}
+
+void updateFriction(Object *pchr)
+{
+    //Apply air/water friction
+    pchr->vel[kX] *= pchr->enviro.fluid_friction_hrz;
+    pchr->vel[kY] *= pchr->enviro.fluid_friction_hrz;
+    pchr->vel[kZ] *= pchr->enviro.fluid_friction_vrt;
+
+    //Only do floor friction if we are touching the ground
+    if(pchr->isFlying() || !pchr->enviro.grounded) {
+        return;
+    }
+
+    Vector2f friction;
+
+    // do platform friction
+    const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
+    if (platform)
+    {
+        pchr->vel[kX] += platform->vel[kX] * pchr->enviro.friction_hrz;
+        pchr->vel[kY] += platform->vel[kY] * pchr->enviro.friction_hrz;
+    }
+
+    //Apply floor friction
+    pchr->vel[kX] *= pchr->enviro.friction_hrz;
+    pchr->vel[kY] *= pchr->enviro.friction_hrz;
+
+    //Can the character slide on this floor?
+    if (pchr->enviro.is_slippy && pchr->phys.weight != CHR_INFINITE_WEIGHT)
+    {
+        //Make characters slide on hills
+        if(TWIST_FLAT != pchr->enviro.grid_twist) {
+            Vector3f slideVelocity;
+            slideVelocity[kX] = g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kX] * Ego::Physics::g_environment.hillslide;
+            slideVelocity[kY] = g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kY] * Ego::Physics::g_environment.hillslide;
+            slideVelocity[kZ] = -g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kZ];
+
+            pchr->vel += slideVelocity * (1.0f - pchr->enviro.zlerp);
+        }
+        else {
+            //TODO: flat icy floor?
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1426,24 +1442,29 @@ void move_one_character( Object * pchr )
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
-    pchr->enviro.new_v[kX] = pchr->vel[kX];
-    pchr->enviro.new_v[kY] = pchr->vel[kY];
-
     move_one_character_get_environment( pchr );
 
     // do friction with the floor before voluntary motion
     //move_one_character_do_floor_friction( pchr );
 
-    //move_one_character_do_voluntary( pchr );
-
     chr_do_latch_button( pchr );
+
+    updateFriction(pchr);
 
     updateMovement(pchr);
 
-
-    //move_one_character_do_z_motion( pchr );
+    //Apply gravity
+    if(!pchr->isFlying()) {
+        pchr->vel[kZ] += pchr->enviro.zlerp * Ego::Physics::g_environment.gravity;
+    }
 
     move_one_character_integrate_motion( pchr );
+
+    //Hard cutoff band for low velocities to make them truly stop
+    if(std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) < 0.05f) {
+        pchr->vel[kX] = 0.0f;
+        pchr->vel[kY] = 0.0f;
+    }
 
     move_one_character_do_animation( pchr );
 

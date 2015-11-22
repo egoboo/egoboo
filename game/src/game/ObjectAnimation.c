@@ -239,9 +239,6 @@ float set_character_animation_rate( Object * pchr )
 
     bool is_walk_type;
 
-    // set the character speed to zero
-    float speed = 0;
-
     if ( NULL == pchr ) return 1.0f;
     chr_instance_t& pinst = pchr->inst;
 
@@ -252,7 +249,7 @@ float set_character_animation_rate( Object * pchr )
     if ( pchr->isAttacking() )  return pinst.rate;
 
     // if the character is mounted or sitting, base the rate off of the mounr
-    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && (( ACTION_MI == pinst.action_which ) || ( ACTION_MH == pinst.action_which ) ) )
+    if ( pchr->isBeingHeld() && (( ACTION_MI == pinst.action_which ) || ( ACTION_MH == pinst.action_which ) ) )
     {
         if(pchr->getHolder()->isScenery()) {
             //This is a special case to make animation while in the Pot (which is actually a "mount") look better
@@ -290,17 +287,19 @@ float set_character_animation_rate( Object * pchr )
     // get the model
     const std::shared_ptr<Ego::ModelDescriptor> pmad = pchr->getProfile()->getModel();
 
+    // set the character speed to zero
+    float speed = 0.0f;
+
     // estimate our speed
     if ( pchr->isFlying() )
     {
         // for flying objects, the speed is the actual speed
-        speed = pchr->vel.length_abs();
+        speed = pchr->vel.length();
     }
     else
     {
         // For non-flying objects, we use the intended speed.
-        // new_v[kX], new_v[kY] is the speed before any latches are applied.
-        speed = Vector2f(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length();
+        speed = Vector2f(pchr->vel[kX], pchr->vel[kY]).length();
         if ( pchr->enviro.is_slippy )
         {
             // The character is slipping as on ice.
