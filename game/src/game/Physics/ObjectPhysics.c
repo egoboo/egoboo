@@ -7,9 +7,7 @@
 
 static constexpr float MAX_DISPLACEMENT_XY = 20.0f; //Max velocity correction due to being inside a wall
 
-void move_one_character_do_floor_friction( Object * pchr );
 void move_one_character( Object * pchr );
-void move_one_character_do_z_motion( Object * pchr );
 bool move_one_character_integrate_motion( Object * pchr );
 
 static bool chr_do_latch_button( Object * pchr );
@@ -70,6 +68,9 @@ void move_one_character_get_environment( Object * pchr )
     enviro.water_lerp  = ( pchr->getPosZ() - water_level ) / PLATTOLERANCE;
     enviro.water_lerp  = Ego::Math::constrain( enviro.water_lerp, 0.0f, 1.0f );
 
+    // prime the environment
+    enviro.ice_friction = Ego::Physics::g_environment.icefriction;
+
     // The actual level of the floor underneath the character.
     if (pplatform)
     {
@@ -92,7 +93,7 @@ void move_one_character_get_environment( Object * pchr )
     //---- The flying height of the character, the maximum of tile level, platform level and water level
     if ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_WATER ) )
     {
-        enviro.fly_level = std::max( enviro.level, water._surface_level );
+        enviro.fly_level = std::max(enviro.level, water._surface_level);
     }
 
     if ( enviro.fly_level < 0 )
@@ -100,14 +101,14 @@ void move_one_character_get_environment( Object * pchr )
         enviro.fly_level = 0;  // fly above pits...
     }
 
-    // set the zlerp after we have done everything to the particle's level we care to
-    enviro.zlerp = ( pchr->getPosZ() - enviro.level ) / PLATTOLERANCE;
-    enviro.zlerp = Ego::Math::constrain( enviro.zlerp, 0.0f, 1.0f );
+    // set the zlerp
+    enviro.zlerp = (pchr->getPosZ() - enviro.level) / PLATTOLERANCE;
+    enviro.zlerp = Ego::Math::constrain(enviro.zlerp, 0.0f, 1.0f);
 
-    enviro.grounded = (!pchr->isFlying() && ( enviro.zlerp < 0.25f ) );
+    enviro.grounded = !pchr->isFlying() && enviro.zlerp <= 0.25f;
 
     //---- the "twist" of the floor
-    enviro.grid_twist = mesh->get_twist( pchr->getTile() );
+    enviro.grid_twist = mesh->get_twist(pchr->getTile());
 
     // the "watery-ness" of whatever water might be here
     enviro.is_watery = water._is_water && enviro.inwater;
@@ -161,7 +162,6 @@ void move_one_character_get_environment( Object * pchr )
             enviro.fluid_friction_vrt = Ego::Physics::g_environment.waterfriction;
             enviro.fluid_friction_hrz = Ego::Physics::g_environment.waterfriction;            
         }
-
     }
     else if (pplatform)
     {
@@ -176,7 +176,6 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     //---- friction
-    enviro.friction_hrz = 1.0f;
     if (pchr->isFlying())
     {
         if ( pchr->platform )
@@ -185,15 +184,16 @@ void move_one_character_get_environment( Object * pchr )
             // friction in the z direction will make the bouncing stop
             enviro.fluid_friction_vrt = 1.0f;
         }
+
+        enviro.friction_hrz = 1.0f;
     }
     else
     {
-        // Make the characters slide
         float temp_friction_xy = Ego::Physics::g_environment.noslipfriction;
         if (enviro.is_slippy)
         {
             // It's slippy all right...
-            //temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
+            temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
         }
 
         enviro.friction_hrz = enviro.zlerp * 1.0f + (1.0f - enviro.zlerp) * temp_friction_xy;
@@ -211,7 +211,9 @@ void move_one_character_get_environment( Object * pchr )
         pchr->jumpready = enviro.grounded;
 
         // Down jump timer
-        if (( _currentModule->getObjectHandler().exists( pchr->attachedto ) || pchr->jumpready || pchr->jumpnumber > 0 ) && pchr->jump_timer > 0 ) pchr->jump_timer--;
+        if ((pchr->isBeingHeld() || pchr->jumpready || pchr->jumpnumber > 0) && pchr->jump_timer > 0) { 
+            pchr->jump_timer--;
+        }
 
         // Do ground hits
         if ( enviro.grounded && pchr->vel[kZ] < -STOPBOUNCING && pchr->hitready )
@@ -220,171 +222,13 @@ void move_one_character_get_environment( Object * pchr )
             pchr->hitready = false;
         }
 
-        // Special considerations for slippy surfaces
-        if ( enviro.is_slippy )
+        if ( enviro.grounded && 0 == pchr->jump_timer )
         {
-            if (g_meshLookupTables.twist_flat[enviro.grid_twist] )
-            {
-                // Reset jumping on flat areas of slippiness
-                if ( enviro.grounded && 0 == pchr->jump_timer )
-                {
-                    pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
-                }
+            // Reset jumping on flat areas of slippiness
+            if(!enviro.is_slippy || g_meshLookupTables.twist_flat[enviro.grid_twist]) {
+                pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);                
             }
         }
-        else if ( enviro.grounded && 0 == pchr->jump_timer )
-        {
-            // Reset jumping
-            pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void move_one_character_do_floor_friction( Object * pchr )
-{
-    /// @author BB
-    /// @details Friction is complicated when you want to have sliding characters :P
-    if (!pchr || pchr->isTerminated()) {
-        return;
-    }
-
-    //There is no floor friction while the character is levitating above the ground
-    if (pchr->isFlying()) {
-        return;
-    }
-
-    // assume the best
-    Vector3f floorAcceleration = Vector3f::zero();
-    float temp_friction_xy = 1.0f;
-    Vector3f vup = Vector3f(0.0f, 0.0f, 1.0f);
-
-    // figure out the acceleration due to the current "floor"
-    const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
-    if (platform)
-    {
-        //Platform
-        chr_getMatUp(platform.get(), vup);
-        temp_friction_xy = std::min(1.0f, pchr->enviro.friction_hrz - PLATFORM_STICKINESS);
-        floorAcceleration = platform->vel - pchr->vel;
-    }
-    else
-    {
-        if (!pchr->isAlive() || pchr->isItem()) {
-            //Dead creatures or items
-            temp_friction_xy = 0.5f;
-        }
-        else {
-            //Living beings
-            temp_friction_xy = pchr->enviro.friction_hrz;
-        }
-
-        floorAcceleration = -pchr->vel;
-
-        if ( TWIST_FLAT != pchr->enviro.grid_twist )
-        {
-            vup = g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist];
-        }
-
-    }
-
-    floorAcceleration *= 1.0f - pchr->enviro.zlerp;
-
-    // reduce the volountary acceleration peopendicular to the direction of motion?
-    if (floorAcceleration.length_abs() > 0.0f)
-    {
-        // get the direction of motion
-        Vector3f vfront = mat_getChrForward(pchr->inst.matrix);
-        vfront.normalize();
-
-        // decompose the acceleration into parallel and perpendicular components
-        Vector3f acc_para, acc_perp;
-        fvec3_decompose(floorAcceleration, vfront, acc_para, acc_perp);
-
-        // re-compose the acceleration with 1/2 of the perpendicular taken away
-        floorAcceleration = acc_perp * 0.5f;
-        floorAcceleration += acc_para;
-    }
-
-    // the first guess about the floor friction
-    Vector3f fric_floor = floorAcceleration;
-
-    // the total "friction" with to the floor
-    Vector3f fric = fric_floor + pchr->enviro.acc;
-
-    // limit the friction to whatever is horizontal to the mesh
-    if (std::abs(vup[kZ]) >= 1.0f)
-    {
-        fric[kZ] = 0.0f;
-        floorAcceleration[kZ] = 0.0f;
-    }
-    else
-    {
-        Vector3f acc_perp, acc_para;
-
-        fvec3_decompose(fric, vup, acc_perp, acc_para);
-        fric = acc_para;
-
-        fvec3_decompose(floorAcceleration, vup, acc_perp, acc_para);
-        floorAcceleration = acc_para;
-    }        
-
-    // test to see if the player has any more friction left?
-    pchr->enviro.is_slipping = (fric.length_abs() > pchr->enviro.friction_hrz);
-
-    if (pchr->enviro.is_slipping)
-    {
-        temp_friction_xy = std::sqrt( temp_friction_xy );
-
-        // the first guess about the floor friction
-        fric_floor = floorAcceleration * (1.0f - temp_friction_xy);
-    }
-
-    // Apply the floor friction
-    pchr->vel += fric_floor;
-
-    // Apply fluid friction from last time
-    if(!pchr->enviro.is_slippy) {
-        pchr->vel[kX] -= pchr->vel[kX] * (1.0f - pchr->enviro.fluid_friction_hrz);
-        pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
-        pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void move_one_character_do_z_motion( Object * pchr )
-{
-    if (!pchr || pchr->isTerminated()) return;
-
-    //---- do z acceleration
-    if ( pchr->isFlying() )
-    {
-        pchr->vel[kZ] += ( pchr->enviro.fly_level + pchr->getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - pchr->getPosZ() ) * FLYDAMPEN;
-    }
-
-    else if (
-        pchr->enviro.is_slippy && ( pchr->enviro.grid_twist != TWIST_FLAT ) &&
-        ( CHR_INFINITE_WEIGHT != pchr->phys.weight ) && ( pchr->enviro.grid_lerp <= pchr->enviro.zlerp ) )
-    {
-        // Slippy hills make characters slide
-
-        Vector3f   gperp;    // gravity perpendicular to the mesh
-        Vector3f   gpara;    // gravity parallel      to the mesh (what pushes you)
-
-        // RELATIVE TO THE GRID, since you might be riding a platform!
-        float     loc_zlerp = pchr->enviro.grid_lerp;
-
-        gpara = g_meshLookupTables.twist_vel[pchr->enviro.grid_twist];
-
-        gperp[kX] = 0       - gpara[kX];
-        gperp[kY] = 0       - gpara[kY];
-        gperp[kZ] = Ego::Physics::g_environment.gravity - gpara[kZ];
-
-        pchr->vel += gpara * ( 1.0f - loc_zlerp ) + gperp * loc_zlerp;
-    }
-    else
-    {
-        pchr->vel[kZ] += pchr->enviro.zlerp * Ego::Physics::g_environment.gravity;
     }
 }
 
@@ -395,10 +239,6 @@ bool move_one_character_integrate_motion( Object * pchr )
     /// @details Figure out the next position of the character.
     ///    Include collisions with the mesh in this step.
 
-    Vector3f tmp_pos;
-
-    if (!pchr || pchr->isTerminated()) return false;
-
     //Are we being held?
     if (pchr->isBeingHeld())
     {
@@ -407,7 +247,7 @@ bool move_one_character_integrate_motion( Object * pchr )
         return true;
     }
 
-    tmp_pos = pchr->getPosition();;
+    Vector3f tmp_pos = pchr->getPosition();;
 
     // interaction with the mesh
     //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
@@ -417,23 +257,28 @@ bool move_one_character_integrate_motion( Object * pchr )
 
         tmp_pos[kZ] += pchr->vel[kZ];
         LOG_NAN( tmp_pos[kZ] );
-        if ( tmp_pos[kZ] < grid_level )
+        if (tmp_pos[kZ] < grid_level)
         {
-            if ( std::abs( pchr->vel[kZ] ) < STOPBOUNCING )
+            //We have hit the ground
+            if(!pchr->isFlying()) {
+                pchr->enviro.grounded = true;
+            }
+
+            if (std::abs( pchr->vel[kZ] ) < STOPBOUNCING)
             {
                 pchr->vel[kZ] = 0.0f;
                 tmp_pos[kZ] = grid_level;
             }
             else
             {
-                if ( pchr->vel[kZ] < 0.0f )
+                if (pchr->vel[kZ] < 0.0f)
                 {
                     float diff = grid_level - tmp_pos[kZ];
 
                     pchr->vel[kZ] *= -pchr->phys.bumpdampen;
-                    diff        *= -pchr->phys.bumpdampen;
+                    diff          *= -pchr->phys.bumpdampen;
 
-                    tmp_pos[kZ] = std::max( tmp_pos[kZ] + diff, grid_level );
+                    tmp_pos[kZ] = std::max(tmp_pos[kZ] + diff, grid_level);
                 }
                 else
                 {
@@ -446,7 +291,8 @@ bool move_one_character_integrate_motion( Object * pchr )
     // fixes to the z-position
     if (pchr->isFlying())
     {
-        if ( tmp_pos[kZ] < 0.0f ) tmp_pos[kZ] = 0.0f;  // Don't fall in pits...
+        // Don't fall in pits...
+        if (tmp_pos[kZ] < 0.0f) tmp_pos[kZ] = 0.0f;
     }
 
 
@@ -1359,29 +1205,31 @@ void updateMovement(Object *object)
     }
 
     //Is there any movement going on?
-    const float maxSpeed = getMaxSpeed(object);
+    if(desiredVelocity.length_abs() > 0.05f) {
+        const float maxSpeed = getMaxSpeed(object);
 
-    //Scale [-1 , 1] to desired velocity of the object
-    desiredVelocity *= maxSpeed;
+        //Scale [-1 , 1] to desired velocity of the object
+        desiredVelocity *= maxSpeed;
 
-    //Limit to max velocity
-    if(desiredVelocity.length() > maxSpeed) {
-        desiredVelocity *= maxSpeed / desiredVelocity.length();
+        //Limit to max velocity
+        if(desiredVelocity.length() > maxSpeed) {
+            desiredVelocity *= maxSpeed / desiredVelocity.length();
+        }
+
+        //Determine acceleration/deceleration from motion and friction
+        Vector2f acceleration;
+        acceleration[kX] = (desiredVelocity[kX] - object->vel[kX]) * object->enviro.friction_hrz * object->enviro.fluid_friction_hrz;
+        acceleration[kY] = (desiredVelocity[kY] - object->vel[kY]) * object->enviro.friction_hrz * object->enviro.fluid_friction_hrz;
+
+        //Make it very hard to walk up hills
+        if(object->enviro.grounded && TWIST_FLAT != object->enviro.grid_twist && object->enviro.is_slippy && !object->isFlying()) {
+            acceleration *= Ego::Physics::g_environment.icefriction * 0.1f;
+        }
+
+        //Finally apply acceleration to velocity
+        object->vel[kX] += acceleration[kX] * (1.0f - object->enviro.zlerp);
+        object->vel[kY] += acceleration[kY] * (1.0f - object->enviro.zlerp);
     }
-
-    //Determine acceleration/deceleration from motion and friction
-    Vector2f acceleration;
-    acceleration[kX] = (desiredVelocity[kX] - object->vel[kX]) * object->enviro.friction_hrz;
-    acceleration[kY] = (desiredVelocity[kY] - object->vel[kY]) * object->enviro.friction_hrz;
-
-    //Make it very hard to walk up hills
-    if(TWIST_FLAT != object->enviro.grid_twist && object->enviro.is_slippy && !object->isFlying()) {
-        acceleration *= Ego::Physics::g_environment.icefriction * 0.1f * (1.0f - object->enviro.zlerp);
-    }
-
-    //Finally apply acceleration to velocity
-    object->vel[kX] += acceleration[kX];
-    object->vel[kY] += acceleration[kY];
 
     //Update which way we are looking
     updateFacing(object, desiredVelocity);
@@ -1390,9 +1238,9 @@ void updateMovement(Object *object)
 void updateFriction(Object *pchr)
 {
     //Apply air/water friction
-    pchr->vel[kX] *= pchr->enviro.fluid_friction_hrz;
-    pchr->vel[kY] *= pchr->enviro.fluid_friction_hrz;
-    pchr->vel[kZ] *= pchr->enviro.fluid_friction_vrt;
+    pchr->vel[kX] -= pchr->vel[kX] * (1.0f - pchr->enviro.fluid_friction_hrz);
+    pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
+    pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
 
     //Only do floor friction if we are touching the ground
     if(pchr->isFlying() || !pchr->enviro.grounded) {
@@ -1417,7 +1265,7 @@ void updateFriction(Object *pchr)
     if (pchr->enviro.is_slippy && pchr->phys.weight != CHR_INFINITE_WEIGHT)
     {
         //Make characters slide on hills
-        if(TWIST_FLAT != pchr->enviro.grid_twist) {
+        if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
             Vector3f slideVelocity;
             slideVelocity[kX] = g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kX] * Ego::Physics::g_environment.hillslide;
             slideVelocity[kY] = g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kY] * Ego::Physics::g_environment.hillslide;
@@ -1444,11 +1292,9 @@ void move_one_character( Object * pchr )
 
     move_one_character_get_environment( pchr );
 
-    // do friction with the floor before voluntary motion
-    //move_one_character_do_floor_friction( pchr );
-
     chr_do_latch_button( pchr );
 
+    // do friction with the floor before voluntary motion
     updateFriction(pchr);
 
     updateMovement(pchr);
@@ -1457,10 +1303,13 @@ void move_one_character( Object * pchr )
     if(!pchr->isFlying()) {
         pchr->vel[kZ] += pchr->enviro.zlerp * Ego::Physics::g_environment.gravity;
     }
+    else {
+        pchr->vel[kZ] += ( pchr->enviro.fly_level + pchr->getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - pchr->getPosZ() ) * FLYDAMPEN;
+    }
 
     move_one_character_integrate_motion( pchr );
 
-    //Hard cutoff band for low velocities to make them truly stop
+    //Cutoff for low velocities to make them truly stop
     if(std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) < 0.05f) {
         pchr->vel[kX] = 0.0f;
         pchr->vel[kY] = 0.0f;
@@ -1579,9 +1428,6 @@ void move_all_characters()
             continue;
         }
         
-        // prime the environment
-        object->enviro.ice_friction = Ego::Physics::g_environment.icefriction;
-
         //Skip objects that are inside inventories
         if(!object->isInsideInventory()) {
             move_one_character( object.get() );

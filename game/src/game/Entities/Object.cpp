@@ -759,11 +759,11 @@ void Object::update()
         else
         {
             // Ripples
-            if(getPosZ() < WATER_LEVEL && isAlive())
+            if(isAlive())
             {
-                if ( !isBeingHeld() && getProfile()->causesRipples() 
-                    && getPosZ() + chr_min_cv._maxs[OCT_Z] + RIPPLETOLERANCE > WATER_LEVEL 
-                    && getPosZ() + chr_min_cv._mins[OCT_Z] < WATER_LEVEL)
+                if ( !isBeingHeld() && getProfile()->causesRipples()) 
+//                    && getPosZ() + chr_min_cv._maxs[OCT_Z] + RIPPLETOLERANCE > WATER_LEVEL 
+//                    && getPosZ() + chr_min_cv._mins[OCT_Z] < WATER_LEVEL)
                 {
                     int ripple_suppression;
 
