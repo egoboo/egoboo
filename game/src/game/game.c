@@ -3338,7 +3338,7 @@ bool do_shop_steal( ObjectRef ithief, ObjectRef iitem )
             if ( owner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + owner->getAttribute(Ego::Attribute::INTELLECT) ) > 50 )
             {
                 ai_state_t::add_order(owner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
-                owner->ai.target = ithief.get();
+                owner->ai.target = ithief;
                 can_steal = false;
             }
         }

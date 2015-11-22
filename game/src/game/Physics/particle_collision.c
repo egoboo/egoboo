@@ -529,7 +529,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
             if ( !using_shield )
             {
                 item = pdata->pchr->holdingwhich[SLOT_RIGHT];
-                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item.get() )
+                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
                 {
                     using_shield = true;
                 }
@@ -539,7 +539,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
             if ( !using_shield )
             {
                 item = pdata->pchr->holdingwhich[SLOT_LEFT];
-                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item.get() )
+                if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
                 {
                     using_shield = true;
                 }
@@ -763,15 +763,15 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
                 // Notify the attacker of a scored hit
                 SET_BIT(powner->ai.alert, ALERTIF_SCOREDAHIT);
-                powner->ai.hitlast = pdata->pchr->getObjRef().get();
+                powner->ai.hitlast = pdata->pchr->getObjRef();
 
                 // Tell the weapons who the attacker hit last
                 bool meleeAttack = false;
                 const std::shared_ptr<Object> &leftHanditem = powner->getRightHandItem();
                 if (leftHanditem)
                 {
-                    leftHanditem->ai.hitlast = pdata->pchr->getObjRef().get();
-                    if (powner->ai.lastitemused == leftHanditem->getObjRef().get()) {
+                    leftHanditem->ai.hitlast = pdata->pchr->getObjRef();
+                    if (powner->ai.lastitemused == leftHanditem->getObjRef()) {
                         SET_BIT(leftHanditem->ai.alert, ALERTIF_SCOREDAHIT);  
                         if(leftHanditem->getProfile()->getIDSZ(IDSZ_SPECIAL) == MAKE_IDSZ('X', 'W', 'E', 'P') && !leftHanditem->getProfile()->isRangedWeapon()) {
                             meleeAttack = true;
@@ -782,8 +782,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 const std::shared_ptr<Object> &rightHandItem = powner->getRightHandItem();
                 if (rightHandItem)
                 {
-                    rightHandItem->ai.hitlast = pdata->pchr->getObjRef().get();
-                    if (powner->ai.lastitemused == rightHandItem->getObjRef().get()) {
+                    rightHandItem->ai.hitlast = pdata->pchr->getObjRef();
+                    if (powner->ai.lastitemused == rightHandItem->getObjRef()) {
                         SET_BIT(rightHandItem->ai.alert, ALERTIF_SCOREDAHIT);  
                         if(rightHandItem->getProfile()->getIDSZ(IDSZ_SPECIAL) == MAKE_IDSZ('X', 'W', 'E', 'P') && !rightHandItem->getProfile()->isRangedWeapon()) {
                             meleeAttack = true;
@@ -792,7 +792,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 }
 
                 //Unarmed attack?
-                if (powner->ai.lastitemused == powner->getObjRef().get()) {
+                if (powner->ai.lastitemused == powner->getObjRef()) {
                     meleeAttack = true;
                 }
 

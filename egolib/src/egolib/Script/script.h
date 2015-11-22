@@ -353,10 +353,10 @@ struct ai_state_t
     bool           terminate;
 
     // who are we related to?
-    CHR_REF        index;         ///< what is the index value of this character
-    CHR_REF        target;        ///< Who the AI is after
-    CHR_REF        owner;         ///< The character's owner
-    CHR_REF        child;         ///< The character's child
+    ObjectRef      index;         ///< what is the index value of this character
+    ObjectRef      target;        ///< Who the AI is after
+    ObjectRef      owner;         ///< The character's owner
+    ObjectRef      child;         ///< The character's child
 
     // some local storage
     BIT_FIELD      alert;         ///< Alerts for AI script
@@ -369,15 +369,15 @@ struct ai_state_t
     float          maxSpeed;      ///< Artificial movement speed limit for AI
 
     // ai memory from the last event
-    CHR_REF        bumplast;        ///< Last character it was bumped by
+    ObjectRef      bumplast;        ///< Last character it was bumped by
     int            bumplast_time;   ///< The last time that a ALERTIF_BUMPED was sent
 
-    CHR_REF        attacklast;      ///< Last character it was attacked by
-    CHR_REF        hitlast;         ///< Last character it hit
+    ObjectRef      attacklast;      ///< Last character it was attacked by
+    ObjectRef      hitlast;         ///< Last character it hit
     FACING_T       directionlast;   ///< Direction of last attack/healing
     DamageType     damagetypelast;  ///< Last damage type
-    CHR_REF        lastitemused;    ///< The last item the character used
-    CHR_REF        target_old;      ///< Target in the previous update
+    ObjectRef      lastitemused;    ///< The last item the character used
+    ObjectRef      target_old;      ///< Target in the previous update
 
     // message handling
     Uint32         order_value;           ///< The last order given the character

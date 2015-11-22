@@ -252,7 +252,7 @@ void ObjectHandler::maybeRunDeferred()
                         if (chr->isTerminated() || chr == element) continue;
 						ai_state_t *ai = &(chr->ai);
 
-                        if (ai->target == element->getObjRef().get())
+                        if (ai->target == element->getObjRef())
                         {
                             SET_BIT(ai->alert, ALERTIF_TARGETKILLED);
                         }

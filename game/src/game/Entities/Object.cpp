@@ -482,7 +482,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 {
                     if ( team == Team::TEAM_DAMAGE )
                     {
-                        ai.attacklast = INVALID_CHR_REF;
+                        ai.attacklast = ObjectRef::Invalid;
                     }
                     else
                     {
@@ -578,7 +578,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         // Isssue an alert
         if ( team == Team::TEAM_DAMAGE )
         {
-            ai.attacklast = INVALID_CHR_REF;
+            ai.attacklast = ObjectRef::Invalid;
         }
 
         /// @test spawn a fly-away heal indicator?
@@ -641,7 +641,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     }
 
     //Update alerts and timers
-    ai.attacklast = actual_attacker.get();
+    ai.attacklast = actual_attacker;
     SET_BIT(ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED);
     careful_timer = CAREFULTIME;
 }
@@ -1438,9 +1438,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     if (actualKiller)
     {
         // Set target
-        ai.target = actualKiller->getObjRef().get();
+        ai.target = actualKiller->getObjRef();
 		if (actualKiller->getTeam() == Team::TEAM_DAMAGE || actualKiller->getTeam() == Team::TEAM_NULL) {
-			ai.target = getObjRef().get();
+			ai.target = getObjRef();
 		}
 
         // Award experience for kill?
@@ -1492,7 +1492,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         }
 
         // Let the other characters know it died
-        if ( listener->ai.target == getObjRef().get() )
+        if ( listener->ai.target == getObjRef() )
         {
             SET_BIT( listener->ai.alert, ALERTIF_TARGETKILLED );
         }
@@ -1867,7 +1867,7 @@ void Object::respawn()
     phys.bumpdampen = profile->getBumpDampen();
 
     ai.alert = ALERTIF_CLEANEDUP;
-    ai.target = getObjRef().get();
+    ai.target = getObjRef();
     ai.timer  = 0;
 
     grog_timer = 0;

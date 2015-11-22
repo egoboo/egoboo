@@ -724,7 +724,7 @@ void Particle::destroy()
         if (child)
         {
             child->ai.state = endspawn_characterstate;
-            child->ai.owner = owner_ref.get();
+            child->ai.owner = owner_ref;
         }
     }
 

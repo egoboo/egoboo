@@ -117,7 +117,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
     mc_tmp.self_scale = Vector3f(pchr->fat, pchr->fat, pchr->fat);
 
     // handle the overlay first of all
-    if ( !handled && pchr->is_overlay && ichr.get() != pchr->ai.target && _currentModule->getObjectHandler().exists( pchr->ai.target ) )
+    if ( !handled && pchr->is_overlay && ichr != pchr->ai.target && _currentModule->getObjectHandler().exists( pchr->ai.target ) )
     {
         // this will pretty much fail the cmp_matrix_cache() every time...
 

@@ -76,7 +76,7 @@
 #define FUNCTION_END() \
     return returncode;
 
-#define SET_TARGET_0(ITARGET)         self.target = ITARGET.get();
+#define SET_TARGET_0(ITARGET)         self.target = ITARGET;
 #define SET_TARGET_1(ITARGET,PTARGET) if( NULL != PTARGET ) { PTARGET = _currentModule->getObjectHandler().get(ITARGET); }
 #define SET_TARGET(ITARGET,PTARGET)   SET_TARGET_0( ITARGET ); SET_TARGET_1(ITARGET,PTARGET)
 
@@ -503,7 +503,7 @@ Uint8 scr_AddWaypoint( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddWaypoint( self.wp_lst, self.index, state.x, state.y );
+    returncode = AddWaypoint( self.wp_lst, self.index.get(), state.x, state.y );
 
     if ( returncode )
     {
@@ -669,7 +669,7 @@ Uint8 scr_SetTargetToNearbyEnemy( script_state_t& state, ai_state_t& self )
 
     if ( _currentModule->getObjectHandler().exists(ichr) )
     {
-        self.target = ichr.get();
+        self.target = ichr;
         returncode = true;
     }
     else
@@ -1083,7 +1083,7 @@ Uint8 scr_IssueOrder( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_order( self.index, state.argument );
+    issue_order( self.index.get(), state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1352,7 +1352,7 @@ Uint8 scr_SendMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _display_message( self.index, pchr->getProfileID(), state.argument, &state );
+    returncode = _display_message( self.index.get(), pchr->getProfileID(), state.argument, &state );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1915,7 +1915,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
         else
         {
             TURN_T turn;
-            self.child = pchild->getObjRef().get();
+            self.child = pchild->getObjRef();
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pchild->vel[kX] += turntocos[ turn ] * state.distance;
@@ -3207,12 +3207,12 @@ Uint8 scr_KillTarget( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	CHR_REF ichr = self.index;
+	ObjectRef ichr = self.index;
 
     //Weapons don't kill people, people kill people...
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && !_currentModule->getObjectHandler().get(pchr->attachedto)->isMount() )
     {
-        ichr = pchr->attachedto.get();
+        ichr = pchr->attachedto;
     }
 
     const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.target];
@@ -3554,7 +3554,7 @@ Uint8 scr_DebugMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    DisplayMsg_printf( "aistate %d, aicontent %d, target %d", self.state, self.content, REF_TO_INT( self.target ) );
+    DisplayMsg_printf( "aistate %d, aicontent %d, target %" PRIuZ, self.state, self.content, self.target.get() );
     DisplayMsg_printf( "tmpx %d, tmpy %d", state.x, state.y );
     DisplayMsg_printf( "tmpdistance %d, tmpturn %d", state.distance, state.turn );
     DisplayMsg_printf( "tmpargument %d, selfturn %d", state.argument, pchr->ori.facing_z );
@@ -3605,7 +3605,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
 
     if ( min_distance < MSGDISTANCE )
     {
-        returncode = _display_message( self.index, pchr->getProfileID(), state.argument, &state );
+        returncode = _display_message( self.index.get(), pchr->getProfileID(), state.argument, &state );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4503,7 +4503,7 @@ Uint8 scr_SetChildState( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if (INVALID_CHR_REF != self.child)
+    if (ObjectRef::Invalid != self.child)
     {
         _currentModule->getObjectHandler()[self.child]->ai.state = state.argument;
     }
@@ -5348,7 +5348,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
     }
     else
     {
-        self.child = pchild->getObjRef().get();
+        self.child = pchild->getObjRef();
 
         pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
         pchild->ai.passage = self.passage;
@@ -5399,7 +5399,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
         }
         else
         {
-            self.child = pchild->getObjRef().get();
+            self.child = pchild->getObjRef();
 
             pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = self.passage;
@@ -5521,7 +5521,7 @@ Uint8 scr_CreateOrder( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = ( REF_TO_INT( self.target ) & 0x00FF ) << 24;
+    sTmp = ( REF_TO_INT( self.target.get() ) & 0x00FF ) << 24;
     sTmp |= (( state.x >> 6 ) & 0x03FF ) << 14;
     sTmp |= (( state.y >> 6 ) & 0x03FF ) << 4;
     sTmp |= ( state.argument & 0x000F );
@@ -5907,7 +5907,7 @@ Uint8 scr_IdentifyTarget( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-	CHR_REF ichr = self.target;
+	ObjectRef ichr = self.target;
     if ( _currentModule->getObjectHandler().get(ichr)->ammomax != 0 )  _currentModule->getObjectHandler().get(ichr)->ammoknown = true;
 
 
@@ -7398,7 +7398,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
                 pchild->attachedto = ObjectRef::Invalid;  // Fix grab
 
                 //Set some AI values
-                self.child = pchild->getObjRef().get();
+                self.child = pchild->getObjRef();
                 pchild->ai.passage = self.passage;
                 pchild->ai.owner   = self.owner;
             }
@@ -7423,7 +7423,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
                 }
 
                 //Set some AI values
-                self.child = pchild->getObjRef().get();
+                self.child = pchild->getObjRef();
                 pchild->ai.passage = self.passage;
                 pchild->ai.owner   = self.owner;
             }
@@ -7440,7 +7440,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
             // still allow the character to spawn if it is not in an invalid area
 
             //Set some AI values
-            self.child = pchild->getObjRef().get();
+            self.child = pchild->getObjRef();
             pchild->ai.passage = self.passage;
             pchild->ai.owner   = self.owner;                
         }
@@ -8082,7 +8082,7 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t& state, ai_state_t& self 
     //Did we find anything good?
     if ( _currentModule->getObjectHandler().exists( best_target ) )
     {
-        self.target = best_target;
+        self.target = ObjectRef(best_target);
         returncode = true;
     }
 

@@ -225,7 +225,7 @@ void move_one_character_do_voluntary( Object * pchr )
             // Face the target
             case TURNMODE_WATCHTARGET:
                 {
-                    if ( ichr.get() != pchr->ai.target )
+                    if ( ichr != pchr->ai.target )
                     {
                         pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.target)->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.target)->getPosY() - pchr->getPosY() ), 8 );
                     }
@@ -979,7 +979,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     {
                         chr_play_action( pmount.get(), Random::next((int)ACTION_UA, ACTION_UA + 1), false );
                         SET_BIT( pmount->ai.alert, ALERTIF_USED );
-                        pchr->ai.lastitemused = pmount->getObjRef().get();
+                        pchr->ai.lastitemused = pmount->getObjRef();
 
                         retval = true;
                     }
@@ -1071,7 +1071,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 }
 
                 // let everyone know what we did
-                pchr->ai.lastitemused = iweapon.get();
+                pchr->ai.lastitemused = iweapon;
 
                 /// @note ZF@> why should there any reason the weapon should NOT be alerted when it is used?
                 // grab the MADFX_* flags for this action

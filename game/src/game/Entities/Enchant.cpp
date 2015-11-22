@@ -348,7 +348,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
         if (overlay)
         {
             _overlay = overlay;                             //Kill this character on end...
-            overlay->ai.target   = target->getObjRef().get();
+            overlay->ai.target   = target->getObjRef();
             overlay->is_overlay  = true;
             overlay->ai.state = _enchantProfile->spawn_overlay; // ??? WHY DO THIS ???
 

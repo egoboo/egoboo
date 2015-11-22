@@ -554,10 +554,10 @@ void scr_run_chr_script(Object *pchr) {
 		vfs_printf(scr_file, "%d - %s\n", REF_TO_INT(script_error_model), script_error_classname);
 
 		// who are we related to?
-		vfs_printf(scr_file, "\tindex  == %d\n", REF_TO_INT(aiState.index));
-		vfs_printf(scr_file, "\ttarget == %d\n", REF_TO_INT(aiState.target));
-		vfs_printf(scr_file, "\towner  == %d\n", REF_TO_INT(aiState.owner));
-		vfs_printf(scr_file, "\tchild  == %d\n", REF_TO_INT(aiState.child));
+		vfs_printf(scr_file, "\tindex  == %" PRIuZ "\n", aiState.index.get());
+		vfs_printf(scr_file, "\ttarget == %" PRIuZ "\n", aiState.target.get());
+		vfs_printf(scr_file, "\towner  == %" PRIuZ "\n", aiState.owner.get());
+		vfs_printf(scr_file, "\tchild  == %" PRIuZ "\n", aiState.child.get());
 
 		// some local storage
 		vfs_printf(scr_file, "\talert     == %x\n", aiState.alert);
@@ -567,13 +567,13 @@ void scr_run_chr_script(Object *pchr) {
 		vfs_printf(scr_file, "\tupdate_wld == %d\n", update_wld);
 
 		// ai memory from the last event
-		vfs_printf(scr_file, "\tbumplast       == %d\n", REF_TO_INT(aiState.bumplast));
-		vfs_printf(scr_file, "\tattacklast     == %d\n", REF_TO_INT(aiState.attacklast));
-		vfs_printf(scr_file, "\thitlast        == %d\n", REF_TO_INT(aiState.hitlast));
 		vfs_printf(scr_file, "\tdirectionlast  == %d\n", aiState.directionlast);
+		vfs_printf(scr_file, "\tbumplast       == %" PRIuZ "\n", aiState.bumplast.get());
+		vfs_printf(scr_file, "\tattacklast     == %" PRIuZ "\n", aiState.attacklast.get());
+		vfs_printf(scr_file, "\thitlast        == %" PRIuZ "\n", aiState.hitlast.get());
 		vfs_printf(scr_file, "\tdamagetypelast == %d\n", aiState.damagetypelast);
-		vfs_printf(scr_file, "\tlastitemused   == %d\n", REF_TO_INT(aiState.lastitemused));
-		vfs_printf(scr_file, "\ttarget_old     == %d\n", REF_TO_INT(aiState.target_old));
+		vfs_printf(scr_file, "\tlastitemused   == %" PRIuZ "\n", aiState.lastitemused.get());
+		vfs_printf(scr_file, "\ttarget_old     == %" PRIuZ "\n", aiState.target_old.get());
 
 		// message handling
 		vfs_printf(scr_file, "\torder == %d\n", aiState.order_value);
@@ -1265,7 +1265,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFINDEX:
                 varname = "SELFINDEX";
-				iTmp = REF_TO_INT(aiState.index);
+				iTmp = aiState.index.get();
                 break;
 
             case VAROWNERX:
@@ -1664,10 +1664,10 @@ ai_state_t::ai_state_t() {
 	terminate = false;
 
 	// who are we related to?
-	index = INVALID_CHR_REF;
-	target = INVALID_CHR_REF;
-	owner = INVALID_CHR_REF;
-	child = INVALID_CHR_REF;
+	index = ObjectRef::Invalid;
+	target = ObjectRef::Invalid;
+	owner = ObjectRef::Invalid;
+	child = ObjectRef::Invalid;
 
 	// some local storage
 	alert = 0;
@@ -1681,15 +1681,15 @@ ai_state_t::ai_state_t() {
 	}
 
 	// ai memory from the last event
-	bumplast = INVALID_CHR_REF;
+	bumplast = ObjectRef::Invalid;
 	bumplast_time = 0;
 
-	attacklast = INVALID_CHR_REF;
-	hitlast = INVALID_CHR_REF;
+	attacklast = ObjectRef::Invalid;
+	hitlast = ObjectRef::Invalid;
 	directionlast = 0;
 	damagetypelast = DamageType::DAMAGE_DIRECT;
-	lastitemused = INVALID_CHR_REF;
-	target_old = INVALID_CHR_REF;
+	lastitemused = ObjectRef::Invalid;
+	target_old = ObjectRef::Invalid;
 
 	// message handling
 	order_value = 0;
@@ -1714,10 +1714,10 @@ void ai_state_t::reset(ai_state_t& self)
 	self.terminate = false;
 
 	// who are we related to?
-	self.index = INVALID_CHR_REF;
-	self.target = INVALID_CHR_REF;
-	self.owner = INVALID_CHR_REF;
-	self.child = INVALID_CHR_REF;
+	self.index = ObjectRef::Invalid;
+	self.target = ObjectRef::Invalid;
+	self.owner = ObjectRef::Invalid;
+	self.child = ObjectRef::Invalid;
 
 	// some local storage
 	self.alert = 0;         ///< Alerts for AI script
@@ -1732,15 +1732,15 @@ void ai_state_t::reset(ai_state_t& self)
     self.maxSpeed = 1.0f;
 
 	// ai memory from the last event
-	self.bumplast = INVALID_CHR_REF;
+	self.bumplast = ObjectRef::Invalid;
 	self.bumplast_time = 0;
 
-	self.attacklast = INVALID_CHR_REF;
-	self.hitlast = INVALID_CHR_REF;
+	self.attacklast = ObjectRef::Invalid;
+	self.hitlast = ObjectRef::Invalid;
 	self.directionlast = 0;
 	self.damagetypelast = DamageType::DAMAGE_DIRECT;
-	self.lastitemused = INVALID_CHR_REF;
-	self.target_old = INVALID_CHR_REF;
+	self.lastitemused = ObjectRef::Invalid;
+	self.target_old = ObjectRef::Invalid;
 
 	// message handling
 	self.order_value = 0;
@@ -1797,11 +1797,11 @@ bool ai_state_t::set_bumplast(ai_state_t& self, const CHR_REF ichr)
 	}
 
     // 5 bumps per second?
-	if (self.bumplast != ichr || update_wld > self.bumplast_time + GameEngine::GAME_TARGET_UPS / 5) {
+	if (self.bumplast.get() != ichr || update_wld > self.bumplast_time + GameEngine::GAME_TARGET_UPS / 5) {
 		self.bumplast_time = update_wld;
 		SET_BIT(self.alert, ALERTIF_BUMPED);
     }
-	self.bumplast = ichr;
+	self.bumplast = ObjectRef(ichr);
 
     return true;
 }
@@ -1815,19 +1815,19 @@ void ai_state_t::spawn(ai_state_t& self, const CHR_REF index, const PRO_REF iobj
 		return;
 	}
 
-	self.index = index;
+	self.index = ObjectRef(index);
 	self.alert = ALERTIF_SPAWNED;
 	self.state = pchr->getProfile()->getStateOverride();
 	self.content = pchr->getProfile()->getContentOverride();
 	self.passage = 0;
-	self.target = index;
-	self.owner = index;
-	self.child = index;
-	self.target_old = index;
+	self.target = ObjectRef(index);
+	self.owner = ObjectRef(index);
+	self.child = ObjectRef(index);
+	self.target_old = ObjectRef(index);
     self.maxSpeed = 1.0f;
 
-	self.bumplast = index;
-	self.hitlast = index;
+	self.bumplast = ObjectRef(index);
+	self.hitlast = ObjectRef(index);
 
 	self.order_counter = rank;
 	self.order_value = 0;
