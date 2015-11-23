@@ -468,6 +468,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\AI\State.hpp" />
     <ClInclude Include="src\egolib\Grid\Index.hpp" />
     <ClInclude Include="src\egolib\Grid\Info.hpp" />
     <ClInclude Include="src\egolib\Grid\Rect.hpp" />

@@ -283,7 +283,7 @@ egolib_rv export_all_players( bool require_local )
         }
 
         // Export the left hand item
-        item = ObjectRef(pchr->holdingwhich[SLOT_LEFT]);
+        item = pchr->holdingwhich[SLOT_LEFT];
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
             export_chr_rv = export_one_character( item, character, SLOT_LEFT, is_local );
@@ -294,7 +294,7 @@ egolib_rv export_all_players( bool require_local )
         }
 
         // Export the right hand item
-        item = ObjectRef(pchr->holdingwhich[SLOT_RIGHT]);
+        item = pchr->holdingwhich[SLOT_RIGHT];
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
             export_chr_rv = export_one_character( item, character, SLOT_RIGHT, is_local );
@@ -982,7 +982,7 @@ void update_pits()
 
                         // Do some damage (same as damage tile)
                         pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), Team::TEAM_DAMAGE, 
-                            _currentModule->getObjectHandler()[pchr->ai.bumplast], DAMFX_NBLOC | DAMFX_ARMO, false);
+                                     _currentModule->getObjectHandler()[pchr->ai.getBumped()], DAMFX_NBLOC | DAMFX_ARMO, false);
                     }
                 }
             }
@@ -2511,7 +2511,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     pchr    = !_currentModule->getObjectHandler().exists( ichr ) ? NULL : _currentModule->getObjectHandler().get( ichr );
     pai     = ( NULL == pchr )    ? NULL : &( pchr->ai );
 
-    ptarget = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->target ) ) ? pchr : _currentModule->getObjectHandler().get( pai->target );
+    ptarget = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->getTarget() ) ) ? pchr : _currentModule->getObjectHandler().get( pai->getTarget() );
     
     cnt = 0;
     while ( CSTR_END != *src && src < src_end && dst < dst_end )
@@ -2560,7 +2560,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pai )
                         {
-                            const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pai->target];
+                            const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pai->getTarget()];
                             if(target)
                             {
                                 strncpy(szTmp, target->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
@@ -3338,7 +3338,7 @@ bool do_shop_steal( ObjectRef ithief, ObjectRef iitem )
             if ( owner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + owner->getAttribute(Ego::Attribute::INTELLECT) ) > 50 )
             {
                 ai_state_t::add_order(owner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
-                owner->ai.target = ithief.get();
+                owner->ai.setTarget(ithief);
                 can_steal = false;
             }
         }

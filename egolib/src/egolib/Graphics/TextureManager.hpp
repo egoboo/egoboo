@@ -26,12 +26,6 @@
 #include "egolib/Renderer/Renderer.hpp"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-inline bool VALID_TX_RANGE(const TX_REF ref)
-{
-    return ref < TEXTURES_MAX;
-}
 
 struct TextureManager : public Ego::Core::Singleton <TextureManager>
 {

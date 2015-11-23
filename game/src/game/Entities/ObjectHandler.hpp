@@ -129,9 +129,9 @@ public:
 	std::shared_ptr<Object> insert(const PRO_REF profileRef, ObjectRef overrideRef = ObjectRef::Invalid);
 
 	/**
-	 * @brief Return a pointer object for the specifiec CHR_REF.
-	 * @return a pointer object for the specified CHR_REF.
-	 *		   Return nullptr object if CHR_REF was not found.
+	 * @brief Return a pointer object for the specifiec object reference.
+	 * @return a pointer object for the specified object reference.
+	 *		   Return nullptr object if the object reference was not found.
 	 */
 	const std::shared_ptr<Object>& operator[] (const CHR_REF ref) { return (*this)[ObjectRef(ref)]; }
 	const std::shared_ptr<Object>& operator[] (ObjectRef ref);
@@ -148,8 +148,8 @@ public:
 	void clear();
 
 	/**
-	 * @brief Return a raw pointer referenced by CHR_REF
-	 * @return a raw pointer referenced by CHR_REF
+	 * @brief Return a raw pointer to the object referenced by the object reference
+	 * @return a raw pointer referenced by the object reference
 	 */
 	Object *get(const CHR_REF ref) const { return get(ObjectRef(ref)); } ///< @todo Remove this.
 	Object *get(ObjectRef ref) const;
@@ -231,7 +231,7 @@ private:
 	Ego::QuadTree<Object> _staticObjects;			//Objects that rarely move - if ever (Trees, pillars, chairs)
 	int _updateStaticTreeClock;
 
-	std::unordered_map<ObjectRef, std::shared_ptr<Object>> _internalCharacterList; ///< Maps CHR_REF to Objects
+	std::unordered_map<ObjectRef, std::shared_ptr<Object>> _internalCharacterList; ///< Maps object references to shared pointers to objects
 	std::vector<std::shared_ptr<Object>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
 
 	std::vector<std::shared_ptr<Object>> _allocateList;					///< List of all objects that should be added

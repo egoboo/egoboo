@@ -273,7 +273,7 @@ void ParticleHandler::spawnPoof(const std::shared_ptr<Object> &object)
     for (int cnt = 0; cnt < object->getProfile()->getParticlePoofAmount(); cnt++)
     {
         ParticleHandler::get().spawnParticle(object->getOldPosition(), facing_z, object->getProfile()->getSlotNumber(), object->getProfile()->getParticlePoofProfile(),
-                                             ObjectRef::Invalid, GRIP_LAST, object->team, ObjectRef(object->ai.owner), INVALID_PRT_REF, cnt);
+                                             ObjectRef::Invalid, GRIP_LAST, object->team, object->ai.owner, INVALID_PRT_REF, cnt);
 
         facing_z += object->getProfile()->getParticlePoofFacingAdd();
     }
@@ -290,9 +290,9 @@ void ParticleHandler::spawnDefencePing(const std::shared_ptr<Object> &object, co
 
     // For the ones attacking a shield
     if(attacker != nullptr && !attacker->isTerminated()) {
-        object->ai.attacklast = attacker->getObjRef().get();
+        object->ai.setLastAttacker(attacker->getObjRef());
     }
     else {
-        object->ai.attacklast = INVALID_CHR_REF;
+        object->ai.setLastAttacker(ObjectRef::Invalid);
     }
 }

@@ -482,7 +482,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 {
                     if ( team == Team::TEAM_DAMAGE )
                     {
-                        ai.attacklast = INVALID_CHR_REF;
+                        ai.setLastAttacker(ObjectRef::Invalid);
                     }
                     else
                     {
@@ -578,7 +578,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         // Isssue an alert
         if ( team == Team::TEAM_DAMAGE )
         {
-            ai.attacklast = INVALID_CHR_REF;
+            ai.setLastAttacker(ObjectRef::Invalid);
         }
 
         /// @test spawn a fly-away heal indicator?
@@ -625,12 +625,12 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         }
     
         //Do not alert items damaging (or healing) their holders, healing potions for example
-        if ( attacker->attachedto == ObjectRef(ai.index) ) return;
+        if ( attacker->attachedto == ai.getSelf() ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
         if ( attacker->isBeingHeld() && !_currentModule->getObjectHandler().get(attacker->attachedto)->isMount() )
         {
-            actual_attacker = ObjectRef(attacker->attachedto);
+            actual_attacker = attacker->attachedto;
         }
 
         //If the attacker is a mount, try to blame the rider
@@ -641,7 +641,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     }
 
     //Update alerts and timers
-    ai.attacklast = actual_attacker.get();
+    ai.setLastAttacker(actual_attacker);
     SET_BIT(ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED);
     careful_timer = CAREFULTIME;
 }
@@ -814,7 +814,7 @@ void Object::update()
     if ( dismount_timer > 0 ) dismount_timer--;
 
     if ( 0 == dismount_timer ) {
-        dismount_object = INVALID_CHR_REF;
+        dismount_object = ObjectRef::Invalid;
     }
 
     // Down that ol' damage timer
@@ -1102,7 +1102,7 @@ void Object::requestTerminate()
 bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 {
     // Make sure the character is actually held by something first
-    ObjectRef holder = ObjectRef(attachedto);
+    ObjectRef holder = attachedto;
     const std::shared_ptr<Object> &pholder = _currentModule->getObjectHandler()[holder];
     if (!pholder) {
         return false;  
@@ -1117,7 +1117,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 
     // set the dismount timer
     dismount_timer  = PHYS_DISMOUNT_TIME;
-    dismount_object = holder.get();
+    dismount_object = holder;
 
     // Figure out which hand it's in
     uint16_t hand = inwhich_slot;
@@ -1438,9 +1438,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     if (actualKiller)
     {
         // Set target
-        ai.target = actualKiller->getObjRef().get();
+        ai.setTarget(actualKiller->getObjRef());
 		if (actualKiller->getTeam() == Team::TEAM_DAMAGE || actualKiller->getTeam() == Team::TEAM_NULL) {
-			ai.target = getObjRef().get();
+			ai.setTarget(getObjRef());
 		}
 
         // Award experience for kill?
@@ -1492,7 +1492,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         }
 
         // Let the other characters know it died
-        if ( listener->ai.target == getObjRef().get() )
+        if ( listener->ai.getTarget() == getObjRef() )
         {
             SET_BIT( listener->ai.alert, ALERTIF_TARGETKILLED );
         }
@@ -1867,7 +1867,7 @@ void Object::respawn()
     phys.bumpdampen = profile->getBumpDampen();
 
     ai.alert = ALERTIF_CLEANEDUP;
-    ai.target = getObjRef().get();
+    ai.setTarget(getObjRef());
     ai.timer  = 0;
 
     grog_timer = 0;
@@ -2401,7 +2401,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     // Must set the wepon grip AFTER the model is changed in chr_instance_t::spawn()
     if (isBeingHeld())
     {
-        set_weapongrip(getObjRef(), ObjectRef(attachedto), slot_to_grip_offset(inwhich_slot) );
+        set_weapongrip(getObjRef(), attachedto, slot_to_grip_offset(inwhich_slot) );
     }
 
     if (leftItem)
@@ -2830,7 +2830,7 @@ void Object::dropKeys()
 
         // fix the attachments
         pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pkey->dismount_object        = getObjRef().get();
+        pkey->dismount_object        = getObjRef();
         pkey->onwhichplatform_ref    = onwhichplatform_ref;
         pkey->onwhichplatform_update = onwhichplatform_update;
 
@@ -2888,7 +2888,7 @@ void Object::dropAllItems()
 
         // fix the attachments
         pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pitem->dismount_object        = getObjRef().get();
+        pitem->dismount_object        = getObjRef();
         pitem->onwhichplatform_ref    = onwhichplatform_ref;
         pitem->onwhichplatform_update = onwhichplatform_update;
 

@@ -225,9 +225,9 @@ void move_one_character_do_voluntary( Object * pchr )
             // Face the target
             case TURNMODE_WATCHTARGET:
                 {
-                    if ( ichr.get() != pchr->ai.target )
+                    if ( ichr != pchr->ai.getTarget() )
                     {
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.target)->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.target)->getPosY() - pchr->getPosY() ), 8 );
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosY() - pchr->getPosY() ), 8 );
                     }
                 }
                 break;
@@ -979,7 +979,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     {
                         chr_play_action( pmount.get(), Random::next((int)ACTION_UA, ACTION_UA + 1), false );
                         SET_BIT( pmount->ai.alert, ALERTIF_USED );
-                        pchr->ai.lastitemused = pmount->getObjRef().get();
+                        pchr->ai.lastitemused = pmount->getObjRef();
 
                         retval = true;
                     }
@@ -1071,7 +1071,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 }
 
                 // let everyone know what we did
-                pchr->ai.lastitemused = iweapon.get();
+                pchr->ai.lastitemused = iweapon;
 
                 /// @note ZF@> why should there any reason the weapon should NOT be alerted when it is used?
                 // grab the MADFX_* flags for this action
@@ -1317,7 +1317,7 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
             if ( can_grab )
             {
                 // Stick 'em together and quit
-                if ( rv_success == attach_character_to_mount(grabData.object->getObjRef(), ObjectRef(ichr_a), grip_off) )
+                if ( rv_success == attach_character_to_mount(grabData.object->getObjRef(), ichr_a, grip_off) )
                 {
                     if (grab_people)
                     {
@@ -1767,7 +1767,7 @@ egolib_rv attach_character_to_mount( ObjectRef riderRef, ObjectRef mountRef, gri
 
     // make a reasonable time for the character to remount something
     // for characters jumping out of pots, etc
-    if (mountRef.get() == rider->dismount_object && rider->dismount_timer > 0) return rv_fail;
+    if (mountRef == rider->dismount_object && rider->dismount_timer > 0) return rv_fail;
 
     // Figure out which slot this grip_off relates to
     slot_t slot = grip_offset_to_slot(grip_off);

@@ -977,6 +977,9 @@
     <ClInclude Include="src\egolib\Grid\Rect.hpp">
       <Filter>Header Files\Grid</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\AI\State.hpp">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

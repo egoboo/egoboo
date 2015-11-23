@@ -79,7 +79,7 @@ struct matrix_cache_t
         type_bits(MAT_UNKNOWN),
         rotate(0.0f, 0.0f, 0.0f),
         pos(),
-        grip_chr(INVALID_CHR_REF),
+        grip_chr(),
         grip_slot(SLOT_LEFT),
         grip_verts(),
         grip_scale(),
@@ -107,7 +107,7 @@ struct matrix_cache_t
 
     //---- MAT_WEAPON data
 
-    CHR_REF grip_chr;                   ///< != INVALID_CHR_REF if character is a held weapon
+    ObjectRef grip_chr;                   ///< != INVALID_CHR_REF if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     std::array<uint16_t, GRIP_VERTS> grip_verts;     ///< Vertices which describe the weapon grip
     Vector3f grip_scale;
