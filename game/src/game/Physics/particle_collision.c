@@ -895,7 +895,7 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
-		ObjectRef prt_owner = ObjectRef(prt_get_iowner( pdata->pprt->getParticleID(), 0 ));
+		ObjectRef prt_owner = prt_get_iowner( pdata->pprt->getParticleID(), 0 );
         if ( _currentModule->getObjectHandler().exists( prt_owner ) )
         {
             ObjectRef chr_wielder = chr_get_lowest_attachment( pdata->pchr->getObjRef(), true );

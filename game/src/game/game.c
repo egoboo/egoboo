@@ -283,7 +283,7 @@ egolib_rv export_all_players( bool require_local )
         }
 
         // Export the left hand item
-        item = ObjectRef(pchr->holdingwhich[SLOT_LEFT]);
+        item = pchr->holdingwhich[SLOT_LEFT];
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
             export_chr_rv = export_one_character( item, character, SLOT_LEFT, is_local );
@@ -294,7 +294,7 @@ egolib_rv export_all_players( bool require_local )
         }
 
         // Export the right hand item
-        item = ObjectRef(pchr->holdingwhich[SLOT_RIGHT]);
+        item = pchr->holdingwhich[SLOT_RIGHT];
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
             export_chr_rv = export_one_character( item, character, SLOT_RIGHT, is_local );

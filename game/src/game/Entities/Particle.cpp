@@ -361,7 +361,7 @@ void Particle::updateWater()
         if (isAttached() && owner_ref == _attachedTo)
         {
             // Disaffirm the whole character
-            disaffirm_attached_particles(ObjectRef(_attachedTo));
+            disaffirm_attached_particles(_attachedTo);
         }
         else
         {
@@ -797,7 +797,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     ObjectRef loc_chr_origin = spawnOrigin;
     if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin])
     {
-        loc_chr_origin = ObjectRef(prt_get_iowner(spawnParticleOrigin, 0));
+        loc_chr_origin = prt_get_iowner(spawnParticleOrigin, 0);
     }
     owner_ref = loc_chr_origin;
 
@@ -814,7 +814,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     }
 
     // Set character attachments ( ObjectRef::Invalid means none )
-    _attachedTo = ObjectRef(spawnAttach);
+    _attachedTo = spawnAttach;
     attachedto_vrt_off = vrt_offset;
 
     // Correct loc_facing
@@ -828,7 +828,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     const int velocity = generate_irand_pair(getProfile()->vel_hrz_pair);
 
     //Set target
-    _target = ObjectRef(spawnTarget);
+    _target = spawnTarget;
     if (getProfile()->newtargetonspawn)
     {
         if (getProfile()->targetcaster)
@@ -848,7 +848,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
 
             // Find a target
             FACING_T targetAngle;
-            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, ObjectRef(spawnTarget), &targetAngle);
+            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
             const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
 
             if (target && !getProfile()->homing)

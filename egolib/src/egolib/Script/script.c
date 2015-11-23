@@ -1232,13 +1232,13 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFATTACHED:
                 varname = "SELFATTACHED";
-				iTmp = number_of_attached_particles(ObjectRef(aiState.getSelf()));
+				iTmp = number_of_attached_particles(aiState.getSelf());
                 break;
 
             case VARSWINGTURN:
                 varname = "SWINGTURN";
                 {
-					auto camera = CameraSystem::get()->getCamera(ObjectRef(aiState.getSelf()));
+					auto camera = CameraSystem::get()->getCamera(aiState.getSelf());
                     iTmp = nullptr != camera ? camera->getSwing() << 2 : 0;
                 }
                 break;

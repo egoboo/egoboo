@@ -403,7 +403,7 @@ ObjectRef chr_get_lowest_attachment( ObjectRef ichr, bool non_item )
 		}
 
 		// grab the next object in the list
-		ObjectRef object_next = ObjectRef(_currentModule->getObjectHandler().get(object)->attachedto);
+		ObjectRef object_next = _currentModule->getObjectHandler().get(object)->attachedto;
 
 		// check for an end of the list
 		if (!_currentModule->getObjectHandler().exists(object_next))

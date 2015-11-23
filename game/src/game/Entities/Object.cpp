@@ -625,12 +625,12 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         }
     
         //Do not alert items damaging (or healing) their holders, healing potions for example
-        if ( attacker->attachedto == ObjectRef(ai.getSelf()) ) return;
+        if ( attacker->attachedto == ai.getSelf() ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
         if ( attacker->isBeingHeld() && !_currentModule->getObjectHandler().get(attacker->attachedto)->isMount() )
         {
-            actual_attacker = ObjectRef(attacker->attachedto);
+            actual_attacker = attacker->attachedto;
         }
 
         //If the attacker is a mount, try to blame the rider
@@ -2401,7 +2401,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     // Must set the wepon grip AFTER the model is changed in chr_instance_t::spawn()
     if (isBeingHeld())
     {
-        set_weapongrip(getObjRef(), ObjectRef(attachedto), slot_to_grip_offset(inwhich_slot) );
+        set_weapongrip(getObjRef(), attachedto, slot_to_grip_offset(inwhich_slot) );
     }
 
     if (leftItem)

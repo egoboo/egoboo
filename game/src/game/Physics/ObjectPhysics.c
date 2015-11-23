@@ -1317,7 +1317,7 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
             if ( can_grab )
             {
                 // Stick 'em together and quit
-                if ( rv_success == attach_character_to_mount(grabData.object->getObjRef(), ObjectRef(ichr_a), grip_off) )
+                if ( rv_success == attach_character_to_mount(grabData.object->getObjRef(), ichr_a, grip_off) )
                 {
                     if (grab_people)
                     {
