@@ -32,7 +32,7 @@ namespace AI {
 template
 <
     typename ObjectType, typename Equal = std::equal_to<ObjectType>, typename Hash = std::hash<ObjectType>,
-    typename Enabled = std::enable_if
+    typename Enabled = typename std::enable_if
                              <
                                std::is_default_constructible<ObjectType>::value
                             && std::is_copy_constructible<ObjectType>::value
