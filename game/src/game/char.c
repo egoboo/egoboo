@@ -356,7 +356,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
 }
 
 //--------------------------------------------------------------------------------------------
-const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
+const oglx_texture_t* chr_get_txtexture_icon_ref( const ObjectRef item )
 {
     /// @author BB
     /// @details Get the index to the icon texture (in TxList) that is supposed to be used with this object.

@@ -26,7 +26,7 @@ void InventorySlot::draw()
 
 
     if(item) {
-        icon_ref = chr_get_txtexture_icon_ref(item->getObjRef().get());
+        icon_ref = chr_get_txtexture_icon_ref(item->getObjRef());
     }
     else {
         icon_ref = TextureManager::get().getTexture("mp_data/nullicon").get();

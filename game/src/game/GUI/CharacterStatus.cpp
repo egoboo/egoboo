@@ -46,7 +46,7 @@ void CharacterStatus::draw_one_character_icon(const CHR_REF item, float x, float
 	Object * pitem = !_currentModule->getObjectHandler().exists(item) ? NULL : _currentModule->getObjectHandler().get(item);
 
 	// grab the icon reference
-	const oglx_texture_t* icon_ref = chr_get_txtexture_icon_ref(item);
+	const oglx_texture_t* icon_ref = chr_get_txtexture_icon_ref(ObjectRef(item));
 
 	// draw the icon
 	if (draw_sparkle == NOSPARKLE) draw_sparkle = (NULL == pitem) ? NOSPARKLE : pitem->sparkle;

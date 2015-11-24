@@ -128,7 +128,7 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
-const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item );
+const oglx_texture_t* chr_get_txtexture_icon_ref( const ObjectRef item );
 
 void character_swipe( ObjectRef cnt, slot_t slot );
 

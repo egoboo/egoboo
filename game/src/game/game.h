@@ -361,9 +361,9 @@ struct status_list_t
 	struct element_t
 	{
 		int camera_index;
-		CHR_REF who;
+		ObjectRef who;
 		element_t()
-			: camera_index(-1), who(INVALID_CHR_REF) {
+			: camera_index(-1), who(ObjectRef::Invalid) {
 		}
 	};
     bool on;
