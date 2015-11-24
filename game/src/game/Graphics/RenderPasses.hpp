@@ -177,9 +177,9 @@ private:
 	/// A vertex buffer used by this render pass.
 	VertexBuffer _vertexBuffer;
 	// Used if low-quality shadows are enabled.
-	void doLowQualityShadow(const CHR_REF character);
+	void doLowQualityShadow(const ObjectRef character);
 	// Used if high-quality shadows are enabled.
-	void doHighQualityShadow(const CHR_REF character);
+	void doHighQualityShadow(const ObjectRef character);
 	// Used by all shadow qualities.
 	void doShadowSprite(float intensity, VertexBuffer& vertexBuffer);
 };

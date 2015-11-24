@@ -541,8 +541,8 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 	if (gfx.shadows_highQuality_enable) {
 		// Render high-quality shadows.
 		for (size_t i = 0; i < el.getSize(); ++i) {
-			CHR_REF ichr = el.get(i).ichr;
-			if (INVALID_CHR_REF == ichr) continue;
+			ObjectRef ichr = ObjectRef(el.get(i).ichr);
+			if (ObjectRef::Invalid == ichr) continue;
 			if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
 			doHighQualityShadow(ichr);
 			count++;
@@ -550,8 +550,8 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 	} else {
 		// Render low-quality shadows.
 		for (size_t i = 0; i < el.getSize(); ++i) {
-			CHR_REF ichr = el.get(i).ichr;
-			if (INVALID_CHR_REF == ichr) continue;
+            ObjectRef ichr = ObjectRef(el.get(i).ichr);
+			if (ObjectRef::Invalid == ichr) continue;
 			if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
 			doLowQualityShadow(ichr);
 			count++;
@@ -559,7 +559,7 @@ void EntityShadows::doRun(::Camera& camera, const TileList& tl, const EntityList
 	}
 }
 
-void EntityShadows::doLowQualityShadow(const CHR_REF character) {
+void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	if(pchr->isBeingHeld()) return;
 
@@ -643,7 +643,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	doShadowSprite(alpha, _vertexBuffer);
 }
 
-void EntityShadows::doHighQualityShadow(const CHR_REF character) {
+void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 
 	Object *pchr = _currentModule->getObjectHandler().get(character);
 	if(pchr->isBeingHeld()) return;
