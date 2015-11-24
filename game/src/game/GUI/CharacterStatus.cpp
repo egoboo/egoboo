@@ -36,7 +36,7 @@ CharacterStatus::CharacterStatus(const std::shared_ptr<Object> &object) :
 
 
 
-void CharacterStatus::draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_ammo, Uint8 draw_sparkle)
+void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, float y, bool draw_ammo, Uint8 draw_sparkle)
 {
 	/// @author BB
 	/// @details Draw an icon for the given item at the position <x,y>.
@@ -333,7 +333,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 	return y + height;
 }
 
-float CharacterStatus::draw_character_xp_bar(const CHR_REF character, float x, float y)
+float CharacterStatus::draw_character_xp_bar(const ObjectRef character, float x, float y)
 {
 	Object * pchr;
 
@@ -389,19 +389,19 @@ void CharacterStatus::draw()
     }
 
     // draw the character's main icon
-    draw_one_character_icon(pchr->getObjRef().get(), getX() + 40, yOffset, false, levelUp ? COLOR_YELLOW : NOSPARKLE);
+    draw_one_character_icon(pchr->getObjRef(), getX() + 40, yOffset, false, levelUp ? COLOR_YELLOW : NOSPARKLE);
 
     // draw the left hand item icon
-    draw_one_character_icon(pchr->holdingwhich[SLOT_LEFT].get(), getX() + 8, yOffset, true, NOSPARKLE);
+    draw_one_character_icon(pchr->holdingwhich[SLOT_LEFT], getX() + 8, yOffset, true, NOSPARKLE);
 
     // draw the right hand item icon
-    draw_one_character_icon(pchr->holdingwhich[SLOT_RIGHT].get(), getX() + 72, yOffset, true, NOSPARKLE);
+    draw_one_character_icon(pchr->holdingwhich[SLOT_RIGHT], getX() + 72, yOffset, true, NOSPARKLE);
 
     // skip to the next row
     yOffset += 32;
 
     //Draw the small XP progress bar
-    yOffset = draw_character_xp_bar(pchr->getObjRef().get(), getX() + 16, yOffset);
+    yOffset = draw_character_xp_bar(pchr->getObjRef(), getX() + 16, yOffset);
 
     // Draw the life bar
     if (pchr->isAlive())
