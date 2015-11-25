@@ -1897,7 +1897,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), 0.0f);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -5339,7 +5339,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", ObjectRef::Invalid );
     if (pchild == nullptr)
     {
 		Log::get().warn("%s:%d: object %s failed to spawn a copy of itself\n", __FILE__, __LINE__, pchr->getName().c_str() );
@@ -5381,7 +5381,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 			float(state.distance)
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), "", INVALID_CHR_REF);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), "", ObjectRef::Invalid);
 
     if ( !pchild )
     {
@@ -7373,7 +7373,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
 
     if ( !returncode )

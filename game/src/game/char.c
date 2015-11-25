@@ -110,7 +110,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);
         if (pthrown)
         {
             pthrown->iskursed = false;

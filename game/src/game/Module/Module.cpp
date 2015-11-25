@@ -239,7 +239,7 @@ bool GameModule::isInside(const float x, const float y) const
 }
 
 std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
-                                                const FACING_T facing, const std::string &name, const CHR_REF override)
+                                                const FACING_T facing, const std::string &name, const ObjectRef override)
 {
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(profile);
     if (!ppro)

@@ -1913,7 +1913,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname == nullptr ? "" : psp_info->pname, INVALID_CHR_REF);
+    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname == nullptr ? "" : psp_info->pname, ObjectRef::Invalid);
     if (!pobject) return false;
 
     // determine the attachment
