@@ -455,7 +455,7 @@ void  free_all_objects();
 /// Data
 int    game_do_menu( struct menu_process_t * mproc );
 
-void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
+void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );

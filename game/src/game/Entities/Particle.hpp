@@ -190,7 +190,7 @@ public:
 
     /**
     * @return
-    *   get the ID of the Object that this Particle is currently attached to (or INVALID_CHR_REF if not attached)
+    *   get the ID of the Object that this Particle is currently attached to (or ObjectRef::Invalid if not attached)
     **/
     ObjectRef getAttachedObjectID() const {return _attachedTo;}
 

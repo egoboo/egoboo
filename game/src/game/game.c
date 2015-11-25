@@ -269,7 +269,7 @@ egolib_rv export_all_players( bool require_local )
 
         // Is it alive?
         if ( !_currentModule->getObjectHandler().exists( ppla->index ) ) continue;
-        character = ObjectRef(ppla->index);
+        character = ppla->index;
         pchr      = _currentModule->getObjectHandler().get( character );
 
         // don't export dead characters
@@ -442,7 +442,7 @@ int update_game()
     int numalive = 0;
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF ichr;
+        ObjectRef ichr;
         Object * pchr;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
@@ -451,7 +451,7 @@ int update_game()
         ichr = PlaStack.lst[ipla].index;
         if ( !_currentModule->getObjectHandler().exists( ichr ) )
         {
-            PlaStack.lst[ipla].index = INVALID_CHR_REF;
+            PlaStack.lst[ipla].index = ObjectRef::Invalid;
             PlaStack.lst[ipla].valid = false;
             continue;
         }
@@ -510,7 +510,7 @@ int update_game()
     {
         if ( !PlaStack.lst[ipla].valid ) continue;
 
-        CHR_REF ichr = PlaStack.lst[ipla].index;
+        ObjectRef ichr = PlaStack.lst[ipla].index;
         if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
         Object *pchr = _currentModule->getObjectHandler().get( ichr );
 
@@ -1022,7 +1022,7 @@ void do_weather_spawn_particles()
         // Did we find one?
         if ( foundone )
         {
-            CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
+            ObjectRef ichr = PlaStack.lst[weather.iplayer].index;
             if ( _currentModule->getObjectHandler().exists( ichr ) && !_currentModule->getObjectHandler().exists( _currentModule->getObjectHandler().get(ichr)->inwhich_inventory ) )
             {
                 const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[weather.iplayer].index];
@@ -1065,7 +1065,7 @@ void set_one_player_latch( const PLA_REF ipla )
     if ( !input_device_is_enabled( pdevice ) ) return;
 
     // find the camera that is pointing at this character
-    auto pcam = CameraSystem::get()->getCamera(ObjectRef(ppla->index));
+    auto pcam = CameraSystem::get()->getCamera(ppla->index);
     if (!pcam) return;
 
     // fast camera turn if it is enabled and there is only 1 local player
@@ -1232,7 +1232,7 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) || input_device_control_active(pdevice, CONTROL_LEFT_GET) )
             {
                 //put it away and swap with any existing item
-                Inventory::swap_item(ObjectRef(ppla->index), ppla->inventory_slot, SLOT_LEFT, false );
+                Inventory::swap_item(ppla->index, ppla->inventory_slot, SLOT_LEFT, false );
 
                 // Make it take a little time
                 chr_play_action( pchr, ACTION_MG, false );
@@ -1243,7 +1243,7 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE) || input_device_control_active( pdevice, CONTROL_RIGHT_GET) )
             {
                 // put it away and swap with any existing item
-                Inventory::swap_item(ObjectRef(ppla->index), ppla->inventory_slot, SLOT_RIGHT, false);
+                Inventory::swap_item(ppla->index, ppla->inventory_slot, SLOT_RIGHT, false);
 
                 // Make it take a little time
                 chr_play_action( pchr, ACTION_MG, false );
@@ -1476,7 +1476,7 @@ void show_stat( int statindex )
     /// @author ZZ
     /// @details This function shows the more specific stats for a character
 
-    CHR_REF character;
+    ObjectRef character;
     int     level;
     char    gender[8] = EMPTY_CSTR;
 
@@ -1798,7 +1798,7 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        Inventory::add_item(ObjectRef(pinfo->parent), pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true );
+        Inventory::add_item(pinfo->parent, pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true );
 
         //If the character got merged into a stack, then it will be marked as terminated
         if(pchr->isTerminated()) {
@@ -1813,7 +1813,7 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
         // Wielded character
         grip_offset_t grip_off = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
 
-		if (rv_success == attach_character_to_mount(pchr->getObjRef(), ObjectRef(pinfo->parent), grip_off))
+		if (rv_success == attach_character_to_mount(pchr->getObjRef(), pinfo->parent, grip_off))
 		{
 			// Handle the "grabbed" messages
 			//scr_run_chr_script(pchr);
@@ -1920,7 +1920,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     if (psp_info->attach == ATTACH_NONE)
     {
         // Free character
-        psp_info->parent = pobject->getObjRef().get();
+        psp_info->parent = pobject->getObjRef();
         make_one_character_matrix( pobject->getObjRef() );
     }
 
@@ -2005,7 +2005,7 @@ void activate_spawn_file_vfs()
 		throw std::runtime_error(os.str());
     }
     {
-        CHR_REF parent = INVALID_CHR_REF;
+        ObjectRef parent = ObjectRef::Invalid;
 
         // First load spawn data of every object.
         ctxt.next(); /// @todo Remove this hack.
@@ -2087,7 +2087,7 @@ void activate_spawn_file_vfs()
         for(spawn_file_info_t &spawnInfo : objectsToSpawn)
         {
             //Do we have a parent?
-            if ( spawnInfo.attach != ATTACH_NONE && parent != INVALID_CHR_REF ) {
+            if ( spawnInfo.attach != ATTACH_NONE && parent != ObjectRef::Invalid ) {
                 spawnInfo.parent = parent;
             }
 
@@ -2389,7 +2389,7 @@ bool add_player( ObjectRef objRef, const PLA_REF playerRef, input_device_t *pdev
     //---- skeleton for using a ConfigFile to save quests
     // ppla->quest_file = quest_file_open( chr_get_dir_name(character).c_str() );
 
-    player->index     = objRef.get();
+    player->index     = objRef;
 	player->valid     = true;
 	player->pdevice   = pdevice;
 
@@ -2500,7 +2500,7 @@ void reset_end_text()
 }
 
 //--------------------------------------------------------------------------------------------
-void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
+void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
 {
     int    cnt;
     STRING szTmp;
@@ -3640,7 +3640,7 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		if (!VALID_PLA(player_idx)) continue;
 		player_t *player_ptr = PlaStack.get_ptr(player_idx);
 
-		CHR_REF ichr = player_ptr->index;
+		ObjectRef ichr = player_ptr->index;
 		if (!_currentModule->getObjectHandler().exists(ichr)) continue;
 		Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
@@ -3857,7 +3857,7 @@ bool export_one_character_quest_vfs( const char *szSaveName, ObjectRef character
     /// @details This function makes the naming.txt file for the character
 
     if (!_currentModule->getObjectHandler().exists(character)) return false;
-    player_t *ppla = chr_get_ppla(character.get());
+    player_t *ppla = chr_get_ppla(character);
     if (!ppla) return false;
 
 	egolib_rv rv = quest_log_upload_vfs( ppla->quest_log, szSaveName );

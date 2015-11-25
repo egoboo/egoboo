@@ -435,7 +435,7 @@ struct script_state_t
 //--------------------------------------------------------------------------------------------
 
 void scr_run_chr_script(Object *pchr);
-void scr_run_chr_script(const CHR_REF character);
+void scr_run_chr_script(const ObjectRef character);
 
 void issue_order( const ObjectRef character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );

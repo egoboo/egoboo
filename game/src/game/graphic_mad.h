@@ -107,7 +107,7 @@ struct matrix_cache_t
 
     //---- MAT_WEAPON data
 
-    ObjectRef grip_chr;                   ///< != INVALID_CHR_REF if character is a held weapon
+    ObjectRef grip_chr;                   ///< != ObjectRef::Invalid if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     std::array<uint16_t, GRIP_VERTS> grip_verts;     ///< Vertices which describe the weapon grip
     Vector3f grip_scale;
@@ -277,7 +277,7 @@ public:
 
 	static gfx_rv spawn(chr_instance_t& self, const PRO_REF profile, const int skin);
 
-	static gfx_rv increment_frame(chr_instance_t& self, const CHR_REF imount, const int mount_action);
+	static gfx_rv increment_frame(chr_instance_t& self, const ObjectRef imount, const int mount_action);
 	static void remove_interpolation(chr_instance_t& self);
 	static gfx_rv set_frame_full(chr_instance_t& self, int frame_along, int ilip, const std::shared_ptr<Ego::ModelDescriptor> &mad_override);
 

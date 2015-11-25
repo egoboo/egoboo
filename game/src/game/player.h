@@ -38,9 +38,9 @@ struct player_t;
 /// The state of a player
 struct player_t
 {
-    bool                  valid;                    ///< Player used?
-    CHR_REF                 index;                    ///< Which character?
-    bool                    _unspentLevelUp;        ///< Has gained new experience level?
+    bool                  valid;                  ///< Player used?
+    ObjectRef             index;                  ///< Which character?
+    bool                  _unspentLevelUp;        ///< Has gained new experience level?
 
     //Charge bar
     uint32_t _currentCharge;
@@ -90,11 +90,11 @@ inline bool VALID_PLA(const PLA_REF iplayer)
 #define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaStack.count)|| !PlaStack.lst[IPLA].valid )
 
 void PlaStack_reset_all();
-CHR_REF PlaStack_get_ichr( const PLA_REF iplayer );
+ObjectRef PlaStack_get_ichr( const PLA_REF iplayer );
 Object *PlaStack_get_pchr( const PLA_REF iplayer );
 void PlaStack_add_tlatch( const PLA_REF iplayer, uint32_t time, latch_t net_latch );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-player_t*      chr_get_ppla( const CHR_REF ichr );
+player_t*      chr_get_ppla( const ObjectRef ichr );

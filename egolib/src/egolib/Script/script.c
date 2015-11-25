@@ -658,7 +658,7 @@ void scr_run_chr_script(Object *pchr) {
 	// Clear alerts for next time around
 	RESET_BIT_FIELD(aiState.alert);
 }
-void scr_run_chr_script( const CHR_REF character )
+void scr_run_chr_script( const ObjectRef character )
 {
     /// @author ZZ
     /// @details This function lets one character do AI stuff
@@ -1800,7 +1800,7 @@ bool ai_state_t::set_bumplast(ai_state_t& self, const ObjectRef ichr)
 		self.bumplast_time = update_wld;
 		SET_BIT(self.alert, ALERTIF_BUMPED);
     }
-	self.setBumped(ObjectRef(ichr));
+	self.setBumped(ichr);
 
     return true;
 }
@@ -1814,20 +1814,20 @@ void ai_state_t::spawn(ai_state_t& self, const ObjectRef index, const PRO_REF io
 		return;
 	}
 
-	self.setSelf(ObjectRef(index));
-    self.setTarget(ObjectRef(index));
-    self.setOldTarget(ObjectRef(index));
-    self.setBumped(ObjectRef(index));
+	self.setSelf(index);
+    self.setTarget(index);
+    self.setOldTarget(index);
+    self.setBumped(index);
 	self.alert = ALERTIF_SPAWNED;
 	self.state = pchr->getProfile()->getStateOverride();
 	self.content = pchr->getProfile()->getContentOverride();
 	self.passage = 0;
-	self.owner = ObjectRef(index);
-	self.child = ObjectRef(index);
+	self.owner = index;
+	self.child = index;
 
     self.maxSpeed = 1.0f;
 
-	self.hitlast = ObjectRef(index);
+	self.hitlast = index;
 
 	self.order_counter = rank;
 	self.order_value = 0;

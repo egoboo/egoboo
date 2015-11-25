@@ -48,34 +48,21 @@ struct EntityList
      */
     struct element_t
     {
-        element_t(CHR_REF chr, PRT_REF prt) :
-            ichr(chr), 
-            iprt(prt), 
-            dist(0.0f)
-        {
-            //ctor
-        }
+        element_t(const element_t& other)
+            : iobj(other.iobj), iprt(other.iprt), dist(other.dist)
+        { }
+        element_t(ObjectRef iobj, PRT_REF iprt)
+            : iobj(iobj), iprt(iprt), dist(0.0f)
+        { }
 
-        CHR_REF ichr;
+        ObjectRef iobj;
         PRT_REF iprt;
         float dist;
-        
-#if XX == 1
-        element_t(const element_t& other) :
-            ichr(other.ichr), iprt(other.iprt), dist(other.dist)
-        {}
-        element_t& operator=(const element_t& other)
-        {
-            ichr = other.ichr;
-            iprt = other.iprt;
-            dist = other.dist;
-            return *this;
+    };
+    struct Compare {
+        bool operator()(const element_t& x, const element_t& y) const {
+            return x.dist < y.dist;
         }
-        virtual ~element_t()
-        {}
-#endif
-
-        static int cmp(const void *left, const void *right);
     };
 protected:
 
@@ -87,11 +74,7 @@ protected:
 
 public:
     EntityList();
-#if XX == 1
-    virtual ~EntityList()
-    {}
-#endif
-    EntityList *init();
+    void init();
     
     const element_t& get(size_t index) const
     {

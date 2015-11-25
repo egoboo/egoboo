@@ -227,7 +227,7 @@ bool link_push_module()
     pentry->hero_count = 0;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF ichr;
+        ObjectRef ichr;
         Object * pchr;
 
         hero_spawn_data_t * phero;

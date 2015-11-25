@@ -59,10 +59,10 @@ struct line_of_sight_info_t
     float x1, y1, z1;
     Uint32 stopped_by;
 
-    CHR_REF collide_chr;
-    Uint32  collide_fx;
-    int     collide_x;
-    int     collide_y;
+    ObjectRef collide_chr;
+    Uint32    collide_fx;
+    int       collide_x;
+    int       collide_y;
 
 	static bool blocked(line_of_sight_info_t * plos);
 	static bool with_mesh(line_of_sight_info_t * plos);

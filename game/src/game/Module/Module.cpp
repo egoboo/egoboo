@@ -124,7 +124,7 @@ void GameModule::checkPassageMusic()
     // Look at each player
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
     {
-        CHR_REF character = PlaStack.lst[ipla].index;
+        ObjectRef character = PlaStack.lst[ipla].index;
         if (!_currentModule->getObjectHandler().exists(character)) continue;
 
         Object *pchr = _currentModule->getObjectHandler().get(character);
@@ -268,7 +268,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->spawn_data.skin     = skin;
     pchr->spawn_data.facing   = facing;
     strncpy( pchr->spawn_data.name, name.c_str(), SDL_arraysize( pchr->spawn_data.name ) );
-    pchr->spawn_data.override = ObjectRef(override);
+    pchr->spawn_data.override = override;
 
     // download all the values from the character spawn_ptr->profile
     // Set up model stuff

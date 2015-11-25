@@ -118,14 +118,12 @@ public:
 	 * @brief Get if the specified object exists and is not terminated yet.
 	 * @return true if the specified object exists and is not terminated yet
 	 */
-	bool exists(const CHR_REF ref) const { return exists(ObjectRef(ref)); } ///< @todo Remove this.
 	bool exists(ObjectRef ref) const;
 
 	/**
 	 * @brief Allocates and creates new Object object. A valid PRO_REF is required to spawn a object.
 	 * @return the std::shared_ptr<Object> for that object or nullptr if it failed
 	 */
-	std::shared_ptr<Object> insert(const PRO_REF profileRef, const CHR_REF overrideRef = INVALID_CHR_REF) { return insert(profileRef, ObjectRef(overrideRef)); } ///< @todo Remove this.
 	std::shared_ptr<Object> insert(const PRO_REF profileRef, ObjectRef overrideRef = ObjectRef::Invalid);
 
 	/**
@@ -133,7 +131,6 @@ public:
 	 * @return a pointer object for the specified object reference.
 	 *		   Return nullptr object if the object reference was not found.
 	 */
-	const std::shared_ptr<Object>& operator[] (const CHR_REF ref) { return (*this)[ObjectRef(ref)]; }
 	const std::shared_ptr<Object>& operator[] (ObjectRef ref);
 
 	/**
@@ -151,7 +148,6 @@ public:
 	 * @brief Return a raw pointer to the object referenced by the object reference
 	 * @return a raw pointer referenced by the object reference
 	 */
-	Object *get(const CHR_REF ref) const { return get(ObjectRef(ref)); } ///< @todo Remove this.
 	Object *get(ObjectRef ref) const;
 
 

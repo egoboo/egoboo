@@ -46,7 +46,7 @@ spawn_file_info_t::spawn_file_info_t() :
     team(Team::TEAM_NULL),
     facing(FACE_NORTH),
     attach(ATTACH_NONE),
-    parent(INVALID_CHR_REF)   
+    parent()   
 {
     //ctor
 }
@@ -59,7 +59,7 @@ void spawn_file_info_t::init(spawn_file_info_t& self)
 void spawn_file_info_t::reinit(spawn_file_info_t& self)
 {
     // Save the parent.
-    CHR_REF parent = self.parent;
+    ObjectRef parent = self.parent;
     // Reset the data.
     init(self);
     // Restore the parent.

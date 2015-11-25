@@ -62,7 +62,7 @@ public:
      *  the search criteria
      * @return
      *  the character reference of the first item in the pack matching the search criterion,
-     *  #INVALID_CHR_REF if no item in the pack matches the search criterion
+     *  ObjectRef::Invalid if no item in the pack matches the search criterion
      * @remark
      *  This function searches the characters pack for an item matching the search criterion.
      *  An item matches the search criterion if it has the specified IDSZ. If @a equipped is
@@ -79,7 +79,7 @@ public:
      *  the search criteria
      * @return
      *  the character reference of the first item in the pack matching the search criterion,
-     *  #INVALID_CHR_REF if no item in the pack matches the search criterion
+     *  ObjectRef::Invalid if no item in the pack matches the search criterion
      * @remark
      *  This function searches the characters pack for an item matching the search criterion.
      *  An item matches the search criterion if it has the specified IDSZ. If @a equipped is
@@ -151,7 +151,7 @@ private:
     * @author ZZ
     * @details This function looks in the character's pack for an item similar
     *    to the one given.  If it finds one, it returns the similar item's
-    *    index number, otherwise it returns INVALID_CHR_REF.
+    *    index number, otherwise it returns ObjectRef::Invalid.
 	**/
 	static ObjectRef hasStack(const ObjectRef item, const ObjectRef character);
 

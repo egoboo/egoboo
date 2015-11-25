@@ -61,7 +61,7 @@ public:
     REF_T      team;
     FACING_T   facing;
     REF_T      attach;
-    CHR_REF    parent;
+    ObjectRef  parent;
 	/**
 	* @brief
 	*  Assign safe values to all fields.

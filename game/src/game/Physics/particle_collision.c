@@ -87,7 +87,7 @@ static bool do_chr_prt_collision_bump(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_handle_bump(chr_prt_collision_data_t * pdata);
 
 chr_prt_collision_data_t::chr_prt_collision_data_t() :
-    ichr(INVALID_CHR_REF),
+    ichr(),
     pchr(nullptr),
 
     iprt(INVALID_PRT_REF),
@@ -122,7 +122,7 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
+static bool do_chr_prt_collision_init( const ObjectRef ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( chr_prt_collision_data_t * pdata, const float tmin, const float tmax );
 
 static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
@@ -241,7 +241,7 @@ void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
+bool do_prt_platform_detection( const ObjectRef ichr_a, const PRT_REF iprt_b )
 {
     Object * pchr_a;
 
@@ -310,7 +310,7 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
         if ( pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] > pprt_b->targetplatform_level )
         {
             pprt_b->targetplatform_level = pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z];
-            pprt_b->targetplatform_ref   = ObjectRef(ichr_a);
+            pprt_b->targetplatform_ref   = ichr_a;
 
             attach_prt_to_platform(pprt_b.get(), pchr_a);
             return true;
@@ -980,7 +980,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata )
+bool do_chr_prt_collision_init( const ObjectRef ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata )
 {
     if ( NULL == pdata ) return false;
 
@@ -992,7 +992,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
 
     // make sure that it is on
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
-    pdata->ichr = ObjectRef(ichr);
+    pdata->ichr = ichr;
     pdata->pchr = _currentModule->getObjectHandler().get( ichr );
 
     pdata->ppip = pdata->pprt->getProfile();
@@ -1138,7 +1138,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
 
     chr_prt_collision_data_t cn_data;
 
-    bool intialized = do_chr_prt_collision_init(object->getObjRef().get(), particle->getParticleID(), &cn_data );
+    bool intialized = do_chr_prt_collision_init(object->getObjRef(), particle->getParticleID(), &cn_data );
     if ( !intialized ) return false;
 
     // ignore dead characters
@@ -1212,7 +1212,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
             // This prevents items in shops from being burned
             if ( !cn_data.pchr->isshopitem )
             {
-                if ( 0 != reaffirm_attached_particles( ObjectRef(cn_data.ichr) ) )
+                if ( 0 != reaffirm_attached_particles( cn_data.ichr ) )
                 {
                     retval = true;
                 }

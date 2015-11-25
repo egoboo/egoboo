@@ -7174,7 +7174,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
     returncode = false;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF ichr;
+        ObjectRef ichr;
         player_t * ppla = PlaStack.get_ptr( ipla );
 
         if ( !ppla->valid ) continue;
@@ -7388,11 +7388,11 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( Inventory::add_item( ObjectRef(self.getTarget()), pchild->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
+            if ( Inventory::add_item( self.getTarget(), pchild->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = self.getTarget();  // Make grab work
-                scr_run_chr_script( pchild->getObjRef().get() );  // Empty the grabbed messages
+                scr_run_chr_script( pchild->getObjRef() );  // Empty the grabbed messages
 
                 pchild->attachedto = ObjectRef::Invalid;  // Fix grab
 
@@ -7418,7 +7418,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
                 if ( rv_success == attach_character_to_mount( pchild->getObjRef(), self.getTarget(), grip_off ) )
                 {
                     // Handle the "grabbed" messages
-                    scr_run_chr_script( pchild->getObjRef().get() );
+                    scr_run_chr_script( pchild->getObjRef() );
                 }
 
                 //Set some AI values

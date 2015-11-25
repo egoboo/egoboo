@@ -569,7 +569,7 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
     char buffer[256];
     strncpy(buffer, pchr->getProfile()->getMessage(message_index).c_str(), 256);
 
-    expand_escape_codes(objRef.get(), pstate, buffer, buffer + length, dst, dst_end);
+    expand_escape_codes(objRef, pstate, buffer, buffer + length, dst, dst_end);
     endtext_carat = strlen( endtext );
 
     str_add_linebreaks( endtext, strlen( endtext ), 30 );
@@ -656,7 +656,7 @@ Uint8 _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int 
     char buffer[256];
     strncpy(buffer, ppro->getMessage(message).c_str(), 256);
 
-    expand_escape_codes( ichr.get(), pstate, buffer, buffer+length, dst, dst_end );
+    expand_escape_codes( ichr, pstate, buffer, buffer+length, dst, dst_end );
 
     *dst_end = CSTR_END;
 

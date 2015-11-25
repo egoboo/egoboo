@@ -6,42 +6,13 @@
 namespace Ego {
 namespace Graphics {
 
-int EntityList::element_t::cmp(const void * pleft, const void * pright)
-{
-	element_t * dleft = (element_t *)pleft;
-	element_t * dright = (element_t *)pright;
+EntityList::EntityList()
+    : _lst()
+{ }
 
-	int   rv;
-	float diff;
-
-	diff = dleft->dist - dright->dist;
-
-	if (diff < 0.0f)
-	{
-		rv = -1;
-	}
-	else if (diff > 0.0f)
-	{
-		rv = 1;
-	}
-	else
-	{
-		rv = 0;
-	}
-
-	return rv;
-}
-
-EntityList::EntityList() :
-    _lst()
-{
-    //ctor
-}
-
-EntityList *EntityList::init()
+void EntityList::init()
 {
     reset();
-    return this;
 }
 
 gfx_rv EntityList::reset()
@@ -55,14 +26,14 @@ gfx_rv EntityList::reset()
     for(element_t &element : _lst)
     {
         // Tell all valid objects that they are removed from this dolist.
-        if (INVALID_CHR_REF == element.ichr && element.iprt != INVALID_PRT_REF)
+        if (ObjectRef::Invalid == element.iobj && element.iprt != INVALID_PRT_REF)
         {
             const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element.iprt];
             if (nullptr != pprt) pprt->inst.indolist = false;
         }
-        else if (INVALID_PRT_REF == element.iprt && INVALID_CHR_REF != element.ichr)
+        else if (INVALID_PRT_REF == element.iprt && ObjectRef::Invalid != element.iobj)
         {
-            const std::shared_ptr<Object> &pobj = _currentModule->getObjectHandler()[element.ichr];
+            const std::shared_ptr<Object> &pobj = _currentModule->getObjectHandler()[element.iobj];
             if (nullptr != pobj) pobj->inst.indolist = false;
         }
     }
@@ -105,7 +76,7 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
     }
 
     // Add!
-    _lst.emplace_back(obj.getObjRef().get(), INVALID_PRT_REF);
+    _lst.emplace_back(obj.getObjRef(), INVALID_PRT_REF);
 
     // Notify it that it is in a do list.
     obj.inst.indolist = true;
@@ -153,7 +124,7 @@ gfx_rv EntityList::add_prt_raw(const std::shared_ptr<Ego::Particle>& prt)
     /// @author ZZ
     /// @details This function puts an entity in the list
 
-    _lst.emplace_back(INVALID_CHR_REF, prt->getParticleID());
+    _lst.emplace_back(ObjectRef::Invalid, prt->getParticleID());
     prt->inst.indolist = true;
 
     return gfx_success;
@@ -179,11 +150,11 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
     {
 		Vector3f vtmp;
 
-        if (INVALID_PRT_REF == _lst[i].iprt && INVALID_CHR_REF != _lst[i].ichr)
+        if (INVALID_PRT_REF == _lst[i].iprt && ObjectRef::Invalid != _lst[i].iobj)
         {
 			Vector3f pos_tmp;
 
-            CHR_REF iobj = _lst[i].ichr;
+            ObjectRef iobj = _lst[i].iobj;
 
             if (do_reflect)
             {
@@ -196,7 +167,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
 
             vtmp = pos_tmp - cam.getPosition();
         }
-        else if (INVALID_CHR_REF == _lst[i].ichr && _lst[i].iprt != INVALID_PRT_REF)
+        else if (ObjectRef::Invalid == _lst[i].iobj && _lst[i].iprt != INVALID_PRT_REF)
         {
             PRT_REF iprt = _lst[i].iprt;
 
@@ -217,7 +188,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
         float dist = vtmp.dot(vcam);
         if (dist > 0)
         {
-            _lst[count].ichr = _lst[i].ichr;
+            _lst[count].iobj = _lst[i].iobj;
             _lst[count].iprt = _lst[i].iprt;
             _lst[count].dist = dist;
             count++;
@@ -227,7 +198,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
     // use qsort to sort the list in-place
     if (count > 1)
     {
-        qsort(_lst.data(), _lst.size(), sizeof(element_t), element_t::cmp);
+        std::sort(_lst.begin(), _lst.end(), Compare());
     }
 
     return gfx_success;
