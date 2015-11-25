@@ -184,19 +184,11 @@ void move_one_character_get_environment( Object * pchr )
             // friction in the z direction will make the bouncing stop
             enviro.fluid_friction_vrt = 1.0f;
         }
-
         enviro.friction_hrz = 1.0f;
     }
     else
     {
-        float temp_friction_xy = Ego::Physics::g_environment.noslipfriction;
-        if (enviro.is_slippy)
-        {
-            // It's slippy all right...
-            temp_friction_xy = Ego::Physics::g_environment.slippyfriction;
-        }
-
-        enviro.friction_hrz = enviro.zlerp * 1.0f + (1.0f - enviro.zlerp) * temp_friction_xy;
+        enviro.friction_hrz = enviro.zlerp * 1.0f + (1.0f - enviro.zlerp) * Ego::Physics::g_environment.noslipfriction;
     }
 
     //---- jump stuff
@@ -370,7 +362,7 @@ bool chr_do_latch_button( Object * pchr )
     {
 
         //Jump from our mount
-        if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
+        if (pchr->isBeingHeld())
         {
             pchr->detatchFromHolder(true, true);
             detach_character_from_platform( pchr );
@@ -397,7 +389,7 @@ bool chr_do_latch_button( Object * pchr )
         //Normal jump
         else if ( 0 != pchr->jumpnumber && !pchr->isFlying() )
         {
-            if ( 1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready )
+            if (1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready)
             {
                 //Exit stealth unless character has Stalker Perk
                 if(!pchr->hasPerk(Ego::Perks::STALKER)) {
@@ -405,20 +397,30 @@ bool chr_do_latch_button( Object * pchr )
                 }
 
                 // Make the character jump
+                float jumpPower = 0.0f;
                 pchr->hitready = true;
-                if ( pchr->enviro.inwater || pchr->enviro.is_slippy )
+                if (pchr->enviro.inwater || pchr->enviro.is_slippy)
                 {
                     pchr->jump_timer = JUMPDELAY * 4;         //To prevent 'bunny jumping' in water
-                    pchr->vel[kZ] += WATERJUMP;
+                    jumpPower = WATERJUMP;
                 }
                 else
                 {
                     pchr->jump_timer = JUMPDELAY;
-                    pchr->vel[kZ] += pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
+                    jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
                 }
 
+                //This makes it hard for characters to jump uphill
+                if(pchr->enviro.is_slippy && !g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
+                    jumpPower *= 0.5f;
+                }
+
+                pchr->vel[kZ] += jumpPower;
                 pchr->jumpready = false;
-                if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE ) pchr->jumpnumber--;
+
+                if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE) { 
+                    pchr->jumpnumber--;
+                }
 
                 // Set to jump animation if not doing anything better
                 if ( pchr->inst.action_ready )
@@ -1180,59 +1182,61 @@ void updateFacing(Object *pchr, const Vector2f &desiredVelocity)
 
 void updateMovement(Object *object)
 {
-    //Can it move?
-    if (!object->isAlive() || object->getAttribute(Ego::Attribute::ACCELERATION) == 0.00f)  {
-        return;
-    }
-
     //Mounted?
     if (object->isBeingHeld()) {
         return;
     }
 
     //Desired velocity in scaled space [-1 , 1]
-    Vector2f desiredVelocity = Vector2f(object->latch.x, object->latch.y);
+    Vector2f targetVelocity = Vector2f(0.0f, 0.0f);
 
-    // Reverse movements for daze
-    if (object->daze_timer > 0) {
-        desiredVelocity[kX] = -desiredVelocity[kX];
-        desiredVelocity[kY] = -desiredVelocity[kY];
+    //Can it move?
+    if (object->isAlive() && object->getAttribute(Ego::Attribute::ACCELERATION) > 0.0f)  {
+        targetVelocity[kX] = object->latch.x;
+        targetVelocity[kY] = object->latch.y;
+
+        // Reverse movements for daze
+        if (object->daze_timer > 0) {
+            targetVelocity[kX] = -targetVelocity[kX];
+            targetVelocity[kY] = -targetVelocity[kY];
+        }
+
+        // Switch x and y for grog
+        if (object->grog_timer > 0) {
+            std::swap(targetVelocity[kX], targetVelocity[kY]);
+        }
     }
 
-    // Switch x and y for grog
-    if (object->grog_timer > 0) {
-        std::swap(desiredVelocity[kX], desiredVelocity[kY]);
-    }
+    //Update which way we are looking
+    updateFacing(object, targetVelocity);
 
     //Is there any movement going on?
-    if(desiredVelocity.length_abs() > 0.05f) {
+    if(targetVelocity.length_abs() > 0.05f) {
         const float maxSpeed = getMaxSpeed(object);
 
-        //Scale [-1 , 1] to desired velocity of the object
-        desiredVelocity *= maxSpeed;
+        //Scale [-1 , 1] to velocity of the object
+        targetVelocity *= maxSpeed;
 
         //Limit to max velocity
-        if(desiredVelocity.length() > maxSpeed) {
-            desiredVelocity *= maxSpeed / desiredVelocity.length();
+        if(targetVelocity.length() > maxSpeed) {
+            targetVelocity *= maxSpeed / targetVelocity.length();
         }
 
         //Determine acceleration/deceleration from motion and friction
         Vector2f acceleration;
-        acceleration[kX] = (desiredVelocity[kX] - object->vel[kX]) * object->enviro.friction_hrz * object->enviro.fluid_friction_hrz;
-        acceleration[kY] = (desiredVelocity[kY] - object->vel[kY]) * object->enviro.friction_hrz * object->enviro.fluid_friction_hrz;
+        acceleration[kX] = (targetVelocity[kX] - object->vel[kX]) * object->enviro.friction_hrz * object->enviro.fluid_friction_hrz;
+        acceleration[kY] = (targetVelocity[kY] - object->vel[kY]) * object->enviro.friction_hrz * object->enviro.fluid_friction_hrz;
 
-        //Make it very hard to walk up hills
-        if(object->enviro.grounded && TWIST_FLAT != object->enviro.grid_twist && object->enviro.is_slippy && !object->isFlying()) {
-            acceleration *= Ego::Physics::g_environment.icefriction * 0.1f;
+        //How good grip do we have to add additional momentum?
+        if (object->enviro.grounded)
+        {
+            acceleration *= object->enviro._traction;
         }
 
         //Finally apply acceleration to velocity
-        object->vel[kX] += acceleration[kX] * (1.0f - object->enviro.zlerp);
-        object->vel[kY] += acceleration[kY] * (1.0f - object->enviro.zlerp);
+        object->vel[kX] += acceleration[kX];
+        object->vel[kY] += acceleration[kY];
     }
-
-    //Update which way we are looking
-    updateFacing(object, desiredVelocity);
 }
 
 void updateFriction(Object *pchr)
@@ -1243,38 +1247,42 @@ void updateFriction(Object *pchr)
     pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
 
     //Only do floor friction if we are touching the ground
-    if(pchr->isFlying() || !pchr->enviro.grounded) {
-        return;
-    }
+    if(!pchr->isFlying() && pchr->enviro.grounded) {
 
-    Vector2f friction;
+        // do platform friction
+        const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
+        if (platform)
+        {
+            pchr->vel[kX] += platform->vel[kX] * pchr->enviro.friction_hrz;
+            pchr->vel[kY] += platform->vel[kY] * pchr->enviro.friction_hrz;
+        }
 
-    // do platform friction
-    const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
-    if (platform)
-    {
-        pchr->vel[kX] += platform->vel[kX] * pchr->enviro.friction_hrz;
-        pchr->vel[kY] += platform->vel[kY] * pchr->enviro.friction_hrz;
-    }
+        //Apply floor friction
+        pchr->vel[kX] *= pchr->enviro.friction_hrz;
+        pchr->vel[kY] *= pchr->enviro.friction_hrz;
 
-    //Apply floor friction
-    pchr->vel[kX] *= pchr->enviro.friction_hrz;
-    pchr->vel[kY] *= pchr->enviro.friction_hrz;
+        //Can the character slide on this floor?
+        if (pchr->enviro.is_slippy)
+        {
+            //Make characters slide down hills
+            if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
+                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - pchr->enviro.zlerp);
+                pchr->vel[kX] += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kX] * hillslide;
+                pchr->vel[kY] += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kY] * hillslide;
 
-    //Can the character slide on this floor?
-    if (pchr->enviro.is_slippy && pchr->phys.weight != CHR_INFINITE_WEIGHT)
-    {
-        //Make characters slide on hills
-        if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
-            Vector3f slideVelocity;
-            slideVelocity[kX] = g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kX] * Ego::Physics::g_environment.hillslide;
-            slideVelocity[kY] = g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kY] * Ego::Physics::g_environment.hillslide;
-            slideVelocity[kZ] = -g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kZ];
+                //Reduce traction while we are sliding downhill
+                pchr->enviro._traction *= 0.8f;
+            }
+            else {
+                //TODO: flat icy floor?
 
-            pchr->vel += slideVelocity * (1.0f - pchr->enviro.zlerp);
+                //Reset traction
+                pchr->enviro._traction = 1.0f;
+            }
         }
         else {
-            //TODO: flat icy floor?
+            //Reset traction
+            pchr->enviro._traction = 1.0f;
         }
     }
 }
