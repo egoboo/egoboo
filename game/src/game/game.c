@@ -2429,7 +2429,7 @@ void let_all_characters_think()
         if (object->isAlive() || is_crushed || is_cleanedup )
         {
             // Figure out alerts that weren't already set
-            set_alerts(object->getObjRef().get());
+            set_alerts(object->getObjRef());
 
             // Cleaned up characters shouldn't be alert to anything else
             if (is_cleanedup) { 

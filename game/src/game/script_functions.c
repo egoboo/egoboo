@@ -1082,7 +1082,7 @@ Uint8 scr_IssueOrder( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_order( self.getSelf().get(), state.argument );
+    issue_order( self.getSelf(), state.argument );
 
     SCRIPT_FUNCTION_END();
 }
