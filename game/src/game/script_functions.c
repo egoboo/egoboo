@@ -502,7 +502,7 @@ Uint8 scr_AddWaypoint( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddWaypoint( self.wp_lst, self.getSelf().get(), state.x, state.y );
+    returncode = AddWaypoint( self.wp_lst, self.getSelf(), state.x, state.y );
 
     if ( returncode )
     {
@@ -1351,7 +1351,7 @@ Uint8 scr_SendMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _display_message( self.getSelf().get(), pchr->getProfileID(), state.argument, &state );
+    returncode = _display_message( self.getSelf(), pchr->getProfileID(), state.argument, &state );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2961,14 +2961,14 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t& state, ai_state_t& self )
 
 	ObjectRef ichr;
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += RestockAmmo( ichr.get(), state.argument );
+    iTmp += RestockAmmo( ichr, state.argument );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    iTmp += RestockAmmo( ichr.get(), state.argument );
+    iTmp += RestockAmmo( ichr, state.argument );
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += RestockAmmo( pitem->getObjRef().get(), state.argument );
+        iTmp += RestockAmmo( pitem->getObjRef(), state.argument );
     }
 
     state.argument = iTmp;
@@ -2994,19 +2994,19 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t& state, ai_state_t& self )
     int iTmp = 0;  // Amount of ammo given
     
     ObjectRef ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += RestockAmmo(ichr.get(), state.argument);
+    iTmp += RestockAmmo(ichr, state.argument);
     
     if (iTmp == 0)
     {
         ichr = pself_target->holdingwhich[SLOT_RIGHT];
-        iTmp += RestockAmmo(ichr.get(), state.argument);
+        iTmp += RestockAmmo(ichr, state.argument);
     }
 
     if (iTmp == 0)
     {
         for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += RestockAmmo( pitem->getObjRef().get(), state.argument );
+            iTmp += RestockAmmo( pitem->getObjRef(), state.argument );
             if ( 0 != iTmp ) break;
         }
     }
@@ -3604,7 +3604,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
 
     if ( min_distance < MSGDISTANCE )
     {
-        returncode = _display_message( self.getSelf().get(), pchr->getProfileID(), state.argument, &state );
+        returncode = _display_message( self.getSelf(), pchr->getProfileID(), state.argument, &state );
     }
 
     SCRIPT_FUNCTION_END();
@@ -8074,12 +8074,12 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t& state, ai_state_t& self 
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    CHR_REF best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), false, true );
+    ObjectRef best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), false, true );
 
     //Did we find anything good?
     if ( _currentModule->getObjectHandler().exists( best_target ) )
     {
-        self.setTarget(ObjectRef(best_target));
+        self.setTarget(best_target);
         returncode = true;
     }
 
