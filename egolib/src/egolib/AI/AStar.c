@@ -30,58 +30,58 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-#define MAX_ASTAR_NODES 512    //Maximum number of nodes to explore
-#define MAX_ASTAR_PATH  128    //Maximum length of the final path (before pruning)
+static constexpr size_t MAX_ASTAR_NODES = 512;   ///< Maximum number of nodes to explore
+static constexpr size_t MAX_ASTAR_PATH = 128;    ///< Maximum length of the final path (before pruning)
 
 //------------------------------------------------------------------------------
 //Local private variables
 static AStar_Node_t node_list[MAX_ASTAR_NODES];
-static int          node_list_length = 0;
+static int node_list_length = 0;
 static AStar_Node_t *final_node = NULL;
 static AStar_Node_t *start_node = NULL;
 
 //------------------------------------------------------------------------------
 //"Private" functions
-static AStar_Node_t* AStar_get_next_node();
-static AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, bool closed );
+static AStar_Node_t *AStar_get_next_node();
+static AStar_Node_t *AStar_add_node(const int x, const int y, AStar_Node_t *parent, float weight, bool closed);
 static void AStar_reset();
 
 //------------------------------------------------------------------------------
-AStar_Node_t* AStar_get_next_node()
+AStar_Node_t *AStar_get_next_node()
 {
     /// @author ZF
     /// @details This function finds and returns the next cheapest open node
 
     int i, best_node = -1;
 
-    for ( i = 0; i < node_list_length; i++ )
+    for (i = 0; i < node_list_length; i++)
     {
-        if ( node_list[i].closed ) continue;
-        if ( best_node == -1 || node_list[i].weight < node_list[best_node].weight ) best_node = i;
+        if (node_list[i].closed) continue;
+        if (best_node == -1 || node_list[i].weight < node_list[best_node].weight) best_node = i;
     }
 
     //return the node if found, NULL otherwise
-    return ( best_node != -1 ) ? &node_list[best_node] : NULL;
+    return (best_node != -1) ? &node_list[best_node] : NULL;
 }
 
 //------------------------------------------------------------------------------
-AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, bool closed )
+AStar_Node_t *AStar_add_node(const int x, const int y, AStar_Node_t *parent, float weight, bool closed)
 {
     /// @author ZF
     /// @details Adds one new node to the end of the node list
 
-    if ( node_list_length >= MAX_ASTAR_NODES ) return NULL;
+    if (node_list_length >= MAX_ASTAR_NODES) return NULL;
 
     //add the node
-    node_list[node_list_length].ix      = x;
-    node_list[node_list_length].iy      = y;
-    node_list[node_list_length].closed  = closed;
-    node_list[node_list_length].weight  = weight;
-    node_list[node_list_length].parent  = parent;
+    node_list[node_list_length].ix = x;
+    node_list[node_list_length].iy = y;
+    node_list[node_list_length].closed = closed;
+    node_list[node_list_length].weight = weight;
+    node_list[node_list_length].parent = parent;
     node_list_length++;
 
     //return the new node
-    return &node_list[node_list_length-1];
+    return &node_list[node_list_length - 1];
 }
 
 //------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ void AStar_reset()
 }
 
 //------------------------------------------------------------------------------
-bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy )
+bool AStar_find_path(std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy)
 {
     /// @author ZF
     /// @details Explores up to MAX_ASTAR_NODES number of nodes to find a path between the source coordinates and destination coordinates.
@@ -105,34 +105,34 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
     int j, k, cnt;
     bool done;
     int deadend_count;
-    AStar_Node_t * popen;
+    AStar_Node_t *popen;
     float weight;
 
-	// do not start if there is no mesh
-	if (!mesh) {
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
-	}
+    // do not start if there is no mesh
+    if (!mesh) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
+    }
     // do not start if the initial point is off the mesh
     if (Index1D::Invalid == mesh->getTileIndex(Index2D(src_ix, src_iy)))
     {
 #ifdef DEBUG_ASTAR
-        printf( "AStar failed because source position is off the mesh.\n" );
+        printf("AStar failed because source position is off the mesh.\n");
 #endif
         return false;
     }
 
     //be a bit flexible if the destination is inside a wall
-    if ( mesh->tile_has_bits( Index2D(dst_ix, dst_iy), stoppedby ) )
+    if (mesh->tile_has_bits(Index2D(dst_ix, dst_iy), stoppedby))
     {
         //check all tiles edging to this one, including corners
-        for ( j = -1; j <= 1; j++ )
-            for ( k = -1; k <= 1; k++ )
+        for (j = -1; j <= 1; j++)
+            for (k = -1; k <= 1; k++)
             {
                 //we already checked this one
-                if ( j == 0 && k == 0 ) continue;
+                if (j == 0 && k == 0) continue;
 
                 //Did we find a free tile?
-                if ( !mesh->tile_has_bits(Index2D(dst_ix + j, dst_iy + k), stoppedby ) )
+                if (!mesh->tile_has_bits(Index2D(dst_ix + j, dst_iy + k), stoppedby))
                 {
                     dst_ix = dst_ix + j;
                     dst_iy = dst_iy + k;
@@ -140,7 +140,7 @@ bool AStar_find_path( std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, 
                 }
             }
 #ifdef DEBUG_ASTAR
-        printf( "AStar failed because goal position is impassable (and no nearby non-impassable tile found).\n" );
+        printf("AStar failed because goal position is impassable (and no nearby non-impassable tile found).\n");
 #endif
         return false;
     }
@@ -151,44 +151,44 @@ flexible_destination:
     AStar_reset();
 
     // initialize the starting node
-    weight = std::sqrt(( src_ix - dst_ix ) * ( src_ix - dst_ix ) + ( src_iy - dst_iy ) * ( src_iy - dst_iy ) );
-    start_node = AStar_add_node( src_ix, src_iy, NULL, weight, false );
+    weight = std::sqrt((src_ix - dst_ix) * (src_ix - dst_ix) + (src_iy - dst_iy) * (src_iy - dst_iy));
+    start_node = AStar_add_node(src_ix, src_iy, NULL, weight, false);
 
     // do the algorithm
-    while ( !done )
+    while (!done)
     {
         int tmp_x, tmp_y;
         bool stop;
 
         // list is completely full... we failed
-        if ( node_list_length == MAX_ASTAR_NODES ) break;
+        if (node_list_length == MAX_ASTAR_NODES) break;
 
         //Get the cheapest open node
         popen = AStar_get_next_node();
-        if ( popen != NULL )
+        if (popen != NULL)
         {
             // find some child nodes
             deadend_count = 0;
-            for ( j = -1; j <= 1; j++ )
+            for (j = -1; j <= 1; j++)
             {
                 tmp_x = popen->ix + j;
 
-                for ( k = -1; k <= 1; k++ )
+                for (k = -1; k <= 1; k++)
                 {
                     // do not recompute the open node!
-                    if ( j == 0 && k == 0 ) continue;
+                    if (j == 0 && k == 0) continue;
 
                     // do not check diagonals
-                    if ( j != 0 && k != 0 ) continue;
+                    if (j != 0 && k != 0) continue;
 
                     tmp_y = popen->iy + k;
 
                     // check for the simplest case, is this the destination node?
-                    if ( tmp_x == dst_ix && tmp_y == dst_iy )
+                    if (tmp_x == dst_ix && tmp_y == dst_iy)
                     {
-                        weight = ( tmp_x - popen->ix ) * ( tmp_x - popen->ix ) + ( tmp_y - popen->iy ) * ( tmp_y - popen->iy );
-                        weight = sqrt( weight );
-                        final_node = AStar_add_node( tmp_x, tmp_y, popen, weight, false );
+                        weight = (tmp_x - popen->ix) * (tmp_x - popen->ix) + (tmp_y - popen->iy) * (tmp_y - popen->iy);
+                        weight = sqrt(weight);
+                        final_node = AStar_add_node(tmp_x, tmp_y, popen, weight, false);
                         done = true;
                         continue;
                     }
@@ -203,34 +203,34 @@ flexible_destination:
 
                     // is this already in the list? (must be checked before wall or fanoff)
                     stop = false;
-                    for ( cnt = 0; cnt < node_list_length; cnt++ )
+                    for (cnt = 0; cnt < node_list_length; cnt++)
                     {
-                        if ( node_list[cnt].ix == tmp_x && node_list[cnt].iy == tmp_y )
+                        if (node_list[cnt].ix == tmp_x && node_list[cnt].iy == tmp_y)
                         {
                             deadend_count++;
                             stop = true;
                             break;
                         }
                     }
-                    if ( stop ) continue;
+                    if (stop) continue;
 
                     //Dont walk into pits
                     //@todo: might need to check tile Z level here instead
-					const ego_tile_info_t& ptile = mesh->getTileInfo(itile);
+                    const ego_tile_info_t& ptile = mesh->getTileInfo(itile);
 
-                    if ( ptile.isFanOff() )
+                    if (ptile.isFanOff())
                     {
                         // add the invalid tile to the list as a closed tile
-                        AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );
+                        AStar_add_node(tmp_x, tmp_y, popen, 0xFFFF, true);
                         deadend_count++;
                         continue;
                     }
 
                     // is this a wall or impassable?
-                    if ( mesh->tile_has_bits( Index2D(tmp_x, tmp_y), stoppedby ) )
+                    if (mesh->tile_has_bits(Index2D(tmp_x, tmp_y), stoppedby))
                     {
                         // add the invalid tile to the list as a closed tile
-                        AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );
+                        AStar_add_node(tmp_x, tmp_y, popen, 0xFFFF, true);
                         deadend_count++;
                         continue;
                     }
@@ -239,14 +239,14 @@ flexible_destination:
                     /// @todo  I need to check for collisions with static objects, like trees
 
                     // OK. determine the weight (F + H)
-                    weight  = ( tmp_x - popen->ix ) * ( tmp_x - popen->ix ) + ( tmp_y - popen->iy ) * ( tmp_y - popen->iy );
-                    weight += ( tmp_x - dst_ix ) * ( tmp_x - dst_ix ) + ( tmp_y - dst_iy ) * ( tmp_y - dst_iy );
-                    weight  = sqrt( weight );
-                    AStar_add_node( tmp_x, tmp_y, popen, weight, false );
+                    weight = (tmp_x - popen->ix) * (tmp_x - popen->ix) + (tmp_y - popen->iy) * (tmp_y - popen->iy);
+                    weight += (tmp_x - dst_ix) * (tmp_x - dst_ix) + (tmp_y - dst_iy) * (tmp_y - dst_iy);
+                    weight = sqrt(weight);
+                    AStar_add_node(tmp_x, tmp_y, popen, weight, false);
                 }
             }
 
-            if ( deadend_count == 4 )
+            if (deadend_count == 4)
             {
                 // this node is no longer active.
                 // move it to the closed list so that we do not get any loops
@@ -262,14 +262,14 @@ flexible_destination:
     }
 
 #ifdef DEBUG_ASTAR
-    if ( !done && node_list_length == MAX_ASTAR_NODES ) printf( "AStar failed because maximum number of nodes were explored (%d)\n", MAX_ASTAR_NODES );
+    if (!done && node_list_length == MAX_ASTAR_NODES) printf("AStar failed because maximum number of nodes were explored (%d)\n", MAX_ASTAR_NODES);
 #endif
 
     return done;
 }
 
 //------------------------------------------------------------------------------
-bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
+bool AStar_get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
 {
     /// @author ZF
     /// @details Fills a waypoint list with sensible waypoints. It will return false if it failed to add at least one waypoint.
@@ -291,7 +291,7 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
 
     //Build the local node path tree
     path_length = 0;
-    while ( path_length < MAX_ASTAR_PATH && current_node != start_node )
+    while (path_length < MAX_ASTAR_PATH && current_node != start_node)
     {
         // add the node to the end of the path
         node_path[path_length++] = current_node;
@@ -302,7 +302,7 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
 
     //Begin at the end of the list, which contains the starting node
     safe_waypoint = NULL;
-    for ( i = path_length - 1; i >= 0 && waypoint_num < MAXWAY; i-- )
+    for (i = path_length - 1; i >= 0 && waypoint_num < MAXWAY; i--)
     {
         bool change_direction;
 
@@ -310,10 +310,10 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
         current_node = node_path[i];
 
         //the first node should be safe
-        if ( NULL == safe_waypoint ) safe_waypoint = current_node;
+        if (NULL == safe_waypoint) safe_waypoint = current_node;
 
         //is there a change in direction?
-        change_direction = ( last_waypoint->ix != current_node->ix && last_waypoint->iy != current_node->iy );
+        change_direction = (last_waypoint->ix != current_node->ix && last_waypoint->iy != current_node->iy);
 
         //are we moving diagonally? if so, then don't fill the waypoint list with unessecary waypoints
         /*if( i != 0 )
@@ -329,13 +329,13 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
         }*/
 
         //If we have a change in direction, we need to add it as a waypoint, always add the last waypoint
-        if ( i == 0 || change_direction )
+        if (i == 0 || change_direction)
         {
             int way_x;
             int way_y;
 
             //Special exception for final waypoint, use raw integer
-            if ( i == 0 )
+            if (i == 0)
             {
                 way_x = pos_x;
                 way_y = dst_y;
@@ -343,21 +343,21 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
             else
             {
                 // translate to raw coordinates
-                way_x = safe_waypoint->ix * Info<int>::Grid::Size() + (Info<int>::Grid::Size() / 2 );
-                way_y = safe_waypoint->iy * Info<int>::Grid::Size() + (Info<int>::Grid::Size() / 2 );
+                way_x = safe_waypoint->ix * Info<int>::Grid::Size() + (Info<int>::Grid::Size() / 2);
+                way_y = safe_waypoint->iy * Info<int>::Grid::Size() + (Info<int>::Grid::Size() / 2);
             }
 
 #ifdef DEBUG_ASTAR
             // using >> for division only works if you know for certainty that the value
             // you are shifting is not intended to be neative
-            printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, static_cast<int>(way_x / GRID_ISIZE), static_cast<int>(way_y / GRID_ISIZE) );
-            point_list_add( way_x, way_y, 200, 800 );
-            line_list_add( last_waypoint->ix*GRID_FSIZE + ( GRID_ISIZE / 2 ), last_waypoint->iy*GRID_FSIZE + ( GRID_ISIZE / 2 ), 200, way_x, way_y, 200, 800 );
+            printf("Waypoint %d: X: %d, Y: %d \n", waypoint_num, static_cast<int>(way_x / GRID_ISIZE), static_cast<int>(way_y / GRID_ISIZE));
+            point_list_add(way_x, way_y, 200, 800);
+            line_list_add(last_waypoint->ix*GRID_FSIZE + (GRID_ISIZE / 2), last_waypoint->iy*GRID_FSIZE + (GRID_ISIZE / 2), 200, way_x, way_y, 200, 800);
 #endif
 
             // add the node to the waypoint list
             last_waypoint = safe_waypoint;
-            waypoint_list_t::push( wplst, way_x, way_y );
+            waypoint_list_t::push(wplst, way_x, way_y);
             waypoint_num++;
 
             //This one is now safe
@@ -372,7 +372,7 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t& wplst )
     }
 
 #ifdef DEBUG_ASTAR
-    if ( waypoint_num > 0 ) point_list_add( start_node->ix*GRID_FSIZE + ( GRID_ISIZE / 2 ), start_node->iy*GRID_FSIZE + ( GRID_ISIZE / 2 ), 200, 80 );
+    if (waypoint_num > 0) point_list_add(start_node->ix*GRID_FSIZE + (GRID_ISIZE / 2), start_node->iy*GRID_FSIZE + (GRID_ISIZE / 2), 200, 80);
 #endif
 
     return waypoint_num > 0;
