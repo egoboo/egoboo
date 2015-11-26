@@ -395,12 +395,12 @@ public:
 	~ai_state_t();
 
 	static void reset(ai_state_t& self);
-	static bool set_bumplast(ai_state_t& self, const CHR_REF  ichr);
+	static bool set_bumplast(ai_state_t& self, const ObjectRef  ichr);
 	static bool get_wp(ai_state_t& self);
 	static bool ensure_wp(ai_state_t& self);
 	static bool add_order(ai_state_t& self, Uint32 value, Uint16 counter);
 	static bool set_changed(ai_state_t& self);
-	static void spawn(ai_state_t& self, const CHR_REF index, const PRO_REF iobj, Uint16 rank);
+	static void spawn(ai_state_t& self, const ObjectRef index, const PRO_REF iobj, Uint16 rank);
 
 };
 
@@ -435,11 +435,11 @@ struct script_state_t
 //--------------------------------------------------------------------------------------------
 
 void scr_run_chr_script(Object *pchr);
-void scr_run_chr_script(const CHR_REF character);
+void scr_run_chr_script(const ObjectRef character);
 
-void issue_order( const CHR_REF character, Uint32 order );
+void issue_order( const ObjectRef character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
-void set_alerts( const CHR_REF character );
+void set_alerts( const ObjectRef character );
 
 namespace Ego {
 namespace Script {

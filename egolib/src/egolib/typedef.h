@@ -531,8 +531,6 @@ namespace std {
         }
     };
 }
-typedef size_t CHR_REF;
-#define INVALID_CHR_REF (ObjectRef::Invalid.get())
 
 DECLARE_REF(TEAM_REF);
 

@@ -316,7 +316,7 @@ void CameraSystem::autoSetTargets()
     {
         // only look at valid players
         player_t * ppla = PlaStack.get_ptr( cnt );
-        if ( !ppla->valid || INVALID_CHR_REF == ppla->index ) continue;
+        if ( !ppla->valid || ObjectRef::Invalid == ppla->index ) continue;
 
         // only look at local players
         if ( NULL == ppla->pdevice ) continue;
@@ -327,7 +327,7 @@ void CameraSystem::autoSetTargets()
         }
 
         // store the target
-        _cameraList[cameraIndex]->addTrackTarget(ObjectRef(ppla->index));
+        _cameraList[cameraIndex]->addTrackTarget(ppla->index);
         cameraIndex++;
     }
 }

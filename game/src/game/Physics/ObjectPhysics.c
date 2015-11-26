@@ -1403,7 +1403,7 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
                 // (ignore vertical displacement)
                 if (grabData.isFacingObject && grabData.horizontalDistance < MAX_DIST_GRAB)
                 {
-                    ai_state_t::set_bumplast(grabData.object->ai, ichr_a.get());
+                    ai_state_t::set_bumplast(grabData.object->ai, ichr_a);
                     break;
                 }
             }

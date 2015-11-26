@@ -350,7 +350,7 @@ void CollisionSystem::updateParticleCollisions()
             //Detect any collisions and handle it if needed
             float tmin, tmax;
             if(detectCollision(particle, object, &tmin, &tmax)) {
-                do_prt_platform_detection(object->getObjRef().get(), particle->getParticleID());
+                do_prt_platform_detection(object->getObjRef(), particle->getParticleID());
                 do_chr_prt_collision(object, particle, tmin, tmax);
             }
         }
@@ -655,7 +655,7 @@ bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &obje
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
-    ai_state_t::set_bumplast(platform->ai, object->getObjRef().get());
+    ai_state_t::set_bumplast(platform->ai, object->getObjRef());
 
     return true;
 }
@@ -955,8 +955,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 
     if ( bump )
     {
-        ai_state_t::set_bumplast(objectA->ai, ichr_b.get());
-        ai_state_t::set_bumplast(objectB->ai, ichr_a.get());
+        ai_state_t::set_bumplast(objectA->ai, ichr_b);
+        ai_state_t::set_bumplast(objectB->ai, ichr_a);
 
         //Destroy stealth for both objects if they are not friendly
         if(!objectA->isScenery() && !objectB->isScenery() && objectA->getTeam().hatesTeam(objectB->getTeam())) {

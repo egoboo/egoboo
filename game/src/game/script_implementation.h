@@ -59,10 +59,10 @@ struct line_of_sight_info_t
     float x1, y1, z1;
     Uint32 stopped_by;
 
-    CHR_REF collide_chr;
-    Uint32  collide_fx;
-    int     collide_x;
-    int     collide_y;
+    ObjectRef collide_chr;
+    Uint32    collide_fx;
+    int       collide_x;
+    int       collide_y;
 
 	static bool blocked(line_of_sight_info_t * plos);
 	static bool with_mesh(line_of_sight_info_t * plos);
@@ -143,7 +143,7 @@ bool    BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits );
 /// @details This function tells the character where to move next
 ///
 /// @lua AddWaypoint( tmpx = "x position", tmpy = "y position" )
-bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y );
+bool AddWaypoint( waypoint_list_t& wplst, ObjectRef ichr, float pos_x, float pos_y );
 
 /// @author ZF
 /// @details Ported the A* path finding algorithm by birdsey and heavily modified it
@@ -182,7 +182,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
 
 /// @author ZF
 /// @details This function searches the nearby vincinity for a melee weapon the character can use
-CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight );
+ObjectRef FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight );
 
 /// @author ZZ
 /// @details This function sets an object's lighting
@@ -191,11 +191,11 @@ bool FlashObject( Object * pchr, Uint8 value );
 /// @details This function restocks the characters ammo, if it needs ammo and if
 ///    either its parent or type idsz match the given idsz.  This
 ///    function returns the amount of ammo given.
-int RestockAmmo(const CHR_REF character, IDSZ idsz);
+int RestockAmmo(const ObjectRef character, IDSZ idsz);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// @author ZZ
 /// @details This function sticks a message_offset in the display queue and sets its timer
-Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, script_state_t * pstate );
+Uint8 _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int message, script_state_t * pstate );

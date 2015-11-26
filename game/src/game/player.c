@@ -47,12 +47,12 @@ void PlaStack_reset_all()
 
 //--------------------------------------------------------------------------------------------
 
-CHR_REF PlaStack_get_ichr(const PLA_REF iplayer)
+ObjectRef PlaStack_get_ichr(const PLA_REF iplayer)
 {
-    if (iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid) return INVALID_CHR_REF;
+    if (iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid) return ObjectRef::Invalid;
     player_t *player = PlaStack.get_ptr( iplayer );
 
-    if (!_currentModule->getObjectHandler().exists(player->index)) return INVALID_CHR_REF;
+    if (!_currentModule->getObjectHandler().exists(player->index)) return ObjectRef::Invalid;
 
     return player->index;
 }
@@ -96,7 +96,7 @@ void pla_reinit( player_t * ppla )
 
     //reset data
     *ppla = {};
-    ppla->index  = INVALID_CHR_REF;
+    ppla->index  = ObjectRef::Invalid;
     ppla->quest_log.clear();
 
     // initialize the latches

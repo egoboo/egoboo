@@ -151,7 +151,7 @@ void net_unbuffer_player_latches()
         if (!PlaStack.lst[ipla].valid) continue;
         player_t *ppla = PlaStack.get_ptr(ipla);
 
-        CHR_REF character = PlaStack.lst[ipla].index;
+        ObjectRef character = PlaStack.lst[ipla].index;
         if (!_currentModule->getObjectHandler().exists(character)) continue;
         Object *pchr = _currentModule->getObjectHandler().get(character);
 
@@ -163,7 +163,7 @@ void net_unbuffer_player_latches()
     {
         if (!PlaStack.lst[ipla].valid) continue;
 
-        CHR_REF character = PlaStack.lst[ipla].index;
+        ObjectRef character = PlaStack.lst[ipla].index;
         const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
         if(!pchr) continue;
 
@@ -186,7 +186,7 @@ void net_unbuffer_player_latches()
     }
 }
 
-player_t *chr_get_ppla(const CHR_REF ichr)
+player_t *chr_get_ppla(const ObjectRef ichr)
 {
     if (!_currentModule->getObjectHandler().exists(ichr)) return nullptr;
     PLA_REF iplayer = _currentModule->getObjectHandler().get(ichr)->is_which_player;

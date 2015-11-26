@@ -124,7 +124,7 @@ void GameModule::checkPassageMusic()
     // Look at each player
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
     {
-        CHR_REF character = PlaStack.lst[ipla].index;
+        ObjectRef character = PlaStack.lst[ipla].index;
         if (!_currentModule->getObjectHandler().exists(character)) continue;
 
         Object *pchr = _currentModule->getObjectHandler().get(character);
@@ -239,7 +239,7 @@ bool GameModule::isInside(const float x, const float y) const
 }
 
 std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
-                                                const FACING_T facing, const std::string &name, const CHR_REF override)
+                                                const FACING_T facing, const std::string &name, const ObjectRef override)
 {
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(profile);
     if (!ppro)
@@ -268,7 +268,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->spawn_data.skin     = skin;
     pchr->spawn_data.facing   = facing;
     strncpy( pchr->spawn_data.name, name.c_str(), SDL_arraysize( pchr->spawn_data.name ) );
-    pchr->spawn_data.override = ObjectRef(override);
+    pchr->spawn_data.override = override;
 
     // download all the values from the character spawn_ptr->profile
     // Set up model stuff
@@ -377,7 +377,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     }
 
     // AI stuff
-    ai_state_t::spawn( pchr->ai, pchr->getObjRef().get(), pchr->getProfileID(), getTeamList()[team].getMorale() );
+    ai_state_t::spawn( pchr->ai, pchr->getObjRef(), pchr->getProfileID(), getTeamList()[team].getMorale() );
 
     // Team stuff
     pchr->team     = team;

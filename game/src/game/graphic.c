@@ -868,7 +868,7 @@ float draw_debug(float y)
 
     if (keyb.is_key_down(SDLK_F5))
     {
-        CHR_REF ichr;
+        ObjectRef ichr;
         PLA_REF ipla;
 
         // Debug information
@@ -2542,17 +2542,17 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
     {
         float tmp_seekurse_level;
 
-        CHR_REF ichr = el.get(i).ichr;
+        ObjectRef iobj = el.get(i).iobj;
 
-        Object *pchr = _currentModule->getObjectHandler().get(ichr);
-        if (!pchr) continue;
+        Object *pobj = _currentModule->getObjectHandler().get(iobj);
+        if (!pobj) continue;
 
-        chr_instance_t& pinst = pchr->inst;
+        chr_instance_t& pinst = pobj->inst;
 
         // Do flashing
-        if (DONTFLASH != pchr->getProfile()->getFlashAND())
+        if (DONTFLASH != pobj->getProfile()->getFlashAND())
         {
-            if (HAS_NO_BITS(game_frame_all, pchr->getProfile()->getFlashAND()))
+            if (HAS_NO_BITS(game_frame_all, pobj->getProfile()->getFlashAND()))
             {
 				chr_instance_t::flash(pinst, 255);
             }
@@ -2562,7 +2562,7 @@ gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
         // having one holy player in your party will cause the effect, BUT
         // having some non-holy players will dilute it
         tmp_seekurse_level = std::min(local_stats.seekurse_level, 1.0f);
-        if ((local_stats.seekurse_level > 0.0f) && pchr->iskursed && 1.0f != tmp_seekurse_level)
+        if ((local_stats.seekurse_level > 0.0f) && pobj->iskursed && 1.0f != tmp_seekurse_level)
         {
             if (HAS_NO_BITS(game_frame_all, SEEKURSEAND))
             {

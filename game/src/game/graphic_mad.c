@@ -1572,7 +1572,7 @@ gfx_rv chr_instance_t::increment_action(chr_instance_t& self)
 	return chr_instance_t::start_anim(self, action, action_ready, true);
 }
 
-gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const CHR_REF imount, const int mount_action)
+gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, const ObjectRef imount, const int mount_action)
 {
     /// @author BB
     /// @details all the code necessary to move on to the next frame of the animation

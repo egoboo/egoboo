@@ -66,9 +66,9 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     jumpnumber(0),
     jumpready(false),
 
-    attachedto(INVALID_CHR_REF),
+    attachedto(),
     inwhich_slot(SLOT_LEFT),
-    inwhich_inventory(INVALID_CHR_REF),
+    inwhich_inventory(),
     platform(false),
     canuseplatforms(false),
     holdingweight(0),
@@ -117,14 +117,14 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
 
     ori(),
     ori_old(),
-    bumplist_next(INVALID_CHR_REF),
+    bumplist_next(),
 
     turnmode(TURNMODE_VELOCITY),
     movement_bits(( unsigned )(~0)),    // all movements valid
 
     enviro(),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
-    dismount_object(INVALID_CHR_REF),
+    dismount_object(),
     
     _terminateRequested(false),
     _objRef(objRef),

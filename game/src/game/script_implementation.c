@@ -293,7 +293,7 @@ bool line_of_sight_info_t::with_characters( line_of_sight_info_t * plos )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool AddWaypoint( waypoint_list_t& wplst, CHR_REF ichr, float pos_x, float pos_y )
+bool AddWaypoint( waypoint_list_t& wplst, ObjectRef ichr, float pos_x, float pos_y )
 {
     // AddWaypoint( tmpx = "x position", tmpy = "y position" )
     /// @author ZZ
@@ -569,7 +569,7 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
     char buffer[256];
     strncpy(buffer, pchr->getProfile()->getMessage(message_index).c_str(), 256);
 
-    expand_escape_codes(objRef.get(), pstate, buffer, buffer + length, dst, dst_end);
+    expand_escape_codes(objRef, pstate, buffer, buffer + length, dst, dst_end);
     endtext_carat = strlen( endtext );
 
     str_add_linebreaks( endtext, strlen( endtext ), 30 );
@@ -633,7 +633,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, script_state_t * pstate )
+Uint8 _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int message, script_state_t * pstate )
 {
     /// @author ZZ
     /// @details This function sticks a message_offset in the display queue and sets its timer
@@ -664,22 +664,24 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight )
+ObjectRef FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight )
 {
     /// @author ZF
     /// @details This function searches the nearby vincinity for a melee weapon the character can use
 
-    CHR_REF retval = INVALID_CHR_REF;
+    ObjectRef retval = ObjectRef::Invalid;
 
-    CHR_REF best_target = INVALID_CHR_REF;
+    ObjectRef best_target = ObjectRef::Invalid;
     float   best_dist   = WIDE * WIDE;
 
     line_of_sight_info_t los;
 
-    if ( nullptr == ( pchr ) ) return false;
+    if (nullptr == pchr) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == pchr");
+    }
 
     // set up the target
-    best_target = INVALID_CHR_REF;
+    best_target = ObjectRef::Invalid;
     best_dist   = SQR( max_distance );
 
     //setup line of sight data
@@ -722,14 +724,14 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
             if ( !use_line_of_sight || !line_of_sight_info_t::blocked( &los ) )
             {
                 //found a valid weapon!
-                best_target = pweapon->getObjRef().get();
+                best_target = pweapon->getObjRef();
                 best_dist = dist;
             }
         }
     }
 
     //Did we find anything?
-    retval = INVALID_CHR_REF;
+    retval = ObjectRef::Invalid;
     if ( _currentModule->getObjectHandler().exists( best_target ) )
     {
         retval = best_target;
@@ -751,7 +753,7 @@ bool FlashObject( Object * pchr, Uint8 value )
 }
 
 //--------------------------------------------------------------------------------------------
-int RestockAmmo( const CHR_REF character, IDSZ idsz )
+int RestockAmmo( const ObjectRef character, IDSZ idsz )
 {
     /// @author ZZ
     /// @details This function restocks the characters ammo, if it needs ammo and if

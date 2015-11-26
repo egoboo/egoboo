@@ -117,7 +117,7 @@ egolib_rv chr_increment_frame( Object * pchr )
         }
     }
 
-    retval = ( egolib_rv )chr_instance_t::increment_frame(pchr->inst, imount.get(), mount_action );
+    retval = ( egolib_rv )chr_instance_t::increment_frame(pchr->inst, imount, mount_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object

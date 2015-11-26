@@ -502,7 +502,7 @@ Uint8 scr_AddWaypoint( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddWaypoint( self.wp_lst, self.getSelf().get(), state.x, state.y );
+    returncode = AddWaypoint( self.wp_lst, self.getSelf(), state.x, state.y );
 
     if ( returncode )
     {
@@ -1082,7 +1082,7 @@ Uint8 scr_IssueOrder( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    issue_order( self.getSelf().get(), state.argument );
+    issue_order( self.getSelf(), state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1351,7 +1351,7 @@ Uint8 scr_SendMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _display_message( self.getSelf().get(), pchr->getProfileID(), state.argument, &state );
+    returncode = _display_message( self.getSelf(), pchr->getProfileID(), state.argument, &state );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1897,7 +1897,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), 0.0f);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -2961,14 +2961,14 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t& state, ai_state_t& self )
 
 	ObjectRef ichr;
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += RestockAmmo( ichr.get(), state.argument );
+    iTmp += RestockAmmo( ichr, state.argument );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    iTmp += RestockAmmo( ichr.get(), state.argument );
+    iTmp += RestockAmmo( ichr, state.argument );
 
     for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += RestockAmmo( pitem->getObjRef().get(), state.argument );
+        iTmp += RestockAmmo( pitem->getObjRef(), state.argument );
     }
 
     state.argument = iTmp;
@@ -2994,19 +2994,19 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t& state, ai_state_t& self )
     int iTmp = 0;  // Amount of ammo given
     
     ObjectRef ichr = pself_target->holdingwhich[SLOT_LEFT];
-    iTmp += RestockAmmo(ichr.get(), state.argument);
+    iTmp += RestockAmmo(ichr, state.argument);
     
     if (iTmp == 0)
     {
         ichr = pself_target->holdingwhich[SLOT_RIGHT];
-        iTmp += RestockAmmo(ichr.get(), state.argument);
+        iTmp += RestockAmmo(ichr, state.argument);
     }
 
     if (iTmp == 0)
     {
         for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += RestockAmmo( pitem->getObjRef().get(), state.argument );
+            iTmp += RestockAmmo( pitem->getObjRef(), state.argument );
             if ( 0 != iTmp ) break;
         }
     }
@@ -3604,7 +3604,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
 
     if ( min_distance < MSGDISTANCE )
     {
-        returncode = _display_message( self.getSelf().get(), pchr->getProfileID(), state.argument, &state );
+        returncode = _display_message( self.getSelf(), pchr->getProfileID(), state.argument, &state );
     }
 
     SCRIPT_FUNCTION_END();
@@ -5339,7 +5339,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", INVALID_CHR_REF );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, CLIP_TO_16BITS( state.turn ), "", ObjectRef::Invalid );
     if (pchild == nullptr)
     {
 		Log::get().warn("%s:%d: object %s failed to spawn a copy of itself\n", __FILE__, __LINE__, pchr->getName().c_str() );
@@ -5381,7 +5381,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 			float(state.distance)
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), "", INVALID_CHR_REF);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, CLIP_TO_16BITS(state.turn), "", ObjectRef::Invalid);
 
     if ( !pchild )
     {
@@ -7174,7 +7174,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
     returncode = false;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF ichr;
+        ObjectRef ichr;
         player_t * ppla = PlaStack.get_ptr( ipla );
 
         if ( !ppla->valid ) continue;
@@ -7373,7 +7373,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", INVALID_CHR_REF);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -7388,11 +7388,11 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( Inventory::add_item( ObjectRef(self.getTarget()), pchild->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
+            if ( Inventory::add_item( self.getTarget(), pchild->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = self.getTarget();  // Make grab work
-                scr_run_chr_script( pchild->getObjRef().get() );  // Empty the grabbed messages
+                scr_run_chr_script( pchild->getObjRef() );  // Empty the grabbed messages
 
                 pchild->attachedto = ObjectRef::Invalid;  // Fix grab
 
@@ -7418,7 +7418,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
                 if ( rv_success == attach_character_to_mount( pchild->getObjRef(), self.getTarget(), grip_off ) )
                 {
                     // Handle the "grabbed" messages
-                    scr_run_chr_script( pchild->getObjRef().get() );
+                    scr_run_chr_script( pchild->getObjRef() );
                 }
 
                 //Set some AI values
@@ -8074,12 +8074,12 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t& state, ai_state_t& self 
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    CHR_REF best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), false, true );
+    ObjectRef best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), false, true );
 
     //Did we find anything good?
     if ( _currentModule->getObjectHandler().exists( best_target ) )
     {
-        self.setTarget(ObjectRef(best_target));
+        self.setTarget(best_target);
         returncode = true;
     }
 

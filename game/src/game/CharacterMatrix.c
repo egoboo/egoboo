@@ -35,7 +35,7 @@ static bool apply_one_character_matrix( Object * pchr, matrix_cache_t& mcache );
 static bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t& mcache );
 
 static int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4f   dst_point[] );
-static int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], Vector4f   dst_point[] );
+static int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_verts[], Vector4f   dst_point[] );
 
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
@@ -240,7 +240,7 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], Vector4f   dst_point[] )
+int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_verts[], Vector4f   dst_point[] )
 {
     /// @author ZZ
     /// @details a helper function for apply_one_weapon_matrix()
@@ -282,7 +282,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t& mc_tmp )
     pweap_mcache.matrix_valid = false;
 
     // grab the grip points in world coordinates
-    iweap_points = convert_grip_to_global_points( mc_tmp.grip_chr.get(), mc_tmp.grip_verts.data(), nupoint );
+    iweap_points = convert_grip_to_global_points( mc_tmp.grip_chr, mc_tmp.grip_verts.data(), nupoint );
 
     if ( 4 == iweap_points )
     {

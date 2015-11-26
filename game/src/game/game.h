@@ -361,9 +361,9 @@ struct status_list_t
 	struct element_t
 	{
 		int camera_index;
-		CHR_REF who;
+		ObjectRef who;
 		element_t()
-			: camera_index(-1), who(INVALID_CHR_REF) {
+			: camera_index(-1), who(ObjectRef::Invalid) {
 		}
 	};
     bool on;
@@ -455,7 +455,7 @@ void  free_all_objects();
 /// Data
 int    game_do_menu( struct menu_process_t * mproc );
 
-void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
+void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );

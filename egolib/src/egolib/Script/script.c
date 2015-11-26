@@ -658,7 +658,7 @@ void scr_run_chr_script(Object *pchr) {
 	// Clear alerts for next time around
 	RESET_BIT_FIELD(aiState.alert);
 }
-void scr_run_chr_script( const CHR_REF character )
+void scr_run_chr_script( const ObjectRef character )
 {
     /// @author ZZ
     /// @details This function lets one character do AI stuff
@@ -1553,7 +1553,7 @@ bool ai_state_t::ensure_wp(ai_state_t& self)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void set_alerts( const CHR_REF character )
+void set_alerts( const ObjectRef character )
 {
     /// @author ZZ
     /// @details This function polls some alert conditions
@@ -1616,7 +1616,7 @@ void set_alerts( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_order( const CHR_REF character, Uint32 value )
+void issue_order( const ObjectRef character, Uint32 value )
 {
     /// @author ZZ
     /// @details This function issues an value for help to all teammates
@@ -1785,7 +1785,7 @@ bool ai_state_t::set_changed(ai_state_t& self)
     return retval;
 }
 
-bool ai_state_t::set_bumplast(ai_state_t& self, const CHR_REF ichr)
+bool ai_state_t::set_bumplast(ai_state_t& self, const ObjectRef ichr)
 {
     /// @author BB
     /// @details bumping into a chest can initiate whole loads of update messages.
@@ -1796,16 +1796,16 @@ bool ai_state_t::set_bumplast(ai_state_t& self, const CHR_REF ichr)
 	}
 
     // 5 bumps per second?
-	if (self.getBumped().get() != ichr || update_wld > self.bumplast_time + GameEngine::GAME_TARGET_UPS / 5) {
+	if (self.getBumped() != ichr || update_wld > self.bumplast_time + GameEngine::GAME_TARGET_UPS / 5) {
 		self.bumplast_time = update_wld;
 		SET_BIT(self.alert, ALERTIF_BUMPED);
     }
-	self.setBumped(ObjectRef(ichr));
+	self.setBumped(ichr);
 
     return true;
 }
 
-void ai_state_t::spawn(ai_state_t& self, const CHR_REF index, const PRO_REF iobj, Uint16 rank)
+void ai_state_t::spawn(ai_state_t& self, const ObjectRef index, const PRO_REF iobj, Uint16 rank)
 {
     const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[index];
 	ai_state_t::reset(self);
@@ -1814,20 +1814,20 @@ void ai_state_t::spawn(ai_state_t& self, const CHR_REF index, const PRO_REF iobj
 		return;
 	}
 
-	self.setSelf(ObjectRef(index));
-    self.setTarget(ObjectRef(index));
-    self.setOldTarget(ObjectRef(index));
-    self.setBumped(ObjectRef(index));
+	self.setSelf(index);
+    self.setTarget(index);
+    self.setOldTarget(index);
+    self.setBumped(index);
 	self.alert = ALERTIF_SPAWNED;
 	self.state = pchr->getProfile()->getStateOverride();
 	self.content = pchr->getProfile()->getContentOverride();
 	self.passage = 0;
-	self.owner = ObjectRef(index);
-	self.child = ObjectRef(index);
+	self.owner = index;
+	self.child = index;
 
     self.maxSpeed = 1.0f;
 
-	self.hitlast = ObjectRef(index);
+	self.hitlast = index;
 
 	self.order_counter = rank;
 	self.order_value = 0;

@@ -110,7 +110,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), INVALID_CHR_REF);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -356,7 +356,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
 }
 
 //--------------------------------------------------------------------------------------------
-const oglx_texture_t* chr_get_txtexture_icon_ref( const CHR_REF item )
+const oglx_texture_t* chr_get_txtexture_icon_ref( const ObjectRef item )
 {
     /// @author BB
     /// @details Get the index to the icon texture (in TxList) that is supposed to be used with this object.
