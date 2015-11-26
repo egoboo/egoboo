@@ -1164,9 +1164,12 @@ void updateFacing(Object *pchr, const Vector2f &desiredVelocity)
         // Face the target
         case TURNMODE_WATCHTARGET:
             {
-                if ( pchr->getObjRef().get() != pchr->ai.target )
+                if ( pchr->getObjRef() != pchr->ai.getTarget() )
                 {
-                    pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.target)->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.target)->getPosY() - pchr->getPosY() ), 8 );
+                    pchr->ori.facing_z = static_cast<int>(pchr->ori.facing_z) + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosY() - pchr->getPosY() ), 8 );
+                }
+                else {
+                    pchr->ori.facing_z = static_cast<int>(pchr->ori.facing_z) + terp_dir( pchr->ori.facing_z, vec_to_facing(desiredVelocity[kX], desiredVelocity[kY]), 8 );
                 }
             }
             break;
@@ -1318,9 +1321,8 @@ void move_one_character( Object * pchr )
     move_one_character_integrate_motion( pchr );
 
     //Cutoff for low velocities to make them truly stop
-    if(std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) < 0.05f) {
-        pchr->vel[kX] = 0.0f;
-        pchr->vel[kY] = 0.0f;
+    if(pchr->vel.length_abs() < 0.05f) {
+        pchr->vel.setZero();
     }
 
     move_one_character_do_animation( pchr );

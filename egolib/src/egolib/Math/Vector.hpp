@@ -199,6 +199,16 @@ public:
 		Tuple<_VectorSpaceType>::assign(other);
     }
 
+    /** 
+     * @brief
+     *  Set all elements in the vector to zero
+     */
+    void setZero() {
+        for (size_t i = 0; i < this->dimensionality(); ++i) {
+            this->_elements[i] = static_cast<ScalarType>(0);
+        }
+    }
+
     /**
      * @brief
      *  Multiply this vector by a scalar,
