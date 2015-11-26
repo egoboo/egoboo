@@ -191,10 +191,10 @@ float Particle::getScale() const
     return scale;
 }
 
-void Particle::setSize(int size)
+void Particle::setSize(int setSize)
 {
     // set the graphical size
-    this->size = Ego::Math::constrain(size, 0, 0xFFFF);
+    this->size = Ego::Math::constrain(setSize, 0, 0xFFFF);
 
     // set the bumper size, if available
     if (0 == bump_size_stt)
@@ -561,15 +561,15 @@ size_t Particle::updateContinuousSpawning()
     // reset the spawn timer
     contspawn_timer = getProfile()->contspawn._delay;
 
-    FACING_T facing = this->facing;
+    FACING_T facingAdd = this->facing;
     for (size_t tnc = 0; tnc < getProfile()->contspawn._amount; tnc++)
     {
         std::shared_ptr<Ego::Particle> prt_child;
         if(_spawnerProfile == INVALID_PRO_REF) {
-            prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), facing, getProfile()->contspawn._lpip, tnc);
+            prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), facingAdd, getProfile()->contspawn._lpip, tnc);
         }
         else {
-            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
+            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facingAdd, _spawnerProfile, getProfile()->contspawn._lpip,
                                                                   ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
         }
 
@@ -579,7 +579,7 @@ size_t Particle::updateContinuousSpawning()
             spawn_count++;
         }
 
-        facing += getProfile()->contspawn._facingAdd;
+        facingAdd += getProfile()->contspawn._facingAdd;
     }
 
     return spawn_count;
@@ -697,23 +697,23 @@ void Particle::destroy()
     // Spawn new particles if time for old one is up
     if (getProfile()->endspawn._amount > 0 && LocalParticleProfileRef::Invalid != getProfile()->endspawn._lpip)
     {
-        FACING_T facing = this->facing;
+        FACING_T facingAdd = this->facing;
         for (size_t tnc = 0; tnc < getProfile()->endspawn._amount; tnc++)
         {
             if(_spawnerProfile == INVALID_PRO_REF)
             {
                 //Global particle
-                ParticleHandler::get().spawnGlobalParticle(getOldPosition(), facing, getProfile()->endspawn._lpip, tnc);
+                ParticleHandler::get().spawnGlobalParticle(getOldPosition(), facingAdd, getProfile()->endspawn._lpip, tnc);
             }
             else
             {
                 //Local particle
-                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facing, _spawnerProfile, getProfile()->endspawn._lpip,
+                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facingAdd, _spawnerProfile, getProfile()->endspawn._lpip,
                                                           ObjectRef::Invalid, GRIP_LAST, team, owner_ref,
                                                           _particleID, tnc, _target);
             }
 
-            facing += getProfile()->endspawn._facingAdd;
+            facingAdd += getProfile()->endspawn._facingAdd;
         }
     }
 

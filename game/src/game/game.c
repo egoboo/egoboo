@@ -2161,7 +2161,7 @@ bool game_load_module_data( const char *smallname )
 	Log::get().info( "Loading module \"%s\"\n", smallname );
 
     // ensure that the script parser exists
-    parser_state_t& ps = parser_state_t::get();
+    (void)parser_state_t::get();
 
     // generate the module directory
     std::string modname = str_append_slash(smallname);
