@@ -23,31 +23,16 @@
 
 #include "egolib/AI/AStar.h"
 
-#include "game/renderer_3d.h" //for point debugging
-#include "egolib/Script/script.h"  //for waypoint list control
-
+#include "game/renderer_3d.h" // for point debugging
+#include "egolib/Script/script.h"  // for waypoint list control
 #include "game/mesh.h"
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-static constexpr size_t MAX_ASTAR_NODES = 512;   ///< Maximum number of nodes to explore
-static constexpr size_t MAX_ASTAR_PATH = 128;    ///< Maximum length of the final path (before pruning)
+AStar::Node AStar::node_list[MAX_ASTAR_NODES];
+int AStar::node_list_length = 0;
+AStar::Node *AStar::final_node = nullptr;
+AStar::Node *AStar::start_node = nullptr;
 
-//------------------------------------------------------------------------------
-//Local private variables
-static AStar_Node_t node_list[MAX_ASTAR_NODES];
-static int node_list_length = 0;
-static AStar_Node_t *final_node = NULL;
-static AStar_Node_t *start_node = NULL;
-
-//------------------------------------------------------------------------------
-//"Private" functions
-static AStar_Node_t *AStar_get_next_node();
-static AStar_Node_t *AStar_add_node(const int x, const int y, AStar_Node_t *parent, float weight, bool closed);
-static void AStar_reset();
-
-//------------------------------------------------------------------------------
-AStar_Node_t *AStar_get_next_node()
+AStar::Node *AStar::get_next_node()
 {
     /// @author ZF
     /// @details This function finds and returns the next cheapest open node
@@ -60,17 +45,16 @@ AStar_Node_t *AStar_get_next_node()
         if (best_node == -1 || node_list[i].weight < node_list[best_node].weight) best_node = i;
     }
 
-    //return the node if found, NULL otherwise
-    return (best_node != -1) ? &node_list[best_node] : NULL;
+    //return the node if found, a null pointer otherwise
+    return (best_node != -1) ? &node_list[best_node] : nullptr;
 }
 
-//------------------------------------------------------------------------------
-AStar_Node_t *AStar_add_node(const int x, const int y, AStar_Node_t *parent, float weight, bool closed)
+AStar::Node *AStar::add_node(const int x, const int y, AStar::Node *parent, float weight, bool closed)
 {
     /// @author ZF
     /// @details Adds one new node to the end of the node list
 
-    if (node_list_length >= MAX_ASTAR_NODES) return NULL;
+    if (node_list_length >= MAX_ASTAR_NODES) return nullptr;
 
     //add the node
     node_list[node_list_length].ix = x;
@@ -84,19 +68,27 @@ AStar_Node_t *AStar_add_node(const int x, const int y, AStar_Node_t *parent, flo
     return &node_list[node_list_length - 1];
 }
 
-//------------------------------------------------------------------------------
-void AStar_reset()
+void AStar::reset()
 {
     /// @author ZF
     /// @details Reset AStar memory. This doesn't actually clear anything to make it work as fast as possible
 
     node_list_length = 0;
-    final_node = NULL;
-    start_node = NULL;
+    final_node = nullptr;
+    start_node = nullptr;
 }
 
-//------------------------------------------------------------------------------
-bool AStar_find_path(std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy)
+/// Functor to determine the distance of point (sourceX, sourceY) to point (targetX, targetY).
+struct Distance {
+    float operator()(int sourceX, int sourceY, int targetX, int targetY) const {
+        int distanceX = targetX - sourceX,
+            distanceY = targetY - sourceY;
+        float distance = std::sqrt(distanceX * distanceX + distanceY * distanceY);
+        return distance;
+    }
+};
+
+bool AStar::find_path(std::shared_ptr<const ego_mesh_t> mesh, uint32_t stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy)
 {
     /// @author ZF
     /// @details Explores up to MAX_ASTAR_NODES number of nodes to find a path between the source coordinates and destination coordinates.
@@ -105,7 +97,7 @@ bool AStar_find_path(std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedby, c
     int j, k, cnt;
     bool done;
     int deadend_count;
-    AStar_Node_t *popen;
+    Node *popen;
     float weight;
 
     // do not start if there is no mesh
@@ -148,11 +140,11 @@ flexible_destination:
 
     // restart the algorithm
     done = false;
-    AStar_reset();
+    reset();
 
     // initialize the starting node
-    weight = std::sqrt((src_ix - dst_ix) * (src_ix - dst_ix) + (src_iy - dst_iy) * (src_iy - dst_iy));
-    start_node = AStar_add_node(src_ix, src_iy, NULL, weight, false);
+    weight = Distance()(src_ix, src_iy, dst_ix, dst_iy);
+    start_node = add_node(src_ix, src_iy, nullptr, weight, false);
 
     // do the algorithm
     while (!done)
@@ -164,8 +156,8 @@ flexible_destination:
         if (node_list_length == MAX_ASTAR_NODES) break;
 
         //Get the cheapest open node
-        popen = AStar_get_next_node();
-        if (popen != NULL)
+        popen = get_next_node();
+        if (nullptr != popen)
         {
             // find some child nodes
             deadend_count = 0;
@@ -186,9 +178,8 @@ flexible_destination:
                     // check for the simplest case, is this the destination node?
                     if (tmp_x == dst_ix && tmp_y == dst_iy)
                     {
-                        weight = (tmp_x - popen->ix) * (tmp_x - popen->ix) + (tmp_y - popen->iy) * (tmp_y - popen->iy);
-                        weight = sqrt(weight);
-                        final_node = AStar_add_node(tmp_x, tmp_y, popen, weight, false);
+                        weight = Distance()(tmp_x, tmp_y, popen->ix, popen->iy);
+                        final_node = add_node(tmp_x, tmp_y, popen, weight, false);
                         done = true;
                         continue;
                     }
@@ -221,7 +212,7 @@ flexible_destination:
                     if (ptile.isFanOff())
                     {
                         // add the invalid tile to the list as a closed tile
-                        AStar_add_node(tmp_x, tmp_y, popen, 0xFFFF, true);
+                        add_node(tmp_x, tmp_y, popen, 0xFFFF, true);
                         deadend_count++;
                         continue;
                     }
@@ -230,7 +221,7 @@ flexible_destination:
                     if (mesh->tile_has_bits(Index2D(tmp_x, tmp_y), stoppedby))
                     {
                         // add the invalid tile to the list as a closed tile
-                        AStar_add_node(tmp_x, tmp_y, popen, 0xFFFF, true);
+                        add_node(tmp_x, tmp_y, popen, 0xFFFF, true);
                         deadend_count++;
                         continue;
                     }
@@ -239,10 +230,9 @@ flexible_destination:
                     /// @todo  I need to check for collisions with static objects, like trees
 
                     // OK. determine the weight (F + H)
-                    weight = (tmp_x - popen->ix) * (tmp_x - popen->ix) + (tmp_y - popen->iy) * (tmp_y - popen->iy);
-                    weight += (tmp_x - dst_ix) * (tmp_x - dst_ix) + (tmp_y - dst_iy) * (tmp_y - dst_iy);
-                    weight = sqrt(weight);
-                    AStar_add_node(tmp_x, tmp_y, popen, weight, false);
+                    weight = Distance()(tmp_x, tmp_y, popen->ix, popen->iy)
+                           + Distance()(tmp_x, tmp_y, dst_ix, dst_iy);
+                    add_node(tmp_x, tmp_y, popen, weight, false);
                 }
             }
 
@@ -268,8 +258,7 @@ flexible_destination:
     return done;
 }
 
-//------------------------------------------------------------------------------
-bool AStar_get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
+bool AStar::get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
 {
     /// @author ZF
     /// @details Fills a waypoint list with sensible waypoints. It will return false if it failed to add at least one waypoint.
@@ -281,8 +270,8 @@ bool AStar_get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
     size_t path_length, waypoint_num;
     //bool diagonal_movement = false;
 
-    AStar_Node_t *current_node, *last_waypoint, *safe_waypoint;
-    AStar_Node_t *node_path[MAX_ASTAR_PATH];
+    Node *current_node, *last_waypoint, *safe_waypoint;
+    Node *node_path[MAX_ASTAR_PATH];
 
     //Fill the waypoint list as much as we can, the final waypoint will always be the destination waypoint
     waypoint_num = 0;
@@ -301,7 +290,7 @@ bool AStar_get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
     }
 
     //Begin at the end of the list, which contains the starting node
-    safe_waypoint = NULL;
+    safe_waypoint = nullptr;
     for (i = path_length - 1; i >= 0 && waypoint_num < MAXWAY; i--)
     {
         bool change_direction;
@@ -310,7 +299,7 @@ bool AStar_get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
         current_node = node_path[i];
 
         //the first node should be safe
-        if (NULL == safe_waypoint) safe_waypoint = current_node;
+        if (nullptr == safe_waypoint) safe_waypoint = current_node;
 
         //is there a change in direction?
         change_direction = (last_waypoint->ix != current_node->ix && last_waypoint->iy != current_node->iy);

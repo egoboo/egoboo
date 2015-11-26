@@ -22,17 +22,15 @@
 /// @details
 
 #include "game/char.h"
-#include "game/Inventory.hpp"
 
-#include "egolib/Math/Random.hpp"
+#include "egolib/egolib.h"
+
+#include "game/Inventory.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/Module/Module.hpp"
 #include "game/GUI/UIManager.hpp"
-
-#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/player.h"
-#include "egolib/Script/script.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
@@ -40,9 +38,7 @@
 #include "game/game.h"
 #include "game/egoboo.h"
 #include "game/Module/Passage.hpp"
-#include "egolib/Profiles/_Include.hpp"
 #include "game/Module/Module.hpp"
-
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Physics/ObjectPhysics.h"

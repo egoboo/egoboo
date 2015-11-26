@@ -24,29 +24,35 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+#include "egolib/AI/WaypointList.h"
 
 // Forward declarations.
 class ego_mesh_t;
 struct waypoint_list_t;
 
-//------------------------------------------------------------------------------
-// A* pathfinding --------------------------------------------------------------
-//------------------------------------------------------------------------------
+/// Implementation of A* pathfinding algorithm.
+struct AStar {
+public:
+    struct Node {
+        float weight;
+        bool closed;
+        int ix, iy;
+        Node *parent;
+    };
+public:
+    static bool find_path(std::shared_ptr<const ego_mesh_t> mesh, uint32_t stoppedBy, const int src_ix, const int src_iy, int dst_ix, int dst_iy);
+    static bool get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst);
+private:
+    static constexpr size_t MAX_ASTAR_NODES = 512;   ///< Maximum number of nodes to explore
+    static constexpr size_t MAX_ASTAR_PATH = 128;    ///< Maximum length of the final path (before pruning)
+private:
+    static Node node_list[MAX_ASTAR_NODES];
+    static int node_list_length;
+    static Node *final_node;
+    static Node *start_node;
 
-struct AStar_Node_t
-{
-    float weight;
-    bool closed;
-
-    int ix, iy;
-    AStar_Node_t *parent;
+private:
+    static Node *get_next_node();
+    static Node *add_node(const int x, const int y, Node *parent, float weight, bool closed);
+    static void reset();
 };
-
-//------------------------------------------------------------------------------
-//Public functions
-bool AStar_find_path(std::shared_ptr<const ego_mesh_t> mesh, Uint32 stoppedBy, const int src_ix, const int src_iy, int dst_ix, int dst_iy);
-bool AStar_get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst);

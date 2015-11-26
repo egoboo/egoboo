@@ -932,7 +932,7 @@ void Object::update()
                 lineOfSightInfo.x1 = target->getPosX();
                 lineOfSightInfo.y1 = target->getPosY();
                 lineOfSightInfo.z1 = target->getPosZ() + std::max(1.0f, target->bump.height);
-                if (line_of_sight_info_t::blocked(&lineOfSightInfo)) {
+                if (line_of_sight_info_t::blocked(lineOfSightInfo, _currentModule->getMeshPointer())) {
                     continue;
                 }
 
@@ -2140,11 +2140,11 @@ float Object::getMana() const
 
 std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner)
 {
-    if (enchantProfile >= ENCHANTPROFILES_MAX || !EveStack.get_ptr(enchantProfile)->_loaded) {
+    if (enchantProfile >= ENCHANTPROFILES_MAX || !EnchantProfileSystem.get_ptr(enchantProfile)->_loaded) {
 		Log::get().warn("%s:%d:%s: cannot add enchant with invalid enchant profile %d\n", __FILE__, __LINE__, __FUNCTION__, enchantProfile);
         return nullptr;
     }
-    const std::shared_ptr<eve_t> &enchantmentProfile = EveStack.get_ptr(enchantProfile);
+    const std::shared_ptr<eve_t> &enchantmentProfile = EnchantProfileSystem.get_ptr(enchantProfile);
 
     if(!ProfileSystem::get().isValidProfileID(spawnerProfile)) {
 		Log::get().warn("%s:%d:%s: cannot add enchant with invalid spawner profile %d\n", __FILE__, __LINE__, __FUNCTION__, spawnerProfile);
@@ -2551,7 +2551,7 @@ bool Object::activateStealth()
         lineOfSightInfo.y0         = object->getPosY();
         lineOfSightInfo.z0         = object->getPosZ() + std::max(1.0f, object->bump.height);
         lineOfSightInfo.stopped_by = object->stoppedby;
-        if (line_of_sight_info_t::blocked(&lineOfSightInfo)) {
+        if (line_of_sight_info_t::blocked(lineOfSightInfo, _currentModule->getMeshPointer())) {
             continue;
         }
         

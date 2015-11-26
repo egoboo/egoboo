@@ -27,7 +27,7 @@
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 
-Team::Team(const uint8_t teamID) :
+Team::Team(const TEAM_REF teamID) :
     _teamID(teamID),
     _leader(),
     _sissy(),
@@ -118,4 +118,12 @@ void Team::decreaseMorale()
     {
         _morale--;
     }
+}
+
+bool team_hates_team(const Team& a, const Team& b) {
+    return a.hatesTeam(b);
+}
+
+bool team_hates_team(TEAM_REF a, TEAM_REF b) {
+    return team_hates_team(_currentModule->getTeamList()[a], _currentModule->getTeamList()[b]);
 }

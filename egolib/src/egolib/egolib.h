@@ -23,14 +23,21 @@
 #pragma once
 
 #include "egolib/Audio/AudioSystem.hpp"
+
+//--------------------------------------------------------------------------------------------
+
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
 #include "egolib/Core/System.hpp"
-#include "egolib/Math/_Include.hpp"
+
+//--------------------------------------------------------------------------------------------
+
 #include "egolib/Logic/Attribute.hpp"
 #include "egolib/Logic/PerkHandler.hpp"
 #include "egolib/Logic/ObjectSlot.hpp"
-#include "egolib/Renderer/DeferredOpenGLTexture.hpp"
+
+//--------------------------------------------------------------------------------------------
+
 #include "egolib/bbox.h"
 #include "egolib/Clock.hpp"
 #include "egolib/egoboo_setup.h"
@@ -39,8 +46,6 @@
 #include "egolib/fileutil.h"
 #include "egolib/font_bmp.h"
 #include "egolib/frustum.h"
-#include "egolib/_math.h"
-#include "egolib/Image/ImageManager.hpp"
 #include "egolib/input_device.h"
 #include "egolib/map_functions.h"
 #include "egolib/network.h"
@@ -49,29 +54,54 @@
 #include "egolib/strutil.h"
 #include "egolib/timer.h"
 #include "egolib/typedef.h"
-#include "egolib/vfs.h"
-#include "egolib/VFS/Pathname.hpp"
-#include "egolib/Math/Vector.hpp"
 
 //--------------------------------------------------------------------------------------------
+
+#include "egolib/Image/ImageManager.hpp"
+
+//--------------------------------------------------------------------------------------------
+
+#include "egolib/vfs.h"
+#include "egolib/VFS/Pathname.hpp"
+
+//--------------------------------------------------------------------------------------------
+
+#include "egolib/_math.h"
+#include "egolib/Math/_Include.hpp"
+
+//--------------------------------------------------------------------------------------------
+
+#include "egolib/AI/AStar.h"
+#include "egolib/AI/LineOfSight.hpp"
+
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/Time/LocalTime.hpp"
 #include "egolib/Time/SlidingWindow.hpp"
 #include "egolib/Time/Stopwatch.hpp"
 
+//--------------------------------------------------------------------------------------------
+
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Graphics/Font.hpp"
 #include "egolib/Graphics/TextureManager.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
-
-#include "egolib/Renderer/Renderer.hpp"
-
-#include "egolib/Log/_Include.hpp"
-#include "egolib/Profiles/_Include.hpp"
+#include "egolib/Graphics/ModelDescriptor.hpp"
 
 //--------------------------------------------------------------------------------------------
+
+#include "egolib/Renderer/Renderer.hpp"
+#include "egolib/Renderer/DeferredOpenGLTexture.hpp"
+
+//--------------------------------------------------------------------------------------------
+
+#include "egolib/Log/_Include.hpp"
+
+//--------------------------------------------------------------------------------------------
+
+#include "egolib/Profiles/_Include.hpp"
+
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/FileFormats/configfile.h"
@@ -86,5 +116,6 @@
 #include "egolib/FileFormats/treasure_table_file.h"
 #include "egolib/FileFormats/wawalite_file.h"
 
-#include "egolib/Console/Console.hpp"
+//--------------------------------------------------------------------------------------------
 
+#include "egolib/Console/Console.hpp"

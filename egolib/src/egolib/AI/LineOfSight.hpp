@@ -18,12 +18,25 @@
 //********************************************************************************************
 
 #pragma once
-#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
-#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
-#endif
 
-#include "egolib/Profiles/_AbstractProfileSystem.hpp"
-#include "egolib/Profiles/EnchantProfile.hpp"
-#include "egolib/Profiles/EnchantProfileReader.hpp"
+#include "egolib/typedef.h"
 
-extern AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX, EnchantProfileReader> EnchantProfileSystem;
+// Forward declarations.
+class ego_mesh_t;
+
+/// Data needed to specify a line-of-sight test
+struct line_of_sight_info_t
+{
+    float x0, y0, z0;
+    float x1, y1, z1;
+    uint32_t stopped_by;
+
+    ObjectRef collide_chr;
+    uint32_t  collide_fx;
+    int       collide_x;
+    int       collide_y;
+
+    static bool blocked(line_of_sight_info_t& self, std::shared_ptr<const ego_mesh_t> mesh);
+    static bool with_mesh(line_of_sight_info_t& self, std::shared_ptr<const ego_mesh_t> mesh);
+    static bool with_characters(line_of_sight_info_t& self);
+};

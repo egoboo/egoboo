@@ -41,7 +41,7 @@ public:
         TEAM_MAX
     };
 
-    Team(const uint8_t teamID);
+    Team(const TEAM_REF teamID);
 
     /**
     * @brief
@@ -146,4 +146,6 @@ inline bool VALID_TEAM_RANGE(const TEAM_REF team)
     return team < Team::TEAM_MAX;
 }
 
-#define team_hates_team(_TEAM_A_, _TEAM_B_) _currentModule->getTeamList()[_TEAM_A_].hatesTeam(_currentModule->getTeamList()[_TEAM_B_])
+bool team_hates_team(const Team& a, const Team& b);
+
+bool team_hates_team(TEAM_REF a, TEAM_REF b);

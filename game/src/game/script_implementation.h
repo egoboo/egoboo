@@ -49,28 +49,6 @@ struct line_of_sight_info_t;
 
 #define WAYTHRESH           (Info<int>::Grid::Size() >> 1)       ///< Threshold for reaching waypoint (GRID_FSIZE/2)
 
-
-
-//--------------------------------------------------------------------------------------------
-/// Data needed to specify a line-of-sight test
-struct line_of_sight_info_t
-{
-    float x0, y0, z0;
-    float x1, y1, z1;
-    Uint32 stopped_by;
-
-    ObjectRef collide_chr;
-    Uint32    collide_fx;
-    int       collide_x;
-    int       collide_y;
-
-	static bool blocked(line_of_sight_info_t * plos);
-	static bool with_mesh(line_of_sight_info_t * plos);
-	static bool with_characters(line_of_sight_info_t * plos);
-};
-
-
-
 //--------------------------------------------------------------------------------------------
 // wrap the BIT_FIELD macros, since lua doesn't recognize bitwise functions
 //--------------------------------------------------------------------------------------------

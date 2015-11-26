@@ -72,15 +72,15 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
                                                               const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                                                               const ObjectRef spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget, const bool onlyOverWater)
 {
-    const std::shared_ptr<pip_t> &ppip = PipStack.get_ptr(particleProfile);
+    const std::shared_ptr<pip_t> &ppip = ParticleProfileSystem::get().get_ptr(particleProfile);
 
     if (!ppip)
     {
         const std::string spawnOriginName = _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler()[spawnOrigin]->getName() : "INVALID";
         const std::string spawnProfileName = ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname() : "INVALID";
-		Log::get().debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+		Log::get().debug("spawn_one_particle() - cannot spawn particle with invalid particle profile == %d, spawn origin == %" PRIuZ " (\"%s\"), spawn profile == %d (\"%s\"))\n",
                          REF_TO_INT(particleProfile), 
-                         REF_TO_INT(spawnOrigin.get()), spawnOriginName.c_str(),
+                         spawnOrigin.get(), spawnOriginName.c_str(),
                          REF_TO_INT(spawnProfile), spawnProfileName.c_str());
 
         return Ego::Particle::INVALID_PARTICLE;
@@ -107,10 +107,10 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
 
     if(!particle) {
         const std::string spawnOriginName = _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->getName() : "INVALID";
-        const std::string spawnProfileName = LOADED_PIP(spawnProfile) ? PipStack.get_ptr(spawnProfile)->_name : "INVALID";
-        const std::string particleProfileName = ProfileSystem::get().isValidProfileID(particleProfile) ? ProfileSystem::get().getProfile(particleProfile)->getPathname().c_str() : "INVALID";
-        Log::get().debug("spawn_one_particle() - cannot allocate a particle!    owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-                         REF_TO_INT(spawnOrigin.get()), spawnOriginName.c_str(),
+        const std::string particleProfileName = LOADED_PIP(particleProfile) ? ParticleProfileSystem::get().get_ptr(particleProfile)->_name : "INVALID";
+        const std::string spawnProfileName = ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID";
+        Log::get().debug("spawn_one_particle() - cannot allocate a particle!    owner == %" PRIuZ "(\"%s\"), spawn profile == %d(\"%s\"), particle profile == %d(\"%s\")\n",
+                         spawnOrigin.get(), spawnOriginName.c_str(),
                          REF_TO_INT(spawnProfile), spawnProfileName.c_str(),
                          REF_TO_INT(particleProfile), particleProfileName.c_str());        
     }

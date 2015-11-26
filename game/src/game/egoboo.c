@@ -23,15 +23,16 @@
 
 #define DECLARE_GLOBALS
 #include "game/egoboo.h"
+
+#include "egolib/egolib.h"
+
 #include "game/game.h"
 #include "game/renderer_2d.h"
 #include "game/char.h"
-
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"
-
 #include "game/Module/Module.hpp"
-#include "egolib/Profiles/_Include.hpp"
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

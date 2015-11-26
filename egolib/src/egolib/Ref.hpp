@@ -251,15 +251,3 @@ const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Min
 
 template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
 const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Max(MAX);
-
-namespace std
-{
-    template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
-    struct hash<Ref<TYPE, MIN, MAX, INVALID, KIND>>
-    {
-        size_t operator()(const Ref<TYPE, MIN, MAX, INVALID, KIND>& ref) const
-        {
-            return hash<TYPE>()(ref.get());
-        }
-    };
-}

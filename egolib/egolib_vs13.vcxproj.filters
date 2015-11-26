@@ -459,6 +459,9 @@
     <ClCompile Include="src\egolib\Log\Level.cpp">
       <Filter>Source Files\Log</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\AI\LineOfSight.cpp">
+      <Filter>Source Files\AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -978,6 +981,9 @@
       <Filter>Header Files\Grid</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\AI\State.hpp">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\AI\LineOfSight.hpp">
       <Filter>Header Files\AI</Filter>
     </ClInclude>
   </ItemGroup>
