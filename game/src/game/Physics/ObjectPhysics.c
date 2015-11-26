@@ -1168,9 +1168,6 @@ void updateFacing(Object *pchr, const Vector2f &desiredVelocity)
                 {
                     pchr->ori.facing_z = static_cast<int>(pchr->ori.facing_z) + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosY() - pchr->getPosY() ), 8 );
                 }
-                else {
-                    pchr->ori.facing_z = static_cast<int>(pchr->ori.facing_z) + terp_dir( pchr->ori.facing_z, vec_to_facing(desiredVelocity[kX], desiredVelocity[kY]), 8 );
-                }
             }
             break;
 

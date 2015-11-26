@@ -259,10 +259,19 @@ namespace Math
         return value * value;
     }
 
+    /**
+    * @brief
+    *   Clamps the N first bits of an integral number.
+    * @param value
+    *   The number which should be bit clamped
+    * @return
+    *   An integer where the N first bits have been clamped
+    **/
     template<size_t BITS, typename T>
     int clipBits(const T &value)
     {
-        return static_cast<int>(value) & (1 << BITS);
+        static_assert(BITS > 0, "Cannot clamp zero bits");
+        return static_cast<int>(value) & (static_cast<int>(1 << BITS)-1);
     }
 
     /**
