@@ -4,6 +4,7 @@
 #include "game/renderer_2d.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
+#include "game/Core/GameEngine.hpp"
 
 static constexpr float MAX_DISPLACEMENT_XY = 20.0f; //Max velocity correction due to being inside a wall
 
@@ -1221,30 +1222,33 @@ void updateMovement(Object *object)
         if(targetVelocity.length() > maxSpeed) {
             targetVelocity *= maxSpeed / targetVelocity.length();
         }
-
-        //Determine acceleration/deceleration from motion and friction
-        Vector2f acceleration;
-        acceleration[kX] = (targetVelocity[kX] - object->vel[kX]) * object->enviro.friction_hrz * object->enviro.fluid_friction_hrz;
-        acceleration[kY] = (targetVelocity[kY] - object->vel[kY]) * object->enviro.friction_hrz * object->enviro.fluid_friction_hrz;
-
-        //How good grip do we have to add additional momentum?
-        if (object->enviro.grounded)
-        {
-            acceleration *= object->enviro._traction;
-        }
-
-        //Finally apply acceleration to velocity
-        object->vel[kX] += acceleration[kX];
-        object->vel[kY] += acceleration[kY];
     }
+    else {
+        targetVelocity.setZero();
+    }
+
+    //Determine acceleration/deceleration
+    Vector2f acceleration;
+    acceleration[kX] = (targetVelocity[kX] - object->vel[kX]) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration[kY] = (targetVelocity[kY] - object->vel[kY]) * (4.0f / GameEngine::GAME_TARGET_UPS);
+
+    //How good grip do we have to add additional momentum?
+    if (object->enviro.grounded)
+    {
+        acceleration *= object->enviro._traction;
+    }
+
+    //Finally apply acceleration to velocity
+    object->vel[kX] += acceleration[kX];
+    object->vel[kY] += acceleration[kY];
 }
 
 void updateFriction(Object *pchr)
 {
     //Apply air/water friction
-    pchr->vel[kX] -= pchr->vel[kX] * (1.0f - pchr->enviro.fluid_friction_hrz);
-    pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
-    pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
+    //pchr->vel[kX] -= pchr->vel[kX] * (1.0f - pchr->enviro.fluid_friction_hrz);
+    //pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
+    //pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
 
     //Only do floor friction if we are touching the ground
     if(!pchr->isFlying() && pchr->enviro.grounded) {
@@ -1253,20 +1257,21 @@ void updateFriction(Object *pchr)
         const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
         if (platform)
         {
-            pchr->vel[kX] += platform->vel[kX] * pchr->enviro.friction_hrz;
-            pchr->vel[kY] += platform->vel[kY] * pchr->enviro.friction_hrz;
+            //TODO: ZF> fix this
+            pchr->vel[kX] += (pchr->vel[kX] - platform->vel[kX]) * (1.0f / GameEngine::GAME_TARGET_UPS);
+            pchr->vel[kY] += (pchr->vel[kY] - platform->vel[kY]) * (1.0f / GameEngine::GAME_TARGET_UPS);
         }
 
         //Apply floor friction
-        pchr->vel[kX] *= pchr->enviro.friction_hrz;
-        pchr->vel[kY] *= pchr->enviro.friction_hrz;
+        //pchr->vel[kX] *= pchr->enviro.friction_hrz;
+        //pchr->vel[kY] *= pchr->enviro.friction_hrz;
 
         //Can the character slide on this floor?
         if (pchr->enviro.is_slippy)
         {
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
-                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - pchr->enviro.zlerp);
+                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - pchr->enviro.zlerp) * (1.0f - pchr->enviro._traction);
                 pchr->vel[kX] += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kX] * hillslide;
                 pchr->vel[kY] += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kY] * hillslide;
 
