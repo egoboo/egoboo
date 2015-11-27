@@ -350,7 +350,7 @@ void CollisionSystem::updateParticleCollisions()
             //Detect any collisions and handle it if needed
             float tmin, tmax;
             if(detectCollision(particle, object, &tmin, &tmax)) {
-                do_prt_platform_detection(object->getObjRef(), particle->getParticleID());
+                do_prt_platform_detection(object->getObjRef(), particle->getParticleID().get());
                 do_chr_prt_collision(object, particle, tmin, tmax);
             }
         }

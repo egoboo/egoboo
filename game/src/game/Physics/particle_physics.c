@@ -826,7 +826,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
 
                     if (particle->attachedto_vrt_off < vertices)
                     {
-                        vertex_occupied[particle->attachedto_vrt_off] = particle->getParticleID();
+                        vertex_occupied[particle->attachedto_vrt_off] = particle->getParticleID().get();
                     }
                 }
 
@@ -857,7 +857,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
 
                         if (bs_part)
                         {
-                            vertex_occupied[bestvertex] = bs_part->getParticleID();
+                            vertex_occupied[bestvertex] = bs_part->getParticleID().get();
                             bs_part->is_bumpspawn = true;
                             bs_count++;
                         }
@@ -899,7 +899,7 @@ prt_bundle_t::prt_bundle_t(Ego::Particle *prt)
         throw std::invalid_argument("nullptr == prt");
     }
     _prt_ptr = prt;
-    _prt_ref = _prt_ptr->getParticleID();
+    _prt_ref = _prt_ptr->getParticleID().get();
 
     _pip_ref = _prt_ptr->getProfileID();
     _pip_ptr = _prt_ptr->getProfile();
@@ -943,10 +943,10 @@ ObjectRef prt_get_iowner(const PRT_REF iprt, int depth)
         // make a check for a stupid looping structure...
         // cannot be sure you could never get a loop, though
 
-        if (!ParticleHandler::get()[pprt->parent_ref])
+        if (!ParticleHandler::get()[pprt->parent_ref.get()])
         {
             // make sure that a non valid parent_ref is marked as non-valid
-            pprt->parent_ref = INVALID_PRT_REF;
+            pprt->parent_ref = ParticleRef::Invalid;
         }
         else
         {
@@ -954,9 +954,9 @@ ObjectRef prt_get_iowner(const PRT_REF iprt, int depth)
             // it is possible that the pprt->parent_ref points to a valid particle that is
             // not the parent. Depending on how scrambled the list gets, there could actually
             // be looping structures. I have actually seen this, so don't laugh :)
-            if (iprt != pprt->parent_ref)
+            if (iprt != pprt->parent_ref.get())
             {
-                iowner = prt_get_iowner(pprt->parent_ref, depth + 1);
+                iowner = prt_get_iowner(pprt->parent_ref.get(), depth + 1);
             }
         }
     }

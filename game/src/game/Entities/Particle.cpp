@@ -36,7 +36,7 @@ namespace Ego
 const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 
 Particle::Particle() :
-    _particleID(INVALID_PRT_REF),
+    _particleID(),
     _collidedObjects(),
     _attachedTo(),
     _particleProfileID(INVALID_PIP_REF),
@@ -46,10 +46,10 @@ Particle::Particle() :
     _spawnerProfile(INVALID_PRO_REF),
     _isHoming(false)
 {
-    reset(INVALID_PRT_REF);
+    reset(ParticleRef::Invalid);
 }
 
-void Particle::reset(PRT_REF ref) 
+void Particle::reset(ParticleRef ref) 
 {
     //We are terminated until we are initialized()
     _isTerminated = true;
@@ -64,7 +64,7 @@ void Particle::reset(PRT_REF ref)
     _attachedTo = ObjectRef::Invalid;
     owner_ref = ObjectRef::Invalid;
     _target = ObjectRef::Invalid;
-    parent_ref = INVALID_PRT_REF;
+    parent_ref = ParticleRef::Invalid;
     _spawnerProfile = INVALID_PRO_REF,
 
     attachedto_vrt_off = 0;
@@ -403,7 +403,7 @@ void Particle::updateWater()
                     if (getPosZ() + bump_real.height > water._surface_level && getPosZ() - bump_real.height < water._surface_level)
                     {
                         int ripand = ~((~RIPPLEAND) << 1);
-                        if (0 == ((update_wld + _particleID) & ripand))
+                        if (0 == ((update_wld + _particleID.get()) & ripand))
                         {
 
                             spawn_valid = true;
@@ -570,7 +570,7 @@ size_t Particle::updateContinuousSpawning()
         }
         else {
             prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
-                                                                  ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
+                                                                  ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID.get(), tnc, _target);
         }
 
         if (prt_child)
@@ -591,7 +591,7 @@ void Particle::updateAttachedDamage()
     int max_damage = std::abs(damage.base) + std::abs(damage.rand);
 
     // wait until the right time
-    Uint32 update_count = update_wld + _particleID;
+    Uint32 update_count = update_wld + _particleID.get();
     if (0 != (update_count & 31)) return;
 
     // we must be attached to something
@@ -683,7 +683,7 @@ void Particle::updateAttachedDamage()
 
 void Particle::destroy()
 {
-    if(_particleID == INVALID_PRT_REF) {
+    if(_particleID == ParticleRef::Invalid) {
         throw std::logic_error("tried to destroy() Particle that was already destroyed");
     }
 
@@ -692,7 +692,7 @@ void Particle::destroy()
     }
 
     //This is no longer a valid particle
-    _particleID = INVALID_PRT_REF;
+    _particleID = ParticleRef::Invalid;
 
     // Spawn new particles if time for old one is up
     if (getProfile()->endspawn._amount > 0 && LocalParticleProfileRef::Invalid != getProfile()->endspawn._lpip)
@@ -710,7 +710,7 @@ void Particle::destroy()
                 //Local particle
                 ParticleHandler::get().spawnLocalParticle(getOldPosition(), facing, _spawnerProfile, getProfile()->endspawn._lpip,
                                                           ObjectRef::Invalid, GRIP_LAST, team, owner_ref,
-                                                          _particleID, tnc, _target);
+                                                          _particleID.get(), tnc, _target);
             }
 
             facing += getProfile()->endspawn._facingAdd;
@@ -753,9 +753,9 @@ void Particle::playSound(int8_t sound)
     }
 }
 
-bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
                           const PIP_REF particleProfile, const ObjectRef spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
-                          const ObjectRef spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
+                          const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                           const bool onlyOverWater)
 {
     const int INFINITE_UPDATES = std::numeric_limits<int>::max();
@@ -768,7 +768,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     //}
 
     //Clear any old data first
-    reset(particleID);
+    reset(ParticleRef(particleID));
 
     //Load particle profile
     _spawnerProfile = spawnProfile;
@@ -778,7 +778,7 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     assert(_particleProfile != nullptr); //"Tried to spawn particle with invalid PIP_REF"
 
     team = spawnTeam;
-    parent_ref = spawnParticleOrigin;
+    parent_ref = ParticleRef(spawnParticleOrigin);
     damagetype = getProfile()->damageType;
     lifedrain = getProfile()->lifeDrain;
     manadrain = getProfile()->manaDrain;
@@ -795,9 +795,9 @@ bool Particle::initialize(const PRT_REF particleID, const Vector3f& spawnPos, co
     // try to get an idea of who our owner is even if we are
     // given bogus info
     ObjectRef loc_chr_origin = spawnOrigin;
-    if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin])
+    if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin.get()])
     {
-        loc_chr_origin = prt_get_iowner(spawnParticleOrigin, 0);
+        loc_chr_origin = prt_get_iowner(spawnParticleOrigin.get(), 0);
     }
     owner_ref = loc_chr_origin;
 
@@ -1259,7 +1259,7 @@ void Particle::setTarget(const ObjectRef target)
     _target = target;
 }
 
-PRT_REF Particle::getParticleID() const 
+ParticleRef Particle::getParticleID() const 
 {
     return _particleID;
 }

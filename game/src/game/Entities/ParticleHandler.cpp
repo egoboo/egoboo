@@ -49,7 +49,7 @@ const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const PRT_REF
     }
 
     //Check if particle was marked as terminated
-    if((*result).second->isTerminated() || (*result).second->getParticleID() != index) {
+    if((*result).second->isTerminated() || (*result).second->getParticleID().get() != index) {
         _particleMap.erase(index);
         return Ego::Particle::INVALID_PARTICLE;        
     }
@@ -93,11 +93,11 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
     std::shared_ptr<Ego::Particle> particle = getFreeParticle(ppip->force);
     if(particle) {
         //Initialize particle and add it into the game
-        if(particle->initialize(_totalParticlesSpawned++, spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, 
-                                spawnTeam, spawnOrigin, spawnParticleOrigin, multispawn, spawnTarget, onlyOverWater)) 
+        if(particle->initialize(ParticleRef(_totalParticlesSpawned++), spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, 
+                                spawnTeam, spawnOrigin, ParticleRef(spawnParticleOrigin), multispawn, spawnTarget, onlyOverWater)) 
         {
             _pendingParticles.push_back(particle);
-            _particleMap[particle->getParticleID()] = particle;
+            _particleMap[particle->getParticleID().get()] = particle;
         }
         else {
             //If we failed to spawn somehow, put it back to the unused pool
@@ -217,7 +217,7 @@ void ParticleHandler::unlock()
 
             //Free to be used by another instance again
             _unusedPool.push_back(particle);
-            _particleMap.erase(particle->getParticleID());
+            _particleMap.erase(particle->getParticleID().get());
 
             return true;
         };

@@ -124,7 +124,7 @@ gfx_rv EntityList::add_prt_raw(const std::shared_ptr<Ego::Particle>& prt)
     /// @author ZZ
     /// @details This function puts an entity in the list
 
-    _lst.emplace_back(ObjectRef::Invalid, prt->getParticleID());
+    _lst.emplace_back(ObjectRef::Invalid, prt->getParticleID().get());
     prt->inst.indolist = true;
 
     return gfx_success;

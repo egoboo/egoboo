@@ -895,7 +895,7 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
-		ObjectRef prt_owner = prt_get_iowner( pdata->pprt->getParticleID(), 0 );
+		ObjectRef prt_owner = prt_get_iowner( pdata->pprt->getParticleID().get(), 0 );
         if ( _currentModule->getObjectHandler().exists( prt_owner ) )
         {
             ObjectRef chr_wielder = chr_get_lowest_attachment( pdata->pchr->getObjRef(), true );
@@ -941,7 +941,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
     if ( !pdata->prt_bumps_chr ) return false;
 
     // Catch on fire
-    spawn_bump_particles( pdata->pchr->getObjRef(), pdata->pprt->getParticleID() );
+    spawn_bump_particles( pdata->pchr->getObjRef(), pdata->pprt->getParticleID().get() );
 
     // handle some special particle interactions
     if ( pdata->pprt->getProfile()->end_bump )
@@ -1138,7 +1138,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
 
     chr_prt_collision_data_t cn_data;
 
-    bool intialized = do_chr_prt_collision_init(object->getObjRef(), particle->getParticleID(), &cn_data );
+    bool intialized = do_chr_prt_collision_init(object->getObjRef(), particle->getParticleID().get(), &cn_data );
     if ( !intialized ) return false;
 
     // ignore dead characters

@@ -550,12 +550,29 @@ typedef Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile> ParticleProfil
 DECLARE_REF(PIP_REF);
 #define INVALID_PIP_REF ((PIP_REF)MAX_PIP)
 
+typedef Ref<size_t, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), RefKind::Particle> ParticleRef;
+namespace std {
+    template <>
+    struct hash<ParticleRef> {
+        size_t operator()(const ParticleRef& x) const {
+            return hash<ParticleRef::Type>()(x.get());
+        }
+    };
+}
 typedef size_t PRT_REF;
 #define INVALID_PRT_REF std::numeric_limits<PRT_REF>::max()
 
 DECLARE_REF(PASS_REF);
 
 typedef Ref<REF_T, 0, OBJECTPROFILES_MAX, OBJECTPROFILES_MAX, RefKind::ObjectProfile> ObjectProfileRef;
+namespace std {
+    template <>
+    struct hash<ObjectProfileRef> {
+        size_t operator()(const ObjectProfileRef& x) const {
+            return hash<ObjectProfileRef::Type>()(x.get());
+        }
+    };
+}
 DECLARE_REF(PRO_REF);
 #define INVALID_PRO_REF ((PRO_REF)OBJECTPROFILES_MAX)
 

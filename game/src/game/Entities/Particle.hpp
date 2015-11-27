@@ -110,13 +110,13 @@ public:
 
     /**
      * @brief
-     *  Get the unique ParticleID number of this Particle. When this
-     *  particle is removed from the game the ID will not be re-used
-     *  and is forever invalid.
+     *  Get the unique particle reference of this particle. When this
+     *  particle is removed from the game the particle reference will
+     *  not be re-used and is forever invalid.
      * @return
-     *  an unique number identifying this exact particle
+     *  an unique particle reference of this particle
      */
-    PRT_REF getParticleID() const;
+    ParticleRef getParticleID() const;
 
     /**
      * @brief
@@ -277,9 +277,9 @@ public:
     * @note
     *   Should only ever be used by the ParticleHandler! *Do not use*
     **/
-    bool initialize(const PRT_REF particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+    bool initialize(const ParticleRef particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
                     const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                    const ObjectRef spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
+                    const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                     const bool onlyOverWater);
 
     /**
@@ -326,7 +326,7 @@ private:
     * @brief
     *   Clear the data of a Particle
     **/
-    void reset(PRT_REF ref);  
+    void reset(ParticleRef ref);  
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;
@@ -343,7 +343,7 @@ public:
      *  The original parent particle if any.
      *  The particle which has spawned this particle if any, INVALID_PRT_REF otherwise.
      */
-    PRT_REF parent_ref;                        ///< Did a another particle spawn this one?
+    ParticleRef parent_ref;                        ///< Did a another particle spawn this one?
 
     uint16_t   attachedto_vrt_off;             ///< It's vertex offset
     uint8_t    type;                           ///< Transparency mode, 0-2
@@ -441,7 +441,7 @@ public:
     Ego::prt_environment_t enviro;                  ///< the particle's environment
 
 private:
-    PRT_REF       _particleID;                 ///< Unique identifier
+    ParticleRef _particleID;                 ///< Unique identifier
 
     //Collisions
     std::forward_list<ObjectRef> _collidedObjects;    ///< List of the ID's of all Object this particle has collided with

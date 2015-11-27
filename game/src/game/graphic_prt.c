@@ -558,7 +558,7 @@ gfx_rv update_all_prt_instance(Camera& camera)
         else
         {
             // calculate the "billboard" for this particle
-            if (gfx_error == prt_instance_update(camera, particle->getParticleID(), 255, true))
+            if (gfx_error == prt_instance_update(camera, particle->getParticleID().get(), 255, true))
             {
                 retval = gfx_error;
             }
@@ -575,7 +575,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::P
 
     if (pprt->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, pprt->getParticleID(), "invalid particle");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, pprt->getParticleID().get(), "invalid particle");
         return gfx_error;
     }
 
