@@ -15,7 +15,7 @@ Image::Image(const std::string &filePath) :
 {
 }
 
-Image::Image(oglx_texture_t *texture) :
+Image::Image(Ego::OpenGL::Texture *texture) :
     _texture(""),
     _image(texture),
     _tint(Ego::Colour4f::white())

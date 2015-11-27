@@ -96,12 +96,12 @@ void gfx_reshape_viewport( int w, int h );
  */
 float draw_string(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
 float draw_wrap_string(const char *szText, float x, float y, int maxx);
-void draw_one_font(oglx_texture_t * ptex, int fonttype, float x, float y);
+void draw_one_font(Ego::OpenGL::Texture * ptex, int fonttype, float x, float y);
 int draw_string_raw(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
 
 // debugging functions
 int DisplayMsg_printf( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
 
 // graphics primitive functions
-void draw_quad_2d(const oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
+void draw_quad_2d(const Ego::OpenGL::Texture *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
 bool dump_screenshot();

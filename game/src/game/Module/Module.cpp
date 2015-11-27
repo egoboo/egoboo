@@ -508,13 +508,13 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     return pchr;
 }
 
-const oglx_texture_t* GameModule::getTileTexture(const size_t index)
+const Ego::OpenGL::Texture* GameModule::getTileTexture(const size_t index)
 {
     if(index >= _tileTextures.size()) return nullptr;
     return _tileTextures[index].get_ptr();
 }
 
-const oglx_texture_t* GameModule::getWaterTexture(const uint8_t layer)
+const Ego::OpenGL::Texture* GameModule::getWaterTexture(const uint8_t layer)
 {
     if(layer > _waterTextures.size()) return nullptr;
     return _waterTextures[layer].get_ptr();

@@ -26,7 +26,11 @@
 #include "egolib/typedef.h"
 #include "egolib/Math/Colour4f.hpp"
 
-struct oglx_texture_t;
+namespace Ego {
+namespace OpenGL {
+struct Texture;
+} // namespace OpenGL
+} // namespace Ego
 
 namespace Ego
 {

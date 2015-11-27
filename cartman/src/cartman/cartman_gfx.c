@@ -139,7 +139,7 @@ SDL_Color MAKE_SDLCOLOR( Uint8 BB, Uint8 RR, Uint8 GG )
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
+Ego::OpenGL::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     Uint16 tx_bits, basetile;
     Uint8 fantype, fx;
@@ -202,7 +202,7 @@ oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t *tile_at( cartman_mpd_t * pmesh, int fan )
+Ego::OpenGL::Texture *tile_at( cartman_mpd_t * pmesh, int fan )
 {
     int    img;
     Uint16 img_base;
@@ -308,7 +308,7 @@ void make_planmap( cartman_mpd_t * pmesh )
         putx = 0;
         for ( x = 0; x < pmesh->info.getTileCountX(); x++ )
         {
-            oglx_texture_t * tx_tile;
+            Ego::OpenGL::Texture * tx_tile;
             tx_tile = tiny_tile_at( pmesh, x, y );
 
             if ( NULL != tx_tile )
@@ -408,7 +408,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
         if ( point_size > 0 )
         {
             int select_rv;
-            oglx_texture_t * tx_tmp;
+            Ego::OpenGL::Texture * tx_tmp;
 
             select_rv = select_lst_t::find(plst, vert);
             if ( select_rv < 0 )
@@ -500,7 +500,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
     for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
     {
         int select_rv;
-        oglx_texture_t * tx_tmp = NULL;
+        Ego::OpenGL::Texture * tx_tmp = NULL;
 
         vert = faketoreal[cnt];
 
@@ -568,7 +568,7 @@ void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, in
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool draw_tile, cartman_mpd_t * pmesh )
+void draw_top_tile( float x0, float y0, int fan, Ego::OpenGL::Texture * tx_tile, bool draw_tile, cartman_mpd_t * pmesh )
 {
     static simple_vertex_t loc_vrt[4];
 
@@ -787,7 +787,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
 }
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, float height )
+void ogl_draw_sprite_2d(Ego::OpenGL::Texture * img, float x, float y, float width, float height )
 {
     float w, h;
     float min_s, max_s, min_t, max_t;
@@ -836,7 +836,7 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
 }
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
+void ogl_draw_sprite_3d(Ego::OpenGL::Texture * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
 {
     float w, h;
     float min_s, max_s, min_t, max_t;
@@ -1221,7 +1221,7 @@ void get_small_tiles( SDL_Surface* bmpload )
         {
             SDL_Rect src1 = { static_cast<Sint16>(x), static_cast<Sint16>(y), static_cast<Uint16>( step_x - 1 ), static_cast<Uint16>( step_y - 1 ) };
 
-            tx_smalltile[numsmalltile] = new oglx_texture_t();
+            tx_smalltile[numsmalltile] = new Ego::OpenGL::Texture();
 
             image = SDL_GL_createSurface( SMALLXY, SMALLXY );
             if (!image)
@@ -1272,7 +1272,7 @@ void get_big_tiles( SDL_Surface* bmpload )
             src1.w = wid;
             src1.h = hgt;
 
-            tx_bigtile[numbigtile] = new oglx_texture_t();
+            tx_bigtile[numbigtile] = new Ego::OpenGL::Texture();
 
             image = SDL_GL_createSurface( SMALLXY, SMALLXY );
             if (!image)

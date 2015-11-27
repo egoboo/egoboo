@@ -38,7 +38,7 @@ extern int ptex_w[2];
 extern int ptex_h[2];
 extern float ptex_wscale[2];
 extern float ptex_hscale[2];
-void prt_set_texture_params(const oglx_texture_t* texture, uint8_t type);
+void prt_set_texture_params(const Ego::OpenGL::Texture* texture, uint8_t type);
 float CALCULATE_PRT_U0(int IDX, int CNT);
 float CALCULATE_PRT_U1(int IDX, int CNT);
 float CALCULATE_PRT_V0(int IDX, int CNT);

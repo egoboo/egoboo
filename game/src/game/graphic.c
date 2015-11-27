@@ -689,7 +689,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
     //Now draw it
     if (x > 0.0f && y > 0.0f)
     {
-        const oglx_texture_t * ptex = TextureManager::get().getTexture("mp_data/blip").get();
+        const Ego::OpenGL::Texture * ptex = TextureManager::get().getTexture("mp_data/blip").get();
 
         tx_rect.xmin = (float)bliprect[color]._left / (float)ptex->getWidth();
         tx_rect.xmax = (float)bliprect[color]._right / (float)ptex->getWidth();
@@ -709,7 +709,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_icon_texture(const oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
+float draw_icon_texture(const Ego::OpenGL::Texture * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
@@ -780,7 +780,7 @@ float draw_icon_texture(const oglx_texture_t * ptex, float x, float y, Uint8 spa
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_game_icon(const oglx_texture_t* icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
+float draw_game_icon(const Ego::OpenGL::Texture* icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
 {
     /// @author ZZ
     /// @details This function draws an icon
@@ -1030,7 +1030,7 @@ void draw_mouse_cursor()
     //    return;
     //}
 
-    const std::shared_ptr<oglx_texture_t> &pcursor = TextureManager::get().getTexture("mp_data/cursor");
+    const std::shared_ptr<Ego::OpenGL::Texture> &pcursor = TextureManager::get().getTexture("mp_data/cursor");
 
     // Invalid texture?
     if (nullptr == pcursor)
@@ -2614,8 +2614,8 @@ gfx_rv gfx_update_all_chr_instance()
 // Tiled texture "optimizations"
 //--------------------------------------------------------------------------------------------
 
-oglx_texture_t *TextureAtlasManager::sml[MESH_IMG_COUNT];
-oglx_texture_t *TextureAtlasManager::big[MESH_IMG_COUNT];
+Ego::OpenGL::Texture *TextureAtlasManager::sml[MESH_IMG_COUNT];
+Ego::OpenGL::Texture *TextureAtlasManager::big[MESH_IMG_COUNT];
 
 int TextureAtlasManager::big_cnt = 0;
 int TextureAtlasManager::sml_cnt = 0;
@@ -2744,7 +2744,7 @@ void TextureAtlasManager::reinitialize()
     big_cnt = 0;
 }
 
-oglx_texture_t *TextureAtlasManager::get_sml(int which)
+Ego::OpenGL::Texture *TextureAtlasManager::get_sml(int which)
 {
     if (!initialized)
     {
@@ -2757,7 +2757,7 @@ oglx_texture_t *TextureAtlasManager::get_sml(int which)
     return sml[which];
 }
 
-oglx_texture_t *TextureAtlasManager::get_big(int which)
+Ego::OpenGL::Texture *TextureAtlasManager::get_big(int which)
 {
     if (!initialized)
     {
@@ -2770,7 +2770,7 @@ oglx_texture_t *TextureAtlasManager::get_big(int which)
     return big[which];
 }
 
-int TextureAtlasManager::decimate_one_mesh_texture(const oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification)
+int TextureAtlasManager::decimate_one_mesh_texture(const Ego::OpenGL::Texture *src_tx, Ego::OpenGL::Texture *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification)
 {
     static constexpr size_t SUB_TEXTURES = 8;
 
@@ -2806,7 +2806,7 @@ int TextureAtlasManager::decimate_one_mesh_texture(const oglx_texture_t *src_tx,
             src_img_rect.x = std::floor(fx);
 
             // grab the destination texture
-            oglx_texture_t *dst_tx = new oglx_texture_t();
+            Ego::OpenGL::Texture *dst_tx = new Ego::OpenGL::Texture();
 
             // create a blank destination SDL_Surface
             const auto& pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
@@ -2915,9 +2915,9 @@ bool mesh_tx_none = false;
 TX_REF mesh_tx_image = MESH_IMG_COUNT;
 uint8_t mesh_tx_size = 0xFF;
 
-oglx_texture_t *ego_mesh_get_texture(Uint8 image, Uint8 size)
+Ego::OpenGL::Texture *ego_mesh_get_texture(Uint8 image, Uint8 size)
 {
-	oglx_texture_t * tx_ptr = nullptr;
+    Ego::OpenGL::Texture * tx_ptr = nullptr;
 
 	if (0 == size)
 	{
@@ -2937,10 +2937,10 @@ void mesh_texture_invalidate()
 	mesh_tx_size = 0xFF;
 }
 
-oglx_texture_t * mesh_texture_bind(const ego_tile_info_t * ptile)
+Ego::OpenGL::Texture * mesh_texture_bind(const ego_tile_info_t * ptile)
 {
 	Uint8  tx_image, tx_size;
-	oglx_texture_t  * tx_ptr = NULL;
+    Ego::OpenGL::Texture  * tx_ptr = NULL;
 	bool needs_bind = false;
 
 	// bind a NULL texture if we are in that mode

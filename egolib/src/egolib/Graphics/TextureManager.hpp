@@ -75,7 +75,7 @@ public:
     * @param filePath
     *   File path of the texture to load
     * @return
-    *   The oglx_texture_t loaded by this TextureManager. Could be the error texture if the specified
+    *   The texture loaded by this texture manager. Could be the error texture if the specified
     *   path cannot be found. 
     **/
     const std::shared_ptr<Ego::OpenGL::Texture>& getTexture(const std::string &filePath);

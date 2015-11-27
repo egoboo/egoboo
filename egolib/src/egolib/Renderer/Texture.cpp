@@ -363,6 +363,9 @@ struct CErrorTexture
 static CErrorTexture *_errorTexture1D = nullptr;
 static CErrorTexture *_errorTexture2D = nullptr;
 
+namespace Ego {
+namespace OpenGL {
+
 void initializeErrorTextures()
 {
     if (!_errorTexture1D)
@@ -407,6 +410,9 @@ bool isErrorTextureID(GLuint id)
     if(!_errorTexture1D || !_errorTexture2D) return false;
     return id == _errorTexture1D->_id
         || id == _errorTexture2D->_id;
+}
+
+}
 }
 
 namespace Ego {

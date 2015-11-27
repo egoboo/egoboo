@@ -30,7 +30,11 @@
 //--------------------------------------------------------------------------------------------
 
 struct ego_mesh_info_t;
-struct oglx_texture_t;
+namespace Ego {
+namespace OpenGL {
+struct Texture;
+} // namespace OpenGL
+} // namespace Ego
 
 //--------------------------------------------------------------------------------------------
 
