@@ -334,16 +334,17 @@ public:
     // links
     /**
      * @brief
-     *  The object owning this particle.
+     *  Object reference of the object owning this particle if any, an invalid object reference otherwise.
      *  Example: A fire particle is owned by a torch.
      */
     ObjectRef owner_ref;
     /**
      * @brief
-     *  The original parent particle if any.
-     *  The particle which has spawned this particle if any, INVALID_PRT_REF otherwise.
+     *  Particle reference of the parent particle if any, an invalid particle reference otherwise.
+     * @remark
+     *  The parent particle is the particle which has spawned this particle.
      */
-    ParticleRef parent_ref;                        ///< Did a another particle spawn this one?
+    ParticleRef parent_ref;
 
     uint16_t   attachedto_vrt_off;             ///< It's vertex offset
     uint8_t    type;                           ///< Transparency mode, 0-2

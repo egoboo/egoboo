@@ -51,12 +51,12 @@ struct EntityList
         element_t(const element_t& other)
             : iobj(other.iobj), iprt(other.iprt), dist(other.dist)
         { }
-        element_t(ObjectRef iobj, PRT_REF iprt)
+        element_t(ObjectRef iobj, ParticleRef iprt)
             : iobj(iobj), iprt(iprt), dist(0.0f)
         { }
 
         ObjectRef iobj;
-        PRT_REF iprt;
+        ParticleRef iprt;
         float dist;
     };
     struct Compare {

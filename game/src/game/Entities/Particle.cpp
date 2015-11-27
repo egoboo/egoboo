@@ -570,7 +570,7 @@ size_t Particle::updateContinuousSpawning()
         }
         else {
             prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
-                                                                  ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID.get(), tnc, _target);
+                                                                  ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
         }
 
         if (prt_child)
@@ -710,7 +710,7 @@ void Particle::destroy()
                 //Local particle
                 ParticleHandler::get().spawnLocalParticle(getOldPosition(), facing, _spawnerProfile, getProfile()->endspawn._lpip,
                                                           ObjectRef::Invalid, GRIP_LAST, team, owner_ref,
-                                                          _particleID.get(), tnc, _target);
+                                                          _particleID, tnc, _target);
             }
 
             facing += getProfile()->endspawn._facingAdd;
@@ -797,7 +797,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     ObjectRef loc_chr_origin = spawnOrigin;
     if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin.get()])
     {
-        loc_chr_origin = prt_get_iowner(spawnParticleOrigin.get(), 0);
+        loc_chr_origin = prt_get_iowner(spawnParticleOrigin, 0);
     }
     owner_ref = loc_chr_origin;
 

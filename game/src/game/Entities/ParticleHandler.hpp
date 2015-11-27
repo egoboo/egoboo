@@ -144,11 +144,10 @@ public:
      */
     std::shared_ptr<Ego::Particle> spawnLocalParticle(const Vector3f& position, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                                       const ObjectRef chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                                                      const ObjectRef chr_origin, const PRT_REF prt_origin, int multispawn, const ObjectRef oldtarget);
+                                                      const ObjectRef chr_origin, const ParticleRef prt_origin, int multispawn, const ObjectRef oldtarget);
     /**
-     * @brief Return a pointer object for the specifiec PRT_REF.
-     * @return a pointer object for the specified PRT_REF.
-     *         Return nullptr object if PRT_REF was not found.
+     * @brief Get a pointer to the particle for a specified particle reference.
+     * @return a pointer to the referenced particle if it was found, the null pointer otherwise
      */
     const std::shared_ptr<Ego::Particle>& operator[] (const PRT_REF index);
 
@@ -185,7 +184,7 @@ public:
      */
     std::shared_ptr<Ego::Particle> spawnParticle(const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
                                                  const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                                                 const ObjectRef spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0,
+                                                 const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin = ParticleRef::Invalid, const int multispawn = 0,
                                                  const ObjectRef spawnTarget = ObjectRef::Invalid, const bool onlyOverWater = false);
 
     /**

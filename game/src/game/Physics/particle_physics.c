@@ -709,7 +709,7 @@ void move_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
+int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
 {
     /// @author ZZ
     /// @details This function is for catching characters on fire and such
@@ -721,7 +721,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
     FACING_T direction;
     float    fsin, fcos;
 
-    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle.get()];
     if(!pprt || pprt->isTerminated()) {
         return 0;
     }
@@ -790,7 +790,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
             {
                 TURN_T   turn;
 
-				auto vertex_occupied = std::make_unique<PRT_REF[]>(vertices);
+				auto vertex_occupied = std::make_unique<ParticleRef[]>(vertices);
                 auto vertex_distance = std::make_unique<float[]>(vertices);
 
                 // this could be done more easily with a quicksort....
@@ -814,7 +814,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
                          + std::abs(z - pchr->inst.vrt_lst[vertices - cnt - 1].pos[ZZ]);
 
                     vertex_distance[cnt] = dist;
-                    vertex_occupied[cnt] = INVALID_PRT_REF;
+                    vertex_occupied[cnt] = ParticleRef::Invalid;
                 }
 
                 // determine if some of the vertex sites are already occupied
@@ -826,7 +826,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
 
                     if (particle->attachedto_vrt_off < vertices)
                     {
-                        vertex_occupied[particle->attachedto_vrt_off] = particle->getParticleID().get();
+                        vertex_occupied[particle->attachedto_vrt_off] = particle->getParticleID();
                     }
                 }
 
@@ -841,7 +841,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
 
                         for (cnt = 0; cnt < vertices; cnt++)
                         {
-                            if (INVALID_PRT_REF != vertex_occupied[cnt])
+                            if (ParticleRef::Invalid != vertex_occupied[cnt])
                                 continue;
 
                             if (vertex_distance[cnt] < bestdistance)
@@ -857,7 +857,7 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
 
                         if (bs_part)
                         {
-                            vertex_occupied[bestvertex] = bs_part->getParticleID().get();
+                            vertex_occupied[bestvertex] = bs_part->getParticleID();
                             bs_part->is_bumpspawn = true;
                             bs_count++;
                         }
@@ -888,24 +888,24 @@ int spawn_bump_particles(ObjectRef character, const PRT_REF particle)
 }
 
 prt_bundle_t::prt_bundle_t()
-    : _prt_ref(INVALID_PRT_REF), _prt_ptr(nullptr),
+    : _prt_ref(), _prt_ptr(nullptr),
       _pip_ref(INVALID_PIP_REF), _pip_ptr(nullptr) {
 }
 
 prt_bundle_t::prt_bundle_t(Ego::Particle *prt)
-    : _prt_ref(INVALID_PRT_REF), _prt_ptr(nullptr),
+    : _prt_ref(), _prt_ptr(nullptr),
       _pip_ref(INVALID_PIP_REF), _pip_ptr(nullptr) {
     if (!prt) {
         throw std::invalid_argument("nullptr == prt");
     }
     _prt_ptr = prt;
-    _prt_ref = _prt_ptr->getParticleID().get();
+    _prt_ref = _prt_ptr->getParticleID();
 
     _pip_ref = _prt_ptr->getProfileID();
     _pip_ptr = _prt_ptr->getProfile();
 }
 
-ObjectRef prt_get_iowner(const PRT_REF iprt, int depth)
+ObjectRef prt_get_iowner(const ParticleRef iprt, int depth)
 {
     /// @author BB
     /// @details A helper function for determining the owner of a paricle
@@ -928,7 +928,7 @@ ObjectRef prt_get_iowner(const PRT_REF iprt, int depth)
         return ObjectRef::Invalid;
     }
 
-    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt.get()];
     if(pprt == nullptr || pprt->isTerminated()) {
         return ObjectRef::Invalid;
     }
@@ -954,9 +954,9 @@ ObjectRef prt_get_iowner(const PRT_REF iprt, int depth)
             // it is possible that the pprt->parent_ref points to a valid particle that is
             // not the parent. Depending on how scrambled the list gets, there could actually
             // be looping structures. I have actually seen this, so don't laugh :)
-            if (iprt != pprt->parent_ref.get())
+            if (iprt != pprt->parent_ref)
             {
-                iowner = prt_get_iowner(pprt->parent_ref.get(), depth + 1);
+                iowner = prt_get_iowner(pprt->parent_ref, depth + 1);
             }
         }
     }

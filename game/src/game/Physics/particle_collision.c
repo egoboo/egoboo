@@ -49,7 +49,7 @@ public:
     ObjectRef ichr;
     Object *pchr;
 
-    PRT_REF iprt;
+    ParticleRef iprt;
     std::shared_ptr<Ego::Particle> pprt;
     std::shared_ptr<pip_t> ppip;
 
@@ -122,7 +122,7 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool do_chr_prt_collision_init( const ObjectRef ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
+static bool do_chr_prt_collision_init( const ObjectRef ichr, const ParticleRef iprt, chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( chr_prt_collision_data_t * pdata, const float tmin, const float tmax );
 
 static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
@@ -241,7 +241,7 @@ void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_prt_platform_detection( const ObjectRef ichr_a, const PRT_REF iprt_b )
+bool do_prt_platform_detection( const ObjectRef ichr_a, const ParticleRef iprt_b )
 {
     Object * pchr_a;
 
@@ -259,7 +259,7 @@ bool do_prt_platform_detection( const ObjectRef ichr_a, const PRT_REF iprt_b )
     pchr_a = _currentModule->getObjectHandler().get( ichr_a );
 
     // make sure that B is valid
-    const std::shared_ptr<Ego::Particle> &pprt_b = ParticleHandler::get()[iprt_b];
+    const std::shared_ptr<Ego::Particle> &pprt_b = ParticleHandler::get()[iprt_b.get()];
     if ( !pprt_b || pprt_b->isTerminated() ) return false;
 
     //Already attached to a platform?
@@ -895,7 +895,7 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
-		ObjectRef prt_owner = prt_get_iowner( pdata->pprt->getParticleID().get(), 0 );
+		ObjectRef prt_owner = prt_get_iowner( pdata->pprt->getParticleID(), 0 );
         if ( _currentModule->getObjectHandler().exists( prt_owner ) )
         {
             ObjectRef chr_wielder = chr_get_lowest_attachment( pdata->pchr->getObjRef(), true );
@@ -941,7 +941,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
     if ( !pdata->prt_bumps_chr ) return false;
 
     // Catch on fire
-    spawn_bump_particles( pdata->pchr->getObjRef(), pdata->pprt->getParticleID().get() );
+    spawn_bump_particles( pdata->pchr->getObjRef(), pdata->pprt->getParticleID() );
 
     // handle some special particle interactions
     if ( pdata->pprt->getProfile()->end_bump )
@@ -980,15 +980,15 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_init( const ObjectRef ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata )
+bool do_chr_prt_collision_init( const ObjectRef ichr, const ParticleRef iprt, chr_prt_collision_data_t * pdata )
 {
     if ( NULL == pdata ) return false;
 
     *pdata = chr_prt_collision_data_t();
 
-    if ( !ParticleHandler::get()[iprt] ) return false;
+    if ( !ParticleHandler::get()[iprt.get()] ) return false;
     pdata->iprt = iprt;
-    pdata->pprt = ParticleHandler::get()[iprt];
+    pdata->pprt = ParticleHandler::get()[iprt.get()];
 
     // make sure that it is on
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
@@ -1138,7 +1138,7 @@ bool do_chr_prt_collision(const std::shared_ptr<Object> &object, const std::shar
 
     chr_prt_collision_data_t cn_data;
 
-    bool intialized = do_chr_prt_collision_init(object->getObjRef(), particle->getParticleID().get(), &cn_data );
+    bool intialized = do_chr_prt_collision_init(object->getObjRef(), particle->getParticleID(), &cn_data );
     if ( !intialized ) return false;
 
     // ignore dead characters

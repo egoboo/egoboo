@@ -26,12 +26,12 @@ gfx_rv EntityList::reset()
     for(element_t &element : _lst)
     {
         // Tell all valid objects that they are removed from this dolist.
-        if (ObjectRef::Invalid == element.iobj && element.iprt != INVALID_PRT_REF)
+        if (ObjectRef::Invalid == element.iobj && element.iprt != ParticleRef::Invalid)
         {
-            const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element.iprt];
+            const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element.iprt.get()];
             if (nullptr != pprt) pprt->inst.indolist = false;
         }
-        else if (INVALID_PRT_REF == element.iprt && ObjectRef::Invalid != element.iobj)
+        else if (ParticleRef::Invalid == element.iprt && ObjectRef::Invalid != element.iobj)
         {
             const std::shared_ptr<Object> &pobj = _currentModule->getObjectHandler()[element.iobj];
             if (nullptr != pobj) pobj->inst.indolist = false;
@@ -76,7 +76,7 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
     }
 
     // Add!
-    _lst.emplace_back(obj.getObjRef(), INVALID_PRT_REF);
+    _lst.emplace_back(obj.getObjRef(), ParticleRef::Invalid);
 
     // Notify it that it is in a do list.
     obj.inst.indolist = true;
@@ -124,7 +124,7 @@ gfx_rv EntityList::add_prt_raw(const std::shared_ptr<Ego::Particle>& prt)
     /// @author ZZ
     /// @details This function puts an entity in the list
 
-    _lst.emplace_back(ObjectRef::Invalid, prt->getParticleID().get());
+    _lst.emplace_back(ObjectRef::Invalid, prt->getParticleID());
     prt->inst.indolist = true;
 
     return gfx_success;
@@ -150,7 +150,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
     {
 		Vector3f vtmp;
 
-        if (INVALID_PRT_REF == _lst[i].iprt && ObjectRef::Invalid != _lst[i].iobj)
+        if (ParticleRef::Invalid == _lst[i].iprt && ObjectRef::Invalid != _lst[i].iobj)
         {
 			Vector3f pos_tmp;
 
@@ -167,17 +167,17 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
 
             vtmp = pos_tmp - cam.getPosition();
         }
-        else if (ObjectRef::Invalid == _lst[i].iobj && _lst[i].iprt != INVALID_PRT_REF)
+        else if (ObjectRef::Invalid == _lst[i].iobj && _lst[i].iprt != ParticleRef::Invalid)
         {
-            PRT_REF iprt = _lst[i].iprt;
+            ParticleRef iprt = _lst[i].iprt;
 
             if (do_reflect)
             {
-                vtmp = ParticleHandler::get()[iprt]->inst.pos - cam.getPosition();
+                vtmp = ParticleHandler::get()[iprt.get()]->inst.pos - cam.getPosition();
             }
             else
             {
-                vtmp = ParticleHandler::get()[iprt]->inst.ref_pos - cam.getPosition();
+                vtmp = ParticleHandler::get()[iprt.get()]->inst.ref_pos - cam.getPosition();
             }
         }
         else
