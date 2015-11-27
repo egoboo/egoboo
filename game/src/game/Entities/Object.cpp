@@ -2583,15 +2583,15 @@ bool Object::isScenery() const
     if(isItem()) {
         return false;
     }
-
-    //Everything on team NULL that is not an item is neutral by definition
-    if(getTeam() == Team::TEAM_NULL) {
-        return true;
-    }
     
     //Can it move?
     if(getBaseAttribute(Ego::Attribute::ACCELERATION) > 0) {
         return false;
+    }
+
+    //Everything on team NULL that is not an item is neutral by definition
+    if(getTeam() == Team::TEAM_NULL) {
+        return true;
     }
 
     //Objects on other teams than TEAM_NULL can still be scenery, such as destructable tents or idols
