@@ -18,31 +18,26 @@
 //********************************************************************************************
 
 /// @file   egolib/Renderer/OpenGL/ColourBuffer.cpp
-/// @brief  Colour buffer facade for OpenGL 2.1
+/// @brief  Implementation of a colour buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/ColourBuffer.hpp"
 
-namespace Ego
-{
-namespace OpenGL
-{
+namespace Ego {
+namespace OpenGL {
 
 ColourBuffer::ColourBuffer() :
     Ego::ColourBuffer()
 {}
 
-ColourBuffer::~ColourBuffer()
-{}
+ColourBuffer::~ColourBuffer() {}
 
-void ColourBuffer::clear()
-{
+void ColourBuffer::clear() {
     glClear(GL_COLOR_BUFFER_BIT);
     Utilities::isError();
 }
 
-void ColourBuffer::setClearValue(const Colour4f& value)
-{
+void ColourBuffer::setClearValue(const Colour4f& value) {
     glClearColor(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
     Utilities::isError();
 }

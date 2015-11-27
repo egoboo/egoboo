@@ -23,15 +23,14 @@
 
 #pragma once
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
  *  An enumeration of culling modes.
  */
-enum class CullingMode
-{
+enum class CullingMode {
+
     /**
      * @brief
      *  Neither front-facing nor back-facing polygons are culled.
@@ -57,6 +56,7 @@ enum class CullingMode
     BackAndFront,
     
     _COUNT, ///< @todo Remove this.
-};
+
+}; // enum class CullingMode
 
 } // namespace Ego

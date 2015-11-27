@@ -23,16 +23,14 @@
 
 #pragma once
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
- *	An enumeration of texture address modes.
+ *  An enumeration of texture address modes.
  *  Defines what happens when texture coordinates exceed 1.0.
  */
-enum class TextureAddressMode
-{
+enum class TextureAddressMode {
     
     /**
      * @brief
@@ -83,6 +81,6 @@ enum class TextureAddressMode
 
     _COUNT, ///< @todo Remove this.
 
-};
+}; // enum class TextureAddressMode
 
 } // namespace Ego

@@ -18,21 +18,18 @@
 //********************************************************************************************
 
 /// @file   egolib/Renderer/OpenGL/ColourBuffer.hpp
-/// @brief  Colour buffer facade for OpenGL 2.1 
+/// @brief  Implementation of a colour buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 #pragma once
 
 #include "egolib/Renderer/Renderer.hpp"
 
-namespace Ego
-{
-namespace OpenGL
-{
+namespace Ego {
+namespace OpenGL {
 
 using namespace Math;
 
-class ColourBuffer : public Ego::ColourBuffer
-{
+class ColourBuffer : public Ego::ColourBuffer {
 
 public:
 
@@ -56,7 +53,7 @@ public:
     /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
     virtual void setClearValue(const Colour4f& value) override;
 
-};
+}; // class ColourBuffer
 
 } // namespace OpenGL
 } // namespace Ego

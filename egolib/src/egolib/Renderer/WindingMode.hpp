@@ -23,8 +23,7 @@
 
 #pragma once
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
@@ -42,8 +41,8 @@ namespace Ego
  *  in particular but not restricted to culling and tesselation - are influenced by the polygon
  *  winding.
  */
-enum class WindingMode
-{
+enum class WindingMode {
+
     /**
      * @brief
      *  Clockwise polygons are front-facing.
@@ -57,6 +56,7 @@ enum class WindingMode
     AntiClockwise,
     
     _COUNT, ///< @todo Remove this.
-};
+
+}; // enum class WindingMode
 
 } // namespace Ego

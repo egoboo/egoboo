@@ -38,12 +38,12 @@ namespace Ego
     struct Font::StringCacheData : Id::NonCopyable
     {
         Uint32 lastUseInTicks;
-        oglx_texture_t *tex;
+        Ego::OpenGL::Texture *tex;
         std::string text;
         
         StringCacheData() :
             lastUseInTicks(0),
-            tex(new oglx_texture_t())
+            tex(new Ego::OpenGL::Texture())
         {
             if (!tex)
             {
@@ -112,7 +112,7 @@ namespace Ego
         }
     }
     
-    void Font::drawTextToTexture(oglx_texture_t *tex, const std::string &text, const Ego::Math::Colour3f &colour) const
+    void Font::drawTextToTexture(Ego::OpenGL::Texture *tex, const std::string &text, const Ego::Math::Colour3f &colour) const
     {
         if (!tex)
         {

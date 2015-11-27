@@ -78,13 +78,13 @@ public:
     *   The oglx_texture_t loaded by this TextureManager. Could be the error texture if the specified
     *   path cannot be found. 
     **/
-    const std::shared_ptr<oglx_texture_t>& getTexture(const std::string &filePath);
+    const std::shared_ptr<Ego::OpenGL::Texture>& getTexture(const std::string &filePath);
 
     void updateDeferredLoading();
 
 private:
-	std::forward_list<std::shared_ptr<oglx_texture_t>> _unload;
-    std::unordered_map<std::string, std::shared_ptr<oglx_texture_t>> _textureCache;
+	std::forward_list<std::shared_ptr<Ego::OpenGL::Texture>> _unload;
+    std::unordered_map<std::string, std::shared_ptr<Ego::OpenGL::Texture>> _textureCache;
 
     std::mutex _deferredLoadingMutex;
     std::forward_list<std::string> _requestedLoadDeferredTextures;

@@ -21,8 +21,7 @@
 
 #include "egolib/vfs.h"
 
-class ImageLoader
-{
+class ImageLoader {
 
 private:
 

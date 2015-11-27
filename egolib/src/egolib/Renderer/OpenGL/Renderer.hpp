@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file   egolib/Renderer/OpenGL/Renderer.hpp
-/// @brief  OpenGL 2.1 based renderer
+/// @brief  Implementation of a renderer for OpenGL 2.1
 /// @author Michael Heilmann
 
 #pragma once
@@ -40,46 +40,42 @@
 /**
  * @ingroup egoboo-opengl
  * @brief
- *    The Egoboo OpenGL back-end.
- * @author
- *    Michael Heilmann
+ *  The Egoboo OpenGL back-end.
  */
-namespace Ego
-{
-namespace OpenGL
-{
+namespace Ego {
+namespace OpenGL {
 
 using namespace Math;
 
 struct Capabilities {
-	/**
-	 * @brief
-	 *  Get the set of extension strings of extensions supported by this OpenGL implementation.
-	 * @return
-	 *	the set of extension strings
-	 */
-	static std::unordered_set<std::string> getExtensions();
-	/**
-	 * @brief
-	 *  Get the name of the vendor of this OpenGL implementation.
-	 * @return
-	 *  the name of the vendor of this OpenGL implementation
-	 */
-	static std::string getVendor();
-	/**
-	 * @brief
-	 *  Get the name of this OpenGL implementation.
-	 * @return
-	 *  the name of this OpenGL implementation
-	 */
-	static std::string getName();
-	/**
-	 * @brief
-	 *  Get the version of this OpenGL implementation.
-	 * @return
-	 *  the version of this OpenGL implementation
-	 */
-	static std::string getVersion();
+    /**
+     * @brief
+     *  Get the set of extension strings of extensions supported by this OpenGL implementation.
+     * @return
+     *  the set of extension strings
+     */
+    static std::unordered_set<std::string> getExtensions();
+    /**
+     * @brief
+     *  Get the name of the vendor of this OpenGL implementation.
+     * @return
+     *  the name of the vendor of this OpenGL implementation
+     */
+    static std::string getVendor();
+    /**
+     * @brief
+     *  Get the name of this OpenGL implementation.
+     * @return
+     *  the name of this OpenGL implementation
+     */
+    static std::string getName();
+    /**
+     * @brief
+     *  Get the version of this OpenGL implementation.
+     * @return
+     *  the version of this OpenGL implementation
+     */
+    static std::string getVersion();
 };
 
 class Renderer : public Ego::Renderer
@@ -120,11 +116,11 @@ protected:
      *  The name of this OpenGL implementation.
      */
     std::string _name;
-	/**
-	 * @brief
-	 *	The version of this OpenGL implementation.
-	 */
-	std::string _version;
+    /**
+     * @brief
+     *    The version of this OpenGL implementation.
+     */
+    std::string _version;
 public:
     /**
      * @brief
@@ -148,21 +144,21 @@ public:
     /** @copydoc Ego::Renderer::getDepthBuffer() */
     virtual Ego::DepthBuffer& getDepthBuffer() override;
 
-	/** @copydoc Ego::Renderer::getTextureUnit() */
-	virtual Ego::TextureUnit& getTextureUnit() override;
+    /** @copydoc Ego::Renderer::getTextureUnit() */
+    virtual Ego::TextureUnit& getTextureUnit() override;
 
     /** @copydoc Ego::Renderer::setAlphaTestEnabled */
     virtual void setAlphaTestEnabled(bool enabled) override;
 
-	/** @copydoc Ego::Renderer::setAlphaFunction */
-	virtual void setAlphaFunction(CompareFunction function, float value) override;
+    /** @copydoc Ego::Renderer::setAlphaFunction */
+    virtual void setAlphaFunction(CompareFunction function, float value) override;
 
     /** @copydoc Ego::Renderer::setBlendingEnabled */
     virtual void setBlendingEnabled(bool enabled) override;
 
-	/** @copydoc Ego::Renderer::setSourceBlendFunction */
-	virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
-		                          BlendFunction destinationColour, BlendFunction destinationAlpha) override;
+    /** @copydoc Ego::Renderer::setSourceBlendFunction */
+    virtual void setBlendFunction(BlendFunction sourceColour, BlendFunction sourceAlpha,
+                                  BlendFunction destinationColour, BlendFunction destinationAlpha) override;
 
     /** @copydoc Ego::Renderer::setColour */
     virtual void setColour(const Colour4f& colour) override;
@@ -212,29 +208,29 @@ public:
     /** @copydoc Ego::Renderer::setDitheringEnabled  */
     virtual void setDitheringEnabled(bool enabled) override;
 
-	/** @copydoc Ego::Renderer::setPointSmoothEnabled */
-	virtual void setPointSmoothEnabled(bool enabled) override;
+    /** @copydoc Ego::Renderer::setPointSmoothEnabled */
+    virtual void setPointSmoothEnabled(bool enabled) override;
 
-	/** @copydoc Ego::Renderer::setLineSmoothEnabled */
-	virtual void setLineSmoothEnabled(bool enabled) override;
+    /** @copydoc Ego::Renderer::setLineSmoothEnabled */
+    virtual void setLineSmoothEnabled(bool enabled) override;
 
-	/** @copydoc Ego::Renderer::setLineWidth */
-	virtual void setLineWidth(float width) override;
+    /** @copydoc Ego::Renderer::setLineWidth */
+    virtual void setLineWidth(float width) override;
 
-	/** @copydoc Ego::Renderer::setPointSize */
-	virtual void setPointSize(float size) override;
+    /** @copydoc Ego::Renderer::setPointSize */
+    virtual void setPointSize(float size) override;
 
-	/** @copydoc Ego::Renderer::setPolygonSmoothEnabled */
-	virtual void setPolygonSmoothEnabled(bool enabled) override;
+    /** @copydoc Ego::Renderer::setPolygonSmoothEnabled */
+    virtual void setPolygonSmoothEnabled(bool enabled) override;
 
     /** @copydoc Ego::Renderer::setMultisamplesEnabled */
     virtual void setMultisamplesEnabled(bool enabled) override;
 
-	/** @copydoc Ego::Renderer::setLightingEnabled */
-	virtual void setLightingEnabled(bool enabled) override;
+    /** @copydoc Ego::Renderer::setLightingEnabled */
+    virtual void setLightingEnabled(bool enabled) override;
 
-	/** @copydoc Ego::Renderer::setRasterizationMode */
-	virtual void setRasterizationMode(RasterizationMode mode) override;
+    /** @copydoc Ego::Renderer::setRasterizationMode */
+    virtual void setRasterizationMode(RasterizationMode mode) override;
 
     /** @copydoc Ego::Renderer::setGouraudShadingEnabled */
     virtual void setGouraudShadingEnabled(bool enabled) override;
@@ -243,7 +239,7 @@ public:
     virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) override;
 
 private:
-	GLenum toOpenGL(BlendFunction source);
+    GLenum toOpenGL(BlendFunction source);
 
 }; // class Renderer
 

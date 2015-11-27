@@ -23,8 +23,7 @@
 
 #pragma once
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
@@ -32,8 +31,7 @@ namespace Ego
  * @author
  *  Michael Heilmann
  */
-enum class TextureType
-{
+enum class TextureType {
 
     /**
      * @brief
@@ -49,6 +47,6 @@ enum class TextureType
     
     _COUNT,  ///< @todo Remove this.
 
-};
+}; // enum class TextureType
 
 } // namespace Ego

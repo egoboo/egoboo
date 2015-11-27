@@ -18,18 +18,16 @@
 //********************************************************************************************
 
 /// @file   egolib/Renderer/OpenGL/TextureUnit.hpp
-/// @brief  Texture unit facade for OpenGL 2.1 
+/// @brief  Implementation of a texture unit facade for OpenGL 2.1. 
 /// @author Michael Heilmann
 #pragma once
 
 #include "egolib/Renderer/Renderer.hpp"
 
-namespace Ego
-{
-namespace OpenGL
-{
-class TextureUnit : public Ego::TextureUnit
-{
+namespace Ego {
+namespace OpenGL {
+
+class TextureUnit : public Ego::TextureUnit {
 
 public:
 
@@ -46,8 +44,9 @@ public:
     virtual ~TextureUnit();
 
     /** @copydoc Ego::TextureUnit::setActivated */
-    virtual void setActivated(const oglx_texture_t *texture) override;
-};
+    virtual void setActivated(const Ego::Texture *texture) override;
+
+}; // struct TextureUnit
+
 } // namespace OpenGL
 } // namespace Ego
-

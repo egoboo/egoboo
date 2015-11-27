@@ -68,21 +68,21 @@ oglx_video_parameters_t ogl_vparam;
 
 SDL_Surface * bmphitemap = NULL;        // Heightmap image
 
-oglx_texture_t     *tx_point;      // Vertex image
-oglx_texture_t     *tx_pointon;    // Vertex image ( select_vertsed )
-oglx_texture_t     *tx_ref;        // Meshfx images
-oglx_texture_t     *tx_drawref;    //
-oglx_texture_t     *tx_anim;       //
-oglx_texture_t     *tx_water;      //
-oglx_texture_t     *tx_wall;       //
-oglx_texture_t     *tx_impass;     //
-oglx_texture_t     *tx_damage;     //
-oglx_texture_t     *tx_slippy;     //
+Ego::OpenGL::Texture     *tx_point;      // Vertex image
+Ego::OpenGL::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
+Ego::OpenGL::Texture     *tx_ref;        // Meshfx images
+Ego::OpenGL::Texture     *tx_drawref;    //
+Ego::OpenGL::Texture     *tx_anim;       //
+Ego::OpenGL::Texture     *tx_water;      //
+Ego::OpenGL::Texture     *tx_wall;       //
+Ego::OpenGL::Texture     *tx_impass;     //
+Ego::OpenGL::Texture     *tx_damage;     //
+Ego::OpenGL::Texture     *tx_slippy;     //
 
-oglx_texture_t     *tx_smalltile[MAXTILE]; // Tiles
-oglx_texture_t     *tx_bigtile[MAXTILE];   //
-oglx_texture_t     *tx_tinysmalltile[MAXTILE]; // Plan tiles
-oglx_texture_t     *tx_tinybigtile[MAXTILE];   //
+Ego::OpenGL::Texture     *tx_smalltile[MAXTILE]; // Tiles
+Ego::OpenGL::Texture     *tx_bigtile[MAXTILE];   //
+Ego::OpenGL::Texture     *tx_tinysmalltile[MAXTILE]; // Plan tiles
+Ego::OpenGL::Texture     *tx_tinybigtile[MAXTILE];   //
 
 int     numsmalltile = 0;   //
 int     numbigtile = 0;     //
@@ -1140,61 +1140,61 @@ void cartman_end_ortho_camera()
 //--------------------------------------------------------------------------------------------
 void load_img()
 {
-    tx_point = new oglx_texture_t;
+    tx_point = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_point->load("editor/point.png", gfx_loadImage("editor/point.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
     
-    tx_pointon = new oglx_texture_t;
+    tx_pointon = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_pointon->load("editor/pointon.png", gfx_loadImage("editor/pointon.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
     
-    tx_ref = new oglx_texture_t;
+    tx_ref = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_ref->load("editor/ref.png", gfx_loadImage("editor/ref.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
     
-    tx_drawref = new oglx_texture_t;
+    tx_drawref = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_drawref->load("editor/drawref.png", gfx_loadImage("editor/drawref.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
     
-    tx_anim = new oglx_texture_t;
+    tx_anim = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_anim->load("editor/anim.png", gfx_loadImage("editor/anim.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
     
-    tx_water = new oglx_texture_t;
+    tx_water = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_water->load("editor/water.png", gfx_loadImage("editor/water.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
     
-    tx_wall = new oglx_texture_t;
+    tx_wall = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_wall->load("editor/slit.png", gfx_loadImage("editor/slit.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
     
-    tx_impass = new oglx_texture_t;
+    tx_impass = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_impass->load("editor/impass.png", gfx_loadImage("editor/impass.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
     
-    tx_damage = new oglx_texture_t;
+    tx_damage = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_damage->load("editor/damage.png", gfx_loadImage("editor/damage.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
     
-    tx_slippy = new oglx_texture_t;
+    tx_slippy = new Ego::OpenGL::Texture;
     if (INVALID_GL_ID == tx_slippy->load("editor/slippy.png", gfx_loadImage("editor/slippy.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/slippy.png" );

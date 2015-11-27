@@ -33,15 +33,13 @@
  *  The image manager currently abstracts away the SDL_image/SDL image loading facilities.
  *  It is - in the end - just a minor improvement over the previous code, just enough to get going.
  */
-class ImageManager
-{
+class ImageManager {
 private:
     typedef std::vector<std::unique_ptr<ImageLoader>> Vector;
     /// Vector of available image loaders, ordered by priority from highest to lowest.
     Vector _loaders;
     
-    struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader>
-    {
+    struct Iterator : public std::iterator<std::forward_iterator_tag, ImageLoader> {
         ImageManager::Vector::const_iterator _inner;
     public:
         Iterator(const ImageManager::Vector::const_iterator& inner) :
@@ -51,15 +49,13 @@ private:
         // Forward iterator.
 
         // Prefix increment.
-        Iterator& operator++()
-        {
+        Iterator& operator++() {
             ++_inner;
             return *this;
         }
 
         // Postfix increment.
-        Iterator operator++(int)
-        {
+        Iterator operator++(int) {
             Iterator copy = *this;
             ++_inner;
             return copy;
@@ -77,30 +73,25 @@ private:
             _inner(other._inner)
         {}
 
-        Iterator& operator=(const Iterator& other)
-        {
+        Iterator& operator=(const Iterator& other) {
             _inner = other._inner;
             return *this;
         }
 
-        bool operator==(const Iterator& other) const
-        {
+        bool operator==(const Iterator& other) const {
             return _inner == other._inner;
         }
 
-        bool operator!=(const Iterator& other) const
-        {
+        bool operator!=(const Iterator& other) const {
             return _inner != other._inner;
         }
 
-        reference operator*() const
-        {
+        reference operator*() const {
             auto x = (*_inner).get();
             return *x;
         }
 
-        reference operator->() const
-        {
+        reference operator->() const {
             auto x = (*_inner).get();
             return *x;
         }
@@ -138,13 +129,13 @@ private:
     virtual ~ImageManager();
 
 private:
-	/**
-	 * @brief
-	 *	Register the image loaders supported by SDL image.
-	 * @param flags
-	 *	the return value of the call to IMG_init indicating which loaders are available.
-	 */
-	void registerImageLoaders(int flags);
+    /**
+     * @brief
+     *  Register the image loaders supported by SDL image.
+     * @param flags
+     *  the return value of the call to IMG_init indicating which loaders are available.
+     */
+    void registerImageLoaders(int flags);
 
 public:
     /**
@@ -152,8 +143,7 @@ public:
      *  Get an iterator pointing to the first loader supporting one of the specified extensions
      *  if such a loader exists, <tt>end()</tt> otherwise. The search range is <tt>[start, end())</tt>.
      */
-    Iterator find(std::unordered_set<std::string> extensions, Iterator start)
-    {
+    Iterator find(std::unordered_set<std::string> extensions, Iterator start) {
         auto it = start;
         while (it != end())
         {
@@ -173,8 +163,7 @@ public:
      * @remark
      *  <tt>o.find(s)</tt> is equivalent to <tt>o.find(s,o.begin())</tt>.
      */
-    Iterator find(std::unordered_set<std::string> extensions)
-    {
+    Iterator find(std::unordered_set<std::string> extensions) {
         return find(extensions, begin());
     }
     
@@ -185,8 +174,7 @@ public:
      *  an iterator pointing to the beginning of the loader list
      *  (<tt>end</tt> is returned if the loader list is empty).
      */
-    Iterator begin() const
-    {
+    Iterator begin() const {
         return Iterator(_loaders.begin());
     }
     
@@ -196,8 +184,7 @@ public:
      * @return
      *  an iterator pointing to the end of the loader list
      */
-    Iterator end() const
-    {
+    Iterator end() const {
         return Iterator(_loaders.end());
     }
     

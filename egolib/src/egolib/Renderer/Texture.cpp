@@ -34,8 +34,7 @@
 #include "egolib/Image/Image.hpp"
 #include "egolib/vfs.h"
 
-namespace Ego
-{
+namespace Ego {
 
 Texture::Texture(const std::string& name,
                  TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
@@ -51,93 +50,75 @@ Texture::Texture(const std::string& name,
 Texture::~Texture()
 {}
 
-TextureType Texture::getType() const
-{
-	return _type;
+TextureType Texture::getType() const {
+    return _type;
 }
 
-TextureFilter Texture::getMipMapFilter() const
-{
-	return _mipMapFilter;
+TextureFilter Texture::getMipMapFilter() const {
+    return _mipMapFilter;
 }
 
-void Texture::setMipMapFilter(TextureFilter mipMapFilter)
-{
-	_mipMapFilter = mipMapFilter;
+void Texture::setMipMapFilter(TextureFilter mipMapFilter) {
+    _mipMapFilter = mipMapFilter;
 }
 
-TextureFilter Texture::getMinFilter() const
-{
+TextureFilter Texture::getMinFilter() const {
     return _minFilter;
 }
 
-void Texture::setMinFilter(TextureFilter minFilter)
-{
+void Texture::setMinFilter(TextureFilter minFilter) {
     _minFilter = minFilter;
 }
 
-TextureFilter Texture::getMagFilter() const
-{
+TextureFilter Texture::getMagFilter() const {
     return _magFilter;
 }
 
-void Texture::setMagFilter(TextureFilter magFilter)
-{
+void Texture::setMagFilter(TextureFilter magFilter) {
     _magFilter = magFilter;
 }
 
-TextureAddressMode Texture::getAddressModeS() const
-{
+TextureAddressMode Texture::getAddressModeS() const {
     return _addressModeS;
 }
 
-void Texture::setAddressModeS(TextureAddressMode addressModeS)
-{
+void Texture::setAddressModeS(TextureAddressMode addressModeS) {
     _addressModeS = addressModeS;
 }
 
-TextureAddressMode Texture::getAddressModeT() const
-{
+TextureAddressMode Texture::getAddressModeT() const {
     return _addressModeT;
 }
 
-void Texture::setAddressModeT(TextureAddressMode addressModeT)
-{
+void Texture::setAddressModeT(TextureAddressMode addressModeT) {
     _addressModeT = addressModeT;
 }
 
-int Texture::getSourceHeight() const
-{
+int Texture::getSourceHeight() const {
     return _sourceHeight;
 }
 
-int Texture::getSourceWidth() const
-{
+int Texture::getSourceWidth() const {
     return _sourceWidth;
 }
 
-int Texture::getWidth() const
-{
+int Texture::getWidth() const {
     return _width;
 }
 
-int Texture::getHeight() const
-{
+int Texture::getHeight() const {
     return _height;
 }
 
-bool Texture::hasAlpha() const
-{
+bool Texture::hasAlpha() const {
     return _hasAlpha;
 }
 
-void Texture::setName(const std::string& name)
-{
+void Texture::setName(const std::string& name) {
     _name = name;
 }
 
-const std::string& Texture::getName() const
-{
+const std::string& Texture::getName() const {
     return _name;
 }
 
@@ -182,7 +163,7 @@ bool IMG_test_alpha(SDL_Surface *surface)
     }
 
     // grab the info for scanning the surface
-    Uint32 bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
+    uint32_t bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
     int bytesPerPixel = format->BytesPerPixel;
     int width = surface->w;
     int height = surface->h;
@@ -237,7 +218,7 @@ bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
     }
 
     // grab the info for scanning the surface
-    Uint32 bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
+    uint32_t bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
     int bytesPerPixel = format->BytesPerPixel;
     int w = surface->w;
     int h = surface->h;
@@ -428,7 +409,10 @@ bool isErrorTextureID(GLuint id)
         || id == _errorTexture2D->_id;
 }
 
-oglx_texture_t::oglx_texture_t() :
+namespace Ego {
+namespace OpenGL {
+
+Texture::Texture() :
     Ego::Texture
         (
             // The name of the texture is the error texture's.
@@ -450,51 +434,41 @@ oglx_texture_t::oglx_texture_t() :
     _id(_errorTexture2D->_id)
 {}
 
-oglx_texture_t::~oglx_texture_t()
-{
+Texture::~Texture() {
     release();
 }
 
-GLuint  oglx_texture_t::getTextureID() const
-{
+GLuint Texture::getTextureID() const {
     return _id;
 }
 
-GLuint oglx_texture_t::load(const std::string& name, std::shared_ptr<SDL_Surface> source, Uint32 key)
-{
+GLuint Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> source, uint32_t  key) {
     // Bind this texture to the backing error texture.
     release();
 
     // If no source is provided, keep this texture bound to the backing error texture.
-    if (!source)
-    {
+    if (!source) {
         return INVALID_GL_ID;
     }
 
     // Convert the source into a format suited for OpenGL.
     std::shared_ptr<SDL_Surface> new_source;
-    try
-    {
+    try {
         new_source = SDL_GL_convert(source);
-    }
-    catch (...)
-    {
+    } catch (...) {
         return INVALID_GL_ID;
     }
-    if (!new_source)
-    {
+    if (!new_source) {
         return INVALID_GL_ID;
     }
     // Generate a new OpenGL texture ID.
-    Ego::OpenGL::Utilities::clearError();
+    Utilities::clearError();
     GLuint id;
-    while (GL_NO_ERROR != glGetError())
-    {
+    while (GL_NO_ERROR != glGetError()) {
         /* Nothing to do. */
     }
     glGenTextures(1, &id);
-    if (Ego::OpenGL::Utilities::isError())
-    {
+    if (Utilities::isError()) {
         return INVALID_GL_ID;
     }
     // Use default texture address mode.
@@ -507,23 +481,16 @@ GLuint oglx_texture_t::load(const std::string& name, std::shared_ptr<SDL_Surface
     /* Set texture address mode and texture filtering. */
     Ego::OpenGL::Utilities::bind(id, type, textureAddressModeS, textureAddressModeT);
     /* Upload the texture data. */
-    if (type == Ego::TextureType::_2D)
-    {
-        if (g_ogl_textureParameters.textureFilter.mipMapFilter > Ego::TextureFilter::None)
-        {
-            Ego::OpenGL::Utilities::upload_2d_mipmap(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->h, new_source->pixels);
-        }
-        else
-        {
-            Ego::OpenGL::Utilities::upload_2d(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->h, new_source->pixels);
+    if (type == Ego::TextureType::_2D) {
+        if (g_ogl_textureParameters.textureFilter.mipMapFilter > Ego::TextureFilter::None) {
+           Utilities::upload_2d_mipmap(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->h, new_source->pixels);
+        } else {
+           Utilities::upload_2d(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->h, new_source->pixels);
         }
     }
-    else if (type == Ego::TextureType::_1D)
-    {
-        Ego::OpenGL::Utilities::upload_1d(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->pixels);
-    }
-    else
-    {
+    else if (type == Ego::TextureType::_1D) {
+        Utilities::upload_1d(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->pixels);
+    }  else {
         EGOBOO_ASSERT(0); /// @todo This code is in fact unreachable. Raise a std::runtime_error.
     }
 
@@ -543,15 +510,13 @@ GLuint oglx_texture_t::load(const std::string& name, std::shared_ptr<SDL_Surface
     return _id;
 }
 
-GLuint oglx_texture_t::load(std::shared_ptr<SDL_Surface> source, Uint32 key)
-{
+GLuint Texture::load(std::shared_ptr<SDL_Surface> source, uint32_t key) {
     std::ostringstream stream;
     stream << "<source " << static_cast<void *>(source.get()) << ">";
     return load(stream.str().c_str(), source, key);
 }
 
-void  oglx_texture_t::release()
-{
+void  Texture::release() {
     if (isErrorTextureID(_id))
     {
         return;
@@ -593,3 +558,6 @@ void  oglx_texture_t::release()
     // (The error texture has no alpha component).
     _hasAlpha = false;
 }
+
+} // namespace OpenGL
+} // namespace Ego

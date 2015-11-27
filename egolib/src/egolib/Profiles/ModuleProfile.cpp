@@ -51,7 +51,7 @@ ModuleProfile::ModuleProfile() :
     _unlockQuestLevel(QUEST_NONE),
     _moduleType(FILTER_SIDE_QUEST),
     _beaten(false),
-    _icon(new oglx_texture_t()),
+    _icon(new Ego::OpenGL::Texture()),
     _vfsPath(_name),
     _folderName(_name)
 {}
