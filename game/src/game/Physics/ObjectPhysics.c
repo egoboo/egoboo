@@ -411,11 +411,6 @@ bool chr_do_latch_button( Object * pchr )
                     jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
                 }
 
-                //This makes it hard for characters to jump uphill
-                if(pchr->enviro.is_slippy && !g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
-                    jumpPower *= 0.5f;
-                }
-
                 pchr->vel[kZ] += jumpPower;
                 pchr->jumpready = false;
 
@@ -1224,7 +1219,18 @@ void updateMovement(Object *object)
         }
     }
     else {
-        targetVelocity.setZero();
+
+        //Inherit platform velocity while "standing still"
+        const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[object->onwhichplatform_ref];
+        if (platform)
+        {
+            object->vel[kX] = platform->vel[kX];
+            object->vel[kY] = platform->vel[kY];
+        }
+        else {
+            //Try to stand still
+            targetVelocity.setZero();
+        }
     }
 
     //Determine acceleration/deceleration
@@ -1250,24 +1256,20 @@ void updateFriction(Object *pchr)
     //pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
     //pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
 
-    //Only do floor friction if we are touching the ground
-    if(!pchr->isFlying() && pchr->enviro.grounded) {
+    //This makes it hard for characters to jump uphill
+    if(pchr->vel[kZ] > 0.0f && pchr->enviro.is_slippy && !g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
+        pchr->vel[kZ] *= 0.8f;
+    }
 
-        // do platform friction
-        const std::shared_ptr<Object> &platform = _currentModule->getObjectHandler()[pchr->onwhichplatform_ref];
-        if (platform)
-        {
-            //TODO: ZF> fix this
-            pchr->vel[kX] += (pchr->vel[kX] - platform->vel[kX]) * (1.0f / GameEngine::GAME_TARGET_UPS);
-            pchr->vel[kY] += (pchr->vel[kY] - platform->vel[kY]) * (1.0f / GameEngine::GAME_TARGET_UPS);
-        }
+    //Only do floor friction if we are touching the ground
+    if(pchr->enviro.grounded) {
 
         //Apply floor friction
         //pchr->vel[kX] *= pchr->enviro.friction_hrz;
         //pchr->vel[kY] *= pchr->enviro.friction_hrz;
 
         //Can the character slide on this floor?
-        if (pchr->enviro.is_slippy)
+        if (pchr->enviro.is_slippy && !_currentModule->getObjectHandler()[pchr->onwhichplatform_ref])
         {
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
