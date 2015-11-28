@@ -990,8 +990,8 @@ float ego_mesh_t::getElevation(const Vector2f& p) const
     float z3 = _tmem._plst[_tmem.get(i1)._vrtstart + 3][ZZ];
 
     //Calculate where on the tile we are relative to top left corner of the tile (0,0)
-    Vector2f posOnTile = Vector2f(static_cast<float>(static_cast<int>(p[kX]) % Info<int>::Grid::Size()), 
-                                  static_cast<float>(static_cast<int>(p[kY]) % Info<int>::Grid::Size()));
+    Vector2f posOnTile = Vector2f(std::fmod(p[kX], Info<float>::Grid::Size()), 
+                                  std::fmod(p[kY], Info<float>::Grid::Size()));
 
     // Get the weighted height of each side.
     float zleft = (z0 * (Info<float>::Grid::Size() - posOnTile[kY]) + z3 * posOnTile[kY]) / Info<float>::Grid::Size();

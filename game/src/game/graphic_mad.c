@@ -1015,7 +1015,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     self.min_light =  255;
     for (size_t cnt = 0; cnt < self.vrt_count; cnt++ )
     {
-        int16_t lite = 0;
+        float lite = 0.0f;
 
         GLvertex *pvert = self.vrt_lst + cnt;
 
@@ -1029,11 +1029,11 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
             lite += lighting_cache_t::lighting_evaluate_cache(loc_light, Vector3f(-1.0f,-1.0f,-1.0f), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
 
             // average all the directions
-            lite /= 6;
+            lite /= 6.0f;
         }
         else
         {
-            lite  = lighting_cache_t::lighting_evaluate_cache( loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, NULL, NULL );
+            lite = lighting_cache_t::lighting_evaluate_cache( loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
         }
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;
