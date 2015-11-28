@@ -83,7 +83,7 @@ void prt_set_texture_params(const Ego::OpenGL::Texture* texture, uint8_t type)
 Uint32 instance_update = std::numeric_limits<Uint32>::max();
 
 //--------------------------------------------------------------------------------------------
-static gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting);
+static gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& pinst, float size, bool do_reflect);
 static void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset);
 static void prt_draw_attached_point(prt_bundle_t& bdl_prt);
@@ -94,7 +94,7 @@ static gfx_rv prt_instance_update_lighting(prt_instance_t& inst, Ego::Particle *
 
 //--------------------------------------------------------------------------------------------
 
-gfx_rv render_one_prt_solid(const PRT_REF iprt)
+gfx_rv render_one_prt_solid(const ParticleRef iprt)
 {
     /// @author BB
     /// @details Render the solid version of the particle
@@ -102,7 +102,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
     const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
     if (pprt == nullptr || pprt->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt.get(), "invalid particle");
         return gfx_error;
     }
 
@@ -153,7 +153,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
     return gfx_success;
 }
 
-gfx_rv render_one_prt_trans(const PRT_REF iprt)
+gfx_rv render_one_prt_trans(const ParticleRef iprt)
 {
     /// @author BB
     /// @details do all kinds of transparent sprites next
@@ -162,7 +162,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
 
     if (pprt == nullptr || pprt->isTerminated())
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt.get(), "invalid particle");
         return gfx_error;
     }
 
@@ -260,7 +260,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
     return gfx_success;
 }
 
-gfx_rv render_one_prt_ref(const PRT_REF iprt)
+gfx_rv render_one_prt_ref(const ParticleRef iprt)
 {
     /// @author BB
     /// @details render one particle
@@ -268,7 +268,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
 
     const std::shared_ptr<Ego::Particle>& pprt = ParticleHandler::get()[iprt];
     if(!pprt || pprt->isTerminated()) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, iprt.get(), "invalid particle");
         return gfx_error;
     }
 
@@ -558,7 +558,7 @@ gfx_rv update_all_prt_instance(Camera& camera)
         else
         {
             // calculate the "billboard" for this particle
-            if (gfx_error == prt_instance_update(camera, particle->getParticleID().get(), 255, true))
+            if (gfx_error == prt_instance_update(camera, particle->getParticleID(), 255, true))
             {
                 retval = gfx_error;
             }
@@ -918,11 +918,11 @@ gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, 
     return gfx_success;
 }
 
-gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting)
+gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting)
 {
     const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
     if(!pprt) {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, particle, "invalid particle");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, particle.get(), "invalid particle");
         return gfx_error;
     }
 

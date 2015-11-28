@@ -864,12 +864,12 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				// set the default particle blending
 				renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 				ParticleRef iprt = el.get(i).iprt;
-				Index1D itile = ParticleHandler::get()[iprt.get()]->getTile();
+				Index1D itile = ParticleHandler::get()[iprt]->getTile();
 
 				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Colour4f::white());
-					render_one_prt_ref(iprt.get());
+					render_one_prt_ref(iprt);
 				}
 			}
 		}
@@ -898,12 +898,12 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 			{
 				MadRenderer::render_solid(camera, el.get(i).iobj);
 			}
-			else if (ObjectRef::Invalid == el.get(i).iobj && ParticleHandler::get()[el.get(i).iprt.get()] != nullptr)
+			else if (ObjectRef::Invalid == el.get(i).iobj && ParticleHandler::get()[el.get(i).iprt] != nullptr)
 			{
 				// draw draw front and back faces of polygons
 				renderer.setCullingMode(CullingMode::None);
 
-				render_one_prt_solid(el.get(i).iprt.get());
+				render_one_prt_solid(el.get(i).iprt);
 			}
 		}
 	}
@@ -936,7 +936,7 @@ void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const Enti
 			// A particle.
 			else if (ObjectRef::Invalid == el.get(j).iobj && ParticleRef::Invalid != el.get(j).iprt)
 			{
-				render_one_prt_trans(el.get(j).iprt.get());
+				render_one_prt_trans(el.get(j).iprt);
 			}
 		}
 	}

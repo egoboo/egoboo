@@ -149,7 +149,7 @@ public:
      * @brief Get a pointer to the particle for a specified particle reference.
      * @return a pointer to the referenced particle if it was found, the null pointer otherwise
      */
-    const std::shared_ptr<Ego::Particle>& operator[] (const PRT_REF index);
+    const std::shared_ptr<Ego::Particle>& operator[] (const ParticleRef index);
 
     /**
      * @brief
@@ -171,7 +171,7 @@ public:
      * @param spawnOrigin
      *  the Object who is the owner of this Particle (e.g the holder of a Weapon)
      * @param spawnParticleOrigin
-     *  set to the PRT_REF if this Particle was spawned by another Particle
+     *  set to the particle reference of the particle which spawned this particle
      * @param multispawn
      *  used for bulk spawn (spawning many particles at the same time). This is the index number of the particle in the bulk spawn
      * @param spawnTarget
@@ -225,13 +225,13 @@ private:
 private:
     size_t _maxParticles;   ///< Maximum allowed active particles to be alive at the same time
     std::atomic<size_t> _semaphoreLock;
-    std::atomic<PRT_REF> _totalParticlesSpawned;
+    std::atomic<size_t> _totalParticlesSpawned;
 
     std::vector<std::shared_ptr<Ego::Particle>> _unusedPool;         //Particles currently unused
     std::vector<std::shared_ptr<Ego::Particle>> _activeParticles;    //List of all particles that are active ingame
     std::vector<std::shared_ptr<Ego::Particle>> _pendingParticles;   //Particles that will be added to the active list as soon as it is unlocked
 
-    std::unordered_map<PRT_REF, std::shared_ptr<Ego::Particle>> _particleMap; //Mapping from PRT_REF to Particle
+    std::unordered_map<ParticleRef, std::shared_ptr<Ego::Particle>> _particleMap; //Mapping from PRT_REF to Particle
 
     Ego::DeferredOpenGLTexture _transparentParticleTexture;
     Ego::DeferredOpenGLTexture _lightParticleTexture;

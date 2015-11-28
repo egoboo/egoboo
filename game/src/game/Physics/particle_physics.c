@@ -721,7 +721,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
     FACING_T direction;
     float    fsin, fcos;
 
-    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle.get()];
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
     if(!pprt || pprt->isTerminated()) {
         return 0;
     }
@@ -928,7 +928,7 @@ ObjectRef prt_get_iowner(const ParticleRef iprt, int depth)
         return ObjectRef::Invalid;
     }
 
-    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt.get()];
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[iprt];
     if(pprt == nullptr || pprt->isTerminated()) {
         return ObjectRef::Invalid;
     }
@@ -943,7 +943,7 @@ ObjectRef prt_get_iowner(const ParticleRef iprt, int depth)
         // make a check for a stupid looping structure...
         // cannot be sure you could never get a loop, though
 
-        if (!ParticleHandler::get()[pprt->parent_ref.get()])
+        if (!ParticleHandler::get()[pprt->parent_ref])
         {
             // make sure that a non valid parent_ref is marked as non-valid
             pprt->parent_ref = ParticleRef::Invalid;

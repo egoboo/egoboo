@@ -559,8 +559,6 @@ namespace std {
         }
     };
 }
-typedef size_t PRT_REF;
-#define INVALID_PRT_REF std::numeric_limits<PRT_REF>::max()
 
 DECLARE_REF(PASS_REF);
 

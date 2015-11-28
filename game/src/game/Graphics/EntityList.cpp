@@ -28,7 +28,7 @@ gfx_rv EntityList::reset()
         // Tell all valid objects that they are removed from this dolist.
         if (ObjectRef::Invalid == element.iobj && element.iprt != ParticleRef::Invalid)
         {
-            const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element.iprt.get()];
+            const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element.iprt];
             if (nullptr != pprt) pprt->inst.indolist = false;
         }
         else if (ParticleRef::Invalid == element.iprt && ObjectRef::Invalid != element.iobj)
@@ -173,11 +173,11 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
 
             if (do_reflect)
             {
-                vtmp = ParticleHandler::get()[iprt.get()]->inst.pos - cam.getPosition();
+                vtmp = ParticleHandler::get()[iprt]->inst.pos - cam.getPosition();
             }
             else
             {
-                vtmp = ParticleHandler::get()[iprt.get()]->inst.ref_pos - cam.getPosition();
+                vtmp = ParticleHandler::get()[iprt]->inst.ref_pos - cam.getPosition();
             }
         }
         else

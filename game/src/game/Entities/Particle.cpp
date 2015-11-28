@@ -795,7 +795,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     // try to get an idea of who our owner is even if we are
     // given bogus info
     ObjectRef loc_chr_origin = spawnOrigin;
-    if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin.get()])
+    if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin])
     {
         loc_chr_origin = prt_get_iowner(spawnParticleOrigin, 0);
     }

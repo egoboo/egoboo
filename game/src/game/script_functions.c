@@ -6733,9 +6733,9 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PIP_REF particleRef = ppro->getParticlePoofProfile();
-    if ( INVALID_PRT_REF == particleRef ) return false;
-    std::shared_ptr<pip_t> ppip = ParticleProfileSystem::get().get_ptr(particleRef);
+    PIP_REF ipip = ppro->getParticlePoofProfile();
+    if ( INVALID_PIP_REF == ipip) return false;
+    std::shared_ptr<pip_t> ppip = ParticleProfileSystem::get().get_ptr(ipip);
 
     returncode = false;
     if ( NULL != ppip )

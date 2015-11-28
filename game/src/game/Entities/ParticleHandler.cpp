@@ -39,22 +39,23 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3
     return spawnParticle(pos, facing, iprofile, ipip, chr_attach, vrt_offset, team, chr_origin, prt_origin, multispawn, oldtarget);
 }
 
-const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const PRT_REF index)
+const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const ParticleRef index)
 {
     auto result = _particleMap.find(index);
     
-    //Does the PRT_REF not exist?
+    // If the referenced particle does not exist ...
     if(result == _particleMap.end()) {
+        // ... return the null pointer.
         return Ego::Particle::INVALID_PARTICLE;
     }
 
-    //Check if particle was marked as terminated
-    if((*result).second->isTerminated() || (*result).second->getParticleID().get() != index) {
+    // Check if particle was marked as terminated
+    if((*result).second->isTerminated() || (*result).second->getParticleID() != index) {
         _particleMap.erase(index);
         return Ego::Particle::INVALID_PARTICLE;        
     }
 
-    //All good!
+    // All good!
     return (*result).second;
 }
 
@@ -97,7 +98,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
                                 spawnTeam, spawnOrigin, ParticleRef(spawnParticleOrigin), multispawn, spawnTarget, onlyOverWater)) 
         {
             _pendingParticles.push_back(particle);
-            _particleMap[particle->getParticleID().get()] = particle;
+            _particleMap[particle->getParticleID()] = particle;
         }
         else {
             //If we failed to spawn somehow, put it back to the unused pool
@@ -217,7 +218,7 @@ void ParticleHandler::unlock()
 
             //Free to be used by another instance again
             _unusedPool.push_back(particle);
-            _particleMap.erase(particle->getParticleID().get());
+            _particleMap.erase(particle->getParticleID());
 
             return true;
         };
