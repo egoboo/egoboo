@@ -1201,10 +1201,10 @@ void updateMovement(Object *object)
         if (object->grog_timer > 0) {
             std::swap(targetVelocity[kX], targetVelocity[kY]);
         }
-    }
 
-    //Update which way we are looking
-    updateFacing(object, targetVelocity);
+        //Update which way we are looking
+        updateFacing(object, targetVelocity);
+    }
 
     //Is there any movement going on?
     if(targetVelocity.length_abs() > 0.05f) {
