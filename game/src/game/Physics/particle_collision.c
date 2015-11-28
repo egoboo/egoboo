@@ -49,7 +49,7 @@ public:
     ObjectRef ichr;
     Object *pchr;
 
-    PRT_REF iprt;
+    ParticleRef iprt;
     std::shared_ptr<Ego::Particle> pprt;
     std::shared_ptr<pip_t> ppip;
 
@@ -90,7 +90,7 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
     ichr(),
     pchr(nullptr),
 
-    iprt(INVALID_PRT_REF),
+    iprt(),
     pprt(nullptr),
     ppip(nullptr),
 
@@ -122,7 +122,7 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool do_chr_prt_collision_init( const ObjectRef ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
+static bool do_chr_prt_collision_init( const ObjectRef ichr, const ParticleRef iprt, chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( chr_prt_collision_data_t * pdata, const float tmin, const float tmax );
 
 static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat );
@@ -241,7 +241,7 @@ void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_prt_platform_detection( const ObjectRef ichr_a, const PRT_REF iprt_b )
+bool do_prt_platform_detection( const ObjectRef ichr_a, const ParticleRef iprt_b )
 {
     Object * pchr_a;
 
@@ -980,7 +980,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_init( const ObjectRef ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata )
+bool do_chr_prt_collision_init( const ObjectRef ichr, const ParticleRef iprt, chr_prt_collision_data_t * pdata )
 {
     if ( NULL == pdata ) return false;
 

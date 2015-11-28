@@ -27,10 +27,9 @@
 #include "egolib/Script/script.h"  // for waypoint list control
 #include "game/mesh.h"
 
-AStar::Node AStar::node_list[MAX_ASTAR_NODES];
-int AStar::node_list_length = 0;
-AStar::Node *AStar::final_node = nullptr;
-AStar::Node *AStar::start_node = nullptr;
+AStar::AStar()
+    : node_list(), node_list_length(), final_node(nullptr), start_node(nullptr)
+{}
 
 AStar::Node *AStar::get_next_node()
 {
@@ -366,3 +365,5 @@ bool AStar::get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
 
     return waypoint_num > 0;
 }
+
+AStar g_astar;

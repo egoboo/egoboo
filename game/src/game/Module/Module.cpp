@@ -456,7 +456,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
         ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
-                                              pchr->getObjRef(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef(), INVALID_PRT_REF, tnc);
+                                              pchr->getObjRef(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef(), ParticleRef::Invalid, tnc);
     }
 
     // is the object part of a shop's inventory?
@@ -508,13 +508,13 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     return pchr;
 }
 
-const oglx_texture_t* GameModule::getTileTexture(const size_t index)
+const Ego::OpenGL::Texture* GameModule::getTileTexture(const size_t index)
 {
     if(index >= _tileTextures.size()) return nullptr;
     return _tileTextures[index].get_ptr();
 }
 
-const oglx_texture_t* GameModule::getWaterTexture(const uint8_t layer)
+const Ego::OpenGL::Texture* GameModule::getWaterTexture(const uint8_t layer)
 {
     if(layer > _waterTextures.size()) return nullptr;
     return _waterTextures[layer].get_ptr();

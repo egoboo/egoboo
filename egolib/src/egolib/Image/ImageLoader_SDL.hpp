@@ -21,8 +21,7 @@
 
 #include "egolib/Image/ImageLoader.hpp"
 
-struct ImageLoader_SDL : public ImageLoader
-{
+struct ImageLoader_SDL : public ImageLoader {
 
 protected:
 

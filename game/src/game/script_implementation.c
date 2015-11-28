@@ -251,9 +251,9 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
         printf( "Finding a path from %d,%d to %d,%d: \n", src_ix, src_iy, dst_ix, dst_iy );
 #endif
         //Try to find a path with the AStar algorithm
-        if ( AStar::find_path( _currentModule->getMeshPointer(), pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
+        if ( g_astar.find_path( _currentModule->getMeshPointer(), pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
         {
-            returncode = AStar::get_path( dst_x, dst_y, wplst);
+            returncode = g_astar.get_path( dst_x, dst_y, wplst);
         }
 
         if ( NULL != used_astar_ptr )

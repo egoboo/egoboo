@@ -26,12 +26,12 @@ gfx_rv EntityList::reset()
     for(element_t &element : _lst)
     {
         // Tell all valid objects that they are removed from this dolist.
-        if (ObjectRef::Invalid == element.iobj && element.iprt != INVALID_PRT_REF)
+        if (ObjectRef::Invalid == element.iobj && element.iprt != ParticleRef::Invalid)
         {
             const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[element.iprt];
             if (nullptr != pprt) pprt->inst.indolist = false;
         }
-        else if (INVALID_PRT_REF == element.iprt && ObjectRef::Invalid != element.iobj)
+        else if (ParticleRef::Invalid == element.iprt && ObjectRef::Invalid != element.iobj)
         {
             const std::shared_ptr<Object> &pobj = _currentModule->getObjectHandler()[element.iobj];
             if (nullptr != pobj) pobj->inst.indolist = false;
@@ -76,7 +76,7 @@ gfx_rv EntityList::add_obj_raw(Object& obj)
     }
 
     // Add!
-    _lst.emplace_back(obj.getObjRef(), INVALID_PRT_REF);
+    _lst.emplace_back(obj.getObjRef(), ParticleRef::Invalid);
 
     // Notify it that it is in a do list.
     obj.inst.indolist = true;
@@ -150,7 +150,7 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
     {
 		Vector3f vtmp;
 
-        if (INVALID_PRT_REF == _lst[i].iprt && ObjectRef::Invalid != _lst[i].iobj)
+        if (ParticleRef::Invalid == _lst[i].iprt && ObjectRef::Invalid != _lst[i].iobj)
         {
 			Vector3f pos_tmp;
 
@@ -167,9 +167,9 @@ gfx_rv EntityList::sort(Camera& cam, const bool do_reflect)
 
             vtmp = pos_tmp - cam.getPosition();
         }
-        else if (ObjectRef::Invalid == _lst[i].iobj && _lst[i].iprt != INVALID_PRT_REF)
+        else if (ObjectRef::Invalid == _lst[i].iobj && _lst[i].iprt != ParticleRef::Invalid)
         {
-            PRT_REF iprt = _lst[i].iprt;
+            ParticleRef iprt = _lst[i].iprt;
 
             if (do_reflect)
             {

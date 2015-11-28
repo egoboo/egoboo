@@ -62,7 +62,7 @@ private:
             //ctor
         }
 
-        Blip(const float setX, const float setY, const oglx_texture_t *setIcon) :
+        Blip(const float setX, const float setY, const Ego::OpenGL::Texture *setIcon) :
             x(setX),
             y(setY),
             color(COLOR_WHITE),
@@ -74,7 +74,7 @@ private:
         float x;
         float y;
         HUDColors color;
-        const oglx_texture_t *icon;
+        const Ego::OpenGL::Texture *icon;
     };
 
 private:

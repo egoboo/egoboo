@@ -449,7 +449,7 @@ void Views::render_tile_window(std::shared_ptr<Cartman_Window> pwin, float zoom_
 
                     int fan = pwin->pmesh->get_ifan(mapx, mapy);
 
-                    oglx_texture_t * tx_tile = NULL;
+                    Ego::OpenGL::Texture * tx_tile = NULL;
                     if ( VALID_MPD_TILE_RANGE( fan ) )
                     {
                         tx_tile = tile_at( pwin->pmesh, fan );
@@ -511,7 +511,7 @@ void Views::render_fx_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hr
 
                     int fan = pwin->pmesh->get_ifan(mapx, mapy);
 
-                    oglx_texture_t *tx_tile = NULL;
+                    Ego::OpenGL::Texture *tx_tile = NULL;
                     if ( VALID_MPD_TILE_RANGE( fan ) )
                     {
                         tx_tile = tile_at( pwin->pmesh, fan );
@@ -714,7 +714,7 @@ void load_all_windows( cartman_mpd_t& mesh )
     for (auto window : _window_lst)
     {
         window->on = false;
-        window->tex = new oglx_texture_t();
+        window->tex = new Ego::OpenGL::Texture();
     }
 
     load_window( _window_lst[0], 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, &mesh );

@@ -38,11 +38,9 @@
 #define TRANSCOLOR 0
 #define INVALID_KEY ((Uint32)(~0))
 
-namespace Ego
-{
+namespace Ego {
 
-class Texture
-{
+class Texture {
 
 protected:
 
@@ -155,29 +153,29 @@ public:
      */
     virtual ~Texture();
 
-	/**
-	 * @brief
-	 *  Get the type of this texture.
-	 * @return
-	 *  the type of this texture
-	 */
-	TextureType getType() const;
+    /**
+     * @brief
+     *  Get the type of this texture.
+     * @return
+     *  the type of this texture
+     */
+    TextureType getType() const;
 
-	/**
-	 * @brief
-	 *  Get the mipmap filter of this texture.
-	 * @return
-	 *	the mipmap filter
-	 */
-	TextureFilter getMipMapFilter() const;
+    /**
+     * @brief
+     *  Get the mipmap filter of this texture.
+     * @return
+     *  the mipmap filter
+     */
+    TextureFilter getMipMapFilter() const;
 
-	/**
-	 * @brief
-	 *  Set the mipmap filter of this texture.
-	 * @param mipMapFilter
-	 *  the mipmap filter
-	 */
-	void setMipMapFilter(TextureFilter minFilter);
+    /**
+     * @brief
+     *  Set the mipmap filter of this texture.
+     * @param mipMapFilter
+     *  the mipmap filter
+     */
+    void setMipMapFilter(TextureFilter minFilter);
 
     /**
      * @brief
@@ -306,75 +304,80 @@ public:
      */
     const std::string& getName() const;
 
-};
+}; // struct Texture
 
 } // namespace Ego
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    /// An encapsulation of the OpenGL texture state.
-    struct oglx_texture_t : public Ego::Texture
-    {
+namespace Ego {
+namespace OpenGL {
+/// An encapsulation of the OpenGL texture state.
+struct Texture : public Ego::Texture
+{
 
 
-    protected:
-
-        /**
-         * @brief
-         *  The OpenGL texture ID.
-         * @remark
-         *  At any point, a texture has a valid OpenGL texture ID assigned, <em>unless</em> resources were lost.
-         */
-        GLuint  _id;
-
-    public:
-        GLuint load(const std::string& name, std::shared_ptr<SDL_Surface> surface, Uint32 key = INVALID_KEY);
-        GLuint load(std::shared_ptr<SDL_Surface> image, Uint32 key = INVALID_KEY);
-
-        /**
-         * @brief
-         *  Delete backing image, delete OpenGL ID, assign OpenGL ID of the error texture, assign no backing image.
-         * @param self
-         *  this texture
-         */
-        void release();
-
-    public:
-        /**
-         * @brief
-         *  Construct this texture.
-         * @post
-         *  This texture is bound to the backing error texture.
-         */
-        oglx_texture_t();
-
-        /**
-         * @brief
-         *  Destruct this texture.
-         */
-        virtual ~oglx_texture_t();
-
-    public:
-
-        GLuint getTextureID() const;
-
-    };
+protected:
 
     /**
      * @brief
-     *  Initialize the error textures.
-     * @todo
-     *  Move into texture manager.
+     *  The OpenGL texture ID.
+     * @remark
+     *  At any point, a texture has a valid OpenGL texture ID assigned, <em>unless</em> resources were lost.
      */
-    void initializeErrorTextures();
+    GLuint  _id;
+
+public:
+    GLuint load(const std::string& name, std::shared_ptr<SDL_Surface> surface, Uint32 key = INVALID_KEY);
+    GLuint load(std::shared_ptr<SDL_Surface> image, Uint32 key = INVALID_KEY);
+
     /**
      * @brief
-     *  Uninitialize the error textures.
-     * @todo
-     *  Move into texture manager.
+     *  Delete backing image, delete OpenGL ID, assign OpenGL ID of the error texture, assign no backing image.
+     * @param self
+     *  this texture
      */
-    void uninitializeErrorTextures();
-    GLuint get2DErrorTextureID();
-    GLuint get1DErrorTextureID();
-    bool isErrorTextureID(GLuint id);
+    void release();
+
+public:
+    /**
+     * @brief
+     *  Construct this texture.
+     * @post
+     *  This texture is bound to the backing error texture.
+     */
+    Texture();
+
+    /**
+     * @brief
+     *  Destruct this texture.
+     */
+    virtual ~Texture();
+
+public:
+
+    GLuint getTextureID() const;
+
+};
+
+/**
+ * @brief
+ *  Initialize the error textures.
+ * @todo
+ *  Move into texture manager.
+ */
+void initializeErrorTextures();
+/**
+ * @brief
+ *  Uninitialize the error textures.
+ * @todo
+ *  Move into texture manager.
+ */
+void uninitializeErrorTextures();
+GLuint get2DErrorTextureID();
+GLuint get1DErrorTextureID();
+bool isErrorTextureID(GLuint id);
+
+} // namespace OpenGL
+} // namespace Ego

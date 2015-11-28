@@ -833,7 +833,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 		for (size_t j = el.getSize(); j > 0; --j)
 		{
 			size_t i = j - 1;
-			if (INVALID_PRT_REF == el.get(i).iprt && ObjectRef::Invalid != el.get(i).iobj)
+			if (ParticleRef::Invalid == el.get(i).iprt && ObjectRef::Invalid != el.get(i).iobj)
 			{
 				// cull backward facing polygons
 				// use couter-clockwise orientation to determine backfaces
@@ -853,7 +853,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 					MadRenderer::render_ref(camera, ichr);
 				}
 			}
-			else if (ObjectRef::Invalid == el.get(i).iobj && INVALID_PRT_REF != el.get(i).iprt)
+			else if (ObjectRef::Invalid == el.get(i).iobj && ParticleRef::Invalid != el.get(i).iprt)
 			{
 				// draw draw front and back faces of polygons
 				renderer.setCullingMode(CullingMode::None);
@@ -863,7 +863,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 				renderer.setBlendingEnabled(true);
 				// set the default particle blending
 				renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
-				PRT_REF iprt = el.get(i).iprt;
+				ParticleRef iprt = el.get(i).iprt;
 				Index1D itile = ParticleHandler::get()[iprt]->getTile();
 
 				if (mesh->grid_is_valid(itile) && (0 != mesh->test_fx(itile, MAPFX_REFLECTIVE)))
@@ -894,7 +894,7 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 			renderer.setAlphaTestEnabled(true);
 			renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
-			if (INVALID_PRT_REF == el.get(i).iprt && ObjectRef::Invalid != el.get(i).iobj)
+			if (ParticleRef::Invalid == el.get(i).iprt && ObjectRef::Invalid != el.get(i).iobj)
 			{
 				MadRenderer::render_solid(camera, el.get(i).iobj);
 			}
@@ -929,12 +929,12 @@ void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const Enti
 		{
 			size_t j = i - 1;
 			// A character.
-			if (INVALID_PRT_REF == el.get(j).iprt && ObjectRef::Invalid != el.get(j).iobj)
+			if (ParticleRef::Invalid == el.get(j).iprt && ObjectRef::Invalid != el.get(j).iobj)
 			{
 				MadRenderer::render_trans(camera, el.get(j).iobj);
 			}
 			// A particle.
-			else if (ObjectRef::Invalid == el.get(j).iobj && INVALID_PRT_REF != el.get(j).iprt)
+			else if (ObjectRef::Invalid == el.get(j).iobj && ParticleRef::Invalid != el.get(j).iprt)
 			{
 				render_one_prt_trans(el.get(j).iprt);
 			}

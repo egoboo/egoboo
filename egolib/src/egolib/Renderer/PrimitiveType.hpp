@@ -23,15 +23,13 @@
 
 #pragma once
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
  *  An enumeration of primitive types.
  */
-enum class PrimitiveType
-{
+enum class PrimitiveType {
     /**
      * @brief
      *  Vertex \f$i\f$ defines point \f$i\f$.
@@ -82,6 +80,6 @@ enum class PrimitiveType
      */
     QuadriliteralStrip,
 
-};
+}; // enum class PrimitiveType
 
 } // namespace Ego

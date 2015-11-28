@@ -46,7 +46,7 @@ void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, flo
 	Object * pitem = !_currentModule->getObjectHandler().exists(item) ? NULL : _currentModule->getObjectHandler().get(item);
 
 	// grab the icon reference
-	const oglx_texture_t* icon_ref = chr_get_txtexture_icon_ref(item);
+	const Ego::OpenGL::Texture* icon_ref = chr_get_txtexture_icon_ref(item);
 
 	// draw the icon
 	if (draw_sparkle == NOSPARKLE) draw_sparkle = (NULL == pitem) ? NOSPARKLE : pitem->sparkle;
@@ -93,7 +93,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 	if (ticks > total_ticks) ticks = total_ticks;
 
 	// grab a pointer to the bar texture
-	const std::shared_ptr<oglx_texture_t> &tx_ptr = TextureManager::get().getTexture("mp_data/bars");
+	const std::shared_ptr<Ego::OpenGL::Texture> &tx_ptr = TextureManager::get().getTexture("mp_data/bars");
 
 	// allow the bitmap to be scaled to arbitrary size
 	tx_width = 128.0f;
@@ -266,7 +266,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 	/// @author ZF
 	/// @details This function draws a xp bar and returns the y position for the next one
 
-	const std::shared_ptr<oglx_texture_t> &texture = TextureManager::get().getTexture("mp_data/xpbar");
+	const std::shared_ptr<Ego::OpenGL::Texture> &texture = TextureManager::get().getTexture("mp_data/xpbar");
 
 	int width, height;
 	Uint8 cnt;

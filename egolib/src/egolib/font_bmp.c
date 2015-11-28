@@ -29,37 +29,28 @@
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 int       fontoffset;                 // Line up fonts from top of screen
 SDL_Rect  fontrect[NUMFONT];          // The font rectangles
-Uint8     fontxspacing[NUMFONT];      // The spacing stuff
-Uint8     fontyspacing;
+uint8_t   fontxspacing[NUMFONT];      // The spacing stuff
+uint8_t   fontyspacing;
 
-Uint8     asciitofont[256];           // Conversion table
+uint8_t   asciitofont[256];           // Conversion table
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void font_bmp_init( void )
+void font_bmp_init()
 {
     /// @author BB
     /// @details fill in default values
 
-    Uint16 i, ix, iy, cnt;
-    float dx, dy;
-
     // Mark all as unused
-    for ( cnt = 0; cnt < 256; cnt++ )
-    {
-        asciitofont[cnt] = 255;
+    for (uint16_t i = 0; i < 256; ++i) {
+        asciitofont[i] = 255;
     }
 
-    dx = 256.0f / NUMFONTX;
-    dy = 256.0f / NUMFONTY;
-    for ( i = 0; i < NUMFONT; i++ )
-    {
-        ix = i % NUMFONTX;
-        iy = i / NUMFONTX;
+    const float dx = 256.0f / NUMFONTX;
+    const float dy = 256.0f / NUMFONTY;
+    for (uint16_t i = 0; i < NUMFONT; ++i) {
+        uint16_t ix = i % NUMFONTX;
+        uint16_t iy = i / NUMFONTX;
 
         fontrect[i].x = ix * dx;
         fontrect[i].w = dx;
@@ -70,15 +61,14 @@ void font_bmp_init( void )
     fontyspacing = dy;
 }
 
-//--------------------------------------------------------------------------------------------
-void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
+void font_bmp_load_vfs( const std::string& szBitmap, const char* szSpacing )
 {
     /// @author ZZ
     /// @details This function loads the font bitmap and sets up the coordinates
     ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
     font_bmp_init();
 
-    const std::shared_ptr<oglx_texture_t> &fontTexture = TextureManager::get().getTexture(szBitmap);
+    const std::shared_ptr<Ego::OpenGL::Texture> &fontTexture = TextureManager::get().getTexture(szBitmap);
     if (INVALID_GL_ID == fontTexture->getTextureID())
     {
 		std::ostringstream os;
@@ -139,7 +129,7 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
 }
 
 //--------------------------------------------------------------------------------------------
-int font_bmp_length_of_word( const char *szText )
+int font_bmp_length_of_word( const std::string& szText )
 {
     /// @author ZZ
     /// @details This function returns the number of pixels the

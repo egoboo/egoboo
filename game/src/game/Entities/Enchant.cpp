@@ -235,7 +235,7 @@ void Enchantment::update()
                                                           ObjectRef::Invalid, GRIP_LAST, 
                                                           owner != nullptr ? owner->getTeam().toRef() : static_cast<TEAM_REF>(Team::TEAM_DAMAGE), 
                                                           owner != nullptr ? owner->getObjRef() : ObjectRef::Invalid,
-                                                          INVALID_PRT_REF, i, ObjectRef::Invalid);
+                                                          ParticleRef::Invalid, i, ObjectRef::Invalid);
 
                 facing += _enchantProfile->contspawn._facingAdd;
             }

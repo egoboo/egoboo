@@ -24,13 +24,11 @@
 
 #include "egolib/typedef.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct oglx_texture_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+namespace Ego {
+namespace OpenGL {
+struct Texture;
+} // namespace OpenGL
+} // namespace Ego
 
 #define NUMFONTX            16          ///< Number of fonts in the bitmap
 #define NUMFONTY            6
@@ -40,17 +38,12 @@
 #define TABADD              (1<<5)
 #define TABAND              (~(TABADD-1))                      ///< Tab size
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-    extern int      fontoffset;                 ///< Line up fonts from top of screen
-    extern SDL_Rect fontrect[NUMFONT];          ///< The font rectangles
-    extern Uint8    fontxspacing[NUMFONT];      ///< The spacing stuff
-    extern Uint8    fontyspacing;
+extern int      fontoffset;                 ///< Line up fonts from top of screen
+extern SDL_Rect fontrect[NUMFONT];          ///< The font rectangles
+extern uint8_t  fontxspacing[NUMFONT];      ///< The spacing stuff
+extern uint8_t  fontyspacing;
+extern uint8_t  asciitofont[256];           ///< Conversion table
 
-    extern Uint8    asciitofont[256];           ///< Conversion table
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-    void font_bmp_init();
-    void font_bmp_load_vfs(const char* szBitmap, const char* szSpacing);
-    int  font_bmp_length_of_word(const char *szText);
+void font_bmp_init();
+void font_bmp_load_vfs(const std::string& szBitmap, const char* szSpacing);
+int  font_bmp_length_of_word(const std::string& szText);

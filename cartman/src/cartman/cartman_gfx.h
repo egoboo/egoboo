@@ -84,21 +84,21 @@ extern camera_t cam;
 
 extern SDL_Surface * bmphitemap;        // Heightmap image
 
-extern oglx_texture_t     *tx_point;      // Vertex image
-extern oglx_texture_t     *tx_pointon;    // Vertex image ( select_vertsed )
-extern oglx_texture_t     *tx_ref;        // Meshfx images
-extern oglx_texture_t     *tx_drawref;    //
-extern oglx_texture_t     *tx_anim;       //
-extern oglx_texture_t     *tx_water;      //
-extern oglx_texture_t     *tx_wall;       //
-extern oglx_texture_t     *tx_impass;     //
-extern oglx_texture_t     *tx_damage;     //
-extern oglx_texture_t     *tx_slippy;     //
+extern Ego::OpenGL::Texture     *tx_point;      // Vertex image
+extern Ego::OpenGL::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
+extern Ego::OpenGL::Texture     *tx_ref;        // Meshfx images
+extern Ego::OpenGL::Texture     *tx_drawref;    //
+extern Ego::OpenGL::Texture     *tx_anim;       //
+extern Ego::OpenGL::Texture     *tx_water;      //
+extern Ego::OpenGL::Texture     *tx_wall;       //
+extern Ego::OpenGL::Texture     *tx_impass;     //
+extern Ego::OpenGL::Texture     *tx_damage;     //
+extern Ego::OpenGL::Texture     *tx_slippy;     //
 
-extern oglx_texture_t     *tx_smalltile[MAXTILE]; // Tiles
-extern oglx_texture_t     *tx_bigtile[MAXTILE];   //
-extern oglx_texture_t     *tx_tinysmalltile[MAXTILE]; // Plan tiles
-extern oglx_texture_t     *tx_tinybigtile[MAXTILE];   //
+extern Ego::OpenGL::Texture     *tx_smalltile[MAXTILE]; // Tiles
+extern Ego::OpenGL::Texture     *tx_bigtile[MAXTILE];   //
+extern Ego::OpenGL::Texture     *tx_tinysmalltile[MAXTILE]; // Plan tiles
+extern Ego::OpenGL::Texture     *tx_tinybigtile[MAXTILE];   //
 
 extern int     numsmalltile;   //
 extern int     numbigtile;     //
@@ -143,12 +143,12 @@ void make_planmap( cartman_mpd_t * pmesh );
 void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, int y);
-void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
+void draw_top_tile( float x0, float y0, int fan, Ego::OpenGL::Texture * tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
 void draw_tile_fx( float x, float y, Uint8 fx, float scale );
 
 // ogl routines
-void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, float height );
-void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height );
+void ogl_draw_sprite_2d( Ego::OpenGL::Texture * img, float x, float y, float width, float height );
+void ogl_draw_sprite_3d( Ego::OpenGL::Texture * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height );
 void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[] );
 void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[] );
 void ogl_beginFrame();
@@ -171,8 +171,8 @@ void load_img();
 void get_tiles(SDL_Surface* bmpload);
 
 // misc
-oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy );
-oglx_texture_t * tile_at( cartman_mpd_t * pmesh, int fan );
+Ego::OpenGL::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy );
+Ego::OpenGL::Texture * tile_at( cartman_mpd_t * pmesh, int fan );
 
 /**
  * @todo

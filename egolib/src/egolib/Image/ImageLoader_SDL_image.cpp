@@ -25,11 +25,9 @@ ImageLoader_SDL_image::ImageLoader_SDL_image(const string& extension) :
     ImageLoader(extension)
 {}
 
-std::shared_ptr<SDL_Surface> ImageLoader_SDL_image::load(vfs_FILE *file) const
-{
+std::shared_ptr<SDL_Surface> ImageLoader_SDL_image::load(vfs_FILE *file) const {
     SDL_Surface *surface = IMG_Load_RW(vfs_openRWops(file, false), 1);
-    if (!surface)
-    {
+    if (!surface) {
         return nullptr;
     }
     return std::shared_ptr<SDL_Surface>(surface, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });

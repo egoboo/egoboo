@@ -18,22 +18,19 @@
 //********************************************************************************************
 
 /// @file   egolib/Renderer/OpenGL/AccumulationBuffer.hpp
-/// @brief  Accumulation buffer facade for OpenGL 2.1 
+/// @brief  Implementation of an accumulation buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #pragma once
 
 #include "egolib/Renderer/Renderer.hpp"
 
-namespace Ego
-{
-namespace OpenGL
-{
+namespace Ego {
+namespace OpenGL {
 
 using namespace Math;
 
-class AccumulationBuffer : public Ego::AccumulationBuffer
-{
+class AccumulationBuffer : public Ego::AccumulationBuffer {
 
 public:
 
@@ -57,7 +54,7 @@ public:
     /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
     virtual void setClearValue(const Colour4f& value) override;
 
-};
+}; // class AccumulationBuffer
 
 } // namespace OpenGL
 } // namespace Ego

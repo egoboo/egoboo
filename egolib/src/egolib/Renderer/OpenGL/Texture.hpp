@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file   egolib/Renderer/OpenGL/Texture.hpp
-/// @brief  An encapsulation of an OpenGL texture object
+/// @brief  Implementation of textures for OpenGL 2.1.
 /// @author Michael Heilmann
 
 #pragma once

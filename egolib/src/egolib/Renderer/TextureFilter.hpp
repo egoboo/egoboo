@@ -23,17 +23,14 @@
 
 #pragma once
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
  *  An enumeration of texture filter types.
- * @author
- *  Michael Heilmann
  */
-enum class TextureFilterType
-{
+enum class TextureFilterType {
+
     /**
      * @brief
      *  The minification filter type.
@@ -49,16 +46,14 @@ enum class TextureFilterType
      *  The magnification filter type.
      */
     Magnification,
-};
+
+}; // enum class TextureFilterType
 
 /**
  * @brief
  *  An enumeration of texture filtering methods.
- * @author
- *  Michael Heilmann
  */
-enum class TextureFilter
-{
+enum class TextureFilter {
     /**
      * @brief
      *  None means, use the cheapest method available and is usually identical to "nearest"
@@ -87,6 +82,6 @@ enum class TextureFilter
      */
     Linear,
 
-};
+}; // enum class TextureFilter
 
 } // namespace Ego

@@ -2154,7 +2154,7 @@ int reaffirm_attached_particles(ObjectRef objectRef) {
         std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
 			object->getPosition(), object->ori.facing_z, object->getProfile()->getSlotNumber(),
 			object->getProfile()->getAttachedParticleProfile(), objectRef, GRIP_LAST + number_attached,
-			object->getTeam().toRef(), objectRef, INVALID_PRT_REF, number_attached);
+			object->getTeam().toRef(), objectRef, ParticleRef::Invalid, number_attached);
 
         if (particle) {
             particle->placeAtVertex(object, particle->attachedto_vrt_off);

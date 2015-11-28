@@ -42,7 +42,7 @@
  */
 struct prt_bundle_t
 {
-    PRT_REF _prt_ref;
+    ParticleRef _prt_ref;
     Ego::Particle *_prt_ptr;
 
     PIP_REF _pip_ref;
@@ -97,5 +97,5 @@ public:
 //--------------------------------------------------------------------------------------------
 void move_all_particles();
 
-int  spawn_bump_particles(ObjectRef objectRef, const PRT_REF particle);
-ObjectRef prt_get_iowner(const PRT_REF iprt, int depth);
+int  spawn_bump_particles(ObjectRef objectRef, const ParticleRef particle);
+ObjectRef prt_get_iowner(const ParticleRef iprt, int depth);

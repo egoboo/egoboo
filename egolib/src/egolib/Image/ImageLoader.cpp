@@ -28,7 +28,6 @@ ImageLoader::ImageLoader(const string& extension) :
 ImageLoader::~ImageLoader()
 {}
 
-const string ImageLoader::getExtension() const
-{
+const string ImageLoader::getExtension() const {
     return _extension;
 }

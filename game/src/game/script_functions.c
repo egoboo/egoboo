@@ -2186,7 +2186,7 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
                                                    pchr->ori.facing_z, 
                                                    pchr->getProfileID(),
                                                    LocalParticleProfileRef(state.argument), self.getSelf(),
-                                                   state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                   state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
                                                    ObjectRef::Invalid );
 
     returncode = (particle != nullptr);
@@ -4012,7 +4012,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t& state, ai_state_t& self )
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
                                                                       LocalParticleProfileRef(state.argument), self.getSelf(),
-                                                                      state.distance, pchr->team, iself, INVALID_PRT_REF, 0,
+                                                                      state.distance, pchr->team, iself, ParticleRef::Invalid, 0,
                                                                       ObjectRef::Invalid);
     SCRIPT_FUNCTION_END();
 }
@@ -4044,7 +4044,7 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
         returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                                           LocalParticleProfileRef(state.argument),
                                                                           ObjectRef::Invalid, 0, pchr->team, ichr,
-                                                                          INVALID_PRT_REF, 0, ObjectRef::Invalid);
+                                                                          ParticleRef::Invalid, 0, ObjectRef::Invalid);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4528,7 +4528,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t& state, ai_state_t& self )
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, 
                                                                                         pchr->getProfileID(), LocalParticleProfileRef(state.argument), self.getSelf(),
-                                                                                        state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                                                        state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
                                                                                         ObjectRef::Invalid);
 
     returncode = (particle != nullptr);
@@ -4638,7 +4638,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), CLIP_TO_16BITS( state.turn ),
                                                                       pchr->getProfileID(), LocalParticleProfileRef(state.argument),
-                                                                      self.getSelf(), state.distance, pchr->team, ichr, INVALID_PRT_REF,
+                                                                      self.getSelf(), state.distance, pchr->team, ichr, ParticleRef::Invalid,
                                                                       0, ObjectRef::Invalid);
 
     SCRIPT_FUNCTION_END();
@@ -4966,7 +4966,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
 
     returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
                                                                       LocalParticleProfileRef(state.argument), ichr,
-                                                                      state.distance, pchr->team, ichr, INVALID_PRT_REF, 0,
+                                                                      state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
                                                                       ObjectRef::Invalid);
 
     SCRIPT_FUNCTION_END();
@@ -5491,7 +5491,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
-                                                             ObjectRef::Invalid, 0, pchr->team, ichr, INVALID_PRT_REF,
+                                                             ObjectRef::Invalid, 0, pchr->team, ichr, ParticleRef::Invalid,
                                                              0, ObjectRef::Invalid);
     }
 
@@ -6704,7 +6704,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
-                                                             ObjectRef::Invalid, 0, pchr->team, ichr, INVALID_PRT_REF,
+                                                             ObjectRef::Invalid, 0, pchr->team, ichr, ParticleRef::Invalid,
                                                              0, ObjectRef::Invalid);
     }
 
@@ -6733,9 +6733,9 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PIP_REF particleRef = ppro->getParticlePoofProfile();
-    if ( INVALID_PRT_REF == particleRef ) return false;
-    std::shared_ptr<pip_t> ppip = ParticleProfileSystem::get().get_ptr(particleRef);
+    PIP_REF ipip = ppro->getParticlePoofProfile();
+    if ( INVALID_PIP_REF == ipip) return false;
+    std::shared_ptr<pip_t> ppip = ParticleProfileSystem::get().get_ptr(ipip);
 
     returncode = false;
     if ( NULL != ppip )

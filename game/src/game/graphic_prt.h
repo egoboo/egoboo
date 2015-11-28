@@ -38,7 +38,7 @@ extern int ptex_w[2];
 extern int ptex_h[2];
 extern float ptex_wscale[2];
 extern float ptex_hscale[2];
-void prt_set_texture_params(const oglx_texture_t* texture, uint8_t type);
+void prt_set_texture_params(const Ego::OpenGL::Texture* texture, uint8_t type);
 float CALCULATE_PRT_U0(int IDX, int CNT);
 float CALCULATE_PRT_U1(int IDX, int CNT);
 float CALCULATE_PRT_V0(int IDX, int CNT);
@@ -158,9 +158,9 @@ struct prt_instance_t
     }
 };
 
-gfx_rv render_one_prt_solid(const PRT_REF iprt);
-gfx_rv render_one_prt_trans(const PRT_REF iprt);
-gfx_rv render_one_prt_ref(const PRT_REF iprt);
+gfx_rv render_one_prt_solid(const ParticleRef iprt);
+gfx_rv render_one_prt_trans(const ParticleRef iprt);
+gfx_rv render_one_prt_ref(const ParticleRef iprt);
 void render_all_prt_bbox();
 void render_all_prt_attachment();
 gfx_rv update_all_prt_instance(Camera& cam);

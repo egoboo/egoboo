@@ -28,81 +28,78 @@
 ImageManager *ImageManager::_singleton = nullptr;
 
 void ImageManager::registerImageLoaders(int flags) {
-	if (flags & IMG_INIT_JPG) {
-		_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".jpg"))));
-		_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".jpeg"))));
-	}
-	if (flags & IMG_INIT_PNG) {
-		_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".png"))));
-	}
-	if (flags & IMG_INIT_TIF) {
-		_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tif"))));
-		_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tiff"))));
-	}
-	_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".gif"))));
-	_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".pcx"))));
-	_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".ppm"))));
-	_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".xpm"))));
-	_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".pnm"))));
-	_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".lbm"))));
-	// Loading TGA images using the standard method does not work according to SDL_Image documentation.
-	// @todo MH: A solution is to provide a subclass of ImageLoader_SDL_image for this special case.
+    if (flags & IMG_INIT_JPG) {
+        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".jpg"))));
+        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".jpeg"))));
+    }
+    if (flags & IMG_INIT_PNG) {
+        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".png"))));
+    }
+    if (flags & IMG_INIT_TIF) {
+        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tif"))));
+        _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tiff"))));
+    }
+    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".gif"))));
+    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".pcx"))));
+    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".ppm"))));
+    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".xpm"))));
+    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".pnm"))));
+    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".lbm"))));
+    // Loading TGA images using the standard method does not work according to SDL_Image documentation.
+    // @todo MH: A solution is to provide a subclass of ImageLoader_SDL_image for this special case.
 #if 0
-	_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tga"))));
+    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".tga"))));
 #endif
-	_loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".bmp"))));
+    _loaders.push_back(move(unique_ptr<ImageLoader_SDL_image>(new ImageLoader_SDL_image(".bmp"))));
 }
 
 ImageManager::ImageManager() :
     _loaders(),
-    _withSDL_image(egoboo_config_t::get().debug_sdlImage_enable.getValue())
-{
-	using namespace std;
-	using namespace Ego::Core;
+    _withSDL_image(egoboo_config_t::get().debug_sdlImage_enable.getValue()) {
+    using namespace std;
+    using namespace Ego::Core;
     if (_withSDL_image) {
-		Log::get().info("initializing SDL_image imaging version %d.%d.%d ...", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+        Log::get().info("initializing SDL_image imaging version %d.%d.%d ...", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
         int flags = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF;
 #if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
         // WebP support added in SDL_image 1.2.11
         flags |= IMG_INIT_WEBP;
 #endif
-		flags = IMG_Init(flags);
-		// PNG support is mandatory.
-		if (!(flags & IMG_INIT_PNG)) {
-			Id::EnvironmentErrorException error(__FILE__, __LINE__, "ImageManager", string("Failed to initialize SDL_Image subsystem (") + SDL_GetError() + ")");
-			_withSDL_image = false;
-			Log::get().warn(" %s\n", ((std::string)error).c_str());
-			throw error;
-		}
+        flags = IMG_Init(flags);
+        // PNG support is mandatory.
+        if (!(flags & IMG_INIT_PNG)) {
+            Id::EnvironmentErrorException error(__FILE__, __LINE__, "ImageManager", string("Failed to initialize SDL_Image subsystem (") + SDL_GetError() + ")");
+            _withSDL_image = false;
+            Log::get().warn(" %s\n", ((std::string)error).c_str());
+            throw error;
+        }
         try {
-			registerImageLoaders(flags);
+            registerImageLoaders(flags);
         } catch (...) {
             IMG_Quit();
-			Log::get().warn(" failure");
+            Log::get().warn(" failure");
             _withSDL_image = false;
-			std::rethrow_exception(std::current_exception());
+            std::rethrow_exception(std::current_exception());
         }
     } else {
-		Log::get().info("SDL_image imaging disable by %s = \"false\" in `setup.txt` - only support for .bmp files\n",
-			            egoboo_config_t::get().debug_sdlImage_enable.getName().c_str());
-		Log::get().info("initializing standard SDL imaging ...");
-		try {
-			// These typed are natively supported with SDL.
-			// Place them *after* the SDL_image types, so that if both are present,
-			// the other types will be preferred over ".bmp".
-			_loaders.push_back(move(unique_ptr<ImageLoader_SDL>(new ImageLoader_SDL(".bmp"))));
-		} catch (...) {
-			Log::get().warn(" failure\n");
-			std::rethrow_exception(std::current_exception());
-		}
-	}
-	Log::get().info(" success\n");
+        Log::get().info("SDL_image imaging disable by %s = \"false\" in `setup.txt` - only support for .bmp files\n",
+                        egoboo_config_t::get().debug_sdlImage_enable.getName().c_str());
+        Log::get().info("initializing standard SDL imaging ...");
+        try {
+            // These typed are natively supported with SDL.
+            // Place them *after* the SDL_image types, so that if both are present,
+            // the other types will be preferred over ".bmp".
+            _loaders.push_back(move(unique_ptr<ImageLoader_SDL>(new ImageLoader_SDL(".bmp"))));
+        } catch (...) {
+            Log::get().warn(" failure\n");
+            std::rethrow_exception(std::current_exception());
+        }
+    }
+    Log::get().info(" success\n");
 }
 
-ImageManager::~ImageManager()
-{
-    if (_withSDL_image)
-    {
+ImageManager::~ImageManager() {
+    if (_withSDL_image) {
         IMG_Quit();
     }
 }
@@ -167,7 +164,7 @@ std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t heig
     if (!surface)  {
         return nullptr;
     }
-	// Note: According to C++ documentation, the deleter is invoked if the std::shared_ptr constructor
-	//       raises an exception.
-	return std::shared_ptr<SDL_Surface>(surface, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+    // Note: According to C++ documentation, the deleter is invoked if the std::shared_ptr constructor
+    //       raises an exception.
+    return std::shared_ptr<SDL_Surface>(surface, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
 }

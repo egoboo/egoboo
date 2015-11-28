@@ -23,8 +23,7 @@
 
 #pragma once
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
@@ -33,8 +32,8 @@ namespace Ego
 enum class RasterizationMode {
 
     /**
-	 * @brief
-	 *  The interior of the polygon is filled.
+     * @brief
+     *  The interior of the polygon is filled.
      */
     Solid,
 
@@ -45,11 +44,12 @@ enum class RasterizationMode {
     Line,
 
     /**
-	 * @brief
-	 *  Polygon vertices that are marked as the start of a boundary edge
-	 *  are drawn as points.
+     * @brief
+     *  Polygon vertices that are marked as the start of a boundary edge
+     *  are drawn as points.
      */
     Point,
-};
+
+}; // enum class RasterizationMode
 
 } // namespace Ego

@@ -21,8 +21,9 @@
 /// @brief  Enumeration of compare functions used for depth/stencil buffer operations and others.
 /// @author Michael Heilmann
 
-namespace Ego
-{
+#pragma once
+
+namespace Ego {
 
 /**
  * @brief
@@ -59,6 +60,6 @@ enum class CompareFunction
     
     _COUNT, ///< @todo Remove this.
 
-};
+}; // enum class CompareFunction
 
 } // namespace Ego

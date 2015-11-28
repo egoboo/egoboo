@@ -32,7 +32,7 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/UIManager.hpp"
 
-Billboard::Billboard(Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
+Billboard::Billboard(Uint32 endTime, std::shared_ptr<Ego::OpenGL::Texture> texture)
     : _endTime(endTime),
       _position(), _offset(), _offset_add(),
       _size(1), _size_add(0),
@@ -107,7 +107,7 @@ void BillboardList::update()
     update(SDL_GetTicks());
 }
 
-std::shared_ptr<Billboard> BillboardList::makeBillboard(uint32_t lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
+std::shared_ptr<Billboard> BillboardList::makeBillboard(uint32_t lifetime_secs, std::shared_ptr<Ego::OpenGL::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
     auto billboard = std::make_shared<Billboard>(SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, texture);
     billboard->_tint = tint;
     if (HAS_SOME_BITS(options, Billboard::Flags::RandomPosition))
@@ -303,9 +303,9 @@ std::shared_ptr<Billboard> chr_make_text_billboard(ObjectRef obj_ref, const std:
     auto obj_ptr = _currentModule->getObjectHandler()[obj_ref];
 
     // Pre-render the text.
-    std::shared_ptr<oglx_texture_t> tex;
+    std::shared_ptr<Ego::OpenGL::Texture> tex;
     try {
-        tex = std::make_shared<oglx_texture_t>();
+        tex = std::make_shared<Ego::OpenGL::Texture>();
     } catch (...) {
         return nullptr;
     }

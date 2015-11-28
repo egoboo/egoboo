@@ -223,20 +223,18 @@ public:
      *  the caller has to make sure that a texture object is valid until
      *  the texture unit is deactivated.
      */
-    virtual void setActivated(const oglx_texture_t *texture) = 0;
+    virtual void setActivated(const Texture *texture) = 0;
 
 };
 
 class Renderer;
 
-class RendererFactory
-{
+class RendererFactory {
 public:
     Renderer *operator()();
 };
 
-class Renderer : public Ego::Core::Singleton<Renderer,RendererFactory>
-{
+class Renderer : public Ego::Core::Singleton<Renderer,RendererFactory> {
 
 protected:
     // Befriend with the singleton to grant access to Renderer::~Renderer.
