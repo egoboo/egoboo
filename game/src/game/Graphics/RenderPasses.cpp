@@ -773,6 +773,9 @@ void EntityShadows::doShadowSprite(float intensity, VertexBuffer& vertexBuffer)
 {
 	if (intensity*255.0f < 1.0f) return;
 
+	//Limit the intensity to a valid range
+	intensity = Ego::Math::constrain(intensity, 0.0f, 1.0f);
+
 	auto& renderer = Renderer::get();
 	renderer.setColour(Colour4f(intensity, intensity, intensity, 1.0f));
 
