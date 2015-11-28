@@ -270,11 +270,11 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     enviro.grid_lerp  = ( pchr->getPosZ() - grid_level ) / PLATTOLERANCE;
-    enviro.grid_lerp  = CLIP( enviro.grid_lerp, 0.0f, 1.0f );
+    enviro.grid_lerp  = Ego::Math::constrain( enviro.grid_lerp, 0.0f, 1.0f );
 
     enviro.water_level = water_level;
     enviro.water_lerp  = ( pchr->getPosZ() - water_level ) / PLATTOLERANCE;
-    enviro.water_lerp  = CLIP( enviro.water_lerp, 0.0f, 1.0f );
+    enviro.water_lerp  = Ego::Math::constrain( enviro.water_lerp, 0.0f, 1.0f );
 
     // The actual level of the floor underneath the character.
     if ( NULL != pplatform )
@@ -308,7 +308,7 @@ void move_one_character_get_environment( Object * pchr )
 
     // set the zlerp after we have done everything to the particle's level we care to
     enviro.zlerp = ( pchr->getPosZ() - enviro.level ) / PLATTOLERANCE;
-    enviro.zlerp = CLIP( enviro.zlerp, 0.0f, 1.0f );
+    enviro.zlerp = Ego::Math::constrain( enviro.zlerp, 0.0f, 1.0f );
 
     enviro.grounded = (!pchr->isFlying() && ( enviro.zlerp < 0.25f ) );
 

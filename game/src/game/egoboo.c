@@ -92,7 +92,7 @@ bool config_download( egoboo_config_t *cfg)
     }
 
     // Message display.
-    DisplayMsg_count = CLIP(cfg->hud_simultaneousMessages_max.getValue(), (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
+    DisplayMsg_count = Ego::Math::constrain(cfg->hud_simultaneousMessages_max.getValue(), (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
     DisplayMsg_on = cfg->hud_simultaneousMessages_max.getValue() > 0;
 
     // Particle display limit.

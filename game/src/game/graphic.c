@@ -1288,7 +1288,7 @@ void gfx_config_t::download(gfx_config_t& self, egoboo_config_t& cfg)
     self.draw_background = cfg.graphic_background_enable.getValue() && water._background_req;
     self.draw_overlay = cfg.graphic_overlay_enable.getValue() && water._overlay_req;
 
-    self.dynalist_max = CLIP(cfg.graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
+    self.dynalist_max = Ego::Math::constrain(cfg.graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
 
     self.draw_water_0 = !self.draw_overlay && (water._layer_count > 0);
     self.clearson = !self.draw_background;
@@ -1447,7 +1447,7 @@ float GridIllumination::light_corners(ego_mesh_t& mesh, ego_tile_info_t& tile, b
 			else
 			{
 				delta /= light_tmp;
-				delta = CLIP(delta, 0.0f, 10.0f);
+				delta = Ego::Math::constrain(delta, 0.0f, 10.0f);
 			}
 
 			// add in the actual change this update
@@ -1506,7 +1506,7 @@ void GridIllumination::test_one_corner(const ego_mesh_t& mesh, GLXvector3f pos, 
 	// determine the weighting
 	float hgh_wt, low_wt;
 	hgh_wt = (pos[ZZ] - mesh._tmem._bbox.getMin()[kZ]) / (mesh._tmem._bbox.getMax()[kZ] - mesh._tmem._bbox.getMin()[kZ]);
-	hgh_wt = CLIP(hgh_wt, 0.0f, 1.0f);
+	hgh_wt = Ego::Math::constrain(hgh_wt, 0.0f, 1.0f);
 	low_wt = 1.0f - hgh_wt;
 
 	pdelta = low_wt * low_delta + hgh_wt * hgh_delta;
@@ -1537,7 +1537,7 @@ bool GridIllumination::test_corners(const ego_mesh_t& mesh, ego_tile_info_t& til
 		else
 		{
 			delta /= plight;
-			delta = CLIP(delta, 0.0f, 10.0f);
+			delta = Ego::Math::constrain(delta, 0.0f, 10.0f);
 		}
 
 		pdelta += delta;
@@ -1603,7 +1603,7 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 	}
 
 	// clip the light to a reasonable value
-	plight = CLIP(plight, 0.0f, 255.0f);
+	plight = Ego::Math::constrain(plight, 0.0f, 255.0f);
 
 
 	if (!IGNORE_CACHING)
@@ -1896,7 +1896,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
             GLXvector3f& color = ptmem._clst[vertex];
             float light = ptile._lightingCache._contents[index];
 			color[RR] = color[GG] = color[BB] 
-				= INV_FF * CLIP(light, 0.0f, 255.0f);
+				= INV_FF * Ego::Math::constrain(light, 0.0f, 255.0f);
         }
 
         for ( /* Intentionall left empty. */; index < numberOfVertices; index++, vertex++)
@@ -1905,7 +1905,7 @@ void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 			const GLXvector3f& position = ptmem._plst[vertex];
 			float light = ego_mesh_interpolate_vertex(ptile, position);
 			color[RR] = color[GG] = color[BB] 
-				= INV_FF * CLIP(light, 0.0f, 255.0f);
+				= INV_FF * Ego::Math::constrain(light, 0.0f, 255.0f);
         }
 
         // clear out the deltas

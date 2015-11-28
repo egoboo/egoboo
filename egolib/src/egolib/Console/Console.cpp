@@ -371,14 +371,14 @@ SDL_Event *ConsoleHandler::handle_event(SDL_Event *event)
 		else if (SDL_SCANCODE_LEFT == vkey)
 		{
 			console->buffer_carat--;
-			console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(ConsoleSettings::LineSettings::Length - 1));
+			console->buffer_carat = Ego::Math::constrain(console->buffer_carat, (size_t)0, (size_t)(ConsoleSettings::LineSettings::Length - 1));
 
 			event = nullptr;
 		}
 		else if (SDL_SCANCODE_RIGHT == vkey)
 		{
 			console->buffer_carat++;
-			console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(ConsoleSettings::LineSettings::Length - 1));
+			console->buffer_carat = Ego::Math::constrain(console->buffer_carat, (size_t)0, (size_t)(ConsoleSettings::LineSettings::Length - 1));
 
 			event = nullptr;
 		}

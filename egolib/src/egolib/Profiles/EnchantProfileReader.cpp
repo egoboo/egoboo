@@ -203,7 +203,7 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     profile->_loaded = true;
 
     // Limit the endsound_index.
-    profile->endsound_index = CLIP<Sint16>(profile->endsound_index, INVALID_SOUND_ID, MAX_WAVE);
+    profile->endsound_index = Ego::Math::constrain<Sint16>(profile->endsound_index, INVALID_SOUND_ID, MAX_WAVE);
 
     return true;
 }

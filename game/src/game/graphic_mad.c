@@ -160,7 +160,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, ObjectRef character, GLXvector4f
                     col[AA] *= tint[AA];// * curr_color[AA];
 
                     tex[0] = pvrt->env[XX] + uoffset;
-                    tex[1] = CLIP( cmax, 0.0f, 1.0f );
+                    tex[1] = Ego::Math::constrain( cmax, 0.0f, 1.0f );
 
                     if ( 0 != ( bits & CHR_PHONG ) )
                     {
@@ -1246,8 +1246,8 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     if ( vmax < vmin ) std::swap(vmax, vmin);
 
     // make sure that the vertices are within the max range
-    vmin = CLIP( vmin, 0, maxvert );
-    vmax = CLIP( vmax, 0, maxvert );
+    vmin = Ego::Math::constrain( vmin, 0, maxvert );
+    vmax = Ego::Math::constrain( vmax, 0, maxvert );
 
     if ( force )
     {
@@ -1815,7 +1815,7 @@ void chr_instance_t::update_ref(chr_instance_t& self, float grid_level, bool nee
 		}
         startalpha -= 2.0f * pos_z;
         startalpha *= 0.5f;
-        startalpha = CLIP(startalpha, 0, 255);
+        startalpha = Ego::Math::constrain(startalpha, 0, 255);
     }
 
 	self.ref.alpha = (self.alpha * startalpha * INV_FF);
@@ -2140,7 +2140,7 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 
 		weight_sum += 1.0f;
 
-		amount = (CLIP(local_sheen, 0, 15) << 4) / 240.0f;
+		amount = (Ego::Math::constrain(local_sheen, 0, 15) << 4) / 240.0f;
 
 		tint[RR] += amount;
 		tint[GG] += amount;

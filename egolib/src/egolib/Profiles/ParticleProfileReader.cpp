@@ -252,9 +252,9 @@ bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::stri
     }
 
     // Limit the end_sound index.
-    profile->end_sound = CLIP<Sint8>(profile->end_sound, INVALID_SOUND_ID, MAX_WAVE);
+    profile->end_sound = Ego::Math::constrain<Sint8>(profile->end_sound, INVALID_SOUND_ID, MAX_WAVE);
     // Limit the soundspawn index.
-    profile->soundspawn = CLIP<Sint8>(profile->soundspawn, INVALID_SOUND_ID, MAX_WAVE);
+    profile->soundspawn = Ego::Math::constrain<Sint8>(profile->soundspawn, INVALID_SOUND_ID, MAX_WAVE);
 
     return true;
 }

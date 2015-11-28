@@ -29,23 +29,6 @@
 #include "egolib/Extensions/ogl_include.h"
 #include "egolib/Extensions/ogl_debug.h"
 
-/**
- * @brief
- *	Clip a value.
- * @param _value
- *	the value
- * @param _minimum
- *	the minimum
- * @param _maximum
- *	the maximum
- * @return
- *	the clipped value
- */
-template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& _maximum)
-{
-	return std::min(std::max(_value, _minimum), _maximum);
-}
-
 //--------------------------------------------------------------------------------------------
 // IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
 //--------------------------------------------------------------------------------------------

@@ -239,8 +239,8 @@ bool lighting_cache_t::lighting_cache_interpolate( lighting_cache_t& dst, const 
 {
     lighting_cache_t::init(dst);
 
-	float loc_u = CLIP(u, 0.0f, 1.0f);
-    float loc_v = CLIP(v, 0.0f, 1.0f);
+	float loc_u = Ego::Math::constrain(u, 0.0f, 1.0f);
+    float loc_v = Ego::Math::constrain(v, 0.0f, 1.0f);
 
 	float wt_sum = 0.0f;
 
@@ -321,8 +321,8 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
     if ( NULL == src ) return delta;
 
 
-    loc_u = CLIP( u, 0.0f, 1.0f );
-    loc_v = CLIP( v, 0.0f, 1.0f );
+    loc_u = Ego::Math::constrain( u, 0.0f, 1.0f );
+    loc_v = Ego::Math::constrain( v, 0.0f, 1.0f );
 
     wt_sum = 0.0f;
 
@@ -473,7 +473,7 @@ float lighting_cache_t::lighting_evaluate_cache( const lighting_cache_t& src, co
 
     // determine the weighting
     hgh_wt = ( z - bbox.getMin()[kZ] ) / ( bbox.getMax()[kZ] - bbox.getMin()[kZ] );
-    hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f );
+    hgh_wt = Ego::Math::constrain( hgh_wt, 0.0f, 1.0f );
     low_wt = 1.0f - hgh_wt;
 
     // initialize the output

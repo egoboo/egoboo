@@ -822,7 +822,7 @@ int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
     // Bounds
     if ( newa < -ambicut ) newa = -ambicut;
     newa += ambi;
-    pmesh->vrt2[vert].a = CLIP( newa, 1, 255 );
+    pmesh->vrt2[vert].a = Ego::Math::constrain( newa, 1, 255 );
 
     // Edge fade
     //dist = dist_from_border( pmesh->vrt[vert].x, pmesh->vrt[vert].y );

@@ -576,8 +576,8 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
         if (*tmin >= 1.0f || *tmax <= 0.0f) return false;
 
         // Clip the interaction time to just one frame.
-        tmp_min = CLIP(*tmin, 0.0f, 1.0f);
-        tmp_max = CLIP(*tmax, 0.0f, 1.0f);
+        tmp_min = Ego::Math::constrain(*tmin, 0.0f, 1.0f);
+        tmp_max = Ego::Math::constrain(*tmax, 0.0f, 1.0f);
 
         // determine the expanded collision volumes for both objects (for this frame)
         oct_bb_t exp1, exp2;
