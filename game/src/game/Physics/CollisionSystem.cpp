@@ -29,7 +29,7 @@ namespace Physics
 {
 //C function prototypes
 static bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, float tmax, float tmin);
-static bool do_chr_platform_physics( Object * object, Object * platform );
+static void do_chr_platform_physics(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform);
 static void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 
 CollisionSystem::CollisionSystem()
@@ -662,22 +662,18 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     // all collision tests have been met
     if ( ichr_a == objectB->onwhichplatform_ref )
     {
-        if ( do_chr_platform_physics( objectB.get(), objectA.get() ) )
-        {
-            // this is handled
-            return true;
-        }
+        // this is handled
+        do_chr_platform_physics(objectB, objectA);
+        return true;
     }
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
     if ( ichr_b == objectA->onwhichplatform_ref )
     {
-        if ( do_chr_platform_physics( objectA.get(), objectB.get() ) )
-        {
-            // this is handled
-            return true;
-        }
+        // this is handled
+        do_chr_platform_physics(objectA, objectB);
+        return true;
     }
 
     // items can interact with platforms but not with other characters/objects
@@ -961,49 +957,24 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     return true;
 }
 
-static bool do_chr_platform_physics( Object * object, Object * platform )
+static void do_chr_platform_physics(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform)
 {
-    // we know that ichr_a is a platform and ichr_b is on it
-    int16_t rot_a, rot_b;
-    float lerp_z, vlerp_z;
-
-    if (!object || object->isTerminated()) {
-        return false;
-    }
-    if (!platform || object->isTerminated()) {
-        return false;
-    }
-    //Are we attached to this platform?
-    if ( object->onwhichplatform_ref != platform->getObjRef() ) return false;
-
     // grab the pre-computed zlerp value, and map it to our needs
-    lerp_z = 1.0f - object->enviro.zlerp;
+    float lerp_z = 1.0f - object->enviro.zlerp;
 
-    // if your velocity is going up much faster then the
+    // if your velocity is going up much faster than the
     // platform, there is no need to suck you to the level of the platform
     // this was one of the things preventing you from jumping from platforms
     // properly
-    vlerp_z = std::abs(object->vel[kZ] - platform->vel[kZ]) / 5;
-    vlerp_z  = 1.0f - Ego::Math::constrain( vlerp_z, 0.0f, 1.0f );
+    if(std::abs(object->vel[kZ] - platform->vel[kZ]) / 5.0f <= PLATFORM_STICKINESS) {
+        object->phys.sum_avel((platform->vel[kZ]  - object->vel[kZ]) * lerp_z, kZ);
+    }
+    object->phys.sum_aplat((object->enviro.level - object->getPosZ()) * 0.125f * lerp_z, kZ);
 
     // determine the rotation rates
-    rot_b = object->ori.facing_z - object->ori_old.facing_z;
-    rot_a = platform->ori.facing_z - platform->ori_old.facing_z;
-
-    if ( lerp_z == 1.0f )
-    {
-        object->phys.sum_aplat(( object->enviro.level - object->getPosZ() ) * 0.125f, kZ );
-        object->phys.sum_avel(( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f, kZ );
-        object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
-    }
-    else
-    {
-        object->phys.sum_aplat(( object->enviro.level - object->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
-        object->phys.sum_avel(( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
-        object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
-    };
-
-    return true;
+    int16_t rot_b = object->ori.facing_z - object->ori_old.facing_z;
+    int16_t rot_a = platform->ori.facing_z - platform->ori_old.facing_z;
+    object->ori.facing_z += (rot_a - rot_b) * PLATFORM_STICKINESS;
 }
 
 static void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b )
