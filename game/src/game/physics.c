@@ -147,46 +147,6 @@ bool phys_warp_normal(const float exponent, Vector3f& nrm)
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-float phys_get_depth(const oct_vec_v2_t& podepth, const Vector3f& nrm)
-{
-    const float max_val = 1e6;
-
-    if (0.0f == nrm.length_abs()) return max_val;
-
-    // Convert the normal vector into an octagonal normal vector.
-    oct_vec_v2_t onrm(nrm);
-    onrm[OCT_XY] *= Ego::Math::invSqrtTwo<float>();
-    onrm[OCT_YX] *= Ego::Math::invSqrtTwo<float>();
-
-    // Calculate the minimum depth in each dimension.
-    float depth = max_val;
-    for (size_t i = 0; i < OCT_COUNT; ++i)
-    {
-        if (0.0f == podepth[i])
-        {
-            depth = 0.0f;
-            break;
-        }
-
-        if (0.0f != onrm[i])
-        {
-            float ftmp = podepth[i] / onrm[i];
-            if (ftmp <= 0.0f)
-            {
-                depth = 0.0f;
-                break;
-            }
-
-            depth = std::min(depth, ftmp);
-        }
-    }
-
-    return depth;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, Vector3f& nrm, float& depth)
 {
     // use the given (signed) podepth info to make a normal vector, and measure

@@ -26,9 +26,10 @@
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
 #include "game/script_implementation.h"
+
+#include "egolib/egolib.h"
+
 #include "game/game.h"
-#include "egolib/AI/AStar.h"
-#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
@@ -137,161 +138,6 @@ bool BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits )
 }
 
 //--------------------------------------------------------------------------------------------
-// line_of_sight_info_t
-//--------------------------------------------------------------------------------------------
-
-bool line_of_sight_info_t::blocked( line_of_sight_info_t * plos )
-{
-    bool mesh_hit = line_of_sight_info_t::with_mesh( plos );
-
-    //if ( mesh_hit )
-    //{
-    //    plos->x1 = (plos->collide_x + 0.5f) * GRID_FSIZE;
-    //    plos->y1 = (plos->collide_y + 0.5f) * GRID_FSIZE;
-    //}
-
-    //bool chr_hit = line_of_sight_with_characters( plos );
-
-    return mesh_hit /*|| chr_hit*/;
-}
-
-//--------------------------------------------------------------------------------------------
-bool line_of_sight_info_t::with_mesh( line_of_sight_info_t * plos )
-{
-    int Dx, Dy;
-    int ix, ix_stt, ix_end;
-    int iy, iy_stt, iy_end;
-
-    int Dbig, Dsmall;
-    int ibig, ibig_stt, ibig_end;
-    int ismall, ismall_stt, ismall_end;
-    int dbig, dsmall;
-    int TwoDsmall, TwoDsmallMinusTwoDbig, TwoDsmallMinusDbig;
-
-    bool steep;
-
-    if ( NULL == plos ) return false;
-
-    //is there any point of these calculations?
-    if ( EMPTY_BIT_FIELD == plos->stopped_by ) return false;
-
-    ix_stt = std::floor( plos->x0 / Info<float>::Grid::Size()); /// @todo We have a projection function for that.
-    ix_end = std::floor( plos->x1 / Info<float>::Grid::Size());
-
-    iy_stt = std::floor( plos->y0 / Info<float>::Grid::Size()); /// @todo We have a projection function for that.
-    iy_end = std::floor( plos->y1 / Info<float>::Grid::Size());
-
-    Dx = plos->x1 - plos->x0;
-    Dy = plos->y1 - plos->y0;
-
-    steep = (std::abs(Dy) >= std::abs(Dx));
-
-    // determine which are the big and small values
-    if ( steep )
-    {
-        ibig_stt = iy_stt;
-        ibig_end = iy_end;
-
-        ismall_stt = ix_stt;
-        ismall_end = ix_end;
-    }
-    else
-    {
-        ibig_stt = ix_stt;
-        ibig_end = ix_end;
-
-        ismall_stt = iy_stt;
-        ismall_end = iy_end;
-    }
-
-    // set up the big loop variables
-    dbig = 1;
-    Dbig = ibig_end - ibig_stt;
-    if ( Dbig < 0 )
-    {
-        dbig = -1;
-        Dbig = -Dbig;
-        ibig_end--;
-    }
-    else
-    {
-        ibig_end++;
-    }
-
-    // set up the small loop variables
-    dsmall = 1;
-    Dsmall = ismall_end - ismall_stt;
-    if ( Dsmall < 0 )
-    {
-        dsmall = -1;
-        Dsmall = -Dsmall;
-    }
-
-    // pre-compute some common values
-    TwoDsmall             = 2 * Dsmall;
-    TwoDsmallMinusTwoDbig = TwoDsmall - 2 * Dbig;
-    TwoDsmallMinusDbig    = TwoDsmall - Dbig;
-
-    Index1D fan_last = Index1D::Invalid;
-    for ( ibig = ibig_stt, ismall = ismall_stt;  ibig != ibig_end;  ibig += dbig )
-    {
-        if ( steep )
-        {
-            ix = ismall;
-            iy = ibig;
-        }
-        else
-        {
-            ix = ibig;
-            iy = ismall;
-        }
-
-        // check to see if the "ray" collides with the mesh
-        Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(ix, iy));
-        if (Index1D::Invalid != fan && fan != fan_last )
-        {
-            Uint32 collide_fx = _currentModule->getMeshPointer()->test_fx( fan, plos->stopped_by );
-            // collide the ray with the mesh
-
-            if ( EMPTY_BIT_FIELD != collide_fx )
-            {
-                plos->collide_x  = ix;
-                plos->collide_y  = iy;
-                plos->collide_fx = collide_fx;
-
-                return true;
-            }
-
-            fan_last = fan;
-        }
-
-        // go to the next step
-        if ( TwoDsmallMinusDbig > 0 )
-        {
-            TwoDsmallMinusDbig += TwoDsmallMinusTwoDbig;
-            ismall             += dsmall;
-        }
-        else
-        {
-            TwoDsmallMinusDbig += TwoDsmall;
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------
-bool line_of_sight_info_t::with_characters( line_of_sight_info_t * plos )
-{
-
-    if ( NULL == plos ) return false;
-
-    //TODO: do line/character intersection
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool AddWaypoint( waypoint_list_t& wplst, ObjectRef ichr, float pos_x, float pos_y )
 {
@@ -397,7 +243,7 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
     los_info.z1 = 0;
 
     // test for the simple case... a straight line
-    straight_line = !line_of_sight_info_t::blocked( &los_info );
+    straight_line = !line_of_sight_info_t::blocked(los_info, _currentModule->getMeshPointer());
 
     if ( !straight_line )
     {
@@ -405,9 +251,9 @@ bool FindPath( waypoint_list_t& wplst, Object * pchr, float dst_x, float dst_y, 
         printf( "Finding a path from %d,%d to %d,%d: \n", src_ix, src_iy, dst_ix, dst_iy );
 #endif
         //Try to find a path with the AStar algorithm
-        if ( AStar_find_path( _currentModule->getMeshPointer(), pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
+        if ( AStar::find_path( _currentModule->getMeshPointer(), pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
         {
-            returncode = AStar_get_path( dst_x, dst_y, wplst);
+            returncode = AStar::get_path( dst_x, dst_y, wplst);
         }
 
         if ( NULL != used_astar_ptr )
@@ -721,7 +567,7 @@ ObjectRef FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool fi
             los.y1 = pweapon->getPosY();
             los.z1 = pweapon->getPosZ();
 
-            if ( !use_line_of_sight || !line_of_sight_info_t::blocked( &los ) )
+            if ( !use_line_of_sight || !line_of_sight_info_t::blocked(los, _currentModule->getMeshPointer()) )
             {
                 //found a valid weapon!
                 best_target = pweapon->getObjRef();

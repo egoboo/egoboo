@@ -45,7 +45,7 @@ ProfileSystem::ProfileSystem() :
 {
     // Initialize the particle and enchant profile system.
     ParticleProfileSystem::get().initialize();
-    EveStack.initialize();
+    EnchantProfileSystem.initialize();
 
     // Initialize the script compiler.
     parser_state_t::initialize();
@@ -58,7 +58,7 @@ ProfileSystem::~ProfileSystem()
     parser_state_t::uninitialize();
 
     // Uninitialize the enchant and particle profile system.
-    EveStack.unintialize();
+    EnchantProfileSystem.unintialize();
     ParticleProfileSystem::get().unintialize();
 }
 
@@ -75,7 +75,7 @@ void ProfileSystem::reset()
 
     // Reset particle, enchant and models.
     ParticleProfileSystem::get().reset();
-    EveStack.reset();
+    EnchantProfileSystem.reset();
 }
 
 const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const
@@ -131,7 +131,7 @@ std::shared_ptr<pip_t> ProfileSystem::pro_get_ppip(const PRO_REF iobj, const Loc
         PIP_REF global_pip = ((lppref.get() < 0) || (lppref.get() > MAX_PIP)) ? MAX_PIP : (PIP_REF)lppref.get();
         if (LOADED_PIP(global_pip))
         {
-            return PipStack.get_ptr(global_pip);
+            return ParticleProfileSystem::get().get_ptr(global_pip);
         }
         else
         {
@@ -146,7 +146,7 @@ std::shared_ptr<pip_t> ProfileSystem::pro_get_ppip(const PRO_REF iobj, const Loc
         local_pip = _profilesLoaded[iobj]->getParticleProfile(lppref);
     }
 
-    return LOADED_PIP(local_pip) ? PipStack.get_ptr(local_pip) : nullptr;
+    return LOADED_PIP(local_pip) ? ParticleProfileSystem::get().get_ptr(local_pip) : nullptr;
 }
 
 PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override)
@@ -337,7 +337,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
 
     // Load in the standard global particles ( the coins for example )
     loadpath = "mp_data/1money.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN1 ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_COIN1 ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -346,7 +346,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/5money.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN5 ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_COIN5 ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -355,7 +355,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/25money.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN25 ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_COIN25 ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -364,7 +364,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/100money.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN100 ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_COIN100 ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -373,7 +373,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/200money.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM200 ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_GEM200 ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -382,7 +382,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/500money.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM500 ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_GEM500 ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -391,7 +391,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/1000money.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM1000 ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_GEM1000 ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -400,7 +400,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/2000money.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM2000 ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_GEM2000 ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -409,7 +409,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/disintegrate_start.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_START ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_START ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -418,7 +418,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/disintegrate_particle.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_PARTICLE ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_DISINTEGRATE_PARTICLE ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -428,7 +428,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
 #if 0
     // Load module specific information
     loadpath = "mp_data/weather4.txt";
-    if (INVALID_PIP_REF == PipStack.load_one(loadpath, (PIP_REF)PIP_WEATHER)) 
+    if (INVALID_PIP_REF == ParticleProfileSystem::get().load_one(loadpath, (PIP_REF)PIP_WEATHER))
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -437,7 +437,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/weather5.txt";
-    if (INVALID_PIP_REF == PipStack.load_one(loadpath, (PIP_REF)PIP_WEATHER_FINISH))
+    if (INVALID_PIP_REF == ParticleProfileSystem::get().load_one(loadpath, (PIP_REF)PIP_WEATHER_FINISH))
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;
@@ -447,7 +447,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
 #endif
 
     loadpath = "mp_data/splash.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_SPLASH ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_SPLASH ) )
     {
 		std::ostringstream os;
 		os << __FILE__ << ":" << __LINE__ << ": data file `" << loadpath << "` was not found" << std::endl;
@@ -456,7 +456,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
     }
 
     loadpath = "mp_data/ripple.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_RIPPLE ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_RIPPLE ) )
     {
 		std::ostringstream os;
 		os << __FILE__ << ":" << __LINE__ << ": data file `" << loadpath << "` was not found" << std::endl;
@@ -466,7 +466,7 @@ void ProfileSystem::loadGlobalParticleProfiles()
 
     // This is also global...
     loadpath = "mp_data/defend.txt";
-    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DEFEND ) )
+    if ( INVALID_PIP_REF == ParticleProfileSystem::get().load_one( loadpath, ( PIP_REF )PIP_DEFEND ) )
     {
 		std::ostringstream os;
 		os << "data file `" << loadpath << "` was not found" << std::endl;

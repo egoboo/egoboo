@@ -26,9 +26,6 @@
 #include "egolib/Profiles/ParticleProfile.hpp"
 #include "egolib/Profiles/ParticleProfileReader.hpp"
 
-//eew... remove this hack
-#define PipStack ParticleProfileSystem::get()
-
 class ParticleProfileSystem : public AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>, public Ego::Core::Singleton<ParticleProfileSystem>
 {
 protected:

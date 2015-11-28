@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\AI\LineOfSight.cpp" />
     <ClCompile Include="src\egolib\Log\ConsoleColor.cpp" />
     <ClCompile Include="src\egolib\Log\DefaultTarget.cpp" />
     <ClCompile Include="src\egolib\Log\Entry.cpp" />
@@ -468,6 +469,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\AI\LineOfSight.hpp" />
     <ClInclude Include="src\egolib\AI\State.hpp" />
     <ClInclude Include="src\egolib\Grid\Index.hpp" />
     <ClInclude Include="src\egolib\Grid\Info.hpp" />

@@ -23,6 +23,9 @@
 
 #include "game/game.h"
 
+#include "egolib/egolib.h"
+#include "egolib/FileFormats/Globals.hpp"
+
 #include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
@@ -47,9 +50,6 @@
 #include "game/Physics/ObjectPhysics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
-#include "egolib/Graphics/ModelDescriptor.hpp"
-#include "egolib/FileFormats/Globals.hpp"
-#include "egolib/egolib.h"
 
 //--------------------------------------------------------------------------------------------
 
@@ -630,12 +630,10 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
     float  longdist2 = max_dist2;
 
     if ( !LOADED_PIP( particletype ) ) return ObjectRef::Invalid;
-    ppip = PipStack.get_ptr( particletype );
+    ppip = ParticleProfileSystem::get().get_ptr( particletype );
 
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
-        bool target_friend, target_enemy;
-
         if ( !pchr->isAlive() || pchr->isitem || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // prefer targeting riders over the mount itself
@@ -654,8 +652,8 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 
         Team &particleTeam = _currentModule->getTeamList()[team];
 
-        target_friend = ppip->onlydamagefriendly && particleTeam == pchr->getTeam();
-        target_enemy  = !ppip->onlydamagefriendly && particleTeam.hatesTeam(pchr->getTeam() );
+        bool target_friend = ppip->onlydamagefriendly && particleTeam == pchr->getTeam();
+        bool target_enemy  = !ppip->onlydamagefriendly && particleTeam.hatesTeam(pchr->getTeam() );
 
         if ( target_friend || target_enemy )
         {
@@ -840,7 +838,7 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_F
                 los_info.y1 = ptst->getPosition()[kY];
                 los_info.z1 = ptst->getPosition()[kZ] + std::max( 1.0f, ptst->bump.height );
 
-                if ( line_of_sight_info_t::blocked( &los_info ) ) continue;
+                if ( line_of_sight_info_t::blocked( los_info, _currentModule->getMeshPointer() ) ) continue;
             }
 
             //Set the new best target found
@@ -1452,87 +1450,7 @@ void check_stats()
         if (keyb.is_key_down( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
         if (keyb.is_key_down( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
     }
-
-#if 0
-    // Display character stats?
-    else
-    {
-        if (keyb.is_key_down( SDLK_1 ) )  { show_stat( 0 ); stat_check_delay = 1000; }
-        if (keyb.is_key_down( SDLK_2 ) )  { show_stat( 1 ); stat_check_delay = 1000; }
-        if (keyb.is_key_down( SDLK_3 ) )  { show_stat( 2 ); stat_check_delay = 1000; }
-        if (keyb.is_key_down( SDLK_4 ) )  { show_stat( 3 ); stat_check_delay = 1000; }
-        if (keyb.is_key_down( SDLK_5 ) )  { show_stat( 4 ); stat_check_delay = 1000; }
-        if (keyb.is_key_down( SDLK_6 ) )  { show_stat( 5 ); stat_check_delay = 1000; }
-        if (keyb.is_key_down( SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
-        if (keyb.is_key_down( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
-    }
-#endif
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-void show_stat( int statindex )
-{
-    /// @author ZZ
-    /// @details This function shows the more specific stats for a character
-
-    ObjectRef character;
-    int     level;
-    char    gender[8] = EMPTY_CSTR;
-
-    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
-
-    if (pchr)
-    {
-        const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-        // Name
-        DisplayMsg_printf( "=%s=", pchr->getName(true, false, true).c_str());
-
-        // Level and gender and class
-        gender[0] = 0;
-        if ( pchr->isAlive() )
-        {
-            int itmp;
-            const char * gender_str;
-
-            gender_str = "";
-            switch ( pchr->gender )
-            {
-                case GENDER_MALE: gender_str = "male "; break;
-                case GENDER_FEMALE: gender_str = "female "; break;
-            }
-
-            level = 1 + pchr->experiencelevel;
-            itmp = level % 10;
-            if ( 1 == itmp )
-            {
-                DisplayMsg_printf( "~%dst level %s%s", level, gender_str, profile->getClassName().c_str() );
-            }
-            else if ( 2 == itmp )
-            {
-                DisplayMsg_printf( "~%dnd level %s%s", level, gender_str, profile->getClassName().c_str() );
-            }
-            else if ( 3 == itmp )
-            {
-                DisplayMsg_printf( "~%drd level %s%s", level, gender_str, profile->getClassName().c_str() );
-            }
-            else
-            {
-                DisplayMsg_printf( "~%dth level %s%s", level, gender_str, profile->getClassName().c_str() );
-            }
-        }
-        else
-        {
-            DisplayMsg_printf( "~Dead %s", profile->getClassName().c_str() );
-        }
-
-        // Stats
-        DisplayMsg_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", SFP8_TO_SINT( pchr->strength ), SFP8_TO_SINT( pchr->wisdom ), 255 - pchr->defense );
-        DisplayMsg_printf( "~INT:~%2d~DEX:~%2d~EXP:~%u", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
-    }
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 void show_armor( int statindex )
@@ -3064,8 +2982,8 @@ bool wawalite_finalize(wawalite_data_t *data)
         std::string prt_end_file = "mp_data/weather_" + weather_name + "_finish.txt";
 
         // Try to load the particle files. We need at least the first particle for weather to work.
-        bool success = INVALID_PIP_REF != PipStack.load_one(prt_file.c_str(), (PIP_REF)PIP_WEATHER);
-        PipStack.load_one(prt_end_file.c_str(), (PIP_REF)PIP_WEATHER_FINISH);
+        bool success = INVALID_PIP_REF != ParticleProfileSystem::get().load_one(prt_file.c_str(), (PIP_REF)PIP_WEATHER);
+        ParticleProfileSystem::get().load_one(prt_end_file.c_str(), (PIP_REF)PIP_WEATHER_FINISH);
 
         // Unknown weather parsed.
         if (!success)
