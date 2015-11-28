@@ -158,7 +158,7 @@ void LoadingState::loadModuleData()
     game_quit_module();
 
     setProgressText("Calculating some math...", 10);
-    BillboardSystem::get()._billboardList.reset();
+    BillboardSystem::get().reset();
 
     //initialize math objects
     make_turntosin();

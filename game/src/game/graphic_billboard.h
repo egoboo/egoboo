@@ -72,7 +72,7 @@ struct Billboard
      * @brief
      *  The point in time after which the billboard is expired.
      */
-    Uint32 _endTime;
+    Time::Ticks _endTime;
     /**
      * @brief
      *  The texture reference.
@@ -117,80 +117,76 @@ struct Billboard
     float _size;
     float _size_add;
 
-    Billboard(Uint32 endTime, std::shared_ptr<Ego::OpenGL::Texture> texture);
-    bool update(Uint32 ticks);
-
-};
-
-
-struct BillboardList
-{
-public:
-
-    // List of used billboards.
-    std::list<std::shared_ptr<Billboard>> _used;
-private:
-    void update(uint32_t ticks);
-public:
-    BillboardList();
-    void update();
-    void reset();
-
-    bool hasBillboard(const Object& object) {
-        for (const auto& bb : _used) {
-            if (bb->_obj_wptr.lock().get() == &object) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    Billboard(Time::Ticks endTime, std::shared_ptr<Ego::OpenGL::Texture> texture);
     /**
-     * @brief
-     *  Create a billboard.
-     * @param lifetime_secs
-     *  the lifetime of the billboard, in seconds
-     * @param texture
-     *  a shared pointer to the billboard texture.
-     *  Must not be a null pointer.
-     * @param tint
-     *  the tint
-     * @param options
-     *  the options
-     * @return
-     *  the billboard
-     * @throw std::invalid_argument
-     *  if @a texture is a null pointer
-     * @remark
-     *  The billboard is kept around as long as a reference to the billboard exists,
-     *  however, it might exprire during that time.
+     * @brief Update this billboard.
+     * @param now the current time
      */
-    std::shared_ptr<Billboard> makeBillboard(uint32_t lifetime_secs, std::shared_ptr<Ego::OpenGL::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options);
+    bool update(Time::Ticks now);
 
 };
 
 struct BillboardSystem {
-protected:
-    static BillboardSystem *singleton;
+private:
     BillboardSystem();
     virtual ~BillboardSystem();
-    bool render_one(Billboard& bb, float scale, const Vector3f& cam_up, const Vector3f& cam_rgt);
+private:
+    static BillboardSystem *singleton;
 public:
     static void initialize();
     static void uninitialize();
     static BillboardSystem& get();
 public:
+    bool render_one(Billboard& billboard, float scale, const Vector3f& cam_up, const Vector3f& cam_rgt);
+    /**
+     * @brief Update all billboards in this billboard system with the time of "now".
+     */
+    void update();
     void reset();
+    bool hasBillboard(const Object& object) const;
+private:
+    // List of used billboards.
+    std::list<std::shared_ptr<Billboard>> billboards;
+    // A vertex type used by the billboard system.
+    struct Vertex {
+        float x, y, z;
+        float s, t;
+    };
+    // A vertex buffer used by the billboard system.
+    Ego::VertexBuffer vertexBuffer;
+
+private:
+    /**
+    * @brief Update all billboards in this billboard system with the specified time.
+    * @param now the specified time
+    */
+    void update(Time::Ticks ticks);
+
+    /**
+    * @brief
+    *  Create a billboard.
+    * @param lifetime_secs
+    *  the lifetime of the billboard, in seconds
+    * @param texture
+    *  a shared pointer to the billboard texture.
+    *  Must not be a null pointer.
+    * @param tint
+    *  the tint
+    * @param options
+    *  the options
+    * @return
+    *  the billboard
+    * @throw std::invalid_argument
+    *  if @a texture is a null pointer
+    * @remark
+    *  The billboard is kept around as long as a reference to the billboard exists,
+    *  however, it might exprire during that time.
+    */
+    std::shared_ptr<Billboard> makeBillboard(Time::Seconds lifetime_secs, std::shared_ptr<Ego::OpenGL::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options);
+
+
+
 public:
     void render_all(Camera& camera);
-    BillboardList _billboardList;
-	// A vertex type used by the billboard system.
-	struct Vertex {
-		float x, y, z;
-		float s, t;
-	};
-	// A vertex buffer used by the billboard system.
-    Ego::VertexBuffer _vertexBuffer;
+    std::shared_ptr<Billboard> makeBillboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 };
-
-std::shared_ptr<Billboard> chr_make_text_billboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
