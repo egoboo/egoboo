@@ -1015,7 +1015,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     self.min_light =  255;
     for (size_t cnt = 0; cnt < self.vrt_count; cnt++ )
     {
-        Sint16 lite;
+        int16_t lite = 0;
 
         GLvertex *pvert = self.vrt_lst + cnt;
 
@@ -1043,8 +1043,8 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     }
 
     // ??coerce this to reasonable values in the presence of negative light??
-    if (self.max_light < 0) self.max_light = 0;
-    if (self.min_light < 0) self.min_light = 0;
+    self.max_light = std::max(self.max_light, 0);
+    self.min_light = std::max(self.min_light, 0);
 }
 
 gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
