@@ -12,5 +12,16 @@ extern treasure_table_t treasureTableList[MAX_TABLES];
 
 extern wawalite_data_t wawalite_data;
 
-egolib_rv get_random_treasure(char * buffer, size_t buffer_length);
+/**
+ * @brief Search treasure tables for random treasure. Follows references, detects circles.
+ * @param treasureTableName the name of the treasure table to start searching
+ * @param [out] treasureName reference to a std::string which is assigned the name of the treasure
+ * @return @a true if a treasure was found, @a false otherwise
+ * @pre @a treasureTableName must be a valid treasure table name.
+ * @remarks A valid treasure table name starts with <tt>%</tt>.
+ * @post If @a true was returned, @a treasureName was assigned a treasure name.
+ * If @a false was returned, @a treasure name was assigned the empty string.
+ * @remarks Follows references, detects circles.
+ */
+bool get_random_treasure(const std::string& treasureTableName, std::string& treasureName);
 egolib_rv init_random_treasure_tables_vfs(const std::string& filepath);

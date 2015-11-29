@@ -1770,7 +1770,10 @@ void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
     //If it is a reference to a random treasure table then get a random object from that table
     if ( '%' == psp_info->spawn_coment[0] )
     {
-        get_random_treasure( psp_info->spawn_coment, SDL_arraysize( psp_info->spawn_coment ) );
+        std::string treasureTableName = psp_info->spawn_coment;
+        std::string treasureName;
+        get_random_treasure(treasureTableName, treasureName);
+        strncpy(psp_info->spawn_coment, treasureName.c_str(), SDL_arraysize(psp_info->spawn_coment));
     }
 
     // make sure it ends with a .obj extension

@@ -36,11 +36,12 @@ struct treasure_table_t
     STRING object_list[TREASURE_TABLE_SIZE];
 	/// @brief The size of the list
     size_t size;
-	/// @brief Adds a new treasure object to the specified treasure table
-	/// @param self the treasure table
-	/// @param name the name of the object
-	void add(const std::string& name);
+    /// @brief Construct an empty treasure table.
 	treasure_table_t();
+    /// @brief Adds a new treasure object to the specified treasure table
+    /// @param self the treasure table
+    /// @param name the name of the object
+    void add(const std::string& name);
 };
 
 /// @brief Reload the treasure table from the specified read context.

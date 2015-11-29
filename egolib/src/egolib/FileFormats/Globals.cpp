@@ -5,65 +5,65 @@ tile_dictionary_t tile_dict;
 treasure_table_t treasureTableList[MAX_TABLES];
 wawalite_data_t wawalite_data;
 
-egolib_rv get_random_treasure(char * buffer, size_t buffer_length)
+/// Find the first treasure table of the specified name.
+treasure_table_t *find_treasure_table(const std::string& name) {
+    for (size_t i = 0; i < MAX_TABLES; i++) {
+        if (std::string(treasureTableList[i].table_name) == name) {
+            return &(treasureTableList[i]);
+        }
+    }
+    return nullptr;
+}
+
+bool get_random_treasure(const std::string& treasureTableName, std::string& treasureName)
 {
-	//ZF> Gets the name for a treasure randomly selected from the specified treasure table
-	//    This function effectively "converts" a table name into a random element from that table
+	// The empty string is not a valid treasure table name and treasure table names must start with '%'.
+    if (treasureTableName.empty() || '%' != treasureTableName[0]) {
+        return false;
+    }
+    // To detect circular references, we keep the names of visited tables in this set.
+    std::unordered_set<std::string> visited;
+    // Make a local copy of the table name.
+    std::string n = treasureTableName;
 
-	IPair loc_rand;
-	size_t i;
-	int treasure_index;
-
-	bool found = false;
-	STRING tmp_buffer;
-
-	// Trap invalid strings
-	if (0 == buffer_length || INVALID_CSTR(buffer)) return rv_error;
-
-	// make a local copy of the string
-	strncpy(tmp_buffer, buffer, SDL_arraysize(tmp_buffer));
-
-	// Iterate through every treasure table until we find the one we want
-	found = false;
-	for (i = 0; i < MAX_TABLES; i++)
-	{
-		//Continue looking until we find the correct table
-		if (0 != strcmp(treasureTableList[i].table_name, tmp_buffer)) continue;
-
-		//Pick a random number between 0 and the length of the table to get a random element out of the array
-		loc_rand.base = 0;
-		loc_rand.rand = treasureTableList[i].size;
-		treasure_index = generate_irand_pair(loc_rand);
-		strncpy(tmp_buffer, treasureTableList[i].object_list[treasure_index], buffer_length);
-
-		//See if it is an actual random object or a reference to a different random table
-		if ('%' != tmp_buffer[0])
-		{
-			found = true;
-		}
-		else
-		{
-			if (rv_success == get_random_treasure(tmp_buffer, buffer_length))
-			{
-				found = true;
-			}
-		}
-	}
-
-	//Could not find anything
-	if (found)
-	{
-		// copy the local string to the output
-		strncpy(buffer, tmp_buffer, buffer_length);
-	}
-	else
-	{
-		// give a warning
-		tmp_buffer[0] = CSTR_END;
-		Log::get().warn("Could not find treasure table: %s!\n", buffer);
-	}
-
-	return found ? rv_success : rv_fail;
+    bool found = false;
+	// Keep searching until we have found something or abort searching for other reasons.
+    while (!found) {
+        // Check if this table name was already visited.
+        auto it = visited.find(n);
+        // If this table name was already visted ...
+        if (it != visited.cend())
+        {
+            // ... stop searching.
+            break;
+        }
+        // Mark this table name as visited.
+        visited.insert(n);
+        // Find the table for the name.
+        treasure_table_t *t = find_treasure_table(n);
+        // If the table does not exist or is empty ...
+        if (nullptr == t && 0 == t->size) {
+            // ... stop searching.
+            break;
+        } else {
+            // Pick a random index number between 0 and size - 1 of the table and get the element at this index.
+            int i = generate_irand_pair(IPair(0, t->size-1));
+            n = t->object_list[i];
+            // If this is not a reference to yet another treasure table ...
+            if ('%' != n[0]) {
+                // ... an entry was found.
+                found = true;
+            }
+            // Otherwise we keep searching.
+        }
+    }
+    if (found) {
+        treasureName = n;
+        return true;
+    } else {
+        treasureName = std::string();
+        return false;
+    }
 }
 
 egolib_rv init_random_treasure_tables_vfs(const std::string& filepath)

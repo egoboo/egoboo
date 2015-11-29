@@ -37,7 +37,10 @@ void treasure_table_t::add(const std::string& name)
     // Make sure there is enough size to add one more.
     if (size + 1 >= TREASURE_TABLE_SIZE)
     {
-        Log::get().warn("no more room to add object `%s` to treasure table, consider increasing TREASURE_TABLE_SIZE (currently %i)\n", name, TREASURE_TABLE_SIZE);
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__, __FUNCTION__);
+        e << "no more room to add object `" << name << "` to treasure table. Consider inreasing the treasure table capacity."
+          << Log::EndOfEntry;
+        Log::get() << e;
         return;
     }
 
