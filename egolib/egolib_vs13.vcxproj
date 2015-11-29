@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Time.cpp" />
     <ClCompile Include="src\egolib\AI\LineOfSight.cpp" />
     <ClCompile Include="src\egolib\Log\ConsoleColor.cpp" />
     <ClCompile Include="src\egolib\Log\DefaultTarget.cpp" />
@@ -643,7 +644,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\egolib\strutil.h" />
-    <ClInclude Include="src\egolib\timer.h" />
+    <ClInclude Include="src\egolib\Time.hpp" />
     <ClInclude Include="src\egolib\typedef.h" />
     <ClInclude Include="src\egolib\vfs.h" />
     <ClInclude Include="src\egolib\_math.h" />

@@ -462,15 +462,15 @@
     <ClCompile Include="src\egolib\AI\LineOfSight.cpp">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\typedef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\strutil.h">
@@ -985,6 +985,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\AI\LineOfSight.hpp">
       <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Time.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
