@@ -22,45 +22,35 @@
 /// @details
 
 #include "egolib/FileFormats/treasure_table_file.h"
-
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
+#include "egolib/_math.h"      // For randomization
 
-#include "egolib/_math.h"      //For randomization
-
-//--------------------------------------------------------------------------------------------
 treasure_table_t::treasure_table_t()
-	: size(0)
+    : size(0)
 {
-	strcpy(table_name, "");
+    strcpy(table_name, "");
 }
 
-void treasure_table_t::add( treasure_table_t *self, const char *name )
+void treasure_table_t::add(const std::string& name)
 {
-    //ZF> Adds a new treasure object to the specified treasure table
-
-    //Avoid null pointers
-    if ( NULL == self ) return;
-
-    //Make sure there is enough size to add one more
-    if (self->size + 1 >= TREASURE_TABLE_SIZE )
+    // Make sure there is enough size to add one more.
+    if (size + 1 >= TREASURE_TABLE_SIZE)
     {
-		Log::get().warn( "No more room to add object (%s) to table, consider increasing TREASURE_TABLE_SIZE (currently %i)\n", name, TREASURE_TABLE_SIZE );
+        Log::get().warn("no more room to add object `%s` to treasure table, consider increasing TREASURE_TABLE_SIZE (currently %i)\n", name, TREASURE_TABLE_SIZE);
         return;
     }
 
-    //Add the element to the list
-    strncpy(self->object_list[self->size ], name, SDL_arraysize(self->object_list[self->size ] ) );
-	self->size++;
+    // Add the element to the list.
+    strncpy(object_list[size], name.c_str(), SDL_arraysize(object_list[size]));
+    size++;
 }
 
-//--------------------------------------------------------------------------------------------
-void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table )
+void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t& newTable)
 {
-    //ZF> Creates and loads a treasure table from the specified file until a :END is encountered
-    new_table->size = 0;
+    newTable.size = 0;
 
-    //Keep adding objects into the table until we encounter a :END
+    // Keep adding objects into the table until we encounter a ':END'.
     while (ctxt.skipToColon(false))
     {
         STRING temporary;
@@ -78,12 +68,10 @@ void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table 
         }
 
 
-        //Check if we reached the end of this table
-        if ( 0 == strcmp( temporary, "END" ) ) break;
+        // Check if we reached the end of this table.
+        if (0 == strcmp(temporary, "END")) break;
 
-        //Nope, add one more to the table
-        treasure_table_t::add( new_table, temporary);
+        // Nope, add one more to the table.
+        newTable.add(temporary);
     }
 }
-
-//--------------------------------------------------------------------------------------------

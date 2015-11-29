@@ -98,7 +98,7 @@ egolib_rv init_random_treasure_tables_vfs(const std::string& filepath)
 
 		//Load all objects in this treasure table
 		treasureTableList[num_table].size = 0;
-		load_one_treasure_table_vfs(ctxt, &treasureTableList[num_table]);
+		load_one_treasure_table_vfs(ctxt, treasureTableList[num_table]);
 		num_table++;
 	}
 	return rv_success;
