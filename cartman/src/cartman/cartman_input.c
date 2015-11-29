@@ -70,7 +70,7 @@ bool check_keys( Uint32 resolution )
     int tick;
 
     // 20 ticks per key delay
-    tick = SDL_GetTicks();
+    tick = Time::now<Time::Unit::Ticks>();
     if ( tick < last_tick + resolution ) return false;
     last_tick = tick;
 

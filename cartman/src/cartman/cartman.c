@@ -2029,7 +2029,7 @@ int SDL_main( int argcnt, char* argtext[] )
 
         SDL_Delay( 1 );
 
-        timclock = SDL_GetTicks() >> 3;
+        timclock = Time::now<Time::Unit::Ticks>() >> 3;
     }
     Cartman::GUI::uninitialize();
     Ego::Core::ConsoleHandler::uninitialize();

@@ -24,6 +24,7 @@
 
 #include "egolib/Graphics/Font.hpp"
 
+#include "egolib/Time.hpp"
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Renderer/Renderer.hpp"
@@ -194,7 +195,7 @@ namespace Ego
 		}
 		renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
        
-        cache->lastUseInTicks = SDL_GetTicks();
+        cache->lastUseInTicks = Time::now<Time::Unit::Ticks>();
         cache->text = text;
         _stringCache[text] = cache;
     }

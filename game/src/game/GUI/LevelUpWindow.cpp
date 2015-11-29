@@ -499,8 +499,8 @@ void LevelUpWindow::drawContainer()
     }
 
     //This reveals the attribute score increases step by step (reveal one per 500ms)
-    if(animationComplete && SDL_GetTicks() > _attributeRevealTime) {
-        _attributeRevealTime = SDL_GetTicks() + 500;
+    if(animationComplete && ::Time::now<::Time::Unit::Ticks>() > _attributeRevealTime) {
+        _attributeRevealTime = ::Time::now<::Time::Unit::Ticks>() + 500;
         for(size_t i = 0; i < _attributeIncrease.size(); ++i) {
             if(!_attributeIncrease[i]) continue;
             if(_attributeIncrease[i]->isVisible()) continue;

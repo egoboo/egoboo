@@ -1347,7 +1347,7 @@ void check_stats()
     int ticks;
     if ( keyb.chat_mode ) return;
 
-    ticks = SDL_GetTicks();
+    ticks = Time::now<Time::Unit::Ticks>();
     if ( ticks > stat_check_timer + 20 )
     {
         stat_check_timer = ticks;
