@@ -107,7 +107,6 @@ struct chr_spawn_data_t;
 #define PLATASCEND          0.10f                     ///< Ascension rate
 #define PLATKEEP            0.90f                     ///< Retention rate
 #define MOUNTTOLERANCE      (PLATTOLERANCE)
-#define STOPBOUNCING        2.00f                     ///< To make objects stop bouncing
 #define DROPZVEL            7
 #define DROPXYVEL           12
 

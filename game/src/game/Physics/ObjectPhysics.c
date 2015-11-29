@@ -209,7 +209,7 @@ void move_one_character_get_environment( Object * pchr )
         }
 
         // Do ground hits
-        if ( enviro.grounded && pchr->vel[kZ] < -STOPBOUNCING && pchr->hitready )
+        if ( enviro.grounded && pchr->vel[kZ] < -Ego::Physics::STOP_BOUNCING && pchr->hitready )
         {
             SET_BIT( pchr->ai.alert, ALERTIF_HITGROUND );
             pchr->hitready = false;
@@ -245,25 +245,25 @@ bool move_one_character_integrate_motion( Object * pchr )
     // interaction with the mesh
     //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
     {
-        const float vert_offset = RAISE * 0.25f;
-        float grid_level = pchr->enviro.grid_level + vert_offset + 5;
+        const float grid_level = pchr->enviro.floor_level + RAISE;
 
         tmp_pos[kZ] += pchr->vel[kZ];
         LOG_NAN( tmp_pos[kZ] );
-        if (tmp_pos[kZ] < grid_level)
+        if (tmp_pos[kZ] <= grid_level)
         {
             //We have hit the ground
             if(!pchr->isFlying()) {
                 pchr->enviro.grounded = true;
             }
 
-            if (std::abs( pchr->vel[kZ] ) < STOPBOUNCING)
+            if (std::abs(pchr->vel[kZ]) < Ego::Physics::STOP_BOUNCING)
             {
                 pchr->vel[kZ] = 0.0f;
                 tmp_pos[kZ] = grid_level;
             }
             else
             {
+                //Make it bounce!
                 if (pchr->vel[kZ] < 0.0f)
                 {
                     float diff = grid_level - tmp_pos[kZ];
@@ -285,7 +285,9 @@ bool move_one_character_integrate_motion( Object * pchr )
     if (pchr->isFlying())
     {
         // Don't fall in pits...
-        if (tmp_pos[kZ] < 0.0f) tmp_pos[kZ] = 0.0f;
+        if (tmp_pos[kZ] < 0.0f) {
+            tmp_pos[kZ] = 0.0f;
+        }
     }
 
 
