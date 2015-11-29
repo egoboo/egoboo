@@ -24,4 +24,5 @@ extern wawalite_data_t wawalite_data;
  * @remarks Follows references, detects circles.
  */
 bool get_random_treasure(const std::string& treasureTableName, std::string& treasureName);
-egolib_rv init_random_treasure_tables_vfs(const std::string& filepath);
+/// This loads all the treasure tables from <tt>randomtreasure.txt</tt>.
+void init_random_treasure_tables_vfs(const std::string& filepath);

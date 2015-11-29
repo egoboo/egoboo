@@ -30,19 +30,27 @@ constexpr size_t TREASURE_TABLE_SIZE = 128; ///< Maximum number of objects per t
 ///Data structure for one treasure table, we can have up to MAX_TABLES of these
 struct treasure_table_t
 {
-	/// @brief The name of this treasure table.
-    STRING table_name;
-	/// @brief List of treasure objects in this treasure table
-    STRING object_list[TREASURE_TABLE_SIZE];
-	/// @brief The size of the list
+	/**
+     * @brief The name of this treasure table.
+     */
+    std::string name;
+	/**
+     * @brief List of treasures in this treasure table.
+     *        The first @a size elements have meaningful values.
+     */
+    std::array<std::string, TREASURE_TABLE_SIZE> entries;
+	/**
+     * @brief The size of this treasure table.
+     */
     size_t size;
-    /// @brief Construct an empty treasure table.
+    /**
+     * @brief Construct an empty treasure table.
+     */
 	treasure_table_t();
-    /// @brief Adds a new treasure object to the specified treasure table
-    /// @param self the treasure table
-    /// @param name the name of the object
+    /**
+     * @brief Adds a new treasure object to the specified treasure table
+     * @param self the treasure table
+     * @param name the name of the object
+     */
     void add(const std::string& name);
 };
-
-/// @brief Reload the treasure table from the specified read context.
-void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t& newTable);

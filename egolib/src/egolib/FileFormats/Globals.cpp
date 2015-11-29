@@ -8,7 +8,7 @@ wawalite_data_t wawalite_data;
 /// Find the first treasure table of the specified name.
 treasure_table_t *find_treasure_table(const std::string& name) {
     for (size_t i = 0; i < MAX_TABLES; i++) {
-        if (std::string(treasureTableList[i].table_name) == name) {
+        if (treasureTableList[i].name == name) {
             return &(treasureTableList[i]);
         }
     }
@@ -48,7 +48,7 @@ bool get_random_treasure(const std::string& treasureTableName, std::string& trea
         } else {
             // Pick a random index number between 0 and size - 1 of the table and get the element at this index.
             int i = generate_irand_pair(IPair(0, t->size-1));
-            n = t->object_list[i];
+            n = t->entries[i];
             // If this is not a reference to yet another treasure table ...
             if ('%' != n[0]) {
                 // ... an entry was found.
@@ -66,40 +66,165 @@ bool get_random_treasure(const std::string& treasureTableName, std::string& trea
     }
 }
 
-egolib_rv init_random_treasure_tables_vfs(const std::string& filepath)
+namespace TreasureTable {
+struct Token {
+    enum class Type {
+        StartOfInput,
+        EndOfInput,
+        Reference,
+        Name,
+        EndOfTable,
+        StartOfTable,
+    };
+    Type type;
+    std::string text;
+    Token(Type type, const std::string& text) : type(type), text(text) {}
+};
+
+struct Scanner
 {
-	//ZF> This loads all the treasure tables from randomtreasure.txt
-	int num_table;
+private:
+    Token readElement(ReadContext& ctxt) {
+        std::string text;
+        if (ctxt.is('%'))
+        {
+            ctxt.next();
+            text = '%' + ctxt.readName();
+            return Token(Token::Type::Reference, text);
+        }
+        else
+        {
+            text = ctxt.readName();
+            if (text == "END")
+            {
+                return Token(Token::Type::EndOfTable, text);
+            }
+            else
+            {
+                return Token(Token::Type::Name, text);
+            }
+        }
+    }
 
-	// Try to open a context.
-	ReadContext ctxt(filepath);
-	if (!ctxt.ensureOpen())
-	{
-		Log::get().warn("unable to load random treasure tables file `%s`\n", filepath.c_str());
-		return rv_error;
-	}
+public:
+    std::vector<Token> read(ReadContext& ctxt)
+    {
+        std::vector<Token> tks;
+        Token tk = Token(Token::Type::StartOfInput, "<start of input>");
+        tks.push_back(tk);
+        while (ctxt.skipToColon(true))
+        {
+            std::string name = ctxt.readName();
+            tk = Token(Token::Type::StartOfTable, "%" + name);
+            tks.push_back(tk);
+            while (ctxt.skipToColon(false))
+            {
+                ctxt.skipWhiteSpaces();
+                tk = readElement(ctxt);
+                tks.push_back(tk);
+                if (tk.type == Token::Type::EndOfTable)
+                {
+                    break;
+                }
+            }
+        }
+        tk = Token(Token::Type::EndOfInput, "<end of input>");
+        tks.push_back(tk);
+        return tks;
+    }
+};
 
-	//Load each treasure table
-	num_table = 0;
-	while (ctxt.skipToColon(true))
-	{
-		//Load the name of this table
-		STRING temporary;
-		vfs_read_name(ctxt, temporary, SDL_arraysize(temporary));
+struct Parser {
 
-		//Stop here if we are already full
-		if (num_table >= MAX_TABLES)
-		{
-			Log::get().warn("Cannot load random treasure table: %s (We only support up to %i tables, consider increasing MAX_TABLES) \n", temporary, MAX_TABLES);
-			break;
-		}
+private:
+    treasure_table_t *table;
+    std::vector<Token>::const_iterator current, begin, end;
+    size_t index;
+private:
+    void next()
+    {
+        ++current;
+    }
+    bool is(Token::Type type)
+    {
+        if (current == end) throw std::runtime_error("<internal error>");
+        return (type == (*current).type);
+    }
+    // @code
+    // file = startOfInput table* endOfInput
+    // table = startOfTable (reference | name)* endOfTable
+    // @endcode
+    void parse(const std::vector<Token>& tks)
+    {
+        assert(!tks.empty()); // The token list is never empty.
+        index = 0;
+        begin = tks.cbegin(); end = tks.cend(); current = begin;
 
-		snprintf(treasureTableList[num_table].table_name, SDL_arraysize(treasureTableList[num_table].table_name), "%%%s", temporary);
+        // `<start of input>`
+        if (!is(Token::Type::StartOfInput))
+        {
+            throw std::runtime_error("syntax error");
+        }
+        next();
 
-		//Load all objects in this treasure table
-		treasureTableList[num_table].size = 0;
-		load_one_treasure_table_vfs(ctxt, treasureTableList[num_table]);
-		num_table++;
-	}
-	return rv_success;
+
+        while (is(Token::Type::StartOfTable))
+        {
+            // action {
+            if (index >= MAX_TABLES)
+            {
+                Log::Entry e(Log::Level::Warning, __FILE__, __LINE__, __FUNCTION__);
+                e << "unable load random treasure table `" << current->text << "`. Only support " << MAX_TABLES << " random treasure tables are supported."
+                  << Log::EndOfEntry;
+                Log::get() << e;
+                throw std::runtime_error(e.getText());
+            }
+            auto& table = treasureTableList[index++]; table.name = current->text;
+            // }
+            next();
+            // `(reference>|name)*`
+            while (is(Token::Type::Reference) || is(Token::Type::Name))
+            {
+                // action {
+                table.add(current->text);
+                // } 
+                next();
+            }
+            // `endOfTable`
+            if (!is(Token::Type::EndOfTable))
+            {
+                throw std::runtime_error("expected <end of table>");
+            }
+            next();
+        }
+        // `endOfInput`
+        if (!is(Token::Type::EndOfInput))
+        {
+            throw std::runtime_error("expected <end of input>");
+        }
+    }
+
+public:
+    void parse(const std::string& filename)
+    {
+        // Try to open a context.
+        ReadContext ctxt(filename);
+        if (!ctxt.ensureOpen())
+        {
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
+            e << "unable to load random treasure tables file `" << filename << "`" << Log::EndOfEntry;
+            Log::get() << e;
+            throw std::runtime_error(e.getText());
+        }
+        Scanner scanner;
+        parse(scanner.read(ctxt));
+    }
+};
+
+}
+
+void init_random_treasure_tables_vfs(const std::string& filepath)
+{
+    TreasureTable::Parser parser;
+    parser.parse(filepath);
 }
