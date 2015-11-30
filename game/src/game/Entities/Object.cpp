@@ -32,7 +32,7 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
+#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment()
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -142,6 +142,9 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _inventory(),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
+
+    //Physics
+    _objectPhysics(),
 
     //Non-persistent variables
     _hasBeenKilled(false),
@@ -2258,7 +2261,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     if ( leftItem && ( !_profile->isSlotValid(SLOT_LEFT) || _profile->isMount() ) )
     {
         leftItem->detatchFromHolder(true, true);
-        detach_character_from_platform(leftItem.get());
+        leftItem->getObjectPhysics().detachFromPlatform(leftItem.get());
 
         if ( isMount() )
         {
@@ -2272,7 +2275,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     if ( rightItem && !_profile->isSlotValid(SLOT_RIGHT) )
     {
         rightItem->detatchFromHolder(true, true);
-        detach_character_from_platform(rightItem.get());
+        rightItem->getObjectPhysics().detachFromPlatform(rightItem.get());
 
         if ( isMount() )
         {
@@ -2937,4 +2940,9 @@ bool Object::canCollide() const
     }
 
     return true;
+}
+
+const std::shared_ptr<Object>& Object::getAttachedPlatform() const
+{
+    return _currentModule->getObjectHandler()[onwhichplatform_ref];
 }

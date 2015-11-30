@@ -95,8 +95,6 @@ private:
     **/
     bool handleMountingCollision(const std::shared_ptr<Object> &character, const std::shared_ptr<Object> &mount);
 
-    bool attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform);
-
 protected:
 
     // Befriend with singleton to grant access to ParticleProfileSystem::CollisionSystem and CollisionSystem::~CollisionSystem.

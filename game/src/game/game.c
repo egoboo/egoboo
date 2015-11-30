@@ -410,9 +410,24 @@ void update_all_objects()
 void move_all_objects()
 {
 	g_meshStats.mpdfxTests = 0;
+    chr_stoppedby_tests = 0;
 
     move_all_particles();
-    move_all_characters();
+
+    // Move every character
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+    {
+        if(object->isTerminated()) {
+            continue;
+        }
+        
+        //Skip objects that are inside inventories
+        if(!object->isInsideInventory()) {
+            object->getObjectPhysics().updatePhysics(object);
+        }
+
+        //chr_update_matrix( object.get(), true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------

@@ -35,6 +35,7 @@
 #include "game/graphic_billboard.h"
 #include "game/Inventory.hpp"
 #include "game/Physics/Collidable.hpp"
+#include "game/Physics/ObjectPhysics.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }
@@ -166,6 +167,12 @@ public:
     bool canCollide() const override;
 
     /**
+    * @return
+    *   ObjectPhysics of this Object
+    **/
+    Ego::Physics::ObjectPhysics& getObjectPhysics() { return _objectPhysics; }
+
+    /**
 	 * @brief Get the unique object reference of this object.
      * @return the unique object reference of this object
      */
@@ -219,7 +226,21 @@ public:
     **/
     bool isBeingHeld() const;
 
-    const std::shared_ptr<Object> &getHolder() const;
+    /**
+    * @brief
+    *   Get the Object that is holding this Object
+    *   or nullptr if this Object is not being held.
+    *   This can also be the mount if the Object is actually 
+    *   riding the Holder.
+    **/
+    const std::shared_ptr<Object>& getHolder() const;
+
+    /**
+    * @brief
+    *   Get the platform this object is attached to
+    *   or nullptr if not attached
+    **/
+    const std::shared_ptr<Object>& getAttachedPlatform() const;
 
     /**
     * @brief
@@ -952,6 +973,9 @@ private:
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
     uint32_t _levelUpSeed;
+
+    //Physics
+    Ego::Physics::ObjectPhysics _objectPhysics;
 
     //Non persistent variables. Once game ends these are not saved
     bool _hasBeenKilled;                              ///< If this Object has been killed at least once this module (many can respawn)
