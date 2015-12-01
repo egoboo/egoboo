@@ -28,11 +28,13 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+std::string str_trim(const std::string& source)
+{
+    return Ego::trim(source);
+}
+
 void str_trim( char *pStr )
 {
-    /// @author ZZ
-    /// @details str_trim remove all space and tabs in the beginning and at the end of the string
-
     Sint32 DebPos = 0, EndPos = 0, CurPos = 0;
 
     if ( INVALID_CSTR( pStr ) )
