@@ -39,6 +39,7 @@
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
+    std::string str_decode(const std::string& source);
     char * str_decode( char *strout, size_t insize, const char * strin );
     char * str_encode( char *strout, size_t insize, const char * strin );
 	/**

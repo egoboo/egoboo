@@ -392,6 +392,12 @@ bool read_to_colon_vfs(ReadContext& ctxt,std::string& buffer, bool optional)
 }
 
 //--------------------------------------------------------------------------------------------
+void vfs_read_string_lit(ReadContext& ctxt, std::string& literal)
+{
+    std::string temporary = ctxt.readStringLiteral();
+    temporary = str_decode(temporary);
+    literal = temporary;
+}
 void vfs_read_string_lit(ReadContext& ctxt, char *buffer, size_t max)
 {
     std::string _literal = ctxt.readStringLiteral();
