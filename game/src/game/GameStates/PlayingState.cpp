@@ -91,10 +91,10 @@ PlayingState::~PlayingState()
 void PlayingState::updateStatusBarPosition()
 {
     static uint32_t recalculateStatusBarPosition = 0;
-    if(SDL_GetTicks() > recalculateStatusBarPosition) 
+    if(Time::now<Time::Unit::Ticks>() > recalculateStatusBarPosition) 
     {
         //Apply throttle... no need to do every update frame (5 Hz)
-        recalculateStatusBarPosition = SDL_GetTicks() + 200;
+        recalculateStatusBarPosition = Time::now<Time::Unit::Ticks>() + 200;
 
         std::unordered_map<std::shared_ptr<Camera>, float> maxY;
         for(const std::weak_ptr<CharacterStatus> &weakStatus : _statusList)

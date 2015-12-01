@@ -94,10 +94,10 @@ void GameModule::loadAllPassages()
 
         //constrain passage area within the level
 		auto& info = _currentModule->getMeshPointer()->_info;
-        area._left = CLIP(area._left, 0, int(info.getTileCountX()) - 1);
-        area._top = CLIP(area._top, 0, int(info.getTileCountY()) - 1);
-        area._right = CLIP(area._right, 0, int(info.getTileCountX()) - 1);
-        area._bottom = CLIP(area._bottom, 0, int(info.getTileCountY()) - 1);
+        area._left = Ego::Math::constrain(area._left, 0, int(info.getTileCountX()) - 1);
+        area._top = Ego::Math::constrain(area._top, 0, int(info.getTileCountY()) - 1);
+        area._right = Ego::Math::constrain(area._right, 0, int(info.getTileCountX()) - 1);
+        area._bottom = Ego::Math::constrain(area._bottom, 0, int(info.getTileCountY()) - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();

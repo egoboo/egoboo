@@ -822,7 +822,7 @@ int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
     // Bounds
     if ( newa < -ambicut ) newa = -ambicut;
     newa += ambi;
-    pmesh->vrt2[vert].a = CLIP( newa, 1, 255 );
+    pmesh->vrt2[vert].a = Ego::Math::constrain( newa, 1, 255 );
 
     // Edge fade
     //dist = dist_from_border( pmesh->vrt[vert].x, pmesh->vrt[vert].y );
@@ -2029,7 +2029,7 @@ int SDL_main( int argcnt, char* argtext[] )
 
         SDL_Delay( 1 );
 
-        timclock = SDL_GetTicks() >> 3;
+        timclock = Time::now<Time::Unit::Ticks>() >> 3;
     }
     Cartman::GUI::uninitialize();
     Ego::Core::ConsoleHandler::uninitialize();

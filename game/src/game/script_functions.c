@@ -1783,16 +1783,16 @@ Uint8 scr_GiveMoneyToTarget( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     //squash out-or-range values
-    pchr->money = CLIP( pchr->money, (Sint16)0, (Sint16)MAXMONEY );
-    pself_target->money = CLIP( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
+    pchr->money = Ego::Math::constrain( pchr->money, (Sint16)0, (Sint16)MAXMONEY );
+    pself_target->money = Ego::Math::constrain( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
 
     // limit the range of the character's money
     iTmp = pchr->money - state.argument;
-    iTmp = CLIP( iTmp, 0, MAXMONEY );
+    iTmp = Ego::Math::constrain( iTmp, 0, MAXMONEY );
 
     // limit the range of the target's money
     tTmp = pself_target->money + state.argument;
-    tTmp = CLIP( tTmp, 0, MAXMONEY );
+    tTmp = Ego::Math::constrain( tTmp, 0, MAXMONEY );
 
     // recover the possible transfer values
     iTmp = iTmp + state.argument;
@@ -4989,7 +4989,7 @@ Uint8 scr_SetTargetReloadTime( script_state_t& state, ai_state_t& self )
 
     if ( state.argument > 0 )
     {
-        pself_target->reload_timer = CLIP( state.argument, 0, 0xFFFF );
+        pself_target->reload_timer = Ego::Math::constrain( state.argument, 0, 0xFFFF );
     }
     else
     {
@@ -5047,9 +5047,9 @@ Uint8 scr_SetFogTAD( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	fog._red = CLIP(state.turn, 0, 0xFF);
-	fog._grn = CLIP(state.argument, 0, 0xFF);
-	fog._blu = CLIP(state.distance, 0, 0xFF);
+	fog._red = Ego::Math::constrain(state.turn, 0, 0xFF);
+	fog._grn = Ego::Math::constrain(state.argument, 0, 0xFF);
+	fog._blu = Ego::Math::constrain(state.distance, 0, 0xFF);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5857,7 +5857,7 @@ Uint8 scr_SetChildAmmo( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _currentModule->getObjectHandler().get(self.child)->ammo = CLIP( state.argument, 0, 0xFFFF );
+    _currentModule->getObjectHandler().get(self.child)->ammo = Ego::Math::constrain( state.argument, 0, 0xFFFF );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6295,7 +6295,7 @@ Uint8 scr_SetDamageTime( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->damage_timer = CLIP( state.argument, 0, 0xFFFF );
+    pchr->damage_timer = Ego::Math::constrain( state.argument, 0, 0xFFFF );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7749,7 +7749,7 @@ Uint8 scr_SetMoney( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->money = CLIP( state.argument, 0, MAXMONEY );
+    pchr->money = Ego::Math::constrain( state.argument, 0, MAXMONEY );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7976,7 +7976,7 @@ Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
         case COLOR_BLUE:    tint = &tint_blue;    break;
     }
 
-    returncode = NULL != chr_make_text_billboard(self.getSelf(), ppro->getMessage(state.argument).c_str(), text_color, *tint, state.distance, Billboard::Flags::Fade);
+    returncode = NULL != BillboardSystem::get().makeBillboard(self.getSelf(), ppro->getMessage(state.argument).c_str(), text_color, *tint, state.distance, Billboard::Flags::Fade);
 
     SCRIPT_FUNCTION_END();
 }

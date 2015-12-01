@@ -1102,7 +1102,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
         // find the buoyancy, assuming that the air_resistance of the particle
         // is equal to air_friction at standard gravity
         buoyancy = -getProfile()->spdlimit * (1.0f - Ego::Physics::g_environment.airfriction) - Ego::Physics::g_environment.gravity;
-        buoyancy = CLIP(buoyancy, buoyancy_min, buoyancy_max);
+        buoyancy = Ego::Math::constrain(buoyancy, buoyancy_min, buoyancy_max);
 
         // reduce the buoyancy if the particle falls
         if (getProfile()->spdlimit > 0.0f) buoyancy *= 0.5f;
@@ -1111,10 +1111,10 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
         if (std::abs(getProfile()->spdlimit) > 0.0001f)
         {
             air_resistance = 1.0f - (buoyancy + Ego::Physics::g_environment.gravity) / -getProfile()->spdlimit;
-            air_resistance = CLIP(air_resistance, air_resistance_min, air_resistance_max);
+            air_resistance = Ego::Math::constrain(air_resistance, air_resistance_min, air_resistance_max);
 
             air_resistance /= Ego::Physics::g_environment.airfriction;
-            air_resistance = CLIP(air_resistance, 0.0f, 1.0f);
+            air_resistance = Ego::Math::constrain(air_resistance, 0.0f, 1.0f);
         }
         else
         {

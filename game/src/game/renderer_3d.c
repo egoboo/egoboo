@@ -95,7 +95,7 @@ bool LineSegmentList::add(const Vector3f& p, const Vector3f& q, const int durati
     line.colour = Ego::Math::Colour4f(1,1,1,0.5);
 
     // Time.
-    line.time = SDL_GetTicks() + duration;
+    line.time = Time::now<Time::Unit::Ticks>() + duration;
 
     return true;
 }
@@ -129,7 +129,7 @@ void LineSegmentList::draw_all(Camera& camera)
 
             renderer.setBlendingEnabled(false);
 
-            uint32_t ticks = SDL_GetTicks();
+            uint32_t ticks = Time::now<Time::Unit::Ticks>();
 
             for (size_t i = 0; i < capacity; ++i)
             {
@@ -195,7 +195,7 @@ bool PointList::add(const Vector3f& p, const int duration)
     point.colour = Ego::Math::Colour4f(1, 0, 0, 0.5);
 
     // Time.
-    point.time = SDL_GetTicks() + duration;
+    point.time = Time::now<Time::Unit::Ticks>() + duration;
 
     return true;
 }
@@ -229,7 +229,7 @@ void PointList::draw_all(Camera& camera)
 
             renderer.setBlendingEnabled(false);
 
-            uint32_t ticks = SDL_GetTicks();
+            uint32_t ticks = Time::now<Time::Unit::Ticks>();
 
             for (size_t i = 0; i < capacity; ++i)
             {

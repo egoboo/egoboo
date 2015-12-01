@@ -22,68 +22,26 @@
 /// @details
 
 #include "egolib/FileFormats/treasure_table_file.h"
-
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
+#include "egolib/_math.h"      // For randomization
 
-#include "egolib/_math.h"      //For randomization
-
-//--------------------------------------------------------------------------------------------
 treasure_table_t::treasure_table_t()
-	: size(0)
+    : entries(), size(0), name()
+{ }
+
+void treasure_table_t::add(const std::string& name)
 {
-	strcpy(table_name, "");
-}
-
-void treasure_table_t::add( treasure_table_t *self, const char *name )
-{
-    //ZF> Adds a new treasure object to the specified treasure table
-
-    //Avoid null pointers
-    if ( NULL == self ) return;
-
-    //Make sure there is enough size to add one more
-    if (self->size + 1 >= TREASURE_TABLE_SIZE )
+    // Make sure there is enough size to add one more.
+    if (size >= TREASURE_TABLE_SIZE)
     {
-		Log::get().warn( "No more room to add object (%s) to table, consider increasing TREASURE_TABLE_SIZE (currently %i)\n", name, TREASURE_TABLE_SIZE );
+        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__, __FUNCTION__);
+        e << "no more room to add object `" << name << "` to treasure table. Consider inreasing the treasure table capacity."
+          << Log::EndOfEntry;
+        Log::get() << e;
         return;
     }
 
-    //Add the element to the list
-    strncpy(self->object_list[self->size ], name, SDL_arraysize(self->object_list[self->size ] ) );
-	self->size++;
+    // Add the element to the list.
+    entries[size++] = name;
 }
-
-//--------------------------------------------------------------------------------------------
-void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table )
-{
-    //ZF> Creates and loads a treasure table from the specified file until a :END is encountered
-    new_table->size = 0;
-
-    //Keep adding objects into the table until we encounter a :END
-    while (ctxt.skipToColon(false))
-    {
-        STRING temporary;
-        // We need to distinguish between regular names and references starting with '%'.
-        ctxt.skipWhiteSpaces();
-        if (ctxt.is('%'))
-        {
-            ctxt.next();
-            temporary[0] = '%';
-            vfs_read_name(ctxt, temporary + 1, SDL_arraysize(temporary) - 1);
-        }
-        else
-        {
-            vfs_read_name(ctxt, temporary, SDL_arraysize(temporary));
-        }
-
-
-        //Check if we reached the end of this table
-        if ( 0 == strcmp( temporary, "END" ) ) break;
-
-        //Nope, add one more to the table
-        treasure_table_t::add( new_table, temporary);
-    }
-}
-
-//--------------------------------------------------------------------------------------------

@@ -548,7 +548,7 @@ int update_game()
 
     //---- begin the code for updating misc. game stuff
     {
-        BillboardSystem::get()._billboardList.update();
+        BillboardSystem::get().update();
         animate_tiles();
         water.move();
         AudioSystem::get().updateLoopingSounds();
@@ -1347,7 +1347,7 @@ void check_stats()
     int ticks;
     if ( keyb.chat_mode ) return;
 
-    ticks = SDL_GetTicks();
+    ticks = Time::now<Time::Unit::Ticks>();
     if ( ticks > stat_check_timer + 20 )
     {
         stat_check_timer = ticks;
@@ -1770,7 +1770,10 @@ void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
     //If it is a reference to a random treasure table then get a random object from that table
     if ( '%' == psp_info->spawn_coment[0] )
     {
-        get_random_treasure( psp_info->spawn_coment, SDL_arraysize( psp_info->spawn_coment ) );
+        std::string treasureTableName = psp_info->spawn_coment;
+        std::string treasureName;
+        get_random_treasure(treasureTableName, treasureName);
+        strncpy(psp_info->spawn_coment, treasureName.c_str(), SDL_arraysize(psp_info->spawn_coment));
     }
 
     // make sure it ends with a .obj extension
@@ -2826,7 +2829,7 @@ void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
 
 	this->part_gpip = source.part_gpip;
 	this->partand = source.partand;
-	this->sound_index = CLIP(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
+	this->sound_index = Ego::Math::constrain(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2879,14 +2882,14 @@ void upload_light_data(const wawalite_data_t& data)
             // We are outside, do the direct light as sunlight.
             light_d = 1.0f;
             light_a = light_a / length;
-            light_a = CLIP( light_a, 0.0f, 1.0f );
+            light_a = Ego::Math::constrain( light_a, 0.0f, 1.0f );
         }
         else
         {
             // We are inside. take the lighting values at face value.
             //light_d = (1.0f - light_a) * fTmp;
-            //light_d = CLIP(light_d, 0.0f, 1.0f);
-            light_d = CLIP(length, 0.0f, 1.0f);
+            //light_d = Ego::Math::constrain(light_d, 0.0f, 1.0f);
+            light_d = Ego::Math::constrain(length, 0.0f, 1.0f);
         }
 
         light_nrm *= 1.0f / length;
@@ -3115,7 +3118,7 @@ Uint8 get_light( int light, float seedark_mag )
         light *= seedark_mag;
     }
 
-    return CLIP( light, 0, 0xFE );
+    return Ego::Math::constrain( light, 0, 0xFE );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3147,10 +3150,10 @@ bool do_shop_drop( ObjectRef idropper, ObjectRef iitem )
             else
             {
                 pdropper->money  = pdropper->money + price;
-                pdropper->money  = CLIP( pdropper->money, (Sint16)0, (Sint16)MAXMONEY );
+                pdropper->money  = Ego::Math::constrain( pdropper->money, (Sint16)0, (Sint16)MAXMONEY );
 
                 owner->money  = owner->money - price;
-                owner->money  = CLIP( owner->money, (Sint16)0, (Sint16)MAXMONEY );
+                owner->money  = Ego::Math::constrain( owner->money, (Sint16)0, (Sint16)MAXMONEY );
 
                 ai_state_t::add_order(owner->ai, ( Uint32 ) price, Passage::SHOP_BUY);
             }
@@ -3186,10 +3189,10 @@ bool do_shop_buy( ObjectRef ibuyer, ObjectRef iitem )
 				ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_SELL);
 
 				buyer->money = buyer->money - price;
-				buyer->money = CLIP((int)buyer->money, 0, MAXMONEY);
+				buyer->money = Ego::Math::constrain((int)buyer->money, 0, MAXMONEY);
 
 				owner->money = owner->money + price;
-				owner->money = CLIP((int)owner->money, 0, MAXMONEY);
+				owner->money = Ego::Math::constrain((int)owner->money, 0, MAXMONEY);
 
 				canGrab = true;
 			}
@@ -3394,11 +3397,11 @@ float get_chr_level( ego_mesh_t *mesh, Object *object )
     oct_bb_t::translate(object->chr_min_cv, object->getPosition(), bump);
 
     // determine the size of this object in tiles
-    ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = CLIP( ixmin, 0, int(mesh->_info.getTileCountX()) - 1 );
-    ixmax = bump._maxs[OCT_X] / Info<float>::Grid::Size(); ixmax = CLIP( ixmax, 0, int(mesh->_info.getTileCountX()) - 1 );
+    ixmin = bump._mins[OCT_X] / Info<float>::Grid::Size(); ixmin = Ego::Math::constrain( ixmin, 0, int(mesh->_info.getTileCountX()) - 1 );
+    ixmax = bump._maxs[OCT_X] / Info<float>::Grid::Size(); ixmax = Ego::Math::constrain( ixmax, 0, int(mesh->_info.getTileCountX()) - 1 );
 
-    iymin = bump._mins[OCT_Y] / Info<float>::Grid::Size(); iymin = CLIP( iymin, 0, int(mesh->_info.getTileCountY()) - 1 );
-    iymax = bump._maxs[OCT_Y] / Info<float>::Grid::Size(); iymax = CLIP( iymax, 0, int(mesh->_info.getTileCountY()) - 1 );
+    iymin = bump._mins[OCT_Y] / Info<float>::Grid::Size(); iymin = Ego::Math::constrain( iymin, 0, int(mesh->_info.getTileCountY()) - 1 );
+    iymax = bump._maxs[OCT_Y] / Info<float>::Grid::Size(); iymax = Ego::Math::constrain( iymax, 0, int(mesh->_info.getTileCountY()) - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )

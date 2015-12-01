@@ -348,7 +348,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
 		float lerp_z;
         lerp_z = ( pchr->getPosZ() - pchr->enviro.floor_level ) / DAMAGERAISE;
-        lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );
+        lerp_z = 1.0f - Ego::Math::constrain( lerp_z, 0.0f, 1.0f );
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 

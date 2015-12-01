@@ -90,9 +90,9 @@ void CollisionSystem::update()
         }
 
         // limit the size of the displacement
-        max_apos[kX] = CLIP( max_apos[kX], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
-        max_apos[kY] = CLIP( max_apos[kY], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
-        max_apos[kZ] = CLIP( max_apos[kZ], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kX] = Ego::Math::constrain( max_apos[kX], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kY] = Ego::Math::constrain( max_apos[kY], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kZ] = Ego::Math::constrain( max_apos[kZ], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
 
         // do the "integration" on the position
         if (std::abs(max_apos[kX]) > 0.0f)
@@ -186,9 +186,9 @@ void CollisionSystem::update()
             apos_t::evaluate(apos_tmp, max_apos);
         }
 
-        max_apos[kX] = CLIP( max_apos[kX], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
-        max_apos[kY] = CLIP( max_apos[kY], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
-        max_apos[kZ] = CLIP( max_apos[kZ], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kX] = Ego::Math::constrain( max_apos[kX], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kY] = Ego::Math::constrain( max_apos[kY], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
+        max_apos[kZ] = Ego::Math::constrain( max_apos[kZ], -Info<float>::Grid::Size(), Info<float>::Grid::Size());
 
         // do the "integration" on the position
         if (std::abs(max_apos[kX]) > 0.0f)
@@ -753,7 +753,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     if ( objectA->canuseplatforms && objectB->platform && ObjectRef::Invalid != objectA->onwhichplatform_ref && ichr_b != objectA->onwhichplatform_ref )
     {
         float lerp_z = ( objectA->getPosZ() - ( objectB->getPosZ() + objectB->chr_min_cv._maxs[OCT_Z] ) ) / PLATTOLERANCE;
-        lerp_z = CLIP( lerp_z, -1.0f, +1.0f );
+        lerp_z = Ego::Math::constrain( lerp_z, -1.0f, +1.0f );
 
         if ( lerp_z >= 0.0f )
         {
@@ -991,7 +991,7 @@ static bool do_chr_platform_physics( Object * object, Object * platform )
     // this was one of the things preventing you from jumping from platforms
     // properly
     vlerp_z = std::abs(object->vel[kZ] - platform->vel[kZ]) / 5;
-    vlerp_z  = 1.0f - CLIP( vlerp_z, 0.0f, 1.0f );
+    vlerp_z  = 1.0f - Ego::Math::constrain( vlerp_z, 0.0f, 1.0f );
 
     // determine the rotation rates
     rot_b = object->ori.facing_z - object->ori_old.facing_z;

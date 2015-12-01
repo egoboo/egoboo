@@ -355,7 +355,7 @@ float CharacterStatus::draw_character_xp_bar(const ObjectRef character, float x,
 		float fraction = ((float)(pchr->experience - xplastlevel)) / (float)std::max<uint32_t>(xpneed - xplastlevel, 1);
 		int   numticks = fraction * NUMTICK;
 
-		y = draw_one_xp_bar(x, y, CLIP(numticks, 0, NUMTICK));
+		y = draw_one_xp_bar(x, y, Ego::Math::constrain(numticks, 0, NUMTICK));
 	}
 
 	return y;

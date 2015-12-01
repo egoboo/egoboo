@@ -282,7 +282,7 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
     startalpha = 255;
     startalpha -= 2.0f * (pprt->enviro.floor_level - inst.ref_pos[kZ]);
     startalpha *= 0.5f;
-    startalpha = CLIP(startalpha, 0, 255);
+    startalpha = Ego::Math::constrain(startalpha, 0, 255);
 
     //startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
     //startalpha = CLIP(startalpha, 0, 255);
@@ -909,11 +909,11 @@ gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, 
     {
         pinst.fintens += pinst.famb * INV_FF;
     }
-    pinst.fintens = CLIP(pinst.fintens, 0.0f, 1.0f);
+    pinst.fintens = Ego::Math::constrain(pinst.fintens, 0.0f, 1.0f);
 
     // determine the alpha component
     pinst.falpha = (alpha * INV_FF) * (pinst.alpha * INV_FF);
-    pinst.falpha = CLIP(pinst.falpha, 0.0f, 1.0f);
+    pinst.falpha = Ego::Math::constrain(pinst.falpha, 0.0f, 1.0f);
 
     return gfx_success;
 }

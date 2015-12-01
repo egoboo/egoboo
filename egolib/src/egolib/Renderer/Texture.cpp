@@ -360,8 +360,8 @@ struct CErrorTexture
     }
 };
 
-static CErrorTexture *_errorTexture1D = nullptr;
-static CErrorTexture *_errorTexture2D = nullptr;
+static std::unique_ptr<CErrorTexture> _errorTexture1D = nullptr;
+static std::unique_ptr<CErrorTexture> _errorTexture2D = nullptr;
 
 namespace Ego {
 namespace OpenGL {
@@ -370,17 +370,16 @@ void initializeErrorTextures()
 {
     if (!_errorTexture1D)
     {
-        _errorTexture1D = new CErrorTexture("<error texture 1D>", GL_TEXTURE_1D);
+        _errorTexture1D = std::make_unique<CErrorTexture>("<error texture 1D>", GL_TEXTURE_1D);
     }
     if (!_errorTexture2D)
     {
         try
         {
-            _errorTexture2D = new CErrorTexture("<error texture 2D>", GL_TEXTURE_2D);
+            _errorTexture2D = std::make_unique<CErrorTexture>("<error texture 2D>", GL_TEXTURE_2D);
         }
         catch (...)
         {
-            delete _errorTexture1D;
             _errorTexture1D = nullptr;
             std::rethrow_exception(std::current_exception());
         }
@@ -389,27 +388,8 @@ void initializeErrorTextures()
 
 void uninitializeErrorTextures()
 {
-    delete _errorTexture2D;
     _errorTexture2D = nullptr;
-    delete _errorTexture1D;
     _errorTexture1D = nullptr;
-}
-
-GLuint get1DErrorTextureID()
-{
-    return _errorTexture1D->_id;
-}
-
-GLuint get2DErrorTextureID()
-{
-    return _errorTexture2D->_id;
-}
-
-bool isErrorTextureID(GLuint id)
-{
-    if(!_errorTexture1D || !_errorTexture2D) return false;
-    return id == _errorTexture1D->_id
-        || id == _errorTexture2D->_id;
 }
 
 }
@@ -419,8 +399,10 @@ namespace Ego {
 namespace OpenGL {
 
 Texture::Texture() :
-    Ego::Texture
+    Texture
         (
+            // The OpenGL texture ID is the error texture's.
+            _errorTexture2D->_id,
             // The name of the texture is the error texture's.
             _errorTexture2D->getName(),
             // The texture is the 2D error texture.
@@ -435,9 +417,31 @@ Texture::Texture() :
             nullptr,
             // (The error texture has no alpha component).
             false
-        ),
-    // The OpenGL texture ID is the error texture's.
-    _id(_errorTexture2D->_id)
+        )
+{}
+
+Texture::Texture(GLuint id, const std::string& name,
+                 TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+                 int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
+                 bool hasAlpha) :
+    Ego::Texture
+    (
+        // The name of the texture is the error texture's.
+        name,
+        // The texture is the 2D error texture.
+        type,
+        // The texture coordinates of this texture are repeated along the s and t axes.
+        addressModeS, addressModeT,
+        // The size (width and height) of this texture is the size of the error image.
+        width, height,
+        // The size (width and height) the source of this texture is the size of the error image as well.
+        sourceWidth, sourceHeight,
+        // The error texture has no source.
+        source,
+        // (The error texture has no alpha component).
+        hasAlpha
+    ),
+    _id(id)
 {}
 
 Texture::~Texture() {
@@ -523,7 +527,7 @@ GLuint Texture::load(std::shared_ptr<SDL_Surface> source, uint32_t key) {
 }
 
 void  Texture::release() {
-    if (isErrorTextureID(_id))
+    if (isErrorTexture())
     {
         return;
     }
@@ -563,6 +567,12 @@ void  Texture::release() {
     
     // (The error texture has no alpha component).
     _hasAlpha = false;
+}
+
+bool Texture::isErrorTexture() const {
+    if (!_errorTexture1D || !_errorTexture2D) return false;
+    return getTextureID() == _errorTexture1D->_id
+        || getTextureID() == _errorTexture2D->_id;
 }
 
 } // namespace OpenGL

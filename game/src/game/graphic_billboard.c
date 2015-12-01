@@ -32,7 +32,7 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/UIManager.hpp"
 
-Billboard::Billboard(Uint32 endTime, std::shared_ptr<Ego::OpenGL::Texture> texture)
+Billboard::Billboard(Time::Ticks endTime, std::shared_ptr<Ego::OpenGL::Texture> texture)
     : _endTime(endTime),
       _position(), _offset(), _offset_add(),
       _size(1), _size_add(0),
@@ -41,8 +41,8 @@ Billboard::Billboard(Uint32 endTime, std::shared_ptr<Ego::OpenGL::Texture> textu
     /* Intentionally empty. */
 }
 
-bool Billboard::update(Uint32 ticks) {
-    if ((ticks >= _endTime) || (nullptr == _texture)) {
+bool Billboard::update(Time::Ticks now) {
+    if ((now >= _endTime) || (nullptr == _texture)) {
         return false;
     }
     auto obj_ptr = _obj_wptr.lock();
@@ -75,26 +75,28 @@ bool Billboard::update(Uint32 ticks) {
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-// BillboardList IMPLEMENTATION
-//--------------------------------------------------------------------------------------------
-
-BillboardList::BillboardList() :
-    _used() {
-}
-
-void BillboardList::reset() {
-    update(std::numeric_limits<Uint32>::max());
-}
-
-void BillboardList::update(Uint32 ticks)
+void BillboardSystem::update()
 {
-    auto i = _used.begin(),
-        e = _used.end();
+    update(Time::now<Time::Unit::Ticks>());
+}
+
+bool BillboardSystem::hasBillboard(const Object& object) const {
+    for (const auto& billboard : billboards) {
+        if (billboard->_obj_wptr.lock().get() == &object) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void BillboardSystem::update(Time::Ticks ticks)
+{
+    auto i = billboards.begin(),
+         e = billboards.end();
 
     while (i != e) {
         if (!(*i)->update(ticks)) {
-            i = _used.erase(i);
+            i = billboards.erase(i);
         }
         else {
             i++;
@@ -102,13 +104,10 @@ void BillboardList::update(Uint32 ticks)
     }
 }
 
-void BillboardList::update()
-{
-    update(SDL_GetTicks());
-}
+//--------------------------------------------------------------------------------------------
 
-std::shared_ptr<Billboard> BillboardList::makeBillboard(uint32_t lifetime_secs, std::shared_ptr<Ego::OpenGL::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
-    auto billboard = std::make_shared<Billboard>(SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, texture);
+std::shared_ptr<Billboard> BillboardSystem::makeBillboard(Time::Seconds lifetime_secs, std::shared_ptr<Ego::OpenGL::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
+    auto billboard = std::make_shared<Billboard>(Time::now<Time::Unit::Ticks>() + lifetime_secs * TICKS_PER_SEC, texture);
     billboard->_tint = tint;
     if (HAS_SOME_BITS(options, Billboard::Flags::RandomPosition))
     {
@@ -150,20 +149,18 @@ std::shared_ptr<Billboard> BillboardList::makeBillboard(uint32_t lifetime_secs, 
             billboard->_tint_add[BB] = -billboard->_tint.getBlue() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
     }
-    _used.push_back(billboard);
+    billboards.push_back(billboard);
     return billboard;
 }
-
-//--------------------------------------------------------------------------------------------
 
 BillboardSystem *BillboardSystem::singleton = nullptr;
 
 BillboardSystem::BillboardSystem() :
-    _billboardList(), _vertexBuffer(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>()) {
+    billboards(), vertexBuffer(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>()) {
 }
 
 BillboardSystem::~BillboardSystem() {
-    _billboardList.reset();
+    reset();
 }
 
 void BillboardSystem::initialize() {
@@ -180,7 +177,7 @@ void BillboardSystem::uninitialize() {
 }
 
 void BillboardSystem::reset() {
-    _billboardList.reset();
+    update(std::numeric_limits<Uint32>::max());
 }
 
 BillboardSystem& BillboardSystem::get() {
@@ -190,69 +187,68 @@ BillboardSystem& BillboardSystem::get() {
     return *singleton;
 }
 
-bool BillboardSystem::render_one(Billboard& bb, float scale, const Vector3f& cam_up, const Vector3f& cam_rgt)
+bool BillboardSystem::render_one(Billboard& billboard, float scale, const Vector3f& cameraUp, const Vector3f& cameraRight)
 {
-    auto obj_ptr = bb._obj_wptr.lock();
+    auto obj_ptr = billboard._obj_wptr.lock();
     // Do not display billboards for objects that are being held of are inside an inventory.
     if (!obj_ptr || obj_ptr->isTerminated() || obj_ptr->isBeingHeld() || obj_ptr->isInsideInventory()) {
         return false;
     }
 
-	auto ptex = bb._texture.get();
+	auto texture = billboard._texture.get();
 
-    float s = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
-    float t = (float)ptex->getSourceHeight() / (float)ptex->getHeight();
+    // Compute the texture coordinates.
+    float s = (float)texture->getSourceWidth()  / (float)texture->getWidth(),
+          t = (float)texture->getSourceHeight() / (float)texture->getHeight();
+    // Compute the scaled right and up vectors.
+	Vector3f right = cameraRight * (texture->getSourceWidth()  * scale * billboard._size),
+             up    = cameraUp    * (texture->getSourceHeight() * scale * billboard._size);
 
-    // @todo this billboard stuff needs to be implemented as a OpenGL transform
-
-    // scale the camera vectors
-	Vector3f vec_rgt = cam_rgt * (ptex->getSourceWidth() * scale * bb._size);
-	Vector3f vec_up = cam_up  * (ptex->getSourceHeight() * scale * bb._size);
-
-    // bottom left
-	Vector3f tmp;
 	{
-		Ego::VertexBufferScopedLock lock(_vertexBuffer);
+        Vector3f tmp;
+		Ego::VertexBufferScopedLock lock(vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
-		tmp = bb._position + (-vec_rgt - vec_up * 0);
-		vertices[0].x = bb._offset[kX] + tmp[kX];
-		vertices[0].y = bb._offset[kY] + tmp[kY];
-		vertices[0].z = bb._offset[kZ] + tmp[kZ];
+
+        // bottom left
+		tmp = billboard._position + billboard._offset + (-right - up * 0);
+		vertices[0].x = tmp[kX];
+		vertices[0].y = tmp[kY];
+		vertices[0].z = tmp[kZ];
 		vertices[0].s = s;
 		vertices[0].t = t;
 
 		// top left
-		tmp = bb._position + (-vec_rgt + vec_up * 2);
-		vertices[1].x = bb._offset[kX] + tmp[kX];
-		vertices[1].y = bb._offset[kY] + tmp[kY];
-		vertices[1].z = bb._offset[kZ] + tmp[kZ];
+		tmp = billboard._position + billboard._offset + (-right + up * 2);
+		vertices[1].x = tmp[kX];
+		vertices[1].y = tmp[kY];
+		vertices[1].z = tmp[kZ];
 		vertices[1].s = s;
 		vertices[1].t = 0;
 
 		// top right
-		tmp = bb._position + (vec_rgt + vec_up * 2);
-		vertices[2].x = bb._offset[kX] + tmp[kX];
-		vertices[2].y = bb._offset[kY] + tmp[kY];
-		vertices[2].z = bb._offset[kZ] + tmp[kZ];
+		tmp = billboard._position + billboard._offset + (right + up * 2);
+		vertices[2].x = tmp[kX];
+		vertices[2].y = tmp[kY];
+		vertices[2].z = tmp[kZ];
 		vertices[2].s = 0;
 		vertices[2].t = 0;
 
 		// bottom right
-		tmp = bb._position + (vec_rgt - vec_up * 0);
-		vertices[3].x = bb._offset[kX] + tmp[kX];
-		vertices[3].y = bb._offset[kY] + tmp[kY];
-		vertices[3].z = bb._offset[kZ] + tmp[kZ];
+		tmp = billboard._position + billboard._offset + (right - up * 0);
+		vertices[3].x = tmp[kX];
+		vertices[3].y = tmp[kY];
+		vertices[3].z = tmp[kZ];
 		vertices[3].s = 0;
 		vertices[3].t = t;
 	}
 
     {
         auto& renderer = Ego::Renderer::get();
-        renderer.setColour(bb._tint);
-		renderer.getTextureUnit().setActivated(ptex);
+        renderer.setColour(billboard._tint);
+		renderer.getTextureUnit().setActivated(texture);
 
         // Go on and draw it
-		renderer.render(_vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
+		renderer.render(vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
 
     return true;
@@ -285,8 +281,8 @@ void BillboardSystem::render_all(Camera& camera)
             renderer.setAlphaTestEnabled(true);
 			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-            for (auto bb : _billboardList._used) {
-                render_one(*bb, 0.75f, camera.getUp(), camera.getRight());
+            for (auto billboard : billboards) {
+                render_one(*billboard, 0.75f, camera.getUp(), camera.getRight());
             }
         }
         ATTRIB_POP( __FUNCTION__ );
@@ -294,8 +290,7 @@ void BillboardSystem::render_all(Camera& camera)
     gfx_end_3d();
 }
 
-//--------------------------------------------------------------------------------------------
-std::shared_ptr<Billboard> chr_make_text_billboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
+std::shared_ptr<Billboard> BillboardSystem::makeBillboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits)
 {
     if (!_currentModule->getObjectHandler().exists(obj_ref)) {
         return nullptr;
@@ -313,7 +308,7 @@ std::shared_ptr<Billboard> chr_make_text_billboard(ObjectRef obj_ref, const std:
     tex->setName("billboard text");
 
     // Create a new billboard.
-    auto billboard = BillboardSystem::get()._billboardList.makeBillboard(lifetime_secs, tex, tint, opt_bits);
+    auto billboard = makeBillboard(lifetime_secs, tex, tint, opt_bits);
     if (!billboard) {
         return nullptr;
     }

@@ -84,7 +84,7 @@ void MiniMap::draw()
     }
 
     // Show local player position(s)
-    if (_showPlayerPosition && SDL_GetTicks() < _markerBlinkTimer)
+    if (_showPlayerPosition && Time::now<Time::Unit::Ticks>() < _markerBlinkTimer)
     {
         for (PLA_REF iplayer = 0; iplayer < MAX_PLAYER; iplayer++)
         {
@@ -101,7 +101,7 @@ void MiniMap::draw()
     }
     else
     {
-        _markerBlinkTimer = SDL_GetTicks() + MINIMAP_BLINK_RATE;        
+        _markerBlinkTimer = Time::now<Time::Unit::Ticks>() + MINIMAP_BLINK_RATE;
     }
 
     const int BLIP_SIZE = std::min(getWidth(), getHeight()) / 16;

@@ -39,7 +39,7 @@ CameraSystem::CameraSystem(const size_t numberOfCameras) :
     _mainCamera(nullptr)
 {
     //Create cameras
-    for(size_t i = 0; i < CLIP<size_t>(numberOfCameras, 1, MAX_CAMERAS); ++i) {
+    for(size_t i = 0; i < Ego::Math::constrain<size_t>(numberOfCameras, 1, MAX_CAMERAS); ++i) {
         _cameraList.push_back( std::make_shared<Camera>(_cameraOptions) );
     }
 

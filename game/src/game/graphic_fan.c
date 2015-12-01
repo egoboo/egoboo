@@ -233,9 +233,9 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Index1D& tileIndex )
         v[cnt].col[BB] = tmp;
         v[cnt].col[AA] = 1.0f;
 
-        v[cnt].col[RR] = CLIP( v[cnt].col[RR], 0.0f, 1.0f );
-        v[cnt].col[GG] = CLIP( v[cnt].col[GG], 0.0f, 1.0f );
-        v[cnt].col[BB] = CLIP( v[cnt].col[BB], 0.0f, 1.0f );
+        v[cnt].col[RR] = Ego::Math::constrain( v[cnt].col[RR], 0.0f, 1.0f );
+        v[cnt].col[GG] = Ego::Math::constrain( v[cnt].col[GG], 0.0f, 1.0f );
+        v[cnt].col[BB] = Ego::Math::constrain( v[cnt].col[BB], 0.0f, 1.0f );
 
         badvertex++;
     }
@@ -274,7 +274,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
 
 	float falpha;
     falpha = FF_TO_FLOAT( water._layers[layer]._alpha );
-    falpha = CLIP( falpha, 0.0f, 1.0f );
+    falpha = Ego::Math::constrain( falpha, 0.0f, 1.0f );
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
@@ -339,7 +339,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
         float alight;
 
         alight = get_ambient_level() + water._layers->_light_add;
-        alight = CLIP( alight / 255.0f, 0.0f, 1.0f );
+        alight = Ego::Math::constrain( alight / 255.0f, 0.0f, 1.0f );
 
         for (size_t cnt = 0; cnt < 4; cnt++ )
         {
@@ -367,9 +367,9 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
                 v0.g = dlight * INV_FF + alight;
                 v0.b = dlight * INV_FF + alight;
 
-                v0.r = CLIP(v0.r, 0.0f, 1.0f);
-                v0.g = CLIP(v0.g, 0.0f, 1.0f);
-                v0.b = CLIP(v0.b, 0.0f, 1.0f);
+                v0.r = Ego::Math::constrain(v0.r, 0.0f, 1.0f);
+                v0.g = Ego::Math::constrain(v0.g, 0.0f, 1.0f);
+                v0.b = Ego::Math::constrain(v0.b, 0.0f, 1.0f);
             }
             else
             {

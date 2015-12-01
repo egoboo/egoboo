@@ -522,12 +522,12 @@ wawalite_data_t *wawalite_limit(wawalite_data_t *profile)
     }
 
     // Limit the sound index.
-    profile->damagetile.sound_index = CLIP(profile->damagetile.sound_index, -1, 30);
+    profile->damagetile.sound_index = Ego::Math::constrain(profile->damagetile.sound_index, -1, 30);
 
     for (size_t i = 0; i < MAXWATERLAYER; ++i)
     {
-        profile->water.layer[i].light_dir = CLIP(profile->water.layer[i].light_dir, (Uint32)0, (Uint32)63);
-        profile->water.layer[i].light_add = CLIP(profile->water.layer[i].light_add, (Uint32)0, (Uint32)63);
+        profile->water.layer[i].light_dir = Ego::Math::constrain(profile->water.layer[i].light_dir, (Uint32)0, (Uint32)63);
+        profile->water.layer[i].light_add = Ego::Math::constrain(profile->water.layer[i].light_add, (Uint32)0, (Uint32)63);
     }
 
     return profile;

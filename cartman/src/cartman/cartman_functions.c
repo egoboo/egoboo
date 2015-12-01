@@ -952,7 +952,7 @@ void mesh_select_weld(select_lst_t *plst)
             pmesh->vrt2[vertex].x = avg_x;
             pmesh->vrt2[vertex].y = avg_y;
             pmesh->vrt2[vertex].z = avg_z;
-            pmesh->vrt2[vertex].a = CLIP(avg_a, 1.0f, 255.0f);
+            pmesh->vrt2[vertex].a = Ego::Math::constrain(avg_a, 1.0f, 255.0f);
         }
     }
 }

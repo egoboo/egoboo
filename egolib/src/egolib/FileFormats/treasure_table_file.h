@@ -24,37 +24,33 @@
 #include "egolib/typedef.h"
 #include "egolib/fileutil.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+constexpr size_t MAX_TABLES = 32;           ///< Maximum number of tables.
+constexpr size_t TREASURE_TABLE_SIZE = 128; ///< Maximum number of objects per table.
 
-#define MAX_TABLES              32              //< Max number of tables
-#define TREASURE_TABLE_SIZE     128             //< Max number of objects per table
-
-//--------------------------------------------------------------------------------------------
-// struct s_treasure_table
-//--------------------------------------------------------------------------------------------
-
-    ///Data structure for one treasure table, we can have up to MAX_TABLES of these
-    struct treasure_table_t
-    {
-		/// @brief The name of this treasure table.
-        STRING table_name;
-		/// @brief List of treasure objects in this treasure table
-        STRING object_list[TREASURE_TABLE_SIZE];
-		/// @brief The size of the list
-        size_t size;
-		/// @brief Adds a new treasure object to the specified treasure table
-		/// @param self the treasure table
-		/// @param name the name of the object
-		static void add(treasure_table_t *self, const char *name);
-		treasure_table_t();
-    };
-
-
-//--------------------------------------------------------------------------------------------
-// PUBLIC FUNCTION PROTOTYPES
-//--------------------------------------------------------------------------------------------
-//Private functions
-	void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table);
-
-
+///Data structure for one treasure table, we can have up to MAX_TABLES of these
+struct treasure_table_t
+{
+	/**
+     * @brief The name of this treasure table.
+     */
+    std::string name;
+	/**
+     * @brief List of treasures in this treasure table.
+     *        The first @a size elements have meaningful values.
+     */
+    std::array<std::string, TREASURE_TABLE_SIZE> entries;
+	/**
+     * @brief The size of this treasure table.
+     */
+    size_t size;
+    /**
+     * @brief Construct an empty treasure table.
+     */
+	treasure_table_t();
+    /**
+     * @brief Adds a new treasure object to the specified treasure table
+     * @param self the treasure table
+     * @param name the name of the object
+     */
+    void add(const std::string& name);
+};

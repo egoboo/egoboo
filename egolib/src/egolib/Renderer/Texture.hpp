@@ -348,6 +348,14 @@ public:
      *  This texture is bound to the backing error texture.
      */
     Texture();
+    /**
+     * @brief
+     *  Construct this texture.
+     */
+    Texture(GLuint id, const std::string& name,
+            TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+            int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
+            bool hasAlpha);
 
     /**
      * @brief
@@ -358,6 +366,7 @@ public:
 public:
 
     GLuint getTextureID() const;
+    bool isErrorTexture() const;
 
 };
 
@@ -375,9 +384,6 @@ void initializeErrorTextures();
  *  Move into texture manager.
  */
 void uninitializeErrorTextures();
-GLuint get2DErrorTextureID();
-GLuint get1DErrorTextureID();
-bool isErrorTextureID(GLuint id);
 
 } // namespace OpenGL
 } // namespace Ego
