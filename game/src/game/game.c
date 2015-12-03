@@ -115,9 +115,9 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 
 // misc
 
-static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
-static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
-static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
+static bool activate_spawn_file_spawn( spawn_file_info_t& psp_info );
+static bool activate_spawn_file_load_object( spawn_file_info_t& psp_info );
+static void convert_spawn_file_load_name( spawn_file_info_t& psp_info );
 
 static void game_reset_module_data();
 
@@ -1757,37 +1757,35 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
     return true;
 }
 
-void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
+void convert_spawn_file_load_name( spawn_file_info_t& psp_info )
 {
     /// @author ZF
     /// @details This turns a spawn comment line into an actual folder name we can use to load something with
 
-    if ( NULL == psp_info ) return;
-
     // trim any excess spaces off the psp_info->spawn_coment
-    str_trim( psp_info->spawn_coment );
+    str_trim( psp_info.spawn_coment );
 
     //If it is a reference to a random treasure table then get a random object from that table
-    if ( '%' == psp_info->spawn_coment[0] )
+    if ( '%' == psp_info.spawn_coment[0] )
     {
-        std::string treasureTableName = psp_info->spawn_coment;
+        std::string treasureTableName = psp_info.spawn_coment;
         std::string treasureName;
         get_random_treasure(treasureTableName, treasureName);
-        strncpy(psp_info->spawn_coment, treasureName.c_str(), SDL_arraysize(psp_info->spawn_coment));
+        strncpy(psp_info.spawn_coment, treasureName.c_str(), SDL_arraysize(psp_info.spawn_coment));
     }
 
     // make sure it ends with a .obj extension
-    if ( NULL == strstr( psp_info->spawn_coment, ".obj" ) )
+    if ( NULL == strstr( psp_info.spawn_coment, ".obj" ) )
     {
-        strcat( psp_info->spawn_coment, ".obj" );
+        strcat( psp_info.spawn_coment, ".obj" );
     }
 
     // no capital letters
-    strlwr( psp_info->spawn_coment );
+    strlwr( psp_info.spawn_coment );
 }
 
 //--------------------------------------------------------------------------------------------
-bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
+bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
 {
     /// @author BB
     /// @details Try to load a global object named int psp_info->spawn_coment into
@@ -1796,56 +1794,56 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     STRING filename;
     PRO_REF ipro;
 
-    if ( NULL == psp_info || psp_info->slot < 0 ) return false;
+    if ( psp_info.slot < 0 ) return false;
 
     //Is it already loaded?
-    ipro = ( PRO_REF )psp_info->slot;
+    ipro = ( PRO_REF )psp_info.slot;
     if (ProfileSystem::get().isValidProfileID(ipro)) return false;
 
     // do the loading
-    if ( CSTR_END != psp_info->spawn_coment[0] )
+    if ( CSTR_END != psp_info.spawn_coment[0] )
     {
         // we are relying on the virtual mount point "mp_objects", so use
         // the vfs/PHYSFS file naming conventions
-        snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info->spawn_coment );
+        snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info.spawn_coment );
 
         if(!vfs_exists(filename)) {
-            if(psp_info->slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
+            if(psp_info.slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
 				Log::get().warn("activate_spawn_file_load_object() - Object does not exist: %s\n", filename);
             }
 
             return false;
         }
 
-        psp_info->slot = ProfileSystem::get().loadOneProfile(filename, psp_info->slot);
+        psp_info.slot = ProfileSystem::get().loadOneProfile(filename, psp_info.slot);
     }
 
-    return ProfileSystem::get().isValidProfileID((PRO_REF)psp_info->slot);
+    return ProfileSystem::get().isValidProfileID((PRO_REF)psp_info.slot);
 }
 
 //--------------------------------------------------------------------------------------------
-bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
+bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
 {
     int     local_index = 0;
     PRO_REF iprofile;
 
-    if ( NULL == psp_info || !psp_info->do_spawn || psp_info->slot < 0 ) return false;
+    if ( !psp_info.do_spawn || psp_info.slot < 0 ) return false;
 
-    iprofile = ( PRO_REF )psp_info->slot;
+    iprofile = ( PRO_REF )psp_info.slot;
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname == nullptr ? "" : psp_info->pname, ObjectRef::Invalid);
+    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.pname == nullptr ? "" : psp_info.pname, ObjectRef::Invalid);
     if (!pobject) return false;
 
     // determine the attachment
-    if (psp_info->attach == ATTACH_NONE)
+    if (psp_info.attach == ATTACH_NONE)
     {
         // Free character
-        psp_info->parent = pobject->getObjRef();
+        psp_info.parent = pobject->getObjRef();
         make_one_character_matrix( pobject->getObjRef() );
     }
 
-    chr_setup_apply(pobject, psp_info);
+    chr_setup_apply(pobject, &psp_info);
 
     //Can happen if object gets merged into a stack
     if(!pobject) {
@@ -1853,7 +1851,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     }
 
     // Turn on PlaStack.count input devices
-    if ( psp_info->stat )
+    if ( psp_info.stat )
     {
         // what we do depends on what kind of module we're loading
         if ( 0 == _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() )
@@ -1955,7 +1953,7 @@ void activate_spawn_file_vfs()
             }
 
             //convert the spawn name into a format we like
-            convert_spawn_file_load_name(&entry);
+            convert_spawn_file_load_name(entry);
 
             // If it is a dynamic slot, remember to dynamically allocate it for later
             if ( entry.slot <= -1 )
@@ -2029,7 +2027,7 @@ void activate_spawn_file_vfs()
             {
                 bool import_object = spawnInfo.slot > (_currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER);
 
-                if ( !activate_spawn_file_load_object( &spawnInfo ) )
+                if ( !activate_spawn_file_load_object( spawnInfo ) )
                 {
                     // no, give a warning if it is useful
                     if ( import_object )
@@ -2043,7 +2041,7 @@ void activate_spawn_file_vfs()
             }
 
             // we only reach this if everything was loaded properly
-            activate_spawn_file_spawn(&spawnInfo);
+            activate_spawn_file_spawn(spawnInfo);
 
             //We might become the new parent
             if ( spawnInfo.attach == ATTACH_NONE ) {
