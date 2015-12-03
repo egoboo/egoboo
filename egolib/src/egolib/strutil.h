@@ -39,6 +39,7 @@
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
+    std::string str_decode(const std::string& source);
     char * str_decode( char *strout, size_t insize, const char * strin );
     char * str_encode( char *strout, size_t insize, const char * strin );
 	/**
@@ -66,7 +67,10 @@
 	/// if there is no slash or backslash.
     std::string str_append_slash_net(const std::string& filename);
 
+    /// @brief Remove all space and tabs in the beginning and at the end of the string
+    std::string str_trim(const std::string& source);
     void   str_trim( char *pStr );
+
     void   str_add_linebreaks( char * text, size_t text_len, size_t line_len );
 
 #if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))

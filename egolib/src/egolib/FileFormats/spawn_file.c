@@ -32,7 +32,7 @@
 
 spawn_file_info_t::spawn_file_info_t() :
     do_spawn(false),
-    spawn_coment(),
+    spawn_comment(),
     spawn_name(),
     pname(nullptr),
     slot(-1),
@@ -112,7 +112,7 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
         std::string name = Ego::trim(ctxt._buffer.toString());
 
         
-        strncpy(info.spawn_coment, name.c_str(), SDL_arraysize(info.spawn_coment));
+        strncpy(info.spawn_comment, name.c_str(), SDL_arraysize(info.spawn_comment));
         info.do_spawn = true;
 
         vfs_read_string_lit(ctxt, info.spawn_name, SDL_arraysize(info.spawn_name));
@@ -199,14 +199,14 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
             throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
                                                 "syntax error");
         }
-        if (who.length() >= SDL_arraysize(info.spawn_coment))
+        if (who.length() >= SDL_arraysize(info.spawn_comment))
         {
             throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
                                                 "syntax error");
         }
         int slot = ctxt.readIntegerLiteral();
         // Store the data.
-        strncpy(info.spawn_coment, who.c_str(), SDL_arraysize(info.spawn_coment));
+        strncpy(info.spawn_comment, who.c_str(), SDL_arraysize(info.spawn_comment));
         info.slot = slot;
         return true;
     }

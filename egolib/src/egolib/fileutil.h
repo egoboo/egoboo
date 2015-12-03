@@ -409,20 +409,13 @@ void vfs_read_name(ReadContext& ctxt, char *buf, size_t max);
  *  Transitional C form, remove this.
  */
 void vfs_read_string_lit(ReadContext& ctxt, char *buf, size_t max);
-#if 0
 /**
- * @brief
- *  Read a line.
- * @param buf, max
- *  @a buf is a pointer to a buffer of <tt>max+1</tt> bytes
- * @remark
- *  A line in this revision are the strings
- *  @code
- *  line := string
- *  @endcode
+ * @brief Read a string.
+ * @param [out] receiver
+ * @see ReadContext::readString
+ * @remark A consecutive sequence of characters <tt>'_'</tt> is mapped to <tt>' '</tt> and <tt>'~'</tt> is mapped to <tt>'\t'</tt>.
  */
-void vfs_get_line(ReadContext& ctxt, char *str, size_t max);
-#endif
+void vfs_read_string_lit(ReadContext& ctxt, std::string& literal);
 /**
  * @brief
  *  Read a range.

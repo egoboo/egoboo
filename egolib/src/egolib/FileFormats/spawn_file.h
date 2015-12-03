@@ -46,7 +46,7 @@ public:
     spawn_file_info_t();
 
     bool       do_spawn;
-    STRING     spawn_coment;
+    STRING     spawn_comment;
 
     STRING     spawn_name;
     char      *pname;
