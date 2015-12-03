@@ -61,7 +61,6 @@ size_t endtext_carat = 0;
 
 pit_info_t g_pits;
 
-animtile_instance_t   animtile[2];
 damagetile_instance_t damagetile;
 weather_instance_t    weather;
 water_instance_t      water;
@@ -2831,7 +2830,8 @@ void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t * pdata, const size_t animtile_count )
+animtile_instance_t animtile[2];
+bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t& source, const size_t animtile_count )
 {
     if ( nullptr == inst || 0 == animtile_count ) return false;
 
@@ -2846,18 +2846,15 @@ bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t
         inst[cnt].frame_add  = 0;
     }
 
-    if ( nullptr != pdata )
-    {
-        inst[0].update_and = pdata->update_and;
-        inst[0].frame_and  = pdata->frame_and;
-        inst[0].base_and   = ~inst[0].frame_and;
+    inst[0].update_and = source.update_and;
+    inst[0].frame_and  = source.frame_and;
+    inst[0].base_and   = ~inst[0].frame_and;
 
-        for (size_t cnt = 1; cnt < animtile_count; cnt++ )
-        {
-            inst[cnt].update_and = pdata->update_and;
-            inst[cnt].frame_and  = ( inst[cnt-1].frame_and << 1 ) | 1;
-            inst[cnt].base_and   = ~inst[cnt].frame_and;
-        }
+    for (size_t cnt = 1; cnt < animtile_count; cnt++ )
+    {
+        inst[cnt].update_and = source.update_and;
+        inst[cnt].frame_and  = ( inst[cnt-1].frame_and << 1 ) | 1;
+        inst[cnt].base_and   = ~inst[cnt].frame_and;
     }
 
     return true;
@@ -2939,7 +2936,7 @@ void upload_wawalite()
     water.upload( wawalite_data.water );
     weather.upload( wawalite_data.weather );
     damagetile.upload( wawalite_data.damagetile );
-    upload_animtile_data( animtile, &(wawalite_data.animtile ), SDL_arraysize( animtile ) );
+    upload_animtile_data( animtile, wawalite_data.animtile, SDL_arraysize( animtile ) );
 }
 
 
