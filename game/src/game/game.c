@@ -1763,25 +1763,25 @@ void convert_spawn_file_load_name( spawn_file_info_t& psp_info )
     /// @details This turns a spawn comment line into an actual folder name we can use to load something with
 
     // trim any excess spaces off the psp_info->spawn_coment
-    str_trim( psp_info.spawn_coment );
+    str_trim( psp_info.spawn_comment );
 
     //If it is a reference to a random treasure table then get a random object from that table
-    if ( '%' == psp_info.spawn_coment[0] )
+    if ( '%' == psp_info.spawn_comment[0] )
     {
-        std::string treasureTableName = psp_info.spawn_coment;
+        std::string treasureTableName = psp_info.spawn_comment;
         std::string treasureName;
         get_random_treasure(treasureTableName, treasureName);
-        strncpy(psp_info.spawn_coment, treasureName.c_str(), SDL_arraysize(psp_info.spawn_coment));
+        strncpy(psp_info.spawn_comment, treasureName.c_str(), SDL_arraysize(psp_info.spawn_comment));
     }
 
     // make sure it ends with a .obj extension
-    if ( NULL == strstr( psp_info.spawn_coment, ".obj" ) )
+    if ( NULL == strstr( psp_info.spawn_comment, ".obj" ) )
     {
-        strcat( psp_info.spawn_coment, ".obj" );
+        strcat( psp_info.spawn_comment, ".obj" );
     }
 
     // no capital letters
-    strlwr( psp_info.spawn_coment );
+    strlwr( psp_info.spawn_comment );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1801,11 +1801,11 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
     if (ProfileSystem::get().isValidProfileID(ipro)) return false;
 
     // do the loading
-    if ( CSTR_END != psp_info.spawn_coment[0] )
+    if ( CSTR_END != psp_info.spawn_comment[0] )
     {
         // we are relying on the virtual mount point "mp_objects", so use
         // the vfs/PHYSFS file naming conventions
-        snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info.spawn_coment );
+        snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info.spawn_comment );
 
         if(!vfs_exists(filename)) {
             if(psp_info.slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
@@ -1948,7 +1948,7 @@ void activate_spawn_file_vfs()
             // check to see if the slot is valid
             if ( entry.slot >= INVALID_PRO_REF )
             {
-				Log::get().warn("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_coment, ctxt.getLoadName().c_str() );
+				Log::get().warn("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_comment, ctxt.getLoadName().c_str() );
                 continue;
             }
 
@@ -1958,13 +1958,13 @@ void activate_spawn_file_vfs()
             // If it is a dynamic slot, remember to dynamically allocate it for later
             if ( entry.slot <= -1 )
             {
-                dynamicObjectList.insert(entry.spawn_coment);
+                dynamicObjectList.insert(entry.spawn_comment);
             }
 
             //its a static slot number, mark it as reserved if it isnt already
             else if (reservedSlots[entry.slot].empty())
             {
-                reservedSlots[entry.slot] = entry.spawn_coment;
+                reservedSlots[entry.slot] = entry.spawn_comment;
             }
 
             //Finished with this object for now
@@ -2014,7 +2014,7 @@ void activate_spawn_file_vfs()
             if(spawnInfo.slot <= -1) {
                 for(const auto &element : reservedSlots)
                 {
-                    if(element.second == spawnInfo.spawn_coment)
+                    if(element.second == spawnInfo.spawn_comment)
                     {
                         spawnInfo.slot = element.first;
                         break;
@@ -2033,7 +2033,7 @@ void activate_spawn_file_vfs()
                     if ( import_object )
                     {
 						Log::get().warn("%s:%d:%s: the object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", \
-							            __FILE__, __LINE__, __FUNCTION__, spawnInfo.spawn_coment, spawnInfo.slot, \
+							            __FILE__, __LINE__, __FUNCTION__, spawnInfo.spawn_comment, spawnInfo.slot, \
 							            ctxt.getLoadName().c_str() );
                     }
                     continue;
