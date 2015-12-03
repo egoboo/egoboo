@@ -90,14 +90,14 @@ static void let_all_characters_think();
 static void do_weather_spawn_particles();
 
 // module initialization / deinitialization - not accessible by scripts
-static bool game_load_module_data( const char *smallname );
+static bool game_load_module_data( const std::string& smallname );
 static void   game_release_module_data();
 static void   game_load_profile_ai();
 
 static void   activate_spawn_file_vfs();
 static void   activate_alliance_file_vfs();
 
-static bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo );
+static bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& pinfo );
 
 static void   game_reset_players();
 
@@ -1699,24 +1699,24 @@ void game_load_global_profiles()
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //note: intentonally copy and not reference on pchr
+bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& info ) //note: intentonally copy and not reference on pchr
 {
     Object *pparent = nullptr;
-    if ( _currentModule->getObjectHandler().exists( pinfo->parent ) ) {
-        pparent = _currentModule->getObjectHandler().get( pinfo->parent );
+    if ( _currentModule->getObjectHandler().exists( info.parent ) ) {
+        pparent = _currentModule->getObjectHandler().get( info.parent );
     }
 
-    pchr->money = pchr->money + pinfo->money;
+    pchr->money = pchr->money + info.money;
     if ( pchr->money > MAXMONEY )  pchr->money = MAXMONEY;
     if ( pchr->money < 0 )  pchr->money = 0;
 
-    pchr->ai.content = pinfo->content;
-    pchr->ai.passage = pinfo->passage;
+    pchr->ai.content = info.content;
+    pchr->ai.passage = info.passage;
 
-    if ( pinfo->attach == ATTACH_INVENTORY )
+    if ( info.attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        Inventory::add_item(pinfo->parent, pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true );
+        Inventory::add_item(info.parent, pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true );
 
         //If the character got merged into a stack, then it will be marked as terminated
         if(pchr->isTerminated()) {
@@ -1726,12 +1726,12 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
         // Make spellbooks change
         SET_BIT(pchr->ai.alert, ALERTIF_GRABBED);
     }
-    else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
+    else if ( info.attach == ATTACH_LEFT || info.attach == ATTACH_RIGHT )
     {
         // Wielded character
-        grip_offset_t grip_off = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
+        grip_offset_t grip_off = ( ATTACH_LEFT == info.attach ) ? GRIP_LEFT : GRIP_RIGHT;
 
-		if (rv_success == attach_character_to_mount(pchr->getObjRef(), pinfo->parent, grip_off))
+		if (rv_success == attach_character_to_mount(pchr->getObjRef(), info.parent, grip_off))
 		{
 			// Handle the "grabbed" messages
 			//scr_run_chr_script(pchr);
@@ -1739,11 +1739,11 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
     }
 
     // Set the starting pinfo->level
-    if ( pinfo->level > 0 )
+    if ( info.level > 0 )
     {
-        if ( pchr->experiencelevel < pinfo->level )
+        if ( pchr->experiencelevel < info.level )
         {
-            pchr->experience = pchr->getProfile()->getXPNeededForLevel(pinfo->level);
+            pchr->experience = pchr->getProfile()->getXPNeededForLevel(info.level);
         }
     }
 
@@ -1843,7 +1843,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
         make_one_character_matrix( pobject->getObjRef() );
     }
 
-    chr_setup_apply(pobject, &psp_info);
+    chr_setup_apply(pobject, psp_info);
 
     //Can happen if object gets merged into a stack
     if(!pobject) {
@@ -2074,10 +2074,10 @@ void game_reset_module_data()
 
 //--------------------------------------------------------------------------------------------
 /// @details This function loads a module
-bool game_load_module_data( const char *smallname )
+bool game_load_module_data( const std::string& smallname )
 {
     //TODO: ZF> this should be moved to Module.cpp
-	Log::get().info( "Loading module \"%s\"\n", smallname );
+	Log::get().info( "Loading module \"%s\"\n", smallname.c_str() );
 
     // ensure that the script parser exists
     parser_state_t& ps = parser_state_t::get();
