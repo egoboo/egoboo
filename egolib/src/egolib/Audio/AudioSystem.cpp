@@ -308,13 +308,13 @@ void AudioSystem::loadAllMusic()
     }
 
     //Special xmas theme, override the default menu theme song
-    if (check_time(SEASON_CHRISTMAS))
+    if (Zeitgeist::CheckTime(Zeitgeist::Time::Christmas))
     {
         MusicID specialSong = loadMusic("mp_data/music/special/xmas.ogg");
         if (specialSong != INVALID_SOUND_ID)
             _musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
     }
-    else if (check_time(SEASON_HALLOWEEN))
+    else if (Zeitgeist::CheckTime(Zeitgeist::Time::Halloween))
     {
         MusicID specialSong = loadMusic("mp_data/music/special/halloween.ogg");
         if (specialSong != INVALID_SOUND_ID)

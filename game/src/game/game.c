@@ -3606,30 +3606,33 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 }
 
 //--------------------------------------------------------------------------------------------
-bool check_time( Uint32 check )
-{
-    /// @author ZF
-    /// @details Returns true if and only if all time and date specifications determined by the e_time parameter is true. This
-    ///    could indicate time of the day, a specific holiday season etc.
-	Ego::Time::LocalTime localTime;
-    switch ( check )
+namespace Zeitgeist {
+bool CheckTime(Time time) {
+    Ego::Time::LocalTime localTime;
+    switch (time)
     {
-		// Halloween between 31th october and the 1st of november
-		case SEASON_HALLOWEEN: return (( 10 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 31 ) ||
-                                       ( 11 == localTime.getMonth() + 1 && localTime.getDayOfMonth() <= 1 ) );
+    // Halloween is from 31th october 31th (incl.) until the november 1st (incl.).
+    case Time::Halloween: 
+        return ((10 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 31) ||
+                (11 == localTime.getMonth() + 1 && localTime.getDayOfMonth() <= 1));
 
-		// Xmas from december 16th until newyear
-        case SEASON_CHRISTMAS: return ( 12 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 16 );
+    // Chrsitmas is from december 16th (incl.) until january 1st/newyear (excl.).
+    case Time::Christmas:
+        return (12 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 16);
 
-		// From 0:00 to 6:00 (spooky time!)
-        case TIME_NIGHT: return localTime.getHours() <= 6;
+    // From 0:00 to 6:00 (spooky time!).
+    case Time::Nighttime:
+        return localTime.getHours() <= 6;
 
-		// Its day whenever it's not night
-        case TIME_DAY: return !check_time( TIME_NIGHT );
+     // Its day whenever it's not night.
+    case Time::Daytime:
+        return localTime.getHours() > 6;
 
-		// Unhandled check
-        default: Log::get().warn( "Unhandled time enum in check_time()\n" ); return false;
+    // Unhandled check.
+    default:
+        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
+}
 }
 
 //--------------------------------------------------------------------------------------------
