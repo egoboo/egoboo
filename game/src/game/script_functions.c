@@ -1572,8 +1572,8 @@ Uint8 scr_SetWeatherTime( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     // Set the weather timer
-    weather.timer_reset = state.argument;
-    weather.time = state.argument;
+    g_weatherState.timer_reset = state.argument;
+    g_weatherState.time = state.argument;
 
     SCRIPT_FUNCTION_END();
 }

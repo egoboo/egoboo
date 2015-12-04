@@ -117,35 +117,35 @@ enum e_time
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// The actual state of the animated tiles in-game
-struct animtile_instance_t
-{
-    animtile_instance_t() :
-        update_and(0),
-        frame_and(0),
-        base_and(0),
-        frame_add(0),
-        frame_add_old(0),
-        frame_update_old(0)
-    {
-        //ctor
-    }
+/// The state of the animated tiles.
+struct AnimatedTilesState {
+    /// The state of a layer of the animated tiles.
+    struct Layer {
+        Layer() :
+            update_and(0),
+            frame_and(0),
+            base_and(0),
+            frame_add(0),
+            frame_add_old(0),
+            frame_update_old(0)
+        {
+            //ctor
+        }
 
-    int    update_and;            ///< how often to update the tile
+        int    update_and;            ///< how often to update the tile
 
-    uint16_t frame_and;             ///< how many images within the "tile set"?
-    uint16_t base_and;              ///< animated "tile set"
-    uint16_t frame_add;             ///< which image within the tile set?
-    uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
-    uint32_t frame_update_old;
+        uint16_t frame_and;             ///< how many images within the "tile set"?
+        uint16_t base_and;              ///< animated "tile set"
+        uint16_t frame_add;             ///< which image within the tile set?
+        uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
+        uint32_t frame_update_old;
+    };
+    std::array<Layer,2> elements;
+    void upload(const wawalite_animtile_t& source);
+    /// @brief Iterate the state of the animated tiles.
+    void animate();
 };
 
-struct AnimatedTiles {
-    static animtile_instance_t elements[2];
-    static bool upload(animtile_instance_t dst[], const wawalite_animtile_t& source, const size_t animtile_count);
-    /// @brief Iterate the animations of the animated tiles.
-    static void animate();
-};
 
 //--------------------------------------------------------------------------------------------
 
@@ -168,17 +168,20 @@ struct damagetile_instance_t
 
 //--------------------------------------------------------------------------------------------
 
-/// The data descibing the weather state
-struct weather_instance_t
+/// The state of the weather.
+struct WeatherState
 {
     int timer_reset;                    ///< How long between each spawn?
     bool  over_water;                   ///< Only spawn over water?
     LocalParticleProfileRef part_gpip;  ///< Which particle to spawn?
 
     PLA_REF iplayer;
-    int     time;                ///< 0 is no weather
+    int     time;                       ///< 0 is no weather
 
 	void upload(const wawalite_weather_t& source);
+    /// @brief Iterate the state of the weather.
+    /// @remarks Drops snowflakes or rain or whatever.
+    void animate();
 };
 
 //--------------------------------------------------------------------------------------------
@@ -386,9 +389,10 @@ struct status_list_t
 
 // special terrain and wawalite-related data structs (TODO: move into Module class)
 extern damagetile_instance_t damagetile;
-extern weather_instance_t weather;
+extern WeatherState g_weatherState;
 extern water_instance_t water;
 extern fog_instance_t fog;
+extern AnimatedTilesState g_animatedTilesState;
 
 // End text
 extern char   endtext[MAXENDTEXT];     ///< The end-module text

@@ -34,8 +34,8 @@
 
 void animate_all_tiles( ego_mesh_t& mesh )
 {
-    bool small_tile_update = (AnimatedTiles::elements[0].frame_add_old != AnimatedTiles::elements[0].frame_add);
-    bool big_tile_update = (AnimatedTiles::elements[1].frame_add_old != AnimatedTiles::elements[1].frame_add);
+    bool small_tile_update = (g_animatedTilesState.elements[0].frame_add_old != g_animatedTilesState.elements[0].frame_add);
+    bool big_tile_update = (g_animatedTilesState.elements[1].frame_add_old != g_animatedTilesState.elements[1].frame_add);
 
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
@@ -80,14 +80,14 @@ bool animate_tile( ego_mesh_t& mesh, Uint32 itile )
     if ( type >= tile_dict.offset )
     {
         // Big tiles
-        base_and  = AnimatedTiles::elements[1].base_and;     // Animation set
-        frame_add = AnimatedTiles::elements[1].frame_add;    // Animated image
+        base_and  = g_animatedTilesState.elements[1].base_and;     // Animation set
+        frame_add = g_animatedTilesState.elements[1].frame_add;    // Animated image
     }
     else
     {
         // Small tiles
-        base_and  = AnimatedTiles::elements[0].base_and;          // Animation set
-        frame_add = AnimatedTiles::elements[0].frame_add;         // Animated image
+        base_and  = g_animatedTilesState.elements[0].base_and;          // Animation set
+        frame_add = g_animatedTilesState.elements[0].frame_add;         // Animated image
     }
 
     basetile = image & base_and;

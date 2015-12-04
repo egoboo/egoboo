@@ -62,9 +62,10 @@ size_t endtext_carat = 0;
 pit_info_t g_pits;
 
 damagetile_instance_t damagetile;
-weather_instance_t    weather;
-water_instance_t      water;
-fog_instance_t        fog;
+WeatherState g_weatherState;
+water_instance_t water;
+fog_instance_t fog;
+AnimatedTilesState g_animatedTilesState;
 
 import_list_t g_importList;
 
@@ -86,7 +87,6 @@ static void update_pits();
 static void do_damage_tiles();
 static void set_local_latches();
 static void let_all_characters_think();
-static void do_weather_spawn_particles();
 
 // module initialization / deinitialization - not accessible by scripts
 static bool game_load_module_data( const std::string& smallname );
@@ -548,12 +548,12 @@ int update_game()
     //---- begin the code for updating misc. game stuff
     {
         BillboardSystem::get().update();
-        AnimatedTiles::animate();
+        g_animatedTilesState.animate();
         water.move();
         AudioSystem::get().updateLoopingSounds();
         do_damage_tiles();
         update_pits();
-        do_weather_spawn_particles();
+        g_weatherState.animate();
     }
     //---- end the code for updating misc. game stuff
 
@@ -988,28 +988,25 @@ void update_pits()
 }
 
 //--------------------------------------------------------------------------------------------
-void do_weather_spawn_particles()
+void WeatherState::animate()
 {
-    /// @author ZZ
-    /// @details This function drops snowflakes or rain or whatever
-
     //Does this module have valid weather?
-    if(weather.time < 0 || weather.part_gpip == LocalParticleProfileRef::Invalid) {
+    if (g_weatherState.time < 0 || g_weatherState.part_gpip == LocalParticleProfileRef::Invalid) {
         return;
     }
 
-    weather.time--;
-    if ( 0 == weather.time )
+    g_weatherState.time--;
+    if (0 == g_weatherState.time)
     {
-        weather.time = weather.timer_reset;
+        g_weatherState.time = g_weatherState.timer_reset;
 
         // Find a valid player
         bool foundone = false;
-        for ( int cnt = 0; cnt < MAX_PLAYER; cnt++ )
+        for (int cnt = 0; cnt < MAX_PLAYER; cnt++)
         {
             // Yes, but is the character valid?
-            weather.iplayer = ( PLA_REF )(( REF_TO_INT( weather.iplayer ) + 1 ) % MAX_PLAYER );
-            if ( PlaStack.lst[weather.iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[weather.iplayer].index) )
+            g_weatherState.iplayer = (PLA_REF)((REF_TO_INT(g_weatherState.iplayer) + 1) % MAX_PLAYER);
+            if (PlaStack.lst[g_weatherState.iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[g_weatherState.iplayer].index))
             {
                 foundone = true;
                 break;
@@ -1017,23 +1014,23 @@ void do_weather_spawn_particles()
         }
 
         // Did we find one?
-        if ( foundone )
+        if (foundone)
         {
-            ObjectRef ichr = PlaStack.lst[weather.iplayer].index;
-            if ( _currentModule->getObjectHandler().exists( ichr ) && !_currentModule->getObjectHandler().exists( _currentModule->getObjectHandler().get(ichr)->inwhich_inventory ) )
+            ObjectRef ichr = PlaStack.lst[g_weatherState.iplayer].index;
+            if (_currentModule->getObjectHandler().exists(ichr) && !_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ichr)->inwhich_inventory))
             {
-                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[weather.iplayer].index];
+                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[g_weatherState.iplayer].index];
 
                 // Yes, so spawn nearby that character
-                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0, weather.over_water);
-                if ( particle )
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, g_weatherState.part_gpip, 0, g_weatherState.over_water);
+                if (particle)
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if ( particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_tmem._edge_x - EDGE )
+                    if (particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_tmem._edge_x - EDGE)
                     {
                         particle->requestTerminate();
                     }
-                    else if ( particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_tmem._edge_y - EDGE )
+                    else if (particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_tmem._edge_y - EDGE)
                     {
                         particle->requestTerminate();
                     }
@@ -2789,7 +2786,7 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 }
 
 //--------------------------------------------------------------------------------------------
-void weather_instance_t::upload(const wawalite_weather_t& source)
+void WeatherState::upload(const wawalite_weather_t& source)
 {
 	this->iplayer = 0;
 
@@ -2830,37 +2827,30 @@ void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-animtile_instance_t AnimatedTiles::elements[2];
-bool AnimatedTiles::upload( animtile_instance_t inst[], const wawalite_animtile_t& source, const size_t animtile_count )
+void AnimatedTilesState::upload(const wawalite_animtile_t& source)
 {
-    if ( nullptr == inst || 0 == animtile_count ) return false;
+    elements.fill(Layer());
 
-    for(size_t cnt = 0; cnt < animtile_count; ++cnt) {
-        inst[cnt] = animtile_instance_t();
-    }
-
-    for (size_t cnt = 0; cnt < animtile_count; cnt++ )
+    for (size_t i = 0; i < elements.size(); ++i)
     {
-        inst[cnt].frame_and  = ( 1 << ( cnt + 2 ) ) - 1;
-        inst[cnt].base_and   = ~inst[cnt].frame_and;
-        inst[cnt].frame_add  = 0;
+        elements[i].frame_and = (1 << (i + 2)) - 1;
+        elements[i].base_and = ~elements[i].frame_and;
+        elements[i].frame_add = 0;
     }
 
-    inst[0].update_and = source.update_and;
-    inst[0].frame_and  = source.frame_and;
-    inst[0].base_and   = ~inst[0].frame_and;
+    elements[0].update_and = source.update_and;
+    elements[0].frame_and  = source.frame_and;
+    elements[0].base_and   = ~elements[0].frame_and;
 
-    for (size_t cnt = 1; cnt < animtile_count; cnt++ )
+    for (size_t i = 1; i < elements.size(); ++i)
     {
-        inst[cnt].update_and = source.update_and;
-        inst[cnt].frame_and  = ( inst[cnt-1].frame_and << 1 ) | 1;
-        inst[cnt].base_and   = ~inst[cnt].frame_and;
+        elements[i].update_and = source.update_and;
+        elements[i].frame_and = (elements[i - 1].frame_and << 1) | 1;
+        elements[i].base_and = ~elements[i].frame_and;
     }
-
-    return true;
 }
 
-void AnimatedTiles::animate()
+void AnimatedTilesState::animate()
 {
     for (size_t cnt = 0; cnt < 2; cnt++)
     {
@@ -2961,9 +2951,9 @@ void upload_wawalite()
     upload_camera_data( wawalite_data.camera );
     fog.upload( wawalite_data.fog );
     water.upload( wawalite_data.water );
-    weather.upload( wawalite_data.weather );
+    g_weatherState.upload( wawalite_data.weather );
     damagetile.upload( wawalite_data.damagetile );
-    AnimatedTiles::upload( AnimatedTiles::elements, wawalite_data.animtile, SDL_arraysize(AnimatedTiles::elements) );
+    g_animatedTilesState.upload(wawalite_data.animtile);
 }
 
 
