@@ -34,8 +34,8 @@
 
 void animate_all_tiles( ego_mesh_t& mesh )
 {
-    bool small_tile_update = (animtile[0].frame_add_old != animtile[0].frame_add);
-    bool big_tile_update = (animtile[1].frame_add_old != animtile[1].frame_add);
+    bool small_tile_update = (AnimatedTiles::elements[0].frame_add_old != AnimatedTiles::elements[0].frame_add);
+    bool big_tile_update = (AnimatedTiles::elements[1].frame_add_old != AnimatedTiles::elements[1].frame_add);
 
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
@@ -80,14 +80,14 @@ bool animate_tile( ego_mesh_t& mesh, Uint32 itile )
     if ( type >= tile_dict.offset )
     {
         // Big tiles
-        base_and  = animtile[1].base_and;     // Animation set
-        frame_add = animtile[1].frame_add;    // Animated image
+        base_and  = AnimatedTiles::elements[1].base_and;     // Animation set
+        frame_add = AnimatedTiles::elements[1].frame_add;    // Animated image
     }
     else
     {
         // Small tiles
-        base_and  = animtile[0].base_and;          // Animation set
-        frame_add = animtile[0].frame_add;         // Animated image
+        base_and  = AnimatedTiles::elements[0].base_and;          // Animation set
+        frame_add = AnimatedTiles::elements[0].frame_add;         // Animated image
     }
 
     basetile = image & base_and;
@@ -441,33 +441,4 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
 }
 
 //--------------------------------------------------------------------------------------------
-void animate_tiles()
-{
-    /// @author ZZ
-    /// @details This function changes the animated tile frame
-    animtile_instance_t * patile;
 
-    for ( size_t cnt = 0; cnt < 2; cnt ++ )
-    {
-        // grab the tile data
-        patile = animtile + cnt;
-
-        // skip it if there were no updates
-        if ( patile->frame_update_old == update_wld ) continue;
-
-        // save the old frame_add when we update to detect changes
-        patile->frame_add_old = patile->frame_add;
-
-        // cycle through all frames since the last time
-        for ( Uint32 tnc = patile->frame_update_old + 1; tnc <= update_wld; tnc++ )
-        {
-            if ( 0 == ( tnc & patile->update_and ) )
-            {
-                patile->frame_add = ( patile->frame_add + 1 ) & patile->frame_and;
-            }
-        }
-
-        // save the frame update
-        patile->frame_update_old = update_wld;
-    }
-}

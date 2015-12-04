@@ -548,7 +548,7 @@ int update_game()
     //---- begin the code for updating misc. game stuff
     {
         BillboardSystem::get().update();
-        animate_tiles();
+        AnimatedTiles::animate();
         water.move();
         AudioSystem::get().updateLoopingSounds();
         do_damage_tiles();
@@ -2830,8 +2830,8 @@ void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-animtile_instance_t animtile[2];
-bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t& source, const size_t animtile_count )
+animtile_instance_t AnimatedTiles::elements[2];
+bool AnimatedTiles::upload( animtile_instance_t inst[], const wawalite_animtile_t& source, const size_t animtile_count )
 {
     if ( nullptr == inst || 0 == animtile_count ) return false;
 
@@ -2858,6 +2858,33 @@ bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t
     }
 
     return true;
+}
+
+void AnimatedTiles::animate()
+{
+    for (size_t cnt = 0; cnt < 2; cnt++)
+    {
+        // grab the tile data
+        auto& element = elements[cnt];
+
+        // skip it if there were no updates
+        if (element.frame_update_old == update_wld) continue;
+
+        // save the old frame_add when we update to detect changes
+        element.frame_add_old = element.frame_add;
+
+        // cycle through all frames since the last time
+        for (Uint32 tnc = element.frame_update_old + 1; tnc <= update_wld; tnc++)
+        {
+            if (0 == (tnc & element.update_and))
+            {
+                element.frame_add = (element.frame_add + 1) & element.frame_and;
+            }
+        }
+
+        // save the frame update
+        element.frame_update_old = update_wld;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2936,7 +2963,7 @@ void upload_wawalite()
     water.upload( wawalite_data.water );
     weather.upload( wawalite_data.weather );
     damagetile.upload( wawalite_data.damagetile );
-    upload_animtile_data( animtile, wawalite_data.animtile, SDL_arraysize( animtile ) );
+    AnimatedTiles::upload( AnimatedTiles::elements, wawalite_data.animtile, SDL_arraysize(AnimatedTiles::elements) );
 }
 
 

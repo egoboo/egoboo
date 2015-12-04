@@ -139,8 +139,13 @@ struct animtile_instance_t
     uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
     uint32_t frame_update_old;
 };
-extern animtile_instance_t animtile[2];
-bool upload_animtile_data( animtile_instance_t dst[], const wawalite_animtile_t& source, const size_t animtile_count );
+
+struct AnimatedTiles {
+    static animtile_instance_t elements[2];
+    static bool upload(animtile_instance_t dst[], const wawalite_animtile_t& source, const size_t animtile_count);
+    /// @brief Iterate the animations of the animated tiles.
+    static void animate();
+};
 
 //--------------------------------------------------------------------------------------------
 
