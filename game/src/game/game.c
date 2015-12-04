@@ -991,22 +991,22 @@ void update_pits()
 void WeatherState::animate()
 {
     //Does this module have valid weather?
-    if (g_weatherState.time < 0 || g_weatherState.part_gpip == LocalParticleProfileRef::Invalid) {
+    if (time < 0 || part_gpip == LocalParticleProfileRef::Invalid) {
         return;
     }
 
-    g_weatherState.time--;
-    if (0 == g_weatherState.time)
+    time--;
+    if (0 == time)
     {
-        g_weatherState.time = g_weatherState.timer_reset;
+        time = timer_reset;
 
         // Find a valid player
         bool foundone = false;
         for (int cnt = 0; cnt < MAX_PLAYER; cnt++)
         {
             // Yes, but is the character valid?
-            g_weatherState.iplayer = (PLA_REF)((REF_TO_INT(g_weatherState.iplayer) + 1) % MAX_PLAYER);
-            if (PlaStack.lst[g_weatherState.iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[g_weatherState.iplayer].index))
+            iplayer = (PLA_REF)((REF_TO_INT(iplayer) + 1) % MAX_PLAYER);
+            if (PlaStack.lst[iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[iplayer].index))
             {
                 foundone = true;
                 break;
@@ -1016,13 +1016,13 @@ void WeatherState::animate()
         // Did we find one?
         if (foundone)
         {
-            ObjectRef ichr = PlaStack.lst[g_weatherState.iplayer].index;
+            ObjectRef ichr = PlaStack.lst[iplayer].index;
             if (_currentModule->getObjectHandler().exists(ichr) && !_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ichr)->inwhich_inventory))
             {
-                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[g_weatherState.iplayer].index];
+                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[iplayer].index];
 
                 // Yes, so spawn nearby that character
-                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, g_weatherState.part_gpip, 0, g_weatherState.over_water);
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, part_gpip, 0, over_water);
                 if (particle)
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
