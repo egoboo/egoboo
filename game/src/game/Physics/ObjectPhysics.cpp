@@ -611,10 +611,18 @@ void ObjectPhysics::updateFriction(const std::shared_ptr<Object> &pchr)
 
 void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
 {
+    //Update physical enviroment variables first
+    move_one_character_get_environment(pchr.get());
+
     // Keep inventory items with the carrier
-    const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[pchr->inwhich_inventory];
-    if(inventoryHolder) {
-        pchr->setPosition(inventoryHolder->getPosition());
+    if(pchr->isInsideInventory()) {
+        pchr->setPosition(_currentModule->getObjectHandler()[pchr->inwhich_inventory]->getPosition());
+        return;
+    }
+
+    //Is this character being held by another character?
+    if(pchr->isBeingHeld()) {
+        keepItemsWithHolder(pchr);
         return;
     }
 
@@ -625,8 +633,6 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
     // Character's old location
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
-
-    move_one_character_get_environment(pchr.get());
 
     chr_do_latch_button(pchr.get());
 
@@ -653,22 +659,6 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
     }
 
     move_one_character_do_animation(pchr.get());
-
-    // Characters with sticky butts lie on the surface of the mesh
-    if ( pchr->getProfile()->hasStickyButt() || !pchr->isAlive() )
-    {
-        float fkeep = ( 7 + pchr->enviro.zlerp ) / 8.0f;
-        float fnew  = ( 1 - pchr->enviro.zlerp ) / 8.0f;
-
-        if ( fnew > 0 )
-        {
-            pchr->ori.map_twist_facing_x = pchr->ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[pchr->enviro.grid_twist] * fnew;
-            pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[pchr->enviro.grid_twist] * fnew;
-        }
-    }
-
-    keepItemsWithHolder(pchr->getLeftHandItem());
-    keepItemsWithHolder(pchr->getRightHandItem());
 }
 
 float ObjectPhysics::getMaxSpeed(Object *object) const
@@ -843,8 +833,8 @@ bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &object, cons
     object->onwhichplatform_update = update_wld;
     object->targetplatform_ref     = ObjectRef::Invalid;
 
-    _platformOffset[kX] = object->getPosX() - platform->getPosX();
-    _platformOffset[kY] = object->getPosY() - platform->getPosY();
+    _platformOffset.x() = object->getPosX() - platform->getPosX();
+    _platformOffset.y() = object->getPosY() - platform->getPosY();
 
     // update the character's relationship to the ground
     object->enviro.level     = std::max(object->enviro.floor_level, platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z]);
@@ -886,8 +876,8 @@ void ObjectPhysics::updatePlatformPhysics(const std::shared_ptr<Object> &object)
     // platform, there is no need to suck you to the level of the platform
     // this was one of the things preventing you from jumping from platforms
     // properly
-    if(std::abs(object->vel[kZ] - platform->vel[kZ]) / 5.0f <= PLATFORM_STICKINESS) {
-        object->vel[kZ] += (platform->vel[kZ]  - object->vel[kZ]) * lerp_z;
+    if(std::abs(object->vel.z() - platform->vel.z()) / 5.0f <= PLATFORM_STICKINESS) {
+        object->vel.z() += (platform->vel.z()  - object->vel.z()) * lerp_z;
     }
 
     // determine the rotation rates
@@ -896,59 +886,51 @@ void ObjectPhysics::updatePlatformPhysics(const std::shared_ptr<Object> &object)
     object->ori.facing_z += (rot_a - rot_b) * PLATFORM_STICKINESS;    
 
     //Allows movement on the platform
-    _platformOffset[kX] += object->vel[kX];
-    _platformOffset[kY] += object->vel[kY];
+    _platformOffset.x() += object->vel.x();
+    _platformOffset.y() += object->vel.y();
 
     //Inherit position of platform with given offsets
     float zCorrection = (object->enviro.level - object->getPosZ()) * 0.125f * lerp_z;
-    object->setPosition(platform->getPosX() + _platformOffset[kX], platform->getPosY() + _platformOffset[kY], object->getPosZ() + zCorrection);
+    object->setPosition(platform->getPosX() + _platformOffset.x(), platform->getPosY() + _platformOffset.y(), object->getPosZ() + zCorrection);
 }
 
 void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
 {
-    //Are we being held?
-    if (pchr->isBeingHeld())
-    {
-        //Always set our position to that of our holder
-        pchr->setPosition(pchr->getHolder()->getPosition());
-        return;
-    }
-
     Vector3f tmp_pos = pchr->getPosition();;
 
     // interaction with the mesh
     //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
     {
-        const float grid_level = pchr->enviro.floor_level + RAISE;
+        const float floorElevation = pchr->enviro.floor_level + RAISE;
 
-        tmp_pos[kZ] += pchr->vel[kZ];
-        if (tmp_pos[kZ] <= grid_level)
+        tmp_pos.z() += pchr->vel.z();
+        if (tmp_pos.z() <= floorElevation)
         {
             //We have hit the ground
             if(!pchr->isFlying()) {
                 pchr->enviro.grounded = true;
             }
 
-            if (std::abs(pchr->vel[kZ]) < Ego::Physics::STOP_BOUNCING)
+            if (std::abs(pchr->vel.z()) < Ego::Physics::STOP_BOUNCING)
             {
-                pchr->vel[kZ] = 0.0f;
-                tmp_pos[kZ] = grid_level;
+                pchr->vel.z() = 0.0f;
+                tmp_pos.z() = floorElevation;
             }
             else
             {
                 //Make it bounce!
-                if (pchr->vel[kZ] < 0.0f)
+                if (pchr->vel.z() < 0.0f)
                 {
-                    float diff = grid_level - tmp_pos[kZ];
+                    float diff = floorElevation - tmp_pos.z();
 
-                    pchr->vel[kZ] *= -pchr->phys.bumpdampen;
+                    pchr->vel.z() *= -pchr->phys.bumpdampen;
                     diff          *= -pchr->phys.bumpdampen;
 
-                    tmp_pos[kZ] = std::max(tmp_pos[kZ] + diff, grid_level);
+                    tmp_pos.z() = std::max(tmp_pos.z() + diff, floorElevation);
                 }
                 else
                 {
-                    tmp_pos[kZ] = grid_level;
+                    tmp_pos.z() = floorElevation;
                 }
             }
         }
@@ -958,22 +940,22 @@ void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
     if (pchr->isFlying())
     {
         // Don't fall in pits...
-        if (tmp_pos[kZ] < 0.0f) {
-            tmp_pos[kZ] = 0.0f;
+        if (tmp_pos.z() < 0.0f) {
+            tmp_pos.z() = 0.0f;
         }
     }
 
 
     //if (std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) > 0.0f)
     {
-        float old_x = tmp_pos[kX];
-        float old_y = tmp_pos[kY];
+        float old_x = tmp_pos.x();
+        float old_y = tmp_pos.y();
 
-        float new_x = old_x + pchr->vel[kX];
-        float new_y = old_y + pchr->vel[kY];
+        float new_x = old_x + pchr->vel.x();
+        float new_y = old_y + pchr->vel.y();
 
-        tmp_pos[kX] = new_x;
-        tmp_pos[kY] = new_y;
+        tmp_pos.x() = new_x;
+        tmp_pos.y() = new_y;
 
         //Wall collision?
         if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos ) )
@@ -986,35 +968,46 @@ void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
             // how is the character hitting the wall?
             if (pressure > 0.0f)
             {
-                tmp_pos[kX] -= pchr->vel[kX];
-                tmp_pos[kY] -= pchr->vel[kY];
+                tmp_pos.x() -= pchr->vel.x();
+                tmp_pos.y() -= pchr->vel.y();
 
                 const float bumpdampen = std::max(0.1f, 1.0f-pchr->phys.bumpdampen);
 
                 //Bounce velocity of normal
-                Vector2f velocity = Vector2f(pchr->vel[kX], pchr->vel[kY]);
-                velocity[kX] -= 2 * (nrm.dot(velocity) * nrm[kX]);
-                velocity[kY] -= 2 * (nrm.dot(velocity) * nrm[kY]);
+                Vector2f velocity = Vector2f(pchr->vel.x(), pchr->vel.y());
+                velocity.x() -= 2.0f * (nrm.dot(velocity) * nrm.x());
+                velocity.y() -= 2.0f * (nrm.dot(velocity) * nrm.y());
 
-                pchr->vel[kX] = pchr->vel[kX] * bumpdampen + velocity[kX]*(1-bumpdampen);
-                pchr->vel[kY] = pchr->vel[kY] * bumpdampen + velocity[kY]*(1-bumpdampen);
+                pchr->vel.x() = pchr->vel.x() * bumpdampen + velocity.x()*(1.0f-bumpdampen);
+                pchr->vel.y() = pchr->vel.y() * bumpdampen + velocity.y()*(1.0f-bumpdampen);
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float displacement = Vector2f(pchr->getSafePosition()[kX]-tmp_pos[kX], pchr->getSafePosition()[kY]-tmp_pos[kY]).length();
+                float displacement = Vector2f(pchr->getSafePosition().x()-tmp_pos.x(), pchr->getSafePosition().y()-tmp_pos.y()).length();
                 if(displacement > MAX_DISPLACEMENT_XY) {
                     displacement = MAX_DISPLACEMENT_XY;
                 }
-                pchr->vel[kX] += displacement * bumpdampen * pressure * nrm[kX];
-                pchr->vel[kY] += displacement * bumpdampen * pressure * nrm[kY];
+                pchr->vel.x() += displacement * bumpdampen * pressure * nrm.x();
+                pchr->vel.y() += displacement * bumpdampen * pressure * nrm.y();
 
                 //Apply correction
-                tmp_pos[kX] += pchr->vel[kX];
-                tmp_pos[kY] += pchr->vel[kY];
+                tmp_pos.x() += pchr->vel.x();
+                tmp_pos.y() += pchr->vel.y();
             }
         }
     }
 
     pchr->setPosition(tmp_pos);
+
+    // Characters with sticky butts lie on the surface of the mesh
+    if(pchr->getProfile()->hasStickyButt() || !pchr->isAlive()) {
+        float fkeep = (7.0f + pchr->enviro.zlerp) / 8.0f;
+        float fnew  = (1.0f - pchr->enviro.zlerp) / 8.0f;
+
+        if (fnew > 0) {
+            pchr->ori.map_twist_facing_x = pchr->ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[pchr->enviro.grid_twist] * fnew;
+            pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[pchr->enviro.grid_twist] * fnew;
+        }
+    }
 }
 
 } //Physics

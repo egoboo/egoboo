@@ -421,11 +421,7 @@ void move_all_objects()
             continue;
         }
         
-        //Skip objects that are inside inventories
-        if(!object->isInsideInventory()) {
-            object->getObjectPhysics().updatePhysics(object);
-        }
-
+        object->getObjectPhysics().updatePhysics(object);
         //chr_update_matrix( object.get(), true );
     }
 }
