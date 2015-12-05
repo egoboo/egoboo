@@ -37,7 +37,7 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/script_implementation.h"
-#include "game/char.h"
+#include "game/ObjectAnimation.h"
 #include "game/Inventory.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"

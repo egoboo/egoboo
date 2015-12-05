@@ -150,7 +150,7 @@ void MiniMap::addBlip(const float x, const float y, const std::shared_ptr<Object
         return;
     }
 
-    _blips.push_back(Blip(x, y, chr_get_txtexture_icon_ref(object->getObjRef())));
+    _blips.push_back(Blip(x, y, object->getIcon()));
 }
 
 bool MiniMap::notifyMouseMoved(const int x, const int y)

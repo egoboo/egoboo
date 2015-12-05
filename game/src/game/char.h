@@ -36,19 +36,6 @@
 #include "game/ObjectAnimation.h"
 
 //--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-
-struct Billboard;
-struct mesh_wall_data_t;
-
-//--------------------------------------------------------------------------------------------
-// internal structs
-struct chr_environment_t;
-struct chr_spawn_data_t;
-
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // Attack directions
@@ -117,18 +104,3 @@ struct chr_spawn_data_t;
 #define BORETIME            (Random::next<uint16_t>(255, 255 + 511)) ///< IfBored timer
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
-
-//--------------------------------------------------------------------------------------------
-
-// counters for debugging wall collisions
-extern int chr_stoppedby_tests;
-extern int chr_pressure_tests;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// Function prototypes
-const Ego::OpenGL::Texture* chr_get_txtexture_icon_ref( const ObjectRef item );
-
-void character_swipe( ObjectRef cnt, slot_t slot );
-
-ObjectRef chr_get_lowest_attachment(ObjectRef object_ref, bool non_item );

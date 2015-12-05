@@ -2946,3 +2946,16 @@ const std::shared_ptr<Object>& Object::getAttachedPlatform() const
 {
     return _currentModule->getObjectHandler()[onwhichplatform_ref];
 }
+
+const oglx_texture_t* Object::getIcon() const
+{
+    //Is it a spellbook?
+    if (getProfile()->getSpellEffectType() == ObjectProfile::NO_SKIN_OVERRIDE)
+    {
+        return getProfile()->getIcon(skin).get_ptr();
+    }
+    else
+    {
+        return ProfileSystem::get().getSpellBookIcon(getProfile()->getSpellEffectType()).get_ptr();
+    }
+}

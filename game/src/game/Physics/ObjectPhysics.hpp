@@ -57,20 +57,47 @@ public:
 
 private:
     void updateMovement(const std::shared_ptr<Object> &object);
-    void updateFriction(const std::shared_ptr<Object> &pchr);
-    float getMaxSpeed(Object *object) const;
+    
+    /**
+    * @brief
+    *   This makes objects slide down hillsides
+    **/
+    void updateHillslide(const std::shared_ptr<Object> &pchr);
+
+    /**
+    * @brief
+    *   This updates which way the Object is looking based on movement
+    **/
     void updateFacing(const std::shared_ptr<Object> &pchr, const Vector2f &desiredVelocity);
 
+    /**
+    * @return
+    *   The actual max velocity of an Object including all abilities, special effects
+    *   and any other speed modifiers
+    **/
+    float getMaxSpeed(Object *object) const;
+    
     /// @author BB
     /// @details Figure out the next position of the character.
     ///    Include collisions with the mesh in this step.
     void updateMeshCollision(const std::shared_ptr<Object> &pchr);
 
+    /**
+    * @brief
+    *   This makes objects interact with the platform they are attached to (if any)
+    **/
     void updatePlatformPhysics(const std::shared_ptr<Object> &object);
 
+    /**
+    * @brief
+    *   This keeps held items in the hands of their holder and updates
+    *   transfer blending
+    **/
     void keepItemsWithHolder(const std::shared_ptr<Object> &pchr);
 
 private:
+    static constexpr float MAX_DISPLACEMENT_XY = 20.0f;     //< Max velocity correction due to being inside a wall
+
     Vector2f _platformOffset;
 };
 

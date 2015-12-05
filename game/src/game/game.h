@@ -402,11 +402,15 @@ extern Uint32          clock_chr_stat;        ///< For enchant stat regeneration
 extern Uint32          clock_pit;             ///< For pit kills
 extern Uint32          update_wld;            ///< The number of times the game has been updated
 
+// counters for debugging wall collisions
+extern int chr_stoppedby_tests;
+extern int chr_pressure_tests;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// the hook for deinitializing an old module
-void   game_quit_module();
+void game_quit_module();
 
 /// the hook for exporting all the current players and reloading them
 bool game_finish_module();
@@ -421,7 +425,6 @@ bool  export_one_character_quest_vfs( const char *szSaveName, ObjectRef characte
 bool  export_one_character_name_vfs( const char *szSaveName, ObjectRef character );
 
 /// Messages
-void show_stat( int statindex );
 void show_armor( int statindex );
 void show_full_status( int statindex );
 void show_magic_status( int statindex );
@@ -440,8 +443,13 @@ void    disaffirm_attached_particles(ObjectRef objectRef);
 int reaffirm_attached_particles(ObjectRef objectRef);
 
 /// Player
-void   set_one_player_latch( const PLA_REF player );
 bool add_player(ObjectRef objectRef, const PLA_REF playerRef, input_device_t *device);
+
+//Latches
+void set_one_player_latch( const PLA_REF player );
+bool chr_do_latch_button( Object * pchr );
+bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
+void character_swipe( ObjectRef cnt, slot_t slot );
 
 /// AI targeting
 bool  chr_check_target( Object * psrc, ObjectRef iObjectTest, IDSZ idsz, const BIT_FIELD targeting_bits );
@@ -451,15 +459,14 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing, const PIP_REF i
 /// object initialization
 void  free_all_objects();
 
-/// Data
-int    game_do_menu( struct menu_process_t * mproc );
-
 void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
+
+ObjectRef chr_get_lowest_attachment(ObjectRef object_ref, bool non_item );
 
 egolib_rv game_copy_imports( import_list_t * imp_lst );
 
@@ -489,7 +496,7 @@ void   game_update_timers();
 struct wawalite_data_t * read_wawalite_vfs();
 bool write_wawalite_vfs( const wawalite_data_t * pdata );
 bool wawalite_finalize( wawalite_data_t * pdata );
-void   upload_wawalite();
+void upload_wawalite();
 
 // Mesh query.
 float get_chr_level(ego_mesh_t *mesh, Object *object);

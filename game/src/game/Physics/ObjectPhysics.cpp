@@ -24,413 +24,21 @@
 #include "game/Entities/_Include.hpp"
 #include "game/Physics/ObjectPhysics.h"
 #include "game/Core/GameEngine.hpp"
-
-#include "game/game.h" //TODO: Remove (only for LATCHBUTTON_JUMP)
-#include "egolib/Graphics/ModelDescriptor.hpp" //TODO: Remove (only for latches)
-#include "game/renderer_2d.h" //TODO: Remove (only for latches)
+#include "game/game.h" //TODO: only for latches
+#include "egolib/Graphics/ModelDescriptor.hpp"
 
 namespace Ego
 {
 namespace Physics
 {
 
-static constexpr float MAX_DISPLACEMENT_XY = 20.0f;     //< Max velocity correction due to being inside a wall
-
-//ZF> TODO: These have nothing to do with Physics, move elsewhere
-static bool chr_do_latch_button( Object * pchr );
-static bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
-
-static bool chr_do_latch_button( Object * pchr )
-{
-    /// @author BB
-    /// @details Character latches for generalized buttons
-
-    if (!pchr || pchr->isTerminated()) return false;
-    auto ichr = pchr->getObjRef();
-
-    if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;
-
-    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
-
-    if ( pchr->latch.b[LATCHBUTTON_JUMP] && 0 == pchr->jump_timer )
-    {
-
-        //Jump from our mount
-        if (pchr->isBeingHeld())
-        {
-            pchr->detatchFromHolder(true, true);
-            pchr->getObjectPhysics().detachFromPlatform(pchr);
-
-            pchr->jump_timer = JUMPDELAY;
-            if ( pchr->isFlying() )
-            {
-                pchr->vel[kZ] += DISMOUNTZVELFLY;
-            }
-            else
-            {
-                pchr->vel[kZ] += DISMOUNTZVEL;
-            }
-
-            pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel[kZ]);
-
-            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE && 0 != pchr->jumpnumber ) {
-                pchr->jumpnumber--;
-            }
-
-            // Play the jump sound
-            AudioSystem::get().playSound(pchr->getPosition(), profile->getJumpSound());
-        }
-
-        //Normal jump
-        else if ( 0 != pchr->jumpnumber && !pchr->isFlying() )
-        {
-            if (1 != pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) || pchr->jumpready)
-            {
-                //Exit stealth unless character has Stalker Perk
-                if(!pchr->hasPerk(Ego::Perks::STALKER)) {
-                    pchr->deactivateStealth();
-                }
-
-                // Make the character jump
-                float jumpPower = 0.0f;
-                pchr->hitready = true;
-                if (pchr->enviro.inwater || pchr->enviro.is_slippy)
-                {
-                    pchr->jump_timer = JUMPDELAY * 4;         //To prevent 'bunny jumping' in water
-                    jumpPower = WATERJUMP;
-                }
-                else
-                {
-                    pchr->jump_timer = JUMPDELAY;
-                    jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
-                }
-
-                pchr->vel[kZ] += jumpPower;
-                pchr->jumpready = false;
-
-                if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE) { 
-                    pchr->jumpnumber--;
-                }
-
-                // Set to jump animation if not doing anything better
-                if ( pchr->inst.action_ready )
-                {
-                    chr_play_action( pchr, ACTION_JA, true );
-                }
-
-                // Play the jump sound (Boing!)
-                AudioSystem::get().playSound(pchr->getPosition(), profile->getJumpSound());
-            }
-        }
-
-    }
-    if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = PACKDELAY;
-        Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
-    }
-    if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = PACKDELAY;
-        Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
-    }
-
-    if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
-    {
-        pchr->reload_timer = GRABDELAY;
-        if ( !pchr->getLeftHandItem() )
-        {
-            // Grab left
-            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_ME)) {
-                //No grab animation valid
-                character_grab_stuff( ichr, GRIP_LEFT, false );
-            }
-            else {
-                chr_play_action( pchr, ACTION_ME, false );
-            }
-        }
-        else
-        {
-            // Drop left
-            chr_play_action( pchr, ACTION_MA, false );
-        }
-    }
-    if ( pchr->latch.b[LATCHBUTTON_ALTRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
-
-        pchr->reload_timer = GRABDELAY;
-        if ( !pchr->getRightHandItem() )
-        {
-            // Grab right
-            if(!pchr->getProfile()->getModel()->isActionValid(ACTION_MF)) {
-                //No grab animation valid
-                character_grab_stuff( ichr, GRIP_RIGHT, false );
-            }
-            else {
-                chr_play_action( pchr, ACTION_MF, false );
-            }
-        }
-        else
-        {
-            // Drop right
-            chr_play_action( pchr, ACTION_MB, false );
-        }
-    }
-
-    // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
-    bool attack_handled = false;
-    if ( !attack_handled && pchr->latch.b[LATCHBUTTON_LEFT] && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_LEFT;
-        attack_handled = chr_do_latch_attack( pchr, SLOT_LEFT );
-    }
-    if ( !attack_handled && pchr->latch.b[LATCHBUTTON_RIGHT] && 0 == pchr->reload_timer )
-    {
-        //pchr->latch.b &= ~LATCHBUTTON_RIGHT;
-
-        attack_handled = chr_do_latch_attack( pchr, SLOT_RIGHT );
-    }
-
-    return true;
-}
-
-static bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
-{
-    int base_action, hand_action, action;
-    bool action_valid, allowedtoattack;
-
-    bool retval = false;
-
-    if (!pchr || pchr->isTerminated()) return false;
-    auto iobj = GET_INDEX_PCHR( pchr );
-
-
-    if (which_slot >= SLOT_COUNT) return false;
-
-    // Which iweapon?
-    auto iweapon = pchr->holdingwhich[which_slot];
-    if ( !_currentModule->getObjectHandler().exists( iweapon ) )
-    {
-        // Unarmed means object itself is the weapon
-        iweapon = iobj;
-    }
-    Object *pweapon = _currentModule->getObjectHandler().get(iweapon);
-    const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
-
-    // No need to continue if we have an attack cooldown
-    if ( 0 != pweapon->reload_timer ) return false;
-
-    // grab the iweapon's action
-    base_action = weaponProfile->getWeaponAction();
-    hand_action = pchr->getProfile()->getModel()->randomizeAction( base_action, which_slot );
-
-    // see if the character can play this action
-    action       = pchr->getProfile()->getModel()->getAction(hand_action);
-    action_valid = ACTION_COUNT != action;
-
-    // Can it do it?
-    allowedtoattack = true;
-
-    // First check if reload time and action is okay
-    if ( !action_valid )
-    {
-        allowedtoattack = false;
-    }
-    else
-    {
-        // Then check if a skill is needed
-        if ( weaponProfile->requiresSkillIDToUse() )
-        {
-            if (!pchr->hasSkillIDSZ(pweapon->getProfile()->getIDSZ(IDSZ_SKILL)))
-            {
-                allowedtoattack = false;
-            }
-        }
-    }
-
-    // Don't allow users with kursed weapon in the other hand to use longbows
-    if ( allowedtoattack && ACTION_IS_TYPE( action, L ) )
-    {
-        const std::shared_ptr<Object> &offhandItem = which_slot == SLOT_LEFT ? pchr->getLeftHandItem() : pchr->getRightHandItem();
-        if(offhandItem && offhandItem->iskursed) allowedtoattack = false;
-    }
-
-    if ( !allowedtoattack )
-    {
-        // This character can't use this iweapon
-        pweapon->reload_timer = ONESECOND;
-        if (pchr->getShowStatus() || egoboo_config_t::get().debug_developerMode_enable.getValue())
-        {
-            // Tell the player that they can't use this iweapon
-            DisplayMsg_printf( "%s can't use this item...", pchr->getName(false, true, true).c_str());
-        }
-        return false;
-    }
-
-    if ( ACTION_DA == action )
-    {
-        allowedtoattack = false;
-        if ( 0 == pweapon->reload_timer )
-        {
-            SET_BIT( pweapon->ai.alert, ALERTIF_USED );
-        }
-    }
-
-    // deal with your mount (which could steal your attack)
-    if ( allowedtoattack )
-    {
-        // Rearing mount
-        const std::shared_ptr<Object> &pmount = _currentModule->getObjectHandler()[pchr->attachedto];
-
-        if (pmount)
-        {
-            const std::shared_ptr<ObjectProfile> &mountProfile = pmount->getProfile();
-
-            // let the mount steal the rider's attack
-            if (!mountProfile->riderCanAttack()) allowedtoattack = false;
-
-            // can the mount do anything?
-            if ( pmount->isMount() && pmount->isAlive() )
-            {
-                // can the mount be told what to do?
-                if ( !pmount->isPlayer() && pmount->inst.action_ready )
-                {
-                    if ( !ACTION_IS_TYPE( action, P ) || !mountProfile->riderCanAttack() )
-                    {
-                        chr_play_action( pmount.get(), Random::next((int)ACTION_UA, ACTION_UA + 1), false );
-                        SET_BIT( pmount->ai.alert, ALERTIF_USED );
-                        pchr->ai.lastitemused = pmount->getObjRef();
-
-                        retval = true;
-                    }
-                }
-            }
-        }
-    }
-
-    // Attack button
-    if ( allowedtoattack )
-    {
-        //Attacking or using an item disables stealth
-        pchr->deactivateStealth();
-
-        if ( pchr->inst.action_ready && action_valid )
-        {
-            //Check if we are attacking unarmed and cost mana to do so
-            if(iweapon == pchr->getObjRef())
-            {
-                if(pchr->getProfile()->getUseManaCost() <= pchr->getMana())
-                {
-                    pchr->costMana(pchr->getProfile()->getUseManaCost(), pchr->getObjRef());
-                }
-                else
-                {
-                    allowedtoattack = false;
-                }
-            }
-
-            if(allowedtoattack)
-            {
-                // randomize the action
-                action = pchr->getProfile()->getModel()->randomizeAction( action, which_slot );
-
-                // make sure it is valid
-                action = pchr->getProfile()->getModel()->getAction(action);
-
-                if ( ACTION_IS_TYPE( action, P ) )
-                {
-                    // we must set parry actions to be interrupted by anything
-                    chr_play_action( pchr, action, true );
-                }
-                else
-                {
-                    float agility = pchr->getAttribute(Ego::Attribute::AGILITY);
-
-                    chr_play_action( pchr, action, false );
-
-                    // Make the weapon animate the attack as well as the character holding it
-                    if (iweapon != iobj)
-                    {
-                        chr_play_action(pweapon, ACTION_MJ, false);
-                    }
-
-                    //Crossbow Mastery increases XBow attack speed by 30%
-                    if(pchr->hasPerk(Ego::Perks::CROSSBOW_MASTERY) && 
-                       pweapon->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('X','B','O','W')) {
-                        agility *= 1.30f;
-                    }
-
-                    //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.rate  = 0.80f;                                 //base attack speed
-                    pchr->inst.rate += std::min(3.00f, agility * 0.02f);      //every Agility increases base attack speed by 2%
-
-                    //If Quick Strike perk triggers then we have fastest possible attack (10% chance)
-                    if(pchr->hasPerk(Ego::Perks::QUICK_STRIKE) && pweapon->getProfile()->isMeleeWeapon() && Random::getPercent() <= 10) {
-                        pchr->inst.rate = 3.00f;
-                        chr_make_text_billboard(pchr->getObjRef(), "Quick Strike!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::blue(), 3, Billboard::Flags::All);
-                    }
-
-                    //Add some reload time as a true limit to attacks per second
-                    //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
-                    //reduce reload time for spells or gonnes here.
-                    else if ( !weaponProfile->hasFastAttack() )
-                    {
-                        int base_reload_time = -agility;
-                        if ( ACTION_IS_TYPE( action, U ) )      base_reload_time += 50;     //Unarmed  (Fists)
-                        else if ( ACTION_IS_TYPE( action, T ) ) base_reload_time += 55;     //Thrust   (Spear)
-                        else if ( ACTION_IS_TYPE( action, C ) ) base_reload_time += 85;     //Chop     (Axe)
-                        else if ( ACTION_IS_TYPE( action, S ) ) base_reload_time += 65;     //Slice    (Sword)
-                        else if ( ACTION_IS_TYPE( action, B ) ) base_reload_time += 70;     //Bash     (Mace)
-                        else if ( ACTION_IS_TYPE( action, L ) ) base_reload_time += 60;     //Longbow  (Longbow)
-                        else if ( ACTION_IS_TYPE( action, X ) ) base_reload_time += 130;    //Xbow     (Crossbow)
-                        else if ( ACTION_IS_TYPE( action, F ) ) base_reload_time += 60;     //Flinged  (Unused)
-
-                        //it is possible to have so high dex to eliminate all reload time
-                        if ( base_reload_time > 0 ) pweapon->reload_timer += base_reload_time;
-                    }
-                }
-
-                // let everyone know what we did
-                pchr->ai.lastitemused = iweapon;
-
-                /// @note ZF@> why should there any reason the weapon should NOT be alerted when it is used?
-                // grab the MADFX_* flags for this action
-//                BIT_FIELD action_madfx = getProfile()->getModel()->getActionFX(action);
-//                if ( iweapon == ichr || HAS_NO_BITS( action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
-                {
-                    SET_BIT( pweapon->ai.alert, ALERTIF_USED );
-                }
-
-                retval = true;
-            }
-        }
-    }
-
-    //Reset boredom timer if the attack succeeded
-    if ( retval )
-    {
-        pchr->bore_timer = BORETIME;
-    }
-
-    return retval;
-}
-
 void ObjectPhysics::keepItemsWithHolder(const std::shared_ptr<Object> &pchr)
 {
-    /// @author ZZ
-    /// @details This function keeps weapons near their holders
-
-    //Ignore invalid objects
-    if(!pchr || pchr->isTerminated()) {
-        return;
-    }
-
-   const std::shared_ptr<Object> &holder = pchr->getHolder();
+    const std::shared_ptr<Object> &holder = pchr->getHolder();
     if (holder)
     {
         // Keep in hand weapons with iattached
-        if ( chr_matrix_valid( pchr.get() ) )
+        if ( chr_matrix_valid(pchr.get()) )
         {
             pchr->setPosition(mat_getTranslate(pchr->inst.matrix));
         }
@@ -564,24 +172,15 @@ void ObjectPhysics::updateMovement(const std::shared_ptr<Object> &object)
     }
 }
 
-void ObjectPhysics::updateFriction(const std::shared_ptr<Object> &pchr)
+void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
 {
-    //Apply air/water friction
-    //pchr->vel[kX] -= pchr->vel[kX] * (1.0f - pchr->enviro.fluid_friction_hrz);
-    //pchr->vel[kY] -= pchr->vel[kY] * (1.0f - pchr->enviro.fluid_friction_hrz);
-    //pchr->vel[kZ] -= pchr->vel[kZ] * (1.0f - pchr->enviro.fluid_friction_vrt);
-
     //This makes it hard for characters to jump uphill
-    if(pchr->vel[kZ] > 0.0f && pchr->enviro.is_slippy && !g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
-        pchr->vel[kZ] *= 0.8f;
+    if(pchr->vel.z() > 0.0f && pchr->enviro.is_slippy && !g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
+        pchr->vel.z() *= 0.8f;
     }
 
-    //Only do floor friction if we are touching the ground
+    //Only slide if we are touching the floor
     if(pchr->enviro.grounded) {
-
-        //Apply floor friction
-        //pchr->vel[kX] *= pchr->enviro.friction_hrz;
-        //pchr->vel[kY] *= pchr->enviro.friction_hrz;
 
         //Can the character slide on this floor?
         if (pchr->enviro.is_slippy && !_currentModule->getObjectHandler()[pchr->onwhichplatform_ref])
@@ -589,8 +188,8 @@ void ObjectPhysics::updateFriction(const std::shared_ptr<Object> &pchr)
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
                 const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - pchr->enviro.zlerp) * (1.0f - pchr->enviro._traction);
-                pchr->vel[kX] += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kX] * hillslide;
-                pchr->vel[kY] += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist][kY] * hillslide;
+                pchr->vel.x() += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist].x() * hillslide;
+                pchr->vel.y() += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist].y() * hillslide;
 
                 //Reduce traction while we are sliding downhill
                 pchr->enviro._traction *= 0.8f;
@@ -623,6 +222,7 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
     //Is this character being held by another character?
     if(pchr->isBeingHeld()) {
         keepItemsWithHolder(pchr);
+        move_one_character_do_animation(pchr.get());
         return;
     }
 
@@ -637,7 +237,7 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
     chr_do_latch_button(pchr.get());
 
     // do friction with the floor before voluntary motion
-    updateFriction(pchr);
+    updateHillslide(pchr);
 
     updateMovement(pchr);
 
@@ -645,10 +245,10 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
 
     //Apply gravity
     if(!pchr->isFlying()) {
-        pchr->vel[kZ] += pchr->enviro.zlerp * Ego::Physics::g_environment.gravity;
+        pchr->vel.z() += pchr->enviro.zlerp * Ego::Physics::g_environment.gravity;
     }
     else {
-        pchr->vel[kZ] += (pchr->enviro.fly_level + pchr->getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - pchr->getPosZ()) * FLYDAMPEN;
+        pchr->vel.z() += (pchr->enviro.fly_level + pchr->getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - pchr->getPosZ()) * FLYDAMPEN;
     }
 
     updateMeshCollision(pchr);
