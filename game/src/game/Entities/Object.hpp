@@ -67,13 +67,8 @@ struct chr_environment_t
         is_slippy(false),
         is_watery(false),
         ice_friction(0.0f),
-        fluid_friction_hrz(0.0f),
-        fluid_friction_vrt(0.0f),
-        friction_hrz(0.0f),
         inwater(false),
-        grounded(true),
-        acc(),
-        vel()
+        grounded(true)
     {
         //ctor
     }
@@ -96,16 +91,10 @@ struct chr_environment_t
     bool is_slipping;
     bool is_slippy,    is_watery;
     float  ice_friction;
-    float  fluid_friction_hrz, fluid_friction_vrt;
-    float  friction_hrz;
 
     // misc states
     bool inwater;
     bool grounded;              ///< standing on something?
-
-    // various motion parameters
-    Vector3f  acc;
-    Vector3f  vel;
 };
 
 /// the data used to define the spawning of a character

@@ -48,7 +48,7 @@ static constexpr float DEFAULT_SLIPPY_GROUND_FRICTION = 1.00f;
 ///        set.
 static constexpr float DEFAULT_GROUND_FRICTION = 0.91f;
 
-static constexpr float DEFAULT_ICE_FRICTION = 0.9738f;
+static constexpr float DEFAULT_ICE_FRICTION = 0.8f;
 
 static constexpr float STOP_BOUNCING = 8.00f;        ///< To make objects stop bouncing
 

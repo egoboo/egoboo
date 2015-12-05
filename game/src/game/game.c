@@ -3684,17 +3684,14 @@ bool chr_do_latch_button( Object * pchr )
                 }
 
                 // Make the character jump
-                float jumpPower = 0.0f;
+                float jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
                 pchr->hitready = true;
-                if (pchr->enviro.inwater || pchr->enviro.is_slippy)
-                {
-                    pchr->jump_timer = JUMPDELAY * 4;         //To prevent 'bunny jumping' in water
-                    jumpPower = WATERJUMP;
-                }
-                else
-                {
-                    pchr->jump_timer = JUMPDELAY;
-                    jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
+                pchr->jump_timer = JUMPDELAY;
+
+                //To prevent 'bunny jumping' in water
+                if (pchr->enviro.inwater || pchr->enviro.is_slippy) {
+                    pchr->jump_timer *= 4;         
+                    jumpPower *= 0.5f;
                 }
 
                 pchr->vel[kZ] += jumpPower;

@@ -107,47 +107,6 @@ void move_one_character_get_environment( Object * pchr )
     enviro.is_watery = water._is_water && enviro.inwater;
     enviro.is_slippy = !enviro.is_watery && ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_SLIPPY ) );
 
-    //---- the friction of the fluid we are in
-    if (enviro.is_watery)
-    {
-        //Athletics perk halves penality for moving in water
-        if(pchr->hasPerk(Ego::Perks::ATHLETICS)) {
-            enviro.fluid_friction_vrt  = (Ego::Physics::g_environment.waterfriction + Ego::Physics::g_environment.airfriction)*0.5f;
-            enviro.fluid_friction_hrz  = (Ego::Physics::g_environment.waterfriction + Ego::Physics::g_environment.airfriction)*0.5f;
-        }
-        else {
-            enviro.fluid_friction_vrt = Ego::Physics::g_environment.waterfriction;
-            enviro.fluid_friction_hrz = Ego::Physics::g_environment.waterfriction;            
-        }
-    }
-    else if (pplatform)
-    {
-        enviro.fluid_friction_hrz = 1.0f;
-        enviro.fluid_friction_vrt = 1.0f;
-    }
-    else
-    {
-        // like real-life air friction
-        enviro.fluid_friction_hrz = Ego::Physics::g_environment.airfriction;
-        enviro.fluid_friction_vrt = Ego::Physics::g_environment.airfriction;            
-    }
-
-    //---- friction
-    if (pchr->isFlying())
-    {
-        if ( pchr->platform )
-        {
-            // override the z friction for platforms.
-            // friction in the z direction will make the bouncing stop
-            enviro.fluid_friction_vrt = 1.0f;
-        }
-        enviro.friction_hrz = 1.0f;
-    }
-    else
-    {
-        enviro.friction_hrz = enviro.zlerp * 1.0f + (1.0f - enviro.zlerp) * Ego::Physics::g_environment.noslipfriction;
-    }
-
     //---- jump stuff
     if ( pchr->isFlying() )
     {

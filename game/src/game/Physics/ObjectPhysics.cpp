@@ -152,9 +152,7 @@ void ObjectPhysics::updateMovement(const std::shared_ptr<Object> &object)
     acceleration.y() = (_desiredVelocity.y() - object->vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
 
     //How good grip do we have to add additional momentum?
-    if (object->enviro.grounded) {
-        acceleration *= _traction;
-    }
+    acceleration *= _traction;
 
     //Finally apply acceleration to velocity
     object->vel.x() += acceleration.x();
@@ -184,10 +182,8 @@ void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
                 _traction *= 0.8f;
             }
             else {
-                //TODO: flat icy floor?
-
-                //Reset traction
-                _traction = 1.0f;
+                //Flat icy floor -> reduced traction
+                _traction = 1.0f - Ego::Physics::g_environment.icefriction;
             }
         }
         else {
@@ -214,10 +210,6 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
         move_one_character_do_animation(pchr.get());
         return;
     }
-
-    // save the velocity and acceleration from the last time-step
-    pchr->enviro.vel = pchr->getPosition() - pchr->getOldPosition();
-    pchr->enviro.acc = pchr->vel - pchr->vel_old;
 
     // Character's old location
     pchr->vel_old          = pchr->vel;
