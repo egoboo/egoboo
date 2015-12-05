@@ -277,6 +277,16 @@ float ObjectPhysics::getMaxSpeed(Object *object) const
     //Now apply speed modifiers
     maxspeed *= speedBonus;
 
+    //Are we in water?
+    if(object->isInWater(true)) {
+        if(object->hasPerk(Ego::Perks::ATHLETICS)) {
+            maxspeed *= 0.25f; //With athletics perk we can have three-quarters speed
+        }
+        else {
+            maxspeed *= 0.5f; //Half speed in water
+        }
+    }
+
     //Check animation frame freeze movement
     if ( chr_instance_t::get_framefx(object->inst) & MADFX_STOP )
     {
