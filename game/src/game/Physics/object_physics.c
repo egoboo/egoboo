@@ -385,7 +385,7 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
         // NOTE: this is not corerect since it could alert a player to an invisible object
 
         // 5 seconds and blue
-        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 3, Billboard::Flags::Fade );
+        BillboardSystem::get().makeBillboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 3, Billboard::Flags::Fade );
 
         retval = true;
     }
@@ -439,12 +439,12 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
                 if (!grabData.visible)
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, Billboard::Flags::Fade );
+                    BillboardSystem::get().makeBillboard( ichr_b, "Something...", color_blu, default_tint, 3, Billboard::Flags::Fade );
                 }
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 3, Billboard::Flags::Fade );
+                    BillboardSystem::get().makeBillboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 3, Billboard::Flags::Fade );
                 }
             }
 
@@ -455,12 +455,12 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
                 if (!grabData.visible)
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, Billboard::Flags::Fade );
+                    BillboardSystem::get().makeBillboard( ichr_b, "Something...", color_blu, default_tint, 3, Billboard::Flags::Fade );
                 }
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 3, Billboard::Flags::Fade );
+                    BillboardSystem::get().makeBillboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 3, Billboard::Flags::Fade );
                 }
             }
         }

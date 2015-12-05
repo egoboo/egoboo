@@ -809,7 +809,7 @@ public:
 
     void dropAllItems();
 
-    const oglx_texture_t* getIcon() const;
+    const Ego::OpenGL::Texture* getIcon() const;
 
 private:
 

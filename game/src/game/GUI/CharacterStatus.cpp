@@ -43,10 +43,10 @@ void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, flo
 	///     If the object is invalid, draw the null icon instead of failing
 	///     If NOSPARKLE is specified the default item sparkle will be used (default behaviour)
 
-	Object * pitem = !_currentModule->getObjectHandler().exists(item) ? NULL : _currentModule->getObjectHandler().get(item);
+	Object * pitem = _currentModule->getObjectHandler().get(item);
 
 	// grab the icon reference
-	const oglx_texture_t* icon_ref = pitem->getIcon();
+	const Ego::OpenGL::Texture* icon_ref = (pitem != nullptr) ? pitem->getIcon() : TextureManager::get().getTexture("mp_data/nullicon").get();
 
 	// draw the icon
 	if (draw_sparkle == NOSPARKLE) draw_sparkle = (NULL == pitem) ? NOSPARKLE : pitem->sparkle;
