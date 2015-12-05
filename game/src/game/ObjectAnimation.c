@@ -299,7 +299,7 @@ float set_character_animation_rate( Object * pchr )
     else
     {
         // For non-flying objects, we use the intended speed.
-        speed = Vector2f(pchr->vel[kX], pchr->vel[kY]).length();
+        speed = pchr->getObjectPhysics().getDesiredVelocity().length();
         if ( pchr->enviro.is_slippy )
         {
             // The character is slipping as on ice.

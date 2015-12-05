@@ -55,6 +55,12 @@ public:
 
     bool attachToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform);
 
+    /**
+    * @return
+    *   Vector containing the desired XY velocity of the object
+    **/
+    const Vector2f& getDesiredVelocity() const;
+
 private:
     void updateMovement(const std::shared_ptr<Object> &object);
     
@@ -68,7 +74,7 @@ private:
     * @brief
     *   This updates which way the Object is looking based on movement
     **/
-    void updateFacing(const std::shared_ptr<Object> &pchr, const Vector2f &desiredVelocity);
+    void updateFacing(const std::shared_ptr<Object> &pchr);
 
     /**
     * @return
@@ -99,6 +105,8 @@ private:
     static constexpr float MAX_DISPLACEMENT_XY = 20.0f;     //< Max velocity correction due to being inside a wall
 
     Vector2f _platformOffset;
+    Vector2f _desiredVelocity;
+    float _traction;
 };
 
 } //Physics

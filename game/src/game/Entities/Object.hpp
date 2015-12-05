@@ -70,7 +70,6 @@ struct chr_environment_t
         fluid_friction_hrz(0.0f),
         fluid_friction_vrt(0.0f),
         friction_hrz(0.0f),
-        _traction(1.0f),
         inwater(false),
         grounded(true),
         acc(),
@@ -99,7 +98,6 @@ struct chr_environment_t
     float  ice_friction;
     float  fluid_friction_hrz, fluid_friction_vrt;
     float  friction_hrz;
-    float _traction;
 
     // misc states
     bool inwater;

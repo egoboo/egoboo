@@ -32,6 +32,14 @@ namespace Ego
 namespace Physics
 {
 
+ObjectPhysics::ObjectPhysics() :
+    _platformOffset(0.0f, 0.0f),
+    _desiredVelocity(0.0f, 0.0f),
+    _traction(1.0f)
+{
+    //ctor
+}
+
 void ObjectPhysics::keepItemsWithHolder(const std::shared_ptr<Object> &pchr)
 {
     const std::shared_ptr<Object> &holder = pchr->getHolder();
@@ -96,80 +104,61 @@ void ObjectPhysics::keepItemsWithHolder(const std::shared_ptr<Object> &pchr)
     }
 }
 
-ObjectPhysics::ObjectPhysics() :
-    _platformOffset(0.0f, 0.0f)
-{
-    //ctor
-}
-
 void ObjectPhysics::updateMovement(const std::shared_ptr<Object> &object)
 {
-    //Mounted?
-    if (object->isBeingHeld()) {
-        return;
-    }
-
     //Desired velocity in scaled space [-1 , 1]
-    Vector2f targetVelocity = Vector2f(0.0f, 0.0f);
+    _desiredVelocity = Vector2f(0.0f, 0.0f);
 
     //Can it move?
     if (object->isAlive() && object->getAttribute(Ego::Attribute::ACCELERATION) > 0.0f)  {
-        targetVelocity[kX] = object->latch.x;
-        targetVelocity[kY] = object->latch.y;
+        _desiredVelocity[kX] = object->latch.x;
+        _desiredVelocity[kY] = object->latch.y;
 
         // Reverse movements for daze
         if (object->daze_timer > 0) {
-            targetVelocity[kX] = -targetVelocity[kX];
-            targetVelocity[kY] = -targetVelocity[kY];
+            _desiredVelocity[kX] = -_desiredVelocity[kX];
+            _desiredVelocity[kY] = -_desiredVelocity[kY];
         }
 
         // Switch x and y for grog
         if (object->grog_timer > 0) {
-            std::swap(targetVelocity[kX], targetVelocity[kY]);
+            std::swap(_desiredVelocity[kX], _desiredVelocity[kY]);
         }
 
         //Update which way we are looking
-        updateFacing(object, targetVelocity);
+        updateFacing(object);
     }
 
     //Is there any movement going on?
-    if(targetVelocity.length_abs() > 0.05f) {
+    if(_desiredVelocity.length_abs() > 0.05f) {
         const float maxSpeed = getMaxSpeed(object.get());
 
         //Scale [-1 , 1] to velocity of the object
-        targetVelocity *= maxSpeed;
+        _desiredVelocity *= maxSpeed;
 
         //Limit to max velocity
-        if(targetVelocity.length() > maxSpeed) {
-            targetVelocity *= maxSpeed / targetVelocity.length();
+        if(_desiredVelocity.length() > maxSpeed) {
+            _desiredVelocity *= maxSpeed / _desiredVelocity.length();
         }
     }
     else {
-        if (!object->getAttachedPlatform())
-        {
-            //Try to stand still
-            targetVelocity.setZero();
-        }
+        //Try to stand still
+        _desiredVelocity.setZero();
     }
 
     //Determine acceleration/deceleration
     Vector2f acceleration;
-    acceleration[kX] = (targetVelocity[kX] - object->vel[kX]) * (4.0f / GameEngine::GAME_TARGET_UPS);
-    acceleration[kY] = (targetVelocity[kY] - object->vel[kY]) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.x() = (_desiredVelocity.x() - object->vel.x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.y() = (_desiredVelocity.y() - object->vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
 
     //How good grip do we have to add additional momentum?
-    if (object->enviro.grounded)
-    {
-        acceleration *= object->enviro._traction;
+    if (object->enviro.grounded) {
+        acceleration *= _traction;
     }
 
     //Finally apply acceleration to velocity
-    object->vel[kX] += acceleration[kX];
-    object->vel[kY] += acceleration[kY];
-
-    if(object->getAttachedPlatform() != nullptr) {
-        _platformOffset += acceleration;
-    }
+    object->vel.x() += acceleration.x();
+    object->vel.y() += acceleration.y();
 }
 
 void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
@@ -187,23 +176,23 @@ void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
         {
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
-                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - pchr->enviro.zlerp) * (1.0f - pchr->enviro._traction);
+                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - pchr->enviro.zlerp) * (1.0f - _traction);
                 pchr->vel.x() += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist].x() * hillslide;
                 pchr->vel.y() += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist].y() * hillslide;
 
                 //Reduce traction while we are sliding downhill
-                pchr->enviro._traction *= 0.8f;
+                _traction *= 0.8f;
             }
             else {
                 //TODO: flat icy floor?
 
                 //Reset traction
-                pchr->enviro._traction = 1.0f;
+                _traction = 1.0f;
             }
         }
         else {
             //Reset traction
-            pchr->enviro._traction = 1.0f;
+            _traction = 1.0f;
         }
     }
 }
@@ -343,7 +332,7 @@ float ObjectPhysics::getMaxSpeed(Object *object) const
     return maxspeed;    
 }
 
-void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr, const Vector2f &desiredVelocity)
+void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr)
 {
     //Figure out how to turn around
     switch ( pchr->turnmode )
@@ -352,17 +341,17 @@ void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr, const Vect
         default:
         case TURNMODE_VELOCITY:
             {
-                if (desiredVelocity.length_abs() > TURNSPD)
+                if (_desiredVelocity.length_abs() > TURNSPD)
                 {
                     if (pchr->isPlayer())
                     {
                         // Players turn quickly
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(desiredVelocity[kX], desiredVelocity[kY]), 2 );
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 2 );
                     }
                     else
                     {
                         // AI turn slowly
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(desiredVelocity[kX], desiredVelocity[kY]), 8 );
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 );
                     }
                 }
             }
@@ -371,9 +360,9 @@ void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr, const Vect
         // Get direction from the DESIRED change in velocity
         case TURNMODE_WATCH:
             {
-                if (desiredVelocity.length_abs() > WATCHMIN )
+                if (_desiredVelocity.length_abs() > WATCHMIN )
                 {
-                    pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(desiredVelocity[kX], desiredVelocity[kY]), 8 );
+                    pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 );
                 }
             }
             break;
@@ -436,8 +425,14 @@ bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &object, cons
     _platformOffset.x() = object->getPosX() - platform->getPosX();
     _platformOffset.y() = object->getPosY() - platform->getPosY();
 
+    //Make sure the object is now on top of the platform
+    const float platformElevation = platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z];
+    if(object->getPosZ() < platformElevation) {
+        object->setPosition(object->getPosX(), object->getPosY(), platformElevation);
+    }
+
     // update the character's relationship to the ground
-    object->enviro.level     = std::max(object->enviro.floor_level, platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z]);
+    object->enviro.level     = std::max(object->enviro.floor_level, platformElevation);
     object->enviro.zlerp     = (object->getPosZ() - object->enviro.level) / PLATTOLERANCE;
     object->enviro.zlerp     = Ego::Math::constrain(object->enviro.zlerp, 0.0f, 1.0f);
     object->enviro.grounded  = !object->isFlying() && ( object->enviro.zlerp < 0.25f );
@@ -608,6 +603,11 @@ void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
             pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[pchr->enviro.grid_twist] * fnew;
         }
     }
+}
+
+const Vector2f& ObjectPhysics::getDesiredVelocity() const
+{
+    return _desiredVelocity;
 }
 
 } //Physics
