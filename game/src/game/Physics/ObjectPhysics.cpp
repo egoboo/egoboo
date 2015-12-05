@@ -170,7 +170,7 @@ void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
     if(pchr->enviro.grounded) {
 
         //Can the character slide on this floor?
-        if (pchr->enviro.is_slippy && !_currentModule->getObjectHandler()[pchr->onwhichplatform_ref])
+        if (pchr->enviro.is_slippy && !pchr->getAttachedPlatform())
         {
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
