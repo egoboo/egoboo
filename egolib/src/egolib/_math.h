@@ -40,11 +40,6 @@
 #    define LOG_NAN(XX)
 #endif
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 #define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
 
 //--------------------------------------------------------------------------------------------
@@ -132,6 +127,11 @@ inline float TurnsToRadians(float x) {
 #define TRIG_TABLE_SIZE   (1<<TRIG_TABLE_BITS)
 #define TRIG_TABLE_MASK   (TRIG_TABLE_SIZE-1)
 #define TRIG_TABLE_OFFSET (TRIG_TABLE_SIZE>>2)
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 
 /// @note - Aaron uses two terms without much attention to their meaning
 ///         I think that we should use "face" or "facing" to mean the fill 16-bit value
