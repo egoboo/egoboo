@@ -61,7 +61,14 @@ private:
     float getMaxSpeed(Object *object) const;
     void updateFacing(const std::shared_ptr<Object> &pchr, const Vector2f &desiredVelocity);
 
+    /// @author BB
+    /// @details Figure out the next position of the character.
+    ///    Include collisions with the mesh in this step.
+    void updateMeshCollision(const std::shared_ptr<Object> &pchr);
+
     void updatePlatformPhysics(const std::shared_ptr<Object> &object);
+
+    void keepItemsWithHolder(const std::shared_ptr<Object> &pchr);
 
 private:
     Vector2f _platformOffset;

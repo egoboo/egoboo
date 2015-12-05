@@ -40,10 +40,6 @@ static constexpr float MAX_DISPLACEMENT_XY = 20.0f;     //< Max velocity correct
 static bool chr_do_latch_button( Object * pchr );
 static bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
 
-//ZF> TODO: Port to c++
-static bool move_one_character_integrate_motion( Object * pchr );
-static void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr);
-
 static bool chr_do_latch_button( Object * pchr )
 {
     /// @author BB
@@ -420,127 +416,7 @@ static bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     return retval;
 }
 
-static bool move_one_character_integrate_motion( Object * pchr )
-{
-    /// @author BB
-    /// @details Figure out the next position of the character.
-    ///    Include collisions with the mesh in this step.
-
-    //Are we being held?
-    if (pchr->isBeingHeld())
-    {
-        //Always set our position to that of our holder
-        pchr->setPosition(_currentModule->getObjectHandler()[pchr->attachedto]->getPosition());
-        return true;
-    }
-
-    Vector3f tmp_pos = pchr->getPosition();;
-
-    // interaction with the mesh
-    //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
-    {
-        const float grid_level = pchr->enviro.floor_level + RAISE;
-
-        tmp_pos[kZ] += pchr->vel[kZ];
-        LOG_NAN( tmp_pos[kZ] );
-        if (tmp_pos[kZ] <= grid_level)
-        {
-            //We have hit the ground
-            if(!pchr->isFlying()) {
-                pchr->enviro.grounded = true;
-            }
-
-            if (std::abs(pchr->vel[kZ]) < Ego::Physics::STOP_BOUNCING)
-            {
-                pchr->vel[kZ] = 0.0f;
-                tmp_pos[kZ] = grid_level;
-            }
-            else
-            {
-                //Make it bounce!
-                if (pchr->vel[kZ] < 0.0f)
-                {
-                    float diff = grid_level - tmp_pos[kZ];
-
-                    pchr->vel[kZ] *= -pchr->phys.bumpdampen;
-                    diff          *= -pchr->phys.bumpdampen;
-
-                    tmp_pos[kZ] = std::max(tmp_pos[kZ] + diff, grid_level);
-                }
-                else
-                {
-                    tmp_pos[kZ] = grid_level;
-                }
-            }
-        }
-    }
-
-    // fixes to the z-position
-    if (pchr->isFlying())
-    {
-        // Don't fall in pits...
-        if (tmp_pos[kZ] < 0.0f) {
-            tmp_pos[kZ] = 0.0f;
-        }
-    }
-
-
-    //if (std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) > 0.0f)
-    {
-        float old_x = tmp_pos[kX]; LOG_NAN( old_x );
-        float old_y = tmp_pos[kY]; LOG_NAN( old_y );
-
-        float new_x = old_x + pchr->vel[kX]; LOG_NAN( new_x );
-        float new_y = old_y + pchr->vel[kY]; LOG_NAN( new_y );
-
-        tmp_pos[kX] = new_x;
-        tmp_pos[kY] = new_y;
-
-        //Wall collision?
-        if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos ) )
-        {            
-            Vector2f nrm;
-            float   pressure;
-
-            pchr->hit_wall(tmp_pos, nrm, &pressure );
-
-            // how is the character hitting the wall?
-            if (pressure > 0.0f)
-            {
-                tmp_pos[kX] -= pchr->vel[kX];
-                tmp_pos[kY] -= pchr->vel[kY];
-
-                const float bumpdampen = std::max(0.1f, 1.0f-pchr->phys.bumpdampen);
-
-                //Bounce velocity of normal
-                Vector2f velocity = Vector2f(pchr->vel[kX], pchr->vel[kY]);
-                velocity[kX] -= 2 * (nrm.dot(velocity) * nrm[kX]);
-                velocity[kY] -= 2 * (nrm.dot(velocity) * nrm[kY]);
-
-                pchr->vel[kX] = pchr->vel[kX] * bumpdampen + velocity[kX]*(1-bumpdampen);
-                pchr->vel[kY] = pchr->vel[kY] * bumpdampen + velocity[kY]*(1-bumpdampen);
-
-                //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float displacement = Vector2f(pchr->getSafePosition()[kX]-tmp_pos[kX], pchr->getSafePosition()[kY]-tmp_pos[kY]).length();
-                if(displacement > MAX_DISPLACEMENT_XY) {
-                    displacement = MAX_DISPLACEMENT_XY;
-                }
-                pchr->vel[kX] += displacement * bumpdampen * pressure * nrm[kX];
-                pchr->vel[kY] += displacement * bumpdampen * pressure * nrm[kY];
-
-                //Apply correction
-                tmp_pos[kX] += pchr->vel[kX];
-                tmp_pos[kY] += pchr->vel[kY];
-            }
-        }
-    }
-
-    pchr->setPosition(tmp_pos);
-
-    return true;
-}
-
-static void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
+void ObjectPhysics::keepItemsWithHolder(const std::shared_ptr<Object> &pchr)
 {
     /// @author ZZ
     /// @details This function keeps weapons near their holders
@@ -566,18 +442,18 @@ static void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
         pchr->ori.facing_z = holder->ori.facing_z;
 
         // Copy this stuff ONLY if it's a weapon, not for mounts
-        if ( holder->getProfile()->transferBlending() && pchr->isitem )
+        if (holder->getProfile()->transferBlending() && pchr->isItem())
         {
 
             // Items become partially invisible in hands of players
-            if ( holder->isPlayer() && 255 != holder->inst.alpha )
+            if (holder->isPlayer() && 255 != holder->inst.alpha)
             {
                 pchr->setAlpha(SEEINVISIBLE);
             }
             else
             {
                 // Only if not naturally transparent
-                if ( 255 == pchr->getProfile()->getAlpha() )
+                if (255 == pchr->getProfile()->getAlpha())
                 {
                     pchr->setAlpha(holder->inst.alpha);
                 }
@@ -588,14 +464,14 @@ static void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
             }
 
             // Do light too
-            if ( holder->isPlayer() && 255 != holder->inst.light )
+            if (holder->isPlayer() && 255 != holder->inst.light)
             {
                 pchr->setLight(SEEINVISIBLE);
             }
             else
             {
                 // Only if not naturally transparent
-                if ( 255 == pchr->getProfile()->getLight())
+                if (255 == pchr->getProfile()->getLight())
                 {
                     pchr->setLight(holder->inst.light);
                 }
@@ -609,12 +485,6 @@ static void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
     else
     {
         pchr->attachedto = ObjectRef::Invalid;
-
-        // Keep inventory items with the carrier
-        const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[pchr->inwhich_inventory];
-        if (inventoryHolder) {
-            pchr->setPosition(inventoryHolder->getPosition());
-        }
     }
 }
 
@@ -741,6 +611,13 @@ void ObjectPhysics::updateFriction(const std::shared_ptr<Object> &pchr)
 
 void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
 {
+    // Keep inventory items with the carrier
+    const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[pchr->inwhich_inventory];
+    if(inventoryHolder) {
+        pchr->setPosition(inventoryHolder->getPosition());
+        return;
+    }
+
     // save the velocity and acceleration from the last time-step
     pchr->enviro.vel = pchr->getPosition() - pchr->getOldPosition();
     pchr->enviro.acc = pchr->vel - pchr->vel_old;
@@ -749,9 +626,9 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
-    move_one_character_get_environment( pchr.get() );
+    move_one_character_get_environment(pchr.get());
 
-    chr_do_latch_button( pchr.get() );
+    chr_do_latch_button(pchr.get());
 
     // do friction with the floor before voluntary motion
     updateFriction(pchr);
@@ -768,14 +645,14 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
         pchr->vel[kZ] += (pchr->enviro.fly_level + pchr->getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - pchr->getPosZ()) * FLYDAMPEN;
     }
 
-    move_one_character_integrate_motion( pchr.get() );
+    updateMeshCollision(pchr);
 
     //Cutoff for low velocities to make them truly stop
     if(pchr->vel.length_abs() < 0.05f) {
         pchr->vel.setZero();
     }
 
-    move_one_character_do_animation( pchr.get() );
+    move_one_character_do_animation(pchr.get());
 
     // Characters with sticky butts lie on the surface of the mesh
     if ( pchr->getProfile()->hasStickyButt() || !pchr->isAlive() )
@@ -790,8 +667,8 @@ void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
         }
     }
 
-    keep_weapons_with_holder(pchr->getLeftHandItem());
-    keep_weapons_with_holder(pchr->getRightHandItem());
+    keepItemsWithHolder(pchr->getLeftHandItem());
+    keepItemsWithHolder(pchr->getRightHandItem());
 }
 
 float ObjectPhysics::getMaxSpeed(Object *object) const
@@ -1018,13 +895,126 @@ void ObjectPhysics::updatePlatformPhysics(const std::shared_ptr<Object> &object)
     int16_t rot_a = platform->ori.facing_z - platform->ori_old.facing_z;
     object->ori.facing_z += (rot_a - rot_b) * PLATFORM_STICKINESS;    
 
-    //Inherit platform XY velocity
-    //object->vel[kX] = object->getAttachedPlatform()->vel[kX];
-    //object->vel[kY] = object->getAttachedPlatform()->vel[kY];
+    //Allows movement on the platform
+    _platformOffset[kX] += object->vel[kX];
+    _platformOffset[kY] += object->vel[kY];
 
     //Inherit position of platform with given offsets
     float zCorrection = (object->enviro.level - object->getPosZ()) * 0.125f * lerp_z;
     object->setPosition(platform->getPosX() + _platformOffset[kX], platform->getPosY() + _platformOffset[kY], object->getPosZ() + zCorrection);
+}
+
+void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
+{
+    //Are we being held?
+    if (pchr->isBeingHeld())
+    {
+        //Always set our position to that of our holder
+        pchr->setPosition(pchr->getHolder()->getPosition());
+        return;
+    }
+
+    Vector3f tmp_pos = pchr->getPosition();;
+
+    // interaction with the mesh
+    //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
+    {
+        const float grid_level = pchr->enviro.floor_level + RAISE;
+
+        tmp_pos[kZ] += pchr->vel[kZ];
+        if (tmp_pos[kZ] <= grid_level)
+        {
+            //We have hit the ground
+            if(!pchr->isFlying()) {
+                pchr->enviro.grounded = true;
+            }
+
+            if (std::abs(pchr->vel[kZ]) < Ego::Physics::STOP_BOUNCING)
+            {
+                pchr->vel[kZ] = 0.0f;
+                tmp_pos[kZ] = grid_level;
+            }
+            else
+            {
+                //Make it bounce!
+                if (pchr->vel[kZ] < 0.0f)
+                {
+                    float diff = grid_level - tmp_pos[kZ];
+
+                    pchr->vel[kZ] *= -pchr->phys.bumpdampen;
+                    diff          *= -pchr->phys.bumpdampen;
+
+                    tmp_pos[kZ] = std::max(tmp_pos[kZ] + diff, grid_level);
+                }
+                else
+                {
+                    tmp_pos[kZ] = grid_level;
+                }
+            }
+        }
+    }
+
+    // fixes to the z-position
+    if (pchr->isFlying())
+    {
+        // Don't fall in pits...
+        if (tmp_pos[kZ] < 0.0f) {
+            tmp_pos[kZ] = 0.0f;
+        }
+    }
+
+
+    //if (std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) > 0.0f)
+    {
+        float old_x = tmp_pos[kX];
+        float old_y = tmp_pos[kY];
+
+        float new_x = old_x + pchr->vel[kX];
+        float new_y = old_y + pchr->vel[kY];
+
+        tmp_pos[kX] = new_x;
+        tmp_pos[kY] = new_y;
+
+        //Wall collision?
+        if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos ) )
+        {            
+            Vector2f nrm;
+            float   pressure;
+
+            pchr->hit_wall(tmp_pos, nrm, &pressure );
+
+            // how is the character hitting the wall?
+            if (pressure > 0.0f)
+            {
+                tmp_pos[kX] -= pchr->vel[kX];
+                tmp_pos[kY] -= pchr->vel[kY];
+
+                const float bumpdampen = std::max(0.1f, 1.0f-pchr->phys.bumpdampen);
+
+                //Bounce velocity of normal
+                Vector2f velocity = Vector2f(pchr->vel[kX], pchr->vel[kY]);
+                velocity[kX] -= 2 * (nrm.dot(velocity) * nrm[kX]);
+                velocity[kY] -= 2 * (nrm.dot(velocity) * nrm[kY]);
+
+                pchr->vel[kX] = pchr->vel[kX] * bumpdampen + velocity[kX]*(1-bumpdampen);
+                pchr->vel[kY] = pchr->vel[kY] * bumpdampen + velocity[kY]*(1-bumpdampen);
+
+                //Add additional pressure perpendicular from wall depending on how far inside wall we are
+                float displacement = Vector2f(pchr->getSafePosition()[kX]-tmp_pos[kX], pchr->getSafePosition()[kY]-tmp_pos[kY]).length();
+                if(displacement > MAX_DISPLACEMENT_XY) {
+                    displacement = MAX_DISPLACEMENT_XY;
+                }
+                pchr->vel[kX] += displacement * bumpdampen * pressure * nrm[kX];
+                pchr->vel[kY] += displacement * bumpdampen * pressure * nrm[kY];
+
+                //Apply correction
+                tmp_pos[kX] += pchr->vel[kX];
+                tmp_pos[kY] += pchr->vel[kY];
+            }
+        }
+    }
+
+    pchr->setPosition(tmp_pos);
 }
 
 } //Physics
