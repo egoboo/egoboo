@@ -1312,7 +1312,7 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
                 continue;
             } 
 
-            bool can_grab = can_grab_item_in_shop(ichr_a, grabData.object->getObjRef());
+            bool can_grab = Shop::canGrabItem(pchr_a, grabData.object);
 
             if ( can_grab )
             {

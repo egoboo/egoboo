@@ -293,6 +293,9 @@
     <ClCompile Include="src\game\Physics\particle_physics.c">
       <Filter>Game Sources\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Shop.cpp">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -552,6 +555,9 @@
     </ClInclude>
     <ClInclude Include="src\game\Physics\PhysicalConstants.hpp">
       <Filter>Game Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Shop.hpp">
+      <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

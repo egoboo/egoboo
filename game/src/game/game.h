@@ -25,6 +25,7 @@
 #include "game/mesh.h"
 #include "game/input.h"
 #include "game/Inventory.hpp"
+#include "game/Shop.hpp"
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of external structs
@@ -457,13 +458,6 @@ void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * 
 
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );
-
-bool do_shop_drop( ObjectRef idropper, ObjectRef iitem );
-
-bool do_shop_buy( ObjectRef ipicker, ObjectRef ichr );
-bool do_shop_steal( ObjectRef ithief, ObjectRef iitem );
-bool can_grab_item_in_shop( ObjectRef ichr, ObjectRef iitem );
-
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 

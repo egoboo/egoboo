@@ -1167,7 +1167,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     bool inshop = false;
     if ( doShop )
     {
-        inshop = do_shop_drop(holder, getObjRef());
+        inshop = Shop::drop(pholder, shared_from_this());
     }
 
     // Make sure it works right
