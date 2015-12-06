@@ -144,7 +144,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
 
     //Physics
-    _objectPhysics(),
+    _objectPhysics(*this),
 
     //Non-persistent variables
     _hasBeenKilled(false),
@@ -2253,7 +2253,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     if ( leftItem && ( !_profile->isSlotValid(SLOT_LEFT) || _profile->isMount() ) )
     {
         leftItem->detatchFromHolder(true, true);
-        leftItem->getObjectPhysics().detachFromPlatform(leftItem.get());
+        leftItem->getObjectPhysics().detachFromPlatform();
 
         if ( isMount() )
         {
@@ -2267,7 +2267,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     if ( rightItem && !_profile->isSlotValid(SLOT_RIGHT) )
     {
         rightItem->detatchFromHolder(true, true);
-        rightItem->getObjectPhysics().detachFromPlatform(rightItem.get());
+        rightItem->getObjectPhysics().detachFromPlatform();
 
         if ( isMount() )
         {

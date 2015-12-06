@@ -454,22 +454,22 @@ bool chr_handle_madfx( Object * pchr )
 
     if ( HAS_SOME_BITS( framefx, MADFX_GRABLEFT ) )
     {
-        character_grab_stuff( objRef, GRIP_LEFT, false );
+        pchr->getObjectPhysics().grabStuff(GRIP_LEFT, false);
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_GRABRIGHT ) )
     {
-        character_grab_stuff( objRef, GRIP_RIGHT, false );
+        pchr->getObjectPhysics().grabStuff(GRIP_RIGHT, false);
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_CHARLEFT ) )
     {
-        character_grab_stuff( objRef, GRIP_LEFT, true );
+        pchr->getObjectPhysics().grabStuff(GRIP_LEFT, true);
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_CHARRIGHT ) )
     {
-        character_grab_stuff( objRef, GRIP_RIGHT, true );
+        pchr->getObjectPhysics().grabStuff(GRIP_RIGHT, true);
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_DROPLEFT ) )

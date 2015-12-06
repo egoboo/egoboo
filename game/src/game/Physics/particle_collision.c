@@ -1073,7 +1073,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     //Adjust knockback based on relative mass between particle and target
     if(pdata.pchr->phys.bumpdampen != 0.0f && CHR_INFINITE_WEIGHT != pdata.pchr->phys.weight) {
         float particleMass = 0.0f;
-        float targetMass = get_chr_mass(pdata.pchr);
+        float targetMass = pdata.pchr->getObjectPhysics().getMass();
         get_prt_mass(pdata.pprt.get(), pdata.pchr, &particleMass);
         if(targetMass >= 0.0f) {
             knockbackFactor *= Ego::Math::constrain(particleMass / targetMass, 0.0f, 1.0f);

@@ -79,19 +79,19 @@ struct Info<int> {
 template <>
 struct Info<float> {
 	struct Grid {
-		static float Exponent() {
-			return (float)Info<int>::Grid::Exponent();
+		static constexpr float Exponent() {
+			return static_cast<float>(Info<int>::Grid::Exponent());
 		}
-		static float Size() {
-			return (float)Info<int>::Grid::Size();
+		static constexpr float Size() {
+			return static_cast<float>(Info<int>::Grid::Size());
 		}
 	};
 	struct Block {
-		static float Exponent() {
-			return (float)Info<int>::Block::Exponent();
+		static constexpr float Exponent() {
+			return static_cast<float>(Info<int>::Block::Exponent());
 		}
-		static float Size() {
-			return (float)Info<int>::Block::Size();
+		static constexpr float Size() {
+			return static_cast<float>(Info<int>::Block::Size());
 		}
 	};
 };

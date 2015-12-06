@@ -276,7 +276,7 @@ void CollisionSystem::updateObjectCollisions()
             //If we are no longer colliding in the horizontal plane, then we are disconnected
             if(!object->getAABB2D().overlaps(platform->getAABB2D()))
             {
-                object->getObjectPhysics().detachFromPlatform(object.get());
+                object->getObjectPhysics().detachFromPlatform();
             }
         }
 
@@ -592,7 +592,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
                 objectA->targetplatform_level = objectB->getPosZ() + objectB->chr_min_cv._maxs[OCT_Z];
                 objectA->targetplatform_ref   = ichr_b;
 
-                return objectA->getObjectPhysics().attachToPlatform(objectA, objectB);
+                return objectA->getObjectPhysics().attachToPlatform(objectB);
             }
         }
         else
@@ -602,7 +602,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
                 objectB->targetplatform_level = objectA->getPosZ() + objectA->chr_min_cv._maxs[OCT_Z];
                 objectB->targetplatform_ref   = ichr_a;
 
-                return objectB->getObjectPhysics().attachToPlatform(objectB, objectA);
+                return objectB->getObjectPhysics().attachToPlatform(objectA);
             }
         }
     }
@@ -765,8 +765,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     // do character-character interactions
 
     // calculate a "mass" for each object, taking into account possible infinite masses
-    float wta = get_chr_mass(objectA.get());
-    float wtb = get_chr_mass(objectB.get());
+    float wta = objectA->getObjectPhysics().getMass();
+    float wtb = objectB->getObjectPhysics().getMass();
 
     // make a special exception for interaction between "Mario platforms"
     if (( wta < 0.0f && objectA->platform ) && ( wtb < 0.0f && objectA->platform ) )

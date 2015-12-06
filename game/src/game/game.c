@@ -424,9 +424,8 @@ void move_all_objects()
         if(object->isTerminated()) {
             continue;
         }
-        
-        object->getObjectPhysics().updatePhysics(object);
-        chr_update_matrix( object.get(), true );
+        object->getObjectPhysics().updatePhysics();
+        //chr_update_matrix( object.get(), true );
     }
 }
 
@@ -3651,7 +3650,7 @@ bool chr_do_latch_button( Object * pchr )
         if (pchr->isBeingHeld())
         {
             pchr->detatchFromHolder(true, true);
-            pchr->getObjectPhysics().detachFromPlatform(pchr);
+            pchr->getObjectPhysics().detachFromPlatform();
 
             pchr->jump_timer = JUMPDELAY;
             if ( pchr->isFlying() )
@@ -3732,7 +3731,7 @@ bool chr_do_latch_button( Object * pchr )
             // Grab left
             if(!pchr->getProfile()->getModel()->isActionValid(ACTION_ME)) {
                 //No grab animation valid
-                character_grab_stuff( ichr, GRIP_LEFT, false );
+                pchr->getObjectPhysics().grabStuff(GRIP_LEFT, false );
             }
             else {
                 chr_play_action( pchr, ACTION_ME, false );
@@ -3754,7 +3753,7 @@ bool chr_do_latch_button( Object * pchr )
             // Grab right
             if(!pchr->getProfile()->getModel()->isActionValid(ACTION_MF)) {
                 //No grab animation valid
-                character_grab_stuff( ichr, GRIP_RIGHT, false );
+                pchr->getObjectPhysics().grabStuff(GRIP_RIGHT, false );
             }
             else {
                 chr_play_action( pchr, ACTION_MF, false );

@@ -32,7 +32,27 @@ namespace Ego
 namespace Physics
 {
 
-ObjectPhysics::ObjectPhysics() :
+struct grab_data_t
+{
+    grab_data_t() :
+        object(nullptr),
+        horizontalDistance(0.0f),
+        verticalDistance(0.0f),
+        visible(true),
+        isFacingObject(false)
+    {
+        //ctor
+    }
+
+    std::shared_ptr<Object> object;
+    float horizontalDistance;
+    float verticalDistance;
+    bool visible;
+    bool isFacingObject;
+};
+
+ObjectPhysics::ObjectPhysics(Object &object) :
+    _object(object),
     _platformOffset(0.0f, 0.0f),
     _desiredVelocity(0.0f, 0.0f),
     _traction(1.0f)
@@ -40,98 +60,98 @@ ObjectPhysics::ObjectPhysics() :
     //ctor
 }
 
-void ObjectPhysics::keepItemsWithHolder(const std::shared_ptr<Object> &pchr)
+void ObjectPhysics::keepItemsWithHolder()
 {
-    const std::shared_ptr<Object> &holder = pchr->getHolder();
+    const std::shared_ptr<Object> &holder = _object.getHolder();
     if (holder)
     {
         // Keep in hand weapons with iattached
-        if ( chr_matrix_valid(pchr.get()) )
+        if ( chr_matrix_valid(&_object) )
         {
-            pchr->setPosition(mat_getTranslate(pchr->inst.matrix));
+            _object.setPosition(mat_getTranslate(_object.inst.matrix));
         }
         else
         {
-            pchr->setPosition(holder->getPosition());
+            _object.setPosition(holder->getPosition());
         }
 
-        pchr->ori.facing_z = holder->ori.facing_z;
+        _object.ori.facing_z = holder->ori.facing_z;
 
         // Copy this stuff ONLY if it's a weapon, not for mounts
-        if (holder->getProfile()->transferBlending() && pchr->isItem())
+        if (holder->getProfile()->transferBlending() && _object.isItem())
         {
 
             // Items become partially invisible in hands of players
             if (holder->isPlayer() && 255 != holder->inst.alpha)
             {
-                pchr->setAlpha(SEEINVISIBLE);
+                _object.setAlpha(SEEINVISIBLE);
             }
             else
             {
                 // Only if not naturally transparent
-                if (255 == pchr->getProfile()->getAlpha())
+                if (255 == _object.getProfile()->getAlpha())
                 {
-                    pchr->setAlpha(holder->inst.alpha);
+                    _object.setAlpha(holder->inst.alpha);
                 }
                 else
                 {
-                    pchr->setAlpha(pchr->getProfile()->getAlpha());
+                    _object.setAlpha(_object.getProfile()->getAlpha());
                 }
             }
 
             // Do light too
             if (holder->isPlayer() && 255 != holder->inst.light)
             {
-                pchr->setLight(SEEINVISIBLE);
+                _object.setLight(SEEINVISIBLE);
             }
             else
             {
                 // Only if not naturally transparent
-                if (255 == pchr->getProfile()->getLight())
+                if (255 == _object.getProfile()->getLight())
                 {
-                    pchr->setLight(holder->inst.light);
+                    _object.setLight(holder->inst.light);
                 }
                 else
                 {
-                    pchr->setLight(pchr->getProfile()->getLight());
+                    _object.setLight(_object.getProfile()->getLight());
                 }
             }
         }
     }
     else
     {
-        pchr->attachedto = ObjectRef::Invalid;
+        _object.attachedto = ObjectRef::Invalid;
     }
 }
 
-void ObjectPhysics::updateMovement(const std::shared_ptr<Object> &object)
+void ObjectPhysics::updateMovement()
 {
     //Desired velocity in scaled space [-1 , 1]
     _desiredVelocity = Vector2f(0.0f, 0.0f);
 
     //Can it move?
-    if (object->isAlive() && object->getAttribute(Ego::Attribute::ACCELERATION) > 0.0f)  {
-        _desiredVelocity[kX] = object->latch.x;
-        _desiredVelocity[kY] = object->latch.y;
+    if (_object.isAlive() && _object.getAttribute(Ego::Attribute::ACCELERATION) > 0.0f)  {
+        _desiredVelocity.x() = _object.latch.x;
+        _desiredVelocity.y() = _object.latch.y;
 
         // Reverse movements for daze
-        if (object->daze_timer > 0) {
-            _desiredVelocity[kX] = -_desiredVelocity[kX];
-            _desiredVelocity[kY] = -_desiredVelocity[kY];
+        if (_object.daze_timer > 0) {
+            _desiredVelocity.x() = -_desiredVelocity.x();
+            _desiredVelocity.y() = -_desiredVelocity.y();
         }
 
         // Switch x and y for grog
-        if (object->grog_timer > 0) {
-            std::swap(_desiredVelocity[kX], _desiredVelocity[kY]);
+        if (_object.grog_timer > 0) {
+            std::swap(_desiredVelocity.x(), _desiredVelocity.y());
         }
 
         //Update which way we are looking
-        updateFacing(object);
+        updateFacing();
     }
 
     //Is there any movement going on?
     if(_desiredVelocity.length_abs() > 0.05f) {
-        const float maxSpeed = getMaxSpeed(object.get());
+        const float maxSpeed = getMaxSpeed();
 
         //Scale [-1 , 1] to velocity of the object
         _desiredVelocity *= maxSpeed;
@@ -148,37 +168,37 @@ void ObjectPhysics::updateMovement(const std::shared_ptr<Object> &object)
 
     //Determine acceleration/deceleration
     Vector2f acceleration;
-    acceleration.x() = (_desiredVelocity.x() - object->vel.x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
-    acceleration.y() = (_desiredVelocity.y() - object->vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.x() = (_desiredVelocity.x() - _object.vel.x()) * (4.0f / GameEngine::GAME_TARGET_UPS);
+    acceleration.y() = (_desiredVelocity.y() - _object.vel.y()) * (4.0f / GameEngine::GAME_TARGET_UPS);
 
     //How good grip do we have to add additional momentum?
     acceleration *= _traction;
 
     //Finally apply acceleration to velocity
-    object->vel.x() += acceleration.x();
-    object->vel.y() += acceleration.y();
+    _object.vel.x() += acceleration.x();
+    _object.vel.y() += acceleration.y();
 }
 
-void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
+void ObjectPhysics::updateHillslide()
 {
-    const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(pchr->getTile());
+    const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(_object.getTile());
 
     //This makes it hard for characters to jump uphill
-    if(pchr->vel.z() > 0.0f && pchr->enviro.is_slippy && !g_meshLookupTables.twist_flat[floorTwist]) {
-        pchr->vel.z() *= 0.8f;
+    if(_object.vel.z() > 0.0f && _object.enviro.is_slippy && !g_meshLookupTables.twist_flat[floorTwist]) {
+        _object.vel.z() *= 0.8f;
     }
 
     //Only slide if we are touching the floor
-    if(pchr->enviro.grounded) {
+    if(_object.enviro.grounded) {
 
         //Can the character slide on this floor?
-        if (pchr->enviro.is_slippy && !pchr->getAttachedPlatform())
+        if (_object.enviro.is_slippy && !_object.getAttachedPlatform())
         {
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[floorTwist]) {
-                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - pchr->enviro.zlerp) * (1.0f - _traction);
-                pchr->vel.x() += g_meshLookupTables.twist_nrm[floorTwist].x() * hillslide;
-                pchr->vel.y() += g_meshLookupTables.twist_nrm[floorTwist].y() * hillslide;
+                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - _object.enviro.zlerp) * (1.0f - _traction);
+                _object.vel.x() += g_meshLookupTables.twist_nrm[floorTwist].x() * hillslide;
+                _object.vel.y() += g_meshLookupTables.twist_nrm[floorTwist].y() * hillslide;
 
                 //Reduce traction while we are sliding downhill
                 _traction *= 0.8f;
@@ -195,85 +215,90 @@ void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
     }
 }
 
-void ObjectPhysics::updatePhysics(const std::shared_ptr<Object> &pchr)
+void ObjectPhysics::updatePhysics()
 {
     //Update physical enviroment variables first
-    move_one_character_get_environment(pchr.get());
+    move_one_character_get_environment(&_object);
 
     // Keep inventory items with the carrier
-    if(pchr->isInsideInventory()) {
-        pchr->setPosition(_currentModule->getObjectHandler()[pchr->inwhich_inventory]->getPosition());
+    if(_object.isInsideInventory()) {
+        _object.setPosition(_currentModule->getObjectHandler()[_object.inwhich_inventory]->getPosition());
         return;
     }
 
     //Is this character being held by another character?
-    if(pchr->isBeingHeld()) {
-        keepItemsWithHolder(pchr);
-        move_one_character_do_animation(pchr.get());
+    if(_object.isBeingHeld()) {
+        keepItemsWithHolder();
+        move_one_character_do_animation(&_object);
         return;
     }
 
     // Character's old location
-    pchr->vel_old          = pchr->vel;
-    pchr->ori_old.facing_z = pchr->ori.facing_z;
+    _object.vel_old          = _object.vel;
+    _object.ori_old.facing_z = _object.ori.facing_z;
 
-    chr_do_latch_button(pchr.get());
+    //Generate movement from latches
+    chr_do_latch_button(&_object);
 
-    // do friction with the floor before voluntary motion
-    updateHillslide(pchr);
+    //Generate velocity from sliding on hills
+    updateHillslide();
 
-    updateMovement(pchr);
+    //Generate velocity from user input (or AI script)
+    updateMovement();
 
-    updatePlatformPhysics(pchr);
+    //Keep us on the platform we are standing on
+    updatePlatformPhysics();
 
     //Apply gravity
-    if(!pchr->isFlying()) {
-        pchr->vel.z() += pchr->enviro.zlerp * Ego::Physics::g_environment.gravity;
+    if(!_object.isFlying()) {
+        _object.vel.z() += _object.enviro.zlerp * Ego::Physics::g_environment.gravity;
     }
     else {
-        pchr->vel.z() += (pchr->enviro.fly_level + pchr->getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - pchr->getPosZ()) * FLYDAMPEN;
+        _object.vel.z() += (_object.enviro.fly_level + _object.getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - _object.getPosZ()) * FLYDAMPEN;
     }
 
-    updateMeshCollision(pchr);
+    //Handle collision with the floor and walls
+    updateMeshCollision();
 
     //Cutoff for low velocities to make them truly stop
-    if(pchr->vel.length_abs() < 0.05f) {
-        pchr->vel.setZero();
+    if(_object.vel.length_abs() < 0.05f) {
+        _object.vel.setZero();
     }
 
-    move_one_character_do_animation(pchr.get());
+    //Update animation (ZF> TODO: this should not be in physics should it?)
+    move_one_character_do_animation(&_object);
 }
 
-float ObjectPhysics::getMaxSpeed(Object *object) const
+float ObjectPhysics::getMaxSpeed() const
 {
     // this is the maximum speed that a character could go under the v2.22 system
-    float maxspeed = object->getAttribute(Ego::Attribute::ACCELERATION) * Ego::Physics::g_environment.airfriction / (1.0f - Ego::Physics::g_environment.airfriction);
+    float maxspeed = _object.getAttribute(Ego::Attribute::ACCELERATION) * Ego::Physics::g_environment.airfriction / (1.0f - Ego::Physics::g_environment.airfriction);
     float speedBonus = 1.0f;
 
     //Sprint perk gives +10% movement speed if above 75% life remaining
-    if(object->hasPerk(Ego::Perks::SPRINT) && object->getLife() >= object->getAttribute(Ego::Attribute::MAX_LIFE)*0.75f) {
+    if(_object.hasPerk(Ego::Perks::SPRINT) && _object.getLife() >= _object.getAttribute(Ego::Attribute::MAX_LIFE)*0.75f) {
         speedBonus += 0.1f;
 
         //Uninjured? (Dash perk can give another 10% extra speed)
-        if(object->hasPerk(Ego::Perks::DASH) && object->getAttribute(Ego::Attribute::MAX_LIFE)-object->getLife() < 1.0f) {
+        if(_object.hasPerk(Ego::Perks::DASH) && _object.getAttribute(Ego::Attribute::MAX_LIFE)-_object.getLife() < 1.0f) {
             speedBonus += 0.1f;
         }
     }
 
     //Rally Bonus? (+10%)
-    if(object->hasPerk(Ego::Perks::RALLY) && update_wld < object->getRallyDuration()) {
+    if(_object.hasPerk(Ego::Perks::RALLY) && update_wld < _object.getRallyDuration()) {
         speedBonus += 0.1f;
     }    
 
     //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
-    speedBonus += (object->getAttribute(Ego::Attribute::AGILITY)-10.0f) * 0.01f;
+    speedBonus += (_object.getAttribute(Ego::Attribute::AGILITY)-10.0f) * 0.01f;
 
     //Now apply speed modifiers
     maxspeed *= speedBonus;
 
     //Are we in water?
-    if(object->isSubmerged() && water._is_water) {
-        if(object->hasPerk(Ego::Perks::ATHLETICS)) {
+    if(_object.isSubmerged() && water._is_water) {
+        if(_object.hasPerk(Ego::Perks::ATHLETICS)) {
             maxspeed *= 0.25f; //With athletics perk we can have three-quarters speed
         }
         else {
@@ -282,15 +307,15 @@ float ObjectPhysics::getMaxSpeed(Object *object) const
     }
 
     //Check animation frame freeze movement
-    if ( chr_instance_t::get_framefx(object->inst) & MADFX_STOP )
+    if ( chr_instance_t::get_framefx(_object.inst) & MADFX_STOP )
     {
         //Allow 50% movement while using Shield and have the Mobile Defence perk
-        if(object->hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(object->inst.action_which, P))
+        if(_object.hasPerk(Ego::Perks::MOBILE_DEFENCE) && ACTION_IS_TYPE(_object.inst.action_which, P))
         {
             maxspeed *= 0.5f;
         }
         //Allow 50% movement with Mobility perk and attacking with a weapon
-        else if(object->hasPerk(Ego::Perks::MOBILITY) && object->isAttacking())
+        else if(_object.hasPerk(Ego::Perks::MOBILITY) && _object.isAttacking())
         {
             maxspeed *= 0.5f;
         }
@@ -302,19 +327,19 @@ float ObjectPhysics::getMaxSpeed(Object *object) const
     }
 
     //Check if AI has limited movement rate
-    else if(!object->isPlayer())
+    else if(!_object.isPlayer())
     {
-        maxspeed *= object->ai.maxSpeed;
+        maxspeed *= _object.ai.maxSpeed;
     }
 
-    bool sneak_mode_active = object->isStealthed();
+    bool sneak_mode_active = _object.isStealthed();
 
     //Reduce speed while stealthed
-    if(object->isStealthed()) {
-        if(object->hasPerk(Ego::Perks::SHADE)) {
+    if(_object.isStealthed()) {
+        if(_object.hasPerk(Ego::Perks::SHADE)) {
             maxspeed *= 0.75f;  //Shade allows 75% movement speed while stealthed
         }
-        else if(object->hasPerk(Ego::Perks::STALKER)) {
+        else if(_object.hasPerk(Ego::Perks::STALKER)) {
             maxspeed *= 0.50f;  //Stalker allows 50% movement speed while stealthed
         }
         else {
@@ -325,21 +350,21 @@ float ObjectPhysics::getMaxSpeed(Object *object) const
     if ( sneak_mode_active )
     {
         // sneak mode
-        object->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
+        _object.movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
     }
     else
     {
         // non-sneak mode
-        object->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
+        _object.movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
     }
 
     return maxspeed;    
 }
 
-void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr)
+void ObjectPhysics::updateFacing()
 {
     //Figure out how to turn around
-    switch ( pchr->turnmode )
+    switch ( _object.turnmode )
     {
         // Get direction from ACTUAL change in velocity
         default:
@@ -347,15 +372,15 @@ void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr)
             {
                 if (_desiredVelocity.length_abs() > TURNSPD)
                 {
-                    if (pchr->isPlayer())
+                    if (_object.isPlayer())
                     {
                         // Players turn quickly
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 2 );
+                        _object.ori.facing_z = ( int )_object.ori.facing_z + terp_dir( _object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 2 );
                     }
                     else
                     {
                         // AI turn slowly
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 );
+                        _object.ori.facing_z = ( int )_object.ori.facing_z + terp_dir( _object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 );
                     }
                 }
             }
@@ -366,7 +391,7 @@ void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr)
             {
                 if (_desiredVelocity.length_abs() > WATCHMIN )
                 {
-                    pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 );
+                    _object.ori.facing_z = ( int )_object.ori.facing_z + terp_dir( _object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 );
                 }
             }
             break;
@@ -374,9 +399,9 @@ void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr)
         // Face the target
         case TURNMODE_WATCHTARGET:
             {
-                if ( pchr->getObjRef() != pchr->ai.getTarget() )
+                if ( _object.getObjRef() != _object.ai.getTarget() )
                 {
-                    pchr->ori.facing_z = static_cast<int>(pchr->ori.facing_z) + terp_dir( pchr->ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosX() - pchr->getPosX() , _currentModule->getObjectHandler().get(pchr->ai.getTarget())->getPosY() - pchr->getPosY() ), 8 );
+                    _object.ori.facing_z = static_cast<int>(_object.ori.facing_z) + terp_dir( _object.ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosX() - _object.getPosX() , _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosY() - _object.getPosY() ), 8 );
                 }
             }
             break;
@@ -384,146 +409,146 @@ void ObjectPhysics::updateFacing(const std::shared_ptr<Object> &pchr)
         // Otherwise make it spin
         case TURNMODE_SPIN:
             {
-                pchr->ori.facing_z += SPINRATE;
+                _object.ori.facing_z += SPINRATE;
             }
             break;
     }
 }
 
-void ObjectPhysics::detachFromPlatform(Object* pchr)
+void ObjectPhysics::detachFromPlatform()
 {
     // adjust the platform weight, if necessary
-    if(pchr->getAttachedPlatform()) {
-        pchr->getAttachedPlatform()->holdingweight -= pchr->phys.weight;
+    if(_object.getAttachedPlatform()) {
+        _object.getAttachedPlatform()->holdingweight -= _object.phys.weight;
     }
 
     // undo the attachment
-    pchr->onwhichplatform_ref    = ObjectRef::Invalid;
-    pchr->onwhichplatform_update = 0;
-    pchr->targetplatform_ref     = ObjectRef::Invalid;
-    pchr->targetplatform_level   = -1e32;
+    _object.onwhichplatform_ref    = ObjectRef::Invalid;
+    _object.onwhichplatform_update = 0;
+    _object.targetplatform_ref     = ObjectRef::Invalid;
+    _object.targetplatform_level   = -1e32;
     _platformOffset.setZero();
 
     // update the character-platform properties
-    move_one_character_get_environment(pchr);
+    move_one_character_get_environment(&_object);
 
     // update the character jumping
-    pchr->jumpready = pchr->enviro.grounded;
-    if ( pchr->jumpready ) {
-        pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
+    _object.jumpready = _object.enviro.grounded;
+    if ( _object.jumpready ) {
+        _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
 }
 
-bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform)
+bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &platform)
 {
     // check if they can be connected
-    if(!object->canuseplatforms || object->isFlying() || !platform->platform) {
+    if(!_object.canuseplatforms || _object.isFlying() || !platform->platform || platform.get() == &_object) {
         return false;
     }
 
     // do the attachment
-    object->onwhichplatform_ref    = platform->getObjRef();
-    object->onwhichplatform_update = update_wld;
-    object->targetplatform_ref     = ObjectRef::Invalid;
+    _object.onwhichplatform_ref    = platform->getObjRef();
+    _object.onwhichplatform_update = update_wld;
+    _object.targetplatform_ref     = ObjectRef::Invalid;
 
-    _platformOffset.x() = object->getPosX() - platform->getPosX();
-    _platformOffset.y() = object->getPosY() - platform->getPosY();
+    _platformOffset.x() = _object.getPosX() - platform->getPosX();
+    _platformOffset.y() = _object.getPosY() - platform->getPosY();
 
     //Make sure the object is now on top of the platform
     const float platformElevation = platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z];
-    if(object->getPosZ() < platformElevation) {
-        object->setPosition(object->getPosX(), object->getPosY(), platformElevation);
+    if(_object.getPosZ() < platformElevation) {
+        _object.setPosition(_object.getPosX(), _object.getPosY(), platformElevation);
     }
 
     // update the character's relationship to the ground
-    object->enviro.level     = std::max(object->enviro.floor_level, platformElevation);
-    object->enviro.zlerp     = (object->getPosZ() - object->enviro.level) / PLATTOLERANCE;
-    object->enviro.zlerp     = Ego::Math::constrain(object->enviro.zlerp, 0.0f, 1.0f);
-    object->enviro.grounded  = !object->isFlying() && ( object->enviro.zlerp < 0.25f );
+    _object.enviro.level     = std::max(_object.enviro.floor_level, platformElevation);
+    _object.enviro.zlerp     = (_object.getPosZ() - _object.enviro.level) / PLATTOLERANCE;
+    _object.enviro.zlerp     = Ego::Math::constrain(_object.enviro.zlerp, 0.0f, 1.0f);
+    _object.enviro.grounded  = !_object.isFlying() && ( _object.enviro.zlerp < 0.25f );
 
-    object->enviro.fly_level = std::max(object->enviro.fly_level, object->enviro.level);
-    if (object->enviro.fly_level < 0) object->enviro.fly_level = 0;  // fly above pits...
+    _object.enviro.fly_level = std::max(_object.enviro.fly_level, _object.enviro.level);
+    if (_object.enviro.fly_level < 0) _object.enviro.fly_level = 0;  // fly above pits...
 
     // add the weight to the platform
-    platform->holdingweight += object->phys.weight;
+    platform->holdingweight += _object.phys.weight;
 
     // update the character jumping
-    if (object->enviro.grounded)
+    if (_object.enviro.grounded)
     {
-        object->jumpready = true;
-        object->jumpnumber = object->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
+        _object.jumpready = true;
+        _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
-    ai_state_t::set_bumplast(platform->ai, object->getObjRef());
+    ai_state_t::set_bumplast(platform->ai, _object.getObjRef());
 
     return true;
 }
 
-void ObjectPhysics::updatePlatformPhysics(const std::shared_ptr<Object> &object)
+void ObjectPhysics::updatePlatformPhysics()
 {
-    const std::shared_ptr<Object> &platform = object->getAttachedPlatform();
+    const std::shared_ptr<Object> &platform = _object.getAttachedPlatform();
     if(!platform) {
         return;
     }
 
     // grab the pre-computed zlerp value, and map it to our needs
-    float lerp_z = 1.0f - object->enviro.zlerp;
+    float lerp_z = 1.0f - _object.enviro.zlerp;
 
     // if your velocity is going up much faster than the
     // platform, there is no need to suck you to the level of the platform
     // this was one of the things preventing you from jumping from platforms
     // properly
-    if(std::abs(object->vel.z() - platform->vel.z()) / 5.0f <= PLATFORM_STICKINESS) {
-        object->vel.z() += (platform->vel.z()  - object->vel.z()) * lerp_z;
+    if(std::abs(_object.vel.z() - platform->vel.z()) / 5.0f <= PLATFORM_STICKINESS) {
+        _object.vel.z() += (platform->vel.z()  - _object.vel.z()) * lerp_z;
     }
 
     // determine the rotation rates
-    int16_t rot_b = object->ori.facing_z - object->ori_old.facing_z;
+    int16_t rot_b = _object.ori.facing_z - _object.ori_old.facing_z;
     int16_t rot_a = platform->ori.facing_z - platform->ori_old.facing_z;
-    object->ori.facing_z += (rot_a - rot_b) * PLATFORM_STICKINESS;    
+    _object.ori.facing_z += (rot_a - rot_b) * PLATFORM_STICKINESS;    
 
     //Allows movement on the platform
-    _platformOffset.x() += object->vel.x();
-    _platformOffset.y() += object->vel.y();
+    _platformOffset.x() += _object.vel.x();
+    _platformOffset.y() += _object.vel.y();
 
     //Inherit position of platform with given offsets
-    float zCorrection = (object->enviro.level - object->getPosZ()) * 0.125f * lerp_z;
-    object->setPosition(platform->getPosX() + _platformOffset.x(), platform->getPosY() + _platformOffset.y(), object->getPosZ() + zCorrection);
+    float zCorrection = (_object.enviro.level - _object.getPosZ()) * 0.125f * lerp_z;
+    _object.setPosition(platform->getPosX() + _platformOffset.x(), platform->getPosY() + _platformOffset.y(), _object.getPosZ() + zCorrection);
 }
 
-void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
+void ObjectPhysics::updateMeshCollision()
 {
-    Vector3f tmp_pos = pchr->getPosition();;
+    Vector3f tmp_pos = _object.getPosition();;
 
     // interaction with the mesh
-    //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
+    //if ( std::abs( _object.vel.z() ) > 0.0f )
     {
-        const float floorElevation = pchr->enviro.floor_level + RAISE;
+        const float floorElevation = _object.enviro.floor_level + RAISE;
 
-        tmp_pos.z() += pchr->vel.z();
+        tmp_pos.z() += _object.vel.z();
         if (tmp_pos.z() <= floorElevation)
         {
             //We have hit the ground
-            if(!pchr->isFlying()) {
-                pchr->enviro.grounded = true;
+            if(!_object.isFlying()) {
+                _object.enviro.grounded = true;
             }
 
-            if (std::abs(pchr->vel.z()) < Ego::Physics::STOP_BOUNCING)
+            if (std::abs(_object.vel.z()) < Ego::Physics::STOP_BOUNCING)
             {
-                pchr->vel.z() = 0.0f;
+                _object.vel.z() = 0.0f;
                 tmp_pos.z() = floorElevation;
             }
             else
             {
                 //Make it bounce!
-                if (pchr->vel.z() < 0.0f)
+                if (_object.vel.z() < 0.0f)
                 {
                     float diff = floorElevation - tmp_pos.z();
 
-                    pchr->vel.z() *= -pchr->phys.bumpdampen;
-                    diff          *= -pchr->phys.bumpdampen;
+                    _object.vel.z() *= -_object.phys.bumpdampen;
+                    diff          *= -_object.phys.bumpdampen;
 
                     tmp_pos.z() = std::max(tmp_pos.z() + diff, floorElevation);
                 }
@@ -536,7 +561,7 @@ void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
     }
 
     // fixes to the z-position
-    if (pchr->isFlying())
+    if (_object.isFlying())
     {
         // Don't fall in pits...
         if (tmp_pos.z() < 0.0f) {
@@ -545,67 +570,67 @@ void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
     }
 
 
-    //if (std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) > 0.0f)
+    //if (std::abs(_object.vel.x()) + std::abs(_object.vel.y()) > 0.0f)
     {
         float old_x = tmp_pos.x();
         float old_y = tmp_pos.y();
 
-        float new_x = old_x + pchr->vel.x();
-        float new_y = old_y + pchr->vel.y();
+        float new_x = old_x + _object.vel.x();
+        float new_y = old_y + _object.vel.y();
 
         tmp_pos.x() = new_x;
         tmp_pos.y() = new_y;
 
         //Wall collision?
-        if ( EMPTY_BIT_FIELD != pchr->test_wall( tmp_pos ) )
+        if ( EMPTY_BIT_FIELD != _object.test_wall( tmp_pos ) )
         {            
             Vector2f nrm;
             float   pressure;
 
-            pchr->hit_wall(tmp_pos, nrm, &pressure );
+            _object.hit_wall(tmp_pos, nrm, &pressure );
 
             // how is the character hitting the wall?
             if (pressure > 0.0f)
             {
-                tmp_pos.x() -= pchr->vel.x();
-                tmp_pos.y() -= pchr->vel.y();
+                tmp_pos.x() -= _object.vel.x();
+                tmp_pos.y() -= _object.vel.y();
 
-                const float bumpdampen = std::max(0.1f, 1.0f-pchr->phys.bumpdampen);
+                const float bumpdampen = std::max(0.1f, 1.0f-_object.phys.bumpdampen);
 
                 //Bounce velocity of normal
-                Vector2f velocity = Vector2f(pchr->vel.x(), pchr->vel.y());
+                Vector2f velocity = Vector2f(_object.vel.x(), _object.vel.y());
                 velocity.x() -= 2.0f * (nrm.dot(velocity) * nrm.x());
                 velocity.y() -= 2.0f * (nrm.dot(velocity) * nrm.y());
 
-                pchr->vel.x() = pchr->vel.x() * bumpdampen + velocity.x()*(1.0f-bumpdampen);
-                pchr->vel.y() = pchr->vel.y() * bumpdampen + velocity.y()*(1.0f-bumpdampen);
+                _object.vel.x() = _object.vel.x() * bumpdampen + velocity.x()*(1.0f-bumpdampen);
+                _object.vel.y() = _object.vel.y() * bumpdampen + velocity.y()*(1.0f-bumpdampen);
 
                 //Add additional pressure perpendicular from wall depending on how far inside wall we are
-                float displacement = Vector2f(pchr->getSafePosition().x()-tmp_pos.x(), pchr->getSafePosition().y()-tmp_pos.y()).length();
+                float displacement = Vector2f(_object.getSafePosition().x()-tmp_pos.x(), _object.getSafePosition().y()-tmp_pos.y()).length();
                 if(displacement > MAX_DISPLACEMENT_XY) {
                     displacement = MAX_DISPLACEMENT_XY;
                 }
-                pchr->vel.x() += displacement * bumpdampen * pressure * nrm.x();
-                pchr->vel.y() += displacement * bumpdampen * pressure * nrm.y();
+                _object.vel.x() += displacement * bumpdampen * pressure * nrm.x();
+                _object.vel.y() += displacement * bumpdampen * pressure * nrm.y();
 
                 //Apply correction
-                tmp_pos.x() += pchr->vel.x();
-                tmp_pos.y() += pchr->vel.y();
+                tmp_pos.x() += _object.vel.x();
+                tmp_pos.y() += _object.vel.y();
             }
         }
     }
 
-    pchr->setPosition(tmp_pos);
+    _object.setPosition(tmp_pos);
 
     // Characters with sticky butts lie on the surface of the mesh
-    if(pchr->getProfile()->hasStickyButt() || !pchr->isAlive()) {
-        float fkeep = (7.0f + pchr->enviro.zlerp) / 8.0f;
-        float fnew  = (1.0f - pchr->enviro.zlerp) / 8.0f;
+    if(_object.getProfile()->hasStickyButt() || !_object.isAlive()) {
+        float fkeep = (7.0f + _object.enviro.zlerp) / 8.0f;
+        float fnew  = (1.0f - _object.enviro.zlerp) / 8.0f;
 
         if (fnew > 0) {
-            const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(pchr->getTile());
-            pchr->ori.map_twist_facing_x = pchr->ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[floorTwist] * fnew;
-            pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[floorTwist] * fnew;
+            const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(_object.getTile());
+            _object.ori.map_twist_facing_x = _object.ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[floorTwist] * fnew;
+            _object.ori.map_twist_facing_y = _object.ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[floorTwist] * fnew;
         }
     }
 }
@@ -613,6 +638,173 @@ void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
 const Vector2f& ObjectPhysics::getDesiredVelocity() const
 {
     return _desiredVelocity;
+}
+
+float ObjectPhysics::getMass() const
+{
+    if ( CHR_INFINITE_WEIGHT == _object.phys.weight )
+    {
+        return -static_cast<float>(CHR_INFINITE_WEIGHT);
+    }
+    else if ( 0.0f == _object.phys.bumpdampen )
+    {
+        return -static_cast<float>(CHR_INFINITE_WEIGHT);
+    }
+    else
+    {
+        return _object.phys.weight / _object.phys.bumpdampen;
+    }    
+}
+
+bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
+{
+    //Max search distance in quad tree relative to object position
+    static constexpr float MAX_SEARCH_DIST = 3.0f * Info<float>::Grid::Size();
+
+    //Max grab distance is 2/3rds of a tile
+    static constexpr float MAX_DIST_GRAB = Info<float>::Grid::Size() * 0.66f;
+
+    // find the slot from the grip
+    slot_t slot = grip_offset_to_slot( grip_off );
+    if ( slot >= SLOT_COUNT ) return false;
+
+    // Make sure the character doesn't have something already, and that it has hands
+    if (_currentModule->getObjectHandler().exists( _object.holdingwhich[slot] ) || !_object.getProfile()->isSlotValid(slot)) {        
+        return false;
+    }
+
+    //Determine the position of the grip
+    oct_vec_v2_t mids = _object.slot_cv[slot].getMid();
+
+    Vector3f   slot_pos = Vector3f(mids[OCT_X], mids[OCT_Y], mids[OCT_Z]) + _object.getPosition();
+
+    //The object that we grab
+    std::shared_ptr<Object> bestMatch = nullptr;
+    float bestMatchDistance = std::numeric_limits<float>::max();
+
+    // Go through all nearby objects to find the best match
+    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(slot_pos.x(), slot_pos.y(), MAX_SEARCH_DIST, false);
+    for(const std::shared_ptr<Object> &pchr_c : nearbyObjects)
+    {
+        //Skip invalid objects
+        if(pchr_c->isTerminated()) {
+            continue;
+        }
+
+        // do nothing to yourself
+        if (_object.getObjRef() == pchr_c->getObjRef()) continue;
+
+        // Dont do hidden objects
+        if (pchr_c->isHidden()) continue;
+
+        // disarm and pickpocket not allowed yet
+        if (pchr_c->isBeingHeld()) continue;
+
+        // do not pick up your mount
+        if ( pchr_c->holdingwhich[SLOT_LEFT] == _object.getObjRef() ||
+             pchr_c->holdingwhich[SLOT_RIGHT] == _object.getObjRef() ) continue;
+
+        // do not notice completely broken items?
+        if (pchr_c->isItem() && !pchr_c->isAlive()) continue;
+
+        // reasonable carrying capacity
+        if (pchr_c->phys.weight > _object.phys.weight + FLOAT_TO_FP8(_object.getAttribute(Ego::Attribute::MIGHT)) * INV_FF) {
+            continue;
+        }
+
+        // grab_people == true allows you to pick up living non-items
+        // grab_people == false allows you to pick up living (functioning) items
+        if (!grab_people && !pchr_c->isItem()) {
+            continue;
+        }
+
+        // calculate the distance
+        const float horizontalDistance = (pchr_c->getPosition() - slot_pos).length();
+        const float verticalDistance = std::sqrt(Ego::Math::sq(_object.getPosZ() - pchr_c->getPosZ()));
+ 
+        //Figure out if the character is looking towards the object
+        const bool isFacingObject = _object.isFacingLocation(pchr_c->getPosX(), pchr_c->getPosY());
+
+        // Is it too far away to interact with?
+        if (horizontalDistance > MAX_SEARCH_DIST || verticalDistance > MAX_SEARCH_DIST) {
+            continue;
+        }
+
+        // visibility affects the max grab distance.
+        // if it is not visible then we have to be touching it.
+        float maxHorizontalGrabDistance = MAX_DIST_GRAB;
+
+        //Halve grab distance for items behind us
+        if(!isFacingObject && !grab_people) {
+            maxHorizontalGrabDistance *= 0.5f;
+        }
+
+        //Bigger characters have bigger grab size
+        maxHorizontalGrabDistance += _object.bump.size / 4.0f;
+
+        //Double grab distance for monsters that are trying to grapple
+        if(grab_people) {
+            maxHorizontalGrabDistance *= 2.0f;
+        }
+
+        // is it too far away to grab?
+        if (horizontalDistance > maxHorizontalGrabDistance + _object.bump.size / 4.0f && horizontalDistance > _object.bump.size) {
+            continue;
+        }
+
+        //Check vertical distance as well
+        else
+        {
+            float maxVerticalGrabDistance = _object.bump.height / 2.0f;
+
+            if(grab_people) {
+                //This allows very flat creatures like the Carpet Mimics grab people
+                maxVerticalGrabDistance = std::max(maxVerticalGrabDistance, MAX_DIST_GRAB);
+            }
+
+            if (verticalDistance > maxVerticalGrabDistance) {
+                continue;
+            }
+        }
+
+        //Is this one better to grab than any previous matches?
+        if(horizontalDistance < bestMatchDistance) {
+            bestMatchDistance = horizontalDistance;
+            bestMatch = pchr_c;
+
+            //Prioritize items in front of us over those behind us
+            if(!isFacingObject) {
+                bestMatchDistance *= 2.0f;
+            }
+        }
+    }
+
+    if(bestMatch != nullptr) {
+        bool can_grab = can_grab_item_in_shop(_object.getObjRef(), bestMatch->getObjRef());
+
+        if ( can_grab )
+        {
+            // Stick 'em together and quit
+            if ( rv_success == attach_character_to_mount(bestMatch->getObjRef(), _object.getObjRef(), grip_off) )
+            {
+                if (grab_people)
+                {
+                    // Start the slam animation...  ( Be sure to drop!!! )
+                    chr_play_action(&_object, ACTION_MC + slot, false);
+                }
+            }
+            return true;
+        }
+        else
+        {
+            // Lift the item a little and quit...
+            bestMatch->vel.z() = DROPZVEL;
+            bestMatch->hitready = true;
+            SET_BIT(bestMatch->ai.alert, ALERTIF_DROPPED);
+        }
+    }
+
+    return false;
 }
 
 } //Physics
