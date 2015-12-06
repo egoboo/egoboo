@@ -1741,10 +1741,11 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& info ) //n
         // Wielded character
         grip_offset_t grip_off = ( ATTACH_LEFT == info.attach ) ? GRIP_LEFT : GRIP_RIGHT;
 
-		if (rv_success == attach_character_to_mount(pchr->getObjRef(), info.parent, grip_off))
+        if(pchr->getObjectPhysics().attachToObject(_currentModule->getObjectHandler()[info.parent], grip_off))
 		{
 			// Handle the "grabbed" messages
 			//scr_run_chr_script(pchr);
+            //TODO: clear grab flags?
 		}
     }
 

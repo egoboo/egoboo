@@ -75,6 +75,19 @@ public:
     /// @details This function makes the character pick up an item if there's one around
     bool grabStuff(grip_offset_t grip_off, bool grab_people);
 
+    /**
+    * @brief
+    *   Attached this Object to another Object (e.g item into the hands of a holder or a
+    *   character onto a mount)
+    * @param holder
+    *   Who we are to be attached to
+    * @param grip_off
+    *   In which hand should we be held?
+    * @return
+    *   true if this Object is now attached to the holder
+    **/
+    bool attachToObject(const std::shared_ptr<Object> &holder, grip_offset_t grip_off);
+
 private:
     /**
     * @brief

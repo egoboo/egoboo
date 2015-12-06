@@ -32,25 +32,6 @@ namespace Ego
 namespace Physics
 {
 
-struct grab_data_t
-{
-    grab_data_t() :
-        object(nullptr),
-        horizontalDistance(0.0f),
-        verticalDistance(0.0f),
-        visible(true),
-        isFacingObject(false)
-    {
-        //ctor
-    }
-
-    std::shared_ptr<Object> object;
-    float horizontalDistance;
-    float verticalDistance;
-    bool visible;
-    bool isFacingObject;
-};
-
 ObjectPhysics::ObjectPhysics(Object &object) :
     _object(object),
     _platformOffset(0.0f, 0.0f),
@@ -785,7 +766,7 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
         if ( can_grab )
         {
             // Stick 'em together and quit
-            if ( rv_success == attach_character_to_mount(bestMatch->getObjRef(), _object.getObjRef(), grip_off) )
+            if(bestMatch->getObjectPhysics().attachToObject(_currentModule->getObjectHandler()[_object.getObjRef()], grip_off))
             {
                 if (grab_people)
                 {
@@ -805,6 +786,129 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
     }
 
     return false;
+}
+
+bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_offset_t grip_off)
+{
+    /// @author ZZ
+    /// @details This function attaches one object (rider) to another object (mount)
+    ///          at a certain vertex offset ( grip_off )
+    ///   - This function is called as a part of spawning a module, so the rider or the mount may not
+    ///     be fully instantiated
+    ///   - This function should do very little testing to see if attachment is allowed.
+    ///     Most of that checking should be done by the calling function
+
+    //Don't attach a character to itself!
+    if (_object.getObjRef() == holder->getObjRef()) {
+        return false;
+    }
+
+    // do not deal with packed items at this time
+    // this would have to be changed to allow for pickpocketing
+    if (_object.isBeingHeld()) {
+       return false; 
+    } 
+
+    // This is a small fix that allows special grabbable mounts not to be mountable while
+    // held by another character (such as the magic carpet for example)
+    if(holder->isBeingHeld()) {
+        return false;
+    }
+
+    // make a reasonable time for the character to remount something
+    // for characters jumping out of pots, etc
+    if (holder->getObjRef() == _object.dismount_object && _object.dismount_timer > 0) {
+        return false;
+    }
+
+    // Figure out which slot this grip_off relates to
+    slot_t slot = grip_offset_to_slot(grip_off);
+
+    // Make sure the the slot is valid
+    if (!holder->getProfile()->isSlotValid(slot)) {
+        return false;
+    }
+
+    // Put 'em together
+    _object.inwhich_slot       = slot;
+    _object.attachedto         = holder->getObjRef();
+    holder->holdingwhich[slot] = _object.getObjRef();
+
+    // set the grip vertices for the irider
+    set_weapongrip(_object.getObjRef(), holder->getObjRef(), grip_off);
+
+    chr_update_matrix(&_object, true);
+
+    _object.setPosition(mat_getTranslate(_object.inst.matrix));
+
+    _object.enviro.inwater  = false;
+    _object.jump_timer = JUMPDELAY * 4;
+
+    // Run the held animation
+    if (holder->isMount() && (GRIP_ONLY == grip_off))
+    {
+        // Riding imount
+        if (_object.getLeftHandItem() || _object.getRightHandItem())
+        {
+            // if the character is holding anything, make the animation
+            // ACTION_MH == "sitting" so that it does not look so silly
+            chr_play_action(&_object, ACTION_MH, true);
+        }
+        else
+        {
+            // if it is not holding anything, go for the riding animation
+            chr_play_action(&_object, ACTION_MI, true);
+        }
+
+        // set tehis action to loop
+        chr_instance_t::set_action_loop(_object.inst, true);
+    }
+    else if (_object.isAlive())
+    {
+        /// @note ZF@> hmm, here is the torch holding bug. Removing
+        /// the interpolation seems to fix it...
+        chr_play_action(&_object, ACTION_MM + slot, false );
+        chr_instance_t::remove_interpolation(_object.inst);
+
+        // set the action to keep for items
+        if (_object.isItem()) {
+            chr_instance_t::set_action_keep(_object.inst, true);
+        }
+    }
+
+    // Set the team
+    if (_object.isItem())
+    {
+        _object.team = holder->team;
+
+        // Set the alert
+        if (_object.isAlive()) {
+            SET_BIT(_object.ai.alert, ALERTIF_GRABBED);
+        }
+
+        // Lore Master perk identifies everything
+        if (holder->hasPerk(Ego::Perks::LORE_MASTER)) {
+            _object.getProfile()->makeUsageKnown();
+            _object.nameknown = true;
+            _object.ammoknown = true;
+        }
+    }
+
+    if (holder->isMount())
+    {
+        holder->team = _object.team;
+
+        // Set the alert
+        if (!holder->isItem() && holder->isAlive())
+        {
+            SET_BIT(holder->ai.alert, ALERTIF_GRABBED);
+        }
+    }
+
+    // It's not gonna hit the floor
+    _object.hitready = false;
+
+    return rv_success;
 }
 
 } //Physics

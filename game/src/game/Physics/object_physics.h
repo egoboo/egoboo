@@ -6,5 +6,3 @@
 void move_one_character_get_environment( Object * pchr );
 
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
-
-egolib_rv attach_character_to_mount( ObjectRef riderRef, ObjectRef mountRef, grip_offset_t grip_off );

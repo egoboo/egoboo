@@ -21,7 +21,6 @@
 #include "game/game.h" //for update_wld
 
 #include "particle_collision.h"
-#include "game/Physics/object_physics.h" //for attach_character_to_mount()
 
 namespace Ego
 {
@@ -455,9 +454,7 @@ bool CollisionSystem::handleMountingCollision(const std::shared_ptr<Object> &cha
 
     //Attempt to mount?
     if(characterWantsToMount) {
-        if(rv_success == attach_character_to_mount(character->getObjRef(), mount->getObjRef(), GRIP_ONLY)) {
-            return true;
-        }
+        return character->getObjectPhysics().attachToObject(mount, GRIP_ONLY);
     }
 
     return false;
