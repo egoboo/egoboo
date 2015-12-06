@@ -27,6 +27,7 @@
 #include "game/Physics/PhysicalConstants.hpp"
 #include "game/graphic.h"
 #include "egolib/FileFormats/Globals.hpp"
+#include "game/game.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -972,16 +973,6 @@ bool ego_mesh_t::grid_is_valid(const Index1D& i) const
     return _info.isValid(i);
 }
 
-// Map world coordinates to a tile index.
-// This function does not assume the point to be within the bounds of the mesh.
-// If a point is passed which is outside the bounds, the resulting index will
-// be invalid w.r.t. to the mesh.
-Index2D fromWorld(const Vector2f& p)
-{
-    return Index2D(static_cast<int>(p[kX]) / Info<int>::Grid::Size(),
-                   static_cast<int>(p[kY]) / Info<int>::Grid::Size());
-}
-
 Vector2f toWorldLT(const Index2D i) {
     return Vector2f((float)i.getX(), (float)i.getY()) * Info<float>::Grid::Size();
 }
@@ -992,7 +983,6 @@ float ego_mesh_t::getElevation(const Vector2f& p) const
 	if (!grid_is_valid(i1)) {
 		return 0;
 	}
-    Index2D i2 = fromWorld(p);
 
     // Get the height of each fan corner.
     float z0 = _tmem._plst[_tmem.get(i1)._vrtstart + 0][ZZ];
@@ -1000,10 +990,14 @@ float ego_mesh_t::getElevation(const Vector2f& p) const
     float z2 = _tmem._plst[_tmem.get(i1)._vrtstart + 2][ZZ];
     float z3 = _tmem._plst[_tmem.get(i1)._vrtstart + 3][ZZ];
 
+    //Calculate where on the tile we are relative to top left corner of the tile (0,0)
+    Vector2f posOnTile = Vector2f(std::fmod(p[kX], Info<float>::Grid::Size()), 
+                                  std::fmod(p[kY], Info<float>::Grid::Size()));
+
     // Get the weighted height of each side.
-    float zleft = (z0 * (Info<float>::Grid::Size() - i2.getY()) + z3 * i2.getY()) / Info<float>::Grid::Size();
-    float zright = (z1 * (Info<float>::Grid::Size() - i2.getY()) + z2 * i2.getY()) / Info<float>::Grid::Size();
-    float zdone = (zleft * (Info<float>::Grid::Size() - i2.getX()) + zright * i2.getX()) / Info<float>::Grid::Size();
+    float zleft = (z0 * (Info<float>::Grid::Size() - posOnTile[kY]) + z3 * posOnTile[kY]) / Info<float>::Grid::Size();
+    float zright = (z1 * (Info<float>::Grid::Size() - posOnTile[kY]) + z2 * posOnTile[kY]) / Info<float>::Grid::Size();
+    float zdone = (zleft * (Info<float>::Grid::Size() - posOnTile[kX]) + zright * posOnTile[kX]) / Info<float>::Grid::Size();
 
     return zdone;
 }
@@ -1013,7 +1007,13 @@ Index1D ego_mesh_t::getTileIndex(const Vector2f& p) const
     if (p[kX] >= 0.0f && p[kX] < _tmem._edge_x && 
 		p[kY] >= 0.0f && p[kY] < _tmem._edge_y)
     {
-        Index2D i2 = fromWorld(p);
+        // Map world coordinates to a tile index.
+        // This function does not assume the point to be within the bounds of the mesh.
+        // If a point is passed which is outside the bounds, the resulting index will
+        // be invalid w.r.t. to the mesh.
+        Index2D i2 = Index2D(static_cast<int>(p[kX]) / Info<int>::Grid::Size(),
+                             static_cast<int>(p[kY]) / Info<int>::Grid::Size());
+
         return getTileIndex(i2);
     }
     return Index1D::Invalid;
@@ -1468,4 +1468,16 @@ void ego_mesh_t::finalize()
 
 	// create some lists to make searching the mesh tiles easier
 	_fxlists.synch(_tmem, true);
+}
+
+float ego_mesh_t::getElevation(const Vector2f& p, bool waterwalk) const
+{
+    const float floorElevation = getElevation(p);
+
+    if (waterwalk && water._surface_level > floorElevation && water._is_water) {
+        if (0 != test_fx(getTileIndex(p), MAPFX_WATER)) {
+            return water._surface_level;
+        }
+    }
+    return floorElevation;
 }

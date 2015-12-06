@@ -887,7 +887,7 @@ void parser_state_t::parse_jumps( script_info_t& script )
             index++;
             auto iTmp = script._instructions[index];              //AisCompiled_buffer[index];
             index++;
-			index += CLIP_TO_08BITS( iTmp._value );
+			index += Ego::Math::clipBits<8>( iTmp._value );
         }
     }
 }
@@ -1602,14 +1602,8 @@ egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, O
 {
 	ps.clear_error();
 	ps._line_count = 0;
-	auto fileread = std::unique_ptr<vfs_FILE,void(*)(vfs_FILE *)>
-		(
-			vfs_openRead(loadname.c_str()),
-			[](vfs_FILE *file)
-			{
-				if (file) vfs_close(file);
-			}
-		);
+
+    std::shared_ptr<vfs_FILE> fileread(vfs_openRead(loadname.c_str()), [](vfs_FILE *pFile){ if(pFile) vfs_close(pFile); });
 
 	// No such file
 	if (!fileread)

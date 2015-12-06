@@ -364,7 +364,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
                 if (!object->isAlive()) continue;
 
                 sum_pos += object->getPosition() + Vector3f(0.0f, 0.0f, object->chr_min_cv._maxs[OCT_Z] * 0.9f);
-                sum_level += object->enviro.level;
+                sum_level += object->getObjectPhysics().getGroundElevation();
                 sum_wt += 1.0f;
             }
 
@@ -405,7 +405,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
             {
                 // Copy from the one character.
                 new_track = local_chr_ptrs[0]->getPosition();
-                new_track_level = local_chr_ptrs[0]->enviro.level + 128;
+                new_track_level = local_chr_ptrs[0]->getObjectPhysics().getGroundElevation() + 128;
             }
             else
             {
@@ -434,7 +434,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 
                     // The character is on foot.
                     sum_pos += pchr->getPosition() * weight;
-                    sum_level += (pchr->enviro.level + 128) * weight;
+                    sum_level += (pchr->getObjectPhysics().getGroundElevation() + 128) * weight;
                     sum_wt += weight;
                 }
 

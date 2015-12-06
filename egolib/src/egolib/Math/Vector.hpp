@@ -171,6 +171,35 @@ public:
 
 public:
 
+    inline ScalarType& x() {
+        static_assert(this->dimensionality() >= 1, "Cannot call for member x() with dimensionality less than 1");
+        return this->_elements[0];
+    }
+
+    inline ScalarType& y() {
+        static_assert(this->dimensionality() >= 2, "Cannot call for member y() with dimensionality less than 2");
+        return this->_elements[1];
+    }
+
+    inline ScalarType& z() {
+        static_assert(this->dimensionality() >= 2, "Cannot call for member z() with dimensionality less than 3");
+        return this->_elements[2];
+    }
+
+    inline const ScalarType& x() const {
+        static_assert(this->dimensionality() >= 1, "Cannot call for member x() with dimensionality less than 1");
+        return this->_elements[0];
+    }
+
+    inline const ScalarType& y() const {
+        static_assert(this->dimensionality() >= 2, "Cannot call for member y() with dimensionality less than 2");
+        return this->_elements[1];
+    }
+
+    inline const ScalarType& z() const {
+        static_assert(this->dimensionality() >= 2, "Cannot call for member z() with dimensionality less than 3");
+        return this->_elements[2];
+    }
     /**
      * @brief
      *  Compute the dot product of this vector and another vector.
@@ -197,6 +226,16 @@ public:
      */
     void assign(const MyType& other) {
 		Tuple<_VectorSpaceType>::assign(other);
+    }
+
+    /** 
+     * @brief
+     *  Set all elements in the vector to zero
+     */
+    void setZero() {
+        for (size_t i = 0; i < this->dimensionality(); ++i) {
+            this->_elements[i] = static_cast<ScalarType>(0);
+        }
     }
 
     /**

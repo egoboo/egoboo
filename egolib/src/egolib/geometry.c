@@ -417,7 +417,7 @@ Ego::Math::Relation cone_intersects_sphere(const Cone3f& K, const Sphere3f& S)
     if ( !done )
     {
         // Shift the origin by the offset in the negative sense.
-		Cone3f K_new = K;
+		K_new = K;
         K_new.origin = K.origin - offset_vec;
 
         // If the center of the sphere is inside this cone, it must be intersecting the original cone.

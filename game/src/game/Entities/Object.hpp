@@ -35,6 +35,7 @@
 #include "game/graphic_billboard.h"
 #include "game/Inventory.hpp"
 #include "game/Physics/Collidable.hpp"
+#include "game/Physics/ObjectPhysics.hpp"
 
 //Forward declarations
 namespace Ego { class Enchantment; }
@@ -47,70 +48,6 @@ enum turn_mode_t : uint8_t
     TURNMODE_SPIN,                               ///< For spinning objects
     TURNMODE_WATCHTARGET,                        ///< For combat intensive AI
     TURNMODE_COUNT
-};
-
-/// Everything that is necessary to compute the character's interaction with the environment
-struct chr_environment_t
-{
-    chr_environment_t() :
-        grid_twist(0),
-        grid_level(0.0f),
-        grid_lerp(0.0f),
-        water_level(0.0f),
-        water_lerp(0.0f),
-        floor_level(0.0f),
-        level(0.0f),
-        fly_level(0.0f),
-        zlerp(0.0f),
-        floor_speed(),
-        is_slipping(false),
-        is_slippy(false),
-        is_watery(false),
-        ice_friction(0.0f),
-        fluid_friction_hrz(0.0f),
-        fluid_friction_vrt(0.0f),
-        traction(0.0f),
-        friction_hrz(0.0f),
-        inwater(false),
-        grounded(true),
-        new_v(),
-        acc(),
-        vel()
-    {
-        //ctor
-    }
-
-    // floor stuff
-    uint8_t   grid_twist;           ///< The twist parameter of the current grid (what angle it it at)
-    float   grid_level;           ///< Height relative to the current grid
-    float   grid_lerp;
-
-    float   water_level;           ///< Height relative to the current water level
-    float   water_lerp;
-
-    float  floor_level;           ///< Height of tile
-    float  level;                 ///< Height of a tile or a platform
-    float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
-
-    float  zlerp;
-
-    Vector3f floor_speed;
-
-    // friction stuff
-    bool is_slipping;
-    bool is_slippy,    is_watery;
-    float  ice_friction;
-    float  fluid_friction_hrz, fluid_friction_vrt;
-    float  traction, friction_hrz;
-
-    // misc states
-    bool inwater;
-    bool grounded;              ///< standing on something?
-
-    // various motion parameters
-    Vector3f  new_v;
-    Vector3f  acc;
-    Vector3f  vel;
 };
 
 /// the data used to define the spawning of a character
@@ -170,6 +107,12 @@ public:
     bool canCollide() const override;
 
     /**
+    * @return
+    *   ObjectPhysics of this Object
+    **/
+    Ego::Physics::ObjectPhysics& getObjectPhysics() { return _objectPhysics; }
+
+    /**
 	 * @brief Get the unique object reference of this object.
      * @return the unique object reference of this object
      */
@@ -208,12 +151,10 @@ public:
     /**
     * @brief
     *   This function returns true if the character is on a water tile
-    * @param anyLiquid
-    *   Return true for any fluid and not only water (acid, lava etc.)
     * @return 
     *   true if it is on a water tile
     **/
-    bool isOverWater(bool anyLiquid) const;
+    bool isOnWaterTile() const;
 
     /**
     * @brief
@@ -223,7 +164,21 @@ public:
     **/
     bool isBeingHeld() const;
 
-    const std::shared_ptr<Object> &getHolder() const;
+    /**
+    * @brief
+    *   Get the Object that is holding this Object
+    *   or nullptr if this Object is not being held.
+    *   This can also be the mount if the Object is actually 
+    *   riding the Holder.
+    **/
+    const std::shared_ptr<Object>& getHolder() const;
+
+    /**
+    * @brief
+    *   Get the platform this object is attached to
+    *   or nullptr if not attached
+    **/
+    const std::shared_ptr<Object>& getAttachedPlatform() const;
 
     /**
     * @brief
@@ -249,13 +204,11 @@ public:
 
     /**
     * @brief
-    *   This function returns true if this Object is emerged in water
-    * @param anyLiquid
-    *   Return true for any fluid and not only water (acid, lava etc.)
+    *   This function returns true if this Object is submerged in liquid
     * @return 
-    *   true if it is on emerged in water (fully or partially)
+    *   true if it is submerged (either fully or partially)
     **/
-    bool isInWater(bool anyLiquid) const;
+    bool isSubmerged() const;
 
     /**
     * @brief Translate the current X, Y, Z position of this object by the specified values
@@ -792,6 +745,8 @@ public:
 
     void dropAllItems();
 
+    const Ego::OpenGL::Texture* getIcon() const;
+
 private:
 
     /**
@@ -933,7 +888,7 @@ public:
 
     // data for doing the physics in bump_all_objects()|
 
-    chr_environment_t enviro;
+    bool inwater;
 
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     ObjectRef         dismount_object;               ///< the object that you were dismounting from
@@ -956,6 +911,9 @@ private:
     Inventory _inventory;
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
     uint32_t _levelUpSeed;
+
+    //Physics
+    Ego::Physics::ObjectPhysics _objectPhysics;
 
     //Non persistent variables. Once game ends these are not saved
     bool _hasBeenKilled;                              ///< If this Object has been killed at least once this module (many can respawn)

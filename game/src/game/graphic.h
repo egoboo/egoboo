@@ -260,12 +260,12 @@ public:
      */
     virtual ~Pool()
     {
-        for (size_t i = 0; i < Capacity; ++i)
-        {
-            free_lst[i] = i;
-            _elements[i].init();
-        }
-        free_count = Capacity;
+        //for (size_t i = 0; i < Capacity; ++i)
+        //{
+        //    free_lst[i] = i;
+        //    _elements[i].init();
+        //}
+        //free_count = Capacity;
     }
 };
 

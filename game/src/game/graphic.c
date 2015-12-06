@@ -44,7 +44,6 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
-#include "game/Physics/ObjectPhysics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1199,7 +1198,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 		ClockScope<ClockPolicy::NonRecursive> clockScope(render_scene_mesh_timer);
         {
 			// Sort dolist for reflected rendering.
-			ClockScope<ClockPolicy::NonRecursive> clockScope(sortDoListReflected_timer);
+			ClockScope<ClockPolicy::NonRecursive> clockScope2(sortDoListReflected_timer);
 			el.sort(cam, true);
         }
         // Render the mesh tiles and reflections of entities.
@@ -2596,7 +2595,7 @@ gfx_rv gfx_update_all_chr_instance()
         else if (gfx_success == tmp_rv)
         {
             // the instance has changed, refresh the collision bound
-            chr_update_collision_size(pchr.get(), true);
+            pchr->getObjectPhysics().updateCollisionSize(true);
         }
     }
 

@@ -37,9 +37,9 @@ bool map_read_v1(vfs_FILE& file, map_t& map)
         Uint32 ui32_tmp;
         vfs_read_Uint32(file, &ui32_tmp);
 
-        tile.type = CLIP_TO_08BITS( ui32_tmp >> 24 );
-        tile.fx   = CLIP_TO_08BITS( ui32_tmp >> 16 );
-        tile.img  = CLIP_TO_16BITS( ui32_tmp >>  0 );
+        tile.type = Ego::Math::clipBits<8>( ui32_tmp >> 24 );
+        tile.fx   = Ego::Math::clipBits<8>( ui32_tmp >> 16 );
+        tile.img  = Ego::Math::clipBits<16>( ui32_tmp >>  0 );
     }
 
     return true;
@@ -54,9 +54,9 @@ bool map_write_v1(vfs_FILE& file, const map_t& map)
     for (const auto& tile : mem.tiles)
     {
         Uint32 ui32_tmp;
-        ui32_tmp  = CLIP_TO_16BITS( tile.img ) <<  0;
-        ui32_tmp |= CLIP_TO_08BITS( tile.fx ) << 16;
-        ui32_tmp |= CLIP_TO_08BITS( tile.type ) << 24;
+        ui32_tmp  = Ego::Math::clipBits<16>( tile.img ) <<  0;
+        ui32_tmp |= Ego::Math::clipBits<8>( tile.fx ) << 16;
+        ui32_tmp |= Ego::Math::clipBits<8>( tile.type ) << 24;
 
         vfs_write<Uint32>(file, ui32_tmp);
     }

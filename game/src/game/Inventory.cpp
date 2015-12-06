@@ -1,6 +1,5 @@
 #include "game/Inventory.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/Physics/ObjectPhysics.h"
 
 #include "game/game.h"
 #include "game/renderer_2d.h"
@@ -219,7 +218,7 @@ bool Inventory::swap_item( ObjectRef iobj, Uint8 inventory_slot, const slot_t gr
     //now put the inventory item into the character's hand
     if (inventory_item)
     {
-        attach_character_to_mount( inventory_item->getObjRef(), pobj->getObjRef(), grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
+        inventory_item->getObjectPhysics().attachToObject(pobj, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT);
 
         //fix flags
         UNSET_BIT( inventory_item->ai.alert, ALERTIF_GRABBED );

@@ -32,8 +32,6 @@
 #include "game/mesh.h"
 #include "game/char.h"
 
-#include "game/Physics/ObjectPhysics.h" //only for move_one_character_get_environment()
-
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
     _gameObjects(),
@@ -427,9 +425,6 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->fat_goto      = pchr->fat;
     pchr->fat_goto_time = 0;
 
-    // grab all of the environment information
-    move_one_character_get_environment( pchr.get() );
-
     pchr->setPosition(pos);
     pchr->setSpawnPosition(pos);
 
@@ -485,7 +480,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //    pchr->isshopitem = true;
     //}
 
-    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
+    chr_instance_t::update_ref(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false), true );
 
     // start the character out in the "dance" animation
     chr_start_anim(pchr.get(), ACTION_DA, true, true);

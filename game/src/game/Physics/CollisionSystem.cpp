@@ -19,7 +19,6 @@
 #include "CollisionSystem.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h" //for update_wld
-#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
 
 #include "particle_collision.h"
 
@@ -29,7 +28,6 @@ namespace Physics
 {
 //C function prototypes
 static bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, float tmax, float tmin);
-static bool do_chr_platform_physics( Object * object, Object * platform );
 static void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 
 CollisionSystem::CollisionSystem()
@@ -130,10 +128,10 @@ void CollisionSystem::update()
         if (std::abs(max_apos[kZ]) > 0.0f)
         {
             tmp_pos[kZ] += max_apos[kZ];
-            if ( tmp_pos[kZ] < pchr->enviro.floor_level )
+            if ( tmp_pos[kZ] < pchr->getObjectPhysics().getGroundElevation() )
             {
                 // restore the old values
-                tmp_pos[kZ] = pchr->enviro.floor_level;
+                tmp_pos[kZ] = pchr->getObjectPhysics().getGroundElevation();
                 if ( pchr->vel[kZ] < 0 )
                 {
                     pchr->vel[kZ] += -( 1.0f + pchr->getProfile()->getBounciness() ) * pchr->vel[kZ];
@@ -277,7 +275,7 @@ void CollisionSystem::updateObjectCollisions()
             //If we are no longer colliding in the horizontal plane, then we are disconnected
             if(!object->getAABB2D().overlaps(platform->getAABB2D()))
             {
-                detach_character_from_platform(object.get());
+                object->getObjectPhysics().detachFromPlatform();
             }
         }
 
@@ -456,9 +454,7 @@ bool CollisionSystem::handleMountingCollision(const std::shared_ptr<Object> &cha
 
     //Attempt to mount?
     if(characterWantsToMount) {
-        if(rv_success == attach_character_to_mount(character->getObjRef(), mount->getObjRef(), GRIP_ONLY)) {
-            return true;
-        }
+        return character->getObjectPhysics().attachToObject(mount, GRIP_ONLY);
     }
 
     return false;
@@ -593,7 +589,7 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
                 objectA->targetplatform_level = objectB->getPosZ() + objectB->chr_min_cv._maxs[OCT_Z];
                 objectA->targetplatform_ref   = ichr_b;
 
-                return attachObjectToPlatform(objectA, objectB);
+                return objectA->getObjectPhysics().attachToPlatform(objectB);
             }
         }
         else
@@ -603,61 +599,12 @@ bool CollisionSystem::handlePlatformCollision(const std::shared_ptr<Object> &obj
                 objectB->targetplatform_level = objectA->getPosZ() + objectA->chr_min_cv._maxs[OCT_Z];
                 objectB->targetplatform_ref   = ichr_a;
 
-                return attachObjectToPlatform(objectB, objectA);
+                return objectB->getObjectPhysics().attachToPlatform(objectA);
             }
         }
     }
 
     return false;
-}
-
-bool CollisionSystem::attachObjectToPlatform(const std::shared_ptr<Object> &object, const std::shared_ptr<Object> &platform)
-{
-    // check if they can be connected
-    if(!object->canuseplatforms || object->isFlying()) {
-        return false;
-    }
-
-    if(!platform->platform) {
-        return false;
-    }
-
-    // do the attachment
-    object->onwhichplatform_ref    = platform->getObjRef();
-    object->onwhichplatform_update = update_wld;
-    object->targetplatform_ref     = ObjectRef::Invalid;
-
-    // update the character's relationship to the ground
-    object->enviro.level     = std::max(object->enviro.floor_level, platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z]);
-    object->enviro.zlerp     = (object->getPosZ() - object->enviro.level) / PLATTOLERANCE;
-    object->enviro.zlerp     = Ego::Math::constrain(object->enviro.zlerp, 0.0f, 1.0f);
-    object->enviro.grounded  = !object->isFlying() && ( object->enviro.zlerp < 0.25f );
-
-    object->enviro.fly_level = std::max(object->enviro.fly_level, object->enviro.level);
-    if (object->enviro.fly_level < 0) object->enviro.fly_level = 0;  // fly above pits...
-
-    // add the weight to the platform based on the new zlerp
-    platform->holdingweight += object->phys.weight;
-
-    // update the character jumping
-    if (object->enviro.grounded)
-    {
-        object->jumpready = true;
-        object->jumpnumber = object->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
-    }
-
-    // what to do about traction if the platform is tilted... hmmm?
-    Vector3f platformUp = Vector3f( 0.0f, 0.0f, 1.0f );
-    chr_getMatUp(platform.get(), platformUp);
-    platformUp.normalize();
-
-    object->enviro.traction = std::abs(platformUp[kZ]) * (1.0f - object->enviro.zlerp) + 0.25f * object->enviro.zlerp;
-
-    // tell the platform that we bumped into it
-    // this is necessary for key buttons to work properly, for instance
-    ai_state_t::set_bumplast(platform->ai, object->getObjRef());
-
-    return true;
 }
 
 bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, const float tmin, const float tmax)
@@ -669,22 +616,16 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     // all collision tests have been met
     if ( ichr_a == objectB->onwhichplatform_ref )
     {
-        if ( do_chr_platform_physics( objectB.get(), objectA.get() ) )
-        {
-            // this is handled
-            return true;
-        }
+        // this is handled in ObjectPhysics.cpp
+        return true;
     }
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
     if ( ichr_b == objectA->onwhichplatform_ref )
     {
-        if ( do_chr_platform_physics( objectA.get(), objectB.get() ) )
-        {
-            // this is handled
-            return true;
-        }
+        // this is handled in ObjectPhysics.cpp
+        return true;
     }
 
     // items can interact with platforms but not with other characters/objects
@@ -821,8 +762,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     // do character-character interactions
 
     // calculate a "mass" for each object, taking into account possible infinite masses
-    float wta = get_chr_mass(objectA.get());
-    float wtb = get_chr_mass(objectB.get());
+    float wta = objectA->getObjectPhysics().getMass();
+    float wtb = objectB->getObjectPhysics().getMass();
 
     // make a special exception for interaction between "Mario platforms"
     if (( wta < 0.0f && objectA->platform ) && ( wtb < 0.0f && objectA->platform ) )
@@ -964,51 +905,6 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
             if(!objectA->hasPerk(Ego::Perks::SHADE)) objectB->deactivateStealth();
         }
     }
-
-    return true;
-}
-
-static bool do_chr_platform_physics( Object * object, Object * platform )
-{
-    // we know that ichr_a is a platform and ichr_b is on it
-    int16_t rot_a, rot_b;
-    float lerp_z, vlerp_z;
-
-    if (!object || object->isTerminated()) {
-        return false;
-    }
-    if (!platform || object->isTerminated()) {
-        return false;
-    }
-    //Are we attached to this platform?
-    if ( object->onwhichplatform_ref != platform->getObjRef() ) return false;
-
-    // grab the pre-computed zlerp value, and map it to our needs
-    lerp_z = 1.0f - object->enviro.zlerp;
-
-    // if your velocity is going up much faster then the
-    // platform, there is no need to suck you to the level of the platform
-    // this was one of the things preventing you from jumping from platforms
-    // properly
-    vlerp_z = std::abs(object->vel[kZ] - platform->vel[kZ]) / 5;
-    vlerp_z  = 1.0f - Ego::Math::constrain( vlerp_z, 0.0f, 1.0f );
-
-    // determine the rotation rates
-    rot_b = object->ori.facing_z - object->ori_old.facing_z;
-    rot_a = platform->ori.facing_z - platform->ori_old.facing_z;
-
-    if ( lerp_z == 1.0f )
-    {
-        object->phys.sum_aplat(( object->enviro.level - object->getPosZ() ) * 0.125f, kZ );
-        object->phys.sum_avel(( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f, kZ );
-        object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
-    }
-    else
-    {
-        object->phys.sum_aplat(( object->enviro.level - object->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
-        object->phys.sum_avel(( platform->vel[kZ]  - object->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
-        object->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
-    };
 
     return true;
 }

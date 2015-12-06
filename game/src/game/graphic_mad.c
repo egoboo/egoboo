@@ -47,12 +47,14 @@ static const float flip_tolerance = 0.25f * 0.5f;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if _DEBUG
 static void draw_chr_verts( Object * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, int slot );
 static void draw_one_grip( chr_instance_t * pinst, int slot );
 //static void draw_chr_grips( Object * pchr );
 static void draw_chr_attached_grip( Object * pchr );
 static void draw_chr_bbox( Object * pchr );
+#endif
 
 // these functions are only called by render_one_mad()
 
@@ -465,7 +467,7 @@ gfx_rv MadRenderer::render( Camera& cam, ObjectRef character, GLXvector4f tint, 
         retval = render_tex( cam, character, tint, bits );
     }
 
-#if defined(DRAW_CHR_BBOX)
+#if defined(DRAW_CHR_BBOX) && defined(_DEBUG)
     // don't draw the debug stuff for reflections
     if ( 0 == ( bits & CHR_REFLECT ) )
     {
@@ -506,7 +508,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, ObjectRef ichr )
 
     if ( !pinst.ref.matrix_valid )
     {
-        if (!chr_instance_t::apply_reflection_matrix(pchr->inst, pchr->enviro.grid_level))
+        if (!chr_instance_t::apply_reflection_matrix(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false)))
         {
             return gfx_error;
         }
@@ -815,6 +817,7 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
 }
 #endif
 
+#if _DEBUG
 void draw_one_grip( chr_instance_t * pinst, int slot )
 {
     GLint matrix_mode[1];
@@ -903,6 +906,7 @@ void draw_chr_attached_grip( Object * pchr )
 
     draw_one_grip( &( pholder->inst ), pchr->inwhich_slot );
 }
+#endif
 
 #if 0
 void draw_chr_grips( Object * pchr )
@@ -1011,7 +1015,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     self.min_light =  255;
     for (size_t cnt = 0; cnt < self.vrt_count; cnt++ )
     {
-        Sint16 lite;
+        float lite = 0.0f;
 
         GLvertex *pvert = self.vrt_lst + cnt;
 
@@ -1025,11 +1029,11 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
             lite += lighting_cache_t::lighting_evaluate_cache(loc_light, Vector3f(-1.0f,-1.0f,-1.0f), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
 
             // average all the directions
-            lite /= 6;
+            lite /= 6.0f;
         }
         else
         {
-            lite  = lighting_cache_t::lighting_evaluate_cache( loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, NULL, NULL );
+            lite = lighting_cache_t::lighting_evaluate_cache( loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
         }
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;
@@ -1039,8 +1043,8 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     }
 
     // ??coerce this to reasonable values in the presence of negative light??
-    if (self.max_light < 0) self.max_light = 0;
-    if (self.min_light < 0) self.min_light = 0;
+    self.max_light = std::max(self.max_light, 0);
+    self.min_light = std::max(self.min_light, 0);
 }
 
 gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)

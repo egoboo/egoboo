@@ -32,7 +32,6 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment() and detach_character_from_platform()
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -122,7 +121,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     turnmode(TURNMODE_VELOCITY),
     movement_bits(( unsigned )(~0)),    // all movements valid
 
-    enviro(),
+    inwater(false),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     dismount_object(),
     
@@ -142,6 +141,9 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _inventory(),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
+
+    //Physics
+    _objectPhysics(*this),
 
     //Non-persistent variables
     _hasBeenKilled(false),
@@ -235,7 +237,7 @@ bool Object::setSkin(const size_t skinNumber)
     if (!this->inst.imad) {
         const std::shared_ptr<Ego::ModelDescriptor> &model = getProfile()->getModel();
         if (chr_instance_t::set_mad(this->inst, model)) {
-            chr_update_collision_size(this, true);
+            getObjectPhysics().updateCollisionSize(true);
         }
     }
     chr_instance_t::set_texture(this->inst, getProfile()->getSkin(this->skin));
@@ -244,20 +246,14 @@ bool Object::setSkin(const size_t skinNumber)
 }
 
 
-bool Object::isOverWater(bool anyLiquid) const
+bool Object::isOnWaterTile() const
 {
-	//Make sure water in the current module is actually water (could be lava, acid, etc.)
-	if(!anyLiquid && !water._is_water)
-    {
-		return false;
-	}
-
     return 0 != _currentModule->getMeshPointer()->test_fx(getTile(), MAPFX_WATER);
 }
 
-bool Object::isInWater(bool anyLiquid) const
+bool Object::isSubmerged() const
 {
-    return isOverWater(anyLiquid) && getPosZ() <= water.get_level();
+    return isOnWaterTile() && getPosZ() <= water.get_level();
 }
 
 void Object::movePosition(const float x, const float y, const float z)
@@ -275,7 +271,7 @@ void Object::setAlpha(const int alpha)
         inst.alpha = std::max<uint8_t>(128, inst.alpha);
     }
 
-    chr_instance_t::update_ref(inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
 }
 
 void Object::setLight(const int light)
@@ -288,13 +284,13 @@ void Object::setLight(const int light)
         inst.light = std::max<uint8_t>(128, inst.light);
     }
 
-    chr_instance_t::update_ref(inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
 }
 
 void Object::setSheen(const int sheen)
 {
     inst.sheen = Ego::Math::constrain(sheen, 0, 0xFF);
-    chr_instance_t::update_ref(inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
 }
 
 bool Object::canMount(const std::shared_ptr<Object> mount) const
@@ -336,7 +332,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     return has_ride_anim;
 }
 
-int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
+int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
                    const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
 {
     int action;
@@ -394,7 +390,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(effects, DAMFX_ARMO));
 
     // Increase electric damage when in water
-    if ( damagetype == DAMAGE_ZAP && isInWater(false) )
+    if (damagetype == DAMAGE_ZAP && isSubmerged() && water._is_water)
     {
         actual_damage *= 2.0f;     /// @note ZF> Is double damage too much?
     }
@@ -473,14 +469,14 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
                         ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
-                                                              ObjectRef::Invalid, GRIP_LAST, team, _objRef);
+                                            ObjectRef::Invalid, GRIP_LAST, attackerTeam, _objRef);
                     }
                 }
 
                 // Set attack alert if it wasn't an accident
                 if ( base_damage > HURTDAMAGE )
                 {
-                    if ( team == Team::TEAM_DAMAGE )
+                    if ( attackerTeam == Team::TEAM_DAMAGE )
                     {
                         ai.setLastAttacker(ObjectRef::Invalid);
                     }
@@ -576,7 +572,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         heal(attacker, -actual_damage, ignore_invictus);
 
         // Isssue an alert
-        if ( team == Team::TEAM_DAMAGE )
+        if ( attackerTeam == Team::TEAM_DAMAGE )
         {
             ai.setLastAttacker(ObjectRef::Invalid);
         }
@@ -740,10 +736,10 @@ void Object::update()
     const float WATER_LEVEL = water.get_level();
 
     // do the character interaction with water
-    if (!isHidden() && isInWater(true) && !isScenery())
+    if (!isHidden() && isSubmerged() && !isScenery())
     {
         // do splash when entering water the first time
-        if (!enviro.inwater)
+        if (!inwater)
         {
             // Splash
             ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
@@ -758,16 +754,14 @@ void Object::update()
         else
         {
             // Ripples
-            if(getPosZ() < WATER_LEVEL && isAlive())
+            if(isAlive())
             {
-                if ( !isBeingHeld() && getProfile()->causesRipples() 
+                if ( !isBeingHeld() && getProfile()->causesRipples()
                     && getPosZ() + chr_min_cv._maxs[OCT_Z] + RIPPLETOLERANCE > WATER_LEVEL 
                     && getPosZ() + chr_min_cv._mins[OCT_Z] < WATER_LEVEL)
                 {
-                    int ripple_suppression;
-
                     // suppress ripples if we are far below the surface
-                    ripple_suppression = WATER_LEVEL - (getPosZ() + chr_min_cv._maxs[OCT_Z]);
+                    int ripple_suppression = WATER_LEVEL - (getPosZ() + chr_min_cv._maxs[OCT_Z]);
                     ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
                     ripple_suppression = Ego::Math::constrain(ripple_suppression, 0, 4);
 
@@ -798,11 +792,11 @@ void Object::update()
             }
         }
 
-        enviro.inwater = true;
+        inwater = true;
     }
     else
     {
-        enviro.inwater = false;
+        inwater = false;
     }
 
     //---- Do timers and such
@@ -834,7 +828,7 @@ void Object::update()
     inst.redshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6);
     inst.grnshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6);
     inst.blushift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6);
-    chr_instance_t::update_ref(inst, enviro.grid_level, false); //update reflection as well
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false); //update reflection as well
 
     // do the mana and life regeneration for "living" characters
     if (isAlive()) {
@@ -1314,7 +1308,7 @@ void Object::recalculateCollisionSize()
     bump.size_big = bump_save.size_big * fat;
     bump.height   = bump_save.height   * fat;
 
-    chr_update_collision_size(this, true);
+    getObjectPhysics().updateCollisionSize(true);
 }
 
 void Object::checkLevelUp()
@@ -1892,7 +1886,7 @@ void Object::respawn()
         reaffirm_attached_particles(getObjRef());
     }
 
-    chr_instance_t::update_ref(inst, enviro.grid_level, true );
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), true );
 }
 
 float Object::getRawDamageResistance(const DamageType type, const bool includeArmor) const
@@ -2258,7 +2252,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     if ( leftItem && ( !_profile->isSlotValid(SLOT_LEFT) || _profile->isMount() ) )
     {
         leftItem->detatchFromHolder(true, true);
-        detach_character_from_platform(leftItem.get());
+        leftItem->getObjectPhysics().detachFromPlatform();
 
         if ( isMount() )
         {
@@ -2272,7 +2266,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     if ( rightItem && !_profile->isSlotValid(SLOT_RIGHT) )
     {
         rightItem->detatchFromHolder(true, true);
-        detach_character_from_platform(rightItem.get());
+        rightItem->getObjectPhysics().detachFromPlatform();
 
         if ( isMount() )
         {
@@ -2421,7 +2415,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     ai_state_t::set_changed(ai);
 
-    chr_instance_t::update_ref(inst, enviro.grid_level, true );
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), true );
 }
 
 bool Object::isInvictusDirection(FACING_T direction, const BIT_FIELD effects) const
@@ -2583,15 +2577,15 @@ bool Object::isScenery() const
     if(isItem()) {
         return false;
     }
-
-    //Everything on team NULL that is not an item is neutral by definition
-    if(getTeam() == Team::TEAM_NULL) {
-        return true;
-    }
     
     //Can it move?
     if(getBaseAttribute(Ego::Attribute::ACCELERATION) > 0) {
         return false;
+    }
+
+    //Everything on team NULL that is not an item is neutral by definition
+    if(getTeam() == Team::TEAM_NULL) {
+        return true;
     }
 
     //Objects on other teams than TEAM_NULL can still be scenery, such as destructable tents or idols
@@ -2848,8 +2842,6 @@ void Object::dropKeys()
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
         pkey->setPosition(getPosition());
-        move_one_character_get_environment( pkey.get() );
-        pkey->enviro.floor_level = enviro.floor_level;
     }    
 }
 
@@ -2906,8 +2898,6 @@ void Object::dropAllItems()
         // do some more complicated things
         SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
         pitem->setPosition(getPosition());
-        move_one_character_get_environment(pitem.get());
-        pitem->enviro.floor_level = enviro.floor_level;
 
         //drop out evenly in all directions
         direction += diradd;
@@ -2937,4 +2927,22 @@ bool Object::canCollide() const
     }
 
     return true;
+}
+
+const std::shared_ptr<Object>& Object::getAttachedPlatform() const
+{
+    return _currentModule->getObjectHandler()[onwhichplatform_ref];
+}
+
+const Ego::OpenGL::Texture* Object::getIcon() const
+{
+    //Is it a spellbook?
+    if (getProfile()->getSpellEffectType() == ObjectProfile::NO_SKIN_OVERRIDE)
+    {
+        return getProfile()->getIcon(skin).get_ptr();
+    }
+    else
+    {
+        return ProfileSystem::get().getSpellBookIcon(getProfile()->getSpellEffectType()).get_ptr();
+    }
 }

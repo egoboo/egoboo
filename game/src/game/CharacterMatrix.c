@@ -20,7 +20,6 @@
 /// @file game/CharacterMatrix.c
 
 #include "game/CharacterMatrix.h"
-#include "game/Physics/ObjectPhysics.h"
 #include "game/graphic_mad.h"
 #include "game/renderer_3d.h"
 #include "game/Entities/_Include.hpp"
@@ -171,8 +170,8 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
             mc_tmp.valid   = true;
             SET_BIT( mc_tmp.type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
-            mc_tmp.rotate[kX] = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-            mc_tmp.rotate[kY] = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+            mc_tmp.rotate[kX] = Ego::Math::clipBits<16>( ptarget->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+            mc_tmp.rotate[kY] = Ego::Math::clipBits<16>( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
             mc_tmp.rotate[kZ] = ptarget->ori.facing_z;
 
             mc_tmp.pos = ptarget->getPosition();
@@ -394,8 +393,8 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
 
                 mcache.grip_scale = mcache.self_scale;
 
-                mcache.rotate[kX] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-                mcache.rotate[kY] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+                mcache.rotate[kX] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+                mcache.rotate[kY] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
                 mcache.rotate[kZ] = pchr->ori.facing_z;
 
                 mcache.pos =pchr->getPosition();
@@ -411,7 +410,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
 
     if ( applied )
     {
-        chr_instance_t::apply_reflection_matrix(pchr->inst, pchr->enviro.grid_level );
+        chr_instance_t::apply_reflection_matrix(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false));
     }
 
     return applied;
@@ -608,7 +607,7 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
         if(apply_matrix_cache(pchr, mc_tmp)) {
             if(update_size) {
                 // call chr_update_collision_size() but pass in a false value to prevent a recursize call
-                chr_update_collision_size( pchr, false );                
+                pchr->getObjectPhysics().updateCollisionSize(false);
             }
             return rv_success;
         }
@@ -975,8 +974,8 @@ void make_one_character_matrix( const ObjectRef ichr )
 
         pinst.matrix_cache.self_scale = Vector3f(pchr->fat, pchr->fat, pchr->fat);
 
-        pinst.matrix_cache.rotate[kX] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-        pinst.matrix_cache.rotate[kY] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+        pinst.matrix_cache.rotate[kX] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+        pinst.matrix_cache.rotate[kY] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
         pinst.matrix_cache.rotate[kZ] = pchr->ori.facing_z;
 
         pinst.matrix_cache.pos = pchr->getPosition();

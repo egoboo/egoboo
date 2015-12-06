@@ -281,7 +281,7 @@ std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface
         throw std::runtime_error("unable to convert surface");
     }
 
-    return std::shared_ptr<SDL_Surface>(newSurface, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+    return std::shared_ptr<SDL_Surface>(newSurface, [ ](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 }
 
 Ego::PixelFormatDescriptor SDL_GL_fromSDL(const SDL_PixelFormat& source)

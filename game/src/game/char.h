@@ -36,19 +36,6 @@
 #include "game/ObjectAnimation.h"
 
 //--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-
-struct Billboard;
-struct mesh_wall_data_t;
-
-//--------------------------------------------------------------------------------------------
-// internal structs
-struct chr_environment_t;
-struct chr_spawn_data_t;
-
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // Attack directions
@@ -71,9 +58,9 @@ struct chr_spawn_data_t;
 
 #define RAISE               12                  ///< Helps correct z level
 
-#define TURNSPD             0.01f                 ///< Cutoff for turning or same direction
+#define TURNSPD             0.1f                 ///< Cutoff for turning or same direction
 #define SPINRATE            200                   ///< How fast spinners spin
-#define WATCHMIN            0.01f                 ///< Tolerance for TURNMODE_WATCH
+#define WATCHMIN            0.1f                 ///< Tolerance for TURNMODE_WATCH
 
 #define PITDEPTH            -60                     ///< Depth to kill character
 #define HURTDAMAGE           256                    ///< Minimum damage for hurt animation
@@ -107,7 +94,6 @@ struct chr_spawn_data_t;
 #define PLATASCEND          0.10f                     ///< Ascension rate
 #define PLATKEEP            0.90f                     ///< Retention rate
 #define MOUNTTOLERANCE      (PLATTOLERANCE)
-#define STOPBOUNCING        2.00f                     ///< To make objects stop bouncing
 #define DROPZVEL            7
 #define DROPXYVEL           12
 
@@ -118,18 +104,3 @@ struct chr_spawn_data_t;
 #define BORETIME            (Random::next<uint16_t>(255, 255 + 511)) ///< IfBored timer
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
-
-//--------------------------------------------------------------------------------------------
-
-// counters for debugging wall collisions
-extern int chr_stoppedby_tests;
-extern int chr_pressure_tests;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// Function prototypes
-const Ego::OpenGL::Texture* chr_get_txtexture_icon_ref( const ObjectRef item );
-
-void character_swipe( ObjectRef cnt, slot_t slot );
-
-ObjectRef chr_get_lowest_attachment(ObjectRef object_ref, bool non_item );

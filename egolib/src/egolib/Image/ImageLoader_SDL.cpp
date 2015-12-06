@@ -30,5 +30,5 @@ std::shared_ptr<SDL_Surface> ImageLoader_SDL::load(vfs_FILE *file) const {
     if (!surface) {
         return nullptr;
     }
-    return std::shared_ptr<SDL_Surface>(surface, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+    return std::shared_ptr<SDL_Surface>(surface, [ ](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 }
