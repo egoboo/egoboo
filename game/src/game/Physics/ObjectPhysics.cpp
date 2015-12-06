@@ -704,7 +704,7 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
         if (pchr_c->isItem() && !pchr_c->isAlive()) continue;
 
         // reasonable carrying capacity
-        if (pchr_c->phys.weight > _object.phys.weight + FLOAT_TO_FP8(_object.getAttribute(Ego::Attribute::MIGHT)) * INV_FF) {
+        if (pchr_c->phys.weight > _object.phys.weight + FLOAT_TO_FP8(_object.getAttribute(Ego::Attribute::MIGHT)) * INV_FF<float>()) {
             continue;
         }
 
@@ -776,12 +776,11 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
     }
 
     if(bestMatch != nullptr) {
-        bool can_grab = can_grab_item_in_shop(_object.getObjRef(), bestMatch->getObjRef());
-
-        if ( can_grab )
+        const std::shared_ptr<Object> &grabber = _currentModule->getObjectHandler()[_object.getObjRef()];
+        if (Shop::canGrabItem(grabber, bestMatch))
         {
             // Stick 'em together and quit
-            if(bestMatch->getObjectPhysics().attachToObject(_currentModule->getObjectHandler()[_object.getObjRef()], grip_off))
+            if(bestMatch->getObjectPhysics().attachToObject(grabber, grip_off))
             {
                 if (grab_people)
                 {
