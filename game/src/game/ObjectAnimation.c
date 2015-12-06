@@ -2,7 +2,6 @@
 #include "CharacterMatrix.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game.h"
-#include "game/Physics/object_physics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -32,7 +32,6 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/Physics/object_physics.h"
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -2843,7 +2842,6 @@ void Object::dropKeys()
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
         pkey->setPosition(getPosition());
-        move_one_character_get_environment( pkey.get() );
         pkey->enviro.floor_level = enviro.floor_level;
     }    
 }
@@ -2901,7 +2899,6 @@ void Object::dropAllItems()
         // do some more complicated things
         SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
         pitem->setPosition(getPosition());
-        move_one_character_get_environment(pitem.get());
         pitem->enviro.floor_level = enviro.floor_level;
 
         //drop out evenly in all directions

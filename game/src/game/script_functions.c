@@ -48,7 +48,6 @@
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
-#include "Physics/object_physics.h"
 
 #include "game/GUI/MiniMap.hpp"
 

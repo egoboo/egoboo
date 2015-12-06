@@ -22,7 +22,6 @@
 /// @author Johan Jansen aka Zefz
 #include "ObjectPhysics.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/Physics/object_physics.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/game.h" //TODO: only for latches
 #include "egolib/Graphics/ModelDescriptor.hpp"
@@ -196,10 +195,101 @@ void ObjectPhysics::updateHillslide()
     }
 }
 
+void ObjectPhysics::updateVariables()
+{
+    chr_environment_t& enviro = _object.enviro;
+    const std::shared_ptr<Object> &pplatform = _object.getAttachedPlatform();
+    ego_mesh_t *mesh = _currentModule->getMeshPointer().get();
+
+    //---- character "floor" level
+    float grid_level = mesh->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false);
+
+    // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
+    if (grid_level != _object.enviro.grid_level) {
+        _object.enviro.grid_level = grid_level;
+
+        chr_instance_t::apply_reflection_matrix(_object.inst, grid_level);
+    }
+
+    // The actual level of the floor underneath the character.
+    if (pplatform)
+    {
+        enviro.floor_level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
+    }
+    else
+    {
+        enviro.floor_level = _object.getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? mesh->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), true) : grid_level;
+    }
+
+    //---- The actual level of the characer.
+    //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
+    //     last loop
+    if (pplatform)
+    {
+        enviro.level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
+    }
+    else {
+        enviro.level = enviro.floor_level;
+    }
+
+    //---- The flying height of the character, the maximum of tile level, platform level and water level
+    if (_object.isOnWaterTile())
+    {
+        enviro.fly_level = std::max(enviro.level, water._surface_level);
+    }
+
+    // fly above pits...
+    if (enviro.fly_level < 0)
+    {
+        enviro.fly_level = 0;
+    }
+
+    // set the zlerp
+    enviro.zlerp = (_object.getPosZ() - enviro.level) / PLATTOLERANCE;
+    enviro.zlerp = Ego::Math::constrain(enviro.zlerp, 0.0f, 1.0f);
+
+    enviro.grounded = !_object.isFlying() && enviro.zlerp <= 0.25f;
+
+    // the "watery-ness" of whatever water might be here
+    enviro.is_slippy = !(water._is_water && enviro.inwater) && (0 != mesh->test_fx(_object.getTile(), MAPFX_SLIPPY));
+
+    //---- jump stuff
+    if ( _object.isFlying() )
+    {
+        // Flying
+        _object.jumpready = false;
+    }
+    else
+    {
+        // Character is in the air
+        _object.jumpready = enviro.grounded;
+
+        // Down jump timer
+        if ((_object.isBeingHeld() || _object.jumpready || _object.jumpnumber > 0) && _object.jump_timer > 0) { 
+            _object.jump_timer--;
+        }
+
+        // Do ground hits
+        if ( enviro.grounded && _object.vel[kZ] < -Ego::Physics::STOP_BOUNCING && _object.hitready )
+        {
+            SET_BIT( _object.ai.alert, ALERTIF_HITGROUND );
+            _object.hitready = false;
+        }
+
+        if ( enviro.grounded && 0 == _object.jump_timer )
+        {
+            // Reset jumping on flat areas of slippiness
+            if(!enviro.is_slippy || g_meshLookupTables.twist_flat[mesh->get_twist(_object.getTile())]) {
+                _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);                
+            }
+        }
+    }    
+}
+
 void ObjectPhysics::updatePhysics()
 {
     //Update physical enviroment variables first
-    move_one_character_get_environment(&_object);
+    updateVariables();
 
     // Keep inventory items with the carrier
     if(_object.isInsideInventory()) {
@@ -411,7 +501,7 @@ void ObjectPhysics::detachFromPlatform()
     _platformOffset.setZero();
 
     // update the character-platform properties
-    move_one_character_get_environment(&_object);
+    updateVariables();
 
     // update the character jumping
     _object.jumpready = _object.enviro.grounded;

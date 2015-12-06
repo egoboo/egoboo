@@ -49,7 +49,6 @@
 #include "game/Physics/PhysicalConstants.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
-#include "Physics/object_physics.h"
 
 //--------------------------------------------------------------------------------------------
 //Global variables! eww! TODO: remove these

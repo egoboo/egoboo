@@ -26,7 +26,6 @@
 #include "game/Module/Module.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
-#include "game/Physics/object_physics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
