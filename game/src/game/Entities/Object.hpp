@@ -65,7 +65,6 @@ struct chr_environment_t
         zlerp(0.0f),
         is_slipping(false),
         is_slippy(false),
-        is_watery(false),
         inwater(false),
         grounded(true)
     {
@@ -88,7 +87,7 @@ struct chr_environment_t
 
     // friction stuff
     bool is_slipping;
-    bool is_slippy,    is_watery;
+    bool is_slippy;
 
     // misc states
     bool inwater;

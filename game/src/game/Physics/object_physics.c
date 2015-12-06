@@ -101,8 +101,7 @@ void move_one_character_get_environment( Object * pchr )
     enviro.grid_twist = mesh->get_twist(pchr->getTile());
 
     // the "watery-ness" of whatever water might be here
-    enviro.is_watery = water._is_water && enviro.inwater;
-    enviro.is_slippy = !enviro.is_watery && ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_SLIPPY ) );
+    enviro.is_slippy = !(water._is_water && enviro.inwater) && (0 != mesh->test_fx(pchr->getTile(), MAPFX_SLIPPY));
 
     //---- jump stuff
     if ( pchr->isFlying() )
