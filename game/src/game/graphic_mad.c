@@ -508,7 +508,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, ObjectRef ichr )
 
     if ( !pinst.ref.matrix_valid )
     {
-        if (!chr_instance_t::apply_reflection_matrix(pchr->inst, pchr->enviro.grid_level))
+        if (!chr_instance_t::apply_reflection_matrix(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false)))
         {
             return gfx_error;
         }

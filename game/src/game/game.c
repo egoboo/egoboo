@@ -881,11 +881,11 @@ void do_damage_tiles()
         if ( 0 == mesh->test_fx( pchr->getTile(), MAPFX_DAMAGE ) ) continue;
 
         // are we low enough?
-        if ( pchr->getPosZ() > pchr->enviro.floor_level + DAMAGERAISE ) continue;
+        if ( pchr->getPosZ() > pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE ) continue;
 
         // allow reaffirming damage to things like torches, even if they are being held,
         // but make the tolerance closer so that books won't burn so easily
-        if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) || pchr->getPosZ() < pchr->enviro.floor_level + DAMAGERAISE )
+        if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) || pchr->getPosZ() < pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE )
         {
             if ( pchr->reaffirm_damagetype == damagetile.damagetype )
             {
@@ -3593,20 +3593,6 @@ float water_instance_t::get_level() const
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_t::getElevation(const Vector2f& p, bool waterwalk) const
-{
-    float zdone = getElevation(p);
-    if (waterwalk && water._surface_level > zdone && water._is_water) {
-        Index1D tile = getTileIndex(p);
-
-		if (0 != test_fx(tile, MAPFX_WATER)) {
-			zdone = water._surface_level;
-		}
-    }
-    return zdone;
-}
-
-//--------------------------------------------------------------------------------------------
 bool export_one_character_quest_vfs( const char *szSaveName, ObjectRef character )
 {
     /// @author ZZ
@@ -3688,7 +3674,7 @@ bool chr_do_latch_button( Object * pchr )
                 pchr->jump_timer = JUMPDELAY;
 
                 //To prevent 'bunny jumping' in water
-                if (pchr->enviro.inwater || pchr->enviro.is_slippy) {
+                if (pchr->enviro.inwater || pchr->getObjectPhysics().floorIsSlippy()) {
                     pchr->jump_timer *= 4;         
                     jumpPower *= 0.5f;
                 }

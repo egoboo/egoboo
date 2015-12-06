@@ -50,39 +50,6 @@ enum turn_mode_t : uint8_t
     TURNMODE_COUNT
 };
 
-/// Everything that is necessary to compute the character's interaction with the environment
-struct chr_environment_t
-{
-    chr_environment_t() :
-        grid_level(0.0f),
-        floor_level(0.0f),
-        level(0.0f),
-        fly_level(0.0f),
-        zlerp(0.0f),
-        is_slippy(false),
-        inwater(false),
-        grounded(true)
-    {
-        //ctor
-    }
-
-    // floor stuff
-    float   grid_level;           ///< Height relative to the current grid
-
-    float  floor_level;           ///< Height of tile
-    float  level;                 ///< Height of a tile or a platform
-    float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
-
-    float  zlerp;
-
-    // friction stuff
-    bool is_slippy;
-
-    // misc states
-    bool inwater;
-    bool grounded;              ///< standing on something?
-};
-
 /// the data used to define the spawning of a character
 struct chr_spawn_data_t
 {
@@ -921,7 +888,7 @@ public:
 
     // data for doing the physics in bump_all_objects()|
 
-    chr_environment_t enviro;
+    bool inwater;
 
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     ObjectRef         dismount_object;               ///< the object that you were dismounting from

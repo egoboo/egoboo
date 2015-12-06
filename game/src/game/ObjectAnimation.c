@@ -281,7 +281,7 @@ float set_character_animation_rate( Object * pchr )
     pinst.rate = 1.0f;
 
     // for non-flying objects, you have to be touching the ground
-    if ( !pchr->enviro.grounded && !pchr->isFlying() ) return pinst.rate;
+    if (!pchr->getObjectPhysics().isTouchingGround() && !pchr->isFlying()) return pinst.rate;
 
     // get the model
     const std::shared_ptr<Ego::ModelDescriptor> pmad = pchr->getProfile()->getModel();
@@ -299,7 +299,7 @@ float set_character_animation_rate( Object * pchr )
     {
         // For non-flying objects, we use the intended speed.
         speed = pchr->getObjectPhysics().getDesiredVelocity().length();
-        if ( pchr->enviro.is_slippy )
+        if (pchr->getObjectPhysics().floorIsSlippy())
         {
             // The character is slipping as on ice.
             // Make his little legs move based on his intended speed, for comic effect! :)

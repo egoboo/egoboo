@@ -121,7 +121,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     turnmode(TURNMODE_VELOCITY),
     movement_bits(( unsigned )(~0)),    // all movements valid
 
-    enviro(),
+    inwater(false),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     dismount_object(),
     
@@ -271,7 +271,7 @@ void Object::setAlpha(const int alpha)
         inst.alpha = std::max<uint8_t>(128, inst.alpha);
     }
 
-    chr_instance_t::update_ref(inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
 }
 
 void Object::setLight(const int light)
@@ -284,13 +284,13 @@ void Object::setLight(const int light)
         inst.light = std::max<uint8_t>(128, inst.light);
     }
 
-    chr_instance_t::update_ref(inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
 }
 
 void Object::setSheen(const int sheen)
 {
     inst.sheen = Ego::Math::constrain(sheen, 0, 0xFF);
-    chr_instance_t::update_ref(inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
 }
 
 bool Object::canMount(const std::shared_ptr<Object> mount) const
@@ -739,7 +739,7 @@ void Object::update()
     if (!isHidden() && isSubmerged() && !isScenery())
     {
         // do splash when entering water the first time
-        if (!enviro.inwater)
+        if (!inwater)
         {
             // Splash
             ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
@@ -792,11 +792,11 @@ void Object::update()
             }
         }
 
-        enviro.inwater = true;
+        inwater = true;
     }
     else
     {
-        enviro.inwater = false;
+        inwater = false;
     }
 
     //---- Do timers and such
@@ -828,7 +828,7 @@ void Object::update()
     inst.redshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6);
     inst.grnshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6);
     inst.blushift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6);
-    chr_instance_t::update_ref(inst, enviro.grid_level, false); //update reflection as well
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false); //update reflection as well
 
     // do the mana and life regeneration for "living" characters
     if (isAlive()) {
@@ -1886,7 +1886,7 @@ void Object::respawn()
         reaffirm_attached_particles(getObjRef());
     }
 
-    chr_instance_t::update_ref(inst, enviro.grid_level, true );
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), true );
 }
 
 float Object::getRawDamageResistance(const DamageType type, const bool includeArmor) const
@@ -2415,7 +2415,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     ai_state_t::set_changed(ai);
 
-    chr_instance_t::update_ref(inst, enviro.grid_level, true );
+    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), true );
 }
 
 bool Object::isInvictusDirection(FACING_T direction, const BIT_FIELD effects) const
@@ -2842,7 +2842,6 @@ void Object::dropKeys()
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
         pkey->setPosition(getPosition());
-        pkey->enviro.floor_level = enviro.floor_level;
     }    
 }
 
@@ -2899,7 +2898,6 @@ void Object::dropAllItems()
         // do some more complicated things
         SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
         pitem->setPosition(getPosition());
-        pitem->enviro.floor_level = enviro.floor_level;
 
         //drop out evenly in all directions
         direction += diradd;

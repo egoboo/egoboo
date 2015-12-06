@@ -35,7 +35,8 @@ ObjectPhysics::ObjectPhysics(Object &object) :
     _object(object),
     _platformOffset(0.0f, 0.0f),
     _desiredVelocity(0.0f, 0.0f),
-    _traction(1.0f)
+    _traction(1.0f),
+    _zlerp(0.0f)
 {
     //ctor
 }
@@ -164,19 +165,19 @@ void ObjectPhysics::updateHillslide()
     const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(_object.getTile());
 
     //This makes it hard for characters to jump uphill
-    if(_object.vel.z() > 0.0f && _object.enviro.is_slippy && !g_meshLookupTables.twist_flat[floorTwist]) {
+    if(_object.vel.z() > 0.0f && floorIsSlippy() && !g_meshLookupTables.twist_flat[floorTwist]) {
         _object.vel.z() *= 0.8f;
     }
 
     //Only slide if we are touching the floor
-    if(_object.enviro.grounded) {
+    if(isTouchingGround()) {
 
         //Can the character slide on this floor?
-        if (_object.enviro.is_slippy && !_object.getAttachedPlatform())
+        if (floorIsSlippy() && !_object.getAttachedPlatform())
         {
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[floorTwist]) {
-                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - _object.enviro.zlerp) * (1.0f - _traction);
+                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - _zlerp) * (1.0f - _traction);
                 _object.vel.x() += g_meshLookupTables.twist_nrm[floorTwist].x() * hillslide;
                 _object.vel.y() += g_meshLookupTables.twist_nrm[floorTwist].y() * hillslide;
 
@@ -197,93 +198,51 @@ void ObjectPhysics::updateHillslide()
 
 void ObjectPhysics::updateVariables()
 {
-    chr_environment_t& enviro = _object.enviro;
-    const std::shared_ptr<Object> &pplatform = _object.getAttachedPlatform();
-    ego_mesh_t *mesh = _currentModule->getMeshPointer().get();
-
-    //---- character "floor" level
-    float grid_level = mesh->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false);
-
     // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
-    if (grid_level != _object.enviro.grid_level) {
-        _object.enviro.grid_level = grid_level;
-
-        chr_instance_t::apply_reflection_matrix(_object.inst, grid_level);
-    }
-
-    // The actual level of the floor underneath the character.
-    if (pplatform)
-    {
-        enviro.floor_level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
-    }
-    else
-    {
-        enviro.floor_level = _object.getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? mesh->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), true) : grid_level;
-    }
-
-    //---- The actual level of the characer.
-    //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
-    //     last loop
-    if (pplatform)
-    {
-        enviro.level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
-    }
-    else {
-        enviro.level = enviro.floor_level;
-    }
-
-    //---- The flying height of the character, the maximum of tile level, platform level and water level
-    if (_object.isOnWaterTile())
-    {
-        enviro.fly_level = std::max(enviro.level, water._surface_level);
-    }
-
-    // fly above pits...
-    if (enviro.fly_level < 0)
-    {
-        enviro.fly_level = 0;
-    }
+    chr_instance_t::apply_reflection_matrix(_object.inst, _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false));
 
     // set the zlerp
-    enviro.zlerp = (_object.getPosZ() - enviro.level) / PLATTOLERANCE;
-    enviro.zlerp = Ego::Math::constrain(enviro.zlerp, 0.0f, 1.0f);
+    _zlerp = (_object.getPosZ() - getGroundElevation()) / PLATTOLERANCE;
+    _zlerp = Ego::Math::constrain(_zlerp, 0.0f, 1.0f);
+}
 
-    enviro.grounded = !_object.isFlying() && enviro.zlerp <= 0.25f;
-
-    // the "watery-ness" of whatever water might be here
-    enviro.is_slippy = !(water._is_water && enviro.inwater) && (0 != mesh->test_fx(_object.getTile(), MAPFX_SLIPPY));
-
-    //---- jump stuff
-    if ( _object.isFlying() )
-    {
-        // Flying
+void ObjectPhysics::updateVelocityZ()
+{
+    //Flying?
+    if(_object.isFlying()) {
+        float flyLevel = std::max(0.0f, getGroundElevation());
+        _object.vel.z() += (flyLevel + _object.getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - _object.getPosZ()) * FLYDAMPEN;
         _object.jumpready = false;
+        return;
     }
-    else
-    {
-        // Character is in the air
-        _object.jumpready = enviro.grounded;
 
-        // Down jump timer
-        if ((_object.isBeingHeld() || _object.jumpready || _object.jumpnumber > 0) && _object.jump_timer > 0) { 
-            _object.jump_timer--;
-        }
+    //Apply gravity
+    _object.vel.z() += _zlerp * Ego::Physics::g_environment.gravity;
 
-        // Do ground hits
-        if ( enviro.grounded && _object.vel[kZ] < -Ego::Physics::STOP_BOUNCING && _object.hitready )
-        {
-            SET_BIT( _object.ai.alert, ALERTIF_HITGROUND );
+    // Down jump timer
+    if ((_object.isBeingHeld() || _object.jumpready || _object.jumpnumber > 0) && _object.jump_timer > 0) { 
+        _object.jump_timer--;
+    }
+
+    // Do ground hits
+    if(isTouchingGround()) {
+        _object.jumpready = true;
+
+        if (_object.vel.z() < -Ego::Physics::STOP_BOUNCING && _object.hitready) {
+            SET_BIT(_object.ai.alert, ALERTIF_HITGROUND);
             _object.hitready = false;
         }
 
-        if ( enviro.grounded && 0 == _object.jump_timer )
-        {
+        if (0 == _object.jump_timer) {
             // Reset jumping on flat areas of slippiness
-            if(!enviro.is_slippy || g_meshLookupTables.twist_flat[mesh->get_twist(_object.getTile())]) {
+            if(!floorIsSlippy() || g_meshLookupTables.twist_flat[_currentModule->getMeshPointer()->get_twist(_object.getTile())]) {
                 _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);                
             }
         }
-    }    
+    }
+    else {
+        _object.jumpready = false;
+    }
 }
 
 void ObjectPhysics::updatePhysics()
@@ -320,13 +279,8 @@ void ObjectPhysics::updatePhysics()
     //Keep us on the platform we are standing on
     updatePlatformPhysics();
 
-    //Apply gravity
-    if(!_object.isFlying()) {
-        _object.vel.z() += _object.enviro.zlerp * Ego::Physics::g_environment.gravity;
-    }
-    else {
-        _object.vel.z() += (_object.enviro.fly_level + _object.getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - _object.getPosZ()) * FLYDAMPEN;
-    }
+    //Generate Z velocity (jumping, gravity, flight, etc.)
+    updateVelocityZ();
 
     //Handle collision with the floor and walls
     updateMeshCollision();
@@ -504,7 +458,7 @@ void ObjectPhysics::detachFromPlatform()
     updateVariables();
 
     // update the character jumping
-    _object.jumpready = _object.enviro.grounded;
+    _object.jumpready = isTouchingGround();
     if ( _object.jumpready ) {
         _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
     }
@@ -532,19 +486,14 @@ bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &platform)
     }
 
     // update the character's relationship to the ground
-    _object.enviro.level     = std::max(_object.enviro.floor_level, platformElevation);
-    _object.enviro.zlerp     = (_object.getPosZ() - _object.enviro.level) / PLATTOLERANCE;
-    _object.enviro.zlerp     = Ego::Math::constrain(_object.enviro.zlerp, 0.0f, 1.0f);
-    _object.enviro.grounded  = !_object.isFlying() && ( _object.enviro.zlerp < 0.25f );
-
-    _object.enviro.fly_level = std::max(_object.enviro.fly_level, _object.enviro.level);
-    if (_object.enviro.fly_level < 0) _object.enviro.fly_level = 0;  // fly above pits...
+    _zlerp = (_object.getPosZ() - getGroundElevation()) / PLATTOLERANCE;
+    _zlerp = Ego::Math::constrain(_zlerp, 0.0f, 1.0f);
 
     // add the weight to the platform
     platform->holdingweight += _object.phys.weight;
 
     // update the character jumping
-    if (_object.enviro.grounded)
+    if (isTouchingGround())
     {
         _object.jumpready = true;
         _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
@@ -565,7 +514,7 @@ void ObjectPhysics::updatePlatformPhysics()
     }
 
     // grab the pre-computed zlerp value, and map it to our needs
-    float lerp_z = 1.0f - _object.enviro.zlerp;
+    float lerp_z = 1.0f - _zlerp;
 
     // if your velocity is going up much faster than the
     // platform, there is no need to suck you to the level of the platform
@@ -585,7 +534,7 @@ void ObjectPhysics::updatePlatformPhysics()
     _platformOffset.y() += _object.vel.y();
 
     //Inherit position of platform with given offsets
-    float zCorrection = (_object.enviro.level - _object.getPosZ()) * 0.125f * lerp_z;
+    float zCorrection = (getGroundElevation() - _object.getPosZ()) * 0.125f * lerp_z;
     _object.setPosition(platform->getPosX() + _platformOffset.x(), platform->getPosY() + _platformOffset.y(), _object.getPosZ() + zCorrection);
 }
 
@@ -596,16 +545,11 @@ void ObjectPhysics::updateMeshCollision()
     // interaction with the mesh
     //if ( std::abs( _object.vel.z() ) > 0.0f )
     {
-        const float floorElevation = _object.enviro.floor_level + RAISE;
+        const float floorElevation = getGroundElevation() + RAISE;
 
         tmp_pos.z() += _object.vel.z();
         if (tmp_pos.z() <= floorElevation)
         {
-            //We have hit the ground
-            if(!_object.isFlying()) {
-                _object.enviro.grounded = true;
-            }
-
             if (std::abs(_object.vel.z()) < Ego::Physics::STOP_BOUNCING)
             {
                 _object.vel.z() = 0.0f;
@@ -695,8 +639,8 @@ void ObjectPhysics::updateMeshCollision()
 
     // Characters with sticky butts lie on the surface of the mesh
     if(_object.getProfile()->hasStickyButt() || !_object.isAlive()) {
-        float fkeep = (7.0f + _object.enviro.zlerp) / 8.0f;
-        float fnew  = (1.0f - _object.enviro.zlerp) / 8.0f;
+        float fkeep = (7.0f + _zlerp) / 8.0f;
+        float fnew  = (1.0f - _zlerp) / 8.0f;
 
         if (fnew > 0) {
             const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(_object.getTile());
@@ -931,7 +875,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
 
     _object.setPosition(mat_getTranslate(_object.inst.matrix));
 
-    _object.enviro.inwater  = false;
+    _object.inwater  = false;
     _object.jump_timer = JUMPDELAY * 4;
 
     // Run the held animation
@@ -1098,6 +1042,42 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
 
     // convert the level 1 bounding box to a level 0 bounding box
     oct_bb_t::downgrade(bdst, _object.bump_stt, _object.bump, _object.bump_1);
+}
+
+bool ObjectPhysics::floorIsSlippy() const
+{
+    //Water tiles are never slippy
+    if(_object.inwater && water._is_water) return false;
+
+    //Check tile slippy bit
+    return 0 != _currentModule->getMeshPointer()->test_fx(_object.getTile(), MAPFX_SLIPPY);
+}
+
+bool ObjectPhysics::isTouchingGround() const
+{
+    //Never touching the ground while levitating
+    if(_object.isFlying()) {
+        return false;
+    }
+
+    return _zlerp <= 0.25f;
+}
+
+float ObjectPhysics::getGroundElevation() const
+{
+    //Standing on a platform?
+    const std::shared_ptr<Object> &platform = _object.getAttachedPlatform();
+    if (platform) {
+        return platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z];
+    }
+
+    //Walking on water?
+    if(_object.isOnWaterTile() && _object.getAttribute(Ego::Attribute::WALK_ON_WATER) > 0) {
+        return _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), true);
+    }
+
+    //Standing on regular ground
+    return _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false);
 }
 
 } //Physics
