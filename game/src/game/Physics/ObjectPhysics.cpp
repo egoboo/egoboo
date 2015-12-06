@@ -911,5 +911,104 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
     return rv_success;
 }
 
+void ObjectPhysics::updateCollisionSize(bool update_matrix)
+{
+    // re-initialize the collision volumes
+    _object.chr_min_cv = oct_bb_t();
+    _object.chr_max_cv = oct_bb_t();
+    for (size_t cnt = 0; cnt < SLOT_COUNT; cnt++)
+    {
+        _object.slot_cv[cnt] = oct_bb_t();
+    }
+
+    // make sure the matrix is updated properly
+    if (update_matrix) {
+        // call chr_update_matrix() but pass in a false value to prevent a recursive call
+        if (rv_error == chr_update_matrix(&_object, false)) {
+            return;
+        }
+    }
+
+    // make sure the bounding box is calculated properly
+    if (gfx_error == chr_instance_t::update_bbox(_object.inst)) {
+        return;
+    }
+
+    // convert the point cloud in the GLvertex array (_object.inst.vrt_lst) to
+    // a level 1 bounding box. Subtract off the position of the character
+    oct_bb_t bsrc = _object.inst.bbox;
+
+    Vector4f  src[16];  // for the upper and lower octagon points
+    Vector4f  dst[16];  // for the upper and lower octagon points
+
+    // convert the corners of the level 1 bounding box to a point cloud
+    // keep track of the actual number of vertices, in case the object is square
+    int vcount = oct_bb_t::to_points(bsrc, src, 16);
+
+    // transform the new point cloud
+    Utilities::transform(_object.inst.matrix, src, dst, vcount);
+
+    // convert the new point cloud into a level 1 bounding box
+    oct_bb_t bdst;
+    oct_bb_t::points_to_oct_bb(bdst, dst, vcount);
+
+    //---- set the bounding boxes
+    _object.chr_min_cv = bdst;
+    _object.chr_max_cv = bdst;
+
+    oct_bb_t bmin;
+    bmin.assign(_object.bump);
+
+    // only use _object.bump.size if it was overridden in data.txt through the [MODL] expansion
+    if ( _object.getProfile()->getBumpOverrideSize() )
+    {
+        _object.chr_min_cv.cut(bmin, OCT_X);
+        _object.chr_min_cv.cut(bmin, OCT_Y);
+
+        _object.chr_max_cv.join(bmin, OCT_X);
+        _object.chr_max_cv.join(bmin, OCT_Y);
+    }
+
+    // only use _object.bump.size_big if it was overridden in data.txt through the [MODL] expansion
+    if (_object.getProfile()->getBumpOverrideSizeBig()) {
+        _object.chr_min_cv.cut(bmin, OCT_XY);
+        _object.chr_min_cv.cut(bmin, OCT_YX);
+
+        _object.chr_max_cv.join(bmin, OCT_XY);
+        _object.chr_max_cv.join(bmin, OCT_YX);
+    }
+
+    // only use _object.bump.height if it was overridden in data.txt through the [MODL] expansion
+    if (_object.getProfile()->getBumpOverrideHeight()) {
+        _object.chr_min_cv.cut(bmin, OCT_Z);
+        _object.chr_max_cv.join(bmin, OCT_Z);
+    }
+
+    //// raise the upper bound for platforms
+    //if ( _object.platform )
+    //{
+    //    _object.chr_max_cv.maxs[OCT_Z] += PLATTOLERANCE;
+    //}
+
+    //This makes it easier to jump on top of mounts
+    if(_object.isMount()) {
+       _object.chr_max_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, _object.chr_max_cv._maxs[OCT_Z]);
+       _object.chr_min_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, _object.chr_min_cv._maxs[OCT_Z]);
+    }
+
+    // calculate collision volumes for various slots
+    for (size_t cnt = 0; cnt < SLOT_COUNT; cnt++)
+    {
+        if (!_object.getProfile()->isSlotValid(static_cast<slot_t>(cnt))) continue;
+
+        chr_calc_grip_cv(&_object, GRIP_LEFT, &_object.slot_cv[cnt], false);
+
+        _object.chr_max_cv.join(_object.slot_cv[cnt]);
+    }
+
+    // convert the level 1 bounding box to a level 0 bounding box
+    oct_bb_t::downgrade(bdst, _object.bump_stt, _object.bump, _object.bump_1);
+}
+
 } //Physics
 } //Ego

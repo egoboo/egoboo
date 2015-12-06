@@ -238,7 +238,7 @@ bool Object::setSkin(const size_t skinNumber)
     if (!this->inst.imad) {
         const std::shared_ptr<Ego::ModelDescriptor> &model = getProfile()->getModel();
         if (chr_instance_t::set_mad(this->inst, model)) {
-            chr_update_collision_size(this, true);
+            getObjectPhysics().updateCollisionSize(true);
         }
     }
     chr_instance_t::set_texture(this->inst, getProfile()->getSkin(this->skin));
@@ -1309,7 +1309,7 @@ void Object::recalculateCollisionSize()
     bump.size_big = bump_save.size_big * fat;
     bump.height   = bump_save.height   * fat;
 
-    chr_update_collision_size(this, true);
+    getObjectPhysics().updateCollisionSize(true);
 }
 
 void Object::checkLevelUp()

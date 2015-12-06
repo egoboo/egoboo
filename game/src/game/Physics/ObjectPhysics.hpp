@@ -88,6 +88,20 @@ public:
     **/
     bool attachToObject(const std::shared_ptr<Object> &holder, grip_offset_t grip_off);
 
+    /**
+    * @author BB
+    *
+    * @details use this function to update the pchr->chr_max_cv and  pchr->chr_min_cv with
+    *       values that reflect the best possible collision volume
+    *
+    * @note This function takes quite a bit of time, so it must only be called when the
+    * vertices change because of an animation or because the matrix changes.
+    *
+    * @todo it might be possible to cache the src[] array used in this function.
+    *   if the matrix changes, then you would not need to recalculate this data...
+    **/
+    void updateCollisionSize(bool updateMatrix);
+
 private:
     /**
     * @brief
