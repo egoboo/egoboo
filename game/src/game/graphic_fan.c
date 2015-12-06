@@ -363,9 +363,9 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
             if ( GridIllumination::light_corner(mesh, jtile, v0.z, nrm, dlight) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
-                v0.r = dlight * INV_FF + alight;
-                v0.g = dlight * INV_FF + alight;
-                v0.b = dlight * INV_FF + alight;
+                v0.r = dlight * INV_FF<float>() + alight;
+                v0.g = dlight * INV_FF<float>() + alight;
+                v0.b = dlight * INV_FF<float>() + alight;
 
                 v0.r = Ego::Math::constrain(v0.r, 0.0f, 1.0f);
                 v0.g = Ego::Math::constrain(v0.g, 0.0f, 1.0f);

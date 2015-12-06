@@ -3534,11 +3534,11 @@ void water_instance_t::upload(const wawalite_water_t& source)
     if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && _layer_count > 1)
     {
         int iTmp = source.layer[0].light_add;
-        iTmp = (source.layer[1].light_add * iTmp * INV_FF) + iTmp;
+        iTmp = (source.layer[1].light_add * iTmp * INV_FF<float>()) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
         _layer_count        = 1;
-        _layers[0]._light_add = iTmp * INV_FF;
+        _layers[0]._light_add = iTmp * INV_FF<float>();
     }
 }
 

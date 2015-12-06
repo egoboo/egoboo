@@ -1258,7 +1258,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     }
 
     //Too Dark?
-    int enviro_light = ( target->inst.alpha * target->inst.max_light ) * INV_FF;
+    int enviro_light = ( target->inst.alpha * target->inst.max_light ) * INV_FF<float>();
     int self_light   = ( target->inst.light == 255 ) ? 0 : target->inst.light;
     int light        = std::max(enviro_light, self_light);
     light *= expf(0.32f * getAttribute(Ego::Attribute::DARKVISION));

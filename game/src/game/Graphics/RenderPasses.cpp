@@ -209,7 +209,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	}
 
 	float light = water._light ? 1.0f : 0.0f;
-	float alpha = ilayer->_alpha * INV_FF;
+	float alpha = ilayer->_alpha * INV_FF<float>();
 
 	float intens = 1.0f;
 
@@ -300,7 +300,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	// make the texture begin to disappear if you are not looking straight down
 	float ftmp = vforw_wind.dot(vforw_cam);
 
-	float alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * INV_FF);
+	float alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * INV_FF<float>());
 
 	if (alpha != 0.0f)
 	{
@@ -571,7 +571,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	}
 
 	// No shadow if completely transparent or completely glowing.
-	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF<float>() : (pchr->inst.alpha - pchr->inst.light) * INV_FF<float>();
 
 	/// @test ZF@> previous test didn't work, but this one does
 	//if ( alpha * 255 < 1 ) return;
@@ -583,7 +583,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	{
 		alpha *= 0.1f;
 	}
-	if (alpha < INV_FF) return;
+	if (alpha < INV_FF<float>()) return;
 
 	// Original points
 	float level = pchr->enviro.floor_level + SHADOWRAISE;
@@ -593,7 +593,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 
 	// how much transparency from height
 	alpha *= height_factor * 0.5f + 0.25f;
-	if (alpha < INV_FF) return;
+	if (alpha < INV_FF<float>()) return;
 
 	float x = pchr->inst.matrix(0, 3); ///< @todo MH: This should be the x/y position of the model.
 	float y = pchr->inst.matrix(1, 3); ///<           Use a more self-descriptive method to describe this.
@@ -652,7 +652,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 	if (pchr->isHidden() || 0 == pchr->shadow_size) return;
 
 	// no shadow if completely transparent
-	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+	float alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF<float>() : (pchr->inst.alpha - pchr->inst.light) * INV_FF<float>();
 
 	/// @test ZF@> The previous test didn't work, but this one does
 	//if ( alpha * 255 < 1 ) return;
@@ -664,7 +664,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 	{
 		alpha *= 0.1f;
 	}
-	if (alpha < INV_FF) return;
+	if (alpha < INV_FF<float>()) return;
 
 	// Original points
 	float level = pchr->enviro.floor_level + SHADOWRAISE;

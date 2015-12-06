@@ -343,7 +343,6 @@ extern int GFX_WIDTH;
 extern int GFX_HEIGHT;
 
 extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///< Environment map
-extern float           lighttoenviroy[256];                                ///< Environment map
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
