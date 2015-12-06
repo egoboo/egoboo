@@ -39,14 +39,14 @@ MainMenuState::MainMenuState() :
 	std::shared_ptr<Image> gameLogo;
 
 	//Special xmas theme
-	if (check_time(SEASON_CHRISTMAS))
+	if (Zeitgeist::CheckTime(Zeitgeist::Time::Christmas))
 	{
 	    background = std::make_shared<Image>("mp_data/menu/menu_xmas");
 	    gameLogo = std::make_shared<Image>("mp_data/menu/snowy_logo");
 	}
 
 	//Special Halloween theme
-	else if (check_time(SEASON_HALLOWEEN))
+	else if (Zeitgeist::CheckTime(Zeitgeist::Time::Halloween))
 	{
 	    background = std::make_shared<Image>("mp_data/menu/menu_halloween");
 	    gameLogo = std::make_shared<Image>("mp_data/menu/creepy_logo");

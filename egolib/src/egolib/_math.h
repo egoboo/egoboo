@@ -40,16 +40,49 @@
 #    define LOG_NAN(XX)
 #endif
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 #define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // basic constants
+
+/**
+ * @brief \f$\frac{1}{255}\f$.
+ * @return \f$\frac{1}{255}\f$ as a value of type @a T.
+ * @remark Specializations for single- and double-precision floating-point types are provided.
+ */
+template <typename T>
+T INV_FF();
+
+template <>
+inline float INV_FF<float>() {
+    return 0.003921568627450980392156862745098f;
+}
+
+template <>
+inline double INV_FF<double>() {
+    return 0.000015259021896696421759365224689097;
+}
+
+
+/**
+* @brief \f$\frac{1}{255^2}\f$.
+* @return \f$\frac{1}{255^2}\f$ as a value of type @a T.
+* @remark Specializations for single- and double-precision floating-point types are provided.
+ */
+template <typename T>
+T INV_FFFF();
+
+template <>
+inline float INV_FFFF<float>() {
+    return 0.000015259021896696421759365224689097f;
+}
+
+template <>
+inline double INV_FFFF<double>() {
+    return 0.000015259021896696421759365224689097;
+}
+
 
 /**
  * @brief
@@ -133,6 +166,11 @@ inline float TurnsToRadians(float x) {
 #define TRIG_TABLE_MASK   (TRIG_TABLE_SIZE-1)
 #define TRIG_TABLE_OFFSET (TRIG_TABLE_SIZE>>2)
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 /// @note - Aaron uses two terms without much attention to their meaning
 ///         I think that we should use "face" or "facing" to mean the fill 16-bit value
 ///         and use "turn" to be the TRIG_TABLE_BITS-bit value
@@ -160,21 +198,15 @@ inline float TurnsToRadians(float x) {
 //--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
 
-#if !defined(INV_FF)
-#   define INV_FF              0.003921568627450980392156862745098f
-#endif
 
 #if !defined(INV_0100)
 #   define INV_0100            0.00390625f
 #endif
 
-#if !defined(INV_FFFF)
-#   define INV_FFFF            0.000015259021896696421759365224689097f
-#endif
 
-#define FF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FF )
+#define FF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FF<float>() )
 
-#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF )
+#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF<float>() )
 #define FLOAT_TO_FFFF( V1 )  ( (int)((V1) * 0xFFFF) )
 
 //--------------------------------------------------------------------------------------------

@@ -1178,7 +1178,7 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
         if (pchr_c->isitem && !pchr_c->isAlive()) continue;
 
         // reasonable carrying capacity
-        if ( pchr_c->phys.weight > pchr_a->phys.weight + FLOAT_TO_FP8(pchr_a->getAttribute(Ego::Attribute::MIGHT)) * INV_FF )
+        if ( pchr_c->phys.weight > pchr_a->phys.weight + FLOAT_TO_FP8(pchr_a->getAttribute(Ego::Attribute::MIGHT)) * INV_FF<float>() )
         {
             canGrab = false;
         }
@@ -1312,7 +1312,7 @@ bool character_grab_stuff( ObjectRef ichr_a, grip_offset_t grip_off, bool grab_p
                 continue;
             } 
 
-            bool can_grab = can_grab_item_in_shop(ichr_a, grabData.object->getObjRef());
+            bool can_grab = Shop::canGrabItem(pchr_a, grabData.object);
 
             if ( can_grab )
             {

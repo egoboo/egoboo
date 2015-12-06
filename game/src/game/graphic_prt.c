@@ -308,7 +308,7 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
             if (SPRITE_LIGHT == pprt->type)
             {
                 // do the light sprites
-                float intens = startalpha * INV_FF * inst.falpha * inst.fintens;
+                float intens = startalpha * INV_FF<float>() * inst.falpha * inst.fintens;
 
                 renderer.setAlphaTestEnabled(false);
 
@@ -325,7 +325,7 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
             {
                 // do the transparent sprites
 
-                float alpha = startalpha * INV_FF;
+                float alpha = startalpha * INV_FF<float>();
                 if (SPRITE_ALPHA == pprt->type)
                 {
                     alpha *= inst.falpha;
@@ -904,15 +904,15 @@ gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, 
     pinst.fdir = 0.9f * pinst.fdir + 0.1f * dir;
 
     // determine the overall lighting
-    pinst.fintens = pinst.fdir * INV_FF;
+    pinst.fintens = pinst.fdir * INV_FF<float>();
     if (do_lighting)
     {
-        pinst.fintens += pinst.famb * INV_FF;
+        pinst.fintens += pinst.famb * INV_FF<float>();
     }
     pinst.fintens = Ego::Math::constrain(pinst.fintens, 0.0f, 1.0f);
 
     // determine the alpha component
-    pinst.falpha = (alpha * INV_FF) * (pinst.alpha * INV_FF);
+    pinst.falpha = (alpha * INV_FF<float>()) * (pinst.alpha * INV_FF<float>());
     pinst.falpha = Ego::Math::constrain(pinst.falpha, 0.0f, 1.0f);
 
     return gfx_success;

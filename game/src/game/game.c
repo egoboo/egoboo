@@ -61,11 +61,11 @@ size_t endtext_carat = 0;
 
 pit_info_t g_pits;
 
-animtile_instance_t   animtile[2];
 damagetile_instance_t damagetile;
-weather_instance_t    weather;
-water_instance_t      water;
-fog_instance_t        fog;
+WeatherState g_weatherState;
+water_instance_t water;
+fog_instance_t fog;
+AnimatedTilesState g_animatedTilesState;
 
 import_list_t g_importList;
 
@@ -87,7 +87,6 @@ static void update_pits();
 static void do_damage_tiles();
 static void set_local_latches();
 static void let_all_characters_think();
-static void do_weather_spawn_particles();
 
 // module initialization / deinitialization - not accessible by scripts
 static bool game_load_module_data( const std::string& smallname );
@@ -549,12 +548,12 @@ int update_game()
     //---- begin the code for updating misc. game stuff
     {
         BillboardSystem::get().update();
-        animate_tiles();
+        g_animatedTilesState.animate();
         water.move();
         AudioSystem::get().updateLoopingSounds();
         do_damage_tiles();
         update_pits();
-        do_weather_spawn_particles();
+        g_weatherState.animate();
     }
     //---- end the code for updating misc. game stuff
 
@@ -989,28 +988,25 @@ void update_pits()
 }
 
 //--------------------------------------------------------------------------------------------
-void do_weather_spawn_particles()
+void WeatherState::animate()
 {
-    /// @author ZZ
-    /// @details This function drops snowflakes or rain or whatever
-
     //Does this module have valid weather?
-    if(weather.time < 0 || weather.part_gpip == LocalParticleProfileRef::Invalid) {
+    if (time < 0 || part_gpip == LocalParticleProfileRef::Invalid) {
         return;
     }
 
-    weather.time--;
-    if ( 0 == weather.time )
+    time--;
+    if (0 == time)
     {
-        weather.time = weather.timer_reset;
+        time = timer_reset;
 
         // Find a valid player
         bool foundone = false;
-        for ( int cnt = 0; cnt < MAX_PLAYER; cnt++ )
+        for (int cnt = 0; cnt < MAX_PLAYER; cnt++)
         {
             // Yes, but is the character valid?
-            weather.iplayer = ( PLA_REF )(( REF_TO_INT( weather.iplayer ) + 1 ) % MAX_PLAYER );
-            if ( PlaStack.lst[weather.iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[weather.iplayer].index) )
+            iplayer = (PLA_REF)((REF_TO_INT(iplayer) + 1) % MAX_PLAYER);
+            if (PlaStack.lst[iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[iplayer].index))
             {
                 foundone = true;
                 break;
@@ -1018,23 +1014,23 @@ void do_weather_spawn_particles()
         }
 
         // Did we find one?
-        if ( foundone )
+        if (foundone)
         {
-            ObjectRef ichr = PlaStack.lst[weather.iplayer].index;
-            if ( _currentModule->getObjectHandler().exists( ichr ) && !_currentModule->getObjectHandler().exists( _currentModule->getObjectHandler().get(ichr)->inwhich_inventory ) )
+            ObjectRef ichr = PlaStack.lst[iplayer].index;
+            if (_currentModule->getObjectHandler().exists(ichr) && !_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ichr)->inwhich_inventory))
             {
-                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[weather.iplayer].index];
+                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[iplayer].index];
 
                 // Yes, so spawn nearby that character
-                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0, weather.over_water);
-                if ( particle )
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, part_gpip, 0, over_water);
+                if (particle)
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                    if ( particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_tmem._edge_x - EDGE )
+                    if (particle->getPosX() < EDGE || particle->getPosX() > _currentModule->getMeshPointer()->_tmem._edge_x - EDGE)
                     {
                         particle->requestTerminate();
                     }
-                    else if ( particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_tmem._edge_y - EDGE )
+                    else if (particle->getPosY() < EDGE || particle->getPosY() > _currentModule->getMeshPointer()->_tmem._edge_y - EDGE)
                     {
                         particle->requestTerminate();
                     }
@@ -2790,7 +2786,7 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 }
 
 //--------------------------------------------------------------------------------------------
-void weather_instance_t::upload(const wawalite_weather_t& source)
+void WeatherState::upload(const wawalite_weather_t& source)
 {
 	this->iplayer = 0;
 
@@ -2831,36 +2827,54 @@ void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t * pdata, const size_t animtile_count )
+void AnimatedTilesState::upload(const wawalite_animtile_t& source)
 {
-    if ( nullptr == inst || 0 == animtile_count ) return false;
+    elements.fill(Layer());
 
-    for(size_t cnt = 0; cnt < animtile_count; ++cnt) {
-        inst[cnt] = animtile_instance_t();
+    for (size_t i = 0; i < elements.size(); ++i)
+    {
+        elements[i].frame_and = (1 << (i + 2)) - 1;
+        elements[i].base_and = ~elements[i].frame_and;
+        elements[i].frame_add = 0;
     }
 
-    for (size_t cnt = 0; cnt < animtile_count; cnt++ )
+    elements[0].update_and = source.update_and;
+    elements[0].frame_and  = source.frame_and;
+    elements[0].base_and   = ~elements[0].frame_and;
+
+    for (size_t i = 1; i < elements.size(); ++i)
     {
-        inst[cnt].frame_and  = ( 1 << ( cnt + 2 ) ) - 1;
-        inst[cnt].base_and   = ~inst[cnt].frame_and;
-        inst[cnt].frame_add  = 0;
+        elements[i].update_and = source.update_and;
+        elements[i].frame_and = (elements[i - 1].frame_and << 1) | 1;
+        elements[i].base_and = ~elements[i].frame_and;
     }
+}
 
-    if ( nullptr != pdata )
+void AnimatedTilesState::animate()
+{
+    for (size_t cnt = 0; cnt < 2; cnt++)
     {
-        inst[0].update_and = pdata->update_and;
-        inst[0].frame_and  = pdata->frame_and;
-        inst[0].base_and   = ~inst[0].frame_and;
+        // grab the tile data
+        auto& element = elements[cnt];
 
-        for (size_t cnt = 1; cnt < animtile_count; cnt++ )
+        // skip it if there were no updates
+        if (element.frame_update_old == update_wld) continue;
+
+        // save the old frame_add when we update to detect changes
+        element.frame_add_old = element.frame_add;
+
+        // cycle through all frames since the last time
+        for (Uint32 tnc = element.frame_update_old + 1; tnc <= update_wld; tnc++)
         {
-            inst[cnt].update_and = pdata->update_and;
-            inst[cnt].frame_and  = ( inst[cnt-1].frame_and << 1 ) | 1;
-            inst[cnt].base_and   = ~inst[cnt].frame_and;
+            if (0 == (tnc & element.update_and))
+            {
+                element.frame_add = (element.frame_add + 1) & element.frame_and;
+            }
         }
-    }
 
-    return true;
+        // save the frame update
+        element.frame_update_old = update_wld;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2937,9 +2951,9 @@ void upload_wawalite()
     upload_camera_data( wawalite_data.camera );
     fog.upload( wawalite_data.fog );
     water.upload( wawalite_data.water );
-    weather.upload( wawalite_data.weather );
+    g_weatherState.upload( wawalite_data.weather );
     damagetile.upload( wawalite_data.damagetile );
-    upload_animtile_data( animtile, &(wawalite_data.animtile ), SDL_arraysize( animtile ) );
+    g_animatedTilesState.upload(wawalite_data.animtile);
 }
 
 
@@ -3119,201 +3133,7 @@ Uint8 get_light( int light, float seedark_mag )
     return Ego::Math::constrain( light, 0, 0xFE );
 }
 
-//--------------------------------------------------------------------------------------------
-bool do_shop_drop( ObjectRef idropper, ObjectRef iitem )
-{
-    if ( !_currentModule->getObjectHandler().exists( iitem ) ) return false;
-    Object *pitem = _currentModule->getObjectHandler().get( iitem );
 
-    if ( !_currentModule->getObjectHandler().exists( idropper ) ) return false;
-    Object *pdropper = _currentModule->getObjectHandler().get( idropper );
-
-    bool inshop = false;
-    if ( pitem->isitem )
-    {
-		ObjectRef ownerRef = _currentModule->getShopOwner(pitem->getPosX(), pitem->getPosY());
-        if ( _currentModule->getObjectHandler().exists(ownerRef) )
-        {
-            Object *owner = _currentModule->getObjectHandler().get(ownerRef);
-
-            inshop = true;
-
-            int price = pitem->getPrice();
-
-            // Are they are trying to sell junk or quest items?
-            if ( 0 == price )
-            {
-                ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_BUY);
-            }
-            else
-            {
-                pdropper->money  = pdropper->money + price;
-                pdropper->money  = Ego::Math::constrain( pdropper->money, (Sint16)0, (Sint16)MAXMONEY );
-
-                owner->money  = owner->money - price;
-                owner->money  = Ego::Math::constrain( owner->money, (Sint16)0, (Sint16)MAXMONEY );
-
-                ai_state_t::add_order(owner->ai, ( Uint32 ) price, Passage::SHOP_BUY);
-            }
-        }
-    }
-
-    return inshop;
-}
-
-//--------------------------------------------------------------------------------------------
-bool do_shop_buy( ObjectRef ibuyer, ObjectRef iitem )
-{
-    if ( !_currentModule->getObjectHandler().exists( iitem ) ) return false;
-    Object *item = _currentModule->getObjectHandler().get( iitem );
-
-    if ( !_currentModule->getObjectHandler().exists(ibuyer) ) return false;
-    Object *buyer = _currentModule->getObjectHandler().get(ibuyer);
-
-    bool canGrab = true;
-	if (item->isitem)
-	{
-		ObjectRef ownerRef = _currentModule->getShopOwner(item->getPosX(), item->getPosY());
-		if (_currentModule->getObjectHandler().exists(ownerRef))
-		{
-			Object *owner = _currentModule->getObjectHandler().get(ownerRef);
-
-			//in_shop = true;
-			int price = item->getPrice();
-
-			if (buyer->money >= price)
-			{
-				// Okay to sell
-				ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_SELL);
-
-				buyer->money = buyer->money - price;
-				buyer->money = Ego::Math::constrain((int)buyer->money, 0, MAXMONEY);
-
-				owner->money = owner->money + price;
-				owner->money = Ego::Math::constrain((int)owner->money, 0, MAXMONEY);
-
-				canGrab = true;
-			}
-			else
-			{
-				// Don't allow purchase
-				ai_state_t::add_order(owner->ai, price, Passage::SHOP_NOAFFORD);
-				canGrab = false;
-			}
-		}
-	}
-
-    /// @note some of these are handled in scripts, so they could be disabled
-    // print some feedback messages
-    /*if( can_grab )
-    {
-        if( in_shop )
-        {
-            if( can_pay )
-            {
-                DisplayMsg_printf( "%s bought %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
-            }
-            else
-            {
-                DisplayMsg_printf( "%s can't afford %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
-            }
-        }
-        else
-        {
-            DisplayMsg_printf( "%s picked up %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
-        }
-    }*/
-
-    return canGrab;
-}
-
-//--------------------------------------------------------------------------------------------
-bool do_shop_steal( ObjectRef ithief, ObjectRef iitem )
-{
-    // Pets can try to steal in addition to invisible characters
-
-    bool can_steal;
-
-    std::shared_ptr<Object> pitem = _currentModule->getObjectHandler()[iitem];
-    if(!pitem) {
-        return false;
-    }
-
-    std::shared_ptr<Object> pthief = _currentModule->getObjectHandler()[ithief];
-    if(!pthief) {
-      return false;  
-    }
-
-    can_steal = true;
-    if ( pitem->isitem )
-    {
-        ObjectRef ownerRef = _currentModule->getShopOwner( pitem->getPosX(), pitem->getPosY() );
-        if ( _currentModule->getObjectHandler().exists(ownerRef) )
-        {
-            int detection = Random::getPercent();
-            Object *owner = _currentModule->getObjectHandler().get(ownerRef);
-
-            can_steal = true;
-            if ( owner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + owner->getAttribute(Ego::Attribute::INTELLECT) ) > 50 )
-            {
-                ai_state_t::add_order(owner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
-                owner->ai.setTarget(ithief);
-                can_steal = false;
-            }
-        }
-    }
-
-    return can_steal;
-}
-
-//--------------------------------------------------------------------------------------------
-bool can_grab_item_in_shop( ObjectRef igrabber, ObjectRef iitem )
-{
-    const std::shared_ptr<Object> &grabber = _currentModule->getObjectHandler()[igrabber];
-    if(!grabber) {
-        return false;
-    }
-
-    Object *item = _currentModule->getObjectHandler().get( iitem );
-    if(!item) {
-        return false;
-    }
-
-    // Assume there is no shop so that the character can grab anything.
-    bool canGrab = true;
-
-    // check if we are doing this inside a shop
-    ObjectRef shopKeeper_ref = _currentModule->getShopOwner(item->getPosX(), item->getPosY());
-    Object *shopKeeper = _currentModule->getObjectHandler().get(shopKeeper_ref);
-	if (INGAME_PCHR(shopKeeper))
-	{
-		// check for a stealthy pickup
-		bool isInvisible = !shopKeeper->canSeeObject(grabber);
-
-		// pets are automatically stealthy
-		bool canSteal = isInvisible || grabber->isItem();
-
-		if (canSteal)
-		{
-			canGrab = do_shop_steal(igrabber, iitem);
-
-			if (!canGrab)
-			{
-				DisplayMsg_printf("%s was detected!!", grabber->getName().c_str());
-			}
-			else
-			{
-				DisplayMsg_printf("%s stole %s", grabber->getName().c_str(), item->getName(true, false, false).c_str());
-			}
-		}
-		else
-		{
-			canGrab = do_shop_buy(igrabber, iitem);
-		}
-	}
-
-    return canGrab;
-}
 //--------------------------------------------------------------------------------------------
 float get_mesh_max_vertex_1( ego_mesh_t *mesh, const Index2D& point, oct_bb_t& bump, bool waterwalk )
 {
@@ -3592,30 +3412,33 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 }
 
 //--------------------------------------------------------------------------------------------
-bool check_time( Uint32 check )
-{
-    /// @author ZF
-    /// @details Returns true if and only if all time and date specifications determined by the e_time parameter is true. This
-    ///    could indicate time of the day, a specific holiday season etc.
-	Ego::Time::LocalTime localTime;
-    switch ( check )
+namespace Zeitgeist {
+bool CheckTime(Time time) {
+    Ego::Time::LocalTime localTime;
+    switch (time)
     {
-		// Halloween between 31th october and the 1st of november
-		case SEASON_HALLOWEEN: return (( 10 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 31 ) ||
-                                       ( 11 == localTime.getMonth() + 1 && localTime.getDayOfMonth() <= 1 ) );
+    // Halloween is from 31th october 31th (incl.) until the november 1st (incl.).
+    case Time::Halloween: 
+        return ((10 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 31) ||
+                (11 == localTime.getMonth() + 1 && localTime.getDayOfMonth() <= 1));
 
-		// Xmas from december 16th until newyear
-        case SEASON_CHRISTMAS: return ( 12 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 16 );
+    // Chrsitmas is from december 16th (incl.) until january 1st/newyear (excl.).
+    case Time::Christmas:
+        return (12 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 16);
 
-		// From 0:00 to 6:00 (spooky time!)
-        case TIME_NIGHT: return localTime.getHours() <= 6;
+    // From 0:00 to 6:00 (spooky time!).
+    case Time::Nighttime:
+        return localTime.getHours() <= 6;
 
-		// Its day whenever it's not night
-        case TIME_DAY: return !check_time( TIME_NIGHT );
+     // Its day whenever it's not night.
+    case Time::Daytime:
+        return localTime.getHours() > 6;
 
-		// Unhandled check
-        default: Log::get().warn( "Unhandled time enum in check_time()\n" ); return false;
+    // Unhandled check.
+    default:
+        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
+}
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3711,11 +3534,11 @@ void water_instance_t::upload(const wawalite_water_t& source)
     if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && _layer_count > 1)
     {
         int iTmp = source.layer[0].light_add;
-        iTmp = (source.layer[1].light_add * iTmp * INV_FF) + iTmp;
+        iTmp = (source.layer[1].light_add * iTmp * INV_FF<float>()) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
         _layer_count        = 1;
-        _layers[0]._light_add = iTmp * INV_FF;
+        _layers[0]._light_add = iTmp * INV_FF<float>();
     }
 }
 

@@ -25,6 +25,7 @@
 #include "game/mesh.h"
 #include "game/input.h"
 #include "game/Inventory.hpp"
+#include "game/Shop.hpp"
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of external structs
@@ -105,43 +106,38 @@ enum e_targeting_bits
 };
 
 //--------------------------------------------------------------------------------------------
-// Enums used with the check_time() function to determine if something time or date related is true
-enum e_time
-{
-    SEASON_HALLOWEEN,       //Is it halloween?
-    SEASON_CHRISTMAS,       //Is it christmas time?
-    TIME_NIGHT,             //Is it night?
-    TIME_DAY                //Is it day?
+
+/// The state of the animated tiles.
+struct AnimatedTilesState {
+    /// The state of a layer of the animated tiles.
+    struct Layer {
+        Layer() :
+            update_and(0),
+            frame_and(0),
+            base_and(0),
+            frame_add(0),
+            frame_add_old(0),
+            frame_update_old(0)
+        {
+            //ctor
+        }
+
+        int    update_and;            ///< how often to update the tile
+
+        uint16_t frame_and;             ///< how many images within the "tile set"?
+        uint16_t base_and;              ///< animated "tile set"
+        uint16_t frame_add;             ///< which image within the tile set?
+        uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
+        uint32_t frame_update_old;
+    };
+    std::array<Layer,2> elements;
+    void upload(const wawalite_animtile_t& source);
+    /// @brief Iterate the state of the animated tiles.
+    void animate();
 };
 
+
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// The actual state of the animated tiles in-game
-struct animtile_instance_t
-{
-    animtile_instance_t() :
-        update_and(0),
-        frame_and(0),
-        base_and(0),
-        frame_add(0),
-        frame_add_old(0),
-        frame_update_old(0)
-    {
-        //ctor
-    }
-
-    int    update_and;            ///< how often to update the tile
-
-    uint16_t frame_and;             ///< how many images within the "tile set"?
-    uint16_t base_and;              ///< animated "tile set"
-    uint16_t frame_add;             ///< which image within the tile set?
-    uint16_t frame_add_old;         ///< the frame offset, the last time it was updated
-    uint32_t frame_update_old;
-};
-
-bool upload_animtile_data( animtile_instance_t dst[], const wawalite_animtile_t* src, const size_t animtile_count );
-
 
 int update_game();
 
@@ -162,17 +158,20 @@ struct damagetile_instance_t
 
 //--------------------------------------------------------------------------------------------
 
-/// The data descibing the weather state
-struct weather_instance_t
+/// The state of the weather.
+struct WeatherState
 {
     int timer_reset;                    ///< How long between each spawn?
     bool  over_water;                   ///< Only spawn over water?
     LocalParticleProfileRef part_gpip;  ///< Which particle to spawn?
 
     PLA_REF iplayer;
-    int     time;                ///< 0 is no weather
+    int     time;                       ///< 0 is no weather
 
 	void upload(const wawalite_weather_t& source);
+    /// @brief Iterate the state of the weather.
+    /// @remarks Drops snowflakes or rain or whatever.
+    void animate();
 };
 
 //--------------------------------------------------------------------------------------------
@@ -379,11 +378,11 @@ struct status_list_t
 //--------------------------------------------------------------------------------------------
 
 // special terrain and wawalite-related data structs (TODO: move into Module class)
-extern animtile_instance_t animtile[2];
 extern damagetile_instance_t damagetile;
-extern weather_instance_t weather;
+extern WeatherState g_weatherState;
 extern water_instance_t water;
 extern fog_instance_t fog;
+extern AnimatedTilesState g_animatedTilesState;
 
 // End text
 extern char   endtext[MAXENDTEXT];     ///< The end-module text
@@ -460,18 +459,30 @@ void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * 
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );
 
-bool do_shop_drop( ObjectRef idropper, ObjectRef iitem );
-
-bool do_shop_buy( ObjectRef ipicker, ObjectRef ichr );
-bool do_shop_steal( ObjectRef ithief, ObjectRef iitem );
-bool can_grab_item_in_shop( ObjectRef ichr, ObjectRef iitem );
-
-
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
 egolib_rv game_copy_imports( import_list_t * imp_lst );
 
-bool check_time( Uint32 check );
+//--------------------------------------------------------------------------------------------
+/**
+ * Zeitgeist connects the game and the real world including. Functionality like audio
+ * and video communication and social networking support might be integrated here.
+ */
+namespace Zeitgeist {
+// An enumeration of special times.
+enum class Time {
+    Halloween,       // Halloween.
+    Christmas,       // Christmas.
+    Nighttime,       // Nighttime.
+    Daytime,         // Daytime.
+};
+/// @brief Get if the specified time is.
+/// @param time the time
+/// @return @a true if
+bool CheckTime(Time time);
+}
+//--------------------------------------------------------------------------------------------
+
 void   game_update_timers();
 
 // wawalite functions

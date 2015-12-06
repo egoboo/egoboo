@@ -385,6 +385,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Shop.cpp" />
     <ClCompile Include="src\game\Physics\CollisionSystem.cpp" />
     <ClCompile Include="src\game\Physics\ObjectPhysics.c" />
     <ClCompile Include="src\game\Physics\particle_collision.c" />
@@ -465,6 +466,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Shop.hpp" />
     <ClInclude Include="src\game\Physics\Collidable.hpp" />
     <ClInclude Include="src\game\Physics\CollisionSystem.hpp" />
     <ClInclude Include="src\game\Physics\ObjectPhysics.h" />

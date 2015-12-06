@@ -86,7 +86,7 @@ ObjectProfile::ObjectProfile() :
     // physics
     _weight(1),
     _bounciness(0.0f),
-    _bumpDampen(INV_FF),
+    _bumpDampen(INV_FF<float>()),
 
     _size(1.0f),
     _sizeGainPerLevel(0.0f),
@@ -503,7 +503,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _shadowSize = vfs_get_next_int(ctxt);
     _bumpSize = vfs_get_next_int(ctxt);
     _bumpHeight = vfs_get_next_int(ctxt);
-    _bumpDampen = std::max(INV_FF, vfs_get_next_float(ctxt));    //0 == bumpdampenmeans infinite mass, and causes some problems
+    _bumpDampen = std::max(INV_FF<float>(), vfs_get_next_float(ctxt));    //0 == bumpdampenmeans infinite mass, and causes some problems
     _weight = vfs_get_next_int(ctxt);
     _jumpPower = vfs_get_next_float(ctxt);
     _jumpNumber = vfs_get_next_int(ctxt);

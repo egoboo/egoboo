@@ -138,9 +138,9 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, ObjectRef character, GLXvector4f
                     pvrt   = pinst.vrt_lst + vertex;
 
                     // normalize the color so it can be modulated by the phong/environment map
-                    col[RR] = pvrt->color_dir * INV_FF;
-                    col[GG] = pvrt->color_dir * INV_FF;
-                    col[BB] = pvrt->color_dir * INV_FF;
+                    col[RR] = pvrt->color_dir * INV_FF<float>();
+                    col[GG] = pvrt->color_dir * INV_FF<float>();
+                    col[BB] = pvrt->color_dir * INV_FF<float>();
                     col[AA] = 1.0f;
 
                     cmax = std::max( std::max( col[RR], col[GG] ), col[BB] );
@@ -257,15 +257,15 @@ gfx_rv MadRenderer::render_tex(Camera& camera, ObjectRef character, GLXvector4f 
     // To make life easier
     Ego::OpenGL::Texture *ptex = pinst.texture;
 
-    float uoffset = pinst.uoffset * INV_FFFF;
-    float voffset = pinst.voffset * INV_FFFF;
+    float uoffset = pinst.uoffset * INV_FFFF<float>();
+    float voffset = pinst.voffset * INV_FFFF<float>();
 
     float base_amb = 0.0f;
     if (0 == (bits & CHR_LIGHT))
     {
         // Convert the "light" parameter to self-lighting for
         // every object that is not being rendered using CHR_LIGHT.
-        base_amb = (255 == pinst.light) ? 0 : (pinst.light * INV_FF);
+        base_amb = (255 == pinst.light) ? 0 : (pinst.light * INV_FF<float>());
     }
 
     // Get the maximum number of vertices per command.
@@ -336,7 +336,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, ObjectRef character, GLXvector4f 
                 if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA))
                 {
                     // The directional lighting.
-                    float fcol = pvrt.color_dir * INV_FF;
+                    float fcol = pvrt.color_dir * INV_FF<float>();
 
                     v.r = fcol;
                     v.g = fcol;
@@ -349,7 +349,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, ObjectRef character, GLXvector4f 
                         // Convert the "light" parameter to self-lighting for
                         // every object that is not being rendered using CHR_LIGHT.
 
-                        float acol = base_amb + pinst.color_amb * INV_FF;
+                        float acol = base_amb + pinst.color_amb * INV_FF<float>();
 
                         v.r += acol;
                         v.g += acol;
@@ -1818,8 +1818,8 @@ void chr_instance_t::update_ref(chr_instance_t& self, float grid_level, bool nee
         startalpha = Ego::Math::constrain(startalpha, 0, 255);
     }
 
-	self.ref.alpha = (self.alpha * startalpha * INV_FF);
-	self.ref.light = (255 == self.light) ? 255 : (self.light * startalpha * INV_FF);
+	self.ref.alpha = (self.alpha * startalpha * INV_FF<float>());
+	self.ref.light = (255 == self.light) ? 255 : (self.light * startalpha * INV_FF<float>());
 
 	self.ref.redshift = self.redshift + 1;
 	self.ref.grnshift = self.grnshift + 1;
@@ -2110,7 +2110,7 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 		tint[RR] += 1.0f / (1 << local_redshift);
 		tint[GG] += 1.0f / (1 << local_grnshift);
 		tint[BB] += 1.0f / (1 << local_blushift);
-		tint[AA] += local_alpha * INV_FF;
+		tint[AA] += local_alpha * INV_FF<float>();
 	}
 
 	if (HAS_SOME_BITS(bits, CHR_LIGHT))
@@ -2123,9 +2123,9 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 
 		if (local_light < 255)
 		{
-			tint[RR] += local_light * INV_FF / (1 << local_redshift);
-			tint[GG] += local_light * INV_FF / (1 << local_grnshift);
-			tint[BB] += local_light * INV_FF / (1 << local_blushift);
+			tint[RR] += local_light * INV_FF<float>() / (1 << local_redshift);
+			tint[GG] += local_light * INV_FF<float>() / (1 << local_grnshift);
+			tint[BB] += local_light * INV_FF<float>() / (1 << local_blushift);
 		}
 
 		tint[AA] += 1.0f;
@@ -2187,7 +2187,7 @@ gfx_rv vlst_cache_t::test(vlst_cache_t& self, chr_instance_t *instance)
 
 void chr_instance_t::flash(chr_instance_t& self, uint8_t value)
 {
-	const float flash_val = value * INV_FF;
+	const float flash_val = value * INV_FF<float>();
 
 	// flash the ambient color
 	self.color_amb = flash_val;
