@@ -699,9 +699,6 @@ void move_all_particles()
     {
         if(particle->isTerminated()) continue;
 
-        // prime the environment
-        particle->enviro.ice_friction = Ego::Physics::g_environment.icefriction;
-
         prt_bundle_t prt_bdl = prt_bundle_t(particle.get());
 
         prt_bdl.move_one_particle();

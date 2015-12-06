@@ -61,9 +61,6 @@ void move_one_character_get_environment( Object * pchr )
     enviro.water_lerp  = ( pchr->getPosZ() - water_level ) / PLATTOLERANCE;
     enviro.water_lerp  = Ego::Math::constrain( enviro.water_lerp, 0.0f, 1.0f );
 
-    // prime the environment
-    enviro.ice_friction = Ego::Physics::g_environment.icefriction;
-
     // The actual level of the floor underneath the character.
     if (pplatform)
     {
