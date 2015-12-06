@@ -586,7 +586,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	if (alpha < INV_FF<float>()) return;
 
 	// Original points
-	float level = pchr->enviro.floor_level + SHADOWRAISE;
+	float level = pchr->getObjectPhysics().getGroundElevation() + SHADOWRAISE;
 	float height = pchr->inst.matrix(2, 3) - level;
 	float height_factor = 1.0f - height / (pchr->shadow_size * 5.0f);
 	if (height_factor <= 0.0f) return;
@@ -667,7 +667,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 	if (alpha < INV_FF<float>()) return;
 
 	// Original points
-	float level = pchr->enviro.floor_level + SHADOWRAISE;
+	float level = pchr->getObjectPhysics().getGroundElevation() + SHADOWRAISE;
 	float height = pchr->inst.matrix(2, 3) - level;
 	if (height < 0) height = 0;
 

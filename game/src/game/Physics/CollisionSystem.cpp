@@ -128,10 +128,10 @@ void CollisionSystem::update()
         if (std::abs(max_apos[kZ]) > 0.0f)
         {
             tmp_pos[kZ] += max_apos[kZ];
-            if ( tmp_pos[kZ] < pchr->enviro.floor_level )
+            if ( tmp_pos[kZ] < pchr->getObjectPhysics().getGroundElevation() )
             {
                 // restore the old values
-                tmp_pos[kZ] = pchr->enviro.floor_level;
+                tmp_pos[kZ] = pchr->getObjectPhysics().getGroundElevation();
                 if ( pchr->vel[kZ] < 0 )
                 {
                     pchr->vel[kZ] += -( 1.0f + pchr->getProfile()->getBounciness() ) * pchr->vel[kZ];

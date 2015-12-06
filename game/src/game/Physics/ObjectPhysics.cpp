@@ -35,8 +35,7 @@ ObjectPhysics::ObjectPhysics(Object &object) :
     _object(object),
     _platformOffset(0.0f, 0.0f),
     _desiredVelocity(0.0f, 0.0f),
-    _traction(1.0f),
-    _zlerp(0.0f)
+    _traction(1.0f)
 {
     //ctor
 }
@@ -177,7 +176,7 @@ void ObjectPhysics::updateHillslide()
         {
             //Make characters slide down hills
             if(!g_meshLookupTables.twist_flat[floorTwist]) {
-                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - _zlerp) * (1.0f - _traction);
+                const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - getLerpZ()) * (1.0f - _traction);
                 _object.vel.x() += g_meshLookupTables.twist_nrm[floorTwist].x() * hillslide;
                 _object.vel.y() += g_meshLookupTables.twist_nrm[floorTwist].y() * hillslide;
 
@@ -196,14 +195,9 @@ void ObjectPhysics::updateHillslide()
     }
 }
 
-void ObjectPhysics::updateVariables()
+float ObjectPhysics::getLerpZ() const
 {
-    // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
-    chr_instance_t::apply_reflection_matrix(_object.inst, _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false));
-
-    // set the zlerp
-    _zlerp = (_object.getPosZ() - getGroundElevation()) / PLATTOLERANCE;
-    _zlerp = Ego::Math::constrain(_zlerp, 0.0f, 1.0f);
+    return Ego::Math::constrain((_object.getPosZ() - getGroundElevation()) / PLATTOLERANCE, 0.0f, 1.0f);
 }
 
 void ObjectPhysics::updateVelocityZ()
@@ -217,11 +211,13 @@ void ObjectPhysics::updateVelocityZ()
     }
 
     //Apply gravity
-    _object.vel.z() += _zlerp * Ego::Physics::g_environment.gravity;
+    _object.vel.z() += getLerpZ() * Ego::Physics::g_environment.gravity;
 
     // Down jump timer
-    if ((_object.isBeingHeld() || _object.jumpready || _object.jumpnumber > 0) && _object.jump_timer > 0) { 
-        _object.jump_timer--;
+    if(_object.jump_timer > 0) {
+        if (_object.isBeingHeld() || isTouchingGround() || _object.jumpnumber > 0) { 
+            _object.jump_timer--;
+        }        
     }
 
     // Do ground hits
@@ -247,8 +243,9 @@ void ObjectPhysics::updateVelocityZ()
 
 void ObjectPhysics::updatePhysics()
 {
-    //Update physical enviroment variables first
-    updateVariables();
+    //ZF> TODO: Why is this here!?
+    // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
+    chr_instance_t::apply_reflection_matrix(_object.inst, _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false));
 
     // Keep inventory items with the carrier
     if(_object.isInsideInventory()) {
@@ -453,15 +450,6 @@ void ObjectPhysics::detachFromPlatform()
     _object.targetplatform_ref     = ObjectRef::Invalid;
     _object.targetplatform_level   = -1e32;
     _platformOffset.setZero();
-
-    // update the character-platform properties
-    updateVariables();
-
-    // update the character jumping
-    _object.jumpready = isTouchingGround();
-    if ( _object.jumpready ) {
-        _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
-    }
 }
 
 bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &platform)
@@ -485,19 +473,12 @@ bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &platform)
         _object.setPosition(_object.getPosX(), _object.getPosY(), platformElevation);
     }
 
-    // update the character's relationship to the ground
-    _zlerp = (_object.getPosZ() - getGroundElevation()) / PLATTOLERANCE;
-    _zlerp = Ego::Math::constrain(_zlerp, 0.0f, 1.0f);
-
     // add the weight to the platform
     platform->holdingweight += _object.phys.weight;
 
     // update the character jumping
-    if (isTouchingGround())
-    {
-        _object.jumpready = true;
-        _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
-    }
+    _object.jumpready = true;
+    _object.jumpnumber = _object.getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
@@ -514,7 +495,7 @@ void ObjectPhysics::updatePlatformPhysics()
     }
 
     // grab the pre-computed zlerp value, and map it to our needs
-    float lerp_z = 1.0f - _zlerp;
+    float lerp_z = 1.0f - getLerpZ();
 
     // if your velocity is going up much faster than the
     // platform, there is no need to suck you to the level of the platform
@@ -639,8 +620,8 @@ void ObjectPhysics::updateMeshCollision()
 
     // Characters with sticky butts lie on the surface of the mesh
     if(_object.getProfile()->hasStickyButt() || !_object.isAlive()) {
-        float fkeep = (7.0f + _zlerp) / 8.0f;
-        float fnew  = (1.0f - _zlerp) / 8.0f;
+        float fkeep = (7.0f + getLerpZ()) / 8.0f;
+        float fnew  = (1.0f - getLerpZ()) / 8.0f;
 
         if (fnew > 0) {
             const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(_object.getTile());
@@ -1060,7 +1041,7 @@ bool ObjectPhysics::isTouchingGround() const
         return false;
     }
 
-    return _zlerp <= 0.25f;
+    return std::abs(_object.getPosZ() - getGroundElevation()) <= FLOOR_TOLERANCE;
 }
 
 float ObjectPhysics::getGroundElevation() const

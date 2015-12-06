@@ -3674,12 +3674,12 @@ bool chr_do_latch_button( Object * pchr )
                 pchr->jump_timer = JUMPDELAY;
 
                 //To prevent 'bunny jumping' in water
-                if (pchr->enviro.inwater || pchr->getObjectPhysics().floorIsSlippy()) {
-                    pchr->jump_timer *= 4;         
+                if (pchr->isSubmerged() || pchr->getObjectPhysics().floorIsSlippy()) {
+                    pchr->jump_timer *= pchr->hasPerk(Ego::Perks::ATHLETICS) ? 2 : 4;       
                     jumpPower *= 0.5f;
                 }
 
-                pchr->vel[kZ] += jumpPower;
+                pchr->vel.z() += jumpPower;
                 pchr->jumpready = false;
 
                 if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE) { 
