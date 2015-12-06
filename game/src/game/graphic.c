@@ -44,7 +44,7 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
-#include "game/Physics/ObjectPhysics.h"
+#include "game/Physics/object_physics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

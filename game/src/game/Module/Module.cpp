@@ -32,7 +32,7 @@
 #include "game/mesh.h"
 #include "game/char.h"
 
-#include "game/Physics/ObjectPhysics.h" //only for move_one_character_get_environment()
+#include "game/Physics/object_physics.h" //only for move_one_character_get_environment()
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),

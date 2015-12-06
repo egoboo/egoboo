@@ -48,7 +48,7 @@
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
-#include "game/Physics/ObjectPhysics.h"
+#include "Physics/object_physics.h"
 
 #include "game/GUI/MiniMap.hpp"
 
@@ -3858,7 +3858,7 @@ Uint8 scr_IfOverWater( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->isOverWater(true);
+    returncode = pchr->isOnWaterTile();
 
     SCRIPT_FUNCTION_END();
 }

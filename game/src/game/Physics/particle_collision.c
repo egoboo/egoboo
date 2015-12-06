@@ -16,7 +16,7 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-#include "game/Physics/ObjectPhysics.h"
+#include "game/Physics/particle_collision.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/char.h"
@@ -26,6 +26,7 @@
 #include "game/Module/Module.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
+#include "game/Physics/object_physics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

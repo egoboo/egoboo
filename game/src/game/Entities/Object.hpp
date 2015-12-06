@@ -54,16 +54,11 @@ enum turn_mode_t : uint8_t
 struct chr_environment_t
 {
     chr_environment_t() :
-        grid_twist(0),
         grid_level(0.0f),
-        grid_lerp(0.0f),
-        water_level(0.0f),
-        water_lerp(0.0f),
         floor_level(0.0f),
         level(0.0f),
         fly_level(0.0f),
         zlerp(0.0f),
-        is_slipping(false),
         is_slippy(false),
         inwater(false),
         grounded(true)
@@ -72,12 +67,7 @@ struct chr_environment_t
     }
 
     // floor stuff
-    uint8_t   grid_twist;           ///< The twist parameter of the current grid (what angle it it at)
     float   grid_level;           ///< Height relative to the current grid
-    float   grid_lerp;
-
-    float   water_level;           ///< Height relative to the current water level
-    float   water_lerp;
 
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
@@ -86,7 +76,6 @@ struct chr_environment_t
     float  zlerp;
 
     // friction stuff
-    bool is_slipping;
     bool is_slippy;
 
     // misc states
@@ -195,12 +184,10 @@ public:
     /**
     * @brief
     *   This function returns true if the character is on a water tile
-    * @param anyLiquid
-    *   Return true for any fluid and not only water (acid, lava etc.)
     * @return 
     *   true if it is on a water tile
     **/
-    bool isOverWater(bool anyLiquid) const;
+    bool isOnWaterTile() const;
 
     /**
     * @brief
@@ -250,13 +237,11 @@ public:
 
     /**
     * @brief
-    *   This function returns true if this Object is emerged in water
-    * @param anyLiquid
-    *   Return true for any fluid and not only water (acid, lava etc.)
+    *   This function returns true if this Object is submerged in liquid
     * @return 
-    *   true if it is on emerged in water (fully or partially)
+    *   true if it is submerged (either fully or partially)
     **/
-    bool isInWater(bool anyLiquid) const;
+    bool isSubmerged() const;
 
     /**
     * @brief Translate the current X, Y, Z position of this object by the specified values

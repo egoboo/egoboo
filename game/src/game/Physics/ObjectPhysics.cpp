@@ -22,7 +22,7 @@
 /// @author Johan Jansen aka Zefz
 #include "ObjectPhysics.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/Physics/ObjectPhysics.h"
+#include "game/Physics/object_physics.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/game.h" //TODO: only for latches
 #include "egolib/Graphics/ModelDescriptor.hpp"
@@ -161,8 +161,10 @@ void ObjectPhysics::updateMovement(const std::shared_ptr<Object> &object)
 
 void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
 {
+    const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(pchr->getTile());
+
     //This makes it hard for characters to jump uphill
-    if(pchr->vel.z() > 0.0f && pchr->enviro.is_slippy && !g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
+    if(pchr->vel.z() > 0.0f && pchr->enviro.is_slippy && !g_meshLookupTables.twist_flat[floorTwist]) {
         pchr->vel.z() *= 0.8f;
     }
 
@@ -173,10 +175,10 @@ void ObjectPhysics::updateHillslide(const std::shared_ptr<Object> &pchr)
         if (pchr->enviro.is_slippy && !pchr->getAttachedPlatform())
         {
             //Make characters slide down hills
-            if(!g_meshLookupTables.twist_flat[pchr->enviro.grid_twist]) {
+            if(!g_meshLookupTables.twist_flat[floorTwist]) {
                 const float hillslide = Ego::Physics::g_environment.hillslide * (1.0f - pchr->enviro.zlerp) * (1.0f - _traction);
-                pchr->vel.x() += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist].x() * hillslide;
-                pchr->vel.y() += g_meshLookupTables.twist_nrm[pchr->enviro.grid_twist].y() * hillslide;
+                pchr->vel.x() += g_meshLookupTables.twist_nrm[floorTwist].x() * hillslide;
+                pchr->vel.y() += g_meshLookupTables.twist_nrm[floorTwist].y() * hillslide;
 
                 //Reduce traction while we are sliding downhill
                 _traction *= 0.8f;
@@ -270,7 +272,7 @@ float ObjectPhysics::getMaxSpeed(Object *object) const
     maxspeed *= speedBonus;
 
     //Are we in water?
-    if(object->isInWater(true)) {
+    if(object->isSubmerged() && water._is_water) {
         if(object->hasPerk(Ego::Perks::ATHLETICS)) {
             maxspeed *= 0.25f; //With athletics perk we can have three-quarters speed
         }
@@ -601,8 +603,9 @@ void ObjectPhysics::updateMeshCollision(const std::shared_ptr<Object> &pchr)
         float fnew  = (1.0f - pchr->enviro.zlerp) / 8.0f;
 
         if (fnew > 0) {
-            pchr->ori.map_twist_facing_x = pchr->ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[pchr->enviro.grid_twist] * fnew;
-            pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[pchr->enviro.grid_twist] * fnew;
+            const uint8_t floorTwist = _currentModule->getMeshPointer()->get_twist(pchr->getTile());
+            pchr->ori.map_twist_facing_x = pchr->ori.map_twist_facing_x * fkeep + g_meshLookupTables.twist_facing_x[floorTwist] * fnew;
+            pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + g_meshLookupTables.twist_facing_y[floorTwist] * fnew;
         }
     }
 }

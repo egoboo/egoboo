@@ -21,7 +21,7 @@
 #include "game/game.h" //for update_wld
 
 #include "particle_collision.h"
-#include "ObjectPhysics.h" //for attach_character_to_mount()
+#include "game/Physics/object_physics.h" //for attach_character_to_mount()
 
 namespace Ego
 {

@@ -1,4 +1,4 @@
-#include "ObjectPhysics.h"
+#include "object_physics.h"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
@@ -45,7 +45,6 @@ void move_one_character_get_environment( Object * pchr )
 
     //---- character "floor" level
     float grid_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false);
-    float water_level = mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), true);
 
     // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
     if (grid_level != pchr->enviro.grid_level) {
@@ -54,13 +53,6 @@ void move_one_character_get_environment( Object * pchr )
         chr_instance_t::apply_reflection_matrix(pchr->inst, grid_level);
     }
 
-    enviro.grid_lerp  = ( pchr->getPosZ() - grid_level ) / PLATTOLERANCE;
-    enviro.grid_lerp  = Ego::Math::constrain( enviro.grid_lerp, 0.0f, 1.0f );
-
-    enviro.water_level = water_level;
-    enviro.water_lerp  = ( pchr->getPosZ() - water_level ) / PLATTOLERANCE;
-    enviro.water_lerp  = Ego::Math::constrain( enviro.water_lerp, 0.0f, 1.0f );
-
     // The actual level of the floor underneath the character.
     if (pplatform)
     {
@@ -68,27 +60,30 @@ void move_one_character_get_environment( Object * pchr )
     }
     else
     {
-        enviro.floor_level = pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? water_level : grid_level;
+        enviro.floor_level = pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), true) : grid_level;
     }
 
     //---- The actual level of the characer.
     //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
     //     last loop
-    enviro.level = enviro.floor_level;
     if (pplatform)
     {
         enviro.level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
     }
+    else {
+        enviro.level = enviro.floor_level;
+    }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
-    if ( 0 != mesh->test_fx( pchr->getTile(), MAPFX_WATER ) )
+    if (pchr->isOnWaterTile())
     {
         enviro.fly_level = std::max(enviro.level, water._surface_level);
     }
 
-    if ( enviro.fly_level < 0 )
+    // fly above pits...
+    if (enviro.fly_level < 0)
     {
-        enviro.fly_level = 0;  // fly above pits...
+        enviro.fly_level = 0;
     }
 
     // set the zlerp
@@ -96,9 +91,6 @@ void move_one_character_get_environment( Object * pchr )
     enviro.zlerp = Ego::Math::constrain(enviro.zlerp, 0.0f, 1.0f);
 
     enviro.grounded = !pchr->isFlying() && enviro.zlerp <= 0.25f;
-
-    //---- the "twist" of the floor
-    enviro.grid_twist = mesh->get_twist(pchr->getTile());
 
     // the "watery-ness" of whatever water might be here
     enviro.is_slippy = !(water._is_water && enviro.inwater) && (0 != mesh->test_fx(pchr->getTile(), MAPFX_SLIPPY));
@@ -129,7 +121,7 @@ void move_one_character_get_environment( Object * pchr )
         if ( enviro.grounded && 0 == pchr->jump_timer )
         {
             // Reset jumping on flat areas of slippiness
-            if(!enviro.is_slippy || g_meshLookupTables.twist_flat[enviro.grid_twist]) {
+            if(!enviro.is_slippy || g_meshLookupTables.twist_flat[mesh->get_twist(pchr->getTile())]) {
                 pchr->jumpnumber = pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS);                
             }
         }

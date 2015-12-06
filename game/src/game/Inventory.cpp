@@ -1,9 +1,9 @@
 #include "game/Inventory.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/Physics/ObjectPhysics.h"
 
 #include "game/game.h"
 #include "game/renderer_2d.h"
+#include "game/Physics/object_physics.h"
 
 //Class constants
 const size_t Inventory::MAXNUMINPACK;

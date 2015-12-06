@@ -32,7 +32,7 @@
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
-#include "game/Physics/ObjectPhysics.h" //for move_one_character_get_environment()
+#include "game/Physics/object_physics.h"
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -247,20 +247,14 @@ bool Object::setSkin(const size_t skinNumber)
 }
 
 
-bool Object::isOverWater(bool anyLiquid) const
+bool Object::isOnWaterTile() const
 {
-	//Make sure water in the current module is actually water (could be lava, acid, etc.)
-	if(!anyLiquid && !water._is_water)
-    {
-		return false;
-	}
-
     return 0 != _currentModule->getMeshPointer()->test_fx(getTile(), MAPFX_WATER);
 }
 
-bool Object::isInWater(bool anyLiquid) const
+bool Object::isSubmerged() const
 {
-    return isOverWater(anyLiquid) && getPosZ() <= water.get_level();
+    return isOnWaterTile() && getPosZ() <= water.get_level();
 }
 
 void Object::movePosition(const float x, const float y, const float z)
@@ -397,7 +391,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(effects, DAMFX_ARMO));
 
     // Increase electric damage when in water
-    if ( damagetype == DAMAGE_ZAP && isInWater(false) )
+    if (damagetype == DAMAGE_ZAP && isSubmerged() && water._is_water)
     {
         actual_damage *= 2.0f;     /// @note ZF> Is double damage too much?
     }
@@ -743,7 +737,7 @@ void Object::update()
     const float WATER_LEVEL = water.get_level();
 
     // do the character interaction with water
-    if (!isHidden() && isInWater(true) && !isScenery())
+    if (!isHidden() && isSubmerged() && !isScenery())
     {
         // do splash when entering water the first time
         if (!enviro.inwater)
