@@ -182,7 +182,7 @@ public:
     }
 
     inline ScalarType& z() {
-        static_assert(VectorSpaceType::dimensionality() >= 2, "Cannot call for member z() with dimensionality less than 3");
+        static_assert(VectorSpaceType::dimensionality() >= 3, "Cannot call for member z() with dimensionality less than 3");
         return this->_elements[2];
     }
 
@@ -197,7 +197,7 @@ public:
     }
 
     inline const ScalarType& z() const {
-        static_assert(VectorSpaceType::dimensionality() >= 2, "Cannot call for member z() with dimensionality less than 3");
+        static_assert(VectorSpaceType::dimensionality() >= 3, "Cannot call for member z() with dimensionality less than 3");
         return this->_elements[2];
     }
     /**
