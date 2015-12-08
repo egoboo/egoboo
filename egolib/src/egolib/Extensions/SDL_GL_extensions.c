@@ -194,7 +194,7 @@ namespace Ego {
 namespace Graphics {
 namespace SDL {
 
-SDL_Surface *padSurface(SDL_Surface *surface, const Padding& padding) {
+std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding) {
 	if (!surface) {
 		throw std::invalid_argument("nullptr == surface");
 	}
@@ -203,7 +203,7 @@ SDL_Surface *padSurface(SDL_Surface *surface, const Padding& padding) {
 	}
 
 	// Alias old surface.
-	SDL_Surface *oldSurface = surface;
+	const auto& oldSurface = surface;
 
 	// Alias old width and old height.
 	size_t oldWidth = surface->w,
@@ -214,40 +214,42 @@ SDL_Surface *padSurface(SDL_Surface *surface, const Padding& padding) {
 		   newHeight = oldHeight + padding.top + padding.bottom;
 	
 	// Create the copy.
-	SDL_Surface *newSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
-												   oldSurface->format->Rmask, oldSurface->format->Gmask, oldSurface->format->Bmask,
-												   oldSurface->format->Amask);
+	auto newSurface = std::shared_ptr<SDL_Surface>(SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
+																		oldSurface->format->Rmask, oldSurface->format->Gmask, oldSurface->format->Bmask,
+																		oldSurface->format->Amask), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 	if (!newSurface) {
 		throw std::runtime_error("SDL_CreateRGBSurface failed");
 	}
 	// Fill the copy with transparent black.
-	SDL_FillRect(newSurface, nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0));
+	SDL_FillRect(newSurface.get(), nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0));
 	// Copy the old surface into the new surface.
 	for (size_t y = 0; y < oldHeight; ++y) {
 		for (size_t x = 0; x < oldWidth; ++x) {
-			uint32_t p = getPixel(oldSurface, x, y);
+			uint32_t p = getPixel(oldSurface.get(), x, y);
 			uint8_t r, g, b, a;
 			SDL_GetRGBA(p, surface->format, &r, &g, &b, &a);
 			uint32_t q = SDL_MapRGBA(newSurface->format, r, g, b, a);
-			putPixel(newSurface, padding.left + x, padding.top + y, q);
+			putPixel(newSurface.get(), padding.left + x, padding.top + y, q);
 		}
 	}
 	return newSurface;
 }
 
-SDL_Surface *cloneSurface(SDL_Surface *surface) {
+std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surface>& surface) {
 	static_assert(SDL_VERSION_ATLEAST(2, 0, 0), "SDL 2.x required");
 	if (!surface) {
 		throw std::invalid_argument("nullptr == surface");
 	}
-	SDL_Surface *clone = SDL_ConvertSurface(surface, surface->format, 0);
+	// TODO: The signature SDL_ConvertSurface(SDL_Surface *, const SDL_PixelFormat *, Uint32) might be considered as a bug.
+	//       It should be SDL_ConvertSurface(const SDL_Surface *, const SDL_PixelFormat *, Uint32).
+	auto clone = std::shared_ptr<SDL_Surface>(SDL_ConvertSurface((SDL_Surface *)surface.get(), surface->format, 0), [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
 	if (!clone) {
 		throw std::runtime_error("SDL_ConvertSurface failed");
 	}
 	return clone;
 }
 
-uint32_t getPixel(SDL_Surface *surface, int x, int y) {
+uint32_t getPixel(const SDL_Surface *surface, int x, int y) {
 	if (!surface) {
 		throw std::invalid_argument("nullptr == surface");
 	}
@@ -378,24 +380,6 @@ Ego::PixelFormatDescriptor SDL_GL_fromSDL(const SDL_PixelFormat& source)
     throw std::runtime_error("pixel format not supported");
 }
 
-std::shared_ptr<SDL_Surface> SDL_GL_pad(std::shared_ptr<SDL_Surface> surface, size_t left, size_t right, size_t top, size_t bottom)
-{
-	Ego::Graphics::SDL::Padding padding;
-	padding.left = left;
-	padding.top = top;
-	padding.right = right;
-	padding.bottom = bottom;
-	auto *newSurface = Ego::Graphics::SDL::padSurface(surface.get(), padding);
-	if (!newSurface) {
-		return nullptr;
-	}
-	try {
-		return std::shared_ptr<SDL_Surface>(newSurface, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
-	} catch (...) {
-		return nullptr;
-	}
-}
-
 std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface)
 {
     const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
@@ -419,7 +403,12 @@ std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface
     // Only if the new dimension differ from the old dimensions, perform the scaling.
     if (newWidth != oldWidth || newHeight != oldHeight)
     {
-        surface = SDL_GL_pad(surface, 0, newWidth - oldWidth, 0, newHeight - oldHeight);
+		Ego::Graphics::SDL::Padding padding;
+		padding.left = 0;
+		padding.top = 0;
+		padding.right = newWidth - oldWidth;
+		padding.bottom = newHeight - oldHeight;
+		surface = Ego::Graphics::SDL::padSurface(surface, padding);
     }
 
     // (3) Return the result.
