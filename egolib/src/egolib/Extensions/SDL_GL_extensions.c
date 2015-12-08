@@ -190,39 +190,101 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     return retval;
 }
 
-Uint32 SDL_GL_getpixel(SDL_Surface *surface, int x, int y)
-{
+namespace Ego {
+namespace Graphics {
+namespace SDL {
+
+SDL_Surface *padSurface(SDL_Surface *surface, const Padding& padding) {
+	if (!surface) {
+		throw std::invalid_argument("nullptr == surface");
+	}
+	if (!padding.left && !padding.top && !padding.right && !padding.bottom) {
+		return cloneSurface(surface);
+	}
+
+	// Alias old surface.
+	SDL_Surface *oldSurface = surface;
+
+	// Alias old width and old height.
+	size_t oldWidth = surface->w,
+		   oldHeight = surface->h;
+
+	// Compute new width and new height.
+	size_t newWidth = oldWidth + padding.left + padding.right,
+		   newHeight = oldHeight + padding.top + padding.bottom;
+	
+	// Create the copy.
+	SDL_Surface *newSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight, oldSurface->format->BitsPerPixel,
+												   oldSurface->format->Rmask, oldSurface->format->Gmask, oldSurface->format->Bmask,
+												   oldSurface->format->Amask);
+	if (!newSurface) {
+		throw std::runtime_error("SDL_CreateRGBSurface failed");
+	}
+	// Fill the copy with transparent black.
+	SDL_FillRect(newSurface, nullptr, SDL_MapRGBA(newSurface->format, 0, 0, 0, 0));
+	// Copy the old surface into the new surface.
+	for (size_t y = 0; y < oldHeight; ++y) {
+		for (size_t x = 0; x < oldWidth; ++x) {
+			uint32_t p = getPixel(oldSurface, x, y);
+			uint8_t r, g, b, a;
+			SDL_GetRGBA(p, surface->format, &r, &g, &b, &a);
+			uint32_t q = SDL_MapRGBA(newSurface->format, r, g, b, a);
+			putPixel(newSurface, padding.left + x, padding.top + y, q);
+		}
+	}
+	return newSurface;
+}
+
+SDL_Surface *cloneSurface(SDL_Surface *surface) {
+	static_assert(SDL_VERSION_ATLEAST(2, 0, 0), "SDL 2.x required");
+	if (!surface) {
+		throw std::invalid_argument("nullptr == surface");
+	}
+	SDL_Surface *clone = SDL_ConvertSurface(surface, surface->format, 0);
+	if (!clone) {
+		throw std::runtime_error("SDL_ConvertSurface failed");
+	}
+	return clone;
+}
+
+uint32_t getPixel(SDL_Surface *surface, int x, int y) {
+	if (!surface) {
+		throw std::invalid_argument("nullptr == surface");
+	}
     int bpp = surface->format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to retrieve */
-    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+    /* Here p is the address to the pixel we want to get. */
+    uint8_t *p = (uint8_t *)surface->pixels + y * surface->pitch + x * bpp;
 
     switch (bpp) {
         case 1:
             return *p;
 
         case 2:
-            return *(Uint16 *)p;
+            return *(uint16_t *)p;
 
         case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                return p[0] << 16 | p[1] << 8 | p[2];
-            else
-                return p[0] | p[1] << 8 | p[2] << 16;
+			if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+				return p[0] << 16 | p[1] << 8 | p[2];
+			} else {
+				return p[0] | p[1] << 8 | p[2] << 16;
+			}
             break;
 
         case 4:
-            return *(Uint32 *)p;
+            return *(uint32_t *)p;
 
         default:
             throw std::runtime_error("unreachable code reached"); /* shouldn't happen, but avoids warnings */
     }
 }
 
-void SDL_GL_putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
-{
+void putPixel(SDL_Surface *surface, int x, int y, uint32_t pixel) {
+	if (!surface) {
+		throw std::invalid_argument("nullptr == surface");
+	}
     int bpp = surface->format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to set */
-    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+    /* Here p is the address to the pixel we want to set. */
+    uint8_t *p = (uint8_t *)surface->pixels + y * surface->pitch + x * bpp;
 
     switch (bpp) {
         case 1:
@@ -230,7 +292,7 @@ void SDL_GL_putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
             break;
 
         case 2:
-            *(Uint16 *)p = pixel;
+            *(uint16_t *)p = pixel;
             break;
 
         case 3:
@@ -238,8 +300,7 @@ void SDL_GL_putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
                 p[0] = (pixel >> 16) & 0xff;
                 p[1] = (pixel >> 8) & 0xff;
                 p[2] = pixel & 0xff;
-            }
-            else {
+            } else {
                 p[0] = pixel & 0xff;
                 p[1] = (pixel >> 8) & 0xff;
                 p[2] = (pixel >> 16) & 0xff;
@@ -247,13 +308,18 @@ void SDL_GL_putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
             break;
 
         case 4:
-            *(Uint32 *)p = pixel;
+            *(uint32_t *)p = pixel;
             break;
+
         default:
             throw std::runtime_error("unreachable code reached"); /* shouldn't happen, but avoids warnings */
     }
 }
 
+
+} // namespace SDL
+} // namespace Graphics
+} // namespace Ego
 
 std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface, const Ego::PixelFormatDescriptor& pixelFormatDescriptor)
 {
@@ -261,14 +327,12 @@ std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface
     {
         throw std::invalid_argument("nullptr == surface");
     }
-    uint32_t Amask, Bmask, Gmask, Rmask;
-    int bpp;
 
-    Amask = pixelFormatDescriptor.getAlphaMask();
-    Bmask = pixelFormatDescriptor.getBlueMask();
-    Gmask = pixelFormatDescriptor.getGreenMask();
-    Rmask = pixelFormatDescriptor.getRedMask();
-    bpp = pixelFormatDescriptor.getBitsPerPixel();
+    uint32_t Amask = pixelFormatDescriptor.getAlphaMask(),
+             Bmask = pixelFormatDescriptor.getBlueMask(),
+             Gmask = pixelFormatDescriptor.getGreenMask(),
+             Rmask = pixelFormatDescriptor.getRedMask();
+    int bpp = pixelFormatDescriptor.getBitsPerPixel();
     
     uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask, Bmask, Amask);
     if (newFormat == SDL_PIXELFORMAT_UNKNOWN) {
@@ -316,42 +380,20 @@ Ego::PixelFormatDescriptor SDL_GL_fromSDL(const SDL_PixelFormat& source)
 
 std::shared_ptr<SDL_Surface> SDL_GL_pad(std::shared_ptr<SDL_Surface> surface, size_t left, size_t right, size_t top, size_t bottom)
 {
-    if (!surface || surface->w < 0 || surface->h < 0)
-    {
-        throw std::invalid_argument("nullptr == surface || surface->w < 0 || surface->h < 0");
-    }
-    if (left == 0 && right == 0 && top == 0 && bottom == 0)
-    {
-        return surface;
-    }
-    // Alias old width and old height.
-    size_t oldWidth  = surface->w,
-           oldHeight = surface->h;
-
-    // Compute new width and new height.
-    size_t newWidth = oldWidth + left + right,
-           newHeight = oldHeight + top + bottom;
-
-    // Create a new surface.
-    const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-    auto temporary = ImageManager::get().createImage(newWidth, newHeight, pixelFormatDescriptor);
-
-    // Fill the surface with transparent black.
-    SDL_FillRect(temporary.get(), nullptr, SDL_MapRGBA(temporary->format, 0, 0, 0, 0));
-    for (size_t y = 0; y < oldHeight; ++y)
-    {
-        for (size_t x = 0; x < oldWidth; ++x)
-        {
-            uint32_t p = SDL_GL_getpixel(surface.get(), x, y);
-            uint8_t r, g, b, a;
-            SDL_GetRGBA(p, surface->format, &r, &g, &b, &a);
-            uint32_t q = SDL_MapRGBA(temporary->format, r, g, b, a);
-            SDL_GL_putpixel(temporary.get(), left + x, top + y, q);
-        }
-    }
-
-    // Return the temporary surface.
-    return temporary;
+	Ego::Graphics::SDL::Padding padding;
+	padding.left = left;
+	padding.top = top;
+	padding.right = right;
+	padding.bottom = bottom;
+	auto *newSurface = Ego::Graphics::SDL::padSurface(surface.get(), padding);
+	if (!newSurface) {
+		return nullptr;
+	}
+	try {
+		return std::shared_ptr<SDL_Surface>(newSurface, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+	} catch (...) {
+		return nullptr;
+	}
 }
 
 std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface)
