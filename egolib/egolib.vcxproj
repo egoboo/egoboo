@@ -51,39 +51,39 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\multithreaded.props" />
-    <Import Project="..\vs2013\sdl2.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\lua.props" />
-    <Import Project="..\vs2013\enet.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\multithreaded.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\lua.props" />
+    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\multithreaded.props" />
-    <Import Project="..\vs2013\sdl2.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\lua.props" />
-    <Import Project="..\vs2013\enet.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\multithreaded.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\lua.props" />
+    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\multithreaded_debug.props" />
-    <Import Project="..\vs2013\sdl2.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\lua.props" />
-    <Import Project="..\vs2013\enet.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\multithreaded_debug.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\lua.props" />
+    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\multithreaded_debug.props" />
-    <Import Project="..\vs2013\sdl2.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\lua.props" />
-    <Import Project="..\vs2013\enet.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\multithreaded_debug.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\lua.props" />
+    <Import Project="..\VisualStudio\enet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -691,19 +691,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\external\SDL2-2.0.3\VisualC\SDL\SDL_VS2013.vcxproj">
+    <ProjectReference Include="..\external\SDL2-2.0.3\VisualC\SDL\SDL.vcxproj">
       <Project>{336e1cf1-31f8-4af3-bdf3-f6d4d5221ae7}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\external\SDL2_image-2.0.0\VisualC\SDL_image_VS2013.vcxproj">
+    <ProjectReference Include="..\external\SDL2_image-2.0.0\VisualC\SDL_image.vcxproj">
       <Project>{051aaf6c-2640-40f8-992d-23e3a0f5def1}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\external\SDL2_mixer-2.0.0\VisualC\SDL_mixer_VS2013.vcxproj">
+    <ProjectReference Include="..\external\SDL2_mixer-2.0.0\VisualC\SDL_mixer.vcxproj">
       <Project>{4fc99ae8-ec78-41fd-9293-78faa5eaabb5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf_VS2013.vcxproj">
+    <ProjectReference Include="..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf.vcxproj">
       <Project>{d114a863-1bdc-4979-a61e-cb6b7ca5f1bb}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\idlib\idlib_vs13.vcxproj">
+    <ProjectReference Include="..\idlib\idlib.vcxproj">
       <Project>{f59e5a93-844c-4c7f-bffa-c0e59785b9a2}</Project>
     </ProjectReference>
   </ItemGroup>

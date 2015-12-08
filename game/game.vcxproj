@@ -52,35 +52,35 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\opengl.props" />
-    <Import Project="..\vs2013\sdl2.props" />
-    <Import Project="..\vs2013\lua.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\opengl.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
+    <Import Project="..\VisualStudio\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\opengl.props" />
-    <Import Project="..\vs2013\sdl2.props" />
-    <Import Project="..\vs2013\lua.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\opengl.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
+    <Import Project="..\VisualStudio\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\opengl.props" />
-    <Import Project="..\vs2013\sdl2.props" />
-    <Import Project="..\vs2013\lua.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\opengl.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
+    <Import Project="..\VisualStudio\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\opengl.props" />
-    <Import Project="..\vs2013\sdl2.props" />
-    <Import Project="..\vs2013\lua.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\opengl.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
+    <Import Project="..\VisualStudio\lua.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -563,10 +563,10 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ResourceCompile Include="..\res\egoboo.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\egolib\egolib_vs13.vcxproj">
+    <ProjectReference Include="..\egolib\egolib.vcxproj">
       <Project>{0f32dd35-a264-4906-8fc9-2d0fe0613230}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\external\SDL2-2.0.3\VisualC\SDLmain\SDLmain_VS2013.vcxproj">
+    <ProjectReference Include="..\external\SDL2-2.0.3\VisualC\SDLmain\SDLmain.vcxproj">
       <Project>{dd761575-1f8d-4a59-aa3b-10c61629aa64}</Project>
     </ProjectReference>
   </ItemGroup>

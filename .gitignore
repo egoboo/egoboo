@@ -1,7 +1,9 @@
-# Visual Studio 2013.
+# Visual Studio.
 *.sdf
 *.opensdf
 *.suo
+*.VC.db
+*.VC.VC.opendb
 /intermediate
 /product
 

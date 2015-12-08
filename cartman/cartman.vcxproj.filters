@@ -110,7 +110,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="src\cartman\res\cartman_vs13.rc">
+    <ResourceCompile Include="src\cartman\res\cartman.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
