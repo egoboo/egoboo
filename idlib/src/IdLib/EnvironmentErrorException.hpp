@@ -41,8 +41,7 @@ using namespace std;
  * @author
  *  Michael Heilmann
  */
-class EnvironmentErrorException : public Exception
-{
+class EnvironmentErrorException : public Exception {
 
 private:
 
@@ -75,12 +74,10 @@ public:
      *  Intentionally protected.
      */
     EnvironmentErrorException(const char *file, int line, const string& component, const string& message) :
-        Exception(file, line), _component(component), _message(message) {
-	}
-	EnvironmentErrorException(const EnvironmentErrorException& other) :
-        Exception(other), _component(other._component), _message(other._message) {
-	}
-	EnvironmentErrorException& operator=(const EnvironmentErrorException& other) {
+        Exception(file, line), _component(component), _message(message) {}
+    EnvironmentErrorException(const EnvironmentErrorException& other) :
+        Exception(other), _component(other._component), _message(other._message) {}
+    EnvironmentErrorException& operator=(const EnvironmentErrorException& other) {
         Exception::operator=(other);
         _component = other._component;
         _message = other._message;
@@ -118,9 +115,9 @@ public:
     virtual operator ::std::string() const {
         ostringstream buffer;
         buffer << _component
-               << " "
-               << "(raised in file " << getFile() << ", line " << getLine() << ")"
-               << ":" << std::endl;
+            << " "
+            << "(raised in file " << getFile() << ", line " << getLine() << ")"
+            << ":" << std::endl;
         buffer << _message;
         return buffer.str();
     }

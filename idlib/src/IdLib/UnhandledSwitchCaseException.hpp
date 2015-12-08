@@ -37,8 +37,7 @@ using namespace std;
  * @brief
  *  A missing case handle for specific label exception
  */
-class UnhandledSwitchCaseException : public Exception
-{
+class UnhandledSwitchCaseException : public Exception {
 
 public:
 
@@ -53,8 +52,7 @@ public:
      *  optional exception string message
      */
     UnhandledSwitchCaseException(const char *file, int line, const string& message = "Unhandled switch case") :
-        Exception(file, line),  _message(message) {
-    }
+        Exception(file, line), _message(message) {}
 
     /**
      * @brief
@@ -63,8 +61,7 @@ public:
      *  the other exception
      */
     UnhandledSwitchCaseException(const UnhandledSwitchCaseException& other) :
-        Exception(other), _message(other._message) {
-    }
+        Exception(other), _message(other._message) {}
 
     /**
      * @brief
@@ -101,7 +98,7 @@ public:
     virtual operator ::std::string() const {
         ostringstream buffer;
         buffer << "(raised in file " << getFile() << ", line " << getLine() << ")"
-               << ":" << std::endl;
+            << ":" << std::endl;
         buffer << _message;
         return buffer.str();
     }
