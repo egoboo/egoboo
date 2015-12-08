@@ -59,9 +59,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\game\char.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\egoboo.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -284,9 +281,6 @@
     <ClCompile Include="src\game\Physics\CollisionSystem.cpp">
       <Filter>Game Sources\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\Physics\ObjectPhysics.c">
-      <Filter>Game Sources\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\Physics\particle_collision.c">
       <Filter>Game Sources\Physics</Filter>
     </ClCompile>
@@ -295,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="src\game\Shop.cpp">
       <Filter>Game Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Physics\ObjectPhysics.cpp">
+      <Filter>Game Sources\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -544,9 +541,6 @@
     <ClInclude Include="src\game\Physics\CollisionSystem.hpp">
       <Filter>Game Header Files\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\Physics\ObjectPhysics.h">
-      <Filter>Game Header Files\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\Physics\particle_collision.h">
       <Filter>Game Header Files\Physics</Filter>
     </ClInclude>
@@ -558,6 +552,9 @@
     </ClInclude>
     <ClInclude Include="src\game\Shop.hpp">
       <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Physics\ObjectPhysics.hpp">
+      <Filter>Game Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

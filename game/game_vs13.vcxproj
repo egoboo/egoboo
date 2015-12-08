@@ -385,9 +385,9 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Physics\ObjectPhysics.cpp" />
     <ClCompile Include="src\game\Shop.cpp" />
     <ClCompile Include="src\game\Physics\CollisionSystem.cpp" />
-    <ClCompile Include="src\game\Physics\ObjectPhysics.c" />
     <ClCompile Include="src\game\Physics\particle_collision.c" />
     <ClCompile Include="src\game\Physics\particle_physics.c" />
     <ClCompile Include="src\game\GUI\ProgressBar.cpp" />
@@ -444,7 +444,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\graphics\Camera.cpp" />
     <ClCompile Include="src\game\graphics\CameraSystem.cpp" />
     <ClCompile Include="src\game\module\Passage.cpp" />
-    <ClCompile Include="src\game\char.c" />
     <ClCompile Include="src\game\egoboo.c" />
     <ClCompile Include="src\game\game.c" />
     <ClCompile Include="src\game\graphic.c" />
@@ -466,10 +465,10 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Physics\ObjectPhysics.hpp" />
     <ClInclude Include="src\game\Shop.hpp" />
     <ClInclude Include="src\game\Physics\Collidable.hpp" />
     <ClInclude Include="src\game\Physics\CollisionSystem.hpp" />
-    <ClInclude Include="src\game\Physics\ObjectPhysics.h" />
     <ClInclude Include="src\game\Physics\particle_collision.h" />
     <ClInclude Include="src\game\Physics\particle_physics.h" />
     <ClInclude Include="src\game\Physics\PhysicalConstants.hpp" />
