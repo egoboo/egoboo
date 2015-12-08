@@ -56,10 +56,6 @@ extern "C"
 #endif
 #endif
 
-/// OpenGL compliant definition of an invalid texture binding.
-/// @todo Remove this.
-#define INVALID_GL_ID  ( (GLuint) (~0) )
-
 enum { XX = 0, YY, ZZ, WW };         ///< indices for x, y, z, and w coordinates in a 4-vector
 enum { RR = 0, GG, BB, AA };         ///< indices for r, g, b, and alpha coordinates in a 4-color vector
 enum { SS = 0, TT };                 ///< indices for s and t, 4-vector texture coordinate

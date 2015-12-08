@@ -1637,13 +1637,13 @@ bool ego_texture_exists_vfs(const std::string &filename)
     return false;
 }
 
-Uint32  ego_texture_load_vfs(Ego::OpenGL::Texture *texture, const char *filename, Uint32 key)
+bool  ego_texture_load_vfs(Ego::OpenGL::Texture *texture, const char *filename, Uint32 key)
 {
     // Get rid of any old data.
     texture->release();
 
     // Load the image.
-    GLuint retval = INVALID_GL_ID;
+    bool retval = false;
 
     // Try all different formats.
     for (const auto& loader : ImageManager::get())
@@ -1675,13 +1675,13 @@ Uint32  ego_texture_load_vfs(Ego::OpenGL::Texture *texture, const char *filename
         }
         // Create the texture from the surface.
         retval = texture->load(fullFilename.c_str(), surface, key);
-        if (INVALID_GL_ID != retval)
+        if (retval)
         {
             break;
         }
     }
 
-    if(INVALID_GL_ID == retval) {
+    if(!retval) {
         Log::get().warn("unable to load texture: %s\n", vfs_resolveReadFilename(filename));
     }
 

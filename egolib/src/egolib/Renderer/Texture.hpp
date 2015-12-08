@@ -304,6 +304,18 @@ public:
      */
     const std::string& getName() const;
 
+public:
+	virtual bool load(const std::string& name, std::shared_ptr<SDL_Surface> surface, uint32_t key = INVALID_KEY) = 0;
+	virtual bool load(std::shared_ptr<SDL_Surface> image, uint32_t key = INVALID_KEY) = 0;
+
+	/**
+	 * @brief
+	 *  Delete backing image, delete OpenGL ID, assign OpenGL ID of the error texture, assign no backing image.
+	 * @param self
+	 *  this texture
+	 */
+	virtual void release() = 0;
+
 }; // struct Texture
 
 } // namespace Ego
@@ -329,15 +341,11 @@ protected:
     GLuint  _id;
 
 public:
-    GLuint load(const std::string& name, std::shared_ptr<SDL_Surface> surface, Uint32 key = INVALID_KEY);
-    GLuint load(std::shared_ptr<SDL_Surface> image, Uint32 key = INVALID_KEY);
-
-    /**
-     * @brief
-     *  Delete backing image, delete OpenGL ID, assign OpenGL ID of the error texture, assign no backing image.
-     * @param self
-     *  this texture
-     */
+	/** @override Ego::Texture::upload(const std::string& name, std::shared_ptr<SDL_Surface>, uint32_t) */
+    bool load(const std::string& name, std::shared_ptr<SDL_Surface> surface, uint32_t key = INVALID_KEY) override;
+	/** @override Ego::Texture::upload(std::shared_ptr<SDL_Surface>, uint32_t) */
+    bool load(std::shared_ptr<SDL_Surface> image, uint32_t key = INVALID_KEY) override;
+    /** @override Ego::Texture::release */
     void release();
 
 public:
