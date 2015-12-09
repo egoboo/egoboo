@@ -1,7 +1,7 @@
 #pragma once
 
 #define EGOLIB_MATH_PRIVATE 1
-#include "egolib/Math/Standard.hpp"
+#include "egolib/Math/Angle.hpp"
 #include "egolib/Math/AABB.hpp"
 #include "egolib/Math/Math.hpp"
 #include "egolib/Math/Colour3f.hpp"
@@ -14,6 +14,7 @@
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Random.hpp"
 #include "egolib/Math/Sphere.h"
-#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Standard.hpp"
 #include "egolib/Math/Transform.hpp"
+#include "egolib/Math/Vector.hpp"
 #undef EGOLIB_MATH_PRIVATE

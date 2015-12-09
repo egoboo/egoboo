@@ -37,10 +37,10 @@ template <typename SourceType, typename TargetType>
 TargetType convexHull(const SourceType& source);
 
 template <>
-inline Sphere3f convexHull(const AABB3f& source) {
+inline Sphere<VectorSpace<Field<float>, 3>> convexHull(const AABB<VectorSpace<Field<float>, 3>>& source) {
     const auto center = source.getCenter();
     const auto radius = (source.getMin() - center).length();
-    return Sphere3f(center, radius);
+    return Sphere<VectorSpace<Field<float>, 3>>(center, radius);
 }
 
 

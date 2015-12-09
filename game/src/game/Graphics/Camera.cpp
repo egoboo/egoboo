@@ -62,7 +62,7 @@ Camera::Camera(const CameraOptions &options) :
     _zGoto(CAM_ZADD_AVG),
 
     _turnZ_radians(-Ego::Math::piOverFour<float>()),
-    _turnZ_turns(RadiansToTurns(_turnZ_radians)),
+    _turnZ_turns(Ego::Math::RadiansToTurns(_turnZ_radians)),
     _turnZAdd(0.0f),
     _turnZSustain(0.60f),
 
@@ -89,7 +89,7 @@ Camera::Camera(const CameraOptions &options) :
     _trackPos = _center;
     _position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
 
-    _turnZ_turns = RadiansToTurns(_turnZ_radians);
+    _turnZ_turns = Ego::Math::RadiansToTurns(_turnZ_radians);
     _ori.facing_z = TurnsToFacing(_turnZ_turns);
     resetView();
 
@@ -227,7 +227,7 @@ void Camera::updateZoom()
         _ori.facing_z = newAngle;
 
         _turnZ_turns = FacingToTurns(_ori.facing_z);
-        _turnZ_radians = TurnsToRadians(_turnZ_turns);
+        _turnZ_radians = Ego::Math::TurnsToRadians(_turnZ_turns);
     }
     _turnZAdd *= _turnZSustain;
 }
@@ -647,7 +647,7 @@ void Camera::reset(const ego_mesh_t *mesh)
     _position[kY] += _zoom * std::cos(_turnZ_radians);
     _position[kZ] += CAM_ZADD_MAX;
 
-    _turnZ_turns = RadiansToTurns(_turnZ_radians);
+    _turnZ_turns = Ego::Math::RadiansToTurns(_turnZ_radians);
     _ori.facing_z = TurnsToFacing(_turnZ_turns);
 
     // Get optional parameters.
