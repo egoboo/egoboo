@@ -57,7 +57,7 @@ float CALCULATE_PRT_V1(int IDX, int CNT) {
     return (((.95f + ((CNT) >> 4)) / 16.0f) * ((float)ptex_w[IDX] / (float)ptex_h[IDX])*ptex_hscale[IDX]);
 }
 
-void prt_set_texture_params(const Ego::OpenGL::Texture* texture, uint8_t type)
+void prt_set_texture_params(const Ego::Texture* texture, uint8_t type)
 {
     int index;
 

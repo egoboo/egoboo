@@ -294,7 +294,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
     float offv  = water._layers[layer]._tx[YY];
 	uint16_t frame = water._layers[layer]._frame;                // Frame
 
-	const Ego::OpenGL::Texture *ptex = _currentModule->getWaterTexture(layer);
+	const Ego::Texture *ptex = _currentModule->getWaterTexture(layer);
 
     float x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
     float y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();

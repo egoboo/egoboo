@@ -22,7 +22,7 @@ void InventorySlot::draw()
     std::shared_ptr<Object> item = _inventory.getItem(_slotNumber);
 
     // grab the icon reference
-    const Ego::OpenGL::Texture* icon_ref;
+    const Ego::Texture* icon_ref;
 
 
     if(item) {

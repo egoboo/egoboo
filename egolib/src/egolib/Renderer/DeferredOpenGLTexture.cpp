@@ -22,7 +22,7 @@ DeferredOpenGLTexture::DeferredOpenGLTexture(const std::string &filePath) :
     //Do not load texture until its needed
 }
 
-const Ego::OpenGL::Texture& DeferredOpenGLTexture::get()
+const Ego::Texture& DeferredOpenGLTexture::get()
 {
     if(!_loaded) {
          if(_filePath.empty()) {

@@ -430,8 +430,8 @@ bool gfx_flip_pages_requested();
 void gfx_request_flip_pages();
 void gfx_do_flip_pages();
 
-float draw_icon_texture(const Ego::OpenGL::Texture *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
-float draw_game_icon(const Ego::OpenGL::Texture* icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
+float draw_icon_texture(const Ego::Texture *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
+float draw_game_icon(const Ego::Texture* icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
 void draw_blip(float sizeFactor, Uint8 color, float x, float y);
 void draw_mouse_cursor();
 
@@ -485,11 +485,11 @@ protected:
 #endif
 
     // the "small" textures
-    static Ego::OpenGL::Texture *sml[MESH_IMG_COUNT];
+    static Ego::Texture *sml[MESH_IMG_COUNT];
     static int sml_cnt;
 
     // the "large" textures
-    static Ego::OpenGL::Texture *big[MESH_IMG_COUNT];
+    static Ego::Texture *big[MESH_IMG_COUNT];
     static int big_cnt;
 
 #if TEXTUREATLASMANAGER_VERSION > 3
@@ -498,11 +498,11 @@ protected:
 #endif
 
     // decimate one tiled texture of a mesh
-    static int decimate_one_mesh_texture(const Ego::OpenGL::Texture *src_tx, Ego::OpenGL::Texture *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification);
+    static int decimate_one_mesh_texture(const Ego::Texture *src_tx, Ego::Texture *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification);
 
 public:
-    static Ego::OpenGL::Texture *get_sml(int which);
-    static Ego::OpenGL::Texture *get_big(int which);
+    static Ego::Texture *get_sml(int which);
+    static Ego::Texture *get_big(int which);
 
 public:
 
@@ -542,5 +542,5 @@ extern bool mesh_tx_none;           ///< use blank textures?
 extern TX_REF mesh_tx_image;          ///< Last texture used
 extern uint8_t mesh_tx_size;           ///< what size texture?
 void mesh_texture_invalidate();
-Ego::OpenGL::Texture *ego_mesh_get_texture(Uint8 image, Uint8 size);
-Ego::OpenGL::Texture *mesh_texture_bind(const ego_tile_info_t * ptile);
+Ego::Texture *ego_mesh_get_texture(Uint8 image, Uint8 size);
+Ego::Texture *mesh_texture_bind(const ego_tile_info_t * ptile);

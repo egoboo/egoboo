@@ -208,8 +208,8 @@ public:
     **/
     size_t getFreeCount() const { return std::min(_maxParticles, _maxParticles - getCount()); }
 
-    const Ego::OpenGL::Texture* getLightParticleTexture();
-    const Ego::OpenGL::Texture* getTransparentParticleTexture();
+    const Ego::Texture* getLightParticleTexture();
+    const Ego::Texture* getTransparentParticleTexture();
 
     void spawnPoof(const std::shared_ptr<Object> &object);
 

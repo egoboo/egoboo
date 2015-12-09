@@ -68,21 +68,21 @@ oglx_video_parameters_t ogl_vparam;
 
 SDL_Surface * bmphitemap = NULL;        // Heightmap image
 
-Ego::OpenGL::Texture     *tx_point;      // Vertex image
-Ego::OpenGL::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
-Ego::OpenGL::Texture     *tx_ref;        // Meshfx images
-Ego::OpenGL::Texture     *tx_drawref;    //
-Ego::OpenGL::Texture     *tx_anim;       //
-Ego::OpenGL::Texture     *tx_water;      //
-Ego::OpenGL::Texture     *tx_wall;       //
-Ego::OpenGL::Texture     *tx_impass;     //
-Ego::OpenGL::Texture     *tx_damage;     //
-Ego::OpenGL::Texture     *tx_slippy;     //
+Ego::Texture     *tx_point;      // Vertex image
+Ego::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
+Ego::Texture     *tx_ref;        // Meshfx images
+Ego::Texture     *tx_drawref;    //
+Ego::Texture     *tx_anim;       //
+Ego::Texture     *tx_water;      //
+Ego::Texture     *tx_wall;       //
+Ego::Texture     *tx_impass;     //
+Ego::Texture     *tx_damage;     //
+Ego::Texture     *tx_slippy;     //
 
-Ego::OpenGL::Texture     *tx_smalltile[MAXTILE]; // Tiles
-Ego::OpenGL::Texture     *tx_bigtile[MAXTILE];   //
-Ego::OpenGL::Texture     *tx_tinysmalltile[MAXTILE]; // Plan tiles
-Ego::OpenGL::Texture     *tx_tinybigtile[MAXTILE];   //
+Ego::Texture     *tx_smalltile[MAXTILE]; // Tiles
+Ego::Texture     *tx_bigtile[MAXTILE];   //
+Ego::Texture     *tx_tinysmalltile[MAXTILE]; // Plan tiles
+Ego::Texture     *tx_tinybigtile[MAXTILE];   //
 
 int     numsmalltile = 0;   //
 int     numbigtile = 0;     //
@@ -139,7 +139,7 @@ SDL_Color MAKE_SDLCOLOR( Uint8 BB, Uint8 RR, Uint8 GG )
 }
 
 //--------------------------------------------------------------------------------------------
-Ego::OpenGL::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
+Ego::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     Uint16 tx_bits, basetile;
     Uint8 fantype, fx;
@@ -202,7 +202,7 @@ Ego::OpenGL::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 }
 
 //--------------------------------------------------------------------------------------------
-Ego::OpenGL::Texture *tile_at( cartman_mpd_t * pmesh, int fan )
+Ego::Texture *tile_at( cartman_mpd_t * pmesh, int fan )
 {
     int    img;
     Uint16 img_base;
@@ -308,7 +308,7 @@ void make_planmap( cartman_mpd_t * pmesh )
         putx = 0;
         for ( x = 0; x < pmesh->info.getTileCountX(); x++ )
         {
-            Ego::OpenGL::Texture * tx_tile;
+            Ego::Texture * tx_tile;
             tx_tile = tiny_tile_at( pmesh, x, y );
 
             if ( NULL != tx_tile )
@@ -408,7 +408,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
         if ( point_size > 0 )
         {
             int select_rv;
-            Ego::OpenGL::Texture * tx_tmp;
+            Ego::Texture * tx_tmp;
 
             select_rv = select_lst_t::find(plst, vert);
             if ( select_rv < 0 )
@@ -500,7 +500,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
     for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
     {
         int select_rv;
-        Ego::OpenGL::Texture * tx_tmp = NULL;
+        Ego::Texture * tx_tmp = NULL;
 
         vert = faketoreal[cnt];
 
@@ -568,7 +568,7 @@ void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, in
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_top_tile( float x0, float y0, int fan, Ego::OpenGL::Texture * tx_tile, bool draw_tile, cartman_mpd_t * pmesh )
+void draw_top_tile( float x0, float y0, int fan, Ego::Texture * tx_tile, bool draw_tile, cartman_mpd_t * pmesh )
 {
     static simple_vertex_t loc_vrt[4];
 
@@ -787,7 +787,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
 }
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_sprite_2d(Ego::OpenGL::Texture * img, float x, float y, float width, float height )
+void ogl_draw_sprite_2d(Ego::Texture * img, float x, float y, float width, float height )
 {
     float w, h;
     float min_s, max_s, min_t, max_t;
@@ -836,7 +836,7 @@ void ogl_draw_sprite_2d(Ego::OpenGL::Texture * img, float x, float y, float widt
 }
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_sprite_3d(Ego::OpenGL::Texture * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
+void ogl_draw_sprite_3d(Ego::Texture * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
 {
     float w, h;
     float min_s, max_s, min_t, max_t;

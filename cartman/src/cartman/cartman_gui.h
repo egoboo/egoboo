@@ -47,7 +47,7 @@ struct Cartman_Window
 {
     Uint8             on;       // Draw it?
 
-    Ego::OpenGL::Texture    *tex;      // Window images
+    Ego::Texture    *tex;      // Window images
 
     // Window position
     int               x;

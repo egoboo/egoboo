@@ -258,12 +258,12 @@ void ParticleHandler::clear()
     _totalParticlesSpawned = 0;
 }
 
-const Ego::OpenGL::Texture* ParticleHandler::getLightParticleTexture()
+const Ego::Texture* ParticleHandler::getLightParticleTexture()
 {
     return _lightParticleTexture.get_ptr();
 }
 
-const Ego::OpenGL::Texture* ParticleHandler::getTransparentParticleTexture()
+const Ego::Texture* ParticleHandler::getTransparentParticleTexture()
 {
     return _transparentParticleTexture.get_ptr();
 }

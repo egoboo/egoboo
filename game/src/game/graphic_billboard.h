@@ -77,7 +77,7 @@ struct Billboard
      * @brief
      *  The texture reference.
      */
-    std::shared_ptr<Ego::OpenGL::Texture> _texture;
+    std::shared_ptr<Ego::Texture> _texture;
 	Vector3f _position;          ///< the position of the bottom-missle of the box
 
     /**
@@ -117,7 +117,7 @@ struct Billboard
     float _size;
     float _size_add;
 
-    Billboard(Time::Ticks endTime, std::shared_ptr<Ego::OpenGL::Texture> texture);
+    Billboard(Time::Ticks endTime, std::shared_ptr<Ego::Texture> texture);
     /**
      * @brief Update this billboard.
      * @param now the current time
@@ -182,7 +182,7 @@ private:
     *  The billboard is kept around as long as a reference to the billboard exists,
     *  however, it might exprire during that time.
     */
-    std::shared_ptr<Billboard> makeBillboard(Time::Seconds lifetime_secs, std::shared_ptr<Ego::OpenGL::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options);
+    std::shared_ptr<Billboard> makeBillboard(Time::Seconds lifetime_secs, std::shared_ptr<Ego::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options);
 
 
 

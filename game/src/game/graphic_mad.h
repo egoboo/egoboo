@@ -207,9 +207,9 @@ struct chr_instance_t
     uint8_t          blushift;
 
     // texture info
-    Ego::OpenGL::Texture* texture;  ///< The texture of the character's skin
-    SFP8_T         uoffset;         ///< For moving textures (8.8 fixed point)
-    SFP8_T         voffset;         ///< For moving textures (8.8 fixed point)
+    Ego::Texture* texture;   ///< The texture of the character's skin
+    SFP8_T        uoffset;   ///< For moving textures (8.8 fixed point)
+    SFP8_T        voffset;   ///< For moving textures (8.8 fixed point)
 
     // model info
     std::shared_ptr<Ego::ModelDescriptor> imad;            ///< Character's model

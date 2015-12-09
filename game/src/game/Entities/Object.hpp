@@ -745,7 +745,7 @@ public:
 
     void dropAllItems();
 
-    const Ego::OpenGL::Texture* getIcon() const;
+    const Ego::Texture* getIcon() const;
 
 private:
 

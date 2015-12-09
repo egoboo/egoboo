@@ -11,7 +11,7 @@ public:
     Image(const Ego::DeferredOpenGLTexture &image);
 
     //TODO: remove
-    Image(Ego::OpenGL::Texture *texture);
+    Image(Ego::Texture *texture);
 
     virtual void draw() override;
 
@@ -24,6 +24,6 @@ public:
 
 private:
     Ego::DeferredOpenGLTexture _texture;
-    Ego::OpenGL::Texture *_image;
+    Ego::Texture *_image;
     Ego::Math::Colour4f _tint;
 };
