@@ -69,7 +69,7 @@ void font_bmp_load_vfs( const std::string& szBitmap, const char* szSpacing )
     font_bmp_init();
 
     const std::shared_ptr<Ego::OpenGL::Texture> &fontTexture = TextureManager::get().getTexture(szBitmap);
-	if (fontTexture->isErrorTexture())
+	if (fontTexture->isDefault())
     {
 		std::ostringstream os;
 		os << "load_font() - unable to load file `" << szBitmap << "`" << std::endl;
