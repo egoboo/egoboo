@@ -420,9 +420,6 @@
     <ClCompile Include="src\egolib\Logic\PerkHandler.cpp">
       <Filter>Source Files\Logic</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Renderer\DeferredOpenGLTexture.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Console\Console.cpp">
       <Filter>Source Files\Console</Filter>
     </ClCompile>
@@ -464,6 +461,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Time.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\DeferredTexture.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -899,9 +899,6 @@
     <ClInclude Include="src\egolib\Logic\PerkHandler.hpp">
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -991,6 +988,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Angle.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\DeferredTexture.hpp">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

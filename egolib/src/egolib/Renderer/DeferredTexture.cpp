@@ -1,4 +1,4 @@
-#include "DeferredOpenGLTexture.hpp"
+#include "egolib/Renderer/DeferredTexture.hpp"
 #include "egolib/Graphics/TextureManager.hpp"
 #include "egolib/fileutil.h"
 
