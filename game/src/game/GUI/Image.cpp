@@ -23,7 +23,7 @@ Image::Image(Ego::Texture *texture) :
 
 }
 
-Image::Image(const Ego::DeferredOpenGLTexture &image) :
+Image::Image(const Ego::DeferredTexture &image) :
     _texture(image),
     _image(nullptr),
     _tint(Ego::Colour4f::white())

@@ -212,8 +212,8 @@ private:
 	/// @brief The mesh of the module.
 	std::shared_ptr<ego_mesh_t> _mesh;
 
-    std::array<Ego::DeferredOpenGLTexture, 4> _tileTextures;
-    std::array<Ego::DeferredOpenGLTexture, 2> _waterTextures;
+    std::array<Ego::DeferredTexture, 4> _tileTextures;
+    std::array<Ego::DeferredTexture, 2> _waterTextures;
 };
 
 /// @todo Remove this global.

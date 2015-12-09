@@ -264,7 +264,7 @@ public:
 	static gfx_rv start_anim(chr_instance_t& self, int action, bool action_ready, bool override_action);
 	static gfx_rv set_anim(chr_instance_t& self, int action, int frame, bool action_ready, bool override_action);
 
-	static gfx_rv set_texture(chr_instance_t& self, const Ego::DeferredOpenGLTexture& itex);
+	static gfx_rv set_texture(chr_instance_t& self, const Ego::DeferredTexture& itex);
 	static gfx_rv set_mad(chr_instance_t& self, const std::shared_ptr<Ego::ModelDescriptor> &imad);
 
 	static void update_ref(chr_instance_t& self, float grid_level, bool need_matrix);

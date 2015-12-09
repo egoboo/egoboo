@@ -216,7 +216,7 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     return iobj;
 }
 
-const Ego::DeferredOpenGLTexture& ProfileSystem::getSpellBookIcon(size_t index) const
+const Ego::DeferredTexture& ProfileSystem::getSpellBookIcon(size_t index) const
 {
     return _profilesLoaded.find(SPELLBOOK)->second->getIcon(index);
 }

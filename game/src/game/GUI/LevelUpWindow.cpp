@@ -113,7 +113,7 @@ private:
     const Ego::Perks::Perk& _perk;
     const std::shared_ptr<Label> _descriptionLabel;
     const std::shared_ptr<Label> _perkIncreaseLabel;
-    Ego::DeferredOpenGLTexture _texture;
+    Ego::DeferredTexture _texture;
     bool _mouseOver;
     float _hoverFadeEffect;
 };

@@ -58,12 +58,12 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 
     //Load tile textures
     for(size_t i = 0; i < _tileTextures.size(); ++i) {
-        _tileTextures[i] = Ego::DeferredOpenGLTexture("mp_data/tile" + std::to_string(i));
+        _tileTextures[i] = Ego::DeferredTexture("mp_data/tile" + std::to_string(i));
     }
 
     //Load water textures
-    _waterTextures[0] = Ego::DeferredOpenGLTexture("mp_data/waterlow");
-    _waterTextures[1] = Ego::DeferredOpenGLTexture("mp_data/watertop");
+    _waterTextures[0] = Ego::DeferredTexture("mp_data/waterlow");
+    _waterTextures[1] = Ego::DeferredTexture("mp_data/watertop");
 }
 
 GameModule::~GameModule()

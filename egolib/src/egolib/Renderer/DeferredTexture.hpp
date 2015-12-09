@@ -8,22 +8,22 @@ namespace Ego {
  *  A texture with lazy loading. This means the texture will not
  *  be loaded into memory before it is required for rendering.
  */
-class DeferredOpenGLTexture {
+class DeferredTexture {
 public:
-    DeferredOpenGLTexture();
+    DeferredTexture();
 
-    DeferredOpenGLTexture(const std::string &filePath);
+    DeferredTexture(const std::string &filePath);
 
-    const Ego::Texture* get_ptr() const { return &const_cast<DeferredOpenGLTexture*>(this)->get(); }
+    const Texture* get_ptr() const { return &const_cast<DeferredTexture*>(this)->get(); }
 
-    const Ego::Texture& get();
+    const Texture& get();
 
     void release();
 
     void setTextureSource(const std::string &filePath);
 
-    operator const Ego::Texture&() const { return const_cast<DeferredOpenGLTexture*>(this)->get(); }
     // Type cast operator
+    operator const Texture&() const { return const_cast<DeferredTexture*>(this)->get(); }
 
     /**
      * @return
@@ -36,7 +36,7 @@ public:
     }
 
 private:
-    std::shared_ptr<Ego::Texture> _texture;
+    std::shared_ptr<Texture> _texture;
     std::string _filePath;
     bool _loaded;
 };

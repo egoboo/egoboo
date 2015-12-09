@@ -233,6 +233,6 @@ private:
 
     std::unordered_map<ParticleRef, std::shared_ptr<Ego::Particle>> _particleMap; //Mapping from PRT_REF to Particle
 
-    Ego::DeferredOpenGLTexture _transparentParticleTexture;
-    Ego::DeferredOpenGLTexture _lightParticleTexture;
+    Ego::DeferredTexture _transparentParticleTexture;
+    Ego::DeferredTexture _lightParticleTexture;
 };

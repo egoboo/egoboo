@@ -8,7 +8,7 @@ class Image : public GUIComponent
 public:
     Image();
     Image(const std::string &filePath);
-    Image(const Ego::DeferredOpenGLTexture &image);
+    Image(const Ego::DeferredTexture &image);
 
     //TODO: remove
     Image(Ego::Texture *texture);
@@ -23,7 +23,7 @@ public:
     int getTextureHeight();
 
 private:
-    Ego::DeferredOpenGLTexture _texture;
+    Ego::DeferredTexture _texture;
     Ego::Texture *_image;
     Ego::Math::Colour4f _tint;
 };

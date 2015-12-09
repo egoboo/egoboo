@@ -2011,7 +2011,7 @@ float chr_instance_t::get_remaining_flip(chr_instance_t& self)
 	return (self.ilip + 1) * 0.25f - self.flip;
 }
 
-gfx_rv chr_instance_t::set_texture(chr_instance_t& self, const Ego::DeferredOpenGLTexture& itex)
+gfx_rv chr_instance_t::set_texture(chr_instance_t& self, const Ego::DeferredTexture& itex)
 {
 	// get the texture
 	self.texture = const_cast<Ego::Texture*>(itex.get_ptr());
