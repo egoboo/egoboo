@@ -2,18 +2,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2013 for Windows Desktop
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game_vs13.vcxproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game.vcxproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230} = {0F32DD35-A264-4906-8FC9-2D0FE0613230}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "egolib\egolib_vs13.vcxproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "egolib\egolib.vcxproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
 	ProjectSection(ProjectDependencies) = postProject
 		{42B63689-1349-4389-8537-7CB21C0F65C9} = {42B63689-1349-4389-8537-7CB21C0F65C9}
 		{0D701492-DB47-4E2A-A73D-8F2049103145} = {0D701492-DB47-4E2A-A73D-8F2049103145}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cartman", "cartman\cartman_vs13.vcxproj", "{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cartman", "cartman\cartman.vcxproj", "{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230} = {0F32DD35-A264-4906-8FC9-2D0FE0613230}
 	EndProjectSection
@@ -22,7 +22,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lualib", "external\lua-5.2.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "physfs-static", "external\physfs-2.1.1\physfs-static.vcxproj", "{0D701492-DB47-4E2A-A73D-8F2049103145}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib", "idlib\idlib_vs13.vcxproj", "{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib", "idlib\idlib.vcxproj", "{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib-tests", "egolib\egolib-tests.vcxproj", "{72193166-DDB9-4393-8413-59E8D843DD9D}"
 EndProject
@@ -32,19 +32,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "convertpaletted", "utilitie
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDL2", "SDL2", "{5598C859-A436-4224-9039-0C7FDC3DF2DD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2", "external\SDL2-2.0.3\VisualC\SDL\SDL_VS2013.vcxproj", "{336E1CF1-31F8-4AF3-BDF3-F6D4D5221AE7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2", "external\SDL2-2.0.3\VisualC\SDL\SDL.vcxproj", "{336E1CF1-31F8-4AF3-BDF3-F6D4D5221AE7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_image", "external\SDL2_image-2.0.0\VisualC\SDL_image_VS2013.vcxproj", "{051AAF6C-2640-40F8-992D-23E3A0F5DEF1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_image", "external\SDL2_image-2.0.0\VisualC\SDL_image.vcxproj", "{051AAF6C-2640-40F8-992D-23E3A0F5DEF1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_ttf", "external\SDL2_ttf-2.0.12\VisualC\SDL_ttf_VS2013.vcxproj", "{D114A863-1BDC-4979-A61E-CB6B7CA5F1BB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_ttf", "external\SDL2_ttf-2.0.12\VisualC\SDL_ttf.vcxproj", "{D114A863-1BDC-4979-A61E-CB6B7CA5F1BB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "timidity", "external\SDL2_mixer-2.0.0\VisualC\timidity\timidity_VS2013.vcxproj", "{647CF537-A2FF-4B10-856F-82A350FADD7F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "timidity", "external\SDL2_mixer-2.0.0\VisualC\timidity\timidity.vcxproj", "{647CF537-A2FF-4B10-856F-82A350FADD7F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "native_midi", "external\SDL2_mixer-2.0.0\VisualC\native_midi\native_midi_VS2013.vcxproj", "{1046AD56-292D-4C36-BDED-B1941CF8ACFA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "native_midi", "external\SDL2_mixer-2.0.0\VisualC\native_midi\native_midi.vcxproj", "{1046AD56-292D-4C36-BDED-B1941CF8ACFA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_mixer", "external\SDL2_mixer-2.0.0\VisualC\SDL_mixer_VS2013.vcxproj", "{4FC99AE8-EC78-41FD-9293-78FAA5EAABB5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_mixer", "external\SDL2_mixer-2.0.0\VisualC\SDL_mixer.vcxproj", "{4FC99AE8-EC78-41FD-9293-78FAA5EAABB5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2main", "external\SDL2-2.0.3\VisualC\SDLmain\SDLmain_VS2013.vcxproj", "{DD761575-1F8D-4A59-AA3B-10C61629AA64}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2main", "external\SDL2-2.0.3\VisualC\SDLmain\SDLmain.vcxproj", "{DD761575-1F8D-4A59-AA3B-10C61629AA64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

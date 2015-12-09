@@ -55,43 +55,43 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\enet.props" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\lua.props" />
-    <Import Project="..\vs2013\multithreaded_debug.props" />
-    <Import Project="..\vs2013\opengl.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\sdl2.props" />
+    <Import Project="..\VisualStudio\enet.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\lua.props" />
+    <Import Project="..\VisualStudio\multithreaded_debug.props" />
+    <Import Project="..\VisualStudio\opengl.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\enet.props" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\lua.props" />
-    <Import Project="..\vs2013\multithreaded_debug.props" />
-    <Import Project="..\vs2013\opengl.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\sdl2.props" />
+    <Import Project="..\VisualStudio\enet.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\lua.props" />
+    <Import Project="..\VisualStudio\multithreaded_debug.props" />
+    <Import Project="..\VisualStudio\opengl.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\enet.props" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\lua.props" />
-    <Import Project="..\vs2013\multithreaded.props" />
-    <Import Project="..\vs2013\opengl.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\sdl2.props" />
+    <Import Project="..\VisualStudio\enet.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\lua.props" />
+    <Import Project="..\VisualStudio\multithreaded.props" />
+    <Import Project="..\VisualStudio\opengl.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\vs2013\enet.props" />
-    <Import Project="..\vs2013\libraries.props" />
-    <Import Project="..\vs2013\lua.props" />
-    <Import Project="..\vs2013\multithreaded.props" />
-    <Import Project="..\vs2013\opengl.props" />
-    <Import Project="..\vs2013\physfs.props" />
-    <Import Project="..\vs2013\sdl2.props" />
+    <Import Project="..\VisualStudio\enet.props" />
+    <Import Project="..\VisualStudio\libraries.props" />
+    <Import Project="..\VisualStudio\lua.props" />
+    <Import Project="..\VisualStudio\multithreaded.props" />
+    <Import Project="..\VisualStudio\opengl.props" />
+    <Import Project="..\VisualStudio\physfs.props" />
+    <Import Project="..\VisualStudio\sdl2.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

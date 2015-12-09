@@ -7,7 +7,7 @@ For the following process to succeed, the latest version of the Windows SDK
 needs to be installed on your system.
 
 
-Open the solution `egoboo_vs15.sln`. There are two configurations (`Debug` and
+Open the solution `egoboo.sln`. There are two configurations (`Debug` and
 `Release`) and two platform configurations (`Win32` for 32-Bit and `x64` for
 64-Bit) available. Select the desired combination of configuration and platform
 configuration and compile the whole solution. The resulting binaries can be

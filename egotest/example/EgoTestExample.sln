@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EgoTestExample", "vs2013\EgoTestExample.vcxproj", "{88DEC88C-A796-4B44-AFB1-F06A9A4D6792}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EgoTestExample", "VisualStudio\EgoTestExample.vcxproj", "{88DEC88C-A796-4B44-AFB1-F06A9A4D6792}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EgoTestExampleTests", "vs2013\EgoTestExampleTests.vcxproj", "{3C53D014-67A5-44BD-80A4-5682B71DCCA6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EgoTestExampleTests", "VisualStudio\EgoTestExampleTests.vcxproj", "{3C53D014-67A5-44BD-80A4-5682B71DCCA6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{88DEC88C-A796-4B44-AFB1-F06A9A4D6792} = {88DEC88C-A796-4B44-AFB1-F06A9A4D6792}
 	EndProjectSection

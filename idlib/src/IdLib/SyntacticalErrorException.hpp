@@ -36,8 +36,7 @@ namespace Id {
  * @brief
  *  An abstract lexical error exception.
  */
-class SyntacticalErrorException : public AbstractSyntacticalErrorException
-{
+class SyntacticalErrorException : public AbstractSyntacticalErrorException {
 
 protected:
 
@@ -63,13 +62,11 @@ public:
      *  a message describing the error
      */
     SyntacticalErrorException(const char *file, int line, const Location& location, const std::string& message) :
-        AbstractSyntacticalErrorException(file, line, location), _message(message)
-    {}
+        AbstractSyntacticalErrorException(file, line, location), _message(message) {}
     SyntacticalErrorException(const SyntacticalErrorException& other) :
-		AbstractSyntacticalErrorException(other), _message(other._message)
-    {}
+        AbstractSyntacticalErrorException(other), _message(other._message) {}
     SyntacticalErrorException& operator=(const SyntacticalErrorException& other) {
-		AbstractSyntacticalErrorException::operator=(other);
+        AbstractSyntacticalErrorException::operator=(other);
         _message = other._message;
         return *this;
     }
@@ -84,8 +81,8 @@ public:
         ostringstream o;
         writeLocation(o);
         o << " - "
-          << "syntactical error: "
-          << _message;
+            << "syntactical error: "
+            << _message;
         return o.str();
     }
 

@@ -56,23 +56,23 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\vs2013\sdl2.props" />
-    <Import Project="..\..\vs2013\libraries.props" />
+    <Import Project="..\..\VisualStudio\sdl2.props" />
+    <Import Project="..\..\VisualStudio\libraries.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\vs2013\sdl2.props" />
-    <Import Project="..\..\vs2013\libraries.props" />
+    <Import Project="..\..\VisualStudio\sdl2.props" />
+    <Import Project="..\..\VisualStudio\libraries.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\vs2013\sdl2.props" />
-    <Import Project="..\..\vs2013\libraries.props" />
+    <Import Project="..\..\VisualStudio\sdl2.props" />
+    <Import Project="..\..\VisualStudio\libraries.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\vs2013\sdl2.props" />
-    <Import Project="..\..\vs2013\libraries.props" />
+    <Import Project="..\..\VisualStudio\sdl2.props" />
+    <Import Project="..\..\VisualStudio\libraries.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -292,19 +292,19 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\convertpaletted.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\external\SDL2-2.0.3\VisualC\SDLmain\SDLmain_VS2013.vcxproj">
+    <ProjectReference Include="..\..\external\SDL2-2.0.3\VisualC\SDLmain\SDLmain.vcxproj">
       <Project>{dd761575-1f8d-4a59-aa3b-10c61629aa64}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\external\SDL2-2.0.3\VisualC\SDL\SDL_VS2013.vcxproj">
+    <ProjectReference Include="..\..\external\SDL2-2.0.3\VisualC\SDL\SDL.vcxproj">
       <Project>{336e1cf1-31f8-4af3-bdf3-f6d4d5221ae7}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\external\SDL2_image-2.0.0\VisualC\SDL_image_VS2013.vcxproj">
+    <ProjectReference Include="..\..\external\SDL2_image-2.0.0\VisualC\SDL_image.vcxproj">
       <Project>{051aaf6c-2640-40f8-992d-23e3a0f5def1}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\external\SDL2_mixer-2.0.0\VisualC\SDL_mixer_VS2013.vcxproj">
+    <ProjectReference Include="..\..\external\SDL2_mixer-2.0.0\VisualC\SDL_mixer.vcxproj">
       <Project>{4fc99ae8-ec78-41fd-9293-78faa5eaabb5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf_VS2013.vcxproj">
+    <ProjectReference Include="..\..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf.vcxproj">
       <Project>{d114a863-1bdc-4979-a61e-cb6b7ca5f1bb}</Project>
     </ProjectReference>
   </ItemGroup>

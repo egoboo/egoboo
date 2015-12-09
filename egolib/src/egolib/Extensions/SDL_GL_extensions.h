@@ -31,9 +31,31 @@
 /// MH: This is one of the functions from Cartman. I don't bother documenting it before it is removed.
 SDL_Surface *SDL_GL_createSurface(int w, int h);
 
-Uint32 SDL_GL_getpixel(SDL_Surface *surface, int x, int y);
-
-void SDL_GL_putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
+namespace Ego {
+namespace Graphics {
+namespace SDL {
+struct Padding {
+	size_t left, top, right, bottom;
+};
+/**
+ * @brief Create a padded surface.
+ * @param surface the original surface
+ * @param padding the padding
+ * @return the padded surface
+ * @remark The padding is black (if no alpha channel is present) or transparent black (if alpha channel is present).
+ */
+std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding);
+/**
+ * @brief Clone a surface.
+ * @param surface the original surface
+ * @return the cloned surface
+ */
+std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surface>& surface);
+uint32_t getPixel(const SDL_Surface *surface, int x, int y);
+void putPixel(SDL_Surface *surface, int x, int y, uint32_t pixel);
+} // namespace SDL
+} // namespace Graphics
+} // namespace Ego
 
 /**
  * @brief
@@ -51,11 +73,6 @@ void SDL_GL_putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
  *  if @a a surface is @a nullptr
  */
 std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface, const Ego::PixelFormatDescriptor& pixelFormatDescriptor);
-
-/**
- *
- */
-std::shared_ptr<SDL_Surface> SDL_GL_pad(std::shared_ptr<SDL_Surface> surface, size_t padleft, size_t padright, size_t padtop, size_t padbottom);
 
 /**
  * @brief

@@ -22,8 +22,7 @@ using namespace std;
  * @author
  *  Michael Heilmann
  */
-class RuntimeErrorException : public Exception
-{
+class RuntimeErrorException : public Exception {
 
 private:
 
@@ -48,11 +47,9 @@ public:
      *  Intentionally protected.
      */
     RuntimeErrorException(const char *file, int line, const string& message) :
-        Exception(file, line), _message(message) {
-    }
+        Exception(file, line), _message(message) {}
     RuntimeErrorException(const RuntimeErrorException& other) :
-        Exception(other),  _message(other._message) {
-    }
+        Exception(other), _message(other._message) {}
     RuntimeErrorException& operator=(const RuntimeErrorException& other) {
         Exception::operator=(other);
         _message = other._message;
@@ -80,7 +77,7 @@ public:
     virtual operator ::std::string() const {
         ostringstream buffer;
         buffer << "(raised in file " << getFile() << ", line " << getLine() << ")"
-               << ":" << std::endl;
+            << ":" << std::endl;
         buffer << _message;
         return buffer.str();
     }

@@ -46,52 +46,12 @@ protected:
     Image(SDL_Surface *surface);
 
 public:
-    /**
-     * @brief
-     *  Create an SDL surface with the pixel format A8R8G8B8.
-     * @param width
-     *  the width, in pixels, of the surface.
-     *  Must be non-negative.
-     * @param height
-     *  the height, in pixels, of the surface.
-     *  Must be non-negative.
-     * @return
-     *  the address of the surface on success, @a nullptr on failure
-     */
-    static SDL_Surface *getA8R8G8B8(int width, int height);
-
-    /**
-     * @brief
-     *  Get a pixel format description for R8G8B8A8.
-     * @param width
-     *  the width, in pixels, of the surface.
-     *  Must be non-negative.
-     * @param height
-     *  the height, in pixels, of the surface.
-     *  Must be non-negative.
-     * @return
-     *  the address of the surface on success, @a nullptr on failure
-     */
-    static SDL_Surface *getR8G8B8A8(int width, int height);
 
     /**
      * @brief
      *  Destruct this image.
      */
     virtual ~Image();
-
-    /**
-     * @brief
-     *  Load an image.
-     * @param pathname
-     *  the pathname to load the image from
-     * @return
-     *  a pointer to the image on success, @a nullptr on failure
-     * @remark
-     *  A palettized images will be converted to an RGBA image.
-     *  An image with a color key will be converted to an RGBA image.
-     */
-    static Image *load(const std::string& pathname);
 
     /**
      * @brief

@@ -452,13 +452,13 @@ GLuint Texture::getTextureID() const {
     return _id;
 }
 
-GLuint Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> source, uint32_t  key) {
+bool Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> source, uint32_t  key) {
     // Bind this texture to the backing error texture.
     release();
 
     // If no source is provided, keep this texture bound to the backing error texture.
     if (!source) {
-        return INVALID_GL_ID;
+        return false;
     }
 
     // Convert the source into a format suited for OpenGL.
@@ -466,10 +466,10 @@ GLuint Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> sourc
     try {
         new_source = SDL_GL_convert(source);
     } catch (...) {
-        return INVALID_GL_ID;
+        return false;
     }
     if (!new_source) {
-        return INVALID_GL_ID;
+        return false;
     }
     // Generate a new OpenGL texture ID.
     Utilities::clearError();
@@ -479,7 +479,7 @@ GLuint Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> sourc
     }
     glGenTextures(1, &id);
     if (Utilities::isError()) {
-        return INVALID_GL_ID;
+        return false;
     }
     // Use default texture address mode.
     auto textureAddressModeS = Ego::TextureAddressMode::Repeat;
@@ -517,13 +517,13 @@ GLuint Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> sourc
     _hasAlpha = hasAlpha;
     _name = name;
 
-    return _id;
+    return true;
 }
 
-GLuint Texture::load(std::shared_ptr<SDL_Surface> source, uint32_t key) {
+bool Texture::load(std::shared_ptr<SDL_Surface> source, uint32_t key) {
     std::ostringstream stream;
     stream << "<source " << static_cast<void *>(source.get()) << ">";
-    return load(stream.str().c_str(), source, key);
+    return load(stream.str(), source, key);
 }
 
 void  Texture::release() {

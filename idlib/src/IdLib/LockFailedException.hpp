@@ -55,8 +55,7 @@ public:
      */
     LockFailedException(const char *file, int line, const string& message = "Lock failed") :
         Exception(file, line),
-        _message(message)
-    {}
+        _message(message) {}
 
     /**
      * @brief
@@ -66,8 +65,7 @@ public:
      */
     LockFailedException(const LockFailedException& other) :
         Exception(other),
-        _message(other._message)
-    {}
+        _message(other._message) {}
 
     /**
      * @brief

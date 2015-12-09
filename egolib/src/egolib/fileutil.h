@@ -470,7 +470,7 @@ bool copy_to_delimiter_vfs(vfs_FILE * fileread, vfs_FILE * filewrite, int delim,
  *  succeeds (i.e. the image was successfully loaded into the texture) or all
  *  combinations failed.
  */
-Uint32 ego_texture_load_vfs(Ego::OpenGL::Texture *texture, const char *filename, Uint32 key = INVALID_KEY);
+bool ego_texture_load_vfs(Ego::OpenGL::Texture *texture, const char *filename, uint32_t key = INVALID_KEY);
 
 bool ego_texture_exists_vfs(const std::string &filename);
 

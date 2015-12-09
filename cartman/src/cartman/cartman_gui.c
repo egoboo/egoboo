@@ -153,7 +153,7 @@ void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadn
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if (INVALID_GL_ID == pwin->tex->load(loadname, gfx_loadImage(loadname)))
+    if (!pwin->tex->load(loadname, gfx_loadImage(loadname)))
     {
 		Log::get().warn( "Cannot load \"%s\".\n", loadname );
     }
