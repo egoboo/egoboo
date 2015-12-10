@@ -120,7 +120,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 	std::sort(lst_vals.begin(), lst_vals.end(), by_element2_t::compare);
 
 	// restart the mesh texture code
-	mesh_texture_invalidate();
+	TileRenderer::invalidate();
 
 	for (size_t i = 0; i < rlst.size; ++i)
 	{
@@ -134,7 +134,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 	}
 
 	// let the mesh texture code know that someone else is in control now
-	mesh_texture_invalidate();
+	TileRenderer::invalidate();
 }
 
 }
@@ -789,7 +789,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	}
 	ego_mesh_t& mesh = *tl.getMesh().get();
 	// Restart the mesh texture code.
-	mesh_texture_invalidate();
+	TileRenderer::invalidate();
 
 	// Bottom layer first.
 	if (gfx.draw_water_1)
@@ -810,7 +810,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	}
 
 	// let the mesh texture code know that someone else is in control now
-	mesh_texture_invalidate();
+	TileRenderer::invalidate();
 }
 
 void EntityReflections::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {

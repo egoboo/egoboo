@@ -58,9 +58,9 @@ void TextureManager::release_all()
 	}
 }
 
-void TextureManager::reload_all()
+void TextureManager::reupload()
 {
-    //TODO
+    // TODO
 }
 
 void TextureManager::updateDeferredLoading()

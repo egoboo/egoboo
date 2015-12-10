@@ -116,7 +116,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
     if ( NULL == pdef ) return gfx_fail;
 
     // bind the correct texture
-    mesh_texture_bind( &ptile );
+    TileRenderer::bind(ptile);
     
     GL_DEBUG(glPushClientAttrib)(GL_CLIENT_VERTEX_ARRAY_BIT);
     {
@@ -155,7 +155,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
 
 	if (egoboo_config_t::get().debug_mesh_renderNormals.getValue())
 	{
-		mesh_texture_invalidate();
+		TileRenderer::invalidate();
 		auto& renderer = Ego::Renderer::get();
 		renderer.getTextureUnit().setActivated(nullptr);
 		renderer.setColour(Ego::Colour4f::white());
@@ -398,7 +398,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
     vb->unlock();
 
     // tell the mesh texture code that someone else is controlling the texture
-    mesh_texture_invalidate();
+    TileRenderer::invalidate();
 
 	auto& renderer = Ego::Renderer::get();
 

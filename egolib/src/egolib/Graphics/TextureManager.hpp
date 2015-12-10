@@ -57,7 +57,7 @@ public:
      * @brief
      *	Reload all textures from their surfaces.
      */
-    void reload_all();
+    void reupload();
 
     /**
      * @brief
