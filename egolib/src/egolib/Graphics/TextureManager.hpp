@@ -55,29 +55,29 @@ public:
 
     /**
      * @brief
-     *	Reload all textures from their surfaces.
+     *  Reupload all textures.
      */
     void reupload();
 
     /**
      * @brief
-     *	Release all textures.
+     *  Release all textures.
      */
     void release_all();
 
     /**
-    * @brief
-    *   Request a texture from the TextureHandler. If required, this function will load the texture
-    *   first. This method is thread safe, if used by another thread that is not the OpenGL context
-    *   thread, then it will block until the OpenGL context thread can load the texture for us.
-    *   If the texture has already been loaded (even by other threads), that texture will be cached
-    *   and this function will return it immediately.
-    * @param filePath
-    *   File path of the texture to load
-    * @return
-    *   The texture loaded by this texture manager. Could be the error texture if the specified
-    *   path cannot be found. 
-    **/
+     * @brief
+     *  Request a texture from the TextureHandler. If required, this function will load the texture
+     *  first. This method is thread safe, if used by another thread that is not the OpenGL context
+     *  thread, then it will block until the OpenGL context thread can load the texture for us.
+     *  If the texture has already been loaded (even by other threads), that texture will be cached
+     *  and this function will return it immediately.
+     * @param filePath
+     *  File path of the texture to load
+     * @return
+     *  The texture loaded by this texture manager. Could be the error texture if the specified
+     *  path cannot be found. 
+     */
     const std::shared_ptr<Ego::Texture>& getTexture(const std::string &filePath);
 
     void updateDeferredLoading();
