@@ -88,9 +88,6 @@ static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& pinst, f
 static void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset);
 static void prt_draw_attached_point(prt_bundle_t& bdl_prt);
 static void render_prt_bbox(prt_bundle_t& bdl_prt);
-static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::Particle * pprt);
-static Matrix4f4f prt_instance_make_matrix(prt_instance_t& inst);
-static gfx_rv prt_instance_update_lighting(prt_instance_t& inst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
 
 //--------------------------------------------------------------------------------------------
 
@@ -568,7 +565,7 @@ gfx_rv update_all_prt_instance(Camera& camera)
     return retval;
 }
 
-gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::Particle *pprt)
+gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego::Particle *pprt)
 {
     inst.valid = false;
     inst.ref_valid = false;
@@ -843,7 +840,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t& inst, Ego::P
     return gfx_success;
 }
 
-Matrix4f4f prt_instance_make_matrix(prt_instance_t& pinst)
+Matrix4f4f prt_instance_t::make_matrix(prt_instance_t& pinst)
 {
 	Matrix4f4f mat = Matrix4f4f::identity();
 
@@ -862,7 +859,7 @@ Matrix4f4f prt_instance_make_matrix(prt_instance_t& pinst)
     return mat;
 }
 
-gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
+gfx_rv prt_instance_t::update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, Uint8 trans, bool do_lighting)
 {
     if (!pprt)
     {
@@ -882,7 +879,7 @@ gfx_rv prt_instance_update_lighting(prt_instance_t& pinst, Ego::Particle *pprt, 
 	GridIllumination::grid_lighting_interpolate(*mesh, global_light, Vector2f(pinst.pos[kX], pinst.pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
-	Matrix4f4f mat = prt_instance_make_matrix(pinst);
+	Matrix4f4f mat = prt_instance_t::make_matrix(pinst);
     lighting_cache_t loc_light;
 	lighting_cache_t::lighting_project_cache(loc_light, global_light, mat);
 
@@ -932,13 +929,13 @@ gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 tra
     gfx_rv retval = gfx_success;
 
     // make sure that the vertices are interpolated
-    if (gfx_error == prt_instance_update_vertices(camera, pinst, pprt.get()))
+    if (gfx_error == prt_instance_t::update_vertices(pinst, camera, pprt.get()))
     {
         retval = gfx_error;
     }
 
     // do the lighting
-    if (gfx_error == prt_instance_update_lighting(pinst, pprt.get(), trans, do_lighting))
+    if (gfx_error == prt_instance_t::update_lighting(pinst, pprt.get(), trans, do_lighting))
     {
         retval = gfx_error;
     }
