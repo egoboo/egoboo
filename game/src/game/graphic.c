@@ -1538,18 +1538,6 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 {
 	ego_tile_info_t& ptile = mesh.getTileInfo(fan);
 
-	static const bool IGNORE_CACHING = false;
-
-	if (!IGNORE_CACHING)
-	{
-		// <ignore caching for now>
-		// max update speed is once per game frame
-		if (ptile._cache_frame >= 0 && (uint32_t)ptile._cache_frame >= game_frame_all)
-		{
-			// not updated
-			return false;
-		}
-	}
 	// get the grid lighting
 	const lighting_cache_t& lighting = ptile._cache;
 
@@ -1570,15 +1558,6 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 
 	// clip the light to a reasonable value
 	plight = Ego::Math::constrain(plight, 0.0f, 255.0f);
-
-
-	if (!IGNORE_CACHING)
-	{
-		// <ignore caching for now>
-		// update the cache frame
-		// figure out the correct way to cache *plight
-		ptile._cache_frame = game_frame_all;
-	}
 
 	return true;
 }
