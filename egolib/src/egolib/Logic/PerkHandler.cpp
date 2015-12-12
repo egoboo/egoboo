@@ -218,7 +218,7 @@ void PerkHandler::initializePerk(const PerkID id, const Ego::Attribute::Attribut
     perk._name = name;
     perk._description = description;
     perk._perkRequirement = perkRequirement;
-    perk._icon = Ego::DeferredOpenGLTexture(iconPath);
+    perk._icon = Ego::DeferredTexture(iconPath);
 
     //Check if file actually exists
     if(!ego_texture_exists_vfs(iconPath)) {

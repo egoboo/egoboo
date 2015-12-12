@@ -185,8 +185,8 @@ public:
      std::shared_ptr<Object> spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
                                          const FACING_T facing, const std::string &name, const ObjectRef override);
 
-     const Ego::OpenGL::Texture* getTileTexture(const size_t index);
-     const Ego::OpenGL::Texture* getWaterTexture(const uint8_t layer);
+     const Ego::Texture* getTileTexture(const size_t index);
+     const Ego::Texture* getWaterTexture(const uint8_t layer);
 
     /**
     * @brief
@@ -212,8 +212,8 @@ private:
 	/// @brief The mesh of the module.
 	std::shared_ptr<ego_mesh_t> _mesh;
 
-    std::array<Ego::DeferredOpenGLTexture, 4> _tileTextures;
-    std::array<Ego::DeferredOpenGLTexture, 2> _waterTextures;
+    std::array<Ego::DeferredTexture, 4> _tileTextures;
+    std::array<Ego::DeferredTexture, 2> _waterTextures;
 };
 
 /// @todo Remove this global.

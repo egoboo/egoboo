@@ -227,7 +227,7 @@ void LoadingState::loadModuleData()
         [cameraSystem]{
 
             //Have to do this function in the OpenGL context thread or else it will fail
-            TextureAtlasManager::decimate_all_mesh_textures();
+            TextureAtlasManager::get().decimate();
 
             //Hush gong
             AudioSystem::get().fadeAllSounds();

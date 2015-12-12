@@ -22,9 +22,9 @@
 /// @author Johan Jansen
 
 #include "game/GUI/IconButton.hpp"
-#include "egolib/Renderer/DeferredOpenGLTexture.hpp"
+#include "egolib/Renderer/DeferredTexture.hpp"
 
-IconButton::IconButton(const std::string &buttonText, const Ego::DeferredOpenGLTexture& icon, int hotkey) : Button(buttonText, hotkey),
+IconButton::IconButton(const std::string &buttonText, const Ego::DeferredTexture& icon, int hotkey) : Button(buttonText, hotkey),
 	_icon(icon),
     _iconTint(Ego::Math::Colour4f::white())
 {

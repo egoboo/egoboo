@@ -247,28 +247,28 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
         const std::string skinPath = folderPath + "/tris" + std::to_string(cnt);
         if(ego_texture_exists_vfs(skinPath))
         {
-            _texturesLoaded[cnt] = Ego::DeferredOpenGLTexture(skinPath);
+            _texturesLoaded[cnt] = Ego::DeferredTexture(skinPath);
         }
 
         // do the icon
         const std::string iconPath = folderPath + "/icon" + std::to_string(cnt);
 	    if(ego_texture_exists_vfs(iconPath))
         {
-            _iconsLoaded[cnt] = Ego::DeferredOpenGLTexture(iconPath);
+            _iconsLoaded[cnt] = Ego::DeferredTexture(iconPath);
         }
     }
 
     // If we didn't get a skin, set it to the water texture
     if ( _texturesLoaded.empty() )
     {
-        _texturesLoaded[0] = Ego::DeferredOpenGLTexture("mp_data/waterlow");
+        _texturesLoaded[0] = Ego::DeferredTexture("mp_data/waterlow");
 		Log::get().warn("Object is missing a skin (%s)!\n", getPathname().c_str());
     }
 
     // If we didn't get a icon, set it to the NULL icon
     if ( _iconsLoaded.empty())
     {
-        _iconsLoaded[0] = Ego::DeferredOpenGLTexture("mp_data/nullicon");
+        _iconsLoaded[0] = Ego::DeferredTexture("mp_data/nullicon");
 		Log::get().debug("Object is missing an icon (%s)!\n", getPathname().c_str());
     }
 }
@@ -359,7 +359,7 @@ IDSZ ObjectProfile::getIDSZ(size_t type) const
     return _idsz[type];
 }
 
-const Ego::DeferredOpenGLTexture& ObjectProfile::getSkin(size_t index)
+const Ego::DeferredTexture& ObjectProfile::getSkin(size_t index)
 {
     if(_texturesLoaded.find(index) == _texturesLoaded.end()) {
         return _texturesLoaded[0];
@@ -368,7 +368,7 @@ const Ego::DeferredOpenGLTexture& ObjectProfile::getSkin(size_t index)
     return _texturesLoaded[index];
 }
 
-const Ego::DeferredOpenGLTexture& ObjectProfile::getIcon(size_t index)
+const Ego::DeferredTexture& ObjectProfile::getIcon(size_t index)
 {
     if(_iconsLoaded.find(index) == _iconsLoaded.end()) {
         return _iconsLoaded[0];

@@ -58,12 +58,12 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 
     //Load tile textures
     for(size_t i = 0; i < _tileTextures.size(); ++i) {
-        _tileTextures[i] = Ego::DeferredOpenGLTexture("mp_data/tile" + std::to_string(i));
+        _tileTextures[i] = Ego::DeferredTexture("mp_data/tile" + std::to_string(i));
     }
 
     //Load water textures
-    _waterTextures[0] = Ego::DeferredOpenGLTexture("mp_data/waterlow");
-    _waterTextures[1] = Ego::DeferredOpenGLTexture("mp_data/watertop");
+    _waterTextures[0] = Ego::DeferredTexture("mp_data/waterlow");
+    _waterTextures[1] = Ego::DeferredTexture("mp_data/watertop");
 }
 
 GameModule::~GameModule()
@@ -503,13 +503,13 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     return pchr;
 }
 
-const Ego::OpenGL::Texture* GameModule::getTileTexture(const size_t index)
+const Ego::Texture* GameModule::getTileTexture(const size_t index)
 {
     if(index >= _tileTextures.size()) return nullptr;
     return _tileTextures[index].get_ptr();
 }
 
-const Ego::OpenGL::Texture* GameModule::getWaterTexture(const uint8_t layer)
+const Ego::Texture* GameModule::getWaterTexture(const uint8_t layer)
 {
     if(layer > _waterTextures.size()) return nullptr;
     return _waterTextures[layer].get_ptr();

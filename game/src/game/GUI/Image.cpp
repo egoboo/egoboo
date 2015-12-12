@@ -15,7 +15,7 @@ Image::Image(const std::string &filePath) :
 {
 }
 
-Image::Image(Ego::OpenGL::Texture *texture) :
+Image::Image(Ego::Texture *texture) :
     _texture(""),
     _image(texture),
     _tint(Ego::Colour4f::white())
@@ -23,7 +23,7 @@ Image::Image(Ego::OpenGL::Texture *texture) :
 
 }
 
-Image::Image(const Ego::DeferredOpenGLTexture &image) :
+Image::Image(const Ego::DeferredTexture &image) :
     _texture(image),
     _image(nullptr),
     _tint(Ego::Colour4f::white())

@@ -27,9 +27,7 @@
 #include "egolib/Math/Colour4f.hpp"
 
 namespace Ego {
-namespace OpenGL {
-struct Texture;
-} // namespace OpenGL
+class Texture;
 } // namespace Ego
 
 namespace Ego
@@ -77,7 +75,7 @@ namespace Ego
          * @param colour
          *  the colour of the text (default white)
          */
-        void drawTextToTexture(Ego::OpenGL::Texture *tex, const std::string &text,
+        void drawTextToTexture(Ego::Texture *tex, const std::string &text,
                                const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white()) const;
         
 #if 0
@@ -98,7 +96,7 @@ namespace Ego
          * @param colour
          *  the colour of the text (default white)
          */
-        void drawTextBoxToTexture(Ego::OpenGL::Texture *tex, const std::string &text, int width, int height, int spacing,
+        void drawTextBoxToTexture(Ego::Texture *tex, const std::string &text, int width, int height, int spacing,
                                   const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white()) const;
 #endif
         

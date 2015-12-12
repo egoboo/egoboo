@@ -139,7 +139,7 @@ int UIManager::getScreenHeight() const
     return sdl_scr.y;
 }
 
-void UIManager::drawImage(const Ego::OpenGL::Texture &img, float x, float y, float width, float height, const Ego::Colour4f& tint)
+void UIManager::drawImage(const Ego::Texture &img, float x, float y, float width, float height, const Ego::Colour4f& tint)
 {
     ego_frect_t source;
     source.xmin = 0.0f;

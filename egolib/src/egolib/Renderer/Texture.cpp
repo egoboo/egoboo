@@ -527,7 +527,7 @@ bool Texture::load(std::shared_ptr<SDL_Surface> source, uint32_t key) {
 }
 
 void  Texture::release() {
-    if (isErrorTexture())
+    if (isDefault())
     {
         return;
     }
@@ -569,7 +569,7 @@ void  Texture::release() {
     _hasAlpha = false;
 }
 
-bool Texture::isErrorTexture() const {
+bool Texture::isDefault() const {
     if (!_errorTexture1D || !_errorTexture2D) return false;
     return getTextureID() == _errorTexture1D->_id
         || getTextureID() == _errorTexture2D->_id;

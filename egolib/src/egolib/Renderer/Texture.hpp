@@ -316,6 +316,14 @@ public:
 	 */
 	virtual void release() = 0;
 
+    /**
+     * @brief
+     *  Get if the default texture data is uploaded to this texture.
+     * @return
+     *  @a true if the default texture data is uploaded to this texture, @a false otherwise
+     */
+    virtual bool isDefault() const = 0;
+
 }; // struct Texture
 
 } // namespace Ego
@@ -328,7 +336,6 @@ namespace OpenGL {
 /// An encapsulation of the OpenGL texture state.
 struct Texture : public Ego::Texture
 {
-
 
 protected:
 
@@ -343,12 +350,18 @@ protected:
 public:
 	/** @override Ego::Texture::upload(const std::string& name, std::shared_ptr<SDL_Surface>, uint32_t) */
     bool load(const std::string& name, std::shared_ptr<SDL_Surface> surface, uint32_t key = INVALID_KEY) override;
-	/** @override Ego::Texture::upload(std::shared_ptr<SDL_Surface>, uint32_t) */
+
+    /** @override Ego::Texture::upload(std::shared_ptr<SDL_Surface>, uint32_t) */
     bool load(std::shared_ptr<SDL_Surface> image, uint32_t key = INVALID_KEY) override;
+    
     /** @override Ego::Texture::release */
-    void release();
+    void release() override;
+    
+    /** @override Ego::Texture::isDefault */
+    bool isDefault() const override;
 
 public:
+
     /**
      * @brief
      *  Construct this texture.
@@ -374,7 +387,6 @@ public:
 public:
 
     GLuint getTextureID() const;
-    bool isErrorTexture() const;
 
 };
 

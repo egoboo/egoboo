@@ -25,7 +25,7 @@
 
 #include "game/GUI/GUIComponent.hpp"
 
-namespace Ego { class DeferredOpenGLTexture; }
+namespace Ego { class DeferredTexture; }
 
 class MiniMap : public GUIComponent
 {
@@ -62,7 +62,7 @@ private:
             //ctor
         }
 
-        Blip(const float setX, const float setY, const Ego::OpenGL::Texture *setIcon) :
+        Blip(const float setX, const float setY, const Ego::Texture *setIcon) :
             x(setX),
             y(setY),
             color(COLOR_WHITE),
@@ -74,7 +74,7 @@ private:
         float x;
         float y;
         HUDColors color;
-        const Ego::OpenGL::Texture *icon;
+        const Ego::Texture *icon;
     };
 
 private:
@@ -84,5 +84,5 @@ private:
     bool _mouseOver;
     bool _isDragging;
     Vector2f _mouseDragOffset;
-    std::shared_ptr<Ego::DeferredOpenGLTexture> _minimapTexture;
+    std::shared_ptr<Ego::DeferredTexture> _minimapTexture;
 };

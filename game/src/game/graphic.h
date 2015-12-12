@@ -430,8 +430,8 @@ bool gfx_flip_pages_requested();
 void gfx_request_flip_pages();
 void gfx_do_flip_pages();
 
-float draw_icon_texture(const Ego::OpenGL::Texture *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
-float draw_game_icon(const Ego::OpenGL::Texture* icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
+float draw_icon_texture(const Ego::Texture *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
+float draw_game_icon(const Ego::Texture* icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
 void draw_blip(float sizeFactor, Uint8 color, float x, float y);
 void draw_mouse_cursor();
 
@@ -442,12 +442,16 @@ struct dynalist_t
 	size_t size; ///< The size of the list.
 	dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
 	static void init(dynalist_t& self);
+    dynalist_t()
+        : frame(-1), size(0), lst{}
+    {}
 };
 
-
-
-
-#define DYNALIST_INIT { -1 /* frame */, 0 /* count */, {} }
+/// Structure for keeping track of which dynalights are visible
+struct dynalight_registry_t {
+    int reference;
+    ego_frect_t bound;
+};
 
 /// Illuminate the "grid".
 struct GridIllumination {
@@ -470,77 +474,63 @@ public:
 
 float  get_ambient_level();
 
-
-
-#define TEXTUREATLASMANAGER_VERSION 1
-
-struct TextureAtlasManager
+struct TextureAtlasManager : public Ego::Core::Singleton <TextureAtlasManager>
 {
 protected:
-#if TEXTUREATLASMANAGER_VERSION > 3
-    static TextureAtlasManager *_singleton;
-#else
-    /// has this system been initialized?
-    static bool initialized;
-#endif
+    // Befriend with the singleton to grant access to TextureAtlasManager::~TextureAtlasManager.
+    using TheSingleton = Ego::Core::Singleton<TextureAtlasManager>;
+    friend TheSingleton;
+    /**
+     * @brief Construct this texture atlas manager.
+     */
+    TextureAtlasManager();
+    /**
+     * @brief Destruct this texture atlas manager.
+     */
+    virtual ~TextureAtlasManager();
+
+private:
 
     // the "small" textures
-    static Ego::OpenGL::Texture *sml[MESH_IMG_COUNT];
-    static int sml_cnt;
+    std::array<std::shared_ptr<Ego::Texture>,MESH_IMG_COUNT> small;
+    int smallCount;
 
     // the "large" textures
-    static Ego::OpenGL::Texture *big[MESH_IMG_COUNT];
-    static int big_cnt;
-
-#if TEXTUREATLASMANAGER_VERSION > 3
-    TextureAtlasManager();
-    virtual ~TextureAtlasManager();
-#endif
+    std::array<std::shared_ptr<Ego::Texture>,MESH_IMG_COUNT> big;
+    int bigCount;
 
     // decimate one tiled texture of a mesh
-    static int decimate_one_mesh_texture(const Ego::OpenGL::Texture *src_tx, Ego::OpenGL::Texture *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification);
+    int decimate(const Ego::Texture *src_tx, std::array<std::shared_ptr<Ego::Texture>,MESH_IMG_COUNT>& tx_lst, size_t tx_lst_cnt, int minification);
 
 public:
-    static Ego::OpenGL::Texture *get_sml(int which);
-    static Ego::OpenGL::Texture *get_big(int which);
-
-public:
-
-    /**
-     * @brief
-     *  Initialize the texture atlas manager singleton.
-     * @post
-     *  The texture atlas manager is initialized if no exception was raised by this call,
-     *  otherwise it is not initialized.
-     * @remark
-     *  If the texture atlas manager is not initialized, a call to this method is a no-op.
-     */
-    static void initialize();
-    /**
-     * @brief
-     *  Uninitialize the texture atlas manager singleton.
-     * @post
-     *  The texture atlas manager is uninitialized.
-     * @remark
-     *  If the texture atlas manager is not initialized, a call to this method is a no-op.
-     */
-    static void uninitialize();
-    static void reinitialize();
-    static void reload_all();
-
-    // decimate all tiled textures of a mesh
-    static void decimate_all_mesh_textures();
+    std::shared_ptr<Ego::Texture> getSmall(int which) const;
+    std::shared_ptr<Ego::Texture> getBig(int which) const;
+    void reinitialize();
+    /// @brief Reupload all textures.
+    void reupload();
+    // @brief Decmiate all tiled textures of the current mesh.
+    void decimate();
 
 };
 
-//--------------------------------------------------------------------------------------------
-// The following functions/variables manipulate/represent a per-mesh rendering cache;
-// per-mesh and global variables - 'nough said.
+/// An ineffective and obtrusive caching mechanism to avoid texture unit state changes.
+struct TileRenderer {
+private:
+    /** @{ @brief Variables to optimize calls to bind the textures. */
+    // variables to optimize calls to bind the textures
+    /** @brief Disable texturing completely? */
+    static bool disableTexturing;
+    /** @brief The last texture used. */
+    static TX_REF image;
+    /** @brief The size of the last texture used. */
+    static uint8_t size;
+    /**@}*/
+    static std::shared_ptr<Ego::Texture> get_texture(uint8_t image, uint8_t size);
+public:
+    /// Invalidate the cache: Must be inovked if the texture unit state changes from outside of the tile renderer.
+    static void invalidate();
+    /// Bind the texture of the tile to the texture unit.
+    static void bind(const ego_tile_info_t& tile);
+};
 
-// variables to optimize calls to bind the textures
-extern bool mesh_tx_none;           ///< use blank textures?
-extern TX_REF mesh_tx_image;          ///< Last texture used
-extern uint8_t mesh_tx_size;           ///< what size texture?
-void mesh_texture_invalidate();
-Ego::OpenGL::Texture *ego_mesh_get_texture(Uint8 image, Uint8 size);
-Ego::OpenGL::Texture *mesh_texture_bind(const ego_tile_info_t * ptile);
+

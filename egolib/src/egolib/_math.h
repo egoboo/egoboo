@@ -134,30 +134,6 @@ inline float FacingToTurns(FACING_T x) {
 	return ((float)Ego::Math::clipBits<16>(x) / (float)0x00010000);
 }
 
-/**
- * @brief
- *  Convert an angle from radians (\f$[0,2\pi]\f$) to turns (\f$[0,1]\f$).
- * @param x
- *  the angle in radians
- * @return
- *  the angle in turns
- */
-inline float RadiansToTurns(float x) {
-	return x * Ego::Math::invTwoPi<float>();
-}
-
-/**
- * @brief
- *  Convert an angle from turns (\f$[0,1]\f$) to radians (\f$[0,2\pi]\f$).
- * @param x
- *  the angle in turns
- * @return
- *  the angle in radians
- */
-inline float TurnsToRadians(float x) {
-	return x * Ego::Math::twoPi<float>();
-}
-
 //--------------------------------------------------------------------------------------------
 // the lookup tables for sine and cosine
 

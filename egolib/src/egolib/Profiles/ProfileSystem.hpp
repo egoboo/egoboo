@@ -33,7 +33,7 @@ class ModuleProfile;
 struct pip_t;
 struct eve_t;
 class LoadPlayerElement;
-namespace Ego { class DeferredOpenGLTexture; }
+namespace Ego { class DeferredTexture; }
 
 /// Placeholders used while importing profiles
 struct pro_import_t
@@ -107,7 +107,7 @@ public:
      */
     const std::shared_ptr<ObjectProfile> &getProfile(PRO_REF slotNumber) const;
 
-    const Ego::DeferredOpenGLTexture& getSpellBookIcon(size_t index) const;
+    const Ego::DeferredTexture& getSpellBookIcon(size_t index) const;
 
     /**
      * Get map of all profiles loaded

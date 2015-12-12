@@ -57,7 +57,7 @@ bool LoadPlayerElement::hasQuest(const IDSZ idsz, const int requiredLevel)
 }
 
 
-const Ego::DeferredOpenGLTexture& LoadPlayerElement::getIcon() const 
+const Ego::DeferredTexture& LoadPlayerElement::getIcon() const 
 {
 	return _profile->getIcon(_skinRef);
 }

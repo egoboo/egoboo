@@ -37,7 +37,7 @@ PerkID Perk::getID() const
     return _id;
 }
 
-const Ego::DeferredOpenGLTexture& Perk::getIcon() const
+const Ego::DeferredTexture& Perk::getIcon() const
 {
     return _icon;
 }

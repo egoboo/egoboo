@@ -306,7 +306,7 @@
     <ClCompile Include="src\egolib\Console\DefaultConsole.cpp" />
     <ClCompile Include="src\egolib\Logic\Perk.cpp" />
     <ClCompile Include="src\egolib\Logic\PerkHandler.cpp" />
-    <ClCompile Include="src\egolib\Renderer\DeferredOpenGLTexture.cpp" />
+    <ClCompile Include="src\egolib\Renderer\DeferredTexture.cpp" />
     <ClCompile Include="src\egolib\Time\LocalTime.cpp" />
     <ClCompile Include="src\egolib\Platform\file_win.c" />
     <ClCompile Include="src\egolib\Logic\Team.cpp" />
@@ -470,6 +470,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Angle.hpp" />
     <ClInclude Include="src\egolib\AI\LineOfSight.hpp" />
     <ClInclude Include="src\egolib\AI\State.hpp" />
     <ClInclude Include="src\egolib\Grid\Index.hpp" />
@@ -497,7 +498,7 @@
     <ClInclude Include="src\egolib\Logic\Attribute.hpp" />
     <ClInclude Include="src\egolib\Logic\Perk.hpp" />
     <ClInclude Include="src\egolib\Logic\PerkHandler.hpp" />
-    <ClInclude Include="src\egolib\Renderer\DeferredOpenGLTexture.hpp" />
+    <ClInclude Include="src\egolib\Renderer\DeferredTexture.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedRing.hpp" />
     <ClInclude Include="src\egolib\Math\OrderedIntegralDomain.hpp" />
     <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp" />

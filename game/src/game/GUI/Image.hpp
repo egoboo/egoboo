@@ -8,10 +8,10 @@ class Image : public GUIComponent
 public:
     Image();
     Image(const std::string &filePath);
-    Image(const Ego::DeferredOpenGLTexture &image);
+    Image(const Ego::DeferredTexture &image);
 
     //TODO: remove
-    Image(Ego::OpenGL::Texture *texture);
+    Image(Ego::Texture *texture);
 
     virtual void draw() override;
 
@@ -23,7 +23,7 @@ public:
     int getTextureHeight();
 
 private:
-    Ego::DeferredOpenGLTexture _texture;
-    Ego::OpenGL::Texture *_image;
+    Ego::DeferredTexture _texture;
+    Ego::Texture *_image;
     Ego::Math::Colour4f _tint;
 };

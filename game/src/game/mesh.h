@@ -187,7 +187,6 @@ public:
 		return MAP_FANOFF == _img;
 	}
 
-	// MODIFY THESE FLAGS
 	/**
 	* @brief
 	*  The special effect flags in the MPD.

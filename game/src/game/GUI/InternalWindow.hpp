@@ -38,8 +38,8 @@ class InternalWindow : public GUIComponent, public ComponentContainer
             int getTextHeight() const { return _textHeight; }
 
         private:
-            Ego::DeferredOpenGLTexture _titleBarTexture;
-            Ego::DeferredOpenGLTexture _titleSkull;
+            Ego::DeferredTexture _titleBarTexture;
+            Ego::DeferredTexture _titleSkull;
             std::shared_ptr<Ego::Font> _font;
             std::string _title;
             int _textWidth;
@@ -67,7 +67,7 @@ class InternalWindow : public GUIComponent, public ComponentContainer
 
     private:
         std::unique_ptr<TitleBar> _titleBar;
-        Ego::DeferredOpenGLTexture _background;
+        Ego::DeferredTexture _background;
         bool _mouseOver;
         bool _mouseOverCloseButton;
         bool _isDragging;

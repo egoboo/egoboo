@@ -53,23 +53,7 @@
 
 #define BLIPSIZE 6
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// Structure for keeping track of which dynalights are visible
-struct dynalight_registry_t
-{
-    int         reference;
-    ego_frect_t bound;
-};
-
-//--------------------------------------------------------------------------------------------
-// dynalist
-//--------------------------------------------------------------------------------------------
-
-
-
-//--------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /// @todo All this crap can be implemented using a single clock with a window size of 1 and a histogram.
 
@@ -124,7 +108,7 @@ static bool  gfx_page_clear_requested = true;
 
 const static float DYNALIGHT_KEEP = 0.9f;
 
-static dynalist_t _dynalist = DYNALIST_INIT;
+static dynalist_t _dynalist;
 
 renderlist_mgr_t *renderlist_mgr_t::_singleton = nullptr;
 dolist_mgr_t *dolist_mgr_t::_singleton = nullptr;
@@ -196,11 +180,6 @@ static void   gfx_init_bar_data();
 static void   gfx_init_blip_data();
 
 //--------------------------------------------------------------------------------------------
-// renderlist_ary implementation
-//--------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------
 // renderlist manager implementation
 //--------------------------------------------------------------------------------------------
 
@@ -238,11 +217,6 @@ renderlist_mgr_t& renderlist_mgr_t::get()
     }
     return *_singleton;
 }
-
-//--------------------------------------------------------------------------------------------
-// dolist implementation
-//--------------------------------------------------------------------------------------------
-
 
 //--------------------------------------------------------------------------------------------
 // dolist manager implementation
@@ -663,8 +637,8 @@ void gfx_system_reload_all_textures()
     /// @details function is called when the graphics mode is changed or the program is
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
-    TextureManager::get().reload_all();
-    TextureAtlasManager::reload_all();
+    TextureManager::get().reupload();
+    TextureAtlasManager::get().reupload();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -681,7 +655,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
     //Now draw it
     if (x > 0.0f && y > 0.0f)
     {
-        const Ego::OpenGL::Texture * ptex = TextureManager::get().getTexture("mp_data/blip").get();
+        const Ego::Texture * ptex = TextureManager::get().getTexture("mp_data/blip").get();
 
         tx_rect.xmin = (float)bliprect[color]._left / (float)ptex->getWidth();
         tx_rect.xmax = (float)bliprect[color]._right / (float)ptex->getWidth();
@@ -701,7 +675,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_icon_texture(const Ego::OpenGL::Texture * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
+float draw_icon_texture(const Ego::Texture * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
@@ -772,7 +746,7 @@ float draw_icon_texture(const Ego::OpenGL::Texture * ptex, float x, float y, Uin
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_game_icon(const Ego::OpenGL::Texture* icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
+float draw_game_icon(const Ego::Texture* icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
 {
     /// @author ZZ
     /// @details This function draws an icon
@@ -1022,7 +996,7 @@ void draw_mouse_cursor()
     //    return;
     //}
 
-    const std::shared_ptr<Ego::OpenGL::Texture> &pcursor = TextureManager::get().getTexture("mp_data/cursor");
+    const std::shared_ptr<Ego::Texture> &pcursor = TextureManager::get().getTexture("mp_data/cursor");
 
     // Invalid texture?
     if (nullptr == pcursor)
@@ -1163,7 +1137,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 	if (egoboo_config_t::get().debug_mesh_renderHeightMap.getValue())
 	{
 		// restart the mesh texture code
-		mesh_texture_invalidate();
+		TileRenderer::invalidate();
 
 		// render the heighmap
 		for (size_t i = 0; i < tl._all.size; ++i)
@@ -1172,7 +1146,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 		}
 
 		// let the mesh texture code know that someone else is in control now
-		mesh_texture_invalidate();
+		TileRenderer::invalidate();
 	}
 
     // Render the shadows of entities.
@@ -1564,18 +1538,6 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 {
 	ego_tile_info_t& ptile = mesh.getTileInfo(fan);
 
-	static const bool IGNORE_CACHING = false;
-
-	if (!IGNORE_CACHING)
-	{
-		// <ignore caching for now>
-		// max update speed is once per game frame
-		if (ptile._cache_frame >= 0 && (uint32_t)ptile._cache_frame >= game_frame_all)
-		{
-			// not updated
-			return false;
-		}
-	}
 	// get the grid lighting
 	const lighting_cache_t& lighting = ptile._cache;
 
@@ -1596,15 +1558,6 @@ bool GridIllumination::light_corner(ego_mesh_t& mesh, const Index1D& fan, float 
 
 	// clip the light to a reasonable value
 	plight = Ego::Math::constrain(plight, 0.0f, 255.0f);
-
-
-	if (!IGNORE_CACHING)
-	{
-		// <ignore caching for now>
-		// update the cache frame
-		// figure out the correct way to cache *plight
-		ptile._cache_frame = game_frame_all;
-	}
 
 	return true;
 }
@@ -2606,265 +2559,112 @@ gfx_rv gfx_update_all_chr_instance()
 // Tiled texture "optimizations"
 //--------------------------------------------------------------------------------------------
 
-Ego::OpenGL::Texture *TextureAtlasManager::sml[MESH_IMG_COUNT];
-Ego::OpenGL::Texture *TextureAtlasManager::big[MESH_IMG_COUNT];
+TextureAtlasManager::TextureAtlasManager()
+    : big(), bigCount(0), small(), smallCount(0) {}
 
-int TextureAtlasManager::big_cnt = 0;
-int TextureAtlasManager::sml_cnt = 0;
+TextureAtlasManager::~TextureAtlasManager() {}
 
-#if TEXTUREATLASMANAGER_VERSION > 3
-TextureAtlasManager::TextureAtlasManager() :
-big_cnt(0), sml_cnt(0)
-{
-    for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
-    {
-        if (!oglx_texture_t::ctor(&(sml[i])))
-        {
-            while (i > 0)
-            {
-                --i;
-                oglx_texture_t::dtor(&(big[i]));
-                oglx_texture_t::dtor(&(sml[i]));
-            }
-            throw std::runtime_error("unable to initialize texture atlas manager");
-        }
-        if (!oglx_texture_t::ctor(&(big[i])))
-        {
-            oglx_texture_t::dtor(&(sml[i]));
-            while (i > 0)
-            {
-                --i;
-                oglx_texture_t::dtor(&(big[i]));
-                oglx_texture_t::dtor(&(sml[i]));
-            }
-            throw std::runtime_error("unable to initialize texture atlas manager");
-        }
-    }
-}
-TextureAtlasManager::~TextureAtlasManager()
-{
-    for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
-    {
-        oglx_texture_t::dtor(&(sml[i]));
-        oglx_texture_t::dtor(&(big[i]));
-    }
-}
-TextureAtlasManager *TextureAtlasManager::_singleton = nullptr;
-#else
-bool TextureAtlasManager::initialized = false;
-#endif
-
-#if TEXTUREATLASMANAGER_VERSION > 3
-TextureAtlasManager& TextureAtlasManager::get()
-{
-    if (!_singleton)
-    {
-        throw std::logic_error("texture atlas manager is not initialized");
-    }
-    return *_singleton;
-}
-#endif
-
-void TextureAtlasManager::initialize()
-{
-#if TEXTUREATLASMANAGER_VERSION > 3
-    if (!_singleton)
-    {
-        _singleton = new TextureAtlasManager();
-    }
-#else
-    if (!initialized)
-    {
-        for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
-        {
-            sml[i] = nullptr;
-        }
-        sml_cnt = 0;
-        big_cnt = 0;
-
-        initialized = true;
-    }
-#endif
+void TextureAtlasManager::reinitialize() {
+    uninitialize();
+    initialize();
 }
 
-void TextureAtlasManager::uninitialize()
-{
-#if TEXTUREATLASMANAGER_VERSION > 3
-    if (_singleton)
-    {
-        delete _singleton;
-        _singleton = nullptr;
-    }
-#else
-    if (initialized)
-    {
-        for (size_t i = 0; i < sml_cnt; ++i)
-        {
-            delete sml[i];
-            sml[i] = nullptr;
-        }
-        for (size_t i = 0; i < big_cnt; ++i)
-        {
-            delete big[i];
-            big[i] = nullptr;
-        }
-        sml_cnt = 0;
-        big_cnt = 0;
-
-        initialized = false;
-    }
-#endif
-}
-
-void TextureAtlasManager::reinitialize()
-{
-    for (size_t i = 0; i < sml_cnt; ++i)
-    {
-        if(sml[i] != nullptr) {
-            delete sml[i];
-        }
-        sml[i] = nullptr;
-    }
-    for (size_t i = 0; i < big_cnt; ++i)
-    {
-        if(big[i] != nullptr) {
-            delete big[i];
-        }
-        big[i] = nullptr;
-    }
-    sml_cnt = 0;
-    big_cnt = 0;
-}
-
-Ego::OpenGL::Texture *TextureAtlasManager::get_sml(int which)
-{
-    if (!initialized)
-    {
+std::shared_ptr<Ego::Texture> TextureAtlasManager::getSmall(int index) const {
+    if (index < 0 || index >= smallCount || index >= MESH_IMG_COUNT) {
         return nullptr;
     }
-    if (which < 0 || which >= sml_cnt || which >= MESH_IMG_COUNT)
-    {
-        return nullptr;
-    }
-    return sml[which];
+    return small[index];
 }
 
-Ego::OpenGL::Texture *TextureAtlasManager::get_big(int which)
-{
-    if (!initialized)
-    {
+std::shared_ptr<Ego::Texture> TextureAtlasManager::getBig(int index) const {
+    if (index < 0 || index >= bigCount || index >= MESH_IMG_COUNT) {
         return nullptr;
     }
-    if (which < 0 || which >= big_cnt || which >= MESH_IMG_COUNT)
-    {
-        return nullptr;
-    }
-    return big[which];
+    return big[index];
 }
 
-int TextureAtlasManager::decimate_one_mesh_texture(const Ego::OpenGL::Texture *src_tx, Ego::OpenGL::Texture *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification)
-{
+int TextureAtlasManager::decimate(const Ego::Texture *sourceTexture, std::array<std::shared_ptr<Ego::Texture>, MESH_IMG_COUNT>& targetTextureList, size_t startIndex, int minification) {
     static constexpr size_t SUB_TEXTURES = 8;
 
-    size_t cnt = tx_lst_cnt;
-    if (!src_tx || !src_tx->_source)
-    {   
-        return cnt;
+    size_t i = startIndex;
+    if (!sourceTexture || !sourceTexture->_source) {
+        return i;
     }
 
     // make an alias for the texture's SDL_Surface
-    auto src_img = src_tx->_source;
+    auto sourceImage = sourceTexture->_source;
 
     // how large a step every time through the mesh?
-    float step_fx = static_cast<float>(src_img->w) / static_cast<float>(SUB_TEXTURES);
-    float step_fy = static_cast<float>(src_img->h) / static_cast<float>(SUB_TEXTURES);
+    float stepX = static_cast<float>(sourceImage->w) / static_cast<float>(SUB_TEXTURES),
+          stepY = static_cast<float>(sourceImage->h) / static_cast<float>(SUB_TEXTURES);
 
-    SDL_Rect src_img_rect;
-    src_img_rect.w = std::ceil(step_fx * minification);
-    src_img_rect.w = std::max<uint16_t>(1, src_img_rect.w);
-    src_img_rect.h = std::ceil(step_fy * minification);
-    src_img_rect.h = std::max<uint16_t>(1, src_img_rect.h);
+    SDL_Rect rectangle;
+    rectangle.w = std::ceil(stepX * minification);
+    rectangle.w = std::max<uint16_t>(1, rectangle.w);
+    rectangle.h = std::ceil(stepY * minification);
+    rectangle.h = std::max<uint16_t>(1, rectangle.h);
 
     size_t ix, iy;
-    float fx, fy;
+    float x, y;
 
     // scan across the src_img
-    for (iy = 0, fy = 0.0f; iy < SUB_TEXTURES; iy++, fy += step_fy)
-    {
-        src_img_rect.y = std::floor(fy);
+    for (iy = 0, y = 0.0f; iy < SUB_TEXTURES; iy++, y += stepY) {
+        rectangle.y = std::floor(y);
 
-        for (ix = 0, fx = 0.0f; ix < SUB_TEXTURES; ix++, fx += step_fx)
-        {
-            src_img_rect.x = std::floor(fx);
+        for (ix = 0, x = 0.0f; ix < SUB_TEXTURES; ix++, x += stepX) {
+            rectangle.x = std::floor(x);
 
-            // grab the destination texture
-            Ego::OpenGL::Texture *dst_tx = new Ego::OpenGL::Texture();
+            // Create the destination texture.
+            auto targetTexture = std::make_shared<Ego::OpenGL::Texture>();
 
-            // create a blank destination SDL_Surface
+            // Create the destination surface.
             const auto& pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-            auto dst_img = ImageManager::get().createImage(src_img_rect.w, src_img_rect.h, pfd);
-            if (!dst_img)
-            {
-                delete dst_tx;
-                cnt++;
+            auto targetImage = ImageManager::get().createImage(rectangle.w, rectangle.h, pfd);
+            if (!targetImage) {
+                i++;
                 continue;
             }
-           
+
             // Copy the pixels.
-            SDL_BlitSurface(src_img.get(), &src_img_rect, dst_img.get(), nullptr);
+            SDL_BlitSurface(sourceImage.get(), &rectangle, targetImage.get(), nullptr);
 
             // upload the SDL_Surface into OpenGL
-            dst_tx->load(dst_img);
+            targetTexture->load(targetImage);
 
-            tx_lst[cnt] = dst_tx;
+            targetTextureList[i] = targetTexture;
 
             // count the number of textures we're using
-            cnt++;
+            i++;
         }
     }
 
-    return cnt;
+    return i;
 }
 
-void TextureAtlasManager::decimate_all_mesh_textures()
-{
+void TextureAtlasManager::decimate() {
     // Re-initialize the texture atlas manager.
     reinitialize();
 
     // Do the "small" textures.
-    sml_cnt = 0;
-    for (size_t i = 0; i < 4; ++i)
-    {
-        sml_cnt = decimate_one_mesh_texture(_currentModule->getTileTexture(i), sml, sml_cnt, 1);
+    smallCount = 0;
+    for (size_t i = 0; i < 4; ++i) {
+        smallCount = decimate(_currentModule->getTileTexture(i), small, smallCount, 1);
     }
 
     // Do the "big" textures.
-    big_cnt = 0;
-    for (size_t i = 0; i < 4; ++i)
-    {
-        big_cnt = decimate_one_mesh_texture(_currentModule->getTileTexture(i), big, big_cnt, 2);
+    bigCount = 0;
+    for (size_t i = 0; i < 4; ++i) {
+        bigCount = decimate(_currentModule->getTileTexture(i), big, bigCount, 2);
     }
 }
 
-void TextureAtlasManager::reload_all()
-{
-    /// @author BB
-    /// @details This function re-loads all the current textures back into
-    ///               OpenGL texture memory using the cached SDL surfaces
-
-    if (!initialized)
-    {
-        return;
+void TextureAtlasManager::reupload() {
+    for (size_t i = 0; i < smallCount; ++i) {
+        small[i]->load(small[i]->_source);
     }
 
-    for (size_t cnt = 0; cnt < sml_cnt; ++cnt)
-    {
-        sml[cnt]->load(sml[cnt]->_source);
-    }
-
-    for (size_t cnt = 0; cnt < big_cnt; ++cnt)
-    {
-        big[cnt]->load(big[cnt]->_source);
+    for (size_t i = 0; i < bigCount; ++i) {
+        big[i]->load(big[i]->_source);
     }
 }
 
@@ -2903,78 +2703,62 @@ gfx_rv update_one_chr_instance(Object *pchr)
 }
 
 // variables to optimize calls to bind the textures
-bool mesh_tx_none = false;
-TX_REF mesh_tx_image = MESH_IMG_COUNT;
-uint8_t mesh_tx_size = 0xFF;
+bool TileRenderer::disableTexturing = false;
+TX_REF TileRenderer::image = MESH_IMG_COUNT;
+uint8_t TileRenderer::size = 0xFF;
 
-Ego::OpenGL::Texture *ego_mesh_get_texture(Uint8 image, Uint8 size)
+std::shared_ptr<Ego::Texture> TileRenderer::get_texture(uint8_t image, uint8_t size)
 {
-    Ego::OpenGL::Texture * tx_ptr = nullptr;
-
-	if (0 == size)
-	{
-		tx_ptr = TextureAtlasManager::get_sml(image);
-	}
-	else if (1 == size)
-	{
-		tx_ptr = TextureAtlasManager::get_big(image);
-	}
-
-	return tx_ptr;
+	if (0 == size) {
+		return TextureAtlasManager::get().getSmall(image);
+	} else if (1 == size) {
+		return TextureAtlasManager::get().getBig(image);
+	}  else {
+        return nullptr;
+    }
 }
 
-void mesh_texture_invalidate()
+void TileRenderer::invalidate()
 {
-	mesh_tx_image = MESH_IMG_COUNT;
-	mesh_tx_size = 0xFF;
+	image = MESH_IMG_COUNT;
+	size = 0xFF;
 }
 
-Ego::OpenGL::Texture * mesh_texture_bind(const ego_tile_info_t * ptile)
+void TileRenderer::bind(const ego_tile_info_t& tile)
 {
-	Uint8  tx_image, tx_size;
-    Ego::OpenGL::Texture  * tx_ptr = NULL;
-	bool needs_bind = false;
+	uint8_t newImage, newSize;
+    std::shared_ptr<Ego::Texture> texture = nullptr;
+	bool needsBinding = false;
 
-	// bind a NULL texture if we are in that mode
-	if (mesh_tx_none)
+	// Disable texturing.
+	if (disableTexturing)
 	{
-		tx_ptr = NULL;
-		needs_bind = true;
-
-		mesh_texture_invalidate();
-	}
-	else if (NULL == ptile)
-	{
-		tx_ptr = NULL;
-		needs_bind = true;
-
-		mesh_texture_invalidate();
+        needsBinding = true;
+		TileRenderer::invalidate();
 	}
 	else
 	{
-		tx_image = TILE_GET_LOWER_BITS(ptile->_img);
-		tx_size = (ptile->_type < tile_dict.offset) ? 0 : 1;
+		newImage = TILE_GET_LOWER_BITS(tile._img);
+		newSize = (tile._type < tile_dict.offset) ? 0 : 1;
 
-		if ((mesh_tx_image != tx_image) || (mesh_tx_size != tx_size))
+		if ((image != newImage) || (size != newSize))
 		{
-			tx_ptr = ego_mesh_get_texture(tx_image, tx_size);
-			needs_bind = true;
+			texture = get_texture(newImage, newSize);
+            needsBinding = true;
 
-			mesh_tx_image = tx_image;
-			mesh_tx_size = tx_size;
+			image = newImage;
+			size = newSize;
 		}
 	}
 
-	if (needs_bind)
+	if (needsBinding)
 	{
-		Ego::Renderer::get().getTextureUnit().setActivated(tx_ptr);
-		if (tx_ptr && tx_ptr->hasAlpha())
+		Ego::Renderer::get().getTextureUnit().setActivated(texture.get());
+		if (texture && texture->hasAlpha())
 		{
 			// MH: Enable alpha blending if the texture requires it.
 			Ego::Renderer::get().setBlendingEnabled(true);
 			Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceAlpha);
 		}
 	}
-
-	return tx_ptr;
 }

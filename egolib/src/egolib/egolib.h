@@ -92,7 +92,7 @@
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Renderer/DeferredOpenGLTexture.hpp"
+#include "egolib/Renderer/DeferredTexture.hpp"
 
 //--------------------------------------------------------------------------------------------
 

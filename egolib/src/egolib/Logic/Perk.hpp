@@ -25,7 +25,7 @@
  */
 #pragma once
 
-#include "egolib/Renderer/DeferredOpenGLTexture.hpp"
+#include "egolib/Renderer/DeferredTexture.hpp"
 #include "egolib/Logic/Attribute.hpp"
 #include "egolib/Math/Colour4f.hpp"
 
@@ -152,7 +152,7 @@ public:
 
     PerkID getRequirement() const;
 
-    const Ego::DeferredOpenGLTexture& getIcon() const;
+    const Ego::DeferredTexture& getIcon() const;
 
     /**
     * @brief
@@ -171,7 +171,7 @@ private:
     std::string _name;
     std::string _description;
     PerkID _perkRequirement;
-    Ego::DeferredOpenGLTexture _icon;
+    Ego::DeferredTexture _icon;
 
     friend class PerkHandler;
 };

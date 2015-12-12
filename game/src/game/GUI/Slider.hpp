@@ -49,8 +49,8 @@ public:
     bool notifyMouseReleased(const int button, const int x, const int y) override;
 
 private:
-    Ego::DeferredOpenGLTexture _sliderBarTexture;
-    Ego::DeferredOpenGLTexture _sliderTexture;
+    Ego::DeferredTexture _sliderBarTexture;
+    Ego::DeferredTexture _sliderTexture;
     std::function<void(int)> _onChangeFunction;
     int _minValue;
     int _maxValue;

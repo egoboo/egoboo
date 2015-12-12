@@ -1637,7 +1637,7 @@ bool ego_texture_exists_vfs(const std::string &filename)
     return false;
 }
 
-bool  ego_texture_load_vfs(Ego::OpenGL::Texture *texture, const char *filename, Uint32 key)
+bool  ego_texture_load_vfs(Ego::Texture *texture, const char *filename, Uint32 key)
 {
     // Get rid of any old data.
     texture->release();

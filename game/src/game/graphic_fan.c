@@ -116,7 +116,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
     if ( NULL == pdef ) return gfx_fail;
 
     // bind the correct texture
-    mesh_texture_bind( &ptile );
+    TileRenderer::bind(ptile);
     
     GL_DEBUG(glPushClientAttrib)(GL_CLIENT_VERTEX_ARRAY_BIT);
     {
@@ -125,15 +125,15 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
 
         /// @note claforte@> Put this in an initialization function.
         GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
-        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem._plst[ptile._vrtstart] );
+        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, &(ptmem._plst[ptile._vrtstart]) );
 
         GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
-		GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem._tlst[ptile._vrtstart] );
+		GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, &(ptmem._tlst[ptile._vrtstart]) );
 
         if (gfx.gouraudShading_enable)
         {
             GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
-            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem._clst[ptile._vrtstart] );
+            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, &(ptmem._clst[ptile._vrtstart]) );
         }
         else
         {
@@ -147,7 +147,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
         {
             uint8_t numEntries = pdef->command_entries[cnt];
             
-            GL_DEBUG(glDrawElements)(GL_TRIANGLE_FAN, numEntries, GL_UNSIGNED_SHORT, &pdef->command_verts[entry]);
+            GL_DEBUG(glDrawElements)(GL_TRIANGLE_FAN, numEntries, GL_UNSIGNED_SHORT, &(pdef->command_verts[entry]));
             entry += numEntries;
         }
     }
@@ -155,7 +155,7 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
 
 	if (egoboo_config_t::get().debug_mesh_renderNormals.getValue())
 	{
-		mesh_texture_invalidate();
+		TileRenderer::invalidate();
 		auto& renderer = Ego::Renderer::get();
 		renderer.getTextureUnit().setActivated(nullptr);
 		renderer.setColour(Ego::Colour4f::white());
@@ -294,7 +294,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
     float offv  = water._layers[layer]._tx[YY];
 	uint16_t frame = water._layers[layer]._frame;                // Frame
 
-	const Ego::OpenGL::Texture *ptex = _currentModule->getWaterTexture(layer);
+	const Ego::Texture *ptex = _currentModule->getWaterTexture(layer);
 
     float x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
     float y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();
@@ -398,7 +398,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
     vb->unlock();
 
     // tell the mesh texture code that someone else is controlling the texture
-    mesh_texture_invalidate();
+    TileRenderer::invalidate();
 
 	auto& renderer = Ego::Renderer::get();
 

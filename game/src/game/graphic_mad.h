@@ -207,9 +207,9 @@ struct chr_instance_t
     uint8_t          blushift;
 
     // texture info
-    Ego::OpenGL::Texture* texture;  ///< The texture of the character's skin
-    SFP8_T         uoffset;         ///< For moving textures (8.8 fixed point)
-    SFP8_T         voffset;         ///< For moving textures (8.8 fixed point)
+    Ego::Texture* texture;   ///< The texture of the character's skin
+    SFP8_T        uoffset;   ///< For moving textures (8.8 fixed point)
+    SFP8_T        voffset;   ///< For moving textures (8.8 fixed point)
 
     // model info
     std::shared_ptr<Ego::ModelDescriptor> imad;            ///< Character's model
@@ -264,7 +264,7 @@ public:
 	static gfx_rv start_anim(chr_instance_t& self, int action, bool action_ready, bool override_action);
 	static gfx_rv set_anim(chr_instance_t& self, int action, int frame, bool action_ready, bool override_action);
 
-	static gfx_rv set_texture(chr_instance_t& self, const Ego::DeferredOpenGLTexture& itex);
+	static gfx_rv set_texture(chr_instance_t& self, const Ego::DeferredTexture& itex);
 	static gfx_rv set_mad(chr_instance_t& self, const std::shared_ptr<Ego::ModelDescriptor> &imad);
 
 	static void update_ref(chr_instance_t& self, float grid_level, bool need_matrix);
