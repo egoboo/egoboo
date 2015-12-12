@@ -68,7 +68,7 @@ enum e_dyna_mode
 };
 
 /// Possible methods for computing the position and orientation of the quad used to display particle sprites
-enum prt_ori_t
+enum class prt_ori_t
 {
     ORIENTATION_B = 0,   ///< billboard
     ORIENTATION_X,       ///< put particle up along the world or body-fixed x-axis

@@ -616,7 +616,7 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
         vright_ref = vfwd_ref.cross(vup);
         vright_ref.normalize();
     }
-    else if (ORIENTATION_B == inst.orientation)
+    else if (prt_ori_t::ORIENTATION_B == inst.orientation)
     {
         // Use the camera up vector.
         vup = camera.getUp();
@@ -630,7 +630,7 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
         vright_ref = vfwd_ref.cross(vup);
         vright_ref.normalize();
     }
-    else if (ORIENTATION_V == inst.orientation)
+    else if (prt_ori_t::ORIENTATION_V == inst.orientation)
     {
         // Using just the global up vector here is too harsh.
         // Smoothly interpolate the global up vector with the camera up vector
@@ -662,7 +662,7 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
         vright_ref = vfwd_ref.cross(vup);
         vright_ref.normalize();
     }
-    else if (ORIENTATION_H == inst.orientation)
+    else if (prt_ori_t::ORIENTATION_H == inst.orientation)
     {
 		Vector3f vert = Vector3f(0.0f, 0.0f, 1.0f);
 
@@ -692,10 +692,10 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
 
             switch (inst.orientation)
             {
-                case ORIENTATION_X: vup = mat_getChrForward(cinst->matrix); break;
-                case ORIENTATION_Y: vup = mat_getChrRight(cinst->matrix);   break;
+                case prt_ori_t::ORIENTATION_X: vup = mat_getChrForward(cinst->matrix); break;
+                case prt_ori_t::ORIENTATION_Y: vup = mat_getChrRight(cinst->matrix);   break;
                 default:
-                case ORIENTATION_Z: vup = mat_getChrUp(cinst->matrix);      break;
+                case prt_ori_t::ORIENTATION_Z: vup = mat_getChrUp(cinst->matrix);      break;
             }
 
             vup.normalize();
@@ -705,11 +705,11 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
             // Use the camera directions?
             switch (inst.orientation)
             {
-                case ORIENTATION_X: vup = camera.getForward(); break;
-                case ORIENTATION_Y: vup = camera.getRight(); break;
+                case prt_ori_t::ORIENTATION_X: vup = camera.getForward(); break;
+                case prt_ori_t::ORIENTATION_Y: vup = camera.getRight(); break;
 
                 default:
-                case ORIENTATION_Z: vup = camera.getUp(); break;
+                case prt_ori_t::ORIENTATION_Z: vup = camera.getUp(); break;
             }
         }
 
