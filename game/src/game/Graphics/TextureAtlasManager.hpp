@@ -3,13 +3,10 @@
 #include "IdLib/IdLib.hpp"
 #include "egolib/egolib.h"
 
-namespace Ego
-{
-namespace Graphics
-{
+namespace Ego {
+namespace Graphics {
 
-class TextureAtlasManager : public Ego::Core::Singleton<TextureAtlasManager>
-{
+class TextureAtlasManager : public Ego::Core::Singleton<TextureAtlasManager> {
 protected:
     // Befriend with the singleton to grant access to TextureAtlasManager::~TextureAtlasManager.
     using TheSingleton = Ego::Core::Singleton<TextureAtlasManager>;
@@ -32,12 +29,12 @@ public:
     /// @brief Reupload all textures.
     void reupload();
 
-    /** 
-    * @brief 
-    *   Decmiate all tiled textures of the current mesh.
-    *   This turns a big texture tilemap into many smaller textures
-    *   for each tile type (tile0.bmp, tile1.bmp etc.)
-    */
+    /**
+     * @brief
+     *  Decmiate all tiled textures of the current mesh.
+     *  This turns a big texture tilemap into many smaller textures
+     *  for each tile type (tile0.bmp, tile1.bmp etc.)
+     */
     void loadTileSet();
 
 private:

@@ -3,15 +3,12 @@
 #include "game/Module/Module.hpp"
 #include "game/graphic.h" //only for MESH_IMG_COUNT constant
 
-namespace Ego
-{
-namespace Graphics
-{
+namespace Ego {
+namespace Graphics {
 
-TextureAtlasManager::TextureAtlasManager() : 
+TextureAtlasManager::TextureAtlasManager() :
     _smallTiles(),
-    _bigTiles()
-{
+    _bigTiles() {
     //ctor        
 }
 
@@ -45,7 +42,7 @@ void TextureAtlasManager::decimate(const Ego::Texture *sourceTexture, std::vecto
 
     // how large a step every time through the mesh?
     float stepX = static_cast<float>(sourceImage->w) / static_cast<float>(SUB_TEXTURES),
-          stepY = static_cast<float>(sourceImage->h) / static_cast<float>(SUB_TEXTURES);
+        stepY = static_cast<float>(sourceImage->h) / static_cast<float>(SUB_TEXTURES);
 
     SDL_Rect rectangle;
     rectangle.w = std::ceil(stepX * minification);
@@ -100,11 +97,11 @@ void TextureAtlasManager::loadTileSet() {
 }
 
 void TextureAtlasManager::reupload() {
-    for(std::shared_ptr<Ego::Texture>& texture : _smallTiles) {
+    for (std::shared_ptr<Ego::Texture>& texture : _smallTiles) {
         texture->load(texture->_source);
     }
 
-    for(std::shared_ptr<Ego::Texture>& texture : _bigTiles) {
+    for (std::shared_ptr<Ego::Texture>& texture : _bigTiles) {
         texture->load(texture->_source);
     }
 }
