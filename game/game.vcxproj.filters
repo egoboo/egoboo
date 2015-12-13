@@ -310,9 +310,6 @@
     <ClInclude Include="src\game\egoboo_typedef.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\egoboo_typedef_cpp.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\game.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
