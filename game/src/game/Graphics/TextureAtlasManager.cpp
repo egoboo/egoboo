@@ -19,11 +19,6 @@ TextureAtlasManager::~TextureAtlasManager() {
 
 }
 
-void TextureAtlasManager::reinitialize() {
-    _smallTiles.clear();
-    _bigTiles.clear();
-}
-
 std::shared_ptr<Ego::Texture> TextureAtlasManager::getSmall(int index) const {
     if (index < 0 || index >= _smallTiles.size() || index >= MESH_IMG_COUNT) {
         return nullptr;
@@ -88,9 +83,10 @@ void TextureAtlasManager::decimate(const Ego::Texture *sourceTexture, std::vecto
     }
 }
 
-void TextureAtlasManager::decimate() {
-    // Re-initialize the texture atlas manager.
-    reinitialize();
+void TextureAtlasManager::loadTileSet() {
+    //Clear any old loaded data
+    _smallTiles.clear();
+    _bigTiles.clear();
 
     // Do the "small" textures.
     for (size_t i = 0; i < 4; ++i) {

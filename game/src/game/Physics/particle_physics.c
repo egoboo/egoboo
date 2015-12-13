@@ -74,7 +74,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     penviro->twist = _currentModule->getMeshPointer()->get_twist(itile);
 
     // the "watery-ness" of whatever water might be here
-    penviro->is_watery = water._is_water && penviro->inwater;
+    penviro->is_watery = _currentModule->getWater()._is_water && penviro->inwater;
     penviro->is_slippy = !penviro->is_watery && (0 != _currentModule->getMeshPointer()->test_fx(loc_pprt->getTile(), MAPFX_SLIPPY));
 
     //---- traction

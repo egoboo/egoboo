@@ -28,13 +28,17 @@ public:
 
     std::shared_ptr<Ego::Texture> getBig(int which) const;
 
-    void reinitialize();
 
     /// @brief Reupload all textures.
     void reupload();
 
-    // @brief Decmiate all tiled textures of the current mesh.
-    void decimate();
+    /** 
+    * @brief 
+    *   Decmiate all tiled textures of the current mesh.
+    *   This turns a big texture tilemap into many smaller textures
+    *   for each tile type (tile0.bmp, tile1.bmp etc.)
+    */
+    void loadTileSet();
 
 private:
     // decimate one tiled texture of a mesh

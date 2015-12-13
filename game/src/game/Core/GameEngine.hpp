@@ -169,6 +169,12 @@ public:
     **/
     std::shared_ptr<PlayingState> getActivePlayingState() const;
 
+    /**
+    * @brief
+    *   Get the number of the current update frame
+    **/
+    uint32_t getCurrentUpdateFrame() const;
+
 private:
     /**
     * @brief

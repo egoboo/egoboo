@@ -2790,7 +2790,7 @@ Uint8 scr_SetWaterLevel( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    water.set_douse_level(state.argument / 10.0f);
+    _currentModule->getWater().set_douse_level(state.argument / 10.0f);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3253,7 +3253,7 @@ Uint8 scr_GetWaterLevel( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    state.argument = water._douse_level * 10;
+    state.argument = _currentModule->getWater()._douse_level * 10;
 
     SCRIPT_FUNCTION_END();
 }
