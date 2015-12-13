@@ -711,6 +711,16 @@ public:
      */
     virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) = 0;
 
+    /**
+     * @brief
+     *  Create a texture.
+     * @return
+     *  the texture
+     * @post
+     *  The texture is the default texture.
+     */
+    virtual std::shared_ptr<Texture> createTexture() = 0;
+
 };
 
 } // namespace Ego

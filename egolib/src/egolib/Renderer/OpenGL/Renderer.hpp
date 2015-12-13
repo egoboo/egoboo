@@ -238,6 +238,9 @@ public:
     /** @copydoc Ego::Renderer::render */
     virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) override;
 
+    /** @copydoc Ego::Renderer::createTexture */
+    virtual std::shared_ptr<Ego::Texture> createTexture() override;
+
 private:
     GLenum toOpenGL(BlendFunction source);
 

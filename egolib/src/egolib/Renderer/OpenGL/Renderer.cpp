@@ -628,5 +628,9 @@ GLenum Renderer::toOpenGL(BlendFunction source) {
     };
 }
 
+std::shared_ptr<Ego::Texture> Renderer::createTexture() {
+    return std::make_shared<Texture>();
+}
+
 } // namespace OpenGL
 } // namespace Ego
