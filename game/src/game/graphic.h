@@ -320,7 +320,6 @@ struct gfx_config_t
     bool shadows_enable;
     bool shadows_highQuality_enable;
 
-    bool clearson;          ///< Do we clear every time?
     bool draw_background;   ///< Do we draw the background image?
     bool draw_overlay;      ///< Draw overlay?
     bool draw_water_0;      ///< Do we draw water layer 1 (TX_WATER_LOW)

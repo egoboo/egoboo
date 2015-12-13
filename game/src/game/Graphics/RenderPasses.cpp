@@ -140,7 +140,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 }
 
 void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) {
-	if (!gfx.draw_background) {
+	if (!gfx.draw_background || !_currentModule->getWater()._background_req) {
 		return;
 	}
 
@@ -284,7 +284,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 }
 
 void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) {
-	if (!gfx.draw_overlay) {
+	if (!gfx.draw_overlay || !_currentModule->getWater()._background_req) {
 		return;
 	}
 
@@ -792,7 +792,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	TileRenderer::invalidate();
 
 	// Bottom layer first.
-	if (gfx.draw_water_1)
+	if (gfx.draw_water_1 && _currentModule->getWater()._layer_count > 1)
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
@@ -801,7 +801,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	}
 
 	// Top layer second.
-	if (gfx.draw_water_0)
+	if (gfx.draw_water_0 && _currentModule->getWater()._layer_count > 0)
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
