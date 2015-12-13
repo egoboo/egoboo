@@ -23,8 +23,8 @@
 #include "egolib/Log/Entry.hpp"
 
 namespace Log {
-const Manipulations::EndOfEntryManipulation EndOfEntry;
-const Manipulations::EndOfLineManipulation EndOfLine;
+const Manipulations::EndOfEntryManipulation EndOfEntry{};
+const Manipulations::EndOfLineManipulation EndOfLine{};
 
 Entry::Entry(Level level)
 	: _level(level), _sink() {

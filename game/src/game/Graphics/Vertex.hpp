@@ -8,6 +8,17 @@
  */
 struct GLvertex
 {
+    GLvertex() :
+        pos{0.0f, 0.0f, 0.0f, 0.0f},
+        nrm{0.0f, 0.0f, 0.0f},
+        env{0.0f, 0.0f},
+        tex{0.0f, 0.0f},
+        col{0.0f, 0.0f, 0.0f, 0.0f},
+        color_dir(0) 
+    {
+        //ctor
+    }
+    
 	GLfloat pos[4];
 	GLfloat nrm[3];
 	GLfloat env[2];

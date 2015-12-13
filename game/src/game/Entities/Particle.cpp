@@ -326,7 +326,7 @@ void Particle::update()
     }
 
 
-    // Update the particle interaction with water.
+    // Update the particle interaction with water
     updateWater();
     if(isTerminated()) {
         return; //destroyed by water
@@ -353,9 +353,9 @@ void Particle::update()
 
 void Particle::updateWater()
 {
-    bool inwater = (getPosZ() < water._surface_level) && isOverWater();
+    bool inwater = (getPosZ() < _currentModule->getWater()._surface_level) && isOverWater();
 
-    if (inwater && water._is_water && getProfile()->end_water)
+    if (inwater && _currentModule->getWater()._is_water && getProfile()->end_water)
     {
         // Check for disaffirming character
         if (isAttached() && owner_ref == _attachedTo)
@@ -374,7 +374,7 @@ void Particle::updateWater()
     {
         bool  spawn_valid = false;
         LocalParticleProfileRef global_pip_index;
-		Vector3f vtmp = Vector3f(getPosX(), getPosY(), water._surface_level);
+		Vector3f vtmp = Vector3f(getPosX(), getPosY(), _currentModule->getWater()._surface_level);
 
         if (ObjectRef::Invalid == owner_ref && (PIP_SPLASH == getProfileID() || PIP_RIPPLE == getProfileID()))
         {
@@ -400,7 +400,7 @@ void Particle::updateWater()
                 if (SPRITE_SOLID == type && !isAttached())
                 {
                     // only spawn ripples if you are touching the water surface!
-                    if (getPosZ() + bump_real.height > water._surface_level && getPosZ() - bump_real.height < water._surface_level)
+                    if (getPosZ() + bump_real.height > _currentModule->getWater()._surface_level && getPosZ() - bump_real.height < _currentModule->getWater()._surface_level)
                     {
                         int ripand = ~((~RIPPLEAND) << 1);
                         if (0 == ((update_wld + _particleID.get()) & ripand))

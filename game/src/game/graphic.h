@@ -108,11 +108,15 @@ enum HUDColors : uint8_t
     COLOR_MAX
 };
 
-// The map file only supports 256 tile textures:
-// Four texture atlases each with 8 x 8 textures hence 4 * (8 * 8) = 256 different tile textures.
-#define MESH_IMG_COUNT 256
-
-#define VALID_MESH_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<MESH_IMG_COUNT) )
+namespace Ego 
+{
+namespace Graphics
+{
+    // The map file only supports 256 tile textures:
+    // Four texture atlases each with 8 x 8 textures hence 4 * (8 * 8) = 256 different tile textures.
+    static constexpr size_t MESH_IMG_COUNT = 256;
+}
+}
 
 //--------------------------------------------------------------------------------------------
 
@@ -316,7 +320,6 @@ struct gfx_config_t
     bool shadows_enable;
     bool shadows_highQuality_enable;
 
-    bool clearson;          ///< Do we clear every time?
     bool draw_background;   ///< Do we draw the background image?
     bool draw_overlay;      ///< Draw overlay?
     bool draw_water_0;      ///< Do we draw water layer 1 (TX_WATER_LOW)
@@ -473,45 +476,6 @@ public:
 
 
 float  get_ambient_level();
-
-struct TextureAtlasManager : public Ego::Core::Singleton <TextureAtlasManager>
-{
-protected:
-    // Befriend with the singleton to grant access to TextureAtlasManager::~TextureAtlasManager.
-    using TheSingleton = Ego::Core::Singleton<TextureAtlasManager>;
-    friend TheSingleton;
-    /**
-     * @brief Construct this texture atlas manager.
-     */
-    TextureAtlasManager();
-    /**
-     * @brief Destruct this texture atlas manager.
-     */
-    virtual ~TextureAtlasManager();
-
-private:
-
-    // the "small" textures
-    std::array<std::shared_ptr<Ego::Texture>,MESH_IMG_COUNT> small;
-    int smallCount;
-
-    // the "large" textures
-    std::array<std::shared_ptr<Ego::Texture>,MESH_IMG_COUNT> big;
-    int bigCount;
-
-    // decimate one tiled texture of a mesh
-    int decimate(const Ego::Texture *src_tx, std::array<std::shared_ptr<Ego::Texture>,MESH_IMG_COUNT>& tx_lst, size_t tx_lst_cnt, int minification);
-
-public:
-    std::shared_ptr<Ego::Texture> getSmall(int which) const;
-    std::shared_ptr<Ego::Texture> getBig(int which) const;
-    void reinitialize();
-    /// @brief Reupload all textures.
-    void reupload();
-    // @brief Decmiate all tiled textures of the current mesh.
-    void decimate();
-
-};
 
 /// An ineffective and obtrusive caching mechanism to avoid texture unit state changes.
 struct TileRenderer {

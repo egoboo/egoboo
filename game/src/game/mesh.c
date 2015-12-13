@@ -28,6 +28,7 @@
 #include "game/graphic.h"
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/game.h"
+#include "game/Module/Module.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1474,9 +1475,9 @@ float ego_mesh_t::getElevation(const Vector2f& p, bool waterwalk) const
 {
     const float floorElevation = getElevation(p);
 
-    if (waterwalk && water._surface_level > floorElevation && water._is_water) {
+    if (waterwalk && _currentModule->getWater()._surface_level > floorElevation && _currentModule->getWater()._is_water) {
         if (0 != test_fx(getTileIndex(p), MAPFX_WATER)) {
-            return water._surface_level;
+            return _currentModule->getWater()._surface_level;
         }
     }
     return floorElevation;

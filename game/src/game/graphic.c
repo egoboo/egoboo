@@ -44,6 +44,7 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
+#include "game/Graphics/TextureAtlasManager.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -285,7 +286,7 @@ void GFX::initialize()
     BillboardSystem::initialize();
 
     // Initialize the texture atlas manager.
-    TextureAtlasManager::initialize();
+    Ego::Graphics::TextureAtlasManager::initialize();
 
     // initialize the profiling variables.
     gfx_clear_loops = 0;
@@ -297,7 +298,7 @@ void GFX::uninitialize()
     BillboardSystem::uninitialize();
 
     // Uninitialize the texture atlas manager.
-    TextureAtlasManager::uninitialize();
+    Ego::Graphics::TextureAtlasManager::uninitialize();
 
     // Uninitialize the renderlist manager.
     renderlist_mgr_t::uninitialize();
@@ -638,7 +639,7 @@ void gfx_system_reload_all_textures()
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
     TextureManager::get().reupload();
-    TextureAtlasManager::get().reupload();
+    Ego::Graphics::TextureAtlasManager::get().reupload();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1251,14 +1252,10 @@ void gfx_config_t::download(gfx_config_t& self, egoboo_config_t& cfg)
     self.perspective = cfg.graphic_perspectiveCorrection_enable.getValue();
     self.phongon = cfg.graphic_specularHighlights_enable.getValue();
 
-    self.draw_background = cfg.graphic_background_enable.getValue() && water._background_req;
-    self.draw_overlay = cfg.graphic_overlay_enable.getValue() && water._overlay_req;
+    self.draw_background = cfg.graphic_background_enable.getValue();
+    self.draw_overlay = cfg.graphic_overlay_enable.getValue();
 
     self.dynalist_max = Ego::Math::constrain(cfg.graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
-
-    self.draw_water_0 = !self.draw_overlay && (water._layer_count > 0);
-    self.clearson = !self.draw_background;
-    self.draw_water_1 = !self.draw_background && (water._layer_count > 1);
 }
 
 void gfx_config_t::init(gfx_config_t& self)
@@ -1272,7 +1269,6 @@ void gfx_config_t::init(gfx_config_t& self)
     self.shadows_enable = true;
     self.shadows_highQuality_enable = true;
 
-    self.clearson = true;
     self.draw_background = false;
     self.draw_overlay = false;
     self.draw_water_0 = true;
@@ -2556,119 +2552,6 @@ gfx_rv gfx_update_all_chr_instance()
 }
 
 //--------------------------------------------------------------------------------------------
-// Tiled texture "optimizations"
-//--------------------------------------------------------------------------------------------
-
-TextureAtlasManager::TextureAtlasManager()
-    : big(), bigCount(0), small(), smallCount(0) {}
-
-TextureAtlasManager::~TextureAtlasManager() {}
-
-void TextureAtlasManager::reinitialize() {
-    uninitialize();
-    initialize();
-}
-
-std::shared_ptr<Ego::Texture> TextureAtlasManager::getSmall(int index) const {
-    if (index < 0 || index >= smallCount || index >= MESH_IMG_COUNT) {
-        return nullptr;
-    }
-    return small[index];
-}
-
-std::shared_ptr<Ego::Texture> TextureAtlasManager::getBig(int index) const {
-    if (index < 0 || index >= bigCount || index >= MESH_IMG_COUNT) {
-        return nullptr;
-    }
-    return big[index];
-}
-
-int TextureAtlasManager::decimate(const Ego::Texture *sourceTexture, std::array<std::shared_ptr<Ego::Texture>, MESH_IMG_COUNT>& targetTextureList, size_t startIndex, int minification) {
-    static constexpr size_t SUB_TEXTURES = 8;
-
-    size_t i = startIndex;
-    if (!sourceTexture || !sourceTexture->_source) {
-        return i;
-    }
-
-    // make an alias for the texture's SDL_Surface
-    auto sourceImage = sourceTexture->_source;
-
-    // how large a step every time through the mesh?
-    float stepX = static_cast<float>(sourceImage->w) / static_cast<float>(SUB_TEXTURES),
-          stepY = static_cast<float>(sourceImage->h) / static_cast<float>(SUB_TEXTURES);
-
-    SDL_Rect rectangle;
-    rectangle.w = std::ceil(stepX * minification);
-    rectangle.w = std::max<uint16_t>(1, rectangle.w);
-    rectangle.h = std::ceil(stepY * minification);
-    rectangle.h = std::max<uint16_t>(1, rectangle.h);
-
-    size_t ix, iy;
-    float x, y;
-
-    // scan across the src_img
-    for (iy = 0, y = 0.0f; iy < SUB_TEXTURES; iy++, y += stepY) {
-        rectangle.y = std::floor(y);
-
-        for (ix = 0, x = 0.0f; ix < SUB_TEXTURES; ix++, x += stepX) {
-            rectangle.x = std::floor(x);
-
-            // Create the destination texture.
-            auto targetTexture = std::make_shared<Ego::OpenGL::Texture>();
-
-            // Create the destination surface.
-            const auto& pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-            auto targetImage = ImageManager::get().createImage(rectangle.w, rectangle.h, pfd);
-            if (!targetImage) {
-                i++;
-                continue;
-            }
-
-            // Copy the pixels.
-            SDL_BlitSurface(sourceImage.get(), &rectangle, targetImage.get(), nullptr);
-
-            // upload the SDL_Surface into OpenGL
-            targetTexture->load(targetImage);
-
-            targetTextureList[i] = targetTexture;
-
-            // count the number of textures we're using
-            i++;
-        }
-    }
-
-    return i;
-}
-
-void TextureAtlasManager::decimate() {
-    // Re-initialize the texture atlas manager.
-    reinitialize();
-
-    // Do the "small" textures.
-    smallCount = 0;
-    for (size_t i = 0; i < 4; ++i) {
-        smallCount = decimate(_currentModule->getTileTexture(i), small, smallCount, 1);
-    }
-
-    // Do the "big" textures.
-    bigCount = 0;
-    for (size_t i = 0; i < 4; ++i) {
-        bigCount = decimate(_currentModule->getTileTexture(i), big, bigCount, 2);
-    }
-}
-
-void TextureAtlasManager::reupload() {
-    for (size_t i = 0; i < smallCount; ++i) {
-        small[i]->load(small[i]->_source);
-    }
-
-    for (size_t i = 0; i < bigCount; ++i) {
-        big[i]->load(big[i]->_source);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 // chr_instance_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
 gfx_rv update_one_chr_instance(Object *pchr)
@@ -2704,15 +2587,15 @@ gfx_rv update_one_chr_instance(Object *pchr)
 
 // variables to optimize calls to bind the textures
 bool TileRenderer::disableTexturing = false;
-TX_REF TileRenderer::image = MESH_IMG_COUNT;
+TX_REF TileRenderer::image = Ego::Graphics::MESH_IMG_COUNT;
 uint8_t TileRenderer::size = 0xFF;
 
 std::shared_ptr<Ego::Texture> TileRenderer::get_texture(uint8_t image, uint8_t size)
 {
 	if (0 == size) {
-		return TextureAtlasManager::get().getSmall(image);
+		return Ego::Graphics::TextureAtlasManager::get().getSmall(image);
 	} else if (1 == size) {
-		return TextureAtlasManager::get().getBig(image);
+		return Ego::Graphics::TextureAtlasManager::get().getBig(image);
 	}  else {
         return nullptr;
     }
@@ -2720,7 +2603,7 @@ std::shared_ptr<Ego::Texture> TileRenderer::get_texture(uint8_t image, uint8_t s
 
 void TileRenderer::invalidate()
 {
-	image = MESH_IMG_COUNT;
+	image = Ego::Graphics::MESH_IMG_COUNT;
 	size = 0xFF;
 }
 

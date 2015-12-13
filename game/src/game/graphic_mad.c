@@ -1753,7 +1753,7 @@ void chr_instance_t::dealloc(chr_instance_t& self)
 gfx_rv chr_instance_t::alloc(chr_instance_t& self, size_t vlst_size)
 {
 	chr_instance_t::dealloc(self);
-	self.vrt_lst = new GLvertex[vlst_size];
+	self.vrt_lst = new GLvertex[vlst_size]();
     self.vrt_count = vlst_size;
 	return gfx_success;
 }

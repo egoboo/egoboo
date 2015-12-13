@@ -1608,7 +1608,7 @@ egolib_rv load_ai_script_vfs0(parser_state_t& ps, const std::string& loadname, O
 	// No such file
 	if (!fileread)
 	{
-		Log::Entry e(Log::Level::Error, __FILE__, __LINE__, __FUNCTION__);
+		Log::Entry e(Log::Level::Warning, __FILE__, __LINE__, __FUNCTION__);
 		e << "AI script `" << loadname << "` was not found" << Log::EndOfEntry;
 		Log::get() << e;
 		return rv_fail;
@@ -1679,7 +1679,7 @@ egolib_rv load_ai_script_vfs(parser_state_t& ps, const std::string& loadname, Ob
 //--------------------------------------------------------------------------------------------
 
 void print_token(const Token& token) {
-#if defined(_DEBUG)
+#if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 	std::cout << token;
 #endif
 }

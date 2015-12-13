@@ -23,8 +23,8 @@
 #include "ObjectPhysics.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Core/GameEngine.hpp"
-#include "game/game.h" //TODO: only for latches
 #include "egolib/Graphics/ModelDescriptor.hpp"
+#include "game/Shop.hpp"
 
 namespace Ego
 {
@@ -213,13 +213,6 @@ void ObjectPhysics::updateVelocityZ()
     //Apply gravity
     _object.vel.z() += getLerpZ() * Ego::Physics::g_environment.gravity;
 
-    // Down jump timer
-    if(_object.jump_timer > 0) {
-        if (_object.isBeingHeld() || isTouchingGround() || _object.jumpnumber > 0) { 
-            _object.jump_timer--;
-        }        
-    }
-
     // Do ground hits
     if(isTouchingGround()) {
         _object.jumpready = true;
@@ -253,19 +246,16 @@ void ObjectPhysics::updatePhysics()
         return;
     }
 
+    // Character's old location
+    _object.vel_old          = _object.vel;
+    _object.ori_old.facing_z = _object.ori.facing_z;
+
     //Is this character being held by another character?
     if(_object.isBeingHeld()) {
         keepItemsWithHolder();
         move_one_character_do_animation(&_object);
         return;
     }
-
-    // Character's old location
-    _object.vel_old          = _object.vel;
-    _object.ori_old.facing_z = _object.ori.facing_z;
-
-    //Generate movement from latches
-    chr_do_latch_button(&_object);
 
     //Generate velocity from sliding on hills
     updateHillslide();
@@ -308,7 +298,7 @@ float ObjectPhysics::getMaxSpeed() const
     }
 
     //Rally Bonus? (+10%)
-    if(_object.hasPerk(Ego::Perks::RALLY) && update_wld < _object.getRallyDuration()) {
+    if(_object.hasPerk(Ego::Perks::RALLY) && _gameEngine->getCurrentUpdateFrame() < _object.getRallyDuration()) {
         speedBonus += 0.1f;
     }    
 
@@ -319,7 +309,7 @@ float ObjectPhysics::getMaxSpeed() const
     maxspeed *= speedBonus;
 
     //Are we in water?
-    if(_object.isSubmerged() && water._is_water) {
+    if(_object.isSubmerged() && _currentModule->getWater()._is_water) {
         if(_object.hasPerk(Ego::Perks::ATHLETICS)) {
             maxspeed *= 0.25f; //With athletics perk we can have three-quarters speed
         }
@@ -461,7 +451,7 @@ bool ObjectPhysics::attachToPlatform(const std::shared_ptr<Object> &platform)
 
     // do the attachment
     _object.onwhichplatform_ref    = platform->getObjRef();
-    _object.onwhichplatform_update = update_wld;
+    _object.onwhichplatform_update = _gameEngine->getCurrentUpdateFrame();
     _object.targetplatform_ref     = ObjectRef::Invalid;
 
     _platformOffset.x() = _object.getPosX() - platform->getPosX();
@@ -1027,7 +1017,7 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
 bool ObjectPhysics::floorIsSlippy() const
 {
     //Water tiles are never slippy
-    if(_object.inwater && water._is_water) return false;
+    if(_object.inwater && _currentModule->getWater()._is_water) return false;
 
     //Check tile slippy bit
     return 0 != _currentModule->getMeshPointer()->test_fx(_object.getTile(), MAPFX_SLIPPY);

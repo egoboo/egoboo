@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include <IdLib/IdLib.hpp>
-#include <egolib/egolib.h>
+#include "IdLib/IdLib.hpp"
+#include "egolib/egolib.h"
 
 class Object;
 namespace Ego { class Particle; }

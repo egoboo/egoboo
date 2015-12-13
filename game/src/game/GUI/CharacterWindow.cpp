@@ -24,7 +24,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     _knownPerksTab(),
     _activeEnchantsTab()
 {
-    setSize(420, 320);
+    setSize(420, 370);
 
     buildCharacterStatisticTab();
     buildKnownPerksTab();
@@ -227,8 +227,6 @@ void CharacterWindow::buildCharacterStatisticTab()
     //LevelUp button
     if(_character->isPlayer())
     {
-        setSize(getWidth(), getHeight() + 40);
-
         _levelUpButton = std::make_shared<Button>("LEVEL UP");
         _levelUpButton->setSize(120, 30);
         _levelUpButton->setPosition(getWidth()/2 - _levelUpButton->getWidth()/2, getHeight() - _levelUpButton->getHeight() - 15);
@@ -259,7 +257,7 @@ void CharacterWindow::buildCharacterStatisticTab()
     //Active enchants tab
     std::shared_ptr<Button> enchantsTab = std::make_shared<Button>("Enchants");
     enchantsTab->setSize(120, 30);
-    enchantsTab->setPosition(getWidth() - enchantsTab->getWidth(), getHeight() - enchantsTab->getHeight() - 15);
+    enchantsTab->setPosition(getWidth() - enchantsTab->getWidth() - 20, getHeight() - enchantsTab->getHeight() - 15);
     enchantsTab->setOnClickFunction([this]{
         setComponentList(_activeEnchantsTab);
     });

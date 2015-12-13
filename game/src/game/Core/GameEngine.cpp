@@ -596,3 +596,8 @@ int SDL_main(int argc, char **argv)
     }
     return EXIT_SUCCESS;
 }
+
+uint32_t GameEngine::getCurrentUpdateFrame() const
+{
+    return update_wld;
+}
