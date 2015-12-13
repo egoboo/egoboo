@@ -137,42 +137,48 @@ void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textCo
 }
 
 //--------------------------------------------------------------------------------------------
-void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadname, int x, int y, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh)
-{
-    if ( NULL == pwin ) return;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
+Cartman_Border::Cartman_Border(int width, int height)
+    : texture(new Ego::OpenGL::Texture()), width(width), height(height) {}
 
-    if (!pwin->tex->load(loadname, gfx_loadImage(loadname)))
-    {
-		Log::get().warn( "Cannot load \"%s\".\n", loadname );
+void Cartman_Border::loadTexture(const std::string& textureFileName) {
+    if (!texture->load(textureFileName, gfx_loadImage(textureFileName))) {
+        Log::get().warn("unable to load texture \"%s\".\n", textureFileName.c_str());
     }
-
-    pwin->x        = x;
-    pwin->y        = y;
-    pwin->borderx  = bx;
-    pwin->bordery  = by;
-    pwin->surfacex = sx;
-    pwin->surfacey = sy;
-    pwin->on       = true;
-    pwin->mode     = mode;
-    pwin->id       = id;
-    pwin->pmesh    = pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+Cartman_Window::Cartman_Window() : on(false), border() {}
+
+void Cartman_Window::load_window(int id, const std::string& loadname, int x, int y, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh)
+{
+    if ( NULL == pmesh ) pmesh = &mesh;
+
+    this->border.loadTexture(loadname);
+    this->border.width = bx;
+    this->border.height = by;
+
+    this->x = x;
+    this->y = y;
+
+    this->surfacex = sx;
+    this->surfacey = sy;
+    this->on = true;
+    this->mode = mode;
+    this->id = id;
+    this->pmesh = pmesh;
+}
+
 bool Cartman_Window::isOver(int x, int y) const
 {
     if (!on)
     {
         return false;
     }
-    if (x < this->x + this->borderx || x > this->x + 2 * this->borderx + this->surfacex)
+    if (x < this->x + this->border.width || x > this->x + 2 * this->border.width + this->surfacex)
     {
         return false;
     }
-    if (y < this->y + this->borderx || y > this->y + 2 * this->bordery + this->surfacey)
+    if (y < this->y + this->border.height || y > this->y + 2 * this->border.height + this->surfacey)
     {
         return false;
     }
@@ -191,4 +197,10 @@ std::shared_ptr<Cartman_Window> Cartman::GUI::findWindow(int x, int y)
         result = window;
     }
     return result;
+}
+
+void Cartman::GUI::render_all_windows() {
+    for (auto window : _window_lst) {
+        render_window(window);
+    }
 }

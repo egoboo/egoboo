@@ -155,8 +155,6 @@ struct Views
 };
 
 
-static void render_window(std::shared_ptr<Cartman_Window> pwin);
-static void render_all_windows();
 
 static void draw_window_background(std::shared_ptr<Cartman_Window> pwin);
 static void draw_all_windows();
@@ -662,7 +660,7 @@ void Views::render_side_window(std::shared_ptr<Cartman_Window> pwin, float zoom_
 }
 
 //--------------------------------------------------------------------------------------------
-void render_window(std::shared_ptr<Cartman_Window> pwin)
+void Cartman::GUI::render_window(std::shared_ptr<Cartman_Window> pwin)
 {
     if ( NULL == pwin || !pwin->on ) return;
 
@@ -700,27 +698,16 @@ void render_window(std::shared_ptr<Cartman_Window> pwin)
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_windows()
-{
-    for (auto window : _window_lst)
-    {
-        render_window(window);
-    }
-}
 
 //--------------------------------------------------------------------------------------------
 void load_all_windows( cartman_mpd_t& mesh )
 {
-    for (auto window : _window_lst)
-    {
-        window->on = false;
-        window->tex = new Ego::OpenGL::Texture();
-    }
-
-    load_window( _window_lst[0], 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, &mesh );
-    load_window( _window_lst[1], 1, "editor/window.png", 410, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   &mesh );
-    load_window( _window_lst[2], 2, "editor/window.png", 180, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   &mesh );
-    load_window( _window_lst[3], 3, "editor/window.png", 410, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     &mesh );
+    static const int border_width = 7;
+    static const int border_height = 9;
+    _window_lst[0]->load_window(0, "editor/window.png", 180, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, &mesh );
+    _window_lst[1]->load_window(1, "editor/window.png", 410, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   &mesh );
+    _window_lst[2]->load_window(2, "editor/window.png", 180, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   &mesh );
+    _window_lst[3]->load_window(3, "editor/window.png", 410, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     &mesh );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -728,7 +715,7 @@ void draw_window_background(std::shared_ptr<Cartman_Window> pwin)
 {
     if (!pwin || !pwin->on ) return;
 
-    ogl_draw_sprite_2d(pwin->tex, pwin->x, pwin->y, pwin->surfacex, pwin->surfacey );
+    ogl_draw_sprite_2d(pwin->border.texture, pwin->x, pwin->y, pwin->surfacex, pwin->surfacey );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -768,8 +755,8 @@ void bound_mouse()
     if (mdata.win_id != -1)
     {
         auto window = _window_lst[mdata.win_id];
-        Input::get()._mouse.tlx = window->x + window->borderx;
-        Input::get()._mouse.tly = window->y + window->bordery;
+        Input::get()._mouse.tlx = window->x + window->border.width;
+        Input::get()._mouse.tly = window->y + window->border.height;
         Input::get()._mouse.brx = Input::get()._mouse.tlx + window->surfacex - 1;
         Input::get()._mouse.bry = Input::get()._mouse.tly + window->surfacey - 1;
     }
@@ -1075,8 +1062,8 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman_Window> pwin, float zoom_h
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.x - (pwin->x + pwin->borderx + pwin->surfacex / 2);
-    mpix_y = Input::get()._mouse.y - (pwin->y + pwin->bordery + pwin->surfacey / 2);
+    mpix_x = Input::get()._mouse.x - (pwin->x + pwin->border.width + pwin->surfacex / 2);
+    mpix_y = Input::get()._mouse.y - (pwin->y + pwin->border.height + pwin->surfacey / 2);
 
     inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
              ( mpix_y >= -( pwin->surfacey / 2 ) ) && ( mpix_y <= ( pwin->surfacey / 2 ) );
@@ -1186,8 +1173,8 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = Input::get()._mouse.x - (pwin->x + pwin->borderx + pwin->surfacex / 2);
-    mpix_y = Input::get()._mouse.y - (pwin->y + pwin->bordery + pwin->surfacey / 2);
+    mpix_x = Input::get()._mouse.x - (pwin->x + pwin->border.width + pwin->surfacex / 2);
+    mpix_y = Input::get()._mouse.y - (pwin->y + pwin->border.height + pwin->surfacey / 2);
 
     inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
              ( mpix_y >= -( pwin->surfacey / 2 ) ) && ( mpix_y <= ( pwin->surfacey / 2 ) );
@@ -1911,7 +1898,7 @@ void draw_main( cartman_mpd_t * pmesh )
     {
         int itmp;
 
-        render_all_windows();
+        Cartman::GUI::render_all_windows();
 
         draw_all_windows();
 
