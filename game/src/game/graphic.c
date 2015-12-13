@@ -1252,14 +1252,14 @@ void gfx_config_t::download(gfx_config_t& self, egoboo_config_t& cfg)
     self.perspective = cfg.graphic_perspectiveCorrection_enable.getValue();
     self.phongon = cfg.graphic_specularHighlights_enable.getValue();
 
-    self.draw_background = cfg.graphic_background_enable.getValue() && water._background_req;
-    self.draw_overlay = cfg.graphic_overlay_enable.getValue() && water._overlay_req;
+    self.draw_background = cfg.graphic_background_enable.getValue() && _currentModule->getWater()._background_req;
+    self.draw_overlay = cfg.graphic_overlay_enable.getValue() && _currentModule->getWater()._overlay_req;
 
     self.dynalist_max = Ego::Math::constrain(cfg.graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
 
-    self.draw_water_0 = !self.draw_overlay && (water._layer_count > 0);
+    self.draw_water_0 = !self.draw_overlay && (_currentModule->getWater()._layer_count > 0);
     self.clearson = !self.draw_background;
-    self.draw_water_1 = !self.draw_background && (water._layer_count > 1);
+    self.draw_water_1 = !self.draw_background && (_currentModule->getWater()._layer_count > 1);
 }
 
 void gfx_config_t::init(gfx_config_t& self)

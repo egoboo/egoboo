@@ -228,7 +228,7 @@ void LoadingState::loadModuleData()
         [cameraSystem]{
 
             //Have to do this function in the OpenGL context thread or else it will fail
-            Ego::Graphics::TextureAtlasManager::get().decimate();
+            Ego::Graphics::TextureAtlasManager::get().loadTileSet();
 
             //Hush gong
             AudioSystem::get().fadeAllSounds();

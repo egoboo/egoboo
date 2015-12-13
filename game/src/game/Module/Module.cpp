@@ -43,6 +43,9 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _isRespawnValid(profile->isRespawnValid()),
     _isBeaten(false),
     _seed(seed),
+
+    _water(),
+
     _passages(),
     _mesh(std::make_shared<ego_mesh_t>()),
     _tileTextures(),
@@ -540,6 +543,11 @@ void GameModule::updateAllObjects()
         // Reset the clock
         clock_chr_stat -= ONESECOND;
     }    
+}
+
+water_instance_t& GameModule::getWater()
+{
+    return _water;
 }
 
 /// @todo Remove this global.

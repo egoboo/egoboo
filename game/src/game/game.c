@@ -63,7 +63,6 @@ pit_info_t g_pits;
 
 damagetile_instance_t damagetile;
 WeatherState g_weatherState;
-water_instance_t water;
 fog_instance_t fog;
 AnimatedTilesState g_animatedTilesState;
 
@@ -562,7 +561,7 @@ int update_game()
     {
         BillboardSystem::get().update();
         g_animatedTilesState.animate();
-        water.move();
+        _currentModule->getWater().move();
         AudioSystem::get().updateLoopingSounds();
         do_damage_tiles();
         update_pits();
@@ -2964,7 +2963,7 @@ void upload_wawalite()
     upload_light_data( wawalite_data);                         // this statement depends on data from upload_graphics_data()
     upload_camera_data( wawalite_data.camera );
     fog.upload( wawalite_data.fog );
-    water.upload( wawalite_data.water );
+    _currentModule->getWater().upload( wawalite_data.water );
     g_weatherState.upload( wawalite_data.weather );
     damagetile.upload( wawalite_data.damagetile );
     g_animatedTilesState.upload(wawalite_data.animtile);
@@ -3153,13 +3152,13 @@ float get_mesh_max_vertex_1( ego_mesh_t *mesh, const Index2D& point, oct_bb_t& b
 {
     float zdone = mesh->get_max_vertex_1( point, bump._mins[OCT_X], bump._mins[OCT_Y], bump._maxs[OCT_X], bump._maxs[OCT_Y] );
 
-    if ( waterwalk && water._surface_level > zdone && water._is_water )
+    if ( waterwalk && _currentModule->getWater()._surface_level > zdone && _currentModule->getWater()._is_water )
     {
         Index1D tile = mesh->getTileIndex( point );
 
         if ( 0 != mesh->test_fx( tile, MAPFX_WATER ) )
         {
-            zdone = water._surface_level;
+            zdone = _currentModule->getWater()._surface_level;
         }
     }
 

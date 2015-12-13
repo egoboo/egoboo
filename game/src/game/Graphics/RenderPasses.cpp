@@ -147,7 +147,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	tile_mem_t& tmem = _currentModule->getMeshPointer()->_tmem;
 
 	// which layer
-	water_instance_layer_t *ilayer = water._layers + 0;
+	water_instance_layer_t *ilayer = _currentModule->getWater()._layers + 0;
 
 	// the "official" camera height
 	float z0 = 1500;
@@ -160,12 +160,12 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	float ymag, Cy_0, Cy_1;
 
 	// determine the constants for the x-coordinate
-	xmag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / Info<float>::Grid::Size();
+	xmag = _currentModule->getWater()._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / Info<float>::Grid::Size();
 	Cx_0 = xmag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[XX]);
 	Cx_1 = -xmag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[XX]);
 
 	// determine the constants for the y-coordinate
-	ymag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[YY]) / Info<float>::Grid::Size();
+	ymag = _currentModule->getWater()._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[YY]) / Info<float>::Grid::Size();
 	Cy_0 = ymag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[YY]);
 	Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[YY]);
 
@@ -208,7 +208,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		vertices[3].t = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 	}
 
-	float light = water._light ? 1.0f : 0.0f;
+	float light = _currentModule->getWater()._light ? 1.0f : 0.0f;
 	float alpha = ilayer->_alpha * INV_FF<float>();
 
 	float intens = 1.0f;
@@ -288,7 +288,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		return;
 	}
 
-	water_instance_layer_t *ilayer = water._layers + 1;
+	water_instance_layer_t *ilayer = _currentModule->getWater()._layers + 1;
 
 	Vector3f vforw_wind(ilayer->_tx_add[XX], ilayer->_tx_add[YY], 0.0f);
 	vforw_wind.normalize();
@@ -312,7 +312,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		TURN_T default_turn = (3 * 2047) & TRIG_TABLE_MASK;
 		float sinsize = turntosin[default_turn] * size;
 		float cossize = turntocos[default_turn] * size;
-		float loc_foregroundrepeat = water._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
+		float loc_foregroundrepeat = _currentModule->getWater()._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
 
 		{
 			VertexBufferScopedLock lock(_vertexBuffer);

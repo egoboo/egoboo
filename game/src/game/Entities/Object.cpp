@@ -253,7 +253,7 @@ bool Object::isOnWaterTile() const
 
 bool Object::isSubmerged() const
 {
-    return isOnWaterTile() && getPosZ() <= water.get_level();
+    return isOnWaterTile() && getPosZ() <= _currentModule->getWater().get_level();
 }
 
 void Object::movePosition(const float x, const float y, const float z)
@@ -390,7 +390,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(effects, DAMFX_ARMO));
 
     // Increase electric damage when in water
-    if (damagetype == DAMAGE_ZAP && isSubmerged() && water._is_water)
+    if (damagetype == DAMAGE_ZAP && isSubmerged() && _currentModule->getWater()._is_water)
     {
         actual_damage *= 2.0f;     /// @note ZF> Is double damage too much?
     }
@@ -733,7 +733,7 @@ void Object::update()
         return;
     }
 
-    const float WATER_LEVEL = water.get_level();
+    const float WATER_LEVEL = _currentModule->getWater().get_level();
 
     // do the character interaction with water
     if (!isHidden() && isSubmerged() && !isScenery())
@@ -744,7 +744,7 @@ void Object::update()
             // Splash
             ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
-            if ( water._is_water )
+            if ( _currentModule->getWater()._is_water )
             {
                 SET_BIT(ai.alert, ALERTIF_INWATER);
             }
@@ -785,7 +785,7 @@ void Object::update()
                 }
             }
 
-            if (water._is_water && HAS_NO_BITS(update_wld, 7))
+            if (_currentModule->getWater()._is_water && HAS_NO_BITS(update_wld, 7))
             {
                 jumpready = true;
                 jumpnumber = 1; //Limit to 1 jump while in water

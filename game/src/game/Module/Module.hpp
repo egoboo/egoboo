@@ -24,6 +24,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/mesh.h"
+#include "game/Module/Water.hpp"
 
 //@todo This is an ugly hack to work around cyclic dependency and private header guards
 #ifndef GAME_ENTITIES_PRIVATE
@@ -194,6 +195,8 @@ public:
     **/
     void updateAllObjects();
 
+    water_instance_t& getWater();
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
@@ -208,6 +211,9 @@ private:
     bool _isRespawnValid;                      ///< Can players respawn with Spacebar?
     bool _isBeaten;                               ///< Have the players won?
     uint32_t  _seed;                          ///< The module seed
+
+    // special terrain and wawalite-related data structs
+    water_instance_t _water;
 
 	/// @brief The mesh of the module.
 	std::shared_ptr<ego_mesh_t> _mesh;
