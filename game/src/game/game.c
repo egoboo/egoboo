@@ -2373,6 +2373,9 @@ void let_all_characters_think()
 
             scr_run_chr_script(object.get());
         }
+
+        //Generate movement and attacks from input latches
+        chr_do_latch_button(object.get());
     }
 }
 

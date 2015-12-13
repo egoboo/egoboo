@@ -264,13 +264,6 @@ void ObjectPhysics::updatePhysics()
         return;
     }
 
-    // Character's old location
-    _object.vel_old          = _object.vel;
-    _object.ori_old.facing_z = _object.ori.facing_z;
-
-    //Generate movement from latches
-    chr_do_latch_button(&_object);
-
     //Generate velocity from sliding on hills
     updateHillslide();
 
