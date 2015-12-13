@@ -41,38 +41,6 @@ struct light_t
 };
 
 //--------------------------------------------------------------------------------------------
-struct Cartman_MouseData
-{
-    // click/drag window
-    int             win_id;
-    Uint16          win_mode;
-    cartman_mpd_t * win_mesh;
-    float           win_mpos_x;
-    float           win_mpos_y;
-    int             win_fan;
-    int             win_fan_x, win_fan_y;
-    select_lst_t    win_select;
-
-    // click data
-    Uint8   type;       // Tile fantype
-    Uint8   fx;         // Tile effects
-    Uint8   tx;         // Tile texture
-    Uint8   upper;      // Tile upper bits
-    Uint16  presser;    // Random add for tiles
-
-    // Rectangle drawing
-    int     rect_draw;   // draw it
-    int     rect_drag;   // which window id
-    int     rect_done;   // which window id
-    float   rect_x0;     //
-    float   rect_x1;     //
-    float   rect_y0;     //
-    float   rect_y1;     //
-    float   rect_z0;     //
-    float   rect_z1;     //
-
-	static Cartman_MouseData *ctor(Cartman_MouseData *self);
-};
 
 
 static void cart_mouse_data_toggle_fx( int fxmask );
@@ -99,7 +67,6 @@ Uint32  onscreen_vert[MAXPOINTS];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static Cartman_MouseData mdata = { -1 };
 
 static float cartman_zoom_hrz = 1.0f;
 static float cartman_zoom_vrt = 1.0f;
@@ -127,7 +94,7 @@ static bool _ttf_atexit_registered = false;
 //--------------------------------------------------------------------------------------------
 
 // ui functions
-static void draw_cursor_in_window(std::shared_ptr<Cartman_Window> pwin);
+static void draw_cursor_in_window(Cartman::Window& pwin);
 static void unbound_mouse();
 static void bound_mouse();
 static bool cartman_check_keys( const char *modname, cartman_mpd_t * pmesh );
@@ -145,18 +112,26 @@ static void cartman_save_mesh( const char *modname, cartman_mpd_t * pmesh );
 // gfx functions
 static void load_all_windows( cartman_mpd_t& mesh );
 
-/// The views a window may contain w.r.t. the mesh.
+#include "cartman/Views/FxView.hpp"
+#include "cartman/Views/SideView.hpp"
+#include "cartman/Views/TileView.hpp"
+#include "cartman/Views/VertexView.hpp"
+
 struct Views
 {
-    static void render_tile_window(std::shared_ptr<Cartman_Window> window, float zoom_hrz, float zoom_vrt);
-    static void render_fx_window(std::shared_ptr<Cartman_Window> window, float zoom_hrz, float zoom_vrt);
-    static void render_vertex_window(std::shared_ptr<Cartman_Window> window, float zoom_hrz, float zoom_vrt);
-    static void render_side_window(std::shared_ptr<Cartman_Window> window, float zoom_hrz, float zoom_vrt);
+    static Cartman::TileView tileView;
+    static Cartman::FxView fxView;
+    static Cartman::VertexView vertexView;
+    static Cartman::SideView sideView;
 };
 
+Cartman::TileView Views::tileView;
+Cartman::FxView Views::fxView;
+Cartman::VertexView Views::vertexView;
+Cartman::SideView Views::sideView;
 
 
-static void draw_window_background(std::shared_ptr<Cartman_Window> pwin);
+static void draw_window_background(std::shared_ptr<Cartman::Window> pwin);
 static void draw_all_windows();
 static void draw_lotsa_stuff( cartman_mpd_t * pmesh );
 
@@ -177,15 +152,12 @@ static void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt );
 // cartman versions of these functions
 static int cartman_get_vertex(cartman_mpd_t *pmesh, int mapx, int mapy, int num);
 
-// light functions
-static void add_light( int x, int y, int radius, int level );
-static void alter_light( int x, int y );
-static void draw_light(int number, std::shared_ptr<Cartman_Window> pwin, float zoom_hrz);
 
-static void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_tile(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
+
+static void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
 
 // shutdown function
 static void main_end();
@@ -193,67 +165,65 @@ static void main_end();
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#include "cartman/Clocks.h"
 #include "cartman/standard.inl"           // Some functions that I always use
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void add_light( int x, int y, int radius, int level )
-{
-    if ( numlight >= MAXLIGHT )  numlight = MAXLIGHT - 1;
+struct LightModel {
+    static void add_light(int x, int y, int radius, int level) {
+        if (numlight >= MAXLIGHT)  numlight = MAXLIGHT - 1;
 
-    light_lst[numlight].x = x;
-    light_lst[numlight].y = y;
-    light_lst[numlight].radius = radius;
-    light_lst[numlight].level = level;
-    numlight++;
-}
+        light_lst[numlight].x = x;
+        light_lst[numlight].y = y;
+        light_lst[numlight].radius = radius;
+        light_lst[numlight].level = level;
+        numlight++;
+    }
 
-//--------------------------------------------------------------------------------------------
-void alter_light( int x, int y )
-{
-    numlight--;
-    if ( numlight < 0 )  numlight = 0;
+    static void alter_light(int x, int y) {
+        numlight--;
+        if (numlight < 0)  numlight = 0;
 
-    int level = std::abs( light_lst[numlight].y - y );
+        int level = std::abs(light_lst[numlight].y - y);
 
-    int radius = std::abs( light_lst[numlight].x - x );
-    if ( radius > MAXRADIUS / cartman_zoom_hrz )  radius = MAXRADIUS / cartman_zoom_hrz;
-    if ( radius < MINRADIUS / cartman_zoom_hrz )  radius = MINRADIUS / cartman_zoom_hrz;
+        int radius = std::abs(light_lst[numlight].x - x);
+        if (radius > MAXRADIUS / cartman_zoom_hrz)  radius = MAXRADIUS / cartman_zoom_hrz;
+        if (radius < MINRADIUS / cartman_zoom_hrz)  radius = MINRADIUS / cartman_zoom_hrz;
 
-    light_lst[numlight].radius = radius;
-    if ( level > MAP_MAXLEVEL ) level = MAP_MAXLEVEL;
-    if ( level < MAP_MINLEVEL ) level = MAP_MINLEVEL;
-    light_lst[numlight].level = level;
+        light_lst[numlight].radius = radius;
+        if (level > MAP_MAXLEVEL) level = MAP_MAXLEVEL;
+        if (level < MAP_MINLEVEL) level = MAP_MINLEVEL;
+        light_lst[numlight].level = level;
 
-    numlight++;
-}
+        numlight++;
+    }
 
-//--------------------------------------------------------------------------------------------
-void draw_light(int number, std::shared_ptr<Cartman_Window> pwin, float zoom_hrz)
-{
-    int xdraw = ( light_lst[number].x / FOURNUM * zoom_hrz ) - cam.x + ( pwin->surfacex >> 1 ) - SMALLXY;
-    int ydraw = ( light_lst[number].y / FOURNUM * zoom_hrz ) - cam.y + ( pwin->surfacey >> 1 ) - SMALLXY;
-    int radius = std::abs( light_lst[number].radius ) / FOURNUM * zoom_hrz;
-    Uint8 color = light_lst[number].level >> 3;
+    static void draw_light(int number, std::shared_ptr<Cartman::Window> pwin, float zoom_hrz) {
+        int xdraw = (light_lst[number].x / FOURNUM * zoom_hrz) - cam.x + (pwin->surfacex >> 1) - SMALLXY;
+        int ydraw = (light_lst[number].y / FOURNUM * zoom_hrz) - cam.y + (pwin->surfacey >> 1) - SMALLXY;
+        int radius = std::abs(light_lst[number].radius) / FOURNUM * zoom_hrz;
+        Uint8 color = light_lst[number].level >> 3;
 
-    //color = MAKE_BGR(pwin->bmp, color, color, color);
-    //circle(pwin->bmp, xdraw, ydraw, radius, color);
-}
+        //color = MAKE_BGR(pwin->bmp, color, color, color);
+        //circle(pwin->bmp, xdraw, ydraw, radius, color);
+    }
+};
 
 //--------------------------------------------------------------------------------------------
-void draw_cursor_in_window(std::shared_ptr<Cartman_Window> pwin)
+void draw_cursor_in_window(Cartman::Window& pwin)
 {
     using namespace Cartman;
 
-    if ( NULL == pwin || !pwin->on ) return;
+    if ( !pwin.on ) return;
 
-    if ( -1 != mdata.win_id && pwin->id != mdata.win_id )
+    if ( -1 != mdata.win_id && pwin.id != mdata.win_id )
     {
         int size = POINT_SIZE( 10 );
 
-        int x = pwin->x + ( Input::get()._mouse.x - _window_lst[mdata.win_id]->x );
-        int y = pwin->y + ( Input::get()._mouse.y - _window_lst[mdata.win_id]->y );
+        int x = pwin.x + ( Input::get()._mouse.x - _window_lst[mdata.win_id]->x );
+        int y = pwin.y + ( Input::get()._mouse.y - _window_lst[mdata.win_id]->y );
 
         ogl_draw_sprite_2d( tx_pointon, x - size / 2, y - size / 2, size, size );
     }
@@ -412,286 +382,39 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void Views::render_tile_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
+void Cartman::Window::render()
 {
-    if ( NULL == pwin || !pwin->on || !HAS_BITS( pwin->mode, WINMODE_TILE ) ) return;
-
-    if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
-
-    glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT );
-    {
-        // set the viewport transformation
-        Ego::Renderer::get().setViewportRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
-
-        // clip the viewport
-		Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
-
-        cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
-        {
-            int mapxstt = std::floor(( cam.x - cam.w  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
-            int mapystt = std::floor(( cam.y - cam.h  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
-
-            int mapxend = std::ceil(( cam.x + cam.w  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
-            int mapyend = std::ceil(( cam.y + cam.h  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
-
-            for (int mapy = mapystt; mapy <= mapyend; mapy++ )
-            {
-                if ( mapy < 0 || mapy >= pwin->pmesh->info.getTileCountY() ) continue;
-                int y = mapy * Info<int>::Grid::Size();
-
-                for (int mapx = mapxstt; mapx <= mapxend; mapx++ )
-                {
-                    if ( mapx < 0 || mapx >= pwin->pmesh->info.getTileCountX() ) continue;
-                    int x = mapx * Info<int>::Grid::Size();
-
-                    int fan = pwin->pmesh->get_ifan(mapx, mapy);
-
-                    Ego::Texture * tx_tile = NULL;
-                    if ( VALID_MPD_TILE_RANGE( fan ) )
-                    {
-                        tx_tile = tile_at( pwin->pmesh, fan );
-                    }
-
-                    if ( NULL != tx_tile )
-                    {
-                        draw_top_tile( x, y, fan, tx_tile, false, pwin->pmesh );
-                    }
-                }
-            }
-        }
-        cartman_end_ortho_camera();
-
-        //for (cnt = 0; cnt < numlight; cnt++)
-        //{
-        //    draw_light(cnt, pwin);
-        //}
-    }
-    glPopAttrib();
-
-}
-
-//--------------------------------------------------------------------------------------------
-void Views::render_fx_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
-{
-    if ( NULL == pwin || !pwin->on || !HAS_BITS( pwin->mode, WINMODE_FX ) ) return;
-
-    if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
-
-    float zoom_fx = ( zoom_hrz < 1.0f ) ? zoom_hrz : 1.0f;
-
-    glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT );
-    {
-        // set the viewport transformation
-        Ego::Renderer::get().setViewportRectangle(pwin->x, sdl_scr.y - (pwin->y + pwin->surfacey), pwin->surfacex, pwin->surfacey);
-
-        // clip the viewport
-		Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - (pwin->y + pwin->surfacey), pwin->surfacex, pwin->surfacey);
-
-        cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
-        {
-            int mapxstt = std::floor(( cam.x - cam.w  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
-            int mapystt = std::floor(( cam.y - cam.h  * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
-
-            int mapxend = std::ceil(( cam.x + cam.w  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
-            int mapyend = std::ceil(( cam.y + cam.h  * 0.5f ) / Info<float>::Grid::Size()) + 1.0f;
-
-            for (int mapy = mapystt; mapy <= mapyend; mapy++ )
-            {
-                if ( mapy < 0 || mapy >= pwin->pmesh->info.getTileCountY() ) continue;
-                int y = mapy * Info<int>::Grid::Size();
-
-                for (int mapx = mapxstt; mapx <= mapxend; mapx++ )
-                {
-                    if ( mapx < 0 || mapx >= pwin->pmesh->info.getTileCountX() ) continue;
-                    int x = mapx * Info<int>::Grid::Size();
-
-                    int fan = pwin->pmesh->get_ifan(mapx, mapy);
-
-                    Ego::Texture *tx_tile = NULL;
-                    if ( VALID_MPD_TILE_RANGE( fan ) )
-                    {
-                        tx_tile = tile_at( pwin->pmesh, fan );
-                    }
-
-                    if ( NULL != tx_tile )
-                    {
-                        ogl_draw_sprite_2d( tx_tile, x, y, Info<int>::Grid::Size(), Info<int>::Grid::Size());
-
-                        // water is whole tile
-                        draw_tile_fx( x, y, pwin->pmesh->fan2[fan].fx, 4.0f * zoom_fx );
-                    }
-                }
-            }
-        }
-        cartman_end_ortho_camera();
-
-    }
-    glPopAttrib();
-}
-
-//--------------------------------------------------------------------------------------------
-void Views::render_vertex_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
-{
-    if ( NULL == pwin || !pwin->on || !HAS_BITS( pwin->mode, WINMODE_VERTEX ) ) return;
-
-    if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
-
-    glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT );
-    {
-        // set the viewport transformation
-        Ego::Renderer::get().setViewportRectangle(pwin->x, sdl_scr.y - (pwin->y + pwin->surfacey), pwin->surfacex, pwin->surfacey);
-
-        // clip the viewport
-		Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - (pwin->y + pwin->surfacey), pwin->surfacex, pwin->surfacey);
-
-        cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
-        {
-            int mapxstt = std::floor(( cam.x - cam.w * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
-            int mapystt = std::floor(( cam.y - cam.h * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
-
-            int mapxend = std::ceil(( cam.x + cam.w * 0.5f ) / Info<float>::Grid::Size()) + 1;
-            int mapyend = std::ceil(( cam.y + cam.h * 0.5f ) / Info<float>::Grid::Size()) + 1;
-
-            for (int mapy = mapystt; mapy <= mapyend; mapy++ )
-            {
-                if ( mapy < 0 || mapy >= pwin->pmesh->info.getTileCountY() ) continue;
-
-                for (int mapx = mapxstt; mapx <= mapxend; mapx++ )
-                {
-                    if ( mapx < 0 || mapx >= pwin->pmesh->info.getTileCountX() ) continue;
-
-                    int fan = pwin->pmesh->get_ifan(mapx, mapy);
-
-                    if ( VALID_MPD_TILE_RANGE( fan ) )
-                    {
-                        draw_top_fan( mdata.win_select, fan, zoom_hrz, zoom_vrt );
-                    }
-                }
-            }
-
-            if ( mdata.rect_draw )
-            {
-                float color[4];
-                float x_min, x_max;
-                float y_min, y_max;
-
-                OGL_MAKE_COLOR_4( color, 0x3F, 16 + ( timclock&15 ), 16 + ( timclock&15 ), 0 );
-
-                x_min = mdata.rect_x0;
-                x_max = mdata.rect_x1;
-                if ( x_min > x_max ) std::swap(x_max, x_min);
-
-                y_min = mdata.rect_y0;
-                y_max = mdata.rect_y1;
-                if ( y_min > y_max ) std::swap(y_max, y_min);
-
-                ogl_draw_box_xy( x_min, y_min, cam.z, x_max - x_min, y_max - y_min, color );
-            }
-        }
-        cartman_end_ortho_camera();
-    }
-    glPopAttrib();
-}
-
-//--------------------------------------------------------------------------------------------
-void Views::render_side_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
-{
-    if ( NULL == pwin || !pwin->on || !HAS_BITS( pwin->mode, WINMODE_SIDE ) ) return;
-
-    if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
-
-    glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT );
-    {
-        // set the viewport transformation
-        Ego::Renderer::get().setViewportRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
-
-        // clip the viewport
-		Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
-
-        cartman_begin_ortho_camera_vrt( pwin, &cam, zoom_hrz, zoom_vrt * 2.0f );
-        {
-            int mapxstt = std::floor(( cam.x - cam.w * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
-            int mapystt = std::floor(( cam.y - cam.h * 0.5f ) / Info<float>::Grid::Size()) - 1.0f;
-
-            int mapxend = std::ceil(( cam.x + cam.w * 0.5f ) / Info<float>::Grid::Size()) + 1;
-            int mapyend = std::ceil(( cam.y + cam.h * 0.5f ) / Info<float>::Grid::Size()) + 1;
-
-            for (int mapy = mapystt; mapy <= mapyend; mapy++ )
-            {
-                if ( mapy < 0 || mapy >= pwin->pmesh->info.getTileCountY() ) continue;
-
-                for (int mapx = mapxstt; mapx <= mapxend; mapx++ )
-                {
-                    if ( mapx < 0 || mapx >= pwin->pmesh->info.getTileCountX() ) continue;
-
-                    int fan = pwin->pmesh->get_ifan(mapx, mapy);
-                    if ( !VALID_MPD_TILE_RANGE( fan ) ) continue;
-
-                    draw_side_fan( mdata.win_select, fan, zoom_hrz, zoom_vrt );
-                }
-            }
-
-            if ( mdata.rect_draw )
-            {
-                float color[4];
-                float x_min, x_max;
-                float z_min, z_max;
-
-                OGL_MAKE_COLOR_4( color, 0x3F, 16 + ( timclock&15 ), 16 + ( timclock&15 ), 0 );
-
-                x_min = mdata.rect_x0;
-                x_max = mdata.rect_x1;
-                if ( x_min > x_max ) std::swap(x_max, x_min);
-
-                z_min = mdata.rect_z0;
-                z_max = mdata.rect_z1;
-                if ( z_min > z_max ) std::swap(z_max, z_min);
-
-                ogl_draw_box_xz( x_min, cam.y, z_min, x_max - x_min, z_max - z_min, color );
-            }
-        }
-        cartman_end_ortho_camera();
-    }
-    glPopAttrib();
-}
-
-//--------------------------------------------------------------------------------------------
-void Cartman::GUI::render_window(std::shared_ptr<Cartman_Window> pwin)
-{
-    if ( NULL == pwin || !pwin->on ) return;
+    if ( !on ) return;
 
     glPushAttrib( GL_SCISSOR_BIT );
     {
-		Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
+        auto& renderer = Ego::Renderer::get();
+		renderer.setScissorTestEnabled(true);
+        renderer.setScissorRectangle(x, sdl_scr.y - ( y + surfacey ), surfacex, surfacey);
 
-        make_onscreen( pwin->pmesh );
+        make_onscreen( pmesh );
 
-        if ( HAS_BITS( pwin->mode, WINMODE_TILE ) )
+        if ( HAS_BITS( mode, WINMODE_TILE ) )
         {
-            Views::render_tile_window( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
+            Views::tileView.render( *this, cartman_zoom_hrz, cartman_zoom_vrt );
         }
 
-        if ( HAS_BITS( pwin->mode, WINMODE_VERTEX ) )
+        if ( HAS_BITS( mode, WINMODE_VERTEX ) )
         {
-            Views::render_vertex_window( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
+            Views::vertexView.render( *this, cartman_zoom_hrz, cartman_zoom_vrt );
         }
 
-        if ( HAS_BITS( pwin->mode, WINMODE_SIDE ) )
+        if ( HAS_BITS( mode, WINMODE_SIDE ) )
         {
-            Views::render_side_window( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
+            Views::sideView.render( *this, cartman_zoom_hrz, cartman_zoom_vrt );
         }
 
-        if ( HAS_BITS( pwin->mode, WINMODE_FX ) )
+        if ( HAS_BITS( mode, WINMODE_FX ) )
         {
-            Views::render_fx_window( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
+            Views::fxView.render( *this, cartman_zoom_hrz, cartman_zoom_vrt );
         }
 
-        draw_cursor_in_window( pwin );
+        draw_cursor_in_window( *this );
 
     }
     glPopAttrib();
@@ -711,7 +434,7 @@ void load_all_windows( cartman_mpd_t& mesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_window_background(std::shared_ptr<Cartman_Window> pwin)
+void draw_window_background(std::shared_ptr<Cartman::Window> pwin)
 {
     if (!pwin || !pwin->on ) return;
 
@@ -884,7 +607,7 @@ void move_camera( cartman_mpd_info_t * pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int    mpix_x, mpix_z;
@@ -1050,7 +773,7 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_h
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_check_mouse_tile(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int fan_tmp;
@@ -1151,18 +874,18 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman_Window> pwin, float zoom_h
         }
         if ( CART_KEYDOWN( SDLK_k ) && !addinglight )
         {
-            add_light( mdata.win_mpos_x, mdata.win_mpos_y, MINRADIUS / zoom_hrz, MAP_MAXLEVEL / zoom_hrz );
+            LightModel::add_light( mdata.win_mpos_x, mdata.win_mpos_y, MINRADIUS / zoom_hrz, MAP_MAXLEVEL / zoom_hrz );
             addinglight = true;
         }
         if ( addinglight )
         {
-            alter_light( mdata.win_mpos_x, mdata.win_mpos_y );
+            LightModel::alter_light( mdata.win_mpos_x, mdata.win_mpos_y );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int mpix_x, mpix_y;
@@ -1262,7 +985,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int mpix_x, mpix_y;
@@ -1898,7 +1621,7 @@ void draw_main( cartman_mpd_t * pmesh )
     {
         int itmp;
 
-        Cartman::GUI::render_all_windows();
+        Cartman::GUI::renderAllWindows();
 
         draw_all_windows();
 
@@ -2005,7 +1728,7 @@ int SDL_main( int argcnt, char* argtext[] )
 
     dunframe   = 0;                     // Timer resets
     worldclock = 0;
-    timclock   = 0;
+    Clocks::initialize();
     for ( ;; )  // Main loop
     {
         if ( CART_KEYDOWN( SDLK_ESCAPE ) || CART_KEYDOWN( SDLK_F1 ) ) break;
@@ -2016,7 +1739,7 @@ int SDL_main( int argcnt, char* argtext[] )
 
         SDL_Delay( 1 );
 
-        timclock = Time::now<Time::Unit::Ticks>() >> 3;
+        Clocks::update();
     }
     Cartman::GUI::uninitialize();
     Ego::Core::ConsoleHandler::uninitialize();

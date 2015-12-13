@@ -28,6 +28,7 @@
 #include "cartman/cartman_math.h"
 #include "cartman/SDL_Pixel.h"
 #include "egolib/FileFormats/Globals.hpp"
+#include "cartman/Clocks.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -171,7 +172,7 @@ Ego::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
-        animtileframeadd = ( timclock >> 3 ) & 3;
+        animtileframeadd = ( Clocks::timePassed<Unit::Ticks,int>() >> 3 ) & 3;
         if ( fantype >= tile_dict.offset )
         {
             // Big tiles
@@ -226,7 +227,7 @@ Ego::Texture *tile_at( cartman_mpd_t * pmesh, int fan )
 
     if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
-        animtileframeadd = ( timclock >> 3 ) & 3;
+        animtileframeadd = ( Clocks::timePassed<Unit::Ticks,int>() >> 3 ) & 3;
         if ( type >= tile_dict.offset )
         {
             // Big tiles
@@ -519,7 +520,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, int y)
+void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, int y)
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     The wireframe on the left side of the theSurface.
@@ -942,15 +943,16 @@ void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[]
 //--------------------------------------------------------------------------------------------
 void ogl_beginFrame()
 {
+    auto& renderer = Ego::Renderer::get();
     glPushAttrib( GL_ENABLE_BIT );
-	Ego::Renderer::get().setDepthTestEnabled(false);
+	renderer.setDepthTestEnabled(false);
     glDisable( GL_CULL_FACE );
     glEnable( GL_TEXTURE_2D );
 
-    Ego::Renderer::get().setBlendingEnabled(true);
-    Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+    renderer.setBlendingEnabled(true);
+    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-    Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
+    renderer.setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -958,10 +960,10 @@ void ogl_beginFrame()
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
 	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
-    Ego::Renderer::get().loadMatrix(projection);
+    renderer.loadMatrix(projection);
 
     glMatrixMode( GL_MODELVIEW );
-    Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
+    renderer.loadMatrix(Matrix4f4f::identity());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1023,14 +1025,14 @@ SDL_Surface *cartman_LoadIMG(const char *name)
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera_t * pcam, float zoom_x, float zoom_y)
+void cartman_begin_ortho_camera_hrz(Cartman::Window& pwin, camera_t * pcam, float zoom_x, float zoom_y)
 {
     float w, h, d;
     float aspect;
     float left, right, bottom, top, front, back;
 
-    w = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin->surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
-    h = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin->surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
+    w = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin.surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
+    h = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin.surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
     d = DEFAULT_Z_SIZE;
 
     pcam->w = w;
@@ -1073,15 +1075,15 @@ void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera_t * pcam, float zoom_x, float zoom_z)
+void cartman_begin_ortho_camera_vrt(Cartman::Window& pwin, camera_t * pcam, float zoom_x, float zoom_z)
 {
     float w, h, d;
     float aspect;
     float left, right, bottom, top, back, front;
 
-    w = pwin->surfacex * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_W / zoom_x;
+    w = pwin.surfacex * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_W / zoom_x;
     h = w;
-    d = pwin->surfacey * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_H / zoom_z;
+    d = pwin.surfacey * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_H / zoom_z;
 
     pcam->w = w;
     pcam->h = h;

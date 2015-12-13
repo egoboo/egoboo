@@ -54,11 +54,7 @@ struct ogl_surface_t;
 
 #define FADEBORDER 64           // Darkness at the edge of map
 
-#define WINMODE_NOTHING 0           // Window display mode
-#define WINMODE_TILE 1          //
-#define WINMODE_VERTEX 2            //
-#define WINMODE_SIDE 4          //
-#define WINMODE_FX 8                //
+
 
 //#define ONSIZE 600            // Max size of raise mesh
 #define ONSIZE 264          // Max size of raise mesh
@@ -69,8 +65,6 @@ struct ogl_surface_t;
 //--------------------------------------------------------------------------------------------
 
 extern STRING egoboo_path;
-
-extern int     timclock;
 
 extern int     onscreen_count;
 extern Uint32  onscreen_vert[MAXPOINTS];

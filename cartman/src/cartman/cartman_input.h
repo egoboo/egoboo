@@ -26,7 +26,9 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct Cartman_Window;
+namespace Cartman {
+struct Window;
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -45,7 +47,7 @@ namespace Cartman
         int   cx, cy;
 
         bool drag, drag_begin;
-        std::shared_ptr<Cartman_Window> drag_window;
+        std::shared_ptr<Cartman::Window> drag_window;
         int drag_mode;
         int tlx, tly, brx, bry;
 
@@ -67,6 +69,41 @@ namespace Cartman
     };
 }
 
+#include "cartman/cartman_select.h"
+
+struct Cartman_MouseData {
+    // click/drag window
+    int             win_id;
+    Uint16          win_mode;
+    cartman_mpd_t * win_mesh;
+    float           win_mpos_x;
+    float           win_mpos_y;
+    int             win_fan;
+    int             win_fan_x, win_fan_y;
+    select_lst_t    win_select;
+
+    // click data
+    Uint8   type;       // Tile fantype
+    Uint8   fx;         // Tile effects
+    Uint8   tx;         // Tile texture
+    Uint8   upper;      // Tile upper bits
+    Uint16  presser;    // Random add for tiles
+
+                        // Rectangle drawing
+    int     rect_draw;   // draw it
+    int     rect_drag;   // which window id
+    int     rect_done;   // which window id
+    float   rect_x0;     //
+    float   rect_x1;     //
+    float   rect_y0;     //
+    float   rect_y1;     //
+    float   rect_z0;     //
+    float   rect_z1;     //
+
+    static Cartman_MouseData *ctor(Cartman_MouseData *self);
+};
+
+extern Cartman_MouseData mdata;
 
 //--------------------------------------------------------------------------------------------
 
