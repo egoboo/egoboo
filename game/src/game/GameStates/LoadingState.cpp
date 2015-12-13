@@ -38,6 +38,7 @@
 #include "game/link.h"
 #include "game/renderer_2d.h"
 #include "game/Module/Module.hpp"
+#include "game/Graphics/TextureAtlasManager.hpp"
 
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :
     _loadingThread(),
@@ -227,7 +228,7 @@ void LoadingState::loadModuleData()
         [cameraSystem]{
 
             //Have to do this function in the OpenGL context thread or else it will fail
-            TextureAtlasManager::get().decimate();
+            Ego::Graphics::TextureAtlasManager::get().decimate();
 
             //Hush gong
             AudioSystem::get().fadeAllSounds();

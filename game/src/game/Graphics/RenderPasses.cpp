@@ -110,7 +110,7 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 			int img = TILE_GET_LOWER_BITS(tile._img);
 			if (tile._type >= tile_dict.offset)
 			{
-				img += MESH_IMG_COUNT;
+				img += Ego::Graphics::MESH_IMG_COUNT;
 			}
 
 			lst_vals[i]._textureIndex = img;
