@@ -66,9 +66,9 @@
 #define HURTDAMAGE           256                    ///< Minimum damage for hurt animation
 
 //Dismounting
-#define DISMOUNTZVEL        16
+#define DISMOUNTZVEL        12
 #define DISMOUNTZVELFLY     4
-#define PHYS_DISMOUNT_TIME  25          ///< time delay for full object-object interaction (approximately 0.5 second)
+#define PHYS_DISMOUNT_TIME  50          ///< time delay for full object-object interaction (approximately 1 second)
 
 //Water
 #define RIPPLETOLERANCE     60          ///< For deep water
@@ -89,11 +89,7 @@
 #define JUMPDELAY           20                      ///< Time between jumps
 #define WATERJUMP           25                        ///< How good we jump in water
 #define JUMPINFINITE        255                     ///< Flying character
-#define SLIDETOLERANCE      10                      ///< Stick to ground better
-#define PLATADD             -10                     ///< Height add...
-#define PLATASCEND          0.10f                     ///< Ascension rate
-#define PLATKEEP            0.90f                     ///< Retention rate
-#define MOUNTTOLERANCE      (PLATTOLERANCE)
+#define MOUNTTOLERANCE      10                  ///< Z threshold for mounting objects
 #define DROPZVEL            7
 #define DROPXYVEL           12
 

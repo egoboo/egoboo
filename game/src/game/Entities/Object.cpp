@@ -728,12 +728,10 @@ void Object::update()
     // the following functions should not be done the first time through the update loop
     if (0 == update_wld) return;
 
-    //Don't do items that are in inventory
+    //Don't do items that are inside an inventory
     if (isInsideInventory()) {
         return;
     }
-
-    const float WATER_LEVEL = _currentModule->getWater().get_level();
 
     // do the character interaction with water
     if (!isHidden() && isSubmerged() && !isScenery())
@@ -742,7 +740,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -757,11 +755,11 @@ void Object::update()
             if(isAlive())
             {
                 if ( !isBeingHeld() && getProfile()->causesRipples()
-                    && getPosZ() + chr_min_cv._maxs[OCT_Z] + RIPPLETOLERANCE > WATER_LEVEL 
-                    && getPosZ() + chr_min_cv._mins[OCT_Z] < WATER_LEVEL)
+                    && getPosZ() + chr_min_cv._maxs[OCT_Z] + RIPPLETOLERANCE > _currentModule->getWater().get_level() 
+                    && getPosZ() + chr_min_cv._mins[OCT_Z] < _currentModule->getWater().get_level())
                 {
                     // suppress ripples if we are far below the surface
-                    int ripple_suppression = WATER_LEVEL - (getPosZ() + chr_min_cv._maxs[OCT_Z]);
+                    int ripple_suppression = _currentModule->getWater().get_level() - (getPosZ() + chr_min_cv._maxs[OCT_Z]);
                     ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
                     ripple_suppression = Ego::Math::constrain(ripple_suppression, 0, 4);
 
@@ -780,7 +778,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getObjRef().get()) & ripand ))
                     {
-                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level()), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -811,6 +809,12 @@ void Object::update()
         dismount_object = ObjectRef::Invalid;
     }
 
+    // Down jump timer
+    if(jump_timer > 0) {
+        if (isBeingHeld() || getObjectPhysics().isTouchingGround() || jumpnumber > 0) { 
+            jump_timer--;
+        }
+    }
     // Down that ol' damage timer
     if ( damage_timer > 0 ) damage_timer--;
 

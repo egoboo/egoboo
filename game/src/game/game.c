@@ -2373,9 +2373,6 @@ void let_all_characters_think()
 
             scr_run_chr_script(object.get());
         }
-
-        //Generate movement and attacks from input latches
-        chr_do_latch_button(object.get());
     }
 }
 
@@ -3624,7 +3621,6 @@ bool chr_do_latch_button( Object * pchr )
     /// @author BB
     /// @details Character latches for generalized buttons
 
-    if (!pchr || pchr->isTerminated()) return false;
     auto ichr = pchr->getObjRef();
 
     if ( !pchr->isAlive() || pchr->latch.b.none() ) return true;

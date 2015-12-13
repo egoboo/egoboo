@@ -530,6 +530,9 @@ void GameModule::updateAllObjects()
         //Update object logic
         object->update();
 
+        //Generate movement and attacks from input latches
+        chr_do_latch_button(object.get());
+
         //Check if this object should be poofed (destroyed)
         bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
         if (timeOut) {
@@ -537,12 +540,10 @@ void GameModule::updateAllObjects()
         }
     }
 
-    // fix the stat timer
-    if ( clock_chr_stat >= ONESECOND )
-    {
-        // Reset the clock
+    // Reset the clock
+    if (clock_chr_stat >= ONESECOND) {
         clock_chr_stat -= ONESECOND;
-    }    
+    }
 }
 
 water_instance_t& GameModule::getWater()

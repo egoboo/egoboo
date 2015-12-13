@@ -213,13 +213,6 @@ void ObjectPhysics::updateVelocityZ()
     //Apply gravity
     _object.vel.z() += getLerpZ() * Ego::Physics::g_environment.gravity;
 
-    // Down jump timer
-    if(_object.jump_timer > 0) {
-        if (_object.isBeingHeld() || isTouchingGround() || _object.jumpnumber > 0) { 
-            _object.jump_timer--;
-        }        
-    }
-
     // Do ground hits
     if(isTouchingGround()) {
         _object.jumpready = true;
