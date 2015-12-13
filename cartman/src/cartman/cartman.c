@@ -2091,7 +2091,7 @@ void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
     make_planmap( pmesh );
     if ( bmphitemap )
     {
-        SDL_SaveBMP_RW( bmphitemap, vfs_openRWopsWrite(newloadname), 1 );
+        SDL_SaveBMP_RW( bmphitemap.get(), vfs_openRWopsWrite(newloadname), 1 );
     }
 
     //  make_newloadname(modname, SLASH_STR "gamedat" SLASH_STR "level.png", newloadname);

@@ -66,7 +66,7 @@ Uint16 animtileframeadd    = 0;
 SDLX_video_parameters_t sdl_vparam;
 oglx_video_parameters_t ogl_vparam;
 
-SDL_Surface * bmphitemap = NULL;        // Heightmap image
+std::shared_ptr<SDL_Surface> bmphitemap = nullptr;        // Heightmap image
 
 Ego::Texture     *tx_point;      // Vertex image
 Ego::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
@@ -261,9 +261,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( bmphitemap ) SDL_FreeSurface( bmphitemap );
-
-    bmphitemap = SDL_GL_createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
+    bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
     if ( NULL == bmphitemap ) return;
 
     for (int pixy = 0, y = 16; pixy < ( pmesh->info.getTileCountY() << 2 ); pixy++, y += 32 )
@@ -280,7 +278,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             if ( HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 254;   // Impass
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) && HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 255;   // Both
 
-            SDL_PutPixel( bmphitemap, pixx, pixy, level );
+            SDL_PutPixel( bmphitemap.get(), pixx, pixy, level );
         }
     }
 }
@@ -296,11 +294,9 @@ void make_planmap( cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( NULL == bmphitemap ) SDL_FreeSurface( bmphitemap );
-    bmphitemap = SDL_GL_createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
-    if ( NULL == bmphitemap ) return;
+    bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
 
-    SDL_FillRect( bmphitemap, NULL, MAKE_BGR( bmphitemap, 0, 0, 0 ) );
+    SDL_FillRect( bmphitemap.get(), NULL, MAKE_BGR( bmphitemap.get(), 0, 0, 0 ) );
 
     puty = 0;
     for ( y = 0; y < pmesh->info.getTileCountY(); y++ )
@@ -314,7 +310,7 @@ void make_planmap( cartman_mpd_t * pmesh )
             if ( NULL != tx_tile )
             {
                 SDL_Rect dst = {static_cast<Sint16>(putx), static_cast<Sint16>(puty), TINYXY, TINYXY};
-                cartman_BlitSurface(tx_tile->_source.get(), nullptr, bmphitemap, &dst);
+                cartman_BlitSurface(tx_tile->_source.get(), nullptr, bmphitemap.get(), &dst);
             }
             putx += TINYXY;
         }
@@ -1204,7 +1200,7 @@ void load_img()
 //--------------------------------------------------------------------------------------------
 void get_small_tiles( SDL_Surface* bmpload )
 {
-    SDL_Surface * image;
+    std::shared_ptr<SDL_Surface> image;
 
     int x, y, x1, y1;
     int sz_x = bmpload->w;
@@ -1223,16 +1219,15 @@ void get_small_tiles( SDL_Surface* bmpload )
 
             tx_smalltile[numsmalltile] = new Ego::OpenGL::Texture();
 
-            image = SDL_GL_createSurface( SMALLXY, SMALLXY );
+            image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
             {
                 throw std::runtime_error("unable to create surface");
             }
-            auto image_ptr = shared_ptr<SDL_Surface>(image, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
-            SDL_FillRect( image_ptr.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
-            SDL_SoftStretch( bmpload, &src1, image_ptr.get(), NULL );
+            SDL_FillRect( image.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
+            SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
-            tx_smalltile[numsmalltile]->load(image_ptr);
+            tx_smalltile[numsmalltile]->load(image);
 
             numsmalltile++;
         }
@@ -1242,7 +1237,7 @@ void get_small_tiles( SDL_Surface* bmpload )
 //--------------------------------------------------------------------------------------------
 void get_big_tiles( SDL_Surface* bmpload )
 {
-    SDL_Surface * image;
+    std::shared_ptr<SDL_Surface> image;
 
     int x, y, x1, y1;
     int sz_x = bmpload->w;
@@ -1274,17 +1269,16 @@ void get_big_tiles( SDL_Surface* bmpload )
 
             tx_bigtile[numbigtile] = new Ego::OpenGL::Texture();
 
-            image = SDL_GL_createSurface( SMALLXY, SMALLXY );
+            image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
             {
                 throw std::runtime_error("unable to create surface");
             }
-            auto image_ptr = std::shared_ptr<SDL_Surface>(image, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
-            SDL_FillRect( image_ptr.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
+            SDL_FillRect( image.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
 
-            SDL_SoftStretch( bmpload, &src1, image_ptr.get(), NULL );
+            SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
-            tx_bigtile[numbigtile]->load(image_ptr);
+            tx_bigtile[numbigtile]->load(image);
 
             numbigtile++;
         }

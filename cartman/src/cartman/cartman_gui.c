@@ -29,13 +29,8 @@
 //--------------------------------------------------------------------------------------------
 
 Cartman_GUI_Cursor::Cartman_GUI_Cursor() :
-    _surface(nullptr)
+    _surface(Ego::Graphics::SDL::createSurface(8, 8))
 {
-    _surface = SDL_GL_createSurface(8, 8);
-    if (!_surface)
-    {
-        throw std::bad_alloc();
-    }
     Uint32 col = MAKE_BGR(_surface, 31, 31, 31);    // White color
     Uint32 loc = MAKE_BGR(_surface, 3, 3, 3);       // Gray color
     Uint32 clr = MAKE_ABGR(_surface, 0, 0, 0, 8);
@@ -46,25 +41,20 @@ Cartman_GUI_Cursor::Cartman_GUI_Cursor() :
     rtmp.y = 0;
     rtmp.w = 8;
     rtmp.h = 1;
-    SDL_FillRect(_surface, &rtmp, loc);
+    SDL_FillRect(_surface.get(), &rtmp, loc);
 
     for (int y = 0; y < 8; y++)
     {
         for (int x = 0; x < 8; x++)
         {
-            if (x + y < 8) SDL_PutPixel(_surface, x, y, col);
-            else SDL_PutPixel(_surface, x, y, clr);
+            if (x + y < 8) SDL_PutPixel(_surface.get(), x, y, col);
+            else SDL_PutPixel(_surface.get(), x, y, clr);
         }
     }
 }
 
 Cartman_GUI_Cursor::~Cartman_GUI_Cursor()
 {
-    if (_surface)
-    {
-        SDL_FreeSurface(_surface);
-        _surface = nullptr;
-    }
 }
 
 std::vector<std::shared_ptr<Cartman_Window>> _window_lst;

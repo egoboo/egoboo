@@ -123,7 +123,7 @@ extern ui_state_t ui;
 struct Cartman_GUI_Cursor
 {
     /// The cursor image.
-    SDL_Surface *_surface;
+    std::shared_ptr<SDL_Surface> _surface;
     /// Create a cursor.
     Cartman_GUI_Cursor();
     /// Destroy a cursor.

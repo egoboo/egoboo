@@ -82,7 +82,7 @@ struct simple_vertex_t
 
 extern camera_t cam;
 
-extern SDL_Surface * bmphitemap;        // Heightmap image
+extern std::shared_ptr<SDL_Surface> bmphitemap;        // Heightmap image
 
 extern Ego::Texture     *tx_point;      // Vertex image
 extern Ego::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
