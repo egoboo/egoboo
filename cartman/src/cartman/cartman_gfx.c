@@ -26,7 +26,6 @@
 #include "cartman/cartman_functions.h"
 #include "cartman/cartman_select.h"
 #include "cartman/cartman_math.h"
-#include "cartman/SDL_Pixel.h"
 #include "egolib/FileFormats/Globals.hpp"
 #include "cartman/Clocks.h"
 
@@ -279,7 +278,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             if ( HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 254;   // Impass
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) && HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 255;   // Both
 
-            SDL_PutPixel( bmphitemap.get(), pixx, pixy, level );
+            Ego::Graphics::SDL::putPixel( bmphitemap.get(), pixx, pixy, level );
         }
     }
 }
@@ -297,7 +296,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
     bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
 
-    SDL_FillRect( bmphitemap.get(), NULL, MAKE_BGR( bmphitemap.get(), 0, 0, 0 ) );
+    SDL_FillRect( bmphitemap.get(), NULL, make_rgb(bmphitemap, 0, 0, 0) );
 
     puty = 0;
     for ( y = 0; y < pmesh->info.getTileCountY(); y++ )
@@ -1226,7 +1225,7 @@ void get_small_tiles( SDL_Surface* bmpload )
             {
                 throw std::runtime_error("unable to create surface");
             }
-            SDL_FillRect( image.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
+            SDL_FillRect( image.get(), NULL, make_rgb( image, 0, 0, 0 ) );
             SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
             tx_smalltile[numsmalltile]->load(image);
@@ -1276,7 +1275,7 @@ void get_big_tiles( SDL_Surface* bmpload )
             {
                 throw std::runtime_error("unable to create surface");
             }
-            SDL_FillRect( image.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
+            SDL_FillRect( image.get(), NULL, make_rgb( image, 0, 0, 0 ) );
 
             SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
