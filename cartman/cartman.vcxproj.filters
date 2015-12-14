@@ -48,12 +48,6 @@
     <ClCompile Include="src\cartman\cartman_select.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\cartman\SDL_GetPixel.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\cartman\SDL_PutPixel.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\cartman\Tile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -113,9 +107,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cartman\cartman_typedef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\cartman\SDL_Pixel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cartman\res\resource.h">

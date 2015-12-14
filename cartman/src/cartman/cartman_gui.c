@@ -23,7 +23,6 @@
 #include "cartman/cartman_input.h"
 #include "cartman/cartman_math.h"
 #include "cartman/cartman_gfx.h"
-#include "cartman/SDL_Pixel.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -32,9 +31,9 @@ namespace Cartman {
 GUI_Cursor::GUI_Cursor() :
     _surface(Ego::Graphics::SDL::createSurface(8, 8))
 {
-    Uint32 col = MAKE_BGR(_surface, 31, 31, 31);    // White color
-    Uint32 loc = MAKE_BGR(_surface, 3, 3, 3);       // Gray color
-    Uint32 clr = MAKE_ABGR(_surface, 0, 0, 0, 8);
+    uint32_t col = make_rgb(_surface, 255, 255, 255); // white (255,255,255), fully opaquw
+    uint32_t loc = make_rgb(_surface, 24, 24, 24);    // black-grey (24,24,24), fully opaque
+    uint32_t clr = make_rgba(_surface, 0, 0, 0, 64);  // black (0,0,0), almost transparent (64)
 
     // Simple triangle
     SDL_Rect rtmp;
@@ -48,8 +47,8 @@ GUI_Cursor::GUI_Cursor() :
     {
         for (int x = 0; x < 8; x++)
         {
-            if (x + y < 8) SDL_PutPixel(_surface.get(), x, y, col);
-            else SDL_PutPixel(_surface.get(), x, y, clr);
+            if (x + y < 8) Ego::Graphics::SDL::putPixel(_surface.get(), x, y, col);
+            else Ego::Graphics::SDL::putPixel(_surface.get(), x, y, clr);
         }
     }
 }

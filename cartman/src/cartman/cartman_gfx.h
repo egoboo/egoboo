@@ -71,8 +71,13 @@ struct simple_vertex_t
 #define OGL_MAKE_COLOR_3(COL, BB,GG,RR) { COL[0] = RR / 32.0f; COL[1] = GG / 32.0f; COL[2] = BB / 32.0f; }
 #define OGL_MAKE_COLOR_4(COL, AA,BB,GG,RR) { COL[0] = RR / 32.0f; COL[1] = GG / 32.0f; COL[2] = BB / 32.0f; COL[3] = AA / 32.0f; }
 
-#define MAKE_BGR(BMP,BB,GG,RR)     SDL_MapRGBA(BMP->format, (RR)<<3, (GG)<<3, (BB)<<3, 0xFF)
-#define MAKE_ABGR(BMP,AA,BB,GG,RR) SDL_MapRGBA(BMP->format, (RR)<<3, (GG)<<3, (BB)<<3, AA)
+inline uint32_t make_rgb(const std::shared_ptr<const SDL_Surface>& surface, uint8_t r, uint8_t g, uint8_t b) {
+    return SDL_MapRGB(surface->format, r, g, b);
+}
+
+inline uint32_t make_rgba(const std::shared_ptr<const SDL_Surface>& surface, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    return SDL_MapRGBA(surface->format, r, g, b, a);
+}
 
 #define POINT_SIZE(X) ( (X) * 0.5f + 4.0f )
 #define MAXPOINTSIZE 16.0f

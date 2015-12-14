@@ -335,8 +335,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\cartman\cartman_map.c" />
     <ClCompile Include="src\cartman\cartman_math.c" />
     <ClCompile Include="src\cartman\cartman_select.c" />
-    <ClCompile Include="src\cartman\SDL_GetPixel.c" />
-    <ClCompile Include="src\cartman\SDL_PutPixel.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\cartman\standard.inl" />
@@ -361,7 +359,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\cartman\cartman_math.h" />
     <ClInclude Include="src\cartman\cartman_select.h" />
     <ClInclude Include="src\cartman\cartman_typedef.h" />
-    <ClInclude Include="src\cartman\SDL_Pixel.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\egolib\egolib.vcxproj">

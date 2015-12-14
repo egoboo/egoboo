@@ -204,9 +204,9 @@ struct LightModel {
         int xdraw = (light_lst[number].x / FOURNUM * zoom_hrz) - cam.x + (pwin->surfacex >> 1) - SMALLXY;
         int ydraw = (light_lst[number].y / FOURNUM * zoom_hrz) - cam.y + (pwin->surfacey >> 1) - SMALLXY;
         int radius = std::abs(light_lst[number].radius) / FOURNUM * zoom_hrz;
-        Uint8 color = light_lst[number].level >> 3;
+        Uint8 color = light_lst[number].level;
 
-        //color = MAKE_BGR(pwin->bmp, color, color, color);
+        //color = make_rgb(pwin->bmp, color, color, color);
         //circle(pwin->bmp, xdraw, ydraw, radius, color);
     }
 };
