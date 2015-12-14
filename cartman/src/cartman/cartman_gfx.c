@@ -172,7 +172,7 @@ Ego::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
-        animtileframeadd = ( Clocks::timePassed<Unit::Ticks,int>() >> 3 ) & 3;
+        animtileframeadd = ( Clocks::timePassed<Time::Unit::Ticks,int>() >> 3 ) & 3;
         if ( fantype >= tile_dict.offset )
         {
             // Big tiles
@@ -227,7 +227,7 @@ Ego::Texture *tile_at( cartman_mpd_t * pmesh, int fan )
 
     if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
-        animtileframeadd = ( Clocks::timePassed<Unit::Ticks,int>() >> 3 ) & 3;
+        animtileframeadd = ( Clocks::timePassed<Time::Unit::Ticks,int>() >> 3 ) & 3;
         if ( type >= tile_dict.offset )
         {
             // Big tiles

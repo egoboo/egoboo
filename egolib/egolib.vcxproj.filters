@@ -992,6 +992,9 @@
     <ClInclude Include="src\egolib\Renderer\DeferredTexture.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Time\Unit.hpp">
+      <Filter>Header Files\Time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

@@ -25,18 +25,13 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/Time/Unit.hpp"
 
 /// SDL_GetTicks() always returns milli-seconds
 /// @todo Remove this.
 #define TICKS_PER_SEC 1000.0f
 
 namespace Time {
-/// An enumerationof time units.
-enum class Unit {
-    Ticks,        ///< "ticks" (usually identical with milliseconds)
-    Milliseconds, ///< "milliseconds"
-    Seconds,      ///< "seconds" (1 second = 1000 miliseconds)
-};
 
 /// (Time) UnitTraits provide information provide information about a (time) unit, in particular, the data type
 /// used to represent time points <tt>UnitTraits<U>::Type</tt> for any time unit <tt>U</tt>. 

@@ -76,10 +76,10 @@ void show_info( void )
 {
     printf( "%s - %s\n", NAME, VERSION_STR );
 
-    if ( Clocks::timePassed<Unit::Ticks,int>() != 0 )
+    if ( Clocks::timePassed<Time::Unit::Ticks,int>() != 0 )
     {
-        printf( "Seconds = %15f\n", Clocks::timePassed<Unit::Seconds,double>() );
-        printf( "Avg FPS = %15f\n", dunframe * 1000.0 / Clocks::timePassed<Unit::Milliseconds,double>() );
+        printf( "Seconds = %15f\n", Clocks::timePassed<Time::Unit::Seconds,double>() );
+        printf( "Avg FPS = %15f\n", dunframe * 1000.0 / Clocks::timePassed<Time::Unit::Milliseconds,double>() );
         if ( minsecframe != 10000 )
         {
             printf( "Min FPS = %8d.000000\n", minsecframe );

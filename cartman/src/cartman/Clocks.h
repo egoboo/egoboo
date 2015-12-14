@@ -4,12 +4,6 @@
 #define CLOCKRATE 14
 #define SECONDRATE 1000
 
-enum class Unit {
-    Ticks,
-    Milliseconds,
-    Seconds,
-};
-
 struct Clocks {
 private:
     static int time_ticks;
@@ -25,21 +19,14 @@ public:
     }
 
 public:
-    template <Unit UnitType, typename ValueType> static ValueType timePassed();
+    template <Time::Unit UnitType, typename ValueType> static ValueType timePassed();
 
-    // Time passed in ticks.
-    template <> static int timePassed<Unit::Ticks, int>() {
-        return time_ticks;
-    }
-    template <> static double timePassed<Unit::Ticks,double>() {
-        return time_ticks;
-    }
-    // Time passed in milliseconds.
-    template <> static double timePassed<Unit::Milliseconds,double>() {
-        return timePassed<Unit::Ticks,double>() * CLOCKRATE;
-    }
-    // Time passed in seconds.
-    template <> static double timePassed<Unit::Seconds,double>() {
-        return timePassed<Unit::Milliseconds,double>() / 1000.0;
-    }
 };
+
+// Time passed in ticks.
+template <> int Clocks::timePassed<Time::Unit::Ticks, int>();
+template <> double Clocks::timePassed<Time::Unit::Ticks, double>();
+// Time passed in milliseconds.
+template <> double Clocks::timePassed<Time::Unit::Milliseconds, double>();
+// Time passed in seconds.
+template <> double Clocks::timePassed<Time::Unit::Seconds, double>();
