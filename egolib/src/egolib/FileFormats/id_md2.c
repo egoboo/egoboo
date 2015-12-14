@@ -42,15 +42,15 @@ float kid_md2_normals[MD2_MAX_NORMALS][3] =
 /// @note MD2 format stores model's data in little-endian ordering.  On
 /// big-endian machines, you'll have to perform proper conversions.
 
-id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
+id_md2_model_t * id_md2_load( const std::string& filename, id_md2_model_t * mdl )
 {
     FILE *fp;
     int i;
 
-    fp = fopen( filename, "rb" );
+    fp = fopen( filename.c_str(), "rb" );
     if ( !fp )
     {
-        fprintf( stderr, "Error: couldn't open \"%s\"!\n", filename );
+        fprintf( stderr, "Error: couldn't open \"%s\"!\n", filename.c_str() );
         return 0;
     }
 

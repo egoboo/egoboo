@@ -770,9 +770,6 @@
     <ClInclude Include="src\egolib\Graphics\Animation2D.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Logic\StaticEnumDescriptor.hpp">
-      <Filter>Header Files\Logic</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Graphics\PixelFormat.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>

@@ -5,42 +5,6 @@
 
 #include "egolib/Extensions/ogl_include.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct s_id_md2_header;
-    typedef struct s_id_md2_header id_md2_header_t;
-
-    struct s_id_md2_skin;
-    typedef struct s_id_md2_skin id_md2_skin_t;
-
-    struct s_id_md2_texcoord;
-    typedef struct s_id_md2_texcoord id_md2_texcoord_t;
-
-    struct s_id_md2_triangle;
-    typedef struct s_id_md2_triangle id_md2_triangle_t;
-
-    struct s_id_md2_vertex;
-    typedef struct s_id_md2_vertex id_md2_vertex_t;
-
-    struct s_id_md2_frame_header;
-    typedef struct s_id_md2_frame_header id_md2_frame_header_t;
-
-    struct s_id_md2_frame;
-    typedef struct s_id_md2_frame id_md2_frame_t;
-
-    struct s_id_glcmd_packed;
-    typedef struct s_id_glcmd_packed id_glcmd_packed_t;
-
-    struct s_id_md2_model;
-    typedef struct s_id_md2_model id_md2_model_t;
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // gcc does not properly recognize #pragma pack statements
 
@@ -51,8 +15,6 @@ extern "C"
 #        define SET_PACKED()
 #    endif
 #endif
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// Constants describing the standard md2 file
@@ -70,67 +32,66 @@ extern "C"
     };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // try to make sure that the raw data structs are packed,
 // so that structures can be read/written directly using fread()/fwrite()
 
 #pragma pack(push, 1)
 
     /* MD2 header */
-    struct s_id_md2_header
+    struct id_md2_header_t
     {
-        int ident;
-        int version;
+        int32_t ident;
+        int32_t version;
 
-        int skinwidth;
-        int skinheight;
-        int framesize;
+        int32_t skinwidth;
+        int32_t skinheight;
+        int32_t framesize;
 
-        int num_skins;
-        int num_vertices;
-        int num_st;
-        int num_tris;
-        int size_glcmds;
-        int num_frames;
+        int32_t num_skins;
+        int32_t num_vertices;
+        int32_t num_st;
+        int32_t num_tris;
+        int32_t size_glcmds;
+        int32_t num_frames;
 
-        int offset_skins;
-        int offset_st;
-        int offset_tris;
-        int offset_frames;
-        int offset_glcmds;
-        int offset_end;
+        int32_t offset_skins;
+        int32_t offset_st;
+        int32_t offset_tris;
+        int32_t offset_frames;
+        int32_t offset_glcmds;
+        int32_t offset_end;
 
     } SET_PACKED();
 
     /* Texture name */
-    struct s_id_md2_skin
+    struct id_md2_skin_t
     {
         char name[64];
     } SET_PACKED();
 
     /* Texture coords */
-    struct s_id_md2_texcoord
+    struct id_md2_texcoord_t
     {
-        short s;
-        short t;
+        int16_t s;
+        int16_t t;
     } SET_PACKED();
 
     /* Triangle info */
-    struct s_id_md2_triangle
+    struct id_md2_triangle_t
     {
-        unsigned short vertex[3];
-        unsigned short st[3];
+        uint16_t vertex[3];
+        uint16_t st[3];
     } SET_PACKED();
 
     /* Compressed vertex */
-    struct s_id_md2_vertex
+    struct id_md2_vertex_t
     {
-        unsigned char v[3];
-        unsigned char normalIndex;
+        uint8_t v[3];
+        uint8_t normalIndex;
     } SET_PACKED();
 
     /* Model frame */
-    struct s_id_md2_frame_header
+    struct id_md2_frame_header_t
     {
         float            scale[3];
         float            translate[3];
@@ -138,7 +99,7 @@ extern "C"
     } SET_PACKED();
 
     /* Model frame */
-    struct s_id_md2_frame
+    struct id_md2_frame_t
     {
         float            scale[3];
         float            translate[3];
@@ -147,15 +108,15 @@ extern "C"
     } SET_PACKED();
 
     /* GL command packet */
-    struct s_id_glcmd_packed
+    struct id_glcmd_packed_t
     {
         float s;
         float t;
-        int index;
+        int32_t index;
     } SET_PACKED();
 
     /* MD2 model structure */
-    struct s_id_md2_model
+    struct id_md2_model_t
     {
         id_md2_header_t    header;
 
@@ -179,18 +140,8 @@ extern "C"
 
 /// functions to load the packed data structures directly from a file
 /// only works with little endian machines
-    id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl );
+    id_md2_model_t * id_md2_load( const std::string& filename, id_md2_model_t * mdl );
     void             id_md2_free( id_md2_model_t * mdl );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define ID_MD2_H
