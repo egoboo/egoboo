@@ -1714,6 +1714,8 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 	/// @note it is normally assumed that 64 colors of gray can make a smoothly colored black and white picture
 	/// which means that the threshold could be set as low as 1/64 = 0.015625.
 	const float delta_threshold = 0.05f;
+	
+	bool is_valid;
 
 	auto mesh = tl.getMesh();
 	if (!mesh)
@@ -1750,11 +1752,12 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
         // - ptile->_lcache_frame is updated inside ego_mesh_light_corners()
 #if defined(CLIP_LIGHT_FANS)
         // clip the updated on each individual tile
-        if (ptile._lightingCache.isValid(game_frame_all, frame_skip))
+        is_valid = ptile._lightingCache.isValid(game_frame_all, frame_skip);
 #else
         // let the function clip all tile updates
-        if (ptile._lightingCache.isValid(game_frame_all))
+        is_valid = ptile._lightingCache.isValid(game_frame_all);
 #endif
+	if (is_valid)
         {
             continue;
         }
