@@ -16,6 +16,12 @@
     <Filter Include="Inline Files">
       <UniqueIdentifier>{2f277393-d4e2-406c-9b06-3f86b2a38e56}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Views">
+      <UniqueIdentifier>{a4aec66e-e501-44fb-87d0-a09178d066e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Views">
+      <UniqueIdentifier>{1c057c5d-4f1f-48f1-aa7a-fd5ff1e6266d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cartman\cartman.c">
@@ -52,6 +58,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\cartman\Vertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cartman\Views\FxView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cartman\Views\SideView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cartman\Views\TileView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cartman\Views\VertexView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cartman\View.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cartman\Clocks.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,6 +125,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cartman\Vertex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartman\Views\FxView.hpp">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartman\Views\SideView.hpp">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartman\Views\TileView.hpp">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartman\Views\VertexView.hpp">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartman\View.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartman\Clocks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

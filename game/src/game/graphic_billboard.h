@@ -32,10 +32,8 @@ namespace Ego { class Font; }
  *  Supposed to be a generic billboard.
  *  Currently, it merely taxes a texture a allows for some flags for position, blending and motion.
  */
-struct Billboard
-{
-    enum Flags
-    {
+struct Billboard {
+    enum Flags {
         None = EMPTY_BIT_FIELD,
         /**
          * @brief
@@ -78,7 +76,7 @@ struct Billboard
      *  The texture reference.
      */
     std::shared_ptr<Ego::Texture> _texture;
-	Vector3f _position;          ///< the position of the bottom-missle of the box
+    Vector3f _position;          ///< the position of the bottom-missle of the box
 
     /**
      * @brief
@@ -97,7 +95,7 @@ struct Billboard
      * @remark
      *  Each time the billboard is updated, <tt>_tint += _tint_add</tt> is computed.
      */
-	Vector4f _tint_add;
+    Vector4f _tint_add;
 
     /**
      * @brief
@@ -105,14 +103,14 @@ struct Billboard
      * @remark
      *  The offset is given in world cordinates.
      */
-	Vector3f _offset;
+    Vector3f _offset;
     /**
      * @brief
      *  Additive over-time offset modifier.
      * @remark
      *  Each time the billboard is updated, <tt>_offset += _offset_add</tt> is computed.
      */
-	Vector3f _offset_add;
+    Vector3f _offset_add;
 
     float _size;
     float _size_add;

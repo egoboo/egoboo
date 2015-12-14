@@ -28,14 +28,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-Cartman_GUI_Cursor::Cartman_GUI_Cursor() :
-    _surface(nullptr)
+namespace Cartman {
+GUI_Cursor::GUI_Cursor() :
+    _surface(Ego::Graphics::SDL::createSurface(8, 8))
 {
-    _surface = SDL_GL_createSurface(8, 8);
-    if (!_surface)
-    {
-        throw std::bad_alloc();
-    }
     Uint32 col = MAKE_BGR(_surface, 31, 31, 31);    // White color
     Uint32 loc = MAKE_BGR(_surface, 3, 3, 3);       // Gray color
     Uint32 clr = MAKE_ABGR(_surface, 0, 0, 0, 8);
@@ -46,38 +42,34 @@ Cartman_GUI_Cursor::Cartman_GUI_Cursor() :
     rtmp.y = 0;
     rtmp.w = 8;
     rtmp.h = 1;
-    SDL_FillRect(_surface, &rtmp, loc);
+    SDL_FillRect(_surface.get(), &rtmp, loc);
 
     for (int y = 0; y < 8; y++)
     {
         for (int x = 0; x < 8; x++)
         {
-            if (x + y < 8) SDL_PutPixel(_surface, x, y, col);
-            else SDL_PutPixel(_surface, x, y, clr);
+            if (x + y < 8) SDL_PutPixel(_surface.get(), x, y, col);
+            else SDL_PutPixel(_surface.get(), x, y, clr);
         }
     }
 }
 
-Cartman_GUI_Cursor::~Cartman_GUI_Cursor()
+GUI_Cursor::~GUI_Cursor()
 {
-    if (_surface)
-    {
-        SDL_FreeSurface(_surface);
-        _surface = nullptr;
-    }
+}
 }
 
-std::vector<std::shared_ptr<Cartman_Window>> _window_lst;
-std::shared_ptr<Cartman_GUI_Cursor> _cursor_2;
+std::vector<std::shared_ptr<Cartman::Window>> _window_lst;
+std::shared_ptr<Cartman::GUI_Cursor> _cursor_2;
 ui_state_t ui;
 
 void Cartman::GUI::initialize()
 {
     for (size_t i = 0; i < MAXWIN; ++i)
     {
-        _window_lst.push_back(std::make_shared<Cartman_Window>());
+        _window_lst.push_back(std::make_shared<Cartman::Window>());
     }
-    _cursor_2 = std::make_shared<Cartman_GUI_Cursor>();
+    _cursor_2 = std::make_shared<Cartman::GUI_Cursor>();
 }
 
 void Cartman::GUI::uninitialize()
@@ -147,51 +139,54 @@ void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textCo
 }
 
 //--------------------------------------------------------------------------------------------
-void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadname, int x, int y, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh)
-{
-    if ( NULL == pwin ) return;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
+namespace Cartman {
+Border::Border(int width, int height)
+    : texture(new Ego::OpenGL::Texture()), width(width), height(height) {}
 
-    if (!pwin->tex->load(loadname, gfx_loadImage(loadname)))
-    {
-		Log::get().warn( "Cannot load \"%s\".\n", loadname );
+void Border::loadTexture(const std::string& textureFileName) {
+    if (!texture->load(textureFileName, gfx_loadImage(textureFileName))) {
+        Log::get().warn("unable to load texture \"%s\".\n", textureFileName.c_str());
     }
-
-    pwin->x        = x;
-    pwin->y        = y;
-    pwin->borderx  = bx;
-    pwin->bordery  = by;
-    pwin->surfacex = sx;
-    pwin->surfacey = sy;
-    pwin->on       = true;
-    pwin->mode     = mode;
-    pwin->id       = id;
-    pwin->pmesh    = pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool Cartman_Window::isOver(int x, int y) const
-{
-    if (!on)
-    {
+Window::Window() : on(false), border() {}
+
+void Window::load_window(int id, const std::string& loadname, int x, int y, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh) {
+    if (NULL == pmesh) pmesh = &mesh;
+
+    this->border.loadTexture(loadname);
+    this->border.width = bx;
+    this->border.height = by;
+
+    this->x = x;
+    this->y = y;
+
+    this->surfacex = sx;
+    this->surfacey = sy;
+    this->on = true;
+    this->mode = mode;
+    this->id = id;
+    this->pmesh = pmesh;
+}
+
+bool Window::isOver(int x, int y) const {
+    if (!on) {
         return false;
     }
-    if (x < this->x + this->borderx || x > this->x + 2 * this->borderx + this->surfacex)
-    {
+    if (x < this->x + this->border.width || x > this->x + 2 * this->border.width + this->surfacex) {
         return false;
     }
-    if (y < this->y + this->borderx || y > this->y + 2 * this->bordery + this->surfacey)
-    {
+    if (y < this->y + this->border.height || y > this->y + 2 * this->border.height + this->surfacey) {
         return false;
     }
     return true;
 }
+}
 
-std::shared_ptr<Cartman_Window> Cartman::GUI::findWindow(int x, int y)
+std::shared_ptr<Cartman::Window> Cartman::GUI::findWindow(int x, int y)
 {
-    std::shared_ptr<Cartman_Window> result = nullptr;
+    std::shared_ptr<Cartman::Window> result = nullptr;
     for (auto &window : _window_lst)
     {
         if (window->isOver(x, y))
@@ -201,4 +196,10 @@ std::shared_ptr<Cartman_Window> Cartman::GUI::findWindow(int x, int y)
         result = window;
     }
     return result;
+}
+
+void Cartman::GUI::renderAllWindows() {
+    for (auto window : _window_lst) {
+        window->render();
+    }
 }

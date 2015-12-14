@@ -17,10 +17,9 @@
 //*
 //********************************************************************************************
 
-#define CLOCKRATE 14
-#define SECONDRATE 1000
+#include "cartman/Clocks.h"
 
-int          timclock = 0;
+
 int          dunframe = 0;
 int          secframe = 0;
 Uint8        lastsecframe = 0;
@@ -34,10 +33,6 @@ char         nameread[80];
 char         fpstext[256][8];
 
 //--------------------------------------------------------------------------------------------
-void frmtim( void )
-{
-    timclock++;
-}
 
 //--------------------------------------------------------------------------------------------
 void sectim( void )
@@ -81,10 +76,10 @@ void show_info( void )
 {
     printf( "%s - %s\n", NAME, VERSION_STR );
 
-    if ( timclock != 0 )
+    if ( Clocks::timePassed<Time::Unit::Ticks,int>() != 0 )
     {
-        printf( "Seconds = %15f\n", ( timclock * CLOCKRATE ) / 1000.0 );
-        printf( "Avg FPS = %15f\n", dunframe * 1000.0 / ( timclock * CLOCKRATE ) );
+        printf( "Seconds = %15f\n", Clocks::timePassed<Time::Unit::Seconds,double>() );
+        printf( "Avg FPS = %15f\n", dunframe * 1000.0 / Clocks::timePassed<Time::Unit::Milliseconds,double>() );
         if ( minsecframe != 10000 )
         {
             printf( "Min FPS = %8d.000000\n", minsecframe );

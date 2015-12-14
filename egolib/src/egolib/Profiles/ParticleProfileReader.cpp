@@ -234,12 +234,12 @@ bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::stri
             {
                 switch (Ego::toupper(ctxt.readPrintable()))
                 {
-                    case 'X': profile->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
-                    case 'Y': profile->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
-                    case 'Z': profile->orientation = ORIENTATION_Z; break;  // put particle up along the world or body-fixed z-axis
-                    case 'V': profile->orientation = ORIENTATION_V; break;  // vertical, like a candle
-                    case 'H': profile->orientation = ORIENTATION_H; break;  // horizontal, like a plate
-                    case 'B': profile->orientation = ORIENTATION_B; break;  // billboard
+                    case 'X': profile->orientation = prt_ori_t::ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
+                    case 'Y': profile->orientation = prt_ori_t::ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
+                    case 'Z': profile->orientation = prt_ori_t::ORIENTATION_Z; break;  // put particle up along the world or body-fixed z-axis
+                    case 'V': profile->orientation = prt_ori_t::ORIENTATION_V; break;  // vertical, like a candle
+                    case 'H': profile->orientation = prt_ori_t::ORIENTATION_H; break;  // horizontal, like a plate
+                    case 'B': profile->orientation = prt_ori_t::ORIENTATION_B; break;  // billboard
                 }
                 while (ctxt.isAlpha()) {
                     ctxt.next();

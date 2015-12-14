@@ -145,7 +145,7 @@ pip_t::pip_t() :
     size_base(0),
     size_add(0),
     facingadd(0),
-    orientation(ORIENTATION_B)
+    orientation(prt_ori_t::ORIENTATION_B)
 
 {
     comment[0] = '\0';
@@ -226,7 +226,7 @@ void pip_t::reset()
     size_base = 0;
     size_add = 0;
     facingadd = 0;
-    orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
+    orientation = prt_ori_t::ORIENTATION_B;  // make the orientation the normal billboarded orientation
     type = SPRITE_SOLID;
     dynalight.reset();
 }

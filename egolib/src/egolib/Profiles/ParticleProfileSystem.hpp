@@ -45,10 +45,6 @@ public:
     void unintialize() { AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::unintialize(); }
 };
 
-inline bool VALID_PIP_RANGE(PIP_REF ref) {
-    return ParticleProfileSystem::get().isValidRange(ref);
-}
-
 inline bool LOADED_PIP(PIP_REF ref) {
     return ParticleProfileSystem::get().isLoaded(ref);
 }

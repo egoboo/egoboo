@@ -28,12 +28,20 @@
 #include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Extensions/SDL_extensions.h"
 
-/// MH: This is one of the functions from Cartman. I don't bother documenting it before it is removed.
-SDL_Surface *SDL_GL_createSurface(int w, int h);
+
 
 namespace Ego {
 namespace Graphics {
 namespace SDL {
+/**
+ * @brief Create an SDL surface of the specified size and pixel format.
+ * @param width, height the width and the height of the surface
+ * @param pixelFormat the pixel format of the surface
+ * @return a pointer to the SDL surface
+ * @throw std::runtime_error if @a width or @a height is negative
+ * @throw std::runtime_error if SDL fails
+ */
+std::shared_ptr<SDL_Surface> createSurface(int width, int height, Ego::PixelFormat pixelFormat = Ego::PixelFormat::R8G8B8A8);
 struct Padding {
 	size_t left, top, right, bottom;
 };

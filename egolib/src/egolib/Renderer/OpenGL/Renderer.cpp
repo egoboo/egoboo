@@ -62,8 +62,7 @@ std::string Capabilities::getName() {
     while (GL_NO_ERROR != glGetError()) {}
     const GLubyte *bytes = glGetString(GL_RENDERER);
     GLenum error = glGetError();
-    if (GL_NO_ERROR != error)
-    {
+    if (GL_NO_ERROR != error) {
         throw std::runtime_error("unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
@@ -73,8 +72,7 @@ std::string Capabilities::getVendor() {
     while (GL_NO_ERROR != glGetError()) {}
     const GLubyte *bytes = glGetString(GL_RENDERER);
     GLenum error = glGetError();
-    if (GL_NO_ERROR != error)
-    {
+    if (GL_NO_ERROR != error) {
         throw std::runtime_error("unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
@@ -97,7 +95,7 @@ std::unordered_set<std::string> Capabilities::getExtensions() {
     if (GL_NO_ERROR != error) {
         throw std::runtime_error("unable to acquire renderer back-end information");
     }
-    return Core::make_unordered_set(Ego::split(std::string((const char *)bytes),std::string(" ")));
+    return Core::make_unordered_set(Ego::split(std::string((const char *)bytes), std::string(" ")));
 }
 
 Renderer::Renderer() :
@@ -108,8 +106,7 @@ Renderer::Renderer() :
     OpenGL::link();
 }
 
-Renderer::~Renderer() {
-}
+Renderer::~Renderer() {}
 
 Ego::AccumulationBuffer& Renderer::getAccumulationBuffer() {
     return _accumulationBuffer;
@@ -141,32 +138,32 @@ void Renderer::setAlphaFunction(CompareFunction function, float value) {
         throw std::invalid_argument("reference alpha value out of bounds");
     }
     switch (function) {
-    case CompareFunction::AlwaysFail:
-        glAlphaFunc(GL_NEVER, value);
-        break;
-    case CompareFunction::AlwaysPass:
-        glAlphaFunc(GL_ALWAYS, value);
-        break;
-    case CompareFunction::Equal:
-        glAlphaFunc(GL_EQUAL, value);
-        break;
-    case CompareFunction::NotEqual:
-        glAlphaFunc(GL_NOTEQUAL, value);
-        break;
-    case CompareFunction::Less:
-        glAlphaFunc(GL_LESS, value);
-        break;
-    case CompareFunction::LessOrEqual:
-        glAlphaFunc(GL_LEQUAL, value);
-        break;
-    case CompareFunction::Greater:
-        glAlphaFunc(GL_GREATER, value);
-        break;
-    case CompareFunction::GreaterOrEqual:
-        glAlphaFunc(GL_GEQUAL, value);
-        break;
-    default:
-        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        case CompareFunction::AlwaysFail:
+            glAlphaFunc(GL_NEVER, value);
+            break;
+        case CompareFunction::AlwaysPass:
+            glAlphaFunc(GL_ALWAYS, value);
+            break;
+        case CompareFunction::Equal:
+            glAlphaFunc(GL_EQUAL, value);
+            break;
+        case CompareFunction::NotEqual:
+            glAlphaFunc(GL_NOTEQUAL, value);
+            break;
+        case CompareFunction::Less:
+            glAlphaFunc(GL_LESS, value);
+            break;
+        case CompareFunction::LessOrEqual:
+            glAlphaFunc(GL_LEQUAL, value);
+            break;
+        case CompareFunction::Greater:
+            glAlphaFunc(GL_GREATER, value);
+            break;
+        case CompareFunction::GreaterOrEqual:
+            glAlphaFunc(GL_GEQUAL, value);
+            break;
+        default:
+            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -195,55 +192,55 @@ void Renderer::setColour(const Colour4f& colour) {
 
 void Renderer::setCullingMode(CullingMode mode) {
     switch (mode) {
-    case CullingMode::None:
-        glDisable(GL_CULL_FACE);
-        break;
-    case CullingMode::Front:
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
-        break;
-    case CullingMode::Back:
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-        break;
-    case CullingMode::BackAndFront:
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT_AND_BACK);
-        break;
-    default:
-        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        case CullingMode::None:
+            glDisable(GL_CULL_FACE);
+            break;
+        case CullingMode::Front:
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+            break;
+        case CullingMode::Back:
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+            break;
+        case CullingMode::BackAndFront:
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT_AND_BACK);
+            break;
+        default:
+            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
 
 void Renderer::setDepthFunction(CompareFunction function) {
     switch (function) {
-    case CompareFunction::AlwaysFail:
-        glDepthFunc(GL_NEVER);
-        break;
-    case CompareFunction::AlwaysPass:
-        glDepthFunc(GL_ALWAYS);
-        break;
-    case CompareFunction::Less:
-        glDepthFunc(GL_LESS);
-        break;
-    case CompareFunction::LessOrEqual:
-        glDepthFunc(GL_LEQUAL);
-        break;
-    case CompareFunction::Equal:
-        glDepthFunc(GL_EQUAL);
-        break;
-    case CompareFunction::NotEqual:
-        glDepthFunc(GL_NOTEQUAL);
-        break;
-    case CompareFunction::GreaterOrEqual:
-        glDepthFunc(GL_GEQUAL);
-        break;
-    case CompareFunction::Greater:
-        glDepthFunc(GL_GREATER);
-        break;
-    default:
-        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        case CompareFunction::AlwaysFail:
+            glDepthFunc(GL_NEVER);
+            break;
+        case CompareFunction::AlwaysPass:
+            glDepthFunc(GL_ALWAYS);
+            break;
+        case CompareFunction::Less:
+            glDepthFunc(GL_LESS);
+            break;
+        case CompareFunction::LessOrEqual:
+            glDepthFunc(GL_LEQUAL);
+            break;
+        case CompareFunction::Equal:
+            glDepthFunc(GL_EQUAL);
+            break;
+        case CompareFunction::NotEqual:
+            glDepthFunc(GL_NOTEQUAL);
+            break;
+        case CompareFunction::GreaterOrEqual:
+            glDepthFunc(GL_GEQUAL);
+            break;
+        case CompareFunction::Greater:
+            glDepthFunc(GL_GREATER);
+            break;
+        default:
+            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -316,14 +313,14 @@ void Renderer::setViewportRectangle(float left, float bottom, float width, float
 
 void Renderer::setWindingMode(WindingMode mode) {
     switch (mode) {
-    case WindingMode::Clockwise:
-        glFrontFace(GL_CW);
-        break;
-    case WindingMode::AntiClockwise:
-        glFrontFace(GL_CCW);
-        break;
-    default:
-        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        case WindingMode::Clockwise:
+            glFrontFace(GL_CW);
+            break;
+        case WindingMode::AntiClockwise:
+            glFrontFace(GL_CCW);
+            break;
+        default:
+            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
     Utilities::isError();
 }
@@ -402,8 +399,7 @@ void Renderer::setPointSize(float size) {
     Utilities::isError();
 }
 
-void Renderer::setPolygonSmoothEnabled(bool enabled)
-{
+void Renderer::setPolygonSmoothEnabled(bool enabled) {
     if (enabled) {
         glEnable(GL_POLYGON_SMOOTH);
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -422,7 +418,7 @@ void Renderer::setMultisamplesEnabled(bool enabled) {
     // If MSAA is not supported => Warn.
     if (!(multiSampleBuffers == 1 && multiSamples > 0)) {
         Log::get().warn("%s:%d: multisample antialiasing not supported\n", __FILE__, __LINE__);
-    // Otherwise => Enable/disable it depending on the argument of this function.
+        // Otherwise => Enable/disable it depending on the argument of this function.
     } else {
         if (enabled) {
             glEnable(GL_MULTISAMPLE);
@@ -444,15 +440,15 @@ void Renderer::setLightingEnabled(bool enabled) {
 
 void Renderer::setRasterizationMode(RasterizationMode mode) {
     switch (mode) {
-    case RasterizationMode::Point:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-        break;
-    case RasterizationMode::Line:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        break;
-    case RasterizationMode::Solid:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        break;
+        case RasterizationMode::Point:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+            break;
+        case RasterizationMode::Line:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            break;
+        case RasterizationMode::Solid:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            break;
     }
     Utilities::isError();
 }
@@ -474,7 +470,8 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
     const char *vertices = static_cast<char *>(vertexBuffer.lock());
     const auto& vertexFormatDescriptor = vertexBuffer.getVertexFormatDescriptor();
     switch (vertexFormatDescriptor.getVertexFormat()) {
-        case VertexFormat::P2F: {
+        case VertexFormat::P2F:
+        {
             // Enable the required client-side capabilities.
             glEnableClientState(GL_VERTEX_ARRAY);
             // Set the pointers.
@@ -483,7 +480,8 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                             vertices + offset);
         }
         break;
-        case VertexFormat::P2FT2F: {
+        case VertexFormat::P2FT2F:
+        {
             // Enable the required client-side capabilities.
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -497,7 +495,8 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                               vertices + offset);
         }
         break;
-        case VertexFormat::P3F: {
+        case VertexFormat::P3F:
+        {
             // Enable the required client-side capabilities.
             glEnableClientState(GL_VERTEX_ARRAY);
             // Set the pointers.
@@ -506,7 +505,8 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                             vertices + offset);
         }
         break;
-        case VertexFormat::P3FT2F: {
+        case VertexFormat::P3FT2F:
+        {
             // Enable the required client-side capabilities.
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -519,7 +519,8 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                               vertices + offset);
         }
         break;
-        case VertexFormat::P3FC4F: {
+        case VertexFormat::P3FC4F:
+        {
             // Enable the required client-side capabilities.
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
@@ -532,7 +533,8 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                            vertices + offset);
         }
         break;
-        case VertexFormat::P3FC4FN3F: {
+        case VertexFormat::P3FC4FN3F:
+        {
             // Enable the required client-side capabilities.
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
@@ -549,7 +551,8 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                             vertices + offset);
         }
         break;
-        case VertexFormat::P3FC4FT2F: {
+        case VertexFormat::P3FC4FT2F:
+        {
             // Enable the required client-side capabilities.
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
@@ -566,7 +569,8 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                               vertices + offset);
         }
         break;
-        case VertexFormat::P3FC4FT2FN3F: {
+        case VertexFormat::P3FC4FT2FN3F:
+        {
             // Enable the required client-side capabilities.
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
@@ -603,26 +607,29 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
 }
 
 GLenum Renderer::toOpenGL(BlendFunction source) {
-    switch (source)
-    {
-    case BlendFunction::Zero: return GL_ZERO;
-    case BlendFunction::One:  return GL_ONE;
-    case BlendFunction::SourceColour: return GL_SRC_COLOR;
-    case BlendFunction::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
-    case BlendFunction::DestinationColour: return GL_DST_COLOR;
-    case BlendFunction::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
-    case BlendFunction::SourceAlpha: return GL_SRC_ALPHA;
-    case BlendFunction::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
-    case BlendFunction::DestinationAlpha: return GL_DST_ALPHA;
-    case BlendFunction::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
-    case BlendFunction::ConstantColour: return GL_CONSTANT_COLOR;
-    case BlendFunction::OneMinusConstantColour: return GL_ONE_MINUS_CONSTANT_COLOR;
-    case BlendFunction::ConstantAlpha: return GL_CONSTANT_ALPHA;
-    case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
-    case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
-    default:
-        throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+    switch (source) {
+        case BlendFunction::Zero: return GL_ZERO;
+        case BlendFunction::One:  return GL_ONE;
+        case BlendFunction::SourceColour: return GL_SRC_COLOR;
+        case BlendFunction::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
+        case BlendFunction::DestinationColour: return GL_DST_COLOR;
+        case BlendFunction::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
+        case BlendFunction::SourceAlpha: return GL_SRC_ALPHA;
+        case BlendFunction::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
+        case BlendFunction::DestinationAlpha: return GL_DST_ALPHA;
+        case BlendFunction::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
+        case BlendFunction::ConstantColour: return GL_CONSTANT_COLOR;
+        case BlendFunction::OneMinusConstantColour: return GL_ONE_MINUS_CONSTANT_COLOR;
+        case BlendFunction::ConstantAlpha: return GL_CONSTANT_ALPHA;
+        case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+        case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
+        default:
+            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
+}
+
+std::shared_ptr<Ego::Texture> Renderer::createTexture() {
+    return std::make_shared<Texture>();
 }
 
 } // namespace OpenGL

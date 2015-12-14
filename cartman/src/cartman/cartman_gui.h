@@ -27,6 +27,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+namespace Cartman {
+struct Window;
+struct GUI_Cursor;
+}
 struct s_Font;
 
 //--------------------------------------------------------------------------------------------
@@ -43,21 +47,28 @@ struct s_Font;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct Cartman_Window
-{
-    Uint8             on;       // Draw it?
 
-    Ego::Texture    *tex;      // Window images
+namespace Cartman {
+struct Border {
+    Ego::Texture *texture; ///< The border texture.
+    int width;             ///< The border width.
+    int height;            ///< The border height.
+    /** @brief Construct this border. */
+    Border(int width = 0, int height = 0);
+    /** @brief Load a texture to be used as the border texture. */
+    void loadTexture(const std::string& textureFileName);
+};
+
+struct Window {
+    Uint8             on;       // Draw it?
 
     // Window position
     int               x;
     int               y;
 
-    // Window border size
-    int               borderx;
-    int               bordery;
+    // The window border.
+    Border border;
 
-    // Window surface size
     int               surfacex;
     int               surfacey;
 
@@ -65,6 +76,8 @@ struct Cartman_Window
     int id;                // unique window id
     Uint16 mode;           // display mode bits
     cartman_mpd_t *pmesh;  // which mesh
+
+    Window();
 
     /**
      * @brief
@@ -76,8 +89,16 @@ struct Cartman_Window
      * @return
      *  @a true if the mouse is over this window and the window is "on", @a false otherwise
      */
-    bool isOver(int x,int y) const;
+    bool isOver(int x, int y) const;
+
+    void load_window(int id, const std::string& loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
+    /**
+     * @brief
+     *  Render the window.
+     */
+    void render();
 };
+}
 
 //--------------------------------------------------------------------------------------------
 struct ui_state_t
@@ -97,7 +118,7 @@ struct ui_state_t
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct Cartman_GUI_Cursor;
+
 
 namespace Cartman
 {
@@ -105,30 +126,33 @@ namespace Cartman
     {
         static void initialize();
         static void uninitialize();
-        static std::shared_ptr<Cartman_Window> findWindow(int x, int y);
+        static std::shared_ptr<Cartman::Window> findWindow(int x, int y);
+        static void renderAllWindows();
+
     };
 }
 
 
-extern std::vector<std::shared_ptr<Cartman_Window>> _window_lst;
-extern std::shared_ptr<Cartman_GUI_Cursor> _cursor_2;
+extern std::vector<std::shared_ptr<Cartman::Window>> _window_lst;
+extern std::shared_ptr<Cartman::GUI_Cursor> _cursor_2;
 extern ui_state_t ui;
 
+namespace Cartman {
 /**
  * @brief
  *  An image cursor.
  * @todo
  *  The SDL surface is not used as it seems.
  */
-struct Cartman_GUI_Cursor
-{
+struct GUI_Cursor {
     /// The cursor image.
-    SDL_Surface *_surface;
+    std::shared_ptr<SDL_Surface> _surface;
     /// Create a cursor.
-    Cartman_GUI_Cursor();
+    GUI_Cursor();
     /// Destroy a cursor.
-    virtual ~Cartman_GUI_Cursor();
+    virtual ~GUI_Cursor();
 };
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -136,5 +160,4 @@ struct Cartman_GUI_Cursor
 void do_cursor();
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue );
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour);
-void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
 

@@ -218,9 +218,6 @@
     <ClCompile Include="src\game\GUI\ScrollableList.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\script_parser.cpp">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\script_scanner.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -293,6 +290,9 @@
     <ClCompile Include="src\game\Physics\ObjectPhysics.cpp">
       <Filter>Game Sources\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Graphics\TextureAtlasManager.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -308,9 +308,6 @@
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\egoboo_typedef.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\egoboo_typedef_cpp.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\game.h">
@@ -469,9 +466,6 @@
     <ClInclude Include="src\game\GUI\ScrollableList.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\script_parser.hpp">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\script_scanner.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -555,6 +549,9 @@
     </ClInclude>
     <ClInclude Include="src\game\Physics\ObjectPhysics.hpp">
       <Filter>Game Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\TextureAtlasManager.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

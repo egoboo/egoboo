@@ -31,18 +31,6 @@
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
 
-SDL_Surface *SDL_GL_createSurface(int w, int h)
-{
-
-    // Expand the screen format to support alpha:
-    // a) Copy the format of the main surface.
-    SDL_PixelFormat *format = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
-
-    SDL_Surface *ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, format->BitsPerPixel,
-                                            format->Rmask, format->Gmask, format->Bmask, format->Amask);
-    SDL_FreeFormat(format);
-    return ret;
-}
 
 //--------------------------------------------------------------------------------------------
 bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
@@ -193,6 +181,49 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
 namespace Ego {
 namespace Graphics {
 namespace SDL {
+
+std::shared_ptr<SDL_Surface> createSurface(int width, int height, Ego::PixelFormat pixelFormat) {
+    if (width < 0) {
+        throw std::runtime_error("negative width");
+    }
+    if (height < 0) {
+        throw std::runtime_error("negative height");
+    }
+    SDL_PixelFormat *pixelFormat_sdl = nullptr;
+    switch (pixelFormat) {
+    case Ego::PixelFormat::B8G8R8:
+        pixelFormat_sdl = SDL_AllocFormat(SDL_PIXELFORMAT_BGR888);
+        break;
+    case Ego::PixelFormat::B8G8R8A8:
+        pixelFormat_sdl = SDL_AllocFormat(SDL_PIXELFORMAT_BGRA8888);
+        break;
+    case Ego::PixelFormat::R8G8B8:
+        pixelFormat_sdl = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
+        break;
+    case Ego::PixelFormat::R8G8B8A8:
+        pixelFormat_sdl = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
+        break;
+    default:
+        throw std::runtime_error("unsupported pixel format");
+    }
+    if (nullptr == pixelFormat_sdl) {
+        throw std::runtime_error("SDL_AllocFormat failed");
+    }
+    SDL_Surface *surface_sdl = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
+                                                    pixelFormat_sdl->BitsPerPixel,
+                                                    pixelFormat_sdl->Rmask, pixelFormat_sdl->Gmask,
+                                                    pixelFormat_sdl->Bmask, pixelFormat_sdl->Amask);
+    if (nullptr == surface_sdl) {
+        SDL_FreeFormat(pixelFormat_sdl);
+        throw std::runtime_error("SDL_CreateRGBSurface failed");
+    }
+    try {
+        return std::shared_ptr<SDL_Surface>(surface_sdl, [](SDL_Surface *pSurface) { SDL_FreeSurface(pSurface); });
+    } catch (...) {
+        SDL_FreeSurface(surface_sdl);
+        std::rethrow_exception(std::current_exception());
+    }
+}
 
 std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding) {
 	if (!surface) {

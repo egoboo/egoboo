@@ -319,6 +319,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\cartman\Clocks.c" />
+    <ClCompile Include="src\cartman\View.cpp" />
+    <ClCompile Include="src\cartman\Views\FxView.cpp" />
+    <ClCompile Include="src\cartman\Views\SideView.cpp" />
+    <ClCompile Include="src\cartman\Views\TileView.cpp" />
+    <ClCompile Include="src\cartman\Views\VertexView.cpp" />
     <ClCompile Include="src\cartman\Vertex.cpp" />
     <ClCompile Include="src\cartman\Tile.cpp" />
     <ClCompile Include="src\cartman\cartman.c" />
@@ -336,6 +342,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <None Include="src\cartman\standard.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\cartman\Clocks.h" />
+    <ClInclude Include="src\cartman\View.hpp" />
+    <ClInclude Include="src\cartman\Views\FxView.hpp" />
+    <ClInclude Include="src\cartman\Views\SideView.hpp" />
+    <ClInclude Include="src\cartman\Views\TileView.hpp" />
+    <ClInclude Include="src\cartman\Views\VertexView.hpp" />
     <ClInclude Include="src\cartman\Vertex.hpp" />
     <ClInclude Include="src\cartman\Tile.hpp" />
     <ClInclude Include="src\cartman\res\resource.h" />

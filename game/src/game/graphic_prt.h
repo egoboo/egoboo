@@ -156,6 +156,10 @@ struct prt_instance_t
         ref_right = Vector3f::zero();
         ref_pos = Vector3f::zero();
     }
+
+    static gfx_rv update_vertices(prt_instance_t& inst, Camera& camera, Ego::Particle *pprt);
+    static Matrix4f4f make_matrix(prt_instance_t& inst);
+    static gfx_rv update_lighting(prt_instance_t& inst, Ego::Particle *pprt, Uint8 trans, bool do_lighting);
 };
 
 gfx_rv render_one_prt_solid(const ParticleRef iprt);

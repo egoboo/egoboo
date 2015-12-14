@@ -28,6 +28,7 @@
 #include "cartman/cartman_math.h"
 #include "cartman/SDL_Pixel.h"
 #include "egolib/FileFormats/Globals.hpp"
+#include "cartman/Clocks.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ Uint16 animtileframeadd    = 0;
 SDLX_video_parameters_t sdl_vparam;
 oglx_video_parameters_t ogl_vparam;
 
-SDL_Surface * bmphitemap = NULL;        // Heightmap image
+std::shared_ptr<SDL_Surface> bmphitemap = nullptr;        // Heightmap image
 
 Ego::Texture     *tx_point;      // Vertex image
 Ego::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
@@ -171,7 +172,7 @@ Ego::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
-        animtileframeadd = ( timclock >> 3 ) & 3;
+        animtileframeadd = ( Clocks::timePassed<Time::Unit::Ticks,int>() >> 3 ) & 3;
         if ( fantype >= tile_dict.offset )
         {
             // Big tiles
@@ -226,7 +227,7 @@ Ego::Texture *tile_at( cartman_mpd_t * pmesh, int fan )
 
     if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
-        animtileframeadd = ( timclock >> 3 ) & 3;
+        animtileframeadd = ( Clocks::timePassed<Time::Unit::Ticks,int>() >> 3 ) & 3;
         if ( type >= tile_dict.offset )
         {
             // Big tiles
@@ -261,9 +262,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( bmphitemap ) SDL_FreeSurface( bmphitemap );
-
-    bmphitemap = SDL_GL_createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
+    bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
     if ( NULL == bmphitemap ) return;
 
     for (int pixy = 0, y = 16; pixy < ( pmesh->info.getTileCountY() << 2 ); pixy++, y += 32 )
@@ -280,7 +279,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             if ( HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 254;   // Impass
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) && HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 255;   // Both
 
-            SDL_PutPixel( bmphitemap, pixx, pixy, level );
+            SDL_PutPixel( bmphitemap.get(), pixx, pixy, level );
         }
     }
 }
@@ -296,11 +295,9 @@ void make_planmap( cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( NULL == bmphitemap ) SDL_FreeSurface( bmphitemap );
-    bmphitemap = SDL_GL_createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
-    if ( NULL == bmphitemap ) return;
+    bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
 
-    SDL_FillRect( bmphitemap, NULL, MAKE_BGR( bmphitemap, 0, 0, 0 ) );
+    SDL_FillRect( bmphitemap.get(), NULL, MAKE_BGR( bmphitemap.get(), 0, 0, 0 ) );
 
     puty = 0;
     for ( y = 0; y < pmesh->info.getTileCountY(); y++ )
@@ -314,7 +311,7 @@ void make_planmap( cartman_mpd_t * pmesh )
             if ( NULL != tx_tile )
             {
                 SDL_Rect dst = {static_cast<Sint16>(putx), static_cast<Sint16>(puty), TINYXY, TINYXY};
-                cartman_BlitSurface(tx_tile->_source.get(), nullptr, bmphitemap, &dst);
+                cartman_BlitSurface(tx_tile->_source.get(), nullptr, bmphitemap.get(), &dst);
             }
             putx += TINYXY;
         }
@@ -523,7 +520,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, int y)
+void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, int y)
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     The wireframe on the left side of the theSurface.
@@ -946,15 +943,16 @@ void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[]
 //--------------------------------------------------------------------------------------------
 void ogl_beginFrame()
 {
+    auto& renderer = Ego::Renderer::get();
     glPushAttrib( GL_ENABLE_BIT );
-	Ego::Renderer::get().setDepthTestEnabled(false);
+	renderer.setDepthTestEnabled(false);
     glDisable( GL_CULL_FACE );
     glEnable( GL_TEXTURE_2D );
 
-    Ego::Renderer::get().setBlendingEnabled(true);
-    Ego::Renderer::get().setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+    renderer.setBlendingEnabled(true);
+    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-    Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
+    renderer.setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -962,10 +960,10 @@ void ogl_beginFrame()
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
 	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
-    Ego::Renderer::get().loadMatrix(projection);
+    renderer.loadMatrix(projection);
 
     glMatrixMode( GL_MODELVIEW );
-    Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
+    renderer.loadMatrix(Matrix4f4f::identity());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1027,14 +1025,14 @@ SDL_Surface *cartman_LoadIMG(const char *name)
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera_t * pcam, float zoom_x, float zoom_y)
+void cartman_begin_ortho_camera_hrz(Cartman::Window& pwin, camera_t * pcam, float zoom_x, float zoom_y)
 {
     float w, h, d;
     float aspect;
     float left, right, bottom, top, front, back;
 
-    w = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin->surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
-    h = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin->surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
+    w = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin.surfacex / ( float )DEFAULT_WINDOW_W ) / zoom_x;
+    h = ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() * (( float )pwin.surfacey / ( float )DEFAULT_WINDOW_H ) / zoom_y;
     d = DEFAULT_Z_SIZE;
 
     pcam->w = w;
@@ -1077,15 +1075,15 @@ void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera_t * pcam, float zoom_x, float zoom_z)
+void cartman_begin_ortho_camera_vrt(Cartman::Window& pwin, camera_t * pcam, float zoom_x, float zoom_z)
 {
     float w, h, d;
     float aspect;
     float left, right, bottom, top, back, front;
 
-    w = pwin->surfacex * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_W / zoom_x;
+    w = pwin.surfacex * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_W / zoom_x;
     h = w;
-    d = pwin->surfacey * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_H / zoom_z;
+    d = pwin.surfacey * ( float )DEFAULT_RESOLUTION * Info<float>::Grid::Size() / ( float )DEFAULT_WINDOW_H / zoom_z;
 
     pcam->w = w;
     pcam->h = h;
@@ -1204,7 +1202,7 @@ void load_img()
 //--------------------------------------------------------------------------------------------
 void get_small_tiles( SDL_Surface* bmpload )
 {
-    SDL_Surface * image;
+    std::shared_ptr<SDL_Surface> image;
 
     int x, y, x1, y1;
     int sz_x = bmpload->w;
@@ -1223,16 +1221,15 @@ void get_small_tiles( SDL_Surface* bmpload )
 
             tx_smalltile[numsmalltile] = new Ego::OpenGL::Texture();
 
-            image = SDL_GL_createSurface( SMALLXY, SMALLXY );
+            image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
             {
                 throw std::runtime_error("unable to create surface");
             }
-            auto image_ptr = shared_ptr<SDL_Surface>(image, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
-            SDL_FillRect( image_ptr.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
-            SDL_SoftStretch( bmpload, &src1, image_ptr.get(), NULL );
+            SDL_FillRect( image.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
+            SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
-            tx_smalltile[numsmalltile]->load(image_ptr);
+            tx_smalltile[numsmalltile]->load(image);
 
             numsmalltile++;
         }
@@ -1242,7 +1239,7 @@ void get_small_tiles( SDL_Surface* bmpload )
 //--------------------------------------------------------------------------------------------
 void get_big_tiles( SDL_Surface* bmpload )
 {
-    SDL_Surface * image;
+    std::shared_ptr<SDL_Surface> image;
 
     int x, y, x1, y1;
     int sz_x = bmpload->w;
@@ -1274,17 +1271,16 @@ void get_big_tiles( SDL_Surface* bmpload )
 
             tx_bigtile[numbigtile] = new Ego::OpenGL::Texture();
 
-            image = SDL_GL_createSurface( SMALLXY, SMALLXY );
+            image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
             {
                 throw std::runtime_error("unable to create surface");
             }
-            auto image_ptr = std::shared_ptr<SDL_Surface>(image, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
-            SDL_FillRect( image_ptr.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
+            SDL_FillRect( image.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
 
-            SDL_SoftStretch( bmpload, &src1, image_ptr.get(), NULL );
+            SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
-            tx_bigtile[numbigtile]->load(image_ptr);
+            tx_bigtile[numbigtile]->load(image);
 
             numbigtile++;
         }
