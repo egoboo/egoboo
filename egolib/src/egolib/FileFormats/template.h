@@ -46,5 +46,5 @@ void template_put_gender( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender 
 void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val );
 void template_put_range( vfs_FILE* filetemp, vfs_FILE* filewrite, FRange val );
 void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const char* usename );
-void template_put_idsz( vfs_FILE* filetemp, vfs_FILE* filewrite, IDSZ idsz );
+void template_put_idsz( vfs_FILE* filetemp, vfs_FILE* filewrite, const IDSZ2 &idsz );
 void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 mod );

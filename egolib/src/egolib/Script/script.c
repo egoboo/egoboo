@@ -1116,12 +1116,12 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFID:
                 varname = "SELFID";
-				iTmp = pchr->getProfile()->getIDSZ(IDSZ_TYPE);
+				iTmp = pchr->getProfile()->getIDSZ(IDSZ_TYPE).toUint32();
                 break;
 
             case VARSELFHATEID:
                 varname = "SELFHATEID";
-				iTmp = pchr->getProfile()->getIDSZ(IDSZ_HATE);
+				iTmp = pchr->getProfile()->getIDSZ(IDSZ_HATE).toUint32();
                 break;
 
             case VARSELFMANA:
@@ -1637,7 +1637,7 @@ void issue_order( const ObjectRef character, Uint32 value )
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_special_order( Uint32 value, IDSZ idsz )
+void issue_special_order( uint32_t value, const IDSZ2& idsz )
 {
     /// @author ZZ
     /// @details This function issues an order to all characters with the a matching special IDSZ

@@ -60,7 +60,7 @@ struct player_t
     latch_t                 local_latch;
 
     // quest log for this player
-    std::unordered_map<IDSZ, int> quest_log;          ///< lists all the character's quests
+    std::unordered_map<IDSZ2, int> quest_log;          ///< lists all the character's quests
 
     // Timed latches
     uint32_t                tlatch_count;

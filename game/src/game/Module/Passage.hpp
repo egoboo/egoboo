@@ -117,7 +117,7 @@ public:
     *    	  First finds living ones, then items and corpses
     * @return the object reference of the object found which fullfills all specified requirements or ObjectRef::Invalid if none found
     **/
-    ObjectRef whoIsBlockingPassage(ObjectRef objRef, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item) const;
+    ObjectRef whoIsBlockingPassage(ObjectRef objRef, const IDSZ2& idsz, const BIT_FIELD targeting_bits, const IDSZ2& require_item) const;
 
 
     /**

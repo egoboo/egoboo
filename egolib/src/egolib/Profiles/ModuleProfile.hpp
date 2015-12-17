@@ -112,8 +112,8 @@ public:
     }
 
     static std::shared_ptr<ModuleProfile> loadFromFile(const std::string &filePath);
-    static bool moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer);
-    static bool moduleAddIDSZ(const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer);
+    static bool moduleHasIDSZ(const char *szModName, const IDSZ2& idsz, size_t buffer_len, char * buffer);
+    static bool moduleAddIDSZ(const char *szModName, const IDSZ2& idsz, size_t buffer_len, const char * buffer);
 
 private:
     bool _loaded;
@@ -131,7 +131,7 @@ private:
     uint8_t   _respawnValid;                ///< Allow respawn
     std::vector<std::string> _summary;      ///< Quest description
 
-    IDSZ     _unlockQuest;                  ///< the quest required to unlock this module
+    IDSZ2    _unlockQuest;                  ///< the quest required to unlock this module
     int      _unlockQuestLevel;
     ModuleFilter    _moduleType;            ///< Main quest, town, sidequest or whatever
     bool            _beaten;                ///< The module has been marked with the [BEAT] eapansion

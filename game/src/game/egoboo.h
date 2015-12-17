@@ -92,7 +92,7 @@ struct local_stats_t
 
     //ESP
     TEAM_REF sense_enemies_team;
-    IDSZ sense_enemies_idsz;
+    IDSZ2 sense_enemies_idsz;
 };
 
 EXTERN local_stats_t local_stats;

@@ -43,7 +43,7 @@ LoadPlayerElement::LoadPlayerElement(std::shared_ptr<ObjectProfile> profile) :
     _name = randomName.generateRandomName();
 }
 
-bool LoadPlayerElement::hasQuest(const IDSZ idsz, const int requiredLevel)
+bool LoadPlayerElement::hasQuest(const IDSZ2& idsz, const int requiredLevel)
 {
     int quest_level = quest_log_get_level(_questLog, idsz);
 

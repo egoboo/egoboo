@@ -65,7 +65,7 @@ egolib_rv quest_file_export(std::shared_ptr<ConfigFile> file)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ, int> &quest_log, const char* player_directory)
+egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ2, int> &quest_log, const char* player_directory)
 {
     /// @author ZF
     /// @details Reads a quest.txt for a player and turns it into a data structure
@@ -84,7 +84,7 @@ egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ, int> &quest_log, const
     // Load each IDSZ
     while (ctxt.skipToColon(true))
     {
-        IDSZ idsz = ctxt.readIDSZ();
+        IDSZ2 idsz = ctxt.readIDSZ();
         int  level = ctxt.readIntegerLiteral();
 
         // Try to add a single quest to the map
@@ -95,7 +95,7 @@ egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ, int> &quest_log, const
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ, int> &quest_log, const char *player_directory )
+egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ2, int> &quest_log, const char *player_directory )
 {
     /// @author ZF
     /// @details This exports quest_log data into a quest.txt file
@@ -116,7 +116,7 @@ egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ, int> &quest_log, c
     for(const auto& node : quest_log)
     {
         // Write every single quest to the quest log
-        vfs_printf( filewrite, "\n:[%4s] %i", undo_idsz(node.first), node.second);
+        vfs_printf( filewrite, "\n:[%4s] %i", node.first.toString().c_str(), node.second);
     }
 
     // Clean up and return
@@ -125,7 +125,7 @@ egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ, int> &quest_log, c
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_set_level(std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz, int level )
+int quest_log_set_level(std::unordered_map<IDSZ2, int> &quest_log, const IDSZ2& idsz, int level )
 {
     /// @author ZF
     /// @details This function will set the quest level for the specified quest
@@ -141,7 +141,7 @@ int quest_log_set_level(std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz, int
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_adjust_level( std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz, int adjustment )
+int quest_log_adjust_level( std::unordered_map<IDSZ2, int> &quest_log, const IDSZ2 &idsz, int adjustment )
 {
     /// @author ZF
     /// @details This function will modify the quest level for the specified quest with adjustment
@@ -180,7 +180,7 @@ int quest_log_adjust_level( std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz,
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_get_level( std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz )
+int quest_log_get_level( std::unordered_map<IDSZ2, int> &quest_log, const IDSZ2 &idsz )
 {
     /// @author ZF
     /// @details Returns the quest level for the specified quest IDSZ.
@@ -194,7 +194,7 @@ int quest_log_get_level( std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_add( std::unordered_map<IDSZ, int> &quest_log, IDSZ idsz, int level )
+egolib_rv quest_log_add( std::unordered_map<IDSZ2, int> &quest_log, const IDSZ2& idsz, int level )
 {
     /// @author ZF
     /// @details This adds a new quest to the quest log. If the quest is already in there, the higher quest

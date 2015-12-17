@@ -159,7 +159,7 @@ bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
     return tmp_rect.point_inside(xpos, ypos);
 }
 
-ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const
+ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, const BIT_FIELD targeting_bits, const IDSZ2& require_item ) const
 {
     // Skip if the one who is looking doesn't exist
     if ( !_currentModule->getObjectHandler().exists(objRef) ) return ObjectRef::Invalid;
@@ -181,7 +181,7 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, IDSZ idsz, const BIT_
         if ( objectIsInPassage( pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size ) )
         {
             // Found a live one, do we need to check for required items as well?
-            if ( IDSZ_NONE == require_item )
+            if ( IDSZ2::None == require_item )
             {
                 return character;
             }

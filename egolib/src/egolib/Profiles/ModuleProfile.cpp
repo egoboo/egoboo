@@ -47,7 +47,7 @@ ModuleProfile::ModuleProfile() :
     _maxPlayers(0),
     _respawnValid(false),
     _summary(),
-    _unlockQuest(IDSZ_NONE),
+    _unlockQuest(IDSZ2::None),
     _unlockQuestLevel(QUEST_NONE),
     _moduleType(FILTER_SIDE_QUEST),
     _beaten(false),
@@ -173,10 +173,10 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     // Read expansions
     while (ctxt.skipToColon(true))
     {
-        IDSZ idsz = ctxt.readIDSZ();
+        IDSZ2 idsz = ctxt.readIDSZ();
 
         // Read module type
-        if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
+        if ( idsz == IDSZ2('T', 'Y', 'P', 'E') )
         {
             // parse the expansion value
             switch (Ego::toupper(ctxt.readPrintable()))
@@ -188,7 +188,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
                 //case 'S': result->_moduleType = FILTER_STARTER; break;
             }
         }
-        else if ( idsz == MAKE_IDSZ( 'B', 'E', 'A', 'T' ) )
+        else if ( idsz == IDSZ2('B', 'E', 'A', 'T') )
         {
             result->_beaten = true;
         }
@@ -212,14 +212,13 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     return result;
 }
 
-bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer)
+bool ModuleProfile::moduleHasIDSZ(const char *szModName, const IDSZ2& idsz, size_t buffer_len, char * buffer)
 {
     /// @author ZZ
     /// @details This function returns true if the named module has the required IDSZ
-    Uint32 newidsz;
     bool foundidsz;
 
-    if ( idsz == IDSZ_NONE ) return true;
+    if ( idsz == IDSZ2::None ) return true;
 
     if ( 0 == strcmp( szModName, "NONE" ) ) return false;
 
@@ -252,8 +251,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
     foundidsz = false;
     while (ctxt.skipToColon(true))
     {
-        newidsz = ctxt.readIDSZ();
-        if ( newidsz == idsz )
+        if ( ctxt.readIDSZ() == idsz )
         {
             foundidsz = true;
             break;
@@ -279,7 +277,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
     return foundidsz;
 }
 
-bool ModuleProfile::moduleAddIDSZ(const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer)
+bool ModuleProfile::moduleAddIDSZ(const char *szModName, const IDSZ2& idsz, size_t buffer_len, const char * buffer)
 {
     /// @author ZZ
     /// @details This function appends an IDSZ to the module's menu.txt file
@@ -300,12 +298,12 @@ bool ModuleProfile::moduleAddIDSZ(const char *szModName, IDSZ idsz, size_t buffe
         if ( NULL != filewrite )
         {
             // output the expansion IDSZ
-            vfs_printf( filewrite, "\n:[%s]", undo_idsz( idsz ) );
+            vfs_printf( filewrite, "\n:[%s]", idsz.toString().c_str() );
 
             // output an optional parameter
             if ( NULL != buffer && buffer_len > 1 )
             {
-                vfs_printf( filewrite, " %s", undo_idsz( idsz ) );
+                vfs_printf( filewrite, " %s", idsz.toString().c_str() );
             }
 
             // end the line

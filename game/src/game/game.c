@@ -690,7 +690,7 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, const BIT_FIELD targeting_bits )
+bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &idsz, const BIT_FIELD targeting_bits )
 {
     bool retval = false;
 
@@ -753,7 +753,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, co
     }
 
     //This is the last and final step! Check for specific IDSZ too? (not needed if we are looking for a quest)
-    if ( IDSZ_NONE == idsz || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
+    if ( IDSZ2::None == idsz || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         retval = true;
     }
@@ -776,7 +776,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, co
 }
 
 //--------------------------------------------------------------------------------------------
-ObjectRef chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
+ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, const BIT_FIELD targeting_bits )
 {
     /// @author ZF
     /// @details This is the new improved AI targeting algorithm. Also includes distance in the Z direction.
@@ -2275,7 +2275,7 @@ void game_release_module_data()
     /// @details This function frees up memory used by the module
 
     // Disable ESP
-    local_stats.sense_enemies_idsz = IDSZ_NONE;
+    local_stats.sense_enemies_idsz = IDSZ2::None;
     local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
 
     // make sure that the object lists are cleared out
@@ -2749,7 +2749,7 @@ void game_reset_players()
     local_stats.daze_level     = 0.0f;
 
     local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
-    local_stats.sense_enemies_idsz = IDSZ_NONE;
+    local_stats.sense_enemies_idsz = IDSZ2::None;
 
     PlaStack_reset_all();
 }
@@ -3929,7 +3929,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
                     //Crossbow Mastery increases XBow attack speed by 30%
                     if(pchr->hasPerk(Ego::Perks::CROSSBOW_MASTERY) && 
-                       pweapon->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('X','B','O','W')) {
+                       pweapon->getProfile()->getIDSZ(IDSZ_PARENT).equals('X','B','O','W')) {
                         agility *= 1.30f;
                     }
 
@@ -4087,7 +4087,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             if ( pweapon->ammo > 0 && !weaponProfile->isStackable() )
             {
                 //Is it a wand? (Wand Mastery perk has chance to not use charge)
-                if(pweapon->getProfile()->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('W','A','N','D')
+                if(pweapon->getProfile()->getIDSZ(IDSZ_SKILL).equals('W','A','N','D')
                     && pchr->hasPerk(Ego::Perks::WAND_MASTERY)) {
 
                     //1% chance per Intellect
@@ -4107,7 +4107,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             int NR_OF_ATTACK_PARTICLES = 1;
 
             //Handle Double Shot perk
-            if(pchr->hasPerk(Ego::Perks::DOUBLE_SHOT) && weaponProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('L','B','O','W'))
+            if(pchr->hasPerk(Ego::Perks::DOUBLE_SHOT) && weaponProfile->getIDSZ(IDSZ_PARENT).equals('L','B','O','W'))
             {
                 //1% chance per Agility
                 if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::AGILITY) && pweapon->ammo > 0) {
@@ -4176,45 +4176,45 @@ void character_swipe( ObjectRef ichr, slot_t slot )
 
                         //Handle traits that increase weapon damage
                         float damageBonus = 1.0f;
-                        switch(weaponProfile->getIDSZ(IDSZ_PARENT))
+                        switch(weaponProfile->getIDSZ(IDSZ_PARENT).toUint32())
                         {
                             //Wolverine perk gives +100% Claw damage
-                            case MAKE_IDSZ('C','L','A','W'):
+                            case IDSZ2::caseLabel('C','L','A','W'):
                                 if(pchr->hasPerk(Ego::Perks::WOLVERINE)) {
                                     damageBonus += 1.0f;
                                 }
                             break;
 
                             //+20% damage with polearms
-                            case MAKE_IDSZ('P','O','L','E'):
+                            case IDSZ2::caseLabel('P','O','L','E'):
                                 if(pchr->hasPerk(Ego::Perks::POLEARM_MASTERY)) {
                                     damageBonus += 0.2f;
                                 }
                             break;
 
                             //+20% damage with swords
-                            case MAKE_IDSZ('S','W','O','R'):
+                            case IDSZ2::caseLabel('S','W','O','R'):
                                 if(pchr->hasPerk(Ego::Perks::SWORD_MASTERY)) {
                                     damageBonus += 0.2f;
                                 }
                             break;
 
                             //+20% damage with Axes
-                            case MAKE_IDSZ('A','X','E','E'):
+                            case IDSZ2::caseLabel('A','X','E','E'):
                                 if(pchr->hasPerk(Ego::Perks::AXE_MASTERY)) {
                                     damageBonus += 0.2f;
                                 }       
                             break;
 
                             //+20% damage with Longbows
-                            case MAKE_IDSZ('L','B','O','W'):
+                            case IDSZ2::caseLabel('L','B','O','W'):
                                 if(pchr->hasPerk(Ego::Perks::BOW_MASTERY)) {
                                     damageBonus += 0.2f;
                                 }
                             break;
 
                             //+100% damage with Whips
-                            case MAKE_IDSZ('W','H','I','P'):
+                            case IDSZ2::caseLabel('W','H','I','P'):
                                 if(pchr->hasPerk(Ego::Perks::WHIP_MASTERY)) {
                                     damageBonus += 1.0f;
                                 }
@@ -4223,11 +4223,11 @@ void character_swipe( ObjectRef ichr, slot_t slot )
 
                         //Improvised Weapons perk gives +100% to some unusual weapons
                         if(pchr->hasPerk(Ego::Perks::IMPROVISED_WEAPONS)) {
-                            if (weaponProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('T','O','R','C')    //Torch
-                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','H','O','V')      //Shovel
-                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('P','L','U','N')      //Toilet Plunger
-                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('C','R','O','W')      //Crowbar
-                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('P','I','C','K')) {   //Pick
+                            if (weaponProfile->getIDSZ(IDSZ_PARENT).equals('T','O','R','C')    //Torch
+                             || weaponProfile->getIDSZ(IDSZ_TYPE).equals('S','H','O','V')      //Shovel
+                             || weaponProfile->getIDSZ(IDSZ_TYPE).equals('P','L','U','N')      //Toilet Plunger
+                             || weaponProfile->getIDSZ(IDSZ_TYPE).equals('C','R','O','W')      //Crowbar
+                             || weaponProfile->getIDSZ(IDSZ_TYPE).equals('P','I','C','K')) {   //Pick
                                 damageBonus += 1.0f;
                             }
                         }

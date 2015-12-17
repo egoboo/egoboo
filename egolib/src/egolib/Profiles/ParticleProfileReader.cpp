@@ -30,7 +30,6 @@
 
 bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::string& pathname)
 {
-    IDSZ idsz;
     char cTmp;
 
     ReadContext ctxt(pathname);
@@ -189,61 +188,101 @@ bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::stri
             continue;
         } else  if (ctxt.is(':')) {
             ctxt.next();
-            idsz = ctxt.readIDSZ();
+            IDSZ2 idsz = ctxt.readIDSZ();
 
-            if (idsz == MAKE_IDSZ('N', 'O', 'N', 'E')) {
-                if (ctxt.readIntegerLiteral() != 0) {
-                    SET_BIT(profile->damfx, DAMFX_NONE);
-                }
-            }
-            else if (idsz == MAKE_IDSZ('T', 'U', 'R', 'N')) {
-                if (ctxt.readIntegerLiteral() != 0) {
-                    SET_BIT(profile->damfx, DAMFX_TURN);
-                }
-            }
-            else if (idsz == MAKE_IDSZ('A', 'R', 'M', 'O')) {
-                if (ctxt.readIntegerLiteral() != 0) {
-                    SET_BIT(profile->damfx, DAMFX_ARMO);
-                }
-            }
-            else if (idsz == MAKE_IDSZ('B', 'L', 'O', 'C')) {
-                if (ctxt.readIntegerLiteral() != 0) {
-                    SET_BIT(profile->damfx, DAMFX_NBLOC);
-                }
-            }
-            else if (idsz == MAKE_IDSZ('A', 'R', 'R', 'O')) {
-                if (ctxt.readIntegerLiteral() != 0) {
-                    SET_BIT(profile->damfx, DAMFX_ARRO);
-                }
-            }
-            else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E')) {
-                if (ctxt.readIntegerLiteral() != 0) {
-                    SET_BIT(profile->damfx, DAMFX_TIME);
-                }
-            }
-            else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = ctxt.readRealLiteral();
-            else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = ctxt.readIntegerLiteral();
-            else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = ctxt.readIntegerLiteral();
-            else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != ctxt.readIntegerLiteral());
-            else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != ctxt.readIntegerLiteral());
-            else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = ctxt.readIntegerLiteral() / 1000.0f;
-            else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = ctxt.readIntegerLiteral() / 1000.0f;
-            else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->_intellectDamageBonus = (0 != ctxt.readIntegerLiteral());
-            else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readIntegerLiteral());
-            else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
+            switch(idsz.toUint32())
             {
-                switch (Ego::toupper(ctxt.readPrintable()))
-                {
-                    case 'X': profile->orientation = prt_ori_t::ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
-                    case 'Y': profile->orientation = prt_ori_t::ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
-                    case 'Z': profile->orientation = prt_ori_t::ORIENTATION_Z; break;  // put particle up along the world or body-fixed z-axis
-                    case 'V': profile->orientation = prt_ori_t::ORIENTATION_V; break;  // vertical, like a candle
-                    case 'H': profile->orientation = prt_ori_t::ORIENTATION_H; break;  // horizontal, like a plate
-                    case 'B': profile->orientation = prt_ori_t::ORIENTATION_B; break;  // billboard
-                }
-                while (ctxt.isAlpha()) {
-                    ctxt.next();
-                }
+                case IDSZ2::caseLabel('N', 'O', 'N', 'E'):
+                    if (ctxt.readIntegerLiteral() != 0) {
+                        SET_BIT(profile->damfx, DAMFX_NONE);
+                    }
+                break;
+
+                case IDSZ2::caseLabel('T', 'U', 'R', 'N'):
+                    if (ctxt.readIntegerLiteral() != 0) {
+                        SET_BIT(profile->damfx, DAMFX_TURN);
+                    }
+                break;
+
+                case IDSZ2::caseLabel('A', 'R', 'M', 'O'):
+                    if (ctxt.readIntegerLiteral() != 0) {
+                        SET_BIT(profile->damfx, DAMFX_ARMO);
+                    }
+                break;
+
+                case IDSZ2::caseLabel('B', 'L', 'O', 'C'):
+                    if (ctxt.readIntegerLiteral() != 0) {
+                        SET_BIT(profile->damfx, DAMFX_NBLOC);
+                    }
+                break;
+
+                case IDSZ2::caseLabel('A', 'R', 'R', 'O'):
+                    if (ctxt.readIntegerLiteral() != 0) {
+                        SET_BIT(profile->damfx, DAMFX_ARRO);
+                    }
+                break;
+
+                case IDSZ2::caseLabel('T', 'I', 'M', 'E'):
+                    if (ctxt.readIntegerLiteral() != 0) {
+                        SET_BIT(profile->damfx, DAMFX_TIME);
+                    }
+                break;
+
+                case IDSZ2::caseLabel('Z', 'S', 'P', 'D'):  
+                    profile->zaimspd = ctxt.readRealLiteral();
+                break;
+
+                case IDSZ2::caseLabel('F', 'S', 'N', 'D'):  
+                    profile->end_sound_floor = ctxt.readIntegerLiteral();
+                break;
+
+                case IDSZ2::caseLabel('W', 'S', 'N', 'D'):  
+                    profile->end_sound_wall = ctxt.readIntegerLiteral();
+                break;
+
+                case IDSZ2::caseLabel('W', 'E', 'N', 'D'):  
+                    profile->end_wall = (0 != ctxt.readIntegerLiteral());
+                break;
+
+                case IDSZ2::caseLabel('P', 'U', 'S', 'H'):  
+                    profile->allowpush = (0 != ctxt.readIntegerLiteral());
+                break;
+
+                case IDSZ2::caseLabel('D', 'L', 'E', 'V'):  
+                    profile->dynalight.level_add = ctxt.readIntegerLiteral() / 1000.0f;
+                break;
+
+                case IDSZ2::caseLabel('D', 'R', 'A', 'D'):  
+                    profile->dynalight.falloff_add = ctxt.readIntegerLiteral() / 1000.0f;
+                break;
+
+                case IDSZ2::caseLabel('I', 'D', 'A', 'M'):  
+                    profile->_intellectDamageBonus = (0 != ctxt.readIntegerLiteral());
+                break;
+
+                case IDSZ2::caseLabel('G', 'R', 'A', 'V'):  
+                    profile->ignore_gravity = (0 != ctxt.readIntegerLiteral());
+                break;
+
+                case IDSZ2::caseLabel('O', 'R', 'N', 'T'):
+                    switch (Ego::toupper(ctxt.readPrintable()))
+                    {
+                        case 'X': profile->orientation = prt_ori_t::ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
+                        case 'Y': profile->orientation = prt_ori_t::ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
+                        case 'Z': profile->orientation = prt_ori_t::ORIENTATION_Z; break;  // put particle up along the world or body-fixed z-axis
+                        case 'V': profile->orientation = prt_ori_t::ORIENTATION_V; break;  // vertical, like a candle
+                        case 'H': profile->orientation = prt_ori_t::ORIENTATION_H; break;  // horizontal, like a plate
+                        case 'B': profile->orientation = prt_ori_t::ORIENTATION_B; break;  // billboard
+                    }
+                    while (ctxt.isAlpha()) {
+                        ctxt.next();
+                    }
+                break;
+
+                default:
+                    throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
+                                                    std::string("Unknown IDSZ type parsed: ") + idsz.toString());
+                break;
             }
         } else {
             throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
@@ -252,9 +291,10 @@ bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::stri
     }
 
     // Limit the end_sound index.
-    profile->end_sound = Ego::Math::constrain<Sint8>(profile->end_sound, INVALID_SOUND_ID, MAX_WAVE);
+    profile->end_sound = Ego::Math::constrain<int8_t>(profile->end_sound, INVALID_SOUND_ID, MAX_WAVE);
+
     // Limit the soundspawn index.
-    profile->soundspawn = Ego::Math::constrain<Sint8>(profile->soundspawn, INVALID_SOUND_ID, MAX_WAVE);
+    profile->soundspawn = Ego::Math::constrain<int8_t>(profile->soundspawn, INVALID_SOUND_ID, MAX_WAVE);
 
     return true;
 }

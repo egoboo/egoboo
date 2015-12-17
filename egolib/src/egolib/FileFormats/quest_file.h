@@ -42,12 +42,12 @@
 //--------------------------------------------------------------------------------------------
 
 // Public functions
-egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ, int> & quest_log, const char* player_directory);
-egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ, int> &quest_log, const char *player_directory);
-int       quest_log_set_level(std::unordered_map<IDSZ, int> & quest_log, IDSZ idsz, int level);
-int       quest_log_adjust_level(std::unordered_map<IDSZ, int> & quest_log, IDSZ idsz, int adjustment);
-int       quest_log_get_level(std::unordered_map<IDSZ, int> & quest_log, IDSZ idsz);
-egolib_rv quest_log_add(std::unordered_map<IDSZ, int> & quest_log, IDSZ idsz, int level);
+egolib_rv quest_log_download_vfs(std::unordered_map<IDSZ2, int> & quest_log, const char* player_directory);
+egolib_rv quest_log_upload_vfs(const std::unordered_map<IDSZ2, int> &quest_log, const char *player_directory);
+int       quest_log_set_level(std::unordered_map<IDSZ2, int> & quest_log, const IDSZ2& idsz, int level);
+int       quest_log_adjust_level(std::unordered_map<IDSZ2, int> & quest_log, const IDSZ2& idsz, int adjustment);
+int       quest_log_get_level(std::unordered_map<IDSZ2, int> & quest_log, const IDSZ2& idsz);
+egolib_rv quest_log_add(std::unordered_map<IDSZ2, int> & quest_log, const IDSZ2& idsz, int level);
 
 std::shared_ptr<ConfigFile> quest_file_open(const char *player_directory);
 egolib_rv quest_file_export(std::shared_ptr<ConfigFile> file);

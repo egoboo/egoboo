@@ -14,7 +14,7 @@ Inventory::Inventory() :
     //ctor
 }
 
-ObjectRef Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly) {
+ObjectRef Inventory::findItem(Object *pobj, const IDSZ2& idsz, bool equippedOnly) {
 	if (!pobj || pobj->isTerminated()) {
 		return ObjectRef::Invalid;
 	}
@@ -35,7 +35,7 @@ ObjectRef Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly) {
     return result;
 }
 
-ObjectRef Inventory::findItem(ObjectRef iowner, IDSZ idsz, bool equippedOnly)
+ObjectRef Inventory::findItem(ObjectRef iowner, const IDSZ2& idsz, bool equippedOnly)
 {
     if (!_currentModule->getObjectHandler().exists(iowner))
     {

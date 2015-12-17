@@ -874,13 +874,13 @@ void Object::update()
             //Danger Sense reveals enemies on the minimap
             if(hasPerk(Ego::Perks::DANGER_SENSE)) {
                 local_stats.sense_enemies_team = this->team;
-                local_stats.sense_enemies_idsz = IDSZ_NONE;     //Reveal all
+                local_stats.sense_enemies_idsz = IDSZ2::None;     //Reveal all
             }
 
             //Danger Sense reveals enemies on the minimap
             else if(hasPerk(Ego::Perks::SENSE_UNDEAD)) {
                 local_stats.sense_enemies_team = this->team;
-                local_stats.sense_enemies_idsz = MAKE_IDSZ('U','N','D','E');     //Reveal only undead
+                local_stats.sense_enemies_idsz = IDSZ2('U','N','D','E');     //Reveal only undead
             }
         }        
 
@@ -1461,7 +1461,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
             }
         
             //Crusader Perk regains 1 mana per Undead kill
-            if(actualKiller->hasPerk(Ego::Perks::CRUSADER) && getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('U','N','D','E')) {
+            if(actualKiller->hasPerk(Ego::Perks::CRUSADER) && getProfile()->getIDSZ(IDSZ_PARENT).equals('U','N','D','E')) {
                 actualKiller->costMana(-1, actualKiller->getObjRef());
                 BillboardSystem::get().makeBillboard(actualKiller->getObjRef(), "Crusader", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
             }
@@ -2020,8 +2020,8 @@ float Object::getAttribute(const Ego::Attribute::AttributeType type) const
         //Wolverine perk gives +0.25 Life Regeneration while holding a Claw weapon
         case Ego::Attribute::LIFE_REGEN:
             if(hasPerk(Ego::Perks::WOLVERINE)) {
-                if( (getLeftHandItem() && getLeftHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W'))
-                 || (getRightHandItem() && getRightHandItem()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('C','L','A','W')))
+                if( (getLeftHandItem() && getLeftHandItem()->getProfile()->getIDSZ(IDSZ_PARENT).equals('C','L','A','W'))
+                 || (getRightHandItem() && getRightHandItem()->getProfile()->getIDSZ(IDSZ_PARENT).equals('C','L','A','W')))
                  {
                     attributeValue += 0.25f;
                  }                
@@ -2161,10 +2161,10 @@ std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO
     return nullptr;
 }
 
-void Object::removeEnchantsWithIDSZ(const IDSZ idsz)
+void Object::removeEnchantsWithIDSZ(const IDSZ2& idsz)
 {
     //Nothing to do?
-    if(idsz == IDSZ_NONE) return;
+    if(idsz == IDSZ2::None) return;
 
     //Remove all active enchants that have the corresponding IDSZ
     for(const std::shared_ptr<Ego::Enchantment> &enchant : _activeEnchants)
@@ -2597,7 +2597,7 @@ bool Object::isScenery() const
     return getProfile()->isInvincible() || getProfile()->getWeight() == CAP_INFINITE_WEIGHT;
 }
 
-const std::shared_ptr<Object>& Object::isWieldingItemIDSZ(const IDSZ idsz) const
+const std::shared_ptr<Object>& Object::isWieldingItemIDSZ(const IDSZ2& idsz) const
 {
     //Check left hand
     const std::shared_ptr<Object> &leftHandItem = getLeftHandItem();
@@ -2695,12 +2695,12 @@ void Object::setTeam(TEAM_REF team_new, bool permanent)
     }
 }
 
-bool Object::hasSkillIDSZ(const IDSZ whichskill) const
+bool Object::hasSkillIDSZ(const IDSZ2& whichskill) const
 {
     if (isTerminated()) return false;
 
     //Any [NONE] IDSZ returns always "true"
-    if ( IDSZ_NONE == whichskill ) return true;
+    if ( IDSZ2::None == whichskill ) return true;
 
     // First check the character Skill ID matches
     if ( getProfile()->getIDSZ(IDSZ_SKILL) == whichskill ) {
@@ -2708,49 +2708,49 @@ bool Object::hasSkillIDSZ(const IDSZ whichskill) const
     }
 
     // Then check if any Perk matches
-    switch(whichskill)
+    switch(whichskill.toUint32())
     {
-        case MAKE_IDSZ('P', 'O', 'I', 'S'):
+        case IDSZ2::caseLabel('P', 'O', 'I', 'S'):
             return hasPerk(Ego::Perks::POISONRY);
 
-        case MAKE_IDSZ('C', 'K', 'U', 'R'):
+        case IDSZ2::caseLabel('C', 'K', 'U', 'R'):
             return hasPerk(Ego::Perks::SENSE_KURSES);
 
-        case MAKE_IDSZ('D', 'A', 'R', 'K'):
+        case IDSZ2::caseLabel('D', 'A', 'R', 'K'):
             return hasPerk(Ego::Perks::NIGHT_VISION) || hasPerk(Ego::Perks::PERCEPTIVE);
 
-        case MAKE_IDSZ('A', 'W', 'E', 'P'):
+        case IDSZ2::caseLabel('A', 'W', 'E', 'P'):
             return hasPerk(Ego::Perks::WEAPON_PROFICIENCY);
 
-        case MAKE_IDSZ('W', 'M', 'A', 'G'):
+        case IDSZ2::caseLabel('W', 'M', 'A', 'G'):
             return hasPerk(Ego::Perks::ARCANE_MAGIC);
 
-        case MAKE_IDSZ('D', 'M', 'A', 'G'):
-        case MAKE_IDSZ('H', 'M', 'A', 'G'):
+        case IDSZ2::caseLabel('D', 'M', 'A', 'G'):
+        case IDSZ2::caseLabel('H', 'M', 'A', 'G'):
             return hasPerk(Ego::Perks::DIVINE_MAGIC);
 
-        case MAKE_IDSZ('D', 'I', 'S', 'A'):
+        case IDSZ2::caseLabel('D', 'I', 'S', 'A'):
             return hasPerk(Ego::Perks::TRAP_LORE);
 
-        case MAKE_IDSZ('F', 'I', 'N', 'D'):
+        case IDSZ2::caseLabel('F', 'I', 'N', 'D'):
             return hasPerk(Ego::Perks::PERCEPTIVE);
 
-        case MAKE_IDSZ('T', 'E', 'C', 'H'):
+        case IDSZ2::caseLabel('T', 'E', 'C', 'H'):
             return hasPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS);
 
-        case MAKE_IDSZ('S', 'T', 'A', 'B'):
+        case IDSZ2::caseLabel('S', 'T', 'A', 'B'):
             return hasPerk(Ego::Perks::BACKSTAB);
 
-        case MAKE_IDSZ('R', 'E', 'A', 'D'):
+        case IDSZ2::caseLabel('R', 'E', 'A', 'D'):
             return hasPerk(Ego::Perks::LITERACY);
 
-        case MAKE_IDSZ('W', 'A', 'N', 'D'):
+        case IDSZ2::caseLabel('W', 'A', 'N', 'D'):
             return hasPerk(Ego::Perks::THAUMATURGY);
 
-        case MAKE_IDSZ('J', 'O', 'U', 'S'):
+        case IDSZ2::caseLabel('J', 'O', 'U', 'S'):
             return hasPerk(Ego::Perks::JOUSTING);            
 
-        case MAKE_IDSZ('T', 'E', 'L', 'E'):
+        case IDSZ2::caseLabel('T', 'E', 'L', 'E'):
             return hasPerk(Ego::Perks::TELEPORT_MASTERY); 
     }
 
@@ -2805,20 +2805,20 @@ void Object::dropKeys()
     if (getPosZ() <= (PITDEPTH / 2)) return;
 
     // The IDSZs to find
-    const IDSZ testa = MAKE_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
-    const IDSZ testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
+    const IDSZ2 testa = IDSZ2( 'K', 'E', 'Y', 'A' );  // [KEYA]
+    const IDSZ2 testz = IDSZ2( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
 
     //check each inventory item
     for(const std::shared_ptr<Object> &pkey : getInventory().iterate())
     {
         TURN_T turn;
 
-        IDSZ idsz_parent = pkey->getProfile()->getIDSZ(IDSZ_PARENT);
-        IDSZ idsz_type   = pkey->getProfile()->getIDSZ(IDSZ_TYPE);
+        const IDSZ2& idsz_parent = pkey->getProfile()->getIDSZ(IDSZ_PARENT);
+        const IDSZ2& idsz_type   = pkey->getProfile()->getIDSZ(IDSZ_TYPE);
 
         //is it really a key?
-        if (( idsz_parent < testa && idsz_parent > testz ) &&
-            ( idsz_type < testa && idsz_type > testz ) ) continue;
+        if (( idsz_parent.toUint32() < testa.toUint32() && idsz_parent.toUint32() > testz.toUint32() ) &&
+            ( idsz_type.toUint32() < testa.toUint32() && idsz_type.toUint32() > testz.toUint32() ) ) continue;
 
         FACING_T direction = Random::next(std::numeric_limits<FACING_T>::max());
         turn      = TO_TURN(direction);

@@ -189,7 +189,7 @@ public:
     // Enchant despawn conditions.
     int lifetime;                          ///< Time until end in seconds (-1 for infinite).
     bool endIfCannotPay;                   ///< End on out of mana
-    IDSZ removedByIDSZ;                    ///< By particle or [NONE]
+    IDSZ2 removedByIDSZ;                   ///< By particle or [NONE]
 
     // Relation of an enchant (of this profile) to the owner. 
     ObjectRelation _owner;

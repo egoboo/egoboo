@@ -622,7 +622,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             }
 
             // if nothing can remove it, just go on with your business
-            if(enchant->getProfile()->removedByIDSZ == IDSZ_NONE) {
+            if(enchant->getProfile()->removedByIDSZ == IDSZ2::None) {
                 continue;
             }
 
@@ -711,7 +711,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     if(pdata->pchr->getProfile()->canBeDazed() && powner->hasPerk(Ego::Perks::CRACKSHOT) && DamageType_isPhysical(pdata->pprt->damagetype))
                     {
                         //Is the particle spawned by a gun?
-                        if(spawnerProfile->isRangedWeapon() && spawnerProfile->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('T','E','C','H')) {
+                        if(spawnerProfile->isRangedWeapon() && spawnerProfile->getIDSZ(IDSZ_SKILL).equals('T','E','C','H')) {
                             SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
                             pdata->pchr->daze_timer += 3;
 
@@ -773,7 +773,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     leftHanditem->ai.hitlast = pdata->pchr->getObjRef();
                     if (powner->ai.lastitemused == leftHanditem->getObjRef()) {
                         SET_BIT(leftHanditem->ai.alert, ALERTIF_SCOREDAHIT);  
-                        if(leftHanditem->getProfile()->getIDSZ(IDSZ_SPECIAL) == MAKE_IDSZ('X', 'W', 'E', 'P') && !leftHanditem->getProfile()->isRangedWeapon()) {
+                        if(leftHanditem->getProfile()->getIDSZ(IDSZ_SPECIAL).equals('X', 'W', 'E', 'P') && !leftHanditem->getProfile()->isRangedWeapon()) {
                             meleeAttack = true;
                         }
                     } 
@@ -785,7 +785,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                     rightHandItem->ai.hitlast = pdata->pchr->getObjRef();
                     if (powner->ai.lastitemused == rightHandItem->getObjRef()) {
                         SET_BIT(rightHandItem->ai.alert, ALERTIF_SCOREDAHIT);  
-                        if(rightHandItem->getProfile()->getIDSZ(IDSZ_SPECIAL) == MAKE_IDSZ('X', 'W', 'E', 'P') && !rightHandItem->getProfile()->isRangedWeapon()) {
+                        if(rightHandItem->getProfile()->getIDSZ(IDSZ_SPECIAL).equals('X', 'W', 'E', 'P') && !rightHandItem->getProfile()->isRangedWeapon()) {
                             meleeAttack = true;
                         }
                     } 
@@ -800,7 +800,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 if(spawnerProfile != nullptr && powner->hasPerk(Ego::Perks::GRIM_REAPER)) {
 
                     //Is it a Scythe?
-                    if(spawnerProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','C','Y','T') && Random::getPercent() <= 5) {
+                    if(spawnerProfile->getIDSZ(IDSZ_TYPE).equals('S','C','Y','T') && Random::getPercent() <= 5) {
 
                         //Make sure they can be damaged by EVIL first
                         if(pdata->pchr->getAttribute(Ego::Attribute::EVIL_MODIFIER) == NONE) {
@@ -815,7 +815,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 }                
 
                 //Deadly Strike perk (1% chance per character level to trigger vs non undead)
-                if(meleeAttack && pdata->pchr->getProfile()->getIDSZ(IDSZ_PARENT) != MAKE_IDSZ('U','N','D','E'))
+                if(meleeAttack && !pdata->pchr->getProfile()->getIDSZ(IDSZ_PARENT).equals('U','N','D','E'))
                 {
                     if(powner->hasPerk(Ego::Perks::DEADLY_STRIKE) && powner->getExperienceLevel() >= Random::getPercent() && DamageType_isPhysical(pdata->pprt->damagetype)){
                         //Gain +0.25 damage per Agility
@@ -827,7 +827,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             }
 
             // handle vulnerabilities, double the damage
-            if(pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) != IDSZ_NONE) {
+            if(pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) != IDSZ2::None) {
                 if (pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_TYPE) || 
                     pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_PARENT))
                 {
@@ -1058,7 +1058,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
         //Telekinetic Staff perk can give +500% knockback
         const std::shared_ptr<Object>& powner = _currentModule->getObjectHandler()[pdata.pprt->owner_ref];
         if(powner->hasPerk(Ego::Perks::TELEKINETIC_STAFF) && 
-            pdata.pprt->getAttachedObject()->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('S','T','A','F')) {
+            pdata.pprt->getAttachedObject()->getProfile()->getIDSZ(IDSZ_PARENT).equals('S','T','A','F')) {
 
             //+3% chance per owner Intellect and -1% per target Might
             float chance = attacker->getAttribute(Ego::Attribute::INTELLECT) * 0.03f - pdata.pchr->getAttribute(Ego::Attribute::MIGHT)*0.01f;
