@@ -971,18 +971,6 @@ void draw_hud()
         y = draw_debug(y);
         y = draw_timer(y);
         y = draw_game_status(y);
-
-        // Network message input
-        if (keyb.chat_mode)
-        {
-            char buffer[CHAT_BUFFER_SIZE + 128] = EMPTY_CSTR;
-
-            snprintf(buffer, SDL_arraysize(buffer), "%s > %s%s", egoboo_config_t::get().network_playerName.getValue().c_str(),
-                net_chat.buffer, HAS_NO_BITS(update_wld, 8) ? "x" : "+");
-
-            y = draw_wrap_string(buffer, 0, y, sdl_scr.x - WRAP_TOLERANCE);
-        }
-
         y = DisplayMsg_draw_all(y);
     }
     gfx_end_2d();

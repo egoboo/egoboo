@@ -27,7 +27,6 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
-#include "game/network.h"
 #include "game/player.h"
 #include "game/mesh.h"
 #include "game/char.h"

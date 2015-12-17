@@ -31,7 +31,6 @@
 #include "game/GameStates/PlayingState.hpp"
 #include "game/link.h"
 #include "game/input.h"
-#include "game/network.h"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/graphic_billboard.h"

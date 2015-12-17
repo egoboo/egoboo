@@ -1329,17 +1329,6 @@ void set_local_latches()
 
             ppla->tlatch_count++;
         }
-
-        // determine the max amount of lag
-        for ( uint32_t cnt = 0; cnt < ppla->tlatch_count; cnt++ )
-        {
-            int loc_lag = update_wld - ppla->tlatch[index].time + 1;
-
-            if ( loc_lag > 0 && ( size_t )loc_lag > numplatimes )
-            {
-                numplatimes = loc_lag;
-            }
-        }
     }
 }
 

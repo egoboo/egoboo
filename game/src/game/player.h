@@ -22,7 +22,6 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
-#include "game/network.h"
 #include "game/input.h"
 
 //--------------------------------------------------------------------------------------------
@@ -98,3 +97,5 @@ void PlaStack_add_tlatch( const PLA_REF iplayer, uint32_t time, latch_t net_latc
 //--------------------------------------------------------------------------------------------
 
 player_t*      chr_get_ppla( const ObjectRef ichr );
+
+void net_unbuffer_player_latches();
