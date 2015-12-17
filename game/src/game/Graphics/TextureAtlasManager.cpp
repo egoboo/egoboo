@@ -30,7 +30,7 @@ std::shared_ptr<Ego::Texture> TextureAtlasManager::getBig(int index) const {
     return _bigTiles[index];
 }
 
-void TextureAtlasManager::decimate(const Ego::Texture *sourceTexture, std::vector<std::shared_ptr<Ego::Texture>>& targetTextureList, int minification) {
+void TextureAtlasManager::decimate(const std::shared_ptr<const Ego::Texture>& sourceTexture, std::vector<std::shared_ptr<Ego::Texture>>& targetTextureList, int minification) {
     static constexpr size_t SUB_TEXTURES = 8;
 
     if (!sourceTexture || !sourceTexture->_source) {

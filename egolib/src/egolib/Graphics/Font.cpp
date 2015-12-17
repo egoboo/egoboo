@@ -39,12 +39,12 @@ namespace Ego
     struct Font::StringCacheData : Id::NonCopyable
     {
         Uint32 lastUseInTicks;
-        Ego::Texture *tex;
+        std::shared_ptr<Ego::Texture> tex;
         std::string text;
         
         StringCacheData() :
             lastUseInTicks(0),
-            tex(new Ego::OpenGL::Texture())
+            tex(std::make_shared<Ego::OpenGL::Texture>())
         {
             if (!tex)
             {
@@ -56,7 +56,6 @@ namespace Ego
         {
             if (tex != nullptr)
             {
-                delete tex;
                 tex = nullptr;
             }
         }
@@ -113,7 +112,7 @@ namespace Ego
         }
     }
     
-    void Font::drawTextToTexture(Ego::Texture *tex, const std::string &text, const Ego::Math::Colour3f &colour) const
+    void Font::drawTextToTexture(std::shared_ptr<Ego::Texture> tex, const std::string &text, const Ego::Math::Colour3f &colour) const
     {
         if (!tex)
         {
@@ -178,7 +177,7 @@ namespace Ego
         auto& renderer = Renderer::get();
         renderer.setColour(colour);
         renderer.setBlendingEnabled(true);
-		renderer.getTextureUnit().setActivated(cache->tex);
+		renderer.getTextureUnit().setActivated(cache->tex.get());
 		renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
 		Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2FT2F>());
 		{

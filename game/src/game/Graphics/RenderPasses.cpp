@@ -228,7 +228,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 	auto& renderer = Renderer::get();
 
-	renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(0));
+	renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(0).get());
 
 	ATTRIB_PUSH(__FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
 	{
@@ -345,7 +345,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 		auto& renderer = Renderer::get();
 
-		renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1));
+		renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
 		ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT);
 		{
@@ -374,7 +374,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 			renderer.setBlendingEnabled(true);
 			renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceColour);
 
-			renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1));
+			renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
 			renderer.setColour(Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
 			renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
@@ -621,7 +621,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	}
 
 	// Choose texture and matrix
-	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
+	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	{
@@ -697,7 +697,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 	float y = pchr->inst.matrix(1, 3);
 
 	// Choose texture and matrix
-	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
+	Ego::Renderer::get().getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	// GOOD SHADOW

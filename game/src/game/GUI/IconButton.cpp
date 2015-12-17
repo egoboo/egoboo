@@ -70,7 +70,7 @@ void IconButton::draw()
 
  	//Draw icon
  	int iconSize = getHeight()-4;
-    _gameEngine->getUIManager()->drawImage(_icon, getX() + getWidth() - getHeight() - 2, getY() + 2, iconSize, iconSize, _iconTint);
+    _gameEngine->getUIManager()->drawImage(_icon.get_ptr(), getX() + getWidth() - getHeight() - 2, getY() + 2, iconSize, iconSize, _iconTint);
 
     //Draw text on left side in button
     if(!_buttonText.empty())

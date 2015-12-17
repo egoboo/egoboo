@@ -14,16 +14,13 @@ public:
 
     DeferredTexture(const std::string &filePath);
 
-    const Texture* get_ptr() const { return &const_cast<DeferredTexture*>(this)->get(); }
+    std::shared_ptr<const Texture> get_ptr() const { return const_cast<DeferredTexture*>(this)->get(); }
 
-    const Texture& get();
+    std::shared_ptr<const Texture> get();
 
     void release();
 
     void setTextureSource(const std::string &filePath);
-
-    // Type cast operator
-    operator const Texture&() const { return const_cast<DeferredTexture*>(this)->get(); }
 
     /**
      * @return

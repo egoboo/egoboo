@@ -11,7 +11,7 @@ public:
     Image(const Ego::DeferredTexture &image);
 
     //TODO: remove
-    Image(Ego::Texture *texture);
+    Image(std::shared_ptr<Ego::Texture> texture);
 
     virtual void draw() override;
 
@@ -24,6 +24,6 @@ public:
 
 private:
     Ego::DeferredTexture _texture;
-    Ego::Texture *_image;
+    std::shared_ptr<Ego::Texture> _image;
     Ego::Math::Colour4f _tint;
 };

@@ -139,13 +139,13 @@ int UIManager::getScreenHeight() const
     return sdl_scr.y;
 }
 
-void UIManager::drawImage(const Ego::Texture &img, float x, float y, float width, float height, const Ego::Colour4f& tint)
+void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, float x, float y, float width, float height, const Ego::Colour4f& tint)
 {
     ego_frect_t source;
     source.xmin = 0.0f;
     source.ymin = 0.0f;
-    source.xmax = ( float ) img.getSourceWidth()  / ( float ) img.getWidth();
-    source.ymax = ( float ) img.getSourceHeight() / ( float ) img.getHeight();
+    source.xmax = ( float ) img->getSourceWidth()  / ( float ) img->getWidth();
+    source.ymax = ( float ) img->getSourceHeight() / ( float ) img->getHeight();
 
     ego_frect_t destination;
     destination.xmin  = x;
@@ -154,5 +154,5 @@ void UIManager::drawImage(const Ego::Texture &img, float x, float y, float width
     destination.ymax  = y + height;
 
     // Draw the image
-    draw_quad_2d(&img, destination, source, true, tint);
+    draw_quad_2d(img, destination, source, true, tint);
 }

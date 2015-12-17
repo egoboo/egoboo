@@ -22,14 +22,14 @@ void InventorySlot::draw()
     std::shared_ptr<Object> item = _inventory.getItem(_slotNumber);
 
     // grab the icon reference
-    const Ego::Texture* icon_ref;
+    std::shared_ptr<const Ego::Texture> icon_ref;
 
 
     if(item) {
         icon_ref = item->getIcon();
     }
     else {
-        icon_ref = TextureManager::get().getTexture("mp_data/nullicon").get();
+        icon_ref = TextureManager::get().getTexture("mp_data/nullicon");
     }
 
     bool selected = false;

@@ -141,7 +141,7 @@ void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textCo
 
 namespace Cartman {
 Border::Border(int width, int height)
-    : texture(new Ego::OpenGL::Texture()), width(width), height(height) {}
+    : texture(std::make_shared<Ego::OpenGL::Texture>()), width(width), height(height) {}
 
 void Border::loadTexture(const std::string& textureFileName) {
     if (!texture->load(textureFileName, gfx_loadImage(textureFileName))) {

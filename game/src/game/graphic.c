@@ -656,7 +656,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
     //Now draw it
     if (x > 0.0f && y > 0.0f)
     {
-        const Ego::Texture * ptex = TextureManager::get().getTexture("mp_data/blip").get();
+        std::shared_ptr<const Ego::Texture> ptex = TextureManager::get().getTexture("mp_data/blip");
 
         tx_rect.xmin = (float)bliprect[color]._left / (float)ptex->getWidth();
         tx_rect.xmax = (float)bliprect[color]._right / (float)ptex->getWidth();
@@ -676,7 +676,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_icon_texture(const Ego::Texture * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
+float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
@@ -747,7 +747,7 @@ float draw_icon_texture(const Ego::Texture * ptex, float x, float y, Uint8 spark
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_game_icon(const Ego::Texture* icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
+float draw_game_icon(const std::shared_ptr<const Ego::Texture>& icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size)
 {
     /// @author ZZ
     /// @details This function draws an icon
@@ -1016,7 +1016,7 @@ void draw_mouse_cursor()
 
         //Draw cursor
         gfx_begin_2d();
-            _gameEngine->getUIManager()->drawImage(*pcursor, x, y, pcursor->getWidth(), pcursor->getHeight(), Ego::Colour4f::white());
+            _gameEngine->getUIManager()->drawImage(pcursor, x, y, pcursor->getWidth(), pcursor->getHeight(), Ego::Colour4f::white());
         gfx_end_2d();
     }
 }
