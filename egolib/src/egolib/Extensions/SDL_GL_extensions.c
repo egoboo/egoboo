@@ -256,11 +256,11 @@ std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>
 	// Copy the old surface into the new surface.
 	for (size_t y = 0; y < oldHeight; ++y) {
 		for (size_t x = 0; x < oldWidth; ++x) {
-			uint32_t p = getPixel(oldSurface.get(), x, y);
+			uint32_t p = getPixel(oldSurface, x, y);
 			uint8_t r, g, b, a;
 			SDL_GetRGBA(p, surface->format, &r, &g, &b, &a);
 			uint32_t q = SDL_MapRGBA(newSurface->format, r, g, b, a);
-			putPixel(newSurface.get(), padding.left + x, padding.top + y, q);
+			putPixel(newSurface, padding.left + x, padding.top + y, q);
 		}
 	}
 	return newSurface;
@@ -280,7 +280,7 @@ std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surfac
 	return clone;
 }
 
-uint32_t getPixel(const SDL_Surface *surface, int x, int y) {
+uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int y) {
 	if (!surface) {
 		throw std::invalid_argument("nullptr == surface");
 	}
@@ -311,7 +311,7 @@ uint32_t getPixel(const SDL_Surface *surface, int x, int y) {
     }
 }
 
-void putPixel(SDL_Surface *surface, int x, int y, uint32_t pixel) {
+void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_t pixel) {
 	if (!surface) {
 		throw std::invalid_argument("nullptr == surface");
 	}

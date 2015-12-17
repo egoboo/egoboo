@@ -262,7 +262,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             if ( HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 254;   // Impass
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) && HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 255;   // Both
 
-            Ego::Graphics::SDL::putPixel(Resources::get().bmphitemap.get(), pixx, pixy, level );
+            Ego::Graphics::SDL::putPixel(Resources::get().bmphitemap, pixx, pixy, level );
         }
     }
 }

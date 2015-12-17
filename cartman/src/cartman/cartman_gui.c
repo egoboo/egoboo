@@ -47,8 +47,8 @@ GUI_Cursor::GUI_Cursor() :
     {
         for (int x = 0; x < 8; x++)
         {
-            if (x + y < 8) Ego::Graphics::SDL::putPixel(_surface.get(), x, y, col);
-            else Ego::Graphics::SDL::putPixel(_surface.get(), x, y, clr);
+            if (x + y < 8) Ego::Graphics::SDL::putPixel(_surface, x, y, col);
+            else Ego::Graphics::SDL::putPixel(_surface, x, y, clr);
         }
     }
 }
