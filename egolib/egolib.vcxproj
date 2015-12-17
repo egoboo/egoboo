@@ -540,7 +540,6 @@
     <ClInclude Include="src\egolib\Graphics\VertexBuffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\PixelFormat.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexFormat.hpp" />
-    <ClInclude Include="src\egolib\Logic\StaticEnumDescriptor.hpp" />
     <ClInclude Include="src\egolib\Graphics\Animation2D.hpp" />
     <ClInclude Include="src\egolib\Logic\Damage.hpp" />
     <ClInclude Include="src\egolib\Logic\Gender.hpp" />

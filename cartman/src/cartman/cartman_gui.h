@@ -50,7 +50,7 @@ struct s_Font;
 
 namespace Cartman {
 struct Border {
-    Ego::Texture *texture; ///< The border texture.
+    std::shared_ptr<Ego::Texture> texture; ///< The border texture.
     int width;             ///< The border width.
     int height;            ///< The border height.
     /** @brief Construct this border. */

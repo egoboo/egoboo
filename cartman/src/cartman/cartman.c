@@ -225,7 +225,7 @@ void draw_cursor_in_window(Cartman::Window& pwin)
         int x = pwin.x + ( Input::get()._mouse.x - _window_lst[mdata.win_id]->x );
         int y = pwin.y + ( Input::get()._mouse.y - _window_lst[mdata.win_id]->y );
 
-        ogl_draw_sprite_2d( tx_pointon, x - size / 2, y - size / 2, size, size );
+        ogl_draw_sprite_2d(Resources::get().tx_pointon, x - size / 2, y - size / 2, size, size );
     }
 
 }
@@ -1563,11 +1563,11 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
         {
             if ( mdata.type >= tile_dict.offset )
             {
-                ogl_draw_sprite_2d( tx_bigtile[tile], x, 0, SMALLXY, SMALLXY );
+                ogl_draw_sprite_2d(Resources::get().tx_bigtile[tile], x, 0, SMALLXY, SMALLXY );
             }
             else
             {
-                ogl_draw_sprite_2d( tx_smalltile[tile], x, 0, SMALLXY, SMALLXY );
+                ogl_draw_sprite_2d(Resources::get().tx_smalltile[tile], x, 0, SMALLXY, SMALLXY );
             }
             x += SMALLXY;
             tile += add;
@@ -1708,6 +1708,7 @@ int SDL_main( int argcnt, char* argtext[] )
     Cartman_MouseData::ctor(&mdata); /// @todo What is this crap?
 
     gfx_system_begin();
+    Resources::initialize();
 
     // Initialize the console.
     Ego::Core::ConsoleHandler::initialize();
@@ -1743,6 +1744,7 @@ int SDL_main( int argcnt, char* argtext[] )
     }
     Cartman::GUI::uninitialize();
     Ego::Core::ConsoleHandler::uninitialize();
+    Resources::uninitialize();
     gfx_system_end();
     Cartman::Input::uninitialize();
     Ego::Core::System::uninitialize();
@@ -1799,9 +1801,9 @@ void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
     sprintf( newloadname, "%s" SLASH_STR "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "plan.bmp", egoboo_path, modname );
 
     make_planmap( pmesh );
-    if ( bmphitemap )
+    if (Resources::get().bmphitemap )
     {
-        SDL_SaveBMP_RW( bmphitemap.get(), vfs_openRWopsWrite(newloadname), 1 );
+        SDL_SaveBMP_RW(Resources::get().bmphitemap.get(), vfs_openRWopsWrite(newloadname), 1 );
     }
 
     //  make_newloadname(modname, SLASH_STR "gamedat" SLASH_STR "level.png", newloadname);

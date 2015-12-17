@@ -87,23 +87,41 @@ inline uint32_t make_rgba(const std::shared_ptr<const SDL_Surface>& surface, uin
 
 extern camera_t cam;
 
-extern std::shared_ptr<SDL_Surface> bmphitemap;        // Heightmap image
+struct Resources {
+    static std::unique_ptr<Resources> instance;
+    static void initialize() {
+        if (!instance) {
+            instance = std::make_unique<Resources>();
+        }
+    }
+    static void uninitialize() {
+        if (instance) {
+            instance = nullptr;
+        }
+    }
+    static Resources& get() {
+        if (!instance) {
+            throw std::logic_error("resources not initialized");
+        }
+        return *instance;
+    }
+    std::shared_ptr<SDL_Surface> bmphitemap;     // Heightmap image
+    std::shared_ptr<Ego::Texture> tx_point;      // Vertex image
+    std::shared_ptr<Ego::Texture> tx_pointon;    // Vertex image ( select_vertsed )
+    std::shared_ptr<Ego::Texture> tx_ref;        // Meshfx images
+    std::shared_ptr<Ego::Texture> tx_drawref;    //
+    std::shared_ptr<Ego::Texture> tx_anim;       //
+    std::shared_ptr<Ego::Texture> tx_water;      //
+    std::shared_ptr<Ego::Texture> tx_wall;       //
+    std::shared_ptr<Ego::Texture> tx_impass;     //
+    std::shared_ptr<Ego::Texture> tx_damage;     //
+    std::shared_ptr<Ego::Texture> tx_slippy;     //
 
-extern Ego::Texture     *tx_point;      // Vertex image
-extern Ego::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
-extern Ego::Texture     *tx_ref;        // Meshfx images
-extern Ego::Texture     *tx_drawref;    //
-extern Ego::Texture     *tx_anim;       //
-extern Ego::Texture     *tx_water;      //
-extern Ego::Texture     *tx_wall;       //
-extern Ego::Texture     *tx_impass;     //
-extern Ego::Texture     *tx_damage;     //
-extern Ego::Texture     *tx_slippy;     //
-
-extern Ego::Texture     *tx_smalltile[MAXTILE]; // Tiles
-extern Ego::Texture     *tx_bigtile[MAXTILE];   //
-extern Ego::Texture     *tx_tinysmalltile[MAXTILE]; // Plan tiles
-extern Ego::Texture     *tx_tinybigtile[MAXTILE];   //
+    std::array<std::shared_ptr<Ego::Texture>, MAXTILE> tx_smalltile;     // Tiles
+    std::array<std::shared_ptr<Ego::Texture>, MAXTILE> tx_bigtile;       //
+    std::array<std::shared_ptr<Ego::Texture>, MAXTILE> tx_tinysmalltile; // Plan tiles
+    std::array<std::shared_ptr<Ego::Texture>, MAXTILE> tx_tinybigtile;   //
+};
 
 extern int     numsmalltile;   //
 extern int     numbigtile;     //
@@ -148,12 +166,12 @@ void make_planmap( cartman_mpd_t * pmesh );
 void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, int y);
-void draw_top_tile( float x0, float y0, int fan, Ego::Texture * tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
+void draw_top_tile( float x0, float y0, int fan, std::shared_ptr<Ego::Texture> tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
 void draw_tile_fx( float x, float y, Uint8 fx, float scale );
 
 // ogl routines
-void ogl_draw_sprite_2d( Ego::Texture * img, float x, float y, float width, float height );
-void ogl_draw_sprite_3d( Ego::Texture * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height );
+void ogl_draw_sprite_2d( std::shared_ptr<Ego::Texture> img, float x, float y, float width, float height );
+void ogl_draw_sprite_3d( std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height );
 void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[] );
 void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[] );
 void ogl_beginFrame();
@@ -176,8 +194,8 @@ void load_img();
 void get_tiles(SDL_Surface* bmpload);
 
 // misc
-Ego::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy );
-Ego::Texture * tile_at( cartman_mpd_t * pmesh, int fan );
+std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy );
+std::shared_ptr<Ego::Texture> tile_at( cartman_mpd_t * pmesh, int fan );
 
 /**
  * @todo

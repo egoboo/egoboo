@@ -66,23 +66,7 @@ Uint16 animtileframeadd    = 0;
 SDLX_video_parameters_t sdl_vparam;
 oglx_video_parameters_t ogl_vparam;
 
-std::shared_ptr<SDL_Surface> bmphitemap = nullptr;        // Heightmap image
-
-Ego::Texture     *tx_point;      // Vertex image
-Ego::Texture     *tx_pointon;    // Vertex image ( select_vertsed )
-Ego::Texture     *tx_ref;        // Meshfx images
-Ego::Texture     *tx_drawref;    //
-Ego::Texture     *tx_anim;       //
-Ego::Texture     *tx_water;      //
-Ego::Texture     *tx_wall;       //
-Ego::Texture     *tx_impass;     //
-Ego::Texture     *tx_damage;     //
-Ego::Texture     *tx_slippy;     //
-
-Ego::Texture     *tx_smalltile[MAXTILE]; // Tiles
-Ego::Texture     *tx_bigtile[MAXTILE];   //
-Ego::Texture     *tx_tinysmalltile[MAXTILE]; // Plan tiles
-Ego::Texture     *tx_tinybigtile[MAXTILE];   //
+std::unique_ptr<Resources> Resources::instance = nullptr;
 
 int     numsmalltile = 0;   //
 int     numbigtile = 0;     //
@@ -139,7 +123,7 @@ SDL_Color MAKE_SDLCOLOR( Uint8 BB, Uint8 RR, Uint8 GG )
 }
 
 //--------------------------------------------------------------------------------------------
-Ego::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
+std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     Uint16 tx_bits, basetile;
     Uint8 fantype, fx;
@@ -193,16 +177,16 @@ Ego::Texture * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     if ( fantype >= tile_dict.offset )
     {
-        return tx_bigtile[tx_bits];
+        return Resources::get().tx_bigtile[tx_bits];
     }
     else
     {
-        return tx_smalltile[tx_bits];
+        return Resources::get().tx_smalltile[tx_bits];
     }
 }
 
 //--------------------------------------------------------------------------------------------
-Ego::Texture *tile_at( cartman_mpd_t * pmesh, int fan )
+std::shared_ptr<Ego::Texture> tile_at( cartman_mpd_t * pmesh, int fan )
 {
     int    img;
     Uint16 img_base;
@@ -248,11 +232,11 @@ Ego::Texture *tile_at( cartman_mpd_t * pmesh, int fan )
 
     if ( type >= tile_dict.offset )
     {
-        return tx_bigtile[img];
+        return Resources::get().tx_bigtile[img];
     }
     else
     {
-        return tx_smalltile[img];
+        return Resources::get().tx_smalltile[img];
     }
 }
 
@@ -261,8 +245,8 @@ void make_hitemap( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
-    if ( NULL == bmphitemap ) return;
+    Resources::get().bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() << 2, pmesh->info.getTileCountY() << 2 );
+    if ( NULL == Resources::get().bmphitemap ) return;
 
     for (int pixy = 0, y = 16; pixy < ( pmesh->info.getTileCountY() << 2 ); pixy++, y += 32 )
     {
@@ -278,7 +262,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             if ( HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 254;   // Impass
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) && HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 255;   // Both
 
-            Ego::Graphics::SDL::putPixel( bmphitemap.get(), pixx, pixy, level );
+            Ego::Graphics::SDL::putPixel(Resources::get().bmphitemap.get(), pixx, pixy, level );
         }
     }
 }
@@ -294,9 +278,9 @@ void make_planmap( cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
+    Resources::get().bmphitemap = Ego::Graphics::SDL::createSurface( pmesh->info.getTileCountX() * TINYXY, pmesh->info.getTileCountY() * TINYXY );
 
-    SDL_FillRect( bmphitemap.get(), NULL, make_rgb(bmphitemap, 0, 0, 0) );
+    SDL_FillRect( Resources::get().bmphitemap.get(), NULL, make_rgb(Resources::get().bmphitemap, 0, 0, 0) );
 
     puty = 0;
     for ( y = 0; y < pmesh->info.getTileCountY(); y++ )
@@ -304,13 +288,13 @@ void make_planmap( cartman_mpd_t * pmesh )
         putx = 0;
         for ( x = 0; x < pmesh->info.getTileCountX(); x++ )
         {
-            Ego::Texture * tx_tile;
+            std::shared_ptr<Ego::Texture> tx_tile;
             tx_tile = tiny_tile_at( pmesh, x, y );
 
             if ( NULL != tx_tile )
             {
                 SDL_Rect dst = {static_cast<Sint16>(putx), static_cast<Sint16>(puty), TINYXY, TINYXY};
-                cartman_BlitSurface(tx_tile->_source.get(), nullptr, bmphitemap.get(), &dst);
+                cartman_BlitSurface(tx_tile->_source.get(), nullptr, Resources::get().bmphitemap.get(), &dst);
             }
             putx += TINYXY;
         }
@@ -404,16 +388,16 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
         if ( point_size > 0 )
         {
             int select_rv;
-            Ego::Texture * tx_tmp;
+            std::shared_ptr<Ego::Texture> tx_tmp;
 
             select_rv = select_lst_t::find(plst, vert);
             if ( select_rv < 0 )
             {
-                tx_tmp = tx_point;
+                tx_tmp = Resources::get().tx_point;
             }
             else
             {
-                tx_tmp = tx_pointon;
+                tx_tmp = Resources::get().tx_pointon;
             }
 
             vpos[kX] = pmesh->vrt2[vert].x;
@@ -496,18 +480,18 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
     for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
     {
         int select_rv;
-        Ego::Texture * tx_tmp = NULL;
+        std::shared_ptr<Ego::Texture> tx_tmp = NULL;
 
         vert = faketoreal[cnt];
 
         select_rv = select_lst_t::find( plst, vert );
         if ( select_rv < 0 )
         {
-            tx_tmp = tx_point;
+            tx_tmp = Resources::get().tx_point;
         }
         else
         {
-            tx_tmp = tx_pointon;
+            tx_tmp = Resources::get().tx_pointon;
         }
 
         vpos[kX] = pmesh->vrt2[vert].x;
@@ -564,7 +548,7 @@ void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, i
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_top_tile( float x0, float y0, int fan, Ego::Texture * tx_tile, bool draw_tile, cartman_mpd_t * pmesh )
+void draw_top_tile( float x0, float y0, int fan, std::shared_ptr<Ego::Texture> tx_tile, bool draw_tile, cartman_mpd_t * pmesh )
 {
     static simple_vertex_t loc_vrt[4];
 
@@ -587,7 +571,7 @@ void draw_top_tile( float x0, float y0, int fan, Ego::Texture * tx_tile, bool dr
 
     // don't draw if there is no texture
     if ( NULL == tx_tile ) return;
-	Ego::Renderer::get().getTextureUnit().setActivated(tx_tile);
+	Ego::Renderer::get().getTextureUnit().setActivated(tx_tile.get());
 
     min_s = dst;
     min_t = dst;
@@ -691,10 +675,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     {
         x1 = x;
         y1 = y;
-        w1 = tx_water->getSourceWidth() * scale;
-        h1 = tx_water->getSourceHeight() * scale;
+        w1 = Resources::get().tx_water->getSourceWidth() * scale;
+        h1 = Resources::get().tx_water->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( tx_water, x1, y1, w1, h1 );
+        ogl_draw_sprite_2d(Resources::get().tx_water, x1, y1, w1, h1 );
     }
 
     // "reflectable tile" is upper left
@@ -702,10 +686,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     {
         x1 = x;
         y1 = y;
-        w1 = tx_ref->getSourceWidth() * scale;
-        h1 = tx_ref->getSourceHeight() * scale;
+        w1 = Resources::get().tx_ref->getSourceWidth() * scale;
+        h1 = Resources::get().tx_ref->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( tx_ref, x1, y1, w1, h1 );
+        ogl_draw_sprite_2d(Resources::get().tx_ref, x1, y1, w1, h1 );
     }
 
     // "reflects entities" is upper right
@@ -714,10 +698,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         x1 = x + foff_0;
         y1 = y;
 
-        w1 = tx_drawref->getSourceWidth() * scale;
-        h1 = tx_drawref->getSourceHeight() * scale;
+        w1 = Resources::get().tx_drawref->getSourceWidth() * scale;
+        h1 = Resources::get().tx_drawref->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( tx_drawref, x1, y1, w1, h1 );
+        ogl_draw_sprite_2d(Resources::get().tx_drawref, x1, y1, w1, h1 );
     }
 
     // "animated tile" is lower left
@@ -726,10 +710,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         x1 = x;
         y1 = y + foff_0;
 
-        w1 = tx_anim->getSourceWidth() * scale;
-        h1 = tx_anim->getSourceHeight() * scale;
+        w1 = Resources::get().tx_anim->getSourceWidth() * scale;
+        h1 = Resources::get().tx_anim->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( tx_anim, x1, y1, w1, h1 );
+        ogl_draw_sprite_2d(Resources::get().tx_anim, x1, y1, w1, h1 );
     }
 
     // the following are all in the lower left quad
@@ -741,10 +725,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1;
         float y2 = y1;
 
-        w1 = tx_wall->getSourceWidth() * scale;
-        h1 = tx_wall->getSourceHeight() * scale;
+        w1 = Resources::get().tx_wall->getSourceWidth() * scale;
+        h1 = Resources::get().tx_wall->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( tx_wall, x2, y2, w1, h1 );
+        ogl_draw_sprite_2d(Resources::get().tx_wall, x2, y2, w1, h1 );
     }
 
     if ( HAS_BITS( fx, MAPFX_IMPASS ) )
@@ -752,10 +736,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1 + foff_1;
         float y2 = y1;
 
-        w1 = tx_impass->getSourceWidth() * scale;
-        h1 = tx_impass->getSourceHeight() * scale;
+        w1 = Resources::get().tx_impass->getSourceWidth() * scale;
+        h1 = Resources::get().tx_impass->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( tx_impass, x2, y2, w1, h1 );
+        ogl_draw_sprite_2d(Resources::get().tx_impass, x2, y2, w1, h1 );
     }
 
     if ( HAS_BITS( fx, MAPFX_DAMAGE ) )
@@ -763,10 +747,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1;
         float y2 = y1 + foff_1;
 
-        w1 = tx_damage->getSourceWidth() * scale;
-        h1 = tx_damage->getSourceHeight() * scale;
+        w1 = Resources::get().tx_damage->getSourceWidth() * scale;
+        h1 = Resources::get().tx_damage->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( tx_damage, x2, y2, w1, h1 );
+        ogl_draw_sprite_2d(Resources::get().tx_damage, x2, y2, w1, h1 );
     }
 
     if ( HAS_BITS( fx, MAPFX_SLIPPY ) )
@@ -774,16 +758,16 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1 + foff_1;
         float y2 = y1 + foff_1;
 
-        w1 = tx_slippy->getSourceWidth() * scale;
-        h1 = tx_slippy->getSourceHeight() * scale;
+        w1 = Resources::get().tx_slippy->getSourceWidth() * scale;
+        h1 = Resources::get().tx_slippy->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( tx_slippy, x2, y2, w1, h1 );
+        ogl_draw_sprite_2d(Resources::get().tx_slippy, x2, y2, w1, h1 );
     }
 
 }
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_sprite_2d(Ego::Texture * img, float x, float y, float width, float height )
+void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, float width, float height )
 {
     float w, h;
     float min_s, max_s, min_t, max_t;
@@ -817,7 +801,7 @@ void ogl_draw_sprite_2d(Ego::Texture * img, float x, float y, float width, float
     }
 
     // Draw the image
-	Ego::Renderer::get().getTextureUnit().setActivated(img);
+	Ego::Renderer::get().getTextureUnit().setActivated(img.get());
 
     Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -832,7 +816,7 @@ void ogl_draw_sprite_2d(Ego::Texture * img, float x, float y, float width, float
 }
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_sprite_3d(Ego::Texture * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
+void ogl_draw_sprite_3d(std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
 {
     float w, h;
     float min_s, max_s, min_t, max_t;
@@ -867,7 +851,7 @@ void ogl_draw_sprite_3d(Ego::Texture * img, cart_vec_t pos, cart_vec_t vup, cart
     }
 
     // Draw the image
-	Ego::Renderer::get().getTextureUnit().setActivated(img);
+	Ego::Renderer::get().getTextureUnit().setActivated(img.get());
 
     Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
@@ -1137,62 +1121,62 @@ void cartman_end_ortho_camera()
 //--------------------------------------------------------------------------------------------
 void load_img()
 {
-    tx_point = new Ego::OpenGL::Texture;
-    if (!tx_point->load("editor/point.png", gfx_loadImage("editor/point.png")))
+    Resources::get().tx_point = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_point->load("editor/point.png", gfx_loadImage("editor/point.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
     
-    tx_pointon = new Ego::OpenGL::Texture;
-    if (!tx_pointon->load("editor/pointon.png", gfx_loadImage("editor/pointon.png")))
+    Resources::get().tx_pointon = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_pointon->load("editor/pointon.png", gfx_loadImage("editor/pointon.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
     
-    tx_ref = new Ego::OpenGL::Texture;
-    if (!tx_ref->load("editor/ref.png", gfx_loadImage("editor/ref.png")))
+    Resources::get().tx_ref = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_ref->load("editor/ref.png", gfx_loadImage("editor/ref.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
     
-    tx_drawref = new Ego::OpenGL::Texture;
-    if (!tx_drawref->load("editor/drawref.png", gfx_loadImage("editor/drawref.png")))
+    Resources::get().tx_drawref = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_drawref->load("editor/drawref.png", gfx_loadImage("editor/drawref.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
     
-    tx_anim = new Ego::OpenGL::Texture;
-    if (!tx_anim->load("editor/anim.png", gfx_loadImage("editor/anim.png")))
+    Resources::get().tx_anim = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_anim->load("editor/anim.png", gfx_loadImage("editor/anim.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
     
-    tx_water = new Ego::OpenGL::Texture;
-    if (!tx_water->load("editor/water.png", gfx_loadImage("editor/water.png")))
+    Resources::get().tx_water = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_water->load("editor/water.png", gfx_loadImage("editor/water.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
     
-    tx_wall = new Ego::OpenGL::Texture;
-    if (!tx_wall->load("editor/slit.png", gfx_loadImage("editor/slit.png")))
+    Resources::get().tx_wall = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_wall->load("editor/slit.png", gfx_loadImage("editor/slit.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
     
-    tx_impass = new Ego::OpenGL::Texture;
-    if (!tx_impass->load("editor/impass.png", gfx_loadImage("editor/impass.png")))
+    Resources::get().tx_impass = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_impass->load("editor/impass.png", gfx_loadImage("editor/impass.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
     
-    tx_damage = new Ego::OpenGL::Texture;
-    if (!tx_damage->load("editor/damage.png", gfx_loadImage("editor/damage.png")))
+    Resources::get().tx_damage = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_damage->load("editor/damage.png", gfx_loadImage("editor/damage.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
     
-    tx_slippy = new Ego::OpenGL::Texture;
-    if (!tx_slippy->load("editor/slippy.png", gfx_loadImage("editor/slippy.png")))
+    Resources::get().tx_slippy = std::make_shared<Ego::OpenGL::Texture>();
+    if (!Resources::get().tx_slippy->load("editor/slippy.png", gfx_loadImage("editor/slippy.png")))
     {
 		Log::get().warn( "Cannot load image \"%s\".\n", "editor/slippy.png" );
     }
@@ -1218,7 +1202,7 @@ void get_small_tiles( SDL_Surface* bmpload )
         {
             SDL_Rect src1 = { static_cast<Sint16>(x), static_cast<Sint16>(y), static_cast<Uint16>( step_x - 1 ), static_cast<Uint16>( step_y - 1 ) };
 
-            tx_smalltile[numsmalltile] = new Ego::OpenGL::Texture();
+            Resources::get().tx_smalltile[numsmalltile] = std::make_shared<Ego::OpenGL::Texture>();
 
             image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
@@ -1228,7 +1212,7 @@ void get_small_tiles( SDL_Surface* bmpload )
             SDL_FillRect( image.get(), NULL, make_rgb( image, 0, 0, 0 ) );
             SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
-            tx_smalltile[numsmalltile]->load(image);
+            Resources::get().tx_smalltile[numsmalltile]->load(image);
 
             numsmalltile++;
         }
@@ -1268,7 +1252,7 @@ void get_big_tiles( SDL_Surface* bmpload )
             src1.w = wid;
             src1.h = hgt;
 
-            tx_bigtile[numbigtile] = new Ego::OpenGL::Texture();
+            Resources::get().tx_bigtile[numbigtile] = std::make_shared<Ego::OpenGL::Texture>();
 
             image = Ego::Graphics::SDL::createSurface( SMALLXY, SMALLXY );
             if (!image)
@@ -1279,7 +1263,7 @@ void get_big_tiles( SDL_Surface* bmpload )
 
             SDL_SoftStretch( bmpload, &src1, image.get(), NULL );
 
-            tx_bigtile[numbigtile]->load(image);
+            Resources::get().tx_bigtile[numbigtile]->load(image);
 
             numbigtile++;
         }

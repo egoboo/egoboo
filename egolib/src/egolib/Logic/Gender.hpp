@@ -18,7 +18,7 @@
 //********************************************************************************************
 #pragma once
 
-#include "egolib/Logic/StaticEnumDescriptor.hpp"
+#include "egolib/platform.h"
 
 /**
  * @brief
@@ -51,37 +51,3 @@ enum CharacterGender : uint8_t
     GENDER_RANDOM,
     GENDER_COUNT
 };
-
-
-namespace Ego
-{
-namespace Game
-{
-#if 0
-// Information about the Ego::Game::Gender enumeration.
-template <>
-struct Info<Gender>
-{
-    static const std::array<Gender, 3>& values()
-    {
-        static const std::array<Gender, 3> _array =
-        {
-            Gender::Female,
-            Gender::Male,
-            Gender::Other,
-        };
-        return _array;
-    }
-    static const size_t size = 3;
-};
-
-/** 
- * @brief
- *  Get the descriptor for the gender enumeration.
- * @return
- *  the descriptor
- */
-const Ego::Script::EnumDescriptor<Gender>& getGenderDescriptor();
-#endif
-} // namespace Game
-} // namespace Ego

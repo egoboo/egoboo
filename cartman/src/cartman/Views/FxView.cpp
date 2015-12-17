@@ -41,7 +41,7 @@ void FxView::render(Window& window, float zoom_hrz, float zoom_vrt) {
 
                     int fan = window.pmesh->get_ifan(mapx, mapy);
 
-                    Ego::Texture *tx_tile = NULL;
+                    std::shared_ptr<Ego::Texture> tx_tile = NULL;
                     if (VALID_MPD_TILE_RANGE(fan)) {
                         tx_tile = tile_at(window.pmesh, fan);
                     }
