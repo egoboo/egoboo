@@ -50,8 +50,8 @@ void VertexView::render(Window& window, float zoom_hrz, float zoom_vrt) {
                 float x_min, x_max;
                 float y_min, y_max;
 
-                OGL_MAKE_COLOR_4(color, 0x3F, 16 + (Clocks::timePassed<Time::Unit::Ticks,int>() & 15),
-                                              16 + (Clocks::timePassed<Time::Unit::Ticks,int>() & 15), 0);
+                make_rgba(color, 255, 128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128),
+                          128 + (Clocks::timePassed<Time::Unit::Ticks, int>() & 128), 0);
 
                 x_min = mdata.rect_x0;
                 x_max = mdata.rect_x1;

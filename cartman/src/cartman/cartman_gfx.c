@@ -110,18 +110,6 @@ void gfx_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-SDL_Color MAKE_SDLCOLOR( Uint8 BB, Uint8 RR, Uint8 GG )
-{
-    SDL_Color tmp;
-
-    tmp.r = RR << 3;
-    tmp.g = GG << 3;
-    tmp.b = BB << 3;
-
-    return tmp;
-}
-
 //--------------------------------------------------------------------------------------------
 std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
@@ -339,10 +327,10 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 
     if ( 0 == pdef->numvertices || pdef->numvertices > MAP_FAN_VERTICES_MAX ) return;
 
-    OGL_MAKE_COLOR_4( color, 32, 16, 16, 31 );
+    make_rgba(color, 255, 128, 128, 255);
     if ( pfan->type >= tile_dict.offset )
     {
-        OGL_MAKE_COLOR_4( color, 32, 31, 16, 16 );
+        make_rgba(color, 255, 255, 128, 128);
     }
 
     for ( cnt = 0, vert = pfan->vrtstart;
@@ -439,10 +427,10 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
 	tile_line_data_t *plines = tile_dict_lines + pfan->type;
 
-    OGL_MAKE_COLOR_4( color, 32, 16, 16, 31 );
+    make_rgba(color, 255, 128, 128, 255);
     if ( pfan->type >= tile_dict.offset )
     {
-        OGL_MAKE_COLOR_4( color, 32, 31, 16, 16 );
+        make_rgba(color, 255, 255, 128, 128);
     }
 
     for ( cnt = 0, vert = pfan->vrtstart;
@@ -520,10 +508,10 @@ void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, i
 
     plines = tile_dict_lines + fantype;
 
-    OGL_MAKE_COLOR_4( color, 32, 16, 16, 31 );
+    make_rgba(color, 255, 128, 128, 255);
     if ( fantype >= tile_dict.offset )
     {
-        OGL_MAKE_COLOR_4( color, 32, 31, 16, 16 );
+        make_rgba(color, 255, 255, 128, 128);
     };
 
     glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT );
