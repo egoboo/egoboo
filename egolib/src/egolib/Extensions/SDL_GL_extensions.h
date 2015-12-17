@@ -42,14 +42,31 @@ struct Padding {
 };
 
 /**
+ * @brief Get the enumerated SDL pixel format for a specified pixel format descriptor.
+ * @param pixelFormatDescriptor the pixel format descriptor
+ * @return the enumerated SDL pixel format
+ * @throw Id::RuntimeErrorException if the pixel format descriptor has no corresponding enumerated SDL pixel format
+ */
+uint32_t getEnumeratedPixelFormat(const Ego::PixelFormatDescriptor& pixelFormatDescriptor);
+
+/**
+ * @brief Get the SDL pixel format for a specified pixel format descriptor.
+ * @param pixelFormatDescriptor the pixel format descriptor
+ * @return the enumerated SDL pixel format
+ * @throw Id::RuntimeErrorException if the pixel format descriptor has no corresponding enumerated SDL pixel format
+ * @throw Id::EnvironmentErrorException if SDL does not behave according to its specification
+ */
+std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const Ego::PixelFormatDescriptor& pixelFormatDescriptor);
+
+/**
  * @brief Create an SDL surface of the specified size and pixel format.
  * @param width, height the width and the height of the surface
- * @param pixelFormat the pixel format of the surface
+ * @param pixelFormatDescriptor the pixel format descriptor of the surface
  * @return a pointer to the SDL surface
  * @throw std::runtime_error if @a width or @a height is negative
  * @throw std::runtime_error if SDL fails
  */
-std::shared_ptr<SDL_Surface> createSurface(int width, int height, Ego::PixelFormat pixelFormat = Ego::PixelFormat::R8G8B8A8);
+std::shared_ptr<SDL_Surface> createSurface(int width, int height, const Ego::PixelFormatDescriptor& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>());
 
 /**
  * @brief Create a padded surface.
