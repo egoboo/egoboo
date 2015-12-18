@@ -180,7 +180,7 @@ struct wawalite_data_t;
             return *this;
         }
 
-        static wawalite_water_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_water_t *profile);
+        static void read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_water_t *profile);
         static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_water_t *profile);
 
     };
@@ -238,7 +238,7 @@ struct wawalite_data_t;
             return *this;
         }
 
-        static wawalite_physics_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_physics_t *profile);
+        static void read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_physics_t *profile);
         static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_physics_t *profile);
 
     };
@@ -287,7 +287,7 @@ struct wawalite_data_t;
             return *this;
         }
 
-        static wawalite_animtile_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_animtile_t *profile);
+        static void read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_animtile_t *profile);
         static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_animtile_t *profile);
 
     };
@@ -346,7 +346,7 @@ struct wawalite_data_t;
             return *this;
         }
 
-        static wawalite_damagetile_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_damagetile_t *profile);
+        static void read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_damagetile_t *profile);
         static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_damagetile_t *profile);
 
     };
@@ -399,7 +399,7 @@ struct wawalite_data_t;
             return *this;
         }
 
-        static wawalite_weather_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_weather_t *profile);
+        static void read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_weather_t *profile);
         static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_weather_t *profile);
 
     };
@@ -625,7 +625,7 @@ struct wawalite_data_t;
             return *this;
         }
 
-        static wawalite_light_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_light_t *profile);
+        static void read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_light_t *profile);
         static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_light_t *profile);
 
     };
