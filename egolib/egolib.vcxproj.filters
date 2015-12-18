@@ -124,6 +124,9 @@
     <Filter Include="Source Files\Grid">
       <UniqueIdentifier>{d7424ce7-77b8-4fb9-b88c-7b9e19bf74a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Script\Interpreter">
+      <UniqueIdentifier>{7c0c723a-212e-4081-919d-497e22efc2fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -991,6 +994,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Time\Unit.hpp">
       <Filter>Header Files\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Interpreter\TaggedValue.hpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

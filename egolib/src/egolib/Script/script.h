@@ -408,6 +408,8 @@ public:
 // struct script_state_t
 //--------------------------------------------------------------------------------------------
 
+#include "egolib/Script/Interpreter/TaggedValue.hpp"
+
 /// The state of the scripting system
 /// @details It is not persistent between one evaluation of a script and another
 struct script_state_t
