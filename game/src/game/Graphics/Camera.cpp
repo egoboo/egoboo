@@ -19,7 +19,7 @@
 
 #include "game/Graphics/Camera.hpp"
 #include "game/graphic.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 
 #include "game/game.h" // TODO: remove only needed for mesh
 
@@ -480,17 +480,8 @@ void Camera::update(const ego_mesh_t *mesh)
     }
 
     // Camera controls.
-    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ++ipla)
-    {
-        // Don't do invalid players.
-        if (INVALID_PLA(ipla))
-        {
-            continue;
-        }
-        player_t *ppla = PlaStack.get_ptr(ipla);
-
-        // Handle camera control from this player.
-        readInput(ppla->pdevice);
+    for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
+        readInput(player->getInputDevice());
     }
 
     // Update the special camera effects like grog.

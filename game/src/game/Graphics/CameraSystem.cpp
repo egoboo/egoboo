@@ -23,7 +23,7 @@
 #include "game/mesh.h"
 #include "game/graphic.h"
 #include "game/game.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/char.h"
 
 #include "game/Entities/_Include.hpp"
@@ -311,14 +311,10 @@ void CameraSystem::autoSetTargets()
     size_t cameraIndex = 0;
    
     // put all the valid players into camera 0
-    for ( size_t cnt = 0; cnt < MAX_PLAYER; cnt++ )
-    {
-        // only look at valid players
-        player_t * ppla = PlaStack.get_ptr( cnt );
-        if ( !ppla->valid || ObjectRef::Invalid == ppla->index ) continue;
+    for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
 
         // only look at local players
-        if ( NULL == ppla->pdevice ) continue;
+        if ( player->getInputDevice() == nullptr ) continue;
 
         // wrap around if there are less cameras than players
         if(cameraIndex >= _cameraList.size()) {
@@ -326,7 +322,7 @@ void CameraSystem::autoSetTargets()
         }
 
         // store the target
-        _cameraList[cameraIndex]->addTrackTarget(ppla->index);
+        _cameraList[cameraIndex]->addTrackTarget(player->getObject()->getObjRef());
         cameraIndex++;
     }
 }

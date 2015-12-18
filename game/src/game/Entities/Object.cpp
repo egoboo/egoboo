@@ -26,8 +26,8 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
+#include "game/Logic/Player.hpp"
 #include "game/game.h"
-#include "game/player.h"
 #include "game/renderer_2d.h"
 #include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
@@ -447,7 +447,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         if ( 0 == damage_timer || ignore_invictus )
         {
             // Normal mode reduces damage dealt by monsters with 30%!
-            if (egoboo_config_t::get().game_difficulty.getValue() == Ego::GameDifficulty::Normal && VALID_PLA(is_which_player))
+            if (egoboo_config_t::get().game_difficulty.getValue() == Ego::GameDifficulty::Normal && isPlayer())
             {
                 actual_damage *= 0.70f;
             }
@@ -455,8 +455,8 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             // Easy mode deals 25% extra actual damage by players and 50% less to players
             if (attacker && egoboo_config_t::get().game_difficulty.getValue() <= Ego::GameDifficulty::Easy)
             {
-                if ( VALID_PLA( attacker->is_which_player )  && !VALID_PLA(is_which_player) ) actual_damage *= 1.25f;
-                if ( !VALID_PLA( attacker->is_which_player ) &&  VALID_PLA(is_which_player) ) actual_damage *= 0.5f;
+                if ( attacker->isPlayer()  && !isPlayer() ) actual_damage *= 1.25f;
+                if ( !attacker->isPlayer() &&  isPlayer() ) actual_damage *= 0.5f;
             }
 
             if ( 0 != actual_damage )
@@ -1328,8 +1328,9 @@ void Object::checkLevelUp()
         {
             // The character is ready to advance...
             if(isPlayer()) {
-                if(!PlaStack.get_ptr(is_which_player)->_unspentLevelUp) {
-                    PlaStack.get_ptr(is_which_player)->_unspentLevelUp = true;
+                const std::shared_ptr<Ego::Player> &player = _currentModule->getPlayer(is_which_player);
+                if(!player->hasUnspentLevel()) {
+                    player->setLevelUpIndicator(true);
                     DisplayMsg_printf("%s gained a level!!!", getName().c_str());
                     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
                 }
@@ -1500,7 +1501,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
 	removeFromGame(this);
 
     // If it's a player, let it die properly before enabling respawn
-    if ( VALID_PLA(is_which_player) )  {
+    if (isPlayer())  {
         local_stats.revivetimer = ONESECOND; // 1 second
     }
 

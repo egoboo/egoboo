@@ -39,6 +39,7 @@
 class ModuleProfile;
 class Passage;
 class Team;
+namespace Ego { class Player; }
 
 /// The module data that the game needs.
 class GameModule : public Id::NonCopyable
@@ -149,9 +150,9 @@ public:
 
     const std::shared_ptr<ModuleProfile>& getModuleProfile() const {return _moduleProfile;}
 
-    void setImportPlayers(const std::list<std::string> &players) {_playerList = players;}
+    void setImportPlayers(const std::list<std::string> &players) {_playerNameList = players;}
 
-    const std::list<std::string>& getImportPlayers() const {return _playerList;}
+    const std::list<std::string>& getImportPlayers() const {return _playerNameList;}
 
     /**
     * @brief
@@ -197,12 +198,19 @@ public:
 
     water_instance_t& getWater();
 
+    std::shared_ptr<Ego::Player>& getPlayer(size_t index);
+
+    const std::vector<std::shared_ptr<Ego::Player>>& getPlayerList() const;
+
+    bool addPlayer(const std::shared_ptr<Object>& object, input_device_t *pdevice);
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
     std::vector<Team> _teamList;
     ObjectHandler _gameObjects;
-    std::list<std::string> _playerList;     ///< List of all import players
+    std::list<std::string> _playerNameList;     ///< List of all import players
+    std::vector<std::shared_ptr<Ego::Player>> _playerList;
 
     std::string  _name;                       ///< Module load names
     bool _exportValid;                          ///< Allow to export when module is reset?

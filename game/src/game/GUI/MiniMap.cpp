@@ -26,7 +26,7 @@
 #include "egolib/Logic/Team.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 
 static const uint32_t MINIMAP_BLINK_RATE = 500; //milliseconds between each minimap blink
 
@@ -72,7 +72,7 @@ void MiniMap::draw()
             if (pchr->getTeam().hatesTeam(_currentModule->getTeamList()[local_stats.sense_enemies_team]))
             {
                 // Only if they match the required IDSZ ([NONE] always works)
-                if (local_stats.sense_enemies_idsz == IDSZ_NONE ||
+                if (local_stats.sense_enemies_idsz == IDSZ2::None ||
                     local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_PARENT) ||
                     local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_TYPE))
                 {
@@ -86,17 +86,14 @@ void MiniMap::draw()
     // Show local player position(s)
     if (_showPlayerPosition && Time::now<Time::Unit::Ticks>() < _markerBlinkTimer)
     {
-        for (PLA_REF iplayer = 0; iplayer < MAX_PLAYER; iplayer++)
+        for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList())
         {
-            // Only valid players
-            if (!PlaStack.lst[iplayer].valid) continue;
-
-            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[iplayer].index];
-
-            if (!player->isTerminated() && player->isAlive())
-            {
-                addBlip(player->getPosX(), player->getPosY(), player);
+            const std::shared_ptr<Object> &object = player->getObject();
+            if(!object || object->isTerminated() || !object->isAlive()) {
+                continue;
             }
+
+            addBlip(object->getPosX(), object->getPosY(), object);
         }
     }
     else

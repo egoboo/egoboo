@@ -2,7 +2,7 @@
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 
 namespace Ego
 {
@@ -340,7 +340,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
     //Increase character level by 1
     _character->experiencelevel += 1;
     SET_BIT(_character->ai.alert, ALERTIF_LEVELUP);
-    PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp = false;
+    _currentModule->getPlayer(_character->is_which_player)->setLevelUpIndicator(false);
 
     //Generate random seed for next level increase
     _character->randomizeLevelUpSeed();

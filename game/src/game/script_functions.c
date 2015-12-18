@@ -32,7 +32,7 @@
 #include "game/link.h"
 #include "game/input.h"
 #include "game/game.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/script_implementation.h"
@@ -1228,7 +1228,7 @@ Uint8 scr_GoPoof( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( !VALID_PLA( pchr->is_which_player ) )
+    if (!pchr->isPlayer())
     {
         returncode = true;
         self.poof_time = update_wld;
@@ -2136,7 +2136,7 @@ Uint8 scr_IfTargetIsAPlayer( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = VALID_PLA( pself_target->is_which_player );
+    returncode = pself_target->isPlayer();
 
     SCRIPT_FUNCTION_END();
 }
@@ -4411,7 +4411,7 @@ Uint8 scr_PoofTarget( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = false;
-    if ( INVALID_PLA( pself_target->is_which_player ) )             //Do not poof players
+    if (!pself_target->isPlayer())             //Do not poof players
     {
         returncode = true;
         if ( self.getTarget() == self.getSelf() )
@@ -7138,18 +7138,14 @@ Uint8 scr_AddQuest( script_state_t& state, ai_state_t& self )
 
     egolib_rv result = rv_fail;
     Object * pself_target;
-    PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    ipla = pself_target->is_which_player;
-    if ( VALID_PLA( ipla ) )
-    {
-        player_t * ppla = PlaStack.get_ptr( ipla );
-
-        result = quest_log_add( ppla->quest_log, state.argument, state.distance );
+    if(pself_target->isPlayer()) {
+        auto& questLog = _currentModule->getPlayer(pself_target->is_which_player)->getQuestLog();
+        result = quest_log_add(questLog, state.argument, state.distance);        
     }
 
     returncode = ( rv_success == result );
@@ -7165,22 +7161,12 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
     /// @details This function marks a IDSZ in the targets quest.txt as beaten
     ///               returns true if at least one quest got marked as beaten.
 
-    PLA_REF ipla;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList())
     {
-        ObjectRef ichr;
-        player_t * ppla = PlaStack.get_ptr( ipla );
-
-        if ( !ppla->valid ) continue;
-
-        ichr = ppla->index;
-        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
-
-        if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, IDSZ2(state.argument), QUEST_MAXVAL ) )
+        if ( QUEST_BEATEN == quest_log_adjust_level(player->getQuestLog(), IDSZ2(state.argument), QUEST_MAXVAL) )
         {
             returncode = true;
         }
@@ -7197,9 +7183,7 @@ Uint8 scr_IfTargetHasQuest( script_state_t& state, ai_state_t& self )
     /// @details This function proceeds if the Target has the unfinIshed quest specified in tmpargument
     /// and sets tmpdistance to the Quest Level of the specified quest.
 
-    int     quest_level = QUEST_NONE;
-    Object * pself_target = NULL;
-    PLA_REF ipla;
+    Object * pself_target = nullptr;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7207,12 +7191,10 @@ Uint8 scr_IfTargetHasQuest( script_state_t& state, ai_state_t& self )
 
     returncode = false;
 
-    ipla = pself_target->is_which_player;
-    if ( VALID_PLA( ipla ) )
-    {
-        player_t * ppla = PlaStack.get_ptr( ipla );
-
-        quest_level = quest_log_get_level( ppla->quest_log, state.argument );
+    int quest_level = QUEST_NONE;
+    if(pself_target->isPlayer()) {
+        const std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(pself_target->is_which_player);
+        quest_level = quest_log_get_level(player->getQuestLog(), IDSZ2(state.argument));
     }
 
     // only find active quests
@@ -7234,19 +7216,17 @@ Uint8 scr_SetQuestLevel( script_state_t& state, ai_state_t& self )
     /// tmpargument specifies quest idsz (tmpargument) and the adjustment (tmpdistance, which may be negative)
 
     Object * pself_target;
-    PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = false;
-    ipla = pself_target->is_which_player;
-    if ( VALID_PLA( ipla ) && 0 != state.distance )
+    if ( pself_target->isPlayer() && 0 != state.distance )
     {
-        player_t * ppla        = PlaStack.get_ptr( ipla );
+        const std::shared_ptr<Ego::Player> &player = _currentModule->getPlayer(pself_target->is_which_player);
 
-        int quest_level = quest_log_adjust_level( ppla->quest_log, state.argument, state.distance );
+        int quest_level = quest_log_adjust_level( player->getQuestLog(), IDSZ2(state.argument), state.distance );
 
         returncode = QUEST_NONE != quest_level;
     }
@@ -7262,26 +7242,14 @@ Uint8 scr_AddQuestAllPlayers( script_state_t& state, ai_state_t& self )
     /// @details This function adds a quest idsz set in tmpargument into all local player's quest logs
     /// The quest level Is set to tmpdistance if the level Is not already higher
 
-    PLA_REF ipla;
-    int success_count, player_count;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    for ( player_count = 0, success_count = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
-    {
-        int quest_level;
-        player_t * ppla = PlaStack.get_ptr( ipla );
-
-        if ( !ppla->valid || !_currentModule->getObjectHandler().exists( ppla->index ) ) continue;
-        player_count++;
-
+    for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
         // Try to add it or replace it if this one is higher
-        quest_level = quest_log_add( ppla->quest_log, state.argument, state.distance );
-        if ( QUEST_NONE != quest_level ) success_count++;
+        int quest_level = quest_log_add(player->getQuestLog(), IDSZ2(state.argument), state.distance);
+        if ( QUEST_NONE != quest_level ) returncode = true;
     }
-
-    returncode = ( player_count > 0 ) && ( success_count >= player_count );
 
     SCRIPT_FUNCTION_END();
 }
@@ -8166,18 +8134,18 @@ uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self)
     SCRIPT_FUNCTION_BEGIN();
 
     //We ourselves must be a player or our holder must be one
-    std::shared_ptr<Object> player = _currentModule->getObjectHandler()[pchr->getObjRef()];
-    if(!player->isPlayer() && player->isBeingHeld()) {
-        player = _currentModule->getObjectHandler()[pchr->attachedto];
+    std::shared_ptr<Object> object = _currentModule->getObjectHandler()[pchr->getObjRef()];
+    if(!object->isPlayer() && object->isBeingHeld()) {
+        object = _currentModule->getObjectHandler()[pchr->attachedto];
     }
 
     //Only do this for players
-    if(!player->isPlayer()) {
+    if(!object->isPlayer()) {
         returncode = false;
     }
 
     //Validate arguments
-    else if(state.distance <= 0)  {
+    else if(state.distance <= 0 || state.argument < 0)  {
         returncode = false;
     }
 
@@ -8185,11 +8153,8 @@ uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self)
     else {        
         returncode = true;
 
-        player_t * ppla = PlaStack.get_ptr(player->is_which_player);
-        ppla->_currentCharge = std::min(state.argument, state.argument);
-        ppla->_maxCharge = state.distance;
-        ppla->_chargeTick = state.turn;
-        ppla->_chargeBarFrame = update_wld + 10;
+        const std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(object->is_which_player);
+        player->setChargeBar(state.argument, state.distance, state.turn);
     }
 
     SCRIPT_FUNCTION_END();

@@ -27,13 +27,14 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/mesh.h"
 #include "game/char.h"
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
     _gameObjects(),
+    _playerNameList(),
     _playerList(),
     _teamList(),
     _name(profile->getName()),
@@ -122,13 +123,12 @@ void GameModule::loadAllPassages()
 void GameModule::checkPassageMusic()
 {
     // Look at each player
-    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
+    for(const std::shared_ptr<Ego::Player> &player : _playerList)
     {
-        ObjectRef character = PlaStack.lst[ipla].index;
-        if (!_currentModule->getObjectHandler().exists(character)) continue;
+        const std::shared_ptr<Object> &pchr = player->getObject();
+        if (!pchr || pchr->isTerminated()) continue;
 
-        Object *pchr = _currentModule->getObjectHandler().get(character);
-        if (!pchr->isAlive() || !VALID_PLA(pchr->is_which_player)) continue;
+        if (!pchr->isAlive()) continue;
 
         // Don't do items in hands or inventory.
         if(pchr->isBeingHeld()) continue;
@@ -136,7 +136,7 @@ void GameModule::checkPassageMusic()
         //Loop through every passage
         for (const std::shared_ptr<Passage>& passage : _passages)
         {
-            if (passage->checkPassageMusic(pchr))
+            if (passage->checkPassageMusic(pchr.get()))
             {
                 return;
             }
@@ -548,6 +548,41 @@ void GameModule::updateAllObjects()
 water_instance_t& GameModule::getWater()
 {
     return _water;
+}
+
+std::shared_ptr<Ego::Player>& GameModule::getPlayer(size_t index)
+{
+    return _playerList[index];
+}
+
+const std::vector<std::shared_ptr<Ego::Player>>& GameModule::getPlayerList() const
+{
+    return _playerList;    
+}
+
+bool GameModule::addPlayer(const std::shared_ptr<Object>& object, input_device_t *pdevice)
+{
+    if(!object || object->isTerminated()) {
+        return false;
+    }
+
+    std::shared_ptr<Ego::Player> player = std::make_shared<Ego::Player>(object, pdevice);
+    _playerList.push_back(player);
+
+    // set the reference to the player
+    object->is_which_player = _playerList.size()-1;
+
+    // download the quest info
+    quest_log_download_vfs(player->getQuestLog(), object->getProfile()->getPathname().c_str());
+
+    if (pdevice != nullptr)
+    {
+        local_stats.noplayers = false;
+        object->islocalplayer = true;
+        local_stats.player_count++;
+    }
+
+    return true;
 }
 
 /// @todo Remove this global.

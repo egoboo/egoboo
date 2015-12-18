@@ -330,11 +330,7 @@ void    disaffirm_attached_particles(ObjectRef objectRef);
 /// @return the number of particles added
 int reaffirm_attached_particles(ObjectRef objectRef);
 
-/// Player
-bool add_player(ObjectRef objectRef, const PLA_REF playerRef, input_device_t *device);
-
 //Latches
-void set_one_player_latch( const PLA_REF player );
 bool chr_do_latch_button( Object * pchr );
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
 void character_swipe( ObjectRef cnt, slot_t slot );

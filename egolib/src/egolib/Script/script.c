@@ -27,8 +27,6 @@
 #include "game/script_functions.h"
 #include "egolib/AI/AStar.h"
 #include "game/game.h"
-#include "game/network.h"
-#include "game/player.h"
 #include "game/Entities/_Include.hpp"
 #include "game/char.h"
 #include "game/Core/GameEngine.hpp"
@@ -585,7 +583,7 @@ void scr_run_chr_script(Object *pchr) {
 	}
 
 	// Clear the button latches.
-	if (!VALID_PLA(pchr->is_which_player)) {
+	if (!pchr->isPlayer()) {
 		RESET_BIT_FIELD(pchr->latch.b);
 	}
 
@@ -625,8 +623,8 @@ void scr_run_chr_script(Object *pchr) {
 		}
 	}
 
-	// Set latches
-	if (!VALID_PLA(pchr->is_which_player)) {
+	// Set movement latches
+	if (!pchr->isPlayer()) {
 		float latch2;
 
 		ai_state_t::ensure_wp(aiState);

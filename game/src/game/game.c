@@ -29,7 +29,7 @@
 #include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/link.h"
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
@@ -245,9 +245,7 @@ egolib_rv export_all_players( bool require_local )
     egolib_rv export_chr_rv;
     egolib_rv retval;
     bool is_local;
-    PLA_REF ipla;
     int number;
-    ObjectRef character;
 
     // Stop if export isnt valid
     if ( !_currentModule->isExportValid() ) return rv_fail;
@@ -256,22 +254,17 @@ egolib_rv export_all_players( bool require_local )
     retval = rv_success;
 
     // Check each player
-    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
-    {
+    for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
         ObjectRef item;
-        player_t * ppla;
-        Object    * pchr;
 
-        if ( !VALID_PLA( ipla ) ) continue;
-        ppla = PlaStack.get_ptr( ipla );
-
-        is_local = ( NULL != ppla->pdevice );
+        is_local = ( nullptr != player->getInputDevice() );
         if ( require_local && !is_local ) continue;
 
         // Is it alive?
-        if ( !_currentModule->getObjectHandler().exists( ppla->index ) ) continue;
-        character = ppla->index;
-        pchr      = _currentModule->getObjectHandler().get( character );
+        std::shared_ptr<Object> pchr = player->getObject();
+        if(!pchr || pchr->isTerminated()) continue;
+
+        ObjectRef character = pchr->getObjRef();
 
         // don't export dead characters
         if ( !pchr->isAlive() ) continue;
@@ -451,25 +444,15 @@ int update_game()
 
     int numdead = 0;
     int numalive = 0;
-    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList())
     {
-        ObjectRef ichr;
-        Object * pchr;
+        // only interested in local players
+        if ( nullptr == player->getInputDevice() ) continue;
 
-        if ( !PlaStack.lst[ipla].valid ) continue;
-
-        // fix bad players
-        ichr = PlaStack.lst[ipla].index;
-        if ( !_currentModule->getObjectHandler().exists( ichr ) )
-        {
-            PlaStack.lst[ipla].index = ObjectRef::Invalid;
-            PlaStack.lst[ipla].valid = false;
+        std::shared_ptr<Object> pchr = player->getObject();
+        if(!pchr || pchr->isTerminated()) {
             continue;
         }
-        pchr = _currentModule->getObjectHandler().get( ichr );
-
-        // only interested in local players
-        if ( NULL == PlaStack.lst[ipla].pdevice ) continue;
 
         if ( pchr->isAlive() )
         {
@@ -517,13 +500,12 @@ int update_game()
     }
 
     // check for autorespawn
-    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList())
     {
-        if ( !PlaStack.lst[ipla].valid ) continue;
-
-        ObjectRef ichr = PlaStack.lst[ipla].index;
-        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
-        Object *pchr = _currentModule->getObjectHandler().get( ichr );
+        std::shared_ptr<Object> pchr = player->getObject();
+        if(!pchr || pchr->isTerminated()) {
+            continue;
+        }
 
         if ( !pchr->isAlive() )
         {
@@ -573,7 +555,7 @@ int update_game()
     if(update_wld > 0)
     {
         let_all_characters_think();           // sets the non-player latches
-        net_unbuffer_player_latches();            // sets the player latches
+        Ego::Player::net_unbuffer_player_latches(); // sets the player latches
     }
 
     //---- begin the code for updating in-game objects
@@ -708,7 +690,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &
     if ( ptst->isHidden() ) return false;
 
     // Players only?
-    if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return false;
+    if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !ptst->isPlayer() ) return false;
 
     // Skip held objects
     if ( ptst->isBeingHeld() ) return false;
@@ -731,11 +713,15 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &
     // Require player to have specific quest?
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
-        player_t * ppla = PlaStack.get_ptr( ptst->is_which_player );
+        if(!ptst->isPlayer()) {
+            return false;
+        }
+
+        std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(ptst->is_which_player);
 
         // find only active quests?
         // this makes it backward-compatible with zefz's version
-        if ( quest_log_get_level( ppla->quest_log, idsz ) < 0 ) {
+        if ( quest_log_get_level( player->getQuestLog(), idsz ) < 0 ) {
             return false;
         }
     }
@@ -791,17 +777,15 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, con
     //Only loop through the players
     if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
-        for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
+        for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList())
         {
-            if (!PlaStack.lst[ipla].valid) continue;
-
-            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[ipla].index];
+            const std::shared_ptr<Object> &object = player->getObject();
             if(player) {
 
                 //Within range?
-                float distance = (player->getPosition() - psrc->getPosition()).length();
+                float distance = (object->getPosition() - psrc->getPosition()).length();
                 if(max_dist == NEAREST || distance < max_dist) {
-                    searchList.push_back(player);
+                    searchList.push_back(object);
                 }
 
             }
@@ -980,7 +964,7 @@ void update_pits()
                         pchr->vel = Vector3f::zero();
 
                         // Play sound effect
-                        if ( VALID_PLA( pchr->is_which_player ) )
+                        if (pchr->isPlayer())
                         {
                             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PITFALL));
                         }
@@ -1013,26 +997,18 @@ void WeatherState::animate()
         time = timer_reset;
 
         // Find a valid player
-        bool foundone = false;
-        for (int cnt = 0; cnt < MAX_PLAYER; cnt++)
-        {
-            // Yes, but is the character valid?
-            iplayer = (PLA_REF)((REF_TO_INT(iplayer) + 1) % MAX_PLAYER);
-            if (PlaStack.lst[iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[iplayer].index))
-            {
-                foundone = true;
-                break;
-            }
+        std::shared_ptr<Ego::Player> player = nullptr;
+        if(!_currentModule->getPlayerList().empty()) {
+            iplayer = (iplayer + 1) % _currentModule->getPlayerList().size();
+            player = _currentModule->getPlayerList()[iplayer];
         }
 
         // Did we find one?
-        if (foundone)
+        if (player)
         {
-            ObjectRef ichr = PlaStack.lst[iplayer].index;
-            if (_currentModule->getObjectHandler().exists(ichr) && !_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ichr)->inwhich_inventory))
+            const std::shared_ptr<Object> pchr = player->getObject();
+            if (pchr)
             {
-                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[iplayer].index];
-
                 // Yes, so spawn nearby that character
                 std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, part_gpip, 0, over_water);
                 if (particle)
@@ -1053,240 +1029,10 @@ void WeatherState::animate()
 }
 
 //--------------------------------------------------------------------------------------------
-void set_one_player_latch( const PLA_REF ipla )
-{
-    /// @author ZZ
-    /// @details This function converts input readings to latch settings, so players can
-    ///    move around
-
-    // skip invalid players
-    if ( INVALID_PLA( ipla ) ) return;
-	player_t       *ppla = PlaStack.get_ptr( ipla );
-
-    // is the device a local device or an internet device?
-	input_device_t *pdevice = ppla->pdevice;
-    if ( NULL == pdevice ) return;
-
-    //No need to continue if device is not enabled
-    if ( !input_device_is_enabled( pdevice ) ) return;
-
-    // find the camera that is pointing at this character
-    auto pcam = CameraSystem::get()->getCamera(ppla->index);
-    if (!pcam) return;
-
-    // fast camera turn if it is enabled and there is only 1 local player
-	bool fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
-
-	latch_t sum;
-    // Clear the player's latch buffers
-    sum.clear();
-	Vector2f joy_new = Vector2f::zero(),
-             joy_pos = Vector2f::zero();
-
-    // generate the transforms relative to the camera
-    // this needs to be changed for multicamera
-	TURN_T turnsin = TO_TURN( pcam->getOrientation().facing_z );
-    float fsin    = turntosin[ turnsin ];
-    float fcos    = turntocos[ turnsin ];
-
-	float scale;
-    if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
-    {
-        // Mouse routines
-
-        if ( fast_camera_turn || !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
-        {
-            float dist = std::sqrt( mous.x * mous.x + mous.y * mous.y );
-            if ( dist > 0 )
-            {
-                scale = mous.sense / dist;
-                if ( dist < mous.sense )
-                {
-                    scale = dist / mous.sense;
-                }
-
-                if ( mous.sense != 0 )
-                {
-                    scale /= mous.sense;
-                }
-
-                joy_pos[XX] = mous.x * scale;
-                joy_pos[YY] = mous.y * scale;
-
-                //if ( fast_camera_turn && !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
-
-                joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-                joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
-            }
-        }
-    }
-
-    else if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type )
-    {
-        // Keyboard routines
-
-        if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
-        {
-            if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) )   joy_pos[XX]++;
-            if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )    joy_pos[XX]--;
-            if ( input_device_control_active( pdevice,  CONTROL_DOWN ) )    joy_pos[YY]++;
-            if ( input_device_control_active( pdevice,  CONTROL_UP ) )      joy_pos[YY]--;
-
-            if ( fast_camera_turn )  joy_pos[XX] = 0;
-
-            joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-            joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
-        }
-    }
-    else if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
-    {
-        // Joystick routines
-
-        //Figure out which joystick we are using
-        joystick_data_t *joystick;
-        joystick = joy_lst + ( pdevice->device_type - MAX_JOYSTICK );
-
-        if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
-        {
-            joy_pos[XX] = joystick->x;
-            joy_pos[YY] = joystick->y;
-
-            float dist = joy_pos.length_2();
-            if ( dist > 1.0f )
-            {
-                scale = 1.0f / std::sqrt( dist );
-                joy_pos *= scale;
-            }
-
-            if ( fast_camera_turn && !input_device_control_active( pdevice, CONTROL_CAMERA ) )  joy_pos[XX] = 0;
-
-            joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-            joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
-        }
-    }
-
-    else
-    {
-        // unknown device type.
-        pdevice = NULL;
-    }
-
-    // Update movement (if any)
-    sum.x += joy_new[XX];
-    sum.y += joy_new[YY];
-
-    // Read control buttons
-    if ( !ppla->inventoryMode )
-    {
-        if ( input_device_control_active( pdevice, CONTROL_JUMP ) ) 
-            sum.b[LATCHBUTTON_JUMP] = true;
-        if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) )
-            sum.b[LATCHBUTTON_LEFT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
-            sum.b[LATCHBUTTON_ALTLEFT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE ) )
-            sum.b[LATCHBUTTON_RIGHT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
-            sum.b[LATCHBUTTON_ALTRIGHT] = true;
-
-        // Now update movement and input
-        input_device_add_latch( pdevice, sum.x, sum.y );
-
-        ppla->local_latch.x = pdevice->latch.x;
-        ppla->local_latch.y = pdevice->latch.y;
-        ppla->local_latch.b = sum.b;
-    }
-
-    //inventory mode
-    else if ( ppla->inventory_cooldown < update_wld )
-    {
-        int new_selected = ppla->inventory_slot;
-        Object *pchr = _currentModule->getObjectHandler().get( ppla->index );
-
-        //dirty hack here... mouse seems to be inverted in inventory mode?
-        if ( pdevice->device_type == INPUT_DEVICE_MOUSE )
-        {
-            joy_pos[XX] = - joy_pos[XX];
-            joy_pos[YY] = - joy_pos[YY];
-        }
-
-        //handle inventory movement
-        if ( joy_pos[XX] < 0 )       new_selected--;
-        else if ( joy_pos[XX] > 0 )  new_selected++;
-
-        //clip to a valid value
-        if ( ppla->inventory_slot != new_selected )
-        {
-            ppla->inventory_cooldown = update_wld + 5;
-
-            //Make inventory movement wrap around
-            if(new_selected < 0) {
-                new_selected = pchr->getInventory().getMaxItems() - 1;
-            }
-            else if(new_selected >= pchr->getInventory().getMaxItems()) {
-                ppla->inventory_slot = 0;
-            }
-            else {
-                ppla->inventory_slot = new_selected;
-            }
-        }
-
-        //handle item control
-        if ( pchr->inst.action_ready && 0 == pchr->reload_timer )
-        {
-            //handle LEFT hand control
-            if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) || input_device_control_active(pdevice, CONTROL_LEFT_GET) )
-            {
-                //put it away and swap with any existing item
-                Inventory::swap_item(ppla->index, ppla->inventory_slot, SLOT_LEFT, false );
-
-                // Make it take a little time
-                chr_play_action( pchr, ACTION_MG, false );
-                pchr->reload_timer = PACKDELAY;
-            }
-
-            //handle RIGHT hand control
-            if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE) || input_device_control_active( pdevice, CONTROL_RIGHT_GET) )
-            {
-                // put it away and swap with any existing item
-                Inventory::swap_item(ppla->index, ppla->inventory_slot, SLOT_RIGHT, false);
-
-                // Make it take a little time
-                chr_play_action( pchr, ACTION_MG, false );
-                pchr->reload_timer = PACKDELAY;
-            }
-        }
-
-        //empty any movement
-        ppla->local_latch.x = 0;
-        ppla->local_latch.y = 0;
-    }
-
-    //enable inventory mode?
-    if ( update_wld > ppla->inventory_cooldown && input_device_control_active( pdevice, CONTROL_INVENTORY ) )
-    {
-        _gameEngine->getActivePlayingState()->displayCharacterWindow(ipla);
-         ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
-    }
-
-    //Enter or exit stealth mode?
-    if(input_device_control_active(pdevice, CONTROL_SNEAK) && update_wld > ppla->inventory_cooldown) {
-        if(!_currentModule->getObjectHandler()[ppla->index]->isStealthed()) {
-            _currentModule->getObjectHandler()[ppla->index]->activateStealth();
-        }
-        else {
-            _currentModule->getObjectHandler()[ppla->index]->deactivateStealth();
-        }
-        ppla->inventory_cooldown = update_wld + ONESECOND;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void set_local_latches()
 {
-    for (PLA_REF cnt = 0; cnt < MAX_PLAYER; cnt++ )
-    {
-        set_one_player_latch( cnt );
+    for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
+        player->updateLatches();        
     }
 
     // Let the players respawn
@@ -1296,38 +1042,12 @@ void set_local_latches()
         && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
         && !keyb.chat_mode )
     {
-        for (PLA_REF player = 0; player < MAX_PLAYER; player++)
-        {
-            if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != nullptr )
+        for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
+            if (player->getInputDevice() != nullptr)
             {
                 // Press the respawn button...
-                PlaStack.lst[player].local_latch.b[LATCHBUTTON_RESPAWN] = true;
+                player->setLatch(LATCHBUTTON_RESPAWN, true);
             }
-        }
-    }
-
-    // update the local timed latches with the same info
-    for (PLA_REF player = 0; player < MAX_PLAYER; player++)
-    {
-        player_t * ppla;
-
-        if ( !PlaStack.lst[player].valid ) continue;
-        ppla = PlaStack.get_ptr( player );
-
-        int index = ppla->tlatch_count;
-        if ( index < MAXLAG )
-        {
-            time_latch_t * ptlatch = ppla->tlatch + index;
-
-            ptlatch->button = ppla->local_latch.b.to_ulong();
-
-            // reduce the resolution of the motion to match the network packets
-            ptlatch->x = std::floor( ppla->local_latch.x * SHORTLATCH ) / SHORTLATCH;
-            ptlatch->y = std::floor( ppla->local_latch.y * SHORTLATCH ) / SHORTLATCH;
-
-            ptlatch->time = update_wld;
-
-            ppla->tlatch_count++;
         }
     }
 }
@@ -1372,14 +1092,14 @@ void check_stats()
         else if (keyb.is_key_down( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( docheat != INVALID_PLA_REF )
+        if ( docheat != INVALID_PLA_REF && docheat < _currentModule->getPlayerList().size() )
         {
-            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
-            if(player)
+            const std::shared_ptr<Object> &object = _currentModule->getPlayer(docheat)->getObject();
+            if(object)
             {
                 //Give 10% of XP needed for next level
-                uint32_t xpgain = 0.1f * ( player->getProfile()->getXPNeededForLevel( std::min( player->experiencelevel+1, MAXLEVEL) ) - player->getProfile()->getXPNeededForLevel(player->experiencelevel));
-                player->giveExperience(xpgain, XP_DIRECT, true);
+                uint32_t xpgain = 0.1f * ( object->getProfile()->getXPNeededForLevel( std::min( object->experiencelevel+1, MAXLEVEL) ) - object->getProfile()->getXPNeededForLevel(object->experiencelevel));
+                object->giveExperience(xpgain, XP_DIRECT, true);
                 stat_check_delay = 1;
             }
         }
@@ -1396,12 +1116,12 @@ void check_stats()
         else if (keyb.is_key_down( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if(docheat != INVALID_PLA_REF) {
-            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
-            if (player)
+        if(docheat != INVALID_PLA_REF && docheat < _currentModule->getPlayerList().size()) {
+            const std::shared_ptr<Object> &object = _currentModule->getPlayer(docheat)->getObject();
+            if (object)
             {
                 //Heal 1 life
-                player->heal(player, 256, true);
+                object->heal(object, 256, true);
                 stat_check_delay = 1;
             }
 
@@ -1848,17 +1568,15 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
         return true;
     }
 
-    // Turn on PlaStack.count input devices
+    // Turn on input devices
     if ( psp_info.stat )
     {
         // what we do depends on what kind of module we're loading
-        if ( 0 == _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() )
+        if ( 0 == _currentModule->getImportAmount() && _currentModule->getPlayerList().size() < _currentModule->getPlayerAmount() )
         {
             // a single player module
 
-            bool player_added;
-
-            player_added = add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
+            bool player_added = _currentModule->addPlayer(pobject, &InputDevices.lst[local_stats.player_count] );
 
             if ( _currentModule->getImportAmount() == 0 && player_added )
             {
@@ -1866,7 +1584,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
                 pobject->nameknown = true;
             }
         }
-        else if ( PlaStack.count < _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() && PlaStack.count < g_importList.count )
+        else if ( _currentModule->getPlayerList().size() < _currentModule->getImportAmount() && _currentModule->getPlayerList().size() < _currentModule->getPlayerAmount() && _currentModule->getPlayerList().size() < g_importList.count )
         {
             // A multiplayer module
 
@@ -1887,13 +1605,13 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
 
             if ( -1 != local_index )
             {
-                // It's a local PlaStack.count
-                add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
+                // It's a local input
+                _currentModule->addPlayer(pobject, &InputDevices.lst[g_importList.lst[local_index].local_player_num]);
             }
             else
             {
-                // It's a remote PlaStack.count
-                add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, NULL );
+                // It's a remote input
+                _currentModule->addPlayer(pobject, nullptr);
             }
         }
     }
@@ -1909,8 +1627,6 @@ void activate_spawn_file_vfs()
     std::unordered_map<int, std::string> reservedSlots; //Keep track of which slot numbers are reserved by their load name
     std::unordered_set<std::string> dynamicObjectList;  //references to slots that need to be dynamically loaded later
     std::vector<spawn_file_info_t> objectsToSpawn;      //The full list of objects to be spawned 
-
-    PlaStack.count = 0;
 
     // Turn some back on
     ReadContext ctxt("mp_data/spawn.txt");
@@ -2279,50 +1995,6 @@ void game_release_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-bool add_player( ObjectRef objRef, const PLA_REF playerRef, input_device_t *pdevice )
-{
-    /// @author ZZ
-    /// @details This function adds a player, returning false if it fails, true otherwise
-
-
-	if (!VALID_PLA_RANGE(playerRef)) return false;
-	player_t *player = PlaStack.get_ptr(playerRef);
-
-    // does the player already exist?
-    if (player->valid) return false;
-
-    // re-construct the players
-    pla_reinit(player);
-
-    if (!_currentModule->getObjectHandler().exists(objRef)) return false;
-    Object *obj = _currentModule->getObjectHandler().get(objRef);
-
-    // set the reference to the player
-    obj->is_which_player = playerRef;
-
-    // download the quest info
-    quest_log_download_vfs(player->quest_log, obj->getProfile()->getPathname().c_str());
-
-    //---- skeleton for using a ConfigFile to save quests
-    // ppla->quest_file = quest_file_open( chr_get_dir_name(character).c_str() );
-
-    player->index     = objRef;
-	player->valid     = true;
-	player->pdevice   = pdevice;
-
-    if (pdevice)
-    {
-        local_stats.noplayers = false;
-        obj->islocalplayer = true;
-        local_stats.player_count++;
-    }
-
-    PlaStack.count++;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void let_all_characters_think()
 {
     /// @author ZZ
@@ -2380,7 +2052,6 @@ void free_all_objects()
     }
 
     //free all players
-    PlaStack.count = 0;
     local_stats.player_count = 0;
     local_stats.noplayers = true;
 }
@@ -2739,8 +2410,6 @@ void game_reset_players()
 
     local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
     local_stats.sense_enemies_idsz = IDSZ2::None;
-
-    PlaStack_reset_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3376,23 +3045,22 @@ egolib_rv import_list_t::from_players(import_list_t& self)
     import_list_t::init(self);
 
     // generate the ImportList list from the player info
-	for (PLA_REF player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++)
-	{
-		if (!VALID_PLA(player_idx)) continue;
-		player_t *player_ptr = PlaStack.get_ptr(player_idx);
+    for(size_t player_idx = 0; player_idx < _currentModule->getPlayerList().size(); ++player_idx) {
+        const std::shared_ptr<Ego::Player>& player = _currentModule->getPlayerList()[player_idx];
 
-		ObjectRef ichr = player_ptr->index;
-		if (!_currentModule->getObjectHandler().exists(ichr)) continue;
-		Object *pchr = _currentModule->getObjectHandler().get(ichr);
+		std::shared_ptr<Object> pchr = player->getObject();
+        if(!pchr || pchr->isTerminated()) {
+            continue;
+        }
 
-		bool is_local = (nullptr != player_ptr->pdevice);
+		bool is_local = (nullptr != player->getInputDevice());
 
 		// grab a pointer
 		import_element_t *import_ptr = self.lst + self.count;
 		self.count++;
 
 		import_ptr->player = player_idx;
-		import_ptr->slot = REF_TO_INT(player) * MAX_IMPORT_PER_PLAYER;
+		import_ptr->slot = player_idx * MAX_IMPORT_PER_PLAYER;
 		import_ptr->srcDir[0] = CSTR_END;
 		import_ptr->dstDir[0] = CSTR_END;
 		strncpy(import_ptr->name, pchr->getName().c_str(), SDL_arraysize(import_ptr->name));
@@ -3406,8 +3074,6 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		{
 			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->getName()).c_str());
 		}
-
-		player++;
 	}
 
 	return (self.count > 0) ? rv_success : rv_fail;
@@ -3586,11 +3252,18 @@ bool export_one_character_quest_vfs( const char *szSaveName, ObjectRef character
     /// @author ZZ
     /// @details This function makes the naming.txt file for the character
 
-    if (!_currentModule->getObjectHandler().exists(character)) return false;
-    player_t *ppla = chr_get_ppla(character);
-    if (!ppla) return false;
+    const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[character];
+    if(!object) {
+        return false;
+    }
 
-	egolib_rv rv = quest_log_upload_vfs( ppla->quest_log, szSaveName );
+    if(!object->isPlayer()) {
+        return false;
+    }
+
+    std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(object->is_which_player);
+
+	egolib_rv rv = quest_log_upload_vfs( player->getQuestLog(), szSaveName );
     return rv_success == rv;
 }
 
