@@ -721,7 +721,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &
 
         // find only active quests?
         // this makes it backward-compatible with zefz's version
-        if ( quest_log_get_level( player->getQuestLog(), idsz ) < 0 ) {
+        if (player->getQuestLog().hasActiveQuest(idsz)) {
             return false;
         }
     }
@@ -3263,8 +3263,7 @@ bool export_one_character_quest_vfs( const char *szSaveName, ObjectRef character
 
     std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(object->is_which_player);
 
-	egolib_rv rv = quest_log_upload_vfs( player->getQuestLog(), szSaveName );
-    return rv_success == rv;
+    return player->getQuestLog().exportToFile(szSaveName);
 }
 
 //--------------------------------------------------------------------------------------------

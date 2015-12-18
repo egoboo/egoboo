@@ -573,7 +573,7 @@ bool GameModule::addPlayer(const std::shared_ptr<Object>& object, input_device_t
     object->is_which_player = _playerList.size()-1;
 
     // download the quest info
-    quest_log_download_vfs(player->getQuestLog(), object->getProfile()->getPathname().c_str());
+    player->getQuestLog().loadFromFile(object->getProfile()->getPathname());
 
     if (pdevice != nullptr)
     {

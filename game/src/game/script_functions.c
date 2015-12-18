@@ -7136,19 +7136,22 @@ Uint8 scr_AddQuest( script_state_t& state, ai_state_t& self )
     /// @author ZF
     /// @details This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
 
-    egolib_rv result = rv_fail;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
+    const IDSZ2 idsz = IDSZ2(state.argument);
+
+    returncode = false;
     if(pself_target->isPlayer()) {
         auto& questLog = _currentModule->getPlayer(pself_target->is_which_player)->getQuestLog();
-        result = quest_log_add(questLog, state.argument, state.distance);        
+        if(!questLog.hasActiveQuest(idsz) && !questLog.isBeaten(idsz)) {
+            questLog.setQuestProgress(idsz, std::max(state.distance, 0));
+            returncode = true;
+        }
     }
-
-    returncode = ( rv_success == result );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7163,11 +7166,13 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
+    const IDSZ2 idsz = IDSZ2(state.argument);
+
     returncode = false;
     for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList())
     {
-        if ( QUEST_BEATEN == quest_log_adjust_level(player->getQuestLog(), IDSZ2(state.argument), QUEST_MAXVAL) )
-        {
+        if(player->getQuestLog().hasActiveQuest(idsz)) {
+            player->getQuestLog().setQuestProgress(idsz, Ego::QuestLog::QUEST_BEATEN);
             returncode = true;
         }
     }
@@ -7191,17 +7196,15 @@ Uint8 scr_IfTargetHasQuest( script_state_t& state, ai_state_t& self )
 
     returncode = false;
 
-    int quest_level = QUEST_NONE;
+    const IDSZ2 idsz = IDSZ2(state.argument);
     if(pself_target->isPlayer()) {
         const std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(pself_target->is_which_player);
-        quest_level = quest_log_get_level(player->getQuestLog(), IDSZ2(state.argument));
-    }
 
-    // only find active quests
-    if ( quest_level >= 0 )
-    {
-        state.distance = quest_level;
-        returncode       = true;
+        // only find active quests
+        if(player->getQuestLog().hasActiveQuest(idsz)) {
+            returncode = true;            
+            state.distance = player->getQuestLog()[idsz];
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -7221,14 +7224,16 @@ Uint8 scr_SetQuestLevel( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
+    const IDSZ2 idsz = IDSZ2(state.argument);
+
     returncode = false;
     if ( pself_target->isPlayer() && 0 != state.distance )
     {
         const std::shared_ptr<Ego::Player> &player = _currentModule->getPlayer(pself_target->is_which_player);
-
-        int quest_level = quest_log_adjust_level( player->getQuestLog(), IDSZ2(state.argument), state.distance );
-
-        returncode = QUEST_NONE != quest_level;
+        if(player->getQuestLog().hasActiveQuest(idsz)) {
+            player->getQuestLog().setQuestProgress(idsz, player->getQuestLog()[idsz] + state.distance);
+            returncode = true;
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -7245,10 +7250,18 @@ Uint8 scr_AddQuestAllPlayers( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
-        // Try to add it or replace it if this one is higher
-        int quest_level = quest_log_add(player->getQuestLog(), IDSZ2(state.argument), state.distance);
-        if ( QUEST_NONE != quest_level ) returncode = true;
+    if(state.distance > 0) {
+        const IDSZ2 idsz = IDSZ2(state.argument);
+
+        for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
+            // Only try to add it or replace it if this one is higher
+            if(player->getQuestLog().isBeaten(idsz) || state.distance <= player->getQuestLog()[idsz]) {
+                continue;
+            }
+
+            player->getQuestLog().setQuestProgress(idsz, state.distance);
+            returncode = true;
+        }        
     }
 
     SCRIPT_FUNCTION_END();

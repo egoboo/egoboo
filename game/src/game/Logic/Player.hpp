@@ -25,6 +25,7 @@
 #include "IdLib/IdLib.hpp"
 #include "egolib/IDSZ.hpp"
 #include "egolib/input_device.h"
+#include "game/Logic/QuestLog.hpp"
 
 //Forward declarations
 class Object;
@@ -56,7 +57,7 @@ public:
     * @return
     *   the quest log of this Player which stores game progress
     **/
-    std::unordered_map<IDSZ2, int>& getQuestLog();
+    Ego::QuestLog& getQuestLog();
 
     /**
     * @brief
@@ -146,7 +147,7 @@ private:
     uint32_t _inventoryCooldown;
 
     // quest log for this player
-    std::unordered_map<IDSZ2, int> _questLog;          ///< lists all the character's quests
+    Ego::QuestLog _questLog;          ///< lists all the character's quests
 
     /// the buffered input from the local input devices
     input_device_t* _pdevice;

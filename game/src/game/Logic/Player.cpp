@@ -69,7 +69,7 @@ input_device_t* Player::getInputDevice()
     return _pdevice;
 }
 
-std::unordered_map<IDSZ2, int>& Player::getQuestLog()
+Ego::QuestLog& Player::getQuestLog()
 {
     return _questLog;
 }

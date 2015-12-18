@@ -25,6 +25,7 @@
 
 #include "egolib/egolib.h"
 #include "game/egoboo_typedef.h"
+#include "game/Logic/QuestLog.hpp"
 
 //Forward declarations
 class ObjectProfile;
@@ -75,7 +76,7 @@ private:
     TX_REF                          _icon;
     std::shared_ptr<ObjectProfile>  _profile;
     uint16_t                        _skinRef;
-    std::unordered_map<IDSZ2, int>  _questLog;          ///< all the quests this player has
+    Ego::QuestLog                   _questLog;          ///< all the quests this player has
     int                             _selectedByPlayer;  ///< ID of player who has selected this character (-1 for none)
     int                             _inputDevice;
     bool                            _isSelected;

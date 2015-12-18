@@ -24,7 +24,6 @@
 #include "egolib/Profiles/ModuleProfile.hpp"
 
 #include "egolib/Core/StringUtilities.hpp"
-#include "egolib/FileFormats/quest_file.h"
 
 #include "egolib/Log/_Include.hpp"
 
@@ -48,7 +47,7 @@ ModuleProfile::ModuleProfile() :
     _respawnValid(false),
     _summary(),
     _unlockQuest(IDSZ2::None),
-    _unlockQuestLevel(QUEST_NONE),
+    _unlockQuestLevel(-1), //-1 means none
     _moduleType(FILTER_SIDE_QUEST),
     _beaten(false),
     _icon(std::make_shared<Ego::OpenGL::Texture>()),
