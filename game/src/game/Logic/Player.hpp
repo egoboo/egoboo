@@ -154,13 +154,6 @@ private:
 
     /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t _localLatch;
-
-    // Timed latches
-    uint32_t     _tlatch_count;
-    time_latch_t _tlatch[MAXLAG];
-
-    /// Network latch, set by net_unbuffer_player_latches(), used to set the local character's latch
-    latch_t _net_latch;
 };
 
 } //namespace Ego

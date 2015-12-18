@@ -23,7 +23,6 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/network.h"
 
 //--------------------------------------------------------------------------------------------
 /// The latch used by the input system
