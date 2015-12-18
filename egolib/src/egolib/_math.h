@@ -26,9 +26,6 @@
 #include "egolib/Math/_Include.hpp"
 #include "egolib/Log/_Include.hpp"
 
-#include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/ogl_debug.h"
-
 //--------------------------------------------------------------------------------------------
 // IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
 //--------------------------------------------------------------------------------------------
