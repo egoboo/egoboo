@@ -76,7 +76,14 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 
 GameModule::~GameModule()
 {
+    //free all particles
+    ParticleHandler::get().clear();
 
+    //Free all profiles loaded by the module
+    ProfileSystem::get().reset();
+
+    //Free all textures
+    gfx_system_release_all_graphics();
 }
 
 void GameModule::loadAllPassages()

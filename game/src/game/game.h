@@ -322,9 +322,6 @@ bool  chr_check_target( Object * psrc, ObjectRef iObjectTest, const IDSZ2& idsz,
 ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, const BIT_FIELD targeting_bits );
 ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, ObjectRef dontTarget, ObjectRef oldTarget, FACING_T *targetAngle);
 
-/// object initialization
-void  free_all_objects();
-
 void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
 Uint8 get_alpha( int alpha, float seeinvis_mag );

@@ -87,7 +87,6 @@ static void let_all_characters_think();
 
 // module initialization / deinitialization - not accessible by scripts
 static bool game_load_module_data( const std::string& smallname );
-static void   game_release_module_data();
 static void   game_load_profile_ai();
 
 static void   activate_spawn_file_vfs();
@@ -199,8 +198,7 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
     export_one_character_name_vfs( tofile, character );
 
     // Build the QUEST.TXT file
-    snprintf( tofile, SDL_arraysize( tofile ), "%s/quest.txt", todir );
-    export_one_character_quest_vfs( tofile, character );
+    export_one_character_quest_vfs( todir, character );
 
     // copy every file that does not already exist in the todir
     {
@@ -1681,7 +1679,6 @@ void game_reset_module_data()
 
     // unload a lot of data
     ProfileSystem::get().reset();
-    free_all_objects();
     DisplayMsg_reset();
     DisplayMsg_clear();
     game_reset_players();
@@ -1796,8 +1793,8 @@ void game_quit_module()
     // stop the module
     _currentModule.reset(nullptr);
 
-    // get rid of the game/module data
-    game_release_module_data();
+    // deallocate any dynamically allocated scripting memory
+    scripting_system_end();
 
     // re-initialize all game/module data
     game_reset_module_data();
@@ -1819,16 +1816,18 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
 
     // start the module
-    _currentModule = std::unique_ptr<GameModule>(new GameModule(module, time(NULL)));
+    _currentModule = std::make_unique<GameModule>(module, time(NULL));
 
     // load all the in-game module data
     if ( !game_load_module_data( module->getPath().c_str() ) )
     {    
         // release any data that might have been allocated
-        game_release_module_data();
         _currentModule.reset(nullptr);
         return false;
     };
+
+    //Initialize player data
+    game_reset_players();
 
     //After loading, spawn all the data and initialize everything
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
@@ -1877,27 +1876,6 @@ bool game_finish_module()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_release_module_data()
-{
-    /// @author ZZ
-    /// @details This function frees up memory used by the module
-
-    // Disable ESP
-    local_stats.sense_enemies_idsz = IDSZ2::None;
-    local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
-
-    // make sure that the object lists are cleared out
-    free_all_objects();
-
-    // deallocate any dynamically allocated scripting memory
-    scripting_system_end();
-
-    // deal with dynamically allocated game assets
-    gfx_system_release_all_graphics();
-    ProfileSystem::get().reset();
-}
-
-//--------------------------------------------------------------------------------------------
 void let_all_characters_think()
 {
     /// @author ZZ
@@ -1938,25 +1916,6 @@ void let_all_characters_think()
             scr_run_chr_script(object.get());
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------
-void free_all_objects()
-{
-    /// @author BB
-    /// @details free every instance of the three object types used in the game.
-
-    //free all particles
-    ParticleHandler::get().clear();
-
-    // free all the characters
-    if(_currentModule) {
-        _currentModule->getObjectHandler().clear();
-    }
-
-    //free all players
-    local_stats.player_count = 0;
-    local_stats.noplayers = true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2303,6 +2262,8 @@ void game_reset_players()
 
     // Reset the local data stuff
     local_stats.allpladead = false;
+    local_stats.player_count = 0;
+    local_stats.noplayers = true;
 
     local_stats.seeinvis_level = 0.0f;
     local_stats.seeinvis_level = 0.0f;
@@ -2311,8 +2272,9 @@ void game_reset_players()
     local_stats.grog_level     = 0.0f;
     local_stats.daze_level     = 0.0f;
 
-    local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
+    // Disable ESP by default
     local_stats.sense_enemies_idsz = IDSZ2::None;
+    local_stats.sense_enemies_team = static_cast<TEAM_REF>(Team::TEAM_MAX);
 }
 
 //--------------------------------------------------------------------------------------------
