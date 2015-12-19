@@ -137,21 +137,6 @@ int update_game();
 
 //--------------------------------------------------------------------------------------------
 
-/// The actual in-game state of the damage tiles
-struct damagetile_instance_t
-{
-    IPair amount;                    ///< Amount of damage
-	DamageType damagetype;
-
-    LocalParticleProfileRef part_gpip;
-    uint32_t partand;
-    int    sound_index;
-
-	void upload(const wawalite_damagetile_t& source);
-};
-
-//--------------------------------------------------------------------------------------------
-
 /// The state of the weather.
 struct WeatherState
 {
@@ -253,7 +238,6 @@ struct status_list_t
 //--------------------------------------------------------------------------------------------
 
 // special terrain and wawalite-related data structs (TODO: move into Module class)
-extern damagetile_instance_t damagetile;
 extern WeatherState g_weatherState;
 extern fog_instance_t fog;
 extern AnimatedTilesState g_animatedTilesState;

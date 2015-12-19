@@ -858,15 +858,9 @@ float draw_debug(float y)
         y = draw_string_raw(0, y, "!!!DEBUG MODE-6!!!");
         y = draw_string_raw(0, y, "~~FREEPRT %" PRIuZ, ParticleHandler::get().getFreeCount());
         y = draw_string_raw(0, y, "~~FREECHR %" PRIuZ, OBJECTS_MAX - _currentModule->getObjectHandler().getObjectCount());
-#if 0
-        y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
-#endif
         y = draw_string_raw(0, y, _currentModule->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE");
         y = draw_string_raw(0, y, "~~PASS %d", _currentModule->getPassageCount());
-#if 0
-        y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
-#endif
-        y = draw_string_raw(0, y, "~~DAMAGEPART %d", damagetile.part_gpip.get());
+        //y = draw_string_raw(0, y, "~~DAMAGEPART %d", damagetile.part_gpip.get());
 
         // y = draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }

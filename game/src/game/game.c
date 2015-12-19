@@ -59,7 +59,6 @@ bool  overrideslots      = false;
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
 
-damagetile_instance_t damagetile;
 WeatherState g_weatherState;
 fog_instance_t fog;
 AnimatedTilesState g_animatedTilesState;
@@ -88,7 +87,6 @@ static void let_all_characters_think();
 static void   game_load_profile_ai();
 
 static void   activate_spawn_file_vfs();
-static void   activate_alliance_file_vfs();
 
 static bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& pinfo );
 
@@ -337,41 +335,6 @@ void log_madused_vfs( const char *savename )
         }
 
         vfs_close( hFileWrite );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void activate_alliance_file_vfs()
-{
-    /// @author ZZ
-    /// @details This function reads the alliance file
-    TEAM_REF teama, teamb;
-
-    // Load the file
-    ReadContext ctxt("mp_data/alliance.txt");
-    if (!ctxt.ensureOpen())
-    {
-        return;
-    }
-    while (ctxt.skipToColon(true))
-    {
-        char buffer[1024 + 1];
-        vfs_read_string_lit(ctxt, buffer, 1024);
-        if (strlen(buffer) < 1)
-        {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
-                                                "empty string literal");
-        }
-        teama = (buffer[0] - 'A') % Team::TEAM_MAX;
-
-        vfs_read_string_lit(ctxt, buffer, 1024);
-        if (strlen(buffer) < 1)
-        {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
-                                                "empty string literal");
-        }
-        teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
-        _currentModule->getTeamList()[teama].makeAlliance(_currentModule->getTeamList()[teamb]);
     }
 }
 
@@ -671,7 +634,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &
 
         // find only active quests?
         // this makes it backward-compatible with zefz's version
-        if (player->getQuestLog().hasActiveQuest(idsz)) {
+        if (!player->getQuestLog().hasActiveQuest(idsz)) {
             return false;
         }
     }
@@ -1639,7 +1602,6 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
 
     //After loading, spawn all the data and initialize everything
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
-    activate_alliance_file_vfs();        // set up the non-default team interactions
 
     // now load the profile AI, do last so that all reserved slot numbers are initialized
     game_load_profile_ai();
@@ -2159,18 +2121,6 @@ void fog_instance_t::upload(const wawalite_fog_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
-{
-	this->amount.base = source.amount;
-	this->amount.rand = 1;
-	this->damagetype = source.damagetype;
-
-	this->part_gpip = source.part_gpip;
-	this->partand = source.partand;
-	this->sound_index = Ego::Math::constrain(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
-}
-
-//--------------------------------------------------------------------------------------------
 void AnimatedTilesState::upload(const wawalite_animtile_t& source)
 {
     elements.fill(Layer());
@@ -2295,7 +2245,6 @@ void upload_wawalite()
     upload_camera_data( wawalite_data.camera );
     fog.upload( wawalite_data.fog );
     g_weatherState.upload( wawalite_data.weather );
-    damagetile.upload( wawalite_data.damagetile );
     g_animatedTilesState.upload(wawalite_data.animtile);
 }
 

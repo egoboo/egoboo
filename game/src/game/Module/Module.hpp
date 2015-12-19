@@ -41,6 +41,39 @@ class Passage;
 class Team;
 namespace Ego { class Player; }
 
+/// The actual in-game state of the damage tiles
+struct damagetile_instance_t
+{
+    IPair amount;                    ///< Amount of damage
+    DamageType damagetype;
+
+    LocalParticleProfileRef part_gpip;
+    uint32_t partand;
+    int    sound_index;
+
+    damagetile_instance_t() :
+        amount(),
+        damagetype(DamageType::DAMAGE_DIRECT),
+        part_gpip(LocalParticleProfileRef::Invalid),
+        partand(0),
+        sound_index(INVALID_SOUND_ID)
+    {
+        //ctor
+    }
+
+    void upload(const wawalite_damagetile_t& source)
+    {
+        this->amount.base = source.amount;
+        this->amount.rand = 1;
+        this->damagetype = source.damagetype;
+
+        this->part_gpip = source.part_gpip;
+        this->partand = source.partand;
+        this->sound_index = Ego::Math::constrain(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
+    }
+};
+
+
 /// The module data that the game needs.
 class GameModule : public Id::NonCopyable
 {
@@ -99,13 +132,9 @@ public:
 
     void setExportValid(bool valid) {_exportValid = valid;}
 
-
     bool canRespawnAnyTime() const;
 
     void setRespawnValid(bool valid) {_isRespawnValid = valid;}
-
-    // clear passage memory
-    void clearPassages();
 
     /// @author ZF
     /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
@@ -229,6 +258,20 @@ public:
     **/
     void updateDamageTiles();
 
+private:
+    /**
+    * @brief
+    *   Load all passages from file
+    **/
+    void loadAllPassages();
+
+    /**
+    * @brief
+    *   Load alliance.txt which tells which teams like which teams
+    *   and which ones hate each other
+    **/
+    void loadTeamAlliances();
+
     /**
     * @brief
     *   Load all profiles required by this module into memory
@@ -236,11 +279,8 @@ public:
     void loadProfiles();
 
 private:
-    // Load all passages from file
-    void loadAllPassages();
-
-private:
     static constexpr uint32_t PIT_CLOCK_RATE = 20;  ///< How many game ticks between each pit check
+    static constexpr uint32_t DAMAGETILETIME = 32;  ///< Invincibility time
 
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
@@ -259,6 +299,7 @@ private:
 
     // special terrain and wawalite-related data structs
     water_instance_t _water;
+    damagetile_instance_t _damageTile;
 
 	/// @brief The mesh of the module.
 	std::shared_ptr<ego_mesh_t> _mesh;

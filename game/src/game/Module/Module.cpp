@@ -45,6 +45,7 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _seed(seed),
 
     _water(),
+    _damageTile(),
 
     _passages(),
     _mesh(std::make_shared<ego_mesh_t>()),
@@ -82,7 +83,8 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     //Load wavalite data
     wawalite_data_t *wavalite = read_wawalite_vfs();
     if (wavalite != nullptr) {
-        getWater().upload(wavalite->water);
+        _water.upload(wavalite->water);
+        _damageTile.upload(wavalite->damagetile);
     }
     else {
         Log::get().warn( "wawalite.txt not loaded for %s.\n", profile->getPath().c_str() );
@@ -97,6 +99,9 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 
     //Load passage.txt
     loadAllPassages();
+
+    //Load alliance.txt
+    loadTeamAlliances();
 }
 
 GameModule::~GameModule()
@@ -734,7 +739,7 @@ void GameModule::updatePits()
                     }
 
                     // Do some damage (same as damage tile)
-                    pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), Team::TEAM_DAMAGE, 
+                    pchr->damage(ATK_BEHIND, _damageTile.amount, static_cast<DamageType>(_damageTile.damagetype), Team::TEAM_DAMAGE, 
                                  _gameObjects[pchr->ai.getBumped()], DAMFX_NBLOC | DAMFX_ARMO, false);
                 }
             }
@@ -776,7 +781,7 @@ void GameModule::updateDamageTiles()
         // but make the tolerance closer so that books won't burn so easily
         if (!pchr->isBeingHeld() || pchr->getPosZ() < pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE)
         {
-            if (pchr->reaffirm_damagetype == damagetile.damagetype)
+            if (pchr->reaffirm_damagetype == _damageTile.damagetype)
             {
                 if (0 == (update_wld & TILE_REAFFIRM_AND))
                 {
@@ -793,15 +798,44 @@ void GameModule::updateDamageTiles()
 
         if (0 == pchr->damage_timer)
         {
-            int actual_damage = pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), 
+            int actual_damage = pchr->damage(ATK_BEHIND, _damageTile.amount, static_cast<DamageType>(_damageTile.damagetype), 
                 Team::TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
 
             pchr->damage_timer = DAMAGETILETIME;
 
-            if ((actual_damage > 0) && (LocalParticleProfileRef::Invalid != damagetile.part_gpip) && 0 == (update_wld & damagetile.partand)) {
-                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
+            if ((actual_damage > 0) && (LocalParticleProfileRef::Invalid != _damageTile.part_gpip) && 0 == (update_wld & _damageTile.partand)) {
+                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, _damageTile.part_gpip, 0 );
             }
         }
+    }
+}
+
+void GameModule::loadTeamAlliances()
+{
+    // Load the file if it exists
+    ReadContext ctxt("mp_data/alliance.txt");
+    if (!ctxt.ensureOpen()) {
+        return;
+    }
+
+    //Found the file, parse the contents
+    while (ctxt.skipToColon(true))
+    {
+        char buffer[1024 + 1];
+        vfs_read_string_lit(ctxt, buffer, 1024);
+        if (strlen(buffer) < 1) {
+            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                                "empty string literal");
+        }
+        TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
+
+        vfs_read_string_lit(ctxt, buffer, 1024);
+        if (strlen(buffer) < 1) {
+            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                                "empty string literal");
+        }
+        TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
+        _teamList[teama].makeAlliance(_teamList[teamb]);
     }
 }
 
