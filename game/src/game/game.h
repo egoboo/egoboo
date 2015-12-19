@@ -286,6 +286,7 @@ void game_quit_module();
 bool game_finish_module();
 bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
 void game_load_module_profiles(const std::string& modname);
+void game_load_global_profiles();
 
 /// Exporting stuff
 egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_obj_index, bool is_local );

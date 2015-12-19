@@ -81,7 +81,6 @@ static void game_reset_timers();
 // looping - stuff called every loop - not accessible by scripts
 static void check_stats();
 static void tilt_characters_to_terrain();
-static void do_damage_tiles();
 static void readPlayerInput();
 static void let_all_characters_think();
 
@@ -112,12 +111,6 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 static bool activate_spawn_file_spawn( spawn_file_info_t& psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t& psp_info );
 static void convert_spawn_file_load_name( spawn_file_info_t& psp_info );
-
-static void game_reset_module_data();
-
-static void load_all_profiles_import();
-static void import_dir_profiles_vfs(const std::string& importDirectory);
-static void game_load_global_profiles();
 
 static void update_all_objects();
 static void move_all_objects();
@@ -507,11 +500,11 @@ int update_game()
 
     //---- begin the code for updating misc. game stuff
     {
+        AudioSystem::get().updateLoopingSounds();
         BillboardSystem::get().update();
         g_animatedTilesState.animate();
         _currentModule->getWater().move();
-        AudioSystem::get().updateLoopingSounds();
-        do_damage_tiles();
+        _currentModule->updateDamageTiles();
         _currentModule->updatePits();
         g_weatherState.animate();
     }
@@ -800,61 +793,6 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, con
     }
 
     return best_target;
-}
-
-//--------------------------------------------------------------------------------------------
-void do_damage_tiles()
-{
-    // do the damage tile stuff
-
-    for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
-    {
-        // if the object is not really in the game, do nothing
-        if ( pchr->isHidden() || !pchr->isAlive() ) continue;
-
-        // if you are being held by something, you are protected
-        if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
-
-        // are we on a damage tile?
-		auto mesh = _currentModule->getMeshPointer();
-        if ( !mesh->grid_is_valid( pchr->getTile() ) ) continue;
-        if ( 0 == mesh->test_fx( pchr->getTile(), MAPFX_DAMAGE ) ) continue;
-
-        // are we low enough?
-        if ( pchr->getPosZ() > pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE ) continue;
-
-        // allow reaffirming damage to things like torches, even if they are being held,
-        // but make the tolerance closer so that books won't burn so easily
-        if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) || pchr->getPosZ() < pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE )
-        {
-            if ( pchr->reaffirm_damagetype == damagetile.damagetype )
-            {
-                if ( 0 == ( update_wld & TILE_REAFFIRM_AND ) )
-                {
-                    reaffirm_attached_particles(pchr->getObjRef());
-                }
-            }
-        }
-
-        // do not do direct damage to items that are being held
-        if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) ) continue;
-
-        // don't do direct damage to invulnerable objects
-        if ( pchr->invictus ) continue;
-
-        if ( 0 == pchr->damage_timer )
-        {
-            int actual_damage = pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), 
-                Team::TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
-
-            pchr->damage_timer = DAMAGETILETIME;
-
-            if (( actual_damage > 0 ) && (LocalParticleProfileRef::Invalid != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
-            {
-                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1206,56 +1144,6 @@ void tilt_characters_to_terrain()
 }
 
 //--------------------------------------------------------------------------------------------
-void import_dir_profiles_vfs( const std::string &dirname )
-{
-    if ( nullptr == _currentModule || dirname.empty() ) return;
-
-    if ( !_currentModule->isImportValid() ) return;
-
-    for (int cnt = 0; cnt < _currentModule->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
-    {
-        std::ostringstream pathFormat;
-        pathFormat << dirname << "/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
-
-        // Make sure the object exists...
-        const std::string importPath = pathFormat.str();
-        const std::string dataFilePath = importPath + "/data.txt";
-
-        if ( vfs_exists( dataFilePath.c_str() ) )
-        {
-            // new player found
-            if ( 0 == ( cnt % MAX_IMPORT_PER_PLAYER ) ) import_data.player++;
-
-            // store the slot info
-            import_data.slot = cnt;
-
-            // load it
-            import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath);
-            import_data.max_slot      = std::max( import_data.max_slot, cnt );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void load_all_profiles_import()
-{
-    // Clear the import slots...
-    import_data.slot_lst.fill(INVALID_PRO_REF);
-    import_data.max_slot = -1;
-
-    // This overwrites existing loaded slots that are loaded globally
-    overrideslots = true;
-    import_data.player = -1;
-    import_data.slot   = -100;
-
-    import_dir_profiles_vfs( "mp_import" );
-    import_dir_profiles_vfs( "mp_remote" );
-
-    // return this to the normal value
-    overrideslots = false;
-}
-
-//--------------------------------------------------------------------------------------------
 void game_load_profile_ai()
 {
     /// @author ZF
@@ -1296,16 +1184,6 @@ void game_load_module_profiles( const std::string& modname )
         filehandle = vfs_search_context_get_current(ctxt);
     }
     vfs_findClose(&ctxt);
-}
-
-//--------------------------------------------------------------------------------------------
-void game_load_global_profiles()
-{
-    // load all special objects
-    ProfileSystem::get().loadOneProfile("mp_data/globalobjects/book.obj", SPELLBOOK);
-
-    // load the objects from various import directories
-    load_all_profiles_import();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1664,21 +1542,6 @@ void activate_spawn_file_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_reset_module_data()
-{
-    // reset all
-	Log::get().info( "Resetting module data\n" );
-
-    // unload a lot of data
-    ProfileSystem::get().reset();
-    DisplayMsg_reset();
-    DisplayMsg_clear();
-    game_reset_players();
-
-    reset_end_text();
-}
-
-//--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles(ObjectRef objectRef) {
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
         if (!particle->isTerminated() && particle->getAttachedObjectID() == objectRef) {
@@ -1746,7 +1609,11 @@ void game_quit_module()
     scripting_system_end();
 
     // re-initialize all game/module data
-    game_reset_module_data();
+    ProfileSystem::get().reset();
+    DisplayMsg_reset();
+    DisplayMsg_clear();
+    game_reset_players();
+    reset_end_text();
 
     // finish whatever in-game song is playing
     AudioSystem::get().fadeAllSounds();
@@ -1764,14 +1631,11 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // set up the virtual file system for the module (Do before loading the module)
     if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
 
-    // load the global objects
-    game_load_global_profiles();
+    //Initialize player data
+    game_reset_players();
 
     // start the module
     _currentModule = std::make_unique<GameModule>(module, time(NULL));
-
-    //Initialize player data
-    game_reset_players();
 
     //After loading, spawn all the data and initialize everything
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt

@@ -88,13 +88,12 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
         Log::get().warn( "wawalite.txt not loaded for %s.\n", profile->getPath().c_str() );
     }
     upload_wawalite();
-    
-    // load all module-specific object profiels
-    game_load_module_profiles(profile->getPath());   // load the objects from the module's directory
+
+    //Load all the profiles required by this module
+    loadProfiles();
 
     //Load mesh
-    std::shared_ptr<ego_mesh_t> mesh = LoadMesh(profile->getPath());
-    setMeshPointer(mesh);
+    _mesh = LoadMesh(profile->getPath());
 
     //Load passage.txt
     loadAllPassages();
@@ -110,6 +109,53 @@ GameModule::~GameModule()
 
     //Free all textures
     gfx_system_release_all_graphics();
+}
+
+void GameModule::loadProfiles()
+{
+    //Load the spell book profile
+    ProfileSystem::get().loadOneProfile("mp_data/globalobjects/book.obj", SPELLBOOK);
+
+    // Clear the import slots...
+    import_data.slot_lst.fill(INVALID_PRO_REF);
+    import_data.max_slot = -1;
+
+    // This overwrites existing loaded slots that are loaded globally
+    overrideslots = true;
+    import_data.player = -1;
+    import_data.slot   = -100;
+
+    //Load any saved player characters from disk (if needed)
+    if (isImportValid()) {
+        for (int cnt = 0; cnt < getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
+        {
+            std::ostringstream pathFormat;
+            pathFormat << "mp_import/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
+
+            // Make sure the object exists...
+            const std::string importPath = pathFormat.str();
+            const std::string dataFilePath = importPath + "/data.txt";
+
+            if ( vfs_exists(dataFilePath.c_str()) )
+            {
+                // new player found
+                if (0 == (cnt % MAX_IMPORT_PER_PLAYER)) import_data.player++;
+
+                // store the slot info
+                import_data.slot = cnt;
+
+                // load it
+                import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath);
+                import_data.max_slot      = std::max(import_data.max_slot, cnt);
+            }
+        }
+    }
+
+    // return this to the normal value
+    overrideslots = false;
+
+    // load all module-specific object profiels
+    game_load_module_profiles(_moduleProfile->getPath());   // load the objects from the module's directory    
 }
 
 void GameModule::loadAllPassages()
@@ -132,11 +178,10 @@ void GameModule::loadAllPassages()
         area._bottom = ctxt.readIntegerLiteral();
 
         //constrain passage area within the level
-		auto& info = getMeshPointer()->_info;
-        area._left = Ego::Math::constrain(area._left, 0, int(info.getTileCountX()) - 1);
-        area._top = Ego::Math::constrain(area._top, 0, int(info.getTileCountY()) - 1);
-        area._right = Ego::Math::constrain(area._right, 0, int(info.getTileCountX()) - 1);
-        area._bottom = Ego::Math::constrain(area._bottom, 0, int(info.getTileCountY()) - 1);
+        area._left = Ego::Math::constrain(area._left, 0, int(_mesh->_info.getTileCountX()) - 1);
+        area._top = Ego::Math::constrain(area._top, 0, int(_mesh->_info.getTileCountY()) - 1);
+        area._right = Ego::Math::constrain(area._right, 0, int(_mesh->_info.getTileCountX()) - 1);
+        area._bottom = Ego::Math::constrain(area._bottom, 0, int(_mesh->_info.getTileCountY()) - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();
@@ -519,7 +564,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //    pchr->isshopitem = true;
     //}
 
-    chr_instance_t::update_ref(pchr->inst, getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false), true );
+    chr_instance_t::update_ref(pchr->inst, _mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false), true );
 
     // start the character out in the "dance" animation
     chr_start_anim(pchr.get(), ACTION_DA, true, true);
@@ -708,6 +753,56 @@ void GameModule::enablePitsKill()
 {
     _pitsTeleport = false;
     _pitsKill = true;
+}
+
+void GameModule::updateDamageTiles()
+{
+    // do the damage tile stuff
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator()) {
+        // if the object is not really in the game, do nothing
+        if (pchr->isHidden() || !pchr->isAlive()) continue;
+
+        // if you are being held by something, you are protected
+        if (pchr->isInsideInventory()) continue;
+
+        // are we on a damage tile?
+        if ( !_mesh->grid_is_valid( pchr->getTile() ) ) continue;
+        if ( 0 == _mesh->test_fx( pchr->getTile(), MAPFX_DAMAGE ) ) continue;
+
+        // are we low enough?
+        if (pchr->getPosZ() > pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE) continue;
+
+        // allow reaffirming damage to things like torches, even if they are being held,
+        // but make the tolerance closer so that books won't burn so easily
+        if (!pchr->isBeingHeld() || pchr->getPosZ() < pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE)
+        {
+            if (pchr->reaffirm_damagetype == damagetile.damagetype)
+            {
+                if (0 == (update_wld & TILE_REAFFIRM_AND))
+                {
+                    reaffirm_attached_particles(pchr->getObjRef());
+                }
+            }
+        }
+
+        // do not do direct damage to items that are being held
+        if (pchr->isBeingHeld()) continue;
+
+        // don't do direct damage to invulnerable objects
+        if (pchr->isInvincible()) continue;
+
+        if (0 == pchr->damage_timer)
+        {
+            int actual_damage = pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), 
+                Team::TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
+
+            pchr->damage_timer = DAMAGETILETIME;
+
+            if ((actual_damage > 0) && (LocalParticleProfileRef::Invalid != damagetile.part_gpip) && 0 == (update_wld & damagetile.partand)) {
+                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
+            }
+        }
+    }
 }
 
 /// @todo Remove this global.

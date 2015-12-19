@@ -136,9 +136,6 @@ public:
      */
     std::shared_ptr<Passage> getPassageByID(int id);
 
-    // Load all passages from file
-    void loadAllPassages();
-
     /**
      * @brief
      *  Get folder path to the Profile of this module
@@ -176,7 +173,6 @@ public:
     * Porting hack, TODO: remove
     **/
     std::shared_ptr<ego_mesh_t> getMeshPointer() { return _mesh; }
-	void setMeshPointer(std::shared_ptr<ego_mesh_t> mesh) { _mesh = mesh; }
 
     /**
      * @brief
@@ -225,6 +221,23 @@ public:
     *   killing in pits.
     **/
     void enablePitsTeleport(const Vector3f &location);
+
+    /**
+    * @brief
+    *   This makes tiles flagged as damage tiles hurt any characters standing on 
+    *   top of them
+    **/
+    void updateDamageTiles();
+
+    /**
+    * @brief
+    *   Load all profiles required by this module into memory
+    **/
+    void loadProfiles();
+
+private:
+    // Load all passages from file
+    void loadAllPassages();
 
 private:
     static constexpr uint32_t PIT_CLOCK_RATE = 20;  ///< How many game ticks between each pit check
