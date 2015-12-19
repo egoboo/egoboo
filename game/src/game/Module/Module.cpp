@@ -56,6 +56,8 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _pitsTeleport(false),
     _pitsTeleportPos()
 {
+    Log::get().info("Loading module \"%s\"\n", profile->getPath().c_str());
+
     srand( _seed );
     Random::setSeed(_seed);
 
@@ -72,6 +74,30 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     //Load water textures
     _waterTextures[0] = Ego::DeferredTexture("mp_data/waterlow");
     _waterTextures[1] = Ego::DeferredTexture("mp_data/watertop");
+
+    // load a bunch of assets that are used in the module
+    AudioSystem::get().loadGlobalSounds();
+    ProfileSystem::get().loadGlobalParticleProfiles();
+
+    //Load wavalite data
+    wawalite_data_t *wavalite = read_wawalite_vfs();
+    if (wavalite != nullptr) {
+        getWater().upload(wavalite->water);
+    }
+    else {
+        Log::get().warn( "wawalite.txt not loaded for %s.\n", profile->getPath().c_str() );
+    }
+    upload_wawalite();
+    
+    // load all module-specific object profiels
+    game_load_module_profiles(profile->getPath());   // load the objects from the module's directory
+
+    //Load mesh
+    std::shared_ptr<ego_mesh_t> mesh = LoadMesh(profile->getPath());
+    setMeshPointer(mesh);
+
+    //Load passage.txt
+    loadAllPassages();
 }
 
 GameModule::~GameModule()
@@ -106,7 +132,7 @@ void GameModule::loadAllPassages()
         area._bottom = ctxt.readIntegerLiteral();
 
         //constrain passage area within the level
-		auto& info = _currentModule->getMeshPointer()->_info;
+		auto& info = getMeshPointer()->_info;
         area._left = Ego::Math::constrain(area._left, 0, int(info.getTileCountX()) - 1);
         area._top = Ego::Math::constrain(area._top, 0, int(info.getTileCountY()) - 1);
         area._right = Ego::Math::constrain(area._right, 0, int(info.getTileCountX()) - 1);
@@ -120,7 +146,7 @@ void GameModule::loadAllPassages()
         if (ctxt.readBool()) mask = MAPFX_IMPASS;
         if (ctxt.readBool()) mask = MAPFX_SLIPPY;
 
-        std::shared_ptr<Passage> passage = std::make_shared<Passage>(area, mask);
+        std::shared_ptr<Passage> passage = std::make_shared<Passage>(*this, area, mask);
 
         //check if we need to close the passage
         if (!open) {
@@ -246,8 +272,7 @@ uint8_t GameModule::getMinPlayers() const
 
 bool GameModule::isInside(const float x, const float y) const
 {
-	const auto& tmem = _currentModule->getMeshPointer()->_tmem;
-    return x >= 0 && x < tmem._edge_x && y >= 0 && y < tmem._edge_y;
+    return x >= 0 && x < _mesh->_tmem._edge_x && y >= 0 && y < _mesh->_tmem._edge_y;
 }
 
 std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
@@ -494,7 +519,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //    pchr->isshopitem = true;
     //}
 
-    chr_instance_t::update_ref(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false), true );
+    chr_instance_t::update_ref(pchr->inst, getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false), true );
 
     // start the character out in the "dance" animation
     chr_start_anim(pchr.get(), ACTION_DA, true, true);

@@ -285,6 +285,7 @@ void game_quit_module();
 /// the hook for exporting all the current players and reloading them
 bool game_finish_module();
 bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
+void game_load_module_profiles(const std::string& modname);
 
 /// Exporting stuff
 egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_obj_index, bool is_local );

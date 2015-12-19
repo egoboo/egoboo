@@ -28,6 +28,7 @@
 
 //Forward declarations
 class Object;
+class GameModule;
 
 class Passage
 {
@@ -52,14 +53,9 @@ public:
 	};
 
 	/**
-	* @brief Default constructor
-	**/
-	Passage();
-
-	/**
 	* @brief Constructor
 	**/
-	Passage(const irect_t& area, const uint8_t mask);
+	Passage(GameModule& module, const irect_t& area, const uint8_t mask);
 
 	/**
 	* @brief get left coordinate of passage
@@ -148,6 +144,8 @@ public:
     void removeShop();
 
 private:
+    GameModule& _module;		///< Reference to the module we are inside
+
     irect_t _area;			///< Passage area
     int32_t _music;   		///< Music track appointed to the specific passage
     uint8_t _mask;  		///< Is it IMPASSABLE, SLIPPERY or whatever

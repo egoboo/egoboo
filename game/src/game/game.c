@@ -86,7 +86,6 @@ static void readPlayerInput();
 static void let_all_characters_think();
 
 // module initialization / deinitialization - not accessible by scripts
-static bool game_load_module_data( const std::string& smallname );
 static void   game_load_profile_ai();
 
 static void   activate_spawn_file_vfs();
@@ -119,7 +118,6 @@ static void game_reset_module_data();
 static void load_all_profiles_import();
 static void import_dir_profiles_vfs(const std::string& importDirectory);
 static void game_load_global_profiles();
-static void game_load_module_profiles( const std::string& modname );
 
 static void update_all_objects();
 static void move_all_objects();
@@ -1285,25 +1283,19 @@ void game_load_module_profiles( const std::string& modname )
 {
     /// @author BB
     /// @details Search for .obj directories in the module directory and load them
-
-    vfs_search_context_t * ctxt;
-    const char *filehandle;
-    STRING newloadname;
-
     import_data.slot = -100;
-    make_newloadname( modname.c_str(), "objects", newloadname );
+    std::string folderPath = modname + "/objects";
 
-    ctxt = vfs_findFirst( newloadname, "obj", VFS_SEARCH_DIR );
-    filehandle = vfs_search_context_get_current( ctxt );
+    vfs_search_context_t* ctxt = vfs_findFirst(folderPath.c_str(), "obj", VFS_SEARCH_DIR);
+    const char* filehandle = vfs_search_context_get_current(ctxt);
 
-    while ( NULL != ctxt && VALID_CSTR( filehandle ) )
-    {
+    while (NULL != ctxt && VALID_CSTR(filehandle)) {
         ProfileSystem::get().loadOneProfile(filehandle);
 
-        ctxt = vfs_findNext( &ctxt );
-        filehandle = vfs_search_context_get_current( ctxt );
+        ctxt = vfs_findNext(&ctxt);
+        filehandle = vfs_search_context_get_current(ctxt);
     }
-    vfs_findClose( &ctxt );
+    vfs_findClose(&ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1687,49 +1679,6 @@ void game_reset_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-/// @details This function loads a module
-bool game_load_module_data( const std::string& smallname )
-{
-    //TODO: ZF> this should be moved to Module.cpp
-	Log::get().info( "Loading module \"%s\"\n", smallname.c_str() );
-
-    // ensure that the script parser exists
-    (void)parser_state_t::get();
-
-    // generate the module directory
-    std::string modname = str_append_slash(smallname);
-
-    // load a bunch of assets that are used in the module
-    AudioSystem::get().loadGlobalSounds();
-    ProfileSystem::get().loadGlobalParticleProfiles();
-
-    if (read_wawalite_vfs() == nullptr) {
-		Log::get().warn( "wawalite.txt not loaded for %s.\n", modname.c_str() );
-    }
-    upload_wawalite();
-
-    // load all module objects
-    game_load_global_profiles();            // load the global objects
-    game_load_module_profiles( modname );   // load the objects from the module's directory
-
-	std::shared_ptr<ego_mesh_t> mesh = nullptr;
-	try {
-		mesh = LoadMesh(modname);
-	} catch (Id::Exception& ex) {
-		// do not cause the program to fail, in case we are using a script function to load a module
-		// just return a failure value and log a warning message for debugging purposes
-		Log::get().warn("%s\n", static_cast<std::string>(ex).c_str());
-		return false;
-	}
-	_currentModule->setMeshPointer(mesh);
-
-    //Load passage.txt
-    _currentModule->loadAllPassages();
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles(ObjectRef objectRef) {
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
         if (!particle->isTerminated() && particle->getAttachedObjectID() == objectRef) {
@@ -1815,16 +1764,11 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // set up the virtual file system for the module (Do before loading the module)
     if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
 
+    // load the global objects
+    game_load_global_profiles();
+
     // start the module
     _currentModule = std::make_unique<GameModule>(module, time(NULL));
-
-    // load all the in-game module data
-    if ( !game_load_module_data( module->getPath().c_str() ) )
-    {    
-        // release any data that might have been allocated
-        _currentModule.reset(nullptr);
-        return false;
-    };
 
     //Initialize player data
     game_reset_players();
@@ -2486,7 +2430,6 @@ void upload_wawalite()
     upload_light_data( wawalite_data);                         // this statement depends on data from upload_graphics_data()
     upload_camera_data( wawalite_data.camera );
     fog.upload( wawalite_data.fog );
-    _currentModule->getWater().upload( wawalite_data.water );
     g_weatherState.upload( wawalite_data.weather );
     damagetile.upload( wawalite_data.damagetile );
     g_animatedTilesState.upload(wawalite_data.animtile);
