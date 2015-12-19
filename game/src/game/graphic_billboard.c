@@ -304,7 +304,7 @@ std::shared_ptr<Billboard> BillboardSystem::makeBillboard(ObjectRef obj_ref, con
     } catch (...) {
         return nullptr;
     }
-    _gameEngine->getUIManager()->getFloatingTextFont()->drawTextToTexture(tex.get(), text, Ego::Math::Colour3f(textColor.getRed(), textColor.getGreen(), textColor.getBlue()));
+    _gameEngine->getUIManager()->getFloatingTextFont()->drawTextToTexture(tex, text, Ego::Math::Colour3f(textColor.getRed(), textColor.getGreen(), textColor.getBlue()));
     tex->setName("billboard text");
 
     // Create a new billboard.

@@ -57,7 +57,7 @@ float CALCULATE_PRT_V1(int IDX, int CNT) {
     return (((.95f + ((CNT) >> 4)) / 16.0f) * ((float)ptex_w[IDX] / (float)ptex_h[IDX])*ptex_hscale[IDX]);
 }
 
-void prt_set_texture_params(const Ego::Texture* texture, uint8_t type)
+void prt_set_texture_params(const std::shared_ptr<const Ego::Texture>& texture, uint8_t type)
 {
     int index;
 
@@ -139,7 +139,7 @@ gfx_rv render_one_prt_solid(const ParticleRef iprt)
         renderer.setAlphaTestEnabled(true);
 		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
 
-        renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
+        renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
 
         renderer.setColour(Ego::Math::Colour4f(pinst.fintens, pinst.fintens, pinst.fintens, 1.0f));
 
@@ -199,7 +199,7 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
             float fintens = inst.fintens;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
+            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
 
             drawParticle = true;
         }
@@ -213,7 +213,7 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
             float fintens = inst.fintens * inst.falpha;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-            renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
+            renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
 
             drawParticle = (fintens > 0.0f);
         }
@@ -231,7 +231,7 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
             float falpha = inst.falpha;
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
 
-            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
+            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
 
             drawParticle = (falpha > 0.0f);
         }
@@ -314,7 +314,7 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
 
                 particle_colour = Ego::Math::Colour4f(intens, intens, intens, 1.0f);
 
-                renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture());
+                renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
 
                 draw_particle = intens > 0.0f;
             }
@@ -337,7 +337,7 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
 
                 particle_colour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, alpha);
 
-				renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture());
+				renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
 
                 draw_particle = alpha > 0.0f;
             }

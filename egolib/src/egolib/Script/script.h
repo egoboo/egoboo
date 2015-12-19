@@ -408,6 +408,8 @@ public:
 // struct script_state_t
 //--------------------------------------------------------------------------------------------
 
+#include "egolib/Script/Interpreter/TaggedValue.hpp"
+
 /// The state of the scripting system
 /// @details It is not persistent between one evaluation of a script and another
 struct script_state_t
@@ -417,7 +419,8 @@ struct script_state_t
     int turn;
     int distance;
     int argument;
-    int operationsum;
+    using TaggedValue = Ego::Script::Interpreter::TaggedValue;
+    TaggedValue operationsum; /// The result of an arithmetic operation
 
 	// public
 	script_state_t();

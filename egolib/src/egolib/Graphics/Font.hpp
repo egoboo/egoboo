@@ -75,7 +75,7 @@ namespace Ego
          * @param colour
          *  the colour of the text (default white)
          */
-        void drawTextToTexture(Ego::Texture *tex, const std::string &text,
+        void drawTextToTexture(std::shared_ptr<Ego::Texture> tex, const std::string &text,
                                const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white()) const;
         
 #if 0

@@ -294,7 +294,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
     float offv  = _currentModule->getWater()._layers[layer]._tx[YY];
 	uint16_t frame = _currentModule->getWater()._layers[layer]._frame;                // Frame
 
-	const Ego::Texture *ptex = _currentModule->getWaterTexture(layer);
+	std::shared_ptr<const Ego::Texture> ptex = _currentModule->getWaterTexture(layer);
 
     float x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
     float y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();
@@ -403,7 +403,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
 	auto& renderer = Ego::Renderer::get();
 
     // set the texture
-    renderer.getTextureUnit().setActivated(ptex);
+    renderer.getTextureUnit().setActivated(ptex.get());
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {

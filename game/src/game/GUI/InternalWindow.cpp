@@ -52,8 +52,8 @@ void InternalWindow::TitleBar::draw()
     _font->drawText(_title, getX() + getWidth()/2 - _textWidth/2, getY() + 12, Ego::Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
 
     //Draw the skull icon on top
-    const int skullWidth = _titleSkull.get().getWidth()/2;
-    const int skullHeight = _titleSkull.get().getHeight()/2;
+    const int skullWidth = _titleSkull.get_ptr()->getWidth()/2;
+    const int skullHeight = _titleSkull.get_ptr()->getHeight()/2;
     _gameEngine->getUIManager()->drawImage(_titleSkull.get(), getX()+getWidth()/2 - skullWidth/2, getY() - skullHeight/2, skullWidth, skullHeight);
 }
 

@@ -62,7 +62,7 @@ private:
             //ctor
         }
 
-        Blip(const float setX, const float setY, const Ego::Texture *setIcon) :
+        Blip(const float setX, const float setY, const std::shared_ptr<const Ego::Texture>& setIcon) :
             x(setX),
             y(setY),
             color(COLOR_WHITE),
@@ -74,7 +74,7 @@ private:
         float x;
         float y;
         HUDColors color;
-        const Ego::Texture *icon;
+        std::shared_ptr<const Ego::Texture> icon;
     };
 
 private:

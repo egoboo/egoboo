@@ -182,39 +182,42 @@ namespace Ego {
 namespace Graphics {
 namespace SDL {
 
-std::shared_ptr<SDL_Surface> createSurface(int width, int height, Ego::PixelFormat pixelFormat) {
+uint32_t getEnumeratedPixelFormat(const Ego::PixelFormatDescriptor& pixelFormatDescriptor) {
+    uint32_t alphaMask = pixelFormatDescriptor.getAlphaMask(),
+        blueMask = pixelFormatDescriptor.getBlueMask(),
+        greenMask = pixelFormatDescriptor.getGreenMask(),
+        redMask = pixelFormatDescriptor.getRedMask();
+    int bitsPerPixel = pixelFormatDescriptor.getBitsPerPixel();
+
+    uint32_t pixelFormatEnum_sdl = SDL_MasksToPixelFormatEnum(bitsPerPixel, redMask, greenMask, blueMask, alphaMask);
+    if (SDL_PIXELFORMAT_UNKNOWN == pixelFormatEnum_sdl) {
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "pixel format descriptor has no corresponding SDL pixel format");
+    }
+    return pixelFormatEnum_sdl;
+}
+
+std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const Ego::PixelFormatDescriptor& pixelFormatDescriptor) {
+    std::shared_ptr<const SDL_PixelFormat> pixelFormat_sdl = std::shared_ptr<const SDL_PixelFormat>(SDL_AllocFormat(getEnumeratedPixelFormat(pixelFormatDescriptor)),
+                                                                                                    [](SDL_PixelFormat *pixelFormat) { if (pixelFormat) { SDL_FreeFormat(pixelFormat); } });
+    if (!pixelFormat_sdl) {
+        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL", "internal error");
+    }
+    return pixelFormat_sdl;
+}
+
+std::shared_ptr<SDL_Surface> createSurface(int width, int height, const Ego::PixelFormatDescriptor& pixelFormat) {
     if (width < 0) {
         throw std::runtime_error("negative width");
     }
     if (height < 0) {
         throw std::runtime_error("negative height");
     }
-    SDL_PixelFormat *pixelFormat_sdl = nullptr;
-    switch (pixelFormat) {
-    case Ego::PixelFormat::B8G8R8:
-        pixelFormat_sdl = SDL_AllocFormat(SDL_PIXELFORMAT_BGR888);
-        break;
-    case Ego::PixelFormat::B8G8R8A8:
-        pixelFormat_sdl = SDL_AllocFormat(SDL_PIXELFORMAT_BGRA8888);
-        break;
-    case Ego::PixelFormat::R8G8B8:
-        pixelFormat_sdl = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
-        break;
-    case Ego::PixelFormat::R8G8B8A8:
-        pixelFormat_sdl = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
-        break;
-    default:
-        throw std::runtime_error("unsupported pixel format");
-    }
-    if (nullptr == pixelFormat_sdl) {
-        throw std::runtime_error("SDL_AllocFormat failed");
-    }
+    std::shared_ptr<const SDL_PixelFormat> pixelFormat_sdl = getPixelFormat(pixelFormat);
     SDL_Surface *surface_sdl = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
                                                     pixelFormat_sdl->BitsPerPixel,
                                                     pixelFormat_sdl->Rmask, pixelFormat_sdl->Gmask,
                                                     pixelFormat_sdl->Bmask, pixelFormat_sdl->Amask);
     if (nullptr == surface_sdl) {
-        SDL_FreeFormat(pixelFormat_sdl);
         throw std::runtime_error("SDL_CreateRGBSurface failed");
     }
     try {
@@ -256,11 +259,11 @@ std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>
 	// Copy the old surface into the new surface.
 	for (size_t y = 0; y < oldHeight; ++y) {
 		for (size_t x = 0; x < oldWidth; ++x) {
-			uint32_t p = getPixel(oldSurface.get(), x, y);
+			uint32_t p = getPixel(oldSurface, x, y);
 			uint8_t r, g, b, a;
 			SDL_GetRGBA(p, surface->format, &r, &g, &b, &a);
 			uint32_t q = SDL_MapRGBA(newSurface->format, r, g, b, a);
-			putPixel(newSurface.get(), padding.left + x, padding.top + y, q);
+			putPixel(newSurface, padding.left + x, padding.top + y, q);
 		}
 	}
 	return newSurface;
@@ -280,7 +283,7 @@ std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surfac
 	return clone;
 }
 
-uint32_t getPixel(const SDL_Surface *surface, int x, int y) {
+uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int y) {
 	if (!surface) {
 		throw std::invalid_argument("nullptr == surface");
 	}
@@ -311,7 +314,7 @@ uint32_t getPixel(const SDL_Surface *surface, int x, int y) {
     }
 }
 
-void putPixel(SDL_Surface *surface, int x, int y, uint32_t pixel) {
+void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_t pixel) {
 	if (!surface) {
 		throw std::invalid_argument("nullptr == surface");
 	}

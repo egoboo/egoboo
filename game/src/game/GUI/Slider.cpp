@@ -51,11 +51,11 @@ void Slider::setOnChangeFunction(const std::function<void(int)> onChange)
 void Slider::draw()
 {
     //Draw the bar
-    _gameEngine->getUIManager()->drawImage(_sliderBarTexture, getX(), getY(), getWidth(), getHeight(), isEnabled() ? Ego::Math::Colour4f::white() : Ego::Math::Colour4f::grey());
+    _gameEngine->getUIManager()->drawImage(_sliderBarTexture.get_ptr(), getX(), getY(), getWidth(), getHeight(), isEnabled() ? Ego::Math::Colour4f::white() : Ego::Math::Colour4f::grey());
 
     //Draw the moveable slider on top
     const int SLIDER_WIDTH = getWidth()/10;
-    _gameEngine->getUIManager()->drawImage(_sliderTexture, getX() + SLIDER_WIDTH + (getWidth()-SLIDER_WIDTH*2)*_sliderPosition - SLIDER_WIDTH/2, getY(), SLIDER_WIDTH, getHeight(), isEnabled() ? Ego::Math::Colour4f::white() : Ego::Math::Colour4f::grey());
+    _gameEngine->getUIManager()->drawImage(_sliderTexture.get_ptr(), getX() + SLIDER_WIDTH + (getWidth()-SLIDER_WIDTH*2)*_sliderPosition - SLIDER_WIDTH/2, getY(), SLIDER_WIDTH, getHeight(), isEnabled() ? Ego::Math::Colour4f::white() : Ego::Math::Colour4f::grey());
 }
 
 void Slider::setValue(const int value)

@@ -88,7 +88,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
             {
                 // Normal letter
                 iTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr.get(), iTmp, x, y );
+                draw_one_font( tx_ptr, iTmp, x, y );
                 x += fontxspacing[iTmp];
             }
 
@@ -351,12 +351,12 @@ void gfx_reshape_viewport(int w, int h)
 //--------------------------------------------------------------------------------------------
 // PRIMITIVES
 //--------------------------------------------------------------------------------------------
-void draw_quad_2d(const Ego::Texture *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
+void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
 {
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
     {
 		auto& renderer = Ego::Renderer::get();
-		renderer.getTextureUnit().setActivated(tex);
+		renderer.getTextureUnit().setActivated(tex.get());
 		renderer.setColour(tint);
 
         if ( use_alpha )
@@ -394,7 +394,7 @@ void draw_quad_2d(const Ego::Texture *tex, const ego_frect_t scr_rect, const ego
 //--------------------------------------------------------------------------------------------
 // BITMAP FONT FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void draw_one_font(Ego::Texture * ptex, int fonttype, float x_stt, float y_stt )
+void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype, float x_stt, float y_stt )
 {
     /// @author GAC
     /// @details Very nasty version for starters.  Lots of room for improvement.
@@ -511,7 +511,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
             {
                 // Normal letter
                 iTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr.get(), iTmp, x, y );
+                draw_one_font( tx_ptr, iTmp, x, y );
                 x += fontxspacing[iTmp];
             }
 

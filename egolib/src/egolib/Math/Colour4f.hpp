@@ -25,10 +25,8 @@
 
 #include "egolib/Math/Colour3f.hpp"
 
-namespace Ego
-{
-namespace Math
-{
+namespace Ego {
+namespace Math {
 
 /**
  * @brief
@@ -38,8 +36,7 @@ namespace Math
  * @author
  *  Michael Heilmann
  */
-class Colour4f
-{
+class Colour4f {
 
 public:
 
@@ -48,8 +45,7 @@ public:
      * @return the colour "red"
      * @see Ego::Math::Colour3f::red()
      */
-    static const Colour4f& red()
-    {
+    static const Colour4f& red() {
         static const Colour4f colour(Colour3f::red(), 1.0f);
         return colour;
     }
@@ -59,8 +55,7 @@ public:
      * @return the colour "green"
      * @see Ego::Math::Colour3f::green()
      */
-    static const Colour4f& green()
-    {
+    static const Colour4f& green() {
         static const Colour4f colour(Colour3f::green(), 1.0f);
         return colour;
     }
@@ -70,8 +65,7 @@ public:
      * @return the colour "blue"
      * @see Ego::Math::Colour3f::blue()
      */
-    static const Colour4f blue()
-    {
+    static const Colour4f blue() {
         static const Colour4f colour(Colour3f::blue(), 1.0f);
         return colour;
     }
@@ -81,8 +75,7 @@ public:
      * @return the colour "white"
      * @see Ego::Math::Colour3f::white()
      */
-    static const Colour4f white()
-    {
+    static const Colour4f white() {
         static const Colour4f colour(Colour3f::white(), 1.0f);
         return colour;
     }
@@ -92,8 +85,7 @@ public:
      * @return the colour "black"
      * @see Ego::Math::Colour3f::black()
      */
-    static const Colour4f black()
-    {
+    static const Colour4f black() {
         static const Colour4f colour(Colour3f::black(), 1.0f);
         return colour;
     }
@@ -103,8 +95,7 @@ public:
      * @return the colour "cyan"
      * @see Ego::Math::Colour3f::cyan()
      */
-    static const Colour4f cyan()
-    {
+    static const Colour4f cyan() {
         static const Colour4f colour(Colour3f::cyan(), 1.0f);
         return colour;
     }
@@ -114,8 +105,7 @@ public:
      * @return the colour "magenta"
      * @see Ego::Math::Colour3f::magenta()
      */
-    static const Colour4f magenta()
-    {
+    static const Colour4f magenta() {
         static const Colour4f colour(Colour3f::magenta(), 1.0f);
         return colour;
     }
@@ -125,8 +115,7 @@ public:
      * @return the colour "yellow"
      * @see Ego::Math::Colour3f::yellow()
      */
-    static const Colour4f yellow()
-    {
+    static const Colour4f yellow() {
         static const Colour4f colour(Colour3f::yellow(), 1.0f);
         return colour;
     }
@@ -136,8 +125,7 @@ public:
      * @return the colour "purple"
      * @see Ego::Math::Colour3f::purple()
      */
-    static const Colour4f purple()
-    {
+    static const Colour4f purple() {
         static const Colour4f colour(Colour3f::purple(), 1.0f);
         return colour;
     }
@@ -147,8 +135,7 @@ public:
      * @return the colour "grey"
      * @see Ego::Math::Colour3f::grey()
      */
-    static const Colour4f grey()
-    {
+    static const Colour4f grey() {
         static const Colour4f colour(Colour3f::grey(), 1.0f);
         return colour;
     }
@@ -162,7 +149,7 @@ private:
      *  0.0f <= r <= 1.0f
      */
     float _r;
-    
+
     /**
      * @brief
      *  The green component.
@@ -170,7 +157,7 @@ private:
      *  0.0f <= r <= 1.0f
      */
     float _g;
-    
+
     /**
      * @brief
      *  The blue component.
@@ -197,8 +184,7 @@ public:
      * @return
      *  the value of the red component
      */
-    float getRed() const
-    {
+    float getRed() const {
         return _r;
     }
 
@@ -208,8 +194,7 @@ public:
      * @return
      *  the value of the green component
      */
-    float getGreen() const
-    {
+    float getGreen() const {
         return _g;
     }
 
@@ -219,8 +204,7 @@ public:
      * @return
      *  the value of the blue component
      */
-    float getBlue() const
-    {
+    float getBlue() const {
         return _b;
     }
 
@@ -230,8 +214,7 @@ public:
      * @return
      *  the value of the alpha component
      */
-    float getAlpha() const
-    {
+    float getAlpha() const {
         return _a;
     }
 
@@ -241,12 +224,10 @@ public:
      * @param a
      *  the value of the alpha component
      */
-    void setAlpha(const float a)
-    {
-        if (_a < 0.0f || _a > 1.0f)
-        {
+    void setAlpha(const float a) {
+        if (_a < 0.0f || _a > 1.0f) {
             throw std::domain_error("alpha component outside bounds");
-        }        
+        }
         _a = a;
     }
 
@@ -258,8 +239,7 @@ public:
         _r(0.0f),
         _g(0.0f),
         _b(0.0f),
-        _a(0.0f)
-    {}
+        _a(0.0f) {}
 
     /**
      * @brief
@@ -270,14 +250,12 @@ public:
      * @param a
      *  the alpha component
      */
-    Colour4f(const Colour3f& other,float a) :
+    Colour4f(const Colour3f& other, float a) :
         _r(other.getRed()),
         _g(other.getGreen()),
         _b(other.getBlue()),
-        _a(a)
-    {
-        if (_a < 0.0f || _a > 1.0f)
-        {
+        _a(a) {
+        if (_a < 0.0f || _a > 1.0f) {
             throw std::domain_error("alpha component outside bounds");
         }
     }
@@ -292,8 +270,7 @@ public:
         _r(other._r),
         _g(other._g),
         _b(other._b),
-        _a(other._a)
-    {}
+        _a(other._a) {}
 
     /**
      * @brief
@@ -313,22 +290,17 @@ public:
         _r(r),
         _g(g),
         _b(b),
-        _a(a)
-    {
-        if (_r < 0.0f || _r > 1.0f)
-        {
+        _a(a) {
+        if (_r < 0.0f || _r > 1.0f) {
             throw std::domain_error("red component outside bounds");
         }
-        if (_g < 0.0f || _g > 1.0f)
-        {
+        if (_g < 0.0f || _g > 1.0f) {
             throw std::domain_error("green component outside bounds");
         }
-        if (_b < 0.0f || _b > 1.0f)
-        {
+        if (_b < 0.0f || _b > 1.0f) {
             throw std::domain_error("blue component outside bounds");
         }
-        if (_a < 0.0f || _a > 1.0f)
-        {
+        if (_a < 0.0f || _a > 1.0f) {
             throw std::domain_error("alpha component outside bounds");
         }
     }
@@ -345,8 +317,7 @@ public:
      * @remark
      *  The corresponding inverted colour is also known as the complementary colour.
      */
-    Colour4f invert() const
-    {
+    Colour4f invert() const {
         return Colour4f(1.0f - _r, 1.0f - _g, 1.0f - _b, _a);
     }
 
@@ -362,9 +333,8 @@ public:
      *  then corresponding inverted colour is \f$(brighness*r,brighness*1,brighness*1,a)\f$. This conversion
      *  is not reverrsible.
      */
-    Colour4f brighter(float brightness) const
-    {
-        if(brightness <= 0.0f) return *this;
+    Colour4f brighter(float brightness) const {
+        if (brightness <= 0.0f) return *this;
         brightness += 1.0f;
         return Colour4f(std::min(1.0f, _r*brightness), std::min(1.0f, _g*brightness), std::min(1.0f, _b*brightness), _a);
     }
@@ -385,8 +355,7 @@ public:
      * @return
      *  the colour
      */
-    static Colour4f parse(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-    {
+    static Colour4f parse(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
         return Colour4f(((float)r) / 255.0f, ((float)g) / 255.0f, ((float)b) / 255.0f, ((float)a) / 255.0f);
     }
 

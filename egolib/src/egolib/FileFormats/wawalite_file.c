@@ -34,7 +34,7 @@
 static const int WAWALITE_FILE_VERSION = 2;
 
 //--------------------------------------------------------------------------------------------
-wawalite_water_t *wawalite_water_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_water_t *profile)
+void wawalite_water_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_water_t *profile)
 {
     if (!profile)
     {
@@ -82,16 +82,14 @@ wawalite_water_t *wawalite_water_t::read(ReadContext& ctxt, wawalite_data_t *enc
     profile->layer[1].amp = vfs_get_next_float(ctxt);
     profile->layer[1].tx_add[SS] = vfs_get_next_float(ctxt);
     profile->layer[1].tx_add[TT] = vfs_get_next_float(ctxt);
-
-    return profile;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_light_t *wawalite_light_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_light_t *profile)
+void wawalite_light_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_light_t *profile)
 {
     if (!profile)
     {
-        return nullptr;
+        throw std::invalid_argument("nullptr == profile");
     }
     *profile = wawalite_light_t::getDefaults();
 
@@ -99,16 +97,14 @@ wawalite_light_t *wawalite_light_t::read(ReadContext& ctxt, wawalite_data_t *enc
     profile->light_d[kY] = vfs_get_next_float(ctxt);
     profile->light_d[kZ] = vfs_get_next_float(ctxt);
     profile->light_a = vfs_get_next_float(ctxt);
-
-    return profile;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_physics_t *wawalite_physics_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_physics_t *profile)
+void wawalite_physics_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_physics_t *profile)
 {
     if (!profile)
     {
-        return nullptr;
+        throw std::invalid_argument("nullptr == profile");
     }
     // Reset to defaults.
     *profile = wawalite_physics_t::getDefaults();
@@ -119,32 +115,28 @@ wawalite_physics_t *wawalite_physics_t::read(ReadContext& ctxt, wawalite_data_t 
     profile->waterfriction = vfs_get_next_float(ctxt);
     profile->noslipfriction = vfs_get_next_float(ctxt);
     profile->gravity = vfs_get_next_float(ctxt);
-
-    return profile;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_animtile_t *wawalite_animtile_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_animtile_t *profile)
+void wawalite_animtile_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_animtile_t *profile)
 {
     if (!profile)
     {
-        return nullptr;
+        throw std::invalid_argument("nullptr == profile");
     }
     // Reset to defaults.
     *profile = wawalite_animtile_t::getDefaults();
 
     profile->update_and = vfs_get_next_int(ctxt);
     profile->frame_and = vfs_get_next_int(ctxt);
-
-    return profile;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_damagetile_t *wawalite_damagetile_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_damagetile_t *profile)
+void wawalite_damagetile_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_damagetile_t *profile)
 {
     if (!profile)
     {
-        return nullptr;
+        throw std::invalid_argument("nullptr == profile");
     }
     // Reset to defaults.
     *profile = wawalite_damagetile_t::getDefaults();
@@ -153,16 +145,14 @@ wawalite_damagetile_t *wawalite_damagetile_t::read(ReadContext& ctxt, wawalite_d
     profile->amount = vfs_get_next_int(ctxt);
     /// @todo pass the load name
     profile->damagetype = vfs_get_next_damage_type(ctxt);
-
-    return profile;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_weather_t *wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_weather_t *profile)
+void wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_weather_t *profile)
 {
     if (!profile)
     {
-        return nullptr;
+        throw std::invalid_argument("nullptr == profile");
     }
     // Reset to defaults.
     *profile = wawalite_weather_t::getDefaults();
@@ -181,8 +171,6 @@ wawalite_weather_t *wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t 
 
     profile->over_water = vfs_get_next_bool(ctxt);
     profile->timer_reset = vfs_get_next_int(ctxt);
-
-    return profile;
 }
 
 //--------------------------------------------------------------------------------------------

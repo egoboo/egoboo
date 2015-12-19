@@ -39,7 +39,7 @@ public:
 
 private:
     // decimate one tiled texture of a mesh
-    void decimate(const Ego::Texture *src_tx, std::vector<std::shared_ptr<Ego::Texture>>& targetTextureList, int minification);
+    void decimate(const std::shared_ptr<const Ego::Texture>& src_tx, std::vector<std::shared_ptr<Ego::Texture>>& targetTextureList, int minification);
 
 private:
     // the "small" textures

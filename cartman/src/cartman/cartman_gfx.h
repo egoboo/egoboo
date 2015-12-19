@@ -30,7 +30,6 @@
 namespace Cartman { struct Window; }
 struct cartman_mpd_t;
 struct select_lst_t;
-struct s_Font;
 namespace Ego { class Font; }
 
 //--------------------------------------------------------------------------------------------
@@ -68,8 +67,12 @@ struct simple_vertex_t
 
 #define MAXTILE 256             //
 
-#define OGL_MAKE_COLOR_3(COL, BB,GG,RR) { COL[0] = RR / 32.0f; COL[1] = GG / 32.0f; COL[2] = BB / 32.0f; }
-#define OGL_MAKE_COLOR_4(COL, AA,BB,GG,RR) { COL[0] = RR / 32.0f; COL[1] = GG / 32.0f; COL[2] = BB / 32.0f; COL[3] = AA / 32.0f; }
+inline void make_rgba(float *color, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    *(color + 0) = r / 255.0f;
+    *(color + 1) = g / 255.0f;
+    *(color + 2) = b / 255.0f;
+    *(color + 3) = a / 255.0f;
+}
 
 inline uint32_t make_rgb(const std::shared_ptr<const SDL_Surface>& surface, uint8_t r, uint8_t g, uint8_t b) {
     return SDL_MapRGB(surface->format, r, g, b);
@@ -154,9 +157,6 @@ extern std::shared_ptr<Ego::Font> gfx_font_ptr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-// misc
-SDL_Color MAKE_SDLCOLOR( Uint8 BB, Uint8 RR, Uint8 GG );
 
 // make a bitmap of the mesh
 void make_hitemap( cartman_mpd_t * pmesh );

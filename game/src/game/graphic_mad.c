@@ -78,10 +78,10 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, ObjectRef character, GLXvector4f
     }
     const std::shared_ptr<MD2Model>& pmd2 = pchr->getProfile()->getModel()->getMD2();
 
-    Ego::Texture *ptex = nullptr;
+    std::shared_ptr<const Ego::Texture> ptex = nullptr;
 	if (HAS_SOME_BITS(bits, CHR_PHONG))
 	{
-		ptex = TextureManager::get().getTexture("mp_data/phong").get();
+		ptex = TextureManager::get().getTexture("mp_data/phong");
 	}
 
 	if (!GL_DEBUG(glIsEnabled)(GL_BLEND))
@@ -114,7 +114,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, ObjectRef character, GLXvector4f
 	}
 
     // Choose texture and matrix
-	Ego::Renderer::get().getTextureUnit().setActivated(ptex);
+	Ego::Renderer::get().getTextureUnit().setActivated(ptex.get());
 
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
@@ -257,7 +257,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, ObjectRef character, GLXvector4f 
     const std::shared_ptr<MD2Model> &pmd2 = pchr->getProfile()->getModel()->getMD2();
 
     // To make life easier
-    Ego::Texture *ptex = pinst.texture;
+    std::shared_ptr<const Ego::Texture> ptex = pinst.texture;
 
     float uoffset = pinst.uoffset * INV_FFFF<float>();
     float voffset = pinst.voffset * INV_FFFF<float>();
@@ -305,7 +305,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, ObjectRef character, GLXvector4f 
     }
 
     // Choose texture.
-	Ego::Renderer::get().getTextureUnit().setActivated(ptex);
+	Ego::Renderer::get().getTextureUnit().setActivated(ptex.get());
 
     glPushAttrib(GL_CURRENT_BIT);
     {
@@ -2014,7 +2014,7 @@ float chr_instance_t::get_remaining_flip(chr_instance_t& self)
 gfx_rv chr_instance_t::set_texture(chr_instance_t& self, const Ego::DeferredTexture& itex)
 {
 	// get the texture
-	self.texture = const_cast<Ego::Texture*>(itex.get_ptr());
+	self.texture = itex.get_ptr();
 
     // get the transparency info from the texture
     if(self.texture != nullptr) {

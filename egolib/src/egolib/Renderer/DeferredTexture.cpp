@@ -19,7 +19,7 @@ DeferredTexture::DeferredTexture(const std::string &filePath) :
     //Do not load texture until its needed
 }
 
-const Texture& DeferredTexture::get() {
+std::shared_ptr<const Texture> DeferredTexture::get() {
     if (!_loaded) {
         if (_filePath.empty()) {
             throw std::logic_error("DeferredTexture::get() on nullptr texture");
@@ -29,7 +29,7 @@ const Texture& DeferredTexture::get() {
         _loaded = true;
     }
 
-    return *_texture.get();
+    return _texture;
 }
 
 void DeferredTexture::release() {

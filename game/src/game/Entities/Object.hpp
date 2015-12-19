@@ -745,7 +745,7 @@ public:
 
     void dropAllItems();
 
-    const Ego::Texture* getIcon() const;
+    std::shared_ptr<const Ego::Texture> getIcon() const;
 
 private:
 

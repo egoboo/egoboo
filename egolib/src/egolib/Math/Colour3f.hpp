@@ -25,10 +25,8 @@
 
 #include "egolib/platform.h"
 
-namespace Ego
-{
-namespace Math
-{
+namespace Ego {
+namespace Math {
 
 /**
  * @brief
@@ -38,8 +36,7 @@ namespace Math
  * @author
  *  Michael Heilmann
  */
-class Colour3f
-{
+class Colour3f {
 
 public:
 
@@ -47,8 +44,7 @@ public:
      * @brief The colour "red" (255,0,0).
      * @return the colour "red"
      */
-    static const Colour3f& red()
-    {
+    static const Colour3f& red() {
         static const Colour3f colour = parse(0xff, 0x00, 0x00);
         return colour;
     }
@@ -57,8 +53,7 @@ public:
      * @brief The colour "green" (0,255,0).
      * @return the colour "green"
      */
-    static const Colour3f& green()
-    {
+    static const Colour3f& green() {
         static const Colour3f colour = parse(0x00, 0xff, 0x00);
         return colour;
     }
@@ -67,8 +62,7 @@ public:
      * @brief The colour "blue" (0,0,255).
      * @return the colour "blue"
      */
-    static const Colour3f& blue()
-    {
+    static const Colour3f& blue() {
         static const Colour3f colour = parse(0x00, 0x00, 0xff);
         return colour;
     }
@@ -77,8 +71,7 @@ public:
      * @brief The colour "white" (255,255,255).
      * @return the colour "white"
      */
-    static const Colour3f& white()
-    {
+    static const Colour3f& white() {
         static const Colour3f colour = parse(0xff, 0xff, 0xff);
         return colour;
     }
@@ -87,8 +80,7 @@ public:
      * @brief The colour "black" (0,0,0).
      * @return the colour "black"
      */
-    static const Colour3f& black()
-    {
+    static const Colour3f& black() {
         static const Colour3f colour = parse(0x00, 0x00, 0x00);
         return colour;
     }
@@ -98,8 +90,7 @@ public:
      * @return the colour "cyan"
      * @remark The colour "cyan" is the complementary colour of the colour "red".
      */
-    static const Colour3f& cyan()
-    {
+    static const Colour3f& cyan() {
         static const Colour3f colour = parse(0x00, 0xff, 0xff);
         return colour;
     }
@@ -107,10 +98,9 @@ public:
     /**
      * @brief The colour "magenta" (255,0,255).
      * @return the colour "magenta"
-     * @remark The colour "magenta" is the complementary colour of the colour "green". 
+     * @remark The colour "magenta" is the complementary colour of the colour "green".
      */
-    static const Colour3f& magenta()
-    {
+    static const Colour3f& magenta() {
         static const Colour3f colour = parse(0xff, 0x00, 0xff);
         return colour;
     }
@@ -120,8 +110,7 @@ public:
      * @return the colour "yellow"
      * @remark The colour "yellow" is the complementary colour of the colour "blue".
      */
-    static const Colour3f& yellow()
-    {
+    static const Colour3f& yellow() {
         static const Colour3f colour = parse(0xff, 0xff, 0x00);
         return colour;
     }
@@ -130,8 +119,7 @@ public:
      * @brief The colour "mauve" (224, 176, 255).
      * @return the colour "mauve".
      */
-    static const Colour3f& mauve()
-    {
+    static const Colour3f& mauve() {
         static const Colour3f colour = parse(0xe0, 0xb0, 0xff);
         return colour;
     }
@@ -140,8 +128,7 @@ public:
      * @brief The colour "purple" (153, 0, 153).
      * @return the colour "purple".
      */
-    static const Colour3f& purple()
-    {
+    static const Colour3f& purple() {
         static const Colour3f colour = parse(0x99, 0, 0x99);
         return colour;
     }
@@ -150,8 +137,7 @@ public:
      * @brief The colour "grey" (75, 75, 75).
      * @return the colour "grey".
      */
-    static const Colour3f& grey()
-    {
+    static const Colour3f& grey() {
         static const Colour3f colour = parse(75, 75, 75);
         return colour;
     }
@@ -190,8 +176,7 @@ public:
      * @return
      *  the value of the red component
      */
-    float getRed() const
-    {
+    float getRed() const {
         return _r;
     }
 
@@ -201,8 +186,7 @@ public:
      * @return
      *  the value of the green component
      */
-    float getGreen() const
-    {
+    float getGreen() const {
         return _g;
     }
 
@@ -212,8 +196,7 @@ public:
      * @return
      *  the value of the blue component
      */
-    float getBlue() const
-    {
+    float getBlue() const {
         return _b;
     }
 
@@ -223,11 +206,10 @@ public:
      * @param other
      *  the other colour
      */
-    Colour3f(const Colour3f& other) : 
+    Colour3f(const Colour3f& other) :
         _r(other._r),
         _g(other._g),
-        _b(other._b)
-    {}
+        _b(other._b) {}
 
     /**
      * @brief
@@ -236,8 +218,7 @@ public:
     Colour3f() :
         _r(0.0f),
         _g(0.0f),
-        _b(0.0f)
-    {}
+        _b(0.0f) {}
 
     /**
      * @brief
@@ -254,18 +235,14 @@ public:
     Colour3f(float r, float g, float b) :
         _r(r),
         _g(g),
-        _b(b)
-    {
-        if (_r < 0.0f || _r > 1.0f)
-        {
+        _b(b) {
+        if (_r < 0.0f || _r > 1.0f) {
             throw std::domain_error("red component outside bounds");
         }
-        if (_g < 0.0f || _g > 1.0f)
-        {
+        if (_g < 0.0f || _g > 1.0f) {
             throw std::domain_error("green component outside bounds");
         }
-        if (_b < 0.0f || _b > 1.0f)
-        {
+        if (_b < 0.0f || _b > 1.0f) {
             throw std::domain_error("blue component outside bounds");
         }
     }
@@ -282,8 +259,7 @@ public:
      * @remark
      *  The corresponding inverted colour is also known as the complementary colour.
      */
-    Colour3f invert() const
-    {
+    Colour3f invert() const {
         return Colour3f(1.0f - _r, 1.0f - _g, 1.0f - _b);
     }
 
@@ -301,8 +277,7 @@ public:
      * @return
      *  the colour
      */
-    static Colour3f parse(uint8_t r, uint8_t g, uint8_t b)
-    {
+    static Colour3f parse(uint8_t r, uint8_t g, uint8_t b) {
         return Colour3f(((float)r) / 255.0f, ((float)g) / 255.0f, ((float)b) / 255.0f);
     }
 

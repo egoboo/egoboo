@@ -33,18 +33,41 @@
 namespace Ego {
 namespace Graphics {
 namespace SDL {
+
+/**
+ * @brief Specifies a padding.
+ */
+struct Padding {
+    size_t left, top, right, bottom;
+};
+
+/**
+ * @brief Get the enumerated SDL pixel format for a specified pixel format descriptor.
+ * @param pixelFormatDescriptor the pixel format descriptor
+ * @return the enumerated SDL pixel format
+ * @throw Id::RuntimeErrorException if the pixel format descriptor has no corresponding enumerated SDL pixel format
+ */
+uint32_t getEnumeratedPixelFormat(const Ego::PixelFormatDescriptor& pixelFormatDescriptor);
+
+/**
+ * @brief Get the SDL pixel format for a specified pixel format descriptor.
+ * @param pixelFormatDescriptor the pixel format descriptor
+ * @return the enumerated SDL pixel format
+ * @throw Id::RuntimeErrorException if the pixel format descriptor has no corresponding enumerated SDL pixel format
+ * @throw Id::EnvironmentErrorException if SDL does not behave according to its specification
+ */
+std::shared_ptr<const SDL_PixelFormat> getPixelFormat(const Ego::PixelFormatDescriptor& pixelFormatDescriptor);
+
 /**
  * @brief Create an SDL surface of the specified size and pixel format.
  * @param width, height the width and the height of the surface
- * @param pixelFormat the pixel format of the surface
+ * @param pixelFormatDescriptor the pixel format descriptor of the surface
  * @return a pointer to the SDL surface
  * @throw std::runtime_error if @a width or @a height is negative
  * @throw std::runtime_error if SDL fails
  */
-std::shared_ptr<SDL_Surface> createSurface(int width, int height, Ego::PixelFormat pixelFormat = Ego::PixelFormat::R8G8B8A8);
-struct Padding {
-	size_t left, top, right, bottom;
-};
+std::shared_ptr<SDL_Surface> createSurface(int width, int height, const Ego::PixelFormatDescriptor& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>());
+
 /**
  * @brief Create a padded surface.
  * @param surface the original surface
@@ -53,14 +76,30 @@ struct Padding {
  * @remark The padding is black (if no alpha channel is present) or transparent black (if alpha channel is present).
  */
 std::shared_ptr<SDL_Surface> padSurface(const std::shared_ptr<const SDL_Surface>& surface, const Padding& padding);
+
 /**
  * @brief Clone a surface.
  * @param surface the original surface
  * @return the cloned surface
  */
 std::shared_ptr<SDL_Surface> cloneSurface(const std::shared_ptr<const SDL_Surface>& surface);
-uint32_t getPixel(const SDL_Surface *surface, int x, int y);
-void putPixel(SDL_Surface *surface, int x, int y, uint32_t pixel);
+
+/**
+ * @brief Get a pixel in a surface.
+ * @param the surface
+ * @param x, y the position of the pixel
+ * @return the pixel
+ */
+uint32_t getPixel(const std::shared_ptr<const SDL_Surface>& surface, int x, int y);
+
+/**
+ * @brief Set a pixel in a surface
+ * @param the surface
+ * @param x, y the position of the pixel
+ * @param pixel the pixel
+ */
+void putPixel(const std::shared_ptr<SDL_Surface>& surface, int x, int y, uint32_t pixel);
+
 } // namespace SDL
 } // namespace Graphics
 } // namespace Ego

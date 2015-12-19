@@ -47,8 +47,8 @@ GUI_Cursor::GUI_Cursor() :
     {
         for (int x = 0; x < 8; x++)
         {
-            if (x + y < 8) Ego::Graphics::SDL::putPixel(_surface.get(), x, y, col);
-            else Ego::Graphics::SDL::putPixel(_surface.get(), x, y, clr);
+            if (x + y < 8) Ego::Graphics::SDL::putPixel(_surface, x, y, col);
+            else Ego::Graphics::SDL::putPixel(_surface, x, y, clr);
         }
     }
 }
@@ -141,7 +141,7 @@ void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textCo
 
 namespace Cartman {
 Border::Border(int width, int height)
-    : texture(new Ego::OpenGL::Texture()), width(width), height(height) {}
+    : texture(std::make_shared<Ego::OpenGL::Texture>()), width(width), height(height) {}
 
 void Border::loadTexture(const std::string& textureFileName) {
     if (!texture->load(textureFileName, gfx_loadImage(textureFileName))) {

@@ -751,7 +751,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     }
     if ( debug_scripts && debug_script_file )
     {
-        vfs_printf( debug_script_file, " == %d \n", state.operationsum );
+        vfs_printf( debug_script_file, " == %d \n", (int)state.operationsum );
     }
 
     // Save the results in the register that called the arithmetic
@@ -1436,32 +1436,32 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     {
         case OPADD:
             op = "ADD";
-            state.operationsum += iTmp;
+            state.operationsum = int(state.operationsum) + iTmp;
             break;
 
         case OPSUB:
             op = "SUB";
-            state.operationsum -= iTmp;
+            state.operationsum = int(state.operationsum) - iTmp;
             break;
 
         case OPAND:
             op = "AND";
-            state.operationsum &= iTmp;
+            state.operationsum = int(state.operationsum) & iTmp;
             break;
 
         case OPSHR:
             op = "SHR";
-            state.operationsum >>= iTmp;
+            state.operationsum = int(state.operationsum) >> iTmp;
             break;
 
         case OPSHL:
             op = "SHL";
-            state.operationsum <<= iTmp;
+            state.operationsum = int(state.operationsum) << iTmp;
             break;
 
         case OPMUL:
             op = "MUL";
-            state.operationsum *= iTmp;
+            state.operationsum = int(state.operationsum) * iTmp;
             break;
 
         case OPDIV:
@@ -1481,7 +1481,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
             op = "MOD";
             if ( iTmp != 0 )
             {
-                state.operationsum %= iTmp;
+                state.operationsum = int(state.operationsum) % iTmp;
             }
             else
             {
