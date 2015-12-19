@@ -59,8 +59,6 @@ bool  overrideslots      = false;
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
 
-pit_info_t g_pits;
-
 damagetile_instance_t damagetile;
 WeatherState g_weatherState;
 fog_instance_t fog;
@@ -68,9 +66,7 @@ AnimatedTilesState g_animatedTilesState;
 
 import_list_t g_importList;
 
-Sint32          clock_wld        = 0;
 Uint32          clock_chr_stat   = 0;
-Uint32          clock_pit        = 0;
 Uint32          update_wld       = 0;
 
 int chr_stoppedby_tests = 0;
@@ -85,7 +81,6 @@ static void game_reset_timers();
 // looping - stuff called every loop - not accessible by scripts
 static void check_stats();
 static void tilt_characters_to_terrain();
-static void update_pits();
 static void do_damage_tiles();
 static void readPlayerInput();
 static void let_all_characters_think();
@@ -521,7 +516,7 @@ int update_game()
         _currentModule->getWater().move();
         AudioSystem::get().updateLoopingSounds();
         do_damage_tiles();
-        update_pits();
+        _currentModule->updatePits();
         g_weatherState.animate();
     }
     //---- end the code for updating misc. game stuff
@@ -545,7 +540,6 @@ int update_game()
     CameraSystem::get()->updateAll(_currentModule->getMeshPointer().get());
 
     // Timers
-    clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
     clock_chr_stat++;
 
     // Reset the respawn timer
@@ -564,14 +558,6 @@ void game_reset_timers()
 {
     /// @author ZZ
     /// @details This function resets the timers...
-
-    // reset the synchronization
-    clock_wld = 0;
-    outofsync = false;
-
-    // reset the pits
-    g_pits.kill = g_pits.teleport = false;
-    clock_pit = 0;
 
     // reset some counters
     game_frame_all = 0;
@@ -870,89 +856,6 @@ void do_damage_tiles()
             if (( actual_damage > 0 ) && (LocalParticleProfileRef::Invalid != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
                 ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void update_pits()
-{
-    /// @author ZZ
-    /// @details This function kills any character in a deep pit...
-
-    if ( g_pits.kill || g_pits.teleport )
-    {
-        //Decrease the timer
-        if ( clock_pit > 0 ) clock_pit--;
-
-        if ( 0 == clock_pit )
-        {
-            //Reset timer
-            clock_pit = 20;
-
-            // Kill any particles that fell in a pit, if they die in water...
-            for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-            {
-                if ( particle->getPosZ() < PITDEPTH && particle->getProfile()->end_water )
-                {
-                    particle->requestTerminate();
-                }
-            }
-
-            // Kill or teleport any characters that fell in a pit...
-            for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
-            {
-                // Is it a valid character?
-                if ( pchr->isInvincible() || !pchr->isAlive() ) continue;
-                if ( pchr->isBeingHeld() ) continue;
-
-                // Do we kill it?
-                if ( g_pits.kill && pchr->getPosZ() < PITDEPTH )
-                {
-                    // Got one!
-                    pchr->kill(Object::INVALID_OBJECT, false);
-                    pchr->vel[kX] = 0;
-                    pchr->vel[kY] = 0;
-
-                    /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
-                    // Play sound effect
-                    // sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
-                }
-
-                // Do we teleport it?
-                if ( g_pits.teleport && pchr->getPosZ() < PITDEPTH * 4 )
-                {
-                    bool teleported;
-
-                    // Teleport them back to a "safe" spot
-                    teleported = pchr->teleport(g_pits.teleport_pos, pchr->ori.facing_z);
-
-                    if ( !teleported )
-                    {
-                        // Kill it instead
-                        pchr->kill(Object::INVALID_OBJECT, false);
-                    }
-                    else
-                    {
-                        // Stop movement
-                        pchr->vel = Vector3f::zero();
-
-                        // Play sound effect
-                        if (pchr->isPlayer())
-                        {
-                            AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PITFALL));
-                        }
-                        else
-                        {
-                            AudioSystem::get().playSound(pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_PITFALL));
-                        }
-
-                        // Do some damage (same as damage tile)
-                        pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), Team::TEAM_DAMAGE, 
-                                     _currentModule->getObjectHandler()[pchr->ai.getBumped()], DAMFX_NBLOC | DAMFX_ARMO, false);
-                    }
-                }
             }
         }
     }

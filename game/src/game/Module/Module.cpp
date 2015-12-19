@@ -49,7 +49,12 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _passages(),
     _mesh(std::make_shared<ego_mesh_t>()),
     _tileTextures(),
-    _waterTextures()
+    _waterTextures(),
+
+    _pitsClock(PIT_CLOCK_RATE),
+    _pitsKill(false),
+    _pitsTeleport(false),
+    _pitsTeleportPos()
 {
     srand( _seed );
     Random::setSeed(_seed);
@@ -583,6 +588,94 @@ bool GameModule::addPlayer(const std::shared_ptr<Object>& object, input_device_t
     }
 
     return true;
+}
+
+void GameModule::updatePits()
+{
+    //Are pits enabled?
+    if (!_pitsKill && !_pitsTeleport) {
+        return;
+    }
+
+    //Decrease the timer
+    if (_pitsClock > 0) {
+        _pitsClock--;
+    }
+
+    if (0 == _pitsClock)
+    {
+        //Reset timer
+        _pitsClock = PIT_CLOCK_RATE;
+
+        // Kill any particles that fell in a pit, if they die in water...
+        for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
+            if ( particle->getPosZ() < PITDEPTH && particle->getProfile()->end_water )
+            {
+                particle->requestTerminate();
+            }
+        }
+
+        // Kill or teleport any characters that fell in a pit...
+        for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator()) {
+            // Is it a valid character?
+            if ( pchr->isInvincible() || !pchr->isAlive() ) continue;
+            if ( pchr->isBeingHeld() ) continue;
+
+            // Do we kill it?
+            if ( _pitsKill && pchr->getPosZ() < PITDEPTH )
+            {
+                // Got one!
+                pchr->kill(Object::INVALID_OBJECT, false);
+                pchr->vel.x() = 0;
+                pchr->vel.y() = 0;
+
+                /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
+                // Play sound effect
+                // sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
+            }
+
+            // Do we teleport it?
+            else if (_pitsTeleport && pchr->getPosZ() < PITDEPTH * 4)
+            {
+                // Teleport them back to a "safe" spot
+                if (!pchr->teleport(_pitsTeleportPos, pchr->ori.facing_z)) {
+                    // Kill it instead
+                    pchr->kill(Object::INVALID_OBJECT, false);
+                    pchr->vel.x() = 0;
+                    pchr->vel.y() = 0;
+                }
+                else {
+                    // Stop movement
+                    pchr->vel = Vector3f::zero();
+
+                    // Play sound effect
+                    if (pchr->isPlayer()) {
+                        AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PITFALL));
+                    }
+                    else {
+                        AudioSystem::get().playSound(pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_PITFALL));
+                    }
+
+                    // Do some damage (same as damage tile)
+                    pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), Team::TEAM_DAMAGE, 
+                                 _gameObjects[pchr->ai.getBumped()], DAMFX_NBLOC | DAMFX_ARMO, false);
+                }
+            }
+        }
+    }
+}
+
+void GameModule::enablePitsTeleport(const Vector3f &location)
+{
+    _pitsTeleportPos = location;
+    _pitsTeleport = true;
+    _pitsKill = false;
+}
+
+void GameModule::enablePitsKill()
+{
+    _pitsTeleport = false;
+    _pitsKill = true;
 }
 
 /// @todo Remove this global.

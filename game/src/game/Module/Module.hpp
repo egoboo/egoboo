@@ -204,7 +204,31 @@ public:
 
     bool addPlayer(const std::shared_ptr<Object>& object, input_device_t *pdevice);
 
+    /**
+    * @brief
+    *   This function kills any character in a deep pit...
+    **/
+    void updatePits();
+
+    /**
+    * @brief
+    *   Enables that falling into a pit will instantly kill characters.
+    *   This is mutual exclusive with setPitsTeleport() and will disable
+    *   teleporting in pits.
+    **/
+    void enablePitsKill();
+
+    /**
+    * @brief
+    *   Enables that falling into a pit will teleport you back to a specified
+    *   location. This is mutual exclusive to setPitsKill() and will disable
+    *   killing in pits.
+    **/
+    void enablePitsTeleport(const Vector3f &location);
+
 private:
+    static constexpr uint32_t PIT_CLOCK_RATE = 20;  ///< How many game ticks between each pit check
+
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
     std::vector<Team> _teamList;
@@ -228,6 +252,12 @@ private:
 
     std::array<Ego::DeferredTexture, 4> _tileTextures;
     std::array<Ego::DeferredTexture, 2> _waterTextures;
+
+    //Pit Info
+    uint32_t _pitsClock;
+    bool _pitsKill;              ///< Do they kill?
+    bool _pitsTeleport;          ///< Do they teleport?
+    Vector3f _pitsTeleportPos;   ///< If they teleport, then where to?
 };
 
 /// @todo Remove this global.

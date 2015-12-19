@@ -287,9 +287,6 @@ void GFX::initialize()
 
     // Initialize the texture atlas manager.
     Ego::Graphics::TextureAtlasManager::initialize();
-
-    // initialize the profiling variables.
-    gfx_clear_loops = 0;
 }
 
 void GFX::uninitialize()
@@ -307,7 +304,6 @@ void GFX::uninitialize()
     dolist_mgr_t::uninitialize();
 
 	// Uninitialize the profiling variables.
-    gfx_clear_loops = 0;
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
 
     Ego::FontManager::uninitialize();
@@ -761,11 +757,6 @@ float draw_fps(float y)
     // FPS text
 
     parser_state_t& ps = parser_state_t::get();
-
-    if (outofsync)
-    {
-        y = draw_string_raw(0, y, "OUT OF SYNC");
-    }
 
     if (ps.get_error())
     {
@@ -1603,8 +1594,6 @@ void gfx_do_clear_screen()
 	renderer.getColourBuffer().clear();
 
     gfx_page_clear_requested = false;
-
-    gfx_clear_loops++;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -6626,7 +6626,7 @@ Uint8 scr_PitsKill( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    g_pits.kill = true;
+    _currentModule->enablePitsKill();
 
     SCRIPT_FUNCTION_END();
 }
@@ -7302,14 +7302,14 @@ Uint8 scr_PitsFall( script_state_t& state, ai_state_t& self )
 
     if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->_tmem._edge_x - EDGE && state.y < _currentModule->getMeshPointer()->_tmem._edge_y - EDGE )
     {
-        g_pits.teleport = true;
-        g_pits.teleport_pos[kX] = state.x;
-        g_pits.teleport_pos[kY] = state.y;
-        g_pits.teleport_pos[kZ] = state.distance;
+        _currentModule->enablePitsTeleport(Vector3f(static_cast<float>(state.x), 
+                                                    static_cast<float>(state.y), 
+                                                    static_cast<float>(state.distance)));
     }
     else
     {
-        g_pits.kill = true;          //make it kill instead
+        //make it kill instead
+        _currentModule->enablePitsKill();
     }
 
     SCRIPT_FUNCTION_END();

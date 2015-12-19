@@ -228,20 +228,6 @@ struct import_list_t
 
 //--------------------------------------------------------------------------------------------
 
-/// Pitty stuff
-struct pit_info_t
-{
-    bool kill;              ///< Do they kill?
-    bool teleport;          ///< Do they teleport?
-	Vector3f teleport_pos;  ///< If they teleport, then where to?
-
-	pit_info_t()
-		: kill(false), teleport(false), teleport_pos() {
-	}
-};
-
-//--------------------------------------------------------------------------------------------
-
 /// List of objects with status displays
 struct status_list_t
 {
@@ -276,18 +262,14 @@ extern AnimatedTilesState g_animatedTilesState;
 extern char   endtext[MAXENDTEXT];     ///< The end-module text
 extern size_t endtext_carat;
 
-extern pit_info_t g_pits;
-
 extern bool    overrideslots;          ///< Override existing slots?
 extern FACING_T  glouseangle;            ///< global return value from prt_find_target() - actually still used
 
 extern import_list_t g_importList;
 
 // various clocks and timers
-extern Sint32          clock_wld;             ///< The sync clock
 extern Uint32          clock_enc_stat;        ///< For character stat regeneration
 extern Uint32          clock_chr_stat;        ///< For enchant stat regeneration
-extern Uint32          clock_pit;             ///< For pit kills
 extern Uint32          update_wld;            ///< The number of times the game has been updated
 
 // counters for debugging wall collisions

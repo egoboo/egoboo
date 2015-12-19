@@ -54,15 +54,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Timers
-
-#define STABILIZED_KEEP  0.65f
-#define STABILIZED_COVER (1.0f - STABILIZED_KEEP)
-
-EXTERN Sint32 gfx_clear_loops EQ(0);            ///< The number of times the screen has been cleared
-
-/// Timers
-EXTERN Uint32 outofsync EQ(0);
-
 //HUD
 EXTERN bool timeron EQ(false);  ///< Game timer displayed?
 EXTERN Uint32 timervalue EQ(0); ///< Timer time ( 50ths of a second )
