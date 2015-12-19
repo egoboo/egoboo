@@ -751,7 +751,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     }
     if ( debug_scripts && debug_script_file )
     {
-        vfs_printf( debug_script_file, " == %d \n", state.operationsum );
+        vfs_printf( debug_script_file, " == %d \n", (int)state.operationsum );
     }
 
     // Save the results in the register that called the arithmetic
