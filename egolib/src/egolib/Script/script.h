@@ -419,7 +419,8 @@ struct script_state_t
     int turn;
     int distance;
     int argument;
-    int operationsum;
+    using TaggedValue = Ego::Script::Interpreter::TaggedValue;
+    TaggedValue operationsum; /// The result of an arithmetic operation
 
 	// public
 	script_state_t();
