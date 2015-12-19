@@ -1152,22 +1152,19 @@ void game_load_module_profiles( const std::string& modname )
 //--------------------------------------------------------------------------------------------
 bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& info ) //note: intentonally copy and not reference on pchr
 {
-    Object *pparent = nullptr;
-    if ( _currentModule->getObjectHandler().exists( info.parent ) ) {
-        pparent = _currentModule->getObjectHandler().get( info.parent );
-    }
+    const std::shared_ptr<Object> &parentObject = _currentModule->getObjectHandler()[info.parent];
 
-    pchr->money = pchr->money + info.money;
-    if ( pchr->money > MAXMONEY )  pchr->money = MAXMONEY;
-    if ( pchr->money < 0 )  pchr->money = 0;
+    //Add money
+    pchr->money = Ego::Math::constrain(pchr->money + info.money, 0, MAXMONEY);
 
+    //Set AI stuff
     pchr->ai.content = info.content;
     pchr->ai.passage = info.passage;
 
-    if ( info.attach == ATTACH_INVENTORY )
+    if (info.attach == ATTACH_INVENTORY)
     {
         // Inventory character
-        Inventory::add_item(info.parent, pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true );
+        Inventory::add_item(info.parent, pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true);
 
         //If the character got merged into a stack, then it will be marked as terminated
         if(pchr->isTerminated()) {
@@ -1177,31 +1174,28 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& info ) //n
         // Make spellbooks change
         SET_BIT(pchr->ai.alert, ALERTIF_GRABBED);
     }
-    else if ( info.attach == ATTACH_LEFT || info.attach == ATTACH_RIGHT )
+    else if (info.attach == ATTACH_LEFT || info.attach == ATTACH_RIGHT)
     {
         // Wielded character
-        grip_offset_t grip_off = ( ATTACH_LEFT == info.attach ) ? GRIP_LEFT : GRIP_RIGHT;
+        grip_offset_t grip_off = (ATTACH_LEFT == info.attach) ? GRIP_LEFT : GRIP_RIGHT;
 
-        if(pchr->getObjectPhysics().attachToObject(_currentModule->getObjectHandler()[info.parent], grip_off))
-		{
+        if(pchr->getObjectPhysics().attachToObject(parentObject, grip_off)) {
 			// Handle the "grabbed" messages
 			//scr_run_chr_script(pchr);
-            //TODO: clear grab flags?
+            UNSET_BIT(pchr->ai.alert, ALERTIF_GRABBED);
 		}
     }
 
     // Set the starting pinfo->level
-    if ( info.level > 0 )
+    if (info.level > 0)
     {
-        if ( pchr->experiencelevel < info.level )
-        {
+        if (pchr->experiencelevel < info.level) {
             pchr->experience = pchr->getProfile()->getXPNeededForLevel(info.level);
         }
     }
 
     // automatically identify and unkurse all player starting equipment? I think yes.
-    if ( !_currentModule->isImportValid() && NULL != pparent && pparent->isPlayer() )
-    {
+    if (!_currentModule->isImportValid() && nullptr != parentObject && parentObject->isPlayer()) {
         pchr->nameknown = true;
         pchr->iskursed = false;
     }
