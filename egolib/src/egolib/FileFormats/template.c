@@ -366,11 +366,11 @@ void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const c
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_idsz( vfs_FILE* filetemp, vfs_FILE* filewrite, IDSZ idsz )
+void template_put_idsz( vfs_FILE* filetemp, vfs_FILE* filewrite, const IDSZ2& idsz )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        vfs_printf( filewrite, "[%s]", undo_idsz( idsz ) );
+        vfs_printf( filewrite, "[%s]", idsz.toString().c_str() );
     }
 }
 

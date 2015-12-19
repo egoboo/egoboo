@@ -31,7 +31,7 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "egolib/Script/script.h"
 #include "game/input.h"
 #include "game/script_compile.h"
@@ -287,9 +287,6 @@ void GFX::initialize()
 
     // Initialize the texture atlas manager.
     Ego::Graphics::TextureAtlasManager::initialize();
-
-    // initialize the profiling variables.
-    gfx_clear_loops = 0;
 }
 
 void GFX::uninitialize()
@@ -307,7 +304,6 @@ void GFX::uninitialize()
     dolist_mgr_t::uninitialize();
 
 	// Uninitialize the profiling variables.
-    gfx_clear_loops = 0;
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
 
     Ego::FontManager::uninitialize();
@@ -762,11 +758,6 @@ float draw_fps(float y)
 
     parser_state_t& ps = parser_state_t::get();
 
-    if (outofsync)
-    {
-        y = draw_string_raw(0, y, "OUT OF SYNC");
-    }
-
     if (ps.get_error())
     {
         y = draw_string_raw(0, y, "SCRIPT ERROR ( see \"/debug/log.txt\" )");
@@ -835,35 +826,29 @@ float draw_debug(float y)
 
     if (keyb.is_key_down(SDLK_F5))
     {
-        ObjectRef ichr;
-        PLA_REF ipla;
-
         // Debug information
         y = draw_string_raw(0, y, "!!!DEBUG MODE-5!!!");
         y = draw_string_raw(0, y, "~~CAM %f %f %f", CameraSystem::get()->getMainCamera()->getPosition()[kX], CameraSystem::get()->getMainCamera()->getPosition()[kY], CameraSystem::get()->getMainCamera()->getPosition()[kZ]);
-        ipla = (PLA_REF)0;
-        if (VALID_PLA(ipla))
+        if (_currentModule->getPlayerList().size() > 0)
         {
-            ichr = PlaStack.lst[ipla].index;
+            std::shared_ptr<Object> pchr = _currentModule->getPlayer(0)->getObject();
             y = draw_string_raw(0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_SLASH),
-                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_CRUSH),
-                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_POKE),
-                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_HOLY),
-                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_EVIL),
-                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_FIRE),
-                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_ICE),
-                _currentModule->getObjectHandler().get(ichr)->getRawDamageResistance(DAMAGE_ZAP));
+                pchr->getRawDamageResistance(DAMAGE_SLASH),
+                pchr->getRawDamageResistance(DAMAGE_CRUSH),
+                pchr->getRawDamageResistance(DAMAGE_POKE),
+                pchr->getRawDamageResistance(DAMAGE_HOLY),
+                pchr->getRawDamageResistance(DAMAGE_EVIL),
+                pchr->getRawDamageResistance(DAMAGE_FIRE),
+                pchr->getRawDamageResistance(DAMAGE_ICE),
+                pchr->getRawDamageResistance(DAMAGE_ZAP));
 
-            ichr = PlaStack.lst[ipla].index;
-            y = draw_string_raw(0, y, "~~PLA0 %5.1f %5.1f", _currentModule->getObjectHandler().get(ichr)->getPosX() / Info<float>::Grid::Size(), _currentModule->getObjectHandler().get(ichr)->getPosY() / Info<float>::Grid::Size());
+            y = draw_string_raw(0, y, "~~PLA0 %5.1f %5.1f", pchr->getPosX() / Info<float>::Grid::Size(), pchr->getPosY() / Info<float>::Grid::Size());
         }
 
-        ipla = (PLA_REF)1;
-        if (VALID_PLA(ipla))
+        if (_currentModule->getPlayerList().size() > 1)
         {
-            ichr = PlaStack.lst[ipla].index;
-            y = draw_string_raw(0, y, "~~PLA1 %5.1f %5.1f", _currentModule->getObjectHandler().get(ichr)->getPosY() / Info<float>::Grid::Size(), _currentModule->getObjectHandler().get(ichr)->getPosY() / Info<float>::Grid::Size());
+            std::shared_ptr<Object> pchr = _currentModule->getPlayer(1)->getObject();
+            y = draw_string_raw(0, y, "~~PLA1 %5.1f %5.1f", pchr->getPosY() / Info<float>::Grid::Size(), pchr->getPosY() / Info<float>::Grid::Size());
         }
     }
 
@@ -873,15 +858,9 @@ float draw_debug(float y)
         y = draw_string_raw(0, y, "!!!DEBUG MODE-6!!!");
         y = draw_string_raw(0, y, "~~FREEPRT %" PRIuZ, ParticleHandler::get().getFreeCount());
         y = draw_string_raw(0, y, "~~FREECHR %" PRIuZ, OBJECTS_MAX - _currentModule->getObjectHandler().getObjectCount());
-#if 0
-        y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
-#endif
         y = draw_string_raw(0, y, _currentModule->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE");
         y = draw_string_raw(0, y, "~~PASS %d", _currentModule->getPassageCount());
-#if 0
-        y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
-#endif
-        y = draw_string_raw(0, y, "~~DAMAGEPART %d", damagetile.part_gpip.get());
+        //y = draw_string_raw(0, y, "~~DAMAGEPART %d", damagetile.part_gpip.get());
 
         // y = draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
@@ -971,18 +950,6 @@ void draw_hud()
         y = draw_debug(y);
         y = draw_timer(y);
         y = draw_game_status(y);
-
-        // Network message input
-        if (keyb.chat_mode)
-        {
-            char buffer[CHAT_BUFFER_SIZE + 128] = EMPTY_CSTR;
-
-            snprintf(buffer, SDL_arraysize(buffer), "%s > %s%s", egoboo_config_t::get().network_playerName.getValue().c_str(),
-                net_chat.buffer, HAS_NO_BITS(update_wld, 8) ? "x" : "+");
-
-            y = draw_wrap_string(buffer, 0, y, sdl_scr.x - WRAP_TOLERANCE);
-        }
-
         y = DisplayMsg_draw_all(y);
     }
     gfx_end_2d();
@@ -1621,8 +1588,6 @@ void gfx_do_clear_screen()
 	renderer.getColourBuffer().clear();
 
     gfx_page_clear_requested = false;
-
-    gfx_clear_loops++;
 }
 
 //--------------------------------------------------------------------------------------------

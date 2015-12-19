@@ -23,7 +23,7 @@
 #include "CharacterStatus.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/renderer_2d.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/GUI/ProgressBar.hpp"
 #include "game/game.h" //for update_wld
 
@@ -385,7 +385,7 @@ void CharacterStatus::draw()
 
     bool levelUp = false;
     if(pchr->isPlayer()) {
-        levelUp = PlaStack.get_ptr(pchr->is_which_player)->_unspentLevelUp;
+        levelUp = _currentModule->getPlayer(pchr->is_which_player)->hasUnspentLevel();
     }
 
     // draw the character's main icon
@@ -425,12 +425,12 @@ void CharacterStatus::draw()
 
     //Finally draw charge bar if applicable
     if(pchr->isPlayer()) {
-        const player_t *ppla = PlaStack.get_ptr(pchr->is_which_player);
-        if(ppla->_chargeBarFrame >= update_wld) {
+        const std::shared_ptr<Ego::Player> &player = _currentModule->getPlayer(pchr->is_which_player);
+        if(player->getChargeBarFrame() >= update_wld) {
             _chargeBar->setVisible(true);
-            _chargeBar->setMaxValue(ppla->_maxCharge);
-            _chargeBar->setValue(ppla->_currentCharge);
-            _chargeBar->setTickWidth(ppla->_chargeTick);
+            _chargeBar->setMaxValue(player->getBarMaxCharge());
+            _chargeBar->setValue(player->getBarCurrentCharge());
+            _chargeBar->setTickWidth(player->getBarPipWidth());
             _chargeBar->setSize(getWidth(), 16);
             _chargeBar->setPosition(getX() - _chargeBar->getWidth() - 5, getY() + getHeight() / 2 - _chargeBar->getHeight()/2);
             _chargeBar->draw();

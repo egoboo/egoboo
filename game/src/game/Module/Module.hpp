@@ -39,6 +39,40 @@
 class ModuleProfile;
 class Passage;
 class Team;
+namespace Ego { class Player; }
+
+/// The actual in-game state of the damage tiles
+struct damagetile_instance_t
+{
+    IPair amount;                    ///< Amount of damage
+    DamageType damagetype;
+
+    LocalParticleProfileRef part_gpip;
+    uint32_t partand;
+    int    sound_index;
+
+    damagetile_instance_t() :
+        amount(),
+        damagetype(DamageType::DAMAGE_DIRECT),
+        part_gpip(LocalParticleProfileRef::Invalid),
+        partand(0),
+        sound_index(INVALID_SOUND_ID)
+    {
+        //ctor
+    }
+
+    void upload(const wawalite_damagetile_t& source)
+    {
+        this->amount.base = source.amount;
+        this->amount.rand = 1;
+        this->damagetype = source.damagetype;
+
+        this->part_gpip = source.part_gpip;
+        this->partand = source.partand;
+        this->sound_index = Ego::Math::constrain(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
+    }
+};
+
 
 /// The module data that the game needs.
 class GameModule : public Id::NonCopyable
@@ -98,13 +132,9 @@ public:
 
     void setExportValid(bool valid) {_exportValid = valid;}
 
-
     bool canRespawnAnyTime() const;
 
     void setRespawnValid(bool valid) {_isRespawnValid = valid;}
-
-    // clear passage memory
-    void clearPassages();
 
     /// @author ZF
     /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
@@ -135,9 +165,6 @@ public:
      */
     std::shared_ptr<Passage> getPassageByID(int id);
 
-    // Load all passages from file
-    void loadAllPassages();
-
     /**
      * @brief
      *  Get folder path to the Profile of this module
@@ -149,9 +176,9 @@ public:
 
     const std::shared_ptr<ModuleProfile>& getModuleProfile() const {return _moduleProfile;}
 
-    void setImportPlayers(const std::list<std::string> &players) {_playerList = players;}
+    void setImportPlayers(const std::list<std::string> &players) {_playerNameList = players;}
 
-    const std::list<std::string>& getImportPlayers() const {return _playerList;}
+    const std::list<std::string>& getImportPlayers() const {return _playerNameList;}
 
     /**
     * @brief
@@ -175,7 +202,6 @@ public:
     * Porting hack, TODO: remove
     **/
     std::shared_ptr<ego_mesh_t> getMeshPointer() { return _mesh; }
-	void setMeshPointer(std::shared_ptr<ego_mesh_t> mesh) { _mesh = mesh; }
 
     /**
      * @brief
@@ -197,12 +223,71 @@ public:
 
     water_instance_t& getWater();
 
+    std::shared_ptr<Ego::Player>& getPlayer(size_t index);
+
+    const std::vector<std::shared_ptr<Ego::Player>>& getPlayerList() const;
+
+    bool addPlayer(const std::shared_ptr<Object>& object, input_device_t *pdevice);
+
+    /**
+    * @brief
+    *   This function kills any character in a deep pit...
+    **/
+    void updatePits();
+
+    /**
+    * @brief
+    *   Enables that falling into a pit will instantly kill characters.
+    *   This is mutual exclusive with setPitsTeleport() and will disable
+    *   teleporting in pits.
+    **/
+    void enablePitsKill();
+
+    /**
+    * @brief
+    *   Enables that falling into a pit will teleport you back to a specified
+    *   location. This is mutual exclusive to setPitsKill() and will disable
+    *   killing in pits.
+    **/
+    void enablePitsTeleport(const Vector3f &location);
+
+    /**
+    * @brief
+    *   This makes tiles flagged as damage tiles hurt any characters standing on 
+    *   top of them
+    **/
+    void updateDamageTiles();
+
 private:
+    /**
+    * @brief
+    *   Load all passages from file
+    **/
+    void loadAllPassages();
+
+    /**
+    * @brief
+    *   Load alliance.txt which tells which teams like which teams
+    *   and which ones hate each other
+    **/
+    void loadTeamAlliances();
+
+    /**
+    * @brief
+    *   Load all profiles required by this module into memory
+    **/
+    void loadProfiles();
+
+private:
+    static constexpr uint32_t PIT_CLOCK_RATE = 20;  ///< How many game ticks between each pit check
+    static constexpr uint32_t DAMAGETILETIME = 32;  ///< Invincibility time
+
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
     std::vector<Team> _teamList;
     ObjectHandler _gameObjects;
-    std::list<std::string> _playerList;     ///< List of all import players
+    std::list<std::string> _playerNameList;     ///< List of all import players
+    std::vector<std::shared_ptr<Ego::Player>> _playerList;
 
     std::string  _name;                       ///< Module load names
     bool _exportValid;                          ///< Allow to export when module is reset?
@@ -214,12 +299,19 @@ private:
 
     // special terrain and wawalite-related data structs
     water_instance_t _water;
+    damagetile_instance_t _damageTile;
 
 	/// @brief The mesh of the module.
 	std::shared_ptr<ego_mesh_t> _mesh;
 
     std::array<Ego::DeferredTexture, 4> _tileTextures;
     std::array<Ego::DeferredTexture, 2> _waterTextures;
+
+    //Pit Info
+    uint32_t _pitsClock;
+    bool _pitsKill;              ///< Do they kill?
+    bool _pitsTeleport;          ///< Do they teleport?
+    Vector3f _pitsTeleportPos;   ///< If they teleport, then where to?
 };
 
 /// @todo Remove this global.

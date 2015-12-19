@@ -29,7 +29,7 @@
 #include "game/GUI/MiniMap.hpp"
 #include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/link.h"
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
@@ -59,18 +59,13 @@ bool  overrideslots      = false;
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
 
-pit_info_t g_pits;
-
-damagetile_instance_t damagetile;
 WeatherState g_weatherState;
 fog_instance_t fog;
 AnimatedTilesState g_animatedTilesState;
 
 import_list_t g_importList;
 
-Sint32          clock_wld        = 0;
 Uint32          clock_chr_stat   = 0;
-Uint32          clock_pit        = 0;
 Uint32          update_wld       = 0;
 
 int chr_stoppedby_tests = 0;
@@ -85,18 +80,13 @@ static void game_reset_timers();
 // looping - stuff called every loop - not accessible by scripts
 static void check_stats();
 static void tilt_characters_to_terrain();
-static void update_pits();
-static void do_damage_tiles();
-static void set_local_latches();
+static void readPlayerInput();
 static void let_all_characters_think();
 
 // module initialization / deinitialization - not accessible by scripts
-static bool game_load_module_data( const std::string& smallname );
-static void   game_release_module_data();
 static void   game_load_profile_ai();
 
 static void   activate_spawn_file_vfs();
-static void   activate_alliance_file_vfs();
 
 static bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& pinfo );
 
@@ -119,13 +109,6 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 static bool activate_spawn_file_spawn( spawn_file_info_t& psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t& psp_info );
 static void convert_spawn_file_load_name( spawn_file_info_t& psp_info );
-
-static void game_reset_module_data();
-
-static void load_all_profiles_import();
-static void import_dir_profiles_vfs(const std::string& importDirectory);
-static void game_load_global_profiles();
-static void game_load_module_profiles( const std::string& modname );
 
 static void update_all_objects();
 static void move_all_objects();
@@ -204,8 +187,7 @@ egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_ob
     export_one_character_name_vfs( tofile, character );
 
     // Build the QUEST.TXT file
-    snprintf( tofile, SDL_arraysize( tofile ), "%s/quest.txt", todir );
-    export_one_character_quest_vfs( tofile, character );
+    export_one_character_quest_vfs( todir, character );
 
     // copy every file that does not already exist in the todir
     {
@@ -245,9 +227,7 @@ egolib_rv export_all_players( bool require_local )
     egolib_rv export_chr_rv;
     egolib_rv retval;
     bool is_local;
-    PLA_REF ipla;
     int number;
-    ObjectRef character;
 
     // Stop if export isnt valid
     if ( !_currentModule->isExportValid() ) return rv_fail;
@@ -256,22 +236,17 @@ egolib_rv export_all_players( bool require_local )
     retval = rv_success;
 
     // Check each player
-    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
-    {
+    for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
         ObjectRef item;
-        player_t * ppla;
-        Object    * pchr;
 
-        if ( !VALID_PLA( ipla ) ) continue;
-        ppla = PlaStack.get_ptr( ipla );
-
-        is_local = ( NULL != ppla->pdevice );
+        is_local = ( nullptr != player->getInputDevice() );
         if ( require_local && !is_local ) continue;
 
         // Is it alive?
-        if ( !_currentModule->getObjectHandler().exists( ppla->index ) ) continue;
-        character = ppla->index;
-        pchr      = _currentModule->getObjectHandler().get( character );
+        std::shared_ptr<Object> pchr = player->getObject();
+        if(!pchr || pchr->isTerminated()) continue;
+
+        ObjectRef character = pchr->getObjRef();
 
         // don't export dead characters
         if ( !pchr->isAlive() ) continue;
@@ -364,41 +339,6 @@ void log_madused_vfs( const char *savename )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_alliance_file_vfs()
-{
-    /// @author ZZ
-    /// @details This function reads the alliance file
-    TEAM_REF teama, teamb;
-
-    // Load the file
-    ReadContext ctxt("mp_data/alliance.txt");
-    if (!ctxt.ensureOpen())
-    {
-        return;
-    }
-    while (ctxt.skipToColon(true))
-    {
-        char buffer[1024 + 1];
-        vfs_read_string_lit(ctxt, buffer, 1024);
-        if (strlen(buffer) < 1)
-        {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
-                                                "empty string literal");
-        }
-        teama = (buffer[0] - 'A') % Team::TEAM_MAX;
-
-        vfs_read_string_lit(ctxt, buffer, 1024);
-        if (strlen(buffer) < 1)
-        {
-            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
-                                                "empty string literal");
-        }
-        teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
-        _currentModule->getTeamList()[teama].makeAlliance(_currentModule->getTeamList()[teamb]);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
     chr_stoppedby_tests = 0;
@@ -451,25 +391,15 @@ int update_game()
 
     int numdead = 0;
     int numalive = 0;
-    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList())
     {
-        ObjectRef ichr;
-        Object * pchr;
+        // only interested in local players
+        if ( nullptr == player->getInputDevice() ) continue;
 
-        if ( !PlaStack.lst[ipla].valid ) continue;
-
-        // fix bad players
-        ichr = PlaStack.lst[ipla].index;
-        if ( !_currentModule->getObjectHandler().exists( ichr ) )
-        {
-            PlaStack.lst[ipla].index = ObjectRef::Invalid;
-            PlaStack.lst[ipla].valid = false;
+        std::shared_ptr<Object> pchr = player->getObject();
+        if(!pchr || pchr->isTerminated()) {
             continue;
         }
-        pchr = _currentModule->getObjectHandler().get( ichr );
-
-        // only interested in local players
-        if ( NULL == PlaStack.lst[ipla].pdevice ) continue;
 
         if ( pchr->isAlive() )
         {
@@ -516,30 +446,6 @@ int update_game()
         local_stats.allpladead = true;
     }
 
-    // check for autorespawn
-    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
-    {
-        if ( !PlaStack.lst[ipla].valid ) continue;
-
-        ObjectRef ichr = PlaStack.lst[ipla].index;
-        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
-        Object *pchr = _currentModule->getObjectHandler().get( ichr );
-
-        if ( !pchr->isAlive() )
-        {
-            if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && local_stats.allpladead && keyb.is_key_down(SDLK_SPACE) && _currentModule->isRespawnValid() && 0 == local_stats.revivetimer)
-            {
-                pchr->respawn();
-                pchr->experience *= EXPKEEP;        // Apply xp Penality
-
-                if (egoboo_config_t::get().game_difficulty.getValue() > Ego::GameDifficulty::Easy)
-                {
-                    pchr->money *= EXPKEEP;        //Apply money loss
-                }
-            }
-        }
-    }
-
     // do important stuff to keep in sync inside this loop
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
@@ -551,20 +457,18 @@ int update_game()
     InputSystem::read_mouse();
     InputSystem::read_joysticks();
 
-    set_local_latches();
-
     //Rebuild the quadtree for fast object lookup
     _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->_info.getTileCountX()*Info<float>::Grid::Size(),
 		                                                          _currentModule->getMeshPointer()->_info.getTileCountY()*Info<float>::Grid::Size());
 
     //---- begin the code for updating misc. game stuff
     {
+        AudioSystem::get().updateLoopingSounds();
         BillboardSystem::get().update();
         g_animatedTilesState.animate();
         _currentModule->getWater().move();
-        AudioSystem::get().updateLoopingSounds();
-        do_damage_tiles();
-        update_pits();
+        _currentModule->updateDamageTiles();
+        _currentModule->updatePits();
         g_weatherState.animate();
     }
     //---- end the code for updating misc. game stuff
@@ -572,8 +476,8 @@ int update_game()
     //---- Run AI (but not on first update frame)
     if(update_wld > 0)
     {
-        let_all_characters_think();           // sets the non-player latches
-        net_unbuffer_player_latches();            // sets the player latches
+        let_all_characters_think();           //sets the non-player latches
+        readPlayerInput();                    //sets latches generated by players
     }
 
     //---- begin the code for updating in-game objects
@@ -588,7 +492,6 @@ int update_game()
     CameraSystem::get()->updateAll(_currentModule->getMeshPointer().get());
 
     // Timers
-    clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
     clock_chr_stat++;
 
     // Reset the respawn timer
@@ -607,14 +510,6 @@ void game_reset_timers()
 {
     /// @author ZZ
     /// @details This function resets the timers...
-
-    // reset the synchronization
-    clock_wld = 0;
-    outofsync = false;
-
-    // reset the pits
-    g_pits.kill = g_pits.teleport = false;
-    clock_pit = 0;
 
     // reset some counters
     game_frame_all = 0;
@@ -690,7 +585,7 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, const BIT_FIELD targeting_bits )
+bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &idsz, const BIT_FIELD targeting_bits )
 {
     bool retval = false;
 
@@ -708,7 +603,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, co
     if ( ptst->isHidden() ) return false;
 
     // Players only?
-    if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return false;
+    if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !ptst->isPlayer() ) return false;
 
     // Skip held objects
     if ( ptst->isBeingHeld() ) return false;
@@ -731,11 +626,15 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, co
     // Require player to have specific quest?
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
-        player_t * ppla = PlaStack.get_ptr( ptst->is_which_player );
+        if(!ptst->isPlayer()) {
+            return false;
+        }
+
+        std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(ptst->is_which_player);
 
         // find only active quests?
         // this makes it backward-compatible with zefz's version
-        if ( quest_log_get_level( ppla->quest_log, idsz ) < 0 ) {
+        if (!player->getQuestLog().hasActiveQuest(idsz)) {
             return false;
         }
     }
@@ -753,7 +652,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, co
     }
 
     //This is the last and final step! Check for specific IDSZ too? (not needed if we are looking for a quest)
-    if ( IDSZ_NONE == idsz || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
+    if ( IDSZ2::None == idsz || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         retval = true;
     }
@@ -776,7 +675,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, IDSZ idsz, co
 }
 
 //--------------------------------------------------------------------------------------------
-ObjectRef chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
+ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, const BIT_FIELD targeting_bits )
 {
     /// @author ZF
     /// @details This is the new improved AI targeting algorithm. Also includes distance in the Z direction.
@@ -791,17 +690,15 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_F
     //Only loop through the players
     if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
-        for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
+        for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList())
         {
-            if (!PlaStack.lst[ipla].valid) continue;
-
-            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[ipla].index];
+            const std::shared_ptr<Object> &object = player->getObject();
             if(player) {
 
                 //Within range?
-                float distance = (player->getPosition() - psrc->getPosition()).length();
+                float distance = (object->getPosition() - psrc->getPosition()).length();
                 if(max_dist == NEAREST || distance < max_dist) {
-                    searchList.push_back(player);
+                    searchList.push_back(object);
                 }
 
             }
@@ -862,144 +759,6 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_F
 }
 
 //--------------------------------------------------------------------------------------------
-void do_damage_tiles()
-{
-    // do the damage tile stuff
-
-    for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
-    {
-        // if the object is not really in the game, do nothing
-        if ( pchr->isHidden() || !pchr->isAlive() ) continue;
-
-        // if you are being held by something, you are protected
-        if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
-
-        // are we on a damage tile?
-		auto mesh = _currentModule->getMeshPointer();
-        if ( !mesh->grid_is_valid( pchr->getTile() ) ) continue;
-        if ( 0 == mesh->test_fx( pchr->getTile(), MAPFX_DAMAGE ) ) continue;
-
-        // are we low enough?
-        if ( pchr->getPosZ() > pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE ) continue;
-
-        // allow reaffirming damage to things like torches, even if they are being held,
-        // but make the tolerance closer so that books won't burn so easily
-        if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) || pchr->getPosZ() < pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE )
-        {
-            if ( pchr->reaffirm_damagetype == damagetile.damagetype )
-            {
-                if ( 0 == ( update_wld & TILE_REAFFIRM_AND ) )
-                {
-                    reaffirm_attached_particles(pchr->getObjRef());
-                }
-            }
-        }
-
-        // do not do direct damage to items that are being held
-        if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) ) continue;
-
-        // don't do direct damage to invulnerable objects
-        if ( pchr->invictus ) continue;
-
-        if ( 0 == pchr->damage_timer )
-        {
-            int actual_damage = pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), 
-                Team::TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
-
-            pchr->damage_timer = DAMAGETILETIME;
-
-            if (( actual_damage > 0 ) && (LocalParticleProfileRef::Invalid != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
-            {
-                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void update_pits()
-{
-    /// @author ZZ
-    /// @details This function kills any character in a deep pit...
-
-    if ( g_pits.kill || g_pits.teleport )
-    {
-        //Decrease the timer
-        if ( clock_pit > 0 ) clock_pit--;
-
-        if ( 0 == clock_pit )
-        {
-            //Reset timer
-            clock_pit = 20;
-
-            // Kill any particles that fell in a pit, if they die in water...
-            for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
-            {
-                if ( particle->getPosZ() < PITDEPTH && particle->getProfile()->end_water )
-                {
-                    particle->requestTerminate();
-                }
-            }
-
-            // Kill or teleport any characters that fell in a pit...
-            for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
-            {
-                // Is it a valid character?
-                if ( pchr->isInvincible() || !pchr->isAlive() ) continue;
-                if ( pchr->isBeingHeld() ) continue;
-
-                // Do we kill it?
-                if ( g_pits.kill && pchr->getPosZ() < PITDEPTH )
-                {
-                    // Got one!
-                    pchr->kill(Object::INVALID_OBJECT, false);
-                    pchr->vel[kX] = 0;
-                    pchr->vel[kY] = 0;
-
-                    /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
-                    // Play sound effect
-                    // sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
-                }
-
-                // Do we teleport it?
-                if ( g_pits.teleport && pchr->getPosZ() < PITDEPTH * 4 )
-                {
-                    bool teleported;
-
-                    // Teleport them back to a "safe" spot
-                    teleported = pchr->teleport(g_pits.teleport_pos, pchr->ori.facing_z);
-
-                    if ( !teleported )
-                    {
-                        // Kill it instead
-                        pchr->kill(Object::INVALID_OBJECT, false);
-                    }
-                    else
-                    {
-                        // Stop movement
-                        pchr->vel = Vector3f::zero();
-
-                        // Play sound effect
-                        if ( VALID_PLA( pchr->is_which_player ) )
-                        {
-                            AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PITFALL));
-                        }
-                        else
-                        {
-                            AudioSystem::get().playSound(pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_PITFALL));
-                        }
-
-                        // Do some damage (same as damage tile)
-                        pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), Team::TEAM_DAMAGE, 
-                                     _currentModule->getObjectHandler()[pchr->ai.getBumped()], DAMFX_NBLOC | DAMFX_ARMO, false);
-                    }
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void WeatherState::animate()
 {
     //Does this module have valid weather?
@@ -1013,26 +772,18 @@ void WeatherState::animate()
         time = timer_reset;
 
         // Find a valid player
-        bool foundone = false;
-        for (int cnt = 0; cnt < MAX_PLAYER; cnt++)
-        {
-            // Yes, but is the character valid?
-            iplayer = (PLA_REF)((REF_TO_INT(iplayer) + 1) % MAX_PLAYER);
-            if (PlaStack.lst[iplayer].valid && _currentModule->getObjectHandler().exists(PlaStack.lst[iplayer].index))
-            {
-                foundone = true;
-                break;
-            }
+        std::shared_ptr<Ego::Player> player = nullptr;
+        if(!_currentModule->getPlayerList().empty()) {
+            iplayer = (iplayer + 1) % _currentModule->getPlayerList().size();
+            player = _currentModule->getPlayerList()[iplayer];
         }
 
         // Did we find one?
-        if (foundone)
+        if (player)
         {
-            ObjectRef ichr = PlaStack.lst[iplayer].index;
-            if (_currentModule->getObjectHandler().exists(ichr) && !_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ichr)->inwhich_inventory))
+            const std::shared_ptr<Object> pchr = player->getObject();
+            if (pchr)
             {
-                const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[PlaStack.lst[iplayer].index];
-
                 // Yes, so spawn nearby that character
                 std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, part_gpip, 0, over_water);
                 if (particle)
@@ -1053,294 +804,52 @@ void WeatherState::animate()
 }
 
 //--------------------------------------------------------------------------------------------
-void set_one_player_latch( const PLA_REF ipla )
+void readPlayerInput()
 {
-    /// @author ZZ
-    /// @details This function converts input readings to latch settings, so players can
-    ///    move around
+    for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
 
-    // skip invalid players
-    if ( INVALID_PLA( ipla ) ) return;
-	player_t       *ppla = PlaStack.get_ptr( ipla );
+        //Only valid players
+        const std::shared_ptr<Object> &pchr = player->getObject();
+        if(!pchr || pchr->isTerminated()) {
+            continue;
+        }
 
-    // is the device a local device or an internet device?
-	input_device_t *pdevice = ppla->pdevice;
-    if ( NULL == pdevice ) return;
+        //Read input from the device controlling the player into object latches
+        player->updateLatches();
 
-    //No need to continue if device is not enabled
-    if ( !input_device_is_enabled( pdevice ) ) return;
-
-    // find the camera that is pointing at this character
-    auto pcam = CameraSystem::get()->getCamera(ppla->index);
-    if (!pcam) return;
-
-    // fast camera turn if it is enabled and there is only 1 local player
-	bool fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
-
-	latch_t sum;
-    // Clear the player's latch buffers
-    sum.clear();
-	Vector2f joy_new = Vector2f::zero(),
-             joy_pos = Vector2f::zero();
-
-    // generate the transforms relative to the camera
-    // this needs to be changed for multicamera
-	TURN_T turnsin = TO_TURN( pcam->getOrientation().facing_z );
-    float fsin    = turntosin[ turnsin ];
-    float fcos    = turntocos[ turnsin ];
-
-	float scale;
-    if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
-    {
-        // Mouse routines
-
-        if ( fast_camera_turn || !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
+        //Press space to respawn!
+        if (keyb.is_key_down(SDLK_SPACE)
+            && (local_stats.allpladead || _currentModule->canRespawnAnyTime())
+            && _currentModule->isRespawnValid()
+            && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
+            && !keyb.chat_mode
+            && player->getInputDevice() != nullptr)
         {
-            float dist = std::sqrt( mous.x * mous.x + mous.y * mous.y );
-            if ( dist > 0 )
+            pchr->latch.b[LATCHBUTTON_RESPAWN] = true;
+        }
+
+        // Let players respawn
+        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && pchr->latch.b[LATCHBUTTON_RESPAWN] && _currentModule->isRespawnValid())
+        {
+            if (!pchr->isAlive() && 0 == local_stats.revivetimer)
             {
-                scale = mous.sense / dist;
-                if ( dist < mous.sense )
-                {
-                    scale = dist / mous.sense;
+                pchr->respawn();
+                _currentModule->getTeamList()[pchr->team].setLeader(pchr);
+                SET_BIT(pchr->ai.alert, ALERTIF_CLEANEDUP);
+
+                // cost some experience for doing this...  never lose a level
+                pchr->experience *= EXPKEEP;
+
+                //Also lose some gold in non-easy modes
+                if (egoboo_config_t::get().game_difficulty.getValue() > Ego::GameDifficulty::Easy) {
+                    pchr->money *= EXPKEEP;
                 }
-
-                if ( mous.sense != 0 )
-                {
-                    scale /= mous.sense;
-                }
-
-                joy_pos[XX] = mous.x * scale;
-                joy_pos[YY] = mous.y * scale;
-
-                //if ( fast_camera_turn && !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
-
-                joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-                joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
-            }
-        }
-    }
-
-    else if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type )
-    {
-        // Keyboard routines
-
-        if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
-        {
-            if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) )   joy_pos[XX]++;
-            if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )    joy_pos[XX]--;
-            if ( input_device_control_active( pdevice,  CONTROL_DOWN ) )    joy_pos[YY]++;
-            if ( input_device_control_active( pdevice,  CONTROL_UP ) )      joy_pos[YY]--;
-
-            if ( fast_camera_turn )  joy_pos[XX] = 0;
-
-            joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-            joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
-        }
-    }
-    else if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
-    {
-        // Joystick routines
-
-        //Figure out which joystick we are using
-        joystick_data_t *joystick;
-        joystick = joy_lst + ( pdevice->device_type - MAX_JOYSTICK );
-
-        if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
-        {
-            joy_pos[XX] = joystick->x;
-            joy_pos[YY] = joystick->y;
-
-            float dist = joy_pos.length_2();
-            if ( dist > 1.0f )
-            {
-                scale = 1.0f / std::sqrt( dist );
-                joy_pos *= scale;
             }
 
-            if ( fast_camera_turn && !input_device_control_active( pdevice, CONTROL_CAMERA ) )  joy_pos[XX] = 0;
-
-            joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
-            joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
+            // remove all latches other than latchbutton_respawn
+            pchr->latch.b[LATCHBUTTON_RESPAWN] = false;
         }
-    }
-
-    else
-    {
-        // unknown device type.
-        pdevice = NULL;
-    }
-
-    // Update movement (if any)
-    sum.x += joy_new[XX];
-    sum.y += joy_new[YY];
-
-    // Read control buttons
-    if ( !ppla->inventoryMode )
-    {
-        if ( input_device_control_active( pdevice, CONTROL_JUMP ) ) 
-            sum.b[LATCHBUTTON_JUMP] = true;
-        if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) )
-            sum.b[LATCHBUTTON_LEFT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
-            sum.b[LATCHBUTTON_ALTLEFT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE ) )
-            sum.b[LATCHBUTTON_RIGHT] = true;
-        if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
-            sum.b[LATCHBUTTON_ALTRIGHT] = true;
-
-        // Now update movement and input
-        input_device_add_latch( pdevice, sum.x, sum.y );
-
-        ppla->local_latch.x = pdevice->latch.x;
-        ppla->local_latch.y = pdevice->latch.y;
-        ppla->local_latch.b = sum.b;
-    }
-
-    //inventory mode
-    else if ( ppla->inventory_cooldown < update_wld )
-    {
-        int new_selected = ppla->inventory_slot;
-        Object *pchr = _currentModule->getObjectHandler().get( ppla->index );
-
-        //dirty hack here... mouse seems to be inverted in inventory mode?
-        if ( pdevice->device_type == INPUT_DEVICE_MOUSE )
-        {
-            joy_pos[XX] = - joy_pos[XX];
-            joy_pos[YY] = - joy_pos[YY];
-        }
-
-        //handle inventory movement
-        if ( joy_pos[XX] < 0 )       new_selected--;
-        else if ( joy_pos[XX] > 0 )  new_selected++;
-
-        //clip to a valid value
-        if ( ppla->inventory_slot != new_selected )
-        {
-            ppla->inventory_cooldown = update_wld + 5;
-
-            //Make inventory movement wrap around
-            if(new_selected < 0) {
-                new_selected = pchr->getInventory().getMaxItems() - 1;
-            }
-            else if(new_selected >= pchr->getInventory().getMaxItems()) {
-                ppla->inventory_slot = 0;
-            }
-            else {
-                ppla->inventory_slot = new_selected;
-            }
-        }
-
-        //handle item control
-        if ( pchr->inst.action_ready && 0 == pchr->reload_timer )
-        {
-            //handle LEFT hand control
-            if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) || input_device_control_active(pdevice, CONTROL_LEFT_GET) )
-            {
-                //put it away and swap with any existing item
-                Inventory::swap_item(ppla->index, ppla->inventory_slot, SLOT_LEFT, false );
-
-                // Make it take a little time
-                chr_play_action( pchr, ACTION_MG, false );
-                pchr->reload_timer = PACKDELAY;
-            }
-
-            //handle RIGHT hand control
-            if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE) || input_device_control_active( pdevice, CONTROL_RIGHT_GET) )
-            {
-                // put it away and swap with any existing item
-                Inventory::swap_item(ppla->index, ppla->inventory_slot, SLOT_RIGHT, false);
-
-                // Make it take a little time
-                chr_play_action( pchr, ACTION_MG, false );
-                pchr->reload_timer = PACKDELAY;
-            }
-        }
-
-        //empty any movement
-        ppla->local_latch.x = 0;
-        ppla->local_latch.y = 0;
-    }
-
-    //enable inventory mode?
-    if ( update_wld > ppla->inventory_cooldown && input_device_control_active( pdevice, CONTROL_INVENTORY ) )
-    {
-        _gameEngine->getActivePlayingState()->displayCharacterWindow(ipla);
-         ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
-    }
-
-    //Enter or exit stealth mode?
-    if(input_device_control_active(pdevice, CONTROL_SNEAK) && update_wld > ppla->inventory_cooldown) {
-        if(!_currentModule->getObjectHandler()[ppla->index]->isStealthed()) {
-            _currentModule->getObjectHandler()[ppla->index]->activateStealth();
-        }
-        else {
-            _currentModule->getObjectHandler()[ppla->index]->deactivateStealth();
-        }
-        ppla->inventory_cooldown = update_wld + ONESECOND;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void set_local_latches()
-{
-    for (PLA_REF cnt = 0; cnt < MAX_PLAYER; cnt++ )
-    {
-        set_one_player_latch( cnt );
-    }
-
-    // Let the players respawn
-    if (keyb.is_key_down(SDLK_SPACE)
-        && (local_stats.allpladead || _currentModule->canRespawnAnyTime())
-        && _currentModule->isRespawnValid()
-        && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
-        && !keyb.chat_mode )
-    {
-        for (PLA_REF player = 0; player < MAX_PLAYER; player++)
-        {
-            if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != nullptr )
-            {
-                // Press the respawn button...
-                PlaStack.lst[player].local_latch.b[LATCHBUTTON_RESPAWN] = true;
-            }
-        }
-    }
-
-    // update the local timed latches with the same info
-    for (PLA_REF player = 0; player < MAX_PLAYER; player++)
-    {
-        player_t * ppla;
-
-        if ( !PlaStack.lst[player].valid ) continue;
-        ppla = PlaStack.get_ptr( player );
-
-        int index = ppla->tlatch_count;
-        if ( index < MAXLAG )
-        {
-            time_latch_t * ptlatch = ppla->tlatch + index;
-
-            ptlatch->button = ppla->local_latch.b.to_ulong();
-
-            // reduce the resolution of the motion to match the network packets
-            ptlatch->x = std::floor( ppla->local_latch.x * SHORTLATCH ) / SHORTLATCH;
-            ptlatch->y = std::floor( ppla->local_latch.y * SHORTLATCH ) / SHORTLATCH;
-
-            ptlatch->time = update_wld;
-
-            ppla->tlatch_count++;
-        }
-
-        // determine the max amount of lag
-        for ( uint32_t cnt = 0; cnt < ppla->tlatch_count; cnt++ )
-        {
-            int loc_lag = update_wld - ppla->tlatch[index].time + 1;
-
-            if ( loc_lag > 0 && ( size_t )loc_lag > numplatimes )
-            {
-                numplatimes = loc_lag;
-            }
-        }
-    }
+   }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1383,14 +892,14 @@ void check_stats()
         else if (keyb.is_key_down( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( docheat != INVALID_PLA_REF )
+        if ( docheat != INVALID_PLA_REF && docheat < _currentModule->getPlayerList().size() )
         {
-            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
-            if(player)
+            const std::shared_ptr<Object> &object = _currentModule->getPlayer(docheat)->getObject();
+            if(object)
             {
                 //Give 10% of XP needed for next level
-                uint32_t xpgain = 0.1f * ( player->getProfile()->getXPNeededForLevel( std::min( player->experiencelevel+1, MAXLEVEL) ) - player->getProfile()->getXPNeededForLevel(player->experiencelevel));
-                player->giveExperience(xpgain, XP_DIRECT, true);
+                uint32_t xpgain = 0.1f * ( object->getProfile()->getXPNeededForLevel( std::min( object->experiencelevel+1, MAXLEVEL) ) - object->getProfile()->getXPNeededForLevel(object->experiencelevel));
+                object->giveExperience(xpgain, XP_DIRECT, true);
                 stat_check_delay = 1;
             }
         }
@@ -1407,12 +916,12 @@ void check_stats()
         else if (keyb.is_key_down( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if(docheat != INVALID_PLA_REF) {
-            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
-            if (player)
+        if(docheat != INVALID_PLA_REF && docheat < _currentModule->getPlayerList().size()) {
+            const std::shared_ptr<Object> &object = _currentModule->getPlayer(docheat)->getObject();
+            if (object)
             {
                 //Heal 1 life
-                player->heal(player, 256, true);
+                object->heal(object, 256, true);
                 stat_check_delay = 1;
             }
 
@@ -1598,56 +1107,6 @@ void tilt_characters_to_terrain()
 }
 
 //--------------------------------------------------------------------------------------------
-void import_dir_profiles_vfs( const std::string &dirname )
-{
-    if ( nullptr == _currentModule || dirname.empty() ) return;
-
-    if ( !_currentModule->isImportValid() ) return;
-
-    for (int cnt = 0; cnt < _currentModule->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
-    {
-        std::ostringstream pathFormat;
-        pathFormat << dirname << "/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
-
-        // Make sure the object exists...
-        const std::string importPath = pathFormat.str();
-        const std::string dataFilePath = importPath + "/data.txt";
-
-        if ( vfs_exists( dataFilePath.c_str() ) )
-        {
-            // new player found
-            if ( 0 == ( cnt % MAX_IMPORT_PER_PLAYER ) ) import_data.player++;
-
-            // store the slot info
-            import_data.slot = cnt;
-
-            // load it
-            import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath);
-            import_data.max_slot      = std::max( import_data.max_slot, cnt );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void load_all_profiles_import()
-{
-    // Clear the import slots...
-    import_data.slot_lst.fill(INVALID_PRO_REF);
-    import_data.max_slot = -1;
-
-    // This overwrites existing loaded slots that are loaded globally
-    overrideslots = true;
-    import_data.player = -1;
-    import_data.slot   = -100;
-
-    import_dir_profiles_vfs( "mp_import" );
-    import_dir_profiles_vfs( "mp_remote" );
-
-    // return this to the normal value
-    overrideslots = false;
-}
-
-//--------------------------------------------------------------------------------------------
 void game_load_profile_ai()
 {
     /// @author ZF
@@ -1675,35 +1134,19 @@ void game_load_module_profiles( const std::string& modname )
 {
     /// @author BB
     /// @details Search for .obj directories in the module directory and load them
-
-    vfs_search_context_t * ctxt;
-    const char *filehandle;
-    STRING newloadname;
-
     import_data.slot = -100;
-    make_newloadname( modname.c_str(), "objects", newloadname );
+    std::string folderPath = modname + "/objects";
 
-    ctxt = vfs_findFirst( newloadname, "obj", VFS_SEARCH_DIR );
-    filehandle = vfs_search_context_get_current( ctxt );
+    vfs_search_context_t* ctxt = vfs_findFirst(folderPath.c_str(), "obj", VFS_SEARCH_DIR);
+    const char* filehandle = vfs_search_context_get_current(ctxt);
 
-    while ( NULL != ctxt && VALID_CSTR( filehandle ) )
-    {
+    while (NULL != ctxt && VALID_CSTR(filehandle)) {
         ProfileSystem::get().loadOneProfile(filehandle);
 
-        ctxt = vfs_findNext( &ctxt );
-        filehandle = vfs_search_context_get_current( ctxt );
+        ctxt = vfs_findNext(&ctxt);
+        filehandle = vfs_search_context_get_current(ctxt);
     }
-    vfs_findClose( &ctxt );
-}
-
-//--------------------------------------------------------------------------------------------
-void game_load_global_profiles()
-{
-    // load all special objects
-    ProfileSystem::get().loadOneProfile("mp_data/globalobjects/book.obj", SPELLBOOK);
-
-    // load the objects from various import directories
-    load_all_profiles_import();
+    vfs_findClose(&ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1859,17 +1302,15 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
         return true;
     }
 
-    // Turn on PlaStack.count input devices
+    // Turn on input devices
     if ( psp_info.stat )
     {
         // what we do depends on what kind of module we're loading
-        if ( 0 == _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() )
+        if ( 0 == _currentModule->getImportAmount() && _currentModule->getPlayerList().size() < _currentModule->getPlayerAmount() )
         {
             // a single player module
 
-            bool player_added;
-
-            player_added = add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
+            bool player_added = _currentModule->addPlayer(pobject, &InputDevices.lst[local_stats.player_count] );
 
             if ( _currentModule->getImportAmount() == 0 && player_added )
             {
@@ -1877,7 +1318,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
                 pobject->nameknown = true;
             }
         }
-        else if ( PlaStack.count < _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() && PlaStack.count < g_importList.count )
+        else if ( _currentModule->getPlayerList().size() < _currentModule->getImportAmount() && _currentModule->getPlayerList().size() < _currentModule->getPlayerAmount() && _currentModule->getPlayerList().size() < g_importList.count )
         {
             // A multiplayer module
 
@@ -1898,13 +1339,13 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
 
             if ( -1 != local_index )
             {
-                // It's a local PlaStack.count
-                add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
+                // It's a local input
+                _currentModule->addPlayer(pobject, &InputDevices.lst[g_importList.lst[local_index].local_player_num]);
             }
             else
             {
-                // It's a remote PlaStack.count
-                add_player( pobject->getObjRef(), ( PLA_REF )PlaStack.count, NULL );
+                // It's a remote input
+                _currentModule->addPlayer(pobject, nullptr);
             }
         }
     }
@@ -1920,8 +1361,6 @@ void activate_spawn_file_vfs()
     std::unordered_map<int, std::string> reservedSlots; //Keep track of which slot numbers are reserved by their load name
     std::unordered_set<std::string> dynamicObjectList;  //references to slots that need to be dynamically loaded later
     std::vector<spawn_file_info_t> objectsToSpawn;      //The full list of objects to be spawned 
-
-    PlaStack.count = 0;
 
     // Turn some back on
     ReadContext ctxt("mp_data/spawn.txt");
@@ -2066,65 +1505,6 @@ void activate_spawn_file_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_reset_module_data()
-{
-    // reset all
-	Log::get().info( "Resetting module data\n" );
-
-    // unload a lot of data
-    ProfileSystem::get().reset();
-    free_all_objects();
-    DisplayMsg_reset();
-    DisplayMsg_clear();
-    game_reset_players();
-
-    reset_end_text();
-}
-
-//--------------------------------------------------------------------------------------------
-/// @details This function loads a module
-bool game_load_module_data( const std::string& smallname )
-{
-    //TODO: ZF> this should be moved to Module.cpp
-	Log::get().info( "Loading module \"%s\"\n", smallname.c_str() );
-
-    // ensure that the script parser exists
-    (void)parser_state_t::get();
-
-    // generate the module directory
-    std::string modname = str_append_slash(smallname);
-
-    // load a bunch of assets that are used in the module
-    AudioSystem::get().loadGlobalSounds();
-    ProfileSystem::get().loadGlobalParticleProfiles();
-
-    if (read_wawalite_vfs() == nullptr) {
-		Log::get().warn( "wawalite.txt not loaded for %s.\n", modname.c_str() );
-    }
-    upload_wawalite();
-
-    // load all module objects
-    game_load_global_profiles();            // load the global objects
-    game_load_module_profiles( modname );   // load the objects from the module's directory
-
-	std::shared_ptr<ego_mesh_t> mesh = nullptr;
-	try {
-		mesh = LoadMesh(modname);
-	} catch (Id::Exception& ex) {
-		// do not cause the program to fail, in case we are using a script function to load a module
-		// just return a failure value and log a warning message for debugging purposes
-		Log::get().warn("%s\n", static_cast<std::string>(ex).c_str());
-		return false;
-	}
-	_currentModule->setMeshPointer(mesh);
-
-    //Load passage.txt
-    _currentModule->loadAllPassages();
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles(ObjectRef objectRef) {
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
         if (!particle->isTerminated() && particle->getAttachedObjectID() == objectRef) {
@@ -2188,11 +1568,15 @@ void game_quit_module()
     // stop the module
     _currentModule.reset(nullptr);
 
-    // get rid of the game/module data
-    game_release_module_data();
+    // deallocate any dynamically allocated scripting memory
+    scripting_system_end();
 
     // re-initialize all game/module data
-    game_reset_module_data();
+    ProfileSystem::get().reset();
+    DisplayMsg_reset();
+    DisplayMsg_clear();
+    game_reset_players();
+    reset_end_text();
 
     // finish whatever in-game song is playing
     AudioSystem::get().fadeAllSounds();
@@ -2210,21 +1594,14 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // set up the virtual file system for the module (Do before loading the module)
     if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
 
-    // start the module
-    _currentModule = std::unique_ptr<GameModule>(new GameModule(module, time(NULL)));
+    //Initialize player data
+    game_reset_players();
 
-    // load all the in-game module data
-    if ( !game_load_module_data( module->getPath().c_str() ) )
-    {    
-        // release any data that might have been allocated
-        game_release_module_data();
-        _currentModule.reset(nullptr);
-        return false;
-    };
+    // start the module
+    _currentModule = std::make_unique<GameModule>(module, time(NULL));
 
     //After loading, spawn all the data and initialize everything
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
-    activate_alliance_file_vfs();        // set up the non-default team interactions
 
     // now load the profile AI, do last so that all reserved slot numbers are initialized
     game_load_profile_ai();
@@ -2264,71 +1641,6 @@ bool game_finish_module()
 
     // copy the import data back into the import folder
     game_copy_imports( &g_importList );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-void game_release_module_data()
-{
-    /// @author ZZ
-    /// @details This function frees up memory used by the module
-
-    // Disable ESP
-    local_stats.sense_enemies_idsz = IDSZ_NONE;
-    local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
-
-    // make sure that the object lists are cleared out
-    free_all_objects();
-
-    // deallocate any dynamically allocated scripting memory
-    scripting_system_end();
-
-    // deal with dynamically allocated game assets
-    gfx_system_release_all_graphics();
-    ProfileSystem::get().reset();
-}
-
-//--------------------------------------------------------------------------------------------
-bool add_player( ObjectRef objRef, const PLA_REF playerRef, input_device_t *pdevice )
-{
-    /// @author ZZ
-    /// @details This function adds a player, returning false if it fails, true otherwise
-
-
-	if (!VALID_PLA_RANGE(playerRef)) return false;
-	player_t *player = PlaStack.get_ptr(playerRef);
-
-    // does the player already exist?
-    if (player->valid) return false;
-
-    // re-construct the players
-    pla_reinit(player);
-
-    if (!_currentModule->getObjectHandler().exists(objRef)) return false;
-    Object *obj = _currentModule->getObjectHandler().get(objRef);
-
-    // set the reference to the player
-    obj->is_which_player = playerRef;
-
-    // download the quest info
-    quest_log_download_vfs(player->quest_log, obj->getProfile()->getPathname().c_str());
-
-    //---- skeleton for using a ConfigFile to save quests
-    // ppla->quest_file = quest_file_open( chr_get_dir_name(character).c_str() );
-
-    player->index     = objRef;
-	player->valid     = true;
-	player->pdevice   = pdevice;
-
-    if (pdevice)
-    {
-        local_stats.noplayers = false;
-        obj->islocalplayer = true;
-        local_stats.player_count++;
-    }
-
-    PlaStack.count++;
 
     return true;
 }
@@ -2374,26 +1686,6 @@ void let_all_characters_think()
             scr_run_chr_script(object.get());
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------
-void free_all_objects()
-{
-    /// @author BB
-    /// @details free every instance of the three object types used in the game.
-
-    //free all particles
-    ParticleHandler::get().clear();
-
-    // free all the characters
-    if(_currentModule) {
-        _currentModule->getObjectHandler().clear();
-    }
-
-    //free all players
-    PlaStack.count = 0;
-    local_stats.player_count = 0;
-    local_stats.noplayers = true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2740,6 +2032,8 @@ void game_reset_players()
 
     // Reset the local data stuff
     local_stats.allpladead = false;
+    local_stats.player_count = 0;
+    local_stats.noplayers = true;
 
     local_stats.seeinvis_level = 0.0f;
     local_stats.seeinvis_level = 0.0f;
@@ -2748,10 +2042,9 @@ void game_reset_players()
     local_stats.grog_level     = 0.0f;
     local_stats.daze_level     = 0.0f;
 
-    local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
-    local_stats.sense_enemies_idsz = IDSZ_NONE;
-
-    PlaStack_reset_all();
+    // Disable ESP by default
+    local_stats.sense_enemies_idsz = IDSZ2::None;
+    local_stats.sense_enemies_team = static_cast<TEAM_REF>(Team::TEAM_MAX);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2825,18 +2118,6 @@ void fog_instance_t::upload(const wawalite_fog_t& source)
 	_distance = (source.top - source.bottom);
 
 	_on = (_distance < 1.0f) && _on;
-}
-
-//--------------------------------------------------------------------------------------------
-void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
-{
-	this->amount.base = source.amount;
-	this->amount.rand = 1;
-	this->damagetype = source.damagetype;
-
-	this->part_gpip = source.part_gpip;
-	this->partand = source.partand;
-	this->sound_index = Ego::Math::constrain(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2963,9 +2244,7 @@ void upload_wawalite()
     upload_light_data( wawalite_data);                         // this statement depends on data from upload_graphics_data()
     upload_camera_data( wawalite_data.camera );
     fog.upload( wawalite_data.fog );
-    _currentModule->getWater().upload( wawalite_data.water );
     g_weatherState.upload( wawalite_data.weather );
-    damagetile.upload( wawalite_data.damagetile );
     g_animatedTilesState.upload(wawalite_data.animtile);
 }
 
@@ -3387,23 +2666,22 @@ egolib_rv import_list_t::from_players(import_list_t& self)
     import_list_t::init(self);
 
     // generate the ImportList list from the player info
-	for (PLA_REF player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++)
-	{
-		if (!VALID_PLA(player_idx)) continue;
-		player_t *player_ptr = PlaStack.get_ptr(player_idx);
+    for(size_t player_idx = 0; player_idx < _currentModule->getPlayerList().size(); ++player_idx) {
+        const std::shared_ptr<Ego::Player>& player = _currentModule->getPlayerList()[player_idx];
 
-		ObjectRef ichr = player_ptr->index;
-		if (!_currentModule->getObjectHandler().exists(ichr)) continue;
-		Object *pchr = _currentModule->getObjectHandler().get(ichr);
+		std::shared_ptr<Object> pchr = player->getObject();
+        if(!pchr || pchr->isTerminated()) {
+            continue;
+        }
 
-		bool is_local = (nullptr != player_ptr->pdevice);
+		bool is_local = (nullptr != player->getInputDevice());
 
 		// grab a pointer
 		import_element_t *import_ptr = self.lst + self.count;
 		self.count++;
 
 		import_ptr->player = player_idx;
-		import_ptr->slot = REF_TO_INT(player) * MAX_IMPORT_PER_PLAYER;
+		import_ptr->slot = player_idx * MAX_IMPORT_PER_PLAYER;
 		import_ptr->srcDir[0] = CSTR_END;
 		import_ptr->dstDir[0] = CSTR_END;
 		strncpy(import_ptr->name, pchr->getName().c_str(), SDL_arraysize(import_ptr->name));
@@ -3417,8 +2695,6 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		{
 			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->getName()).c_str());
 		}
-
-		player++;
 	}
 
 	return (self.count > 0) ? rv_success : rv_fail;
@@ -3597,12 +2873,18 @@ bool export_one_character_quest_vfs( const char *szSaveName, ObjectRef character
     /// @author ZZ
     /// @details This function makes the naming.txt file for the character
 
-    if (!_currentModule->getObjectHandler().exists(character)) return false;
-    player_t *ppla = chr_get_ppla(character);
-    if (!ppla) return false;
+    const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[character];
+    if(!object) {
+        return false;
+    }
 
-	egolib_rv rv = quest_log_upload_vfs( ppla->quest_log, szSaveName );
-    return rv_success == rv;
+    if(!object->isPlayer()) {
+        return false;
+    }
+
+    std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(object->is_which_player);
+
+    return player->getQuestLog().exportToFile(szSaveName);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3929,7 +3211,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
                     //Crossbow Mastery increases XBow attack speed by 30%
                     if(pchr->hasPerk(Ego::Perks::CROSSBOW_MASTERY) && 
-                       pweapon->getProfile()->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('X','B','O','W')) {
+                       pweapon->getProfile()->getIDSZ(IDSZ_PARENT).equals('X','B','O','W')) {
                         agility *= 1.30f;
                     }
 
@@ -4087,7 +3369,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             if ( pweapon->ammo > 0 && !weaponProfile->isStackable() )
             {
                 //Is it a wand? (Wand Mastery perk has chance to not use charge)
-                if(pweapon->getProfile()->getIDSZ(IDSZ_SKILL) == MAKE_IDSZ('W','A','N','D')
+                if(pweapon->getProfile()->getIDSZ(IDSZ_SKILL).equals('W','A','N','D')
                     && pchr->hasPerk(Ego::Perks::WAND_MASTERY)) {
 
                     //1% chance per Intellect
@@ -4107,7 +3389,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             int NR_OF_ATTACK_PARTICLES = 1;
 
             //Handle Double Shot perk
-            if(pchr->hasPerk(Ego::Perks::DOUBLE_SHOT) && weaponProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('L','B','O','W'))
+            if(pchr->hasPerk(Ego::Perks::DOUBLE_SHOT) && weaponProfile->getIDSZ(IDSZ_PARENT).equals('L','B','O','W'))
             {
                 //1% chance per Agility
                 if(Random::getPercent() <= pchr->getAttribute(Ego::Attribute::AGILITY) && pweapon->ammo > 0) {
@@ -4176,45 +3458,45 @@ void character_swipe( ObjectRef ichr, slot_t slot )
 
                         //Handle traits that increase weapon damage
                         float damageBonus = 1.0f;
-                        switch(weaponProfile->getIDSZ(IDSZ_PARENT))
+                        switch(weaponProfile->getIDSZ(IDSZ_PARENT).toUint32())
                         {
                             //Wolverine perk gives +100% Claw damage
-                            case MAKE_IDSZ('C','L','A','W'):
+                            case IDSZ2::caseLabel('C','L','A','W'):
                                 if(pchr->hasPerk(Ego::Perks::WOLVERINE)) {
                                     damageBonus += 1.0f;
                                 }
                             break;
 
                             //+20% damage with polearms
-                            case MAKE_IDSZ('P','O','L','E'):
+                            case IDSZ2::caseLabel('P','O','L','E'):
                                 if(pchr->hasPerk(Ego::Perks::POLEARM_MASTERY)) {
                                     damageBonus += 0.2f;
                                 }
                             break;
 
                             //+20% damage with swords
-                            case MAKE_IDSZ('S','W','O','R'):
+                            case IDSZ2::caseLabel('S','W','O','R'):
                                 if(pchr->hasPerk(Ego::Perks::SWORD_MASTERY)) {
                                     damageBonus += 0.2f;
                                 }
                             break;
 
                             //+20% damage with Axes
-                            case MAKE_IDSZ('A','X','E','E'):
+                            case IDSZ2::caseLabel('A','X','E','E'):
                                 if(pchr->hasPerk(Ego::Perks::AXE_MASTERY)) {
                                     damageBonus += 0.2f;
                                 }       
                             break;
 
                             //+20% damage with Longbows
-                            case MAKE_IDSZ('L','B','O','W'):
+                            case IDSZ2::caseLabel('L','B','O','W'):
                                 if(pchr->hasPerk(Ego::Perks::BOW_MASTERY)) {
                                     damageBonus += 0.2f;
                                 }
                             break;
 
                             //+100% damage with Whips
-                            case MAKE_IDSZ('W','H','I','P'):
+                            case IDSZ2::caseLabel('W','H','I','P'):
                                 if(pchr->hasPerk(Ego::Perks::WHIP_MASTERY)) {
                                     damageBonus += 1.0f;
                                 }
@@ -4223,11 +3505,11 @@ void character_swipe( ObjectRef ichr, slot_t slot )
 
                         //Improvised Weapons perk gives +100% to some unusual weapons
                         if(pchr->hasPerk(Ego::Perks::IMPROVISED_WEAPONS)) {
-                            if (weaponProfile->getIDSZ(IDSZ_PARENT) == MAKE_IDSZ('T','O','R','C')    //Torch
-                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('S','H','O','V')      //Shovel
-                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('P','L','U','N')      //Toilet Plunger
-                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('C','R','O','W')      //Crowbar
-                             || weaponProfile->getIDSZ(IDSZ_TYPE) == MAKE_IDSZ('P','I','C','K')) {   //Pick
+                            if (weaponProfile->getIDSZ(IDSZ_PARENT).equals('T','O','R','C')    //Torch
+                             || weaponProfile->getIDSZ(IDSZ_TYPE).equals('S','H','O','V')      //Shovel
+                             || weaponProfile->getIDSZ(IDSZ_TYPE).equals('P','L','U','N')      //Toilet Plunger
+                             || weaponProfile->getIDSZ(IDSZ_TYPE).equals('C','R','O','W')      //Crowbar
+                             || weaponProfile->getIDSZ(IDSZ_TYPE).equals('P','I','C','K')) {   //Pick
                                 damageBonus += 1.0f;
                             }
                         }

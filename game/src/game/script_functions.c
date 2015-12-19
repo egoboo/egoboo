@@ -31,9 +31,8 @@
 #include "game/GameStates/PlayingState.hpp"
 #include "game/link.h"
 #include "game/input.h"
-#include "game/network.h"
 #include "game/game.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/script_implementation.h"
@@ -663,7 +662,7 @@ Uint8 scr_SetTargetToNearbyEnemy( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto ichr = chr_find_target(pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES);
+    auto ichr = chr_find_target(pchr, NEARBY, IDSZ2::None, TARGET_ENEMIES);
 
     if ( _currentModule->getObjectHandler().exists(ichr) )
     {
@@ -893,7 +892,7 @@ Uint8 scr_IfTargetHasID( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.getTarget()];
     if(target) {
-        returncode = target->getProfile()->hasTypeIDSZ(state.argument);
+        returncode = target->getProfile()->hasTypeIDSZ(IDSZ2(state.argument));
     }
     else {
         returncode = false;
@@ -920,7 +919,7 @@ Uint8 scr_IfTargetHasItemID( script_state_t& state, ai_state_t& self )
     returncode = false;
 
     //Check hands
-    if (nullptr != pself_target->isWieldingItemIDSZ(state.argument)) {
+    if (nullptr != pself_target->isWieldingItemIDSZ(IDSZ2(state.argument))) {
         returncode = true;
     }
 
@@ -949,7 +948,7 @@ Uint8 scr_IfTargetHoldingItemID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET(pself_target);
 
-    returncode = (pself_target->isWieldingItemIDSZ(state.argument) != nullptr);
+    returncode = (pself_target->isWieldingItemIDSZ(IDSZ2(state.argument)) != nullptr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -967,7 +966,7 @@ Uint8 scr_IfTargetHasSkillID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = pself_target->hasSkillIDSZ(state.argument);
+    returncode = pself_target->hasSkillIDSZ(IDSZ2(state.argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -1229,7 +1228,7 @@ Uint8 scr_GoPoof( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( !VALID_PLA( pchr->is_which_player ) )
+    if (!pchr->isPlayer())
     {
         returncode = true;
         self.poof_time = update_wld;
@@ -1254,7 +1253,7 @@ Uint8 scr_CostTargetItemID( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( ptarget );
 
     //first check both hands
-    const IDSZ idsz = static_cast<IDSZ>(state.argument);
+    const IDSZ2 idsz = IDSZ2(state.argument);
     std::shared_ptr<Object> pitem = ptarget->isWieldingItemIDSZ(idsz);
 
     //need to search inventory as well?
@@ -1380,7 +1379,7 @@ Uint8 scr_AddIDSZ( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath().c_str(), state.argument, 0, NULL) )
+    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath().c_str(), IDSZ2(state.argument), 0, NULL) )
     {
         // invalidate any module list so that we will reload them
         //module_list_valid = false;
@@ -2046,7 +2045,7 @@ Uint8 scr_IfTargetHasVulnerabilityID( script_state_t& state, ai_state_t& self )
     
     SCRIPT_REQUIRE_TARGET(pself_target);
     
-    returncode = pself_target->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == static_cast<IDSZ>(state.argument);
+    returncode = pself_target->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == IDSZ2(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2137,7 +2136,7 @@ Uint8 scr_IfTargetIsAPlayer( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = VALID_PLA( pself_target->is_which_player );
+    returncode = pself_target->isPlayer();
 
     SCRIPT_FUNCTION_END();
 }
@@ -2550,7 +2549,7 @@ Uint8 scr_SetTargetToWideEnemy( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto ichr = chr_find_target( pchr, WIDE, IDSZ_NONE, TARGET_ENEMIES );
+    auto ichr = chr_find_target( pchr, WIDE, IDSZ2::None, TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -2667,7 +2666,7 @@ Uint8 scr_IfTargetHasSpecialID( script_state_t& state, ai_state_t& self )
     
     SCRIPT_REQUIRE_TARGET(pself_target);
 
-    returncode = pself_target->getProfile()->getIDSZ(IDSZ_SPECIAL) == static_cast<IDSZ>(state.argument);
+    returncode = pself_target->getProfile()->getIDSZ(IDSZ_SPECIAL) == IDSZ2(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3290,7 +3289,7 @@ Uint8 scr_IfTargetHasAnyID( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[self.getTarget()];
     if(target) {
-        returncode = target->getProfile()->hasIDSZ(state.argument);
+        returncode = target->getProfile()->hasIDSZ(IDSZ2(state.argument));
     }
     else {
         returncode = false;
@@ -3662,7 +3661,7 @@ Uint8 scr_IfHoldingItemID( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (pchr->isWieldingItemIDSZ(state.argument) != nullptr);
+    returncode = (pchr->isWieldingItemIDSZ(IDSZ2(state.argument)) != nullptr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4412,7 +4411,7 @@ Uint8 scr_PoofTarget( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = false;
-    if ( INVALID_PLA( pself_target->is_which_player ) )             //Do not poof players
+    if (!pself_target->isPlayer())             //Do not poof players
     {
         returncode = true;
         if ( self.getTarget() == self.getSelf() )
@@ -4667,7 +4666,7 @@ Uint8 scr_SetTargetToDistantEnemy( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto ichr = chr_find_target( pchr, state.distance, IDSZ_NONE, TARGET_ENEMIES );
+    auto ichr = chr_find_target( pchr, state.distance, IDSZ2::None, TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -4869,7 +4868,7 @@ Uint8 scr_HealTarget( script_state_t& state, ai_state_t& self )
     if ( target->heal(_currentModule->getObjectHandler()[self.getSelf()], state.argument, false) )
     {
         returncode = true;
-        target->removeEnchantsWithIDSZ(MAKE_IDSZ('H', 'E', 'A', 'L'));
+        target->removeEnchantsWithIDSZ(IDSZ2('H', 'E', 'A', 'L'));
     }
 
     SCRIPT_FUNCTION_END();
@@ -5275,7 +5274,7 @@ Uint8 scr_SetTargetToWhoeverIsInPassage( script_state_t& state, ai_state_t& self
     returncode = false;
     if(passage)
     {
-        auto objRef = passage->whoIsBlockingPassage(self.getSelf(), IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE);
+        auto objRef = passage->whoIsBlockingPassage(self.getSelf(), IDSZ2::None, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ2::None);
 
         if (_currentModule->getObjectHandler().exists(objRef))
         {
@@ -5711,7 +5710,7 @@ Uint8 scr_SetTargetToNearestEnemy( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ENEMIES );
+    auto ichr = chr_find_target( pchr, NEAREST, IDSZ2::None, TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -5734,7 +5733,7 @@ Uint8 scr_SetTargetToNearestFriend( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_FRIENDS );
+    auto ichr = chr_find_target( pchr, NEAREST, IDSZ2::None, TARGET_FRIENDS );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -5759,7 +5758,7 @@ Uint8 scr_SetTargetToNearestLifeform( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ITEMS | TARGET_FRIENDS | TARGET_ENEMIES );
+    auto ichr = chr_find_target( pchr, NEAREST, IDSZ2::None, TARGET_ITEMS | TARGET_FRIENDS | TARGET_ENEMIES );
 
     if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
@@ -6627,7 +6626,7 @@ Uint8 scr_PitsKill( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    g_pits.kill = true;
+    _currentModule->enablePitsKill();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6646,7 +6645,7 @@ Uint8 scr_SetTargetToPassageID( script_state_t& state, ai_state_t& self )
 
     returncode = false;
     if(passage) {
-        ObjectRef objRef = passage->whoIsBlockingPassage(self.getSelf(), IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, state.distance);
+        ObjectRef objRef = passage->whoIsBlockingPassage(self.getSelf(), IDSZ2::None, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, state.distance);
         if ( _currentModule->getObjectHandler().exists(objRef) )
         {
             self.setTarget(objRef);
@@ -7028,7 +7027,7 @@ Uint8 scr_IfTargetIsAWeapon( script_state_t& state, ai_state_t& self )
 
     const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[self.getTarget()];
     if(target) {
-        returncode = target->getProfile()->isRangedWeapon() || target->getProfile()->hasIDSZ(MAKE_IDSZ('X', 'W', 'E', 'P'));
+        returncode = target->getProfile()->isRangedWeapon() || target->getProfile()->hasIDSZ(IDSZ2('X', 'W', 'E', 'P'));
     }
     else {
         returncode = false;
@@ -7137,23 +7136,22 @@ Uint8 scr_AddQuest( script_state_t& state, ai_state_t& self )
     /// @author ZF
     /// @details This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
 
-    egolib_rv result = rv_fail;
     Object * pself_target;
-    PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    ipla = pself_target->is_which_player;
-    if ( VALID_PLA( ipla ) )
-    {
-        player_t * ppla = PlaStack.get_ptr( ipla );
+    const IDSZ2 idsz = IDSZ2(state.argument);
 
-        result = quest_log_add( ppla->quest_log, state.argument, state.distance );
+    returncode = false;
+    if(pself_target->isPlayer()) {
+        auto& questLog = _currentModule->getPlayer(pself_target->is_which_player)->getQuestLog();
+        if(!questLog.hasActiveQuest(idsz) && !questLog.isBeaten(idsz)) {
+            questLog.setQuestProgress(idsz, std::max(state.distance, 0));
+            returncode = true;
+        }
     }
-
-    returncode = ( rv_success == result );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7166,23 +7164,15 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t& state, ai_state_t& self )
     /// @details This function marks a IDSZ in the targets quest.txt as beaten
     ///               returns true if at least one quest got marked as beaten.
 
-    PLA_REF ipla;
-
     SCRIPT_FUNCTION_BEGIN();
 
+    const IDSZ2 idsz = IDSZ2(state.argument);
+
     returncode = false;
-    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList())
     {
-        ObjectRef ichr;
-        player_t * ppla = PlaStack.get_ptr( ipla );
-
-        if ( !ppla->valid ) continue;
-
-        ichr = ppla->index;
-        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
-
-        if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, static_cast<IDSZ>(state.argument), QUEST_MAXVAL ) )
-        {
+        if(player->getQuestLog().hasActiveQuest(idsz)) {
+            player->getQuestLog().setQuestProgress(idsz, Ego::QuestLog::QUEST_BEATEN);
             returncode = true;
         }
     }
@@ -7198,9 +7188,7 @@ Uint8 scr_IfTargetHasQuest( script_state_t& state, ai_state_t& self )
     /// @details This function proceeds if the Target has the unfinIshed quest specified in tmpargument
     /// and sets tmpdistance to the Quest Level of the specified quest.
 
-    int     quest_level = QUEST_NONE;
-    Object * pself_target = NULL;
-    PLA_REF ipla;
+    Object * pself_target = nullptr;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7208,19 +7196,15 @@ Uint8 scr_IfTargetHasQuest( script_state_t& state, ai_state_t& self )
 
     returncode = false;
 
-    ipla = pself_target->is_which_player;
-    if ( VALID_PLA( ipla ) )
-    {
-        player_t * ppla = PlaStack.get_ptr( ipla );
+    const IDSZ2 idsz = IDSZ2(state.argument);
+    if(pself_target->isPlayer()) {
+        const std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(pself_target->is_which_player);
 
-        quest_level = quest_log_get_level( ppla->quest_log, state.argument );
-    }
-
-    // only find active quests
-    if ( quest_level >= 0 )
-    {
-        state.distance = quest_level;
-        returncode       = true;
+        // only find active quests
+        if(player->getQuestLog().hasActiveQuest(idsz)) {
+            returncode = true;            
+            state.distance = player->getQuestLog()[idsz];
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -7235,21 +7219,21 @@ Uint8 scr_SetQuestLevel( script_state_t& state, ai_state_t& self )
     /// tmpargument specifies quest idsz (tmpargument) and the adjustment (tmpdistance, which may be negative)
 
     Object * pself_target;
-    PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
+    const IDSZ2 idsz = IDSZ2(state.argument);
+
     returncode = false;
-    ipla = pself_target->is_which_player;
-    if ( VALID_PLA( ipla ) && 0 != state.distance )
+    if ( pself_target->isPlayer() && 0 != state.distance )
     {
-        player_t * ppla        = PlaStack.get_ptr( ipla );
-
-        int quest_level = quest_log_adjust_level( ppla->quest_log, state.argument, state.distance );
-
-        returncode = QUEST_NONE != quest_level;
+        const std::shared_ptr<Ego::Player> &player = _currentModule->getPlayer(pself_target->is_which_player);
+        if(player->getQuestLog().hasActiveQuest(idsz)) {
+            player->getQuestLog().setQuestProgress(idsz, player->getQuestLog()[idsz] + state.distance);
+            returncode = true;
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -7263,26 +7247,22 @@ Uint8 scr_AddQuestAllPlayers( script_state_t& state, ai_state_t& self )
     /// @details This function adds a quest idsz set in tmpargument into all local player's quest logs
     /// The quest level Is set to tmpdistance if the level Is not already higher
 
-    PLA_REF ipla;
-    int success_count, player_count;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    for ( player_count = 0, success_count = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
-    {
-        int quest_level;
-        player_t * ppla = PlaStack.get_ptr( ipla );
+    if(state.distance > 0) {
+        const IDSZ2 idsz = IDSZ2(state.argument);
 
-        if ( !ppla->valid || !_currentModule->getObjectHandler().exists( ppla->index ) ) continue;
-        player_count++;
+        for(const std::shared_ptr<Ego::Player>& player : _currentModule->getPlayerList()) {
+            // Only try to add it or replace it if this one is higher
+            if(player->getQuestLog().isBeaten(idsz) || state.distance <= player->getQuestLog()[idsz]) {
+                continue;
+            }
 
-        // Try to add it or replace it if this one is higher
-        quest_level = quest_log_add( ppla->quest_log, state.argument, state.distance );
-        if ( QUEST_NONE != quest_level ) success_count++;
+            player->getQuestLog().setQuestProgress(idsz, state.distance);
+            returncode = true;
+        }        
     }
-
-    returncode = ( player_count > 0 ) && ( success_count >= player_count );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7305,7 +7285,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t& state, ai_state_t& self )
     else
     {
         local_stats.sense_enemies_team = ( TEAM_REF )Team::TEAM_MAX;
-        local_stats.sense_enemies_idsz = IDSZ_NONE;
+        local_stats.sense_enemies_idsz = IDSZ2::None;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7322,14 +7302,14 @@ Uint8 scr_PitsFall( script_state_t& state, ai_state_t& self )
 
     if ( state.x > EDGE && state.y > EDGE && state.x < _currentModule->getMeshPointer()->_tmem._edge_x - EDGE && state.y < _currentModule->getMeshPointer()->_tmem._edge_y - EDGE )
     {
-        g_pits.teleport = true;
-        g_pits.teleport_pos[kX] = state.x;
-        g_pits.teleport_pos[kY] = state.y;
-        g_pits.teleport_pos[kZ] = state.distance;
+        _currentModule->enablePitsTeleport(Vector3f(static_cast<float>(state.x), 
+                                                    static_cast<float>(state.y), 
+                                                    static_cast<float>(state.distance)));
     }
     else
     {
-        g_pits.kill = true;          //make it kill instead
+        //make it kill instead
+        _currentModule->enablePitsKill();
     }
 
     SCRIPT_FUNCTION_END();
@@ -7788,7 +7768,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t& state, ai_state_t& self )
     if ( pself_target->isAlive() )
     {
         // Check all enchants to see if they are removed
-        pself_target->removeEnchantsWithIDSZ(state.argument);
+        pself_target->removeEnchantsWithIDSZ(IDSZ2(state.argument));
         returncode = true;
     }
 
@@ -7993,7 +7973,7 @@ Uint8 scr_SetTargetToBlahInPassage( script_state_t& state, ai_state_t& self )
     std::shared_ptr<Passage> passage = _currentModule->getPassageByID(state.argument);
     returncode = false;
     if(passage) {
-        auto objRef = passage->whoIsBlockingPassage(self.getSelf(), state.turn, TARGET_SELF | state.distance, IDSZ_NONE );
+        auto objRef = passage->whoIsBlockingPassage(self.getSelf(), state.turn, TARGET_SELF | state.distance, IDSZ2::None );
 
         if ( _currentModule->getObjectHandler().exists(objRef) )
         {
@@ -8053,16 +8033,16 @@ Uint8 scr_GiveSkillToTarget( script_state_t& state, ai_state_t& self )
     //IDSZ to Perk
     switch(state.argument)
     {
-        case MAKE_IDSZ( 'A', 'W', 'E', 'P' ): ptarget->addPerk(Ego::Perks::WEAPON_PROFICIENCY); break;
-        case MAKE_IDSZ( 'P', 'O', 'I', 'S' ): ptarget->addPerk(Ego::Perks::POISONRY); break;
-        case MAKE_IDSZ( 'C', 'K', 'U', 'R' ): ptarget->addPerk(Ego::Perks::SENSE_KURSES); break;
-        case MAKE_IDSZ( 'R', 'E', 'A', 'D' ): ptarget->addPerk(Ego::Perks::LITERACY); break;
-        case MAKE_IDSZ( 'W', 'M', 'A', 'G' ): ptarget->addPerk(Ego::Perks::ARCANE_MAGIC); break;
-        case MAKE_IDSZ( 'H', 'M', 'A', 'G' ): ptarget->addPerk(Ego::Perks::DIVINE_MAGIC); break;
-        case MAKE_IDSZ( 'T', 'E', 'C', 'H' ): ptarget->addPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS); break;
-        case MAKE_IDSZ( 'D', 'I', 'S', 'A' ): ptarget->addPerk(Ego::Perks::TRAP_LORE); break;
-        case MAKE_IDSZ( 'S', 'T', 'A', 'B' ): ptarget->addPerk(Ego::Perks::BACKSTAB); break;
-        case MAKE_IDSZ( 'D', 'A', 'R', 'K' ): ptarget->addPerk(Ego::Perks::NIGHT_VISION); break;
+        case IDSZ2::caseLabel( 'A', 'W', 'E', 'P' ): ptarget->addPerk(Ego::Perks::WEAPON_PROFICIENCY); break;
+        case IDSZ2::caseLabel( 'P', 'O', 'I', 'S' ): ptarget->addPerk(Ego::Perks::POISONRY); break;
+        case IDSZ2::caseLabel( 'C', 'K', 'U', 'R' ): ptarget->addPerk(Ego::Perks::SENSE_KURSES); break;
+        case IDSZ2::caseLabel( 'R', 'E', 'A', 'D' ): ptarget->addPerk(Ego::Perks::LITERACY); break;
+        case IDSZ2::caseLabel( 'W', 'M', 'A', 'G' ): ptarget->addPerk(Ego::Perks::ARCANE_MAGIC); break;
+        case IDSZ2::caseLabel( 'H', 'M', 'A', 'G' ): ptarget->addPerk(Ego::Perks::DIVINE_MAGIC); break;
+        case IDSZ2::caseLabel( 'T', 'E', 'C', 'H' ): ptarget->addPerk(Ego::Perks::USE_TECHNOLOGICAL_ITEMS); break;
+        case IDSZ2::caseLabel( 'D', 'I', 'S', 'A' ): ptarget->addPerk(Ego::Perks::TRAP_LORE); break;
+        case IDSZ2::caseLabel( 'S', 'T', 'A', 'B' ): ptarget->addPerk(Ego::Perks::BACKSTAB); break;
+        case IDSZ2::caseLabel( 'D', 'A', 'R', 'K' ): ptarget->addPerk(Ego::Perks::NIGHT_VISION); break;
     }
 
     SCRIPT_FUNCTION_END();
@@ -8073,7 +8053,7 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t& state, ai_state_t& self 
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    ObjectRef best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), false, true );
+    ObjectRef best_target = FindWeapon( pchr, WIDE, IDSZ2('X', 'W', 'E', 'P'), false, true );
 
     //Did we find anything good?
     if ( _currentModule->getObjectHandler().exists( best_target ) )
@@ -8143,7 +8123,7 @@ uint8_t scr_SetTargetToDistantFriend( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    auto ichr = chr_find_target(pchr, state.distance, IDSZ_NONE, TARGET_FRIENDS);
+    auto ichr = chr_find_target(pchr, state.distance, IDSZ2::None, TARGET_FRIENDS);
 
     if (_currentModule->getObjectHandler().exists(ichr))
     {
@@ -8167,18 +8147,18 @@ uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self)
     SCRIPT_FUNCTION_BEGIN();
 
     //We ourselves must be a player or our holder must be one
-    std::shared_ptr<Object> player = _currentModule->getObjectHandler()[pchr->getObjRef()];
-    if(!player->isPlayer() && player->isBeingHeld()) {
-        player = _currentModule->getObjectHandler()[pchr->attachedto];
+    std::shared_ptr<Object> object = _currentModule->getObjectHandler()[pchr->getObjRef()];
+    if(!object->isPlayer() && object->isBeingHeld()) {
+        object = _currentModule->getObjectHandler()[pchr->attachedto];
     }
 
     //Only do this for players
-    if(!player->isPlayer()) {
+    if(!object->isPlayer()) {
         returncode = false;
     }
 
     //Validate arguments
-    else if(state.distance <= 0)  {
+    else if(state.distance <= 0 || state.argument < 0)  {
         returncode = false;
     }
 
@@ -8186,11 +8166,8 @@ uint8_t scr_DisplayCharge(script_state_t& state, ai_state_t& self)
     else {        
         returncode = true;
 
-        player_t * ppla = PlaStack.get_ptr(player->is_which_player);
-        ppla->_currentCharge = std::min(state.argument, state.argument);
-        ppla->_maxCharge = state.distance;
-        ppla->_chargeTick = state.turn;
-        ppla->_chargeBarFrame = update_wld + 10;
+        const std::shared_ptr<Ego::Player>& player = _currentModule->getPlayer(object->is_which_player);
+        player->setChargeBar(state.argument, state.distance, state.turn);
     }
 
     SCRIPT_FUNCTION_END();

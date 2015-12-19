@@ -54,15 +54,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Timers
-
-#define STABILIZED_KEEP  0.65f
-#define STABILIZED_COVER (1.0f - STABILIZED_KEEP)
-
-EXTERN Sint32 gfx_clear_loops EQ(0);            ///< The number of times the screen has been cleared
-
-/// Timers
-EXTERN Uint32 outofsync EQ(0);
-
 //HUD
 EXTERN bool timeron EQ(false);  ///< Game timer displayed?
 EXTERN Uint32 timervalue EQ(0); ///< Timer time ( 50ths of a second )
@@ -92,7 +83,7 @@ struct local_stats_t
 
     //ESP
     TEAM_REF sense_enemies_team;
-    IDSZ sense_enemies_idsz;
+    IDSZ2 sense_enemies_idsz;
 };
 
 EXTERN local_stats_t local_stats;

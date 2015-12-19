@@ -182,19 +182,19 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     // Read expansions
     while (ctxt.skipToColon(true))
     {
-        switch(ctxt.readIDSZ())
+        switch(ctxt.readIDSZ().toUint32())
         {
-            case MAKE_IDSZ('A', 'M', 'O', 'U'): profile->contspawn._amount = ctxt.readIntegerLiteral(); break;
-            case MAKE_IDSZ('T', 'Y', 'P', 'E'): profile->contspawn._lpip = vfs_get_local_particle_profile_ref(ctxt); break;
-            case MAKE_IDSZ('T', 'I', 'M', 'E'): profile->contspawn._delay = ctxt.readIntegerLiteral(); break;
-            case MAKE_IDSZ('F', 'A', 'C', 'E'): profile->contspawn._facingAdd = ctxt.readIntegerLiteral(); break;
-            case MAKE_IDSZ('S', 'E', 'N', 'D'): profile->endsound_index = ctxt.readIntegerLiteral(); break;
-            case MAKE_IDSZ('S', 'T', 'A', 'Y'): profile->_owner._stay = (0 != ctxt.readIntegerLiteral()); break;
-            case MAKE_IDSZ('O', 'V', 'E', 'R'): profile->spawn_overlay = (0 != ctxt.readIntegerLiteral()); break;
-            case MAKE_IDSZ('D', 'E', 'A', 'D'): profile->_target._stay = (0 != ctxt.readIntegerLiteral()); break;
-            case MAKE_IDSZ('C', 'K', 'U', 'R'): profile->seeKurses = ctxt.readIntegerLiteral(); break;
-            case MAKE_IDSZ('D', 'A', 'R', 'K'): profile->darkvision = ctxt.readIntegerLiteral(); break;
-            case MAKE_IDSZ('N', 'A', 'M', 'E'): profile->setEnchantName(ctxt.readName()); break;
+            case IDSZ2::caseLabel('A', 'M', 'O', 'U'): profile->contspawn._amount = ctxt.readIntegerLiteral(); break;
+            case IDSZ2::caseLabel('T', 'Y', 'P', 'E'): profile->contspawn._lpip = vfs_get_local_particle_profile_ref(ctxt); break;
+            case IDSZ2::caseLabel('T', 'I', 'M', 'E'): profile->contspawn._delay = ctxt.readIntegerLiteral(); break;
+            case IDSZ2::caseLabel('F', 'A', 'C', 'E'): profile->contspawn._facingAdd = ctxt.readIntegerLiteral(); break;
+            case IDSZ2::caseLabel('S', 'E', 'N', 'D'): profile->endsound_index = ctxt.readIntegerLiteral(); break;
+            case IDSZ2::caseLabel('S', 'T', 'A', 'Y'): profile->_owner._stay = (0 != ctxt.readIntegerLiteral()); break;
+            case IDSZ2::caseLabel('O', 'V', 'E', 'R'): profile->spawn_overlay = (0 != ctxt.readIntegerLiteral()); break;
+            case IDSZ2::caseLabel('D', 'E', 'A', 'D'): profile->_target._stay = (0 != ctxt.readIntegerLiteral()); break;
+            case IDSZ2::caseLabel('C', 'K', 'U', 'R'): profile->seeKurses = ctxt.readIntegerLiteral(); break;
+            case IDSZ2::caseLabel('D', 'A', 'R', 'K'): profile->darkvision = ctxt.readIntegerLiteral(); break;
+            case IDSZ2::caseLabel('N', 'A', 'M', 'E'): profile->setEnchantName(ctxt.readName()); break;
             default: /*TODO: log error*/ break;
         }
     }

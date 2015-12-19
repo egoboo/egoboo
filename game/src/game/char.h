@@ -94,7 +94,6 @@
 #define DROPXYVEL           12
 
 //Timer resets
-#define DAMAGETILETIME      32                            ///< Invincibility time
 #define DAMAGETIME          32                            ///< Invincibility time
 #define DEFENDTIME          24                            ///< Invincibility time
 #define BORETIME            (Random::next<uint16_t>(255, 255 + 511)) ///< IfBored timer

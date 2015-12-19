@@ -69,7 +69,7 @@ public:
      *  @a true, then in addition the item must be equipped in order to match the search
      *  criterion.
      */
-    static ObjectRef findItem(Object *powner, IDSZ idsz, bool equippedOnly);
+    static ObjectRef findItem(Object *powner, const IDSZ2& idsz, bool equippedOnly);
     /**
      * @brief
      *  Find an item in the pack.
@@ -86,7 +86,7 @@ public:
      *  @a true, then in addition the item must be equipped in order to match the search
      *  criterion.
      */
-    static ObjectRef findItem(ObjectRef iowner, IDSZ idsz, bool equippedOnly);
+    static ObjectRef findItem(ObjectRef iowner, const IDSZ2& idsz, bool equippedOnly);
 
     /**
     * @brief

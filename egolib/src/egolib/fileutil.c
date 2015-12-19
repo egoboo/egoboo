@@ -115,7 +115,7 @@ void ReadContext::skipWhiteSpaces()
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-IDSZ2 ReadContext::readIDSZ2() {
+IDSZ2 ReadContext::readIDSZ() {
 	char c[4];
 	if (is(Traits::startOfInput()))
 	{
@@ -187,12 +187,6 @@ IDSZ2 ReadContext::readIDSZ2() {
 	}
 	next();
 	return IDSZ2(c[0], c[1], c[2], c[3]);
-}
-
-IDSZ ReadContext::readIDSZ()
-{
-	auto idsz = readIDSZ2();
-	return idsz.get();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -626,35 +620,35 @@ void vfs_put_string_under( vfs_FILE* filewrite, const char* text, const char* us
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz )
+void vfs_put_idsz( vfs_FILE* filewrite, const char* text, const IDSZ2& idsz )
 {
     vfs_printf( filewrite, "%s", text );
-    vfs_printf( filewrite, "[%s]\n", undo_idsz( idsz ) );
+    vfs_printf(filewrite, "[%s]\n", idsz.toString().c_str());
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, const LocalParticleProfileRef& lppref)
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, const IDSZ2& idsz, const LocalParticleProfileRef& lppref)
 {
-    vfs_printf(filewrite, "%s: [%s] %d\n", text, undo_idsz(idsz), lppref.get());
+    vfs_printf(filewrite, "%s: [%s] %d\n", text, idsz.toString().c_str(), lppref.get());
 }
 
-void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, int value)
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, const IDSZ2& idsz, int value)
 {
-    vfs_printf(filewrite, "%s: [%s] %d\n", text, undo_idsz(idsz), value);
+    vfs_printf(filewrite, "%s: [%s] %d\n", text, idsz.toString().c_str(), value);
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, float value )
+void vfs_put_expansion_float( vfs_FILE* filewrite, const char* text, const IDSZ2& idsz, float value )
 {
     /// @author ZF
     /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs for floating point values
 
-    vfs_printf( filewrite, "%s: [%s] %4.2f\n", text, undo_idsz( idsz ), value );
+    vfs_printf( filewrite, "%s: [%s] %4.2f\n", text, idsz.toString().c_str(), value );
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str )
+void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, const IDSZ2& idsz, const char * str )
 {
     /// @author ZF
     /// @details This function mimics vfs_printf in spitting out
@@ -666,7 +660,7 @@ void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz,
     }
     else
     {
-        vfs_printf( filewrite, "%s: [%s] %s\n", text, undo_idsz( idsz ), str );
+        vfs_printf( filewrite, "%s: [%s] %s\n", text, idsz.toString().c_str(), str );
     }
 }
 
@@ -1462,7 +1456,7 @@ bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair)
 }
 
 //--------------------------------------------------------------------------------------------
-IDSZ vfs_get_next_idsz(ReadContext& ctxt)
+IDSZ2 vfs_get_next_idsz(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
     return ctxt.readIDSZ();

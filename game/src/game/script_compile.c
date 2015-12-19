@@ -494,9 +494,9 @@ size_t parser_state_t::parse_token(Token& tok, ObjectProfile *ppro, script_info_
     // Check for IDSZ constant
     if ( !parsed && ( '[' == tok.szWord[0] ) )
     {
-        IDSZ idsz = MAKE_IDSZ( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
+        IDSZ2 idsz = IDSZ2( tok.szWord[1], tok.szWord[2], tok.szWord[3], tok.szWord[4] );
 
-        tok.setValue(idsz);
+        tok.setValue(idsz.toUint32());
         tok.setType(Token::Type::Constant);
         tok.setIndex(MAX_OPCODE);
 
