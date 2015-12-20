@@ -98,9 +98,6 @@
     <ClCompile Include="src\game\mesh.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\network.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\physics.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
