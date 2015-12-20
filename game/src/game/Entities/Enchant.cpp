@@ -252,11 +252,13 @@ void Enchantment::update()
     //Can the owner still sustain us?
     if (owner && owner->isAlive()) {
 
-        //Killed by sustaining life?
+        //Killed by draining life?
         if(owner->getLife() + _ownerLifeSustain < 0.0f) {
             owner->kill(target, false);
-            if(_enchantProfile->endIfCannotPay) {
+
+            if(_enchantProfile->endIfCannotPay || !_enchantProfile->_target._stay) {
                 requestTerminate();
+                return;
             }
         }
 
@@ -264,6 +266,7 @@ void Enchantment::update()
         if(_enchantProfile->endIfCannotPay) {
             if(owner->getMana() + _ownerManaSustain < 0.0f) {
                 requestTerminate();
+                return;
             }
         }
     }
@@ -366,7 +369,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     }
 
     //Check if this enchant has any set modifiers that conflicts with another enchant
-    _modifiers.remove_if([this, &target](const EnchantModifier &modifier){
+    _modifiers.remove_if([this, &target](const EnchantModifier &modifier) {
 
         //Only set types can conflict
         if(!Ego::Attribute::isOverrideSetAttribute(modifier._type)) {
@@ -388,7 +391,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
                 conflictingEnchant->_modifiers.remove_if([this, &conflictingEnchant, &modifier, &conflictResolved](const EnchantModifier &otherModifier)
                     {
                         //Is this the one?
-                        if(otherModifier._type == otherModifier._type) {
+                        if(modifier._type == otherModifier._type) {
                             conflictResolved = true;
 
                             //Remove Enchants that conflict with this one?
