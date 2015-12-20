@@ -373,7 +373,6 @@
     <ClCompile Include="src\egolib\FileFormats\map_file-v4.c" />
     <ClCompile Include="src\egolib\FileFormats\map_file.c" />
     <ClCompile Include="src\egolib\FileFormats\map_tile_dictionary.c" />
-    <ClCompile Include="src\egolib\FileFormats\quest_file.c" />
     <ClCompile Include="src\egolib\FileFormats\scancode_file.c" />
     <ClCompile Include="src\egolib\FileFormats\SDL_md2.c" />
     <ClCompile Include="src\egolib\FileFormats\spawn_file.c" />
@@ -457,7 +456,6 @@
     <ClCompile Include="src\egolib\geometry.c" />
     <ClCompile Include="src\egolib\input_device.c" />
     <ClCompile Include="src\egolib\map_functions.c" />
-    <ClCompile Include="src\egolib\network.c" />
     <ClCompile Include="src\egolib\platform\file_linux.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -576,7 +574,6 @@
     <ClInclude Include="src\egolib\FileFormats\map_file-v4.h" />
     <ClInclude Include="src\egolib\FileFormats\map_file.h" />
     <ClInclude Include="src\egolib\FileFormats\map_tile_dictionary.h" />
-    <ClInclude Include="src\egolib\FileFormats\quest_file.h" />
     <ClInclude Include="src\egolib\FileFormats\scancode_file.h" />
     <ClInclude Include="src\egolib\FileFormats\SDL_md2.h" />
     <ClInclude Include="src\egolib\FileFormats\spawn_file.h" />
@@ -637,7 +634,6 @@
     <ClInclude Include="src\egolib\geometry.h" />
     <ClInclude Include="src\egolib\input_device.h" />
     <ClInclude Include="src\egolib\map_functions.h" />
-    <ClInclude Include="src\egolib\network.h" />
     <ClInclude Include="src\egolib\platform.h" />
     <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
