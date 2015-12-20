@@ -747,7 +747,7 @@ bool script_state_t::run_operation( script_state_t& state, ai_state_t& aiState, 
     for ( i = 0; i < operand_count && script.get_pos() < script._instructions.getLength(); ++i )
     {
 		script.increment_pos();
-		script_state_t::run_operand(state, aiState, &script);
+		script_state_t::run_operand(state, aiState, script);
     }
     if ( debug_scripts && debug_script_file )
     {
@@ -856,7 +856,7 @@ void script_state_t::set_operand( script_state_t& state, Uint8 variable )
 }
 
 //--------------------------------------------------------------------------------------------
-void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, script_info_t * pscript )
+void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, script_info_t& script )
 {
     /// @author ZZ
     /// @details This function does the scripted arithmetic in OPERATOR, OPERAND pscriptrs
@@ -887,17 +887,17 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
     // get the operator
     iTmp      = 0;
     varname   = buffer;
-    operation = pscript->_instructions[pscript->get_pos()].getDataBits();
-    if ( pscript->_instructions[pscript->get_pos()].isLdc() )
+    operation = script._instructions[script.get_pos()].getDataBits();
+    if ( script._instructions[script.get_pos()].isLdc() )
     {
         // Get the working opcode from a constant, constants are all but high 5 bits
-        iTmp = pscript->_instructions[pscript->get_pos()] & Instruction::VALUEBITS;
+        iTmp = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
         if ( debug_scripts ) snprintf( buffer, SDL_arraysize( buffer ), "%d", iTmp );
     }
     else
     {
         // Get the variable opcode from a register
-        variable = pscript->_instructions[pscript->get_pos()] & Instruction::VALUEBITS;
+        variable = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
 
         switch ( variable )
         {
