@@ -459,7 +459,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\mesh.c" />
     <ClCompile Include="src\game\network.c" />
     <ClCompile Include="src\game\physics.c" />
-    <ClCompile Include="src\game\player.c" />
     <ClCompile Include="src\game\renderer_2d.c" />
     <ClCompile Include="src\game\renderer_3d.c" />
     <ClCompile Include="src\game\script_compile.c" />
@@ -549,7 +548,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\mesh.h" />
     <ClInclude Include="src\game\network.h" />
     <ClInclude Include="src\game\physics.h" />
-    <ClInclude Include="src\game\player.h" />
     <ClInclude Include="src\game\renderer_2d.h" />
     <ClInclude Include="src\game\renderer_3d.h" />
     <ClInclude Include="src\game\script_compile.h" />

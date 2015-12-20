@@ -104,9 +104,6 @@
     <ClCompile Include="src\game\physics.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\player.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\renderer_2d.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -356,9 +353,6 @@
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\physics.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\player.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\renderer_2d.h">
