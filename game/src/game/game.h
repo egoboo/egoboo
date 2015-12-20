@@ -137,21 +137,6 @@ int update_game();
 
 //--------------------------------------------------------------------------------------------
 
-/// The actual in-game state of the damage tiles
-struct damagetile_instance_t
-{
-    IPair amount;                    ///< Amount of damage
-	DamageType damagetype;
-
-    LocalParticleProfileRef part_gpip;
-    uint32_t partand;
-    int    sound_index;
-
-	void upload(const wawalite_damagetile_t& source);
-};
-
-//--------------------------------------------------------------------------------------------
-
 /// The state of the weather.
 struct WeatherState
 {
@@ -228,20 +213,6 @@ struct import_list_t
 
 //--------------------------------------------------------------------------------------------
 
-/// Pitty stuff
-struct pit_info_t
-{
-    bool kill;              ///< Do they kill?
-    bool teleport;          ///< Do they teleport?
-	Vector3f teleport_pos;  ///< If they teleport, then where to?
-
-	pit_info_t()
-		: kill(false), teleport(false), teleport_pos() {
-	}
-};
-
-//--------------------------------------------------------------------------------------------
-
 /// List of objects with status displays
 struct status_list_t
 {
@@ -267,7 +238,6 @@ struct status_list_t
 //--------------------------------------------------------------------------------------------
 
 // special terrain and wawalite-related data structs (TODO: move into Module class)
-extern damagetile_instance_t damagetile;
 extern WeatherState g_weatherState;
 extern fog_instance_t fog;
 extern AnimatedTilesState g_animatedTilesState;
@@ -276,18 +246,14 @@ extern AnimatedTilesState g_animatedTilesState;
 extern char   endtext[MAXENDTEXT];     ///< The end-module text
 extern size_t endtext_carat;
 
-extern pit_info_t g_pits;
-
 extern bool    overrideslots;          ///< Override existing slots?
 extern FACING_T  glouseangle;            ///< global return value from prt_find_target() - actually still used
 
 extern import_list_t g_importList;
 
 // various clocks and timers
-extern Sint32          clock_wld;             ///< The sync clock
 extern Uint32          clock_enc_stat;        ///< For character stat regeneration
 extern Uint32          clock_chr_stat;        ///< For enchant stat regeneration
-extern Uint32          clock_pit;             ///< For pit kills
 extern Uint32          update_wld;            ///< The number of times the game has been updated
 
 // counters for debugging wall collisions
@@ -303,6 +269,8 @@ void game_quit_module();
 /// the hook for exporting all the current players and reloading them
 bool game_finish_module();
 bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
+void game_load_module_profiles(const std::string& modname);
+void game_load_global_profiles();
 
 /// Exporting stuff
 egolib_rv export_one_character( ObjectRef character, ObjectRef owner, int chr_obj_index, bool is_local );
@@ -330,22 +298,15 @@ void    disaffirm_attached_particles(ObjectRef objectRef);
 /// @return the number of particles added
 int reaffirm_attached_particles(ObjectRef objectRef);
 
-/// Player
-bool add_player(ObjectRef objectRef, const PLA_REF playerRef, input_device_t *device);
-
 //Latches
-void set_one_player_latch( const PLA_REF player );
 bool chr_do_latch_button( Object * pchr );
 bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
 void character_swipe( ObjectRef cnt, slot_t slot );
 
 /// AI targeting
-bool  chr_check_target( Object * psrc, ObjectRef iObjectTest, IDSZ idsz, const BIT_FIELD targeting_bits );
-ObjectRef chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
+bool  chr_check_target( Object * psrc, ObjectRef iObjectTest, const IDSZ2& idsz, const BIT_FIELD targeting_bits );
+ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, const BIT_FIELD targeting_bits );
 ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, ObjectRef dontTarget, ObjectRef oldTarget, FACING_T *targetAngle);
-
-/// object initialization
-void  free_all_objects();
 
 void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 

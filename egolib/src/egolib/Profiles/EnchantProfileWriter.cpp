@@ -176,59 +176,59 @@ bool EnchantProfileWriter::write(std::shared_ptr<eve_t> profile, const std::stri
 
     if (profile->contspawn._amount > 0)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('A', 'M', 'O', 'U'), profile->contspawn._amount);
+        vfs_put_expansion(filewrite, "", IDSZ2('A', 'M', 'O', 'U'), profile->contspawn._amount);
     }
 
     /// @warning The original test was profile->contspawn._lpip > 0 but this is an error.
     /// Question is which parts of this program rely on this error again.
     if (LocalParticleProfileRef::Invalid != profile->contspawn._lpip)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('T', 'Y', 'P', 'E'), profile->contspawn._lpip);
+        vfs_put_expansion(filewrite, "", IDSZ2('T', 'Y', 'P', 'E'), profile->contspawn._lpip);
     }
 
     if (profile->contspawn._facingAdd > 0)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('T', 'I', 'M', 'E'), profile->contspawn._facingAdd);
+        vfs_put_expansion(filewrite, "", IDSZ2('T', 'I', 'M', 'E'), profile->contspawn._facingAdd);
     }
 
     if (profile->contspawn._delay > 0)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('F', 'A', 'C', 'E'), profile->contspawn._delay);
+        vfs_put_expansion(filewrite, "", IDSZ2('F', 'A', 'C', 'E'), profile->contspawn._delay);
     }
 
     if (-1 != profile->endsound_index)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('S', 'E', 'N', 'D'), profile->endsound_index);
+        vfs_put_expansion(filewrite, "", IDSZ2('S', 'E', 'N', 'D'), profile->endsound_index);
     }
 
     if (profile->_owner._stay)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('S', 'T', 'A', 'Y'), 1);
+        vfs_put_expansion(filewrite, "", IDSZ2('S', 'T', 'A', 'Y'), 1);
     }
 
     if (profile->spawn_overlay)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('O', 'V', 'E', 'R'), profile->spawn_overlay);
+        vfs_put_expansion(filewrite, "", IDSZ2('O', 'V', 'E', 'R'), profile->spawn_overlay);
     }
 
     if (profile->seeKurses)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('C', 'K', 'U', 'R'), profile->seeKurses);
+        vfs_put_expansion(filewrite, "", IDSZ2('C', 'K', 'U', 'R'), profile->seeKurses);
     }
 
     if (profile->darkvision)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('D', 'A', 'R', 'K'), profile->darkvision);
+        vfs_put_expansion(filewrite, "", IDSZ2('D', 'A', 'R', 'K'), profile->darkvision);
     }
 
     if (profile->_target._stay)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('D', 'E', 'A', 'D'), 1);
+        vfs_put_expansion(filewrite, "", IDSZ2('D', 'E', 'A', 'D'), 1);
     }
 
     if (!profile->getEnchantName().empty())
     {
-        vfs_put_expansion_string(filewrite, "", MAKE_IDSZ('N', 'A', 'M', 'E'), profile->getEnchantName().c_str());
+        vfs_put_expansion_string(filewrite, "", IDSZ2('N', 'A', 'M', 'E'), profile->getEnchantName().c_str());
     }
 
     // dump the rest of the template file

@@ -630,7 +630,7 @@ public:
     **/
     std::shared_ptr<Ego::Enchantment> addEnchant(ENC_REF enchantProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object>& owner, const std::shared_ptr<Object> &spawner);
 
-    void removeEnchantsWithIDSZ(const IDSZ idsz);
+    void removeEnchantsWithIDSZ(const IDSZ2& idsz);
 
     std::forward_list<std::shared_ptr<Ego::Enchantment>>& getActiveEnchants();
 
@@ -715,7 +715,7 @@ public:
     * @return
     *   The Object that has the matching IDSZ
     **/
-    const std::shared_ptr<Object>& isWieldingItemIDSZ(const IDSZ idsz) const;
+    const std::shared_ptr<Object>& isWieldingItemIDSZ(const IDSZ2& idsz) const;
 
     /**
     * @brief
@@ -732,7 +732,7 @@ public:
     * @return
     *   true if the Object has the matching skill IDSZ of a perk that matches the skill IDSZ
     **/
-    bool hasSkillIDSZ(const IDSZ whichskill) const;
+    bool hasSkillIDSZ(const IDSZ2& whichskill) const;
 
     void dropMoney(int amount);
 

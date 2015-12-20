@@ -27,8 +27,6 @@
 #include "game/script_functions.h"
 #include "egolib/AI/AStar.h"
 #include "game/game.h"
-#include "game/network.h"
-#include "game/player.h"
 #include "game/Entities/_Include.hpp"
 #include "game/char.h"
 #include "game/Core/GameEngine.hpp"
@@ -585,7 +583,7 @@ void scr_run_chr_script(Object *pchr) {
 	}
 
 	// Clear the button latches.
-	if (!VALID_PLA(pchr->is_which_player)) {
+	if (!pchr->isPlayer()) {
 		RESET_BIT_FIELD(pchr->latch.b);
 	}
 
@@ -625,8 +623,8 @@ void scr_run_chr_script(Object *pchr) {
 		}
 	}
 
-	// Set latches
-	if (!VALID_PLA(pchr->is_which_player)) {
+	// Set movement latches
+	if (!pchr->isPlayer()) {
 		float latch2;
 
 		ai_state_t::ensure_wp(aiState);
@@ -1116,12 +1114,12 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFID:
                 varname = "SELFID";
-				iTmp = pchr->getProfile()->getIDSZ(IDSZ_TYPE);
+				iTmp = pchr->getProfile()->getIDSZ(IDSZ_TYPE).toUint32();
                 break;
 
             case VARSELFHATEID:
                 varname = "SELFHATEID";
-				iTmp = pchr->getProfile()->getIDSZ(IDSZ_HATE);
+				iTmp = pchr->getProfile()->getIDSZ(IDSZ_HATE).toUint32();
                 break;
 
             case VARSELFMANA:
@@ -1637,7 +1635,7 @@ void issue_order( const ObjectRef character, Uint32 value )
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_special_order( Uint32 value, IDSZ idsz )
+void issue_special_order( uint32_t value, const IDSZ2& idsz )
 {
     /// @author ZZ
     /// @details This function issues an order to all characters with the a matching special IDSZ

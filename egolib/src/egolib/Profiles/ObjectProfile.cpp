@@ -211,7 +211,7 @@ ObjectProfile::ObjectProfile() :
     _perkPool()
 {
     _experienceRate.fill(0.0f);
-    _idsz.fill(IDSZ_NONE);
+    _idsz.fill(IDSZ2::None);
     _experienceForLevel.fill(UINT32_MAX);
 }
 
@@ -350,10 +350,10 @@ SoundID ObjectProfile::getSoundID( int index ) const
     return (*result).second;
 }
 
-IDSZ ObjectProfile::getIDSZ(size_t type) const
+const IDSZ2& ObjectProfile::getIDSZ(size_t type) const
 {
     if(type >= IDSZ_COUNT) {
-        return IDSZ_NONE;
+        return IDSZ2::None;
     }
 
     return _idsz[type];
@@ -700,59 +700,59 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // Read expansions
     while (ctxt.skipToColon(true))
     {
-        const IDSZ idsz = ctxt.readIDSZ();
+        const IDSZ2 idsz = ctxt.readIDSZ();
 
-        switch(idsz)
+        switch(idsz.toUint32())
         {
-            case MAKE_IDSZ( 'D', 'R', 'E', 'S' ):
+            case IDSZ2::caseLabel( 'D', 'R', 'E', 'S' ):
                 _skinInfo[ctxt.readIntegerLiteral()].dressy = true;
             break;
 
-            case MAKE_IDSZ( 'G', 'O', 'L', 'D' ):
+            case IDSZ2::caseLabel( 'G', 'O', 'L', 'D' ):
                 _money = ctxt.readIntegerLiteral();
             break;
 
-            case MAKE_IDSZ( 'S', 'T', 'U', 'K' ):
+            case IDSZ2::caseLabel( 'S', 'T', 'U', 'K' ):
                 _resistBumpSpawn = (0 != (1 - ctxt.readIntegerLiteral()));
             break;
 
-            case MAKE_IDSZ( 'P', 'A', 'C', 'K' ):
+            case IDSZ2::caseLabel( 'P', 'A', 'C', 'K' ):
                 _isBigItem = !(0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'V', 'A', 'M', 'P' ):
+            case IDSZ2::caseLabel( 'V', 'A', 'M', 'P' ):
                 _hasReflection = (0 == ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'D', 'R', 'A', 'W' ):
+            case IDSZ2::caseLabel( 'D', 'R', 'A', 'W' ):
                 _alwaysDraw = (0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'R', 'A', 'N', 'G' ):
+            case IDSZ2::caseLabel( 'R', 'A', 'N', 'G' ):
                 _isRanged = (0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'H', 'I', 'D', 'E' ):
+            case IDSZ2::caseLabel( 'H', 'I', 'D', 'E' ):
                 _hideState = ctxt.readIntegerLiteral();
             break;
 
-            case MAKE_IDSZ( 'E', 'Q', 'U', 'I' ):
+            case IDSZ2::caseLabel( 'E', 'Q', 'U', 'I' ):
                 _isEquipment = (0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'S', 'Q', 'U', 'A' ):
+            case IDSZ2::caseLabel( 'S', 'Q', 'U', 'A' ):
                 _bumpSizeBig = _bumpSize * 2;
             break;
 
-            case MAKE_IDSZ( 'I', 'C', 'O', 'N' ):
+            case IDSZ2::caseLabel( 'I', 'C', 'O', 'N' ):
                 _drawIcon = (0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'S', 'H', 'A', 'D' ):
+            case IDSZ2::caseLabel( 'S', 'H', 'A', 'D' ):
                 _forceShadow = (0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'S', 'K', 'I', 'N' ):
+            case IDSZ2::caseLabel( 'S', 'K', 'I', 'N' ):
             {
                 /// @note BB@> This is the skin value of a saved character.
                 ///            It should(!) correspond to a valid skin for this object,
@@ -765,62 +765,62 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             }          
             break;
 
-            case MAKE_IDSZ( 'C', 'O', 'N', 'T' ): 
+            case IDSZ2::caseLabel( 'C', 'O', 'N', 'T' ): 
                 _contentOverride = ctxt.readIntegerLiteral();
             break;
 
-            case MAKE_IDSZ( 'S', 'T', 'A', 'T' ): 
+            case IDSZ2::caseLabel( 'S', 'T', 'A', 'T' ): 
                 _stateOverride = ctxt.readIntegerLiteral();
             break;
 
-            case MAKE_IDSZ( 'L', 'E', 'V', 'L' ): 
+            case IDSZ2::caseLabel( 'L', 'E', 'V', 'L' ): 
                 _levelOverride = ctxt.readIntegerLiteral();
             break;
 
-            case MAKE_IDSZ( 'P', 'L', 'A', 'T' ): 
+            case IDSZ2::caseLabel( 'P', 'L', 'A', 'T' ): 
                 _canUsePlatforms = (0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'R', 'I', 'P', 'P' ): 
+            case IDSZ2::caseLabel( 'R', 'I', 'P', 'P' ): 
                 _causesRipples = (0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'V', 'A', 'L', 'U' ): 
+            case IDSZ2::caseLabel( 'V', 'A', 'L', 'U' ): 
                 _isValuable = ctxt.readIntegerLiteral();
             break;
 
-            case MAKE_IDSZ( 'L', 'I', 'F', 'E' ): 
+            case IDSZ2::caseLabel( 'L', 'I', 'F', 'E' ): 
                 _spawnLife = 0xff * ctxt.readRealLiteral();
             break;
 
-            case MAKE_IDSZ( 'M', 'A', 'N', 'A' ): 
+            case IDSZ2::caseLabel( 'M', 'A', 'N', 'A' ): 
                 _spawnMana = 0xff * ctxt.readRealLiteral();
             break;
 
-            case MAKE_IDSZ( 'B', 'O', 'O', 'K' ):
+            case IDSZ2::caseLabel( 'B', 'O', 'O', 'K' ):
             {
                 _spellEffectType = ctxt.readIntegerLiteral();
             }
             break;
 
             //Damage bonuses from stats
-            case MAKE_IDSZ( 'F', 'A', 'S', 'T' ):
+            case IDSZ2::caseLabel( 'F', 'A', 'S', 'T' ):
                 _attackFast = (0 != ctxt.readIntegerLiteral());
             break;
 
-            case MAKE_IDSZ( 'S', 'T', 'R', 'D' ):
+            case IDSZ2::caseLabel( 'S', 'T', 'R', 'D' ):
                 _strengthBonus = ctxt.readRealLiteral();
             break;
 
-            case MAKE_IDSZ( 'I', 'N', 'T', 'D' ):
+            case IDSZ2::caseLabel( 'I', 'N', 'T', 'D' ):
                 _intelligenceBonus = ctxt.readRealLiteral();
             break;
 
-            case MAKE_IDSZ( 'D', 'E', 'X', 'D' ):
+            case IDSZ2::caseLabel( 'D', 'E', 'X', 'D' ):
                 _dexterityBonus = ctxt.readRealLiteral();
             break;
 
-            case MAKE_IDSZ( 'M', 'O', 'D', 'L' ):
+            case IDSZ2::caseLabel( 'M', 'O', 'D', 'L' ):
             {
                 char tmp_buffer[1024+1];
                 vfs_read_string_lit(ctxt, tmp_buffer, 1024);
@@ -860,19 +860,19 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             }
             break;
 
-            case MAKE_IDSZ('B', 'L', 'O', 'C'):
+            case IDSZ2::caseLabel('B', 'L', 'O', 'C'):
             {
                 _blockRating = ctxt.readIntegerLiteral();
             }
             break;
 
             //Random Seed for level ups
-            case  MAKE_IDSZ( 'S', 'E', 'E', 'D' ):
+            case  IDSZ2::caseLabel( 'S', 'E', 'E', 'D' ):
                 _levelUpRandomSeedOverride = ctxt.readIntegerLiteral();
             break;
 
             //Perks known
-            case MAKE_IDSZ( 'P', 'E', 'R', 'K' ):
+            case IDSZ2::caseLabel( 'P', 'E', 'R', 'K' ):
             {
                 std::string perkName = ctxt.readName();
                 std::replace(perkName.begin(), perkName.end(), '_', ' '); //replace underscore with spaces
@@ -889,7 +889,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             //Perk Pool (perks that we can learn in the future)
-            case MAKE_IDSZ( 'P', 'O', 'O', 'L' ):
+            case IDSZ2::caseLabel( 'P', 'O', 'O', 'L' ):
             {
                 std::string perkName = ctxt.readName();
                 std::replace(perkName.begin(), perkName.end(), '_', ' '); //replace underscore with spaces
@@ -906,19 +906,19 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             //Backwards compatability with old skill system (for older data files)
-            case MAKE_IDSZ( 'A', 'W', 'E', 'P' ): _startingPerks[Ego::Perks::WEAPON_PROFICIENCY] = true; break;
-            case MAKE_IDSZ( 'P', 'O', 'I', 'S' ): _startingPerks[Ego::Perks::POISONRY] = true; break;
-            case MAKE_IDSZ( 'C', 'K', 'U', 'R' ): _startingPerks[Ego::Perks::SENSE_KURSES] = true; break;
-            case MAKE_IDSZ( 'R', 'E', 'A', 'D' ): _startingPerks[Ego::Perks::LITERACY] = true; break;
-            case MAKE_IDSZ( 'W', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::ARCANE_MAGIC] = true; break;
-            case MAKE_IDSZ( 'H', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::DIVINE_MAGIC] = true; break;
-            case MAKE_IDSZ( 'T', 'E', 'C', 'H' ): _startingPerks[Ego::Perks::USE_TECHNOLOGICAL_ITEMS] = true; break;
-            case MAKE_IDSZ( 'D', 'I', 'S', 'A' ): _startingPerks[Ego::Perks::TRAP_LORE] = true; break;
-            case MAKE_IDSZ( 'S', 'T', 'A', 'B' ): _startingPerks[Ego::Perks::BACKSTAB] = true; break;
-            case MAKE_IDSZ( 'D', 'A', 'R', 'K' ): _startingPerks[Ego::Perks::NIGHT_VISION] = true; break;
+            case IDSZ2::caseLabel( 'A', 'W', 'E', 'P' ): _startingPerks[Ego::Perks::WEAPON_PROFICIENCY] = true; break;
+            case IDSZ2::caseLabel( 'P', 'O', 'I', 'S' ): _startingPerks[Ego::Perks::POISONRY] = true; break;
+            case IDSZ2::caseLabel( 'C', 'K', 'U', 'R' ): _startingPerks[Ego::Perks::SENSE_KURSES] = true; break;
+            case IDSZ2::caseLabel( 'R', 'E', 'A', 'D' ): _startingPerks[Ego::Perks::LITERACY] = true; break;
+            case IDSZ2::caseLabel( 'W', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::ARCANE_MAGIC] = true; break;
+            case IDSZ2::caseLabel( 'H', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::DIVINE_MAGIC] = true; break;
+            case IDSZ2::caseLabel( 'T', 'E', 'C', 'H' ): _startingPerks[Ego::Perks::USE_TECHNOLOGICAL_ITEMS] = true; break;
+            case IDSZ2::caseLabel( 'D', 'I', 'S', 'A' ): _startingPerks[Ego::Perks::TRAP_LORE] = true; break;
+            case IDSZ2::caseLabel( 'S', 'T', 'A', 'B' ): _startingPerks[Ego::Perks::BACKSTAB] = true; break;
+            case IDSZ2::caseLabel( 'D', 'A', 'R', 'K' ): _startingPerks[Ego::Perks::NIGHT_VISION] = true; break;
 
             default:
-				Log::get().warn("Unknown IDSZ parsed: [%4s] (%s)\n", undo_idsz(idsz), filePath.c_str());
+				Log::get().warn("Unknown IDSZ parsed: [%4s] (%s)\n", idsz.toString().c_str(), filePath.c_str());
             break;
         }
     }
@@ -949,18 +949,18 @@ float ObjectProfile::getExperienceRate(XPType type) const
     return _experienceRate[type];
 }
 
-bool ObjectProfile::hasTypeIDSZ(const IDSZ idsz) const
+bool ObjectProfile::hasTypeIDSZ(const IDSZ2& idsz) const
 {
-    if ( IDSZ_NONE == idsz ) return true;
+    if ( IDSZ2::None == idsz ) return true;
     if ( idsz == _idsz[IDSZ_TYPE  ] ) return true;
     if ( idsz == _idsz[IDSZ_PARENT] ) return true;
 
     return false;
 }
 
-bool ObjectProfile::hasIDSZ(IDSZ idsz) const
+bool ObjectProfile::hasIDSZ(const IDSZ2& idsz) const
 {
-    for(IDSZ compare : _idsz)
+    for(const IDSZ2& compare : _idsz)
     {
         if(compare == idsz)
         {
@@ -1314,60 +1314,60 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     // Expansions
     for(int i = 0; i < 4; ++i) {
         if (profile->getSkinInfo(i).dressy) {
-            vfs_put_expansion(fileWrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), i);
+            vfs_put_expansion(fileWrite, "", IDSZ2( 'D', 'R', 'E', 'S' ), i);
         }
     }
 
     if ( profile->_resistBumpSpawn )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'U', 'K' ), 0 );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'S', 'T', 'U', 'K' ), 0 );
 
     if ( profile->_isBigItem )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'P', 'A', 'C', 'K' ), 0 );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'P', 'A', 'C', 'K' ), 0 );
 
     if ( !profile->_hasReflection )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'M', 'P' ), 1 );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'V', 'A', 'M', 'P' ), 1 );
 
     if ( profile->_alwaysDraw )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'D', 'R', 'A', 'W' ), 1 );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'D', 'R', 'A', 'W' ), 1 );
 
     if ( profile->_isRanged )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'R', 'A', 'N', 'G' ), 1 );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'R', 'A', 'N', 'G' ), 1 );
 
     if ( profile->_hideState != NOHIDE )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'H', 'I', 'D', 'E' ), profile->_hideState );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'H', 'I', 'D', 'E' ), profile->_hideState );
 
     if ( profile->_isEquipment )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'E', 'Q', 'U', 'I' ), 1 );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'E', 'Q', 'U', 'I' ), 1 );
 
     if ( profile->_bumpSizeBig >= profile->_bumpSize * 2 )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'Q', 'U', 'A' ), 1 );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'S', 'Q', 'U', 'A' ), 1 );
 
     if ( profile->_drawIcon != profile->_usageIsKnown )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), character->draw_icon ); //note: overridden by chr
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'I', 'C', 'O', 'N' ), character->draw_icon ); //note: overridden by chr
 
     if ( profile->_forceShadow )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'H', 'A', 'D' ), 1 );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'S', 'H', 'A', 'D' ), 1 );
 
     if ( profile->_causesRipples == profile->_isItem )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'R', 'I', 'P', 'P' ), profile->_causesRipples );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'R', 'I', 'P', 'P' ), profile->_causesRipples );
 
     if ( -1 != profile->_isValuable )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), profile->_isValuable );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'V', 'A', 'L', 'U' ), profile->_isValuable );
 
     if ( profile->_spellEffectType != NO_SKIN_OVERRIDE )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), profile->_spellEffectType );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'B', 'O', 'O', 'K' ), profile->_spellEffectType );
 
     if ( profile->_attackFast )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'F', 'A', 'S', 'T' ), profile->_attackFast );
+        vfs_put_expansion( fileWrite, "", IDSZ2( 'F', 'A', 'S', 'T' ), profile->_attackFast );
 
     if ( profile->_strengthBonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'R', 'D' ), profile->_strengthBonus );
+        vfs_put_expansion_float( fileWrite, "", IDSZ2( 'S', 'T', 'R', 'D' ), profile->_strengthBonus );
 
     if ( profile->_intelligenceBonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'I', 'N', 'T', 'D' ), profile->_intelligenceBonus );
+        vfs_put_expansion_float( fileWrite, "", IDSZ2( 'I', 'N', 'T', 'D' ), profile->_intelligenceBonus );
 
     if ( profile->_dexterityBonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'D', 'E', 'X', 'D' ), profile->_dexterityBonus );
+        vfs_put_expansion_float( fileWrite, "", IDSZ2( 'D', 'E', 'X', 'D' ), profile->_dexterityBonus );
 
     if ( profile->_bumpOverrideSize || profile->_bumpOverrideSizeBig ||  profile->_bumpOverrideHeight )
     {
@@ -1381,20 +1381,20 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
         if ( CSTR_END != sz_tmp[0] )
         {
-            vfs_put_expansion_string( fileWrite, "", MAKE_IDSZ( 'M', 'O', 'D', 'L' ), sz_tmp );
+            vfs_put_expansion_string( fileWrite, "", IDSZ2( 'M', 'O', 'D', 'L' ), sz_tmp );
         }
     }
 
     // Basic stuff that is always written
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), character->money );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'P', 'L', 'A', 'T' ), character->canuseplatforms );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'K', 'I', 'N' ), character->skin );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), character->ai.content );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), character->ai.state );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), character->experiencelevel );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'E', 'E', 'D' ), character->getLevelUpSeed() );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), character->getLife() );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), character->getMana() );
+    vfs_put_expansion( fileWrite, "", IDSZ2( 'G', 'O', 'L', 'D' ), character->money );
+    vfs_put_expansion( fileWrite, "", IDSZ2( 'P', 'L', 'A', 'T' ), character->canuseplatforms );
+    vfs_put_expansion( fileWrite, "", IDSZ2( 'S', 'K', 'I', 'N' ), character->skin );
+    vfs_put_expansion( fileWrite, "", IDSZ2( 'C', 'O', 'N', 'T' ), character->ai.content );
+    vfs_put_expansion( fileWrite, "", IDSZ2( 'S', 'T', 'A', 'T' ), character->ai.state );
+    vfs_put_expansion( fileWrite, "", IDSZ2( 'L', 'E', 'V', 'L' ), character->experiencelevel );
+    vfs_put_expansion( fileWrite, "", IDSZ2( 'S', 'E', 'E', 'D' ), character->getLevelUpSeed() );
+    vfs_put_expansion_float( fileWrite, "", IDSZ2( 'L', 'I', 'F', 'E' ), character->getLife() );
+    vfs_put_expansion_float( fileWrite, "", IDSZ2( 'M', 'A', 'N', 'A' ), character->getMana() );
 
     // write down any perks that have been mastered
     for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i) {
@@ -1402,7 +1402,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
         if(!character->hasPerk(perk.getID())) continue;
         std::string name = perk.getName();
         std::replace(name.begin(), name.end(), ' ', '_'); //replace space with underscore
-        vfs_put_expansion_string(fileWrite, "", MAKE_IDSZ( 'P', 'E', 'R', 'K' ), name.c_str() );
+        vfs_put_expansion_string(fileWrite, "", IDSZ2( 'P', 'E', 'R', 'K' ), name.c_str() );
     }
 
     // write down all perks that we can still learn
@@ -1411,7 +1411,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
         if(!profile->_perkPool[i] || character->hasPerk(perk.getID())) continue;
         std::string name = perk.getName();
         std::replace(name.begin(), name.end(), ' ', '_'); //replace space with underscore
-        vfs_put_expansion_string(fileWrite, "", MAKE_IDSZ( 'P', 'O', 'O', 'L' ), name.c_str() );
+        vfs_put_expansion_string(fileWrite, "", IDSZ2( 'P', 'O', 'O', 'L' ), name.c_str() );
     }
 
     // dump the rest of the template file

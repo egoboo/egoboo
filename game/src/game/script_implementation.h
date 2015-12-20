@@ -160,7 +160,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
 
 /// @author ZF
 /// @details This function searches the nearby vincinity for a melee weapon the character can use
-ObjectRef FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight );
+ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz, bool find_ranged, bool use_line_of_sight );
 
 /// @author ZZ
 /// @details This function sets an object's lighting
@@ -169,7 +169,7 @@ bool FlashObject( Object * pchr, Uint8 value );
 /// @details This function restocks the characters ammo, if it needs ammo and if
 ///    either its parent or type idsz match the given idsz.  This
 ///    function returns the amount of ammo given.
-int RestockAmmo(const ObjectRef character, IDSZ idsz);
+int RestockAmmo(const ObjectRef character, const IDSZ2& idsz);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

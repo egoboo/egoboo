@@ -14,7 +14,7 @@ Inventory::Inventory() :
     //ctor
 }
 
-ObjectRef Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly) {
+ObjectRef Inventory::findItem(Object *pobj, const IDSZ2& idsz, bool equippedOnly) {
 	if (!pobj || pobj->isTerminated()) {
 		return ObjectRef::Invalid;
 	}
@@ -35,7 +35,7 @@ ObjectRef Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly) {
     return result;
 }
 
-ObjectRef Inventory::findItem(ObjectRef iowner, IDSZ idsz, bool equippedOnly)
+ObjectRef Inventory::findItem(ObjectRef iowner, const IDSZ2& idsz, bool equippedOnly)
 {
     if (!_currentModule->getObjectHandler().exists(iowner))
     {
@@ -141,11 +141,14 @@ bool Inventory::add_item( ObjectRef iowner, ObjectRef iitem, uint8_t inventorySl
         // clear the dropped flag
         UNSET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
 
+        //Do not trigger dismount logic on putting items into inventory
+        pitem->dismount_object = ObjectRef::Invalid;
+        pitem->dismount_timer = 0;
+
         //now put the item into the inventory
         pitem->attachedto = ObjectRef::Invalid;
         pitem->inwhich_inventory = iowner;
         powner->getInventory()._items[inventorySlot] = pitem;
-
 
         // fix the flags
 		if (pitem->getProfile()->isEquipment())
@@ -159,7 +162,7 @@ bool Inventory::add_item( ObjectRef iowner, ObjectRef iitem, uint8_t inventorySl
     return true;
 }
 
-bool Inventory::swap_item( ObjectRef iobj, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse )
+bool Inventory::swap_item( ObjectRef iobj, uint8_t inventory_slot, const slot_t grip_off, const bool ignorekurse )
 {
     //valid character?
     const std::shared_ptr<Object> &pobj = _currentModule->getObjectHandler()[iobj];
@@ -173,7 +176,7 @@ bool Inventory::swap_item( ObjectRef iobj, Uint8 inventory_slot, const slot_t gr
     }
 
     // Make sure everything is hunkydori
-    if ( pobj->isItem() || pobj->isInsideInventory() ) return false;
+    if (pobj->isItem() || pobj->isInsideInventory()) return false;
 
     const std::shared_ptr<Object> &inventory_item = pobj->getInventory().getItem(inventory_slot);
     const std::shared_ptr<Object> &item           = _currentModule->getObjectHandler()[pobj->holdingwhich[grip_off]];
@@ -203,26 +206,20 @@ bool Inventory::swap_item( ObjectRef iobj, Uint8 inventory_slot, const slot_t gr
         }
     }
 
-    //remove existing item
-    if (inventory_item)
-    {
+    //remove existing item from inventory and into the character's hand
+    if (inventory_item) {
         pobj->getInventory().removeItem(inventory_item, ignorekurse);
-    }
 
-    //put in the new item
-    if (item)
-    {
-        add_item(pobj->getObjRef(), item->getObjRef(), inventory_slot, ignorekurse);
-    }
-
-    //now put the inventory item into the character's hand
-    if (inventory_item)
-    {
         inventory_item->getObjectPhysics().attachToObject(pobj, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT);
 
         //fix flags
-        UNSET_BIT( inventory_item->ai.alert, ALERTIF_GRABBED );
-        SET_BIT( inventory_item->ai.alert, ALERTIF_TAKENOUT );
+        UNSET_BIT(inventory_item->ai.alert, ALERTIF_GRABBED);
+        SET_BIT(inventory_item->ai.alert, ALERTIF_TAKENOUT);
+    }
+
+    //put the new item in the inventory
+    if (item) {
+        add_item(pobj->getObjRef(), item->getObjRef(), inventory_slot, ignorekurse);
     }
 
     return true;

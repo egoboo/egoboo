@@ -24,7 +24,7 @@
 #include "game/link.h"
 #include "game/graphic.h"
 #include "game/game.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/egoboo.h"
 #include "game/char.h"
 #include "game/Module/Module.hpp"

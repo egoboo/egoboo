@@ -29,18 +29,8 @@
 
 const ObjectRef Passage::SHOP_NOOWNER = ObjectRef::Invalid;
 
-Passage::Passage() :
-    _area(),
-    _music(NO_MUSIC),
-    _mask(MAPFX_IMPASS | MAPFX_WALL),
-    _open(true),
-    _isShop(false),
-    _shopOwner(SHOP_NOOWNER)
-{
-    //ctor
-}
-
-Passage::Passage(const irect_t& area, const uint8_t mask) :
+Passage::Passage(GameModule &module, const irect_t& area, const uint8_t mask) :
+    _module(module),
     _area(area),
     _music(NO_MUSIC),
     _mask(mask),
@@ -71,7 +61,7 @@ void Passage::open()
             for ( int x = _area._left; x <= _area._right; x++ )
             {
                 //clear impassable and wall bits
-				auto mesh = _currentModule->getMeshPointer();
+				auto mesh = _module.getMeshPointer();
                 Index1D fan = mesh->getTileIndex(Index2D(x, y));
 				mesh->clear_fx( fan, MAPFX_WALL | MAPFX_IMPASS );
             }
@@ -98,7 +88,7 @@ bool Passage::close()
         std::vector<std::shared_ptr<Object>> crushedCharacters;
 
         // Make sure it isn't blocked
-        for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+        for(const std::shared_ptr<Object> &object : _module.getObjectHandler().iterator())
         {
             if(object->isTerminated()) {
                 continue;
@@ -136,8 +126,8 @@ bool Passage::close()
     {
         for ( int x = _area._left; x <= _area._right; x++ )
         {
-            Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
-			_currentModule->getMeshPointer()->add_fx( fan, _mask );
+            Index1D fan = _module.getMeshPointer()->getTileIndex(Index2D(x, y));
+			_module.getMeshPointer()->add_fx( fan, _mask );
         }
     }
 
@@ -159,17 +149,17 @@ bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
     return tmp_rect.point_inside(xpos, ypos);
 }
 
-ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const
+ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, const BIT_FIELD targeting_bits, const IDSZ2& require_item ) const
 {
     // Skip if the one who is looking doesn't exist
-    if ( !_currentModule->getObjectHandler().exists(objRef) ) return ObjectRef::Invalid;
-    Object *psrc = _currentModule->getObjectHandler().get(objRef);
+    if ( !_module.getObjectHandler().exists(objRef) ) return ObjectRef::Invalid;
+    Object *psrc = _module.getObjectHandler().get(objRef);
 
     // Look at each character
     for ( ObjectRef character(0); character.get() < OBJECTS_MAX; character++ )
     {
-        if ( !_currentModule->getObjectHandler().exists( character ) ) continue;
-        Object * pchr = _currentModule->getObjectHandler().get( character );
+        if ( !_module.getObjectHandler().exists( character ) ) continue;
+        Object * pchr = _module.getObjectHandler().get( character );
 
         // dont do scenery objects unless we allow items
         if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
@@ -181,7 +171,7 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, IDSZ idsz, const BIT_
         if ( objectIsInPassage( pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size ) )
         {
             // Found a live one, do we need to check for required items as well?
-            if ( IDSZ_NONE == require_item )
+            if ( IDSZ2::None == require_item )
             {
                 return character;
             }
@@ -217,9 +207,9 @@ void Passage::flashColor(uint8_t color)
     {
         for (int x = _area._left; x <= _area._right; x++ )
         {
-            Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
+            Index1D fan = _module.getMeshPointer()->getTileIndex(Index2D(x, y));
 
-            ego_tile_info_t& ptile = _currentModule->getMeshPointer()->getTileInfo(fan);
+            ego_tile_info_t& ptile = _module.getMeshPointer()->getTileInfo(fan);
 
             for (size_t cnt = 0; cnt < 4; ++cnt)
             {
@@ -281,7 +271,7 @@ ObjectRef Passage::getShopOwner() const {
 void Passage::makeShop(ObjectRef owner)
 {
     //Make sure owner is valid
-    const std::shared_ptr<Object> &powner = _currentModule->getObjectHandler()[owner];
+    const std::shared_ptr<Object> &powner = _module.getObjectHandler()[owner];
     if ( !powner || powner->isTerminated() || !powner->isAlive() ) return;
 
     //Mark as shop
@@ -289,7 +279,7 @@ void Passage::makeShop(ObjectRef owner)
     _shopOwner = owner;
 
     // flag every item in the shop as a shop item
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+    for(const std::shared_ptr<Object> &object : _module.getObjectHandler().iterator())
     {
         if (object->isTerminated()) continue;
 

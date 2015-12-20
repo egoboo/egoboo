@@ -27,14 +27,14 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
-#include "game/network.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "game/mesh.h"
 #include "game/char.h"
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
     _gameObjects(),
+    _playerNameList(),
     _playerList(),
     _teamList(),
     _name(profile->getName()),
@@ -45,12 +45,20 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     _seed(seed),
 
     _water(),
+    _damageTile(),
 
     _passages(),
     _mesh(std::make_shared<ego_mesh_t>()),
     _tileTextures(),
-    _waterTextures()
+    _waterTextures(),
+
+    _pitsClock(PIT_CLOCK_RATE),
+    _pitsKill(false),
+    _pitsTeleport(false),
+    _pitsTeleportPos()
 {
+    Log::get().info("Loading module \"%s\"\n", profile->getPath().c_str());
+
     srand( _seed );
     Random::setSeed(_seed);
 
@@ -67,11 +75,92 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     //Load water textures
     _waterTextures[0] = Ego::DeferredTexture("mp_data/waterlow");
     _waterTextures[1] = Ego::DeferredTexture("mp_data/watertop");
+
+    // load a bunch of assets that are used in the module
+    AudioSystem::get().loadGlobalSounds();
+    ProfileSystem::get().loadGlobalParticleProfiles();
+
+    //Load wavalite data
+    wawalite_data_t *wavalite = read_wawalite_vfs();
+    if (wavalite != nullptr) {
+        _water.upload(wavalite->water);
+        _damageTile.upload(wavalite->damagetile);
+    }
+    else {
+        Log::get().warn( "wawalite.txt not loaded for %s.\n", profile->getPath().c_str() );
+    }
+    upload_wawalite();
+
+    //Load all the profiles required by this module
+    loadProfiles();
+
+    //Load mesh
+    _mesh = LoadMesh(profile->getPath());
+
+    //Load passage.txt
+    loadAllPassages();
+
+    //Load alliance.txt
+    loadTeamAlliances();
 }
 
 GameModule::~GameModule()
 {
+    //free all particles
+    ParticleHandler::get().clear();
 
+    //Free all profiles loaded by the module
+    ProfileSystem::get().reset();
+
+    //Free all textures
+    gfx_system_release_all_graphics();
+}
+
+void GameModule::loadProfiles()
+{
+    //Load the spell book profile
+    ProfileSystem::get().loadOneProfile("mp_data/globalobjects/book.obj", SPELLBOOK);
+
+    // Clear the import slots...
+    import_data.slot_lst.fill(INVALID_PRO_REF);
+    import_data.max_slot = -1;
+
+    // This overwrites existing loaded slots that are loaded globally
+    overrideslots = true;
+    import_data.player = -1;
+    import_data.slot   = -100;
+
+    //Load any saved player characters from disk (if needed)
+    if (isImportValid()) {
+        for (int cnt = 0; cnt < getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
+        {
+            std::ostringstream pathFormat;
+            pathFormat << "mp_import/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
+
+            // Make sure the object exists...
+            const std::string importPath = pathFormat.str();
+            const std::string dataFilePath = importPath + "/data.txt";
+
+            if ( vfs_exists(dataFilePath.c_str()) )
+            {
+                // new player found
+                if (0 == (cnt % MAX_IMPORT_PER_PLAYER)) import_data.player++;
+
+                // store the slot info
+                import_data.slot = cnt;
+
+                // load it
+                import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath);
+                import_data.max_slot      = std::max(import_data.max_slot, cnt);
+            }
+        }
+    }
+
+    // return this to the normal value
+    overrideslots = false;
+
+    // load all module-specific object profiels
+    game_load_module_profiles(_moduleProfile->getPath());   // load the objects from the module's directory    
 }
 
 void GameModule::loadAllPassages()
@@ -94,11 +183,10 @@ void GameModule::loadAllPassages()
         area._bottom = ctxt.readIntegerLiteral();
 
         //constrain passage area within the level
-		auto& info = _currentModule->getMeshPointer()->_info;
-        area._left = Ego::Math::constrain(area._left, 0, int(info.getTileCountX()) - 1);
-        area._top = Ego::Math::constrain(area._top, 0, int(info.getTileCountY()) - 1);
-        area._right = Ego::Math::constrain(area._right, 0, int(info.getTileCountX()) - 1);
-        area._bottom = Ego::Math::constrain(area._bottom, 0, int(info.getTileCountY()) - 1);
+        area._left = Ego::Math::constrain(area._left, 0, int(_mesh->_info.getTileCountX()) - 1);
+        area._top = Ego::Math::constrain(area._top, 0, int(_mesh->_info.getTileCountY()) - 1);
+        area._right = Ego::Math::constrain(area._right, 0, int(_mesh->_info.getTileCountX()) - 1);
+        area._bottom = Ego::Math::constrain(area._bottom, 0, int(_mesh->_info.getTileCountY()) - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();
@@ -108,7 +196,7 @@ void GameModule::loadAllPassages()
         if (ctxt.readBool()) mask = MAPFX_IMPASS;
         if (ctxt.readBool()) mask = MAPFX_SLIPPY;
 
-        std::shared_ptr<Passage> passage = std::make_shared<Passage>(area, mask);
+        std::shared_ptr<Passage> passage = std::make_shared<Passage>(*this, area, mask);
 
         //check if we need to close the passage
         if (!open) {
@@ -123,13 +211,12 @@ void GameModule::loadAllPassages()
 void GameModule::checkPassageMusic()
 {
     // Look at each player
-    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
+    for(const std::shared_ptr<Ego::Player> &player : _playerList)
     {
-        ObjectRef character = PlaStack.lst[ipla].index;
-        if (!_currentModule->getObjectHandler().exists(character)) continue;
+        const std::shared_ptr<Object> &pchr = player->getObject();
+        if (!pchr || pchr->isTerminated()) continue;
 
-        Object *pchr = _currentModule->getObjectHandler().get(character);
-        if (!pchr->isAlive() || !VALID_PLA(pchr->is_which_player)) continue;
+        if (!pchr->isAlive()) continue;
 
         // Don't do items in hands or inventory.
         if(pchr->isBeingHeld()) continue;
@@ -137,7 +224,7 @@ void GameModule::checkPassageMusic()
         //Loop through every passage
         for (const std::shared_ptr<Passage>& passage : _passages)
         {
-            if (passage->checkPassageMusic(pchr))
+            if (passage->checkPassageMusic(pchr.get()))
             {
                 return;
             }
@@ -235,8 +322,7 @@ uint8_t GameModule::getMinPlayers() const
 
 bool GameModule::isInside(const float x, const float y) const
 {
-	const auto& tmem = _currentModule->getMeshPointer()->_tmem;
-    return x >= 0 && x < tmem._edge_x && y >= 0 && y < tmem._edge_y;
+    return x >= 0 && x < _mesh->_tmem._edge_x && y >= 0 && y < _mesh->_tmem._edge_y;
 }
 
 std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_REF profile, const TEAM_REF team, const int skin,
@@ -483,7 +569,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //    pchr->isshopitem = true;
     //}
 
-    chr_instance_t::update_ref(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false), true );
+    chr_instance_t::update_ref(pchr->inst, _mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false), true );
 
     // start the character out in the "dance" animation
     chr_start_anim(pchr.get(), ACTION_DA, true, true);
@@ -549,6 +635,208 @@ void GameModule::updateAllObjects()
 water_instance_t& GameModule::getWater()
 {
     return _water;
+}
+
+std::shared_ptr<Ego::Player>& GameModule::getPlayer(size_t index)
+{
+    return _playerList[index];
+}
+
+const std::vector<std::shared_ptr<Ego::Player>>& GameModule::getPlayerList() const
+{
+    return _playerList;    
+}
+
+bool GameModule::addPlayer(const std::shared_ptr<Object>& object, input_device_t *pdevice)
+{
+    if(!object || object->isTerminated()) {
+        return false;
+    }
+
+    std::shared_ptr<Ego::Player> player = std::make_shared<Ego::Player>(object, pdevice);
+    _playerList.push_back(player);
+
+    // set the reference to the player
+    object->is_which_player = _playerList.size()-1;
+
+    // download the quest info
+    player->getQuestLog().loadFromFile(object->getProfile()->getPathname());
+
+    if (pdevice != nullptr)
+    {
+        local_stats.noplayers = false;
+        object->islocalplayer = true;
+        local_stats.player_count++;
+    }
+
+    return true;
+}
+
+void GameModule::updatePits()
+{
+    //Are pits enabled?
+    if (!_pitsKill && !_pitsTeleport) {
+        return;
+    }
+
+    //Decrease the timer
+    if (_pitsClock > 0) {
+        _pitsClock--;
+    }
+
+    if (0 == _pitsClock)
+    {
+        //Reset timer
+        _pitsClock = PIT_CLOCK_RATE;
+
+        // Kill any particles that fell in a pit, if they die in water...
+        for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator()) {
+            if ( particle->getPosZ() < PITDEPTH && particle->getProfile()->end_water )
+            {
+                particle->requestTerminate();
+            }
+        }
+
+        // Kill or teleport any characters that fell in a pit...
+        for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator()) {
+            // Is it a valid character?
+            if ( pchr->isInvincible() || !pchr->isAlive() ) continue;
+            if ( pchr->isBeingHeld() ) continue;
+
+            // Do we kill it?
+            if ( _pitsKill && pchr->getPosZ() < PITDEPTH )
+            {
+                // Got one!
+                pchr->kill(Object::INVALID_OBJECT, false);
+                pchr->vel.x() = 0;
+                pchr->vel.y() = 0;
+
+                /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
+                // Play sound effect
+                // sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
+            }
+
+            // Do we teleport it?
+            else if (_pitsTeleport && pchr->getPosZ() < PITDEPTH * 4)
+            {
+                // Teleport them back to a "safe" spot
+                if (!pchr->teleport(_pitsTeleportPos, pchr->ori.facing_z)) {
+                    // Kill it instead
+                    pchr->kill(Object::INVALID_OBJECT, false);
+                    pchr->vel.x() = 0;
+                    pchr->vel.y() = 0;
+                }
+                else {
+                    // Stop movement
+                    pchr->vel = Vector3f::zero();
+
+                    // Play sound effect
+                    if (pchr->isPlayer()) {
+                        AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PITFALL));
+                    }
+                    else {
+                        AudioSystem::get().playSound(pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_PITFALL));
+                    }
+
+                    // Do some damage (same as damage tile)
+                    pchr->damage(ATK_BEHIND, _damageTile.amount, static_cast<DamageType>(_damageTile.damagetype), Team::TEAM_DAMAGE, 
+                                 _gameObjects[pchr->ai.getBumped()], DAMFX_NBLOC | DAMFX_ARMO, false);
+                }
+            }
+        }
+    }
+}
+
+void GameModule::enablePitsTeleport(const Vector3f &location)
+{
+    _pitsTeleportPos = location;
+    _pitsTeleport = true;
+    _pitsKill = false;
+}
+
+void GameModule::enablePitsKill()
+{
+    _pitsTeleport = false;
+    _pitsKill = true;
+}
+
+void GameModule::updateDamageTiles()
+{
+    // do the damage tile stuff
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator()) {
+        // if the object is not really in the game, do nothing
+        if (pchr->isHidden() || !pchr->isAlive()) continue;
+
+        // if you are being held by something, you are protected
+        if (pchr->isInsideInventory()) continue;
+
+        // are we on a damage tile?
+        if ( !_mesh->grid_is_valid( pchr->getTile() ) ) continue;
+        if ( 0 == _mesh->test_fx( pchr->getTile(), MAPFX_DAMAGE ) ) continue;
+
+        // are we low enough?
+        if (pchr->getPosZ() > pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE) continue;
+
+        // allow reaffirming damage to things like torches, even if they are being held,
+        // but make the tolerance closer so that books won't burn so easily
+        if (!pchr->isBeingHeld() || pchr->getPosZ() < pchr->getObjectPhysics().getGroundElevation() + DAMAGERAISE)
+        {
+            if (pchr->reaffirm_damagetype == _damageTile.damagetype)
+            {
+                if (0 == (update_wld & TILE_REAFFIRM_AND))
+                {
+                    reaffirm_attached_particles(pchr->getObjRef());
+                }
+            }
+        }
+
+        // do not do direct damage to items that are being held
+        if (pchr->isBeingHeld()) continue;
+
+        // don't do direct damage to invulnerable objects
+        if (pchr->isInvincible()) continue;
+
+        if (0 == pchr->damage_timer)
+        {
+            int actual_damage = pchr->damage(ATK_BEHIND, _damageTile.amount, static_cast<DamageType>(_damageTile.damagetype), 
+                Team::TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
+
+            pchr->damage_timer = DAMAGETILETIME;
+
+            if ((actual_damage > 0) && (LocalParticleProfileRef::Invalid != _damageTile.part_gpip) && 0 == (update_wld & _damageTile.partand)) {
+                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, _damageTile.part_gpip, 0 );
+            }
+        }
+    }
+}
+
+void GameModule::loadTeamAlliances()
+{
+    // Load the file if it exists
+    ReadContext ctxt("mp_data/alliance.txt");
+    if (!ctxt.ensureOpen()) {
+        return;
+    }
+
+    //Found the file, parse the contents
+    while (ctxt.skipToColon(true))
+    {
+        char buffer[1024 + 1];
+        vfs_read_string_lit(ctxt, buffer, 1024);
+        if (strlen(buffer) < 1) {
+            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                                "empty string literal");
+        }
+        TEAM_REF teama = (buffer[0] - 'A') % Team::TEAM_MAX;
+
+        vfs_read_string_lit(ctxt, buffer, 1024);
+        if (strlen(buffer) < 1) {
+            throw Id::SyntacticalErrorException(__FILE__, __LINE__, Id::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                                "empty string literal");
+        }
+        TEAM_REF teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
+        _teamList[teama].makeAlliance(_teamList[teamb]);
+    }
 }
 
 /// @todo Remove this global.

@@ -3,6 +3,9 @@
 #include "GUIComponent.hpp"
 #include "game/Inventory.hpp"
 
+//Forward declarations
+namespace Ego { class Player; }
+
 namespace Ego
 {
 namespace GUI
@@ -10,7 +13,7 @@ namespace GUI
 class InventorySlot : public GUIComponent
 {
     public:
-        InventorySlot(const Inventory &inventory, const size_t slotNumber, const PLA_REF player);
+        InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Ego::Player>& player);
 
         virtual void draw() override;
 
@@ -20,7 +23,7 @@ class InventorySlot : public GUIComponent
     private:
         const Inventory& _inventory;
         size_t _slotNumber;
-        PLA_REF _player;
+        std::shared_ptr<Ego::Player> _player;
 };
 }
 }

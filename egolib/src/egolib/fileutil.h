@@ -311,8 +311,7 @@ public:
      *  idsz := '[' (alphabetic|digit|'_')^4 ']'
      *  @endcode
      */
-    IDSZ readIDSZ();
-	IDSZ2 readIDSZ2();
+    IDSZ2 readIDSZ();
 
     /**
      * @brief
@@ -365,7 +364,7 @@ public:
 void vfs_get_next_name(ReadContext& ctxt, char *buf, size_t max);
 bool vfs_get_next_range(ReadContext& ctxt, FRange *range);
 bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair);
-IDSZ vfs_get_next_idsz(ReadContext& ctxt);
+IDSZ2 vfs_get_next_idsz(ReadContext& ctxt);
 bool vfs_get_next_bool(ReadContext& ctxt);
 void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max);
 UFP8_T vfs_get_ufp8(ReadContext& ctxt);
@@ -488,10 +487,10 @@ void vfs_put_gender(vfs_FILE* filewrite, const char* text, Uint8 value);
 void vfs_put_range(vfs_FILE* filewrite, const char* text, FRange value);
 void vfs_put_pair(vfs_FILE* filewrite, const char* text, IPair value);
 void vfs_put_string_under(vfs_FILE* filewrite, const char* text, const char* usename);
-void vfs_put_idsz(vfs_FILE* filewrite, const char* text, IDSZ idsz);
-void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, int value);
-void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, const LocalParticleProfileRef& lppref);
-void vfs_put_expansion_float(vfs_FILE* filewrite, const char* text, IDSZ idsz, float value);
-void vfs_put_expansion_string(vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * value);
+void vfs_put_idsz(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz);
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, const IDSZ2& idsz, int value);
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, const IDSZ2& idsz, const LocalParticleProfileRef& lppref);
+void vfs_put_expansion_float(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz, float value);
+void vfs_put_expansion_string(vfs_FILE* filewrite, const char* text, const IDSZ2& idsz, const char * value);
 void vfs_put_range_raw(vfs_FILE* filewrite, FRange val);
 void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, const LocalParticleProfileRef& lppref);

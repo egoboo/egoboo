@@ -2,14 +2,14 @@
 #include "game/Entities/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"  //for model action enum
 #include "game/game.h" //only for update_wld global var
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 
 namespace Ego
 {
 namespace GUI
 {
 
-InventorySlot::InventorySlot(const Inventory &inventory, const size_t slotNumber, const PLA_REF player) :
+InventorySlot::InventorySlot(const Inventory &inventory, const size_t slotNumber, const std::shared_ptr<Ego::Player>& player) :
     _inventory(inventory),
     _slotNumber(slotNumber),
     _player(player)
@@ -33,9 +33,8 @@ void InventorySlot::draw()
     }
 
     bool selected = false;
-    if (VALID_PLA(_player))  
-    {
-        selected = PlaStack.get_ptr(_player)->inventory_slot ==_slotNumber;
+    if(_player) {
+        selected = _player->getSelectedInventorySlot() ==_slotNumber;
     }
 
     //Draw the icon
@@ -61,9 +60,8 @@ bool InventorySlot::notifyMouseMoved(const int x, const int y)
 
     if(mouseOver) 
     {
-        if (VALID_PLA(_player))  
-        {
-            PlaStack.get_ptr(_player)->inventory_slot = _slotNumber;
+        if(_player) {
+            _player->setSelectedInventorySlot(_slotNumber);
         }
         return true;
     }
@@ -74,7 +72,7 @@ bool InventorySlot::notifyMouseMoved(const int x, const int y)
 
 bool InventorySlot::notifyMouseClicked(const int button, const int x, const int y)
 {
-    if (!VALID_PLA(_player) || !contains(x, y)) {
+    if (!_player || !contains(x, y)) {
         return false;
     }
 
@@ -82,8 +80,7 @@ bool InventorySlot::notifyMouseClicked(const int button, const int x, const int 
         return false;
     }
 
-    const player_t* player = PlaStack.get_ptr(_player);
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[player->index];
+    const std::shared_ptr<Object> &pchr = _player->getObject();
     if(pchr->isAlive() && pchr->inst.action_ready && 0 == pchr->reload_timer)
     {
         //put it away and swap with any existing item

@@ -401,7 +401,7 @@ public:
     inline uint16_t getSpellEffectType() const {return _spellEffectType;}
 
     inline bool isRangedWeapon() const {return  _isRanged;}
-    inline bool isMeleeWeapon() const {return !_isRanged && _idsz[IDSZ_SPECIAL] == MAKE_IDSZ('X','W','E','P');}
+    inline bool isMeleeWeapon() const {return !_isRanged && _idsz[IDSZ_SPECIAL].equals('X','W','E','P');}
 
     inline bool isDrawIcon() const {return _drawIcon;}
 
@@ -523,16 +523,16 @@ public:
     * @brief check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
     *        picky (i.e. IDSZ_NONE == idsz), then it matches any valid item.
     **/
-    bool hasTypeIDSZ(const IDSZ idsz) const;
+    bool hasTypeIDSZ(const IDSZ2& idsz) const;
 
     /**
     * @author BB
     * @brief does idsz match any of the stored values in pcap->idsz[]?
     *        Matches anything if not picky (idsz == IDSZ_NONE)
     **/
-    bool hasIDSZ(const IDSZ idsz) const;
+    bool hasIDSZ(const IDSZ2& idsz) const;
 
-    IDSZ getIDSZ(size_t type) const;
+    const IDSZ2& getIDSZ(size_t type) const;
 
     /**
     * @brief makes the usage of this type of object known to all players
@@ -658,7 +658,7 @@ private:
     int          _stateOverride;                 ///< 0 for normal
     int          _contentOverride;               ///< 0 for normal
 
-    std::array<IDSZ, IDSZ_COUNT> _idsz;          ///< ID strings
+    std::array<IDSZ2, IDSZ_COUNT> _idsz;          ///< ID strings
 
     // inventory
     uint16_t       _maxAmmo;                       ///< Ammo stuff

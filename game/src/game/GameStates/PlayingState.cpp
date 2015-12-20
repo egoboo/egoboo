@@ -32,7 +32,7 @@
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 
 //For cheats
 #include "game/Entities/_Include.hpp"
@@ -64,11 +64,8 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     addComponent(_miniMap);
 
     //Show status display for all players
-    for (PLA_REF iplayer = 0; iplayer < MAX_PLAYER; iplayer++)
-    {
-        // Only valid players
-        if (!PlaStack.lst[iplayer].valid) continue;
-        addStatusMonitor(_currentModule->getObjectHandler()[PlaStack.lst[iplayer].index]);
+    for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
+        addStatusMonitor(player->getObject());
     }
 }
 

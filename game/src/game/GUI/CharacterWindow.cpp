@@ -7,7 +7,7 @@
 #include "game/GUI/ScrollableList.hpp"
 #include "game/GUI/IconButton.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 
 namespace Ego
 {
@@ -37,7 +37,7 @@ CharacterWindow::~CharacterWindow()
 {
     //If the character is a local player, then we no longer consume that players input events
     if(_character->isPlayer()) {
-        PlaStack.get_ptr(_character->is_which_player)->inventoryMode = false;
+        _currentModule->getPlayer(_character->is_which_player)->setInventoryMode(false);
     }
 
     //If the level up window is open, close it as well
@@ -120,7 +120,7 @@ bool CharacterWindow::notifyMouseMoved(const int x, const int y)
 {
     //Make level up button visible if needed
     if(_character->isPlayer()) {
-        _levelUpButton->setVisible(_levelUpWindow.expired() && PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp);
+        _levelUpButton->setVisible(_levelUpWindow.expired() && _currentModule->getPlayer(_character->is_which_player)->hasUnspentLevel());
     }
 
     return InternalWindow::notifyMouseMoved(x, y);
@@ -206,7 +206,7 @@ void CharacterWindow::buildCharacterStatisticTab()
     int xPos = 10;
     yPos += 5;
     for(size_t i = 0; i < _character->getInventory().getMaxItems(); ++i) {
-        std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i, _character->is_which_player);
+        std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i, _character->isPlayer() ? _currentModule->getPlayer(_character->is_which_player) : nullptr);
         slot->setSize(slotSize, slotSize);
         slot->setPosition(xPos, yPos);
         xPos += slot->getWidth() + 5;
@@ -221,7 +221,7 @@ void CharacterWindow::buildCharacterStatisticTab()
 
     //If the character is a local player, then we consume that players input events for inventory managment
     if(_character->isPlayer()) {
-        PlaStack.get_ptr(_character->is_which_player)->inventoryMode = true;
+        _currentModule->getPlayer(_character->is_which_player)->setInventoryMode(true);
     }
 
     //LevelUp button
@@ -242,7 +242,7 @@ void CharacterWindow::buildCharacterStatisticTab()
         _characterStatisticsTab.push_back(_levelUpButton);
 
         //Make level up button visible if needed
-        _levelUpButton->setVisible(PlaStack.get_ptr(_character->is_which_player)->_unspentLevelUp);
+        _levelUpButton->setVisible(_currentModule->getPlayer(_character->is_which_player)->hasUnspentLevel());
     }
 
     //Perks tab

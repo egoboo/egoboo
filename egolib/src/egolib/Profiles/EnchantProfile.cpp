@@ -33,7 +33,7 @@ eve_t::eve_t() : AbstractProfile(),
     // Enchant despawn conditions.
     lifetime(0),
     endIfCannotPay(false),
-    removedByIDSZ(IDSZ_NONE),
+    removedByIDSZ(IDSZ2::None),
 
     _owner(), 
     _target(),
@@ -97,7 +97,7 @@ void eve_t::reset()
     // Enchant despawn conditions.
     lifetime = 0;
     endIfCannotPay = false;
-    removedByIDSZ = IDSZ_NONE;
+    removedByIDSZ = IDSZ2::None;
 }
 
 const std::string& eve_t::getEnchantName() const

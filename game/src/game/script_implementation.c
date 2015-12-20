@@ -510,7 +510,7 @@ Uint8 _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int 
 }
 
 //--------------------------------------------------------------------------------------------
-ObjectRef FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight )
+ObjectRef FindWeapon( Object * pchr, float max_distance, const IDSZ2& weap_idsz, bool find_ranged, bool use_line_of_sight )
 {
     /// @author ZF
     /// @details This function searches the nearby vincinity for a melee weapon the character can use
@@ -599,7 +599,7 @@ bool FlashObject( Object * pchr, Uint8 value )
 }
 
 //--------------------------------------------------------------------------------------------
-int RestockAmmo( const ObjectRef character, IDSZ idsz )
+int RestockAmmo( const ObjectRef character, const IDSZ2& idsz )
 {
     /// @author ZZ
     /// @details This function restocks the characters ammo, if it needs ammo and if

@@ -29,7 +29,7 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "game/player.h"
+#include "game/Logic/Player.hpp"
 #include "egolib/Script/script.h"
 #include "game/input.h"
 #include "game/script_compile.h"
