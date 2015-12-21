@@ -22,8 +22,9 @@
 /// @author Johan Jansen
 
 #include "game/GUI/InternalWindow.hpp"
+#include "game/GUI/Image.hpp"
 
-static const int BORDER_PIXELS = 5;
+static constexpr int BORDER_PIXELS = 5;
 
 InternalWindow::TitleBar::TitleBar(const std::string &title) :
     _titleBarTexture("mp_data/titlebar"),
@@ -59,6 +60,7 @@ void InternalWindow::TitleBar::draw()
 
 InternalWindow::InternalWindow(const std::string &title) :
     _titleBar(new TitleBar(title)),
+    _closeButton(std::make_shared<Image>("mp_data/gui-button_close")),
     _background("mp_data/guiwindow"),
     _mouseOver(false),
     _mouseOverCloseButton(false),
@@ -67,7 +69,16 @@ InternalWindow::InternalWindow(const std::string &title) :
     _transparency(0.33f),
     _firstDraw(true)
 {
+    //Add the close button
+    //_closeButton->setOnClickFunction([this]{
+    //    this->destroy();
+    //});
+
+    //Set initial window position, do after all components have been initialized
     setPosition(20, 20);
+
+    //Set default color
+    _closeButton->setTint(Ego::Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
 }
 
 void InternalWindow::drawContainer()
@@ -78,10 +89,8 @@ void InternalWindow::drawContainer()
     //Draw window title
     _titleBar->draw();
 
-    //Draw an X in top right corner (TODO: Make into a proper button)
-    Ego::Math::Colour4f X_HOVER = Ego::Math::Colour4f::white();
-    Ego::Math::Colour4f X_DEFAULT(.56f, .56f, .56f, 1.0f);
-    _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->drawText("X", getX() + getWidth() - 20, getY() + 20, _mouseOverCloseButton ? X_HOVER : X_DEFAULT);
+    //Draw the close button
+    _closeButton->draw();
 }
 
 bool InternalWindow::notifyMouseMoved(const int x, const int y)
@@ -94,13 +103,11 @@ bool InternalWindow::notifyMouseMoved(const int x, const int y)
     else {
         _mouseOver = InternalWindow::contains(x, y) || _titleBar->contains(x, y);
 
-        //Check if mouse is hovering over the close button (TODO: Make into a proper button)
-        if(_mouseOver) {
-            Ego::Rectangle<int> closeButton = Ego::Rectangle<int>(getX() + getWidth() - 20 - BORDER_PIXELS*2, getY() + 25 + BORDER_PIXELS*2, getX() + getWidth()-BORDER_PIXELS, getY()+15);
-            _mouseOverCloseButton = closeButton.point_inside(x, y);
+        if(_closeButton->contains(x, y)) {
+            _closeButton->setTint(Ego::Math::Colour4f::white());
         }
         else {
-            _mouseOverCloseButton = false;
+            _closeButton->setTint(Ego::Math::Colour4f(0.8f, 0.8f, 0.8f, 1.0f));
         }
     }
 
@@ -111,8 +118,7 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
 {
     if(_mouseOver && button == SDL_BUTTON_LEFT)
     {
-        //Check if close button is pressed first
-        if(_mouseOverCloseButton) {
+        if(!_isDragging && _closeButton->contains(x, y)) {
             AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
             destroy();
             return true;
@@ -171,14 +177,15 @@ void InternalWindow::setPosition(const int x, const int y)
     //Shift window position
     GUIComponent::setPosition(x, y);
 
-    //Update titlebar position
-    _titleBar->setPosition(x, y - _titleBar->getHeight()/2);
-
     //Shift all child components as well
     for(const std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator())
     {
         component->setPosition(component->getX() + translateX, component->getY() + translateY);
     }
+
+    //Finally update titlebar position
+    _titleBar->setPosition(x, y - _titleBar->getHeight()/2);
+    _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight()/2 - _closeButton->getHeight()/2);
 }
 
 void InternalWindow::setTransparency(float alpha)
@@ -200,6 +207,8 @@ void InternalWindow::setSize(const int width, const int height)
 {
     //Also update the width of the title bar if our with changes
     _titleBar->setSize(width, _titleBar->getHeight());
+    _closeButton->setSize(22, 22);
+    _closeButton->setPosition(_titleBar->getX() + _titleBar->getWidth() - _closeButton->getWidth(), _titleBar->getY() + _titleBar->getHeight()/2 - _closeButton->getHeight()/2);
 
     GUIComponent::setSize(width, height);
 }
