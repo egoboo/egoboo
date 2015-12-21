@@ -462,6 +462,18 @@
     <ClCompile Include="src\egolib\Renderer\DeferredTexture.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Script\Interpreter\Tag.cpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\Interpreter\TaggedValue.cpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\Interpreter\InvalidCastException.cpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\Interpreter\Configuration.cpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -984,6 +996,15 @@
       <Filter>Header Files\Time</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\Interpreter\TaggedValue.hpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Interpreter\Tag.hpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Interpreter\InvalidCastException.hpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Interpreter\Configuration.hpp">
       <Filter>Header Files\Script\Interpreter</Filter>
     </ClInclude>
   </ItemGroup>
