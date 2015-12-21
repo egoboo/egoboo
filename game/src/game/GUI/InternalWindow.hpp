@@ -25,6 +25,9 @@
 #include "game/GUI/GUIComponent.hpp"
 #include "game/GUI/ComponentContainer.hpp"
 
+//Forward declarations
+class Image;
+
 class InternalWindow : public GUIComponent, public ComponentContainer
 {
     protected:
@@ -67,6 +70,7 @@ class InternalWindow : public GUIComponent, public ComponentContainer
 
     private:
         std::unique_ptr<TitleBar> _titleBar;
+        std::shared_ptr<Image> _closeButton;
         Ego::DeferredTexture _background;
         bool _mouseOver;
         bool _mouseOverCloseButton;

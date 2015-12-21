@@ -354,10 +354,16 @@ void CharacterWindow::buildActiveEnchantsTab()
     for(const auto& element : enchantCount) {
         std::string prefix = element.second.size() > 1 ? "x"+std::to_string(element.second.size()) + " " : "";
 
-        std::shared_ptr<Button> button = std::make_shared<Button>(prefix + element.first);
+        //Replace underscores with spaces
+        std::string name = element.first ;
+        std::transform(name.begin(), name.end(), name.begin(), [](char ch) {
+            return ch == '_' ? ' ' : ch;
+        });
+
+        std::shared_ptr<Button> button = std::make_shared<Button>(prefix + name);
         button->setSize(activeEnchants->getWidth() - 50, activeEnchants->getHeight() / 6);
-        button->setOnClickFunction([this, element, enchantName, enchantEffects] {
-            enchantName->setText(element.first);
+        button->setOnClickFunction([this, &element, &name, &enchantName, &enchantEffects] {
+            enchantName->setText(name);
             describeEnchantEffects(element.second, enchantEffects);
 
         });
