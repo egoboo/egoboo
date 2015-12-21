@@ -168,7 +168,7 @@ public:
      * @return
      *  an iterator referring to the first entry with a name equal to @a name or <tt>cend()</tt>
      */
-    const_iterator find(const string& name) {
+    const_iterator find(const string& name) const {
         return _elements.find(name);
     }
 
