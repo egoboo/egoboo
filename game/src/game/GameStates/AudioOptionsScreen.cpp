@@ -49,7 +49,7 @@ AudioOptionsScreen::AudioOptionsScreen()
     yPos += musicVolumeLable->getHeight() + 5;
 
     std::shared_ptr<Ego::GUI::Slider> musicVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
-    musicVolumeSlider->setSize(SCREEN_WIDTH/3, 35);
+    musicVolumeSlider->setSize(std::min(200, SCREEN_WIDTH/3), 30);
     musicVolumeSlider->setPosition(xPos, yPos);
     musicVolumeSlider->setOnChangeFunction(
         [](int value) { 
@@ -68,7 +68,7 @@ AudioOptionsScreen::AudioOptionsScreen()
     yPos += soundEffectLabel->getHeight() + 5;
 
     std::shared_ptr<Ego::GUI::Slider> soundEffectVolumeSlider = std::make_shared<Ego::GUI::Slider>(0, MIX_MAX_VOLUME);
-    soundEffectVolumeSlider->setSize(SCREEN_WIDTH/3, 35);
+    soundEffectVolumeSlider->setSize(std::min(200, SCREEN_WIDTH/3), 30);
     soundEffectVolumeSlider->setPosition(xPos, yPos);
     soundEffectVolumeSlider->setOnChangeFunction(
         [](int value) { 
@@ -88,7 +88,7 @@ AudioOptionsScreen::AudioOptionsScreen()
     yPos += soundChannelsLabel->getHeight() + 5;
 
     std::shared_ptr<Ego::GUI::Slider> soundChannelsSlider = std::make_shared<Ego::GUI::Slider>(8, 128);
-    soundChannelsSlider->setSize(SCREEN_WIDTH/3, 35);
+    soundChannelsSlider->setSize(std::min(200, SCREEN_WIDTH/3), 30);
     soundChannelsSlider->setPosition(xPos, yPos);
     soundChannelsSlider->setOnChangeFunction(
         [](int value) { 

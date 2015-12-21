@@ -35,14 +35,17 @@ SelectPlayersState::SelectPlayersState() :
 _playerButtons(),
 _continueButton(std::make_shared<Button>("Select Module", SDLK_RETURN))
 {
+    const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+    const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
+
     //Load background
     std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_selectplayers");
-    background->setPosition(0, 0);
-    background->setSize(GFX_WIDTH, GFX_HEIGHT);
+    background->setSize(std::min(SCREEN_WIDTH, background->getTextureWidth()), std::min(SCREEN_HEIGHT, background->getTextureHeight()));
+    background->setPosition(SCREEN_WIDTH-background->getWidth(), SCREEN_HEIGHT-background->getHeight());
     addComponent(background);
 
     //Add the buttons
-    int yOffset = GFX_HEIGHT - 80;
+    int yOffset = SCREEN_HEIGHT - 80;
     std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
     backButton->setPosition(20, yOffset);
     backButton->setSize(200, 30);
@@ -74,7 +77,7 @@ _continueButton(std::make_shared<Button>("Select Module", SDLK_RETURN))
 
     //Tell them what this screen is all about
     std::shared_ptr<Label> infoText = std::make_shared<Label>("Select a character for each player that is going ot play.");
-    infoText->setPosition(150, GFX_HEIGHT - 40);
+    infoText->setPosition(150, SCREEN_HEIGHT - 40);
     addComponent(infoText);
 
     //Players Label
@@ -83,7 +86,7 @@ _continueButton(std::make_shared<Button>("Select Module", SDLK_RETURN))
     addComponent(playersLabel);
 
     std::shared_ptr<Label> characterLabel = std::make_shared<Label>("CHARACTER");
-    characterLabel->setPosition(GFX_WIDTH / 3, 20);
+    characterLabel->setPosition(SCREEN_WIDTH / 3, 20);
     addComponent(characterLabel);
 
     yOffset = playersLabel->getY() + playersLabel->getHeight() + 20;
@@ -94,7 +97,7 @@ _continueButton(std::make_shared<Button>("Select Module", SDLK_RETURN))
 
         std::shared_ptr<Button> playerButton = std::make_shared<Button>("Not playing");
         playerButton->setSize(200, 42);
-        playerButton->setPosition(GFX_WIDTH / 3, yOffset - 10);
+        playerButton->setPosition(SCREEN_WIDTH / 3, yOffset - 10);
         playerButton->setOnClickFunction(
             [this, i]{
             _gameEngine->pushGameState(std::make_shared<SelectCharacterState>(_selectedPlayers[i]));

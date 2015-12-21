@@ -33,14 +33,17 @@
 
 SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &selectedCharacter)
 {
+    const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+    const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
+
 	//Load background
 	std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_selectplayers");
-	background->setPosition(0, 0);
-	background->setSize(GFX_WIDTH, GFX_HEIGHT);
+    background->setSize(std::min(SCREEN_WIDTH, background->getTextureWidth()), std::min(SCREEN_HEIGHT, background->getTextureHeight()));
+	background->setPosition(SCREEN_WIDTH-background->getWidth(), SCREEN_HEIGHT-background->getHeight());
 	addComponent(background);
 
 	//Add the buttons
-	int yOffset = GFX_HEIGHT-80;
+	int yOffset = SCREEN_HEIGHT-80;
 	std::shared_ptr<Button> backButton = std::make_shared<Button>("No character", SDLK_ESCAPE);
 	backButton->setPosition(20, yOffset);
 	backButton->setSize(200, 30);
@@ -72,7 +75,7 @@ SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &s
 
 	//Tell them what this screen is all about
 	std::shared_ptr<Label> infoText = std::make_shared<Label>("Select your character\nUse the mouse wheel to scroll.");
-	infoText->setPosition(150, GFX_HEIGHT - 50);
+	infoText->setPosition(150, SCREEN_HEIGHT - 50);
 	addComponent(infoText);
 
 	//Players Label

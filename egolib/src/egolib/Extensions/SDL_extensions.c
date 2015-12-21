@@ -411,13 +411,14 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
             }
         }
 
-        if ( NULL == ret )
+        if (nullptr == ret)
         {
             // something is interfering with our ability to generate a screen.
             // assume that it is a complete incompatability with multisampling
+            Log::get().warn("Disabled antialiasing\n");
 
-            SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 0 );
-            SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 0 );
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 
             ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
             if ( nullptr == ret ) {
@@ -433,12 +434,12 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
         }
 
         if (ret) {
-        // grab the actual status of the multi_buffers and multi_samples
+            // grab the actual status of the multi_buffers and multi_samples
             v->gl_att.multi_buffers = 0;
             v->gl_att.multi_samples = 0;
             v->gl_att.accelerated_visual = SDL_FALSE;
-            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &( v->gl_att.multi_buffers ) );
-            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &( v->gl_att.multi_samples ) );
+            SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &(v->gl_att.multi_buffers));
+            SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &(v->gl_att.multi_samples));
 #if !defined(ID_LINUX)
             SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL, &( v->gl_att.accelerated_visual ) );
 #endif
