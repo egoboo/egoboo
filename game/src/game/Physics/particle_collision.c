@@ -1057,7 +1057,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
         //Telekinetic Staff perk can give +500% knockback
         const std::shared_ptr<Object>& powner = _currentModule->getObjectHandler()[pdata.pprt->owner_ref];
-        if(powner->hasPerk(Ego::Perks::TELEKINETIC_STAFF) && 
+        if(powner != nullptr && powner->hasPerk(Ego::Perks::TELEKINETIC_STAFF) && 
             pdata.pprt->getAttachedObject()->getProfile()->getIDSZ(IDSZ_PARENT).equals('S','T','A','F')) {
 
             //+3% chance per owner Intellect and -1% per target Might
