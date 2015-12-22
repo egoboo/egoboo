@@ -49,14 +49,17 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     _localGameTips(),
     _progressBar(std::make_shared<GUI::ProgressBar>())
 {
+    const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+    const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
+
     //Load background
     std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_logo");
     background->setSize(background->getTextureWidth(), background->getTextureHeight());
-    background->setPosition(GFX_WIDTH/2-background->getTextureWidth()/2, GFX_HEIGHT/2-background->getTextureHeight()/2-100);
+    background->setPosition(SCREEN_WIDTH/2-background->getTextureWidth()/2, SCREEN_HEIGHT/2-background->getTextureHeight()/2-100);
     addComponent(background);
 
     std::shared_ptr<Label> mainLabel = std::make_shared<Label>("LOADING MODULE");
-    mainLabel->setPosition(GFX_WIDTH/2 - mainLabel->getWidth()/2, 20);
+    mainLabel->setPosition(SCREEN_WIDTH/2 - mainLabel->getWidth()/2, 20);
     addComponent(mainLabel);
 
     _loadingLabel = std::make_shared<Label>("Initializing...");
@@ -68,13 +71,13 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
 
     //Add the progress bar
     _progressBar->setSize(400, 30);
-    _progressBar->setPosition(GFX_WIDTH/2 - _progressBar->getWidth()/2, GFX_HEIGHT-50);
+    _progressBar->setPosition(SCREEN_WIDTH/2 - _progressBar->getWidth()/2, SCREEN_HEIGHT-50);
     _progressBar->setMaxValue(100);
     addComponent(_progressBar);
 
     //Add a random game tip
     std::shared_ptr<Label> gameTip = std::make_shared<Label>(getRandomHint());
-    gameTip->setPosition(GFX_WIDTH/2 - gameTip->getWidth()/2, GFX_HEIGHT/2);
+    gameTip->setPosition(SCREEN_WIDTH/2 - gameTip->getWidth()/2, SCREEN_HEIGHT/2);
     addComponent(gameTip);
 }
 
@@ -90,7 +93,7 @@ void LoadingState::setProgressText(const std::string &loadingText, const uint8_t
 {
     //Always make loading text centered
     _loadingLabel->setText(loadingText);
-    _loadingLabel->setPosition(GFX_WIDTH/2 - _loadingLabel->getWidth()/2, 40);    
+    _loadingLabel->setPosition(_gameEngine->getUIManager()->getScreenWidth()/2 - _loadingLabel->getWidth()/2, 40);    
 
     _progressBar->setValue(progress);
 }
@@ -153,6 +156,9 @@ bool LoadingState::loadPlayers()
 
 void LoadingState::loadModuleData()
 {
+    const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+    const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
+    
     setProgressText("Tidying some space...", 0);
 
     //Make sure all data is cleared first
@@ -223,7 +229,7 @@ void LoadingState::loadModuleData()
     //Add the start button once we are finished loading
     std::shared_ptr<Button> startButton = std::make_shared<Button>("Press Space to begin", SDLK_SPACE);
     startButton->setSize(400, 30);
-    startButton->setPosition(GFX_WIDTH/2 - startButton->getWidth()/2, GFX_HEIGHT-50);
+    startButton->setPosition(SCREEN_WIDTH/2 - startButton->getWidth()/2, SCREEN_HEIGHT-50);
     startButton->setOnClickFunction(
         [cameraSystem]{
 

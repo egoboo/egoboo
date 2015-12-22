@@ -1296,7 +1296,10 @@ void Object::setBumpHeight(const float height)
 
 void Object::setBumpWidth(const float width)
 {
-    float ratio = std::abs(width / bump_stt.size);
+    float ratio = 1.0f;
+    if(bump_stt.size > 0) {
+        std::abs(width / bump_stt.size);
+    }
 
     shadow_size_save = shadow_size_stt * ratio;
     bump_save.size = bump_stt.size * ratio;

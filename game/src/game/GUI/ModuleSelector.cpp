@@ -66,7 +66,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     });
     addComponent(_previousModuleButton);
 
-    const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth()) / 158);
+    const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth() - _nextModuleButton->getWidth()) / 158);
 
     //Add as many modules as we can fit with current screen width
     for (int i = 0; i < numberOfModuleButtons; ++i) {

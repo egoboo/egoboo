@@ -698,7 +698,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             //Damage adjusted for attributes and weaknesses
             IPair modifiedDamage = pdata->pprt->damage;
 
-            FACING_T direction = vec_to_facing( pdata->pprt->vel[kX] , pdata->pprt->vel[kY] );
+            FACING_T direction = vec_to_facing( pdata->pprt->vel.x() , pdata->pprt->vel.y() );
             direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
             // These things only apply if the particle has an owner
@@ -827,7 +827,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             }
 
             // handle vulnerabilities, double the damage
-            if(pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) != IDSZ2::None) {
+            if(spawnerProfile != nullptr && pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) != IDSZ2::None) {
                 if (pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_TYPE) || 
                     pdata->pchr->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == spawnerProfile->getIDSZ(IDSZ_PARENT))
                 {
@@ -1057,7 +1057,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
         //Telekinetic Staff perk can give +500% knockback
         const std::shared_ptr<Object>& powner = _currentModule->getObjectHandler()[pdata.pprt->owner_ref];
-        if(powner->hasPerk(Ego::Perks::TELEKINETIC_STAFF) && 
+        if(powner != nullptr && powner->hasPerk(Ego::Perks::TELEKINETIC_STAFF) && 
             pdata.pprt->getAttachedObject()->getProfile()->getIDSZ(IDSZ_PARENT).equals('S','T','A','F')) {
 
             //+3% chance per owner Intellect and -1% per target Might

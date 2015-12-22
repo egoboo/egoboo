@@ -182,7 +182,7 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 
 	//Place background in bottom right corner
 	_background->setSize(_background->getTextureWidth(), _background->getTextureHeight());
-	_background->setPosition((GFX_WIDTH/2) - (_background->getWidth()/2), GFX_HEIGHT - _background->getHeight());
+	_background->setPosition((_gameEngine->getUIManager()->getScreenWidth()/2) - (_background->getWidth()/2), _gameEngine->getUIManager()->getScreenHeight() - _background->getHeight());
 }
 
 void SelectModuleState::update()
