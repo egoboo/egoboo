@@ -906,16 +906,17 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             //Backwards compatability with old skill system (for older data files)
-            case IDSZ2::caseLabel( 'A', 'W', 'E', 'P' ): _startingPerks[Ego::Perks::WEAPON_PROFICIENCY] = true; break;
-            case IDSZ2::caseLabel( 'P', 'O', 'I', 'S' ): _startingPerks[Ego::Perks::POISONRY] = true; break;
-            case IDSZ2::caseLabel( 'C', 'K', 'U', 'R' ): _startingPerks[Ego::Perks::SENSE_KURSES] = true; break;
-            case IDSZ2::caseLabel( 'R', 'E', 'A', 'D' ): _startingPerks[Ego::Perks::LITERACY] = true; break;
-            case IDSZ2::caseLabel( 'W', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::ARCANE_MAGIC] = true; break;
-            case IDSZ2::caseLabel( 'H', 'M', 'A', 'G' ): _startingPerks[Ego::Perks::DIVINE_MAGIC] = true; break;
-            case IDSZ2::caseLabel( 'T', 'E', 'C', 'H' ): _startingPerks[Ego::Perks::USE_TECHNOLOGICAL_ITEMS] = true; break;
-            case IDSZ2::caseLabel( 'D', 'I', 'S', 'A' ): _startingPerks[Ego::Perks::TRAP_LORE] = true; break;
-            case IDSZ2::caseLabel( 'S', 'T', 'A', 'B' ): _startingPerks[Ego::Perks::BACKSTAB] = true; break;
-            case IDSZ2::caseLabel( 'D', 'A', 'R', 'K' ): _startingPerks[Ego::Perks::NIGHT_VISION] = true; break;
+            case IDSZ2::caseLabel('A', 'W', 'E', 'P'): _startingPerks[Ego::Perks::WEAPON_PROFICIENCY] = true; break;
+            case IDSZ2::caseLabel('P', 'O', 'I', 'S'): _startingPerks[Ego::Perks::POISONRY] = true; break;
+            case IDSZ2::caseLabel('C', 'K', 'U', 'R'): _startingPerks[Ego::Perks::SENSE_KURSES] = true; break;
+            case IDSZ2::caseLabel('R', 'E', 'A', 'D'): _startingPerks[Ego::Perks::LITERACY] = true; break;
+            case IDSZ2::caseLabel('W', 'M', 'A', 'G'): _startingPerks[Ego::Perks::ARCANE_MAGIC] = true; break;
+            case IDSZ2::caseLabel('H', 'M', 'A', 'G'): _startingPerks[Ego::Perks::DIVINE_MAGIC] = true; break;
+            case IDSZ2::caseLabel('T', 'E', 'C', 'H'): _startingPerks[Ego::Perks::USE_TECHNOLOGICAL_ITEMS] = true; break;
+            case IDSZ2::caseLabel('D', 'I', 'S', 'A'): _startingPerks[Ego::Perks::TRAP_LORE] = true; break;
+            case IDSZ2::caseLabel('S', 'T', 'A', 'B'): _startingPerks[Ego::Perks::BACKSTAB] = true; break;
+            case IDSZ2::caseLabel('D', 'A', 'R', 'K'): _startingPerks[Ego::Perks::NIGHT_VISION] = true; break;
+            case IDSZ2::caseLabel('J', 'O', 'U', 'S'): _startingPerks[Ego::Perks::JOUSTING] = true; break;
 
             default:
 				Log::get().warn("Unknown IDSZ parsed: [%4s] (%s)\n", idsz.toString().c_str(), filePath.c_str());

@@ -544,7 +544,7 @@ size_t Particle::updateContinuousSpawning()
     }
 
     //Optimization: Only spawn cosmetic sub-particles if we ourselves were rendered
-    //This prevents a lot of cosmetic particles from spawning visible range
+    //This prevents a lot of cosmetic particles from spawning outside visible range
     const std::shared_ptr<pip_t>& childProfile = ParticleProfileSystem::get().get_ptr(getProfile()->contspawn._lpip.get());
     if(!childProfile->force && !inst.indolist) {
 
