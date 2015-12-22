@@ -48,6 +48,8 @@ TaggedValue::TaggedValue(const TaggedValue& other) : tag(other.tag) {
     };
 }
 
+TaggedValue::TaggedValue() : tag(Tag::Void), voidValue() {}
+
 TaggedValue::TaggedValue(BooleanValue other) : tag(Tag::Boolean), booleanValue(other) {}
 
 TaggedValue::TaggedValue(IntegerValue other) : tag(Tag::Integer), integerValue(other) {}

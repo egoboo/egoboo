@@ -79,6 +79,12 @@ struct TaggedValue {
 public:
 
     /**
+     * @brief Default construct this tagged value.
+     * @post The \f$Void\f$ value is assigned to this tagged value.
+     */
+    TaggedValue();
+
+    /**
      * @brief Copy-construct this tagged value with another tagged value.
      * @param other the other tagged value
      */
