@@ -50,6 +50,18 @@
 
 #include "game/GUI/MiniMap.hpp"
 
+// TODO: Remove this.
+template <int min, int max>
+std::enable_if_t<min <= max, int> getBitIndex(int value) {
+    int bitIndex = (int)value;
+    if (bitIndex < min || bitIndex > max) {
+        std::ostringstream os;
+        os << "bit index must be within the bounds of " << min << " and " << max;
+        throw Id::OutOfBoundsException(__FILE__, __LINE__, os.str());
+    }
+    return bitIndex;
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // turn off this annoying warning
@@ -99,12 +111,10 @@ Uint8 scr_SetAlertBit( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( state.argument >= 0 && state.argument < 32 )
-    {
-        SET_BIT( self.alert, 1 << state.argument );
-        returncode = true;
-    }
-
+    int i = getBitIndex<0,31>(state.argument);
+    SET_BIT( self.alert, 1 << i );
+    returncode = true;
+    
     SCRIPT_FUNCTION_END();
 }
 
@@ -119,11 +129,9 @@ Uint8 scr_ClearAlertBit( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( state.argument >= 0 && state.argument < 32 )
-    {
-        UNSET_BIT( self.alert, 1 << state.argument );
-        returncode = true;
-    }
+    int i = getBitIndex<0, 31>(state.argument);
+    UNSET_BIT( self.alert, 1 << i );
+    returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -139,10 +147,8 @@ Uint8 scr_TestAlertBit( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( state.argument >= 0 && state.argument < 32 )
-    {
-        returncode = HAS_SOME_BITS( self.alert,  1 << state.argument );
-    }
+    int i = getBitIndex<0,31>(state.argument);
+    returncode = HAS_SOME_BITS( self.alert,  1 << i );
 
     SCRIPT_FUNCTION_END();
 }
@@ -157,7 +163,7 @@ Uint8 scr_SetAlert( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_BIT( self.alert, state.argument );
+    SET_BIT( self.alert, (int)state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -172,7 +178,7 @@ Uint8 scr_ClearAlert( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    UNSET_BIT( self.alert, state.argument );
+    UNSET_BIT( self.alert, (int)state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -187,7 +193,7 @@ Uint8 scr_TestAlert( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( self.alert, state.argument );
+    returncode = HAS_SOME_BITS( self.alert, (int)state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -203,11 +209,9 @@ Uint8 scr_SetBit( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( state.y >= 0 && state.y < 32 )
-    {
-        SET_BIT( state.x, 1 << state.y );
-        returncode = true;
-    }
+    int i = getBitIndex<0, 31>(state.y);
+    SET_BIT( state.x, 1 << i );
+    returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -223,11 +227,9 @@ Uint8 scr_ClearBit( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( state.y >= 0 && state.y < 32 )
-    {
-        UNSET_BIT( state.x, 1 << state.y );
-        returncode = true;
-    }
+    int i = getBitIndex<0, 31>(state.y);
+    UNSET_BIT( state.x, 1 << i );
+    returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -243,10 +245,8 @@ Uint8 scr_TestBit( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( state.y >= 0 && state.y < 32 )
-    {
-        returncode = HAS_SOME_BITS( state.x, 1 << state.y );
-    }
+    int i = getBitIndex<0, 31>(state.y);
+    returncode = HAS_SOME_BITS( state.x, 1 << i );
 
     SCRIPT_FUNCTION_END();
 }
@@ -261,7 +261,7 @@ Uint8 scr_SetBits( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_BIT( state.x, state.y );
+    SET_BIT( state.x, (int)state.y );
 
     SCRIPT_FUNCTION_END();
 }
@@ -276,7 +276,7 @@ Uint8 scr_ClearBits( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    UNSET_BIT( state.x, state.y );
+    UNSET_BIT( state.x, (int)state.y );
 
     SCRIPT_FUNCTION_END();
 }
@@ -291,7 +291,7 @@ Uint8 scr_TestBits( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( state.x, state.y );
+    returncode = HAS_SOME_BITS( state.x, (int)state.y );
 
     SCRIPT_FUNCTION_END();
 }
@@ -435,7 +435,7 @@ Uint8 scr_SetContent( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     // Set the content
-    self.content = state.argument;
+    self.content = (int)state.argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -526,7 +526,7 @@ Uint8 scr_FindPath( script_state_t& state, ai_state_t& self )
     //Too soon since last try?
     if ( self.astar_timer > update_wld ) return false;
 
-    returncode = FindPath( self.wp_lst, pchr, state.x, state.y, &used_astar );
+    returncode = FindPath( self.wp_lst, pchr, (float)state.x, (float)state.y, &used_astar );
 
     if ( used_astar )
     {
@@ -549,12 +549,9 @@ Uint8 scr_Compass( script_state_t& state, ai_state_t& self )
     /// tmpdistance and tmpturn.  It acts like one of those Compass thing
     /// with the two little needle legs
 
-	Vector2f loc_pos;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    loc_pos[XX] = state.x;
-    loc_pos[YY] = state.y;
+    Vector2f loc_pos = Vector2f((float)state.x, (float)state.y);
 
     returncode = Compass( loc_pos, state.turn, state.distance );
 
@@ -608,7 +605,7 @@ Uint8 scr_SetTime( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    self.timer = UpdateTime( self.timer, state.argument );
+    self.timer = UpdateTime( self.timer, (int)state.argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7457,7 +7454,8 @@ Uint8 scr_SetDamageThreshold( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( state.argument > 0 ) pchr->damage_threshold = state.argument;
+    int v = (int)state.argument;
+    if ( v > 0 ) pchr->damage_threshold = v;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7639,7 +7637,7 @@ Uint8 scr_IfModuleHasIDSZ( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     ///use message.txt to send the module name
-    if ( !ppro->isValidMessageID(state.argument) ) return false;
+    if ( !ppro->isValidMessageID((int)state.argument) ) return false;
 
     STRING buffer;
     strncpy(buffer, ppro->getMessage(state.argument).c_str(), SDL_arraysize(buffer));
