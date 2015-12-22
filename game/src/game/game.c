@@ -585,19 +585,12 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &idsz, const BIT_FIELD targeting_bits )
+bool chr_check_target( Object * psrc, const std::shared_ptr<Object>& ptst, const IDSZ2 &idsz, const BIT_FIELD targeting_bits )
 {
     bool retval = false;
 
-    bool is_hated;
-
     // Skip non-existing objects
     if (!psrc || psrc->isTerminated()) return false;
-
-    const std::shared_ptr<Object> &ptst = _currentModule->getObjectHandler()[iObjectTest];
-    if(!ptst) {
-        return false;
-    }
 
     // Skip hidden characters
     if ( ptst->isHidden() ) return false;
@@ -612,7 +605,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &
     if ( psrc == ptst.get() && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
 
     // Don't target our holder if we are an item and being held
-    if ( psrc->isitem && psrc->attachedto == ptst->getObjRef() ) return false;
+    if ( psrc->isItem() && psrc->attachedto == ptst->getObjRef() ) return false;
 
     // Allow to target dead stuff?
     if ( ptst->isAlive() == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return false;
@@ -639,7 +632,7 @@ bool chr_check_target( Object * psrc, const ObjectRef iObjectTest, const IDSZ2 &
         }
     }
 
-    is_hated = psrc->getTeam().hatesTeam(ptst->getTeam());
+    bool is_hated = psrc->getTeam().hatesTeam(ptst->getTeam());
 
     // Target neutral items? (still target evil items, could be pets)
     if (( ptst->isItem() || ptst->isInvincible() ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return false;
@@ -733,7 +726,7 @@ ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, con
         //Skip held items
         if(ptst->isBeingHeld()) continue;
 
-        if ( !chr_check_target( psrc, ptst->getObjRef(), idsz, targeting_bits ) ) continue;
+        if (!chr_check_target(psrc, ptst, idsz, targeting_bits)) continue;
 
 		float dist2 = (psrc->getPosition() - ptst->getPosition()).length_2();
         if (dist2 < best_dist2)
