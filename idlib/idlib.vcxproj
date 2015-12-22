@@ -237,6 +237,7 @@
     <ClCompile Include="src\IdLib\IdLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\IdLib\OutOfBoundsException.hpp" />
     <ClInclude Include="src\IdLib\RuntimeErrorException.hpp" />
     <ClInclude Include="src\IdLib\AbstractLexicalErrorException.hpp" />
     <ClInclude Include="src\IdLib\AbstractSyntacticalErrorException.hpp" />

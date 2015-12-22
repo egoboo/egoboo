@@ -68,6 +68,9 @@
     <ClInclude Include="src\IdLib\RuntimeErrorException.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\IdLib\OutOfBoundsException.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\IdLib\CurrentFunction.inline">
