@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file   IdLib/UnhandledSwitchCaseException.hpp
-/// @brief  Definition of an exception indicating a missing siwtch case handle for a specific label
+/// @brief  Definition of an exception indicating a missing switch case handle for a specific label
 /// @author Johan Jansen, Michael Heilmann
 
 #pragma once
@@ -35,7 +35,7 @@ using namespace std;
 
 /**
  * @brief
- *  A missing case handle for specific label exception
+ *  Exception indicating a missing switch case handle for a specific label
  */
 class UnhandledSwitchCaseException : public Exception {
 
@@ -52,7 +52,7 @@ public:
      *  optional exception string message
      */
     UnhandledSwitchCaseException(const char *file, int line, const string& message = "Unhandled switch case") :
-        Exception(file, line), _message(message) {}
+        Exception(file, line), message(message) {}
 
     /**
      * @brief
@@ -61,7 +61,7 @@ public:
      *  the other exception
      */
     UnhandledSwitchCaseException(const UnhandledSwitchCaseException& other) :
-        Exception(other), _message(other._message) {}
+        Exception(other), message(other.message) {}
 
     /**
      * @brief
@@ -73,7 +73,7 @@ public:
      */
     UnhandledSwitchCaseException& operator=(const UnhandledSwitchCaseException& other) {
         Exception::operator=(other);
-        _message = other._message;
+        message = other.message;
         return *this;
     }
 
@@ -86,7 +86,7 @@ public:
      *  the message associated with this exception
      */
     const string& getMessage() const {
-        return _message;
+        return message;
     }
 
     /**
@@ -95,16 +95,20 @@ public:
      * @return
      *  a human-readable textual description of the string.
      */
-    virtual operator ::std::string() const {
+    virtual operator string() const {
         ostringstream buffer;
         buffer << "(raised in file " << getFile() << ", line " << getLine() << ")"
             << ":" << std::endl;
-        buffer << _message;
+        buffer << message;
         return buffer.str();
     }
 
 private:
-    std::string _message;
+    /**
+     * @brief
+     *  The exception message.
+     */
+    string message;
 };
 
 } // namespace Id

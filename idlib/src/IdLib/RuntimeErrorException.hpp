@@ -17,42 +17,46 @@ using namespace std;
 
 /**
  * @brief
- *  A generic exception for runtime error. Use this exception only if there is
- *  no exception type available which is more specific
- * @author
- *  Michael Heilmann
+ *  A generic exception indicating a runtime error.
+ *  Use this exception only if there is no exception type available which is more specific.
  */
 class RuntimeErrorException : public Exception {
-
-private:
-
-    /**
-     * @brief
-     *  The messsage associated with this environment error.
-     */
-    string _message;
 
 public:
 
     /**
      * @brief
-     *  Construct this runtime  error.
+     *  Construct this runtime error exception.
      * @param file
      *  the C++ source file (as obtained by the __FILE__ macro) associated with this exception
      * @param line
      *  the line within the C++ source file (as obtained by the __LINE__ macro) associated with this exception
      * @param message
      *  a message describing the error
-     * @remark
-     *  Intentionally protected.
      */
     RuntimeErrorException(const char *file, int line, const string& message) :
-        Exception(file, line), _message(message) {}
+        Exception(file, line), message(message) {}
+
+    /**
+     * @brief
+     *  Construct this exception with the value of another exception.
+     * @param other
+     *  the other exception
+     */
     RuntimeErrorException(const RuntimeErrorException& other) :
-        Exception(other), _message(other._message) {}
+        Exception(other), message(other.message) {}
+
+    /**
+     * @brief
+     *  Assign this exception the values of another exception.
+     * @param other
+     *  the other exception
+     * @return
+     *  this exception
+     */
     RuntimeErrorException& operator=(const RuntimeErrorException& other) {
         Exception::operator=(other);
-        _message = other._message;
+        message = other.message;
         return *this;
     }
 
@@ -65,7 +69,7 @@ public:
      *  the message associated with this environment error
      */
     const string& getMessage() const {
-        return _message;
+        return message;
     }
 
     /**
@@ -78,9 +82,16 @@ public:
         ostringstream buffer;
         buffer << "(raised in file " << getFile() << ", line " << getLine() << ")"
             << ":" << std::endl;
-        buffer << _message;
+        buffer << message;
         return buffer.str();
     }
+
+private:
+    /**
+     * @brief
+     *  The exception message.
+     */
+    string message;
 };
 
 } // namespace Id
