@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\Interpreter\SafeCast.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\Configuration.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\InvalidCastException.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\Tag.cpp" />
@@ -472,6 +473,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Script\Interpreter\SafeCast.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\Configuration.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\InvalidCastException.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\Tag.hpp" />

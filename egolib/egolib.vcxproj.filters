@@ -477,6 +477,8 @@
     <ClCompile Include="src\egolib\Script\Interpreter\TaggedValue.cpp">
       <Filter>Source Files\Script\Interpreter</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Script\Interpreter\SafeCast.cpp">
+      <Filter>Source Files\Script\Interpreter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1009,6 +1011,9 @@
       <Filter>Header Files\Script\Interpreter</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\Interpreter\Configuration.hpp">
+      <Filter>Header Files\Script\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Interpreter\SafeCast.hpp">
       <Filter>Header Files\Script\Interpreter</Filter>
     </ClInclude>
   </ItemGroup>
