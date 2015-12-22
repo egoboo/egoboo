@@ -162,9 +162,6 @@
     <ClCompile Include="src\egolib\map_functions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\network.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\strutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -286,9 +283,6 @@
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\map_tile_dictionary.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\quest_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\scancode_file.c">
@@ -482,9 +476,6 @@
     <ClInclude Include="src\egolib\platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\network.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\map_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -675,9 +666,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\map_tile_dictionary.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\quest_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\scancode_file.h">
