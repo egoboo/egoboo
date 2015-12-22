@@ -56,7 +56,7 @@
 /// The various axes for the octagonal bounding box
     enum e_octagonal_axes
     {
-        OCT_X, OCT_Y, OCT_XY, OCT_YX, OCT_Z, OCT_COUNT
+        OCT_X, OCT_Y, OCT_Z, OCT_XY, OCT_YX, OCT_COUNT
     };
 
     struct oct_vec_v2_t

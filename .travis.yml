@@ -10,7 +10,7 @@ before_install:
 - sudo apt-get install -y --no-install-recommends doxygen valgrind graphviz
 language: cpp
 script:
-- make all test
+- make all test -j4
 
 notifications:
   webhooks:

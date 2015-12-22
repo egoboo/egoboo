@@ -1105,17 +1105,10 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     //knockbackVelocity[kZ] = DEFAULT_KNOCKBACK_VELOCITY / 2;
     //knockbackVelocity *= Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 
-    //Limit total horizontal knockback velocity to MAXTHROWVELOCITY
-    const float magnitudeVelocityXY = std::sqrt(knockbackVelocity[kX]*knockbackVelocity[kX] + knockbackVelocity[kY]*knockbackVelocity[kY]);
-    if(magnitudeVelocityXY > MAX_KNOCKBACK_VELOCITY) {
-        knockbackVelocity[kX] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityXY;
-        knockbackVelocity[kY] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityXY;
-    }
-
-    //Limit total vertical knockback velocity to one third of MAXTHROWVELOCTIY
-    const float magnitudeVelocityZ = std::sqrt(knockbackVelocity[kZ]*knockbackVelocity[kZ]);
-    if(magnitudeVelocityZ > MAX_KNOCKBACK_VELOCITY) {
-        knockbackVelocity[kZ] *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocityZ;
+    //Limit total knockback velocity to MAX_KNOCKBACK_VELOCITY
+    const float magnitudeVelocity = knockbackVelocity.length();
+    if(magnitudeVelocity > MAX_KNOCKBACK_VELOCITY) {
+        knockbackVelocity *= MAX_KNOCKBACK_VELOCITY / magnitudeVelocity;
     }
 
     //Apply knockback

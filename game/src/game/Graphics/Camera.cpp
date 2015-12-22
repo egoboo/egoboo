@@ -53,7 +53,6 @@ Camera::Camera(const CameraOptions &options) :
     _ori(),
 
     _trackPos(),
-    _trackLevel(0.0f),
 
     _zoom(CAM_ZOOM_AVG),
     _center{0.0f, 0.0f, 0.0f},
@@ -180,8 +179,15 @@ void Camera::updatePosition()
     TURN_T turnsin = TO_TURN(_ori.facing_z);
     Vector3f pos_new = _center + Vector3f(_zoom * turntosin[turnsin], _zoom * turntocos[turnsin], _zGoto);
 
-    // Make the camera motion smooth.
-    _position = _position * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
+    if((_position-pos_new).length() < Info<float>::Grid::Size()*10.0f) {
+        // Make the camera motion smooth using a low-pass filter
+        _position = _position * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
+    }
+    else {
+        //Teleport camera if error becomes too large
+        _center = pos_new;
+        _position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
+    }
 }
 
 void Camera::makeMatrix()
@@ -235,32 +241,32 @@ void Camera::updateZoom()
 void Camera::updateCenter()
 {
     // Center on target for doing rotation ...
-    if ( 0 != _turnTime )
+    if (0 != _turnTime)
     {
-        _center[kX] = _center[kX] * 0.9f + _trackPos[kX] * 0.1f;
-        _center[kY] = _center[kY] * 0.9f + _trackPos[kY] * 0.1f;
+        _center.x() = _center.x() * 0.9f + _trackPos.x() * 0.1f;
+        _center.y() = _center.y() * 0.9f + _trackPos.y() * 0.1f;
     }
     else
     {
         // Determine tracking direction.
-        Vector3f track_vec = _trackPos - _position;
+        Vector3f trackError = _trackPos - _position;
 
         // Determine the size of the dead zone.
         float track_fov = DEFAULT_FOV * 0.25f;
-        float track_dist = track_vec.length();
+        float track_dist = trackError.length();
         float track_size = track_dist * std::tan(track_fov);
         float track_size_x = track_size;
         float track_size_y = track_size;  /// @todo adjust this based on the camera viewing angle
 
         // Calculate the difference between the center of the tracked characters
         // and the center of the camera look to look at.
-        Vector2f diff = Vector2f(_trackPos[kX], _trackPos[kY]) - Vector2f(_center[kX], _center[kY]);
+        Vector2f diff = Vector2f(_trackPos.x(), _trackPos.y()) - Vector2f(_center.x(), _center.y());
 
         // Get 2d versions of the camera's right and up vectors.
-        Vector2f vrt(_right[kX], _right[kY]);
+        Vector2f vrt(_right.x(), _right.y());
         vrt.normalize();
 
-        Vector2f vup(_up[kX], _up[kY]);
+        Vector2f vup(_up.x(), _up.y());
         vup.normalize();
 
         // project the diff vector into this space
@@ -293,19 +299,18 @@ void Camera::updateCenter()
         }
 
         // Scroll.
-        _center[XX] += scroll[XX];
-        _center[YY] += scroll[YY];
+        _center.x() += scroll.x();
+        _center.y() += scroll.y();
     }
 
     // _center.z always approaches _trackPos.z
-    _center[kZ] = _center[kZ] * 0.9f + _trackPos[kZ] * 0.1f; /// @todo Use Ego::Math::lerp
+    _center.z() = _center.z() * 0.9f + _trackPos.z() * 0.1f; /// @todo Use Ego::Math::lerp
 }
 
 void Camera::updateTrack(const ego_mesh_t *mesh)
 {
     // The default camera motion is to do nothing.
     Vector3f new_track = _trackPos;
-    float new_track_level = _trackLevel;
 
     switch(_moveMode)
     {
@@ -313,26 +318,26 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
     case CameraMovementMode::Free:
             if (keyb.is_key_down(SDLK_KP_8))
             {
-                _trackPos[kX] -= _viewMatrix(1, 0) * 50;
-                _trackPos[kY] -= _viewMatrix(1, 1) * 50;
+                _trackPos.x() -= _viewMatrix(1, 0) * 50;
+                _trackPos.y() -= _viewMatrix(1, 1) * 50;
             }
 
             if (keyb.is_key_down(SDLK_KP_2))
             {
-                _trackPos[kX] += _viewMatrix(1, 0) * 50;
-                _trackPos[kY] += _viewMatrix(1, 1) * 50;
+                _trackPos.x() += _viewMatrix(1, 0) * 50;
+                _trackPos.y() += _viewMatrix(1, 1) * 50;
             }
 
             if (keyb.is_key_down(SDLK_KP_4))
             {
-                _trackPos[kX] += _viewMatrix(0, 0) * 50;
-                _trackPos[kY] += _viewMatrix(0, 1) * 50;
+                _trackPos.x() += _viewMatrix(0, 0) * 50;
+                _trackPos.y() += _viewMatrix(0, 1) * 50;
             }
 
             if (keyb.is_key_down(SDLK_KP_6))
             {
-                _trackPos[kX] -= _viewMatrix(0, 0) * 10;
-                _trackPos[kY] -= _viewMatrix(0, 1) * 10;
+                _trackPos.x() -= _viewMatrix(0, 0) * 10;
+                _trackPos.y() -= _viewMatrix(0, 1) * 10;
             }
 
             if (keyb.is_key_down(SDLK_KP_7))
@@ -345,7 +350,7 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
                 _turnZAdd -= DEFAULT_TURN_KEY;
             }
 
-            _trackPos[kZ] = 128 + mesh->getElevation(Vector2f(_trackPos[kX], _trackPos[kY]));
+            _trackPos[kZ] = 128 + mesh->getElevation(Vector2f(_trackPos.x(), _trackPos.y()));
 
        break;
 
@@ -372,7 +377,6 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
             if (sum_wt > 0.0f)
             {
                 new_track = sum_pos * (1.0f / sum_wt);
-                new_track_level = sum_level / sum_wt;
             }
         }
         break;
@@ -381,31 +385,25 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
     // "Show me the drama!"
     case CameraMovementMode::Player:
         {
-            Object *local_chr_ptrs[MAX_PLAYER];
-            int local_chr_count = 0;
+            std::vector<std::shared_ptr<Object>> trackedPlayers;
 
             // Count the number of local players, first.
-            local_chr_count = 0;
             for(ObjectRef objectRef : _trackList)
             {
-                if (!_currentModule->getObjectHandler().exists(objectRef)) continue;
-                Object *object = _currentModule->getObjectHandler().get(objectRef);
+                const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[objectRef];
+                if (!object || object->isTerminated() || !object->isAlive()) continue;
 
-                if (!object->isAlive()) continue;
-
-                local_chr_ptrs[local_chr_count] = object;
-                local_chr_count++;
+                trackedPlayers.push_back(object);
             }
 
-            if (0 == local_chr_count)
+            if (trackedPlayers.empty())
             {
                 // Do nothing.
             }
-            else if (1 == local_chr_count)
+            else if (1 == trackedPlayers.size())
             {
                 // Copy from the one character.
-                new_track = local_chr_ptrs[0]->getPosition();
-                new_track_level = local_chr_ptrs[0]->getObjectPhysics().getGroundElevation() + 128;
+                _trackPos = trackedPlayers[0]->getPosition();
             }
             else
             {
@@ -414,11 +412,8 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
                 float sum_level = 0.0f;
                 Vector3f sum_pos = Vector3f::zero();
 
-                for (int cnt = 0; cnt < local_chr_count; ++cnt)
+                for(const std::shared_ptr<Object> &pchr : trackedPlayers)
                 {
-                    // We JUST checked the validity of these characters. No need to do it again?
-                    Object *pchr = local_chr_ptrs[cnt];
-
                     // Weight it by the character's velocity^2, so that
                     // inactive characters don't control the camera.
                     float weight1 = pchr->vel.dot(pchr->vel);
@@ -442,7 +437,6 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
                 if (sum_wt > 0.0f)
                 {
                     new_track = sum_pos * (1.0f / sum_wt);
-                    new_track_level = sum_level / sum_wt;
                 }
             }
         }
@@ -454,7 +448,6 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
     {
         // Just set the position.
         _trackPos = new_track;
-        _trackLevel = new_track_level;
 
         // Reset the camera mode.
         _moveMode = CameraMovementMode::Player;
@@ -463,7 +456,6 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
     {
         // Smoothly interpolate the camera tracking position.
         _trackPos = _trackPos * 0.9f + new_track * 0.1f;           /// @todo Use Ego::Math::lerp.
-        _trackLevel = 0.9f * _trackLevel + 0.1f * new_track_level; /// @todo Use Ego::Math::lerp.
     }
 }
 
@@ -484,10 +476,10 @@ void Camera::update(const ego_mesh_t *mesh)
         readInput(player->getInputDevice());
     }
 
-    // Update the special camera effects like grog.
+    // Update the special camera effects like swinging and blur
     updateEffects();
 
-    // Update the average position of the tracked characters.
+    // Update the average position of the tracked characters
     updateTrack(mesh);
 
     // Move the camera center, if need be.
@@ -617,8 +609,7 @@ void Camera::readInput(input_device_t *pdevice)
 void Camera::reset(const ego_mesh_t *mesh)
 {
     // Defaults.
-    _trackLevel   = 0.0f;
-    _zoom         = CAM_ZOOM_AVG;
+    _zoom = CAM_ZOOM_AVG;
     _zadd = CAM_ZADD_AVG;
     _zaddGoto = CAM_ZADD_AVG;
     _zGoto = CAM_ZADD_AVG;
@@ -627,16 +618,16 @@ void Camera::reset(const ego_mesh_t *mesh)
     _roll = 0.0f;
 
     // Derived values.
-    _center[kX]     = mesh->_tmem._edge_x * 0.5f;
-    _center[kY]     = mesh->_tmem._edge_y * 0.5f;
-    _center[kZ]     = 0.0f;
+    _center.x()     = mesh->_tmem._edge_x * 0.5f;
+    _center.y()     = mesh->_tmem._edge_y * 0.5f;
+    _center.z()     = 0.0f;
 
     _trackPos = _center;
     _position = _center;
 
-    _position[kX] += _zoom * std::sin(_turnZ_radians);
-    _position[kY] += _zoom * std::cos(_turnZ_radians);
-    _position[kZ] += CAM_ZADD_MAX;
+    _position.x() += _zoom * std::sin(_turnZ_radians);
+    _position.y() += _zoom * std::cos(_turnZ_radians);
+    _position.z() += CAM_ZADD_MAX;
 
     _turnZ_turns = Ego::Math::RadiansToTurns(_turnZ_radians);
     _ori.facing_z = TurnsToFacing(_turnZ_turns);
@@ -669,8 +660,8 @@ void Camera::resetTarget(const ego_mesh_t *mesh)
     update(mesh);
 
     // Fix the center position.
-    _center[kX] = _trackPos[kX];
-    _center[kY] = _trackPos[kY];
+    _center.x() = _trackPos.x();
+    _center.y() = _trackPos.y();
 
     // Restore the modes.
     _turnMode = turnModeSave;
