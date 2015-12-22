@@ -48,12 +48,12 @@ static const float flip_tolerance = 0.25f * 0.5f;
 //--------------------------------------------------------------------------------------------
 
 #if _DEBUG
-static void draw_chr_verts( Object * pchr, int vrt_offset, int verts );
+static void draw_chr_verts(const std::shared_ptr<Object>&pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, int slot );
 static void draw_one_grip( chr_instance_t * pinst, int slot );
 //static void draw_chr_grips( Object * pchr );
-static void draw_chr_attached_grip( Object * pchr );
-static void draw_chr_bbox( Object * pchr );
+static void draw_chr_attached_grip(const std::shared_ptr<Object>& pchr);
+static void draw_chr_bbox(const std::shared_ptr<Object>& pchr);
 #endif
 
 // these functions are only called by render_one_mad()
@@ -61,19 +61,13 @@ static void draw_chr_bbox( Object * pchr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv MadRenderer::render_enviro( Camera& cam, ObjectRef character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
-	if (!_currentModule->getObjectHandler().exists(character))
-	{
-		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, character.get(), "invalid character");
-		return gfx_error;
-	}
-    Object *pchr  = _currentModule->getObjectHandler().get( character );
 	chr_instance_t& pinst = pchr->inst;
 
     if (!pinst.imad)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character.get(), "invalid mad" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pchr->getObjRef().get(), "invalid mad" );
         return gfx_error;
     }
     const std::shared_ptr<MD2Model>& pmd2 = pchr->getProfile()->getModel()->getMD2();
@@ -238,14 +232,8 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv MadRenderer::render_tex(Camera& camera, ObjectRef character, GLXvector4f tint, const BIT_FIELD bits)
+gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
-    if (!_currentModule->getObjectHandler().exists(character))
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, character.get(), "invalid character");
-        return gfx_error;
-    }
-    Object *pchr = _currentModule->getObjectHandler().get(character);
     chr_instance_t& pinst = pchr->inst;
 
     if (!pinst.imad)
@@ -442,36 +430,32 @@ gfx_rv MadRenderer::render_tex(Camera& camera, ObjectRef character, GLXvector4f 
     }
 */
 
-gfx_rv MadRenderer::render( Camera& cam, ObjectRef character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv MadRenderer::render(Camera& cam, const std::shared_ptr<Object> &pchr, GLXvector4f tint, const BIT_FIELD bits)
 {
     /// @author ZZ
     /// @details This function picks the actual function to use
 
     gfx_rv retval;
 
-    if ( !_currentModule->getObjectHandler().exists( character ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character.get(), "invalid character" );
-        return gfx_error;
+    //Not visible?
+    if (pchr->isHidden() || tint[AA] <= 0.0f || pchr->isInsideInventory()) {
+        return gfx_fail;
     }
-    Object *pchr = _currentModule->getObjectHandler().get( character );
-
-    if ( pchr->isHidden() || tint[AA] <= 0.0f || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS(bits, CHR_PHONG) )
     {
-        retval = render_enviro( cam, character, tint, bits );
+        retval = render_enviro(cam, pchr, tint, bits);
     }
     else
     {
-        retval = render_tex( cam, character, tint, bits );
+        retval = render_tex(cam, pchr, tint, bits);
     }
 
-#if defined(DRAW_CHR_BBOX) && defined(_DEBUG)
+#if defined(_DEBUG)
     // don't draw the debug stuff for reflections
     if ( 0 == ( bits & CHR_REFLECT ) )
     {
-        draw_chr_bbox( pchr );
+        draw_chr_bbox(pchr);
     }
 
     // the grips of all objects
@@ -486,14 +470,8 @@ gfx_rv MadRenderer::render( Camera& cam, ObjectRef character, GLXvector4f tint, 
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv MadRenderer::render_ref( Camera& cam, ObjectRef ichr )
+gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr)
 {
-	if (!_currentModule->getObjectHandler().exists(ichr))
-	{
-		gfx_error_add(__FILE__, __FUNCTION__, __LINE__, ichr.get(), "invalid character");
-		return gfx_error;
-	}
-	Object *pchr = _currentModule->getObjectHandler().get(ichr);
 	chr_instance_t& pinst = pchr->inst;
 
     //Does this object have a reflection?
@@ -530,7 +508,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, ObjectRef ichr )
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            if ( gfx_error == render( cam, ichr, tint, CHR_ALPHA | CHR_REFLECT ) )
+            if ( gfx_error == render( cam, pchr, tint, CHR_ALPHA | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -545,7 +523,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, ObjectRef ichr )
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            if ( gfx_error == MadRenderer::render( cam, ichr, tint, CHR_LIGHT | CHR_REFLECT ) )
+            if ( gfx_error == MadRenderer::render( cam, pchr, tint, CHR_LIGHT | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -560,7 +538,7 @@ gfx_rv MadRenderer::render_ref( Camera& cam, ObjectRef ichr )
 			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
-            if ( gfx_error == MadRenderer::render( cam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
+            if ( gfx_error == MadRenderer::render( cam, pchr, tint, CHR_PHONG | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -572,14 +550,8 @@ gfx_rv MadRenderer::render_ref( Camera& cam, ObjectRef ichr )
     return retval;
 }
 
-gfx_rv MadRenderer::render_trans( Camera& cam, ObjectRef ichr )
+gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pchr)
 {
-    if ( !_currentModule->getObjectHandler().exists( ichr ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr.get(), "invalid character" );
-        return gfx_error;
-    }
-	Object *pchr = _currentModule->getObjectHandler().get(ichr);
 	chr_instance_t& pinst = pchr->inst;
 
     if ( pchr->isHidden() ) return gfx_fail;
@@ -609,7 +581,7 @@ gfx_rv MadRenderer::render_trans( Camera& cam, ObjectRef ichr )
 			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_ALPHA );
 
-            if (render( cam, ichr, tint, CHR_ALPHA ) )
+            if (render( cam, pchr, tint, CHR_ALPHA ) )
             {
                 rendered = true;
             }
@@ -628,7 +600,7 @@ gfx_rv MadRenderer::render_trans( Camera& cam, ObjectRef ichr )
 			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_LIGHT );
 
-			if (render(cam, ichr, tint, CHR_LIGHT))
+			if (render(cam, pchr, tint, CHR_LIGHT))
 			{
 				rendered = true;
 			}
@@ -643,7 +615,7 @@ gfx_rv MadRenderer::render_trans( Camera& cam, ObjectRef ichr )
 			GLXvector4f tint;
             chr_instance_t::get_tint( pinst, tint, CHR_PHONG );
 
-            if (render( cam, ichr, tint, CHR_PHONG ) )
+            if (render( cam, pchr, tint, CHR_PHONG ) )
             {
                 rendered = true;
             }
@@ -654,14 +626,8 @@ gfx_rv MadRenderer::render_trans( Camera& cam, ObjectRef ichr )
     return rendered ? gfx_success : gfx_fail;
 }
 
-gfx_rv MadRenderer::render_solid( Camera& cam, ObjectRef ichr )
+gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pchr )
 {
-    if ( !_currentModule->getObjectHandler().exists( ichr ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr.get(), "invalid character" );
-        return gfx_error;
-    }
-    Object *pchr = _currentModule->getObjectHandler().get( ichr );
 	chr_instance_t& pinst = pchr->inst;
 
     if ( pchr->isHidden() ) return gfx_fail;
@@ -705,7 +671,7 @@ gfx_rv MadRenderer::render_solid( Camera& cam, ObjectRef ichr )
 
             chr_instance_t::get_tint( pinst, tint, CHR_SOLID );
 
-            if ( gfx_error == render( cam, ichr, tint, CHR_SOLID ) )
+            if ( gfx_error == render( cam, pchr, tint, CHR_SOLID ) )
             {
                 retval = gfx_error;
             }
@@ -717,46 +683,41 @@ gfx_rv MadRenderer::render_solid( Camera& cam, ObjectRef ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_chr_bbox(Object *pchr)
+#if _DEBUG
+static void draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 {
-    static constexpr bool drawLeftSlot = true;
-    static constexpr bool drawRightSlot = true;
+    static constexpr bool drawLeftSlot = false;
+    static constexpr bool drawRightSlot = false;
     static constexpr bool drawCharacter = true;
     
-    if (!pchr || pchr->isTerminated())
-    {
-        return;
-    }
     // Draw the object bounding box as a part of the graphics debug mode F7.
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7))
     {
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+
+        if (drawLeftSlot)
         {
-            if (drawLeftSlot)
-            {
-                oct_bb_t bb;
-                oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition(), bb);
-                Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-                render_oct_bb(&bb, true, true);
-            }
-            if (drawRightSlot)
-            {
-                oct_bb_t bb;
-                oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition(), bb);
-                Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-                render_oct_bb(&bb, true, true);
-            }
-            if (drawCharacter)
-            {
-                oct_bb_t bb;
-                oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bb);
-                Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-                render_oct_bb(&bb, true, true);
-            }
+            oct_bb_t bb;
+            oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition(), bb);
+            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
+            render_oct_bb(bb, true, true);
+        }
+        if (drawRightSlot)
+        {
+            oct_bb_t bb;
+            oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition(), bb);
+            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
+            render_oct_bb(bb, true, true);
+        }
+        if (drawCharacter)
+        {
+            oct_bb_t bb;
+            oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bb);
+            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
+            render_oct_bb(bb, true, true);
         }
     }
 
-#if _DEBUG
     //// The grips and vertrices of all objects.
     if (keyb.is_key_down(SDLK_F6))
     {
@@ -766,11 +727,11 @@ void draw_chr_bbox(Object *pchr)
         GL_DEBUG(glPointSize(5));
         draw_chr_verts(pchr, 0, pchr->inst.vrt_count);
     }
-#endif
 }
+#endif
 
 #if _DEBUG
-void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
+void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int verts )
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
@@ -779,8 +740,6 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
     GLint matrix_mode[1];
 
     int vmin, vmax, cnt;
-
-    if (!pchr || pchr->isTerminated()) return;
 
     vmin = vrt_offset;
     vmax = vmin + verts;
@@ -895,14 +854,10 @@ void _draw_one_grip_raw( chr_instance_t * pinst, int slot )
 	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 }
 
-void draw_chr_attached_grip( Object * pchr )
+void draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
 {
-    Object * pholder;
-
-    if (!pchr || pchr->isTerminated()) return;
-
-    if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) ) return;
-    pholder = _currentModule->getObjectHandler().get( pchr->attachedto );
+    const std::shared_ptr<Object> &pholder = pchr->getHolder();
+    if (!pholder || pholder->isTerminated()) return;
 
     draw_one_grip( &( pholder->inst ), pchr->inwhich_slot );
 }
