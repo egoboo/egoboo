@@ -63,7 +63,7 @@ struct Utilities
      */
     static bool isError();
 
-    static void upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const GLvoid * data);
+    static void upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const void *data);
     static void upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
     static void upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
 
