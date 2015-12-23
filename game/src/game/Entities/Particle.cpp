@@ -402,8 +402,7 @@ void Particle::updateWater()
                     // only spawn ripples if you are touching the water surface!
                     if (getPosZ() + bump_real.height > _currentModule->getWater()._surface_level && getPosZ() - bump_real.height < _currentModule->getWater()._surface_level)
                     {
-                        int ripand = ~((~RIPPLEAND) << 1);
-                        if (0 == ((update_wld + _particleID.get()) & ripand))
+                        if (0 == ((update_wld + _particleID.get()) & (RIPPLEAND << 1)))
                         {
 
                             spawn_valid = true;
@@ -545,7 +544,7 @@ size_t Particle::updateContinuousSpawning()
     }
 
     //Optimization: Only spawn cosmetic sub-particles if we ourselves were rendered
-    //This prevents a lot of cosmetic particles from spawning visible range
+    //This prevents a lot of cosmetic particles from spawning outside visible range
     const std::shared_ptr<pip_t>& childProfile = ParticleProfileSystem::get().get_ptr(getProfile()->contspawn._lpip.get());
     if(!childProfile->force && !inst.indolist) {
 

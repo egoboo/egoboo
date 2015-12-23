@@ -5684,9 +5684,9 @@ Uint8 scr_SetTargetToNearestBlahID( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     // Try to find one
-    auto ichr = chr_find_target( pchr, NEAREST, state.argument, state.distance );
+    auto ichr = chr_find_target(pchr, NEAREST, IDSZ2(state.argument), state.distance);
 
-    if ( _currentModule->getObjectHandler().exists( ichr ) )
+    if (_currentModule->getObjectHandler().exists(ichr))
     {
         self.setTarget( ichr );
     }
@@ -5802,7 +5802,7 @@ Uint8 scr_FindTileInPassage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = FindTileInPassage( state.x, state.y, state.distance, ( PASS_REF )state.argument, &( state.x ), &( state.y ) );
+    returncode = FindTileInPassage( state.x, state.y, state.distance, static_cast<PASS_REF>(state.argument), &(state.x), &(state.y) );
 
     SCRIPT_FUNCTION_END();
 }

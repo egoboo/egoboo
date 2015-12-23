@@ -307,16 +307,19 @@ private:
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct MadRenderer {
-	static gfx_rv render(Camera& cam, ObjectRef ichr, GLXvector4f tint, const BIT_FIELD bits);
+	static gfx_rv render(Camera& cam, const std::shared_ptr<Object>& object, GLXvector4f tint, const BIT_FIELD bits);
+    
 	/// @brief Draw object reflected in the floor.
-	static gfx_rv render_ref(Camera& cam, ObjectRef ichr);
+	static gfx_rv render_ref(Camera& cam, const std::shared_ptr<Object>& object);
+
 	/// @brief Dispatch rendering of transparent objects to the correct function.
 	/// @remark Does not handle reflections in the floor.
-	static gfx_rv render_trans(Camera& cam, ObjectRef ichr);
-	static gfx_rv render_solid(Camera& cam, ObjectRef ichr);
+	static gfx_rv render_trans(Camera& cam, const std::shared_ptr<Object>& object);
+	static gfx_rv render_solid(Camera& cam, const std::shared_ptr<Object>& object);
+
 private:
 	/// Draw model with environment mapping.
-	static gfx_rv render_enviro(Camera& cam, ObjectRef ichr, GLXvector4f tint, const BIT_FIELD bits);
+	static gfx_rv render_enviro(Camera& cam, const std::shared_ptr<Object>& object, GLXvector4f tint, const BIT_FIELD bits);
 	/// Draw model with texturing.
-	static gfx_rv render_tex(Camera& cam, ObjectRef ichr, GLXvector4f tint, const BIT_FIELD bits);
+	static gfx_rv render_tex(Camera& cam, const std::shared_ptr<Object>& object, GLXvector4f tint, const BIT_FIELD bits);
 };

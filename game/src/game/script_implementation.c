@@ -438,8 +438,8 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     int x = x0 / Info<int>::Grid::Size();
     int y = y0 / Info<int>::Grid::Size();
 
-    if ( x < passage->getLeft() )  x = passage->getLeft();
-    if ( y < passage->getTop() )  y = passage->getTop();
+    if (x < passage->getLeft())  x = passage->getLeft();
+    if (y < passage->getTop())   y = passage->getTop();
 
     if ( y < passage->getBottom() )
     {

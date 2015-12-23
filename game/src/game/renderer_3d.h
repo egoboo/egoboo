@@ -90,5 +90,5 @@ extern PointList g_pointList;
 void gfx_begin_3d(Camera& camera);
 void gfx_end_3d();
 
-bool render_oct_bb(oct_bb_t *bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5, 1, 1), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5, 1, 1, 1));
+void render_oct_bb(const oct_bb_t &bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5, 1, 1), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5, 1, 1, 1));
 bool render_aabb(AABB3f *bv);

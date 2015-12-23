@@ -352,7 +352,6 @@ private:
 
     // The middle of the objects that are being tracked.
 	Vector3f _trackPos;         ///< Trackee position.
-    float    _trackLevel;
 
     // The position that the camera is focused on.
     float     _zoom;    ///< Distance from the center

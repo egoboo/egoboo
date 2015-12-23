@@ -156,16 +156,17 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
     Object *psrc = _module.getObjectHandler().get(objRef);
 
     // Look at each character
-    for ( ObjectRef character(0); character.get() < OBJECTS_MAX; character++ )
+    for(const std::shared_ptr<Object> &pchr : _module.getObjectHandler().iterator())
     {
-        if ( !_module.getObjectHandler().exists( character ) ) continue;
-        Object * pchr = _module.getObjectHandler().get( character );
+        if(pchr->isTerminated()) {
+            continue;
+        }
 
         // dont do scenery objects unless we allow items
         if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
 
         //Check if the object has the requirements
-        if ( !chr_check_target( psrc, character, idsz, targeting_bits ) ) continue;
+        if ( !chr_check_target( psrc, pchr, idsz, targeting_bits ) ) continue;
 
         //Now check if it actually is inside the passage area
         if ( objectIsInPassage( pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size ) )
@@ -173,7 +174,7 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
             // Found a live one, do we need to check for required items as well?
             if ( IDSZ2::None == require_item )
             {
-                return character;
+                return pchr->getObjRef();
             }
 
             // It needs to have a specific item as well
@@ -181,7 +182,7 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
             {
                 // I: Check hands
                 if(pchr->isWieldingItemIDSZ(require_item)) {
-                    return character;
+                    return pchr->getObjRef();
                 }
                 
                 // II: Check the pack
@@ -190,7 +191,7 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
                     if ( pitem->getProfile()->hasTypeIDSZ(require_item) )
                     {
                         // It has the ipacked in inventory...
-                        return character;
+                        return pchr->getObjRef();
                     }
                 }
             }

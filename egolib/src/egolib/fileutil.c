@@ -1624,7 +1624,7 @@ bool ego_texture_exists_vfs(const std::string &filename)
     {
         // Build the full file name.
         std::string fullFilename = filename + loader.getExtension();
-        if(vfs_exists(fullFilename.c_str())) {
+        if(vfs_exists(fullFilename)) {
             return true;
         }
     }
