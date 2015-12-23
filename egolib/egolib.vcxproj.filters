@@ -1016,6 +1016,9 @@
     <ClInclude Include="src\egolib\Script\Interpreter\SafeCast.hpp">
       <Filter>Header Files\Script\Interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\TextureSampler.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
