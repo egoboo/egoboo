@@ -132,7 +132,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw Id::LexicalErrorException(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber), "invalid enum");
+            throw Id::LexicalErrorException(__FILE__,__LINE__,Ego::Script::Location(_loadName, _lineNumber), "invalid enum");
         }
         return it->second;
     }
