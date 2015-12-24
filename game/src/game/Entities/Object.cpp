@@ -500,8 +500,10 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                         //If we have Endurance perk, we have 1% chance per Might to resist hurt animation (which cause a minor delay)
                         if(!hasPerk(Ego::Perks::ENDURANCE) || Random::getPercent() > getAttribute(Ego::Attribute::MIGHT))
                         {
-                            action += Random::next(3);
-                            chr_play_action(this, action, false);                            
+                            if(inst.imad->isActionValid(ACTION_HA)) {
+                                action += Random::next(3);
+                                chr_play_action(this, action, false);
+                            }
                         }
 
                         // Make the character invincible for a limited time only
