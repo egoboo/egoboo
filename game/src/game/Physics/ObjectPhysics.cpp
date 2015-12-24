@@ -920,8 +920,7 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
     // re-initialize the collision volumes
     _object.chr_min_cv = oct_bb_t();
     _object.chr_max_cv = oct_bb_t();
-    for (size_t cnt = 0; cnt < SLOT_COUNT; cnt++)
-    {
+    for (size_t cnt = 0; cnt < SLOT_COUNT; cnt++) {
         _object.slot_cv[cnt] = oct_bb_t();
     }
 
@@ -949,7 +948,7 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
     // keep track of the actual number of vertices, in case the object is square
     int vcount = oct_bb_t::to_points(bsrc, src, 16);
 
-    // transform the new point cloud
+   // transform the new point cloud
     Utilities::transform(_object.inst.matrix, src, dst, vcount);
 
     // convert the new point cloud into a level 1 bounding box
@@ -996,8 +995,8 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
 
     //This makes it easier to jump on top of mounts
     if(_object.isMount()) {
-       _object.chr_max_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, _object.chr_max_cv._maxs[OCT_Z]);
-       _object.chr_min_cv._maxs[OCT_Z] = std::min<float>(MOUNTTOLERANCE, _object.chr_min_cv._maxs[OCT_Z]);
+       _object.chr_max_cv._maxs[OCT_Z] = Ego::Math::constrain<float>(_object.chr_max_cv._maxs[OCT_Z]-MOUNTTOLERANCE, MOUNTTOLERANCE, MOUNTTOLERANCE*3.0f);
+       _object.chr_min_cv._maxs[OCT_Z] = Ego::Math::constrain<float>(_object.chr_min_cv._maxs[OCT_Z]-MOUNTTOLERANCE, MOUNTTOLERANCE, MOUNTTOLERANCE*3.0f);
     }
 
     // calculate collision volumes for various slots

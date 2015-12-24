@@ -89,7 +89,6 @@
 #define JUMPDELAY           20                      ///< Time between jumps
 #define WATERJUMP           25                        ///< How good we jump in water
 #define JUMPINFINITE        255                     ///< Flying character
-#define MOUNTTOLERANCE      10                  ///< Z threshold for mounting objects
 #define DROPZVEL            7
 #define DROPXYVEL           12
 
