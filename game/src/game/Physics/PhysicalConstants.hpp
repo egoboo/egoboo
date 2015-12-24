@@ -52,6 +52,8 @@ static constexpr float DEFAULT_ICE_FRICTION = 0.8f;
 
 static constexpr float STOP_BOUNCING = 8.00f;        ///< To make objects stop bouncing
 
+static constexpr float MOUNTTOLERANCE = 20;          ///< Threshold for mounting objects
+
 struct Environment
 {
 
