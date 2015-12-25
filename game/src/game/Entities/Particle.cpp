@@ -658,7 +658,7 @@ void Particle::updateAttachedDamage()
     }
 
     //---- special effects
-    if (getProfile()->allowpush && 0 == getProfile()->vel_hrz_pair.base)
+    if (getProfile()->allowpush && 0 == getProfile()->getSpawnVelocityOffsetXY().base)
     {
         // Make character limp
         attachedObject->vel.x() *= 0.5f;
@@ -817,14 +817,14 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     attachedto_vrt_off = vrt_offset;
 
     // Correct loc_facing
-    loc_facing += getProfile()->facing_pair.base;
+    loc_facing += getProfile()->getSpawnFacing().base;
 
     // Targeting...
-    vel[kZ] = 0;
+    vel.z() = 0;
 
-    offset[kZ] = generate_irand_pair(getProfile()->spacing_vrt_pair) - (getProfile()->spacing_vrt_pair.rand / 2);
-    tmp_pos[kZ] += offset[kZ];
-    const int velocity = generate_irand_pair(getProfile()->vel_hrz_pair);
+    offset.z() = generate_irand_pair(getProfile()->getSpawnPositionOffsetZ()) - (getProfile()->getSpawnPositionOffsetZ().rand / 2);
+    tmp_pos.z() += offset.z();
+    const int velocity = generate_irand_pair(getProfile()->getSpawnVelocityOffsetXY());
 
     //Set target
     _target = spawnTarget;
@@ -872,7 +872,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
                     aimError -= (0.5f/PERFECT_AIM) * attackerAgility;
                 }
 
-                offsetfacing = Random::next(getProfile()->facing_pair.rand) - (getProfile()->facing_pair.rand / 2);
+                offsetfacing = Random::next(getProfile()->getSpawnFacing().rand) - (getProfile()->getSpawnFacing().rand / 2);
                 offsetfacing *= aimError;
             }
 
@@ -921,7 +921,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     else
     {
         // Correct loc_facing for randomness
-        offsetfacing = generate_irand_pair(getProfile()->facing_pair) - (getProfile()->facing_pair.base + getProfile()->facing_pair.rand / 2);
+        offsetfacing = generate_irand_pair(getProfile()->getSpawnFacing()) - (getProfile()->getSpawnFacing().base + getProfile()->getSpawnFacing().rand / 2);
     }
     loc_facing += offsetfacing;
     facing = loc_facing;
@@ -930,7 +930,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     TURN_T turn = TO_TURN(loc_facing);
 
     // Location data from arguments
-    newrand = generate_irand_pair(getProfile()->spacing_hrz_pair);
+    newrand = generate_irand_pair(getProfile()->getSpawnPositionOffsetXY());
     offset[kX] = -turntocos[turn] * newrand;
     offset[kY] = -turntosin[turn] * newrand;
 
@@ -950,9 +950,9 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     }
 
     // Velocity data
-    vel[kX] = -turntocos[turn] * velocity;
-    vel[kY] = -turntosin[turn] * velocity;
-    vel[kZ] += generate_irand_pair(getProfile()->vel_vrt_pair) - (getProfile()->vel_vrt_pair.rand / 2);
+    vel.x() = -turntocos[turn] * velocity;
+    vel.y() = -turntosin[turn] * velocity;
+    vel.z() += generate_irand_pair(getProfile()->getSpawnVelocityOffsetZ()) - (getProfile()->getSpawnVelocityOffsetZ().rand / 2);
     this->vel = vel_old = vel_stt = vel;
 
     // Template values

@@ -146,14 +146,17 @@ public:
      */
     static std::shared_ptr<ParticleProfile> readFromFile(const std::string& pathname);
 
+    const IPair& getSpawnFacing() const;
+    
+    const IPair& getSpawnPositionOffsetXY() const;
+    
+    const IPair& getSpawnPositionOffsetZ() const;
+    
+    const IPair& getSpawnVelocityOffsetXY() const;
+    
+    const IPair& getSpawnVelocityOffsetZ() const;
+    
 public:
-
-    // Initial spawning of this particle.
-    IPair facing_pair;      ///< Facing
-    IPair spacing_hrz_pair; ///< Spacing
-    IPair spacing_vrt_pair; ///< Altitude
-    IPair vel_hrz_pair;     ///< Shot velocity
-    IPair vel_vrt_pair;     ///< Up velocity
 
     // Spawning.
     int8_t soundspawn;       ///< Beginning sound
@@ -190,8 +193,8 @@ public:
     // Hitting.
     FRange damage;                    ///< Damage
     DamageType damageType;            ///< Damage type
-    unsigned int dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
-    unsigned int grogTime;            ///< How long is an Object "grogged" if hit by this particle.
+    uint32_t dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
+    uint32_t grogTime;            ///< How long is an Object "grogged" if hit by this particle.
     bool _intellectDamageBonus;       ///< Add intellect as damage bonus.
     bool spawnenchant;                ///< Spawn enchant?
     
@@ -254,6 +257,13 @@ public:
 private:
     std::string _comment;
     std::bitset<NR_OF_DAMFX_BITS> _particleEffectBits;
+
+    // Initial spawning of this particle.
+    IPair _spawnFacing;             ///< Facing
+    IPair _spawnPositionOffsetXY;   ///< Spacing
+    IPair _spawnPositionOffsetZ;    ///< Altitude
+    IPair _spawnVelocityOffsetXY;   ///< Shot velocity
+    IPair _spawnVelocityOffsetZ;    ///< Up velocity
 };
 
 /// @todo Remove globals.

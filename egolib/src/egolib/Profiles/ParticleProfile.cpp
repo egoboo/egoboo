@@ -61,12 +61,6 @@ void dynalight_info_t::reset()
 }
 
 ParticleProfile::ParticleProfile() :
-    // Initial spawning of this particle.
-    facing_pair(),
-    spacing_hrz_pair(),
-    spacing_vrt_pair(),
-    vel_hrz_pair(),
-    vel_vrt_pair(),
 
     // Spawning.
     soundspawn(-1),
@@ -147,7 +141,13 @@ ParticleProfile::ParticleProfile() :
     orientation(prt_ori_t::ORIENTATION_B),
 
     _comment(),
-    _particleEffectBits()
+    _particleEffectBits(),
+
+    _spawnFacing(),
+    _spawnPositionOffsetXY(),
+    _spawnPositionOffsetZ(),
+    _spawnVelocityOffsetXY(),
+    _spawnVelocityOffsetZ()
 {
     _particleEffectBits[DAMFX_TURN] = true;
 }
@@ -177,11 +177,11 @@ void ParticleProfile::reset()
     end_sound_wall = -1;
 
     // Initial spawning of this particle.
-    facing_pair.init();
-    spacing_hrz_pair.init();
-    spacing_vrt_pair.init();
-    vel_hrz_pair.init();
-    vel_vrt_pair.init();
+    _spawnFacing.init();
+    _spawnPositionOffsetXY.init();
+    _spawnPositionOffsetZ.init();
+    _spawnVelocityOffsetXY.init();
+    _spawnVelocityOffsetZ.init();
 
     // Hitting.
     damage.init();
@@ -307,20 +307,20 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
     profile->dynalight.falloff = vfs_get_next_int(ctxt);
 
     // Initial spawning of this particle
-    profile->facing_pair.base = vfs_get_next_int(ctxt);
-    profile->facing_pair.rand = vfs_get_next_int(ctxt);
+    profile->_spawnFacing.base = vfs_get_next_int(ctxt);
+    profile->_spawnFacing.rand = vfs_get_next_int(ctxt);
 
-    profile->spacing_hrz_pair.base = vfs_get_next_int(ctxt);
-    profile->spacing_hrz_pair.rand = vfs_get_next_int(ctxt);
+    profile->_spawnPositionOffsetXY.base = vfs_get_next_int(ctxt);
+    profile->_spawnPositionOffsetXY.rand = vfs_get_next_int(ctxt);
 
-    profile->spacing_vrt_pair.base = vfs_get_next_int(ctxt);
-    profile->spacing_vrt_pair.rand = vfs_get_next_int(ctxt);
+    profile->_spawnPositionOffsetZ.base = vfs_get_next_int(ctxt);
+    profile->_spawnPositionOffsetZ.rand = vfs_get_next_int(ctxt);
 
-    profile->vel_hrz_pair.base = vfs_get_next_int(ctxt);
-    profile->vel_hrz_pair.rand = vfs_get_next_int(ctxt);
+    profile->_spawnVelocityOffsetXY.base = vfs_get_next_int(ctxt);
+    profile->_spawnVelocityOffsetXY.rand = vfs_get_next_int(ctxt);
 
-    profile->vel_vrt_pair.base = vfs_get_next_int(ctxt);
-    profile->vel_vrt_pair.rand = vfs_get_next_int(ctxt);
+    profile->_spawnVelocityOffsetZ.base = vfs_get_next_int(ctxt);
+    profile->_spawnVelocityOffsetZ.rand = vfs_get_next_int(ctxt);
 
     // Continuous spawning of other particles
     profile->contspawn._delay = vfs_get_next_int(ctxt);
@@ -496,4 +496,29 @@ bool ParticleProfile::hasBit(const ParticleDamageEffectBits bit) const
 {
     if(bit == NR_OF_DAMFX_BITS) return false; //should never happen
     return _particleEffectBits[bit];
+}
+
+const IPair& ParticleProfile::getSpawnFacing() const
+{
+    return _spawnFacing;
+}
+
+const IPair& ParticleProfile::getSpawnPositionOffsetXY() const
+{
+    return _spawnPositionOffsetXY;
+}
+
+const IPair& ParticleProfile::getSpawnPositionOffsetZ() const
+{
+    return _spawnPositionOffsetZ;
+}
+
+const IPair& ParticleProfile::getSpawnVelocityOffsetXY() const
+{
+    return _spawnVelocityOffsetXY;
+}
+
+const IPair& ParticleProfile::getSpawnVelocityOffsetZ() const
+{
+    return _spawnVelocityOffsetZ;
 }
