@@ -608,7 +608,7 @@ void Particle::updateAttachedDamage()
     //---- only do damage in certain cases:
 
     // 1) the particle has the DAMFX_ARRO bit
-    bool skewered_by_arrow = HAS_SOME_BITS(getProfile()->damfx, DAMFX_ARRO);
+    bool skewered_by_arrow = getProfile()->hasBit(DAMFX_ARRO);
 
     // 2) the character is vulnerable to this damage type
     bool has_vulnie = (attachedObject->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == ProfileSystem::get().getProfile(_spawnerProfile)->getIDSZ(IDSZ_TYPE) || 
@@ -661,13 +661,13 @@ void Particle::updateAttachedDamage()
     if (getProfile()->allowpush && 0 == getProfile()->vel_hrz_pair.base)
     {
         // Make character limp
-        attachedObject->vel[kX] *= 0.5f;
-        attachedObject->vel[kY] *= 0.5f;
+        attachedObject->vel.x() *= 0.5f;
+        attachedObject->vel.y() *= 0.5f;
     }
 
     //---- do the damage
     int actual_damage = attachedObject->damage(ATK_BEHIND, local_damage, static_cast<DamageType>(damagetype), team,
-        _currentModule->getObjectHandler()[owner_ref], getProfile()->damfx, false);
+        _currentModule->getObjectHandler()[owner_ref], getProfile()->hasBit(DAMFX_ARMO), !getProfile()->hasBit(DAMFX_TIME), false);
 
     // adjust any remaining particle damage
     if (damage.base > 0)
@@ -1171,7 +1171,7 @@ bool Particle::attach(const ObjectRef attach)
     }
 
     // Correct facing so swords knock characters in the right direction...
-    if ( HAS_SOME_BITS( getProfile()->damfx, DAMFX_TURN ) )
+    if (getProfile()->hasBit(DAMFX_TURN))
     {
         facing = pchr->ori.facing_z;
     }

@@ -170,6 +170,8 @@ public:
     const std::string& getEnchantName() const;
     void setEnchantName(const std::string& name);
 
+    static std::shared_ptr<eve_t> readFromFile(const std::string& pathname);
+
 public:
     // Enchant spawn description.
     bool _override;                         ///< Override other enchants?
