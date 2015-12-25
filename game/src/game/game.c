@@ -3416,7 +3416,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                             particle->placeAtVertex(particle->getTarget(), spawn_vrt_offset);
 
                             // Correct Z spacing base, but nothing else...
-                            tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
+                            tmp_pos[kZ] += particle->getProfile()->getSpawnPositionOffsetZ().base;
                         }
                         else
                         {
