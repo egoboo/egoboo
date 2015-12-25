@@ -149,6 +149,8 @@ public:
 private:
     std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded; //Maps slot numbers to ObjectProfiles
 
+    std::unordered_map<PIP_REF, std::shared_ptr<ParticleProfile>> _particleProfilesLoaded; //Maps id's to ParticleProfiles
+
     std::vector<std::shared_ptr<ModuleProfile>> _moduleProfilesLoaded;  // List of all valid game modules loaded
 
     std::vector<std::shared_ptr<LoadPlayerElement>> _loadPlayerList; // List of characters that can be loaded (lightweight)

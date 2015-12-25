@@ -24,6 +24,5 @@
 
 #include "egolib/Profiles/_AbstractProfileSystem.hpp"
 #include "egolib/Profiles/EnchantProfile.hpp"
-#include "egolib/Profiles/EnchantProfileReader.hpp"
 
-extern AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX, EnchantProfileReader> EnchantProfileSystem;
+extern AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX> EnchantProfileSystem;

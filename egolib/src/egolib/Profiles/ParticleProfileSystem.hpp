@@ -24,9 +24,8 @@
 
 #include "egolib/Profiles/_AbstractProfileSystem.hpp"
 #include "egolib/Profiles/ParticleProfile.hpp"
-#include "egolib/Profiles/ParticleProfileReader.hpp"
 
-class ParticleProfileSystem : public AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>, public Ego::Core::Singleton<ParticleProfileSystem>
+class ParticleProfileSystem : public AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP>, public Ego::Core::Singleton<ParticleProfileSystem>
 {
 protected:
 
@@ -34,15 +33,18 @@ protected:
     using TheSingleton = Ego::Core::Singleton<ParticleProfileSystem>;
     friend TheSingleton;
 
-    ParticleProfileSystem();
-    ~ParticleProfileSystem();
+    ParticleProfileSystem() :
+        AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP>("particle", "/debug/particle_profile_usage.txt")
+    {
+        //ctor
+    }
 
 public:
     //Explicit member to avoid ambiguous inheritance with Singleton
-    void initialize() { AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::initialize(); }
+    void initialize() { AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP>::initialize(); }
     
     //Explicit member to avoid ambiguous inheritance with Singleton
-    void unintialize() { AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::unintialize(); }
+    void unintialize() { AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP>::unintialize(); }
 };
 
 inline bool LOADED_PIP(PIP_REF ref) {

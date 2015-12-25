@@ -36,7 +36,7 @@
  * @todo
  *  Move this class and all other profile-related things into some appropriate namespace.
  */
-template <typename TYPE,typename REFTYPE,REFTYPE INVALIDREF,size_t CAPACITY,typename READER>
+template <typename TYPE, typename REFTYPE, REFTYPE INVALIDREF, size_t CAPACITY>
 struct AbstractProfileSystem : public Id::NonCopyable
 {
 
@@ -177,11 +177,13 @@ public:
         }
 
         //Allocate memory for new profile
-        std::shared_ptr<TYPE> profile = _map[ref] = std::make_shared<TYPE>();
+        std::shared_ptr<TYPE> profile = TYPE::readFromFile(pathname);
 
-        if (!READER::read(profile, pathname)) {
+        if (!profile) {
             return INVALIDREF;
         }
+
+        _map[ref] = profile;
         return ref;
     }
 

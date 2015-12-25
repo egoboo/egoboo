@@ -711,10 +711,9 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
     /// @author ZZ
     /// @details This function is for catching characters on fire and such
 
-    int      cnt, bs_count;
+    int      bs_count;
     float    x, y, z;
     FACING_T facing;
-    int      amount;
     FACING_T direction;
     float    fsin, fcos;
 
@@ -727,7 +726,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
 
     // no point in going on, is there?
     if (0 == ppip->bumpspawn._amount && !ppip->spawnenchant) return 0;
-    amount = ppip->bumpspawn._amount;
+    int amount = ppip->bumpspawn._amount;
 
     if (!_currentModule->getObjectHandler().exists(character)) return 0;
     Object *pchr = _currentModule->getObjectHandler().get(character);
@@ -739,7 +738,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
     direction = ATK_BEHIND + (pchr->ori.facing_z - direction);
 
     // Check that direction
-    if (!pchr->isInvictusDirection(direction, ppip->damfx))
+    if (ppip->hasBit(DAMFX_NBLOC) || !pchr->isInvictusDirection(direction))
     {
         // Spawn new enchantments
         if (ppip->spawnenchant) 
@@ -757,7 +756,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
         // one bump particle
 
         //check if we resisted the attack, we could resist some of the particles or none
-        for (cnt = 0; cnt < amount; cnt++)
+        for (int cnt = 0; cnt < amount; cnt++)
         {
             if (Random::nextFloat() <= pchr->getDamageReduction(pprt->damagetype)) amount--;
         }
@@ -804,7 +803,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                 y = dist * fsin;
 
                 // prepare the array values
-                for (cnt = 0; cnt < vertices; cnt++)
+                for (int cnt = 0; cnt < vertices; cnt++)
                 {
                     dist = std::abs(x - pchr->inst.vrt_lst[vertices - cnt - 1].pos[XX])
                          + std::abs(y - pchr->inst.vrt_lst[vertices - cnt - 1].pos[YY])
@@ -828,23 +827,20 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                 }
 
                     // Find best vertices to attach the particles to
-                    for (cnt = 0; cnt < amount; cnt++)
+                    for (int cnt = 0; cnt < amount; cnt++)
                     {
-                        Uint32  bestdistance;
-                        int     bestvertex;
+                        int bestvertex = 0;
+                        uint32_t bestdistance = std::numeric_limits<uint32_t>::max(); //Really high number
 
-                        bestvertex = 0;
-                        bestdistance = 0xFFFFFFFF;         //Really high number
-
-                        for (cnt = 0; cnt < vertices; cnt++)
+                        for (int i = 0; i < vertices; i++)
                         {
-                            if (ParticleRef::Invalid != vertex_occupied[cnt])
+                            if (ParticleRef::Invalid != vertex_occupied[i])
                                 continue;
 
-                            if (vertex_distance[cnt] < bestdistance)
+                            if (vertex_distance[i] < bestdistance)
                             {
-                                bestdistance = vertex_distance[cnt];
-                                bestvertex = cnt;
+                                bestdistance = vertex_distance[i];
+                                bestvertex = i;
                             }
                         }
 

@@ -79,14 +79,15 @@ enum class prt_ori_t
 };
 
 // The special damage effects for particles
-enum e_damage_fx : uint32_t
+enum ParticleDamageEffectBits : size_t
 {
-    DAMFX_NONE = 0,                     ///< Damage effects
-    DAMFX_ARMO = (1 << 1),              ///< Armor piercing
-    DAMFX_NBLOC = (1 << 2),             ///< Cannot be blocked by shield
-    DAMFX_ARRO = (1 << 3),              ///< Only hurts the one it's attached to
-    DAMFX_TURN = (1 << 4),              ///< Turn to attached direction
-    DAMFX_TIME = (1 << 5)               ///< Do not reset the damage timer
+    DAMFX_NONE,              ///< Damage effects
+    DAMFX_ARMO,              ///< Armor piercing
+    DAMFX_NBLOC,             ///< Cannot be blocked by shield
+    DAMFX_ARRO,              ///< Only hurts the one it's attached to
+    DAMFX_TURN,              ///< Turn to attached direction
+    DAMFX_TIME,              ///< Do not reset the damage timer
+    NR_OF_DAMFX_BITS         ///< Always last
 };
 
 /// Turn values specifying corrections to the rotation of particles
@@ -133,8 +134,19 @@ public:
 
     void reset() override;
 
+    bool hasBit(const ParticleDamageEffectBits bit) const;
+
+    /**
+     * @brief
+     *  Read a particle profile.
+     * @param pathname
+     *  the pathname of the file to read the data from
+     * @return
+     *  @a the ParticleProfile object on success, @a nullptr on failure
+     */
+    static std::shared_ptr<ParticleProfile> readFromFile(const std::string& pathname);
+
 public:
-    char comment[1024];   ///< The first line of the file has a comment line.
 
     // Initial spawning of this particle.
     IPair facing_pair;      ///< Facing
@@ -180,7 +192,6 @@ public:
     DamageType damageType;            ///< Damage type
     unsigned int dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
     unsigned int grogTime;            ///< How long is an Object "grogged" if hit by this particle.
-    BIT_FIELD damfx;                  ///< Damage effects
     bool _intellectDamageBonus;       ///< Add intellect as damage bonus.
     bool spawnenchant;                ///< Spawn enchant?
     
@@ -239,6 +250,10 @@ public:
     int16_t size_add;            ///< Size rate
     uint16_t facingadd;           ///< Facing
     prt_ori_t orientation;      ///< The way the particle orientation is calculated for display
+
+private:
+    std::string _comment;
+    std::bitset<NR_OF_DAMFX_BITS> _particleEffectBits;
 };
 
 /// @todo Remove globals.
