@@ -1835,7 +1835,7 @@ void ai_state_t::spawn(ai_state_t& self, const ObjectRef index, const PRO_REF io
 //--------------------------------------------------------------------------------------------
 script_state_t::script_state_t()
 	: x(0), y(0), turn(0), distance(0),
-	  argument(0), operationsum(0)
+	  argument(0), operationsum()
 {
 }
 

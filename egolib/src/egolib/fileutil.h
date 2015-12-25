@@ -117,8 +117,6 @@ public:
     /**
      * @brief
      *  Read an enumeration.
-     * @param ctxt
-     *  the context
      * @param enumDescriptor
      *  the enum descriptor to be used
      * @return
@@ -127,14 +125,14 @@ public:
      *  Add comment about lexical error.
      */
     template <typename EnumType>
-    static EnumType readEnum(ReadContext& ctxt, Ego::Script::EnumDescriptor<EnumType>& enumDescriptor)
+    EnumType readEnum(const Ego::Script::EnumDescriptor<EnumType>& enumDescriptor)
     {
         using namespace std;
-        auto name = ctxt.readName();
+        auto name = readName();
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw Id::LexicalErrorException(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber), "invalid enum");
+            throw Id::LexicalErrorException(__FILE__,__LINE__,Ego::Script::Location(_loadName, _lineNumber), "invalid enum");
         }
         return it->second;
     }
@@ -142,8 +140,6 @@ public:
     /**
      * @brief
      *  Read an enumeration.
-     * @param ctxt
-     *  the context
      * @param enumDescriptor
      *  the enum descriptor to be used
      * @return
@@ -152,15 +148,15 @@ public:
      *  Add comment about lexical error and default.
      */
     template <typename EnumType>
-    static EnumType readEnum(ReadContext& ctxt, Ego::Script::EnumDescriptor<EnumType>& enumDescriptor, EnumType defaultValue)
+    EnumType readEnum(const Ego::Script::EnumDescriptor<EnumType>& enumDescriptor, EnumType defaultValue)
     {
         using namespace std;
-        auto name = ctxt.readName();
+        auto name = readName();
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
 			Log::get().warn("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
-                            ctxt._loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
+                            _loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
             return defaultValue;
         }
         return it->second;

@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file   IdLib/UnhandledSwitchCaseException.hpp
-/// @brief  Definition of an exception indicating a missing switch case handle for a specific label
-/// @author Johan Jansen, Michael Heilmann
+/// @brief  Definition of an exception indicating a value is out of bounds
+/// @author Michael Heilmann
 
 #pragma once
 
@@ -35,9 +35,9 @@ using namespace std;
 
 /**
  * @brief
- *  Exception indicating a missing switch case handle for a specific label
+ *  Exception indicating a value is out of bounds
  */
-class UnhandledSwitchCaseException : public Exception {
+class OutOfBoundsException : public Exception {
 
 public:
 
@@ -51,7 +51,7 @@ public:
      * @param message
      *  optional exception string message
      */
-    UnhandledSwitchCaseException(const char *file, int line, const string& message = "Unhandled switch case") :
+    OutOfBoundsException(const char *file, int line, const string& message = "Value out of bounds") :
         Exception(file, line), message(message) {}
 
     /**
@@ -60,7 +60,7 @@ public:
      * @param other
      *  the other exception
      */
-    UnhandledSwitchCaseException(const UnhandledSwitchCaseException& other) :
+    OutOfBoundsException(const OutOfBoundsException& other) :
         Exception(other), message(other.message) {}
 
     /**
@@ -71,7 +71,7 @@ public:
      * @return
      *  this exception
      */
-    UnhandledSwitchCaseException& operator=(const UnhandledSwitchCaseException& other) {
+    OutOfBoundsException& operator=(const OutOfBoundsException& other) {
         Exception::operator=(other);
         message = other.message;
         return *this;
@@ -80,21 +80,21 @@ public:
 public:
 
     /**
-     * @brief
-     *  Get the message associated with this exception.
-     * @return
-     *  the message associated with this exception
-     */
+    * @brief
+    *  Get the message associated with this exception.
+    * @return
+    *  the message associated with this exception
+    */
     const string& getMessage() const {
         return message;
     }
 
     /**
-     * @brief
-     *  Overloaded cast operator for casting into std::string.
-     * @return
-     *  a human-readable textual description of the string.
-     */
+    * @brief
+    *  Overloaded cast operator for casting into std::string.
+    * @return
+    *  a human-readable textual description of the string.
+    */
     virtual operator string() const {
         ostringstream buffer;
         buffer << "(raised in file " << getFile() << ", line " << getLine() << ")"
@@ -104,10 +104,6 @@ public:
     }
 
 private:
-    /**
-     * @brief
-     *  The exception message.
-     */
     string message;
 };
 

@@ -288,8 +288,11 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\CommandLine.cpp" />
+    <ClCompile Include="src\DataTxtValidator.cpp" />
+    <ClCompile Include="src\Tool.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\convertpaletted.cpp" />
+    <ClCompile Include="src\ConvertPaletted.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\SDL2-2.0.3\VisualC\SDLmain\SDLmain.vcxproj">
@@ -309,8 +312,11 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\convertpaletted.hpp" />
-    <ClInclude Include="src\filters.hpp" />
+    <ClInclude Include="src\CommandLine.hpp" />
+    <ClInclude Include="src\DataTxtValidator.hpp" />
+    <ClInclude Include="src\Tool.hpp" />
+    <ClInclude Include="src\ConvertPaletted.hpp" />
+    <ClInclude Include="src\Filters.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

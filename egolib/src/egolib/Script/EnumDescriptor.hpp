@@ -24,10 +24,8 @@
 
 #include "egolib/platform.h"
 
-namespace Ego
-{
-namespace Script
-{
+namespace Ego {
+namespace Script {
 
 using namespace std;
 
@@ -48,8 +46,7 @@ using namespace std;
  *  an enumeration type
  */
 template <typename EnumType>
-struct EnumDescriptor
-{
+struct EnumDescriptor {
     static_assert(is_enum<EnumType>::value, "not an enumeration type");
 private:
     /**
@@ -60,7 +57,7 @@ private:
      *  just like in C++. However, it is very-well possible the two different names
      *  map to the same value just like in C++.
      */
-    map<string,EnumType> _elements;
+    map<string, EnumType> _elements;
     /**
      * @brief
      *  The name of the enumeration.
@@ -70,25 +67,21 @@ public:
 
     // Support for range-based for loops (not required).
     typedef typename map<string, EnumType>::iterator iterator;
-            
+
     // Support for range-based for loops (not required).
     typedef typename map<string, EnumType>::const_iterator const_iterator;
 
     // Support for range-based for loops.
-    const_iterator begin() const
-    {
+    const_iterator begin() const {
         return _elements.begin();
     }
-    const_iterator cbegin() const
-    {
+    const_iterator cbegin() const {
         return _elements.cbegin();
     }
-    const_iterator end() const
-    {
+    const_iterator end() const {
         return _elements.end();
     }
-    const_iterator cend() const
-    {
+    const_iterator cend() const {
         return _elements.cend();
     }
 
@@ -97,25 +90,20 @@ public:
 
 #ifdef _MSC_VER
     EnumDescriptor(const string& name, const initializer_list<pair<const string, EnumType>>& list) :
-        _name(name), _elements(list)
-    {}
+        _name(name), _elements(list) {}
 #else
     EnumDescriptor(const string& name, const initializer_list<pair<const string, EnumType>>& list) :
-        _name(name), _elements{ list }
-    {}
+        _name(name), _elements{list} {}
 #endif
 
     EnumDescriptor(const string& name) :
-        _name(), _elements()
-    {}
+        _name(), _elements() {}
 
-    const string& getName() const
-    {
+    const string& getName() const {
         return _name;
     }
 
-    void set(const string& name, EnumType value)
-    {
+    void set(const string& name, EnumType value) {
         _elements[name] = value;
     }
 
@@ -149,8 +137,7 @@ public:
      *  @endcode
      *
      */
-    const_iterator find(EnumType value) const
-    {
+    const_iterator find(EnumType value) const {
         return find(value, _elements.cbegin());
     }
 
@@ -164,12 +151,9 @@ public:
      * @return
      *  an iterator referring to the first entry with a value equal to @a value or <tt>cend()</tt>
      */
-    const_iterator find(EnumType value, const_iterator start) const
-    {
-        for (auto it = start; it != _elements.cend(); ++it)
-        {
-            if ((*it).second == value)
-            {
+    const_iterator find(EnumType value, const_iterator start) const {
+        for (auto it = start; it != _elements.cend(); ++it) {
+            if ((*it).second == value) {
                 return it;
             }
         }
@@ -184,8 +168,7 @@ public:
      * @return
      *  an iterator referring to the first entry with a name equal to @a name or <tt>cend()</tt>
      */
-    const_iterator find(const string& name)
-    {
+    const_iterator find(const string& name) const {
         return _elements.find(name);
     }
 

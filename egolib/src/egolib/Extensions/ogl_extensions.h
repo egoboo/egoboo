@@ -63,9 +63,9 @@ struct Utilities
      */
     static bool isError();
 
-    static void upload_1d(const Ego::PixelFormatDescriptor& pfd, GLsizei w, const GLvoid * data);
-    static void upload_2d(const Ego::PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
-    static void upload_2d_mipmap(const Ego::PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
+    static void upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const void *data);
+    static void upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
+    static void upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
 
     /**
      * @brief
@@ -83,7 +83,7 @@ struct Utilities
      *  Ego::TextureAddressMode::Repeat         | @a GL_REPEAT
      *  Ego::TextureAddressMode::RepeatMirrored | @a GL_MIRRORED_REPEAT
      */
-    static GLint toOpenGL(Ego::TextureAddressMode textureAddressMode);
+    static GLint toOpenGL(TextureAddressMode textureAddressMode);
     /**
      * @brief
      *  Translate an internal primitive type into an OpenGL primitive type.
@@ -99,14 +99,14 @@ struct Utilities
      *  Ego::PrimitiveType::TriangleStrip       | @a GL_TRIANGLE_STRIP
      *  Ego::PrimitiveType::QuadriliteralStrip  | @a GL_QUAD_STRIP
      */
-    static GLenum toOpenGL(Ego::PrimitiveType primitiveType);
+    static GLenum toOpenGL(PrimitiveType primitiveType);
 
     static void toOpenGL(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl);
 
-    static void toOpenGL(const Ego::PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl);
+    static void toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl);
 
 
-    static void bind(GLuint id, Ego::TextureType type, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT);
+    static void bind(GLuint id, TextureType type, TextureAddressMode textureAddressModeS, TextureAddressMode textureAddressModeT);
 };
 
 } // namespace OpenGL

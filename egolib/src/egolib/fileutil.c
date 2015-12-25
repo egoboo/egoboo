@@ -1470,7 +1470,7 @@ LocalParticleProfileRef vfs_get_local_particle_profile_ref(ReadContext& ctxt) {
 
 DamageType vfs_get_damage_type(ReadContext& ctxt)
 {
-    Ego::Script::EnumDescriptor<DamageType> enumDescriptor
+    static const Ego::Script::EnumDescriptor<DamageType> enumDescriptor
     (
         "DamageType",
         {
@@ -1517,7 +1517,7 @@ DamageType vfs_get_damage_type(ReadContext& ctxt)
             { "N",     DAMAGE_DIRECT  },
         }
     );
-    return ReadContext::readEnum(ctxt, enumDescriptor, DAMAGE_DIRECT);
+    return ctxt.readEnum(enumDescriptor, DAMAGE_DIRECT);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1685,7 +1685,7 @@ bool  ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const char *fi
 //--------------------------------------------------------------------------------------------
 DamageModifier vfs_get_damage_modifier(ReadContext& ctxt)
 {
-    Ego::Script::EnumDescriptor<DamageModifier> enumDescriptor
+    static const Ego::Script::EnumDescriptor<DamageModifier> enumDescriptor
         (
         "damageModifier",
         {
@@ -1696,7 +1696,7 @@ DamageModifier vfs_get_damage_modifier(ReadContext& ctxt)
             { "F", DamageModifier::NONE },
         }
     );
-    return ReadContext::readEnum(ctxt, enumDescriptor, DamageModifier::NONE);
+    return ctxt.readEnum(enumDescriptor, DamageModifier::NONE);
 }
 
 //--------------------------------------------------------------------------------------------

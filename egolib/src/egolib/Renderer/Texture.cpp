@@ -266,8 +266,12 @@ struct CErrorTexture
     GLenum _target;
     /// The OpenGL ID of this error texture.
     GLuint _id;
-    char *_name;
-    const char *getName() const
+    std::string _name;
+    GLuint getTextureID() const
+    {
+        return _id;
+    }
+    const std::string& getName() const
     {
         return _name;
     }
@@ -288,66 +292,61 @@ struct CErrorTexture
         return getSourceHeight();
     }
     // Construct this error texture.
-    CErrorTexture(const char *name, GLenum target) :
-        _image(ImageManager::get().getDefaultImage())
+    CErrorTexture(const std::string& name, GLenum target) :
+        _name(name), _target(target), _image(ImageManager::get().getDefaultImage())
     {
-        _name = strdup(name);
-        if (!_name)
-        {
-            throw std::runtime_error("unable to create error texture");
-        }
-        _target = target;
+        namespace OpenGL = Ego::OpenGL;
         if (_target != GL_TEXTURE_1D && _target != GL_TEXTURE_2D)
         {
-            free(_name);
             throw std::invalid_argument("invalid texture target");
         }
         while (GL_NO_ERROR != glGetError())
         {
             /* Nothing to do. */
         }
+        // (1) Create the OpenGL texture.
         glGenTextures(1, &_id);
         if (GL_NO_ERROR != glGetError())
         {
-            free(_name);
             throw std::runtime_error("unable to create error texture");
         }
-        glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-
+        // (2) Bind the OpenGL texture.
         glBindTexture(target, _id);
         if (GL_NO_ERROR != glGetError())
         {
-            free(_name);
             glDeleteTextures(1, &_id);
             throw std::runtime_error("unable to bind error texture");
         }
-
-        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        // (3) Set the texture parameters.
+        GLint magFilter_gl, minFilter_gl;
+        OpenGL::Utilities::toOpenGL(Ego::TextureFilter::Nearest, Ego::TextureFilter::Nearest, Ego::TextureFilter::None,
+                                    minFilter_gl, magFilter_gl);
+        glTexParameteri(target, GL_TEXTURE_WRAP_S, OpenGL::Utilities::toOpenGL(Ego::TextureAddressMode::Repeat));
+        glTexParameteri(target, GL_TEXTURE_WRAP_T, OpenGL::Utilities::toOpenGL(Ego::TextureAddressMode::Repeat));
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter_gl);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter_gl);
         if (GL_NO_ERROR != glGetError())
         {
-            free(_name);
             glDeleteTextures(1, &_id);
             throw std::runtime_error("unable to set error texture parameters");
         }
-        // Create the image.
+
+        // (4) Upload the image data.
+        glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         if (target == GL_TEXTURE_1D)
         {
-            glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, _image->w, 0, GL_RGBA, GL_UNSIGNED_BYTE, _image->pixels);
+            static const auto pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+            Ego::OpenGL::Utilities::upload_1d(pfd, _image->w, _image->pixels);
         }
         else
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _image->w, _image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, _image->pixels);
+            static const auto pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+            Ego::OpenGL::Utilities::upload_2d(pfd, _image->w, _image->h, _image->pixels);
         }
-
         glPopClientAttrib();
         if (GL_NO_ERROR != glGetError())
         {
-            free(_name);
             glDeleteTextures(1, &_id);
             throw std::runtime_error("unable to upload error image into error texture");
         }
@@ -355,7 +354,6 @@ struct CErrorTexture
     // Destruct this error texture.
     ~CErrorTexture()
     {
-        free(_name);
         glDeleteTextures(1, &_id);
     }
 };

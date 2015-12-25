@@ -172,42 +172,42 @@ namespace Ego
 namespace OpenGL
 {
 
-GLint Utilities::toOpenGL(Ego::TextureAddressMode textureAddressMode)
+GLint Utilities::toOpenGL(TextureAddressMode textureAddressMode)
 {
     switch (textureAddressMode)
     {
-        case Ego::TextureAddressMode::Clamp:
+        case TextureAddressMode::Clamp:
             return GL_CLAMP;
-        case Ego::TextureAddressMode::ClampToBorder:
+        case TextureAddressMode::ClampToBorder:
             return GL_CLAMP_TO_BORDER;
-        case Ego::TextureAddressMode::ClampToEdge:
+        case TextureAddressMode::ClampToEdge:
             return GL_CLAMP_TO_EDGE;
-        case Ego::TextureAddressMode::Repeat:
+        case TextureAddressMode::Repeat:
             return GL_REPEAT;
-        case Ego::TextureAddressMode::RepeatMirrored:
+        case TextureAddressMode::RepeatMirrored:
             return GL_MIRRORED_REPEAT;
         default:
             throw std::runtime_error("unreachable code reached");
     }
 }
 
-GLenum Utilities::toOpenGL(Ego::PrimitiveType primitiveType)
+GLenum Utilities::toOpenGL(PrimitiveType primitiveType)
 {
     switch (primitiveType)
     {
-        case Ego::PrimitiveType::Points:
+        case PrimitiveType::Points:
             return GL_POINTS;
-        case Ego::PrimitiveType::Lines:
+        case PrimitiveType::Lines:
             return GL_LINES;
-        case Ego::PrimitiveType::Triangles:
+        case PrimitiveType::Triangles:
             return GL_TRIANGLES;
-        case Ego::PrimitiveType::TriangleFan:
+        case PrimitiveType::TriangleFan:
             return GL_TRIANGLE_FAN;
-        case Ego::PrimitiveType::TriangleStrip:
+        case PrimitiveType::TriangleStrip:
             return GL_TRIANGLE_STRIP;
-        case Ego::PrimitiveType::Quadriliterals:
+        case PrimitiveType::Quadriliterals:
             return GL_QUADS;
-        case Ego::PrimitiveType::QuadriliteralStrip:
+        case PrimitiveType::QuadriliteralStrip:
             return GL_QUAD_STRIP;
         default:
             throw std::runtime_error("unreachable code reached");
@@ -264,31 +264,31 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
     switch (minFilter)
     {
         // In OpenGL for the minification filter, "none" and "nearest" coincide.
-        case Ego::TextureFilter::None:
-        case Ego::TextureFilter::Nearest:
+        case TextureFilter::None:
+        case TextureFilter::Nearest:
             switch (mipMapFilter)
             {
-                case Ego::TextureFilter::None:
+                case TextureFilter::None:
                     minFilter_gl = GL_NEAREST;
                     break;
-                case Ego::TextureFilter::Nearest:
+                case TextureFilter::Nearest:
                     minFilter_gl = GL_NEAREST_MIPMAP_NEAREST;
                     break;
-                case Ego::TextureFilter::Linear:
+                case TextureFilter::Linear:
                     minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
                     break;
             }
             break;
-        case Ego::TextureFilter::Linear:
+        case TextureFilter::Linear:
             switch (mipMapFilter)
             {
-                case Ego::TextureFilter::None:
+                case TextureFilter::None:
                     minFilter_gl = GL_LINEAR;
                     break;
-                case Ego::TextureFilter::Nearest:
+                case TextureFilter::Nearest:
                     minFilter_gl = GL_LINEAR_MIPMAP_NEAREST;
                     break;
-                case Ego::TextureFilter::Linear:
+                case TextureFilter::Linear:
                     minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
                     break;
                 default:
@@ -301,11 +301,11 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
     switch (magFilter)
     {
         // In OpenGL for the magnification filter, "none" and "nearest" coincide.
-        case Ego::TextureFilter::None:
-        case Ego::TextureFilter::Nearest:
+        case TextureFilter::None:
+        case TextureFilter::Nearest:
             magFilter_gl = GL_NEAREST;
             break;
-        case Ego::TextureFilter::Linear:
+        case TextureFilter::Linear:
             magFilter_gl = GL_LINEAR;
             break;
         default:
@@ -314,25 +314,25 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
 }
 
 
-void Utilities::toOpenGL(const Ego::PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl) {
+void Utilities::toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl) {
     switch (pfd.getPixelFormat())
     {
-        case Ego::PixelFormat::R8G8B8:
+        case PixelFormat::R8G8B8:
             internalFormat_gl = GL_RGB;
             format_gl = GL_RGB;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case Ego::PixelFormat::R8G8B8A8:
+        case PixelFormat::R8G8B8A8:
             internalFormat_gl = GL_RGBA;
             format_gl = GL_RGBA;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case Ego::PixelFormat::B8G8R8:
+        case PixelFormat::B8G8R8:
             internalFormat_gl = GL_BGR;
             format_gl = GL_BGR;
             type_gl = GL_UNSIGNED_BYTE;
             break;
-        case Ego::PixelFormat::B8G8R8A8:
+        case PixelFormat::B8G8R8A8:
             internalFormat_gl = GL_BGRA;
             format_gl = GL_BGRA;
             type_gl = GL_UNSIGNED_BYTE;
@@ -342,21 +342,21 @@ void Utilities::toOpenGL(const Ego::PixelFormatDescriptor& pfd, GLenum& internal
     };
 }
 
-void Utilities::upload_1d(const Ego::PixelFormatDescriptor& pfd, GLsizei w, const void *data)
+void Utilities::upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const void *data)
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
     GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, internalFormat_gl, w, 0, format_gl, type_gl, data);
 }
 
-void Utilities::upload_2d(const Ego::PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
+void Utilities::upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
     GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
 }
 
-void Utilities::upload_2d_mipmap(const Ego::PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
+void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
@@ -396,20 +396,20 @@ void Utilities::upload_2d_mipmap(const Ego::PixelFormatDescriptor& pfd, GLsizei 
 
 }
 
-void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT)
+void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAddressModeS, TextureAddressMode textureAddressModeT)
 {
     auto anisotropy_enable = g_ogl_textureParameters.anisotropy_enable;
     auto anisotropy_level = g_ogl_textureParameters.anisotropy_level;
-    Ego::OpenGL::Utilities::clearError();
+    Utilities::clearError();
     GLenum target_gl;
     switch (target)
     {
-        case Ego::TextureType::_2D:
+        case TextureType::_2D:
             glEnable(GL_TEXTURE_2D);
             glDisable(GL_TEXTURE_1D);
             target_gl = GL_TEXTURE_2D;
             break;
-        case Ego::TextureType::_1D:
+        case TextureType::_1D:
             glEnable(GL_TEXTURE_1D);
             glDisable(GL_TEXTURE_2D);
             target_gl = GL_TEXTURE_1D;
@@ -417,12 +417,12 @@ void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode
         default:
             throw std::runtime_error("unreachable code reached");
     }
-    if (Ego::OpenGL::Utilities::isError())
+    if (Utilities::isError())
     {
         return;
     }
     glBindTexture(target_gl, id);
-    if (Ego::OpenGL::Utilities::isError())
+    if (Utilities::isError())
     {
         return;
     }
@@ -431,7 +431,7 @@ void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode
     glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, toOpenGL(textureAddressModeT));
 
 
-    if (Ego::OpenGL::Utilities::isError())
+    if (Utilities::isError())
     {
         return;
     }
@@ -441,7 +441,7 @@ void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode
 
     glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
     glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
-    if (Ego::OpenGL::Utilities::isError())
+    if (Utilities::isError())
     {
         return;
     }
@@ -452,7 +452,7 @@ void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy_level);
     }
 
-    if (Ego::OpenGL::Utilities::isError())
+    if (Utilities::isError())
     {
         return;
     }

@@ -4,19 +4,19 @@
 
 namespace Tools {
 /**
- * @brief Convert paletted images to non-paletted images.
+ * @brief Validate <c>data.txt</c> files.
  */
-struct ConvertPaletted : public Editor::Tool {
+struct DataTxtValidator : public Editor::Tool {
 public:
     /**
      * @brief Construct this tool.
      */
-    ConvertPaletted();
+    DataTxtValidator();
 
     /**
      * @brief Destruct this tool.
      */
-    virtual ~ConvertPaletted();
+    virtual ~DataTxtValidator();
 
     /**
      * @brief Run this tool with the specified arguments.
@@ -25,18 +25,19 @@ public:
     void run(const std::vector<std::shared_ptr<CommandLine::Option>>& arguments) override;
 
 private:
-    void convert(const std::string &fileName);
+    void validate(const std::string& pathname);
 
-}; // struct ConvertPaletted
+}; // struct DataTxtValidator
 
-struct ConvertPalettedFactory : Editor::ToolFactory {
+struct DataTxtValidatorFactory : Editor::ToolFactory {
     Editor::Tool *create() noexcept override {
         try {
-            return new ConvertPaletted();
+            return new DataTxtValidator();
         } catch (...) {
             return nullptr;
         }
     }
-}; // struct ConvertPalettedFactory
+}; // struct DataTxtValidatorFactory
+
 
 } // namespace Tools
