@@ -576,7 +576,7 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
         return gfx_error;
     }
 
-    const std::shared_ptr<pip_t> &ppip = pprt->getProfile();
+    const std::shared_ptr<ParticleProfile> &ppip = pprt->getProfile();
 
     inst.type = pprt->type;
 
@@ -951,7 +951,7 @@ void render_prt_bbox(prt_bundle_t& pbdl_prt)
         return;
     }
     
-    std::shared_ptr<pip_t> loc_ppip = pbdl_prt._pip_ptr;
+    std::shared_ptr<ParticleProfile> loc_ppip = pbdl_prt._pip_ptr;
 
     // only draw bullets
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;

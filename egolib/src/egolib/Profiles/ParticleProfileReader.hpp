@@ -43,5 +43,5 @@ struct ParticleProfileReader
      * @return
      *  @a true on success, @a false on failure
      */
-    static bool read(std::shared_ptr<pip_t> profile, const std::string& pathname);
+    static bool read(std::shared_ptr<ParticleProfile> profile, const std::string& pathname);
 };

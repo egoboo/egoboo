@@ -246,7 +246,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 
     if (NULL == this->_prt_ptr) return NULL;
     Ego::Particle *loc_pprt = this->_prt_ptr;
-    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
+    std::shared_ptr<ParticleProfile> loc_ppip = this->_pip_ptr;
 
     // is the particle a homing type?
     if (!loc_pprt->getProfile()->homing) return this;
@@ -723,7 +723,7 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
         return 0;
     }
 
-    const std::shared_ptr<pip_t> &ppip = pprt->getProfile();
+    const std::shared_ptr<ParticleProfile> &ppip = pprt->getProfile();
 
     // no point in going on, is there?
     if (0 == ppip->bumpspawn._amount && !ppip->spawnenchant) return 0;

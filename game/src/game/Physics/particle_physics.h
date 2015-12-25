@@ -46,7 +46,7 @@ struct prt_bundle_t
     Ego::Particle *_prt_ptr;
 
     PIP_REF _pip_ref;
-    std::shared_ptr<pip_t> _pip_ptr;
+    std::shared_ptr<ParticleProfile> _pip_ptr;
 
     prt_bundle_t();
     prt_bundle_t(Ego::Particle *prt);

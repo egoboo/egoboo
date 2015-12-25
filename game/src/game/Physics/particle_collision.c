@@ -51,7 +51,7 @@ public:
 
     ParticleRef iprt;
     std::shared_ptr<Ego::Particle> pprt;
-    std::shared_ptr<pip_t> ppip;
+    std::shared_ptr<ParticleProfile> ppip;
 
     //---- collision parameters
 

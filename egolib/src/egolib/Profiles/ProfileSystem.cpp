@@ -123,7 +123,7 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     return -1;
 }
 
-std::shared_ptr<pip_t> ProfileSystem::pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref)
+std::shared_ptr<ParticleProfile> ProfileSystem::pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref)
 {
     if (!isValidProfileID(iobj))
     {
