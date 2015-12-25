@@ -21,7 +21,7 @@
 #include "egolib/Profiles/ParticleProfileSystem.hpp"
 
 ParticleProfileSystem::ParticleProfileSystem() :
-    AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>("particle", "/debug/particle_profile_usage.txt")
+    AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>("particle", "/debug/particle_profile_usage.txt")
 {
     //ctor
 }

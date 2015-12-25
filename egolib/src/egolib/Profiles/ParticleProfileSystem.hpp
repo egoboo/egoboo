@@ -26,7 +26,7 @@
 #include "egolib/Profiles/ParticleProfile.hpp"
 #include "egolib/Profiles/ParticleProfileReader.hpp"
 
-class ParticleProfileSystem : public AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>, public Ego::Core::Singleton<ParticleProfileSystem>
+class ParticleProfileSystem : public AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>, public Ego::Core::Singleton<ParticleProfileSystem>
 {
 protected:
 
@@ -39,10 +39,10 @@ protected:
 
 public:
     //Explicit member to avoid ambiguous inheritance with Singleton
-    void initialize() { AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::initialize(); }
+    void initialize() { AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::initialize(); }
     
     //Explicit member to avoid ambiguous inheritance with Singleton
-    void unintialize() { AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::unintialize(); }
+    void unintialize() { AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader>::unintialize(); }
 };
 
 inline bool LOADED_PIP(PIP_REF ref) {

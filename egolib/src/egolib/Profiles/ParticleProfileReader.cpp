@@ -28,7 +28,7 @@
 #include "egolib/vfs.h"
 #include "egolib/_math.h"
 
-bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::string& pathname)
+bool ParticleProfileReader::read(std::shared_ptr<ParticleProfile> profile, const std::string& pathname)
 {
     char cTmp;
 

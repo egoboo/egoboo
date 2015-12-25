@@ -57,7 +57,7 @@ void dynalight_info_t::reset()
     falloff_add = 0.0f;
 }
 
-pip_t::pip_t() :
+ParticleProfile::ParticleProfile() :
     /*comment{'\0'},*/
 
     // comment - see below
@@ -151,11 +151,11 @@ pip_t::pip_t() :
     comment[0] = '\0';
 }
 
-pip_t::~pip_t()
+ParticleProfile::~ParticleProfile()
 {
 }
 
-void pip_t::reset()
+void ParticleProfile::reset()
 {
     this->AbstractProfile::reset();
 

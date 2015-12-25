@@ -73,7 +73,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
                                                               const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                                                               const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget, const bool onlyOverWater)
 {
-    const std::shared_ptr<pip_t> &ppip = ParticleProfileSystem::get().get_ptr(particleProfile);
+    const std::shared_ptr<ParticleProfile> &ppip = ParticleProfileSystem::get().get_ptr(particleProfile);
 
     if (!ppip)
     {

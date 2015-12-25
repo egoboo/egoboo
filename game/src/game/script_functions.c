@@ -6757,7 +6757,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 
     PIP_REF ipip = ppro->getParticlePoofProfile();
     if ( INVALID_PIP_REF == ipip) return false;
-    std::shared_ptr<pip_t> ppip = ParticleProfileSystem::get().get_ptr(ipip);
+    std::shared_ptr<ParticleProfile> ppip = ParticleProfileSystem::get().get_ptr(ipip);
 
     returncode = false;
     if ( NULL != ppip )
@@ -7086,7 +7086,7 @@ Uint8 scr_IfTargetIsASpell( script_state_t& state, ai_state_t& self )
     returncode = false;
     for (LocalParticleProfileRef iTmp(0); iTmp.get() < MAX_PIP_PER_PROFILE; ++iTmp)
     {
-        std::shared_ptr<pip_t> ppip = ProfileSystem::get().pro_get_ppip(pchr->getProfileID(), iTmp);
+        std::shared_ptr<ParticleProfile> ppip = ProfileSystem::get().pro_get_ppip(pchr->getProfileID(), iTmp);
         if (!ppip) continue;
 
         if ( ppip->_intellectDamageBonus )

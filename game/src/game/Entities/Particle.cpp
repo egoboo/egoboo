@@ -171,7 +171,7 @@ BIT_FIELD Particle::test_wall(const Vector3f& pos)
 	return _currentModule->getMeshPointer()->test_wall(pos, 0.0f, stoppedby);
 }
 
-const std::shared_ptr<pip_t>& Particle::getProfile() const
+const std::shared_ptr<ParticleProfile>& Particle::getProfile() const
 {
     return _particleProfile;
 }
@@ -545,7 +545,7 @@ size_t Particle::updateContinuousSpawning()
 
     //Optimization: Only spawn cosmetic sub-particles if we ourselves were rendered
     //This prevents a lot of cosmetic particles from spawning outside visible range
-    const std::shared_ptr<pip_t>& childProfile = ParticleProfileSystem::get().get_ptr(getProfile()->contspawn._lpip.get());
+    const std::shared_ptr<ParticleProfile>& childProfile = ParticleProfileSystem::get().get_ptr(getProfile()->contspawn._lpip.get());
     if(!childProfile->force && !inst.indolist) {
 
         //Is is something that spawns often? (often = at least once every 2 seconds)

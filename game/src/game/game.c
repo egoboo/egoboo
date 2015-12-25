@@ -530,7 +530,7 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 
     const float max_dist2 = WIDE * WIDE;
 
-    std::shared_ptr<pip_t> ppip;
+    std::shared_ptr<ParticleProfile> ppip;
 
     ObjectRef besttarget = ObjectRef::Invalid;
     float  longdist2 = max_dist2;

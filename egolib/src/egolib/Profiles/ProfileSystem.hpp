@@ -30,7 +30,7 @@
 //Forward declarations
 class ObjectProfile;
 class ModuleProfile;
-struct pip_t;
+class ParticleProfile;
 struct eve_t;
 class LoadPlayerElement;
 namespace Ego { class DeferredTexture; }
@@ -75,7 +75,7 @@ public:
     void reset();
 
     //ZF> TODO: This C-like function needs to be removed
-    std::shared_ptr<pip_t> pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref);
+    std::shared_ptr<ParticleProfile> pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref);
 
     /**
      * @brief
