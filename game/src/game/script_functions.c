@@ -3970,8 +3970,8 @@ Uint8 scr_SetXY( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    self.x[state.argument&STOR_AND] = state.x;
-    self.y[state.argument&STOR_AND] = state.y;
+    self.x[state.argument & STOR_AND] = state.x;
+    self.y[state.argument & STOR_AND] = state.y;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3986,8 +3986,8 @@ Uint8 scr_GetXY( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    state.x = self.x[state.argument&STOR_AND];
-    state.y = self.y[state.argument&STOR_AND];
+    state.x = self.x[state.argument & STOR_AND];
+    state.y = self.y[state.argument & STOR_AND];
 
     SCRIPT_FUNCTION_END();
 }
@@ -4002,8 +4002,8 @@ Uint8 scr_AddXY( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    self.x[state.argument&STOR_AND] += state.x;
-    self.y[state.argument&STOR_AND] += state.y;
+    self.x[state.argument & STOR_AND] += state.x;
+    self.y[state.argument & STOR_AND] += state.y;
 
     SCRIPT_FUNCTION_END();
 }
