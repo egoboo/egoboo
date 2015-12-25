@@ -5421,25 +5421,15 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
     }
     else
     {
-        // was the child spawned in a "safe" spot?
-        if (!pchild->hasSafePosition())
-        {
-			Log::get().warn( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
-            pchr->requestTerminate();
-            returncode = false;
-        }
-        else
-        {
-            self.child = pchild->getObjRef();
+        self.child = pchild->getObjRef();
 
-            pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
-            pchild->ai.passage = self.passage;
-            pchild->ai.owner   = self.owner;
+        pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
+        pchild->ai.passage = self.passage;
+        pchild->ai.owner   = self.owner;
 
-            pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-            pchild->dismount_object = self.getSelf();
-            returncode = true;
-        }
+        pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+        pchild->dismount_object = self.getSelf();
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();

@@ -91,7 +91,7 @@ public:
         EGO_DEBUG_VALIDATE(pos);
 
         //Never allow positions outside the map
-        if(!_currentModule->isInside(pos[kX], pos[kY])) {
+        if(!_currentModule->isInside(pos.x(), pos.y())) {
             return false;
         }
 
@@ -126,7 +126,7 @@ public:
     *   might patrol.
     **/
     void setSpawnPosition(const Vector3f &pos) {
-        assert(_currentModule->isInside(pos[kX], pos[kY]));
+        assert(_currentModule->isInside(pos.x(), pos.y()));
         _spawnPosition = pos;
     }
 
@@ -134,21 +134,21 @@ public:
      * @return the position of this object along the x-axis
      */
     inline float getPosX() const {
-        return _position[kX];
+        return _position.x();
     }
 
     /**
      * @return the position of this object along the y-axis
      */
     inline float getPosY() const {
-        return _position[kY];
+        return _position.y();
     }
 
     /**
      * @return the position of this object along the z-axis
      */
     inline float getPosZ() const {
-        return _position[kZ];
+        return _position.z();
     }
 
     /**
