@@ -2873,17 +2873,17 @@ void Object::dropAllItems()
     }
 
     //Calculate direction offset for each object
-    const FACING_T diradd = 0xFFFF / pack_count;
+    const FACING_T diradd = (std::numeric_limits<FACING_T>::max()/2) / pack_count;
 
     // now drop each item in turn
-    FACING_T direction = ori.facing_z + ATK_BEHIND;
+    FACING_T direction = ori.facing_z + ATK_BEHIND - diradd * (pack_count/2);
     for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
     {
         //remove it from inventory
         getInventory().removeItem(pitem, true);
 
         // detach the item
-        pitem->detatchFromHolder(true, true);
+        pitem->detatchFromHolder(true, false);
 
         // fix the attachments
         pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
@@ -2897,10 +2897,10 @@ void Object::dropAllItems()
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity
-        TURN_T turn                   = TO_TURN( direction );
-        pitem->vel[kX]                += turntocos[ turn ] * DROPXYVEL;
-        pitem->vel[kY]                += turntosin[ turn ] * DROPXYVEL;
-        pitem->vel[kZ]                += DROPZVEL;
+        TURN_T turn = TO_TURN(direction);
+        pitem->vel.x() += turntocos[turn] * DROPXYVEL;
+        pitem->vel.y() += turntosin[turn] * DROPXYVEL;
+        pitem->vel.z() += DROPZVEL;
 
         // do some more complicated things
         SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
