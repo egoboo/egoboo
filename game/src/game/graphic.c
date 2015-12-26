@@ -1851,7 +1851,7 @@ float get_ambient_level()
     else
     {
         // for inside modules, max light_a means dingy dungeon lighting
-        glob_amb = light_a * 100.0f;
+        glob_amb = light_a * 64.0f;
     }
 
     // determine the minimum ambient, based on darkvision
