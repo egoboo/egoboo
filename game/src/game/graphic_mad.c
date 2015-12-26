@@ -937,7 +937,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     chr_update_matrix(pchr, true);
 
     // has this already been calculated in the last frame_skip frames?
-	if (!force && self.lighting_frame_all >= 0 && (Uint32)self.lighting_frame_all >= game_frame_all) {
+	if (!force && self.lighting_frame_all >= 0 && static_cast<uint32_t>(self.lighting_frame_all) >= game_frame_all) {
 		return;
 	}
 
@@ -964,7 +964,10 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
 	lighting_cache_t loc_light;
 	lighting_cache_t::lighting_project_cache(loc_light, global_light, self.matrix);
 
-    self.color_amb = 0.9f * self.color_amb + 0.1f * (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
+    //Low-pass filter to smooth lighting transitions?
+    //self.color_amb = 0.9f * self.color_amb + 0.1f * (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
+    //self.color_amb = (loc_light.hgh._lighting[LVEC_AMB] + loc_light.low._lighting[LVEC_AMB]) * 0.5f;
+    self.color_amb = get_ambient_level();
 
     self.max_light = -255;
     self.min_light =  255;
@@ -991,7 +994,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
             lite = lighting_cache_t::lighting_evaluate_cache( loc_light, Vector3f(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->_tmem._bbox, nullptr, nullptr);
         }
 
-        pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;
+        pvert->color_dir = lite;
 
         self.max_light = std::max(self.max_light, pvert->color_dir);
         self.min_light = std::min(self.min_light, pvert->color_dir);

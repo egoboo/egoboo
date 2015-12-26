@@ -82,31 +82,31 @@ void lighting_vector_evaluate( const std::array<float, LIGHTING_VEC_SIZE> &lvec,
 //--------------------------------------------------------------------------------------------
 void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const Vector3f& nrm, const float direct, const float ambient )
 {
-    if ( nrm[kX] > 0.0f )
+    if ( nrm.x() > 0.0f )
     {
-        lvec[LVEC_PX] += nrm[kX] * direct;
+        lvec[LVEC_PX] += nrm.x() * direct;
     }
-    else if ( nrm[kX] < 0.0f )
+    else if ( nrm.x() < 0.0f )
     {
-        lvec[LVEC_MX] -= nrm[kX] * direct;
-    }
-
-    if ( nrm[kY] > 0.0f )
-    {
-        lvec[LVEC_PY] += nrm[kY] * direct;
-    }
-    else if ( nrm[kY] < 0.0f )
-    {
-        lvec[LVEC_MY] -= nrm[kY] * direct;
+        lvec[LVEC_MX] -= nrm.x() * direct;
     }
 
-    if ( nrm[kZ] > 0.0f )
+    if ( nrm.y() > 0.0f )
     {
-        lvec[LVEC_PZ] += nrm[kZ] * direct;
+        lvec[LVEC_PY] += nrm.y() * direct;
     }
-    else if ( nrm[kZ] < 0.0f )
+    else if ( nrm.y() < 0.0f )
     {
-        lvec[LVEC_MZ] -= nrm[kZ] * direct;
+        lvec[LVEC_MY] -= nrm.y() * direct;
+    }
+
+    if ( nrm.z() > 0.0f )
+    {
+        lvec[LVEC_PZ] += nrm.z() * direct;
+    }
+    else if ( nrm.z() < 0.0f )
+    {
+        lvec[LVEC_MZ] -= nrm.z() * direct;
     }
 
     // the ambient is not summed
@@ -522,7 +522,7 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTI
 {
     if ( NULL == pdyna ) return false;
 
-    float level = 255 * dyna_lighting_intensity( pdyna, nrm );
+    float level = 255.0f * dyna_lighting_intensity( pdyna, nrm );
     if ( 0.0f == level ) return true;
 
     // allow negative lighting, or blind spots will not work properly
@@ -535,13 +535,13 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTI
     if ( 1.0f != rad_sqr && 0.0f != rad_sqr )
     {
         float rad = std::sqrt( rad_sqr );
-        local_nrm[kX] /= rad;
-        local_nrm[kY] /= rad;
-        local_nrm[kZ] /= rad;
+        local_nrm.x() /= rad;
+        local_nrm.y() /= rad;
+        local_nrm.z() /= rad;
     }
 
     // sum the lighting
-    lighting_vector_sum( lighting, local_nrm, level, 0.0f );
+    lighting_vector_sum(lighting, local_nrm, level, 0.0f);
 
     return true;
 }
