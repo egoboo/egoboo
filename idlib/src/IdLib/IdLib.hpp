@@ -36,6 +36,7 @@
 #include "IdLib/AssertionFailedException.hpp"
 #include "IdLib/UnhandledSwitchCaseException.hpp"
 #include "IdLib/RuntimeErrorException.hpp"
+#include "IdLib/InvalidArgumentException.hpp"
 #include "IdLib/OutOfBoundsException.hpp"
 
 // DSL utilities.
