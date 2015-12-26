@@ -364,13 +364,13 @@ void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GL
     
     if (w == 1 && h == 1) return;
     
-    uint32_t rMask = pfd.getRedMask();
-    uint32_t gMask = pfd.getGreenMask();
-    uint32_t bMask = pfd.getBlueMask();
-    uint32_t aMask = pfd.getAlphaMask();
+    uint32_t alphaMask = pfd.getAlphaMask(),
+        redMask = pfd.getRedMask(),
+        greenMask = pfd.getGreenMask(),
+        blueMask = pfd.getBlueMask();
     int bpp = pfd.getBitsPerPixel();
     
-    SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)data, w, h, bpp, w * bpp / 8, rMask, gMask, bMask, aMask);
+    SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)data, w, h, bpp, w * bpp / 8, redMask, greenMask, blueMask, alphaMask);
     SDL_assert(surf != nullptr);
     
     GLsizei newW = w;
@@ -382,7 +382,7 @@ void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GL
         if (newH > 1) newH /= 2;
         level++;
         
-        SDL_Surface *newSurf = SDL_CreateRGBSurface(0, newW, newH, bpp, rMask, gMask, bMask, aMask);
+        SDL_Surface *newSurf = SDL_CreateRGBSurface(0, newW, newH, bpp, redMask, greenMask, blueMask, alphaMask);
         SDL_assert(newSurf != nullptr);
         
         /// @todo this is 'low-quality' and not thread-safe

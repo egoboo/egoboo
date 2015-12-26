@@ -1631,7 +1631,7 @@ bool ego_texture_exists_vfs(const std::string &filename)
     return false;
 }
 
-bool  ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const char *filename, Uint32 key)
+bool  ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const char *filename)
 {
     // Get rid of any old data.
     texture->release();
@@ -1668,7 +1668,7 @@ bool  ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const char *fi
             continue;
         }
         // Create the texture from the surface.
-        retval = texture->load(fullFilename.c_str(), surface, key);
+        retval = texture->load(fullFilename.c_str(), surface);
         if (retval)
         {
             break;

@@ -63,8 +63,26 @@ struct Utilities
      */
     static bool isError();
 
+    /**
+     * @brief Upload a 1D texture.
+     * @param pdf the pixel descriptor describing the format of a pixels
+     * @param w the width of the pixel rectangle
+     * @param data a pointer to the pixels
+     */
     static void upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const void *data);
+    /**
+     * @brief Upload a 2D texture.
+     * @param pdf the pixel descriptor describing the format of a pixels
+     * @param w, h the width and height of the pixel rectangle
+     * @param data a pointer to the pixels
+     */
     static void upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
+    /**
+     * @brief Upload a 2D texture generating the mipmaps.
+     * @param pdf the pixel descriptor describing the format of a pixels
+     * @param w, h the width and height of the pixel rectangle
+     * @param data a pointer to the pixels
+     */
     static void upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
 
     /**

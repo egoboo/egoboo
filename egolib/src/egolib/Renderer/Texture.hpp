@@ -305,8 +305,8 @@ public:
     const std::string& getName() const;
 
 public:
-	virtual bool load(const std::string& name, std::shared_ptr<SDL_Surface> surface, uint32_t key = INVALID_KEY) = 0;
-	virtual bool load(std::shared_ptr<SDL_Surface> image, uint32_t key = INVALID_KEY) = 0;
+	virtual bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) = 0;
+	virtual bool load(const std::shared_ptr<SDL_Surface>& image) = 0;
 
 	/**
 	 * @brief
@@ -348,11 +348,11 @@ protected:
     GLuint  _id;
 
 public:
-	/** @override Ego::Texture::upload(const std::string& name, std::shared_ptr<SDL_Surface>, uint32_t) */
-    bool load(const std::string& name, std::shared_ptr<SDL_Surface> surface, uint32_t key = INVALID_KEY) override;
+	/** @override Ego::Texture::upload(const std::string& name, const std::shared_ptr<SDL_Surface>&) */
+    bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) override;
 
-    /** @override Ego::Texture::upload(std::shared_ptr<SDL_Surface>, uint32_t) */
-    bool load(std::shared_ptr<SDL_Surface> image, uint32_t key = INVALID_KEY) override;
+    /** @override Ego::Texture::upload(const std::shared_ptr<SDL_Surface>&) */
+    bool load(const std::shared_ptr<SDL_Surface>& surface) override;
     
     /** @override Ego::Texture::release */
     void release() override;
