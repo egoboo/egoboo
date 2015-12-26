@@ -79,14 +79,15 @@ enum class prt_ori_t
 };
 
 // The special damage effects for particles
-enum e_damage_fx
+enum ParticleDamageEffectBits : size_t
 {
-    DAMFX_NONE = 0,                     ///< Damage effects
-    DAMFX_ARMO = (1 << 1),              ///< Armor piercing
-    DAMFX_NBLOC = (1 << 2),             ///< Cannot be blocked by shield
-    DAMFX_ARRO = (1 << 3),              ///< Only hurts the one it's attached to
-    DAMFX_TURN = (1 << 4),              ///< Turn to attached direction
-    DAMFX_TIME = (1 << 5)               ///< Do not reset the damage timer
+    DAMFX_NONE,              ///< Damage effects
+    DAMFX_ARMO,              ///< Armor piercing
+    DAMFX_NBLOC,             ///< Cannot be blocked by shield
+    DAMFX_ARRO,              ///< Only hurts the one it's attached to
+    DAMFX_TURN,              ///< Turn to attached direction
+    DAMFX_TIME,              ///< Do not reset the damage timer
+    NR_OF_DAMFX_BITS         ///< Always last
 };
 
 /// Turn values specifying corrections to the rotation of particles
@@ -101,8 +102,8 @@ enum particle_direction_t
 
 struct dynalight_info_t
 {
-    Uint8   mode;                ///< when is it?
-    Uint8   on;                  ///< is it on now?
+    uint8_t   mode;                ///< when is it?
+    uint8_t   on;                  ///< is it on now?
 
     float   level;               ///< intensity
     float   level_add;           ///< intensity changes
@@ -116,25 +117,53 @@ struct dynalight_info_t
 };
 
 /// The definition of a particle profile
-struct pip_t : public AbstractProfile
+class ParticleProfile : public AbstractProfile
 {
-    char comment[1024];   ///< The first line of the file has a comment line.
+public:
+    /**
+     * @brief
+     *  Construct this particle profile with default values.
+     */
+    ParticleProfile();
 
-    // Initial spawning of this particle.
-    IPair facing_pair;      ///< Facing
-    IPair spacing_hrz_pair; ///< Spacing
-    IPair spacing_vrt_pair; ///< Altitude
-    IPair vel_hrz_pair;     ///< Shot velocity
-    IPair vel_vrt_pair;     ///< Up velocity
+    /**
+     * @brief
+     *  Destruct this particle profile.
+     */
+    virtual ~ParticleProfile();
+
+    void reset() override;
+
+    bool hasBit(const ParticleDamageEffectBits bit) const;
+
+    /**
+     * @brief
+     *  Read a particle profile.
+     * @param pathname
+     *  the pathname of the file to read the data from
+     * @return
+     *  @a the ParticleProfile object on success, @a nullptr on failure
+     */
+    static std::shared_ptr<ParticleProfile> readFromFile(const std::string& pathname);
+
+    const IPair& getSpawnFacing() const;
+    
+    const IPair& getSpawnPositionOffsetXY() const;
+    
+    const IPair& getSpawnPositionOffsetZ() const;
+    
+    const IPair& getSpawnVelocityOffsetXY() const;
+    
+    const IPair& getSpawnVelocityOffsetZ() const;
+    
+public:
 
     // Spawning.
-    Sint8 soundspawn;       ///< Beginning sound
+    int8_t soundspawn;       ///< Beginning sound
     bool force;             ///< Force spawn?
     bool newtargetonspawn;  ///< Get new target?
     bool needtarget;        ///< Need a target?
     bool startontarget;     ///< Start on target?
-
-
 
     // Ending conditions.
     int end_time;                    ///< Time until end in seconds, (-1 for infinite).
@@ -145,9 +174,9 @@ struct pip_t : public AbstractProfile
     bool end_lastframe;              ///< End on last frame
     
     // Ending sounds.
-    Sint8 end_sound;                 ///< Ending sound (-1 for none).
-    Sint8 end_sound_floor;           ///< Floor sound (-1 for none).
-    Sint8 end_sound_wall;            ///< Ricochet sound (-1 for none).
+    int8_t end_sound;                 ///< Ending sound (-1 for none).
+    int8_t end_sound_floor;           ///< Floor sound (-1 for none).
+    int8_t end_sound_wall;            ///< Ricochet sound (-1 for none).
 
     // What/how to spawn continuously.
     ContinuousSpawnDescriptor contspawn;
@@ -158,15 +187,14 @@ struct pip_t : public AbstractProfile
 
     // Bumping of particle into particles/objects.
     int bump_money;                  ///< Value of particle
-    Uint32 bump_size;                ///< Bounding box size
-    Uint32 bump_height;              ///< Bounding box height
+    uint32_t bump_size;                ///< Bounding box size
+    uint32_t bump_height;              ///< Bounding box height
 
     // Hitting.
     FRange damage;                    ///< Damage
     DamageType damageType;            ///< Damage type
-    unsigned int dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
-    unsigned int grogTime;            ///< How long is an Object "grogged" if hit by this particle.
-    BIT_FIELD damfx;                  ///< Damage effects
+    uint32_t dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
+    uint32_t grogTime;            ///< How long is an Object "grogged" if hit by this particle.
     bool _intellectDamageBonus;       ///< Add intellect as damage bonus.
     bool spawnenchant;                ///< Spawn enchant?
     
@@ -205,12 +233,14 @@ struct pip_t : public AbstractProfile
      * @brief
      *  The number of frames.
      */
-    Uint8 image_max;            ///< Number of frames
+    uint8_t image_max;            ///< Number of frames
+
     /**
      * @brief
      *  The index of the starting frame.
      */
-    Uint8 image_stt;
+    uint8_t image_stt;
+
     /**
      * @brief
      *  The frame rate ("base" + "range" form).
@@ -218,25 +248,22 @@ struct pip_t : public AbstractProfile
     IPair image_add;
 
     IPair rotate_pair;          ///< Rotation
-    Sint16 rotate_add;          ///< Rotation rate
-    Uint16 size_base;           ///< Size
-    Sint16 size_add;            ///< Size rate
-    Uint16 facingadd;           ///< Facing
+    int16_t rotate_add;          ///< Rotation rate
+    uint16_t size_base;           ///< Size
+    int16_t size_add;            ///< Size rate
+    uint16_t facingadd;           ///< Facing
     prt_ori_t orientation;      ///< The way the particle orientation is calculated for display
 
-    /**
-     * @brief
-     *  Construct this particle profile with default values.
-     */
-    pip_t();
+private:
+    std::string _comment;
+    std::bitset<NR_OF_DAMFX_BITS> _particleEffectBits;
 
-    /**
-     * @brief
-     *  Destruct this particle profile.
-     */
-    virtual ~pip_t();
-
-    void reset() override;
+    // Initial spawning of this particle.
+    IPair _spawnFacing;             ///< Facing
+    IPair _spawnPositionOffsetXY;   ///< Spacing
+    IPair _spawnPositionOffsetZ;    ///< Altitude
+    IPair _spawnVelocityOffsetXY;   ///< Shot velocity
+    IPair _spawnVelocityOffsetZ;    ///< Up velocity
 };
 
 /// @todo Remove globals.

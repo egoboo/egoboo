@@ -1537,7 +1537,7 @@ Uint8 scr_DamageTarget( script_state_t& state, ai_state_t& self )
     tmp_damage.rand = 1;
 
     target->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pchr->damagetarget_damagetype), 
-        pchr->team, _currentModule->getObjectHandler()[self.getSelf()], DAMFX_NBLOC, true);
+        pchr->team, _currentModule->getObjectHandler()[self.getSelf()], false, false, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1768,9 +1768,7 @@ Uint8 scr_GiveMoneyToTarget( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function increases the target's money, while decreasing the
     /// character's own money.  tmpargument is set to the amount transferred
-    /// @note BB@> I would like to use getadd_int() here, but it is not really suited to two variables
 
-    int tTmp, iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1778,33 +1776,16 @@ Uint8 scr_GiveMoneyToTarget( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     //squash out-or-range values
-    pchr->money = Ego::Math::constrain( pchr->money, (Sint16)0, (Sint16)MAXMONEY );
-    pself_target->money = Ego::Math::constrain( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
-
-    // limit the range of the character's money
-    iTmp = pchr->money - state.argument;
-    iTmp = Ego::Math::constrain( iTmp, 0, MAXMONEY );
-
-    // limit the range of the target's money
-    tTmp = pself_target->money + state.argument;
-    tTmp = Ego::Math::constrain( tTmp, 0, MAXMONEY );
-
-    // recover the possible transfer values
-    iTmp = iTmp + state.argument;
-    tTmp = tTmp - state.argument;
-
-    // limit the transfer values
-    if ( state.argument < 0 )
-    {
-        state.argument = std::max( iTmp, tTmp );
+    if(state.argument < 0 && std::abs(state.argument) > pself_target->money) {
+        state.argument = -pself_target->money;
     }
-    else
-    {
-        state.argument = std::min( iTmp, tTmp );
+    if(state.argument > pchr->money) {
+        state.argument = pchr->money;
     }
 
-    pchr->money         = pchr->money + state.argument;
-    pself_target->money = pself_target->money + state.argument;
+    //Do the transfer
+    pchr->money = Ego::Math::constrain(pchr->money - state.argument, 0, MAXMONEY);
+    pself_target->money = Ego::Math::constrain(pself_target->money + state.argument, 0, MAXMONEY);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2194,18 +2175,18 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
 		Vector3f tmp_pos = particle->getPosition();
 
         // Correct X, Y, Z spacing
-        tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
+        tmp_pos.z() += particle->getProfile()->getSpawnPositionOffsetZ().base;
 
         // Don't spawn in walls
-        tmp_pos[kX] += state.x;
+        tmp_pos.x() += state.x;
         if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos))
         {
-            tmp_pos[kX] = particle->getPosX();
+            tmp_pos.x() = particle->getPosX();
 
-            tmp_pos[kY] += state.y;
+            tmp_pos.y() += state.y;
             if (EMPTY_BIT_FIELD != particle->test_wall(tmp_pos))
             {
-                tmp_pos[kY] = particle->getPosY();
+                tmp_pos.y() = particle->getPosY();
             }
         }
 
@@ -5384,25 +5365,15 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
     }
     else
     {
-        // was the child spawned in a "safe" spot?
-        if (!pchild->hasSafePosition())
-        {
-			Log::get().warn( "Object %s failed to spawn object (no safe location)\n", pchr->getName().c_str() );
-            pchr->requestTerminate();
-            returncode = false;
-        }
-        else
-        {
-            self.child = pchild->getObjRef();
+        self.child = pchild->getObjRef();
 
-            pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
-            pchild->ai.passage = self.passage;
-            pchild->ai.owner   = self.owner;
+        pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
+        pchild->ai.passage = self.passage;
+        pchild->ai.owner   = self.owner;
 
-            pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
-            pchild->dismount_object = self.getSelf();
-            returncode = true;
-        }
+        pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+        pchild->dismount_object = self.getSelf();
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6720,47 +6691,52 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
 
     /// @author ZZ
     /// @details This function makes a lovely little poof at the character's location,
-    /// adjusting the xy speed and spacing and the base damage first
+    /// adjusting the xy speed and spacing and the base damage
     /// Temporarily adjust the values for the particle type
 
-    int   tTmp, iTmp;
-    float fTmp;
+    //ZF> Note: This script function seems to be only used by the Fireball spell, so its use is VERY limited
 
     SCRIPT_FUNCTION_BEGIN();
 
     PIP_REF ipip = ppro->getParticlePoofProfile();
     if ( INVALID_PIP_REF == ipip) return false;
-    std::shared_ptr<pip_t> ppip = ParticleProfileSystem::get().get_ptr(ipip);
+    const std::shared_ptr<ParticleProfile> &ppip = ParticleProfileSystem::get().get_ptr(ipip);
 
     returncode = false;
-    if ( NULL != ppip )
+    if (ppip != nullptr)
     {
-        /// @note BB@> if we do not change both the ppip->damage.from AND the ppip->damage.to
-        /// an error will be generated down the line...
+        const float velOffsetBase = static_cast<float>(state.x);
+        const float posOffsetBase = static_cast<float>(state.y);
+        const float damage_rand = ppip->damage.to - ppip->damage.from;
 
-        float damage_rand = ppip->damage.to - ppip->damage.from;
+        FACING_T facing_z = pchr->ori.facing_z;
+        for (int cnt = 0; cnt < pchr->getProfile()->getParticlePoofAmount(); cnt++)
+        {
+            std::shared_ptr<Ego::Particle> poofParticle = ParticleHandler::get().spawnParticle(pchr->getOldPosition(), facing_z, pchr->getProfile()->getSlotNumber(), ipip,
+                                                 ObjectRef::Invalid, GRIP_LAST, pchr->team, pchr->ai.owner, ParticleRef::Invalid, cnt);
 
-        // save some values
-        iTmp = ppip->vel_hrz_pair.base;
-        tTmp = ppip->spacing_hrz_pair.base;
-        fTmp = ppip->damage.from;
+            // set some values
+            if(poofParticle) {
 
-        // set some values
-        ppip->vel_hrz_pair.base     = state.x;
-        ppip->spacing_hrz_pair.base = state.y;
-        ppip->damage.from           = FP8_TO_FLOAT( state.argument );
-        ppip->damage.to             = ppip->damage.from + damage_rand;
+                //Add random horizontal velocity offset
+                Vector2f xyVelOffset = Vector2f(velOffsetBase + Random::next(ppip->getSpawnVelocityOffsetXY().rand), velOffsetBase + Random::next(ppip->getSpawnVelocityOffsetXY().rand));
+                poofParticle->vel.x() += xyVelOffset.x();
+                poofParticle->vel.y() += xyVelOffset.y();
 
-        ParticleHandler::get().spawnPoof(pchr->toSharedPointer());
+                //Add random horizontal position offset
+                Vector2f xyPosOffset = Vector2f(posOffsetBase + Random::next(ppip->getSpawnPositionOffsetXY().rand), posOffsetBase + Random::next(ppip->getSpawnPositionOffsetXY().rand));
+                poofParticle->setPosition(poofParticle->getPosX() + xyPosOffset.x(), poofParticle->getPosY() + xyPosOffset.y(), poofParticle->getPosZ());
 
+                //Adjust damage
+                poofParticle->damage.base = FP8_TO_FLOAT(state.argument);
+                poofParticle->damage.rand = ppip->damage.from + damage_rand;
 
-        // Restore the saved values
-        ppip->vel_hrz_pair.base     = iTmp;
-        ppip->spacing_hrz_pair.base = tTmp;
-        ppip->damage.from           = fTmp;
-        ppip->damage.to             = ppip->damage.from + damage_rand;
+                //Success! We have spawned at least one poof
+                returncode = true;
+            }
 
-        returncode = true;
+            facing_z += pchr->getProfile()->getParticlePoofFacingAdd();
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -7059,7 +7035,7 @@ Uint8 scr_IfTargetIsASpell( script_state_t& state, ai_state_t& self )
     returncode = false;
     for (LocalParticleProfileRef iTmp(0); iTmp.get() < MAX_PIP_PER_PROFILE; ++iTmp)
     {
-        std::shared_ptr<pip_t> ppip = ProfileSystem::get().pro_get_ppip(pchr->getProfileID(), iTmp);
+        std::shared_ptr<ParticleProfile> ppip = ProfileSystem::get().pro_get_ppip(pchr->getProfileID(), iTmp);
         if (!ppip) continue;
 
         if ( ppip->_intellectDamageBonus )
@@ -7895,7 +7871,7 @@ Uint8 scr_TargetDamageSelf( script_state_t& state, ai_state_t& self )
     tmp_damage.base = state.argument;
     tmp_damage.rand = 1;
 
-    pchr->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(state.distance), target->getTeam().toRef(), target, DAMFX_NBLOC, true);
+    pchr->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(state.distance), target->getTeam().toRef(), target, false, false, true);
 
     SCRIPT_FUNCTION_END();
 }

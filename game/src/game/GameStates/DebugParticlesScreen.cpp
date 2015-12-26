@@ -83,7 +83,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
     for(const auto &element : usageCount)
     {
-        const std::shared_ptr<pip_t> &particleProfile = ParticleProfileSystem::get().get_ptr(element.first);
+        const std::shared_ptr<ParticleProfile> &particleProfile = ParticleProfileSystem::get().get_ptr(element.first);
 
         std::stringstream labelString;
         labelString << element.second << " particle" << ((element.second > 0) ? "s: " : ":");
@@ -96,7 +96,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
     for(const auto &element : terminatedCount)
     {
-        const std::shared_ptr<pip_t> &particleProfile = ParticleProfileSystem::get().get_ptr(element.first);
+        const std::shared_ptr<ParticleProfile> &particleProfile = ParticleProfileSystem::get().get_ptr(element.first);
 
         std::stringstream labelString;
         labelString << element.second << " terminated particle" << ((element.second > 0) ? "s: " : ":");

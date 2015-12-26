@@ -530,7 +530,7 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 
     const float max_dist2 = WIDE * WIDE;
 
-    std::shared_ptr<pip_t> ppip;
+    std::shared_ptr<ParticleProfile> ppip;
 
     ObjectRef besttarget = ObjectRef::Invalid;
     float  longdist2 = max_dist2;
@@ -2173,9 +2173,9 @@ void upload_light_data(const wawalite_data_t& data)
         if (gfx.usefaredge)
         {
             // We are outside, do the direct light as sunlight.
-            light_d = 1.0f;
-            light_a = light_a / length;
-            light_a = Ego::Math::constrain( light_a, 0.0f, 1.0f );
+            light_d = light_a * length;
+            light_a = 0.0f;
+            //light_a = Ego::Math::constrain( light_a, 0.0f, 1.0f );
         }
         else
         {
@@ -3416,7 +3416,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                             particle->placeAtVertex(particle->getTarget(), spawn_vrt_offset);
 
                             // Correct Z spacing base, but nothing else...
-                            tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
+                            tmp_pos[kZ] += particle->getProfile()->getSpawnPositionOffsetZ().base;
                         }
                         else
                         {

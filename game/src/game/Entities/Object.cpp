@@ -333,13 +333,13 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
 }
 
 int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
-                   const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
+                   const std::shared_ptr<Object> &attacker, const bool ignoreArmour, const bool setDamageTime, const bool ignoreInvictus)
 {
     int action;
     bool do_feedback = (Ego::FeedbackType::None != egoboo_config_t::get().hud_feedback.getValue());
 
     // Simply ignore damaging invincible targets.
-    if(invictus && !ignore_invictus)
+    if(invictus && !ignoreInvictus)
     {
         return 0;
     }
@@ -387,7 +387,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     // Lessen actual damage taken by resistance
     // This can also be used to lessen effectiveness of healing
     int base_damage = Random::next(damage.base, damage.base+damage.rand);
-    int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(effects, DAMFX_ARMO));
+    int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, !ignoreArmour);
 
     // Increase electric damage when in water
     if (damagetype == DAMAGE_ZAP && isSubmerged() && _currentModule->getWater()._is_water)
@@ -422,7 +422,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
     // Check for characters who are immune to this damage, no need to continue if they have
     bool immune_to_damage = HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || (actual_damage > 0 && actual_damage <= damage_threshold);
-    if ( immune_to_damage && !ignore_invictus )
+    if ( immune_to_damage && !ignoreInvictus )
     {
         actual_damage = 0;
 
@@ -444,7 +444,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     if ( actual_damage > 0 )
     {
         // Only actual_damage if not invincible
-        if ( 0 == damage_timer || ignore_invictus )
+        if ( 0 == damage_timer || ignoreInvictus )
         {
             // Normal mode reduces damage dealt by monsters with 30%!
             if (egoboo_config_t::get().game_difficulty.getValue() == Ego::GameDifficulty::Normal && isPlayer())
@@ -489,7 +489,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 //Did we survive?
                 if (_currentLife <= 0)
                 {
-                    this->kill(attacker, ignore_invictus);
+                    this->kill(attacker, ignoreInvictus);
                 }
                 else
                 {
@@ -507,7 +507,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                         }
 
                         // Make the character invincible for a limited time only
-                        if ( HAS_NO_BITS(effects, DAMFX_TIME) )
+                        if (setDamageTime)
                         {
                             damage_timer = DAMAGETIME;
                         }
@@ -571,7 +571,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     // Heal 'em instead
     else if ( actual_damage < 0 )
     {
-        heal(attacker, -actual_damage, ignore_invictus);
+        heal(attacker, -actual_damage, ignoreInvictus);
 
         // Isssue an alert
         if ( attackerTeam == Team::TEAM_DAMAGE )
@@ -2428,16 +2428,13 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), true );
 }
 
-bool Object::isInvictusDirection(FACING_T direction, const BIT_FIELD effects) const
+bool Object::isInvictusDirection(FACING_T direction) const
 {
     FACING_T left;
     FACING_T right;
 
     // if the invictus flag is set, we are invictus
     if (isInvincible()) return true;
-
-    // if the effect is shield piercing, ignore shielding
-    if (HAS_SOME_BITS(effects, DAMFX_NBLOC)) return false;
 
     // if the character's frame is invictus, then check the angles
     if (HAS_SOME_BITS(chr_instance_t::get_framefx(inst), MADFX_INVICTUS))

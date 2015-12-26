@@ -171,7 +171,7 @@ BIT_FIELD Particle::test_wall(const Vector3f& pos)
 	return _currentModule->getMeshPointer()->test_wall(pos, 0.0f, stoppedby);
 }
 
-const std::shared_ptr<pip_t>& Particle::getProfile() const
+const std::shared_ptr<ParticleProfile>& Particle::getProfile() const
 {
     return _particleProfile;
 }
@@ -545,7 +545,7 @@ size_t Particle::updateContinuousSpawning()
 
     //Optimization: Only spawn cosmetic sub-particles if we ourselves were rendered
     //This prevents a lot of cosmetic particles from spawning outside visible range
-    const std::shared_ptr<pip_t>& childProfile = ParticleProfileSystem::get().get_ptr(getProfile()->contspawn._lpip.get());
+    const std::shared_ptr<ParticleProfile>& childProfile = ParticleProfileSystem::get().get_ptr(getProfile()->contspawn._lpip.get());
     if(!childProfile->force && !inst.indolist) {
 
         //Is is something that spawns often? (often = at least once every 2 seconds)
@@ -608,7 +608,7 @@ void Particle::updateAttachedDamage()
     //---- only do damage in certain cases:
 
     // 1) the particle has the DAMFX_ARRO bit
-    bool skewered_by_arrow = HAS_SOME_BITS(getProfile()->damfx, DAMFX_ARRO);
+    bool skewered_by_arrow = getProfile()->hasBit(DAMFX_ARRO);
 
     // 2) the character is vulnerable to this damage type
     bool has_vulnie = (attachedObject->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == ProfileSystem::get().getProfile(_spawnerProfile)->getIDSZ(IDSZ_TYPE) || 
@@ -658,16 +658,16 @@ void Particle::updateAttachedDamage()
     }
 
     //---- special effects
-    if (getProfile()->allowpush && 0 == getProfile()->vel_hrz_pair.base)
+    if (getProfile()->allowpush && 0 == getProfile()->getSpawnVelocityOffsetXY().base)
     {
         // Make character limp
-        attachedObject->vel[kX] *= 0.5f;
-        attachedObject->vel[kY] *= 0.5f;
+        attachedObject->vel.x() *= 0.5f;
+        attachedObject->vel.y() *= 0.5f;
     }
 
     //---- do the damage
     int actual_damage = attachedObject->damage(ATK_BEHIND, local_damage, static_cast<DamageType>(damagetype), team,
-        _currentModule->getObjectHandler()[owner_ref], getProfile()->damfx, false);
+        _currentModule->getObjectHandler()[owner_ref], getProfile()->hasBit(DAMFX_ARMO), !getProfile()->hasBit(DAMFX_TIME), false);
 
     // adjust any remaining particle damage
     if (damage.base > 0)
@@ -817,14 +817,14 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     attachedto_vrt_off = vrt_offset;
 
     // Correct loc_facing
-    loc_facing += getProfile()->facing_pair.base;
+    loc_facing += getProfile()->getSpawnFacing().base;
 
     // Targeting...
-    vel[kZ] = 0;
+    vel.z() = 0;
 
-    offset[kZ] = generate_irand_pair(getProfile()->spacing_vrt_pair) - (getProfile()->spacing_vrt_pair.rand / 2);
-    tmp_pos[kZ] += offset[kZ];
-    const int velocity = generate_irand_pair(getProfile()->vel_hrz_pair);
+    offset.z() = generate_irand_pair(getProfile()->getSpawnPositionOffsetZ()) - (getProfile()->getSpawnPositionOffsetZ().rand / 2);
+    tmp_pos.z() += offset.z();
+    const int velocity = generate_irand_pair(getProfile()->getSpawnVelocityOffsetXY());
 
     //Set target
     _target = spawnTarget;
@@ -872,7 +872,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
                     aimError -= (0.5f/PERFECT_AIM) * attackerAgility;
                 }
 
-                offsetfacing = Random::next(getProfile()->facing_pair.rand) - (getProfile()->facing_pair.rand / 2);
+                offsetfacing = Random::next(getProfile()->getSpawnFacing().rand) - (getProfile()->getSpawnFacing().rand / 2);
                 offsetfacing *= aimError;
             }
 
@@ -921,7 +921,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     else
     {
         // Correct loc_facing for randomness
-        offsetfacing = generate_irand_pair(getProfile()->facing_pair) - (getProfile()->facing_pair.base + getProfile()->facing_pair.rand / 2);
+        offsetfacing = generate_irand_pair(getProfile()->getSpawnFacing()) - (getProfile()->getSpawnFacing().base + getProfile()->getSpawnFacing().rand / 2);
     }
     loc_facing += offsetfacing;
     facing = loc_facing;
@@ -930,7 +930,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     TURN_T turn = TO_TURN(loc_facing);
 
     // Location data from arguments
-    newrand = generate_irand_pair(getProfile()->spacing_hrz_pair);
+    newrand = generate_irand_pair(getProfile()->getSpawnPositionOffsetXY());
     offset[kX] = -turntocos[turn] * newrand;
     offset[kY] = -turntosin[turn] * newrand;
 
@@ -950,9 +950,9 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     }
 
     // Velocity data
-    vel[kX] = -turntocos[turn] * velocity;
-    vel[kY] = -turntosin[turn] * velocity;
-    vel[kZ] += generate_irand_pair(getProfile()->vel_vrt_pair) - (getProfile()->vel_vrt_pair.rand / 2);
+    vel.x() = -turntocos[turn] * velocity;
+    vel.y() = -turntosin[turn] * velocity;
+    vel.z() += generate_irand_pair(getProfile()->getSpawnVelocityOffsetZ()) - (getProfile()->getSpawnVelocityOffsetZ().rand / 2);
     this->vel = vel_old = vel_stt = vel;
 
     // Template values
@@ -1171,7 +1171,7 @@ bool Particle::attach(const ObjectRef attach)
     }
 
     // Correct facing so swords knock characters in the right direction...
-    if ( HAS_SOME_BITS( getProfile()->damfx, DAMFX_TURN ) )
+    if (getProfile()->hasBit(DAMFX_TURN))
     {
         facing = pchr->ori.facing_z;
     }

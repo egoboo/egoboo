@@ -362,7 +362,7 @@ void CharacterWindow::buildActiveEnchantsTab()
 
         std::shared_ptr<Button> button = std::make_shared<Button>(prefix + name);
         button->setSize(activeEnchants->getWidth() - 50, activeEnchants->getHeight() / 6);
-        button->setOnClickFunction([this, &element, &name, &enchantName, &enchantEffects] {
+        button->setOnClickFunction([this, element, name, enchantName, enchantEffects] {
             enchantName->setText(name);
             describeEnchantEffects(element.second, enchantEffects);
 

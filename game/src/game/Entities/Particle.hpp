@@ -124,7 +124,7 @@ public:
      * @return
      *  a pointer to the profile of this particle or a null pointer
      */
-    const std::shared_ptr<pip_t>& getProfile() const;
+    const std::shared_ptr<ParticleProfile>& getProfile() const;
 
     /// @details Tell the game to get rid of this object and treat it as if it was already dead.
     /// @note This will force the game to (eventually) call end_one_particle_in_game() on this particle
@@ -449,7 +449,7 @@ private:
 
     //Profile
     PIP_REF _particleProfileID;                ///< The particle profile
-    std::shared_ptr<pip_t> _particleProfile;
+    std::shared_ptr<ParticleProfile> _particleProfile;
 
     bool _isTerminated;                        ///< Marked for destruction. No longer part of the game and will be removed ASAP
 

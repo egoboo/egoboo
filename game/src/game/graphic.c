@@ -1845,24 +1845,22 @@ float get_ambient_level()
     {
         // for outside modules, max light_a means bright sunlight
         // this should be handled with directional lighting, so ambient light is 0
-        //glob_amb = light_a * 255.0f;
-        glob_amb = 0;
+        glob_amb = light_a * 255.0f;
+        //glob_amb = 0;
     }
     else
     {
         // for inside modules, max light_a means dingy dungeon lighting
-        glob_amb = light_a * 32.0f;
+        glob_amb = light_a * 64.0f;
     }
 
     // determine the minimum ambient, based on darkvision
     min_amb = INVISIBLE / 4;
-    if (local_stats.seedark_mag != 1.0f)
+    if (local_stats.seedark_mag > 0.0f)
     {
+        // give a iny boost in the case of no light
         // start with the global light
-        min_amb = glob_amb;
-
-        // give a iny boost in the case of no light_a
-        if (local_stats.seedark_mag > 0.0f) min_amb += 1.0f;
+        min_amb = std::max(glob_amb, min_amb) + 1.0f;
 
         // light_a can be quite dark, so we need a large magnification
         min_amb *= std::pow(local_stats.seedark_mag, 5);
@@ -2136,7 +2134,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
             dyna_weight_sum += dyna_weight;
         }
 
-        // use a singel dynalight to represent the sum of all dynalights
+        // use a single dynalight to represent the sum of all dynalights
         if (dyna_weight_sum > 0.0f)
         {
             float radius;
@@ -2172,7 +2170,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
     sum_global_lighting(global_lighting);
 
     // make the grids update their lighting every 4 frames
-    local_keep = std::pow(DYNALIGHT_KEEP, 4);
+    local_keep = 0.0f; //std::pow(DYNALIGHT_KEEP, 4);
 
     // Add to base light level in normal mode
     for (size_t entry = 0; entry < tl._all.size; entry++)

@@ -740,7 +740,7 @@ void GameModule::updatePits()
 
                     // Do some damage (same as damage tile)
                     pchr->damage(ATK_BEHIND, _damageTile.amount, static_cast<DamageType>(_damageTile.damagetype), Team::TEAM_DAMAGE, 
-                                 _gameObjects[pchr->ai.getBumped()], DAMFX_NBLOC | DAMFX_ARMO, false);
+                                 _gameObjects[pchr->ai.getBumped()], true, false, false);
                 }
             }
         }
@@ -799,7 +799,7 @@ void GameModule::updateDamageTiles()
         if (0 == pchr->damage_timer)
         {
             int actual_damage = pchr->damage(ATK_BEHIND, _damageTile.amount, static_cast<DamageType>(_damageTile.damagetype), 
-                Team::TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
+                Team::TEAM_DAMAGE, nullptr, true, false, false);
 
             pchr->damage_timer = DAMAGETILETIME;
 

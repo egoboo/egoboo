@@ -51,7 +51,7 @@ public:
 
     ParticleRef iprt;
     std::shared_ptr<Ego::Particle> pprt;
-    std::shared_ptr<pip_t> ppip;
+    std::shared_ptr<ParticleProfile> ppip;
 
     //---- collision parameters
 
@@ -456,7 +456,8 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
     direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
-    bool chr_is_invictus = pdata->pchr->isInvictusDirection(direction, pdata->ppip->damfx);
+    // if the effect is shield piercing, ignore shielding
+    bool chr_is_invictus = !pdata->ppip->hasBit(DAMFX_NBLOC) && pdata->pchr->isInvictusDirection(direction);
 
     // try to deflect the particle
     bool chr_can_deflect = (0 != pdata->pchr->damage_timer) && (pdata->max_damage > 0);
@@ -693,7 +694,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         //}
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
-        if ( HAS_NO_BITS(pdata->ppip->damfx, DAMFX_ARRO) /*&& (!prt_needs_impact || pdata->is_impact)*/ )
+        if (!pdata->ppip->hasBit(DAMFX_ARRO) /*&& (!prt_needs_impact || pdata->is_impact)*/ )
         {
             //Damage adjusted for attributes and weaknesses
             IPair modifiedDamage = pdata->pprt->damage;
@@ -807,7 +808,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                             IPair grimReaperDamage;
                             grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
                             grimReaperDamage.rand = 0.0f;
-                            pdata->pchr->damage(direction, grimReaperDamage, DAMAGE_EVIL, pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], DAMFX_TIME, false);
+                            pdata->pchr->damage(direction, grimReaperDamage, DAMAGE_EVIL, pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], false, true, false);
                             BillboardSystem::get().makeBillboard(powner->getObjRef(), "Grim Reaper!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
                             AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                         }
@@ -862,7 +863,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
             // Damage the character
             pdata->actual_damage = pdata->pchr->damage(direction, modifiedDamage, pdata->pprt->damagetype, 
-                pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], pdata->ppip->damfx, false);
+                pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], pdata->ppip->hasBit(DAMFX_ARMO), !pdata->ppip->hasBit(DAMFX_TIME), false);
         }
     }
 
