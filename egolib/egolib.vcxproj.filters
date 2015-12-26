@@ -219,13 +219,7 @@
     <ClCompile Include="src\egolib\Profiles\RandomName.cpp">
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Profiles\EnchantProfileReader.cpp">
-      <Filter>Source Files\Profiles</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Profiles\EnchantProfileWriter.cpp">
-      <Filter>Source Files\Profiles</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Profiles\ParticleProfileReader.cpp">
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Profiles\ParticleProfileWriter.cpp">
@@ -242,9 +236,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\IDSZ.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Profiles\ParticleProfileSystem.cpp">
-      <Filter>Source Files\Profiles</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp">
       <Filter>Source Files\Profiles</Filter>
@@ -602,13 +593,7 @@
     <ClInclude Include="src\egolib\Profiles\_Include.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Profiles\EnchantProfileReader.hpp">
-      <Filter>Header Files\Profiles</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Profiles\EnchantProfileWriter.hpp">
-      <Filter>Header Files\Profiles</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Profiles\ParticleProfileReader.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp">
