@@ -62,10 +62,11 @@ static const std::array<const char*, GSND_COUNT> wavenames =
 
 AudioSystem::AudioSystem() :
     _musicLoaded(),
+    _musicIDToNameMap(),
     _soundsLoaded(),
     _globalSounds(),
     _loopingSounds(),
-    _currentSongPlaying(INVALID_SOUND_CHANNEL),
+    _currentSongPlaying(),
     _maxSoundDistance(DEFAULT_MAX_DISTANCE)
 {
     _globalSounds.fill(INVALID_SOUND_ID);
@@ -136,8 +137,19 @@ void AudioSystem::loadGlobalSounds()
 
 AudioSystem::~AudioSystem()
 {
-	freeAllSounds();
-    freeAllMusic();
+    for (auto& music : _musicLoaded) {
+        Mix_FreeMusic(music.second);
+    }
+    _musicLoaded.clear();
+    _musicIDToNameMap.clear();
+
+    for (Mix_Chunk *chunk : _soundsLoaded)
+    {
+        Mix_FreeChunk(chunk);
+    }
+    _soundsLoaded.clear();
+    _loopingSounds.clear();
+
 	Mix_CloseAudio();
 }
 
@@ -169,10 +181,12 @@ void AudioSystem::reconfigure(egoboo_config_t& cfg)
         loadAllMusic();
 
         // Start playing queued/paused song.
-        if (_currentSongPlaying >= 0 && _currentSongPlaying < _musicLoaded.size())
-        {
-            Mix_HaltMusic();
-            Mix_FadeInMusic(_musicLoaded[_currentSongPlaying], -1, 500);
+        if(!_currentSongPlaying.empty()) {
+            const auto& result = _musicLoaded.find(_currentSongPlaying);
+            if (result != _musicLoaded.end()) {
+                Mix_HaltMusic();
+                Mix_FadeInMusic(result->second, -1, 500);
+            }            
         }
     }
 }
@@ -183,7 +197,7 @@ void AudioSystem::stopMusic()
     {
         Mix_FadeOutMusic(2000);
         //Mix_HaltMusic();
-        _currentSongPlaying = INVALID_SOUND_CHANNEL;
+        _currentSongPlaying.clear();
     }
 }
 
@@ -238,8 +252,7 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
 MusicID AudioSystem::loadMusic(const std::string &fileName)
 {
     // Valid filename?
-    if (fileName.empty())
-    {
+    if (fileName.empty()) {
         return INVALID_SOUND_ID;
     }
 
@@ -252,37 +265,50 @@ MusicID AudioSystem::loadMusic(const std::string &fileName)
     }
 
     // Got it!
-    _musicLoaded.push_back(loadedMusic);
-    return _musicLoaded.size() - 1;
+    const std::string songName = fileName.substr(fileName.find_last_of('/') + 1);
+    const MusicID id = _musicLoaded.size();
+    _musicLoaded[songName] = loadedMusic;
+    _musicIDToNameMap[id] = songName;
+
+    return id;
 }
 
-void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
-{
+void AudioSystem::playMusic(const std::string& songName, const uint16_t fadetime)
+{ 
     // Dont restart a song we are already playing.
-    if (musicID == _currentSongPlaying)
-    {
+    if (songName == _currentSongPlaying) {
         return;
     }
 
     // Remember desired music.
-    _currentSongPlaying = musicID;
+   _currentSongPlaying = songName;
 
-    if (!egoboo_config_t::get().sound_music_enable.getValue())
-    {
-        return;
-    }
-
-    if (musicID < 0 || musicID >= _musicLoaded.size())
-    {
+    if (!egoboo_config_t::get().sound_music_enable.getValue()) {
         return;
     }
 
     //Set music volume
     Mix_VolumeMusic(egoboo_config_t::get().sound_music_volume.getValue());
 
+    //Get the actual music data from the name of the song
+    const auto& result = _musicLoaded.find(songName);
+    if(result == _musicLoaded.end()) {
+        Log::get().warn("Failed to play music! (Song name does not exist: %s)\n", songName.c_str());        
+        return;
+    }
+
     // Mix_FadeOutMusic(fadetime);      // Stops the game too
-    if (Mix_FadeInMusic(_musicLoaded[musicID], -1, fadetime) == -1) {
-		Log::get().warn("failed to play music! %s\n", Mix_GetError());
+    if (Mix_FadeInMusic(result->second, -1, fadetime) == -1) {
+        Log::get().warn("Failed to play music! (%s)\n", Mix_GetError());
+    }
+}
+
+void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
+{
+    //Is it a valid ID?
+    const auto& result = _musicIDToNameMap.find(musicID);
+    if (result != _musicIDToNameMap.end()) {
+        playMusic(result->second, fadetime);
     }
 }
 
@@ -303,22 +329,17 @@ void AudioSystem::loadAllMusic()
     {
         char songName[256];
         vfs_read_name(ctxt, songName, SDL_arraysize(songName));
-        std::string path = std::string("mp_data/music/") + songName + ".ogg";
-        loadMusic(path.c_str());
+        loadMusic(std::string("mp_data/music/") + songName + ".ogg");
     }
 
     //Special xmas theme, override the default menu theme song
     if (Zeitgeist::CheckTime(Zeitgeist::Time::Christmas))
     {
-        MusicID specialSong = loadMusic("mp_data/music/special/xmas.ogg");
-        if (specialSong != INVALID_SOUND_ID)
-            _musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
+        loadMusic("mp_data/music/special/xmas.ogg");
     }
     else if (Zeitgeist::CheckTime(Zeitgeist::Time::Halloween))
     {
-        MusicID specialSong = loadMusic("mp_data/music/special/halloween.ogg");
-        if (specialSong != INVALID_SOUND_ID)
-            _musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
+        loadMusic("mp_data/music/special/halloween.ogg");
     }
 }
 
@@ -403,25 +424,6 @@ void AudioSystem::fadeAllSounds()
 {
     // Stop all sounds that are playing.
     Mix_FadeOutChannel(-1, 500);
-}
-
-void AudioSystem::freeAllMusic()
-{
-    for (Mix_Music * music : _musicLoaded)
-    {
-        Mix_FreeMusic(music);
-    }
-    _musicLoaded.clear();
-}
-
-void AudioSystem::freeAllSounds()
-{
-    for (Mix_Chunk *chunk : _soundsLoaded)
-    {
-        Mix_FreeChunk(chunk);
-    }
-    _soundsLoaded.clear();
-    _loopingSounds.clear();
 }
 
 int AudioSystem::playSoundFull(SoundID soundID)

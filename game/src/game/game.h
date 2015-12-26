@@ -353,3 +353,5 @@ float get_chr_level(ego_mesh_t *mesh, Object *object);
 float get_mesh_max_vertex_1(ego_mesh_t *mesh, const Index2D& index2D, oct_bb_t& bump, bool waterwalk);
 // Mesh query.
 float get_mesh_max_vertex_2(ego_mesh_t *mesh, Object *object);
+
+void playMainMenuSong();

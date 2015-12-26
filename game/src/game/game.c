@@ -3603,3 +3603,21 @@ ObjectRef chr_get_lowest_attachment( ObjectRef ichr, bool non_item )
 
     return object;
 }
+
+void playMainMenuSong()
+{
+    //Special xmas theme
+    if (Zeitgeist::CheckTime(Zeitgeist::Time::Christmas)) {
+        AudioSystem::get().playMusic("xmas.ogg");
+    }
+
+    //Special Halloween theme
+    else if (Zeitgeist::CheckTime(Zeitgeist::Time::Halloween)) {
+        AudioSystem::get().playMusic("halloween.ogg");
+    }
+
+    //Default egoboo theme
+    else {
+        AudioSystem::get().playMusic("themesong.ogg");
+    }    
+}

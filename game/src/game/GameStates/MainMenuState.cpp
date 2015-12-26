@@ -160,7 +160,8 @@ void MainMenuState::beginState()
     SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
     _gameEngine->enableMouseCursor();
 
-    AudioSystem::get().playMusic(AudioSystem::MENU_SONG);
+    //Play the Egoboo theme music
+    playMainMenuSong();
 
     float offset = 0;
     for(const std::shared_ptr<Button> &button : _slidyButtons)

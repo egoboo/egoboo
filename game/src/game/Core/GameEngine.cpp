@@ -336,7 +336,7 @@ bool GameEngine::initialize()
     renderPreloadText("Loading audio...");
     auto& audioSystem = AudioSystem::get();
     audioSystem.loadAllMusic();
-    audioSystem.playMusic(AudioSystem::MENU_SONG);
+    playMainMenuSong();
     audioSystem.loadGlobalSounds();
 
     // synchronize the config values with the various game subsystems
