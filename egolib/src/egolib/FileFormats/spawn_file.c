@@ -45,8 +45,7 @@ spawn_file_info_t::spawn_file_info_t() :
     stat(false),
     team(Team::TEAM_NULL),
     facing(FACE_NORTH),
-    attach(ATTACH_NONE),
-    parent()   
+    attach(ATTACH_NONE)
 {
     //ctor
 }
@@ -58,12 +57,8 @@ void spawn_file_info_t::init(spawn_file_info_t& self)
 
 void spawn_file_info_t::reinit(spawn_file_info_t& self)
 {
-    // Save the parent.
-    ObjectRef parent = self.parent;
     // Reset the data.
     init(self);
-    // Restore the parent.
-    self.parent = parent;
 }
 
 bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)

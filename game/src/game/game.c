@@ -88,8 +88,6 @@ static void   game_load_profile_ai();
 
 static void   activate_spawn_file_vfs();
 
-static bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& pinfo );
-
 static void   game_reset_players();
 
 // Model stuff
@@ -106,7 +104,7 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 
 // misc
 
-static bool activate_spawn_file_spawn( spawn_file_info_t& psp_info );
+static std::shared_ptr<Object> activate_spawn_file_spawn( spawn_file_info_t& psp_info, const std::shared_ptr<Object> &parent);
 static bool activate_spawn_file_load_object( spawn_file_info_t& psp_info );
 static void convert_spawn_file_load_name( spawn_file_info_t& psp_info );
 
@@ -1142,60 +1140,6 @@ void game_load_module_profiles( const std::string& modname )
     vfs_findClose(&ctxt);
 }
 
-//--------------------------------------------------------------------------------------------
-bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& info ) //note: intentonally copy and not reference on pchr
-{
-    const std::shared_ptr<Object> &parentObject = _currentModule->getObjectHandler()[info.parent];
-
-    //Add money
-    pchr->money = Ego::Math::constrain(pchr->money + info.money, 0, MAXMONEY);
-
-    //Set AI stuff
-    pchr->ai.content = info.content;
-    pchr->ai.passage = info.passage;
-
-    if (info.attach == ATTACH_INVENTORY)
-    {
-        // Inventory character
-        Inventory::add_item(info.parent, pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true);
-
-        //If the character got merged into a stack, then it will be marked as terminated
-        if(pchr->isTerminated()) {
-            return true;
-        }
-
-        // Make spellbooks change
-        SET_BIT(pchr->ai.alert, ALERTIF_GRABBED);
-    }
-    else if (info.attach == ATTACH_LEFT || info.attach == ATTACH_RIGHT)
-    {
-        // Wielded character
-        grip_offset_t grip_off = (ATTACH_LEFT == info.attach) ? GRIP_LEFT : GRIP_RIGHT;
-
-        if(pchr->getObjectPhysics().attachToObject(parentObject, grip_off)) {
-			// Handle the "grabbed" messages
-			//scr_run_chr_script(pchr);
-            UNSET_BIT(pchr->ai.alert, ALERTIF_GRABBED);
-		}
-    }
-
-    // Set the starting pinfo->level
-    if (info.level > 0)
-    {
-        if (pchr->experiencelevel < info.level) {
-            pchr->experience = pchr->getProfile()->getXPNeededForLevel(info.level);
-        }
-    }
-
-    // automatically identify and unkurse all player starting equipment? I think yes.
-    if (!_currentModule->isImportValid() && nullptr != parentObject && parentObject->isPlayer()) {
-        pchr->nameknown = true;
-        pchr->iskursed = false;
-    }
-
-    return true;
-}
-
 void convert_spawn_file_load_name( spawn_file_info_t& psp_info )
 {
     /// @author ZF
@@ -1261,32 +1205,79 @@ bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
 }
 
 //--------------------------------------------------------------------------------------------
-bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
+std::shared_ptr<Object> activate_spawn_file_spawn(spawn_file_info_t& psp_info, const std::shared_ptr<Object> &parent)
 {
-    int     local_index = 0;
-    PRO_REF iprofile;
+    if ( !psp_info.do_spawn || psp_info.slot < 0 ) return nullptr;
 
-    if ( !psp_info.do_spawn || psp_info.slot < 0 ) return false;
+    PRO_REF iprofile = static_cast<PRO_REF>(psp_info.slot);
 
-    iprofile = ( PRO_REF )psp_info.slot;
+    //Require a valid parent?
+    if(psp_info.attach != ATTACH_NONE && !parent) {
+        Log::get().warn("Failed to spawn %s due to missing parent!\n", psp_info.spawn_name);
+        return nullptr;
+    }
 
     // Spawn the character
     std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.pname == nullptr ? "" : psp_info.pname, ObjectRef::Invalid);
-    if (!pobject) return false;
 
-    // determine the attachment
-    if (psp_info.attach == ATTACH_NONE)
-    {
-        // Free character
-        psp_info.parent = pobject->getObjRef();
-        make_one_character_matrix( pobject->getObjRef() );
+    //Failed to spawn?
+    if (!pobject) {
+        Log::get().warn("Failed to spawn %s!\n", psp_info.spawn_name);
+        return nullptr;
     }
 
-    chr_setup_apply(pobject, psp_info);
+    //Add money
+    pobject->money = Ego::Math::constrain(pobject->money + psp_info.money, 0, MAXMONEY);
 
-    //Can happen if object gets merged into a stack
-    if(!pobject) {
-        return true;
+    //Set AI stuff
+    pobject->ai.content = psp_info.content;
+    pobject->ai.passage = psp_info.passage;
+
+    // determine the attachment
+    switch(psp_info.attach)
+    {
+        case ATTACH_NONE:
+            make_one_character_matrix(pobject->getObjRef());
+        break;
+
+        case ATTACH_INVENTORY:
+            // Inventory character
+            Inventory::add_item(parent->getObjRef(), pobject->getObjRef(), parent->getInventory().getFirstFreeSlotNumber(), true);
+
+            //If the character got merged into a stack, then it will be marked as terminated
+            if(pobject->isTerminated()) {
+                return nullptr;
+            }
+
+            // Make spellbooks change
+            SET_BIT(pobject->ai.alert, ALERTIF_GRABBED);
+        break;
+
+        case ATTACH_LEFT:
+        case ATTACH_RIGHT:
+            // Wielded character
+            grip_offset_t grip_off = (ATTACH_LEFT == psp_info.attach) ? GRIP_LEFT : GRIP_RIGHT;
+
+            if(pobject->getObjectPhysics().attachToObject(parent, grip_off)) {
+                // Handle the "grabbed" messages
+                //scr_run_chr_script(pobject);
+                UNSET_BIT(pobject->ai.alert, ALERTIF_GRABBED);
+            }
+        break;
+
+    }
+
+    // Set the starting pinfo->level
+    if (psp_info.level > 0) {
+        if (pobject->experiencelevel < psp_info.level) {
+            pobject->experience = pobject->getProfile()->getXPNeededForLevel(psp_info.level);
+        }
+    }
+
+    // automatically identify and unkurse all player starting equipment? I think yes.
+    if (!_currentModule->isImportValid() && nullptr != parent && parent->isPlayer()) {
+        pobject->nameknown = true;
+        pobject->iskursed = false;
     }
 
     // Turn on input devices
@@ -1309,7 +1300,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
         {
             // A multiplayer module
 
-            local_index = -1;
+            int local_index = -1;
             for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
                 if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->getProfileID()))
@@ -1337,7 +1328,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
         }
     }
 
-    return true;
+    return pobject;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1359,7 +1350,7 @@ void activate_spawn_file_vfs()
 		throw std::runtime_error(os.str());
     }
     {
-        ObjectRef parent = ObjectRef::Invalid;
+        std::shared_ptr<Object> parent = nullptr;
 
         // First load spawn data of every object.
         ctxt.next(); /// @todo Remove this hack.
@@ -1440,11 +1431,6 @@ void activate_spawn_file_vfs()
         //Now spawn each object in order
         for(spawn_file_info_t &spawnInfo : objectsToSpawn)
         {
-            //Do we have a parent?
-            if ( spawnInfo.attach != ATTACH_NONE && parent != ObjectRef::Invalid ) {
-                spawnInfo.parent = parent;
-            }
-
             //Dynamic slot number? Then figure out what slot number is assigned to us
             if(spawnInfo.slot <= -1) {
                 for(const auto &element : reservedSlots)
@@ -1476,11 +1462,11 @@ void activate_spawn_file_vfs()
             }
 
             // we only reach this if everything was loaded properly
-            activate_spawn_file_spawn(spawnInfo);
+            std::shared_ptr<Object> spawnedObject = activate_spawn_file_spawn(spawnInfo, parent);
 
             //We might become the new parent
-            if ( spawnInfo.attach == ATTACH_NONE ) {
-                parent = spawnInfo.parent;
+            if (spawnedObject != nullptr && spawnInfo.attach == ATTACH_NONE) {
+                parent = spawnedObject;
             }
         }
 

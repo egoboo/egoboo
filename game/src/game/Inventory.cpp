@@ -227,39 +227,12 @@ bool Inventory::swap_item( ObjectRef iobj, uint8_t inventory_slot, const slot_t 
 
 bool Inventory::remove_item( ObjectRef iholder, const size_t inventory_slot, const bool ignorekurse )
 {
-    // Ignore invalid holders.
-	if (!_currentModule->getObjectHandler().exists(iholder)) {
-		return false;
-	}
-	Object *pholder = _currentModule->getObjectHandler().get(iholder);
-
-    // Ignore invalid slots indices.
-	if (inventory_slot >= pholder->getInventory().getMaxItems()) {
-		return false;
-	}
-
-    // Is there an item?
-    const std::shared_ptr<Object> &pitem = pholder->getInventory().getItem(inventory_slot);
-	if (!pitem) {
-		return false;
-	}
-
-    // Is the item kursed?
-    if ( pitem->iskursed && !ignorekurse )
-    {
-        // Flag the last found_item as not removed.
-        SET_BIT(pitem->ai.alert, ALERTIF_NOTTAKENOUT);  // Same as ALERTIF_NOTPUTAWAY.
-		if (pholder->isPlayer()) {
-			DisplayMsg_printf("%s won't go out!", pitem->getName().c_str());
-		}
-		return false;
+    const std::shared_ptr<Object> &holder = _currentModule->getObjectHandler()[iholder];
+    if(!holder) {
+        return false;
     }
 
-    // The item is no longer in an inventory.
-    pitem->inwhich_inventory = ObjectRef::Invalid;
-    pholder->getInventory()._items[inventory_slot].reset();
-
-    return true;
+    return holder->getInventory().removeItem(holder->getInventory().getItem(inventory_slot), ignorekurse);
 }
 
 ObjectRef Inventory::hasStack( const ObjectRef item, const ObjectRef character )
@@ -345,7 +318,7 @@ std::vector<std::shared_ptr<Object>> Inventory::iterate() const
     for(const std::weak_ptr<Object> &weak : _items)
     {
         std::shared_ptr<Object> item = weak.lock();
-        if(item) {
+        if(item && !item->isTerminated()) {
             result.push_back(item);
         }
     }
@@ -356,8 +329,7 @@ size_t Inventory::getFirstFreeSlotNumber() const
 {
     for(size_t i = 0; i < _items.size(); ++i)
     {
-        if(!_items[i].lock())
-        {
+        if(!_items[i].lock()) {
             return i;
         }
     }
@@ -372,13 +344,13 @@ bool Inventory::removeItem(const std::shared_ptr<Object> &item, const bool ignor
         return false;
     }
 
-    for(size_t i = 0; i < _items.size(); ++i)
+    for(std::weak_ptr<Object> &inventoryItem : _items)
     {
         //Is this the item we are looking for?
-        if(_items[i].lock() == item)
+        if(inventoryItem.lock() == item)
         {
             //is it kursed?
-            if ( item->iskursed && !ignorekurse )
+            if (item->iskursed && !ignorekurse)
             {
                 //Flag the item as not removed
                 SET_BIT( item->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
@@ -388,7 +360,7 @@ bool Inventory::removeItem(const std::shared_ptr<Object> &item, const bool ignor
 
             //Remove it from the inventory!
             item->inwhich_inventory = ObjectRef::Invalid;
-            _items[i].reset();
+            inventoryItem.reset();
             return true;
         }
     }
