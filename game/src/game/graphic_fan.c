@@ -308,13 +308,13 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
     }
 
     // flip the coordinates around based on the "mode" of the tile
-    if ( HAS_NO_BITS( ix, 1 ) )
+    if ((ix & 1) == 0)
     {
         std::swap(imap[0], imap[3]);
         std::swap(imap[1], imap[2]);
     }
 
-    if ( HAS_NO_BITS( iy, 1 ) )
+    if ((iy & 1) == 0)
     {
         std::swap(imap[0], imap[1]);
         std::swap(imap[2], imap[3]);
@@ -336,9 +336,8 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
     badvertex = ptile._vrtstart;
     {
         GLXvector3f nrm = {0, 0, 1};
-        float alight;
 
-        alight = get_ambient_level() + _currentModule->getWater()._layers->_light_add;
+        float alight = get_ambient_level() + _currentModule->getWater()._layers->_light_add;
         alight = Ego::Math::constrain( alight / 255.0f, 0.0f, 1.0f );
 
         for (size_t cnt = 0; cnt < 4; cnt++ )
@@ -357,24 +356,21 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
             v0.s = fx_off[cnt] + offu;
             v0.t = fy_off[cnt] + offv;
 
-            // get the lighting info from the grid
-			Index1D jtile = mesh.getTileIndex(Index2D(jx, jy));
-            float dlight;
-            if ( GridIllumination::light_corner(mesh, jtile, v0.z, nrm, dlight) )
-            {
-                // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
-                v0.r = dlight * INV_FF<float>() + alight;
-                v0.g = dlight * INV_FF<float>() + alight;
-                v0.b = dlight * INV_FF<float>() + alight;
+            float dlight = 0.0f;
+            if(jx <= 0 || jy <= 0 || jx >= info.getTileCountX() || jy >= info.getTileCountY()) {
+                //All water is dark near edges of the map
+                dlight = 0.0f;
+            }
+            else {
+                //Else interpolate using ligh levels of nearby tiles
+                Index1D jtile = mesh.getTileIndex(Index2D(jx, jy));
+                GridIllumination::light_corner(mesh, jtile, v0.z, nrm, dlight);
+            }
 
-                v0.r = Ego::Math::constrain(v0.r, 0.0f, 1.0f);
-                v0.g = Ego::Math::constrain(v0.g, 0.0f, 1.0f);
-                v0.b = Ego::Math::constrain(v0.b, 0.0f, 1.0f);
-            }
-            else
-            {
-                v0.r = v0.g = v0.b = 0.0f;
-            }
+            // take the v[cnt].color from the tnc vertices so that it is oriented properly
+            v0.r = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.g = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.b = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
 
             // the application of alpha to the tile depends on the blending mode
             if ( _currentModule->getWater()._light )

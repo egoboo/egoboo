@@ -2173,9 +2173,9 @@ void upload_light_data(const wawalite_data_t& data)
         if (gfx.usefaredge)
         {
             // We are outside, do the direct light as sunlight.
-            light_d = 1.0f;
-            light_a = light_a / length;
-            light_a = Ego::Math::constrain( light_a, 0.0f, 1.0f );
+            light_d = light_a * length;
+            light_a = 0.0f;
+            //light_a = Ego::Math::constrain( light_a, 0.0f, 1.0f );
         }
         else
         {
