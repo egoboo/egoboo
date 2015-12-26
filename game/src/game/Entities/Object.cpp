@@ -507,7 +507,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                         }
 
                         // Make the character invincible for a limited time only
-                        if (!setDamageTime)
+                        if (setDamageTime)
                         {
                             damage_timer = DAMAGETIME;
                         }
