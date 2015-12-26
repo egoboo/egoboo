@@ -132,11 +132,26 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     profile->_set[eve_t::SETCANSEEINVISIBLE].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETCANSEEINVISIBLE].value = ctxt.readBool();
 
+    Ego::Script::EnumDescriptor<MissileTreatment> enumDescriptor
+    (
+        "MissileTreatment",
+        {
+            // Normal.
+            {"Normal", MissileTreatment_Normal},
+            {"NORMAL", MissileTreatment_Normal},
+            {"N", MissileTreatment_Normal},
+            // Reflect.
+            {"Reflect", MissileTreatment_Reflect},
+            {"REFLECT", MissileTreatment_Reflect},
+            {"R", MissileTreatment_Reflect},
+            // Deflect.
+            {"Deflect", MissileTreatment_Deflect},
+            {"DEFLECT", MissileTreatment_Deflect},
+            {"D", MissileTreatment_Deflect},
+        }
+    );
     profile->_set[eve_t::SETMISSILETREATMENT].apply = vfs_get_next_bool(ctxt);
-    cTmp = ctxt.readPrintable();
-    if ('R' == Ego::toupper(cTmp)) profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_REFLECT;
-    else if ('D' == Ego::toupper(cTmp)) profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_DEFLECT;
-    else profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_NORMAL;
+    profile->_set[eve_t::SETMISSILETREATMENT].value = ctxt.readEnum(enumDescriptor);
 
     profile->_set[eve_t::SETCOSTFOREACHMISSILE].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETCOSTFOREACHMISSILE].value = ctxt.readRealLiteral();

@@ -27,6 +27,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/Logic/Attribute.hpp"
+#include "egolib/Logic/MissileTreatment.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/_Include.hpp"
 
@@ -116,9 +117,9 @@ public:
     * @brief
     *   Returns what kind of deflection handling this enchantment provides.
     * @return
-    *   not MISSILE_NORMAL if it provides some special kind of missile protection
+    *   not MissileTreatment_Normal if it provides some special kind of missile protection
     **/
-    MissileTreatmentType getMissileTreatment() const;
+    MissileTreatment getMissileTreatment() const;
 
     /**
     * @return
@@ -145,7 +146,7 @@ private:
     std::weak_ptr<Object> _overlay; ///< The overlay character
 
     //Missile deflection enchant?
-    MissileTreatmentType _missileTreatment;
+    MissileTreatment _missileTreatment;
     float _missileTreatmentCost;
 
     /// List to remember if properties were subjected to modifications by this enchant

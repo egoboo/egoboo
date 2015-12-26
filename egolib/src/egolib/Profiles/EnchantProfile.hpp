@@ -27,14 +27,7 @@
 #undef EGBOLIB_PROFILES_PRIVATE
 
 #include "egolib/IDSZ.hpp"
-
-/// Special modes for particle reflections from characters
-enum MissileTreatmentType
-{
-    MISSILE_NORMAL = 0,                           ///< Treat missiles normally
-    MISSILE_DEFLECT,                                ///< Deflect incoming missiles
-    MISSILE_REFLECT                                 ///< Reflect them back!
-};
+#include "egolib/Logic/MissileTreatment.hpp"
 
 /**
 * @brief

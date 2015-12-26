@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\SafeCast.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\Configuration.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\InvalidCastException.cpp" />
@@ -473,6 +474,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureSampler.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\SafeCast.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\Configuration.hpp" />
