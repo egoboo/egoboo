@@ -4065,9 +4065,9 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 		Vector3f vtmp =
 			Vector3f
             (
-				float(state.x),
-				float(state.y),
-				float(state.distance)
+				Interpreter::safeCast<float>(state.x),
+				Interpreter::safeCast<float>(state.y),
+				Interpreter::safeCast<float>(state.distance)
             );
 
         returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
@@ -4296,7 +4296,7 @@ Uint8 scr_IfTargetHasItemIDEquipped( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	auto iitem = Inventory::findItem( self.getTarget(), state.argument, true );
+	auto iitem = Inventory::findItem( self.getTarget(), Interpreter::safeCast<IDSZ2>(state.argument), true );
 
     returncode = _currentModule->getObjectHandler().exists(iitem);
 
@@ -4584,7 +4584,7 @@ Uint8 scr_ChangeArmor( script_state_t& state, ai_state_t& self )
 
     state.x = state.argument;
     iTmp = pchr->skin;
-    pchr->setSkin(state.argument);
+    pchr->setSkin(Interpreter::safeCast<size_t>(state.argument));
     state.x = pchr->skin;
     state.argument = iTmp;  // The character's old armor
 
@@ -4637,11 +4637,11 @@ Uint8 scr_PlaySoundVolume( script_state_t& state, ai_state_t& self )
 
     if ( state.distance > 0 )
     {
-        int channel = AudioSystem::get().playSound(pchr->getOldPosition(), ppro->getSoundID(state.argument));
+        int channel = AudioSystem::get().playSound(pchr->getOldPosition(), ppro->getSoundID(Interpreter::safeCast<int>(state.argument)));
 
         if ( channel != INVALID_SOUND_CHANNEL )
         {
-            Mix_Volume( channel, ( 128*state.distance ) / 100 );
+            Mix_Volume( channel, ( 128 * Interpreter::safeCast<int>(state.distance) ) / 100 );
         }
     }
 
@@ -4721,7 +4721,10 @@ Uint8 scr_Teleport( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->teleport(Vector3f(float(state.x), float(state.y), pchr->getPosZ()), pchr->ori.facing_z);
+    auto location = Vector3f(Interpreter::safeCast<float>(state.x),
+                             Interpreter::safeCast<float>(state.y),
+                             pchr->getPosZ());
+    returncode = pchr->teleport(location, pchr->ori.facing_z);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5402,12 +5405,12 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	Vector3f pos =
+	auto pos =
 		Vector3f
         (
-			float(state.x),
-			float(state.y),
-			float(state.distance)
+			Interpreter::safeCast<float>(state.x),
+			Interpreter::safeCast<float>(state.y),
+			Interpreter::safeCast<float>(state.distance)
         );
 
     const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, Ego::Math::clipBits<16>(state.turn), "", ObjectRef::Invalid);
@@ -5510,12 +5513,12 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
     }
 
     {
-		Vector3f vtmp =
+		auto vtmp =
 			Vector3f
             (
-				float(state.x),
-				float(state.y),
-				float(state.distance)
+				Interpreter::safeCast<float>(state.x),
+				Interpreter::safeCast<float>(state.y),
+				Interpreter::safeCast<float>(state.distance)
             );
 
         particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
