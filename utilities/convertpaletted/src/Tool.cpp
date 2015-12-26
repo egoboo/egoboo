@@ -114,11 +114,13 @@ void FileSystem::recurDir(const std::string &pathName, std::deque<std::string> &
 
 namespace Editor {
 
-Tool::Tool(const std::string& name) : name(name) {}
+using namespace Standard;
+
+Tool::Tool(const String& name) : name(name) {}
 
 Tool::~Tool() {}
 
-const std::string& Tool::getName() const {
+const String& Tool::getName() const {
 	return name;
 }
 	

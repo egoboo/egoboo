@@ -8,7 +8,7 @@
 
 namespace Tools {
 
-using namespace std;
+using namespace Standard;
 using namespace CommandLine;
 
 ConvertPaletted::ConvertPaletted()
@@ -16,29 +16,29 @@ ConvertPaletted::ConvertPaletted()
 
 ConvertPaletted::~ConvertPaletted() {}
 
-void ConvertPaletted::run(const vector<shared_ptr<Option>>& arguments) {
+void ConvertPaletted::run(const Vector<SharedPtr<Option>>& arguments) {
 	if (arguments.size() == 1) {
-		ostringstream os;
-		os << "wrong number of arguments" << endl;
-		throw runtime_error(os.str());
+		StringBuffer sb;
+	    sb << "wrong number of arguments" << EndOfLine;
+		throw RuntimeError(sb.str());
 	}
 
 	SDL_Init(0);
 	IMG_Init(IMG_INIT_PNG);
-	deque<string> queue;
+	Deque<String> queue;
 	RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?(?:tris|tile)[0-9]+\\.bmp$");
 	/// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
 	for (const auto& argument : arguments) {
         if (argument->getType() != Option::Type::UnnamedValue) {
-            ostringstream os;
-            os << "unrecognized argument" << endl;
-            throw runtime_error(os.str());
+            StringBuffer sb;
+            sb << "unrecognized argument" << EndOfLine;
+            throw RuntimeError(sb.str());
         }
         auto& pathnameArgument = static_pointer_cast<UnnamedValue>(argument);
 		queue.emplace_back(FileSystem::sanitize(pathnameArgument->getValue()));
 	}
 	while (!queue.empty()) {
-		string path = queue[0];
+		String path = queue[0];
 		queue.pop_front();
 		switch (FileSystem::stat(path)) {
 		case FileSystem::PathStat::File:
@@ -53,9 +53,9 @@ void ConvertPaletted::run(const vector<shared_ptr<Option>>& arguments) {
 			break; // stat complains
 		default:
 			{
-				ostringstream os;
-				os << "skipping '" << path << "' - not a file or directory" << endl;
-				cerr << os.str();
+				StringBuffer sb;
+				sb << "skipping '" << path << "' - not a file or directory" << EndOfLine;
+				cerr << sb.str();
 			}
 		}
 	}
@@ -66,16 +66,16 @@ void ConvertPaletted::run(const vector<shared_ptr<Option>>& arguments) {
 /// Perform a dry-run, just print the files which would have been converted.
 static bool g_dryrun = false;
 
-void ConvertPaletted::convert(const std::string &fileName) {
+void ConvertPaletted::convert(const String& fileName) {
     if (fileName.rfind(".bmp") == std::string::npos) return;
-    std::string out = fileName;
+    String out = fileName;
     size_t extPos = out.rfind('.');
-    if (extPos != std::string::npos) out = out.substr(0, extPos);
+    if (extPos != String::npos) out = out.substr(0, extPos);
     out += ".png";
     if (!g_dryrun) {
         SDL_Surface *surf = IMG_Load(fileName.c_str());
         if (!surf) {
-            std::cerr << std::string("Couldn't open ") << fileName << ": " << IMG_GetError() << std::endl;
+            std::cerr << String("Couldn't open ") << fileName << ": " << IMG_GetError() << std::endl;
             return;
         }
         uint8_t r, g, b, a;
@@ -106,6 +106,11 @@ void ConvertPaletted::convert(const std::string &fileName) {
     } else {
         std::cout << "converting " << fileName << " to " << out << std::endl;
     }
+}
+
+const String& ConvertPaletted::getHelp() const {
+    static const String help = "usage: ego-tools --tool=ConvertPaletted <directories>\n";
+    return help;
 }
 
 } // namespace Tools
