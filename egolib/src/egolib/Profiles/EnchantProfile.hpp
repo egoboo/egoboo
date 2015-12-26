@@ -35,7 +35,7 @@
 * @details
 *  An internal representation of the "enchant.txt" file.
 */
-struct eve_t : public AbstractProfile
+class EnchantProfile : public AbstractProfile
 {
 public:
 
@@ -131,46 +131,32 @@ public:
         float _lifeDrain;  ///< Life drain from related object?
 
         ObjectRelation() :
-            _stay(false), _manaDrain(0), _lifeDrain(0)
+            _stay(false), 
+            _manaDrain(0), 
+            _lifeDrain(0)
         {}
 
         ObjectRelation(bool stay, SFP8_T manaDrain, SFP8_T lifeDrain) :
             _stay(stay), _manaDrain(manaDrain), _lifeDrain(lifeDrain)
         {}
-
-        void reset()
-        {
-            _stay = false;
-            _manaDrain = 0;
-            _lifeDrain = 0;
-        }
-
     };
 
     /**
      * @brief
      *  Construct this enchant profile with default values.
      */
-    eve_t();
+    EnchantProfile();
 
     /**
      * @brief
      *  Destruct this enchant profile.
      */
-    virtual ~eve_t();
-
-    /**
-     * @brief
-     *  Initialize an enchant profile with safe default values.
-     * @return
-     *  a pointer to the profile on success, @a nullptr on failure
-     */
-    void reset() override;
+    virtual ~EnchantProfile();
 
     const std::string& getEnchantName() const;
     void setEnchantName(const std::string& name);
 
-    static std::shared_ptr<eve_t> readFromFile(const std::string& pathname);
+    static std::shared_ptr<EnchantProfile> readFromFile(const std::string& pathname);
 
 public:
     // Enchant spawn description.

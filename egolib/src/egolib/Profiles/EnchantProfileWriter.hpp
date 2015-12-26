@@ -46,5 +46,5 @@ struct EnchantProfileWriter
      * @return
      *  @a true on success, @a false on failure
      */
-    static bool write(std::shared_ptr<eve_t> profile, const std::string& pathname, const char *templateName);
+    static bool write(std::shared_ptr<EnchantProfile> profile, const std::string& pathname, const char *templateName);
 };

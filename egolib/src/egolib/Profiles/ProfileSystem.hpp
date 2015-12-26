@@ -31,7 +31,7 @@
 class ObjectProfile;
 class ModuleProfile;
 class ParticleProfile;
-struct eve_t;
+class EnchantProfile;
 class LoadPlayerElement;
 namespace Ego { class DeferredTexture; }
 
