@@ -465,11 +465,11 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
     pdata->mana_paid = false;
     if(chr_can_deflect)
     {
-        MissileTreatmentType treatment = MISSILE_NORMAL;
+        MissileTreatment treatment = MissileTreatment_Normal;
 
         // make a ricochet if the character is invictus
         if(chr_is_invictus) {
-            treatment = MISSILE_DEFLECT;
+            treatment = MissileTreatment_Deflect;
             prt_deflected = true;
         }
 
@@ -479,7 +479,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
                 if(enchant->isTerminated()) continue;
 
                 //Does this enchant provide special missile protection?
-                if(enchant->getMissileTreatment() != MISSILE_NORMAL) {
+                if(enchant->getMissileTreatment() != MissileTreatment_Normal) {
                     if(enchant->getOwner() != nullptr) {
                         if(enchant->getOwner()->costMana(enchant->getMissileTreatmentCost(), pdata->pprt->owner_ref)) {
                             pdata->mana_paid = true;
@@ -496,7 +496,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
         if (prt_deflected)
         {
             // Treat the missile
-            if ( treatment == MISSILE_DEFLECT )
+            if ( treatment == MissileTreatment_Deflect )
             {
                 // Deflect the incoming ray off the normal
                 pdata->pprt->phys.avel -= pdata->vdiff_para * 2.0f;
@@ -504,7 +504,7 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
                 // the ricochet is not guided
                 pdata->pprt->setHoming(false);
             }
-            else if ( treatment == MISSILE_REFLECT )
+            else if ( treatment == MissileTreatment_Reflect )
             {
                 // Reflect it back in the direction it came
                 pdata->pprt->phys.avel -= pdata->vdiff * 2.0f;

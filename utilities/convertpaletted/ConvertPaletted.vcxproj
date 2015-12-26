@@ -288,6 +288,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EnchantTxtValidator.cpp" />
     <ClCompile Include="src\CommandLine.cpp" />
     <ClCompile Include="src\DataTxtValidator.cpp" />
     <ClCompile Include="src\Tool.cpp" />
@@ -312,6 +313,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\EnchantTxtValidator.hpp" />
     <ClInclude Include="src\CommandLine.hpp" />
     <ClInclude Include="src\DataTxtValidator.hpp" />
     <ClInclude Include="src\Tool.hpp" />

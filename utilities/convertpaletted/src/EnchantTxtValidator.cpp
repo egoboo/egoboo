@@ -1,18 +1,29 @@
-#include "DataTxtValidator.hpp"
+#include "EnchantTxtValidator.hpp"
 
 #include "Filters.hpp"
 
 namespace Tools {
 
+#if 0
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>& EndOfLine(std::basic_ostream<CharT, Traits>& os) {
+    os << std::endl;
+    return os;
+}
+//template<class CharT, class Traits> using EndOfLine(std::basic_ostream<CharT, Traits>&) = std::endl<CharT, Traits>(std::basic_ostream<CharT, Traits>&);
+using RuntimeError = std::runtime_error;
+using StringBuffer = std::ostringstream;
+template <typename T> using Deque = std::deque<T>;
+#endif
 using namespace Standard;
 using namespace CommandLine;
 
-DataTxtValidator::DataTxtValidator()
-    : Editor::Tool("DataTxtValidator") {}
+EnchantTxtValidator::EnchantTxtValidator()
+    : Editor::Tool("EnchantTxtValidator") {}
 
-DataTxtValidator::~DataTxtValidator() {}
+EnchantTxtValidator::~EnchantTxtValidator() {}
 
-void DataTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
+void EnchantTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
     if (arguments.size() < 1) {
         StringBuffer sb;
         sb << "wrong number of arguments" << EndOfLine;
@@ -20,19 +31,19 @@ void DataTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
     }
 
     Deque<String> queue;
-    RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?data\\.txt");
+    RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?enchant\\.txt");
     /// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
     for (const auto& argument : arguments) {
         if (argument->getType() != Option::Type::UnnamedValue) {
             StringBuffer sb;
             sb << "unrecognized argument" << EndOfLine;
-            throw runtime_error(sb.str());
+            throw RuntimeError(sb.str());
         }
         auto& pathnameArgument = static_pointer_cast<UnnamedValue>(argument);
         queue.emplace_back(FileSystem::sanitize(pathnameArgument->getValue()));
     }
     while (!queue.empty()) {
-        string path = queue[0];
+        String path = queue[0];
         queue.pop_front();
         switch (FileSystem::stat(path)) {
             case FileSystem::PathStat::File:
@@ -55,12 +66,11 @@ void DataTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
     }
 }
 
-const String& DataTxtValidator::getHelp() const {
-    static const String help = "usage: ego-tools --tool=DataTxtValidator <directories>\n";
+const String& EnchantTxtValidator::getHelp() const {
+    static const String help = "usage: ego-tools --tool=EnchantTxtValidator <directories>\n";
     return help;
 }
 
-void DataTxtValidator::validate(const String& pathname) {
-}
+void EnchantTxtValidator::validate(const String& pathname) {}
 
 } // namespace Tools

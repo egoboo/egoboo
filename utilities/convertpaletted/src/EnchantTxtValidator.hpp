@@ -7,20 +7,20 @@ namespace Tools {
 using namespace Standard;
 
 /**
- * @brief Validate <c>data.txt</c> files.
+ * @brief Validate <c>enchant.txt</c> files.
  */
-struct DataTxtValidator : public Editor::Tool {
+struct EnchantTxtValidator : public Editor::Tool {
 
 public:
     /**
      * @brief Construct this tool.
      */
-    DataTxtValidator();
+    EnchantTxtValidator();
 
     /**
      * @brief Destruct this tool.
      */
-    virtual ~DataTxtValidator();
+    virtual ~EnchantTxtValidator();
 
     /** @copydoc Tool::run */
     void run(const Vector<SharedPtr<CommandLine::Option>>& arguments) override;
@@ -33,10 +33,10 @@ private:
 
 }; // struct DataTxtValidator
 
-struct DataTxtValidatorFactory : Editor::ToolFactory {
+struct EnchantTxtValidatorFactory : Editor::ToolFactory {
     Editor::Tool *create() noexcept override {
         try {
-            return new DataTxtValidator();
+            return new EnchantTxtValidator();
         } catch (...) {
             return nullptr;
         }

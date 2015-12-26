@@ -12,6 +12,22 @@
 #define REGEX_DIRSEP "/"
 #endif
 
+namespace Standard {
+    template <class CharT, class Traits>
+    std::basic_ostream<CharT, Traits>& EndOfLine(std::basic_ostream<CharT, Traits>& os) {
+        os << std::endl;
+        return os;
+    }
+    using RuntimeError = std::runtime_error;
+    using StringBuffer = std::ostringstream;
+    using String = std::string;
+
+    template <typename T> using Deque = std::deque<T>;
+    template <typename T> using Vector = std::vector<T>;
+
+    template <typename T> using SharedPtr = std::shared_ptr<T>;
+}
+
 struct FileSystem {
     /**
      * @brief Enumeration of objects a pathname might refer to.
@@ -50,20 +66,29 @@ struct FileSystem {
 };
 
 namespace Editor {
-
+using namespace Standard;
+/**
+ * @brief An abstract tool class . Derive your own tools from this abstract class by overriding
+ * Tool::getHelp() and Tool::run(const std::vector<std::shared_ptr<CommandLine::Option>>&).
+ */
 class Tool {
 private:
+#if 0
+    using String = std::string;
+    template <typename T> using Vector = std::vector<T>;
+    template <typename T> using SharedPtr = std::shared_ptr<T>;
+#endif
 	/**
 	 * @brief The name of this tool.
 	 */
-	std::string name;
+	String name;
 
 protected:
 	/** 
 	 * @brief Construct this tool.
 	 * @param name the name of this tool
 	 */
-	Tool(const std::string& name);
+	Tool(const String& name);
 
 public:
 	/** 
@@ -75,13 +100,19 @@ public:
 	 * @brief Get the name of this tool.
 	 * @return the name of this tool
 	 */
-	const std::string& getName() const;
+	const String& getName() const;
 
     /**
      * @brief Run this tool with the specified arguments.
-     *  @param argument the arguments
+     * @param argument the arguments
      */
-    virtual void run(const std::vector<std::shared_ptr<CommandLine::Option>>& arguments) = 0;
+    virtual void run(const Vector<SharedPtr<CommandLine::Option>>& arguments) = 0;
+
+    /**
+     * @brief Get the help text for this tool.
+     * @return the help text for this tool
+     */
+    virtual const String& getHelp() const = 0;
 
 }; // class Tool
 

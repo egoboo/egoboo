@@ -1604,7 +1604,7 @@ bool ReadContext::readBool()
     else
     {
         throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(_loadName, _lineNumber),
-                                        "unexpected character while scanning natural literal");
+                                        "unexpected character while scanning boolean literal");
     }
 }
 

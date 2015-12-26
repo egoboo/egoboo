@@ -480,6 +480,9 @@
     <ClCompile Include="src\egolib\Script\Interpreter\SafeCast.cpp">
       <Filter>Source Files\Script\Interpreter</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp">
+      <Filter>Source Files\Logic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1018,6 +1021,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\TextureSampler.hpp">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp">
+      <Filter>Header Files\Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,10 +3,14 @@
 #include "Tool.hpp"
 
 namespace Tools {
+
+using namespace Standard;
+
 /**
  * @brief Convert paletted images to non-paletted images.
  */
 struct ConvertPaletted : public Editor::Tool {
+
 public:
     /**
      * @brief Construct this tool.
@@ -18,14 +22,14 @@ public:
      */
     virtual ~ConvertPaletted();
 
-    /**
-     * @brief Run this tool with the specified arguments.
-     * @param argument the arguments
-     */
-    void run(const std::vector<std::shared_ptr<CommandLine::Option>>& arguments) override;
+    /** @copydoc Tool::run */
+    void run(const Vector<SharedPtr<CommandLine::Option>>& arguments) override;
+
+    /** @copydoc Tool:getHelp */
+    const String& getHelp() const override;
 
 private:
-    void convert(const std::string &fileName);
+    void convert(const String& fileName);
 
 }; // struct ConvertPaletted
 

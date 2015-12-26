@@ -42,7 +42,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
     _overlay(),
 
     _modifiers(),
-    _missileTreatment(MISSILE_NORMAL),
+    _missileTreatment(MissileTreatment_Normal),
     _missileTreatmentCost(0.0f),
 
     _ownerManaSustain(enchantmentProfile->_owner._manaDrain),
@@ -91,7 +91,7 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
             case eve_t::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
 
             //These are not object attributes but enchant attributes
-            case eve_t::SETMISSILETREATMENT:    _missileTreatment = (MissileTreatmentType)(long)(_enchantProfile->_set[i].value); continue;
+            case eve_t::SETMISSILETREATMENT:    _missileTreatment = (MissileTreatment)(long)(_enchantProfile->_set[i].value); continue;
             case eve_t::SETCOSTFOREACHMISSILE:  _missileTreatmentCost = _enchantProfile->_set[i].value; continue;
 
             default: throw std::logic_error("Unhandled enchant set type");
@@ -523,7 +523,7 @@ void Enchantment::playEndSound() const
     }
 }
 
-MissileTreatmentType Enchantment::getMissileTreatment() const
+MissileTreatment Enchantment::getMissileTreatment() const
 {
     return _missileTreatment;
 }

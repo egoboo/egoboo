@@ -6,6 +6,7 @@
 
 #include "ConvertPaletted.hpp"
 #include "DataTxtValidator.hpp"
+#include "EnchantTxtValidator.hpp"
 
 int SDL_main(int argc, char **argv) {
 	try {
@@ -16,6 +17,7 @@ int SDL_main(int argc, char **argv) {
         unordered_map<string, shared_ptr<Editor::ToolFactory>> factories;
         factories.emplace("DataTxtValidator", make_shared<Tools::DataTxtValidatorFactory>());
         factories.emplace("ConvertPaletted", make_shared<Tools::ConvertPalettedFactory>());
+        factories.emplace("EnchantTxtValidator", make_shared <Tools::EnchantTxtValidatorFactory>());
 
         // (2) Parse the argument list.
         auto args = CommandLine::parse(argc, argv);
