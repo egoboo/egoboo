@@ -1802,9 +1802,7 @@ Uint8 scr_GiveMoneyToTarget( script_state_t& state, ai_state_t& self )
     /// @author ZZ
     /// @details This function increases the target's money, while decreasing the
     /// character's own money.  tmpargument is set to the amount transferred
-    /// @note BB@> I would like to use getadd_int() here, but it is not really suited to two variables
 
-    int tTmp, iTmp;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1812,33 +1810,16 @@ Uint8 scr_GiveMoneyToTarget( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     //squash out-or-range values
-    pchr->money = Ego::Math::constrain( pchr->money, (Sint16)0, (Sint16)MAXMONEY );
-    pself_target->money = Ego::Math::constrain( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
-
-    // limit the range of the character's money
-    iTmp = pchr->money - state.argument;
-    iTmp = Ego::Math::constrain( iTmp, 0, MAXMONEY );
-
-    // limit the range of the target's money
-    tTmp = pself_target->money + state.argument;
-    tTmp = Ego::Math::constrain( tTmp, 0, MAXMONEY );
-
-    // recover the possible transfer values
-    iTmp = iTmp + state.argument;
-    tTmp = tTmp - state.argument;
-
-    // limit the transfer values
-    if ( state.argument < 0 )
-    {
-        state.argument = std::max( iTmp, tTmp );
+    if(state.argument < 0 && std::abs(state.argument) > pself_target->money) {
+        state.argument = -pself_target->money;
     }
-    else
-    {
-        state.argument = std::min( iTmp, tTmp );
+    if(state.argument > pchr->money) {
+        state.argument = pchr->money;
     }
 
-    pchr->money         = pchr->money + state.argument;
-    pself_target->money = pself_target->money + state.argument;
+    //Do the transfer
+    pchr->money = Ego::Math::constrain(pchr->money - state.argument, 0, MAXMONEY);
+    pself_target->money = Ego::Math::constrain(pself_target->money + state.argument, 0, MAXMONEY);
 
     SCRIPT_FUNCTION_END();
 }
