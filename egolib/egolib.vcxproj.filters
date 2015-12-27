@@ -291,9 +291,6 @@
     <ClCompile Include="src\egolib\FileFormats\template.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\treasure_table_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -472,6 +469,9 @@
       <Filter>Source Files\Script\Interpreter</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp">
+      <Filter>Source Files\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Logic\TreasureTables.cpp">
       <Filter>Source Files\Logic</Filter>
     </ClCompile>
   </ItemGroup>
@@ -684,9 +684,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\template.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\treasure_table_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h">
@@ -1008,6 +1005,9 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\TreasureTables.hpp">
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
   </ItemGroup>

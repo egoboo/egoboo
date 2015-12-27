@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Logic\TreasureTables.cpp" />
     <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\SafeCast.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\Configuration.cpp" />
@@ -383,7 +384,6 @@
     <ClCompile Include="src\egolib\FileFormats\SDL_md2.c" />
     <ClCompile Include="src\egolib\FileFormats\spawn_file.c" />
     <ClCompile Include="src\egolib\FileFormats\template.c" />
-    <ClCompile Include="src\egolib\FileFormats\treasure_table_file.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
     <ClCompile Include="src\egolib\math\LERP.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp" />
@@ -471,6 +471,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Logic\TreasureTables.hpp" />
     <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureSampler.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\SafeCast.hpp" />
@@ -587,7 +588,6 @@
     <ClInclude Include="src\egolib\FileFormats\SDL_md2.h" />
     <ClInclude Include="src\egolib\FileFormats\spawn_file.h" />
     <ClInclude Include="src\egolib\FileFormats\template.h" />
-    <ClInclude Include="src\egolib\FileFormats\treasure_table_file.h" />
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />
     <ClInclude Include="src\egolib\Math\Cone3.hpp" />
     <ClInclude Include="src\egolib\math\LERP.hpp" />

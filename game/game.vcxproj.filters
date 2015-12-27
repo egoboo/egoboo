@@ -299,6 +299,9 @@
     <ClCompile Include="src\game\Logic\QuestLog.cpp">
       <Filter>Game Sources\Logic</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Module\module_spawn.c">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -561,6 +564,9 @@
     </ClInclude>
     <ClInclude Include="src\game\Logic\QuestLog.hpp">
       <Filter>Game Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Module\module_spawn.h">
+      <Filter>Game Header Files\Module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
