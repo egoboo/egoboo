@@ -58,17 +58,17 @@ public:
         void render(int x, int y, const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
         
     protected:
-        LaidTextRenderer(const std::shared_ptr<oglx_texture_t> &atlas, std::unique_ptr<VertexBuffer> &vertexBuffer);
+        LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas, std::unique_ptr<VertexBuffer> &vertexBuffer);
         friend class Font;
     private:
-        std::shared_ptr<oglx_texture_t> _atlas;
+        std::shared_ptr<Ego::Texture> _atlas;
         std::unique_ptr<VertexBuffer> _vertexBuffer;
     };
     
 private:
     /// This is the maximum size for the two caches as used by
     /// drawText and getTextSize, set this to 0 for no caching
-    CONSTEXPR static size_t MAX_CACHE_SIZE = 20;
+    constexpr static size_t MAX_CACHE_SIZE = 20;
     
 protected:
     Font(const std::string &fileName, int pointSize);
@@ -114,7 +114,7 @@ public:
      * @param colour
      *  the colour of the text (default white)
      */
-    void drawTextToTexture(oglx_texture_t *tex, const std::string &text,
+    void drawTextToTexture(Ego::Texture *tex, const std::string &text,
                            const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white());
     
     /**
@@ -133,7 +133,7 @@ public:
      * @param colour
      *  the colour of the text (default white)
      */
-    void drawTextBoxToTexture(oglx_texture_t *tex, const std::string &text, int width, int height, int spacing,
+    void drawTextBoxToTexture(Ego::Texture *tex, const std::string &text, int width, int height, int spacing,
                               const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white());
     
     

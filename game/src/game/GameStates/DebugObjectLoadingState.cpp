@@ -40,9 +40,7 @@
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/link.h"
-#include "game/collision.h"
 #include "game/renderer_2d.h"
-#include "game/bsp.h"
 #include "egolib/fileutil.h"
 
 class DebugObjectLoadingState::GrowableLabel : public GUIComponent
@@ -357,31 +355,31 @@ void DebugObjectLoadingState::loadObjectData()
     {
         std::string out = std::string("Ego::Exception: ") + std::string(ex);
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", objectPath.c_str(), out.c_str());
+        Log::get().warn("error loading %s... %s\n", objectPath.c_str(), out.c_str());
     }
     catch (std::exception &ex)
     {
         std::string out = std::string("std::exception: ") + ex.what();
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", objectPath.c_str(), out.c_str());
+        Log::get().warn("error loading %s... %s\n", objectPath.c_str(), out.c_str());
     }
     catch (std::string &ex)
     {
         std::string out = std::string("std::string: ") + ex;
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", objectPath.c_str(), out.c_str());
+        Log::get().warn("error loading %s... %s\n", objectPath.c_str(), out.c_str());
     }
     catch (char *ex)
     {
         std::string out = std::string("C string: ") + ex;
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", objectPath.c_str(), out.c_str());
+        Log::get().warn("error loading %s... %s\n", objectPath.c_str(), out.c_str());
     }
     catch (...)
     {
         std::string out = "unknown error";
         singleThreadRedrawHack(out);
-        log_warning("error loading %s... %s\n", objectPath.c_str(), out.c_str());
+        Log::get().warn("error loading %s... %s\n", objectPath.c_str(), out.c_str());
     }
     _toLoad.pop_front();
 }

@@ -159,9 +159,9 @@ struct Transform {
         return
             Matrix4f4f
             (
-                1, 0, 0, t[kX],
-                0, 1, 0, t[kY],
-                0, 0, 1, t[kZ],
+                1, 0, 0, t.x(),
+                0, 1, 0, t.y(),
+                0, 0, 1, t.z(),
                 0, 0, 0,   1
             );
     }

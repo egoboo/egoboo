@@ -27,12 +27,9 @@
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Renderer/Renderer.hpp"
+#include "egolib/Renderer/OpenGL/TextureUnit.hpp"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/vfs.h"
-#include "egolib/Core/EnvironmentError.hpp"
-
-// this include must be the absolute last include
-#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -76,7 +73,7 @@ struct Font::SizedTextCache : Id::NonCopyable
 };
 
 struct Font::FontAtlas {
-    std::shared_ptr<oglx_texture_t> texture;
+    std::shared_ptr<Ego::Texture> texture;
     std::unordered_map<uint16_t, SDL_Rect> glyphs;
 };
 
@@ -99,10 +96,10 @@ struct Font::LayoutOptions {
     int *textHeight = nullptr; ///< Set to the laid text's height
 };
 
-Font::LaidTextRenderer::LaidTextRenderer(const std::shared_ptr<oglx_texture_t> &atlas,
+Font::LaidTextRenderer::LaidTextRenderer(const std::shared_ptr<Ego::Texture> &atlas,
                              std::unique_ptr<VertexBuffer> &vertexBuffer) :
-_atlas(atlas),
-_vertexBuffer(std::move(vertexBuffer))
+    _atlas(atlas),
+    _vertexBuffer(std::move(vertexBuffer))
 {}
 
 void Font::LaidTextRenderer::render(int x, int y, const Ego::Math::Colour4f &colour) {
@@ -112,12 +109,12 @@ void Font::LaidTextRenderer::render(int x, int y, const Ego::Math::Colour4f &col
         ~MatrixStack() { GL_DEBUG(glPopMatrix)(); }
     } stack;
     
-    fvec3_t pos(x, y, 0);
-    fmat_4x4_t transMat = fmat_4x4_t::translation(pos);
+    Vector3f pos(static_cast<float>(x), static_cast<float>(y), 0.0f);
+    Matrix4f4f transMat = Transform::translation(pos);
     
     renderer.multiplyMatrix(transMat);
     renderer.setColour(colour);
-    oglx_texture_t::bind(_atlas.get());
+    renderer.getTextureUnit().setActivated(_atlas.get());
     renderer.render(*(_vertexBuffer.get()), Ego::PrimitiveType::Quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
 }
 
@@ -129,7 +126,7 @@ _sizedCache()
     _ttfFont = TTF_OpenFontRW(vfs_openRWopsRead(fileName), 1, pointSize);
     
     if (_ttfFont == nullptr) {
-        throw Ego::Core::EnvironmentError(__FILE__, __LINE__, "SDL_ttf", TTF_GetError());
+        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "SDL_ttf", TTF_GetError());
     }
     
     // Create an texture atlas for ASCII characters
@@ -201,7 +198,7 @@ void Font::getTextBoxSize(const std::string &text, int spacing, int *width, int 
     cache->lastUseInTicks = SDL_GetTicks();
 }
 
-void Font::drawTextToTexture(oglx_texture_t *tex, const std::string &text, const Ego::Math::Colour3f &colour)
+void Font::drawTextToTexture(Ego::Texture *tex, const std::string &text, const Ego::Math::Colour3f &colour)
 {
     LayoutOptions options;
     
@@ -213,7 +210,7 @@ void Font::drawTextToTexture(oglx_texture_t *tex, const std::string &text, const
     tex->setAddressModeT(Ego::TextureAddressMode::Clamp);
 }
 
-void Font::drawTextBoxToTexture(oglx_texture_t *tex, const std::string &text, int width, int height, int spacing,
+void Font::drawTextBoxToTexture(Ego::Texture *tex, const std::string &text, int width, int height, int spacing,
                                 const Ego::Math::Colour3f &colour)
 {
     LayoutOptions options;
@@ -313,7 +310,6 @@ void Font::layoutLine(const std::vector<uint16_t> &codepoints, size_t pos, int m
     size_t lastWordStartPosInUsedChars = 0;
     int x = 0;
     size_t currentPos;
-    bool lineCut = false;
     
     int maxLineWidth = 0;
     int maxLineHeight = 0;
@@ -357,7 +353,6 @@ void Font::layoutLine(const std::vector<uint16_t> &codepoints, size_t pos, int m
             } else if (useNewlines && codepoint == '\n') {
                 currentPos++;
             }
-            lineCut = true;
             break;
         }
         if (codepoint == '\n')
@@ -631,7 +626,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
         if (fits)
             break;
         
-        log_debug("Couldn't fit atlas into %d texture, trying %d instead\n", currentMaxSize, currentMaxSize << 1);
+        Log::get().debug("Couldn't fit atlas into %d texture, trying %d instead\n", currentMaxSize, currentMaxSize << 1);
         currentMaxSize <<= 1;
         pos.clear();
         SDL_FreeSurface(atlas);
@@ -639,7 +634,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
     }
     
     if (!atlas) {
-        log_error("Could not fit a font atlas into a %d by %d texture!\n", maxTextureSize, maxTextureSize);
+        Log::get().error("Could not fit a font atlas into a %d by %d texture!\n", maxTextureSize, maxTextureSize);
         SDL_assert(atlas);
     }
     
@@ -652,7 +647,7 @@ Font::FontAtlas Font::createFontAtlas(const std::vector<uint16_t> &codepoints) c
     }
     
     std::shared_ptr<SDL_Surface> atlasPtr(atlas, SDL_FreeSurface);
-    retval.texture.reset(new oglx_texture_t());
+    retval.texture = std::make_shared<Ego::OpenGL::Texture>();
     retval.texture->load("font atlas", atlasPtr);
     retval.texture->setAddressModeS(Ego::TextureAddressMode::Clamp);
     retval.texture->setAddressModeT(Ego::TextureAddressMode::Clamp);
@@ -803,17 +798,17 @@ int Font::getFontKerning(uint16_t prevCodepoint, uint16_t nextCodepoint) const {
     const SDL_version *ttfVer = TTF_Linked_Version();
     bool usingFixedLibrary = IS_KERNING_FIXED(ttfVer->major, ttfVer->minor, ttfVer->patch);
     if (usingFixedLibrary != USING_FIXED_API)
-        throw Ego::Core::EnvironmentError(__FILE__, __LINE__, "Ego::Font", "SDL_ttf compile version and linked version have different kerning APIs");
+        throw Id::EnvironmentErrorException(__FILE__, __LINE__, "Ego::Font", "SDL_ttf compile version and linked version have different kerning APIs");
 #if USING_FIXED_API
     // This errors-out if we're not actually compiling with the fixed API,
     // if you get a error here, please file a bug!
-    int (*compileCheck)(TTF_Font *, uint16_t, uint16_t) = TTF_GetFontKerningSize;
+    //int (*compileCheck)(TTF_Font *, uint16_t, uint16_t) = TTF_GetFontKerningSize;
     
     return TTF_GetFontKerningSize(_ttfFont, prevCodepoint, nextCodepoint);
 #else
     // This errors-out if we're actually compiling with the fixed API,
     // if you get an error here, please file a bug!
-    int (*compileCheck)(TTF_Font *, int, int) = TTF_GetFontKerningSize;
+    //int (*compileCheck)(TTF_Font *, int, int) = TTF_GetFontKerningSize;
     
     // Abuse the fact that TTF_GlyphIsProvided just calls FT_Get_Char_Index and returns the value
     // instead of returning if the value is not equal to 0
