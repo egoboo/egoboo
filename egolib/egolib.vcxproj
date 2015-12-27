@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Renderer\TextureSampler.cpp" />
     <ClCompile Include="src\egolib\Logic\TreasureTables.cpp" />
     <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\SafeCast.cpp" />

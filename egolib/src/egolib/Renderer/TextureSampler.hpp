@@ -27,15 +27,15 @@
 #include "egolib/Renderer/TextureAddressMode.hpp"
 
 namespace Ego {
+	
+// We know we are dealing with filters and addressing modes for textures :)
+using Filter = TextureFilter;
+using AddressMode = TextureAddressMode;
 
 /**
  * @brief A texture sampler is part of the state of a texture (Ego::Texture).
  */
 struct TextureSampler {
-private:
-    // We know we are dealing with filters and addressing modes for textures :)
-    typedef TextureFilter Filter;
-    typedef TextureAddressMode AddressMode;
 
 private:
     /// @brief The minification filter
@@ -53,6 +53,9 @@ private:
     /// @brief The addressing mode along the t-axis.
     AddressMode addressModeT;
 
+    /// @brief The level of anistropic filtering.
+    float anisotropyLevel;
+
 public:
     /**
      * @brief Construct this texture sampler.
@@ -61,19 +64,19 @@ public:
      * @param mipMapFilter the mipmap filter
      * @param addressModeS the address mode for the s-axis
      * @param addressModeT the address mode for the t-axis
+     * @param anisotropyLevel the level of anisotropic filtering
+     * When the sampler is applied, this value is clamped to  \f$[min,max]\f$ where \f$min\f$ is the
+     * minimum level and \f$max\f$ is the maximum level of anistropic filtering supported.
+     * The minimum level means anisotropic filtering is off i.e. isotropic filtering is performed.
      */
     TextureSampler(Filter minFilter, Filter magFilter, Filter mipMapFilter,
-            AddressMode addressModeS, AddressMode addressModeT)
-        : minFilter(minFilter), magFilter(magFilter), mipMapFilter(mipMapFilter),
-        addressModeS(addressModeS), addressModeT(addressModeT) {}
+                   AddressMode addressModeS, AddressMode addressModeT, float anisotropyLevel);
 
     /**
      * @brief Copy-construct this texture sampler from another texture sampler.
      * @param other the other texture sampler
      */
-    TextureSampler(const TextureSampler& other)
-        : minFilter(other.minFilter), magFilter(other.magFilter), mipMapFilter(other.mipMapFilter),
-        addressModeS(other.addressModeS), addressModeT(other.addressModeT) {}
+    TextureSampler(const TextureSampler& other);
 
 public:
     /**
@@ -81,55 +84,44 @@ public:
      * @param other the other texture sampler
      * @return this texture sampler
      */
-    const TextureSampler& operator=(const TextureSampler& other) {
-        minFilter = other.minFilter;
-        magFilter = other.magFilter;
-        mipMapFilter = other.mipMapFilter;
-        addressModeS = other.addressModeS;
-        addressModeT = other.addressModeT;
-        return *this;
-    }
+    const TextureSampler& operator=(const TextureSampler& other);
 
 public:
     /**
      * @brief Get the minification filter.
      * @return the minification filter
      */
-    Filter getMinFilter() const {
-        return minFilter;
-    }
+    Filter getMinFilter() const;
 
     /**
      * @brief Get the magnification filter.
      * @return the magnification filter
      */
-    Filter getMagFilter() const {
-        return magFilter;
-    }
+    Filter getMagFilter() const;
 
     /**
      * @brief Get the mipmap filter.
      * @return the mipmap filter
      */
-    Filter getMipMapFilter() const {
-        return mipMapFilter;
-    }
+    Filter getMipMapFilter() const;
 
     /**
      * @brief Get the address mode for the s-axis.
      * @return the address mode for the s-axis
      */
-    AddressMode getAddressModeS() const {
-        return addressModeS;
-    }
+    AddressMode getAddressModeS() const;
 
     /**
      * @brief Get the address mode for the t-axis.
      * @return the address mode for the t-axis
      */
-    AddressMode getAddressModeT() const {
-        return addressModeT;
-    }
+    AddressMode getAddressModeT() const;
+
+    /**
+     * @brief Get level of anistropic filtering.
+     * @return the level of anisotropic filtering
+     */
+    float getAnisotropyLevel() const;
 
 }; // struct TextureSampler
 
