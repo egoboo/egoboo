@@ -429,6 +429,90 @@ SharedPtr<SDL_Surface> convertPowerOfTwo(const SharedPtr<SDL_Surface>& surface) 
     return newSurface;
 }
 
+bool testAlpha(const SharedPtr<SDL_Surface>& surface) {
+    // test to see whether an image requires alpha blending
+
+    if (!surface) {
+        throw InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
+    }
+
+    // Alias.
+    SDL_PixelFormat *format = surface->format;
+
+    // (1)
+    // If the surface has a per-surface color key,
+    // it is partially transparent.
+    uint32_t colorKey;
+    int rslt = SDL_GetColorKey(surface.get(), &colorKey);
+    if (rslt < -1) {
+        // If a value smaller than -1 is returned, an error occured.
+        throw std::invalid_argument("SDL_GetColorKey failed");
+    } else if (rslt >= 0) {
+        // If a value greater or equal than 0 is returned, the surface has a color key.
+        return true;
+    } /*else if (rslt == -1) {
+      // If a value of -1 is returned, the surface has no color key: Continue.
+    }*/
+
+    // (2)
+    // If the image is alpha modded with a non-opaque alpha value,
+    // it is partially transparent.
+    uint8_t alpha;
+    SDL_GetSurfaceAlphaMod(surface.get(), &alpha);
+    if (0xff != alpha) {
+        return true;
+    }
+
+    // (3)
+    // If the image is palettized and has non-opaque colors in the color,
+    // it is partially transparent.
+    if (nullptr != format->palette) {
+        for (int i = 0; i < format->palette->ncolors; ++i) {
+            SDL_Color& color = format->palette->colors[i];
+            if (0xff != color.a) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // (The image is not palettized.)
+    // (4)
+    // If the image has no alpha channel,
+    // then it is NOT partially transparent.
+    if (0x00 == format->Amask) {
+        return false;
+    }
+
+    // (The image is not palettized and has an alpha channel.)
+    // If the image has an alpha channel and has non-opaque pixels,
+    // then it is partially transparent.
+    uint32_t bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
+    int bytesPerPixel = format->BytesPerPixel;
+    int width = surface->w;
+    int height = surface->h;
+    int pitch = surface->pitch;
+
+    const char *row_ptr = static_cast<const char *>(surface->pixels);
+    for (int y = 0; y < height; ++y) {
+        const char *char_ptr = row_ptr;
+        for (int x = 0; x < width; ++x) {
+            Uint32 *ui32_ptr = (Uint32 *)char_ptr;
+            Uint32 pixel = (*ui32_ptr) & bitMask;
+            Uint8 r, g, b, a;
+            SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
+
+            if (0xFF != a) {
+                return true;
+            }
+            char_ptr += bytesPerPixel;
+        }
+        row_ptr += pitch;
+    }
+
+    return false;
+}
+
 } // namespace SDL
 } // namespace Graphics
 } // namespace Ego

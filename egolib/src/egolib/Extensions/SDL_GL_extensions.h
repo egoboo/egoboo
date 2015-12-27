@@ -126,6 +126,20 @@ SharedPtr<SDL_Surface> convertPixelFormat(const SharedPtr<SDL_Surface>& surface,
 
 SharedPtr<SDL_Surface> convertPowerOfTwo(const SharedPtr<SDL_Surface>& surface);
 
+/**
+ * @brief Test if a surface is non-opaque.
+ * @param surface the surface
+ * @return @a true if the surface is non-opaque, @a false otherwise
+ * @remark A surface is non-opaque if any of the following properties hold:
+ * - the surface has a color key
+ *   TODO: Test if some pixel has the color of the color key
+ * - the surface has a global, non-opaque alpha value
+ * - the surface is palettized and there is a non-opaque palette entry
+ *   TODO: Test if some pixel has the color of the palette entry
+ * - the surface is not palettized, has an alpha channel, and there is a non-opaque pixel
+ */
+bool testAlpha(const SharedPtr<SDL_Surface>& surface);
+
 } // namespace SDL
 } // namespace Graphics
 } // namespace Ego
