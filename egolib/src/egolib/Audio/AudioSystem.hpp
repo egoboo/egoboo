@@ -103,7 +103,6 @@ class AudioSystem : public Ego::Core::Singleton<AudioSystem>
 {
 public:
     static constexpr int MIX_HIGH_QUALITY = 44100;
-    static constexpr size_t MENU_SONG = 0;
 
 	// TODO: re-add constexpr when we drop VS 2013 support
 	// Workaround for compilers without constexpr support (VS 2013);
@@ -144,6 +143,12 @@ public:
     **/
     void playMusic(const MusicID musicID, const uint16_t fadetime = 0);
 
+    /**
+    * @author ZF
+    * @details This functions plays a specified track loaded into memory
+    **/
+    void playMusic(const std::string& songName, const uint16_t fadetime = 0);
+
     SoundID loadSound(const std::string &fileName);
 
     /// @author ZF
@@ -179,9 +184,6 @@ public:
      */
     void reconfigure(egoboo_config_t &cfg);
 
-    void freeAllMusic();
-    void freeAllSounds();
-
 	/**
 	 * @brief
 	 *  Play a sound at the given position.
@@ -211,11 +213,6 @@ public:
     inline SoundID getGlobalSound(GlobalSound id) const
     {
         return _globalSounds[id];
-    }
-
-    inline MusicID getCurrentMusicPlaying() const
-    {
-        return _currentSongPlaying;
     }
 
     /**
@@ -282,11 +279,12 @@ private:
     void updateLoopingSound(const std::shared_ptr<LoopingSound>& sound);
 
 private:
-    std::vector<Mix_Music*> _musicLoaded;
+    std::unordered_map<std::string, Mix_Music*> _musicLoaded;    //Maps song names to music data
+    std::unordered_map<MusicID, std::string> _musicIDToNameMap;   //Maps MusicID to song names
     std::vector<Mix_Chunk*> _soundsLoaded;
     std::array<SoundID, GSND_COUNT> _globalSounds;
 
     std::forward_list<std::shared_ptr<LoopingSound>> _loopingSounds;
-    MusicID _currentSongPlaying;
+    std::string _currentSongPlaying;
     float _maxSoundDistance;                                            ///< How far away can we hear sound effects?
 };

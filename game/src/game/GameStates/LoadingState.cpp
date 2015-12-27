@@ -112,7 +112,7 @@ void LoadingState::beginState()
 {
     //Start the background loading thread
     _loadingThread = std::thread(&LoadingState::loadModuleData, this);
-    AudioSystem::get().playMusic(27); //TODO: needs to be referenced by string
+    AudioSystem::get().playMusic("loading_screen.ogg");
 }
 
 

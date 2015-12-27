@@ -23,7 +23,7 @@
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/fileutil.h"
 
-eve_t::eve_t() : AbstractProfile(),
+EnchantProfile::EnchantProfile() : AbstractProfile(),
 
     // Enchant spawn description.
     _override(false),
@@ -57,18 +57,6 @@ eve_t::eve_t() : AbstractProfile(),
 
     _enchantName()
 {
-    //ctor
-}
-
-eve_t::~eve_t()
-{
-    //dtor
-}
-
-void eve_t::reset()
-{
-    this->AbstractProfile::reset();
-
     for (size_t i = 0; i < MAX_ENCHANT_SET; ++i)
     {
         this->_set[i].init();
@@ -78,48 +66,26 @@ void eve_t::reset()
         this->_add[i].init();
     }
     contspawn.reset();
-    _owner.reset();
-    _target.reset();
-    this->seeKurses = false;
-    this->darkvision = false;
-
-
-    // What to do when the enchant ends.
-    endsound_index = -1;
-    killtargetonend = false;
-    poofonend = false;
-    endmessage = -1;
-
-    // Enchant spawn description.
-    _override = false;
-    remove_overridden = false;
-    retarget = false;
-    required_damagetype = DamageType::DAMAGE_DIRECT;
-    require_damagetarget_damagetype = DamageType::DAMAGE_DIRECT;
-    spawn_overlay = false;
-    // Enchant despawn conditions.
-    lifetime = 0;
-    endIfCannotPay = false;
-    removedByIDSZ = IDSZ2::None;
 }
 
-const std::string& eve_t::getEnchantName() const
+EnchantProfile::~EnchantProfile()
+{
+    //dtor
+}
+
+const std::string& EnchantProfile::getEnchantName() const
 {
     return _enchantName;
 }
 
-void eve_t::setEnchantName(const std::string& name)
+void EnchantProfile::setEnchantName(const std::string& name)
 {
     _enchantName = name;
 }
 
-std::shared_ptr<eve_t> eve_t::readFromFile(const std::string& pathname)
+std::shared_ptr<EnchantProfile> EnchantProfile::readFromFile(const std::string& pathname)
 {
-    char cTmp;
-
-    std::shared_ptr<eve_t> profile = std::make_shared<eve_t>();
-
-    profile->reset();
+    std::shared_ptr<EnchantProfile> profile = std::make_shared<EnchantProfile>();
 
     ReadContext ctxt(pathname);
     if (!ctxt.ensureOpen())
@@ -152,70 +118,70 @@ std::shared_ptr<eve_t> eve_t::readFromFile(const std::string& pathname)
     profile->removedByIDSZ = vfs_get_next_idsz(ctxt);
 
     // Now the set values
-    profile->_set[eve_t::SETDAMAGETYPE].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETDAMAGETYPE].value = vfs_get_damage_type(ctxt);
+    profile->_set[EnchantProfile::SETDAMAGETYPE].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETDAMAGETYPE].value = vfs_get_damage_type(ctxt);
 
-    profile->_set[eve_t::SETNUMBEROFJUMPS].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETNUMBEROFJUMPS].value = ctxt.readIntegerLiteral();
+    profile->_set[EnchantProfile::SETNUMBEROFJUMPS].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETNUMBEROFJUMPS].value = ctxt.readIntegerLiteral();
 
-    profile->_set[eve_t::SETLIFEBARCOLOR].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETLIFEBARCOLOR].value = ctxt.readIntegerLiteral();
+    profile->_set[EnchantProfile::SETLIFEBARCOLOR].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETLIFEBARCOLOR].value = ctxt.readIntegerLiteral();
 
-    profile->_set[eve_t::SETMANABARCOLOR].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETMANABARCOLOR].value = ctxt.readIntegerLiteral();
+    profile->_set[EnchantProfile::SETMANABARCOLOR].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETMANABARCOLOR].value = ctxt.readIntegerLiteral();
 
-    profile->_set[eve_t::SETSLASHMODIFIER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETSLASHMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDSLASHRESIST].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETSLASHMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETSLASHMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[EnchantProfile::ADDSLASHRESIST].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETCRUSHMODIFIER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETCRUSHMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDCRUSHRESIST].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETCRUSHMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETCRUSHMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[EnchantProfile::ADDCRUSHRESIST].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETPOKEMODIFIER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETPOKEMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDPOKERESIST].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETPOKEMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETPOKEMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[EnchantProfile::ADDPOKERESIST].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETHOLYMODIFIER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETHOLYMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDHOLYRESIST].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETHOLYMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETHOLYMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[EnchantProfile::ADDHOLYRESIST].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETEVILMODIFIER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETEVILMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDEVILRESIST].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETEVILMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETEVILMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[EnchantProfile::ADDEVILRESIST].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETFIREMODIFIER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETFIREMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDFIRERESIST].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETFIREMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETFIREMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[EnchantProfile::ADDFIRERESIST].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETICEMODIFIER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETICEMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDICERESIST].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETICEMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETICEMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[EnchantProfile::ADDICERESIST].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETZAPMODIFIER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETZAPMODIFIER].value = vfs_get_damage_modifier(ctxt);
-    profile->_add[eve_t::ADDZAPRESIST].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETZAPMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETZAPMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[EnchantProfile::ADDZAPRESIST].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETFLASHINGAND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETFLASHINGAND].value = ctxt.readIntegerLiteral();
+    profile->_set[EnchantProfile::SETFLASHINGAND].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETFLASHINGAND].value = ctxt.readIntegerLiteral();
 
-    profile->_set[eve_t::SETLIGHTBLEND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETLIGHTBLEND].value = ctxt.readIntegerLiteral();
+    profile->_set[EnchantProfile::SETLIGHTBLEND].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETLIGHTBLEND].value = ctxt.readIntegerLiteral();
 
-    profile->_set[eve_t::SETALPHABLEND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETALPHABLEND].value = ctxt.readIntegerLiteral();
+    profile->_set[EnchantProfile::SETALPHABLEND].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETALPHABLEND].value = ctxt.readIntegerLiteral();
 
-    profile->_set[eve_t::SETSHEEN].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETSHEEN].value = ctxt.readIntegerLiteral();
+    profile->_set[EnchantProfile::SETSHEEN].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETSHEEN].value = ctxt.readIntegerLiteral();
 
-    profile->_set[eve_t::SETFLYTOHEIGHT].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETFLYTOHEIGHT].value = ctxt.readIntegerLiteral();
+    profile->_set[EnchantProfile::SETFLYTOHEIGHT].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETFLYTOHEIGHT].value = ctxt.readIntegerLiteral();
 
-    profile->_set[eve_t::SETWALKONWATER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETWALKONWATER].value = ctxt.readBool();
+    profile->_set[EnchantProfile::SETWALKONWATER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETWALKONWATER].value = ctxt.readBool();
 
-    profile->_set[eve_t::SETCANSEEINVISIBLE].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETCANSEEINVISIBLE].value = ctxt.readBool();
+    profile->_set[EnchantProfile::SETCANSEEINVISIBLE].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETCANSEEINVISIBLE].value = ctxt.readBool();
 
     Ego::Script::EnumDescriptor<MissileTreatment> enumDescriptor
         (
@@ -235,49 +201,50 @@ std::shared_ptr<eve_t> eve_t::readFromFile(const std::string& pathname)
                 {"D", MissileTreatment_Deflect},
             }
     );
-    profile->_set[eve_t::SETMISSILETREATMENT].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETMISSILETREATMENT].value = ctxt.readEnum(enumDescriptor);
 
-    profile->_set[eve_t::SETCOSTFOREACHMISSILE].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETCOSTFOREACHMISSILE].value = ctxt.readRealLiteral();
+    profile->_set[EnchantProfile::SETMISSILETREATMENT].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETMISSILETREATMENT].value = ctxt.readEnum(enumDescriptor);
 
-    profile->_set[eve_t::SETMORPH].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETMORPH].value = true;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
+    profile->_set[EnchantProfile::SETCOSTFOREACHMISSILE].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETCOSTFOREACHMISSILE].value = ctxt.readRealLiteral();
 
-    profile->_set[eve_t::SETCHANNEL].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETCHANNEL].value = true;  // vfs_get_bool( fileread );
+    profile->_set[EnchantProfile::SETMORPH].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETMORPH].value = true;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
+
+    profile->_set[EnchantProfile::SETCHANNEL].apply = vfs_get_next_bool(ctxt);
+    profile->_set[EnchantProfile::SETCHANNEL].value = true;  // vfs_get_bool( fileread );
 
     // Now read in the add values
-    profile->_add[eve_t::ADDJUMPPOWER].value = vfs_get_next_float(ctxt);
-    profile->_add[eve_t::ADDBUMPDAMPEN].value = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
-    profile->_add[eve_t::ADDBOUNCINESS].value = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
-    profile->_add[eve_t::ADDDAMAGE].value = vfs_get_next_float(ctxt);            // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDSIZE].value = vfs_get_next_float(ctxt);           // Stored as float, used as float
-    profile->_add[eve_t::ADDACCEL].value = vfs_get_next_int(ctxt) / 80.0f;   // Stored as int, used as float
-    profile->_add[eve_t::ADDRED].value = vfs_get_next_int(ctxt);
-    profile->_add[eve_t::ADDGRN].value = vfs_get_next_int(ctxt);
-    profile->_add[eve_t::ADDBLU].value = vfs_get_next_int(ctxt);
-    profile->_add[eve_t::ADDDEFENSE].value = -vfs_get_next_int(ctxt);    // Defense is backwards
-    profile->_add[eve_t::ADDMANA].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDLIFE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDSTRENGTH].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDWISDOM].value = vfs_get_next_float(ctxt);    // Deprecated (not used)
-    profile->_add[eve_t::ADDINTELLIGENCE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->_add[eve_t::ADDDEXTERITY].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[EnchantProfile::ADDJUMPPOWER].value = vfs_get_next_float(ctxt);
+    profile->_add[EnchantProfile::ADDBUMPDAMPEN].value = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
+    profile->_add[EnchantProfile::ADDBOUNCINESS].value = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
+    profile->_add[EnchantProfile::ADDDAMAGE].value = vfs_get_next_float(ctxt);            // Stored as float, used as 8.8-fixed
+    profile->_add[EnchantProfile::ADDSIZE].value = vfs_get_next_float(ctxt);           // Stored as float, used as float
+    profile->_add[EnchantProfile::ADDACCEL].value = vfs_get_next_int(ctxt) / 80.0f;   // Stored as int, used as float
+    profile->_add[EnchantProfile::ADDRED].value = vfs_get_next_int(ctxt);
+    profile->_add[EnchantProfile::ADDGRN].value = vfs_get_next_int(ctxt);
+    profile->_add[EnchantProfile::ADDBLU].value = vfs_get_next_int(ctxt);
+    profile->_add[EnchantProfile::ADDDEFENSE].value = -vfs_get_next_int(ctxt);    // Defense is backwards
+    profile->_add[EnchantProfile::ADDMANA].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[EnchantProfile::ADDLIFE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[EnchantProfile::ADDSTRENGTH].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[EnchantProfile::ADDWISDOM].value = vfs_get_next_float(ctxt);    // Deprecated (not used)
+    profile->_add[EnchantProfile::ADDINTELLIGENCE].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[EnchantProfile::ADDDEXTERITY].value = vfs_get_next_float(ctxt);    // Stored as float, used as 8.8-fixed
 
     // Determine which entries are not important
-    for (size_t cnt = 0; cnt < eve_t::MAX_ENCHANT_ADD; cnt++)
+    for (size_t cnt = 0; cnt < EnchantProfile::MAX_ENCHANT_ADD; cnt++)
     {
         profile->_add[cnt].apply = (0.0f != profile->_add[cnt].value);
     }
-    profile->_add[eve_t::ADDFIRERESIST].apply = profile->_set[eve_t::SETFIREMODIFIER].apply;
-    profile->_add[eve_t::ADDEVILRESIST].apply = profile->_set[eve_t::SETEVILMODIFIER].apply;
-    profile->_add[eve_t::ADDZAPRESIST].apply = profile->_set[eve_t::SETZAPMODIFIER].apply;
-    profile->_add[eve_t::ADDICERESIST].apply = profile->_set[eve_t::SETICEMODIFIER].apply;
-    profile->_add[eve_t::ADDHOLYRESIST].apply = profile->_set[eve_t::SETHOLYMODIFIER].apply;
-    profile->_add[eve_t::ADDPOKERESIST].apply = profile->_set[eve_t::SETPOKEMODIFIER].apply;
-    profile->_add[eve_t::ADDSLASHRESIST].apply = profile->_set[eve_t::SETSLASHMODIFIER].apply;
-    profile->_add[eve_t::ADDCRUSHRESIST].apply = profile->_set[eve_t::SETCRUSHMODIFIER].apply;
+    profile->_add[EnchantProfile::ADDFIRERESIST].apply = profile->_set[EnchantProfile::SETFIREMODIFIER].apply;
+    profile->_add[EnchantProfile::ADDEVILRESIST].apply = profile->_set[EnchantProfile::SETEVILMODIFIER].apply;
+    profile->_add[EnchantProfile::ADDZAPRESIST].apply = profile->_set[EnchantProfile::SETZAPMODIFIER].apply;
+    profile->_add[EnchantProfile::ADDICERESIST].apply = profile->_set[EnchantProfile::SETICEMODIFIER].apply;
+    profile->_add[EnchantProfile::ADDHOLYRESIST].apply = profile->_set[EnchantProfile::SETHOLYMODIFIER].apply;
+    profile->_add[EnchantProfile::ADDPOKERESIST].apply = profile->_set[EnchantProfile::SETPOKEMODIFIER].apply;
+    profile->_add[EnchantProfile::ADDSLASHRESIST].apply = profile->_set[EnchantProfile::SETSLASHMODIFIER].apply;
+    profile->_add[EnchantProfile::ADDCRUSHRESIST].apply = profile->_set[EnchantProfile::SETCRUSHMODIFIER].apply;
 
     // Read expansions
     while (ctxt.skipToColon(true))
@@ -300,7 +267,6 @@ std::shared_ptr<eve_t> eve_t::readFromFile(const std::string& pathname)
     }
 
     profile->_name = pathname;
-    profile->_loaded = true;
 
     // Limit the endsound_index.
     profile->endsound_index = Ego::Math::constrain<Sint16>(profile->endsound_index, INVALID_SOUND_ID, MAX_WAVE);

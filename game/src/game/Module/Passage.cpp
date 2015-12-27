@@ -240,7 +240,7 @@ bool Passage::isPointInside( float xpos, float ypos ) const
 
 bool Passage::checkPassageMusic(const Object * pchr) const
 {
-    if ( _music == INVALID_SOUND_ID || _music == AudioSystem::get().getCurrentMusicPlaying() )
+    if (_music == INVALID_SOUND_ID)
     {
        return false; 
     } 
