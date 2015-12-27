@@ -124,138 +124,6 @@ const std::string& Texture::getName() const {
 
 } // namespace Ego
 
-bool IMG_test_alpha(SDL_Surface *surface)
-{
-    // test to see whether an image requires alpha blending
-
-    if (!surface)
-    {
-        throw std::invalid_argument("nullptr == surface");
-    }
-
-    // Alias.
-    SDL_PixelFormat *format = surface->format;
-
-    // If the surface has a per-surface color key, it is partially transparent.
-    Uint32 colorKey;
-    int rslt = SDL_GetColorKey(surface, &colorKey);
-    if (rslt < -1)
-    {
-        // If a value smaller than -1 is returned, an error occured.
-        throw std::invalid_argument("SDL_GetColorKey failed");
-    }
-    else if (rslt >= 0)
-    {
-        // If a value greater or equal than 0 is returned, the surface has a color key.
-        return true;
-    }
-    /*
-    else if (rslt == -1)
-    {
-    // If a value of -1 is returned, the surface has no color key: Continue.
-    }
-    */
-
-    // If it is an image without an alpha channel, then there is no alpha in the image.
-    if (!format->palette && 0x00 == format->Amask)
-    {
-        return false;
-    }
-
-    // grab the info for scanning the surface
-    uint32_t bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
-    int bytesPerPixel = format->BytesPerPixel;
-    int width = surface->w;
-    int height = surface->h;
-    int pitch = surface->pitch;
-
-    const char *row_ptr = static_cast<const char *>(surface->pixels);
-    for (int y = 0; y < height; ++y)
-    {
-        const char *char_ptr = row_ptr;
-        for (int x = 0; x < width; ++x)
-        {
-            Uint32 *ui32_ptr = (Uint32 *)char_ptr;
-            Uint32 pixel = (*ui32_ptr) & bitMask;
-            Uint8 r, g, b, a;
-            SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
-
-            if (0xFF != a)
-            {
-                return true;
-            }
-            char_ptr += bytesPerPixel;
-        }
-        row_ptr += pitch;
-    }
-
-    return false;
-}
-
-bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
-{
-    // test to see whether an image requires alpha blending
-    if (!surface)
-    {
-        return false;
-    }
-    // save this alias
-    SDL_PixelFormat *format = surface->format;
-
-    // If there is no key specified (or the image has an alpha channel), use the basic version.
-    if (INVALID_KEY == key || format->Aloss < 8)
-    {
-        return IMG_test_alpha(surface);
-    }
-
-    // If the overall alpha marks the surface as not fully opaque,
-    // it is partially transparent and hence requires alpha blending.
-    uint8_t alpha;
-    SDL_GetSurfaceAlphaMod(surface, &alpha);
-    if (0xff != alpha)
-    {
-        return true;
-    }
-
-    // grab the info for scanning the surface
-    uint32_t bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
-    int bytesPerPixel = format->BytesPerPixel;
-    int w = surface->w;
-    int h = surface->h;
-    int pitch = surface->pitch;
-
-    const char *row_ptr = static_cast<const char *>(surface->pixels);
-    for (int iy = 0; iy < h; iy++)
-    {
-        const char *char_ptr = row_ptr;
-        for (int ix = 0; ix < w; ix++)
-        {
-            Uint32 *ui32_ptr = (Uint32 *)char_ptr;
-            Uint32 pixel = (*ui32_ptr) & bitMask;
-
-            if (pixel == key)
-            {
-                return true;
-            }
-            else
-            {
-                Uint8 r, g, b, a;
-                SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
-                if (0xFF != a)
-                {
-                    return true;
-                }
-            }
-
-            // advance to the next entry
-            char_ptr += bytesPerPixel;
-        }
-        row_ptr += pitch;
-    }
-
-    return false;
-}
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -404,9 +272,9 @@ Texture::Texture() :
             // The name of the texture is the error texture's.
             _errorTexture2D->getName(),
             // The texture is the 2D error texture.
-            Ego::TextureType::_2D,
+            TextureType::_2D,
             // The texture coordinates of this texture are repeated along the s and t axes.
-            Ego::TextureAddressMode::Repeat, Ego::TextureAddressMode::Repeat,
+            TextureAddressMode::Repeat, TextureAddressMode::Repeat,
             // The size (width and height) of this texture is the size of the error image.
             _errorTexture2D->getWidth(), _errorTexture2D->getHeight(),
             // The size (width and height) the source of this texture is the size of the error image as well.
@@ -450,7 +318,7 @@ GLuint Texture::getTextureID() const {
     return _id;
 }
 
-bool Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> source, uint32_t  key) {
+bool Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& source) {
     // Bind this texture to the backing error texture.
     release();
 
@@ -459,45 +327,41 @@ bool Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> source,
         return false;
     }
 
-    // Convert the source into a format suited for OpenGL.
-    std::shared_ptr<SDL_Surface> new_source;
-    try {
-        new_source = SDL_GL_convert(source);
-    } catch (...) {
-        return false;
-    }
-    if (!new_source) {
-        return false;
-    }
+    std::shared_ptr<SDL_Surface> newSource = source;
+    
+    // Convert to RGBA if the image has non-opaque alpha values or alpha modulation and convert to RGB otherwise.
+    bool hasAlpha = Ego::Graphics::SDL::testAlpha(newSource);
+    const auto& pixelFormatDescriptor = hasAlpha ? PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
+                                                 : PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
+    newSource = Ego::Graphics::SDL::convertPixelFormat(newSource, pixelFormatDescriptor);
+
+    // Convert to power of two.
+    newSource = Ego::Graphics::SDL::convertPowerOfTwo(newSource);
+
     // Generate a new OpenGL texture ID.
     Utilities::clearError();
     GLuint id;
-    while (GL_NO_ERROR != glGetError()) {
-        /* Nothing to do. */
-    }
     glGenTextures(1, &id);
     if (Utilities::isError()) {
         return false;
     }
     // Use default texture address mode.
-    auto textureAddressModeS = Ego::TextureAddressMode::Repeat;
-    auto textureAddressModeT = Ego::TextureAddressMode::Repeat;
+    auto textureAddressModeS = TextureAddressMode::Repeat,
+         textureAddressModeT = TextureAddressMode::Repeat;
     // Determine the texture type.
-    auto type = ((1 == source->h) && (source->w > 1)) ? Ego::TextureType::_1D : Ego::TextureType::_2D;
-    // Test if the image requires alpha blending.
-    bool hasAlpha = IMG_test_alpha_key(new_source.get(), key);
+    auto type = ((1 == source->h) && (source->w > 1)) ? TextureType::_1D : TextureType::_2D;
     /* Set texture address mode and texture filtering. */
-    Ego::OpenGL::Utilities::bind(id, type, textureAddressModeS, textureAddressModeT);
+    Utilities::bind(id, type, textureAddressModeS, textureAddressModeT);
     /* Upload the texture data. */
-    if (type == Ego::TextureType::_2D) {
-        if (g_ogl_textureParameters.textureFilter.mipMapFilter > Ego::TextureFilter::None) {
-           Utilities::upload_2d_mipmap(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->h, new_source->pixels);
+    if (type == TextureType::_2D) {
+        if (g_ogl_textureParameters.textureFilter.mipMapFilter > TextureFilter::None) {
+           Utilities::upload_2d_mipmap(pixelFormatDescriptor, newSource->w, newSource->h, newSource->pixels);
         } else {
-           Utilities::upload_2d(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->h, new_source->pixels);
+           Utilities::upload_2d(pixelFormatDescriptor, newSource->w, newSource->h, newSource->pixels);
         }
     }
-    else if (type == Ego::TextureType::_1D) {
-        Utilities::upload_1d(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->pixels);
+    else if (type == TextureType::_1D) {
+        Utilities::upload_1d(pixelFormatDescriptor, newSource->w, newSource->pixels);
     }  else {
         EGOBOO_ASSERT(0); /// @todo This code is in fact unreachable. Raise a std::runtime_error.
     }
@@ -507,8 +371,8 @@ bool Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> source,
     _addressModeT = textureAddressModeT;
     _type = type;
     _id = id;
-    _width = new_source->w;
-    _height = new_source->h;
+    _width = newSource->w;
+    _height = newSource->h;
     _source = source;
     _sourceWidth = source->w;
     _sourceHeight = source->h;
@@ -518,10 +382,10 @@ bool Texture::load(const std::string& name, std::shared_ptr<SDL_Surface> source,
     return true;
 }
 
-bool Texture::load(std::shared_ptr<SDL_Surface> source, uint32_t key) {
+bool Texture::load(const std::shared_ptr<SDL_Surface>& source) {
     std::ostringstream stream;
     stream << "<source " << static_cast<void *>(source.get()) << ">";
-    return load(stream.str(), source, key);
+    return load(stream.str(), source);
 }
 
 void  Texture::release() {
@@ -532,7 +396,7 @@ void  Texture::release() {
 
     // Delete the OpenGL texture and assign the error texture.
     glDeleteTextures(1, &(_id));
-    Ego::OpenGL::Utilities::isError();
+    Utilities::isError();
 
     // Delete the source if it exists
     if (_source)
@@ -545,12 +409,12 @@ void  Texture::release() {
     }
 
     // The texture is the 2D error texture.
-    _type = Ego::TextureType::_2D;
+    _type = TextureType::_2D;
     _id = _errorTexture2D->_id;
 
     // The texture coordinates of this texture are repeated along the s and t axes.
-    _addressModeS = Ego::TextureAddressMode::Repeat;
-    _addressModeT = Ego::TextureAddressMode::Repeat;
+    _addressModeS = TextureAddressMode::Repeat;
+    _addressModeT = TextureAddressMode::Repeat;
 
     // The size (width and height) of this texture is the size of the error image.
     _width = _errorTexture2D->getWidth();

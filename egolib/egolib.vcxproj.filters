@@ -219,13 +219,7 @@
     <ClCompile Include="src\egolib\Profiles\RandomName.cpp">
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Profiles\EnchantProfileReader.cpp">
-      <Filter>Source Files\Profiles</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Profiles\EnchantProfileWriter.cpp">
-      <Filter>Source Files\Profiles</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Profiles\ParticleProfileReader.cpp">
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Profiles\ParticleProfileWriter.cpp">
@@ -242,9 +236,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\IDSZ.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Profiles\ParticleProfileSystem.cpp">
-      <Filter>Source Files\Profiles</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp">
       <Filter>Source Files\Profiles</Filter>
@@ -298,9 +289,6 @@
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\template.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\treasure_table_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c">
@@ -483,6 +471,9 @@
     <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp">
       <Filter>Source Files\Logic</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Logic\TreasureTables.cpp">
+      <Filter>Source Files\Logic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -602,13 +593,7 @@
     <ClInclude Include="src\egolib\Profiles\_Include.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Profiles\EnchantProfileReader.hpp">
-      <Filter>Header Files\Profiles</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Profiles\EnchantProfileWriter.hpp">
-      <Filter>Header Files\Profiles</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Profiles\ParticleProfileReader.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp">
@@ -699,9 +684,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\template.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\treasure_table_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h">
@@ -1023,6 +1005,9 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\TreasureTables.hpp">
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
   </ItemGroup>

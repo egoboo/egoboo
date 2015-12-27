@@ -465,7 +465,7 @@ bool copy_to_delimiter_vfs(vfs_FILE * fileread, vfs_FILE * filewrite, int delim,
  *  succeeds (i.e. the image was successfully loaded into the texture) or all
  *  combinations failed.
  */
-bool ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const char *filename, uint32_t key = INVALID_KEY);
+bool ego_texture_load_vfs(std::shared_ptr<Ego::Texture> texture, const char *filename);
 
 bool ego_texture_exists_vfs(const std::string &filename);
 

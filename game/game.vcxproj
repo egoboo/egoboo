@@ -385,6 +385,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Module\module_spawn.c" />
     <ClCompile Include="src\game\Logic\Player.cpp" />
     <ClCompile Include="src\game\Logic\QuestLog.cpp" />
     <ClCompile Include="src\game\Graphics\TextureAtlasManager.cpp" />
@@ -465,6 +466,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Module\module_spawn.h" />
     <ClInclude Include="src\game\Logic\Player.hpp" />
     <ClInclude Include="src\game\Logic\QuestLog.hpp" />
     <ClInclude Include="src\game\Graphics\TextureAtlasManager.hpp" />

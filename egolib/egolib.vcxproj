@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Logic\TreasureTables.cpp" />
     <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\SafeCast.cpp" />
     <ClCompile Include="src\egolib\Script\Interpreter\Configuration.cpp" />
@@ -383,18 +384,14 @@
     <ClCompile Include="src\egolib\FileFormats\SDL_md2.c" />
     <ClCompile Include="src\egolib\FileFormats\spawn_file.c" />
     <ClCompile Include="src\egolib\FileFormats\template.c" />
-    <ClCompile Include="src\egolib\FileFormats\treasure_table_file.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
     <ClCompile Include="src\egolib\math\LERP.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp" />
-    <ClCompile Include="src\egolib\Profiles\ParticleProfileSystem.cpp" />
     <ClCompile Include="src\egolib\IDSZ.cpp" />
     <ClCompile Include="src\egolib\Audio\AudioSystem.cpp" />
     <ClCompile Include="src\egolib\Script\Buffer.cpp" />
     <ClCompile Include="src\egolib\Script\Errors.cpp" />
-    <ClCompile Include="src\egolib\Profiles\EnchantProfileReader.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileWriter.cpp" />
-    <ClCompile Include="src\egolib\Profiles\ParticleProfileReader.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfileWriter.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfile.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfile.cpp" />
@@ -474,6 +471,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Logic\TreasureTables.hpp" />
     <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureSampler.hpp" />
     <ClInclude Include="src\egolib\Script\Interpreter\SafeCast.hpp" />
@@ -590,7 +588,6 @@
     <ClInclude Include="src\egolib\FileFormats\SDL_md2.h" />
     <ClInclude Include="src\egolib\FileFormats\spawn_file.h" />
     <ClInclude Include="src\egolib\FileFormats\template.h" />
-    <ClInclude Include="src\egolib\FileFormats\treasure_table_file.h" />
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />
     <ClInclude Include="src\egolib\Math\Cone3.hpp" />
     <ClInclude Include="src\egolib\math\LERP.hpp" />
@@ -606,9 +603,7 @@
     <ClInclude Include="src\egolib\Audio\AudioSystem.hpp" />
     <ClInclude Include="src\egolib\Script\Buffer.hpp" />
     <ClInclude Include="src\egolib\Script\Errors.hpp" />
-    <ClInclude Include="src\egolib\Profiles\EnchantProfileReader.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfileWriter.hpp" />
-    <ClInclude Include="src\egolib\Profiles\ParticleProfileReader.hpp" />
     <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfile.hpp" />
     <ClInclude Include="src\egolib\Profiles\ParticleProfile.hpp" />
