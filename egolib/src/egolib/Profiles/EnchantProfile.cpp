@@ -85,8 +85,6 @@ void EnchantProfile::setEnchantName(const std::string& name)
 
 std::shared_ptr<EnchantProfile> EnchantProfile::readFromFile(const std::string& pathname)
 {
-    char cTmp;
-
     std::shared_ptr<EnchantProfile> profile = std::make_shared<EnchantProfile>();
 
     ReadContext ctxt(pathname);
@@ -203,7 +201,7 @@ std::shared_ptr<EnchantProfile> EnchantProfile::readFromFile(const std::string& 
                 {"D", MissileTreatment_Deflect},
             }
     );
-        
+
     profile->_set[EnchantProfile::SETMISSILETREATMENT].apply = vfs_get_next_bool(ctxt);
     profile->_set[EnchantProfile::SETMISSILETREATMENT].value = ctxt.readEnum(enumDescriptor);
 

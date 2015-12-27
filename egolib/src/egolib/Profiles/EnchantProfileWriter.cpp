@@ -141,7 +141,7 @@ bool EnchantProfileWriter::write(std::shared_ptr<EnchantProfile> profile, const 
 
     template_put_bool(filetemp, filewrite, profile->_set[EnchantProfile::SETMISSILETREATMENT].apply);
 
-    switch ( (MissileTreatment)(long)(profile->_set[eve_t::SETMISSILETREATMENT].value) )
+    switch ( (MissileTreatment)(long)(profile->_set[EnchantProfile::SETMISSILETREATMENT].value) )
     {
         case MissileTreatment_Normal:  template_put_char(filetemp, filewrite, 'N'); break;
         case MissileTreatment_Deflect: template_put_char(filetemp, filewrite, 'D'); break;
