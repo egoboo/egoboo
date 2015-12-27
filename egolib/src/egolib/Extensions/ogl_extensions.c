@@ -187,7 +187,7 @@ GLint Utilities::toOpenGL(TextureAddressMode textureAddressMode)
         case TextureAddressMode::RepeatMirrored:
             return GL_MIRRORED_REPEAT;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 }
 
@@ -210,7 +210,7 @@ GLenum Utilities::toOpenGL(PrimitiveType primitiveType)
         case PrimitiveType::QuadriliteralStrip:
             return GL_QUAD_STRIP;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 }
 
@@ -277,6 +277,8 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
                 case TextureFilter::Linear:
                     minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
                     break;
+                default:
+                    throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
             }
             break;
         case TextureFilter::Linear:
@@ -292,11 +294,11 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
                     minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
                     break;
                 default:
-                    throw std::runtime_error("unreachable code reached");
+                    throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
             }
             break;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     switch (magFilter)
     {
@@ -309,7 +311,7 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
             magFilter_gl = GL_LINEAR;
             break;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
 }
 
@@ -338,7 +340,7 @@ void Utilities::toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalForma
             type_gl = GL_UNSIGNED_BYTE;
             break;
         default:
-            throw std::runtime_error("not supported");
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__, "pixel format not supported");
     };
 }
 
@@ -415,7 +417,7 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
             target_gl = GL_TEXTURE_1D;
             break;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
     if (Utilities::isError())
     {
