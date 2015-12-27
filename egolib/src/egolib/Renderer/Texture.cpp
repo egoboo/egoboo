@@ -166,24 +166,21 @@ struct CErrorTexture
         namespace OpenGL = Ego::OpenGL;
         if (_target != GL_TEXTURE_1D && _target != GL_TEXTURE_2D)
         {
-            throw std::invalid_argument("invalid texture target");
+            throw Id::InvalidArgumentException(__FILE__, __LINE__, "invalid texture target");
         }
-        while (GL_NO_ERROR != glGetError())
-        {
-            /* Nothing to do. */
-        }
+        OpenGL::Utilities::clearError();
         // (1) Create the OpenGL texture.
         glGenTextures(1, &_id);
-        if (GL_NO_ERROR != glGetError())
+        if (OpenGL::Utilities::isError())
         {
-            throw std::runtime_error("unable to create error texture");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to create error texture");
         }
         // (2) Bind the OpenGL texture.
         glBindTexture(target, _id);
-        if (GL_NO_ERROR != glGetError())
+        if (OpenGL::Utilities::isError())
         {
             glDeleteTextures(1, &_id);
-            throw std::runtime_error("unable to bind error texture");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to bind error texture");
         }
         // (3) Set the texture parameters.
         GLint magFilter_gl, minFilter_gl;
@@ -193,15 +190,13 @@ struct CErrorTexture
         glTexParameteri(target, GL_TEXTURE_WRAP_T, OpenGL::Utilities::toOpenGL(Ego::TextureAddressMode::Repeat));
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter_gl);
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter_gl);
-        if (GL_NO_ERROR != glGetError())
+        if (OpenGL::Utilities::isError())
         {
             glDeleteTextures(1, &_id);
-            throw std::runtime_error("unable to set error texture parameters");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to set error texture parameters");
         }
 
         // (4) Upload the image data.
-        glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         if (target == GL_TEXTURE_1D)
         {
             static const auto pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
@@ -212,11 +207,10 @@ struct CErrorTexture
             static const auto pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
             OpenGL::Utilities::upload_2d(pfd, _image->w, _image->h, _image->pixels);
         }
-        glPopClientAttrib();
-        if (GL_NO_ERROR != glGetError())
+        if (OpenGL::Utilities::isError())
         {
             glDeleteTextures(1, &_id);
-            throw std::runtime_error("unable to upload error image into error texture");
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "unable to upload error image into error texture");
         }
     }
     // Destruct this error texture.

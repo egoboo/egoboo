@@ -348,20 +348,28 @@ void Utilities::upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const voi
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, internalFormat_gl, w, 0, format_gl, type_gl, data);
+    glPopClientAttrib();
 }
 
 void Utilities::upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
+    glPopClientAttrib();
 }
 
 void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
     
     if (w == 1 && h == 1) return;
@@ -395,6 +403,7 @@ void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GL
     } while (!(newW == 1 && newH == 1));
     
     SDL_FreeSurface(surf);
+    glPopClientAttrib();
 
 }
 
