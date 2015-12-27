@@ -45,8 +45,47 @@ namespace Ego
 namespace OpenGL
 {
 
-struct Utilities
-{
+template <typename T> using UnorderedSet = std::unordered_set<T>;
+using String = std::string;
+using RuntimeErrorException = Id::RuntimeErrorException;
+using UnhandledSwitchCaseException = Id::UnhandledSwitchCaseException;
+
+struct Utilities {
+public:
+
+    /**
+     * @brief
+     *  Get the set of extension strings of extensions supported by this OpenGL implementation.
+     * @return
+     *  the set of extension strings
+     */
+    static UnorderedSet<String> getExtensions();
+
+    /**
+     * @brief
+     *  Get the name of this OpenGL implementation.
+     * @return
+     *  the name of this OpenGL implementation
+     */
+    static String getName();
+
+    /**
+     * @brief
+     *  Get the name of the vendor of this OpenGL implementation.
+     * @return
+     *  the name of the vendor of this OpenGL implementation
+     */
+    static String getVendor();
+
+    /**
+     * @brief
+     *  Get the version of this OpenGL implementation.
+     * @return
+     *  the version of this OpenGL implementation
+     */
+    static String getVersion();
+
+public:
     /**
      * @brief
      *  Clear the OpenGL error flag.

@@ -58,51 +58,11 @@ static bool link() {
 namespace Ego {
 namespace OpenGL {
 
-std::string Capabilities::getName() {
-    while (GL_NO_ERROR != glGetError()) {}
-    const GLubyte *bytes = glGetString(GL_RENDERER);
-    GLenum error = glGetError();
-    if (GL_NO_ERROR != error) {
-        throw std::runtime_error("unable to acquire renderer back-end information");
-    }
-    return (const char *)bytes;
-}
-
-std::string Capabilities::getVendor() {
-    while (GL_NO_ERROR != glGetError()) {}
-    const GLubyte *bytes = glGetString(GL_RENDERER);
-    GLenum error = glGetError();
-    if (GL_NO_ERROR != error) {
-        throw std::runtime_error("unable to acquire renderer back-end information");
-    }
-    return (const char *)bytes;
-}
-
-std::string Capabilities::getVersion() {
-    while (GL_NO_ERROR != glGetError()) {}
-    const GLubyte *bytes = glGetString(GL_VERSION);
-    GLenum error = glGetError();
-    if (GL_NO_ERROR != error) {
-        throw std::runtime_error("unable to acquire renderer back-end information");
-    }
-    return (const char *)bytes;
-}
-
-std::unordered_set<std::string> Capabilities::getExtensions() {
-    while (GL_NO_ERROR != glGetError()) {}
-    const GLubyte *bytes = glGetString(GL_EXTENSIONS);
-    GLenum error = glGetError();
-    if (GL_NO_ERROR != error) {
-        throw std::runtime_error("unable to acquire renderer back-end information");
-    }
-    return Core::make_unordered_set(Ego::split(std::string((const char *)bytes), std::string(" ")));
-}
-
 Renderer::Renderer() :
-    _extensions(Capabilities::getExtensions()),
-    _vendor(Capabilities::getVendor()),
-    _name(Capabilities::getName()),
-    _version(Capabilities::getVersion()) {
+    _extensions(Utilities::getExtensions()),
+    _vendor(Utilities::getVendor()),
+    _name(Utilities::getName()),
+    _version(Utilities::getVersion()) {
     OpenGL::link();
 }
 
@@ -240,7 +200,7 @@ void Renderer::setDepthFunction(CompareFunction function) {
             glDepthFunc(GL_GREATER);
             break;
         default:
-            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -261,10 +221,10 @@ void Renderer::setDepthWriteEnabled(bool enabled) {
 
 void Renderer::setScissorRectangle(float left, float bottom, float width, float height) {
     if (width < 0) {
-        throw std::invalid_argument("width < 0");
+        throw InvalidArgumentException(__FILE__, __LINE__, "width < 0");
     }
     if (height < 0) {
-        throw std::invalid_argument("height < 0");
+        throw InvalidArgumentException(__FILE__, __LINE__, "height < 0");
     }
     glScissor(left, bottom, width, height);
     Utilities::isError();
@@ -320,7 +280,7 @@ void Renderer::setWindingMode(WindingMode mode) {
             glFrontFace(GL_CCW);
             break;
         default:
-            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
     Utilities::isError();
 }
@@ -426,7 +386,7 @@ void Renderer::setMultisamplesEnabled(bool enabled) {
             glDisable(GL_MULTISAMPLE);
         }
     }
-    OpenGL::Utilities::isError();
+    Utilities::isError();
 }
 
 void Renderer::setLightingEnabled(bool enabled) {
@@ -624,12 +584,12 @@ GLenum Renderer::toOpenGL(BlendFunction source) {
         case BlendFunction::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
         case BlendFunction::SourceAlphaSaturate: return GL_SRC_ALPHA_SATURATE;
         default:
-            throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
 }
 
-std::shared_ptr<Ego::Texture> Renderer::createTexture() {
-    return std::make_shared<Texture>();
+SharedPtr<Ego::Texture> Renderer::createTexture() {
+    return MakeShared<Texture>();
 }
 
 } // namespace OpenGL

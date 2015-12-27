@@ -45,38 +45,14 @@
 namespace Ego {
 namespace OpenGL {
 
+template <typename T> using UnorderedSet = std::unordered_set<T>;
+template <typename T> using SharedPtr = std::shared_ptr<T>;
+template< class T, class... Args >
+inline SharedPtr<T> MakeShared(Args&&... args) {
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
+using String = std::string;
 using namespace Math;
-
-struct Capabilities {
-    /**
-     * @brief
-     *  Get the set of extension strings of extensions supported by this OpenGL implementation.
-     * @return
-     *  the set of extension strings
-     */
-    static std::unordered_set<std::string> getExtensions();
-    /**
-     * @brief
-     *  Get the name of the vendor of this OpenGL implementation.
-     * @return
-     *  the name of the vendor of this OpenGL implementation
-     */
-    static std::string getVendor();
-    /**
-     * @brief
-     *  Get the name of this OpenGL implementation.
-     * @return
-     *  the name of this OpenGL implementation
-     */
-    static std::string getName();
-    /**
-     * @brief
-     *  Get the version of this OpenGL implementation.
-     * @return
-     *  the version of this OpenGL implementation
-     */
-    static std::string getVersion();
-};
 
 class Renderer : public Ego::Renderer
 {
@@ -105,22 +81,22 @@ protected:
      * @brief
      *  The set of OpenGL extensions supported by this OpenGL implementation.
      */
-    std::unordered_set<std::string> _extensions;
+    UnorderedSet<String> _extensions;
     /**
      * @brief
      *  The name of the vendor of this OpenGL implementation.
      */
-    std::string _vendor;
+    String _vendor;
     /**
      * @brief
      *  The name of this OpenGL implementation.
      */
-    std::string _name;
+    String _name;
     /**
      * @brief
      *    The version of this OpenGL implementation.
      */
-    std::string _version;
+    String _version;
 public:
     /**
      * @brief
@@ -239,7 +215,7 @@ public:
     virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) override;
 
     /** @copydoc Ego::Renderer::createTexture */
-    virtual std::shared_ptr<Ego::Texture> createTexture() override;
+    virtual SharedPtr<Ego::Texture> createTexture() override;
 
 private:
     GLenum toOpenGL(BlendFunction source);
