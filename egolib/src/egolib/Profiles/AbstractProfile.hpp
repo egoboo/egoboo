@@ -36,12 +36,6 @@ class AbstractProfile : public Id::NonCopyable
 {
 
 public:
-
-    /**
-     * @brief
-     *  Was the data read in?
-     */
-    bool _loaded;
     /**
      * @brief
      *  The name of the profile, usually the source pathname.
@@ -67,7 +61,9 @@ protected:
      *  Intentionally protected.
      */
     AbstractProfile() :
-        _loaded(false), _name("*NONE*"), _spawnRequestCount(0), _spawnCount(0)
+        _name("*NONE*"), 
+        _spawnRequestCount(0), 
+        _spawnCount(0)
     {
         /* Intentionally empty. */
     }
@@ -81,19 +77,6 @@ protected:
     virtual ~AbstractProfile()
     {
         /* Intentionally empty. */
-    }
-
-    /**
-    * @brief
-    *  Reset this abstract profile to its initial state.
-    * @remark
-    *  Intentionally protected.
-    */
-    virtual void reset() {
-        _loaded = false;
-        _name = "*NONE*";
-        _spawnRequestCount = 0;
-        _spawnCount = 0;
     }
 
 public:
@@ -113,9 +96,9 @@ public:
 /// This structure describes aspects of this spawning process.
 struct SpawnDescriptor
 {
-    Uint8 _amount;                 ///< Spawn amount
+    uint8_t _amount;                 ///< Spawn amount
     
-    Uint16 _facingAdd;             ///< Spawn in circle
+    uint16_t _facingAdd;             ///< Spawn in circle
     
     LocalParticleProfileRef _lpip; ///< Spawn type ( local )
     
@@ -134,7 +117,7 @@ struct SpawnDescriptor
 /// Enchants as well as particles can continuously spawn other particles.
 struct ContinuousSpawnDescriptor : public SpawnDescriptor
 {
-    Uint16 _delay;     ///< Delay between to consecutive spawns.
+    uint16_t _delay;     ///< Delay between to consecutive spawns.
     ContinuousSpawnDescriptor() :
         SpawnDescriptor(),
         _delay(0)

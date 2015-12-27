@@ -134,7 +134,7 @@ void SelectPlayersState::beginState()
     SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
 
     // Begin the main menu song again (in case we just returned from winning a module)
-    AudioSystem::get().playMusic(AudioSystem::MENU_SONG);
+    playMainMenuSong();
 
     // Update player selection and enable continue button if at least 
     // one player has selected a character

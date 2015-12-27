@@ -212,7 +212,7 @@ ObjectProfile::ObjectProfile() :
 {
     _experienceRate.fill(0.0f);
     _idsz.fill(IDSZ2::None);
-    _experienceForLevel.fill(UINT32_MAX);
+    _experienceForLevel.fill(std::numeric_limits<uint32_t>::max());
 }
 
 ObjectProfile::~ObjectProfile()
@@ -220,15 +220,14 @@ ObjectProfile::~ObjectProfile()
     //Release particle profiles
     for(const auto &element : _particleProfiles)
     {
-        ParticleProfileSystem::get().release_one(element.second);
+        ParticleProfileSystem::get().release(element.second);
     }
 }
 
 uint32_t ObjectProfile::getXPNeededForLevel(uint8_t level) const
 {
-    if(level >= _experienceForLevel.size())
-    {
-        return UINT32_MAX;
+    if(level >= _experienceForLevel.size()) {
+        return std::numeric_limits<uint32_t>::max();
     }
 
     return _experienceForLevel[level];

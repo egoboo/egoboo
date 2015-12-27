@@ -336,7 +336,7 @@ bool GameEngine::initialize()
     renderPreloadText("Loading audio...");
     auto& audioSystem = AudioSystem::get();
     audioSystem.loadAllMusic();
-    audioSystem.playMusic(AudioSystem::MENU_SONG);
+    playMainMenuSong();
     audioSystem.loadGlobalSounds();
 
     // synchronize the config values with the various game subsystems
@@ -347,9 +347,6 @@ bool GameEngine::initialize()
 
     // load input
     input_settings_load_vfs("/controls.txt", -1);
-
-    // initialize the random treasure system
-    init_random_treasure_tables_vfs("mp_data/randomtreasure.txt");
 
     // Initialize Perks
     Ego::Perks::PerkHandler::initialize();

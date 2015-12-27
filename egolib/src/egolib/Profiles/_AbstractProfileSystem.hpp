@@ -48,18 +48,6 @@ protected:
 
     const std::string _debugPathName;
 
-    REFTYPE get_free()
-    {
-        for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
-        {
-            if (!isLoaded(ref))
-            {
-                return ref;
-            }
-        }
-        return INVALIDREF;
-    }
-
 
 public:
 
@@ -112,6 +100,11 @@ public:
         return CAPACITY;
     }
 
+    bool release(const REFTYPE ref)
+    {
+        return _map.erase(ref);
+    }
+
     /**
      * @brief
      *  Get the profile for a profile reference.
@@ -136,24 +129,10 @@ public:
     }
 
     bool isLoaded(REFTYPE ref) {
-        if (_map[ref]) {
-            return _map[ref]->_loaded;
-        } else {
-            return false;
-        }
+        return _map.find(ref) != _map.end();
     }
 
     void initialize() {
-    }
-
-    bool release_one(const REFTYPE ref) {
-        if (isValidRange(ref) && _map[ref] != nullptr) {
-            auto ptr = _map[ref];
-            if (ptr && ptr->_loaded) {
-                _map[ref]->reset();
-            }
-        }
-        return true;
     }
 
     /// @brief Load an profile into the profile stack.
@@ -166,14 +145,19 @@ public:
 
         REFTYPE ref = INVALIDREF;
         if (isValidRange(_override)) {
-            release_one(_override);
             ref = _override;
-        } else {
-            ref = get_free();
         }
+        else {
+            for(REFTYPE i = 0; i < CAPACITY; ++i) {
+                if(!isLoaded(i)) {
+                    ref = i;
+                    break;
+                }
+            }
 
-        if (!isValidRange(ref)) {
-            return INVALIDREF;
+            if (!isValidRange(ref)) {
+                return INVALIDREF;
+            }
         }
 
         //Allocate memory for new profile
@@ -189,17 +173,13 @@ public:
 
     void unintialize()
     {
-        reset();
         _map.clear();
     }
 
     void reset()
     {
         dump();
-        for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
-        {
-            release_one(ref);
-        }
+        _map.clear();
     }
 
     /**
@@ -281,15 +261,13 @@ public:
         stats._sumSpawnCount = 0;
         for (const auto& pair : _map) {
             const auto ptr = pair.second;
-            if (ptr->_loaded) {
-                stats._loadedCount++;
-                // spawn request count
-                stats._sumSpawnRequestCount += ptr->_spawnRequestCount;
-                stats._maxSpawnRequestCount = std::max(stats._maxSpawnRequestCount, ptr->_spawnRequestCount);
-                // spawn count
-                stats._sumSpawnCount += ptr->_spawnCount;
-                stats._maxSpawnCount = std::max(stats._maxSpawnCount, ptr->_spawnCount);
-            }
+            stats._loadedCount++;
+            // spawn request count
+            stats._sumSpawnRequestCount += ptr->_spawnRequestCount;
+            stats._maxSpawnRequestCount = std::max(stats._maxSpawnRequestCount, ptr->_spawnRequestCount);
+            // spawn count
+            stats._sumSpawnCount += ptr->_spawnCount;
+            stats._maxSpawnCount = std::max(stats._maxSpawnCount, ptr->_spawnCount);
         }
         return stats;
     }
@@ -328,14 +306,11 @@ public:
         os << " list of loaded profiles:" << std::endl;
         for (const auto& pair : _map) {
             const auto ptr = pair.second;
-            if (ptr->_loaded)
-            {
-                os << " reference: " << pair.first << ","
-                   << " name: " << "`" << ptr->_name << "`" << ","
-                   << " spawn request count: " << ptr->_spawnRequestCount << ","
-                   << " spawn count: " << ptr->_spawnCount
-                   << std::endl;
-            }
+            os << " reference: " << pair.first << ","
+               << " name: " << "`" << ptr->_name << "`" << ","
+               << " spawn request count: " << ptr->_spawnRequestCount << ","
+               << " spawn count: " << ptr->_spawnCount
+               << std::endl;
         }
     }
 

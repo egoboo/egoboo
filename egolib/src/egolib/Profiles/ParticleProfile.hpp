@@ -132,8 +132,6 @@ public:
      */
     virtual ~ParticleProfile();
 
-    void reset() override;
-
     bool hasBit(const ParticleDamageEffectBits bit) const;
 
     /**

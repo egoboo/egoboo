@@ -17,31 +17,6 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/treasure_table_file.c
-/// @brief Implementation of code for handling random treasure generation
-/// @details
+#pragma once
 
-#include "egolib/FileFormats/treasure_table_file.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-#include "egolib/_math.h"      // For randomization
-
-treasure_table_t::treasure_table_t()
-    : entries(), size(0), name()
-{ }
-
-void treasure_table_t::add(const std::string& name)
-{
-    // Make sure there is enough size to add one more.
-    if (size >= TREASURE_TABLE_SIZE)
-    {
-        Log::Entry e(Log::Level::Warning, __FILE__, __LINE__, __FUNCTION__);
-        e << "no more room to add object `" << name << "` to treasure table. Consider inreasing the treasure table capacity."
-          << Log::EndOfEntry;
-        Log::get() << e;
-        return;
-    }
-
-    // Add the element to the list.
-    entries[size++] = name;
-}
+void activate_spawn_file_vfs();

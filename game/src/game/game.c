@@ -22,6 +22,7 @@
 /// @details
 
 #include "game/game.h"
+#include "game/Module/module_spawn.h"
 
 #include "egolib/egolib.h"
 #include "egolib/FileFormats/Globals.hpp"
@@ -65,8 +66,8 @@ AnimatedTilesState g_animatedTilesState;
 
 import_list_t g_importList;
 
-Uint32          clock_chr_stat   = 0;
-Uint32          update_wld       = 0;
+uint32_t clock_chr_stat   = 0;
+uint32_t update_wld       = 0;
 
 int chr_stoppedby_tests = 0;
 int chr_pressure_tests = 0;
@@ -74,26 +75,18 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// game initialization / deinitialization - not accessible by scripts
-static void game_reset_timers();
-
 // looping - stuff called every loop - not accessible by scripts
 static void check_stats();
-static void tilt_characters_to_terrain();
 static void readPlayerInput();
 static void let_all_characters_think();
 
 // module initialization / deinitialization - not accessible by scripts
-static void   game_load_profile_ai();
+static void game_load_profile_ai();
 
-static void   activate_spawn_file_vfs();
-
-static bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& pinfo );
-
-static void   game_reset_players();
+static void game_reset_players();
 
 // Model stuff
-static void log_madused_vfs( const char *savename );
+static void logSlotUsage(const std::string& savename);
 
 // implementing wawalite data
 static void upload_light_data(const wawalite_data_t& data);
@@ -105,11 +98,6 @@ static void upload_camera_data(const wawalite_camera_t& data);
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-
-static bool activate_spawn_file_spawn( spawn_file_info_t& psp_info );
-static bool activate_spawn_file_load_object( spawn_file_info_t& psp_info );
-static void convert_spawn_file_load_name( spawn_file_info_t& psp_info );
-
 static void update_all_objects();
 static void move_all_objects();
 
@@ -303,14 +291,12 @@ egolib_rv export_all_players( bool require_local )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void log_madused_vfs( const char *savename )
+void logSlotUsage(const std::string& savename)
 {
     /// @author ZZ
     /// @details This is a debug function for checking model loads
 
-    vfs_FILE* hFileWrite;
-
-    hFileWrite = vfs_openWrite( savename );
+    vfs_FILE* hFileWrite = vfs_openWrite(savename);
     if ( hFileWrite )
     {
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
@@ -503,20 +489,6 @@ int update_game()
     update_wld++;
 
     return 1;
-}
-
-//--------------------------------------------------------------------------------------------
-void game_reset_timers()
-{
-    /// @author ZZ
-    /// @details This function resets the timers...
-
-    // reset some counters
-    game_frame_all = 0;
-    update_wld = 0;
-
-    // reset some special clocks
-    clock_chr_stat = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1073,33 +1045,6 @@ void show_magic_status( int statindex )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void tilt_characters_to_terrain()
-{
-    /// @author ZZ
-    /// @details This function sets all of the character's starting tilt values
-
-    Uint8 twist;
-
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        if ( object->isTerminated() ) continue;
-
-        if ( object->getProfile()->hasStickyButt() )
-        {
-            twist = _currentModule->getMeshPointer()->get_twist( object->getTile() );
-            object->ori.map_twist_facing_y = g_meshLookupTables.twist_facing_y[twist];
-            object->ori.map_twist_facing_x = g_meshLookupTables.twist_facing_x[twist];
-        }
-        else
-        {
-            object->ori.map_twist_facing_y = MAP_TURN_OFFSET;
-            object->ori.map_twist_facing_x = MAP_TURN_OFFSET;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void game_load_profile_ai()
 {
     /// @author ZF
@@ -1140,355 +1085,6 @@ void game_load_module_profiles( const std::string& modname )
         filehandle = vfs_search_context_get_current(ctxt);
     }
     vfs_findClose(&ctxt);
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t& info ) //note: intentonally copy and not reference on pchr
-{
-    const std::shared_ptr<Object> &parentObject = _currentModule->getObjectHandler()[info.parent];
-
-    //Add money
-    pchr->money = Ego::Math::constrain(pchr->money + info.money, 0, MAXMONEY);
-
-    //Set AI stuff
-    pchr->ai.content = info.content;
-    pchr->ai.passage = info.passage;
-
-    if (info.attach == ATTACH_INVENTORY)
-    {
-        // Inventory character
-        Inventory::add_item(info.parent, pchr->getObjRef(), pchr->getInventory().getFirstFreeSlotNumber(), true);
-
-        //If the character got merged into a stack, then it will be marked as terminated
-        if(pchr->isTerminated()) {
-            return true;
-        }
-
-        // Make spellbooks change
-        SET_BIT(pchr->ai.alert, ALERTIF_GRABBED);
-    }
-    else if (info.attach == ATTACH_LEFT || info.attach == ATTACH_RIGHT)
-    {
-        // Wielded character
-        grip_offset_t grip_off = (ATTACH_LEFT == info.attach) ? GRIP_LEFT : GRIP_RIGHT;
-
-        if(pchr->getObjectPhysics().attachToObject(parentObject, grip_off)) {
-			// Handle the "grabbed" messages
-			//scr_run_chr_script(pchr);
-            UNSET_BIT(pchr->ai.alert, ALERTIF_GRABBED);
-		}
-    }
-
-    // Set the starting pinfo->level
-    if (info.level > 0)
-    {
-        if (pchr->experiencelevel < info.level) {
-            pchr->experience = pchr->getProfile()->getXPNeededForLevel(info.level);
-        }
-    }
-
-    // automatically identify and unkurse all player starting equipment? I think yes.
-    if (!_currentModule->isImportValid() && nullptr != parentObject && parentObject->isPlayer()) {
-        pchr->nameknown = true;
-        pchr->iskursed = false;
-    }
-
-    return true;
-}
-
-void convert_spawn_file_load_name( spawn_file_info_t& psp_info )
-{
-    /// @author ZF
-    /// @details This turns a spawn comment line into an actual folder name we can use to load something with
-
-    // trim any excess spaces off the psp_info->spawn_coment
-    str_trim( psp_info.spawn_comment );
-
-    //If it is a reference to a random treasure table then get a random object from that table
-    if ( '%' == psp_info.spawn_comment[0] )
-    {
-        std::string treasureTableName = psp_info.spawn_comment;
-        std::string treasureName;
-        get_random_treasure(treasureTableName, treasureName);
-        strncpy(psp_info.spawn_comment, treasureName.c_str(), SDL_arraysize(psp_info.spawn_comment));
-    }
-
-    // make sure it ends with a .obj extension
-    if ( NULL == strstr( psp_info.spawn_comment, ".obj" ) )
-    {
-        strcat( psp_info.spawn_comment, ".obj" );
-    }
-
-    // no capital letters
-    strlwr( psp_info.spawn_comment );
-}
-
-//--------------------------------------------------------------------------------------------
-bool activate_spawn_file_load_object( spawn_file_info_t& psp_info )
-{
-    /// @author BB
-    /// @details Try to load a global object named int psp_info->spawn_coment into
-    ///               slot psp_info->slot
-
-    STRING filename;
-    PRO_REF ipro;
-
-    if ( psp_info.slot < 0 ) return false;
-
-    //Is it already loaded?
-    ipro = ( PRO_REF )psp_info.slot;
-    if (ProfileSystem::get().isValidProfileID(ipro)) return false;
-
-    // do the loading
-    if ( CSTR_END != psp_info.spawn_comment[0] )
-    {
-        // we are relying on the virtual mount point "mp_objects", so use
-        // the vfs/PHYSFS file naming conventions
-        snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info.spawn_comment );
-
-        if(!vfs_exists(filename)) {
-            if(psp_info.slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
-				Log::get().warn("activate_spawn_file_load_object() - Object does not exist: %s\n", filename);
-            }
-
-            return false;
-        }
-
-        psp_info.slot = ProfileSystem::get().loadOneProfile(filename, psp_info.slot);
-    }
-
-    return ProfileSystem::get().isValidProfileID((PRO_REF)psp_info.slot);
-}
-
-//--------------------------------------------------------------------------------------------
-bool activate_spawn_file_spawn( spawn_file_info_t& psp_info )
-{
-    int     local_index = 0;
-    PRO_REF iprofile;
-
-    if ( !psp_info.do_spawn || psp_info.slot < 0 ) return false;
-
-    iprofile = ( PRO_REF )psp_info.slot;
-
-    // Spawn the character
-    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.pname == nullptr ? "" : psp_info.pname, ObjectRef::Invalid);
-    if (!pobject) return false;
-
-    // determine the attachment
-    if (psp_info.attach == ATTACH_NONE)
-    {
-        // Free character
-        psp_info.parent = pobject->getObjRef();
-        make_one_character_matrix( pobject->getObjRef() );
-    }
-
-    chr_setup_apply(pobject, psp_info);
-
-    //Can happen if object gets merged into a stack
-    if(!pobject) {
-        return true;
-    }
-
-    // Turn on input devices
-    if ( psp_info.stat )
-    {
-        // what we do depends on what kind of module we're loading
-        if ( 0 == _currentModule->getImportAmount() && _currentModule->getPlayerList().size() < _currentModule->getPlayerAmount() )
-        {
-            // a single player module
-
-            bool player_added = _currentModule->addPlayer(pobject, &InputDevices.lst[local_stats.player_count] );
-
-            if ( _currentModule->getImportAmount() == 0 && player_added )
-            {
-                // !!!! make sure the player is identified !!!!
-                pobject->nameknown = true;
-            }
-        }
-        else if ( _currentModule->getPlayerList().size() < _currentModule->getImportAmount() && _currentModule->getPlayerList().size() < _currentModule->getPlayerAmount() && _currentModule->getPlayerList().size() < g_importList.count )
-        {
-            // A multiplayer module
-
-            local_index = -1;
-            for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
-            {
-                if (pobject->getProfileID() <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->getProfileID()))
-                {
-                    int islot = REF_TO_INT( pobject->getProfileID() );
-
-                    if ( import_data.slot_lst[islot] == g_importList.lst[tnc].slot )
-                    {
-                        local_index = tnc;
-                        break;
-                    }
-                }
-            }
-
-            if ( -1 != local_index )
-            {
-                // It's a local input
-                _currentModule->addPlayer(pobject, &InputDevices.lst[g_importList.lst[local_index].local_player_num]);
-            }
-            else
-            {
-                // It's a remote input
-                _currentModule->addPlayer(pobject, nullptr);
-            }
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-void activate_spawn_file_vfs()
-{
-    /// @author ZZ
-    /// @details This function sets up character data, loaded from "SPAWN.TXT"
-    std::unordered_map<int, std::string> reservedSlots; //Keep track of which slot numbers are reserved by their load name
-    std::unordered_set<std::string> dynamicObjectList;  //references to slots that need to be dynamically loaded later
-    std::vector<spawn_file_info_t> objectsToSpawn;      //The full list of objects to be spawned 
-
-    // Turn some back on
-    ReadContext ctxt("mp_data/spawn.txt");
-    if (!ctxt.ensureOpen())
-    {
-		std::ostringstream os;
-		os << "unable to read spawn file `" << ctxt.getLoadName() << "`" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
-    }
-    {
-        ObjectRef parent = ObjectRef::Invalid;
-
-        // First load spawn data of every object.
-        ctxt.next(); /// @todo Remove this hack.
-        while(!ctxt.is(ReadContext::Traits::endOfInput()))
-        {
-            spawn_file_info_t entry;
-
-            // Read next entry
-            if(!spawn_file_read(ctxt, entry))
-            {
-                break; //no more entries
-            }
-
-            //Spit out a warning if they break the limit
-            if ( objectsToSpawn.size() >= OBJECTS_MAX )
-            {
-				Log::get().warn("Too many objects in file \"%s\"! Maximum number of objects is %d.\n", ctxt.getLoadName().c_str(), OBJECTS_MAX );
-                break;
-            }
-
-            // check to see if the slot is valid
-            if ( entry.slot >= INVALID_PRO_REF )
-            {
-				Log::get().warn("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_comment, ctxt.getLoadName().c_str() );
-                continue;
-            }
-
-            //convert the spawn name into a format we like
-            convert_spawn_file_load_name(entry);
-
-            // If it is a dynamic slot, remember to dynamically allocate it for later
-            if ( entry.slot <= -1 )
-            {
-                dynamicObjectList.insert(entry.spawn_comment);
-            }
-
-            //its a static slot number, mark it as reserved if it isnt already
-            else if (reservedSlots[entry.slot].empty())
-            {
-                reservedSlots[entry.slot] = entry.spawn_comment;
-            }
-
-            //Finished with this object for now
-            objectsToSpawn.push_back(entry);
-        }
-
-        //Next we dynamically find slot numbers for each of the objects in the dynamic list
-        for(const std::string &spawnName : dynamicObjectList)
-        {
-            PRO_REF profileSlot;
-
-            //Find first free slot that is not the spellbook slot
-            for (profileSlot = 1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER; profileSlot < INVALID_PRO_REF; ++profileSlot)
-            {
-                //don't try to grab loaded profiles
-                if (ProfileSystem::get().isValidProfileID(profileSlot)) continue;
-
-                //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
-                if(reservedSlots[profileSlot] == spawnName) {
-                     break;
-                }
-
-                //found a completely free slot
-                if (reservedSlots[profileSlot].empty())
-                {
-                    //Reserve this one for us
-                    reservedSlots[profileSlot] = spawnName;
-                    break;
-                }
-            }
-
-            //If all slots are reserved, spit out a warning (very unlikely unless there is a bug somewhere)
-            if ( profileSlot == INVALID_PRO_REF ) {
-				Log::get().warn( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", spawnName.c_str(), INVALID_PRO_REF );
-            }
-        }
-
-        //Now spawn each object in order
-        for(spawn_file_info_t &spawnInfo : objectsToSpawn)
-        {
-            //Do we have a parent?
-            if ( spawnInfo.attach != ATTACH_NONE && parent != ObjectRef::Invalid ) {
-                spawnInfo.parent = parent;
-            }
-
-            //Dynamic slot number? Then figure out what slot number is assigned to us
-            if(spawnInfo.slot <= -1) {
-                for(const auto &element : reservedSlots)
-                {
-                    if(element.second == spawnInfo.spawn_comment)
-                    {
-                        spawnInfo.slot = element.first;
-                        break;
-                    }
-                }
-            }
-
-            // If nothing is already in that slot, try to load it.
-            if (!ProfileSystem::get().isValidProfileID(spawnInfo.slot))
-            {
-                bool import_object = spawnInfo.slot > (_currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER);
-
-                if ( !activate_spawn_file_load_object( spawnInfo ) )
-                {
-                    // no, give a warning if it is useful
-                    if ( import_object )
-                    {
-						Log::get().warn("%s:%d:%s: the object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", \
-							            __FILE__, __LINE__, __FUNCTION__, spawnInfo.spawn_comment, spawnInfo.slot, \
-							            ctxt.getLoadName().c_str() );
-                    }
-                    continue;
-                }
-            }
-
-            // we only reach this if everything was loaded properly
-            activate_spawn_file_spawn(spawnInfo);
-
-            //We might become the new parent
-            if ( spawnInfo.attach == ATTACH_NONE ) {
-                parent = spawnInfo.parent;
-            }
-        }
-
-        ctxt.close();
-    }
-
-    // Fix tilting trees problem
-    tilt_characters_to_terrain();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1596,12 +1192,18 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // log debug info for every object loaded into the module
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
     {
-        log_madused_vfs("/debug/slotused.txt");
+        logSlotUsage("/debug/slotused.txt");
     }
 
     // initialize the timers as the very last thing
     timeron = false;
-    game_reset_timers();
+
+    // reset some counters
+    game_frame_all = 0;
+    update_wld = 0;
+
+    // reset some special clocks
+    clock_chr_stat = 0;
 
     return true;
 }
@@ -3602,4 +3204,22 @@ ObjectRef chr_get_lowest_attachment( ObjectRef ichr, bool non_item )
     }
 
     return object;
+}
+
+void playMainMenuSong()
+{
+    //Special xmas theme
+    if (Zeitgeist::CheckTime(Zeitgeist::Time::Christmas)) {
+        AudioSystem::get().playMusic("xmas.ogg");
+    }
+
+    //Special Halloween theme
+    else if (Zeitgeist::CheckTime(Zeitgeist::Time::Halloween)) {
+        AudioSystem::get().playMusic("halloween.ogg");
+    }
+
+    //Default egoboo theme
+    else {
+        AudioSystem::get().playMusic("themesong.ogg");
+    }    
 }

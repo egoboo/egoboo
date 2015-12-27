@@ -138,7 +138,7 @@ ParticleProfile::ParticleProfile() :
     size_base(0),
     size_add(0),
     facingadd(0),
-    orientation(prt_ori_t::ORIENTATION_B),
+    orientation(prt_ori_t::ORIENTATION_B),  // make the orientation the normal billboarded orientation
 
     _comment(),
     _particleEffectBits(),
@@ -150,87 +150,12 @@ ParticleProfile::ParticleProfile() :
     _spawnVelocityOffsetZ()
 {
     _particleEffectBits[DAMFX_TURN] = true;
+    dynalight.reset();
 }
 
 ParticleProfile::~ParticleProfile()
 {
-}
-
-void ParticleProfile::reset()
-{
-    this->AbstractProfile::reset();
-
-    // Metadata.
-    _comment = "";
-
-    // Ending conditions,
-    end_time = 0;
-    end_water = false;
-    end_bump = false;
-    end_ground = false;
-    end_wall = false;
-    end_lastframe = false;
-
-    // Ending sounds.
-    end_sound = -1;
-    end_sound_floor = -1;
-    end_sound_wall = -1;
-
-    // Initial spawning of this particle.
-    _spawnFacing.init();
-    _spawnPositionOffsetXY.init();
-    _spawnPositionOffsetZ.init();
-    _spawnVelocityOffsetXY.init();
-    _spawnVelocityOffsetZ.init();
-
-    // Hitting.
-    damage.init();
-    damageType = DamageType::DAMAGE_DIRECT;
-    _intellectDamageBonus = false;
-    _particleEffectBits.reset();
-    _particleEffectBits[DAMFX_TURN] = true;
-    spawnenchant = false;
-    onlydamagefriendly = false;
-    friendlyfire = false;
-    hateonly = false;
-    cause_roll = false;
-    cause_pancake = false;
-    dazeTime = 0;
-    grogTime = 0;
-
-    // What/how to spawn continuously.
-    contspawn.reset();
-    // What/how to spawn at the end.
-    endspawn.reset();
-    // What/how to spawn when bumped.
-    bumpspawn.reset();
-    
-    // Spawning.
-    force = false;
-    newtargetonspawn = false;
-    needtarget = false;
-    startontarget = false;
-    soundspawn = -1;
-
-    // Physics.
-    spdlimit = 0.0f;
-    dampen = 0.0f;
-    allowpush = true;
-    ignore_gravity = false;
-
-    // Visual aspects.
-    type = e_sprite_mode::SPRITE_SOLID;
-    image_max = 0;
-    image_stt = 0;
-    image_add.init();
-    rotate_pair.init();
-    rotate_add = 0;
-    size_base = 0;
-    size_add = 0;
-    facingadd = 0;
-    orientation = prt_ori_t::ORIENTATION_B;  // make the orientation the normal billboarded orientation
-    type = SPRITE_SOLID;
-    dynalight.reset();
+    //dtor
 }
 
 std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string& pathname)
@@ -246,7 +171,6 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
 
     // set up the EGO_PROFILE_STUFF
     profile->_name = pathname;
-    profile->_loaded = true;
 
     // read the 1 line comment at the top of the file
     profile->_comment = ctxt.readSingleLineComment();

@@ -28,7 +28,7 @@
 namespace Ego
 {
 
-Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object> &owner) :
+Enchantment::Enchantment(const std::shared_ptr<EnchantProfile> &enchantmentProfile, PRO_REF spawnerProfile, const std::shared_ptr<Object> &owner) :
     _isTerminated(false),
     _enchantProfile(enchantmentProfile),
     _spawnerProfileID(spawnerProfile),
@@ -56,11 +56,11 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
     _enchantProfile->_spawnRequestCount++;
 
     //Add all modifiers that this enchantment provides
-    for(size_t i = 0; i < eve_t::MAX_ENCHANT_SET; ++i) {
+    for(size_t i = 0; i < EnchantProfile::MAX_ENCHANT_SET; ++i) {
         if(!_enchantProfile->_set[i].apply) continue;
 
         //Apply Ego::Attribute::MORPH last so that it is always added first in list
-        if(i == eve_t::SETMORPH) {
+        if(i == EnchantProfile::SETMORPH) {
             doMorph = true;
             continue;
         }
@@ -69,67 +69,67 @@ Enchantment::Enchantment(const std::shared_ptr<eve_t> &enchantmentProfile, PRO_R
         Ego::Attribute::AttributeType type;
         switch(i)
         {
-            case eve_t::SETDAMAGETYPE: type = Ego::Attribute::DAMAGE_TYPE; break;
-            case eve_t::SETNUMBEROFJUMPS: type = Ego::Attribute::NUMBER_OF_JUMPS; break;
-            case eve_t::SETLIFEBARCOLOR: type = Ego::Attribute::LIFE_BARCOLOR; break;
-            case eve_t::SETMANABARCOLOR: type = Ego::Attribute::MANA_BARCOLOR; break;
-            case eve_t::SETSLASHMODIFIER: type = Ego::Attribute::SLASH_MODIFIER; break;
-            case eve_t::SETCRUSHMODIFIER: type = Ego::Attribute::CRUSH_MODIFIER; break;
-            case eve_t::SETPOKEMODIFIER: type = Ego::Attribute::POKE_MODIFIER; break;
-            case eve_t::SETHOLYMODIFIER: type = Ego::Attribute::HOLY_MODIFIER; break;
-            case eve_t::SETEVILMODIFIER: type = Ego::Attribute::EVIL_MODIFIER; break;
-            case eve_t::SETFIREMODIFIER: type = Ego::Attribute::FIRE_MODIFIER; break;
-            case eve_t::SETICEMODIFIER: type = Ego::Attribute::ICE_MODIFIER; break;
-            case eve_t::SETZAPMODIFIER: type = Ego::Attribute::ZAP_MODIFIER; break;
-            case eve_t::SETFLASHINGAND: type = Ego::Attribute::FLASHING_AND; break;
-            case eve_t::SETLIGHTBLEND: type = Ego::Attribute::LIGHT_BLEND; break;
-            case eve_t::SETALPHABLEND: type = Ego::Attribute::ALPHA_BLEND; break;
-            case eve_t::SETSHEEN: type = Ego::Attribute::SHEEN; break;
-            case eve_t::SETFLYTOHEIGHT: type = Ego::Attribute::FLY_TO_HEIGHT; break;
-            case eve_t::SETWALKONWATER: type = Ego::Attribute::WALK_ON_WATER; break;
-            case eve_t::SETCANSEEINVISIBLE: type = Ego::Attribute::SEE_INVISIBLE; break;
-            case eve_t::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
+            case EnchantProfile::SETDAMAGETYPE: type = Ego::Attribute::DAMAGE_TYPE; break;
+            case EnchantProfile::SETNUMBEROFJUMPS: type = Ego::Attribute::NUMBER_OF_JUMPS; break;
+            case EnchantProfile::SETLIFEBARCOLOR: type = Ego::Attribute::LIFE_BARCOLOR; break;
+            case EnchantProfile::SETMANABARCOLOR: type = Ego::Attribute::MANA_BARCOLOR; break;
+            case EnchantProfile::SETSLASHMODIFIER: type = Ego::Attribute::SLASH_MODIFIER; break;
+            case EnchantProfile::SETCRUSHMODIFIER: type = Ego::Attribute::CRUSH_MODIFIER; break;
+            case EnchantProfile::SETPOKEMODIFIER: type = Ego::Attribute::POKE_MODIFIER; break;
+            case EnchantProfile::SETHOLYMODIFIER: type = Ego::Attribute::HOLY_MODIFIER; break;
+            case EnchantProfile::SETEVILMODIFIER: type = Ego::Attribute::EVIL_MODIFIER; break;
+            case EnchantProfile::SETFIREMODIFIER: type = Ego::Attribute::FIRE_MODIFIER; break;
+            case EnchantProfile::SETICEMODIFIER: type = Ego::Attribute::ICE_MODIFIER; break;
+            case EnchantProfile::SETZAPMODIFIER: type = Ego::Attribute::ZAP_MODIFIER; break;
+            case EnchantProfile::SETFLASHINGAND: type = Ego::Attribute::FLASHING_AND; break;
+            case EnchantProfile::SETLIGHTBLEND: type = Ego::Attribute::LIGHT_BLEND; break;
+            case EnchantProfile::SETALPHABLEND: type = Ego::Attribute::ALPHA_BLEND; break;
+            case EnchantProfile::SETSHEEN: type = Ego::Attribute::SHEEN; break;
+            case EnchantProfile::SETFLYTOHEIGHT: type = Ego::Attribute::FLY_TO_HEIGHT; break;
+            case EnchantProfile::SETWALKONWATER: type = Ego::Attribute::WALK_ON_WATER; break;
+            case EnchantProfile::SETCANSEEINVISIBLE: type = Ego::Attribute::SEE_INVISIBLE; break;
+            case EnchantProfile::SETCHANNEL: type = Ego::Attribute::CHANNEL_LIFE; break;
 
             //These are not object attributes but enchant attributes
-            case eve_t::SETMISSILETREATMENT:    _missileTreatment = (MissileTreatment)(long)(_enchantProfile->_set[i].value); continue;
-            case eve_t::SETCOSTFOREACHMISSILE:  _missileTreatmentCost = _enchantProfile->_set[i].value; continue;
+            case EnchantProfile::SETMISSILETREATMENT:    _missileTreatment = (MissileTreatment)(long)(_enchantProfile->_set[i].value); continue;
+            case EnchantProfile::SETCOSTFOREACHMISSILE:  _missileTreatmentCost = _enchantProfile->_set[i].value; continue;
 
             default: throw std::logic_error("Unhandled enchant set type");
         }
 
         _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_set[i].value));
     }
-    for(size_t i = 0; i < eve_t::MAX_ENCHANT_ADD; ++i) {
+    for(size_t i = 0; i < EnchantProfile::MAX_ENCHANT_ADD; ++i) {
         if(!_enchantProfile->_add[i].apply) continue;
 
         //Translate EnchantAddType to AttributeType
         Ego::Attribute::AttributeType type;
         switch(i)
         {
-            case eve_t::ADDJUMPPOWER: type = Ego::Attribute::JUMP_POWER; break;
-            case eve_t::ADDBUMPDAMPEN: type = Ego::Attribute::BUMP_DAMPEN; break;
-            case eve_t::ADDBOUNCINESS: type = Ego::Attribute::BOUNCINESS; break;
-            case eve_t::ADDDAMAGE: type = Ego::Attribute::DAMAGE_BONUS; break;
-            case eve_t::ADDSIZE: type = Ego::Attribute::SIZE; break;
-            case eve_t::ADDACCEL: type = Ego::Attribute::ACCELERATION; break;
-            case eve_t::ADDRED: type = Ego::Attribute::RED_SHIFT; break;                        
-            case eve_t::ADDGRN: type = Ego::Attribute::GREEN_SHIFT; break;                        
-            case eve_t::ADDBLU: type = Ego::Attribute::BLUE_SHIFT; break;                        
-            case eve_t::ADDDEFENSE: type = Ego::Attribute::DEFENCE; break;                    
-            case eve_t::ADDMANA: type = Ego::Attribute::MAX_MANA; break;
-            case eve_t::ADDLIFE: type = Ego::Attribute::MAX_LIFE; break;
-            case eve_t::ADDSTRENGTH: type = Ego::Attribute::MIGHT; break;
-            case eve_t::ADDWISDOM: Log::get().warn("spawned enchant with deprecated ADDWISDOM\n"); continue;
-            case eve_t::ADDINTELLIGENCE: type = Ego::Attribute::INTELLECT; break;
-            case eve_t::ADDDEXTERITY: type = Ego::Attribute::AGILITY; break;
-            case eve_t::ADDSLASHRESIST: type = Ego::Attribute::SLASH_RESIST; break;
-            case eve_t::ADDCRUSHRESIST: type = Ego::Attribute::CRUSH_RESIST; break;
-            case eve_t::ADDPOKERESIST: type = Ego::Attribute::POKE_RESIST; break;
-            case eve_t::ADDEVILRESIST: type = Ego::Attribute::EVIL_RESIST; break;
-            case eve_t::ADDHOLYRESIST: type = Ego::Attribute::HOLY_RESIST; break;
-            case eve_t::ADDFIRERESIST: type = Ego::Attribute::FIRE_RESIST; break;
-            case eve_t::ADDICERESIST: type = Ego::Attribute::ICE_RESIST; break;
-            case eve_t::ADDZAPRESIST: type = Ego::Attribute::ZAP_RESIST; break;
+            case EnchantProfile::ADDJUMPPOWER: type = Ego::Attribute::JUMP_POWER; break;
+            case EnchantProfile::ADDBUMPDAMPEN: type = Ego::Attribute::BUMP_DAMPEN; break;
+            case EnchantProfile::ADDBOUNCINESS: type = Ego::Attribute::BOUNCINESS; break;
+            case EnchantProfile::ADDDAMAGE: type = Ego::Attribute::DAMAGE_BONUS; break;
+            case EnchantProfile::ADDSIZE: type = Ego::Attribute::SIZE; break;
+            case EnchantProfile::ADDACCEL: type = Ego::Attribute::ACCELERATION; break;
+            case EnchantProfile::ADDRED: type = Ego::Attribute::RED_SHIFT; break;                        
+            case EnchantProfile::ADDGRN: type = Ego::Attribute::GREEN_SHIFT; break;                        
+            case EnchantProfile::ADDBLU: type = Ego::Attribute::BLUE_SHIFT; break;                        
+            case EnchantProfile::ADDDEFENSE: type = Ego::Attribute::DEFENCE; break;                    
+            case EnchantProfile::ADDMANA: type = Ego::Attribute::MAX_MANA; break;
+            case EnchantProfile::ADDLIFE: type = Ego::Attribute::MAX_LIFE; break;
+            case EnchantProfile::ADDSTRENGTH: type = Ego::Attribute::MIGHT; break;
+            case EnchantProfile::ADDWISDOM: Log::get().warn("spawned enchant with deprecated ADDWISDOM\n"); continue;
+            case EnchantProfile::ADDINTELLIGENCE: type = Ego::Attribute::INTELLECT; break;
+            case EnchantProfile::ADDDEXTERITY: type = Ego::Attribute::AGILITY; break;
+            case EnchantProfile::ADDSLASHRESIST: type = Ego::Attribute::SLASH_RESIST; break;
+            case EnchantProfile::ADDCRUSHRESIST: type = Ego::Attribute::CRUSH_RESIST; break;
+            case EnchantProfile::ADDPOKERESIST: type = Ego::Attribute::POKE_RESIST; break;
+            case EnchantProfile::ADDEVILRESIST: type = Ego::Attribute::EVIL_RESIST; break;
+            case EnchantProfile::ADDHOLYRESIST: type = Ego::Attribute::HOLY_RESIST; break;
+            case EnchantProfile::ADDFIRERESIST: type = Ego::Attribute::FIRE_RESIST; break;
+            case EnchantProfile::ADDICERESIST: type = Ego::Attribute::ICE_RESIST; break;
+            case EnchantProfile::ADDZAPRESIST: type = Ego::Attribute::ZAP_RESIST; break;
             default: throw std::logic_error("Unhandled enchant add type");
         }
         _modifiers.push_front(Ego::EnchantModifier(type, _enchantProfile->_add[i].value));
@@ -279,7 +279,7 @@ void Enchantment::update()
     }
 }
 
-const std::shared_ptr<eve_t>& Enchantment::getProfile() const
+const std::shared_ptr<EnchantProfile>& Enchantment::getProfile() const
 {
     return _enchantProfile;
 }
