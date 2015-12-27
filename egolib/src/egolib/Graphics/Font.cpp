@@ -119,9 +119,9 @@ void Font::LaidTextRenderer::render(int x, int y, const Ego::Math::Colour4f &col
 }
 
 Font::Font(const std::string &fileName, int pointSize) :
-_ttfFont(),
-_renderedCache(),
-_sizedCache()
+    _ttfFont(),
+    _renderedCache(),
+    _sizedCache()
 {
     _ttfFont = TTF_OpenFontRW(vfs_openRWopsRead(fileName), 1, pointSize);
     

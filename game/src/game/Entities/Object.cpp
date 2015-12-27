@@ -560,9 +560,9 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     snprintf( text_buffer, SDL_arraysize( text_buffer ), "%.1f", static_cast<float>(actual_damage) / 256.0f );
 
                     //Size depends on the amount of damage (more = bigger)
-                    //TODO: not implemented                    
+                    float size = Ego::Math::constrain(0.35f + std::abs(FP8_TO_FLOAT(actual_damage)) * 0.075f, 0.35f, 1.5f);
 
-                    BillboardSystem::get().makeBillboard(_objRef, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All );
+                    BillboardSystem::get().makeBillboard(_objRef, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All, size);
                 }
             }
         }
