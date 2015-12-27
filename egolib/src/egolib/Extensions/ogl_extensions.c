@@ -402,7 +402,7 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
 {
     auto anisotropy_enable = g_ogl_textureParameters.anisotropy_enable;
     auto anisotropy_level = g_ogl_textureParameters.anisotropy_level;
-    Utilities::clearError();
+    clearError();
     GLenum target_gl;
     switch (target)
     {
@@ -419,12 +419,12 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
         default:
             throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }
     glBindTexture(target_gl, id);
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }
@@ -433,7 +433,7 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
     glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, toOpenGL(textureAddressModeT));
 
 
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }
@@ -443,7 +443,7 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
 
     glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
     glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }
@@ -454,7 +454,7 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy_level);
     }
 
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }

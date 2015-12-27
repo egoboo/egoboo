@@ -205,12 +205,12 @@ struct CErrorTexture
         if (target == GL_TEXTURE_1D)
         {
             static const auto pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-            Ego::OpenGL::Utilities::upload_1d(pfd, _image->w, _image->pixels);
+            OpenGL::Utilities::upload_1d(pfd, _image->w, _image->pixels);
         }
         else
         {
             static const auto pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-            Ego::OpenGL::Utilities::upload_2d(pfd, _image->w, _image->h, _image->pixels);
+            OpenGL::Utilities::upload_2d(pfd, _image->w, _image->h, _image->pixels);
         }
         glPopClientAttrib();
         if (GL_NO_ERROR != glGetError())
@@ -330,13 +330,13 @@ bool Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& 
     std::shared_ptr<SDL_Surface> newSource = source;
     
     // Convert to RGBA if the image has non-opaque alpha values or alpha modulation and convert to RGB otherwise.
-    bool hasAlpha = Ego::Graphics::SDL::testAlpha(newSource);
+    bool hasAlpha = Graphics::SDL::testAlpha(newSource);
     const auto& pixelFormatDescriptor = hasAlpha ? PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
                                                  : PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-    newSource = Ego::Graphics::SDL::convertPixelFormat(newSource, pixelFormatDescriptor);
+    newSource = Graphics::SDL::convertPixelFormat(newSource, pixelFormatDescriptor);
 
     // Convert to power of two.
-    newSource = Ego::Graphics::SDL::convertPowerOfTwo(newSource);
+    newSource = Graphics::SDL::convertPowerOfTwo(newSource);
 
     // Generate a new OpenGL texture ID.
     Utilities::clearError();
