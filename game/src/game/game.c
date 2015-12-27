@@ -66,8 +66,8 @@ AnimatedTilesState g_animatedTilesState;
 
 import_list_t g_importList;
 
-Uint32          clock_chr_stat   = 0;
-Uint32          update_wld       = 0;
+uint32_t clock_chr_stat   = 0;
+uint32_t update_wld       = 0;
 
 int chr_stoppedby_tests = 0;
 int chr_pressure_tests = 0;
@@ -75,21 +75,18 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// game initialization / deinitialization - not accessible by scripts
-static void game_reset_timers();
-
 // looping - stuff called every loop - not accessible by scripts
 static void check_stats();
 static void readPlayerInput();
 static void let_all_characters_think();
 
 // module initialization / deinitialization - not accessible by scripts
-static void   game_load_profile_ai();
+static void game_load_profile_ai();
 
-static void   game_reset_players();
+static void game_reset_players();
 
 // Model stuff
-static void log_madused_vfs( const char *savename );
+static void logSlotUsage(const std::string& savename);
 
 // implementing wawalite data
 static void upload_light_data(const wawalite_data_t& data);
@@ -294,14 +291,12 @@ egolib_rv export_all_players( bool require_local )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void log_madused_vfs( const char *savename )
+void logSlotUsage(const std::string& savename)
 {
     /// @author ZZ
     /// @details This is a debug function for checking model loads
 
-    vfs_FILE* hFileWrite;
-
-    hFileWrite = vfs_openWrite( savename );
+    vfs_FILE* hFileWrite = vfs_openWrite(savename);
     if ( hFileWrite )
     {
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
@@ -494,20 +489,6 @@ int update_game()
     update_wld++;
 
     return 1;
-}
-
-//--------------------------------------------------------------------------------------------
-void game_reset_timers()
-{
-    /// @author ZZ
-    /// @details This function resets the timers...
-
-    // reset some counters
-    game_frame_all = 0;
-    update_wld = 0;
-
-    // reset some special clocks
-    clock_chr_stat = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1211,12 +1192,18 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // log debug info for every object loaded into the module
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
     {
-        log_madused_vfs("/debug/slotused.txt");
+        logSlotUsage("/debug/slotused.txt");
     }
 
     // initialize the timers as the very last thing
     timeron = false;
-    game_reset_timers();
+
+    // reset some counters
+    game_frame_all = 0;
+    update_wld = 0;
+
+    // reset some special clocks
+    clock_chr_stat = 0;
 
     return true;
 }

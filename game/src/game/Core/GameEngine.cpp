@@ -348,9 +348,6 @@ bool GameEngine::initialize()
     // load input
     input_settings_load_vfs("/controls.txt", -1);
 
-    // initialize the random treasure system
-    init_random_treasure_tables_vfs("mp_data/randomtreasure.txt");
-
     // Initialize Perks
     Ego::Perks::PerkHandler::initialize();
 

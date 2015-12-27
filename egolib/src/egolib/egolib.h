@@ -111,7 +111,6 @@
 #include "egolib/FileFormats/scancode_file.h"
 #include "egolib/FileFormats/spawn_file.h"
 #include "egolib/FileFormats/template.h"
-#include "egolib/FileFormats/treasure_table_file.h"
 #include "egolib/FileFormats/wawalite_file.h"
 
 //--------------------------------------------------------------------------------------------
