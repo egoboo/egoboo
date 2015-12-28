@@ -281,6 +281,8 @@ public:
         _moveMode = mode;
     }
 
+    void updateFreeControl();
+
 protected:
     /**
      * @brief
@@ -327,12 +329,13 @@ protected:
 	void updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near = 1.0f, const float frustum_far = 20.0f);
 
 private:
+    static constexpr float TURN_Z_SUSTAIN = 0.60f;    ///< Turning rate falloff.
+
 	const CameraOptions _options;
-
-
 
     // The view frustum.
     mutable Ego::Graphics::Frustum _frustum;
+
     /**
      * @brief
      *  If either the projection or the view matrix changed, the frustum is marked as invalid,
@@ -347,7 +350,6 @@ private:
 	CameraTurnMode _turnMode;   ///< The camera turn mode.
     uint8_t        _turnTime;   ///< Time for the smooth turn.
 
-
     orientation_t  _ori;        ///< @brief The camera orientation.
 
     // The middle of the objects that are being tracked.
@@ -361,13 +363,12 @@ private:
     float _zadd;     ///< Camera height above terrain.
     float _zaddGoto; ///< Desired z position.
     float _zGoto;    ///< Effective z position.
+    float _pitch;
 
     // Turning
     float _turnZ_radians;   ///< Camera z rotation (in radians).
     float _turnZ_turns;     ///< Camera z rotation (in turns).
     float _turnZAdd;        ///< Turning rate.
-    float _turnZSustain;    ///< Turning rate falloff.
-
 
     // Effects
     float _motionBlur;         ///< Blurry effect.

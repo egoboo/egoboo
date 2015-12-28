@@ -26,6 +26,7 @@
 #include "game/GameStates/SelectModuleState.hpp"
 #include "game/GameStates/SelectPlayersState.hpp"
 #include "game/GameStates/OptionsScreen.hpp"
+#include "game/GameStates/MapEditorState.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/game.h"
 #include "game/GUI/Button.hpp"
@@ -133,6 +134,18 @@ MainMenuState::MainMenuState() :
         });
         addComponent(debugButton);
         _slidyButtons.push_front(debugButton);
+
+	    yOffset -= debugButton->getHeight() + 10;
+
+        std::shared_ptr<Button> mapEditorButton = std::make_shared<Button>("Map Editor", SDLK_m);
+        mapEditorButton->setPosition(20, yOffset);
+        mapEditorButton->setSize(200, 30);
+        mapEditorButton->setOnClickFunction(
+        []{
+            _gameEngine->pushGameState(std::make_shared<Ego::GameStates::MapEditorState>(ProfileSystem::get().getModuleProfiles()[0]));
+        });
+        addComponent(mapEditorButton);
+        _slidyButtons.push_front(mapEditorButton);
     }
 
 	//Add version label and copyright text

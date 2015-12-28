@@ -17,36 +17,35 @@
 //*
 //********************************************************************************************
 
-/// @file game/GameStates/InGameMenuState.hpp
-/// @details Menu while PlayingState is running in background
+/// @file game/GameStates/InputOptionsScreen.hpp
+/// @details Selection input settings
 /// @author Johan Jansen
 
 #pragma once
 
 #include "game/GameStates/GameState.hpp"
 
-//Forward declarations
-class Button;
-class PlayingState;
-
-class InGameMenuState : public GameState
+namespace Ego
+{
+namespace GameStates
 {
 
+class InputOptionsScreen : public GameState
+{
 public:
-
-    InGameMenuState(GameState &backgroundState);
+    InputOptionsScreen();
 
     void update() override;
 
     void beginState() override;
 
 protected:
-
     void drawContainer() override;
 
 private:
-
-    std::forward_list<std::shared_ptr<Button>> _slidyButtons;
-
-    GameState &_backgroundState;
+	void addInputOption(const std::string& label);
 };
+
+
+} //GameStates
+} //Ego

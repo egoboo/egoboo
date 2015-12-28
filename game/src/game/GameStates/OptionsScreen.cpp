@@ -24,6 +24,7 @@
 #include "game/GameStates/OptionsScreen.hpp"
 #include "game/GameStates/VideoOptionsScreen.hpp"
 #include "game/GameStates/AudioOptionsScreen.hpp"
+#include "game/GameStates/InputOptionsScreen.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Image.hpp"
@@ -91,6 +92,10 @@ OptionsScreen::OptionsScreen() :
 	std::shared_ptr<Button> inputOptions = std::make_shared<Button>("Input Controls", SDLK_i);
 	inputOptions->setPosition(20, yOffset);
 	inputOptions->setSize(200, 30);
+	inputOptions->setOnClickFunction(
+	[this]{
+		_gameEngine->pushGameState(std::make_shared<Ego::GameStates::InputOptionsScreen>());
+	});
 	addComponent(inputOptions);
 	_slidyButtons.push_front(inputOptions);
 

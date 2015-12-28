@@ -163,7 +163,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
 
             //Else do the ingame menu
             else {
-                _gameEngine->pushGameState(std::make_shared<InGameMenuState>(this));                
+                _gameEngine->pushGameState(std::make_shared<InGameMenuState>(*this));                
             }
         return true;
 

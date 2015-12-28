@@ -36,9 +36,9 @@
 #include "game/GameStates/DebugParticlesScreen.hpp"
 #endif
 
-InGameMenuState::InGameMenuState(PlayingState *playingState) :
+InGameMenuState::InGameMenuState(GameState &gameState) :
     _slidyButtons(),
-    _playingState(playingState)
+    _backgroundState(gameState)
 {
     // Add the buttons
     int yOffset = Ego::GraphicsSystem::gfx_height-80;
@@ -113,7 +113,7 @@ void InGameMenuState::update()
 void InGameMenuState::drawContainer()
 {
     //Render the playing state beackground first
-    _playingState->drawAll();
+    _backgroundState.drawAll();
 }
 
 void InGameMenuState::beginState()
