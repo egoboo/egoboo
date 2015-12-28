@@ -220,7 +220,7 @@ float Utilities::getMaxAnisotropy() {
     auto extensions = getExtensions();
     if (extensions.cend() != extensions.find(anisotropyExtension)) {
         float maxAnisotropyLevel;
-        glGetFloatv(GL_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropyLevel);
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropyLevel);
         if (isError()) {
             throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
         }
