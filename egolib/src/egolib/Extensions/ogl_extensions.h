@@ -35,6 +35,7 @@
 #include "egolib/Renderer/PrimitiveType.hpp"
 #include "egolib/Renderer/CullingMode.hpp"
 #include "egolib/Renderer/WindingMode.hpp"
+#include "egolib/Renderer/TextureSampler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -46,11 +47,16 @@ namespace OpenGL
 {
 
 template <typename T> using UnorderedSet = std::unordered_set<T>;
-using String = std::string;
-using RuntimeErrorException = Id::RuntimeErrorException;
-using UnhandledSwitchCaseException = Id::UnhandledSwitchCaseException;
 
 struct Utilities {
+protected:
+    using RuntimeErrorException = Id::RuntimeErrorException;
+    using UnhandledSwitchCaseException = Id::UnhandledSwitchCaseException;
+    using String = std::string;
+
+protected:
+    static const String anisotropyExtension;
+
 public:
 
     /**
@@ -84,6 +90,21 @@ public:
      *  the version of this OpenGL implementation
      */
     static String getVersion();
+
+public:
+    /**
+     * @brief Get the maximal level of anisotropy.
+     * @return the maximal level of anisotropy
+     * @remark The smallest maximal level of anisotropy is 1.0f.
+     */
+    static float getMaxAnisotropy();
+
+    /**
+     * @brief Get the minimal level of anisotropy.
+     * @return the minimal level of anisotropy
+     * @remark The smallest minimal level of anisotropy is 1.0f.
+     */
+    static float getMinAnisotropy();
 
 public:
     /**
@@ -163,6 +184,7 @@ public:
     static void toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl);
 
 
+    static void setSampler(TextureType type, const TextureSampler& sampler);
     static void bind(GLuint id, TextureType type, TextureAddressMode textureAddressModeS, TextureAddressMode textureAddressModeT);
 };
 

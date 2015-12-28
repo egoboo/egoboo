@@ -21,7 +21,7 @@
 /// @brief  A texture sampler.
 /// @author Michael Heilmann
 
-#pragma
+#pragma once
 
 #include "egolib/Renderer/TextureFilter.hpp"
 #include "egolib/Renderer/TextureAddressMode.hpp"

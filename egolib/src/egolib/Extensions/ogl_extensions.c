@@ -174,44 +174,64 @@ namespace Ego
 namespace OpenGL
 {
 
-UnorderedSet<String> Utilities::getExtensions() {
+const Utilities::String Utilities::anisotropyExtension = "GL_EXT_texture_filter_anisotropic";
+
+UnorderedSet<Utilities::String> Utilities::getExtensions() {
     clearError();
     const GLubyte *bytes = glGetString(GL_EXTENSIONS);
     GLenum error = glGetError();
-    if (GL_NO_ERROR != error) {
+    if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return Core::make_unordered_set(split(String((const char *)bytes), String(" ")));
 }
 
-String Utilities::getName() {
+Utilities::String Utilities::getName() {
     clearError();
     const GLubyte *bytes = glGetString(GL_RENDERER);
     GLenum error = glGetError();
-    if (GL_NO_ERROR != error) {
+    if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
 }
 
-String Utilities::getVendor() {
+Utilities::String Utilities::getVendor() {
     clearError();
     const GLubyte *bytes = glGetString(GL_RENDERER);
     GLenum error = glGetError();
-    if (GL_NO_ERROR != error) {
+    if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
 }
 
-String Utilities::getVersion() {
+Utilities::String Utilities::getVersion() {
     clearError();
     const GLubyte *bytes = glGetString(GL_VERSION);
     GLenum error = glGetError();
-    if (GL_NO_ERROR != error) {
+    if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
     return (const char *)bytes;
+}
+
+float Utilities::getMaxAnisotropy() {
+    auto extensions = getExtensions();
+    if (extensions.cend() != extensions.find(anisotropyExtension)) {
+        float maxAnisotropyLevel;
+        glGetFloatv(GL_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropyLevel);
+        if (isError()) {
+            throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        }
+        return maxAnisotropyLevel;
+    } else {
+        return getMinAnisotropy();
+    }
+}
+
+float Utilities::getMinAnisotropy() {
+    return 1.0f;
 }
 
 GLint Utilities::toOpenGL(TextureAddressMode textureAddressMode)
@@ -447,6 +467,52 @@ void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GL
     SDL_FreeSurface(surf);
     glPopClientAttrib();
 
+}
+
+void Utilities::setSampler(TextureType target, const TextureSampler& sampler) {
+    clearError();
+    GLenum target_gl;
+    switch (target) {
+        case TextureType::_2D:
+            target_gl = GL_TEXTURE_2D;
+            break;
+        case TextureType::_1D:
+            target_gl = GL_TEXTURE_1D;
+            break;
+        default:
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+    }
+    if (isError()) {
+        return;
+    }
+
+    GLint addressModeS_gl = toOpenGL(sampler.getAddressModeS()),
+          addressModeT_gl = toOpenGL(sampler.getAddressModeT());
+    glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, addressModeS_gl);
+    glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, addressModeT_gl);
+    if (isError()) {
+        return;
+    }
+
+    GLint minFilter_gl, magFilter_gl;
+    toOpenGL(sampler.getMinFilter(), sampler.getMagFilter(), sampler.getMipMapFilter(),
+             minFilter_gl, magFilter_gl);
+    glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
+    glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
+    if (isError()) {
+        return;
+    }
+
+    if (TextureType::_2D == target) {
+        auto extensions = getExtensions();
+        if (extensions.cend() != extensions.find(anisotropyExtension)) {
+            float anisotropyLevel = Ego::Math::constrain(sampler.getAnisotropyLevel(), getMinAnisotropy(), getMaxAnisotropy());
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropyLevel);
+            if (isError()) {
+                return;
+            }
+        }
+    }
 }
 
 void Utilities::bind(GLuint id, TextureType target, TextureAddressMode addressModeS, TextureAddressMode addressModeT)

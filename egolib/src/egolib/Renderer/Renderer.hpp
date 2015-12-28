@@ -30,6 +30,7 @@
 #include "egolib/Renderer/CullingMode.hpp"
 #include "egolib/Renderer/WindingMode.hpp"
 #include "egolib/Renderer/PrimitiveType.hpp"
+#include "egolib/Renderer/TextureSampler.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
 #include "egolib/Renderer/Texture.hpp"
 #include "egolib/Extensions/ogl_debug.h"
@@ -227,15 +228,16 @@ public:
 };
 
 class Renderer : public Ego::Core::Singleton<Renderer, RendererFactory> {
-
 protected:
+    template <typename T> using SharedPtr = std::shared_ptr<T>;
     // Befriend with the singleton to grant access to Renderer::~Renderer.
-    using TheSingleton = Ego::Core::Singleton<Renderer, RendererFactory>;
+    using TheSingleton = Singleton<Renderer, RendererFactory>;
     friend TheSingleton;
     // Befriend with the factory to grant access to Renderer::Renderer.
     using TheFactory = RendererFactory;
     friend RendererFactory;
 
+protected:
     /**
      * @brief
      *  Construct this renderer.
@@ -719,7 +721,7 @@ public:
      * @post
      *  The texture is the default texture.
      */
-    virtual std::shared_ptr<Texture> createTexture() = 0;
+    virtual SharedPtr<Texture> createTexture() = 0;
 
 };
 
