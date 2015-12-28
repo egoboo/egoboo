@@ -302,7 +302,6 @@ void gfx_end_2d()
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPopMatrix )();
 
-    // ATTRIB_POP()
     // - restores the culling mode
     // - restores the culling depth-testing mode
     // - restores the SCISSOR mode
@@ -353,7 +352,7 @@ void gfx_reshape_viewport(int w, int h)
 //--------------------------------------------------------------------------------------------
 void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
 {
-    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
+    Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
     {
 		auto& renderer = Ego::Renderer::get();
 		renderer.getTextureUnit().setActivated(tex.get());
@@ -388,7 +387,6 @@ void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frec
 		}
 		renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
-    ATTRIB_POP( __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -571,81 +569,76 @@ bool dump_screenshot()
     }
 
     // we ARE using OpenGL
-    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_PIXEL_STORE_BIT ) ;
     {
-        SDL_Surface *temp;
-
-        // create a SDL surface
-        const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
-        temp = SDL_CreateRGBSurface(0, sdl_scr.x, sdl_scr.y,
-                                    pixelFormatDescriptor.getBitsPerPixel(),
-                                    pixelFormatDescriptor.getRedMask(),
-                                    pixelFormatDescriptor.getGreenMask(),
-                                    pixelFormatDescriptor.getBlueMask(),
-                                    pixelFormatDescriptor.getAlphaMask());
-
-        if ( NULL == temp )
+        Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
         {
-            //Something went wrong
-            SDL_FreeSurface( temp );
-            return false;
-        }
+            SDL_Surface *temp;
 
-        //Now lock the surface so that we can read it
-        if ( -1 != SDL_LockSurface( temp ) )
-        {
-            SDL_Rect rect = {0, 0, 0, 0};
-            if ( 0 == rect.w && 0 == rect.h )
-            {
-                rect.w = sdl_scr.x;
-                rect.h = sdl_scr.y;
+            // create a SDL surface
+            const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
+            temp = SDL_CreateRGBSurface(0, sdl_scr.x, sdl_scr.y,
+                                        pixelFormatDescriptor.getBitsPerPixel(),
+                                        pixelFormatDescriptor.getRedMask(),
+                                        pixelFormatDescriptor.getGreenMask(),
+                                        pixelFormatDescriptor.getBlueMask(),
+                                        pixelFormatDescriptor.getAlphaMask());
+
+            if (NULL == temp) {
+                //Something went wrong
+                SDL_FreeSurface(temp);
+                return false;
             }
-            if ( rect.w > 0 && rect.h > 0 )
-            {
-                int y;
-                Uint8 * pixels;
 
-                GL_DEBUG( glGetError )();
-
-                //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
-                //// stolen from SDL ;)
-                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
-                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
-                //// it is not necesssaty to mess with the alignment
-                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
-                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
-                // relative to the SDL Screen memory
-
-                // this is supposed to be a DirectX thing, so it needs to be tested out on glx
-                // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
-                pixels = ( Uint8 * )temp->pixels;
-                for ( y = rect.y; y < rect.y + rect.h; y++ )
-                {
-                    GL_DEBUG( glReadPixels )( rect.x, ( rect.h - y ) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels );
-                    pixels += temp->pitch;
+            //Now lock the surface so that we can read it
+            if (-1 != SDL_LockSurface(temp)) {
+                SDL_Rect rect = {0, 0, 0, 0};
+                if (0 == rect.w && 0 == rect.h) {
+                    rect.w = sdl_scr.x;
+                    rect.h = sdl_scr.y;
                 }
-                EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG( glGetError )() );
+                if (rect.w > 0 && rect.h > 0) {
+                    int y;
+                    Uint8 * pixels;
+
+                    GL_DEBUG(glGetError)();
+
+                    //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
+                    //// stolen from SDL ;)
+                    // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
+                    // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+
+                    //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
+                    //// it is not necesssaty to mess with the alignment
+                    // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
+                    // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+
+                    // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
+                    // relative to the SDL Screen memory
+
+                    // this is supposed to be a DirectX thing, so it needs to be tested out on glx
+                    // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
+                    pixels = (Uint8 *)temp->pixels;
+                    for (y = rect.y; y < rect.y + rect.h; y++) {
+                        GL_DEBUG(glReadPixels)(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+                        pixels += temp->pitch;
+                    }
+                    EGOBOO_ASSERT(GL_NO_ERROR == GL_DEBUG(glGetError)());
+                }
+
+                SDL_UnlockSurface(temp);
+
+                // Save the file as a .bmp
+                saved = (-1 != IMG_SavePNG_RW(temp, vfs_openRWopsWrite(szResolvedFilename), 1));
             }
 
-            SDL_UnlockSurface( temp );
-
-            // Save the file as a .bmp
-            saved = ( -1 != IMG_SavePNG_RW( temp, vfs_openRWopsWrite(szResolvedFilename), 1 ) );
-        }
-
-        // free the SDL surface
-        SDL_FreeSurface( temp );
-        if ( saved )
-        {
-            // tell the user what we did
-            DisplayMsg_printf( "Saved to %s", szFilename );
+            // free the SDL surface
+            SDL_FreeSurface(temp);
+            if (saved) {
+                // tell the user what we did
+                DisplayMsg_printf("Saved to %s", szFilename);
+            }
         }
     }
-    GL_DEBUG( glPopClientAttrib )();
 
     return savefound && saved;
 }

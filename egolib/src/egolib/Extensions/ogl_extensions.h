@@ -188,6 +188,32 @@ public:
     static void bind(GLuint id, TextureType type, TextureAddressMode textureAddressModeS, TextureAddressMode textureAddressModeT);
 };
 
+struct PushAttrib {
+private:
+    GLbitfield bitfield;
+public:
+    PushAttrib(GLbitfield bitfield) : bitfield(bitfield) {
+        glPushAttrib(bitfield);
+    }
+    ~PushAttrib() {
+        glPopAttrib();
+        Utilities::isError();
+    }
+}; // struct PushAttrib
+
+struct PushClientAttrib {
+private:
+    GLbitfield bitfield;
+public:
+    PushClientAttrib(GLbitfield bitfield) : bitfield(bitfield) {
+        glPushClientAttrib(bitfield);
+    }
+    ~PushClientAttrib() {
+        glPopClientAttrib();
+        Utilities::isError();
+    }
+}; // struct PushClientAttrib
+
 } // namespace OpenGL
 } // namespace Ego
 

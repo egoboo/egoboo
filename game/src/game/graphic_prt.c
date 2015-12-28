@@ -117,35 +117,36 @@ gfx_rv render_one_prt_solid(const ParticleRef iprt)
     auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
     calc_billboard_verts(*vb, pinst, pinst.size, false);
 
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
     {
-        auto& renderer = Ego::Renderer::get();
-        // Use the depth test to eliminate hidden portions of the particle
-        renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::Less);                                   // GL_DEPTH_BUFFER_BIT
+        Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
+        {
+            auto& renderer = Ego::Renderer::get();
+            // Use the depth test to eliminate hidden portions of the particle
+            renderer.setDepthTestEnabled(true);
+            renderer.setDepthFunction(Ego::CompareFunction::Less);                                   // GL_DEPTH_BUFFER_BIT
 
-        // enable the depth mask for the solid portion of the particles
-        renderer.setDepthWriteEnabled(true);
+            // enable the depth mask for the solid portion of the particles
+            renderer.setDepthWriteEnabled(true);
 
-        // draw draw front and back faces of polygons
-		renderer.setCullingMode(Ego::CullingMode::None);
+            // draw draw front and back faces of polygons
+            renderer.setCullingMode(Ego::CullingMode::None);
 
-        // Since the textures are probably mipmapped or minified with some kind of
-        // interpolation, we can never really turn blending off.
-        renderer.setBlendingEnabled(true);
-		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+            // Since the textures are probably mipmapped or minified with some kind of
+            // interpolation, we can never really turn blending off.
+            renderer.setBlendingEnabled(true);
+            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-        // only display the portion of the particle that is 100% solid
-        renderer.setAlphaTestEnabled(true);
-		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
+            // only display the portion of the particle that is 100% solid
+            renderer.setAlphaTestEnabled(true);
+            renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
 
-        renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
 
-        renderer.setColour(Ego::Math::Colour4f(pinst.fintens, pinst.fintens, pinst.fintens, 1.0f));
+            renderer.setColour(Ego::Math::Colour4f(pinst.fintens, pinst.fintens, pinst.fintens, 1.0f));
 
-        renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+            renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+        }
     }
-    ATTRIB_POP(__FUNCTION__);
 
     return gfx_success;
 }
@@ -170,89 +171,84 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
     if (!pprt->inst.valid) return gfx_fail;
     prt_instance_t& inst = pprt->inst;
 
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
     {
-        auto& renderer = Ego::Renderer::get();
-        // Do not write into the depth buffer.
-        renderer.setDepthWriteEnabled(false);
-
-        // Enable depth test: Incoming fragment's depth value must be less or equal.
-        renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
-
-        // Draw front-facing and back-facing polygons.
-		renderer.setCullingMode(Ego::CullingMode::None);
-
-        Ego::Math::Colour4f particleColour;
-        bool drawParticle = false;
-        // Solid sprites.
-        if (SPRITE_SOLID == pprt->type)
+        Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
         {
-            // Do the alpha blended edge ("anti-aliasing") of the solid particle.
-            // Only display the alpha-edge of the particle.
-            renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);
+            auto& renderer = Ego::Renderer::get();
+            // Do not write into the depth buffer.
+            renderer.setDepthWriteEnabled(false);
 
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+            // Enable depth test: Incoming fragment's depth value must be less or equal.
+            renderer.setDepthTestEnabled(true);
+            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
-            float fintens = inst.fintens;
-            particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
+            // Draw front-facing and back-facing polygons.
+            renderer.setCullingMode(Ego::CullingMode::None);
 
-            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+            Ego::Math::Colour4f particleColour;
+            bool drawParticle = false;
+            // Solid sprites.
+            if (SPRITE_SOLID == pprt->type) {
+                // Do the alpha blended edge ("anti-aliasing") of the solid particle.
+                // Only display the alpha-edge of the particle.
+                renderer.setAlphaTestEnabled(true);
+                renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);
 
-            drawParticle = true;
-        }
-        // Light sprites.
-        else if (SPRITE_LIGHT == pprt->type)
-        {
-            renderer.setAlphaTestEnabled(false);
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-            float fintens = inst.fintens * inst.falpha;
-            particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
+                float fintens = inst.fintens;
+                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-            renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
 
-            drawParticle = (fintens > 0.0f);
-        }
-        // Transparent sprites.
-        else if (SPRITE_ALPHA == pprt->type)
-        {
-            // do not display the completely transparent portion
-            renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                drawParticle = true;
+            }
+            // Light sprites.
+            else if (SPRITE_LIGHT == pprt->type) {
+                renderer.setAlphaTestEnabled(false);
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                float fintens = inst.fintens * inst.falpha;
+                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
-            float fintens = inst.fintens;
-            float falpha = inst.falpha;
-            particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
+                renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
 
-            renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+                drawParticle = (fintens > 0.0f);
+            }
+            // Transparent sprites.
+            else if (SPRITE_ALPHA == pprt->type) {
+                // do not display the completely transparent portion
+                renderer.setAlphaTestEnabled(true);
+                renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-            drawParticle = (falpha > 0.0f);
-        }
-        else
-        {
-            // unknown type
-            return gfx_error;
-        }
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-        if (drawParticle)
-        {
-            auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
-            calc_billboard_verts(*vb, inst, inst.size, false);
+                float fintens = inst.fintens;
+                float falpha = inst.falpha;
+                particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
 
-            renderer.setColour(particleColour);
+                renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
 
-            // Go on and draw it
-            renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+                drawParticle = (falpha > 0.0f);
+            } else {
+                // unknown type
+                return gfx_error;
+            }
+
+            if (drawParticle) {
+                auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
+                calc_billboard_verts(*vb, inst, inst.size, false);
+
+                renderer.setColour(particleColour);
+
+                // Go on and draw it
+                renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+            }
         }
     }
-    ATTRIB_POP(__FUNCTION__);
 
     return gfx_success;
 }
@@ -286,81 +282,74 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
 
     if (startalpha > 0)
     {
-        ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
         {
-            Ego::Colour4f particle_colour;
-
-            auto& renderer = Ego::Renderer::get();
-            // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            renderer.setDepthWriteEnabled(false); // ENABLE_BIT
-
-            // do not draw hidden surfaces
-            renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
-
-            // draw draw front and back faces of polygons
-			renderer.setCullingMode(Ego::CullingMode::None);
-
-            bool draw_particle = false;
-            if (SPRITE_LIGHT == pprt->type)
+            Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
             {
-                // do the light sprites
-                float intens = startalpha * INV_FF<float>() * inst.falpha * inst.fintens;
+                Ego::Colour4f particle_colour;
 
-                renderer.setAlphaTestEnabled(false);
+                auto& renderer = Ego::Renderer::get();
+                // don't write into the depth buffer (disable glDepthMask for transparent objects)
+                renderer.setDepthWriteEnabled(false); // ENABLE_BIT
 
-                renderer.setBlendingEnabled(true);
-				renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                // do not draw hidden surfaces
+                renderer.setDepthTestEnabled(true);
+                renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
-                particle_colour = Ego::Math::Colour4f(intens, intens, intens, 1.0f);
+                // draw draw front and back faces of polygons
+                renderer.setCullingMode(Ego::CullingMode::None);
 
-                renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+                bool draw_particle = false;
+                if (SPRITE_LIGHT == pprt->type) {
+                    // do the light sprites
+                    float intens = startalpha * INV_FF<float>() * inst.falpha * inst.fintens;
 
-                draw_particle = intens > 0.0f;
-            }
-            else if (SPRITE_SOLID == pprt->type || SPRITE_ALPHA == pprt->type)
-            {
-                // do the transparent sprites
+                    renderer.setAlphaTestEnabled(false);
 
-                float alpha = startalpha * INV_FF<float>();
-                if (SPRITE_ALPHA == pprt->type)
-                {
-                    alpha *= inst.falpha;
+                    renderer.setBlendingEnabled(true);
+                    renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+
+                    particle_colour = Ego::Math::Colour4f(intens, intens, intens, 1.0f);
+
+                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getLightParticleTexture().get());
+
+                    draw_particle = intens > 0.0f;
+                } else if (SPRITE_SOLID == pprt->type || SPRITE_ALPHA == pprt->type) {
+                    // do the transparent sprites
+
+                    float alpha = startalpha * INV_FF<float>();
+                    if (SPRITE_ALPHA == pprt->type) {
+                        alpha *= inst.falpha;
+                    }
+
+                    // do not display the completely transparent portion
+                    renderer.setAlphaTestEnabled(true);
+                    renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+
+                    renderer.setBlendingEnabled(true);
+                    renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+                    particle_colour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, alpha);
+
+                    renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
+
+                    draw_particle = alpha > 0.0f;
+                } else {
+                    // unknown type
+                    return gfx_fail;
                 }
 
-                // do not display the completely transparent portion
-                renderer.setAlphaTestEnabled(true);
-				renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                if (draw_particle) {
+                    // Calculate the position of the four corners of the billboard
+                    // used to display the particle.
+                    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
+                    calc_billboard_verts(*vb, inst, inst.size, true);
 
-                renderer.setBlendingEnabled(true);
-				renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                    renderer.setColour(particle_colour); // GL_CURRENT_BIT
 
-                particle_colour = Ego::Math::Colour4f(inst.fintens, inst.fintens, inst.fintens, alpha);
-
-				renderer.getTextureUnit().setActivated(ParticleHandler::get().getTransparentParticleTexture().get());
-
-                draw_particle = alpha > 0.0f;
-            }
-            else
-            {
-                // unknown type
-                return gfx_fail;
-            }
-
-            if (draw_particle)
-            {
-                // Calculate the position of the four corners of the billboard
-                // used to display the particle.
-                auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
-                calc_billboard_verts(*vb, inst, inst.size, true);
-
-                renderer.setColour(particle_colour); // GL_CURRENT_BIT
-
-                renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+                    renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+                }
             }
         }
-        ATTRIB_POP(__FUNCTION__);
-
     }
 
     return gfx_success;

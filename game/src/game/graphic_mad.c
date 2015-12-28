@@ -110,72 +110,69 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
     // Choose texture and matrix
 	Ego::Renderer::get().getTextureUnit().setActivated(ptex.get());
 
-    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
-        GLXvector4f curr_color;
-
-        GL_DEBUG( glGetFloatv )( GL_CURRENT_COLOR, curr_color );
-
-        // Render each command
-        for(const MD2_GLCommand &glcommand : pmd2->getGLCommands())
+        Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
         {
-            GL_DEBUG( glBegin )(glcommand.glMode);
-            {
-                for(const id_glcmd_packed_t& cmd : glcommand.data)
+            GLXvector4f curr_color;
+
+            GL_DEBUG(glGetFloatv)(GL_CURRENT_COLOR, curr_color);
+
+            // Render each command
+            for (const MD2_GLCommand &glcommand : pmd2->getGLCommands()) {
+                GL_DEBUG(glBegin)(glcommand.glMode);
                 {
-                    GLfloat     cmax;
-                    GLXvector4f col;
-                    GLfloat     tex[2];
-                    GLvertex   *pvrt;
+                    for (const id_glcmd_packed_t& cmd : glcommand.data) {
+                        GLfloat     cmax;
+                        GLXvector4f col;
+                        GLfloat     tex[2];
+                        GLvertex   *pvrt;
 
-                    uint16_t vertex = cmd.index;
-                    if ( vertex >= pinst.vrt_count ) continue;
+                        uint16_t vertex = cmd.index;
+                        if (vertex >= pinst.vrt_count) continue;
 
-                    pvrt   = pinst.vrt_lst + vertex;
+                        pvrt = pinst.vrt_lst + vertex;
 
-                    // normalize the color so it can be modulated by the phong/environment map
-                    col[RR] = pvrt->color_dir * INV_FF<float>();
-                    col[GG] = pvrt->color_dir * INV_FF<float>();
-                    col[BB] = pvrt->color_dir * INV_FF<float>();
-                    col[AA] = 1.0f;
+                        // normalize the color so it can be modulated by the phong/environment map
+                        col[RR] = pvrt->color_dir * INV_FF<float>();
+                        col[GG] = pvrt->color_dir * INV_FF<float>();
+                        col[BB] = pvrt->color_dir * INV_FF<float>();
+                        col[AA] = 1.0f;
 
-                    cmax = std::max( std::max( col[RR], col[GG] ), col[BB] );
+                        cmax = std::max(std::max(col[RR], col[GG]), col[BB]);
 
-                    if ( cmax != 0.0f )
-                    {
-                        col[RR] /= cmax;
-                        col[GG] /= cmax;
-                        col[BB] /= cmax;
+                        if (cmax != 0.0f) {
+                            col[RR] /= cmax;
+                            col[GG] /= cmax;
+                            col[BB] /= cmax;
+                        }
+
+                        // apply the tint
+                        /// @todo not sure why curr_color is important, removing it fixes phong
+                        col[RR] *= tint[RR];// * curr_color[RR];
+                        col[GG] *= tint[GG];// * curr_color[GG];
+                        col[BB] *= tint[BB];// * curr_color[BB];
+                        col[AA] *= tint[AA];// * curr_color[AA];
+
+                        tex[0] = pvrt->env[XX] + uoffset;
+                        tex[1] = Ego::Math::constrain(cmax, 0.0f, 1.0f);
+
+                        if (0 != (bits & CHR_PHONG)) {
+                            // determine the phong texture coordinates
+                            // the default phong is bright in both the forward and back directions...
+                            tex[1] = tex[1] * 0.5f + 0.5f;
+                        }
+
+                        GL_DEBUG(glColor4fv)(col);
+                        GL_DEBUG(glNormal3fv)(pvrt->nrm);
+                        GL_DEBUG(glTexCoord2fv)(tex);
+                        GL_DEBUG(glVertex3fv)(pvrt->pos);
                     }
 
-                    // apply the tint
-                    /// @todo not sure why curr_color is important, removing it fixes phong
-                    col[RR] *= tint[RR];// * curr_color[RR];
-                    col[GG] *= tint[GG];// * curr_color[GG];
-                    col[BB] *= tint[BB];// * curr_color[BB];
-                    col[AA] *= tint[AA];// * curr_color[AA];
-
-                    tex[0] = pvrt->env[XX] + uoffset;
-                    tex[1] = Ego::Math::constrain( cmax, 0.0f, 1.0f );
-
-                    if ( 0 != ( bits & CHR_PHONG ) )
-                    {
-                        // determine the phong texture coordinates
-                        // the default phong is bright in both the forward and back directions...
-                        tex[1] = tex[1] * 0.5f + 0.5f;
-                    }
-
-                    GL_DEBUG( glColor4fv )( col );
-                    GL_DEBUG( glNormal3fv )( pvrt->nrm );
-                    GL_DEBUG( glTexCoord2fv )( tex );
-                    GL_DEBUG( glVertex3fv )( pvrt->pos );
                 }
-
+                GL_DEBUG_END();
             }
-            GL_DEBUG_END();
         }
     }
-    ATTRIB_POP( __FUNCTION__ );
 
     // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
@@ -295,92 +292,85 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
     // Choose texture.
 	Ego::Renderer::get().getTextureUnit().setActivated(ptex.get());
 
-    glPushAttrib(GL_CURRENT_BIT);
     {
-        // Render each command
-        for (const MD2_GLCommand& glcommand : pmd2->getGLCommands())
+        Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
         {
-            // Pre-render this command.
-            size_t vertexBufferSize = 0;
-            for (const id_glcmd_packed_t &cmd : glcommand.data)
-            {
-                Uint16 vertexIndex = cmd.index;
-                if (vertexIndex >= pinst.vrt_count)
-                {
-                    continue;
-                }
-                auto& v = vertexBuffer[vertexBufferSize++];
-                GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
-                v.px = pvrt.pos[XX];
-                v.py = pvrt.pos[YY];
-                v.pz = pvrt.pos[ZZ];
-                v.nx = pvrt.nrm[XX];
-                v.ny = pvrt.nrm[YY];
-                v.nz = pvrt.nrm[ZZ];
-
-                // Determine the texture coordinates.
-                v.s = cmd.s + uoffset;
-                v.t = cmd.t + voffset;
-
-                // Perform lighting.
-                if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA))
-                {
-                    // The directional lighting.
-                    float fcol = pvrt.color_dir * INV_FF<float>();
-
-                    v.r = fcol;
-                    v.g = fcol;
-                    v.b = fcol;
-                    v.a = 1.0f;
-
-                    // Ambient lighting.
-                    if (HAS_NO_BITS(bits, CHR_PHONG))
-                    {
-                        // Convert the "light" parameter to self-lighting for
-                        // every object that is not being rendered using CHR_LIGHT.
-
-                        float acol = base_amb + pinst.color_amb * INV_FF<float>();
-
-                        v.r += acol;
-                        v.g += acol;
-                        v.b += acol;
+            // Render each command
+            for (const MD2_GLCommand& glcommand : pmd2->getGLCommands()) {
+                // Pre-render this command.
+                size_t vertexBufferSize = 0;
+                for (const id_glcmd_packed_t &cmd : glcommand.data) {
+                    Uint16 vertexIndex = cmd.index;
+                    if (vertexIndex >= pinst.vrt_count) {
+                        continue;
                     }
+                    auto& v = vertexBuffer[vertexBufferSize++];
+                    GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
+                    v.px = pvrt.pos[XX];
+                    v.py = pvrt.pos[YY];
+                    v.pz = pvrt.pos[ZZ];
+                    v.nx = pvrt.nrm[XX];
+                    v.ny = pvrt.nrm[YY];
+                    v.nz = pvrt.nrm[ZZ];
 
-                    // clip the colors
-                    v.r = Ego::Math::constrain(v.r, 0.0f, 1.0f);
-                    v.g = Ego::Math::constrain(v.g, 0.0f, 1.0f);
-                    v.b = Ego::Math::constrain(v.b, 0.0f, 1.0f);
+                    // Determine the texture coordinates.
+                    v.s = cmd.s + uoffset;
+                    v.t = cmd.t + voffset;
 
-                    // tint the object
-                    v.r *= tint[RR];
-                    v.g *= tint[GG];
-                    v.b *= tint[BB];
+                    // Perform lighting.
+                    if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA)) {
+                        // The directional lighting.
+                        float fcol = pvrt.color_dir * INV_FF<float>();
+
+                        v.r = fcol;
+                        v.g = fcol;
+                        v.b = fcol;
+                        v.a = 1.0f;
+
+                        // Ambient lighting.
+                        if (HAS_NO_BITS(bits, CHR_PHONG)) {
+                            // Convert the "light" parameter to self-lighting for
+                            // every object that is not being rendered using CHR_LIGHT.
+
+                            float acol = base_amb + pinst.color_amb * INV_FF<float>();
+
+                            v.r += acol;
+                            v.g += acol;
+                            v.b += acol;
+                        }
+
+                        // clip the colors
+                        v.r = Ego::Math::constrain(v.r, 0.0f, 1.0f);
+                        v.g = Ego::Math::constrain(v.g, 0.0f, 1.0f);
+                        v.b = Ego::Math::constrain(v.b, 0.0f, 1.0f);
+
+                        // tint the object
+                        v.r *= tint[RR];
+                        v.g *= tint[GG];
+                        v.b *= tint[BB];
+                    } else {
+                        // Set the basic tint.
+                        v.r = tint[RR];
+                        v.g = tint[GG];
+                        v.b = tint[BB];
+                        v.a = tint[AA];
+                    }
                 }
-                else
+                // Render this command.
+                glBegin(glcommand.glMode);
                 {
-                    // Set the basic tint.
-                    v.r = tint[RR];
-                    v.g = tint[GG];
-                    v.b = tint[BB];
-                    v.a = tint[AA];
+                    for (size_t vertexIndex = 0; vertexIndex < vertexBufferSize; ++vertexIndex) {
+                        const auto& v = vertexBuffer[vertexIndex];
+                        glColor4f(v.r, v.g, v.b, v.a);
+                        glNormal3f(v.nx, v.ny, v.nz);
+                        glTexCoord2f(v.s, v.t);
+                        glVertex3f(v.px, v.py, v.pz);
+                    }
                 }
+                glEnd();
             }
-            // Render this command.
-            glBegin(glcommand.glMode);
-            {
-                for (size_t vertexIndex = 0; vertexIndex < vertexBufferSize; ++vertexIndex)
-                {
-                    const auto& v = vertexBuffer[vertexIndex];
-                    glColor4f(v.r, v.g, v.b, v.a);
-                    glNormal3f(v.nx, v.ny, v.nz);
-                    glTexCoord2f(v.s, v.t);
-                    glVertex3f(v.px, v.py, v.pz);
-                }
-            }
-            glEnd();
         }
     }
-    glPopAttrib();
 
     // Restore the GL_MODELVIEW matrix
     glMatrixMode(GL_MODELVIEW);
@@ -492,60 +482,55 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
         }
     }
 
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
     {
-		auto& renderer = Ego::Renderer::get();
-        // cull backward facing polygons
-        // use couter-clockwise orientation to determine backfaces
-        oglx_begin_culling(Ego::CullingMode::Back, MAD_REF_CULL);
-        Ego::OpenGL::Utilities::isError();
-        if ( pinst.ref.alpha != 255 && pinst.ref.light == 255 )
+        Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
         {
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
-			GLXvector4f tint;
-            chr_instance_t::get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
-
-            // the previous call to chr_instance_update_lighting_ref() has actually set the
-            // alpha and light for all vertices
-            if ( gfx_error == render( cam, pchr, tint, CHR_ALPHA | CHR_REFLECT ) )
-            {
-                retval = gfx_error;
-            }
-        }
-
-        if ( pinst.ref.light != 255 )
-        {
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
-			GLXvector4f tint;
-            chr_instance_t::get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
-
-            // the previous call to chr_instance_update_lighting_ref() has actually set the
-            // alpha and light for all vertices
-            if ( gfx_error == MadRenderer::render( cam, pchr, tint, CHR_LIGHT | CHR_REFLECT ) )
-            {
-                retval = gfx_error;
-            }
+            auto& renderer = Ego::Renderer::get();
+            // cull backward facing polygons
+            // use couter-clockwise orientation to determine backfaces
+            oglx_begin_culling(Ego::CullingMode::Back, MAD_REF_CULL);
             Ego::OpenGL::Utilities::isError();
-        }
+            if (pinst.ref.alpha != 255 && pinst.ref.light == 255) {
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+                GLXvector4f tint;
+                chr_instance_t::get_tint(pinst, tint, CHR_ALPHA | CHR_REFLECT);
 
-        //Render shining effect on top of model
-        if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
-        {
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
-			GLXvector4f tint;
-            chr_instance_t::get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
-
-            if ( gfx_error == MadRenderer::render( cam, pchr, tint, CHR_PHONG | CHR_REFLECT ) )
-            {
-                retval = gfx_error;
+                // the previous call to chr_instance_update_lighting_ref() has actually set the
+                // alpha and light for all vertices
+                if (gfx_error == render(cam, pchr, tint, CHR_ALPHA | CHR_REFLECT)) {
+                    retval = gfx_error;
+                }
             }
-            Ego::OpenGL::Utilities::isError();
+
+            if (pinst.ref.light != 255) {
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                GLXvector4f tint;
+                chr_instance_t::get_tint(pinst, tint, CHR_LIGHT | CHR_REFLECT);
+
+                // the previous call to chr_instance_update_lighting_ref() has actually set the
+                // alpha and light for all vertices
+                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_LIGHT | CHR_REFLECT)) {
+                    retval = gfx_error;
+                }
+                Ego::OpenGL::Utilities::isError();
+            }
+
+            //Render shining effect on top of model
+            if (pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0) {
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                GLXvector4f tint;
+                chr_instance_t::get_tint(pinst, tint, CHR_PHONG | CHR_REFLECT);
+
+                if (gfx_error == MadRenderer::render(cam, pchr, tint, CHR_PHONG | CHR_REFLECT)) {
+                    retval = gfx_error;
+                }
+                Ego::OpenGL::Utilities::isError();
+            }
         }
     }
-    ATTRIB_POP( __FUNCTION__ );
 
     return retval;
 }
@@ -559,69 +544,64 @@ gfx_rv MadRenderer::render_trans(Camera& cam, const std::shared_ptr<Object>& pch
     // there is an outside chance the object will not be rendered
     bool rendered = false;
 
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT )
     {
-		auto& renderer = Ego::Renderer::get();
-        if ( pinst.alpha < 255 && 255 == pinst.light )
+        Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
         {
-            // most alpha effects will be messed up by
-            // skipping backface culling, so don't
+            auto& renderer = Ego::Renderer::get();
+            if (pinst.alpha < 255 && 255 == pinst.light) {
+                // most alpha effects will be messed up by
+                // skipping backface culling, so don't
 
-            // cull backward facing polygons
-            // use clockwise orientation to determine backfaces
-            oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);
+                // cull backward facing polygons
+                // use clockwise orientation to determine backfaces
+                oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);
 
-            // get a speed-up by not displaying completely transparent portions of the skin
-            renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+                // get a speed-up by not displaying completely transparent portions of the skin
+                renderer.setAlphaTestEnabled(true);
+                renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::One);
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::One);
 
-			GLXvector4f tint;
-            chr_instance_t::get_tint( pinst, tint, CHR_ALPHA );
+                GLXvector4f tint;
+                chr_instance_t::get_tint(pinst, tint, CHR_ALPHA);
 
-            if (render( cam, pchr, tint, CHR_ALPHA ) )
-            {
-                rendered = true;
+                if (render(cam, pchr, tint, CHR_ALPHA)) {
+                    rendered = true;
+                }
             }
-        }
-        if ( pinst.light < 255 )
-        {
-            // light effects should show through transparent objects
-			renderer.setCullingMode(Ego::CullingMode::None);
+            if (pinst.light < 255) {
+                // light effects should show through transparent objects
+                renderer.setCullingMode(Ego::CullingMode::None);
 
-            // the alpha test can only mess us up here
-            renderer.setAlphaTestEnabled(false);
+                // the alpha test can only mess us up here
+                renderer.setAlphaTestEnabled(false);
 
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
-			GLXvector4f tint;
-            chr_instance_t::get_tint( pinst, tint, CHR_LIGHT );
+                GLXvector4f tint;
+                chr_instance_t::get_tint(pinst, tint, CHR_LIGHT);
 
-			if (render(cam, pchr, tint, CHR_LIGHT))
-			{
-				rendered = true;
-			}
-        }
+                if (render(cam, pchr, tint, CHR_LIGHT)) {
+                    rendered = true;
+                }
+            }
 
-        // Render shining effect on top of model
-        if ( pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0 )
-        {
-            renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
+            // Render shining effect on top of model
+            if (pinst.ref.alpha == 0xFF && gfx.phongon && pinst.sheen > 0) {
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::One);
 
-			GLXvector4f tint;
-            chr_instance_t::get_tint( pinst, tint, CHR_PHONG );
+                GLXvector4f tint;
+                chr_instance_t::get_tint(pinst, tint, CHR_PHONG);
 
-            if (render( cam, pchr, tint, CHR_PHONG ) )
-            {
-                rendered = true;
+                if (render(cam, pchr, tint, CHR_PHONG)) {
+                    rendered = true;
+                }
             }
         }
     }
-    ATTRIB_POP( __FUNCTION__ );
 
     return rendered ? gfx_success : gfx_fail;
 }
@@ -635,49 +615,45 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
     // assume the best
 	gfx_rv retval = gfx_success;
 
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT );
     {
-		auto& renderer = Ego::Renderer::get();
-        // do not display the completely transparent portion
-        // this allows characters that have "holes" in their
-        // textures to display the solid portions properly
-        //
-        // Objects with partially transparent skins should enable the [MODL] parameter "T"
-        // which will enable the display of the partially transparent portion of the skin
-
-        renderer.setAlphaTestEnabled(true);
-		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
-
-        // can I turn this off?
-        renderer.setBlendingEnabled(true);
-		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
-
-        if ( 255 == pinst.alpha && 255 == pinst.light )
+        Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT);
         {
-            GLXvector4f tint;
+            auto& renderer = Ego::Renderer::get();
+            // do not display the completely transparent portion
+            // this allows characters that have "holes" in their
+            // textures to display the solid portions properly
+            //
+            // Objects with partially transparent skins should enable the [MODL] parameter "T"
+            // which will enable the display of the partially transparent portion of the skin
 
-            // allow the dont_cull_backfaces to keep solid objects from culling backfaces
-            if ( pinst.dont_cull_backfaces )
-            {
-                // stop culling backward facing polugons
-				renderer.setCullingMode(Ego::CullingMode::None);
-            }
-            else
-            {
-                // cull backward facing polygons
-                // use couter-clockwise orientation to determine backfaces
-                oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
-            }
+            renderer.setAlphaTestEnabled(true);
+            renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);
 
-            chr_instance_t::get_tint( pinst, tint, CHR_SOLID );
+            // can I turn this off?
+            renderer.setBlendingEnabled(true);
+            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-            if ( gfx_error == render( cam, pchr, tint, CHR_SOLID ) )
-            {
-                retval = gfx_error;
+            if (255 == pinst.alpha && 255 == pinst.light) {
+                GLXvector4f tint;
+
+                // allow the dont_cull_backfaces to keep solid objects from culling backfaces
+                if (pinst.dont_cull_backfaces) {
+                    // stop culling backward facing polugons
+                    renderer.setCullingMode(Ego::CullingMode::None);
+                } else {
+                    // cull backward facing polygons
+                    // use couter-clockwise orientation to determine backfaces
+                    oglx_begin_culling(Ego::CullingMode::Back, MAD_NRM_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
+                }
+
+                chr_instance_t::get_tint(pinst, tint, CHR_SOLID);
+
+                if (gfx_error == render(cam, pchr, tint, CHR_SOLID)) {
+                    retval = gfx_error;
+                }
             }
         }
     }
-    ATTRIB_POP( __FUNCTION__ );
 
     return retval;
 }

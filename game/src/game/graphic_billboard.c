@@ -258,7 +258,7 @@ void BillboardSystem::render_all(Camera& camera)
 {
     gfx_begin_3d(camera);
     {
-        ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
+        Ego::OpenGL::PushAttrib pa(GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
         {
             auto& renderer = Ego::Renderer::get();
             // Do not write an incoming fragments depth value into the depth buffer.
@@ -285,7 +285,6 @@ void BillboardSystem::render_all(Camera& camera)
                 render_one(*billboard, 0.75f, camera.getUp(), camera.getRight());
             }
         }
-        ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
 }
