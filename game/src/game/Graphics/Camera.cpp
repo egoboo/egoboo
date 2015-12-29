@@ -294,22 +294,22 @@ void Camera::updateFreeControl()
 {
     //Forward and backwards
     if (keyb.is_key_down(SDLK_KP_2)) {
-        _center.x() -= _viewMatrix(1, 0) * 50;
-        _center.y() -= _viewMatrix(1, 1) * 50;
+        _center.x() += std::sin(_turnZ_radians) * 50.0f;
+        _center.y() += std::cos(_turnZ_radians) * 50.0f;
     }
     else if (keyb.is_key_down(SDLK_KP_8)) {
-        _center.x() += _viewMatrix(1, 0) * 50;
-        _center.y() += _viewMatrix(1, 1) * 50;
+        _center.x() -= std::sin(_turnZ_radians) * 50.0f;
+        _center.y() -= std::cos(_turnZ_radians) * 50.0f;
     }
     
     //Left and right
     if (keyb.is_key_down(SDLK_KP_4)) {
-        _center.x() -= _viewMatrix(0, 0) * 50;
-        _center.y() -= _viewMatrix(0, 1) * 50;
+        _center.x() -= std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * 50;
+        _center.y() -= std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * 50;
     }
     else if (keyb.is_key_down(SDLK_KP_6)) {
-        _center.x() += _viewMatrix(0, 0) * 50;
-        _center.y() += _viewMatrix(0, 1) * 50;
+        _center.x() += std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * 50;
+        _center.y() += std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * 50;
     }
     
     //Rotate left or right
