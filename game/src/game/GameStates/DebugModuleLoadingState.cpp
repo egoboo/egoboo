@@ -98,11 +98,7 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
 };
 
 DebugModuleLoadingState::DebugModuleLoadingState() :
-#ifdef _MSC_VER
-	_finishedLoading({0}),
-#else
 	_finishedLoading(false),
-#endif
 	_loadingThread(),
     _scrollableList(),
     _playersToLoad(),

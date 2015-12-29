@@ -7,19 +7,11 @@
 
 namespace Ego
 {
-#ifdef _MSC_VER
-
-//Have to use macro because visual studio does not support constexpr functions :(
-#define STRING_SWITCH(__CHAR_A__, __CHAR_B__) (static_cast<int>(__CHAR_A__) | (static_cast<int>(__CHAR_B__) << 16))
-
-#else
 
 constexpr int STRING_SWITCH(int a, int b)
 {
     return a | (b << 16);
 }
-
-#endif
 
 ModelAction ModelDescriptor::stringToAction(const std::string &action) const
 {
