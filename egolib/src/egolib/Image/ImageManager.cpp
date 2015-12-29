@@ -57,7 +57,6 @@ ImageManager::ImageManager() :
     _loaders(),
     _withSDL_image(egoboo_config_t::get().debug_sdlImage_enable.getValue()) {
     using namespace std;
-    using namespace Ego::Core;
     if (_withSDL_image) {
         Log::get().info("initializing SDL_image imaging version %d.%d.%d ...", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
         int flags = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF;

@@ -29,6 +29,7 @@
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
 #include "egolib/Core/System.hpp"
+#include "egolib/Core/Singleton.hpp"
 
 //--------------------------------------------------------------------------------------------
 

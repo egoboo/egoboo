@@ -8,9 +8,12 @@ namespace Graphics {
 
 class TextureAtlasManager : public Ego::Core::Singleton<TextureAtlasManager> {
 protected:
-    // Befriend with the singleton to grant access to TextureAtlasManager::~TextureAtlasManager.
-    using TheSingleton = Ego::Core::Singleton<TextureAtlasManager>;
-    friend TheSingleton;
+    using MyCreateFunctor = Ego::Core::CreateFunctor<TextureAtlasManager>;
+    friend MyCreateFunctor;
+
+    using MyDestroyFunctor = Ego::Core::DestroyFunctor<TextureAtlasManager>;
+    friend MyDestroyFunctor;
+
     /**
      * @brief Construct this texture atlas manager.
      */

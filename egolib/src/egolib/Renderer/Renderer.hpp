@@ -24,6 +24,7 @@
 #pragma once
 
 #include "egolib/_math.h"
+#include "egolib/Core/Singleton.hpp"
 #include "egolib/Renderer/BlendFunction.hpp"
 #include "egolib/Renderer/CompareFunction.hpp"
 #include "egolib/Renderer/RasterizationMode.hpp"
@@ -222,20 +223,28 @@ public:
 
 class Renderer;
 
-class RendererFactory {
-public:
-    Renderer *operator()();
+namespace Core {
+
+/**
+ * @brief Creator functor creating the back-end.
+ */
+template <>
+struct CreateFunctor<Renderer> {
+    Renderer *operator()() const;
 };
 
-class Renderer : public Ego::Core::Singleton<Renderer, RendererFactory> {
+} // namespace Core
+
+class Renderer : public Core::Singleton<Renderer> {
 protected:
     template <typename T> using SharedPtr = std::shared_ptr<T>;
-    // Befriend with the singleton to grant access to Renderer::~Renderer.
-    using TheSingleton = Singleton<Renderer, RendererFactory>;
-    friend TheSingleton;
-    // Befriend with the factory to grant access to Renderer::Renderer.
-    using TheFactory = RendererFactory;
-    friend RendererFactory;
+
+protected:
+    using MyCreateFunctor = Core::CreateFunctor<Renderer>;
+    friend MyCreateFunctor;
+
+    using MyDestroyFunctor = Core::DestroyFunctor<Renderer>;
+	friend MyDestroyFunctor;
 
 protected:
     /**

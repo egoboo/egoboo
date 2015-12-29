@@ -545,7 +545,7 @@ size_t Particle::updateContinuousSpawning()
 
     //Optimization: Only spawn cosmetic sub-particles if we ourselves were rendered
     //This prevents a lot of cosmetic particles from spawning outside visible range
-    const std::shared_ptr<ParticleProfile>& childProfile = ParticleProfileSystem::get().get_ptr(getProfile()->contspawn._lpip.get());
+    const std::shared_ptr<ParticleProfile>& childProfile = ProfileSystem::get().ParticleProfileSystem.get_ptr(getProfile()->contspawn._lpip.get());
     if(!childProfile->force && !inst.indolist) {
 
         //Is is something that spawns often? (often = at least once every 2 seconds)
@@ -772,8 +772,8 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     //Load particle profile
     _spawnerProfile = spawnProfile;
     _particleProfileID = particleProfile;
-    assert(ParticleProfileSystem::get().isLoaded(_particleProfileID));
-    _particleProfile = ParticleProfileSystem::get().get_ptr(_particleProfileID);
+    assert(ProfileSystem::get().ParticleProfileSystem.isLoaded(_particleProfileID));
+    _particleProfile = ProfileSystem::get().ParticleProfileSystem.get_ptr(_particleProfileID);
     assert(_particleProfile != nullptr); //"Tried to spawn particle with invalid PIP_REF"
 
     team = spawnTeam;
@@ -1320,7 +1320,7 @@ bool Particle::canCollide() const
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
     if (getProfile()->spawnenchant)
     {
-        if(EnchantProfileSystem.isLoaded(ProfileSystem::get().getProfile(getSpawnerProfile())->getEnchantRef())) {
+        if(ProfileSystem::get().EnchantProfileSystem.isLoaded(ProfileSystem::get().getProfile(getSpawnerProfile())->getEnchantRef())) {
             return true;
         }
     }

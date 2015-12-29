@@ -25,6 +25,7 @@
 #endif
 
 #include "egolib/typedef.h"
+#include "egolib/Core/Singleton.hpp"
 #include "egolib/Profiles/LocalParticleProfileRef.hpp"
 
 //Forward declarations
@@ -53,20 +54,28 @@ struct pro_import_t
     int   max_slot;
 };
 
+#include "egolib/Profiles/_AbstractProfileSystem.hpp"
+#include "egolib/Profiles/EnchantProfile.hpp"
+#include "egolib/Profiles/ParticleProfile.hpp"
+
 class ProfileSystem : public Ego::Core::Singleton<ProfileSystem>
 {
 
 protected:
+    using MyCreateFunctor = Ego::Core::CreateFunctor<ProfileSystem>;
+    friend MyCreateFunctor;
 
-    // Befriend with singleton to grant access to ProfileSystem::ProfileSystem and ProfileSystem::~ProfileSystem.
-    using TheSingleton = Ego::Core::Singleton < ProfileSystem > ;
-    friend TheSingleton;
+    using MyDestroyFunctor = Ego::Core::DestroyFunctor<ProfileSystem>;
+    friend MyDestroyFunctor;
 
     ProfileSystem();
 
     ~ProfileSystem();
 
 public:
+
+    AbstractProfileSystem<EnchantProfile, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX> EnchantProfileSystem;
+    AbstractProfileSystem<ParticleProfile, PIP_REF, INVALID_PIP_REF, MAX_PIP> ParticleProfileSystem;
 
     /**
      * @brief
@@ -156,5 +165,11 @@ private:
     std::vector<std::shared_ptr<LoadPlayerElement>> _loadPlayerList; // List of characters that can be loaded (lightweight)
 };
 
+// TODO: Remove this.
+inline bool LOADED_PIP(PIP_REF ref) {
+    return ProfileSystem::get().ParticleProfileSystem.isLoaded(ref);
+}
+
+// TODO: Remove this.
 extern pro_import_t import_data;
 

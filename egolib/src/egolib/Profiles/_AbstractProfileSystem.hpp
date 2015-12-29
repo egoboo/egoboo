@@ -132,9 +132,6 @@ public:
         return _map.find(ref) != _map.end();
     }
 
-    void initialize() {
-    }
-
     /// @brief Load an profile into the profile stack.
     /// @return a reference to the profile on sucess, INVALIDREF on failure
     REFTYPE load_one(const std::string& pathname, const REFTYPE _override)

@@ -508,7 +508,7 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
     float  longdist2 = max_dist2;
 
     if ( !LOADED_PIP( particletype ) ) return ObjectRef::Invalid;
-    ppip = ParticleProfileSystem::get().get_ptr( particletype );
+    ppip = ProfileSystem::get().ParticleProfileSystem.get_ptr( particletype );
 
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
@@ -1878,8 +1878,8 @@ bool wawalite_finalize(wawalite_data_t *data)
         std::string prt_end_file = "mp_data/weather_" + weather_name + "_finish.txt";
 
         // Try to load the particle files. We need at least the first particle for weather to work.
-        bool success = INVALID_PIP_REF != ParticleProfileSystem::get().load_one(prt_file.c_str(), (PIP_REF)PIP_WEATHER);
-        ParticleProfileSystem::get().load_one(prt_end_file.c_str(), (PIP_REF)PIP_WEATHER_FINISH);
+        bool success = INVALID_PIP_REF != ProfileSystem::get().ParticleProfileSystem.load_one(prt_file.c_str(), (PIP_REF)PIP_WEATHER);
+        ProfileSystem::get().ParticleProfileSystem.load_one(prt_end_file, (PIP_REF)PIP_WEATHER_FINISH);
 
         // Unknown weather parsed.
         if (!success)

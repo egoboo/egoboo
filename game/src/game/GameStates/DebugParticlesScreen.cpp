@@ -62,7 +62,7 @@ DebugParticlesScreen::DebugParticlesScreen()
     size_t invalidParticles = 0;
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if(particle->getProfileID() == INVALID_PIP_REF || !ParticleProfileSystem::get().isLoaded(particle->getProfileID())) {
+        if(particle->getProfileID() == INVALID_PIP_REF || !ProfileSystem::get().ParticleProfileSystem.isLoaded(particle->getProfileID())) {
             invalidParticles++;
 			Log::get().warn("Invalid particle with ID: %d (profile=%d)\n", particle->getProfileID(), particle->getSpawnerProfile());
             continue;
@@ -83,7 +83,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
     for(const auto &element : usageCount)
     {
-        const std::shared_ptr<ParticleProfile> &particleProfile = ParticleProfileSystem::get().get_ptr(element.first);
+        const std::shared_ptr<ParticleProfile> &particleProfile = ProfileSystem::get().ParticleProfileSystem.get_ptr(element.first);
 
         std::stringstream labelString;
         labelString << element.second << " particle" << ((element.second > 0) ? "s: " : ":");
@@ -96,7 +96,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
     for(const auto &element : terminatedCount)
     {
-        const std::shared_ptr<ParticleProfile> &particleProfile = ParticleProfileSystem::get().get_ptr(element.first);
+        const std::shared_ptr<ParticleProfile> &particleProfile = ProfileSystem::get().ParticleProfileSystem.get_ptr(element.first);
 
         std::stringstream labelString;
         labelString << element.second << " terminated particle" << ((element.second > 0) ? "s: " : ":");

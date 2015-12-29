@@ -31,6 +31,13 @@ namespace Physics
 
 class CollisionSystem : public Ego::Core::Singleton<CollisionSystem>
 {
+protected:
+    using MyCreateFunctor = Ego::Core::CreateFunctor<CollisionSystem>;
+    friend MyCreateFunctor;
+
+    using MyDestroyFunctor = Ego::Core::DestroyFunctor<CollisionSystem>;
+    friend MyDestroyFunctor;
+
 public:
     /**
     * @brief
