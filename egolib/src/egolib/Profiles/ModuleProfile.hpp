@@ -27,7 +27,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/IDSZ.hpp"
-#include "egolib/Renderer/Texture.hpp"
+#include "egolib/Renderer/DeferredTexture.hpp"
 
 enum ModuleFilter : uint8_t
 {
@@ -55,7 +55,7 @@ public:
 
     ModuleFilter getModuleType() const;
 
-    inline std::shared_ptr<Ego::Texture> getIcon() {
+    inline Ego::DeferredTexture& getIcon() {
         return _icon;
     }
 
@@ -136,7 +136,7 @@ private:
     ModuleFilter    _moduleType;            ///< Main quest, town, sidequest or whatever
     bool            _beaten;                ///< The module has been marked with the [BEAT] eapansion
 
-    std::shared_ptr<Ego::Texture> _icon;    ///< the index of the module's tile image
+    Ego::DeferredTexture _icon;             ///< the module's tile image
     std::string _vfsPath;                   ///< the virtual pathname of the module ("mp_module/advent.mod")
     std::string _folderName;                ///< Folder name of module ("advent.mod")
 

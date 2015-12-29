@@ -14,7 +14,7 @@ public:
 
     virtual void draw() override;
        
-    void setText(const std::string &LabelText);
+    void setText(const std::string &labelText);
 
     void setFont(const std::shared_ptr<Ego::Font> &font);
 
