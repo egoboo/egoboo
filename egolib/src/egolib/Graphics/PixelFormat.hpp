@@ -24,10 +24,9 @@
 
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/Graphics/ColorDepth.hpp"
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
@@ -35,8 +34,7 @@ namespace Ego
  * @author
  *  Michael Heilmann
  */
-enum class PixelFormat
-{
+enum class PixelFormat {
 
     /**
      * @brief
@@ -138,69 +136,71 @@ enum class PixelFormat
  * @author
  *  Michael Heilmann
  */
-struct PixelFormatDescriptor
-{
+struct PixelFormatDescriptor {
 
 private:
-
     /**
      * @brief
      *  The pixel format.
      */
-    PixelFormat _pixelFormat;
-    /**
-     * @brief
-     *  The used Bits per pixel.
-     */
-    uint8_t _bitsPerPixel;
+    PixelFormat pixelFormat;
 
+private:
     /**
      * @brief
      *  The mask for the alpha Bits.
      */
-    uint32_t _alphaMask;
-
-    /**
-    * @brief
-    *  The mask for the red Bits.
-    */
-    uint32_t _redMask;
-
-    /**
-     * @brief
-     *  The mask for the green Bits.
-     */
-    uint32_t _greenMask;
+    uint32_t alphaMask;
 
     /**
      * @brief
      *  The mask for the blue Bits.
      */
-    uint32_t _blueMask;
+    uint32_t blueMask;
 
+    /**
+     * @brief
+     *  The mask for the green Bits.
+     */
+    uint32_t greenMask;
+
+    /**
+     * @brief
+     *  The mask for the red Bits.
+     */
+    uint32_t redMask;
+
+private:
     /**
      * @brief
      *  The shift for the alpha bits.
      */
-    uint32_t _alphaShift;
-
-    /**
-     * @brief
-     *  The shift for the red Bits.
-     */
-    uint32_t _redShift;
-
-    /**
-     * @brief
-     *  The shift for the green Bits.
-     */
-    uint32_t _greenShift;
+    uint32_t alphaShift;
 
     /**
      * @brief
      *  The shift for the blue Bits.
      */
-    uint32_t _blueShift;
+    uint32_t blueShift;
+
+    /**
+     * @brief
+     *  The shift for the green Bits.
+     */
+    uint32_t greenShift;
+
+    /**
+     * @brief
+     *  The shift for the red Bits.
+     */
+    uint32_t redShift;
+
+private:
+    /**
+     * @brief
+     *  The color depth of this pixel format.
+     */
+    ColorDepth colorDepth;
 
 protected:
 
@@ -209,47 +209,28 @@ protected:
      *  Construct this pixel descriptor.
      * @param pixelFormat
      *  the pixel format
-     * @param bitsPerPixel
-     *  the Bits per pixel
      * @param redShift, greenShift, blueShift, alphaShift
-     *  the shifts for the red, green, blue and alpha Bits
+     *  the shifts for Bits of the the red, green, blue and alpha components
      * @param redMask, greenMask, blueMask, alphaMask
-     *  the masks for the red, green, blue and alpha Bits
+     *  the masks for Bits of the red, green, blue and alpha components
+     * @param colorDepth
+     *  the color depth of this pixel format
      */
-    PixelFormatDescriptor(PixelFormat pixelFormat, uint8_t bitsPerPixel,
+    PixelFormatDescriptor(PixelFormat pixelFormat,
                           uint32_t redShift, uint32_t greenShift,
                           uint32_t blueShift, uint32_t alphaShift,
                           uint32_t redMask, uint32_t greenMask,
-                          uint32_t blueMask, uint32_t alphaMask) :
-        _pixelFormat(pixelFormat), _bitsPerPixel(bitsPerPixel),
-        _redShift(redShift), _greenShift(greenShift), _blueShift(blueShift),
-        _alphaShift(alphaShift), _redMask(redMask), _greenMask(greenMask),
-        _blueMask(blueMask), _alphaMask(alphaMask)
-    {}
+                          uint32_t blueMask, uint32_t alphaMask,
+                          const ColorDepth& colorDepth);
 
 public:
-
-    /**
-     * @brief
-     *  Get the used Bits per pixel.
-     * @return
-     *  the used Bits per pixel
-     */
-    uint8_t getBitsPerPixel() const
-    {
-        return _bitsPerPixel;
-    }
-
     /**
      * @brief
      *  Get the shift of the alpha Bits.
      * @return
      *  the shift of the alpha Bits
      */
-    uint32_t getAlphaShift() const
-    {
-        return _alphaShift;
-    }
+    uint32_t getAlphaShift() const;
 
     /**
      * @brief
@@ -257,10 +238,7 @@ public:
      * @return
      *  the shift of the blue Bits
      */
-    uint32_t getBlueShift() const
-    {
-        return _blueShift;
-    }
+    uint32_t getBlueShift() const;
 
     /**
      * @brief
@@ -268,10 +246,7 @@ public:
      * @return
      *  the shift of the green Bits
      */
-    uint32_t getGreenShift() const
-    {
-        return _greenShift;
-    }
+    uint32_t getGreenShift() const;
 
     /**
      * @brief
@@ -279,21 +254,16 @@ public:
      * @return
      *  the shift of the red Bits
      */
-    uint32_t getRedShift() const
-    {
-        return _redShift;
-    }
+    uint32_t getRedShift() const;
 
+public:
     /**
      * @brief
      *  The mask for the alpha Bits.
      * @return
      *  the mask of the alpha Bits
      */
-    uint32_t getAlphaMask() const
-    {
-        return _alphaMask;
-    }
+    uint32_t getAlphaMask() const;
 
     /**
      * @brief
@@ -301,10 +271,7 @@ public:
      * @return
      *  the mask of the blue Bits
      */
-    uint32_t getBlueMask() const
-    {
-        return _blueMask;
-    }
+    uint32_t getBlueMask() const;
 
     /**
      * @brief
@@ -312,10 +279,7 @@ public:
      * @return
      *  the mask of the green Bits
      */
-    uint32_t getGreenMask() const
-    {
-        return _greenMask;
-    }
+    uint32_t getGreenMask() const;
 
     /**
      * @brief
@@ -323,21 +287,25 @@ public:
      * @return
      *  the mask of the red Bits
      */
-    uint32_t getRedMask() const
-    {
-        return _redMask;
-    }
-    
+    uint32_t getRedMask() const;
+
+public:
+    /**
+     * @brief
+     *  Get the color depth of this pixel format.
+     * @return
+     *  the color depth of this pixel format
+     */
+    const ColorDepth& getColorDepth() const;
+
+public:
     /**
      * @brief
      *  Get the pixel format.
      * @return
      *  the pixel format
      */
-    PixelFormat getPixelFormat() const
-    {
-        return _pixelFormat;
-    }
+    PixelFormat getPixelFormat() const;
 
     template<PixelFormat _PixelFormat>
     static const PixelFormatDescriptor& get();
