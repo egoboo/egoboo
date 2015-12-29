@@ -336,6 +336,7 @@ void Camera::updateFreeControl()
         _pitch -= Ego::Math::pi<float>() * 0.01f;
     }
 
+    //Constrain between 0 and 90 degrees pitch (and a little extra to avoid singularities)
     _pitch = Ego::Math::constrain(_pitch, 0.05f, Ego::Math::pi<float>() - 0.05f);
 
     //Prevent the camera target from being below the mesh

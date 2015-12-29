@@ -43,9 +43,17 @@ MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
     //Add minimap to the list of GUI components to render
     _miniMap->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
     _miniMap->setPosition(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight());
+    _miniMap->setVisible(true);
     addComponent(_miniMap);
 
     loadModuleData(module);
+
+    //Center the camera in the middle of the map
+    Vector3f mapCenter;
+    mapCenter.x() = _currentModule->getMeshPointer()->_info.getTileCountX()*Info<float>::Grid::Size() * 0.5f;
+    mapCenter.y() = _currentModule->getMeshPointer()->_info.getTileCountY()*Info<float>::Grid::Size() * 0.5f;
+    mapCenter.z() = _currentModule->getMeshPointer()->getElevation(Vector2f(mapCenter.x(), mapCenter.y()), false);
+    _cameraSystem->getMainCamera()->setPosition(mapCenter);
 }
 
 void MapEditorState::update()
