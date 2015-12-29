@@ -348,7 +348,7 @@ void Camera::updateFreeControl()
     _position.z() = _center.z() + _zoom * _pitch;
 
     //Prevent the camera from being below the mesh
-    _position.z() = std::max(_position.z(), 128 + _currentModule->getMeshPointer()->getElevation(Vector2f(_position.x(), _position.y())));
+    _position.z() = std::max(_position.z(), 180.0f + _currentModule->getMeshPointer()->getElevation(Vector2f(_position.x(), _position.y())));
 
     updateZoom();
     makeMatrix();
