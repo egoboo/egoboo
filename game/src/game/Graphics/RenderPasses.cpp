@@ -230,57 +230,55 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 	renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(0).get());
 
-	ATTRIB_PUSH(__FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
-	{
-		// flat shading
-		renderer.setGouraudShadingEnabled(false);
+    {
+        OpenGL::PushAttrib pa(GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
+        {
+            // flat shading
+            renderer.setGouraudShadingEnabled(false);
 
-		// Do not write into the depth buffer.
-		renderer.setDepthWriteEnabled(false);
+            // Do not write into the depth buffer.
+            renderer.setDepthWriteEnabled(false);
 
-		// Essentially disable the depth test without calling
-		// renderer.setDepthTestEnabled(false).
-		renderer.setDepthTestEnabled(true);
-		renderer.setDepthFunction(CompareFunction::AlwaysPass);
+            // Essentially disable the depth test without calling
+            // renderer.setDepthTestEnabled(false).
+            renderer.setDepthTestEnabled(true);
+            renderer.setDepthFunction(CompareFunction::AlwaysPass);
 
-		// draw draw front and back faces of polygons
-		renderer.setCullingMode(CullingMode::None);
+            // draw draw front and back faces of polygons
+            renderer.setCullingMode(CullingMode::None);
 
-		if (alpha > 0.0f)
-		{
-			ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
-			{
-				renderer.setColour(Colour4f(intens, intens, intens, alpha));
+            if (alpha > 0.0f) {
+                {
+                    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
+                    {
+                        renderer.setColour(Colour4f(intens, intens, intens, alpha));
 
-				if (alpha >= 1.0f)
-				{
-					renderer.setBlendingEnabled(false);
-				}
-				else
-				{
-					renderer.setBlendingEnabled(true);
-					renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
-				}
+                        if (alpha >= 1.0f) {
+                            renderer.setBlendingEnabled(false);
+                        } else {
+                            renderer.setBlendingEnabled(true);
+                            renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceAlpha);
+                        }
 
-				renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
-			}
-			ATTRIB_POP(__FUNCTION__);
-		}
+                        renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
+                    }
+                }
+            }
 
-		if (light > 0.0f)
-		{
-			ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
-			{
-				renderer.setBlendingEnabled(false);
+            if (light > 0.0f) {
+                {
+                    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
+                    {
+                        renderer.setBlendingEnabled(false);
 
-				renderer.setColour(Colour4f(light, light, light, 1.0f));
+                        renderer.setColour(Colour4f(light, light, light, 1.0f));
 
-				renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
-			}
-			ATTRIB_POP(__FUNCTION__);
-		}
-	}
-	ATTRIB_POP(__FUNCTION__);
+                        renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) {
@@ -347,39 +345,40 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 
 		renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
-		ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT);
-		{
-			// make sure that the texture is as smooth as possible
-			GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);          // GL_HINT_BIT
+        {
+            Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT);
+            {
+                // make sure that the texture is as smooth as possible
+                GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);          // GL_HINT_BIT
 
-			// flat shading
-			renderer.setGouraudShadingEnabled(false);                     // GL_LIGHTING_BIT
+                // flat shading
+                renderer.setGouraudShadingEnabled(false);                     // GL_LIGHTING_BIT
 
-			// Do not write into the depth buffer.
-			renderer.setDepthWriteEnabled(false);
+                // Do not write into the depth buffer.
+                renderer.setDepthWriteEnabled(false);
 
-			// Essentially disable the depth test without calling
-			// renderer.setDepthTestEnabled(false).
-			renderer.setDepthTestEnabled(true);
-			renderer.setDepthFunction(CompareFunction::AlwaysPass);
+                // Essentially disable the depth test without calling
+                // renderer.setDepthTestEnabled(false).
+                renderer.setDepthTestEnabled(true);
+                renderer.setDepthFunction(CompareFunction::AlwaysPass);
 
-			// draw draw front and back faces of polygons
-			renderer.setCullingMode(CullingMode::None);
+                // draw draw front and back faces of polygons
+                renderer.setCullingMode(CullingMode::None);
 
-			// do not display the completely transparent portion
-			renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
+                // do not display the completely transparent portion
+                renderer.setAlphaTestEnabled(true);
+                renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 
-			// make the texture a filter
-			renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceColour);
+                // make the texture a filter
+                renderer.setBlendingEnabled(true);
+                renderer.setBlendFunction(BlendFunction::SourceAlpha, BlendFunction::OneMinusSourceColour);
 
-			renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
+                renderer.getTextureUnit().setActivated(_currentModule->getWaterTexture(1).get());
 
-			renderer.setColour(Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
-			renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
-		}
-		ATTRIB_POP(__FUNCTION__);
+                renderer.setColour(Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
+                renderer.render(_vertexBuffer, PrimitiveType::TriangleFan, 0, 4);
+            }
+        }
 	}
 }
 
@@ -396,7 +395,7 @@ void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 	/// @details draw the reflective tiles, but turn off the depth buffer
 	///          this blanks out any background that might've been drawn
 
-	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		auto& renderer = Renderer::get();
 		// DO NOT store the surface depth
@@ -420,7 +419,6 @@ void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
 		}
 	}
-	ATTRIB_POP(__FUNCTION__);
 }
 
 void Reflective0::doReflectionsDisabled(::Camera& camera, const TileList& tl, const EntityList& el) {
@@ -447,7 +445,7 @@ void Reflective1::doCommon(::Camera& camera, const TileList& tl, const EntityLis
 }
 
 void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, const EntityList& el) {
-	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		doCommon(camera, tl, el);
 		// Enable blending.
@@ -461,7 +459,6 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
 		}
 	}
-	ATTRIB_POP(__FUNCTION__);
 }
 
 /**
@@ -471,7 +468,7 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
  *       terminology for now).
  */
 void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, const EntityList& el) {
-	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		doCommon(camera, tl, el);
 		auto& renderer = Renderer::get();
@@ -488,11 +485,10 @@ void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, co
 			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
 		}
 	}
-	ATTRIB_POP(__FUNCTION__);
 }
 
 void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
-	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		auto& renderer = Renderer::get();
 		// draw draw front and back faces of polygons
@@ -516,7 +512,6 @@ void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList
 			Internal::render_fans_by_list(*tl._mesh, tl._nonReflective);
 		}
 	}
-	ATTRIB_POP(__FUNCTION__);
 	OpenGL::Utilities::isError();
 }
 
@@ -821,7 +816,7 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 	}
 
 	OpenGL::Utilities::isError();
-	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT);
+    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT);
 	{
 		auto& renderer = Renderer::get();
 		// don't write into the depth buffer (disable glDepthMask for transparent objects)
@@ -882,11 +877,10 @@ void EntityReflections::doRun(::Camera& camera, const TileList& tl, const Entity
 			}
 		}
 	}
-	ATTRIB_POP(__FUNCTION__);
 }
 
 void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
-	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT)
+    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		// scan for solid objects
 		for (size_t i = 0, n = el.getSize(); i < n; ++i)
@@ -915,12 +909,11 @@ void SolidEntities::doRun(::Camera& camera, const TileList& tl, const EntityList
 			}
 		}
 	}
-	ATTRIB_POP(__FUNCTION__);
 }
 
 
 void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
-	ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT)
+    OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
 	{
 		auto& renderer = Renderer::get();
 		//---- set the the transparency parameters
@@ -948,7 +941,6 @@ void TransparentEntities::doRun(::Camera& camera, const TileList& tl, const Enti
 			}
 		}
 	}
-	ATTRIB_POP(__FUNCTION__);
 }
 
 TransparentEntities g_transparentEntities;

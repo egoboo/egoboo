@@ -28,6 +28,8 @@
 #include "egolib/Log/_Include.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
+#include "egolib/Core/StringUtilities.hpp"
+#include "egolib/Core/CollectionUtilities.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -172,6 +174,66 @@ namespace Ego
 namespace OpenGL
 {
 
+const Utilities::String Utilities::anisotropyExtension = "GL_EXT_texture_filter_anisotropic";
+
+UnorderedSet<Utilities::String> Utilities::getExtensions() {
+    clearError();
+    const GLubyte *bytes = glGetString(GL_EXTENSIONS);
+    GLenum error = glGetError();
+    if (isError()) {
+        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+    }
+    return Core::make_unordered_set(split(String((const char *)bytes), String(" ")));
+}
+
+Utilities::String Utilities::getName() {
+    clearError();
+    const GLubyte *bytes = glGetString(GL_RENDERER);
+    GLenum error = glGetError();
+    if (isError()) {
+        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+    }
+    return (const char *)bytes;
+}
+
+Utilities::String Utilities::getVendor() {
+    clearError();
+    const GLubyte *bytes = glGetString(GL_RENDERER);
+    GLenum error = glGetError();
+    if (isError()) {
+        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+    }
+    return (const char *)bytes;
+}
+
+Utilities::String Utilities::getVersion() {
+    clearError();
+    const GLubyte *bytes = glGetString(GL_VERSION);
+    GLenum error = glGetError();
+    if (isError()) {
+        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+    }
+    return (const char *)bytes;
+}
+
+float Utilities::getMaxAnisotropy() {
+    auto extensions = getExtensions();
+    if (extensions.cend() != extensions.find(anisotropyExtension)) {
+        float maxAnisotropyLevel;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropyLevel);
+        if (isError()) {
+            throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+        }
+        return maxAnisotropyLevel;
+    } else {
+        return getMinAnisotropy();
+    }
+}
+
+float Utilities::getMinAnisotropy() {
+    return 1.0f;
+}
+
 GLint Utilities::toOpenGL(TextureAddressMode textureAddressMode)
 {
     switch (textureAddressMode)
@@ -187,7 +249,7 @@ GLint Utilities::toOpenGL(TextureAddressMode textureAddressMode)
         case TextureAddressMode::RepeatMirrored:
             return GL_MIRRORED_REPEAT;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 }
 
@@ -210,7 +272,7 @@ GLenum Utilities::toOpenGL(PrimitiveType primitiveType)
         case PrimitiveType::QuadriliteralStrip:
             return GL_QUAD_STRIP;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 }
 
@@ -277,6 +339,8 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
                 case TextureFilter::Linear:
                     minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
                     break;
+                default:
+                    throw UnhandledSwitchCaseException(__FILE__, __LINE__);
             }
             break;
         case TextureFilter::Linear:
@@ -292,11 +356,11 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
                     minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
                     break;
                 default:
-                    throw std::runtime_error("unreachable code reached");
+                    throw UnhandledSwitchCaseException(__FILE__, __LINE__);
             }
             break;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     switch (magFilter)
     {
@@ -309,7 +373,7 @@ void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, Textu
             magFilter_gl = GL_LINEAR;
             break;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
 }
 
@@ -338,7 +402,7 @@ void Utilities::toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalForma
             type_gl = GL_UNSIGNED_BYTE;
             break;
         default:
-            throw std::runtime_error("not supported");
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__, "pixel format not supported");
     };
 }
 
@@ -346,6 +410,9 @@ void Utilities::upload_1d(const PixelFormatDescriptor& pfd, GLsizei w, const voi
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, internalFormat_gl, w, 0, format_gl, type_gl, data);
 }
 
@@ -353,6 +420,9 @@ void Utilities::upload_2d(const PixelFormatDescriptor& pfd, GLsizei w, GLsizei h
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
 }
 
@@ -360,6 +430,9 @@ void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GL
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
     
     if (w == 1 && h == 1) return;
@@ -393,14 +466,59 @@ void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GL
     } while (!(newW == 1 && newH == 1));
     
     SDL_FreeSurface(surf);
-
 }
 
-void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAddressModeS, TextureAddressMode textureAddressModeT)
+void Utilities::setSampler(TextureType target, const TextureSampler& sampler) {
+    clearError();
+    GLenum target_gl;
+    switch (target) {
+        case TextureType::_2D:
+            target_gl = GL_TEXTURE_2D;
+            break;
+        case TextureType::_1D:
+            target_gl = GL_TEXTURE_1D;
+            break;
+        default:
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
+    }
+    if (isError()) {
+        return;
+    }
+
+    GLint addressModeS_gl = toOpenGL(sampler.getAddressModeS()),
+          addressModeT_gl = toOpenGL(sampler.getAddressModeT());
+    glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, addressModeS_gl);
+    glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, addressModeT_gl);
+    if (isError()) {
+        return;
+    }
+
+    GLint minFilter_gl, magFilter_gl;
+    toOpenGL(sampler.getMinFilter(), sampler.getMagFilter(), sampler.getMipMapFilter(),
+             minFilter_gl, magFilter_gl);
+    glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
+    glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
+    if (isError()) {
+        return;
+    }
+
+    if (TextureType::_2D == target) {
+        auto extensions = getExtensions();
+        if (extensions.cend() != extensions.find(anisotropyExtension)) {
+            float anisotropyLevel = Ego::Math::constrain(sampler.getAnisotropyLevel(), getMinAnisotropy(), getMaxAnisotropy());
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropyLevel);
+            if (isError()) {
+                return;
+            }
+        }
+    }
+}
+
+void Utilities::bind(GLuint id, TextureType target, TextureAddressMode addressModeS, TextureAddressMode addressModeT)
 {
     auto anisotropy_enable = g_ogl_textureParameters.anisotropy_enable;
     auto anisotropy_level = g_ogl_textureParameters.anisotropy_level;
-    Utilities::clearError();
+    clearError();
     GLenum target_gl;
     switch (target)
     {
@@ -415,23 +533,23 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
             target_gl = GL_TEXTURE_1D;
             break;
         default:
-            throw std::runtime_error("unreachable code reached");
+            throw UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }
     glBindTexture(target_gl, id);
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }
 
-    glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, toOpenGL(textureAddressModeS));
-    glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, toOpenGL(textureAddressModeT));
+    glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, toOpenGL(addressModeS));
+    glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, toOpenGL(addressModeT));
 
 
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }
@@ -441,7 +559,7 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
 
     glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
     glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }
@@ -452,7 +570,7 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode textureAd
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy_level);
     }
 
-    if (Utilities::isError())
+    if (isError())
     {
         return;
     }

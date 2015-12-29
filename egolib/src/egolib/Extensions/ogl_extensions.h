@@ -35,6 +35,7 @@
 #include "egolib/Renderer/PrimitiveType.hpp"
 #include "egolib/Renderer/CullingMode.hpp"
 #include "egolib/Renderer/WindingMode.hpp"
+#include "egolib/Renderer/TextureSampler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -45,8 +46,67 @@ namespace Ego
 namespace OpenGL
 {
 
-struct Utilities
-{
+template <typename T> using UnorderedSet = std::unordered_set<T>;
+
+struct Utilities {
+protected:
+    using RuntimeErrorException = Id::RuntimeErrorException;
+    using UnhandledSwitchCaseException = Id::UnhandledSwitchCaseException;
+    using String = std::string;
+
+protected:
+    static const String anisotropyExtension;
+
+public:
+
+    /**
+     * @brief
+     *  Get the set of extension strings of extensions supported by this OpenGL implementation.
+     * @return
+     *  the set of extension strings
+     */
+    static UnorderedSet<String> getExtensions();
+
+    /**
+     * @brief
+     *  Get the name of this OpenGL implementation.
+     * @return
+     *  the name of this OpenGL implementation
+     */
+    static String getName();
+
+    /**
+     * @brief
+     *  Get the name of the vendor of this OpenGL implementation.
+     * @return
+     *  the name of the vendor of this OpenGL implementation
+     */
+    static String getVendor();
+
+    /**
+     * @brief
+     *  Get the version of this OpenGL implementation.
+     * @return
+     *  the version of this OpenGL implementation
+     */
+    static String getVersion();
+
+public:
+    /**
+     * @brief Get the maximal level of anisotropy.
+     * @return the maximal level of anisotropy
+     * @remark The smallest maximal level of anisotropy is 1.0f.
+     */
+    static float getMaxAnisotropy();
+
+    /**
+     * @brief Get the minimal level of anisotropy.
+     * @return the minimal level of anisotropy
+     * @remark The smallest minimal level of anisotropy is 1.0f.
+     */
+    static float getMinAnisotropy();
+
+public:
     /**
      * @brief
      *  Clear the OpenGL error flag.
@@ -124,8 +184,35 @@ struct Utilities
     static void toOpenGL(const PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl);
 
 
+    static void setSampler(TextureType type, const TextureSampler& sampler);
     static void bind(GLuint id, TextureType type, TextureAddressMode textureAddressModeS, TextureAddressMode textureAddressModeT);
 };
+
+struct PushAttrib {
+private:
+    GLbitfield bitfield;
+public:
+    PushAttrib(GLbitfield bitfield) : bitfield(bitfield) {
+        glPushAttrib(bitfield);
+    }
+    ~PushAttrib() {
+        glPopAttrib();
+        Utilities::isError();
+    }
+}; // struct PushAttrib
+
+struct PushClientAttrib {
+private:
+    GLbitfield bitfield;
+public:
+    PushClientAttrib(GLbitfield bitfield) : bitfield(bitfield) {
+        glPushClientAttrib(bitfield);
+    }
+    ~PushClientAttrib() {
+        glPopClientAttrib();
+        Utilities::isError();
+    }
+}; // struct PushClientAttrib
 
 } // namespace OpenGL
 } // namespace Ego

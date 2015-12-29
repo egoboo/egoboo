@@ -30,17 +30,16 @@
 #include "egolib/Renderer/TextureFilter.hpp"
 #include "egolib/Renderer/TextureAddressMode.hpp"
 #include "egolib/Renderer/TextureType.hpp"
+#include "egolib/Renderer/TextureSampler.hpp"
 
 #include "egolib/typedef.h"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#define TRANSCOLOR 0
-#define INVALID_KEY ((Uint32)(~0))
 
 namespace Ego {
 
 class Texture {
+protected:
+    using String = std::string;
+    template <typename T> using SharedPtr = std::shared_ptr<T>;
 
 protected:
 
@@ -88,7 +87,7 @@ protected:
      *  for dynamic textures and special textures a name
      *  that can not be used as a pathname.
      */
-    std::string _name;
+    String _name;
 
     /**
      * @brief
@@ -130,7 +129,7 @@ public:
      * @brief
      *  A pointer to the source of the texture if available, a null pointer otherwise.
      */
-    std::shared_ptr<SDL_Surface> _source;
+    SharedPtr<SDL_Surface> _source;
 
 protected:
 
@@ -140,9 +139,9 @@ protected:
      * @remark
      *  Intentionally protected.
      */
-    Texture(const std::string& name,
+    Texture(const String& name,
             TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
-            int width, int height, int _sourceWidth, int _sourceHeight, std::shared_ptr<SDL_Surface> source,
+            int width, int height, int sourceWidth, int sourceHeight, SharedPtr<SDL_Surface> source,
             bool hasAlpha);
 
 public:
@@ -294,7 +293,7 @@ public:
      * @param name
      *  the name
      */
-    void setName(const std::string& name);
+    void setName(const String& name);
 
     /**
      * @brief
@@ -302,11 +301,11 @@ public:
      * @return
      *  the name of this texture
      */
-    const std::string& getName() const;
+    const String& getName() const;
 
 public:
-	virtual bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) = 0;
-	virtual bool load(const std::shared_ptr<SDL_Surface>& image) = 0;
+	virtual bool load(const String& name, const SharedPtr<SDL_Surface>& surface) = 0;
+	virtual bool load(const SharedPtr<SDL_Surface>& image) = 0;
 
 	/**
 	 * @brief
@@ -348,11 +347,12 @@ protected:
     GLuint  _id;
 
 public:
-	/** @override Ego::Texture::upload(const std::string& name, const std::shared_ptr<SDL_Surface>&) */
-    bool load(const std::string& name, const std::shared_ptr<SDL_Surface>& surface) override;
+    void load(const String& name, const SharedPtr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler);
+	/** @override Ego::Texture::upload(const String& name, const SharedPtr<SDL_Surface>&) */
+    bool load(const String& name, const SharedPtr<SDL_Surface>& surface) override;
 
     /** @override Ego::Texture::upload(const std::shared_ptr<SDL_Surface>&) */
-    bool load(const std::shared_ptr<SDL_Surface>& surface) override;
+    bool load(const SharedPtr<SDL_Surface>& surface) override;
     
     /** @override Ego::Texture::release */
     void release() override;
@@ -373,9 +373,9 @@ public:
      * @brief
      *  Construct this texture.
      */
-    Texture(GLuint id, const std::string& name,
+    Texture(GLuint id, const String& name,
             TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
-            int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
+            int width, int height, int sourceWidth, int sourceHeight, SharedPtr<SDL_Surface> source,
             bool hasAlpha);
 
     /**

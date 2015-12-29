@@ -32,11 +32,12 @@
 #include "egolib/strutil.h"
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/Image/Image.hpp"
+#include "egolib/Renderer/TextureSampler.hpp"
 #include "egolib/vfs.h"
 
 namespace Ego {
 
-Texture::Texture(const std::string& name,
+Texture::Texture(const String& name,
                  TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
                  int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
@@ -114,11 +115,11 @@ bool Texture::hasAlpha() const {
     return _hasAlpha;
 }
 
-void Texture::setName(const std::string& name) {
+void Texture::setName(const String& name) {
     _name = name;
 }
 
-const std::string& Texture::getName() const {
+const Texture::String& Texture::getName() const {
     return _name;
 }
 
@@ -129,27 +130,30 @@ const std::string& Texture::getName() const {
 
 struct CErrorTexture
 {
-    std::shared_ptr<SDL_Surface> _image;
+    template <typename T> using SharedPtr = std::shared_ptr<T>;
+    using String = std::string;
+
+    SharedPtr<SDL_Surface> image;
     /// The OpenGL texture target of this error texture.
-    GLenum _target;
+    Ego::TextureType type;
     /// The OpenGL ID of this error texture.
-    GLuint _id;
-    std::string _name;
+    GLuint id;
+    String name;
     GLuint getTextureID() const
     {
-        return _id;
+        return id;
     }
-    const std::string& getName() const
+    const String& getName() const
     {
-        return _name;
+        return name;
     }
     int getSourceWidth() const
     {
-        return _image->w;
+        return image->w;
     }
     int getSourceHeight() const
     {
-        return _image->h;
+        return image->h;
     }
     int getWidth() const
     {
@@ -160,69 +164,67 @@ struct CErrorTexture
         return getSourceHeight();
     }
     // Construct this error texture.
-    CErrorTexture(const std::string& name, GLenum target) :
-        _name(name), _target(target), _image(ImageManager::get().getDefaultImage())
+    CErrorTexture(const String& name, Ego::TextureType type) :
+        name(name), type(type), image(ImageManager::get().getDefaultImage())
     {
         namespace OpenGL = Ego::OpenGL;
-        if (_target != GL_TEXTURE_1D && _target != GL_TEXTURE_2D)
-        {
-            throw std::invalid_argument("invalid texture target");
-        }
-        while (GL_NO_ERROR != glGetError())
-        {
-            /* Nothing to do. */
-        }
+        GLenum target_gl;
+        switch (type) {
+            case Ego::TextureType::_1D:
+                target_gl = GL_TEXTURE_1D;
+                break;
+            case Ego::TextureType::_2D:
+                target_gl = GL_TEXTURE_2D;
+                break;
+            default:
+                throw Id::InvalidArgumentException(__FILE__, __LINE__, "invalid texture target");
+        };
+        OpenGL::Utilities::clearError();
         // (1) Create the OpenGL texture.
-        glGenTextures(1, &_id);
-        if (GL_NO_ERROR != glGetError())
+        glGenTextures(1, &id);
+        if (OpenGL::Utilities::isError())
         {
-            throw std::runtime_error("unable to create error texture");
+            throw RuntimeErrorException(__FILE__, __LINE__, "unable to create error texture");
         }
         // (2) Bind the OpenGL texture.
-        glBindTexture(target, _id);
-        if (GL_NO_ERROR != glGetError())
+        glBindTexture(target_gl, id);
+        if (OpenGL::Utilities::isError())
         {
-            glDeleteTextures(1, &_id);
-            throw std::runtime_error("unable to bind error texture");
+            glDeleteTextures(1, &id);
+            throw RuntimeErrorException(__FILE__, __LINE__, "unable to bind error texture");
         }
         // (3) Set the texture parameters.
-        GLint magFilter_gl, minFilter_gl;
-        OpenGL::Utilities::toOpenGL(Ego::TextureFilter::Nearest, Ego::TextureFilter::Nearest, Ego::TextureFilter::None,
-                                    minFilter_gl, magFilter_gl);
-        glTexParameteri(target, GL_TEXTURE_WRAP_S, OpenGL::Utilities::toOpenGL(Ego::TextureAddressMode::Repeat));
-        glTexParameteri(target, GL_TEXTURE_WRAP_T, OpenGL::Utilities::toOpenGL(Ego::TextureAddressMode::Repeat));
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter_gl);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter_gl);
-        if (GL_NO_ERROR != glGetError())
-        {
-            glDeleteTextures(1, &_id);
-            throw std::runtime_error("unable to set error texture parameters");
+        Ego::TextureSampler sampler(Ego::TextureFilter::Nearest, Ego::TextureFilter::Nearest,
+                                    Ego::TextureFilter::None, Ego::TextureAddressMode::Repeat,
+                                    Ego::TextureAddressMode::Repeat, 1.0f);
+        try {
+            OpenGL::Utilities::setSampler(type, sampler);
+        } catch (...) {
+            glDeleteTextures(1, &id);
+            std::rethrow_exception(std::current_exception());
         }
 
         // (4) Upload the image data.
-        glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        if (target == GL_TEXTURE_1D)
+        if (type == Ego::TextureType::_1D)
         {
             static const auto pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-            Ego::OpenGL::Utilities::upload_1d(pfd, _image->w, _image->pixels);
+            OpenGL::Utilities::upload_1d(pfd, image->w, image->pixels);
         }
         else
         {
             static const auto pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-            Ego::OpenGL::Utilities::upload_2d(pfd, _image->w, _image->h, _image->pixels);
+            OpenGL::Utilities::upload_2d(pfd, image->w, image->h, image->pixels);
         }
-        glPopClientAttrib();
-        if (GL_NO_ERROR != glGetError())
+        if (OpenGL::Utilities::isError())
         {
-            glDeleteTextures(1, &_id);
-            throw std::runtime_error("unable to upload error image into error texture");
+            glDeleteTextures(1, &id);
+            throw RuntimeErrorException(__FILE__, __LINE__, "unable to upload error image into error texture");
         }
     }
     // Destruct this error texture.
     ~CErrorTexture()
     {
-        glDeleteTextures(1, &_id);
+        glDeleteTextures(1, &id);
     }
 };
 
@@ -236,13 +238,13 @@ void initializeErrorTextures()
 {
     if (!_errorTexture1D)
     {
-        _errorTexture1D = std::make_unique<CErrorTexture>("<error texture 1D>", GL_TEXTURE_1D);
+        _errorTexture1D = std::make_unique<CErrorTexture>("<error texture 1D>", TextureType::_1D);
     }
     if (!_errorTexture2D)
     {
         try
         {
-            _errorTexture2D = std::make_unique<CErrorTexture>("<error texture 2D>", GL_TEXTURE_2D);
+            _errorTexture2D = std::make_unique<CErrorTexture>("<error texture 2D>", TextureType::_2D);
         }
         catch (...)
         {
@@ -268,7 +270,7 @@ Texture::Texture() :
     Texture
         (
             // The OpenGL texture ID is the error texture's.
-            _errorTexture2D->_id,
+            _errorTexture2D->getTextureID(),
             // The name of the texture is the error texture's.
             _errorTexture2D->getName(),
             // The texture is the 2D error texture.
@@ -318,67 +320,108 @@ GLuint Texture::getTextureID() const {
     return _id;
 }
 
-bool Texture::load(const std::string& name, const std::shared_ptr<SDL_Surface>& source) {
+void Texture::load(const String& name, const SharedPtr<SDL_Surface>& surface, TextureType type, const TextureSampler& sampler) {
     // Bind this texture to the backing error texture.
     release();
 
-    // If no source is provided, keep this texture bound to the backing error texture.
-    if (!source) {
-        return false;
+    // If no surface is provided, keep this texture bound to the backing error texture.
+    if (!surface) {
+        throw Id::InvalidArgumentException(__FILE__, __LINE__, "nullptr == surface");
     }
 
-    std::shared_ptr<SDL_Surface> newSource = source;
-    
+    SharedPtr<SDL_Surface> newSurface = surface;
+
     // Convert to RGBA if the image has non-opaque alpha values or alpha modulation and convert to RGB otherwise.
-    bool hasAlpha = Ego::Graphics::SDL::testAlpha(newSource);
+    bool hasAlpha = Graphics::SDL::testAlpha(newSurface);
     const auto& pixelFormatDescriptor = hasAlpha ? PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
                                                  : PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
-    newSource = Ego::Graphics::SDL::convertPixelFormat(newSource, pixelFormatDescriptor);
+    newSurface = Graphics::SDL::convertPixelFormat(newSurface, pixelFormatDescriptor);
 
     // Convert to power of two.
-    newSource = Ego::Graphics::SDL::convertPowerOfTwo(newSource);
+    newSurface = Graphics::SDL::convertPowerOfTwo(newSurface);
 
-    // Generate a new OpenGL texture ID.
+    // (1)Generate a new OpenGL texture ID.
     Utilities::clearError();
     GLuint id;
     glGenTextures(1, &id);
     if (Utilities::isError()) {
-        return false;
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "glGenTextures failed");
     }
-    // Use default texture address mode.
-    auto textureAddressModeS = TextureAddressMode::Repeat,
-         textureAddressModeT = TextureAddressMode::Repeat;
-    // Determine the texture type.
-    auto type = ((1 == source->h) && (source->w > 1)) ? TextureType::_1D : TextureType::_2D;
-    /* Set texture address mode and texture filtering. */
-    Utilities::bind(id, type, textureAddressModeS, textureAddressModeT);
-    /* Upload the texture data. */
-    if (type == TextureType::_2D) {
-        if (g_ogl_textureParameters.textureFilter.mipMapFilter > TextureFilter::None) {
-           Utilities::upload_2d_mipmap(pixelFormatDescriptor, newSource->w, newSource->h, newSource->pixels);
-        } else {
-           Utilities::upload_2d(pixelFormatDescriptor, newSource->w, newSource->h, newSource->pixels);
+    // (2) Bind the new OpenGL texture ID.
+    GLenum target_gl;
+    switch (type) {
+        case TextureType::_1D:
+            target_gl = GL_TEXTURE_1D;
+            break;
+        case TextureType::_2D:
+            target_gl = GL_TEXTURE_2D;
+            break;
+        default:
+        {
+            glDeleteTextures(1, &id);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
         }
+    };
+    glBindTexture(target_gl, id);
+    if (Utilities::isError()) {
+        glDeleteTextures(1, &id);
+        throw Id::RuntimeErrorException(__FILE__, __LINE__, "glBindTexture failed");
     }
-    else if (type == TextureType::_1D) {
-        Utilities::upload_1d(pixelFormatDescriptor, newSource->w, newSource->pixels);
-    }  else {
-        EGOBOO_ASSERT(0); /// @todo This code is in fact unreachable. Raise a std::runtime_error.
+    // (3) Set the texture sampler.
+    try {
+        Utilities::setSampler(type, sampler);
+    } catch (...) {
+        glDeleteTextures(1, &id);
+        std::rethrow_exception(std::current_exception());
     }
+    // (4) Upload the texture data.
+    switch (type) {
+        case TextureType::_2D:
+        {
+            if (TextureFilter::None != sampler.getMipMapFilter()) {
+                Utilities::upload_2d_mipmap(pixelFormatDescriptor, newSurface->w, newSurface->h, newSurface->pixels);
+            } else {
+                Utilities::upload_2d(pixelFormatDescriptor, newSurface->w, newSurface->h, newSurface->pixels);
+            }
+        }
+        break;
+        case TextureType::_1D:
+        {
+            Utilities::upload_1d(pixelFormatDescriptor, newSurface->w, newSurface->pixels);
+        }
+        break;
+        default:
+        {
+            glDeleteTextures(1, &id);
+            throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        }
+        break;
+    };
 
     // Store the appropriate data.
-    _addressModeS = textureAddressModeS;
-    _addressModeT = textureAddressModeT;
+    _addressModeS = sampler.getAddressModeS();
+    _addressModeT = sampler.getAddressModeT();
     _type = type;
     _id = id;
-    _width = newSource->w;
-    _height = newSource->h;
-    _source = source;
-    _sourceWidth = source->w;
-    _sourceHeight = source->h;
+    _width = newSurface->w;
+    _height = newSurface->h;
+    _source = surface;
+    _sourceWidth = surface->w;
+    _sourceHeight = surface->h;
     _hasAlpha = hasAlpha;
     _name = name;
+}
 
+bool Texture::load(const String& name, const SharedPtr<SDL_Surface>& source) {
+    // Determine the texture sampler.
+    TextureSampler sampler(g_ogl_textureParameters.textureFilter.minFilter,
+                           g_ogl_textureParameters.textureFilter.magFilter,
+                           g_ogl_textureParameters.textureFilter.mipMapFilter,
+                           TextureAddressMode::Repeat, TextureAddressMode::Repeat,
+                           g_ogl_textureParameters.anisotropy_level);
+    // Determine the texture type.
+    auto type = ((1 == source->h) && (source->w > 1)) ? TextureType::_1D : TextureType::_2D;
+    load(name, source, type, sampler);
     return true;
 }
 
@@ -410,7 +453,7 @@ void  Texture::release() {
 
     // The texture is the 2D error texture.
     _type = TextureType::_2D;
-    _id = _errorTexture2D->_id;
+    _id = _errorTexture2D->getTextureID();
 
     // The texture coordinates of this texture are repeated along the s and t axes.
     _addressModeS = TextureAddressMode::Repeat;
@@ -433,8 +476,8 @@ void  Texture::release() {
 
 bool Texture::isDefault() const {
     if (!_errorTexture1D || !_errorTexture2D) return false;
-    return getTextureID() == _errorTexture1D->_id
-        || getTextureID() == _errorTexture2D->_id;
+    return getTextureID() == _errorTexture1D->getTextureID()
+        || getTextureID() == _errorTexture2D->getTextureID();
 }
 
 } // namespace OpenGL

@@ -468,67 +468,64 @@ bool Console::draw()
 	}
 	GL_DEBUG_END();
 
-	ATTRIB_PUSH(__FUNCTION__, GL_SCISSOR_BIT | GL_ENABLE_BIT);
-	{
-		int textWidth, textHeight, height;
+    {
+        Ego::OpenGL::PushAttrib pa(GL_SCISSOR_BIT | GL_ENABLE_BIT);
+        {
+            int textWidth, textHeight, height;
 
-		// clip the viewport
-		renderer.setScissorTestEnabled(true);
-		renderer.setScissorRectangle(pwin->x, windowHeight - (pwin->y + pwin->h), pwin->w, pwin->h);
+            // clip the viewport
+            renderer.setScissorTestEnabled(true);
+            renderer.setScissorRectangle(pwin->x, windowHeight - (pwin->y + pwin->h), pwin->w, pwin->h);
 
-		height = pwin->h;
+            height = pwin->h;
 
-		char buffer[ConsoleSettings::InputSettings::Length];
+            char buffer[ConsoleSettings::InputSettings::Length];
 
-		// draw the current command line
-		sprintf(buffer, "%s ", ConsoleSettings::InputSettings::Prompt.c_str());
+            // draw the current command line
+            sprintf(buffer, "%s ", ConsoleSettings::InputSettings::Prompt.c_str());
 
-		strncat(buffer, buffer, 1022);
-		buffer[1022] = CSTR_END;
+            strncat(buffer, buffer, 1022);
+            buffer[1022] = CSTR_END;
 
-		this->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
-		height -= textHeight;
-		this->pfont->_font->drawText(buffer, pwin->x, height - textHeight, white);
+            this->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
+            height -= textHeight;
+            this->pfont->_font->drawText(buffer, pwin->x, height - textHeight, white);
 
-		if (CSTR_END != this->output_buffer[0])
-		{
-			// grab the line offsets
-			size_t console_line_count = 0;
-			size_t console_line_offsets[1024];
-			size_t console_line_lengths[1024];
-			char *pstr = this->output_buffer;
-			while (pstr)
-			{
-				size_t len = strcspn(pstr, "\n");
+            if (CSTR_END != this->output_buffer[0]) {
+                // grab the line offsets
+                size_t console_line_count = 0;
+                size_t console_line_offsets[1024];
+                size_t console_line_lengths[1024];
+                char *pstr = this->output_buffer;
+                while (pstr) {
+                    size_t len = strcspn(pstr, "\n");
 
-				console_line_offsets[console_line_count] = pstr - this->output_buffer;
-				console_line_lengths[console_line_count] = len;
+                    console_line_offsets[console_line_count] = pstr - this->output_buffer;
+                    console_line_lengths[console_line_count] = len;
 
-				if (0 == len)
-				{
-					break;
-				}
+                    if (0 == len) {
+                        break;
+                    }
 
-				pstr += len + 1;
-				console_line_count++;
-			}
+                    pstr += len + 1;
+                    console_line_count++;
+                }
 
-			// draw the last output line and work backwards
-			for (size_t i = console_line_count; i >= 1 && height > 0; --i)
-			{
-				size_t j = i - 1;
-				size_t len = std::min((size_t)1023, console_line_lengths[j]);
+                // draw the last output line and work backwards
+                for (size_t i = console_line_count; i >= 1 && height > 0; --i) {
+                    size_t j = i - 1;
+                    size_t len = std::min((size_t)1023, console_line_lengths[j]);
 
-				strncpy(buffer, this->output_buffer + console_line_offsets[j], len);
-				buffer[len] = CSTR_END;
+                    strncpy(buffer, this->output_buffer + console_line_offsets[j], len);
+                    buffer[len] = CSTR_END;
 
-				this->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
-				height -= textHeight;
-				this->pfont->_font->drawText(buffer, pwin->x, height - textHeight, white);
-			}
-		}
-	}
-	ATTRIB_POP(__FUNCTION__);
+                    this->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
+                    height -= textHeight;
+                    this->pfont->_font->drawText(buffer, pwin->x, height - textHeight, white);
+                }
+            }
+        }
+    }
 
 	return true;
 }

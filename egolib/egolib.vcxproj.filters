@@ -474,6 +474,9 @@
     <ClCompile Include="src\egolib\Logic\TreasureTables.cpp">
       <Filter>Source Files\Logic</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\TextureSampler.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">

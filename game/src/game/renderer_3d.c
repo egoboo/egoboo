@@ -112,46 +112,45 @@ void LineSegmentList::draw_all(Camera& camera)
 
     gfx_begin_3d(camera);
     {
-        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
-            // flat shading
-            renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
-
-            // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            renderer.setDepthWriteEnabled(false); // GL_DEPTH_BUFFER_BIT
-
-            // do not draw hidden surfaces
-            renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
-
-            // draw draw front and back faces of polygons
-			renderer.setCullingMode(Ego::CullingMode::None);
-
-            renderer.setBlendingEnabled(false);
-
-            uint32_t ticks = Time::now<Time::Unit::Ticks>();
-
-            for (size_t i = 0; i < capacity; ++i)
+            Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
             {
-                auto& line = _elements[i];
-                if ( line.time < 0 ) continue;
+                // flat shading
+                renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
 
-                if ( line.time < ticks )
-                {
-                    line.time = -1;
-                    continue;
-                }
+                // don't write into the depth buffer (disable glDepthMask for transparent objects)
+                renderer.setDepthWriteEnabled(false); // GL_DEPTH_BUFFER_BIT
 
-                renderer.setColour(line.colour); // GL_CURRENT_BIT
-                GL_DEBUG( glBegin )( GL_LINES );
-                {
-                    GL_DEBUG(glVertex3f)( line.p[kX], line.p[kY], line.p[kZ] );
-                    GL_DEBUG(glVertex3f)( line.q[kX], line.q[kY], line.q[kZ] );
+                // do not draw hidden surfaces
+                renderer.setDepthTestEnabled(true);
+                renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+
+                // draw draw front and back faces of polygons
+                renderer.setCullingMode(Ego::CullingMode::None);
+
+                renderer.setBlendingEnabled(false);
+
+                uint32_t ticks = Time::now<Time::Unit::Ticks>();
+
+                for (size_t i = 0; i < capacity; ++i) {
+                    auto& line = _elements[i];
+                    if (line.time < 0) continue;
+
+                    if (line.time < ticks) {
+                        line.time = -1;
+                        continue;
+                    }
+
+                    renderer.setColour(line.colour); // GL_CURRENT_BIT
+                    GL_DEBUG(glBegin)(GL_LINES);
+                    {
+                        GL_DEBUG(glVertex3f)(line.p[kX], line.p[kY], line.p[kZ]);
+                        GL_DEBUG(glVertex3f)(line.q[kX], line.q[kY], line.q[kZ]);
+                    }
+                    GL_DEBUG_END();
                 }
-                GL_DEBUG_END();
             }
         }
-        ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
 }
@@ -212,7 +211,7 @@ void PointList::draw_all(Camera& camera)
 
     gfx_begin_3d(camera);
     {
-        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
+        Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
         {
             // flat shading
             renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
@@ -249,7 +248,6 @@ void PointList::draw_all(Camera& camera)
                 GL_DEBUG_END();
             }
         }
-        ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
 }

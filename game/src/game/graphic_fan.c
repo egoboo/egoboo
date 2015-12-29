@@ -118,40 +118,37 @@ gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& i )
     // bind the correct texture
     TileRenderer::bind(ptile);
     
-    GL_DEBUG(glPushClientAttrib)(GL_CLIENT_VERTEX_ARRAY_BIT);
     {
-        // Per-vertex coloring.
-        Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable); // GL_LIGHTING_BIT
-
-        /// @note claforte@> Put this in an initialization function.
-        GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
-        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, &(ptmem._plst[ptile._vrtstart]) );
-
-        GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
-		GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, &(ptmem._tlst[ptile._vrtstart]) );
-
-        if (gfx.gouraudShading_enable)
+        Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_VERTEX_ARRAY_BIT);
         {
-            GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
-            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, &(ptmem._clst[ptile._vrtstart]) );
-        }
-        else
-        {
-            GL_DEBUG( glDisableClientState )( GL_COLOR_ARRAY );
-        }
-        // grab some model info
-        uint16_t commands = pdef->command_count;
+            // Per-vertex coloring.
+            Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable); // GL_LIGHTING_BIT
 
-        // Render each command
-        for (size_t cnt = 0, entry = 0; cnt < commands; cnt++ )
-        {
-            uint8_t numEntries = pdef->command_entries[cnt];
-            
-            GL_DEBUG(glDrawElements)(GL_TRIANGLE_FAN, numEntries, GL_UNSIGNED_SHORT, &(pdef->command_verts[entry]));
-            entry += numEntries;
+            /// @note claforte@> Put this in an initialization function.
+            GL_DEBUG(glEnableClientState)(GL_VERTEX_ARRAY);
+            GL_DEBUG(glVertexPointer)(3, GL_FLOAT, 0, &(ptmem._plst[ptile._vrtstart]));
+
+            GL_DEBUG(glEnableClientState)(GL_TEXTURE_COORD_ARRAY);
+            GL_DEBUG(glTexCoordPointer)(2, GL_FLOAT, 0, &(ptmem._tlst[ptile._vrtstart]));
+
+            if (gfx.gouraudShading_enable) {
+                GL_DEBUG(glEnableClientState)(GL_COLOR_ARRAY);
+                GL_DEBUG(glColorPointer)(3, GL_FLOAT, 0, &(ptmem._clst[ptile._vrtstart]));
+            } else {
+                GL_DEBUG(glDisableClientState)(GL_COLOR_ARRAY);
+            }
+            // grab some model info
+            uint16_t commands = pdef->command_count;
+
+            // Render each command
+            for (size_t cnt = 0, entry = 0; cnt < commands; cnt++) {
+                uint8_t numEntries = pdef->command_entries[cnt];
+
+                GL_DEBUG(glDrawElements)(GL_TRIANGLE_FAN, numEntries, GL_UNSIGNED_SHORT, &(pdef->command_verts[entry]));
+                entry += numEntries;
+            }
         }
     }
-    GL_DEBUG(glPopClientAttrib)();
 
 	if (egoboo_config_t::get().debug_mesh_renderNormals.getValue())
 	{
@@ -401,7 +398,7 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
     // set the texture
     renderer.getTextureUnit().setActivated(ptex.get());
 
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
+    Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT);
     {
         bool use_depth_mask = ( !_currentModule->getWater()._light && ( 1.0f == falpha ) );
 
@@ -431,7 +428,6 @@ gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8
         renderer.setGouraudShadingEnabled(true);
         renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
     }
-    ATTRIB_POP( __FUNCTION__ );
 
     return gfx_success;
 }
