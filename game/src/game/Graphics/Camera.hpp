@@ -281,7 +281,14 @@ public:
         _moveMode = mode;
     }
 
+    /**
+    * @brief
+    *   Update camera rotation and movement using the keyboard in free-form
+    *   movement (without tracking in-game objects)
+    **/
     void updateFreeControl();
+
+    void setPosition(const Vector3f &position);
 
 protected:
     /**

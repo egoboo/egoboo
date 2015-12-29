@@ -26,7 +26,7 @@
 #include "game/GameStates/SelectModuleState.hpp"
 #include "game/GameStates/SelectPlayersState.hpp"
 #include "game/GameStates/OptionsScreen.hpp"
-#include "game/GameStates/MapEditorState.hpp"
+#include "game/GameStates/MapEditorSelectModuleState.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/game.h"
 #include "game/GUI/Button.hpp"
@@ -142,7 +142,7 @@ MainMenuState::MainMenuState() :
         mapEditorButton->setSize(200, 30);
         mapEditorButton->setOnClickFunction(
         []{
-            _gameEngine->pushGameState(std::make_shared<Ego::GameStates::MapEditorState>(ProfileSystem::get().getModuleProfiles()[0]));
+            _gameEngine->pushGameState(std::make_shared<Ego::GameStates::MapEditorSelectModuleState>());
         });
         addComponent(mapEditorButton);
         _slidyButtons.push_front(mapEditorButton);

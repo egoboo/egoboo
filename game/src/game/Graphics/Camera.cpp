@@ -776,3 +776,8 @@ void Camera::addTrackTarget(ObjectRef targetRef)
 {
     _trackList.push_front(targetRef);
 }
+
+void Camera::setPosition(const Vector3f &position)
+{
+    _center = position;
+}

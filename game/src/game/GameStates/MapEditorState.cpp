@@ -59,8 +59,8 @@ void MapEditorState::update()
 		                                                          _currentModule->getMeshPointer()->_info.getTileCountY()*Info<float>::Grid::Size());
 
     //Always reveal all invisible monsters and objects in Map Editor mode
-    //local_stats.seeinvis_level = 100;
-    //local_stats.seeinvis_mag = std::exp(0.32f * local_stats.seeinvis_level);
+    local_stats.seeinvis_level = 100;
+    local_stats.seeinvis_mag = std::exp(0.32f * local_stats.seeinvis_level);
 
     //Animate water
     _currentModule->getWater().move();
@@ -94,8 +94,8 @@ bool MapEditorState::notifyKeyDown(const int keyCode)
 }
 
 void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)
-{    
-    //Make sure all data is cleared first
+{
+    //Make sure any old data is cleared first
     game_quit_module();
 
     //initialize math objects
