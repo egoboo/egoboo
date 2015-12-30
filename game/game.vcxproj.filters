@@ -302,6 +302,15 @@
     <ClCompile Include="src\game\Module\module_spawn.c">
       <Filter>Game Sources\Module</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GameStates\DebugFontRenderingState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GameStates\DebugMainMenuState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GameStates\DebugObjectLoadingState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -567,6 +576,15 @@
     </ClInclude>
     <ClInclude Include="src\game\Module\module_spawn.h">
       <Filter>Game Header Files\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\DebugFontRenderingState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\DebugMainMenuState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\DebugObjectLoadingState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

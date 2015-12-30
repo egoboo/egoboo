@@ -82,7 +82,7 @@ struct Billboard {
      * @brief
      *  The object this billboard is attached to.
      */
-    std::weak_ptr<Object> _obj_wptr;
+    std::weak_ptr<Object> _object;
 
     /**
      * @brief
@@ -115,7 +115,8 @@ struct Billboard {
     float _size;
     float _size_add;
 
-    Billboard(Time::Ticks endTime, std::shared_ptr<Ego::Texture> texture);
+    Billboard(Time::Ticks endTime, std::shared_ptr<Ego::Texture> texture, const float size);
+
     /**
      * @brief Update this billboard.
      * @param now the current time
@@ -135,16 +136,17 @@ public:
     static void uninitialize();
     static BillboardSystem& get();
 public:
-    bool render_one(Billboard& billboard, float scale, const Vector3f& cam_up, const Vector3f& cam_rgt);
+    bool render_one(Billboard& billboard, const Vector3f& cam_up, const Vector3f& cam_rgt);
     /**
      * @brief Update all billboards in this billboard system with the time of "now".
      */
     void update();
     void reset();
     bool hasBillboard(const Object& object) const;
+
 private:
     // List of used billboards.
-    std::list<std::shared_ptr<Billboard>> billboards;
+    std::list<std::shared_ptr<Billboard>> _billboardList;
     // A vertex type used by the billboard system.
     struct Vertex {
         float x, y, z;
@@ -154,11 +156,6 @@ private:
     Ego::VertexBuffer vertexBuffer;
 
 private:
-    /**
-    * @brief Update all billboards in this billboard system with the specified time.
-    * @param now the specified time
-    */
-    void update(Time::Ticks ticks);
 
     /**
     * @brief
@@ -180,11 +177,10 @@ private:
     *  The billboard is kept around as long as a reference to the billboard exists,
     *  however, it might exprire during that time.
     */
-    std::shared_ptr<Billboard> makeBillboard(Time::Seconds lifetime_secs, std::shared_ptr<Ego::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options);
-
-
+    std::shared_ptr<Billboard> makeBillboard(Time::Seconds lifetime_secs, std::shared_ptr<Ego::Texture> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options, const float size);
 
 public:
     void render_all(Camera& camera);
-    std::shared_ptr<Billboard> makeBillboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
+
+    std::shared_ptr<Billboard> makeBillboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits, const float size = 0.75f);
 };

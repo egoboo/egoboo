@@ -22,7 +22,7 @@
 /// @author Johan Jansen
 
 #include "game/GameStates/MainMenuState.hpp"
-#include "game/GameStates/DebugModuleLoadingState.hpp"
+#include "game/GameStates/DebugMainMenuState.hpp"
 #include "game/GameStates/SelectModuleState.hpp"
 #include "game/GameStates/SelectPlayersState.hpp"
 #include "game/GameStates/OptionsScreen.hpp"
@@ -129,7 +129,7 @@ MainMenuState::MainMenuState() :
         debugButton->setSize(200, 30);
         debugButton->setOnClickFunction(
         []{
-            _gameEngine->pushGameState(std::make_shared<DebugModuleLoadingState>());
+            _gameEngine->pushGameState(std::make_shared<DebugMainMenuState>());
         });
         addComponent(debugButton);
         _slidyButtons.push_front(debugButton);

@@ -3,6 +3,7 @@
 Label::Label(const std::string &text, const UIManager::UIFontType font) :
     _text(text),
     _font(_gameEngine->getUIManager()->getFont(font)),
+    _textRenderer(),
     _color(Ego::Math::Colour4f::white())
 {
     if(!text.empty()) {
@@ -13,7 +14,8 @@ Label::Label(const std::string &text, const UIManager::UIFontType font) :
 void Label::draw()
 {
     //Draw text
-    _font->drawTextBox(_text, getX(), getY(), getWidth(), getHeight(), _font->getLineSpacing(), _color);
+    if (_textRenderer)
+        _textRenderer->render(getX(), getY(), _color);
 }
 
 void Label::setText(const std::string &text)
@@ -22,7 +24,7 @@ void Label::setText(const std::string &text)
 
 	//Recalculate our size
 	int textWidth, textHeight;
-    _font->getTextBoxSize(_text, 25, &textWidth, &textHeight);
+    _textRenderer = _font->layoutTextBox(_text, 0, 0, _font->getLineSpacing(), &textWidth, &textHeight);
 	setSize(textWidth, textHeight);
 }
 
@@ -32,7 +34,7 @@ void Label::setFont(const std::shared_ptr<Ego::Font> &font)
 
     //Recalculate our size
     int textWidth, textHeight;
-    _font->getTextBoxSize(_text, 25, &textWidth, &textHeight);
+    _textRenderer = _font->layoutTextBox(_text, 0, 0, _font->getLineSpacing(), &textWidth, &textHeight);
     setSize(textWidth, textHeight);
 }
 

@@ -73,12 +73,9 @@ void IconButton::draw()
     _gameEngine->getUIManager()->drawImage(_icon.get_ptr(), getX() + getWidth() - getHeight() - 2, getY() + 2, iconSize, iconSize, _iconTint);
 
     //Draw text on left side in button
-    if(!_buttonText.empty())
+    if(_buttonTextRenderer)
     {
-        int textWidth, textHeight;
-        _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_buttonText, &textWidth, &textHeight);
-
-        _gameEngine->getUIManager()->getDefaultFont()->drawText(_buttonText, getX() + 5, getY() + (getHeight()-textHeight)/2);
+        _buttonTextRenderer->render(getX() + 5, getY() + (getHeight() - _buttonTextHeight) / 2);
     }
 }
 
