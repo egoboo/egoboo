@@ -73,7 +73,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
                                                               const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                                                               const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget, const bool onlyOverWater)
 {
-    const std::shared_ptr<ParticleProfile> &ppip = ParticleProfileSystem::get().get_ptr(particleProfile);
+    const std::shared_ptr<ParticleProfile> &ppip = ProfileSystem::get().ParticleProfileSystem.get_ptr(particleProfile);
 
     if (!ppip)
     {
@@ -108,7 +108,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
 
     if(!particle) {
         const std::string spawnOriginName = _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->getName() : "INVALID";
-        const std::string particleProfileName = LOADED_PIP(particleProfile) ? ParticleProfileSystem::get().get_ptr(particleProfile)->_name : "INVALID";
+        const std::string particleProfileName = LOADED_PIP(particleProfile) ? ProfileSystem::get().ParticleProfileSystem.get_ptr(particleProfile)->_name : "INVALID";
         const std::string spawnProfileName = ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID";
         Log::get().debug("spawn_one_particle() - cannot allocate a particle!    owner == %" PRIuZ "(\"%s\"), spawn profile == %d(\"%s\"), particle profile == %d(\"%s\")\n",
                          spawnOrigin.get(), spawnOriginName.c_str(),

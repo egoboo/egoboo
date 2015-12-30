@@ -2148,7 +2148,7 @@ std::shared_ptr<Ego::Enchantment> Object::addEnchant(ENC_REF enchantProfile, PRO
 		Log::get().warn("%s:%d:%s: cannot add enchant with invalid enchant profile %d\n", __FILE__, __LINE__, __FUNCTION__, enchantProfile);
         return nullptr;
     }    
-    const std::shared_ptr<EnchantProfile> &enchantmentProfile = EnchantProfileSystem.get_ptr(enchantProfile);
+    const std::shared_ptr<EnchantProfile> &enchantmentProfile = ProfileSystem::get().EnchantProfileSystem.get_ptr(enchantProfile);
     
     if(!ProfileSystem::get().isValidProfileID(spawnerProfile)) {
 		Log::get().warn("%s:%d:%s: cannot add enchant with invalid spawner profile %d\n", __FILE__, __LINE__, __FUNCTION__, spawnerProfile);

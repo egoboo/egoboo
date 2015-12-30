@@ -441,7 +441,7 @@ void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GL
         redMask = pfd.getRedMask(),
         greenMask = pfd.getGreenMask(),
         blueMask = pfd.getBlueMask();
-    int bpp = pfd.getBitsPerPixel();
+    int bpp = pfd.getColorDepth().getDepth();
     
     SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)data, w, h, bpp, w * bpp / 8, redMask, greenMask, blueMask, alphaMask);
     SDL_assert(surf != nullptr);

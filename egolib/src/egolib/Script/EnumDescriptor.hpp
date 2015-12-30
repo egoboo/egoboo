@@ -87,14 +87,8 @@ public:
 
 public:
 
-
-#ifdef _MSC_VER
-    EnumDescriptor(const string& name, const initializer_list<pair<const string, EnumType>>& list) :
-        _name(name), _elements(list) {}
-#else
     EnumDescriptor(const string& name, const initializer_list<pair<const string, EnumType>>& list) :
         _name(name), _elements{list} {}
-#endif
 
     EnumDescriptor(const string& name) :
         _name(), _elements() {}

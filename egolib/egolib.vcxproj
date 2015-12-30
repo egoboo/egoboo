@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\ColorDepth.cpp" />
     <ClCompile Include="src\egolib\Renderer\TextureSampler.cpp" />
     <ClCompile Include="src\egolib\Logic\TreasureTables.cpp" />
     <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp" />
@@ -387,7 +388,6 @@
     <ClCompile Include="src\egolib\FileFormats\template.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
     <ClCompile Include="src\egolib\math\LERP.cpp" />
-    <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp" />
     <ClCompile Include="src\egolib\IDSZ.cpp" />
     <ClCompile Include="src\egolib\Audio\AudioSystem.cpp" />
     <ClCompile Include="src\egolib\Script\Buffer.cpp" />
@@ -472,6 +472,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\ColorDepth.hpp" />
+    <ClInclude Include="src\egolib\Core\Singleton.hpp" />
     <ClInclude Include="src\egolib\Logic\TreasureTables.hpp" />
     <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureSampler.hpp" />
@@ -596,8 +598,6 @@
     <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp" />
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp" />
-    <ClInclude Include="src\egolib\Profiles\EnchantProfileSystem.hpp" />
-    <ClInclude Include="src\egolib\Profiles\ParticleProfileSystem.hpp" />
     <ClInclude Include="src\egolib\Profiles\_AbstractProfileSystem.hpp" />
     <ClInclude Include="src\egolib\IDSZ.hpp" />
     <ClInclude Include="src\egolib\Profiles\AbstractProfile.hpp" />

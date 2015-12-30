@@ -26,6 +26,7 @@
 #pragma once
 
 #include "egolib/Logic/Perk.hpp"
+#include "egolib/Core/Singleton.hpp"
 
 namespace Ego
 {
@@ -35,9 +36,11 @@ namespace Perks
 class PerkHandler : public Ego::Core::Singleton<Ego::Perks::PerkHandler>
 {
 protected:
-    // Befriend with the singleton to grant access to PerkHandler::~PerkHandler.
-    using TheSingleton = Ego::Core::Singleton<Ego::Perks::PerkHandler>;
-    friend TheSingleton;
+    using MyCreateFunctor = Ego::Core::CreateFunctor<PerkHandler>;
+    friend MyCreateFunctor;
+
+    using MyDestroyFunctor = Ego::Core::DestroyFunctor<PerkHandler>;
+    friend MyDestroyFunctor;
 
     /**
     * @brief

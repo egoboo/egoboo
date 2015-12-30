@@ -27,6 +27,14 @@
 namespace Ego
 {
 
+namespace Core {
+
+Renderer *CreateFunctor<Renderer>::operator()() const {
+    return new Ego::OpenGL::Renderer();
+}
+
+}
+
 AccumulationBuffer::AccumulationBuffer()
 {}
 
@@ -50,11 +58,6 @@ TextureUnit::TextureUnit()
 
 TextureUnit::~TextureUnit()
 {}
-
-Renderer *RendererFactory::operator()()
-{
-    return new OpenGL::Renderer();
-}
 
 Renderer::Renderer()
 {}

@@ -23,13 +23,62 @@
 
 #include "egolib/Graphics/PixelFormat.hpp"
 
-namespace Ego
-{
+namespace Ego {
 
-const PixelFormatDescriptor& PixelFormatDescriptor::get(PixelFormat pixelFormat)
-{
-    switch (pixelFormat)
-    {
+
+PixelFormatDescriptor::PixelFormatDescriptor(PixelFormat pixelFormat,
+                                             uint32_t redShift, uint32_t greenShift,
+                                             uint32_t blueShift, uint32_t alphaShift,
+                                             uint32_t redMask, uint32_t greenMask,
+                                             uint32_t blueMask, uint32_t alphaMask,
+                                             const ColorDepth& colorDepth) :
+    pixelFormat(pixelFormat),
+    redShift(redShift), greenShift(greenShift), blueShift(blueShift), alphaShift(alphaShift),
+    redMask(redMask), greenMask(greenMask), blueMask(blueMask), alphaMask(alphaMask),
+    colorDepth(colorDepth) {}
+
+uint32_t PixelFormatDescriptor::getAlphaShift() const {
+    return alphaShift;
+}
+
+uint32_t PixelFormatDescriptor::getBlueShift() const {
+    return blueShift;
+}
+
+uint32_t PixelFormatDescriptor::getGreenShift() const {
+    return greenShift;
+}
+
+uint32_t PixelFormatDescriptor::getRedShift() const {
+    return redShift;
+}
+
+uint32_t PixelFormatDescriptor::getAlphaMask() const {
+    return alphaMask;
+}
+
+uint32_t PixelFormatDescriptor::getBlueMask() const {
+    return blueMask;
+}
+
+uint32_t PixelFormatDescriptor::getGreenMask() const {
+    return greenMask;
+}
+
+uint32_t PixelFormatDescriptor::getRedMask() const {
+    return redMask;
+}
+
+const ColorDepth& PixelFormatDescriptor::getColorDepth() const {
+    return colorDepth;
+}
+
+PixelFormat PixelFormatDescriptor::getPixelFormat() const {
+    return pixelFormat;
+}
+
+const PixelFormatDescriptor& PixelFormatDescriptor::get(PixelFormat pixelFormat) {
+    switch (pixelFormat) {
         case PixelFormat::B8G8R8:
         {
             return get<PixelFormat::B8G8R8>();
@@ -53,37 +102,36 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get(PixelFormat pixelFormat)
         default:
         {
             throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
-        }        
+        }
     };
 }
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8>()
-{
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8>() {
     static const uint32_t redShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         16;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         0;
-    #endif
+#endif
     static const uint32_t greenShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         8;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         8;
-    #endif
+#endif
     static const uint32_t blueShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         0;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         16;
-    #endif
+#endif
     static const uint32_t alphaShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         0;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         0;
-    #endif
+#endif
     static const uint32_t redMask =
         ((uint32_t)0xff) << redShift;
     static const uint32_t greenMask =
@@ -94,41 +142,40 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8>()
         ((uint32_t)0xff) << alphaShift;
     static const PixelFormatDescriptor INSTANCE
         (
-        PixelFormat::R8G8B8A8,
-        24,
-        redShift, greenShift, blueShift, alphaShift,
-        redMask, greenMask, blueMask, alphaMask
-        );
+            PixelFormat::R8G8B8A8,
+            redShift, greenShift, blueShift, alphaShift,
+            redMask, greenMask, blueMask, alphaMask,
+            ColorDepth(24, 8, 8, 8, 0)
+            );
     return INSTANCE;
 }
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8A8>()
-{
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8A8>() {
     static const uint32_t redShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         16;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         8;
-    #endif
+#endif
     static const uint32_t greenShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         8;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         16;
-    #endif
+#endif
     static const uint32_t blueShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         0;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         24;
-    #endif
+#endif
     static const uint32_t alphaShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         24;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         0;
-    #endif
+#endif
     static const uint32_t redMask =
         ((uint32_t)0xff) << redShift;
     static const uint32_t greenMask =
@@ -139,41 +186,40 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8A8>()
         ((uint32_t)0xff) << alphaShift;
     static const PixelFormatDescriptor INSTANCE
         (
-        PixelFormat::B8G8R8A8,
-        32,
-        redShift, greenShift, blueShift, alphaShift,
-        redMask, greenMask, blueMask, alphaMask
-        );
+            PixelFormat::B8G8R8A8,
+            redShift, greenShift, blueShift, alphaShift,
+            redMask, greenMask, blueMask, alphaMask,
+            ColorDepth(32, 8, 8, 8, 8)
+            );
     return INSTANCE;
 }
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8>()
-{
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8>() {
     static const uint32_t redShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         0;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         16;
-    #endif
+#endif
     static const uint32_t greenShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         8;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         8;
-    #endif
+#endif
     static const uint32_t blueShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         16;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         0;
-    #endif
+#endif
     static const uint32_t alphaShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         0; // no alpha
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         0; // no alpha
-    #endif
+#endif
     static const uint32_t redMask =
         ((uint32_t)0xff) << redShift;
     static const uint32_t greenMask =
@@ -184,41 +230,40 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8>()
         ((uint32_t)0x00) << alphaShift;
     static const PixelFormatDescriptor INSTANCE
         (
-        PixelFormat::R8G8B8,
-        24,
-        redShift, greenShift, blueShift, alphaShift,
-        redMask, greenMask, blueMask, alphaMask
-        );
+            PixelFormat::R8G8B8,
+            redShift, greenShift, blueShift, alphaShift,
+            redMask, greenMask, blueMask, alphaMask,
+            ColorDepth(24, 8, 8, 8, 0)
+            );
     return INSTANCE;
 }
 
 template <>
-const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
-{
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>() {
     static const uint32_t redShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         0;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         24;
-    #endif
+#endif
     static const uint32_t greenShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         8;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         16;
-    #endif
+#endif
     static const uint32_t blueShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         16;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         8;
-    #endif
+#endif
     static const uint32_t alphaShift =
-    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         24;
-    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         0;
-    #endif
+#endif
     static const uint32_t redMask =
         ((uint32_t)0xff) << redShift;
     static const uint32_t greenMask =
@@ -229,11 +274,11 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
         ((uint32_t)0xff) << alphaShift;
     static const PixelFormatDescriptor INSTANCE
         (
-        PixelFormat::R8G8B8A8,
-        32,
-        redShift, greenShift, blueShift, alphaShift,
-        redMask, greenMask, blueMask, alphaMask
-        );
+            PixelFormat::R8G8B8A8,
+            redShift, greenShift, blueShift, alphaShift,
+            redMask, greenMask, blueMask, alphaMask,
+            ColorDepth(32, 8, 8, 8, 8)
+            );
     return INSTANCE;
 }
 

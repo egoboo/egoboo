@@ -352,7 +352,6 @@ bool GameEngine::initialize()
     Ego::Perks::PerkHandler::initialize();
 
     // Initialize the profile system.
-    Ego::Core::Singleton<ParticleProfileSystem>::initialize(); //explicit static member call to avoid ambigious call
     ProfileSystem::initialize();
 
     // Initialize the collision system.

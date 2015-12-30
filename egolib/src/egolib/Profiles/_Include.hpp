@@ -3,10 +3,8 @@
 #define EGOLIB_PROFILES_PRIVATE 1
 #include "egolib/Profiles/EnchantProfile.hpp"
 #include "egolib/Profiles/EnchantProfileWriter.hpp"
-#include "egolib/Profiles/EnchantProfileSystem.hpp"
 #include "egolib/Profiles/ParticleProfile.hpp"
 #include "egolib/Profiles/ParticleProfileWriter.hpp"
-#include "egolib/Profiles/ParticleProfileSystem.hpp"
 #include "egolib/Profiles/RandomName.hpp"
 #include "egolib/Profiles/ModuleProfile.hpp"
 #include "egolib/Profiles/ObjectProfile.hpp"

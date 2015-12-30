@@ -30,9 +30,11 @@
 struct TextureManager : public Ego::Core::Singleton <TextureManager>
 {
 protected:
-    // Befriend with the singleton to grant access to TextureManager::~TextureManager.
-    using TheSingleton = Ego::Core::Singleton<TextureManager>;
-    friend TheSingleton;
+    using MyCreateFunctor = Ego::Core::CreateFunctor<TextureManager>;
+    friend MyCreateFunctor;
+
+    using MyDestroyFunctor = Ego::Core::DestroyFunctor<TextureManager>;
+    friend MyDestroyFunctor;
 
     /**
      * @brief

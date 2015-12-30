@@ -22,6 +22,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/Core/Singleton.hpp"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/IDSZ.hpp"
 #include "egolib/Clock.hpp"
@@ -469,10 +470,13 @@ namespace NativeInterface {
  */
 struct Runtime : public Core::Singleton<Runtime> {
 protected:
-	// Befriend with the singleton to grant access to Runtime::~Runtime.
-	using TheSingleton = Core::Singleton<Runtime>;
-	friend TheSingleton;
-	/**
+	using MyCreateFunctor = Core::CreateFunctor<Runtime>;
+    friend MyCreateFunctor;
+
+    using MyDestroyFunctor = Core::DestroyFunctor<Runtime>;
+    friend MyDestroyFunctor;
+
+    /**
 	 * @brief
 	 *	Construct this runtime.
 	 * @remarks

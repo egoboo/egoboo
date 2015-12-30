@@ -24,6 +24,7 @@
 #include <SDL_mixer.h>
 #include "egolib/egoboo_setup.h"
 #include "egolib/Math/_Include.hpp"
+#include "egolib/Core/Singleton.hpp"
 
 typedef int MusicID;
 typedef int SoundID;
@@ -110,9 +111,11 @@ public:
 	static const float DEFAULT_MAX_DISTANCE;    ///< Default max hearing distance (10 tiles)
 
 protected:
-    // Befriend with the singleton to grant access to AudioSystem::~AudioSystem.
-    using TheSingleton = Ego::Core::Singleton<AudioSystem>;
-    friend TheSingleton;
+    using MyCreateFunctor = Ego::Core::CreateFunctor<AudioSystem>;
+    friend MyCreateFunctor;
+
+	using MyDestroyFunctor = Ego::Core::DestroyFunctor<AudioSystem>;
+	friend MyDestroyFunctor;
 
     AudioSystem();
     virtual ~AudioSystem();
