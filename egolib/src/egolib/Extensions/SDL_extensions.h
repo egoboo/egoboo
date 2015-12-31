@@ -31,45 +31,53 @@
 #include "egolib/egoboo_setup.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
+/// A structure holding information about a window.
 /// A structure holding some of SDL's video data
-    struct SDLX_sdl_video_flags_t
-    {
-        unsigned full_screen: 1;      ///< SDL_WINDOW_FULLSCREEN    - Window is a full screen display
-        unsigned opengl: 1;           ///< SDL_WINDOW_OPENGL        - Create an OpenGL rendering context
-        unsigned resizable: 1;        ///< SDL_WINDOW_RESIZABLE     - Window may be resized
-        unsigned borderless: 1;       ///< SDL_WINDOW_BORDERLESS    - No window caption or edge frame
-        unsigned use_desktop_size: 1; ///< SDL_WINDOW_FULLSCREEN_DESKTOP - Window uses desktop size in fullscreen, requires full_screen to be set
-        unsigned highdpi: 1;          ///< SDL_WINDOW_ALLOW_HIGHDPI - Supports High-DPI mode (Apple 'Retina')
+/// @todo Rename to Ego::Graphics::SDL::WindowProperties.
+struct SDLX_sdl_video_flags_t {
+    unsigned full_screen : 1;      ///< SDL_WINDOW_FULLSCREEN    - Window is a full screen display
+    unsigned opengl : 1;           ///< SDL_WINDOW_OPENGL        - Create an OpenGL rendering context
+    unsigned resizable : 1;        ///< SDL_WINDOW_RESIZABLE     - Window may be resized
+    unsigned borderless : 1;       ///< SDL_WINDOW_BORDERLESS    - No window caption or edge frame
+    unsigned use_desktop_size : 1; ///< SDL_WINDOW_FULLSCREEN_DESKTOP - Window uses desktop size in fullscreen, requires full_screen to be set
+    unsigned highdpi : 1;          ///< SDL_WINDOW_ALLOW_HIGHDPI - Supports High-DPI mode (Apple 'Retina')
 
-        static void report(SDLX_sdl_video_flags_t& self);
-        static void defaults(SDLX_sdl_video_flags_t& self);
-    };
+    static void defaults(SDLX_sdl_video_flags_t& self);
+    static uint32_t upload(const SDLX_sdl_video_flags_t& self);
+    static void download(SDLX_sdl_video_flags_t& self, uint32_t bits);
+};
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// A structure holding all of the OpenGL data that can be queried through SDL
-    struct SDLX_sdl_gl_attrib_t
-    {
-        // SDL_GL_* attribute data
-        int color[4];           ///< SDL_GL_RED_SIZE, SDL_GL_GREEN_SIZE, SDL_GL_BLUE_SIZE, SDL_GL_ALPHA_SIZE
-        int buffer_size;        ///< SDL_GL_BUFFER_SIZE
-        int doublebuffer;       ///< SDL_GL_DOUBLEBUFFER
-        int depth_size;         ///< SDL_GL_DEPTH_SIZE
-        int stencil_size;       ///< SDL_GL_STENCIL_SIZE
-        int accum[4];           ///< SDL_GL_ACCUM_RED_SIZE, SDL_GL_ACCUM_GREEN_SIZE, SDL_GL_ACCUM_BLUE_SIZE, SDL_GL_ACCUM_ALPHA_SIZE
-        int stereo;             ///< SDL_GL_STEREO
-        int multi_buffers;      ///< SDL_GL_MULTISAMPLEBUFFERS
-        int multi_samples;      ///< SDL_GL_MULTISAMPLESAMPLES
-        int accelerated_visual; ///< SDL_GL_ACCELERATED_VISUAL
-        int swap_control;       ///< SDL_GL_SWAP_CONTROL
-
-        static void report(SDLX_sdl_gl_attrib_t& self);
-        static void defaults(SDLX_sdl_gl_attrib_t& self);
-    };
+Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_video_flags_t& s);
 
 //--------------------------------------------------------------------------------------------
+
+/// @brief A structure holding all of the OpenGL data that can be queried through SDL.
+/// @remark SDL_GL_SetAttribute and SDL_GL_GetAttribute are used to write and read those values.
+/// @todo Rename to Ego::Graphics::SDL::ContextProperties.
+struct SDLX_sdl_gl_attrib_t {
+    // SDL_GL_* attribute data
+    int color[4];           ///< SDL_GL_RED_SIZE, SDL_GL_GREEN_SIZE, SDL_GL_BLUE_SIZE, SDL_GL_ALPHA_SIZE
+    int buffer_size;        ///< SDL_GL_BUFFER_SIZE
+    int doublebuffer;       ///< SDL_GL_DOUBLEBUFFER
+    int depth_size;         ///< SDL_GL_DEPTH_SIZE
+    int stencil_size;       ///< SDL_GL_STENCIL_SIZE
+    int accum[4];           ///< SDL_GL_ACCUM_RED_SIZE, SDL_GL_ACCUM_GREEN_SIZE, SDL_GL_ACCUM_BLUE_SIZE, SDL_GL_ACCUM_ALPHA_SIZE
+    int stereo;             ///< SDL_GL_STEREO
+    int multi_buffers;      ///< SDL_GL_MULTISAMPLEBUFFERS
+    int multi_samples;      ///< SDL_GL_MULTISAMPLESAMPLES
+    int accelerated_visual; ///< SDL_GL_ACCELERATED_VISUAL
+    int swap_control;       ///< SDL_GL_SWAP_CONTROL
+
+    static void defaults(SDLX_sdl_gl_attrib_t& self);
+    // Upload the attributes to SDL.
+    static void upload(SDLX_sdl_gl_attrib_t& self);
+    // Download the attributes from SDL.
+    static void download(SDLX_sdl_gl_attrib_t& self);
+};
+
+Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
+
 //--------------------------------------------------------------------------------------------
 
 /// A representation of a SDL Screen state
@@ -86,10 +94,12 @@
         int drawWidth;        ///< Framebuffer width (may be different with high DPI on)
         int drawHeight;       ///< Framebuffer height (may be different with high DPI on)
 
-        // SDL OpenGL attributes
+        /// Context properties.
+        /// @todo Rename gl_att to contextProperties.
         SDLX_sdl_gl_attrib_t gl_att;
 
-        // bitfield for SDL video flags
+        /// Window properties.
+        /// @todo Rename flags to windowProperties.
         SDLX_sdl_video_flags_t flags;
 
         static void report(SDLX_screen_info_t& self);
@@ -113,6 +123,7 @@
         static void report(SDLX_video_parameters_t& self);
         static void defaults(SDLX_video_parameters_t& self);
         static void download(SDLX_video_parameters_t& self, egoboo_config_t& cfg);
+        static bool upload(SDLX_video_parameters_t * v);
     };
 
 //--------------------------------------------------------------------------------------------

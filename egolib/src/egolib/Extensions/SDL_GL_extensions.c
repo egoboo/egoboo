@@ -147,7 +147,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
         }
         else
         {
-            memcpy(&param_old, v_old, sizeof(SDLX_video_parameters_t));
+            param_old = *v_old;
         }
     }
     else
@@ -160,8 +160,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
 
     if (NULL != retval)
     {
-        // report on the success or failure to set the mode
-        SDL_GL_report_mode(*retval);
+        SDLX_Get_Screen_Info(sdl_scr, false);
 
         // set the opengl parameters
         gl_new->multisample = GL_FALSE;

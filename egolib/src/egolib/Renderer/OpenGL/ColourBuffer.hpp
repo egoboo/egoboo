@@ -30,6 +30,8 @@ namespace OpenGL {
 using namespace Math;
 
 class ColourBuffer : public Ego::ColourBuffer {
+private:
+    Ego::ColorDepth colourDepth;
 
 public:
 
@@ -52,6 +54,9 @@ public:
 
     /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
     virtual void setClearValue(const Colour4f& value) override;
+
+    /** @copydoc Ego::ColourBuffer::getColourDepth */
+    virtual const ColorDepth& getColourDepth() override;
 
 }; // class ColourBuffer
 

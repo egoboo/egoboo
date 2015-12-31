@@ -477,6 +477,15 @@
     <ClCompile Include="src\egolib\Graphics\ColorDepth.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\RendererInfo.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\StencilBuffer.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\GraphicsSystem.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1011,6 +1020,15 @@
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\ColorDepth.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\RendererInfo.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\StencilBuffer.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

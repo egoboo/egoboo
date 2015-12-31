@@ -35,46 +35,78 @@
 //--------------------------------------------------------------------------------------------
 oglx_caps_t g_ogl_caps;
 
-void oglx_caps_t::report(oglx_caps_t& self)
-{
-    Log::get().message("\nOpenGL state parameters\n");
-	Log::get().message("\tgl_version    == %s\n", self.gl_version);
-	Log::get().message("\tgl_vendor     == %s\n", self.gl_vendor);
-	Log::get().message("\tgl_renderer   == %s\n", self.gl_renderer);
-	Log::get().message("\tgl_extensions == %s\n", self.gl_extensions);
-	Log::get().message("\n");
+oglx_caps_t::oglx_caps_t() {
+}
 
-	Log::get().message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", self.max_modelview_stack_depth);
-	Log::get().message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", self.max_projection_stack_depth);
-	Log::get().message("\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", self.max_texture_stack_depth);
-	Log::get().message("\tGL_MAX_NAME_STACK_DEPTH          == %d\n", self.max_name_stack_depth);
-	Log::get().message("\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", self.max_attrib_stack_depth);
-	Log::get().message("\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", self.max_client_attrib_stack_depth);
+void oglx_caps_t::report(oglx_caps_t& self) {
+    auto& renderer = Ego::Renderer::get();
+    Log::Entry e(Log::Level::Info, __FILE__, __LINE__);
+    {
+        const auto info = renderer.getInfo();
+        e << "OpenGL" << Log::EndOfLine
+            << "  version = " << info.getVersion() << Log::EndOfLine
+            << "  vendor = " << info.getVendor() << Log::EndOfLine
+            << "  renderer = " << info.getRenderer() << Log::EndOfLine;
+        e << "  extensions =";
+        for (const auto& extension : self.gl_extensions) {
+            e << " " << extension;
+        }
+        e << Log::EndOfLine;
+    }
+#if 0
+    Log::get().message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", self.max_modelview_stack_depth);
+    Log::get().message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", self.max_projection_stack_depth);
+    Log::get().message("\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", self.max_texture_stack_depth);
+    Log::get().message("\tGL_MAX_NAME_STACK_DEPTH          == %d\n", self.max_name_stack_depth);
+    Log::get().message("\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", self.max_attrib_stack_depth);
+    Log::get().message("\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", self.max_client_attrib_stack_depth);
+#endif
 
-	Log::get().message("\tGL_SUBPIXEL_BITS          == %d\n", self.subpixel_bits);
-	Log::get().message("\tGL_POINT_SIZE_RANGE       == %f - %f\n", self.point_size_range[0], self.point_size_range[1]);
-	Log::get().message("\tGL_POINT_SIZE_GRANULARITY == %f\n", self.point_size_granularity);
-	Log::get().message("\tGL_LINE_WIDTH_RANGE       == %f - %f\n", self.line_width_range[0], self.line_width_range[1]);
-	Log::get().message("\tGL_LINE_WIDTH_GRANULARITY == %f\n\n", self.line_width_granularity);
+#if 0
+    Log::get().message("\tGL_SUBPIXEL_BITS          == %d\n", self.subpixel_bits);
+    Log::get().message("\tGL_POINT_SIZE_RANGE       == %f - %f\n", self.point_size_range[0], self.point_size_range[1]);
+    Log::get().message("\tGL_POINT_SIZE_GRANULARITY == %f\n", self.point_size_granularity);
+    Log::get().message("\tGL_LINE_WIDTH_RANGE       == %f - %f\n", self.line_width_range[0], self.line_width_range[1]);
+    Log::get().message("\tGL_LINE_WIDTH_GRANULARITY == %f\n\n", self.line_width_granularity);
+#endif
 
-	Log::get().message("\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", self.max_viewport_dims[0], self.max_viewport_dims[1]);
-	Log::get().message("\tGL_AUX_BUFFERS       == %d\n", self.aux_buffers);
-	Log::get().message("\tGL_RGBA_MODE         == %s\n", self.rgba_mode ? "TRUE" : "FALSE");
-	Log::get().message("\tGL_INDEX_MODE        == %s\n", self.index_mode ? "TRUE" : "FALSE");
-	Log::get().message("\tGL_DOUBLEBUFFER      == %s\n", self.doublebuffer ? "TRUE" : "FALSE");
-	Log::get().message("\tGL_STEREO            == %s\n", self.stereo ? "TRUE" : "FALSE");
-	Log::get().message("\tGL_RED_BITS          == %d\n", self.red_bits);
-	Log::get().message("\tGL_GREEN_BITS        == %d\n", self.green_bits);
-	Log::get().message("\tGL_BLUE_BITS         == %d\n", self.blue_bits);
-	Log::get().message("\tGL_ALPHA_BITS        == %d\n", self.alpha_bits);
+#if 0
+    Log::get().message("\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", self.max_viewport_dims[0], self.max_viewport_dims[1]);
+    Log::get().message("\tGL_AUX_BUFFERS       == %d\n", self.aux_buffers);
+    Log::get().message("\tGL_RGBA_MODE         == %s\n", self.rgba_mode ? "TRUE" : "FALSE");
+    Log::get().message("\tGL_INDEX_MODE        == %s\n", self.index_mode ? "TRUE" : "FALSE");
+    Log::get().message("\tGL_DOUBLEBUFFER      == %s\n", self.doublebuffer ? "TRUE" : "FALSE");
+    Log::get().message("\tGL_STEREO            == %s\n", self.stereo ? "TRUE" : "FALSE");
+#endif
+    {
+        // Print the colour buffer colour depth.
+        const auto colourDepth = renderer.getColourBuffer().getColourDepth();
+        e << "  Colour Buffer Colour Depth:" << Log::EndOfLine
+            << "    " << "red bits = " << colourDepth.getRedDepth() << Log::EndOfLine
+            << "    " << "green bits = " << colourDepth.getGreenDepth() << Log::EndOfLine
+            << "    " << "blue bits = " << colourDepth.getBlueDepth() << Log::EndOfLine
+            << "    " << "alpha bits = " << colourDepth.getAlphaDepth() << Log::EndOfLine;
+    }
+    {
+        // Print the accumulation buffer colour depth.
+        const auto colourDepth = renderer.getAccumulationBuffer().getColourDepth();
+        e << "  Accumulation Buffer Colour Depth:" << Log::EndOfLine
+            << "    " << "red bits = " << colourDepth.getRedDepth() << Log::EndOfLine
+            << "    " << "green bits = " << colourDepth.getGreenDepth() << Log::EndOfLine
+            << "    " << "blue bits = " << colourDepth.getBlueDepth() << Log::EndOfLine
+            << "    " << "alpha bits = " << colourDepth.getAlphaDepth() << Log::EndOfLine;
+    }
+    {
+        // Print depth buffer and stencil buffer depth.
+        e << "  Depth Buffer Depth:" << renderer.getDepthBuffer().getDepth() << Log::EndOfLine;
+        e << "  Stencil Buffer Depth:" << renderer.getStencilBuffer().getDepth() << Log::EndOfLine;
+    }
+#if 0
 	Log::get().message("\tGL_INDEX_BITS        == %d\n", self.index_bits);
-	Log::get().message("\tGL_DEPTH_BITS        == %d\n", self.depth_bits);
-	Log::get().message("\tGL_STENCIL_BITS      == %d\n", self.stencil_bits);
-	Log::get().message("\tGL_ACCUM_RED_BITS    == %d\n", self.accum_red_bits);
-	Log::get().message("\tGL_ACCUM_GREEN_BITS  == %d\n", self.accum_green_bits);
-	Log::get().message("\tGL_ACCUM_BLUE_BITS   == %d\n", self.accum_blue_bits);
-	Log::get().message("\tGL_ACCUM_ALPHA_BITS  == %d\n\n", self.accum_alpha_bits);
+#endif
 
+
+#if 0
 	Log::get().message("\tGL_MAX_LIGHTS        == %d\n", self.max_lights);
 	Log::get().message("\tGL_MAX_CLIP_PLANES   == %d\n", self.max_clip_planes);
 	Log::get().message("\tGL_MAX_TEXTURE_SIZE  == %d\n\n", self.max_texture_size);
@@ -89,6 +121,9 @@ void oglx_caps_t::report(oglx_caps_t& self)
     }
 
 	Log::get().message("==============================================================\n");
+#endif
+    e << Log::EndOfEntry;
+    Log::get() << e;
 }
 
 void oglx_report_caps()
@@ -103,15 +138,8 @@ void oglx_Get_Screen_Info(oglx_caps_t *self)
     {
         throw std::invalid_argument("nullptr == self");
     }
-
-    memset(self, 0, sizeof(oglx_caps_t));
-
-    // Get any pure OpenGL device caps.
-
-    self->gl_version = GL_DEBUG(glGetString)(GL_VERSION);
-    self->gl_vendor = GL_DEBUG(glGetString)(GL_VENDOR);
-    self->gl_renderer = GL_DEBUG(glGetString)(GL_RENDERER);
-    self->gl_extensions = GL_DEBUG(glGetString)(GL_EXTENSIONS);
+    // Get version, vendor, renderer and extensions.
+    self->gl_extensions = Ego::OpenGL::Utilities::getExtensions();
 
     GL_DEBUG(glGetIntegerv)(GL_MAX_MODELVIEW_STACK_DEPTH, &self->max_modelview_stack_depth);
     GL_DEBUG(glGetIntegerv)(GL_MAX_PROJECTION_STACK_DEPTH, &self->max_projection_stack_depth);
@@ -132,17 +160,23 @@ void oglx_Get_Screen_Info(oglx_caps_t *self)
     GL_DEBUG(glGetBooleanv)(GL_INDEX_MODE, &self->index_mode);
     GL_DEBUG(glGetBooleanv)(GL_DOUBLEBUFFER, &self->doublebuffer);
     GL_DEBUG(glGetBooleanv)(GL_STEREO, &self->stereo);
+#if 0
     GL_DEBUG(glGetIntegerv)(GL_RED_BITS, &self->red_bits);
     GL_DEBUG(glGetIntegerv)(GL_GREEN_BITS, &self->green_bits);
     GL_DEBUG(glGetIntegerv)(GL_BLUE_BITS, &self->blue_bits);
     GL_DEBUG(glGetIntegerv)(GL_ALPHA_BITS, &self->alpha_bits);
+#endif
     GL_DEBUG(glGetIntegerv)(GL_INDEX_BITS, &self->index_bits);
+#if 0
     GL_DEBUG(glGetIntegerv)(GL_DEPTH_BITS, &self->depth_bits);
     GL_DEBUG(glGetIntegerv)(GL_STENCIL_BITS, &self->stencil_bits);
+#endif
+#if 0
     GL_DEBUG(glGetIntegerv)(GL_ACCUM_RED_BITS, &self->accum_red_bits);
     GL_DEBUG(glGetIntegerv)(GL_ACCUM_GREEN_BITS, &self->accum_green_bits);
     GL_DEBUG(glGetIntegerv)(GL_ACCUM_BLUE_BITS, &self->accum_blue_bits);
     GL_DEBUG(glGetIntegerv)(GL_ACCUM_ALPHA_BITS, &self->accum_alpha_bits);
+#endif
 
     GL_DEBUG(glGetIntegerv)(GL_MAX_LIGHTS, &self->max_lights);
     GL_DEBUG(glGetIntegerv)(GL_MAX_CLIP_PLANES, &self->max_clip_planes);
@@ -159,7 +193,7 @@ void oglx_Get_Screen_Info(oglx_caps_t *self)
     self->anisotropic_supported = GL_FALSE;
     self->maxAnisotropy = 1.0f;
     self->log2Anisotropy = 0.0f;
-    if (NULL != self->gl_extensions && NULL != strstr((char*)self->gl_extensions, "GL_EXT_texture_filter_anisotropic"))
+    if (self->gl_extensions.cend() != self->gl_extensions.find("GL_EXT_texture_filter_anisotropic"))
     {
         self->anisotropic_supported = GL_TRUE;
         GL_DEBUG(glGetFloatv)(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &(self->maxAnisotropy));
@@ -176,6 +210,54 @@ namespace OpenGL
 
 const Utilities::String Utilities::anisotropyExtension = "GL_EXT_texture_filter_anisotropic";
 
+uint8_t Utilities::getDepthBufferDepth() {
+    // Get the depth buffer depth.
+    GLint depth;
+    glGetIntegerv(GL_DEPTH_BITS, &depth);
+    if (isError()) {
+        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+    }
+    return depth;
+}
+
+uint8_t Utilities::getStencilBufferDepth() {
+    // Get the stencil buffer depth.
+    GLint depth;
+    glGetIntegerv(GL_STENCIL_BITS, &depth);
+    if (isError()) {
+        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+    }
+    return depth;
+}
+
+ColorDepth Utilities::getColourBufferColourDepth() {
+    // Get the colour buffer colour depth.
+    GLint redDepth, greenDepth, blueDepth, alphaDepth;
+    glGetIntegerv(GL_RED_BITS, &redDepth);
+    glGetIntegerv(GL_GREEN_BITS, &greenDepth);
+    glGetIntegerv(GL_BLUE_BITS, &blueDepth);
+    glGetIntegerv(GL_ALPHA_BITS, &alphaDepth);
+    if (isError()) {
+        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+    }
+    return ColorDepth(redDepth + greenDepth + blueDepth + alphaDepth,
+                      redDepth, greenDepth, blueDepth, alphaDepth);
+}
+
+ColorDepth Utilities::getAccumulationBufferColourDepth() {
+    // Get the accumulation buffer colour depth.
+    GLint redDepth, greenDepth, blueDepth, alphaDepth;
+    glGetIntegerv(GL_ACCUM_RED_BITS, &redDepth);
+    glGetIntegerv(GL_ACCUM_GREEN_BITS, &greenDepth);
+    glGetIntegerv(GL_ACCUM_BLUE_BITS, &blueDepth);
+    glGetIntegerv(GL_ACCUM_ALPHA_BITS, &alphaDepth);
+    if (isError()) {
+        throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
+    }
+    return ColorDepth(redDepth + greenDepth + blueDepth + alphaDepth,
+                      redDepth, greenDepth, blueDepth, alphaDepth);
+}
+
 UnorderedSet<Utilities::String> Utilities::getExtensions() {
     clearError();
     const GLubyte *bytes = glGetString(GL_EXTENSIONS);
@@ -186,7 +268,7 @@ UnorderedSet<Utilities::String> Utilities::getExtensions() {
     return Core::make_unordered_set(split(String((const char *)bytes), String(" ")));
 }
 
-Utilities::String Utilities::getName() {
+Utilities::String Utilities::getRenderer() {
     clearError();
     const GLubyte *bytes = glGetString(GL_RENDERER);
     GLenum error = glGetError();

@@ -32,6 +32,9 @@ using namespace Math;
 
 class AccumulationBuffer : public Ego::AccumulationBuffer {
 
+private:
+    Ego::ColorDepth colourDepth;
+
 public:
 
     /**
@@ -53,6 +56,9 @@ public:
 
     /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
     virtual void setClearValue(const Colour4f& value) override;
+
+    /** @copydoc Ego::AccumulationBuffer::getColourDepth */
+    virtual const ColorDepth& getColourDepth() override;
 
 }; // class AccumulationBuffer
 

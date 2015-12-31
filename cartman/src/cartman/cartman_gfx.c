@@ -27,12 +27,12 @@
 #include "cartman/cartman_select.h"
 #include "cartman/cartman_math.h"
 #include "egolib/FileFormats/Globals.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
 #include "cartman/Clocks.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool _sdl_initialized_graphics = false;
 static bool _ogl_initialized = false;
 
 //--------------------------------------------------------------------------------------------
@@ -63,16 +63,10 @@ Uint16 biganimtileframeand = 7;
 Uint16 biganimtilebaseand  = ( Uint16 )( ~7 );
 Uint16 animtileframeadd    = 0;
 
-SDLX_video_parameters_t sdl_vparam;
-oglx_video_parameters_t ogl_vparam;
-
 std::unique_ptr<Resources> Resources::instance = nullptr;
 
 int     numsmalltile = 0;   //
 int     numbigtile = 0;     //
-
-int GFX_WIDTH  = 800;
-int GFX_HEIGHT = 600;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -87,8 +81,10 @@ static int  gfx_init_ogl();
 
 void gfx_system_begin()
 {
-    // set the graphics state
-    gfx_system_init_SDL_graphics();
+    // Initialize the graphics system.
+    Ego::GraphicsSystem::initialize();
+    // Set the window title.
+    Ego::GraphicsSystem::setTitle(NAME " " VERSION_STR);
     ImageManager::initialize();
     Ego::Renderer::initialize();
     TextureManager::initialize();
@@ -106,6 +102,7 @@ void gfx_system_end()
     TextureManager::uninitialize();
     Ego::Renderer::uninitialize();
     ImageManager::uninitialize();
+    Ego::GraphicsSystem::uninitialize();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1266,68 +1263,12 @@ void get_tiles( SDL_Surface* bmpload )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void gfx_system_init_SDL_graphics()
-{
-    if (_sdl_initialized_graphics) return;
-
-    // The flags to pass to SDL_SetVideoMode.
-    SDLX_video_parameters_t::download(sdl_vparam, egoboo_config_t::get());
-
-    sdl_vparam.flags.opengl = true;
-    sdl_vparam.gl_att.doublebuffer = true;
-    sdl_vparam.gl_att.accelerated_visual = true;
-
-    oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
-
-	Log::get().info("Opening SDL Video Mode...\n");
-
-    // actually set the video mode
-    if (NULL == SDL_GL_set_mode(NULL, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics))
-    {
-		Log::get().message("Failed!\n");
-		std::ostringstream os;
-		os << "unable to set any SDL video mode - SDL_GetError() = " << SDL_GetError() << std::endl;
-		Log::get().error("%s",os.str().c_str());
-		throw std::runtime_error(os.str());
-    }
-    else
-    {
-        GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.verticalResolution * (float)sdl_vparam.horizontalResolution;
-		Log::get().message("Success!\n");
-    }
-    
-    SDL_Window *window = sdl_scr.window;
-    
-#if !defined(ID_OSX)
-    {
-        // Setup the cute windows manager icon, don't do this on Mac.
-        const std::string fileName = "icon.bmp";
-        auto pathName = "mp_data/" + fileName;
-        SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
-        if (!theSurface)
-        {
-			Log::get().warn("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
-        }
-        else
-        {
-            SDL_SetWindowIcon(window, theSurface);
-        }
-    }
-#endif
-    
-    // Set the window name.
-    SDL_SetWindowTitle(window, NAME " " VERSION_STR);
-
-    _sdl_initialized_graphics = true;
-}
 
 //--------------------------------------------------------------------------------------------
 int gfx_init_ogl()
 {
     using namespace Ego;
     using namespace Ego::Math;
-    gfx_system_init_SDL_graphics();
 
     auto& renderer = Renderer::get();
     // Set clear colour.
@@ -1374,5 +1315,5 @@ int gfx_init_ogl()
 
     _ogl_initialized = true;
 
-    return _ogl_initialized && _sdl_initialized_graphics;
+    return _ogl_initialized && Ego::GraphicsSystem::initialized;
 }

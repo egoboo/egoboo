@@ -61,19 +61,53 @@ public:
 
     /**
      * @brief
+     *  Get the depth buffer depth.
+     * @return
+     *  the depth buffer depth
+     */
+    static uint8_t getDepthBufferDepth();
+
+    /**
+     * @brief
+     *  Get the stencil buffer depth.
+     * @return
+     *  the stencil buffer depth
+     */
+    static uint8_t getStencilBufferDepth();
+
+    /**
+     * @brief
+     *  Get the colour buffer colour depth.
+     * @return
+     *  the colour buffer colour depth
+     */
+    static ColorDepth getColourBufferColourDepth();
+
+    /**
+     * @brief
+     *  Get the accumulation colour depth.
+     * @return
+     *  the accumulation colour depth
+     */
+    static ColorDepth getAccumulationBufferColourDepth();
+
+public:
+    /**
+     * @brief
      *  Get the set of extension strings of extensions supported by this OpenGL implementation.
      * @return
      *  the set of extension strings
      */
     static UnorderedSet<String> getExtensions();
 
+public:
     /**
      * @brief
-     *  Get the name of this OpenGL implementation.
+     *  Get the name of the renderer of this OpenGL implementation.
      * @return
-     *  the name of this OpenGL implementation
+     *  the name of the renderer of this OpenGL implementation
      */
-    static String getName();
+    static String getRenderer();
 
     /**
      * @brief
@@ -226,10 +260,7 @@ public:
 /// OpenGL graphics info
 struct oglx_caps_t
 {
-    const GLubyte * gl_version;
-    const GLubyte * gl_vendor;
-    const GLubyte * gl_renderer;
-    const GLubyte * gl_extensions;
+    std::unordered_set<std::string> gl_extensions;
 
     // stack depths
     GLint max_modelview_stack_depth;     ///< Maximum modelview-matrix stack depth
@@ -253,17 +284,23 @@ struct oglx_caps_t
     GLboolean index_mode;            ///< True if color buffers store indices
     GLboolean doublebuffer;          ///< True if front and back buffers exist
     GLboolean stereo;                ///< True if left and right buffers exist
+#if 0
     GLint     red_bits;              ///< Number of bits per red component in color buffers
     GLint     green_bits;            ///< Number of bits per green component in color buffers
     GLint     blue_bits;             ///< Number of bits per blue component in color buffers
     GLint     alpha_bits;            ///< Number of bits per alpha component in color buffers
+#endif
     GLint     index_bits;            ///< Number of bits per index in color buffers
+#if 0
     GLint     depth_bits;            ///< Number of depth-buffer bitplanes
     GLint     stencil_bits;          ///< Number of stencil bitplanes
+#endif
+#if 0
     GLint     accum_red_bits;        ///< Number of bits per red component in the accumulation buffer
     GLint     accum_green_bits;      ///< Number of bits per green component in the accumulation buffer
     GLint     accum_blue_bits;       ///< Number of bits per blue component in the accumulation buffer
     GLint     accum_alpha_bits;      ///< Number of bits per blue component in the accumulation buffer
+#endif
 
     // Misc
     GLint max_lights;                    ///< Maximum number of lights
@@ -280,6 +317,7 @@ struct oglx_caps_t
     GLfloat   maxAnisotropy;
     GLfloat   log2Anisotropy;                    ///< Max levels of anisotropy
 
+    oglx_caps_t();
     static void report(oglx_caps_t& self);
 };
 

@@ -129,9 +129,6 @@ struct Resources {
 extern int     numsmalltile;   //
 extern int     numbigtile;     //
 
-extern SDLX_video_parameters_t sdl_vparam;
-extern oglx_video_parameters_t ogl_vparam;
-
 extern int    animtileupdateand;                      // New tile every ( (1 << n) - 1 ) frames
 extern Uint16 animtileframeand;                       // 1 << n frames
 extern Uint16 animtilebaseand;
@@ -146,9 +143,6 @@ extern short  damagetilesoundtime;
 extern Uint16 damagetilemindistance;
 extern int    damagetileamount;                           // Amount of damage
 extern Uint8  damagetiletype;                      // Type of damage
-
-extern int GFX_WIDTH;
-extern int GFX_HEIGHT;
 
 extern const Ego::Math::Colour4f WHITE;
 extern const Ego::Math::Colour4f BLACK;

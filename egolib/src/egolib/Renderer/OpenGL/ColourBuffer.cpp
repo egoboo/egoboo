@@ -27,7 +27,7 @@ namespace Ego {
 namespace OpenGL {
 
 ColourBuffer::ColourBuffer() :
-    Ego::ColourBuffer()
+    Ego::ColourBuffer(), colourDepth(Utilities::getColourBufferColourDepth())
 {}
 
 ColourBuffer::~ColourBuffer() {}
@@ -40,6 +40,10 @@ void ColourBuffer::clear() {
 void ColourBuffer::setClearValue(const Colour4f& value) {
     glClearColor(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
     Utilities::isError();
+}
+
+const ColorDepth& ColourBuffer::getColourDepth() {
+    return colourDepth;
 }
 
 } // namespace OpenGL

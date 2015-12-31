@@ -48,11 +48,6 @@ SDL_Window *_window;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pflags );
-static void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void SDLX_screen_info_t::report(SDLX_screen_info_t& self)
 {
 	Log::get().message("\nSDL using video driver - %s\n", self.szDriver.c_str());
@@ -107,10 +102,10 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     psi.szDriver = SDL_GetCurrentVideoDriver();
 
     // grab all SDL_GL_* attributes
-    SDLX_read_sdl_gl_attrib( &( psi.gl_att ) );
+    SDLX_sdl_gl_attrib_t::download(psi.gl_att);
 
     // translate the surface flags into the bitfield
-    SDLX_download_sdl_video_flags( SDL_GetWindowFlags(window), &( psi.flags ) );
+    SDLX_sdl_video_flags_t::download(psi.flags, SDL_GetWindowFlags(window));
 
     if (make_report)
     {
@@ -120,90 +115,152 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void SDLX_sdl_gl_attrib_t::report(SDLX_sdl_gl_attrib_t& self)
-{
-	Log::get().message("\nSDL_GL_Attribtes\n");
 
-	Log::get().message("\tSDL_GL_RED_SIZE           == %d\n", self.color[0]);
-	Log::get().message("\tSDL_GL_GREEN_SIZE         == %d\n", self.color[1]);
-	Log::get().message("\tSDL_GL_BLUE_SIZE          == %d\n", self.color[2]);
-	Log::get().message("\tSDL_GL_ALPHA_SIZE         == %d\n", self.color[3]);
-	Log::get().message("\tSDL_GL_BUFFER_SIZE        == %d\n", self.buffer_size);
-	Log::get().message("\tSDL_GL_DEPTH_SIZE         == %d\n", self.depth_size);
+void SDLX_sdl_gl_attrib_t::defaults(SDLX_sdl_gl_attrib_t& self) {
+    self.doublebuffer = 0;
+    self.stencil_size = 0;
+    self.accum[0] = 0;
+    self.accum[1] = 0;
+    self.accum[2] = 0;
+    self.accum[3] = 0;
+    self.stereo = 0;
+    self.swap_control = 0;
 
-	Log::get().message("\tSDL_GL_DOUBLEBUFFER       == %d\n", self.doublebuffer);
-	Log::get().message("\tSDL_GL_STENCIL_SIZE       == %d\n", self.stencil_size);
-	Log::get().message("\tSDL_GL_ACCUM_RED_SIZE     == %d\n", self.accum[0]);
-	Log::get().message("\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", self.accum[1]);
-	Log::get().message("\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", self.accum[2]);
-	Log::get().message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", self.accum[3]);
-	Log::get().message("\tSDL_GL_STEREO             == %d\n", self.stereo);
+    self.multi_buffers = 1;
+    self.multi_samples = 2;
+    self.accelerated_visual = 1;
 
-	Log::get().message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", self.multi_buffers);
-	Log::get().message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", self.multi_samples);
+    self.color[0] = 8;
+    self.color[1] = 8;
+    self.color[2] = 8;
+    self.color[2] = 8;
+    self.buffer_size = 32;
+
+    self.depth_size = 8;
+}
+
+void SDLX_sdl_gl_attrib_t::upload(SDLX_sdl_gl_attrib_t& self) {
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, self.color[0]);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, self.color[1]);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, self.color[2]);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, self.color[3]);
+    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, self.buffer_size);
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, self.doublebuffer);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, self.depth_size);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, self.stencil_size);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, self.accum[0]);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, self.accum[1]);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, self.accum[2]);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, self.accum[3]);
+    SDL_GL_SetAttribute(SDL_GL_STEREO, self.stereo);
+
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, self.multi_buffers);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, self.multi_samples);
 #if !defined(ID_LINUX)
-	Log::get().message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", self.accelerated_visual);
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, self.accelerated_visual);
 #endif
+}
 
-	Log::get().message("\tSDL_GL_SWAP_CONTROL       == %d\n", self.swap_control);
+void SDLX_sdl_gl_attrib_t::download(SDLX_sdl_gl_attrib_t& self) {
+    SDL_GL_GetAttribute(SDL_GL_RED_SIZE, self.color + 0);
+    SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, self.color + 1);
+    SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, self.color + 2);
+    SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, self.color + 3);
+    SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE, &(self.buffer_size));
+    SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &(self.doublebuffer));
+    SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &(self.depth_size));
+    SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &(self.stencil_size));
+    SDL_GL_GetAttribute(SDL_GL_ACCUM_RED_SIZE, self.accum + 0);
+    SDL_GL_GetAttribute(SDL_GL_ACCUM_GREEN_SIZE, self.accum + 1);
+    SDL_GL_GetAttribute(SDL_GL_ACCUM_BLUE_SIZE, self.accum + 2);
+    SDL_GL_GetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, self.accum + 3);
+    SDL_GL_GetAttribute(SDL_GL_STEREO, &(self.stereo));
+
+    self.swap_control = SDL_GL_GetSwapInterval();
+
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &(self.multi_buffers));
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &(self.multi_samples));
+#if !defined(ID_LINUX)
+    SDL_GL_GetAttribute(SDL_GL_ACCELERATED_VISUAL, &(self.accelerated_visual));
+#endif
+}
+
+Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s) {
+    e << "context attributes" << Log::EndOfLine;
+
+    // Colour buffer.
+    e << "  " << "colour buffer" << Log::EndOfLine;
+    e << "  " << "  " << "color depth = " << s.buffer_size << Log::EndOfLine;
+    e << "  " << "  " << "red depth = " << s.color[0] << Log::EndOfLine
+      << "  " << "  " << "green depth = " << s.color[1] << Log::EndOfLine
+      << "  " << "  " << "blue depth = " << s.color[2] << Log::EndOfLine
+      << "  " << "  " << "alpha depth = " << s.color[3] << Log::EndOfLine;
+
+    // Depth buffer.
+    e << "  " << "depth depth = " << s.depth_size << Log::EndOfLine;
+
+    // Stencil buffer.
+    e << "  " << "stencil depth = " << s.stencil_size << Log::EndOfLine;
+
+    // Accumulation buffer.
+    e << "  " << "accumulation buffer" << Log::EndOfLine;
+    e << "  " << "  " << "color depth = " << s.accum[0] + s.accum[1] + s.accum[2] + s.accum[3] << Log::EndOfLine;
+    e << "  " << "  " << "red depth = " << s.accum[0] << Log::EndOfLine
+        << "  " << "  " << "green depth = " << s.accum[1] << Log::EndOfLine
+        << "  " << "  " << "blue depth = " << s.accum[2] << Log::EndOfLine
+        << "  " << "  " << "alpha depth = " << s.accum[3] << Log::EndOfLine;
+
+    // Double buffering, stereoscopic rendering.
+    e << "  " << "double buffer = " << s.doublebuffer << Log::EndOfLine;
+    e << "  " << "stereoscopic rendering = " << s.stereo << Log::EndOfLine;
+
+    // Multisampling.
+    e << "  " << "multisampling" << Log::EndOfLine;
+    e << "  " << "  " << "multisample buffers = " << s.multi_buffers << Log::EndOfLine;
+    e << "  " << "  " << "multisamples = " << s.multi_samples << Log::EndOfLine;
+
+#if !defined(ID_LINUX)
+    e << "  " << "accelerated visual = " << s.accelerated_visual << Log::EndOfLine;
+#endif
+    e << "  " << "swap control = " << s.swap_control << Log::EndOfLine;
+    return e;
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_sdl_video_flags_t::report(SDLX_sdl_video_flags_t& self)
-{
-	Log::get().message("\nSDL flags\n");
 
-	Log::get().message("\t%s\n", self.full_screen ? "fullscreen" : "windowed");
-
-    if (self.opengl)
-    {
-		Log::get().message("\tOpenGL support\n");
+uint32_t SDLX_sdl_video_flags_t::upload(const SDLX_sdl_video_flags_t& self) {
+    uint32_t bits = 0;
+    bits |= self.full_screen ? SDL_WINDOW_FULLSCREEN : 0;
+    bits |= self.opengl ? SDL_WINDOW_OPENGL : 0;
+    bits |= self.resizable ? SDL_WINDOW_RESIZABLE : 0;
+    bits |= self.borderless ? SDL_WINDOW_BORDERLESS : 0;
+    bits |= self.highdpi ? SDL_WINDOW_ALLOW_HIGHDPI : 0;
+    if (self.full_screen && self.use_desktop_size) {
+        bits |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
+    return bits;
+}
 
-    if (self.resizable)
-    {
-		Log::get().message("\tresizable window\n");
-    }
-
-    if (self.borderless)
-    {
-		Log::get().message("\tborderless window\n");
-    }
-    
-    if (self.highdpi)
-    {
-		Log::get().message("\thigh DPI (Apple 'Retina') support");
+void SDLX_sdl_video_flags_t::download(SDLX_sdl_video_flags_t& self, uint32_t bits) {
+    self.full_screen = HAS_SOME_BITS(bits, SDL_WINDOW_FULLSCREEN);
+    self.opengl = HAS_SOME_BITS(bits, SDL_WINDOW_OPENGL);
+    self.resizable = HAS_SOME_BITS(bits, SDL_WINDOW_RESIZABLE);
+    self.borderless = HAS_SOME_BITS(bits, SDL_WINDOW_BORDERLESS);
+    self.highdpi = HAS_SOME_BITS(bits, SDL_WINDOW_ALLOW_HIGHDPI);
+    if (self.full_screen) {
+        self.use_desktop_size = HAS_SOME_BITS(bits, SDL_WINDOW_FULLSCREEN_DESKTOP);
     }
 }
 
-//--------------------------------------------------------------------------------------------
-Uint32 SDLX_upload_sdl_video_flags( SDLX_sdl_video_flags_t flags )
-{
-    Uint32 ret = 0;
-
-    ret |= flags.full_screen ? SDL_WINDOW_FULLSCREEN    : 0;
-    ret |= flags.opengl      ? SDL_WINDOW_OPENGL        : 0;
-    ret |= flags.resizable   ? SDL_WINDOW_RESIZABLE     : 0;
-    ret |= flags.borderless  ? SDL_WINDOW_BORDERLESS    : 0;
-    ret |= flags.highdpi     ? SDL_WINDOW_ALLOW_HIGHDPI : 0;
-    if (flags.full_screen && flags.use_desktop_size) ret |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pflags )
-{
-    if ( NULL != pflags )
-    {
-        pflags->full_screen = HAS_SOME_BITS(iflags, SDL_WINDOW_FULLSCREEN);
-        pflags->opengl      = HAS_SOME_BITS(iflags, SDL_WINDOW_OPENGL);
-        pflags->resizable   = HAS_SOME_BITS(iflags, SDL_WINDOW_RESIZABLE);
-        pflags->borderless  = HAS_SOME_BITS(iflags, SDL_WINDOW_BORDERLESS);
-        pflags->highdpi     = HAS_SOME_BITS(iflags, SDL_WINDOW_ALLOW_HIGHDPI);
-        if (pflags->full_screen) pflags->use_desktop_size = HAS_SOME_BITS(iflags, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    }
+Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_video_flags_t& s) {
+    e << "window properties" << Log::EndOfLine;
+    e << " fullscreen = " << (s.full_screen ? "yes" : "no") << Log::EndOfLine
+      << " OpenGL = " << (s.opengl ? "yes" : "no") << Log::EndOfLine
+      << " resizable = " << (s.resizable ? "yes" : "no") << Log::EndOfLine
+      << " borderless = " << (s.borderless ? "yes" : "no") << Log::EndOfLine
+      << " high DPI (Apple 'Retina') = " << (s.highdpi ? "yes" : "no") << Log::EndOfLine;
+    return e;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -211,43 +268,23 @@ void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
 {
     /// @author BB
     /// @details make a report
+    Log::Entry e(Log::Level::Info, __FILE__, __LINE__);
 
-	Log::get().message("\thorizontalResolution == %d, verticalResolution == %d, colorBufferDepth == %d\n", self.horizontalResolution, self.verticalResolution, self.colorBufferDepth);
+    // Write the horizontal and vertical resolution and the color depth.
+    e << "horizontal resolution = " << self.horizontalResolution << Log::EndOfLine
+      << "vertical resolution = " << self.verticalResolution << Log::EndOfLine
+      << "color depth = " << self.colorBufferDepth << Log::EndOfLine;
+    // Write the window properties.
+    e << self.flags;
 
-    SDLX_sdl_video_flags_t::report(self.flags);
-
+    // Write the context properties.
     if (self.flags.opengl)
     {
-        SDLX_sdl_gl_attrib_t::report(self.gl_att);
+        e << self.gl_att;
     }
-}
 
-//--------------------------------------------------------------------------------------------
-void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
-{
-    if ( NULL == patt ) return;
-
-    SDL_GL_GetAttribute( SDL_GL_RED_SIZE,               patt->color + 0 );
-    SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE,             patt->color + 1 );
-    SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE,              patt->color + 2 );
-    SDL_GL_GetAttribute( SDL_GL_ALPHA_SIZE,             patt->color + 3 );
-    SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE,          &( patt->buffer_size ) );
-    SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER,         &( patt->doublebuffer ) );
-    SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE,           &( patt->depth_size ) );
-    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE,         &( patt->stencil_size ) );
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE,         patt->accum + 0 );
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE,       patt->accum + 1 );
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE,        patt->accum + 2 );
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,       patt->accum + 3 );
-    SDL_GL_GetAttribute( SDL_GL_STEREO,               &( patt->stereo ) );
-    
-    patt->swap_control = SDL_GL_GetSwapInterval();
-
-    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   &( patt->multi_buffers ) );
-    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES,   &( patt->multi_samples ) );
-#if !defined(ID_LINUX)
-    SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL,   &( patt->accelerated_visual ) );
-#endif
+    e << Log::EndOfEntry;
+    Log::get() << e;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -260,42 +297,21 @@ void SDLX_synch_video_parameters( SDL_Window * ret, SDLX_video_parameters_t * v 
 
     SDL_GetWindowSize(ret, &(v->horizontalResolution), &(v->verticalResolution));
 
-    // translate the surface flags into the bitfield
-    SDLX_download_sdl_video_flags( SDL_GetWindowFlags(ret), &( v->flags ) );
+    // Download the video flags from SDL.
+    SDLX_sdl_video_flags_t::download(v->flags, SDL_GetWindowFlags(ret));
 
-    // grab all SDL_GL_* attributes
-    SDLX_read_sdl_gl_attrib( &( v->gl_att ) );
+    // Download the OpenGL attributes from SDL.
+    SDLX_sdl_gl_attrib_t::download(v->gl_att);
 }
 
 //--------------------------------------------------------------------------------------------
-bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
+bool SDLX_video_parameters_t::upload( SDLX_video_parameters_t * v )
 {
     if ( NULL == v ) return false;
 
     if ( v->flags.opengl )
     {
-        SDLX_sdl_gl_attrib_t * patt = &( v->gl_att );
-
-        SDL_GL_SetAttribute( SDL_GL_RED_SIZE,             patt->color[0] );
-        SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE,           patt->color[1] );
-        SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,            patt->color[2] );
-        SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE,           patt->color[3] );
-        SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE,          patt->buffer_size );
-
-        SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER,         patt->doublebuffer );
-        SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE,           patt->depth_size );
-        SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE,         patt->stencil_size );
-        SDL_GL_SetAttribute( SDL_GL_ACCUM_RED_SIZE,       patt->accum[0] );
-        SDL_GL_SetAttribute( SDL_GL_ACCUM_GREEN_SIZE,     patt->accum[1] );
-        SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE,      patt->accum[2] );
-        SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,     patt->accum[3] );
-        SDL_GL_SetAttribute( SDL_GL_STEREO,               patt->stereo );
-
-        SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   patt->multi_buffers );
-        SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES,   patt->multi_samples );
-#if !defined(ID_LINUX)
-        SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL,   patt->accelerated_visual );
-#endif
+        SDLX_sdl_gl_attrib_t::upload(v->gl_att);
     }
 
     return true;
@@ -314,7 +330,7 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
     if ( !v->flags.opengl )
     {
         // set the
-        flags = SDLX_upload_sdl_video_flags( v->flags );
+        flags = SDLX_sdl_video_flags_t::upload( v->flags );
 
         // do our one-and-only video initialization
         ret = SDL_CreateWindow("SDL App", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
@@ -364,10 +380,10 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
         v->gl_att.buffer_size  = buffer_size;
 
         // the GL_ATTRIB_* parameters must be set before opening the video mode
-        SDLX_set_sdl_gl_attrib( v );
+        SDLX_video_parameters_t::upload( v );
 
         // set the flags
-        flags = SDLX_upload_sdl_video_flags( v->flags );
+        flags = SDLX_sdl_video_flags_t::upload( v->flags );
 
         // try a softer video initialization
         // if it fails, then it tries to get the closest possible valid video mode
@@ -392,7 +408,7 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
                 {
                     v->gl_att.multi_buffers = 1;
 
-                    SDLX_set_sdl_gl_attrib( v );
+                    SDLX_video_parameters_t::upload( v );
                     
                     ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
                     if ( nullptr == ret ) {
@@ -473,31 +489,7 @@ void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t& self)
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_sdl_gl_attrib_t::defaults(SDLX_sdl_gl_attrib_t& self)
-{
-	self.doublebuffer = 0;
-	self.stencil_size = 0;
-	self.accum[0] = 0;
-	self.accum[1] = 0;
-	self.accum[2] = 0;
-	self.accum[3] = 0;
-	self.stereo = 0;
-	self.swap_control = 0;
 
-    self.multi_buffers = 1;
-    self.multi_samples = 2;
-    self.accelerated_visual = 1;
-
-    self.color[0] = 8;
-    self.color[1] = 8;
-    self.color[2] = 8;
-    self.color[2] = 8;
-    self.buffer_size = 32;
-
-    self.depth_size = 8;
-}
-
-//--------------------------------------------------------------------------------------------
 void SDLX_video_parameters_t::defaults(SDLX_video_parameters_t& self)
 {
     self.surface = nullptr;
@@ -567,7 +559,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
         }
         else
         {
-            memcpy( &param_old, v_old, sizeof( SDLX_video_parameters_t ) );
+            param_old = *v_old;
         }
     }
     else
@@ -585,7 +577,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     }
     else
     {
-        memcpy( &param_new, v_new, sizeof( SDLX_video_parameters_t ) );
+        param_new = *v_new;
     }
 
     // assume any problem with setting the graphics mode is with the multisampling
@@ -595,14 +587,14 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     {
         // report on the success or failure to set the mode
         SDLX_report_mode( surface, param_new );
-    };
+    }
 
     if ( NULL != surface )
     {
         param_new.surface = surface;
         if ( NULL != v_new )
         {
-            memcpy( v_new, &param_new, sizeof( SDLX_video_parameters_t ) );
+            *v_new = param_new;
         }
         retval = v_new;
     }
@@ -620,7 +612,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
             param_old.surface = surface;
             if ( v_old != &param_old )
             {
-                memcpy( v_old, &param_old, sizeof( SDLX_video_parameters_t ) );
+                *v_old = param_old;
             }
         }
 

@@ -30,6 +30,7 @@
 #include "game/game.h"
 #include "game/GUI/Button.hpp"
 #include "game/Module/Module.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
 
 #ifdef _DEBUG
 #include "game/GameStates/DebugParticlesScreen.hpp"
@@ -40,7 +41,7 @@ InGameMenuState::InGameMenuState(PlayingState *playingState) :
     _playingState(playingState)
 {
     // Add the buttons
-    int yOffset = GFX_HEIGHT-80;
+    int yOffset = Ego::GraphicsSystem::gfx_height-80;
     std::shared_ptr<Button> exitButton = std::make_shared<Button>(_currentModule->isExportValid() ? "Save and Exit" : "Abort and Exit", SDLK_q);
     exitButton->setPosition(20, yOffset);
     exitButton->setSize(200, 30);

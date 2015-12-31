@@ -29,12 +29,13 @@
 #include "game/GUI/Label.hpp"
 #include "game/Module/Module.hpp"
 #include "game/game.h"
+#include "egolib/Graphics/GraphicsSystem.hpp"
 
 VictoryScreen::VictoryScreen(PlayingState *playingState, const bool forceExit) :
 	_playingState(playingState)
 {
 	//Add the buttons
-	int yOffset = GFX_HEIGHT-80;
+	int yOffset = Ego::GraphicsSystem::gfx_height-80;
 	std::shared_ptr<Button> exitButton = std::make_shared<Button>(_currentModule->isExportValid() ? "Save and Exit" : "Exit Game", SDLK_SPACE);
 	exitButton->setSize(200, 30);
 	exitButton->setPosition(20, yOffset);

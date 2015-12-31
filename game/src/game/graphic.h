@@ -342,9 +342,6 @@ extern Uint32          menu_frame_all;             ///< The total number of fram
 
 extern gfx_config_t gfx;
 
-extern int GFX_WIDTH;
-extern int GFX_HEIGHT;
-
 extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///< Environment map
 
 //--------------------------------------------------------------------------------------------
