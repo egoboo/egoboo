@@ -330,10 +330,10 @@ void Camera::updateFreeControl()
 
     //Pitch camera
     if(keyb.is_key_down(SDLK_PAGEDOWN)) {
-        _pitch += Ego::Math::pi<float>() * 0.01f;
+        _pitch += Ego::Math::radToDeg(15.0f);
     }
     else if(keyb.is_key_down(SDLK_PAGEUP)) {
-        _pitch -= Ego::Math::pi<float>() * 0.01f;
+        _pitch -= Ego::Math::radToDeg(15.0f);
     }
 
     //Constrain between 0 and 90 degrees pitch (and a little extra to avoid singularities)
