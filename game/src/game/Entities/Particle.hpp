@@ -326,7 +326,7 @@ private:
     * @brief
     *   Clear the data of a Particle
     **/
-    void reset(ParticleRef ref);  
+    void reset(ParticleRef ref);
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;

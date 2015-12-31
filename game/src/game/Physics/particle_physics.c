@@ -685,7 +685,56 @@ bool prt_bundle_t::move_one_particle()
     if (!this->move_one_particle_integrate_motion()) return false;
     if (!this->_prt_ptr) return false;
 
+    //Update gravitational pull of particle (if any)
+    move_one_particle_update_gravity_pull();
+
     return true;
+}
+
+void prt_bundle_t::move_one_particle_update_gravity_pull()
+{
+    if(_prt_ptr->getProfile()->getGravityPull() != 0.0f) {
+        float pullDistance = _prt_ptr->getProfile()->bump_size * 3.0f;
+
+        //Pull all nearby objects
+        std::vector<std::shared_ptr<Object>> affectedObjects = _currentModule->getObjectHandler().findObjects(_prt_ptr->getPosX(), _prt_ptr->getPosY(), pullDistance, false);
+        for(const std::shared_ptr<Object> &object : affectedObjects)
+        {
+            //Skip objects that cannot collide
+            if(!object->canCollide()) continue;
+
+            const Vector3f pull = _prt_ptr->getPosition() - object->getPosition();
+            const float distance = pull.length();
+            if(distance > 0) {
+                object->vel += (pull * _prt_ptr->getProfile()->getGravityPull()) * (1.0f/distance);
+            }
+        }
+
+        //Pull all nearby particles
+        for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
+        {
+            //Don't to terminated particles
+            if(particle->isTerminated()) continue;
+
+            //Skip attached particles
+            if(particle->isAttached()) continue;
+
+            //Do not affect ourselves!
+            if(particle.get() == _prt_ptr) continue;
+
+            //Skip those that are not affected by gravity
+            if(particle->no_gravity) continue;
+
+            //Skip particles that cannot collide with anything
+            if(!particle->canCollide()) continue;
+
+            const Vector3f pull = _prt_ptr->getPosition() - particle->getPosition();
+            const float distance = pull.length();
+            if(distance > 0) {
+                particle->vel += (pull * _prt_ptr->getProfile()->getGravityPull()) * (1.0f/distance);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------

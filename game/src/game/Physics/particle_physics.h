@@ -81,6 +81,9 @@ private:
     /// @brief
     /// Helper method to compute the friction of this particle with the water.
     //prt_bundle_t *move_one_particle_do_fluid_friction();
+
+    void move_one_particle_update_gravity_pull();
+    
 public:
     /// @brief
     /// Helper method to get all of the information about the particle's environment

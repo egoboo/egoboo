@@ -153,6 +153,15 @@ public:
     const IPair& getSpawnVelocityOffsetXY() const;
     
     const IPair& getSpawnVelocityOffsetZ() const;
+
+    /**
+    * @brief
+    *   Describes the gravitational pull of this Particle (if any)
+    * @return
+    *   0 if there is no gravity pull, positive is if has a pull or negative
+    *   if it has a gravity push
+    **/
+    float getGravityPull() const;
     
 public:
 
@@ -255,6 +264,7 @@ public:
 private:
     std::string _comment;
     std::bitset<NR_OF_DAMFX_BITS> _particleEffectBits;
+    float _gravityPull;            ///< != 0 if this particle has a gravitational pull, pulling all living objects into it
 
     // Initial spawning of this particle.
     IPair _spawnFacing;             ///< Facing

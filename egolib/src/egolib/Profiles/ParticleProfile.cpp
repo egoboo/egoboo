@@ -142,6 +142,7 @@ ParticleProfile::ParticleProfile() :
 
     _comment(),
     _particleEffectBits(),
+    _gravityPull(0.0f),
 
     _spawnFacing(),
     _spawnPositionOffsetXY(),
@@ -396,6 +397,10 @@ std::shared_ptr<ParticleProfile> ParticleProfile::readFromFile(const std::string
                     }
                 break;
 
+                case IDSZ2::caseLabel('P', 'U', 'L', 'L'):
+                    profile->_gravityPull = ctxt.readRealLiteral();
+                break;
+
                 default:
                     throw Id::LexicalErrorException(__FILE__, __LINE__, Id::Location(ctxt._loadName, ctxt._lineNumber),
                                                     std::string("Unknown IDSZ type parsed: ") + idsz.toString());
@@ -445,4 +450,9 @@ const IPair& ParticleProfile::getSpawnVelocityOffsetXY() const
 const IPair& ParticleProfile::getSpawnVelocityOffsetZ() const
 {
     return _spawnVelocityOffsetZ;
+}
+
+float ParticleProfile::getGravityPull() const
+{
+    return _gravityPull;
 }
