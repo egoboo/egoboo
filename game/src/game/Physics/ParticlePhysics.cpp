@@ -623,5 +623,17 @@ void ParticlePhysics::updateEnviroment()
     }
 }
 
+void ParticlePhysics::detachFromPlatform()
+{
+    // undo the attachment
+    _particle.onwhichplatform_ref    = ObjectRef::Invalid;
+    _particle.onwhichplatform_update = 0;
+    _particle.targetplatform_ref     = ObjectRef::Invalid;
+    _particle.targetplatform_level   = -1e32;
+
+    // get the correct particle environment
+    updateEnviroment();
+}
+
 } //Physics
 } //Ego

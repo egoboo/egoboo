@@ -325,9 +325,8 @@ void CollisionSystem::updateParticleCollisions()
         }
 
         //First check if this Particle is still attached to a platform
-        if (particle->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(particle->onwhichplatform_ref))
-        {
-            detach_particle_from_platform( particle.get() );
+        if (particle->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(particle->onwhichplatform_ref)) {
+            particle->getParticlePhysics().detachFromPlatform();
         }
 
         // use the object velocity to figure out where the volume that the object will occupy during this update

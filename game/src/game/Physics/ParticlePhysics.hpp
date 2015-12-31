@@ -15,10 +15,10 @@ public:
 
 	void updatePhysics();
 
-	//TODO: should not be public
-	void updateEnviroment();
+    void detachFromPlatform();
 
 private:
+    void updateEnviroment();
 
     /// @brief
     /// A helper method to compute the next valid position of this particle.
