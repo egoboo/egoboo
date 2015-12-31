@@ -426,8 +426,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->money = ppro->getStartingMoney();
 
     // Experience
-    int iTmp = Random::next( ppro->getStartingExperience() );
-    pchr->experience      = std::min( iTmp, MAXXP );
+    pchr->experience = Random::next( ppro->getStartingExperience() );
     pchr->experiencelevel = ppro->getStartingLevel();
 
     // Particle attachments

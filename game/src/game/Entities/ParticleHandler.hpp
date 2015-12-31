@@ -222,6 +222,8 @@ private:
     void unlock();
 
 private:
+    static constexpr uint8_t DEFENDTIME = 24;   ///< Invincibility time after blocking an attack
+
     size_t _maxParticles;   ///< Maximum allowed active particles to be alive at the same time
     std::atomic<size_t> _semaphoreLock;
     std::atomic<size_t> _totalParticlesSpawned;

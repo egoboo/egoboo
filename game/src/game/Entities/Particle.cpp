@@ -403,6 +403,7 @@ void Particle::updateWater()
                     // only spawn ripples if you are touching the water surface!
                     if (getPosZ() + bump_real.height > _currentModule->getWater()._surface_level && getPosZ() - bump_real.height < _currentModule->getWater()._surface_level)
                     {
+                        static constexpr int RIPPLEAND = 15;          ///< How often ripples spawn
                         if (0 == ((update_wld + _particleID.get()) & (RIPPLEAND << 1)))
                         {
 

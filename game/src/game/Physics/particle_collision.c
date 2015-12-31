@@ -1317,28 +1317,6 @@ static bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-bool detach_particle_from_platform( Ego::Particle * pprt )
-{
-    /// @author BB
-    /// @details attach a particle to a platform
-
-
-    // verify that we do not have two dud pointers
-    if ( pprt == nullptr || pprt->isTerminated() ) return false;
-
-    // undo the attachment
-    pprt->onwhichplatform_ref    = ObjectRef::Invalid;
-    pprt->onwhichplatform_update = 0;
-    pprt->targetplatform_ref     = ObjectRef::Invalid;
-    pprt->targetplatform_level   = -1e32;
-
-    // get the correct particle environment
-    pprt->getParticlePhysics().updateEnviroment();
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
 {
     /// @author ZZ

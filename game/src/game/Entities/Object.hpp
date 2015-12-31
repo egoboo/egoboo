@@ -80,7 +80,8 @@ class Object : public PhysicsData, public Id::NonCopyable, public Ego::Physics::
                public std::enable_shared_from_this<Object>
 {
 public:
-    static const std::shared_ptr<Object> INVALID_OBJECT;            ///< Invalid object reference
+    static const std::shared_ptr<Object> INVALID_OBJECT;    //< Invalid object reference
+    static constexpr int SIZETIME = 100;                    //< Time it takes to resize a character
 
 public:
     /**
@@ -895,6 +896,11 @@ public:
     ObjectRef         dismount_object;               ///< the object that you were dismounting from
 
 private:
+    static constexpr int RIPPLETOLERANCE = 60;
+    static constexpr int RIPPLEAND = 15;             ///< How often ripples spawn
+    static constexpr int HURTDAMAGE = 256;           //< Minimum damage for hurt animation
+    static constexpr uint8_t CAREFULTIME = 50;       ///< Friendly fire timer
+
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
     ObjectRef _objRef;                               ///< The unique object reference of this object
     PRO_REF _profileID;                              ///< The ID of our profile

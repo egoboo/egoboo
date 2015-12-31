@@ -54,6 +54,10 @@
 
 //--------------------------------------------------------------------------------------------
 //Global variables! eww! TODO: remove these
+#define THROWFIX            30.0f                    ///< To correct thrown velocities
+#define MINTHROWVELOCITY    15.0f
+#define MAXTHROWVELOCITY    75.0f
+#define GRABDELAY           25                      ///< Time before grab again
 
 bool  overrideslots      = false;
 
@@ -2943,9 +2947,9 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
             TURN_T turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
-            pthrown->vel[kX] += turntocos[ turn ] * velocity;
-            pthrown->vel[kY] += turntosin[ turn ] * velocity;
-            pthrown->vel[kZ] = DROPZVEL;
+            pthrown->vel.x() += turntocos[turn] * velocity;
+            pthrown->vel.y() += turntosin[turn] * velocity;
+            pthrown->vel.z() = DROPZVEL;
 
             //Was that the last one?
             if ( pweapon->ammo <= 1 ) {

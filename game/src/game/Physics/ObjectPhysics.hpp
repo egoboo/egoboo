@@ -177,6 +177,10 @@ private:
 private:
     static constexpr float FLOOR_TOLERANCE = 20.0f;         //< Z tolerance for when we are touching the floor
     static constexpr float MAX_DISPLACEMENT_XY = 20.0f;     //< Max velocity correction due to being inside a wall
+    static constexpr float TURNSPD = 0.1f;                  //< Cutoff for turning or same direction
+    static constexpr uint16_t SPINRATE = 200;               //< How fast spinners spin
+    static constexpr float WATCHMIN = 0.1f;                 //< Tolerance for TURNMODE_WATCH
+    static constexpr float FLYDAMPEN = 0.001f;              ///< Levelling rate for flyers
 
     Object &_object;                //< The actual Entity that this physics class represents
     Vector2f _platformOffset;       //< Offset from the center of the platform we are standing on (if any) 

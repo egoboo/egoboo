@@ -2129,7 +2129,7 @@ Uint8 scr_IfTargetIsHurt( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->isAlive() || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - FP8_TO_FLOAT(HURTDAMAGE) )
+    if (!pself_target->isAlive() || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - 1.0f)
         returncode = false;
 
     SCRIPT_FUNCTION_END();
@@ -6941,7 +6941,7 @@ Uint8 scr_IfTargetHasNotFullMana( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->isAlive() || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - FP8_TO_FLOAT(HURTDAMAGE) )
+    if (!pself_target->isAlive() || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - 1.0f)
     {
         returncode = false;
     }
@@ -7680,7 +7680,7 @@ Uint8 scr_MorphToTarget( script_state_t& state, ai_state_t& self )
 
     // let the resizing take some time
     pchr->fat_goto      = pself_target->fat;
-    pchr->fat_goto_time = SIZETIME;
+    pchr->fat_goto_time = Object::SIZETIME;
 
     // change back to our original AI (keep our old AI script)
 //    pself->type      = ProList.lst[pchr->basemodel_ref].iai;      //TODO: this no longer works (is it even needed?)
@@ -7927,7 +7927,7 @@ Uint8 scr_SetTargetSize( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->fat_goto *= state.argument / 100.0f;
-    pself_target->fat_goto_time += SIZETIME;
+    pself_target->fat_goto_time += Object::SIZETIME;
 
     SCRIPT_FUNCTION_END();
 }

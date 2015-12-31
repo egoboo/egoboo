@@ -349,7 +349,7 @@ void LevelUpWindow::doLevelUp(PerkButton *selectedPerk)
     //Might slightly increases character size
     if(increase[Ego::Attribute::MIGHT] != 0) {
         _character->fat_goto += _character->getProfile()->getSizeGainPerMight() * 0.1f * increase[Ego::Attribute::MIGHT];
-        _character->fat_goto_time += SIZETIME;
+        _character->fat_goto_time += Object::SIZETIME;
     }
 
     //Clear away all GUI components
