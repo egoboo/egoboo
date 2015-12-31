@@ -711,8 +711,8 @@ void prt_bundle_t::move_one_particle_update_gravity_pull()
             if(!object->canCollide()) continue;
 
             const Vector3f pull = _prt_ptr->getPosition() - object->getPosition();
-            const float distance = pull.length();
-            if(distance > 0) {
+            const float distance = pull.length_2();
+            if(distance > 10.0f) {
                 object->vel += (pull * _prt_ptr->getProfile()->getGravityPull()) * (1.0f/distance);
             }
         }
@@ -736,8 +736,8 @@ void prt_bundle_t::move_one_particle_update_gravity_pull()
             if(!particle->canCollide()) continue;
 
             const Vector3f pull = _prt_ptr->getPosition() - particle->getPosition();
-            const float distance = pull.length();
-            if(distance > 0) {
+            const float distance = pull.length_2();
+            if(distance > 10.0f) {
                 particle->vel += (pull * _prt_ptr->getProfile()->getGravityPull()) * (1.0f/distance);
             }
         }
