@@ -25,6 +25,7 @@
 #include "game/Core/GameEngine.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Shop.hpp"
+#include "game/char.h"
 
 namespace Ego
 {

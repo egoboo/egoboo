@@ -31,6 +31,7 @@
 #include "game/Entities/Common.hpp"
 #include "egolib/Graphics/Animation2D.hpp"
 #include "game/Physics/Collidable.hpp"
+#include "game/Physics/ParticlePhysics.hpp"
 
 namespace Ego
 {
@@ -107,6 +108,12 @@ public:
      *  the profile index of this particle or INVALID_PIP_REF
      */
     PIP_REF getProfileID() const;
+
+    /**
+    * @brief
+    *   Get the physics properties of this Particle 
+    **/
+    Ego::Physics::ParticlePhysics& getParticlePhysics();
 
     /**
      * @brief
@@ -268,6 +275,28 @@ public:
     **/
     bool isEternal() const;
 
+
+    /**
+    * @author BB
+    * @brief 
+    *   A helper function for determining the owner of a particle
+    *
+    * @details 
+    *   There could be a possibility that a particle exists that was spawned by
+    *   another particle, but has lost contact with its original spawner. For instance
+    *   If an explosion particle bounces off of something with MISSILE_DEFLECT or
+    *   MISSILE_REFLECT, which subsequently dies before the particle...
+    *
+    *   That is actually pretty far fetched, but at some point it might make sense to
+    *   spawn particles just keeping track of the spawner (whether particle or character)
+    *   and working backward to any potential owner using this function. ;)
+    *
+    * @note 
+    *   this function should be completely trivial for anything other than
+    *   damage particles created by an explosion
+    **/
+    ObjectRef getOwner(int depth = 0);
+
 //ZF> These functions should only be accessed by the ParticleHandler
 public:
 
@@ -329,6 +358,8 @@ private:
     void reset(ParticleRef ref);
 
 public:
+    static constexpr int SPAWNNOCHARACTER = 255;         ///< For particles that spawn characters...
+
     static const std::shared_ptr<Particle> INVALID_PARTICLE;
 
     // links
@@ -445,6 +476,7 @@ private:
     ParticleRef _particleID;                 ///< Unique identifier
 
     //Collisions
+    Ego::Physics::ParticlePhysics _particlePhysics;
     std::forward_list<ObjectRef> _collidedObjects;    ///< List of the ID's of all Object this particle has collided with
 
     //Profile

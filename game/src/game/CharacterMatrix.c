@@ -23,6 +23,7 @@
 #include "game/graphic_mad.h"
 #include "game/renderer_3d.h"
 #include "game/Entities/_Include.hpp"
+#include "game/char.h"
 
 static int get_grip_verts( Uint16 grip_verts[], const ObjectRef imount, int vrt_offset );
 

@@ -30,6 +30,7 @@
 #include "game/Module/Module.hpp"
 #include "game/physics.h"
 #include "egolib/Script/script.h"
+#include "egolib/Logic/Team.hpp"
 #include "game/graphic_mad.h"
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"

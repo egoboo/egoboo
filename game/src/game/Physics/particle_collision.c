@@ -27,6 +27,9 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 
+//Private functions
+static int spawn_bump_particles(ObjectRef objectRef, const ParticleRef particle);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -896,7 +899,7 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
-		ObjectRef prt_owner = prt_get_iowner( pdata->pprt->getParticleID(), 0 );
+		ObjectRef prt_owner = pdata->pprt->getOwner();
         if ( _currentModule->getObjectHandler().exists( prt_owner ) )
         {
             ObjectRef chr_wielder = chr_get_lowest_attachment( pdata->pchr->getObjRef(), true );
@@ -1323,9 +1326,6 @@ bool detach_particle_from_platform( Ego::Particle * pprt )
     // verify that we do not have two dud pointers
     if ( pprt == nullptr || pprt->isTerminated() ) return false;
 
-    // grab all of the particle info
-    prt_bundle_t bdl_prt(pprt);
-
     // undo the attachment
     pprt->onwhichplatform_ref    = ObjectRef::Invalid;
     pprt->onwhichplatform_update = 0;
@@ -1333,7 +1333,182 @@ bool detach_particle_from_platform( Ego::Particle * pprt )
     pprt->targetplatform_level   = -1e32;
 
     // get the correct particle environment
-    bdl_prt.move_one_particle_get_environment();
+    pprt->getParticlePhysics().updateEnviroment();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------
+int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
+{
+    /// @author ZZ
+    /// @details This function is for catching characters on fire and such
+
+    int      bs_count;
+    float    x, y, z;
+    FACING_T facing;
+    FACING_T direction;
+    float    fsin, fcos;
+
+    const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
+    if(!pprt || pprt->isTerminated()) {
+        return 0;
+    }
+
+    const std::shared_ptr<ParticleProfile> &ppip = pprt->getProfile();
+
+    // no point in going on, is there?
+    if (0 == ppip->bumpspawn._amount && !ppip->spawnenchant) return 0;
+    int amount = ppip->bumpspawn._amount;
+
+    if (!_currentModule->getObjectHandler().exists(character)) return 0;
+    Object *pchr = _currentModule->getObjectHandler().get(character);
+
+    bs_count = 0;
+
+    // Only damage if hitting from proper direction
+    direction = vec_to_facing(pprt->vel[kX], pprt->vel[kY]);
+    direction = ATK_BEHIND + (pchr->ori.facing_z - direction);
+
+    // Check that direction
+    if (ppip->hasBit(DAMFX_NBLOC) || !pchr->isInvictusDirection(direction))
+    {
+        // Spawn new enchantments
+        if (ppip->spawnenchant) 
+        {
+            const std::shared_ptr<ObjectProfile> &spawnerProfile = ProfileSystem::get().getProfile(pprt->getSpawnerProfile());
+            pchr->addEnchant(spawnerProfile->getEnchantRef(), pprt->getSpawnerProfile(), _currentModule->getObjectHandler()[pprt->owner_ref], Object::INVALID_OBJECT);
+        }
+
+        // Spawn particles - this has been modded to maximize the visual effect
+        // on a given target. It is not the most optimal solution for lots of particles
+        // spawning. Thst would probably be to make the distance calculations and then
+        // to quicksort the list and choose the n closest points.
+        //
+        // however, it seems that the bump particles in game rarely attach more than
+        // one bump particle
+
+        //check if we resisted the attack, we could resist some of the particles or none
+        for (int cnt = 0; cnt < amount; cnt++)
+        {
+            if (Random::nextFloat() <= pchr->getDamageReduction(pprt->damagetype)) amount--;
+        }
+
+        if (amount > 0 && !pchr->getProfile()->hasResistBumpSpawn() && !pchr->invictus)
+        {
+            int grip_verts, vertices;
+            int slot_count;
+
+            slot_count = 0;
+            if (pchr->getProfile()->isSlotValid(SLOT_LEFT)) slot_count++;
+            if (pchr->getProfile()->isSlotValid(SLOT_RIGHT)) slot_count++;
+
+            if (0 == slot_count)
+            {
+                grip_verts = 1;  // always at least 1?
+            }
+            else
+            {
+                grip_verts = GRIP_VERTS * slot_count;
+            }
+
+            vertices = (int)pchr->inst.vrt_count - (int)grip_verts;
+            vertices = std::max(0, vertices);
+
+            if (vertices != 0)
+            {
+                TURN_T   turn;
+
+                auto vertex_occupied = std::make_unique<ParticleRef[]>(vertices);
+                auto vertex_distance = std::make_unique<float[]>(vertices);
+
+                // this could be done more easily with a quicksort....
+                // but I guess it doesn't happen all the time
+                float dist = (pprt->getPosition() - pchr->getPosition()).length_abs();
+
+                // clear the occupied list
+                z = pprt->getPosZ() - pchr->getPosZ();
+                facing = pprt->facing - pchr->ori.facing_z;
+                turn = TO_TURN(facing);
+                fsin = turntosin[turn];
+                fcos = turntocos[turn];
+                x = dist * fcos;
+                y = dist * fsin;
+
+                // prepare the array values
+                for (int cnt = 0; cnt < vertices; cnt++)
+                {
+                    dist = std::abs(x - pchr->inst.vrt_lst[vertices - cnt - 1].pos[XX])
+                         + std::abs(y - pchr->inst.vrt_lst[vertices - cnt - 1].pos[YY])
+                         + std::abs(z - pchr->inst.vrt_lst[vertices - cnt - 1].pos[ZZ]);
+
+                    vertex_distance[cnt] = dist;
+                    vertex_occupied[cnt] = ParticleRef::Invalid;
+                }
+
+                // determine if some of the vertex sites are already occupied
+                for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
+                {
+                    if(particle->isTerminated()) continue;
+
+                    if (pchr != particle->getAttachedObject().get()) continue;
+
+                    if (particle->attachedto_vrt_off < vertices)
+                    {
+                        vertex_occupied[particle->attachedto_vrt_off] = particle->getParticleID();
+                    }
+                }
+
+                    // Find best vertices to attach the particles to
+                    for (int cnt = 0; cnt < amount; cnt++)
+                    {
+                        int bestvertex = 0;
+                        uint32_t bestdistance = std::numeric_limits<uint32_t>::max(); //Really high number
+
+                        for (int i = 0; i < vertices; i++)
+                        {
+                            if (ParticleRef::Invalid != vertex_occupied[i])
+                                continue;
+
+                            if (vertex_distance[i] < bestdistance)
+                            {
+                                bestdistance = vertex_distance[i];
+                                bestvertex = i;
+                            }
+                        }
+
+                        std::shared_ptr<Ego::Particle> bs_part = 
+                            ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pprt->getSpawnerProfile(), ppip->bumpspawn._lpip,
+                                                                      character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
+
+                        if (bs_part)
+                        {
+                            vertex_occupied[bestvertex] = bs_part->getParticleID();
+                            bs_part->is_bumpspawn = true;
+                            bs_count++;
+                        }
+                    }
+                //}
+                //else
+                //{
+                //    // Multiple particles are attached to character
+                //    for ( cnt = 0; cnt < amount; cnt++ )
+                //    {
+                //        int irand = Random::next(std::numeric_limits<uint16_t>::max());
+
+                //        bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip.get(),
+                //                                      character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );
+
+                //        if( DEFINED_PRT(bs_part) )
+                //        {
+                //            PrtList.lst[bs_part].is_bumpspawn = true;
+                //            bs_count++;
+                //        }
+                //    }
+                //}
+            }
+        }
+    }
+
+    return bs_count;
 }

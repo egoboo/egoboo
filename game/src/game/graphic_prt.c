@@ -86,8 +86,8 @@ Uint32 instance_update = std::numeric_limits<Uint32>::max();
 static gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t& pinst, float size, bool do_reflect);
 static void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset);
-static void prt_draw_attached_point(prt_bundle_t& bdl_prt);
-static void render_prt_bbox(prt_bundle_t& bdl_prt);
+static void prt_draw_attached_point(const std::shared_ptr<Ego::Particle> &bdl_prt);
+static void render_prt_bbox(const std::shared_ptr<Ego::Particle> &bdl_prt);
 
 //--------------------------------------------------------------------------------------------
 
@@ -446,9 +446,7 @@ void render_all_prt_attachment()
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
         if(particle->isTerminated()) continue;
-
-        prt_bundle_t prt_bdl(particle.get());
-        prt_draw_attached_point(prt_bdl);
+        prt_draw_attached_point(particle);
     }
 }
 
@@ -457,9 +455,7 @@ void render_all_prt_bbox()
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
         if(particle->isTerminated()) continue;
-
-        prt_bundle_t prt_bdl(particle.get());
-        render_prt_bbox(prt_bdl);
+        render_prt_bbox(particle);
     }
 }
 
@@ -500,20 +496,13 @@ void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset)
     GL_DEBUG(glMatrixMode)(matrix_mode[0]);
 }
 
-void prt_draw_attached_point(prt_bundle_t& bdl_prt)
+void prt_draw_attached_point(const std::shared_ptr<Ego::Particle>& particle)
 {
-    Ego::Particle *loc_pprt = bdl_prt._prt_ptr;
-    if (loc_pprt == nullptr || loc_pprt->isTerminated())
-    {
+    if (!particle->isAttached()) {
         return;
     }
 
-    if (!loc_pprt->isAttached())
-    {
-        return;
-    }
-
-    draw_one_attachment_point(loc_pprt->getAttachedObject()->inst, loc_pprt->attachedto_vrt_off);
+    draw_one_attachment_point(particle->getAttachedObject()->inst, particle->attachedto_vrt_off);
 }
 
 gfx_rv update_all_prt_instance(Camera& camera)
@@ -529,14 +518,12 @@ gfx_rv update_all_prt_instance(Camera& camera)
     {
         if(particle->isTerminated()) continue;
         
-        prt_bundle_t prt_bdl(particle.get());
-
-        prt_instance_t *pinst = &(prt_bdl._prt_ptr->inst);
+        prt_instance_t *pinst = &(particle->inst);
 
         // only do frame counting for particles that are fully activated!
-        prt_bdl._prt_ptr->frame_count++;
+        particle->frame_count++;
 
-        if (!prt_bdl._prt_ptr->inst.indolist)
+        if (!particle->inst.indolist)
         {
             pinst->valid = false;
             pinst->ref_valid = false;
@@ -932,16 +919,8 @@ gfx_rv prt_instance_update(Camera& camera, const ParticleRef particle, Uint8 tra
     return retval;
 }
 
-void render_prt_bbox(prt_bundle_t& pbdl_prt)
-{
-    Ego::Particle *loc_pprt = pbdl_prt._prt_ptr;
-    if (!loc_pprt || loc_pprt->isTerminated())
-    {
-        return;
-    }
-    
-    std::shared_ptr<ParticleProfile> loc_ppip = pbdl_prt._pip_ptr;
-
+void render_prt_bbox(const std::shared_ptr<Ego::Particle>& particle)
+{    
     // only draw bullets
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
@@ -949,15 +928,15 @@ void render_prt_bbox(prt_bundle_t& pbdl_prt)
     if ((egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7)))
     {
         // copy the bounding volume
-        oct_bb_t tmp_bb = loc_pprt->prt_max_cv;
+        oct_bb_t tmp_bb = particle->prt_max_cv;
 
         // determine the expanded collision volumes for both objects
         oct_bb_t exp_bb;
-        phys_expand_oct_bb(tmp_bb, loc_pprt->vel, 0, 1, exp_bb);
+        phys_expand_oct_bb(tmp_bb, particle->vel, 0, 1, exp_bb);
 
         // shift the source bounding boxes to be centered on the given positions
         oct_bb_t loc_bb;
-        oct_bb_t::translate(exp_bb, loc_pprt->getPosition(), loc_bb);
+        oct_bb_t::translate(exp_bb, particle->getPosition(), loc_bb);
 
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());

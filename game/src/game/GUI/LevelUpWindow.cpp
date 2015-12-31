@@ -3,6 +3,7 @@
 #include "game/GUI/Image.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Logic/Player.hpp"
+#include "game/char.h"
 
 namespace Ego
 {

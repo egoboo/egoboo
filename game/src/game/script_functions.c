@@ -47,7 +47,7 @@
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
-
+#include "game/char.h"
 #include "egolib/Script/Interpreter/SafeCast.hpp"
 #include "game/GUI/MiniMap.hpp"
 

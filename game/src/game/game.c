@@ -22,6 +22,7 @@
 /// @details
 
 #include "game/game.h"
+#include "game/char.h"
 #include "game/Module/module_spawn.h"
 
 #include "egolib/egolib.h"
@@ -340,7 +341,14 @@ void move_all_objects()
 	g_meshStats.mpdfxTests = 0;
     chr_stoppedby_tests = 0;
 
-    move_all_particles();
+    // move every particle
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
+    {
+        if(particle->isTerminated()) {
+            continue;
+        }
+        particle->getParticlePhysics().updatePhysics();
+    }
 
     // Move every character
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())

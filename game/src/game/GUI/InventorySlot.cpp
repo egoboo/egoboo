@@ -3,6 +3,7 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"  //for model action enum
 #include "game/game.h" //only for update_wld global var
 #include "game/Logic/Player.hpp"
+#include "game/char.h"
 
 namespace Ego
 {

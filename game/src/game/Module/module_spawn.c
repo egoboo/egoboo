@@ -22,6 +22,7 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "egolib/Logic/TreasureTables.hpp"
+#include "game/char.h"
 
 static void tilt_characters_to_terrain();
 static std::shared_ptr<Object> activate_spawn_file_spawn( spawn_file_info_t& psp_info, const std::shared_ptr<Object> &parent);

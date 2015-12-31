@@ -19,6 +19,7 @@
 #include "CollisionSystem.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h" //for update_wld
+#include "game/char.h"
 
 #include "particle_collision.h"
 

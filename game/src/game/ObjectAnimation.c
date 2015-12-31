@@ -1,7 +1,8 @@
-#include "ObjectAnimation.h"
-#include "CharacterMatrix.h"
+#include "game/ObjectAnimation.h"
+#include "game/CharacterMatrix.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
-#include "game.h"
+#include "game/game.h"
+#include "game/char.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

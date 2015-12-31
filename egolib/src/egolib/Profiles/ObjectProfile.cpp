@@ -26,6 +26,7 @@
 #include "egolib/Profiles/ObjectProfile.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/char.h" //Only for CHR_INFINITE_WEIGHT constant
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/FileFormats/template.h"

@@ -27,7 +27,6 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/Entities/Particle.hpp"
-#include "game/Physics/particle_physics.h"
 
 class ParticleHandler : public Ego::Core::Singleton<ParticleHandler>
 {
