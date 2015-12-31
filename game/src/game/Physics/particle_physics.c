@@ -695,11 +695,18 @@ void prt_bundle_t::move_one_particle_update_gravity_pull()
 {
     if(_prt_ptr->getProfile()->getGravityPull() != 0.0f) {
         float pullDistance = _prt_ptr->getProfile()->bump_size * 3.0f;
+        const auto &particleTeam = _currentModule->getTeamList()[_prt_ptr->team];
 
         //Pull all nearby objects
         std::vector<std::shared_ptr<Object>> affectedObjects = _currentModule->getObjectHandler().findObjects(_prt_ptr->getPosX(), _prt_ptr->getPosY(), pullDistance, false);
         for(const std::shared_ptr<Object> &object : affectedObjects)
         {
+            //Do not affect the object we are attached to
+            if(_prt_ptr->getAttachedObject() == object) continue;
+
+            //Allow friendly fire?
+            if(!_prt_ptr->getProfile()->hateonly && !particleTeam.hatesTeam(object->getTeam())) continue;
+
             //Skip objects that cannot collide
             if(!object->canCollide()) continue;
 
