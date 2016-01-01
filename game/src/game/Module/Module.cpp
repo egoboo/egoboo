@@ -414,12 +414,12 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->phys.bumpdampen = ppro->getBumpDampen();
     if ( CAP_INFINITE_WEIGHT == ppro->getWeight() )
     {
-        pchr->phys.weight = CHR_INFINITE_WEIGHT;
+        pchr->phys.weight = Ego::Physics::CHR_INFINITE_WEIGHT;
     }
     else
     {
         uint32_t itmp = ppro->getWeight() * ppro->getSize() * ppro->getSize() * ppro->getSize();
-        pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
+        pchr->phys.weight = std::min(itmp, Ego::Physics::CHR_MAX_WEIGHT);
     }
 
     // Extra spawn money is added later
@@ -581,7 +581,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
 #endif
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
-    if ( _gameObjects.exists( pchr->attachedto ) && CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
+    if ( _gameObjects.exists( pchr->attachedto ) && Ego::Physics::CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
     {
         log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
                      pchr->getPosX(), pchr->getPosY(), nrm[kX], nrm[kY] );

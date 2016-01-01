@@ -916,8 +916,8 @@ static void get_recoil_factors( float wta, float wtb, float * recoil_a, float * 
     if ( NULL == recoil_a ) recoil_a = &loc_recoil_a;
     if ( NULL == recoil_b ) recoil_b = &loc_recoil_b;
 
-    if ( wta >= ( float )CHR_INFINITE_WEIGHT ) wta = -( float )CHR_INFINITE_WEIGHT;
-    if ( wtb >= ( float )CHR_INFINITE_WEIGHT ) wtb = -( float )CHR_INFINITE_WEIGHT;
+    if ( wta >= Ego::Physics::CHR_INFINITE_WEIGHT ) wta = -Ego::Physics::CHR_INFINITE_WEIGHT;
+    if ( wtb >= Ego::Physics::CHR_INFINITE_WEIGHT ) wtb = -Ego::Physics::CHR_INFINITE_WEIGHT;
 
     if ( wta < 0.0f && wtb < 0.0f )
     {

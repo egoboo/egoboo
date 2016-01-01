@@ -1133,7 +1133,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_float( fileTemp, fileWrite, character->phys.bumpdampen );           //Note: overriden by chr
 
     //Weight
-    if ( CHR_INFINITE_WEIGHT == character->phys.weight || 0.0f == character->fat )
+    if (Ego::Physics::CHR_INFINITE_WEIGHT == character->phys.weight || 0.0f == character->fat)
     {
         template_put_int( fileTemp, fileWrite, CAP_INFINITE_WEIGHT );           //Note: overriden by chr
     }

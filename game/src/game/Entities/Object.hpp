@@ -82,6 +82,7 @@ class Object : public PhysicsData, public Id::NonCopyable, public Ego::Physics::
 public:
     static const std::shared_ptr<Object> INVALID_OBJECT;    //< Invalid object reference
     static constexpr int SIZETIME = 100;                    //< Time it takes to resize a character
+    static constexpr uint16_t MAXMONEY = 9999;              ///< Maximum money a character can carry
 
 public:
     /**

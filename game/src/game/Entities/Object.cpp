@@ -1020,11 +1020,11 @@ void Object::updateResize()
 
             if ( CAP_INFINITE_WEIGHT == getProfile()->getWeight() )
             {
-                phys.weight = CHR_INFINITE_WEIGHT;
+                phys.weight = Ego::Physics::CHR_INFINITE_WEIGHT;
             }
             else
             {
-                phys.weight = std::min<uint32_t>(getProfile()->getWeight() * fat * fat * fat, CHR_MAX_WEIGHT);
+                phys.weight = std::min<uint32_t>(getProfile()->getWeight() * fat * fat * fat, Ego::Physics::CHR_MAX_WEIGHT);
             }
         }
     }
@@ -1691,7 +1691,7 @@ void Object::removeFromGame(Object *obj)
 
 BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
 {
-	if (CHR_INFINITE_WEIGHT == phys.weight)
+	if (Ego::Physics::CHR_INFINITE_WEIGHT == phys.weight)
 	{
 		return EMPTY_BIT_FIELD;
 	}
@@ -1715,7 +1715,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
 
 BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure, mesh_wall_data_t& data)
 {
-	if (CHR_INFINITE_WEIGHT == phys.weight)
+	if (Ego::Physics::CHR_INFINITE_WEIGHT == phys.weight)
 	{
 		return EMPTY_BIT_FIELD;
 	}
@@ -1742,7 +1742,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos)
 	if (isTerminated()) {
 		return EMPTY_BIT_FIELD;
 	}
-	if (CHR_INFINITE_WEIGHT == phys.weight)
+	if (Ego::Physics::CHR_INFINITE_WEIGHT == phys.weight)
 	{
 		return EMPTY_BIT_FIELD;
 	}
@@ -2318,11 +2318,11 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     if (CAP_INFINITE_WEIGHT == _profile->getWeight())
     {
-        phys.weight = CHR_INFINITE_WEIGHT;
+        phys.weight = Ego::Physics::CHR_INFINITE_WEIGHT;
     }
     else
     {
-        phys.weight = std::min<uint32_t>(_profile->getWeight() * fat * fat * fat, CHR_MAX_WEIGHT);
+        phys.weight = std::min<uint32_t>(_profile->getWeight() * fat * fat * fat, Ego::Physics::CHR_MAX_WEIGHT);
     }
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
@@ -2956,7 +2956,7 @@ std::shared_ptr<const Ego::Texture> Object::getIcon() const
 
 void Object::giveMoney(int amount)
 {
-    _money = Ego::Math::constrain(static_cast<int>(_money) + amount, 0, MAXMONEY);
+    _money = Ego::Math::constrain<int>(static_cast<int>(_money) + amount, 0, MAXMONEY);
 }
 
 uint16_t Object::getMoney() const

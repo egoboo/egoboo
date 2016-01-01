@@ -145,13 +145,13 @@ bool get_prt_mass( Ego::Particle * pprt, Object * pchr, float * wt )
     // determine an approximate mass for the particle
     if ( 0.0f == pprt->phys.bumpdampen )
     {
-        *wt = -( float )CHR_INFINITE_WEIGHT;
+        *wt = -( float )Ego::Physics::CHR_INFINITE_WEIGHT;
     }
     else if ( pprt->isAttached() )
     {
-        if ( CHR_INFINITE_WEIGHT == pprt->phys.weight || 0.0f == pprt->phys.bumpdampen )
+        if ( Ego::Physics::CHR_INFINITE_WEIGHT == pprt->phys.weight || 0.0f == pprt->phys.bumpdampen )
         {
-            *wt = -( float )CHR_INFINITE_WEIGHT;
+            *wt = -( float )Ego::Physics::CHR_INFINITE_WEIGHT;
         }
         else
         {
@@ -213,8 +213,8 @@ void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_
     if ( NULL == recoil_a ) recoil_a = &loc_recoil_a;
     if ( NULL == recoil_b ) recoil_b = &loc_recoil_b;
 
-    if ( wta >= ( float )CHR_INFINITE_WEIGHT ) wta = -( float )CHR_INFINITE_WEIGHT;
-    if ( wtb >= ( float )CHR_INFINITE_WEIGHT ) wtb = -( float )CHR_INFINITE_WEIGHT;
+    if ( wta >= ( float )Ego::Physics::CHR_INFINITE_WEIGHT ) wta = -( float )Ego::Physics::CHR_INFINITE_WEIGHT;
+    if ( wtb >= ( float )Ego::Physics::CHR_INFINITE_WEIGHT ) wtb = -( float )Ego::Physics::CHR_INFINITE_WEIGHT;
 
     if ( wta < 0.0f && wtb < 0.0f )
     {
@@ -964,7 +964,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
                 }
             }
 
-            if ( pcollector->getProfile()->canGrabMoney() && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->getMoney() < MAXMONEY)
+            if ( pcollector->getProfile()->canGrabMoney() && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->getMoney() < Object::MAXMONEY)
             {
                 pcollector->giveMoney(pdata->pprt->getProfile()->bump_money);
 
@@ -1021,7 +1021,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     }
 
     //Target immune to knockback?
-    if(pdata.pchr->phys.bumpdampen == 0.0f || CHR_INFINITE_WEIGHT == pdata.pchr->phys.weight) {
+    if(pdata.pchr->phys.bumpdampen == 0.0f || Ego::Physics::CHR_INFINITE_WEIGHT == pdata.pchr->phys.weight) {
         return;
     }
 
@@ -1073,7 +1073,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
     }
 
     //Adjust knockback based on relative mass between particle and target
-    if(pdata.pchr->phys.bumpdampen != 0.0f && CHR_INFINITE_WEIGHT != pdata.pchr->phys.weight) {
+    if(pdata.pchr->phys.bumpdampen != 0.0f && Ego::Physics::CHR_INFINITE_WEIGHT != pdata.pchr->phys.weight) {
         float particleMass = 0.0f;
         float targetMass = pdata.pchr->getObjectPhysics().getMass();
         get_prt_mass(pdata.pprt.get(), pdata.pchr, &particleMass);

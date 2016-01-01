@@ -39,11 +39,6 @@
 //--------------------------------------------------------------------------------------------
 #define MAP_TURN_OFFSET 0x8000
 
-#define MAXMONEY        9999                        ///< Maximum money
-
-#define CHR_INFINITE_WEIGHT          (static_cast<uint32_t>(0xFFFFFFFF))
-#define CHR_MAX_WEIGHT               (static_cast<uint32_t>(0xFFFFFFFE))
-
 #define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
 
 #define RAISE               12                  ///< Helps correct z level

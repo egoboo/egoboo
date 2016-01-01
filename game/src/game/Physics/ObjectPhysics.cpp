@@ -629,13 +629,13 @@ const Vector2f& ObjectPhysics::getDesiredVelocity() const
 
 float ObjectPhysics::getMass() const
 {
-    if ( CHR_INFINITE_WEIGHT == _object.phys.weight )
+    if ( Ego::Physics::CHR_INFINITE_WEIGHT == _object.phys.weight )
     {
-        return -static_cast<float>(CHR_INFINITE_WEIGHT);
+        return -static_cast<float>(Ego::Physics::CHR_INFINITE_WEIGHT);
     }
     else if ( 0.0f == _object.phys.bumpdampen )
     {
-        return -static_cast<float>(CHR_INFINITE_WEIGHT);
+        return -static_cast<float>(Ego::Physics::CHR_INFINITE_WEIGHT);
     }
     else
     {
