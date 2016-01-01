@@ -116,65 +116,138 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
 
 //--------------------------------------------------------------------------------------------
 
+SDLX_sdl_gl_attrib_t::SDLX_sdl_gl_attrib_t()
+    : colourBufferDepth(32, 8, 8, 8, 8),
+    accumulationBufferDepth(0, 0, 0, 0, 0),
+    doublebuffer(0),
+    stencil_size(0),
+    stereo(0),
+    swap_control(0),
+    multi_buffers(1),
+    multi_samples(2),
+    accelerated_visual(1),
+    buffer_size(32),
+    depth_size(8) {
+}
+
 void SDLX_sdl_gl_attrib_t::defaults(SDLX_sdl_gl_attrib_t& self) {
-    self.doublebuffer = 0;
-    self.stencil_size = 0;
-    self.accum[0] = 0;
-    self.accum[1] = 0;
-    self.accum[2] = 0;
-    self.accum[3] = 0;
-    self.stereo = 0;
-    self.swap_control = 0;
+    self = SDLX_sdl_gl_attrib_t();
+}
 
-    self.multi_buffers = 1;
-    self.multi_samples = 2;
-    self.accelerated_visual = 1;
+void SDLX_sdl_gl_attrib_t::validate(SDLX_sdl_gl_attrib_t& self) {
+    int frameBufferSize = self.buffer_size;
+    int colorBufferRedDepth = self.colourBufferDepth.getRedDepth(),
+        colorBufferGreenDepth = self.colourBufferDepth.getGreenDepth(),
+        colorBufferBlueDepth = self.colourBufferDepth.getBlueDepth(),
+        colorBufferAlphaDepth = self.colourBufferDepth.getAlphaDepth();
+    if (0 == frameBufferSize) frameBufferSize = self.colourBufferDepth.getDepth();
+    if (0 == frameBufferSize) frameBufferSize = 32;
+    if (frameBufferSize > 32) frameBufferSize = 32;
 
-    self.color[0] = 8;
-    self.color[1] = 8;
-    self.color[2] = 8;
-    self.color[2] = 8;
-    self.buffer_size = 32;
+    // Fix bad colour depths.
+    if ((0 == colorBufferRedDepth &&
+         0 == colorBufferGreenDepth &&
+         0 == colorBufferBlueDepth) ||
+        (colorBufferRedDepth + colorBufferGreenDepth + colorBufferBlueDepth  > frameBufferSize)) {
+        if (frameBufferSize > 24) {
+            colorBufferRedDepth = colorBufferGreenDepth = colorBufferBlueDepth = frameBufferSize / 4;
+        } else {
+            // Do a kludge in case we have something silly like 16 bit "highcolor" mode.
+            colorBufferRedDepth = colorBufferBlueDepth = frameBufferSize / 3;
+            colorBufferGreenDepth = frameBufferSize - colorBufferRedDepth - colorBufferBlueDepth;
+        }
 
-    self.depth_size = 8;
+        colorBufferRedDepth = (colorBufferRedDepth > 8) ? 8 : colorBufferRedDepth;
+        colorBufferGreenDepth = (colorBufferGreenDepth > 8) ? 8 : colorBufferGreenDepth;
+        colorBufferBlueDepth = (colorBufferBlueDepth > 8) ? 8 : colorBufferBlueDepth;
+    }
+
+    // Fix the alpha alpha depth.
+    colorBufferAlphaDepth = frameBufferSize - colorBufferRedDepth - colorBufferGreenDepth - colorBufferBlueDepth;
+    colorBufferAlphaDepth = (colorBufferAlphaDepth < 0) ? 0 : colorBufferAlphaDepth;
+
+    // Fix the frame buffer depth.
+    frameBufferSize = colorBufferRedDepth + colorBufferGreenDepth + colorBufferBlueDepth + colorBufferAlphaDepth;
+    frameBufferSize &= ~7;
+
+    // Recompute the frame buffer depth and colour buffer depth.
+    self.buffer_size = frameBufferSize;
+    self.colourBufferDepth = Ego::ColorDepth(colorBufferRedDepth + colorBufferGreenDepth + colorBufferBlueDepth + colorBufferAlphaDepth,
+                                             colorBufferRedDepth, colorBufferGreenDepth, colorBufferBlueDepth, colorBufferAlphaDepth);
+
 }
 
 void SDLX_sdl_gl_attrib_t::upload(SDLX_sdl_gl_attrib_t& self) {
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, self.color[0]);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, self.color[1]);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, self.color[2]);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, self.color[3]);
+    // (1) Set the colour buffer depth.
+    const int colourBufferDepth_sdl[4]
+        = { self.colourBufferDepth.getRedDepth(),
+            self.colourBufferDepth.getGreenDepth(),
+            self.colourBufferDepth.getBlueDepth(),
+            self.colourBufferDepth.getAlphaDepth() };
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, colourBufferDepth_sdl[0]);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, colourBufferDepth_sdl[1]);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, colourBufferDepth_sdl[2]);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, colourBufferDepth_sdl[3]);
+
+    // (2) Set the frame buffer depth.
     SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, self.buffer_size);
 
+    // (3) Enable/disable double buffering.
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, self.doublebuffer);
+
+    // (4) Set the depth buffer and stencil buffer depths.
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, self.depth_size);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, self.stencil_size);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, self.accum[0]);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, self.accum[1]);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, self.accum[2]);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, self.accum[3]);
+
+    // (5) Set the accumulation buffer depth.
+    const int accumulationBufferDepth_sdl[4]{
+        self.accumulationBufferDepth.getRedDepth(),
+        self.accumulationBufferDepth.getGreenDepth(),
+        self.accumulationBufferDepth.getBlueDepth(),
+        self.accumulationBufferDepth.getAlphaDepth()
+    };
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, accumulationBufferDepth_sdl[0]);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, accumulationBufferDepth_sdl[1]);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, accumulationBufferDepth_sdl[2]);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, accumulationBufferDepth_sdl[3]);
+    
+    // (6) Enable/disable stereoscopic rendering.
     SDL_GL_SetAttribute(SDL_GL_STEREO, self.stereo);
 
+    // (7) Set multisampling.
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, self.multi_buffers);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, self.multi_samples);
+
+    // (8) Enable/disable hardware acceleration.
 #if !defined(ID_LINUX)
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, self.accelerated_visual);
 #endif
 }
 
 void SDLX_sdl_gl_attrib_t::download(SDLX_sdl_gl_attrib_t& self) {
-    SDL_GL_GetAttribute(SDL_GL_RED_SIZE, self.color + 0);
-    SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, self.color + 1);
-    SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, self.color + 2);
-    SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, self.color + 3);
+    int temporary[4];
+
+    // (1) Get the colour buffer depth.
+    SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &(temporary[0]));
+    SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &(temporary[1]));
+    SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &(temporary[2]));
+    SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &(temporary[3]));
+    self.colourBufferDepth = Ego::ColorDepth(temporary[0] + temporary[1] + temporary[2] + temporary[3],
+                                             temporary[0], temporary[1], temporary[2], temporary[3]);
+
     SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE, &(self.buffer_size));
     SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &(self.doublebuffer));
     SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &(self.depth_size));
     SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &(self.stencil_size));
-    SDL_GL_GetAttribute(SDL_GL_ACCUM_RED_SIZE, self.accum + 0);
-    SDL_GL_GetAttribute(SDL_GL_ACCUM_GREEN_SIZE, self.accum + 1);
-    SDL_GL_GetAttribute(SDL_GL_ACCUM_BLUE_SIZE, self.accum + 2);
-    SDL_GL_GetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, self.accum + 3);
+
+    // (2) Get the accumulation buffer depth.
+    SDL_GL_GetAttribute(SDL_GL_ACCUM_RED_SIZE, &(temporary[0]));
+    SDL_GL_GetAttribute(SDL_GL_ACCUM_GREEN_SIZE, &(temporary[1]));
+    SDL_GL_GetAttribute(SDL_GL_ACCUM_BLUE_SIZE, &(temporary[1]));
+    SDL_GL_GetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, &(temporary[2]));
+    self.accumulationBufferDepth = Ego::ColorDepth(temporary[0] + temporary[1] + temporary[2] + temporary[3],
+                                                   temporary[0], temporary[1], temporary[2], temporary[3]);
+
     SDL_GL_GetAttribute(SDL_GL_STEREO, &(self.stereo));
 
     self.swap_control = SDL_GL_GetSwapInterval();
@@ -189,27 +262,30 @@ void SDLX_sdl_gl_attrib_t::download(SDLX_sdl_gl_attrib_t& self) {
 Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s) {
     e << "context attributes" << Log::EndOfLine;
 
-    // Colour buffer.
-    e << "  " << "colour buffer" << Log::EndOfLine;
-    e << "  " << "  " << "color depth = " << s.buffer_size << Log::EndOfLine;
-    e << "  " << "  " << "red depth = " << s.color[0] << Log::EndOfLine
-      << "  " << "  " << "green depth = " << s.color[1] << Log::EndOfLine
-      << "  " << "  " << "blue depth = " << s.color[2] << Log::EndOfLine
-      << "  " << "  " << "alpha depth = " << s.color[3] << Log::EndOfLine;
+    // Framebuffer depth.
+    e << "  " << "framebuffer depth = " << s.buffer_size << Log::EndOfLine;
 
-    // Depth buffer.
+    // Colour buffer depth.
+    e << "  " << "colour buffer" << Log::EndOfLine
+        << "  " << "  " << "depth = " << s.colourBufferDepth.getDepth() << Log::EndOfLine
+        << "  " << "  " << "red depth = " << s.colourBufferDepth.getRedDepth() << Log::EndOfLine
+        << "  " << "  " << "green depth = " << s.colourBufferDepth.getGreenDepth() << Log::EndOfLine
+        << "  " << "  " << "blue depth = " << s.colourBufferDepth.getBlueDepth() << Log::EndOfLine
+        << "  " << "  " << "alpha depth = " << s.colourBufferDepth.getAlphaDepth() << Log::EndOfLine;
+
+    // Depth buffer depth.
     e << "  " << "depth depth = " << s.depth_size << Log::EndOfLine;
 
-    // Stencil buffer.
+    // Stencil buffer depth.
     e << "  " << "stencil depth = " << s.stencil_size << Log::EndOfLine;
 
-    // Accumulation buffer.
-    e << "  " << "accumulation buffer" << Log::EndOfLine;
-    e << "  " << "  " << "color depth = " << s.accum[0] + s.accum[1] + s.accum[2] + s.accum[3] << Log::EndOfLine;
-    e << "  " << "  " << "red depth = " << s.accum[0] << Log::EndOfLine
-        << "  " << "  " << "green depth = " << s.accum[1] << Log::EndOfLine
-        << "  " << "  " << "blue depth = " << s.accum[2] << Log::EndOfLine
-        << "  " << "  " << "alpha depth = " << s.accum[3] << Log::EndOfLine;
+    // Accumulation buffer depth.
+    e << "  " << "accumulation buffer" << Log::EndOfLine
+        << "  " << "  " << "depth = " << s.accumulationBufferDepth.getDepth() << Log::EndOfLine
+        << "  " << "  " << "red depth = " << s.accumulationBufferDepth.getRedDepth() << Log::EndOfLine
+        << "  " << "  " << "green depth = " << s.accumulationBufferDepth.getGreenDepth() << Log::EndOfLine
+        << "  " << "  " << "blue depth = " << s.accumulationBufferDepth.getBlueDepth() << Log::EndOfLine
+        << "  " << "  " << "alpha depth = " << s.accumulationBufferDepth.getAlphaDepth() << Log::EndOfLine;
 
     // Double buffering, stereoscopic rendering.
     e << "  " << "double buffer = " << s.doublebuffer << Log::EndOfLine;
@@ -341,43 +417,10 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
     }
     else
     {
-        int buffer_size = v->gl_att.buffer_size;
-
-        if ( 0 == buffer_size ) buffer_size = v->colorBufferDepth;
-        if ( 0 == buffer_size ) buffer_size = 32;
-        if ( buffer_size > 32 ) buffer_size = 32;
-
-        // fix bad colordepth
-        if (( 0 == v->gl_att.color[0] && 0 == v->gl_att.color[1] && 0 == v->gl_att.color[2] ) ||
-            ( v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] > buffer_size ) )
-        {
-            if ( buffer_size > 24 )
-            {
-                v->gl_att.color[0] = v->gl_att.color[1] = v->gl_att.color[2] = buffer_size / 4;
-            }
-            else
-            {
-                // do a kludge in case we have something silly like 16 bit "highcolor" mode
-                v->gl_att.color[0] = v->gl_att.color[2] = buffer_size / 3;
-                v->gl_att.color[1] = buffer_size - v->gl_att.color[0] - v->gl_att.color[2];
-            }
-
-            v->gl_att.color[0] = ( v->gl_att.color[0] > 8 ) ? 8 : v->gl_att.color[0];
-            v->gl_att.color[1] = ( v->gl_att.color[1] > 8 ) ? 8 : v->gl_att.color[1];
-            v->gl_att.color[2] = ( v->gl_att.color[2] > 8 ) ? 8 : v->gl_att.color[2];
-        }
-
-        // fix the alpha value
-        v->gl_att.color[3] = buffer_size - v->gl_att.color[0] - v->gl_att.color[1] - v->gl_att.color[2];
-        v->gl_att.color[3] = ( v->gl_att.color[3] < 0 ) ? 0 : v->gl_att.color[3];
-
-        // get the proper buffer size
-        buffer_size = v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] + v->gl_att.color[3];
-        buffer_size &= ~7;
+        SDLX_sdl_gl_attrib_t::validate(v->gl_att);
 
         // synch some parameters between OpenGL and SDL
-        v->colorBufferDepth    = buffer_size;
-        v->gl_att.buffer_size  = buffer_size;
+        v->colorBufferDepth = v->gl_att.buffer_size;
 
         // the GL_ATTRIB_* parameters must be set before opening the video mode
         SDLX_video_parameters_t::upload( v );

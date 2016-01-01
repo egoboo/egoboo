@@ -29,6 +29,7 @@
 
 #include "egolib/file_common.h"
 #include "egolib/egoboo_setup.h"
+#include "egolib/Graphics/ColorDepth.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -56,19 +57,25 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_video_flags_t& s);
 /// @remark SDL_GL_SetAttribute and SDL_GL_GetAttribute are used to write and read those values.
 /// @todo Rename to Ego::Graphics::SDL::ContextProperties.
 struct SDLX_sdl_gl_attrib_t {
-    // SDL_GL_* attribute data
-    int color[4];           ///< SDL_GL_RED_SIZE, SDL_GL_GREEN_SIZE, SDL_GL_BLUE_SIZE, SDL_GL_ALPHA_SIZE
+    /// The depth of the colour buffer.
+    /// SDL_GL_RED_SIZE, SDL_GL_GREEN_SIZE, SDL_GL_BLUE_SIZE, SDL_GL_ALPHA_SIZE
+    Ego::ColorDepth colourBufferDepth;
+    /// The depth of the accumulation buffer.
+    /// SDL_GL_ACCUM_RED_SIZE, SDL_GL_ACCUM_GREEN_SIZE, SDL_GL_ACCUM_BLUE_SIZE, SDL_GL_ACCUM_ALPHA_SIZE
+    Ego::ColorDepth accumulationBufferDepth;
     int buffer_size;        ///< SDL_GL_BUFFER_SIZE
     int doublebuffer;       ///< SDL_GL_DOUBLEBUFFER
     int depth_size;         ///< SDL_GL_DEPTH_SIZE
     int stencil_size;       ///< SDL_GL_STENCIL_SIZE
-    int accum[4];           ///< SDL_GL_ACCUM_RED_SIZE, SDL_GL_ACCUM_GREEN_SIZE, SDL_GL_ACCUM_BLUE_SIZE, SDL_GL_ACCUM_ALPHA_SIZE
     int stereo;             ///< SDL_GL_STEREO
     int multi_buffers;      ///< SDL_GL_MULTISAMPLEBUFFERS
     int multi_samples;      ///< SDL_GL_MULTISAMPLESAMPLES
     int accelerated_visual; ///< SDL_GL_ACCELERATED_VISUAL
     int swap_control;       ///< SDL_GL_SWAP_CONTROL
 
+    SDLX_sdl_gl_attrib_t();
+
+    static void validate(SDLX_sdl_gl_attrib_t& self);
     static void defaults(SDLX_sdl_gl_attrib_t& self);
     // Upload the attributes to SDL.
     static void upload(SDLX_sdl_gl_attrib_t& self);

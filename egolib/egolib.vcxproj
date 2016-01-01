@@ -456,7 +456,6 @@
     <ClCompile Include="src\egolib\Clock.cpp" />
     <ClCompile Include="src\egolib\egoboo_setup.c" />
     <ClCompile Include="src\egolib\endian.c" />
-    <ClCompile Include="src\egolib\extensions\ogl_debug.c" />
     <ClCompile Include="src\egolib\extensions\ogl_extensions.c" />
     <ClCompile Include="src\egolib\extensions\ogl_include.c" />
     <ClCompile Include="src\egolib\extensions\SDL_extensions.c" />

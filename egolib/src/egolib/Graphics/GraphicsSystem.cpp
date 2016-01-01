@@ -22,10 +22,7 @@ void GraphicsSystem::initialize() {
     sdl_vparam.flags.opengl = true;
     sdl_vparam.gl_att.doublebuffer = true;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
-    sdl_vparam.gl_att.accum[0] = 8;
-    sdl_vparam.gl_att.accum[1] = 8;
-    sdl_vparam.gl_att.accum[2] = 8;
-    sdl_vparam.gl_att.accum[3] = 8;
+    sdl_vparam.gl_att.accumulationBufferDepth = Ego::ColorDepth(32, 8, 8, 8, 8);
 
     // Download the context parameters from the Egoboo configuration.
     oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());

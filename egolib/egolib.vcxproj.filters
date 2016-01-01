@@ -174,9 +174,6 @@
     <ClCompile Include="src\egolib\vfs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\extensions\ogl_debug.c">
-      <Filter>Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\extensions\ogl_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
