@@ -1319,8 +1319,194 @@ void reset_end_text()
     str_add_linebreaks( endtext, endtext_carat, 20 );
 }
 
+std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const script_state_t &scriptState, const std::string &text)
+{
+    std::stringstream result;
+    bool escapeEncountered = false;
+
+    for(const char &c : text)
+    {
+        if(escapeEncountered)
+        {
+            switch(c)
+            {
+                //Percentile symbol
+                case '%':
+                    result << '%';
+                break;
+
+                //Character name
+                case 'n':
+                    result << object->getName(true, false, false);
+                break;
+
+                //Class name
+                case 'c':
+                    result << object->getProfile()->getClassName();
+                break;
+
+                //AI target name
+                case 't':
+                {
+                    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[object->ai.getTarget()];
+                    if(target) {
+                        result << target->getName();
+                    }
+                }
+                break;
+
+                //Owner's name
+                case 'o':
+                {
+                    const std::shared_ptr<Object> &owner = _currentModule->getObjectHandler()[object->ai.owner];
+                    if(owner) {
+                        result << owner->getName(true, false, false);
+                    }
+                }
+                break;
+
+                //Target class name
+                case 's':
+                {
+                    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[object->ai.getTarget()];
+                    if(target) {
+                        result << target->getProfile()->getClassName();
+                    }
+                }
+                break;
+
+                //Character's ammo
+                case 'a':
+                    if(object->ammoknown) {
+                        result << object->getAmmo();
+                    }
+                    else {
+                        result << '?';
+                    }
+                break;
+
+                // Kurse state
+                case 'k':
+                    if (object->iskursed) {
+                        result << "kursed";
+                    }
+                    else {
+                        result << "unkursed";
+                    }
+                break;
+
+                //Character's possessive
+                case 'p':
+                    if (object->gender == GENDER_FEMALE) {
+                        result << "her";
+                    }
+                    else if (object->gender == GENDER_MALE) {
+                        result << "his";
+                    }
+                    else {
+                        result << "its";
+                    }
+                break;
+
+                //Character's gender
+                case 'm':
+                    if (object->gender == GENDER_FEMALE) {
+                        result << "female ";
+                    }
+                    else if (object->gender == GENDER_MALE) {
+                        result << "male ";
+                    }
+                    else {
+                        result << "other ";
+                    }
+                break;
+
+                case 'g':  // Target's possessive
+                {
+                    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[object->ai.getTarget()];
+                    if(target) {
+                        if (target->gender == GENDER_FEMALE) {
+                            result << "her";
+                        }
+                        else if (target->gender == GENDER_MALE) {
+                            result << "his";
+                        }
+                        else {
+                            result << "its";
+                        }
+                    }
+                }
+                break;
+
+                //Target's skin name
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                {
+                    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[object->ai.getTarget()];
+                    if(target) {
+                        result << target->getProfile()->getSkinInfo(c-'0').name;
+                    }
+                }
+                break;
+
+                // New line (enter)
+                case '#':
+                    result << '\n';
+                break;
+
+                // tmpdistance value
+                case 'd':
+                case 'D':
+                    result << scriptState.distance;
+                break;
+
+                // tmpx value
+                case 'X':
+                case 'x':
+                    result << scriptState.x;
+                break;
+
+                // tmpy value
+                case 'Y':
+                case 'y':
+                    result << scriptState.y;
+                break;
+
+                //Unknown escape character
+                default:
+                    result << '%' << c;
+                    Log::get().warn("Unknown escape character %c\n", c);
+                break;
+            }
+
+            //Escape character is now handled
+            escapeEncountered = false;
+            continue;
+        }
+
+        //Is it an escape character?
+        if(c == '%') {
+            escapeEncountered = true;
+        }
+        else {
+            //Normal character, append to string
+            result << c;
+        }
+    }
+
+    return result.str();
+}
+
 //--------------------------------------------------------------------------------------------
-void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
+void expand_escape_codes(const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end)
 {
     int    cnt;
     STRING szTmp;
