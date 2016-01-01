@@ -1315,7 +1315,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFMONEY:
                 varname = "SELFMONEY";
-                iTmp = pchr->money;
+                iTmp = pchr->getMoney();
                 break;
 
             case VARSELFACCEL:
@@ -1340,7 +1340,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARTARGETMONEY:
                 varname = "TARGETMONEY";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->money;
+                iTmp = ( NULL == ptarget ) ? 0 : ptarget->getMoney();
                 break;
 
             case VARTARGETTURNAWAY:

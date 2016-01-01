@@ -1810,16 +1810,16 @@ Uint8 scr_GiveMoneyToTarget( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     //squash out-or-range values
-    if(state.argument < 0 && std::abs(state.argument) > pself_target->money) {
-        state.argument = -pself_target->money;
+    if(state.argument < 0 && std::abs(state.argument) > pself_target->getMoney()) {
+        state.argument = -pself_target->getMoney();
     }
-    if(state.argument > pchr->money) {
-        state.argument = pchr->money;
+    if(state.argument > pchr->getMoney()) {
+        state.argument = pchr->getMoney();
     }
 
     //Do the transfer
-    pchr->money = Ego::Math::constrain(pchr->money - state.argument, 0, MAXMONEY);
-    pself_target->money = Ego::Math::constrain(pself_target->money + state.argument, 0, MAXMONEY);
+    pchr->giveMoney(-state.argument);
+    pself_target->giveMoney(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6562,16 +6562,16 @@ Uint8 scr_TargetPayForArmor( script_state_t& state, ai_state_t& self )
 
     iTmp -= pself_target->getProfile()->getSkinInfo(pself_target->skin).cost;     // Refund for old skin
 
-    if ( iTmp > pself_target->money )
+    if ( iTmp > pself_target->getMoney() )
     {
         // Not enough.
-        state.x = iTmp - pself_target->money;        // Amount needed
+        state.x = iTmp - pself_target->getMoney();        // Amount needed
         returncode = false;
     }
     else
     {
         // Pay for it.  Cost may be negative after refund.
-        pself_target->money = Ego::Math::constrain<int16_t>(pself_target->money - iTmp, 0, MAXMONEY);
+        pself_target->giveMoney(-iTmp);
         state.x = 0;
         returncode = true;
     }
@@ -7739,7 +7739,7 @@ Uint8 scr_SetMoney( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->money = Ego::Math::constrain( state.argument, 0, MAXMONEY );
+    pchr->giveMoney(state.argument - pchr->getMoney());
 
     SCRIPT_FUNCTION_END();
 }

@@ -964,10 +964,9 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
                 }
             }
 
-            if ( pcollector->getProfile()->canGrabMoney() && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
+            if ( pcollector->getProfile()->canGrabMoney() && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->getMoney() < MAXMONEY)
             {
-                pcollector->money += pdata->pprt->getProfile()->bump_money;
-                pcollector->money = Ego::Math::constrain<int>(pcollector->money, 0, MAXMONEY);
+                pcollector->giveMoney(pdata->pprt->getProfile()->bump_money);
 
                 // the coin disappears when you pick it up
                 pdata->terminate_particle = true;

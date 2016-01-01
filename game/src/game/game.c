@@ -819,7 +819,7 @@ void readPlayerInput()
 
                 //Also lose some gold in non-easy modes
                 if (egoboo_config_t::get().game_difficulty.getValue() > Ego::GameDifficulty::Easy) {
-                    pchr->money *= EXPKEEP;
+                    pchr->giveMoney(-pchr->getMoney() * EXPKEEP);
                 }
             }
 

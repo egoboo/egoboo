@@ -205,7 +205,7 @@ std::shared_ptr<Object> activate_spawn_file_spawn(spawn_file_info_t& psp_info, c
     }
 
     //Add money
-    pobject->money = Ego::Math::constrain(pobject->money + psp_info.money, 0, MAXMONEY);
+    pobject->giveMoney(psp_info.money);
 
     //Set AI stuff
     pobject->ai.content = psp_info.content;

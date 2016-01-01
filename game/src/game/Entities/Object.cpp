@@ -49,7 +49,6 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     gender(GENDER_MALE),
     experience(0),
     experiencelevel(0),
-    money(0),
     ammomax(0),
     ammo(0),
     holdingwhich(),
@@ -139,6 +138,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _tempAttribute(),
 
     _inventory(),
+    _money(0),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
 
@@ -1460,9 +1460,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
             // Nope, award direct kill experience instead
             else actualKiller->giveExperience(experience, XP_KILLENEMY, false);
 
-            //Mercenary Perk gives +1 Zenny per kill
-            if(actualKiller->hasPerk(Ego::Perks::MERCENARY) && !_hasBeenKilled && actualKiller->money < MAXMONEY) {
-                actualKiller->money += 1;
+            //Mercenary Perk gives +1 Zenny per kill (if this is the first time we died)
+            if(actualKiller->hasPerk(Ego::Perks::MERCENARY) && !_hasBeenKilled) {
+                actualKiller->giveMoney(1);
                 AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_COINGET));
             }
         
@@ -2779,11 +2779,11 @@ void Object::dropMoney(int amount)
     }
 
     // remove the money from inventory
-    money -= amount;
+    giveMoney(-amount);
 
     // make the particles emit from "waist high"
     Vector3f pos = getPosition();
-    pos[kZ] += (chr_min_cv._maxs[OCT_Z] + chr_min_cv._mins[OCT_Z]) * 0.5f;
+    pos.z() += (chr_min_cv._maxs[OCT_Z] + chr_min_cv._mins[OCT_Z]) * 0.5f;
 
     // Give the character a time-out from interacting with particles so it
     // doesn't just grab the money again
@@ -2797,7 +2797,7 @@ void Object::dropMoney(int amount)
 
         for (size_t tnc = 0; tnc < count; tnc++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
+            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc);
         }
     }
 }
@@ -2952,4 +2952,14 @@ std::shared_ptr<const Ego::Texture> Object::getIcon() const
     {
         return ProfileSystem::get().getSpellBookIcon(getProfile()->getSpellEffectType()).get_ptr();
     }
+}
+
+void Object::giveMoney(int amount)
+{
+    _money = Ego::Math::constrain(static_cast<int>(_money) + amount, 0, MAXMONEY);
+}
+
+uint16_t Object::getMoney() const
+{
+    return _money;
 }

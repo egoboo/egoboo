@@ -254,12 +254,6 @@ public:
     void requestTerminate();
 
     /**
-    * @return
-    *   Get the amount of money this character has
-    **/
-    int16_t getMoney() const { return money; }
-
-    /**
     * @brief 
     *   This function calculates and applies damage to a character.  It also
     *   sets alerts and begins actions.  Blocking and frame invincibility are done here too.  
@@ -736,8 +730,6 @@ public:
     **/
     bool hasSkillIDSZ(const IDSZ2& whichskill) const;
 
-    void dropMoney(int amount);
-
     /**
     * @brief 
     *   This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
@@ -748,6 +740,32 @@ public:
     void dropAllItems();
 
     std::shared_ptr<const Ego::Texture> getIcon() const;
+
+    /**
+    * @brief
+    *   Modifies the amount of money this character has. This method
+    *   ensures the resulting amount is not negative and not above the
+    *   maximum amount.
+    * @param amount
+    *   The amount to add or subtract (if negative)
+    **/
+    void giveMoney(int amount);
+
+    /**
+    * @return
+    *   The amount of money (zennies) this Object currently has
+    **/
+    uint16_t getMoney() const;
+
+    /**
+    * @brief
+    *   This function will make the Object drop the specified amount of money.
+    *   Dropping money will spawn money particles around the Object
+    * @param amount
+    *   The amount of money to be dropped. If this is more than the max money,
+    *   then all available money will be dropped
+    **/
+    void dropMoney(int amount);
 
 private:
 
@@ -784,7 +802,6 @@ public:
     uint32_t       experience;      ///< Experience
     uint8_t        experiencelevel; ///< Experience Level
 
-    int16_t        money;            ///< Money
     uint16_t       ammomax;          ///< Ammo stuff
     uint16_t       ammo;
 
@@ -916,6 +933,7 @@ private:
     std::unordered_map<Ego::Attribute::AttributeType, float, std::hash<uint8_t>> _tempAttribute; ///< Character attributes with enchants
 
     Inventory _inventory;
+    uint16_t  _money;                                    ///< Money
     std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
     uint32_t _levelUpSeed;
 

@@ -422,8 +422,8 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
         pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
     }
 
-    // Money is added later
-    pchr->money = ppro->getStartingMoney();
+    // Extra spawn money is added later
+    pchr->giveMoney(ppro->getStartingMoney());
 
     // Experience
     pchr->experience = Random::next( ppro->getStartingExperience() );
