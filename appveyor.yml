@@ -14,7 +14,8 @@ before_build:
     set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
     
 build:
-    project: egoboo.sln
+    parallel: true                  # enable MSBuild parallel builds
+    project: egoboo.sln             # path to Visual Studio solution or project
 
 test_script:
     - ps: |
