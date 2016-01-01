@@ -27,7 +27,7 @@ namespace Ego {
 namespace OpenGL {
 
 DepthBuffer::DepthBuffer() :
-    Ego::DepthBuffer()
+    Ego::DepthBuffer(), depth(Utilities::getDepthBufferDepth())
 {}
 
 DepthBuffer::~DepthBuffer()
@@ -41,6 +41,10 @@ void DepthBuffer::clear() {
 void DepthBuffer::setClearValue(const float& value) {
     glClearDepth(value);
     Utilities::isError();
+}
+
+uint8_t DepthBuffer::getDepth() {
+    return depth;
 }
 
 } // namespace OpenGL

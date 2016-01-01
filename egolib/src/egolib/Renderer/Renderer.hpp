@@ -32,6 +32,7 @@
 #include "egolib/Renderer/WindingMode.hpp"
 #include "egolib/Renderer/PrimitiveType.hpp"
 #include "egolib/Renderer/TextureSampler.hpp"
+#include "egolib/Renderer/RendererInfo.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
 #include "egolib/Renderer/Texture.hpp"
 #include "egolib/Extensions/ogl_debug.h"
@@ -51,9 +52,7 @@ using namespace Math;
  */
 template <typename DataType>
 class Buffer : public Id::NonCopyable {
-
 protected:
-
     /**
      * @brief
      *  Construct this buffer (facade).
@@ -71,7 +70,6 @@ protected:
     virtual ~Buffer() {}
 
 public:
-
     /**
      * @brief
      *  Clear this buffer using its clear value.
@@ -103,7 +101,6 @@ public:
  *  A facade for an accumulation buffer.
  */
 class AccumulationBuffer : public Ego::Buffer<Colour4f> {
-
 protected:
 
     /**
@@ -122,6 +119,15 @@ protected:
      */
     virtual ~AccumulationBuffer();
 
+public:
+    /**
+     * @brief
+     *  Get the colour depth of this accumulation buffer.
+     * @return
+     *  the colour depth of this accumulation buffer
+     */
+    virtual const ColorDepth& getColourDepth() = 0;
+
 };
 
 /**
@@ -129,9 +135,7 @@ protected:
  *  A facade for a colour buffer.
  */
 class ColourBuffer : public Ego::Buffer<Colour4f> {
-
 protected:
-
     /**
      * @brief
      *  Construct this colour buffer (facade).
@@ -148,6 +152,15 @@ protected:
      */
     virtual ~ColourBuffer();
 
+public:
+    /**
+     * @brief
+     *  Get the colour depth of this colour buffer.
+     * @return
+     *  the colour depth of this colour buffer
+     */
+    virtual const ColorDepth& getColourDepth() = 0;
+
 };
 
 /**
@@ -155,9 +168,7 @@ protected:
  *  A facade for an depth buffer.
  */
 class DepthBuffer : public Ego::Buffer<float> {
-
 protected:
-
     /**
      * @brief
      *  Construct this depth buffer (facade).
@@ -173,6 +184,48 @@ protected:
      *  Intentionally protected.
      */
     virtual ~DepthBuffer();
+
+public:
+    /**
+     * @brief
+     *  Get the depth of this depth buffer.
+     * @return
+     *  the depth of this depth buffer
+     */
+    virtual uint8_t getDepth() = 0;
+
+};
+
+/**
+ * @brief
+ *  A facade for a stencil buffer.
+ */
+class StencilBuffer : public Ego::Buffer<float> {
+protected:
+    /**
+     * @brief
+     *  Construct this stencil buffer (facade).
+     * @remark
+     *  Intentionally protected.
+     */
+    StencilBuffer();
+
+    /**
+     * @brief
+     *  Destruct this stencil buffer (facade).
+     * @remark
+     *  Intentionally protected.
+     */
+    virtual ~StencilBuffer();
+
+public:
+    /**
+     * @brief
+     *  Get the depth of this stencil buffer.
+     * @return
+     *  the depth of this stencil buffer
+     */
+    virtual uint8_t getDepth() = 0;
 
 };
 
@@ -264,7 +317,15 @@ protected:
     virtual ~Renderer();
 
 public:
+    /**
+     * @brief
+     *  Get information about the renderer.
+     * @return
+     *  information about the renderer
+     */
+    virtual const RendererInfo& getInfo() = 0;
 
+public:
     /**
      * @brief
      *  Get the accumulation buffer (facade).
@@ -288,6 +349,14 @@ public:
      *  the depth buffer (facade)
      */
     virtual DepthBuffer& getDepthBuffer() = 0;
+
+    /**
+     * @brief
+     *  Get the stencil buffer (facade).
+     * @return
+     *  the stencil buffer (facade)
+     */
+    virtual StencilBuffer& getStencilBuffer() = 0;
 
     /**
      * @brief

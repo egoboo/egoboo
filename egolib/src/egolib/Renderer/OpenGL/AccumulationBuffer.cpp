@@ -27,7 +27,7 @@ namespace Ego {
 namespace OpenGL {
 
 AccumulationBuffer::AccumulationBuffer() :
-    Ego::AccumulationBuffer()
+    Ego::AccumulationBuffer(), colourDepth(Utilities::getAccumulationBufferColourDepth())
 {}
 
 AccumulationBuffer::~AccumulationBuffer()
@@ -41,6 +41,10 @@ void AccumulationBuffer::clear() {
 void AccumulationBuffer::setClearValue(const Colour4f& value) {
     glClearAccum(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
     Utilities::isError();
+}
+
+const ColorDepth& AccumulationBuffer::getColourDepth() {
+    return colourDepth;
 }
 
 } // namespace OpenGL

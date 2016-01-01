@@ -17,49 +17,33 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/OpenGL/DepthBuffer.hpp
-/// @brief  Implementation of a depth buffer facade for OpenGL 2.1.
+/// @file   egolib/Renderer/OpenGL/StencilBuffer.cpp
+/// @brief  Implementation of an Stencil buffer facade for OpenGL 2.1.
 /// @author Michael Heilmann
-#pragma once
 
-#include "egolib/Renderer/Renderer.hpp"
+#include "egolib/Renderer/OpenGL/StencilBuffer.hpp"
 
-namespace Ego
-{
-namespace OpenGL
-{
+namespace Ego {
+namespace OpenGL {
 
-class DepthBuffer : public Ego::DepthBuffer
-{
-private:
-    uint8_t depth;
+StencilBuffer::StencilBuffer() :
+    Ego::StencilBuffer(), depth(Utilities::getStencilBufferDepth()) {}
 
-public:
-    
-    /**
-     * @brief
-     *  Construct this depth buffer facade.
-     */
-    DepthBuffer();
-    
-    /**
-     * @brief
-     *  Destruct this depth buffer facade.
-     */
-    virtual ~DepthBuffer();
+StencilBuffer::~StencilBuffer() {}
 
-public:
+void StencilBuffer::clear() {
+    glClear(GL_STENCIL_BUFFER_BIT);
+    Utilities::isError();
+}
 
-    /** @copydoc Ego::Buffer<float>::clear */
-    virtual void clear() override;
+void StencilBuffer::setClearValue(const float& value) {
+    glClearStencil(value);
+    Utilities::isError();
+}
 
-    /** @copydoc Ego::Buffer<float>::setClearValue */
-    virtual void setClearValue(const float& value) override;
-
-    /** @copydoc Ego::DepthBuffer::getDepth */
-    virtual uint8_t getDepth() override;
-
-};
+uint8_t StencilBuffer::getDepth() {
+    return depth;
+}
 
 } // namespace OpenGL
 } // namespace Ego

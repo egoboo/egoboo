@@ -60,13 +60,15 @@ namespace OpenGL {
 
 Renderer::Renderer() :
     _extensions(Utilities::getExtensions()),
-    _vendor(Utilities::getVendor()),
-    _name(Utilities::getName()),
-    _version(Utilities::getVersion()) {
+    info(Utilities::getRenderer(), Utilities::getVendor(), Utilities::getVersion()) {
     OpenGL::link();
 }
 
 Renderer::~Renderer() {}
+
+const Ego::RendererInfo& Renderer::getInfo() {
+    return info;
+}
 
 Ego::AccumulationBuffer& Renderer::getAccumulationBuffer() {
     return _accumulationBuffer;
@@ -78,6 +80,10 @@ Ego::ColourBuffer& Renderer::getColourBuffer() {
 
 Ego::DepthBuffer& Renderer::getDepthBuffer() {
     return _depthBuffer;
+}
+
+Ego::StencilBuffer& Renderer::getStencilBuffer() {
+    return _stencilBuffer;
 }
 
 Ego::TextureUnit& Renderer::getTextureUnit() {

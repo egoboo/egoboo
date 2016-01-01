@@ -53,6 +53,12 @@ DepthBuffer::DepthBuffer()
 DepthBuffer::~DepthBuffer()
 {}
 
+StencilBuffer::StencilBuffer()
+{}
+
+StencilBuffer::~StencilBuffer()
+{}
+
 TextureUnit::TextureUnit()
 {}
 

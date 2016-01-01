@@ -28,6 +28,7 @@
 #include "egolib/Renderer/OpenGL/AccumulationBuffer.hpp"
 #include "egolib/Renderer/OpenGL/ColourBuffer.hpp"
 #include "egolib/Renderer/OpenGL/DepthBuffer.hpp"
+#include "egolib/Renderer/OpenGL/StencilBuffer.hpp"
 #include "egolib/Renderer/OpenGL/TextureUnit.hpp"
 #include "egolib/Renderer/OpenGL/Texture.hpp"
 #include "egolib/Extensions/ogl_debug.h"
@@ -74,29 +75,25 @@ protected:
     DepthBuffer _depthBuffer;
     /**
      * @brief
+     *  The stencil buffer facade.
+     */
+    StencilBuffer _stencilBuffer;
+    /**
+     * @brief
      *  The texture unit facade
      */
     TextureUnit _textureUnit;
     /**
      * @brief
+     *  Information about the backend.
+     */
+    RendererInfo info;
+    /**
+     * @brief
      *  The set of OpenGL extensions supported by this OpenGL implementation.
      */
     UnorderedSet<String> _extensions;
-    /**
-     * @brief
-     *  The name of the vendor of this OpenGL implementation.
-     */
-    String _vendor;
-    /**
-     * @brief
-     *  The name of this OpenGL implementation.
-     */
-    String _name;
-    /**
-     * @brief
-     *    The version of this OpenGL implementation.
-     */
-    String _version;
+
 public:
     /**
      * @brief
@@ -110,6 +107,10 @@ public:
     virtual ~Renderer();
 
 public:
+    /** @copydoc Ego::Renderer::getInfo() */
+    virtual const Ego::RendererInfo& getInfo() override;
+
+public:
 
     /** @copydoc Ego::Renderer::getAccumulationBuffer() */
     virtual Ego::AccumulationBuffer& getAccumulationBuffer() override;
@@ -119,6 +120,9 @@ public:
 
     /** @copydoc Ego::Renderer::getDepthBuffer() */
     virtual Ego::DepthBuffer& getDepthBuffer() override;
+
+    /** @copydoc Ego::Renderer::getStencilBuffer() */
+    virtual Ego::StencilBuffer& getStencilBuffer() override;
 
     /** @copydoc Ego::Renderer::getTextureUnit() */
     virtual Ego::TextureUnit& getTextureUnit() override;

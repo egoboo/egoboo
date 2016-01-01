@@ -173,31 +173,31 @@ public:
     static void uninitialize();
 
 private:
-    std::unique_ptr<TimerService> _timerService;
-    EventService *_eventService;
-	VideoService *_videoService;
-	AudioService *_audioService;
-	InputService *_inputService;
+    TimerService *timerService;
+    EventService *eventService;
+    VideoService *videoService;
+    AudioService *audioService;
+    InputService *inputService;
 public:
     TimerService &getTimerService()
     {
-        return *_timerService.get();
+        return *timerService;
     }
     EventService& getEventService()
     {
-        return *_eventService;
+        return *eventService;
     }
 	VideoService& getVideoService()
 	{
-		return *_videoService;
+		return *videoService;
 	}
 	AudioService& getAudioService()
 	{
-		return *_audioService;
+		return *audioService;
 	}
 	InputService& getInputService()
 	{
-		return *_inputService;
+		return *inputService;
 	}
 };
 

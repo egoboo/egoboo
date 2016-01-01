@@ -170,7 +170,7 @@ System::System(const char *binaryPath, const char *egobooPath)
 	Log::get().message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
     try
     {
-        _timerService = std::unique_ptr<TimerService>(new TimerService());
+        timerService = new TimerService();
     }
     catch (...)
     {
@@ -183,11 +183,12 @@ System::System(const char *binaryPath, const char *egobooPath)
     }
     try
     {
-        _eventService = new EventService();
+        eventService = new EventService();
     }
     catch (...)
     {
-        _timerService.reset();
+        delete timerService;
+        timerService = nullptr;
         SDL_Quit();
         setup_end();
         /*sys_uninitialize();*/
@@ -197,13 +198,12 @@ System::System(const char *binaryPath, const char *egobooPath)
     }
 	try
 	{
-		_videoService = new VideoService();
+		videoService = new VideoService();
 	}
 	catch (...)
 	{
-		delete _eventService;
-		_eventService = nullptr;
-        _timerService.reset();
+        delete eventService; eventService = nullptr;
+        delete timerService; timerService = nullptr;
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
@@ -213,15 +213,13 @@ System::System(const char *binaryPath, const char *egobooPath)
 	}
 	try
 	{
-		_audioService = new AudioService();
+		audioService = new AudioService();
 	}
 	catch (...)
 	{
-		delete _videoService;
-		_videoService = nullptr;
-		delete _eventService;
-		_eventService = nullptr;
-        _timerService.reset();
+        delete videoService; videoService = nullptr;
+        delete eventService; eventService = nullptr;
+        delete timerService; timerService = nullptr;
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
@@ -231,17 +229,14 @@ System::System(const char *binaryPath, const char *egobooPath)
 	}
 	try
 	{
-		_inputService = new InputService();
+		inputService = new InputService();
 	}
 	catch (...)
 	{
-		delete _audioService;
-		_audioService = nullptr;
-		delete _videoService;
-		_videoService = nullptr;
-		delete _eventService;
-		_eventService = nullptr;
-        _timerService.reset();
+        delete audioService; audioService = nullptr;
+        delete videoService; videoService = nullptr;
+        delete eventService; eventService = nullptr;
+        delete timerService; timerService = nullptr;
 		SDL_Quit();
 		setup_end();
 		/*sys_uninitialize();*/
@@ -253,15 +248,11 @@ System::System(const char *binaryPath, const char *egobooPath)
 
 System::~System()
 {
-	delete _inputService;
-	_inputService = nullptr;
-	delete _audioService;
-	_audioService = nullptr;
-	delete _videoService;
-	_videoService = nullptr;
-    delete _eventService;
-    _eventService = nullptr;
-    _timerService.reset();
+    delete inputService; inputService = nullptr;
+    delete audioService; audioService = nullptr;
+    delete videoService; videoService = nullptr;
+    delete eventService; eventService = nullptr;
+    delete timerService; timerService = nullptr;
     setup_end();
     /*sys_uninitialize();*/
 	Log::get().message("Exiting Egoboo Engine %s.\n", VERSION.c_str());
