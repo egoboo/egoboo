@@ -26,8 +26,8 @@
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
 #include "game/egoboo.h"
-#include "game/char.h"
 #include "game/Module/Module.hpp"
+#include "game/Entities/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

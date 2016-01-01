@@ -22,7 +22,8 @@
 
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/game.h"
-#include "game/char.h"
+#include "game/Module/Module.hpp"
+#include "game/Entities/_Include.hpp"
 
 //Compatability fix for older versions of SDL
 #if SDL_VERSIONNUM(SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL) < SDL_VERSIONNUM(1, 2, 12)

@@ -29,7 +29,9 @@
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
 #include "game/mesh.h"
-#include "game/char.h"
+#include "game/Entities/_Include.hpp"
+#include "game/CharacterMatrix.h"
+#include "game/ObjectAnimation.h"
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
@@ -414,20 +416,19 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->phys.bumpdampen = ppro->getBumpDampen();
     if ( CAP_INFINITE_WEIGHT == ppro->getWeight() )
     {
-        pchr->phys.weight = CHR_INFINITE_WEIGHT;
+        pchr->phys.weight = Ego::Physics::CHR_INFINITE_WEIGHT;
     }
     else
     {
         uint32_t itmp = ppro->getWeight() * ppro->getSize() * ppro->getSize() * ppro->getSize();
-        pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
+        pchr->phys.weight = std::min(itmp, Ego::Physics::CHR_MAX_WEIGHT);
     }
 
-    // Money is added later
-    pchr->money = ppro->getStartingMoney();
+    // Extra spawn money is added later
+    pchr->giveMoney(ppro->getStartingMoney());
 
     // Experience
-    int iTmp = Random::next( ppro->getStartingExperience() );
-    pchr->experience      = std::min( iTmp, MAXXP );
+    pchr->experience = Random::next( ppro->getStartingExperience() );
     pchr->experiencelevel = ppro->getStartingLevel();
 
     // Particle attachments
@@ -582,7 +583,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
 #endif
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
-    if ( _gameObjects.exists( pchr->attachedto ) && CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
+    if ( _gameObjects.exists( pchr->attachedto ) && Ego::Physics::CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
     {
         log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
                      pchr->getPosX(), pchr->getPosY(), nrm[kX], nrm[kY] );

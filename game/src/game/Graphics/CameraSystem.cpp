@@ -24,7 +24,6 @@
 #include "game/graphic.h"
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
-#include "game/char.h"
 
 #include "game/Entities/_Include.hpp"
 

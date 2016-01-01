@@ -78,6 +78,8 @@ struct damagetile_instance_t
 class GameModule : public Id::NonCopyable
 {
 public:
+    static constexpr float PITDEPTH = -60;  ///< Depth to kill character
+
     /**
      * @brief
      *  Prepeares a module to be played

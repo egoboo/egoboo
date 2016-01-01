@@ -48,11 +48,8 @@ bool Shop::drop(const std::shared_ptr<Object>& dropper, const std::shared_ptr<Ob
             }
             else
             {
-                dropper->money = dropper->money + price;
-                dropper->money = Ego::Math::constrain(dropper->money, (Sint16)0, (Sint16)MAXMONEY);
-
-                owner->money = owner->money - price;
-                owner->money = Ego::Math::constrain(owner->money, (Sint16)0, (Sint16)MAXMONEY);
+                dropper->giveMoney(price);
+                owner->giveMoney(-price);
 
                 ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_BUY);
             }
@@ -77,16 +74,13 @@ bool Shop::buy(const std::shared_ptr<Object>& buyer, const std::shared_ptr<Objec
             //in_shop = true;
             int price = item->getPrice();
 
-            if (buyer->money >= price)
+            if (buyer->getMoney() >= price)
             {
                 // Okay to sell
                 ai_state_t::add_order(owner->ai, (Uint32)price, Passage::SHOP_SELL);
 
-                buyer->money = buyer->money - price;
-                buyer->money = Ego::Math::constrain((int)buyer->money, 0, MAXMONEY);
-
-                owner->money = owner->money + price;
-                owner->money = Ego::Math::constrain((int)owner->money, 0, MAXMONEY);
+                buyer->giveMoney(-price);
+                owner->giveMoney(price);
 
                 canGrab = true;
             }

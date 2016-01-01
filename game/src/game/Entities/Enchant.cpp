@@ -24,6 +24,7 @@
 #include "Enchant.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Core/GameEngine.hpp"
+#include "game/ObjectAnimation.h"
 
 namespace Ego
 {

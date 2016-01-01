@@ -36,11 +36,11 @@
 #include "game/game.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/char.h"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/Module/Module.hpp"
+#include "game/Entities/_Include.hpp"
 
 namespace Ego {
 namespace Graphics {

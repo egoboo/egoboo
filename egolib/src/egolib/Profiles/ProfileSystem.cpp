@@ -28,7 +28,6 @@
 #include "egolib/Profiles/ModuleProfile.hpp"
 #include "game/GameStates/LoadPlayerElement.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/char.h"
 #include "game/game.h"
 #include "game/script_compile.h"
 

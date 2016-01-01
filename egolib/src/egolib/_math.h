@@ -152,10 +152,16 @@ extern "C"
     extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to cosine
 
 /// pre defined directions
-#define FACE_WEST    0x0000
-#define FACE_NORTH   0x4000                                 ///< Character facings
-#define FACE_EAST    0x8000
-#define FACE_SOUTH   0xC000
+static constexpr uint16_t FACE_WEST =  0x0000; ///< Character facings
+static constexpr uint16_t FACE_NORTH = 0x4000;
+static constexpr uint16_t FACE_EAST =  0x8000;
+static constexpr uint16_t FACE_SOUTH = 0xC000;
+
+//Directional aliases
+static constexpr uint16_t ATK_FRONT =  FACE_WEST;
+static constexpr uint16_t ATK_RIGHT =  FACE_NORTH;
+static constexpr uint16_t ATK_BEHIND = FACE_EAST;
+static constexpr uint16_t ATK_LEFT =   FACE_SOUTH;
 
 inline TURN_T TO_TURN(const FACING_T &facing)
 {

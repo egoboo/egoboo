@@ -28,8 +28,8 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
-#include "game/Physics/particle_physics.h"
 #include "game/Physics/PhysicalConstants.hpp"
+#include "game/CharacterMatrix.h"
 
 namespace Ego
 {
@@ -37,6 +37,7 @@ const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 
 Particle::Particle() :
     _particleID(),
+    _particlePhysics(*this),
     _collidedObjects(),
     _attachedTo(),
     _particleProfileID(INVALID_PIP_REF),
@@ -402,6 +403,7 @@ void Particle::updateWater()
                     // only spawn ripples if you are touching the water surface!
                     if (getPosZ() + bump_real.height > _currentModule->getWater()._surface_level && getPosZ() - bump_real.height < _currentModule->getWater()._surface_level)
                     {
+                        static constexpr int RIPPLEAND = 15;          ///< How often ripples spawn
                         if (0 == ((update_wld + _particleID.get()) & (RIPPLEAND << 1)))
                         {
 
@@ -796,7 +798,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     ObjectRef loc_chr_origin = spawnOrigin;
     if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin])
     {
-        loc_chr_origin = prt_get_iowner(spawnParticleOrigin, 0);
+        loc_chr_origin = ParticleHandler::get()[spawnParticleOrigin]->getOwner();
     }
     owner_ref = loc_chr_origin;
 
@@ -1346,6 +1348,54 @@ bool Particle::canCollide() const
 
     //No valid interactions
     return false;
+}
+
+Ego::Physics::ParticlePhysics& Particle::getParticlePhysics()
+{
+    return _particlePhysics;
+}
+
+ObjectRef Particle::getOwner(int depth)
+{
+    // be careful because this can be recursive
+    if (depth > static_cast<int>(ParticleHandler::get().getCount()) - static_cast<int>(ParticleHandler::get().getFreeCount()))
+    {
+        return ObjectRef::Invalid;
+    }
+
+    if(isTerminated()) {
+        return ObjectRef::Invalid;
+    }
+
+    ObjectRef iowner = ObjectRef::Invalid;
+    if (_currentModule->getObjectHandler().exists(owner_ref))
+    {
+        iowner = owner_ref;
+    }
+    else
+    {
+        // make a check for a stupid looping structure...
+        // cannot be sure you could never get a loop, though
+
+        if (!ParticleHandler::get()[parent_ref])
+        {
+            // make sure that a non valid parent_ref is marked as non-valid
+            parent_ref = ParticleRef::Invalid;
+        }
+        else
+        {
+            // if a particle has been poofed, and another particle lives at that address,
+            // it is possible that the pprt->parent_ref points to a valid particle that is
+            // not the parent. Depending on how scrambled the list gets, there could actually
+            // be looping structures. I have actually seen this, so don't laugh :)
+            if (_particleID != parent_ref)
+            {
+                iowner = ParticleHandler::get()[parent_ref]->getOwner(depth + 1);
+            }
+        }
+    }
+
+    return iowner;
 }
 
 } //Ego

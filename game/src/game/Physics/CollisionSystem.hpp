@@ -88,6 +88,10 @@ private:
     **/
     void handleCollision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB, const float tmin, const float tmax);
 
+    /**
+    * @brief
+    *   Handles collision interaction between an Object and a platform Object
+    **/
     bool handlePlatformCollision(const std::shared_ptr<Object> &objectA, const std::shared_ptr<Object> &objectB);
 
     /**

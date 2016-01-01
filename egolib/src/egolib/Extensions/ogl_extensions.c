@@ -261,7 +261,6 @@ ColorDepth Utilities::getAccumulationBufferColourDepth() {
 UnorderedSet<Utilities::String> Utilities::getExtensions() {
     clearError();
     const GLubyte *bytes = glGetString(GL_EXTENSIONS);
-    GLenum error = glGetError();
     if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
@@ -271,7 +270,6 @@ UnorderedSet<Utilities::String> Utilities::getExtensions() {
 Utilities::String Utilities::getRenderer() {
     clearError();
     const GLubyte *bytes = glGetString(GL_RENDERER);
-    GLenum error = glGetError();
     if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
@@ -281,7 +279,6 @@ Utilities::String Utilities::getRenderer() {
 Utilities::String Utilities::getVendor() {
     clearError();
     const GLubyte *bytes = glGetString(GL_RENDERER);
-    GLenum error = glGetError();
     if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
@@ -291,7 +288,6 @@ Utilities::String Utilities::getVendor() {
 Utilities::String Utilities::getVersion() {
     clearError();
     const GLubyte *bytes = glGetString(GL_VERSION);
-    GLenum error = glGetError();
     if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }

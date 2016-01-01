@@ -54,6 +54,10 @@ static constexpr float STOP_BOUNCING = 8.00f;        ///< To make objects stop b
 
 static constexpr float MOUNTTOLERANCE = 20;          ///< Threshold for mounting objects
 
+static constexpr uint32_t CHR_INFINITE_WEIGHT = std::numeric_limits<uint32_t>::max();
+static constexpr uint32_t CHR_MAX_WEIGHT = CHR_INFINITE_WEIGHT - 1;
+
+
 struct Environment
 {
 

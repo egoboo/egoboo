@@ -47,7 +47,6 @@
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
-
 #include "egolib/Script/Interpreter/SafeCast.hpp"
 #include "game/GUI/MiniMap.hpp"
 
@@ -1133,9 +1132,9 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         leftItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            leftItem->vel[kZ]    = DISMOUNTZVEL;
-            leftItem->jump_timer = JUMPDELAY;
-            leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+            leftItem->vel.z()    = Object::DISMOUNTZVEL;
+            leftItem->jump_timer = Object::JUMPDELAY;
+            leftItem->movePosition(0.0f, 0.0f, Object::DISMOUNTZVEL);
         }
     }
 
@@ -1145,9 +1144,9 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         rightItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            rightItem->vel[kZ]    = DISMOUNTZVEL;
-            rightItem->jump_timer = JUMPDELAY;
-            rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+            rightItem->vel.z()    = Object::DISMOUNTZVEL;
+            rightItem->jump_timer = Object::JUMPDELAY;
+            rightItem->movePosition(0.0f, 0.0f, Object::DISMOUNTZVEL);
         }
     }
 
@@ -1810,16 +1809,16 @@ Uint8 scr_GiveMoneyToTarget( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     //squash out-or-range values
-    if(state.argument < 0 && std::abs(state.argument) > pself_target->money) {
-        state.argument = -pself_target->money;
+    if(state.argument < 0 && std::abs(state.argument) > pself_target->getMoney()) {
+        state.argument = -pself_target->getMoney();
     }
-    if(state.argument > pchr->money) {
-        state.argument = pchr->money;
+    if(state.argument > pchr->getMoney()) {
+        state.argument = pchr->getMoney();
     }
 
     //Do the transfer
-    pchr->money = Ego::Math::constrain(pchr->money - state.argument, 0, MAXMONEY);
-    pself_target->money = Ego::Math::constrain(pself_target->money + state.argument, 0, MAXMONEY);
+    pchr->giveMoney(-state.argument);
+    pself_target->giveMoney(state.argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1934,7 +1933,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
             pchild->ai.passage = self.passage;
             pchild->ai.owner   = self.owner;
 
-            pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+            pchild->dismount_timer  = Object::PHYS_DISMOUNT_TIME;
             pchild->dismount_object = self.getSelf();
         }
     }
@@ -2129,7 +2128,7 @@ Uint8 scr_IfTargetIsHurt( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->isAlive() || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - FP8_TO_FLOAT(HURTDAMAGE) )
+    if (!pself_target->isAlive() || pself_target->getLife() > pself_target->getAttribute(Ego::Attribute::MAX_LIFE) - 1.0f)
         returncode = false;
 
     SCRIPT_FUNCTION_END();
@@ -5366,7 +5365,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
         pchild->ai.passage = self.passage;
         pchild->ai.owner   = self.owner;
 
-        pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+        pchild->dismount_timer  = Object::PHYS_DISMOUNT_TIME;
         pchild->dismount_object = self.getSelf();
         returncode = true;
     }
@@ -5408,7 +5407,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
         pchild->ai.passage = self.passage;
         pchild->ai.owner   = self.owner;
 
-        pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+        pchild->dismount_timer  = Object::PHYS_DISMOUNT_TIME;
         pchild->dismount_object = self.getSelf();
         returncode = true;
     }
@@ -6562,16 +6561,16 @@ Uint8 scr_TargetPayForArmor( script_state_t& state, ai_state_t& self )
 
     iTmp -= pself_target->getProfile()->getSkinInfo(pself_target->skin).cost;     // Refund for old skin
 
-    if ( iTmp > pself_target->money )
+    if ( iTmp > pself_target->getMoney() )
     {
         // Not enough.
-        state.x = iTmp - pself_target->money;        // Amount needed
+        state.x = iTmp - pself_target->getMoney();        // Amount needed
         returncode = false;
     }
     else
     {
         // Pay for it.  Cost may be negative after refund.
-        pself_target->money = Ego::Math::constrain<int16_t>(pself_target->money - iTmp, 0, MAXMONEY);
+        pself_target->giveMoney(-iTmp);
         state.x = 0;
         returncode = true;
     }
@@ -6941,7 +6940,7 @@ Uint8 scr_IfTargetHasNotFullMana( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->isAlive() || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - FP8_TO_FLOAT(HURTDAMAGE) )
+    if (!pself_target->isAlive() || pself_target->getMana() > pself_target->getAttribute(Ego::Attribute::MAX_MANA) - 1.0f)
     {
         returncode = false;
     }
@@ -7680,7 +7679,7 @@ Uint8 scr_MorphToTarget( script_state_t& state, ai_state_t& self )
 
     // let the resizing take some time
     pchr->fat_goto      = pself_target->fat;
-    pchr->fat_goto_time = SIZETIME;
+    pchr->fat_goto_time = Object::SIZETIME;
 
     // change back to our original AI (keep our old AI script)
 //    pself->type      = ProList.lst[pchr->basemodel_ref].iai;      //TODO: this no longer works (is it even needed?)
@@ -7739,7 +7738,7 @@ Uint8 scr_SetMoney( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->money = Ego::Math::constrain( state.argument, 0, MAXMONEY );
+    pchr->giveMoney(state.argument - pchr->getMoney());
 
     SCRIPT_FUNCTION_END();
 }
@@ -7927,7 +7926,7 @@ Uint8 scr_SetTargetSize( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->fat_goto *= state.argument / 100.0f;
-    pself_target->fat_goto_time += SIZETIME;
+    pself_target->fat_goto_time += Object::SIZETIME;
 
     SCRIPT_FUNCTION_END();
 }

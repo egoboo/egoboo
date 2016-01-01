@@ -1,7 +1,7 @@
-#include "ObjectAnimation.h"
-#include "CharacterMatrix.h"
+#include "game/ObjectAnimation.h"
+#include "game/CharacterMatrix.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
-#include "game.h"
+#include "game/game.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -357,7 +357,7 @@ float set_character_animation_rate( Object * pchr )
         pchr->bore_timer--;
         if ( pchr->bore_timer < 0 )
         {
-            pchr->bore_timer = BORETIME;
+            pchr->resetBoredTimer();
 
             //Don't yell "im bored!" while stealthed!
             if(!pchr->isStealthed())

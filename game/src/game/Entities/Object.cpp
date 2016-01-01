@@ -26,12 +26,14 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
+#include "game/Entities/ParticleHandler.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/game.h"
 #include "game/renderer_2d.h"
-#include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
+#include "game/ObjectAnimation.h"
+#include "game/CharacterMatrix.h"
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -49,7 +51,6 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     gender(GENDER_MALE),
     experience(0),
     experiencelevel(0),
-    money(0),
     ammomax(0),
     ammo(0),
     holdingwhich(),
@@ -89,7 +90,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     //Misc timers
     grog_timer(0),
     daze_timer(0),
-    bore_timer(BORETIME),
+    bore_timer(0),
     careful_timer(CAREFULTIME),
     reload_timer(0),
     damage_timer(0),
@@ -139,6 +140,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     _tempAttribute(),
 
     _inventory(),
+    _money(0),
     _perks(),
     _levelUpSeed(Random::next(std::numeric_limits<uint32_t>::max())),
 
@@ -166,14 +168,17 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     equipment.fill(ObjectRef::Invalid);
 
     // Set up position
-    ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    ori.map_twist_facing_x = MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
 
     //Initialize primary attributes
     for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const FRange& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
+
+    //Initialize timer to a random value
+    resetBoredTimer();
 }
 
 Object::~Object()
@@ -742,7 +747,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -1020,11 +1025,11 @@ void Object::updateResize()
 
             if ( CAP_INFINITE_WEIGHT == getProfile()->getWeight() )
             {
-                phys.weight = CHR_INFINITE_WEIGHT;
+                phys.weight = Ego::Physics::CHR_INFINITE_WEIGHT;
             }
             else
             {
-                phys.weight = std::min<uint32_t>(getProfile()->getWeight() * fat * fat * fat, CHR_MAX_WEIGHT);
+                phys.weight = std::min<uint32_t>(getProfile()->getWeight() * fat * fat * fat, Ego::Physics::CHR_MAX_WEIGHT);
             }
         }
     }
@@ -1215,8 +1220,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Set twist
-    ori.map_twist_facing_y = MAP_TURN_OFFSET;
-    ori.map_twist_facing_x = MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
 
     // turn off keeping, unless the object is dead
     if (!isAlive())
@@ -1460,9 +1465,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
             // Nope, award direct kill experience instead
             else actualKiller->giveExperience(experience, XP_KILLENEMY, false);
 
-            //Mercenary Perk gives +1 Zenny per kill
-            if(actualKiller->hasPerk(Ego::Perks::MERCENARY) && !_hasBeenKilled && actualKiller->money < MAXMONEY) {
-                actualKiller->money += 1;
+            //Mercenary Perk gives +1 Zenny per kill (if this is the first time we died)
+            if(actualKiller->hasPerk(Ego::Perks::MERCENARY) && !_hasBeenKilled) {
+                actualKiller->giveMoney(1);
                 AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_COINGET));
             }
         
@@ -1691,7 +1696,7 @@ void Object::removeFromGame(Object *obj)
 
 BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
 {
-	if (CHR_INFINITE_WEIGHT == phys.weight)
+	if (Ego::Physics::CHR_INFINITE_WEIGHT == phys.weight)
 	{
 		return EMPTY_BIT_FIELD;
 	}
@@ -1715,7 +1720,7 @@ BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float *pressure)
 
 BIT_FIELD Object::hit_wall(const Vector3f& pos, Vector2f& nrm, float * pressure, mesh_wall_data_t& data)
 {
-	if (CHR_INFINITE_WEIGHT == phys.weight)
+	if (Ego::Physics::CHR_INFINITE_WEIGHT == phys.weight)
 	{
 		return EMPTY_BIT_FIELD;
 	}
@@ -1742,7 +1747,7 @@ BIT_FIELD Object::test_wall(const Vector3f& pos)
 	if (isTerminated()) {
 		return EMPTY_BIT_FIELD;
 	}
-	if (CHR_INFINITE_WEIGHT == phys.weight)
+	if (Ego::Physics::CHR_INFINITE_WEIGHT == phys.weight)
 	{
 		return EMPTY_BIT_FIELD;
 	}
@@ -1833,7 +1838,7 @@ void Object::respawn()
     disaffirm_attached_particles(getObjRef());
 
     _isAlive = true;
-    bore_timer = BORETIME;
+    resetBoredTimer();
     careful_timer = CAREFULTIME;
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
@@ -1841,8 +1846,8 @@ void Object::respawn()
     vel = Vector3f::zero();
     team = team_base;
     canbecrushed = false;
-    ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    ori.map_twist_facing_x = MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
     if ( !getTeam().getLeader() )  getTeam().setLeader( _currentModule->getObjectHandler()[getObjRef()] );
     if ( !isInvincible() )         getTeam().increaseMorale();
 
@@ -2037,7 +2042,7 @@ float Object::getAttribute(const Ego::Attribute::AttributeType type) const
         case Ego::Attribute::JUMP_POWER:
             //Special value for flying Objects
             if(getAttribute(Ego::Attribute::FLY_TO_HEIGHT) > 0.0f) {
-                return JUMPINFINITE;
+                return Object::JUMPINFINITE;
             }
 
             //Athletics Perks gives +25% jump power
@@ -2318,11 +2323,11 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     if (CAP_INFINITE_WEIGHT == _profile->getWeight())
     {
-        phys.weight = CHR_INFINITE_WEIGHT;
+        phys.weight = Ego::Physics::CHR_INFINITE_WEIGHT;
     }
     else
     {
-        phys.weight = std::min<uint32_t>(_profile->getWeight() * fat * fat * fat, CHR_MAX_WEIGHT);
+        phys.weight = std::min<uint32_t>(_profile->getWeight() * fat * fat * fat, Ego::Physics::CHR_MAX_WEIGHT);
     }
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
@@ -2774,16 +2779,16 @@ void Object::dropMoney(int amount)
     amount = Ego::Math::constrain<int>(amount, 0, getMoney());
 
     //Not valid to drop any money?
-    if(getPosZ() <= (PITDEPTH/2) || amount <= 0) {
+    if(getPosZ() <= (GameModule::PITDEPTH/2) || amount <= 0) {
         return;
     }
 
     // remove the money from inventory
-    money -= amount;
+    giveMoney(-amount);
 
     // make the particles emit from "waist high"
     Vector3f pos = getPosition();
-    pos[kZ] += (chr_min_cv._maxs[OCT_Z] + chr_min_cv._mins[OCT_Z]) * 0.5f;
+    pos.z() += (chr_min_cv._maxs[OCT_Z] + chr_min_cv._mins[OCT_Z]) * 0.5f;
 
     // Give the character a time-out from interacting with particles so it
     // doesn't just grab the money again
@@ -2797,7 +2802,7 @@ void Object::dropMoney(int amount)
 
         for (size_t tnc = 0; tnc < count; tnc++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
+            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc);
         }
     }
 }
@@ -2805,7 +2810,7 @@ void Object::dropMoney(int amount)
 void Object::dropKeys()
 {
     // Don't lose keys in pits...
-    if (getPosZ() <= (PITDEPTH / 2)) return;
+    if (getPosZ() <= (GameModule::PITDEPTH / 2)) return;
 
     // The IDSZs to find
     const IDSZ2 testa = IDSZ2( 'K', 'E', 'Y', 'A' );  // [KEYA]
@@ -2952,4 +2957,20 @@ std::shared_ptr<const Ego::Texture> Object::getIcon() const
     {
         return ProfileSystem::get().getSpellBookIcon(getProfile()->getSpellEffectType()).get_ptr();
     }
+}
+
+void Object::giveMoney(int amount)
+{
+    _money = Ego::Math::constrain<int>(static_cast<int>(_money) + amount, 0, MAXMONEY);
+}
+
+uint16_t Object::getMoney() const
+{
+    return _money;
+}
+
+void Object::resetBoredTimer()
+{
+    //5-8 seconds
+    bore_timer = Random::next<uint16_t>(250, 800);
 }

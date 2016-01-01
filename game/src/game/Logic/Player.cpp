@@ -26,6 +26,7 @@
 #include "game/game.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/GameStates/PlayingState.hpp"
+#include "game/ObjectAnimation.h"
 
 namespace Ego
 {
@@ -262,7 +263,7 @@ void Player::updateLatches()
 
                 // Make it take a little time
                 chr_play_action(object.get(), ACTION_MG, false);
-                object->reload_timer = PACKDELAY;
+                object->reload_timer = Inventory::PACKDELAY;
             }
 
             //handle RIGHT hand control
@@ -273,7 +274,7 @@ void Player::updateLatches()
 
                 // Make it take a little time
                 chr_play_action(object.get(), ACTION_MG, false);
-                object->reload_timer = PACKDELAY;
+                object->reload_timer = Inventory::PACKDELAY;
             }
         }
 

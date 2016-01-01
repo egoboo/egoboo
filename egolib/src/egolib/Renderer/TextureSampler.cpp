@@ -33,7 +33,7 @@ TextureSampler::TextureSampler(Filter minFilter, Filter magFilter, Filter mipMap
 
 TextureSampler::TextureSampler(const TextureSampler& other)
 	: minFilter(other.minFilter), magFilter(other.magFilter), mipMapFilter(other.mipMapFilter),
-	addressModeS(other.addressModeS), addressModeT(other.addressModeT), anisotropyLevel(anisotropyLevel) {}
+	addressModeS(other.addressModeS), addressModeT(other.addressModeT), anisotropyLevel(other.anisotropyLevel) {}
 
 const TextureSampler& TextureSampler::operator=(const TextureSampler& other) {
 	minFilter = other.minFilter;

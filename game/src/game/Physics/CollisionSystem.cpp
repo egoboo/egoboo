@@ -324,9 +324,8 @@ void CollisionSystem::updateParticleCollisions()
         }
 
         //First check if this Particle is still attached to a platform
-        if (particle->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(particle->onwhichplatform_ref))
-        {
-            detach_particle_from_platform( particle.get() );
+        if (particle->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(particle->onwhichplatform_ref)) {
+            particle->getParticlePhysics().detachFromPlatform();
         }
 
         // use the object velocity to figure out where the volume that the object will occupy during this update
@@ -652,7 +651,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     // reduce your interaction strength if you have just detached from an object
     if ( objectA->dismount_object == ichr_b )
     {
-        float dismount_lerp = ( float )objectA->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
+        float dismount_lerp = ( float )objectA->dismount_timer / static_cast<float>(Object::PHYS_DISMOUNT_TIME);
         dismount_lerp = Ego::Math::constrain( dismount_lerp, 0.0f, 1.0f );
 
         interaction_strength *= dismount_lerp;
@@ -660,7 +659,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 
     if ( objectB->dismount_object == ichr_a )
     {
-        float dismount_lerp = ( float )objectB->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
+        float dismount_lerp = ( float )objectB->dismount_timer / static_cast<float>(Object::PHYS_DISMOUNT_TIME);
         dismount_lerp = Ego::Math::constrain( dismount_lerp, 0.0f, 1.0f );
 
         interaction_strength *= dismount_lerp;
@@ -916,8 +915,8 @@ static void get_recoil_factors( float wta, float wtb, float * recoil_a, float * 
     if ( NULL == recoil_a ) recoil_a = &loc_recoil_a;
     if ( NULL == recoil_b ) recoil_b = &loc_recoil_b;
 
-    if ( wta >= ( float )CHR_INFINITE_WEIGHT ) wta = -( float )CHR_INFINITE_WEIGHT;
-    if ( wtb >= ( float )CHR_INFINITE_WEIGHT ) wtb = -( float )CHR_INFINITE_WEIGHT;
+    if ( wta >= Ego::Physics::CHR_INFINITE_WEIGHT ) wta = -Ego::Physics::CHR_INFINITE_WEIGHT;
+    if ( wtb >= Ego::Physics::CHR_INFINITE_WEIGHT ) wtb = -Ego::Physics::CHR_INFINITE_WEIGHT;
 
     if ( wta < 0.0f && wtb < 0.0f )
     {

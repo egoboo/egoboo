@@ -23,7 +23,6 @@
 
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
-#include "game/char.h"
 #include "game/mesh.h"
 #include "game/Entities/_Include.hpp"
 
@@ -163,7 +162,7 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
         }
 
         // dont do scenery objects unless we allow items
-        if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
+        if (!HAS_SOME_BITS(targeting_bits, TARGET_ITEMS) && pchr->isScenery()) continue;
 
         //Check if the object has the requirements
         if ( !chr_check_target( psrc, pchr, idsz, targeting_bits ) ) continue;

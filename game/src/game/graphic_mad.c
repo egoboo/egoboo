@@ -29,20 +29,17 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/char.h"
 #include "egolib/Graphics/MD2Model.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
-
 #include "game/Graphics/CameraSystem.hpp"
-
-#include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/ParticleHandler.hpp"
+#include "game/Entities/_Include.hpp"
+#include "game/CharacterMatrix.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // the flip tolerance is the default flip increment / 2
-static const float flip_tolerance = 0.25f * 0.5f;
+static constexpr float FLIP_TOLERANCE = 0.25f * 0.5f;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1054,7 +1051,7 @@ gfx_rv chr_instance_t::needs_update(chr_instance_t& self, int vmin, int vmax, bo
     // test to see if we have already calculated this data
     *verts_match = (vmin >= psave->vmin) && (vmax <= psave->vmax);
 
-	bool flips_match = (std::abs(psave->flip - self.flip) < flip_tolerance);
+	bool flips_match = (std::abs(psave->flip - self.flip) < FLIP_TOLERANCE);
 
     *frames_match = (self.frame_nxt == self.frame_lst && psave->frame_nxt == self.frame_nxt && psave->frame_lst == self.frame_lst ) ||
                     (flips_match && psave->frame_nxt == self.frame_nxt && psave->frame_lst == self.frame_lst);
@@ -2116,7 +2113,7 @@ gfx_rv vlst_cache_t::test(vlst_cache_t& self, chr_instance_t *instance)
         self.valid = false;
     }
 
-    if ((instance->frame_lst != self.frame_lst)  && std::abs(instance->flip - self.flip) > flip_tolerance) {
+    if ((instance->frame_lst != self.frame_lst)  && std::abs(instance->flip - self.flip) > FLIP_TOLERANCE) {
         self.valid = false;
     }
 

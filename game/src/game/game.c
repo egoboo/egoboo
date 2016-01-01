@@ -53,6 +53,10 @@
 
 //--------------------------------------------------------------------------------------------
 //Global variables! eww! TODO: remove these
+#define THROWFIX            30.0f                    ///< To correct thrown velocities
+#define MINTHROWVELOCITY    15.0f
+#define MAXTHROWVELOCITY    75.0f
+#define GRABDELAY           25                      ///< Time before grab again
 
 bool  overrideslots      = false;
 
@@ -340,7 +344,14 @@ void move_all_objects()
 	g_meshStats.mpdfxTests = 0;
     chr_stoppedby_tests = 0;
 
-    move_all_particles();
+    // move every particle
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
+    {
+        if(particle->isTerminated()) {
+            continue;
+        }
+        particle->getParticlePhysics().updatePhysics();
+    }
 
     // Move every character
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
@@ -807,7 +818,7 @@ void readPlayerInput()
 
                 //Also lose some gold in non-easy modes
                 if (egoboo_config_t::get().game_difficulty.getValue() > Ego::GameDifficulty::Easy) {
-                    pchr->money *= EXPKEEP;
+                    pchr->giveMoney(-pchr->getMoney() * EXPKEEP);
                 }
             }
 
@@ -2507,19 +2518,19 @@ bool chr_do_latch_button( Object * pchr )
             pchr->detatchFromHolder(true, true);
             pchr->getObjectPhysics().detachFromPlatform();
 
-            pchr->jump_timer = JUMPDELAY;
+            pchr->jump_timer = Object::JUMPDELAY;
             if ( pchr->isFlying() )
             {
-                pchr->vel[kZ] += DISMOUNTZVELFLY;
+                pchr->vel.z() += Object::DISMOUNTZVEL / 3.0f;
             }
             else
             {
-                pchr->vel[kZ] += DISMOUNTZVEL;
+                pchr->vel.z() += Object::DISMOUNTZVEL;
             }
 
             pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel[kZ]);
 
-            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE && 0 != pchr->jumpnumber ) {
+            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE && 0 != pchr->jumpnumber ) {
                 pchr->jumpnumber--;
             }
 
@@ -2540,7 +2551,7 @@ bool chr_do_latch_button( Object * pchr )
                 // Make the character jump
                 float jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
                 pchr->hitready = true;
-                pchr->jump_timer = JUMPDELAY;
+                pchr->jump_timer = Object::JUMPDELAY;
 
                 //To prevent 'bunny jumping' in water
                 if (pchr->isSubmerged() || pchr->getObjectPhysics().floorIsSlippy()) {
@@ -2551,7 +2562,7 @@ bool chr_do_latch_button( Object * pchr )
                 pchr->vel.z() += jumpPower;
                 pchr->jumpready = false;
 
-                if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE) { 
+                if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE) { 
                     pchr->jumpnumber--;
                 }
 
@@ -2569,12 +2580,12 @@ bool chr_do_latch_button( Object * pchr )
     }
     if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
-        pchr->reload_timer = PACKDELAY;
+        pchr->reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
     }
     if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
-        pchr->reload_timer = PACKDELAY;
+        pchr->reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
     }
 
@@ -2853,7 +2864,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     //Reset boredom timer if the attack succeeded
     if ( retval )
     {
-        pchr->bore_timer = BORETIME;
+        pchr->resetBoredTimer();
     }
 
     return retval;
@@ -2935,9 +2946,9 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
             TURN_T turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
-            pthrown->vel[kX] += turntocos[ turn ] * velocity;
-            pthrown->vel[kY] += turntosin[ turn ] * velocity;
-            pthrown->vel[kZ] = DROPZVEL;
+            pthrown->vel.x() += turntocos[turn] * velocity;
+            pthrown->vel.y() += turntosin[turn] * velocity;
+            pthrown->vel.z() = Object::DROPZVEL;
 
             //Was that the last one?
             if ( pweapon->ammo <= 1 ) {
