@@ -42,6 +42,7 @@ static const std::shared_ptr<ObjectProfile> NULL_PROFILE = nullptr;
 
 ProfileSystem::ProfileSystem() :
     _profilesLoaded(),
+    _profilesLoadedByName(),
     _moduleProfilesLoaded(),
     _loadPlayerList(),
     EnchantProfileSystem("enchant", "/debug/enchant_profile_usage.txt"),
@@ -65,6 +66,7 @@ void ProfileSystem::reset()
 
     // Release the allocated data in all profiles (sounds, textures, etc.).
     _profilesLoaded.clear();
+    _profilesLoadedByName.clear();
 
     // Release list of loadable characters.
     _loadPlayerList.clear();
@@ -72,6 +74,13 @@ void ProfileSystem::reset()
     // Reset particle, enchant and models.
     ParticleProfileSystem.reset();
     EnchantProfileSystem.reset();
+}
+
+const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(const std::string& name) const
+{
+    const auto& foundElement = _profilesLoadedByName.find(name);
+    if (foundElement == _profilesLoadedByName.end()) return NULL_PROFILE;
+    return foundElement->second;    
 }
 
 const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const
@@ -117,32 +126,6 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     }
 
     return -1;
-}
-
-std::shared_ptr<ParticleProfile> ProfileSystem::pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref)
-{
-    if (!isValidProfileID(iobj))
-    {
-        // check for a global pip
-        PIP_REF global_pip = ((lppref.get() < 0) || (lppref.get() > MAX_PIP)) ? MAX_PIP : (PIP_REF)lppref.get();
-        if (LOADED_PIP(global_pip))
-        {
-            return ParticleProfileSystem.get_ptr(global_pip);
-        }
-        else
-        {
-            return nullptr;
-        }
-    }
-
-    // find the local pip if it exists
-    PIP_REF local_pip = INVALID_PIP_REF;
-    if (lppref.get() < MAX_PIP_PER_PROFILE)
-    {
-        local_pip = _profilesLoaded[iobj]->getParticleProfile(lppref);
-    }
-
-    return LOADED_PIP(local_pip) ? ParticleProfileSystem.get_ptr(local_pip) : nullptr;
 }
 
 PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override)
@@ -208,6 +191,9 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
 
     //Success! Store object into the loaded profile map
     _profilesLoaded[iobj] = profile;
+    _profilesLoadedByName[profile->getPathname().substr(profile->getPathname().find_last_of('/') + 1)] = profile;
+    Log::get().debug("ProfileSystem::loadOneProfile() - Loaded (%s) into %s\n", pathName.c_str(), profile->getPathname().substr(profile->getPathname().find_last_of('/') + 1).c_str());
+
 
     return iobj;
 }
