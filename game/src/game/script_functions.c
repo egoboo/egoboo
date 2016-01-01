@@ -47,7 +47,6 @@
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
-#include "game/char.h"
 #include "egolib/Script/Interpreter/SafeCast.hpp"
 #include "game/GUI/MiniMap.hpp"
 
@@ -1133,9 +1132,9 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         leftItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            leftItem->vel[kZ]    = DISMOUNTZVEL;
-            leftItem->jump_timer = JUMPDELAY;
-            leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+            leftItem->vel.z()    = Object::DISMOUNTZVEL;
+            leftItem->jump_timer = Object::JUMPDELAY;
+            leftItem->movePosition(0.0f, 0.0f, Object::DISMOUNTZVEL);
         }
     }
 
@@ -1145,9 +1144,9 @@ Uint8 scr_DropWeapons( script_state_t& state, ai_state_t& self )
         rightItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            rightItem->vel[kZ]    = DISMOUNTZVEL;
-            rightItem->jump_timer = JUMPDELAY;
-            rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+            rightItem->vel.z()    = Object::DISMOUNTZVEL;
+            rightItem->jump_timer = Object::JUMPDELAY;
+            rightItem->movePosition(0.0f, 0.0f, Object::DISMOUNTZVEL);
         }
     }
 
@@ -1934,7 +1933,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
             pchild->ai.passage = self.passage;
             pchild->ai.owner   = self.owner;
 
-            pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+            pchild->dismount_timer  = Object::PHYS_DISMOUNT_TIME;
             pchild->dismount_object = self.getSelf();
         }
     }
@@ -5366,7 +5365,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
         pchild->ai.passage = self.passage;
         pchild->ai.owner   = self.owner;
 
-        pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+        pchild->dismount_timer  = Object::PHYS_DISMOUNT_TIME;
         pchild->dismount_object = self.getSelf();
         returncode = true;
     }
@@ -5408,7 +5407,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
         pchild->ai.passage = self.passage;
         pchild->ai.owner   = self.owner;
 
-        pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+        pchild->dismount_timer  = Object::PHYS_DISMOUNT_TIME;
         pchild->dismount_object = self.getSelf();
         returncode = true;
     }

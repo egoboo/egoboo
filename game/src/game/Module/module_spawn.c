@@ -22,7 +22,7 @@
 #include "game/Module/Module.hpp"
 #include "game/Entities/_Include.hpp"
 #include "egolib/Logic/TreasureTables.hpp"
-#include "game/char.h"
+#include "game/CharacterMatrix.h"
 
 static void tilt_characters_to_terrain();
 static std::shared_ptr<Object> activate_spawn_file_spawn( spawn_file_info_t& psp_info, const std::shared_ptr<Object> &parent);
@@ -390,8 +390,8 @@ void tilt_characters_to_terrain()
         }
         else
         {
-            object->ori.map_twist_facing_y = MAP_TURN_OFFSET;
-            object->ori.map_twist_facing_x = MAP_TURN_OFFSET;
+            object->ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;
+            object->ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
         }
     }
 }

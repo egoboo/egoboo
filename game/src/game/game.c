@@ -22,7 +22,6 @@
 /// @details
 
 #include "game/game.h"
-#include "game/char.h"
 #include "game/Module/module_spawn.h"
 
 #include "egolib/egolib.h"
@@ -2519,19 +2518,19 @@ bool chr_do_latch_button( Object * pchr )
             pchr->detatchFromHolder(true, true);
             pchr->getObjectPhysics().detachFromPlatform();
 
-            pchr->jump_timer = JUMPDELAY;
+            pchr->jump_timer = Object::JUMPDELAY;
             if ( pchr->isFlying() )
             {
-                pchr->vel[kZ] += DISMOUNTZVELFLY;
+                pchr->vel.z() += Object::DISMOUNTZVEL / 3.0f;
             }
             else
             {
-                pchr->vel[kZ] += DISMOUNTZVEL;
+                pchr->vel.z() += Object::DISMOUNTZVEL;
             }
 
             pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel[kZ]);
 
-            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE && 0 != pchr->jumpnumber ) {
+            if ( pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE && 0 != pchr->jumpnumber ) {
                 pchr->jumpnumber--;
             }
 
@@ -2552,7 +2551,7 @@ bool chr_do_latch_button( Object * pchr )
                 // Make the character jump
                 float jumpPower = pchr->getAttribute(Ego::Attribute::JUMP_POWER) * 1.5f;
                 pchr->hitready = true;
-                pchr->jump_timer = JUMPDELAY;
+                pchr->jump_timer = Object::JUMPDELAY;
 
                 //To prevent 'bunny jumping' in water
                 if (pchr->isSubmerged() || pchr->getObjectPhysics().floorIsSlippy()) {
@@ -2563,7 +2562,7 @@ bool chr_do_latch_button( Object * pchr )
                 pchr->vel.z() += jumpPower;
                 pchr->jumpready = false;
 
-                if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != JUMPINFINITE) { 
+                if (pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) != Object::JUMPINFINITE) { 
                     pchr->jumpnumber--;
                 }
 
@@ -2581,12 +2580,12 @@ bool chr_do_latch_button( Object * pchr )
     }
     if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
-        pchr->reload_timer = PACKDELAY;
+        pchr->reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_LEFT, false );
     }
     if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
-        pchr->reload_timer = PACKDELAY;
+        pchr->reload_timer = Inventory::PACKDELAY;
         Inventory::swap_item( ichr, pchr->getInventory().getFirstFreeSlotNumber(), SLOT_RIGHT, false );
     }
 
@@ -2865,7 +2864,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     //Reset boredom timer if the attack succeeded
     if ( retval )
     {
-        pchr->bore_timer = BORETIME;
+        pchr->resetBoredTimer();
     }
 
     return retval;
@@ -2949,7 +2948,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             TURN_T turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pthrown->vel.x() += turntocos[turn] * velocity;
             pthrown->vel.y() += turntosin[turn] * velocity;
-            pthrown->vel.z() = DROPZVEL;
+            pthrown->vel.z() = Object::DROPZVEL;
 
             //Was that the last one?
             if ( pweapon->ammo <= 1 ) {

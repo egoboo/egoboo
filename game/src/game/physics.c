@@ -21,7 +21,6 @@
 
 #include "game/physics.h"
 #include "game/game.h"
-#include "game/char.h"
 #include "game/mesh.h"
 #include "game/Entities/_Include.hpp"
 

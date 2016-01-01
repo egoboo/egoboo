@@ -29,7 +29,9 @@
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
 #include "game/mesh.h"
-#include "game/char.h"
+#include "game/Entities/_Include.hpp"
+#include "game/CharacterMatrix.h"
+#include "game/ObjectAnimation.h"
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),

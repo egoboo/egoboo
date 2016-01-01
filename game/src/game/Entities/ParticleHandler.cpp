@@ -22,8 +22,8 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/ParticleHandler.hpp"
-#include "game/Entities/Particle.hpp"
-#include "game/char.h"
+#include "game/Entities/_Include.hpp"
+#include "egolib/Logic/Team.hpp"
 
 std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3f& pos, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                                                    const ObjectRef chr_attach, Uint16 vrt_offset, const TEAM_REF team,

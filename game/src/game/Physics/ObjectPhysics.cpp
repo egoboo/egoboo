@@ -25,7 +25,8 @@
 #include "game/Core/GameEngine.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Shop.hpp"
-#include "game/char.h"
+#include "game/CharacterMatrix.h"
+#include "game/ObjectAnimation.h"
 
 namespace Ego
 {
@@ -517,7 +518,7 @@ void ObjectPhysics::updateMeshCollision()
     // interaction with the mesh
     //if ( std::abs( _object.vel.z() ) > 0.0f )
     {
-        const float floorElevation = getGroundElevation() + RAISE;
+        const float floorElevation = getGroundElevation() + 12;
 
         tmp_pos.z() += _object.vel.z();
         if (tmp_pos.z() <= floorElevation)
@@ -784,7 +785,7 @@ bool ObjectPhysics::grabStuff(grip_offset_t grip_off, bool grab_people)
         else
         {
             // Lift the item a little and quit...
-            bestMatch->vel.z() = DROPZVEL;
+            bestMatch->vel.z() = Object::DROPZVEL;
             bestMatch->hitready = true;
             SET_BIT(bestMatch->ai.alert, ALERTIF_DROPPED);
         }
@@ -847,7 +848,7 @@ bool ObjectPhysics::attachToObject(const std::shared_ptr<Object> &holder, grip_o
     _object.setPosition(mat_getTranslate(_object.inst.matrix));
 
     _object.inwater  = false;
-    _object.jump_timer = JUMPDELAY * 4;
+    _object.jump_timer = Object::JUMPDELAY * 4;
 
     // Run the held animation
     if (holder->isMount() && (GRIP_ONLY == grip_off))

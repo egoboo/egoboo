@@ -26,7 +26,8 @@
 class Inventory
 {
 public:
-    static const size_t MAXNUMINPACK = 6;   ///< Max number of items to carry in pack
+    static constexpr size_t MAXNUMINPACK = 6;   ///< Max number of items to carry in pack
+    static constexpr uint8_t PACKDELAY = 25;    ///< Time before inventory rotate again
 
     Inventory();
 

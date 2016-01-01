@@ -26,11 +26,11 @@
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/Graphics/Camera.hpp"
-#include "game/char.h"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/UIManager.hpp"
+#include "game/CharacterMatrix.h"
 
 Billboard::Billboard(Time::Ticks endTime, std::shared_ptr<Ego::Texture> texture, const float size)
     : _endTime(endTime),

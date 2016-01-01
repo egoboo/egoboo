@@ -24,7 +24,6 @@
 #include "game/renderer_2d.h" ///< todo For DisplayMsg_printf. Messages should be emitted to players not just being "printed".
 #include "game/Module/Passage.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/char.h"
 
 bool Shop::drop(const std::shared_ptr<Object>& dropper, const std::shared_ptr<Object>& item)
 {

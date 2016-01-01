@@ -1,7 +1,7 @@
 #include "game/Physics/ParticlePhysics.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Physics/PhysicalConstants.hpp"
-#include "game/char.h"
+#include "game/CharacterMatrix.h"
 
 namespace Ego
 {

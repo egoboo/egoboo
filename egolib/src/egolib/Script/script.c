@@ -28,7 +28,6 @@
 #include "egolib/AI/AStar.h"
 #include "game/game.h"
 #include "game/Entities/_Include.hpp"
-#include "game/char.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"

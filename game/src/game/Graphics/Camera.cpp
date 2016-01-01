@@ -23,7 +23,6 @@
 
 #include "game/game.h" // TODO: remove only needed for mesh
 
-#include "game/char.h"
 #include "game/mesh.h"
 #include "game/Entities/_Include.hpp"
 

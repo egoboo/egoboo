@@ -43,6 +43,7 @@
 
 #define NOSPARKLE           255                     ///< Dont sparkle icons
 #define SPELLBOOK           127                     ///< The spellbook model
+#define SEEINVISIBLE        128                     ///< Cutoff for invisible characters
 
 /// Messaging stuff
 #define DAMAGERAISE    25    ///< Tolerance for damage tiles

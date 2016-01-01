@@ -33,7 +33,6 @@
 #include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
-#include "game/char.h"
 #include "game/Module/Module.hpp"
 #include "game/Module/Passage.hpp"
 

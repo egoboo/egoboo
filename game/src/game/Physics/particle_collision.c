@@ -19,7 +19,6 @@
 #include "game/Physics/particle_collision.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
-#include "game/char.h"
 #include "game/physics.h"
 #include "egolib/Logic/Action.hpp"
 #include "game/Entities/_Include.hpp"

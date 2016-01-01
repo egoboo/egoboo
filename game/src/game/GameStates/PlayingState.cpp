@@ -37,7 +37,6 @@
 //For cheats
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
-#include "game/char.h"
 
 PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     _cameraSystem(cameraSystem),

@@ -39,7 +39,6 @@
 #include "game/game.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/char.h"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"

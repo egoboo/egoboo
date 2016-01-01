@@ -26,12 +26,14 @@
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
+#include "game/Entities/ParticleHandler.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/game.h"
 #include "game/renderer_2d.h"
-#include "game/char.h" //ZF> TODO: remove
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
+#include "game/ObjectAnimation.h"
+#include "game/CharacterMatrix.h"
 
 //For the minimap
 #include "game/Core/GameEngine.hpp"
@@ -88,7 +90,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     //Misc timers
     grog_timer(0),
     daze_timer(0),
-    bore_timer(BORETIME),
+    bore_timer(0),
     careful_timer(CAREFULTIME),
     reload_timer(0),
     damage_timer(0),
@@ -166,14 +168,17 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     equipment.fill(ObjectRef::Invalid);
 
     // Set up position
-    ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    ori.map_twist_facing_x = MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
 
     //Initialize primary attributes
     for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
         const FRange& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
+
+    //Initialize timer to a random value
+    resetBoredTimer();
 }
 
 Object::~Object()
@@ -742,7 +747,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -1215,8 +1220,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Set twist
-    ori.map_twist_facing_y = MAP_TURN_OFFSET;
-    ori.map_twist_facing_x = MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
 
     // turn off keeping, unless the object is dead
     if (!isAlive())
@@ -1833,7 +1838,7 @@ void Object::respawn()
     disaffirm_attached_particles(getObjRef());
 
     _isAlive = true;
-    bore_timer = BORETIME;
+    resetBoredTimer();
     careful_timer = CAREFULTIME;
     _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
     _currentMana = getAttribute(Ego::Attribute::MAX_MANA);
@@ -1841,8 +1846,8 @@ void Object::respawn()
     vel = Vector3f::zero();
     team = team_base;
     canbecrushed = false;
-    ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    ori.map_twist_facing_x = MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
     if ( !getTeam().getLeader() )  getTeam().setLeader( _currentModule->getObjectHandler()[getObjRef()] );
     if ( !isInvincible() )         getTeam().increaseMorale();
 
@@ -2037,7 +2042,7 @@ float Object::getAttribute(const Ego::Attribute::AttributeType type) const
         case Ego::Attribute::JUMP_POWER:
             //Special value for flying Objects
             if(getAttribute(Ego::Attribute::FLY_TO_HEIGHT) > 0.0f) {
-                return JUMPINFINITE;
+                return Object::JUMPINFINITE;
             }
 
             //Athletics Perks gives +25% jump power
@@ -2774,7 +2779,7 @@ void Object::dropMoney(int amount)
     amount = Ego::Math::constrain<int>(amount, 0, getMoney());
 
     //Not valid to drop any money?
-    if(getPosZ() <= (PITDEPTH/2) || amount <= 0) {
+    if(getPosZ() <= (GameModule::PITDEPTH/2) || amount <= 0) {
         return;
     }
 
@@ -2805,7 +2810,7 @@ void Object::dropMoney(int amount)
 void Object::dropKeys()
 {
     // Don't lose keys in pits...
-    if (getPosZ() <= (PITDEPTH / 2)) return;
+    if (getPosZ() <= (GameModule::PITDEPTH / 2)) return;
 
     // The IDSZs to find
     const IDSZ2 testa = IDSZ2( 'K', 'E', 'Y', 'A' );  // [KEYA]
@@ -2962,4 +2967,10 @@ void Object::giveMoney(int amount)
 uint16_t Object::getMoney() const
 {
     return _money;
+}
+
+void Object::resetBoredTimer()
+{
+    //5-8 seconds
+    bore_timer = Random::next<uint16_t>(250, 800);
 }

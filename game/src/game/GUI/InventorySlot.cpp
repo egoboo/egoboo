@@ -3,7 +3,7 @@
 #include "egolib/Graphics/ModelDescriptor.hpp"  //for model action enum
 #include "game/game.h" //only for update_wld global var
 #include "game/Logic/Player.hpp"
-#include "game/char.h"
+#include "game/ObjectAnimation.h"
 
 namespace Ego
 {
@@ -89,7 +89,7 @@ bool InventorySlot::notifyMouseClicked(const int button, const int x, const int 
 
         // Make it take a little time
         chr_play_action( pchr.get(), ACTION_MG, false );
-        pchr->reload_timer = PACKDELAY;
+        pchr->reload_timer = Inventory::PACKDELAY;
         return true;
     }
 

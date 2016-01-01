@@ -29,9 +29,9 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/char.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/CharacterMatrix.h"
 
 //--------------------------------------------------------------------------------------------
 

@@ -28,9 +28,7 @@
 
 #include "game/game.h"
 #include "game/renderer_2d.h"
-#include "game/char.h"
-#include "game/Entities/ParticleHandler.hpp"
-#include "game/Entities/ObjectHandler.hpp"
+#include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 
 

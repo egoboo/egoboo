@@ -26,9 +26,7 @@
 #include "egolib/strutil.h"
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/_math.h"
-
-// includes for egoboo constants
-#include "game/char.h"       // for TEAM_* constants
+#include "egolib/Logic/Team.hpp"
 
 spawn_file_info_t::spawn_file_info_t() :
     do_spawn(false),

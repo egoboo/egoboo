@@ -29,14 +29,11 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/char.h"
 #include "egolib/Graphics/MD2Model.hpp"
 #include "egolib/Graphics/ModelDescriptor.hpp"
-
 #include "game/Graphics/CameraSystem.hpp"
-
-#include "game/Entities/ObjectHandler.hpp"
-#include "game/Entities/ParticleHandler.hpp"
+#include "game/Entities/_Include.hpp"
+#include "game/CharacterMatrix.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

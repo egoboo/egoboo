@@ -83,6 +83,11 @@ public:
     static const std::shared_ptr<Object> INVALID_OBJECT;    //< Invalid object reference
     static constexpr int SIZETIME = 100;                    //< Time it takes to resize a character
     static constexpr uint16_t MAXMONEY = 9999;              ///< Maximum money a character can carry
+    static constexpr float DROPZVEL = 7;                    //< Vertical velocity of dropped items
+    static constexpr uint8_t JUMPINFINITE = 255;            ///< Flying character TODO> deprecated?
+    static constexpr uint8_t JUMPDELAY = 20;                ///< Time between jumps (game updates)
+    static constexpr uint32_t PHYS_DISMOUNT_TIME = 50;      ///< time delay for full object-object interaction (approximately 1 second)
+    static constexpr float DISMOUNTZVEL = 12;               //< Vertical velocity when jumping off mounts
 
 public:
     /**
@@ -768,6 +773,12 @@ public:
     **/
     void dropMoney(int amount);
 
+    /**
+    * @brief
+    *   Re-initialized the bored timer to a random value
+    **/
+    void resetBoredTimer();
+
 private:
 
     /**
@@ -917,7 +928,9 @@ private:
     static constexpr int RIPPLETOLERANCE = 60;
     static constexpr int RIPPLEAND = 15;             ///< How often ripples spawn
     static constexpr int HURTDAMAGE = 256;           //< Minimum damage for hurt animation
-    static constexpr uint8_t CAREFULTIME = 50;       ///< Friendly fire timer
+    static constexpr uint8_t CAREFULTIME = 50;       ///< Friendly fire timer (number of game updates)
+    static constexpr uint8_t DAMAGETIME = 32;        ///< Invincibility time (number of game updates)
+    static constexpr float DROPXYVEL = 12;           //< Horizontal velocity of dropped items
 
     bool _terminateRequested;                        ///< True if this character no longer exists in the game and should be destructed
     ObjectRef _objRef;                               ///< The unique object reference of this object

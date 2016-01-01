@@ -19,7 +19,6 @@
 #include "CollisionSystem.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h" //for update_wld
-#include "game/char.h"
 
 #include "particle_collision.h"
 
@@ -652,7 +651,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
     // reduce your interaction strength if you have just detached from an object
     if ( objectA->dismount_object == ichr_b )
     {
-        float dismount_lerp = ( float )objectA->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
+        float dismount_lerp = ( float )objectA->dismount_timer / static_cast<float>(Object::PHYS_DISMOUNT_TIME);
         dismount_lerp = Ego::Math::constrain( dismount_lerp, 0.0f, 1.0f );
 
         interaction_strength *= dismount_lerp;
@@ -660,7 +659,7 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 
     if ( objectB->dismount_object == ichr_a )
     {
-        float dismount_lerp = ( float )objectB->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
+        float dismount_lerp = ( float )objectB->dismount_timer / static_cast<float>(Object::PHYS_DISMOUNT_TIME);
         dismount_lerp = Ego::Math::constrain( dismount_lerp, 0.0f, 1.0f );
 
         interaction_strength *= dismount_lerp;
