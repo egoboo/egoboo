@@ -62,7 +62,6 @@ private:
     std::shared_ptr<Node> start_node;
 
 private:
-    std::shared_ptr<Node> add_node(const int x, const int y, const std::shared_ptr<AStar::Node> &parent, float weight, std::priority_queue<std::shared_ptr<Node>>& openNodes);
     void reset();
 };
 

@@ -32,21 +32,6 @@ AStar::AStar() :
     start_node(nullptr)
 {}
 
-std::shared_ptr<AStar::Node> AStar::add_node(const int x, const int y, const std::shared_ptr<AStar::Node> &parent, float weight, std::priority_queue<std::shared_ptr<Node>> &openNodes)
-{
-    /// @author ZF
-    /// @details Adds one new node to the end of the node list
-
-    if (openNodes.size() >= MAX_ASTAR_NODES) return nullptr;
-
-    //add the node
-    std::shared_ptr<AStar::Node> node = std::make_shared<AStar::Node>(x, y, weight, parent);
-    openNodes.push(node);
-
-    //return the new node
-    return node;
-}
-
 void AStar::reset()
 {
     /// @author ZF
@@ -96,9 +81,16 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
         Offset(1, 0), Offset(0, 1)
     };
 
+    //Node sorting algorithm (lowest weight first)
+    auto comparator = [](const std::shared_ptr<Node> &first, const std::shared_ptr<Node> &second){
+        return first->weight < second->weight;
+    };
+
     //Set of closed nodes
     std::unordered_set<int> closedNodes;
-    std::priority_queue<std::shared_ptr<Node>> openNodes;
+    std::priority_queue<std::shared_ptr<Node>, 
+                        std::vector<std::shared_ptr<Node>>,
+                        decltype(comparator)> openNodes(comparator);
 
     //be a bit flexible if the destination is inside a wall
     if (mesh->tile_has_bits(Index2D(dst_ix, dst_iy), stoppedby))
@@ -131,7 +123,8 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
 
     // initialize the starting node
     weight = Distance()(src_ix, src_iy, dst_ix, dst_iy);
-    start_node = add_node(src_ix, src_iy, nullptr, weight, openNodes);
+    start_node = std::make_shared<AStar::Node>(src_ix, src_iy, weight, nullptr);
+    openNodes.push(start_node);
 
     // do the algorithm
     while (!openNodes.empty())
@@ -163,7 +156,7 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
             if (tmp_x == dst_ix && tmp_y == dst_iy)
             {
                 weight = Distance()(tmp_x, tmp_y, currentNode->ix, currentNode->iy);
-                final_node = add_node(tmp_x, tmp_y, currentNode, weight, openNodes);
+                final_node = std::make_shared<AStar::Node>(tmp_x, tmp_y, weight, currentNode);
                 return true;
             }
 
@@ -196,7 +189,7 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
             // OK. determine the weight (F + H)
             weight = Distance()(tmp_x, tmp_y, currentNode->ix, currentNode->iy)
                    + Distance()(tmp_x, tmp_y, dst_ix, dst_iy);
-            add_node(tmp_x, tmp_y, currentNode, weight, openNodes);
+            openNodes.push(std::make_shared<AStar::Node>(tmp_x, tmp_y, weight, currentNode));
         }
     }
 
