@@ -23,7 +23,6 @@
 #include "ObjectPhysics.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Core/GameEngine.hpp"
-#include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/Shop.hpp"
 #include "game/CharacterMatrix.h"
 #include "game/ObjectAnimation.h"
@@ -240,10 +239,6 @@ void ObjectPhysics::updateVelocityZ()
 
 void ObjectPhysics::updatePhysics()
 {
-    //ZF> TODO: Why is this here!?
-    // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
-    chr_instance_t::apply_reflection_matrix(_object.inst, _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false));
-
     // Keep inventory items with the carrier
     if(_object.isInsideInventory()) {
         _object.setPosition(_currentModule->getObjectHandler()[_object.inwhich_inventory]->getPosition());
@@ -257,7 +252,6 @@ void ObjectPhysics::updatePhysics()
     //Is this character being held by another character?
     if(_object.isBeingHeld()) {
         keepItemsWithHolder();
-        move_one_character_do_animation(&_object);
         return;
     }
 

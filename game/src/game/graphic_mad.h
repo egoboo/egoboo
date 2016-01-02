@@ -267,7 +267,7 @@ public:
 	static gfx_rv set_texture(chr_instance_t& self, const Ego::DeferredTexture& itex);
 	static gfx_rv set_mad(chr_instance_t& self, const std::shared_ptr<Ego::ModelDescriptor> &imad);
 
-	static void update_ref(chr_instance_t& self, float grid_level, bool need_matrix);
+	static void update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix);
 	static gfx_rv update_bbox(chr_instance_t& self);
 	static gfx_rv update_vertices(chr_instance_t& self, int vmin, int vmax, bool force);
 	static gfx_rv update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count);
@@ -287,7 +287,7 @@ public:
 
 	static float get_remaining_flip(chr_instance_t& self);
 	static void get_tint(chr_instance_t& self, GLfloat *tint, const BIT_FIELD bits);
-	static bool apply_reflection_matrix(chr_instance_t& self, float floor_level);
+	static bool apply_reflection_matrix(chr_instance_t& self, const Vector3f& position);
 
 
 private:

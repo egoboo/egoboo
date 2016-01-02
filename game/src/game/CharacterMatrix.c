@@ -410,7 +410,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
 
     if ( applied )
     {
-        chr_instance_t::apply_reflection_matrix(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false));
+        chr_instance_t::apply_reflection_matrix(pchr->inst, pchr->getPosition());
     }
 
     return applied;
