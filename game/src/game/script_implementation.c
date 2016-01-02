@@ -399,27 +399,17 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
     /// @author ZZ
     /// @details This function appends a message to the end-module text
 
-    Uint8 returncode = true;
-
     if ( nullptr == pchr) return false;
 
     if ( !pchr->getProfile()->isValidMessageID( message_index ) ) return false;
 
-    auto objRef = GET_INDEX_PCHR( pchr );
-    size_t length = pchr->getProfile()->getMessage(message_index).length();
+    std::string escapedText = endtext + expandEscapeCodes(pchr->toSharedPointer(), *pstate, pchr->getProfile()->getMessage(message_index));
+    strncpy(endtext, escapedText.c_str(), SDL_arraysize(endtext));
 
-    char *dst     = endtext + endtext_carat;
-    char *dst_end = endtext + MAXENDTEXT - 1;
+    endtext_carat = strlen(endtext);
+    str_add_linebreaks(endtext, strlen(endtext), 30);
 
-    char buffer[256];
-    strncpy(buffer, pchr->getProfile()->getMessage(message_index).c_str(), 256);
-
-    expand_escape_codes(objRef, pstate, buffer, buffer + length, dst, dst_end);
-    endtext_carat = strlen( endtext );
-
-    str_add_linebreaks( endtext, strlen( endtext ), 30 );
-
-    return returncode;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -483,27 +473,11 @@ Uint8 _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int 
     /// @author ZZ
     /// @details This function sticks a message_offset in the display queue and sets its timer
 
-    int slot;
-    char * dst, * dst_end;
-    size_t length;
-
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(iprofile);
-    if ( !ppro->isValidMessageID( message ) ) return false;
+    if ( !ppro->isValidMessageID(message) ) return false;
 
-    slot = DisplayMsg_get_free();
-    DisplayMsg.ary[slot].time = egoboo_config_t::get().hud_messageDuration.getValue();
-
-    length = ppro->getMessage(message).length();
-
-    dst     = DisplayMsg.ary[slot].textdisplay;
-    dst_end = DisplayMsg.ary[slot].textdisplay + EGO_MESSAGE_SIZE - 1;
-
-    char buffer[256];
-    strncpy(buffer, ppro->getMessage(message).c_str(), 256);
-
-    expand_escape_codes( ichr, pstate, buffer, buffer+length, dst, dst_end );
-
-    *dst_end = CSTR_END;
+    std::string text = expandEscapeCodes(_currentModule->getObjectHandler()[ichr], *pstate, ppro->getMessage(message));
+    DisplayMsg_printf("%s", text.c_str());
 
     return true;
 }

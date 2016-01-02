@@ -308,7 +308,7 @@ bool  chr_check_target( Object * psrc, const std::shared_ptr<Object>& ptst, cons
 ObjectRef chr_find_target( Object * psrc, float max_dist, const IDSZ2& idsz, const BIT_FIELD targeting_bits );
 ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, ObjectRef dontTarget, ObjectRef oldTarget, FACING_T *targetAngle);
 
-void expand_escape_codes( const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
+std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const script_state_t &scriptState, const std::string &text);
 
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );

@@ -83,9 +83,6 @@ public:
      */
     void reset();
 
-    //ZF> TODO: This C-like function needs to be removed
-    std::shared_ptr<ParticleProfile> pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref);
-
     /**
      * @brief
      *  Get if if the specified profile ID has been loaded.
@@ -114,7 +111,9 @@ public:
     /**
      * @return Returns the ObjectProfile loaded into the specified slot number
      */
-    const std::shared_ptr<ObjectProfile> &getProfile(PRO_REF slotNumber) const;
+    const std::shared_ptr<ObjectProfile>& getProfile(PRO_REF slotNumber) const;
+
+    const std::shared_ptr<ObjectProfile>& getProfile(const std::string& name) const;
 
     const Ego::DeferredTexture& getSpellBookIcon(size_t index) const;
 
@@ -157,6 +156,7 @@ public:
 
 private:
     std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded; //Maps slot numbers to ObjectProfiles
+    std::unordered_map<std::string, std::shared_ptr<ObjectProfile>> _profilesLoadedByName; //Maps names to ObjectProfiles
 
     std::unordered_map<PIP_REF, std::shared_ptr<ParticleProfile>> _particleProfilesLoaded; //Maps id's to ParticleProfiles
 
