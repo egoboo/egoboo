@@ -440,8 +440,8 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
         if (!ret) {
             Log::get().message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
         } else {
-            SDL_SetWindowPosition(ret, windowPos, windowPos);
             SDL_SetWindowSize(ret, v.horizontalResolution, v.verticalResolution);
+            SDL_SetWindowPosition(ret, windowPos, windowPos);
         }
     }
     else
@@ -456,8 +456,8 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
         if ( nullptr == ret ) {
 			Log::get().warn("unable to create SDL window: %s\n", SDL_GetError());
         } else {
-            SDL_SetWindowPosition(ret, windowPos, windowPos);
             SDL_SetWindowSize(ret, v.horizontalResolution, v.verticalResolution);
+            SDL_SetWindowPosition(ret, windowPos, windowPos);
             SDL_GLContext context = SDLX_CreateContext(ret, v.gl_att);
             if (!context) {
 				Log::get().warn("unable to create GL context: %s\n", SDL_GetError());
@@ -478,8 +478,8 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
                     if ( nullptr == ret ) {
 						Log::get().warn("unable to create SDL window (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
                     } else {
-                        SDL_SetWindowPosition(ret, windowPos, windowPos);
                         SDL_SetWindowSize(ret, v.horizontalResolution, v.verticalResolution);
+                        SDL_SetWindowPosition(ret, windowPos, windowPos);
                         SDL_GLContext context = SDLX_CreateContext(ret, v.gl_att);
                         if (!context) {
 							Log::get().warn("unable to create GL context (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
@@ -505,8 +505,8 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
             if ( nullptr == ret ) {
 				Log::get().warn("unable to create SDL window (no multisamples): %s\n", SDL_GetError());
             } else {
-                SDL_SetWindowPosition(ret, windowPos, windowPos);
                 SDL_SetWindowSize(ret, v.horizontalResolution, v.verticalResolution);
+                SDL_SetWindowPosition(ret, windowPos, windowPos);
                 SDL_GLContext context = SDLX_CreateContext(ret, v.gl_att);
                 if (!context) {
 					Log::get().warn("unable to create GL context (no multisamples): %s\n", SDL_GetError());

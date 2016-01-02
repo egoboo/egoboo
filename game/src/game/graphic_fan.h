@@ -51,9 +51,4 @@ namespace Graphics
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void animate_all_tiles(ego_mesh_t& mesh);
-
-gfx_rv render_fan( const ego_mesh_t& mesh, const Index1D& tileIndex );
-gfx_rv render_hmap_fan( const ego_mesh_t *mesh, const Index1D& tileIndex );
-gfx_rv render_water_fan( ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer );
-
-bool animate_tile(ego_mesh_t& mesh, Uint32 itile);
+bool animate_tile(ego_mesh_t& mesh, const Index1D& index);

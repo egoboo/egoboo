@@ -1015,7 +1015,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 		// render the heighmap
 		for (size_t i = 0; i < tl._all.size; ++i)
 		{
-			render_hmap_fan(tl._mesh.get(), tl._all.lst[i]._index);
+			Ego::Graphics::RenderPasses::Internal::TileListV2::render_hmap_fan(tl._mesh.get(), tl._all.lst[i]._index);
 		}
 
 		// let the mesh texture code know that someone else is in control now
