@@ -48,43 +48,56 @@ namespace RenderPasses {
 
 namespace Internal {
 
-struct by_element2_t {
-	float _distance;
-	Index1D _tileIndex;
-	uint32_t _textureIndex;
-	by_element2_t()
-		: by_element2_t(std::numeric_limits<float>::infinity(), Index1D::Invalid, std::numeric_limits<uint32_t>::max()) {
-	}
-	by_element2_t(float distance, const Index1D& tileIndex, uint32_t textureIndex)
-		: _distance(distance), _tileIndex(tileIndex), _textureIndex(textureIndex) {
-	}
-	by_element2_t(const by_element2_t& other)
-		: by_element2_t(other._distance, other._tileIndex, other._textureIndex) {
-	}
-	by_element2_t& operator=(const by_element2_t& other) {
-		_distance = other._distance;
-		_tileIndex = other._tileIndex;
-		_textureIndex = other._textureIndex;
-		return *this;
-	}
-	static bool compare(const by_element2_t& x, const by_element2_t& y) {
-		int result = (int)x._textureIndex - (int)y._textureIndex;
-		if (result < 0) {
+ElementV2::ElementV2()
+    : ElementV2(std::numeric_limits<float>::infinity(), 
+                Index1D::Invalid, 
+                std::numeric_limits<uint32_t>::max()) {
+}
+
+ElementV2::ElementV2(float distance, const Index1D& tileIndex, uint32_t textureIndex)
+	: distance(distance), tileIndex(tileIndex), textureIndex(textureIndex) {
+}
+
+ElementV2::ElementV2(const ElementV2& other)
+	: ElementV2(other.getDistance(), other.getTileIndex(), other.getTextureIndex()) {
+}
+
+const ElementV2& ElementV2::operator=(const ElementV2& other) {
+	distance = other.getDistance();
+	tileIndex = other.getTileIndex();
+	textureIndex = other.getTextureIndex();
+	return *this;
+}
+
+float ElementV2::getDistance() const {
+    return distance;
+}
+
+const Index1D& ElementV2::getTileIndex() const {
+    return tileIndex;
+}
+
+uint32_t ElementV2::getTextureIndex() const {
+    return textureIndex;
+}
+
+bool ElementV2::compare(const ElementV2& x, const ElementV2& y) {
+	int result = (int)x.getTextureIndex() - (int)y.getTextureIndex();
+	if (result < 0) {
+		return true;
+	} else if (result > 0) {
+		return false;
+	} else {
+        float result = x.getDistance() - y.getDistance();
+		if (result < 0.0f) {
 			return true;
-		} else if (result > 0) {
-			return false;
 		} else {
-			float result = x._distance - y._distance;
-			if (result < 0.0f) {
-				return true;
-			} else {
-				return false;
-			}
+			return false;
 		}
 	}
-};
+}
 
-void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist_lst_t& rlst)
+void TileListV2::render(const ego_mesh_t& mesh, const Graphics::renderlist_lst_t& rlst)
 {
 	size_t tcnt = mesh._tmem.getInfo().getTileCount();
 
@@ -93,15 +106,13 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 	}
 
 	// insert the rlst values into lst_vals
-	std::vector<by_element2_t> lst_vals(rlst.size);
+	std::vector<ElementV2> lst_vals(rlst.size);
 	for (size_t i = 0; i < rlst.size; ++i)
 	{
-		lst_vals[i]._tileIndex = rlst.lst[i]._index;
-		lst_vals[i]._distance = rlst.lst[i]._distance;
-
+        uint32_t textureIndex;
 		if (rlst.lst[i]._index >= tcnt)
 		{
-			lst_vals[i]._textureIndex = std::numeric_limits<uint32_t>::max();
+			textureIndex = std::numeric_limits<uint32_t>::max();
 		}
 		else
 		{
@@ -113,18 +124,19 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 				img += Ego::Graphics::MESH_IMG_COUNT;
 			}
 
-			lst_vals[i]._textureIndex = img;
+			textureIndex = img;
 		}
+        lst_vals[i] = ElementV2(rlst.lst[i]._distance, rlst.lst[i]._index, textureIndex);
 	}
 
-	std::sort(lst_vals.begin(), lst_vals.end(), by_element2_t::compare);
+	std::sort(lst_vals.begin(), lst_vals.end(), ElementV2::compare);
 
 	// restart the mesh texture code
 	TileRenderer::invalidate();
 
 	for (size_t i = 0; i < rlst.size; ++i)
 	{
-		Index1D tmp_itile = lst_vals[i]._tileIndex;
+		Index1D tmp_itile = lst_vals[i].getTileIndex();
 
 		gfx_rv render_rv = render_fan(mesh, tmp_itile);
 		if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
@@ -135,6 +147,316 @@ void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist
 
 	// let the mesh texture code know that someone else is in control now
 	TileRenderer::invalidate();
+}
+
+gfx_rv TileListV2::render_fan(const ego_mesh_t& mesh, const Index1D& i) {
+    /// @author ZZ
+    /// @details This function draws a mesh itile
+    /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
+
+    // grab a pointer to the tile
+    const ego_tile_info_t& ptile = mesh.getTileInfo(i);
+
+    const tile_mem_t& ptmem = mesh._tmem;
+
+    // do not render the itile if the image image is invalid
+    if (ptile.isFanOff())  return gfx_success;
+
+    tile_definition_t *pdef = tile_dict.get(ptile._type);
+    if (NULL == pdef) return gfx_fail;
+
+    // bind the correct texture
+    TileRenderer::bind(ptile);
+
+    {
+        Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_VERTEX_ARRAY_BIT);
+        {
+            // Per-vertex coloring.
+            Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable); // GL_LIGHTING_BIT
+
+                                                                                      /// @note claforte@> Put this in an initialization function.
+            GL_DEBUG(glEnableClientState)(GL_VERTEX_ARRAY);
+            GL_DEBUG(glVertexPointer)(3, GL_FLOAT, 0, &(ptmem._plst[ptile._vrtstart]));
+
+            GL_DEBUG(glEnableClientState)(GL_TEXTURE_COORD_ARRAY);
+            GL_DEBUG(glTexCoordPointer)(2, GL_FLOAT, 0, &(ptmem._tlst[ptile._vrtstart]));
+
+            if (gfx.gouraudShading_enable) {
+                GL_DEBUG(glEnableClientState)(GL_COLOR_ARRAY);
+                GL_DEBUG(glColorPointer)(3, GL_FLOAT, 0, &(ptmem._clst[ptile._vrtstart]));
+            } else {
+                GL_DEBUG(glDisableClientState)(GL_COLOR_ARRAY);
+            }
+            // grab some model info
+            uint16_t commands = pdef->command_count;
+
+            // Render each command
+            for (size_t cnt = 0, entry = 0; cnt < commands; cnt++) {
+                uint8_t numEntries = pdef->command_entries[cnt];
+
+                GL_DEBUG(glDrawElements)(GL_TRIANGLE_FAN, numEntries, GL_UNSIGNED_SHORT, &(pdef->command_verts[entry]));
+                entry += numEntries;
+            }
+        }
+    }
+
+    if (egoboo_config_t::get().debug_mesh_renderNormals.getValue()) {
+        TileRenderer::invalidate();
+        auto& renderer = Ego::Renderer::get();
+        renderer.getTextureUnit().setActivated(nullptr);
+        renderer.setColour(Ego::Colour4f::white());
+        for (size_t i = ptile._vrtstart, j = 0; j < 4; ++i, ++j) {
+            glBegin(GL_LINES);
+            {
+                glVertex3fv(ptmem._plst[i]);
+                glVertex3f
+                    (
+                        ptmem._plst[i][XX] + Info<float>::Grid::Size()*(ptile._ncache[j][XX]),
+                        ptmem._plst[i][YY] + Info<float>::Grid::Size()*(ptile._ncache[j][YY]),
+                        ptmem._plst[i][ZZ] + Info<float>::Grid::Size()*(ptile._ncache[j][ZZ])
+                        );
+
+            }
+            glEnd();
+        }
+    }
+
+    return gfx_success;
+}
+
+gfx_rv TileListV2::render_hmap_fan(const ego_mesh_t * mesh, const Index1D& tileIndex) {
+    /// @author ZZ
+    /// @details This function draws a mesh itile
+    GLvertex v[4];
+
+    int cnt, vertex;
+    size_t badvertex;
+    int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
+    Uint8  type, twist;
+
+    if (NULL == mesh) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh");
+        return gfx_error;
+    }
+
+    const tile_mem_t& ptmem = mesh->_tmem;
+
+    const ego_tile_info_t& ptile = mesh->getTileInfo(tileIndex);
+
+    /// @author BB
+    /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
+    ///     tile where it's supposed to go
+
+    ix = tileIndex.getI() % mesh->_info.getTileCountX();
+    iy = tileIndex.getI() / mesh->_info.getTileCountX();
+
+    // vertex is a value from 0-15, for the meshcommandref/u/v variables
+    // badvertex is a value that references the actual vertex number
+
+    type = ptile._type;                     // Command type ( index to points in itile )
+    twist = ptile._twist;
+
+    type &= 0x3F;
+
+    // Original points
+    badvertex = ptile._vrtstart;          // Get big reference value
+    for (cnt = 0; cnt < 4; cnt++) {
+        float tmp;
+        v[cnt].pos[XX] = (ix + ix_off[cnt]) * Info<float>::Grid::Size();
+        v[cnt].pos[YY] = (iy + iy_off[cnt]) * Info<float>::Grid::Size();
+        v[cnt].pos[ZZ] = ptmem._plst[badvertex][ZZ];
+
+        tmp = g_meshLookupTables.twist_nrm[twist][kZ];
+        tmp *= tmp;
+
+        v[cnt].col[RR] = tmp * (tmp + (1.0f - tmp) * g_meshLookupTables.twist_nrm[twist][kX] * g_meshLookupTables.twist_nrm[twist][kX]);
+        v[cnt].col[GG] = tmp * (tmp + (1.0f - tmp) * g_meshLookupTables.twist_nrm[twist][kY] * g_meshLookupTables.twist_nrm[twist][kY]);
+        v[cnt].col[BB] = tmp;
+        v[cnt].col[AA] = 1.0f;
+
+        v[cnt].col[RR] = Ego::Math::constrain(v[cnt].col[RR], 0.0f, 1.0f);
+        v[cnt].col[GG] = Ego::Math::constrain(v[cnt].col[GG], 0.0f, 1.0f);
+        v[cnt].col[BB] = Ego::Math::constrain(v[cnt].col[BB], 0.0f, 1.0f);
+
+        badvertex++;
+    }
+
+    Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+
+    // Render each command
+    GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
+    {
+        for (vertex = 0; vertex < 4; vertex++) {
+            GL_DEBUG(glColor3fv)(v[vertex].col);
+            GL_DEBUG(glVertex3fv)(v[vertex].pos);
+        }
+    }
+    GL_DEBUG_END();
+
+    return gfx_success;
+}
+
+gfx_rv TileListV2::render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer) {
+
+    static const int ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
+
+    int    tnc;
+    size_t badvertex;
+    int  imap[4];
+    float fx_off[4], fy_off[4];
+
+    const Ego::MeshInfo& info = mesh._info;
+
+    const ego_tile_info_t& ptile = mesh.getTileInfo(tileIndex);
+
+    float falpha;
+    falpha = FF_TO_FLOAT(_currentModule->getWater()._layers[layer]._alpha);
+    falpha = Ego::Math::constrain(falpha, 0.0f, 1.0f);
+
+    /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
+    ///            tile where it's supposed to go
+
+    int ix = tileIndex.getI() % info.getTileCountX();
+    int iy = tileIndex.getI() / info.getTileCountX();
+
+    // To make life easier
+    uint16_t type = 0;                                         // Command type ( index to points in tile )
+    tile_definition_t *pdef = tile_dict.get(type);
+    if (NULL == pdef) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, type, "unknown tile type");
+        return gfx_error;
+    }
+    float offu = _currentModule->getWater()._layers[layer]._tx[XX];               // Texture offsets
+    float offv = _currentModule->getWater()._layers[layer]._tx[YY];
+    uint16_t frame = _currentModule->getWater()._layers[layer]._frame;                // Frame
+
+    std::shared_ptr<const Ego::Texture> ptex = _currentModule->getWaterTexture(layer);
+
+    float x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
+    float y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();
+
+    for (size_t cnt = 0; cnt < 4; cnt++) {
+        fx_off[cnt] = x1 * ix_off[cnt];
+        fy_off[cnt] = y1 * iy_off[cnt];
+
+        imap[cnt] = cnt;
+    }
+
+    // flip the coordinates around based on the "mode" of the tile
+    if ((ix & 1) == 0) {
+        std::swap(imap[0], imap[3]);
+        std::swap(imap[1], imap[2]);
+    }
+
+    if ((iy & 1) == 0) {
+        std::swap(imap[0], imap[1]);
+        std::swap(imap[2], imap[3]);
+    }
+
+    // draw draw front and back faces of polygons
+    Ego::Renderer::get().setCullingMode(Ego::CullingMode::None);
+
+    struct Vertex {
+        float x, y, z;
+        float r, g, b, a;
+        float s, t;
+    };
+    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FC4FT2F>());
+    Vertex *v = static_cast<Vertex *>(vb->lock());
+
+    // Original points
+    badvertex = ptile._vrtstart;
+    {
+        GLXvector3f nrm = {0, 0, 1};
+
+        float alight = get_ambient_level() + _currentModule->getWater()._layers->_light_add;
+        alight = Ego::Math::constrain(alight / 255.0f, 0.0f, 1.0f);
+
+        for (size_t cnt = 0; cnt < 4; cnt++) {
+            Vertex& v0 = v[cnt];
+
+            tnc = imap[cnt];
+
+            int jx = ix + ix_off[cnt];
+            int jy = iy + iy_off[cnt];
+
+            v0.x = jx * Info<float>::Grid::Size();
+            v0.y = jy * Info<float>::Grid::Size();
+            v0.z = _currentModule->getWater()._layer_z_add[layer][frame][tnc] + _currentModule->getWater()._layers[layer]._z;
+
+            v0.s = fx_off[cnt] + offu;
+            v0.t = fy_off[cnt] + offv;
+
+            float dlight = 0.0f;
+            if (jx <= 0 || jy <= 0 || jx >= info.getTileCountX() || jy >= info.getTileCountY()) {
+                //All water is dark near edges of the map
+                dlight = 0.0f;
+            } else {
+                //Else interpolate using ligh levels of nearby tiles
+                Index1D jtile = mesh.getTileIndex(Index2D(jx, jy));
+                GridIllumination::light_corner(mesh, jtile, v0.z, nrm, dlight);
+            }
+
+            // take the v[cnt].color from the tnc vertices so that it is oriented properly
+            v0.r = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.g = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+            v0.b = Ego::Math::constrain(dlight * INV_FF<float>() + alight, 0.0f, 1.0f);
+
+            // the application of alpha to the tile depends on the blending mode
+            if (_currentModule->getWater()._light) {
+                // blend using light
+                v0.r *= falpha;
+                v0.g *= falpha;
+                v0.b *= falpha;
+                v0.a = 1.0f;
+            } else {
+                // blend using alpha
+                v0.a = falpha;
+            }
+
+            badvertex++;
+        }
+    }
+
+    vb->unlock();
+
+    // tell the mesh texture code that someone else is controlling the texture
+    TileRenderer::invalidate();
+
+    auto& renderer = Ego::Renderer::get();
+
+    // set the texture
+    renderer.getTextureUnit().setActivated(ptex.get());
+
+    Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT);
+    {
+        bool use_depth_mask = (!_currentModule->getWater()._light && (1.0f == falpha));
+
+        // do not draw hidden surfaces
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+
+        // only use the depth mask if the tile is NOT transparent
+        renderer.setDepthWriteEnabled(use_depth_mask);
+
+        // cull backward facing polygons
+        // use clockwise orientation to determine backfaces
+        oglx_begin_culling(Ego::CullingMode::Back, MAP_NRM_CULL);
+
+        // set the blending mode
+        renderer.setBlendingEnabled(true);
+        if (_currentModule->getWater()._light) {
+            renderer.setBlendFunction(Ego::BlendFunction::One, Ego::BlendFunction::OneMinusSourceColour);
+        } else {
+            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+        }
+
+        // per-vertex coloring
+        renderer.setGouraudShadingEnabled(true);
+        renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+    }
+
+    return gfx_success;
 }
 
 }
@@ -416,7 +738,7 @@ void Reflective0::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 		renderer.setAlphaFunction(CompareFunction::Greater, 0.0f);
 		// reduce texture hashing by loading up each texture only once
 		if (tl._mesh) {
-			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
+			Internal::TileListV2::render(*tl._mesh, tl._reflective);
 		}
 	}
 }
@@ -456,7 +778,7 @@ void Reflective1::doReflectionsEnabled(::Camera& camera, const TileList& tl, con
 
 		// reduce texture hashing by loading up each texture only once
 		if (tl._mesh) {
-			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
+			Internal::TileListV2::render(*tl._mesh, tl._reflective);
 		}
 	}
 }
@@ -482,7 +804,7 @@ void Reflective1::doReflectionsDisabled(::Camera& camera, const TileList& tl, co
 
 		// reduce texture hashing by loading up each texture only once
 		if (tl._mesh) {
-			Internal::render_fans_by_list(*tl._mesh, tl._reflective);
+			Internal::TileListV2::render(*tl._mesh, tl._reflective);
 		}
 	}
 }
@@ -509,7 +831,7 @@ void NonReflective::doRun(::Camera& camera, const TileList& tl, const EntityList
 
 		// reduce texture hashing by loading up each texture only once
 		if (tl._mesh) {
-			Internal::render_fans_by_list(*tl._mesh, tl._nonReflective);
+			Internal::TileListV2::render(*tl._mesh, tl._nonReflective);
 		}
 	}
 	OpenGL::Utilities::isError();
@@ -791,7 +1113,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(mesh, tl._water.lst[i]._index, 1);
+			Internal::TileListV2::render_water_fan(mesh, tl._water.lst[i]._index, 1);
 		}
 	}
 
@@ -800,7 +1122,7 @@ void Water::doRun(::Camera& camera, const TileList& tl, const EntityList& el) {
 	{
 		for (size_t i = 0; i < tl._water.size; ++i)
 		{
-			render_water_fan(mesh, tl._water.lst[i]._index, 0);
+			Internal::TileListV2::render_water_fan(mesh, tl._water.lst[i]._index, 0);
 		}
 	}
 

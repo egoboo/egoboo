@@ -746,105 +746,56 @@ bool ego_tile_info_t::removeFX(const GRID_FX_BITS bits) {
 //--------------------------------------------------------------------------------------------
 
 mpdfx_list_ary_t::mpdfx_list_ary_t()
-	: _cnt(0), _lst(nullptr), _idx(0) {
+	: elements() {
 }
 
 mpdfx_list_ary_t::~mpdfx_list_ary_t() {
-    dealloc();
-
-	_lst = nullptr;
-	_idx = 0;
-	_cnt = 0;
 }
 
-void mpdfx_list_ary_t::alloc(size_t size)
+void mpdfx_list_ary_t::clear()
 {
-	dealloc();
-
-    if (0 == size)
-    {
-        return;
-    }
-    _lst = new size_t[size];
-    _cnt = size;
-    _idx = 0;
+    elements.clear();
 }
 
-void mpdfx_list_ary_t::dealloc()
+void mpdfx_list_ary_t::push_back(const Index1D& element)
 {
-    if (0 == _cnt)
-    {
-        return;
-    }
-	delete[] _lst;
-	_lst = nullptr;
-    _cnt = 0;
-    _idx = 0;
-}
-
-void mpdfx_list_ary_t::reset()
-{
-    _idx = 0;
-}
-
-bool mpdfx_list_ary_t::push(size_t value)
-{
-    if (_idx < _cnt)
-    {
-        _lst[_idx] = value;
-        _idx++;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    elements.push_back(element);
 }
 
 //--------------------------------------------------------------------------------------------
 
 mpdfx_lists_t::mpdfx_lists_t(const Ego::MeshInfo& info) {
-	sha.alloc(info.getTileCount());
-	drf.alloc(info.getTileCount());
-	anm.alloc(info.getTileCount());
-	wat.alloc(info.getTileCount());
-	wal.alloc(info.getTileCount());
-	imp.alloc(info.getTileCount());
-	dam.alloc(info.getTileCount());
-	slp.alloc(info.getTileCount());
+	sha.elements.reserve(info.getTileCount());
+	drf.elements.reserve(info.getTileCount());
+	anm.elements.reserve(info.getTileCount());
+	wat.elements.reserve(info.getTileCount());
+	wal.elements.reserve(info.getTileCount());
+	imp.elements.reserve(info.getTileCount());
+	dam.elements.reserve(info.getTileCount());
+	slp.elements.reserve(info.getTileCount());
 
 	// the list needs to be resynched
 	dirty = true;
 }
 
 mpdfx_lists_t::~mpdfx_lists_t() {
-	// free the memory
-	sha.dealloc();
-	drf.dealloc();
-	anm.dealloc();
-	wat.dealloc();
-	wal.dealloc();
-	imp.dealloc();
-	dam.dealloc();
-	slp.dealloc();
-
 	// No memory, hence nothing is stored, hence nothing is dirty.
 	dirty = false;
 }
 
 void mpdfx_lists_t::reset()
 {
-    // free the memory
-    sha.reset();
-    drf.reset();
-    anm.reset();
-    wat.reset();
-    wal.reset();
-    imp.reset();
-    dam.reset();
-    slp.reset();
+    // Clear the lists.
+    sha.clear();
+    drf.clear();
+    anm.clear();
+    wat.clear();
+    wal.clear();
+    imp.clear();
+    dam.clear();
+    slp.clear();
 
-    // everything has been reset. force it to recalculate
+    // Everything has been reset. Force it to recalculate.
 	dirty = true;
 }
 
@@ -856,7 +807,7 @@ int mpdfx_lists_t::push( GRID_FX_BITS fx_bits, size_t value )
 
     if ( HAS_NO_BITS( fx_bits, MAPFX_SHA ) )
     {
-        if ( sha.push(value) )
+        sha.push_back(value);
         {
             retval++;
         }
@@ -865,7 +816,7 @@ int mpdfx_lists_t::push( GRID_FX_BITS fx_bits, size_t value )
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_REFLECTIVE ) )
     {
-        if ( drf.push(value) )
+        drf.push_back(value);
         {
             retval++;
         }
@@ -873,7 +824,7 @@ int mpdfx_lists_t::push( GRID_FX_BITS fx_bits, size_t value )
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_ANIM ) )
     {
-        if ( anm.push(value) )
+        anm.push_back(value);
         {
             retval++;
         }
@@ -881,7 +832,7 @@ int mpdfx_lists_t::push( GRID_FX_BITS fx_bits, size_t value )
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_WATER ) )
     {
-        if ( wat.push(value) )
+        wat.push_back(value);
         {
             retval++;
         }
@@ -889,7 +840,7 @@ int mpdfx_lists_t::push( GRID_FX_BITS fx_bits, size_t value )
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_WALL ) )
     {
-        if ( wal.push(value) )
+        wal.push_back(value);
         {
             retval++;
         }
@@ -897,7 +848,7 @@ int mpdfx_lists_t::push( GRID_FX_BITS fx_bits, size_t value )
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_IMPASS ) )
     {
-        if ( imp.push(value) )
+        imp.push_back(value);
         {
             retval++;
         }
@@ -905,7 +856,7 @@ int mpdfx_lists_t::push( GRID_FX_BITS fx_bits, size_t value )
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_DAMAGE ) )
     {
-        if ( dam.push(value) )
+        dam.push_back(value);
         {
             retval++;
         }
@@ -913,7 +864,7 @@ int mpdfx_lists_t::push( GRID_FX_BITS fx_bits, size_t value )
 
     if ( HAS_ALL_BITS( fx_bits, MAPFX_SLIPPY ) )
     {
-        if ( slp.push(value) )
+        slp.push_back(value);
         {
             retval++;
         }

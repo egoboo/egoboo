@@ -31,7 +31,42 @@ namespace Graphics {
 namespace RenderPasses {
 
 namespace Internal {
-void render_fans_by_list(const ego_mesh_t& mesh, const Ego::Graphics::renderlist_lst_t& rlst);
+
+struct ElementV2 {
+private:
+    float distance;
+    Index1D tileIndex;
+    uint32_t textureIndex;
+public:
+    ElementV2();
+    ElementV2(float distance, const Index1D& tileIndex, uint32_t textureIndex);
+    ElementV2(const ElementV2& other);
+    const ElementV2& operator=(const ElementV2& other);
+public:
+    float getDistance() const;
+    const Index1D& getTileIndex() const;
+    uint32_t getTextureIndex() const;
+public:
+    static bool compare(const ElementV2& x, const ElementV2& y);
+};
+
+struct TileListV2 {
+    static void render(const ego_mesh_t& mesh, const Graphics::renderlist_lst_t& rlst);
+    /// @brief Draw a fan.
+    /// @param mesh the mesh
+    /// @param tileIndex the tile index
+    static gfx_rv render_fan(const ego_mesh_t& mesh, const Index1D& tileIndex);
+    /// @brief Draw a heightmap fan.
+    /// @param mesh the mesh
+    /// @param tileIndex the tile index
+    static gfx_rv render_hmap_fan(const ego_mesh_t *mesh, const Index1D& tileIndex);
+    /// @brief Draw a water fan.
+    /// @param mesh the mesh
+    /// @param tileIndex the tile index
+    /// @param the water layer
+    static gfx_rv render_water_fan(ego_mesh_t& mesh, const Index1D& tileIndex, const Uint8 layer);
+};
+
 }
 
 /// The first pass for reflective tiles

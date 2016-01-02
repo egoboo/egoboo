@@ -316,19 +316,12 @@ public:
 
 struct mpdfx_list_ary_t
 {
-    size_t _cnt;
-    size_t _idx;
-    size_t *_lst;
-
+    std::vector<Index1D> elements;
 	mpdfx_list_ary_t();
 	~mpdfx_list_ary_t();
-    void reset();
-    bool push(size_t value);
-	void alloc(size_t size);
-	void dealloc();
+    void clear();
+    void push_back(const Index1D& element);
 };
-
-
 
 //--------------------------------------------------------------------------------------------
 struct mpdfx_lists_t
