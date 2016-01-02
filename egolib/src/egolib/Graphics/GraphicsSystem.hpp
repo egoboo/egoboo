@@ -14,6 +14,10 @@ public:
     static oglx_video_parameters_t ogl_vparam;
     static bool initialized;
     /**
+     * @brief A pointer to the (single) SDL window if it exists, a null pointer otherwise.
+     */
+    static SDL_Window *window;
+    /**
      * @brief Initialize the graphics system.
      * @remark This method is a no-op if the graphics system is initialized.
      */

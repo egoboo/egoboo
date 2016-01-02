@@ -168,7 +168,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
         if (NULL != retval->surface && retval->flags.opengl)
         {
             // correct the multisampling
-            gl_new->multisample_arb = retval->gl_att.multi_samples > 1;
+            gl_new->multisample_arb = retval->gl_att.multisampling.multisamples > 1;
 
             SDL_GL_set_gl_mode(gl_new);
         }

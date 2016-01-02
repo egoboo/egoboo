@@ -44,6 +44,22 @@ struct SDLX_sdl_video_flags_t {
     unsigned use_desktop_size : 1; ///< SDL_WINDOW_FULLSCREEN_DESKTOP - Window uses desktop size in fullscreen, requires full_screen to be set
     unsigned highdpi : 1;          ///< SDL_WINDOW_ALLOW_HIGHDPI - Supports High-DPI mode (Apple 'Retina')
 
+    /**
+     * @brief Construct this window flags with "reasonable" default values.
+     */
+    SDLX_sdl_video_flags_t();
+    /**
+     * @brief Copy-construct this window flags.
+     * @param other the other window flags
+     */
+    SDLX_sdl_video_flags_t(const SDLX_sdl_video_flags_t& other);
+    /**
+     * @brief Assign this window flags.
+     * @param other the other window flags
+     * @return this window flags
+     */
+    const SDLX_sdl_video_flags_t& operator=(const SDLX_sdl_video_flags_t& other);
+    
     static void defaults(SDLX_sdl_video_flags_t& self);
     static uint32_t upload(const SDLX_sdl_video_flags_t& self);
     static void download(SDLX_sdl_video_flags_t& self, uint32_t bits);
@@ -52,6 +68,24 @@ struct SDLX_sdl_video_flags_t {
 Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_video_flags_t& s);
 
 //--------------------------------------------------------------------------------------------
+
+/// Information about the multisampling capabilities of an OpenGL context.
+/// @todo Originally there was only multisample antialiasing (MSAA). Samples
+/// was designated for the number of MSAA samples per pixel to allocate for
+/// that system framebuffer. Clean, simple. Then the GPU vendors added support
+/// for supersample antialiasing(SSAA), coverage sample antialiasing(CSAA), and
+/// combinations of the three.
+struct SDLX_sdl_gl_multisampling_t {
+    int multibuffers; /// SDL_GL_MULTISAMPLEBUFFERS
+    int multisamples; /// SDL_GL_MULTISAMPLESAMPLES
+    SDLX_sdl_gl_multisampling_t();
+    bool operator==(const SDLX_sdl_gl_multisampling_t& other) const;
+    bool operator!=(const SDLX_sdl_gl_multisampling_t& other) const;
+    void upload() const;
+    void download();
+};
+
+Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_multisampling_t& s);
 
 /// @brief A structure holding all of the OpenGL data that can be queried through SDL.
 /// @remark SDL_GL_SetAttribute and SDL_GL_GetAttribute are used to write and read those values.
@@ -65,11 +99,10 @@ struct SDLX_sdl_gl_attrib_t {
     Ego::ColorDepth accumulationBufferDepth;
     int buffer_size;        ///< SDL_GL_BUFFER_SIZE
     int doublebuffer;       ///< SDL_GL_DOUBLEBUFFER
-    int depth_size;         ///< SDL_GL_DEPTH_SIZE
-    int stencil_size;       ///< SDL_GL_STENCIL_SIZE
+    int depthBufferDepth;         ///< SDL_GL_DEPTH_SIZE
+    int stencilBufferDepth;       ///< SDL_GL_STENCIL_SIZE
     int stereo;             ///< SDL_GL_STEREO
-    int multi_buffers;      ///< SDL_GL_MULTISAMPLEBUFFERS
-    int multi_samples;      ///< SDL_GL_MULTISAMPLESAMPLES
+    SDLX_sdl_gl_multisampling_t multisampling;
     int accelerated_visual; ///< SDL_GL_ACCELERATED_VISUAL
     int swap_control;       ///< SDL_GL_SWAP_CONTROL
 
@@ -78,7 +111,7 @@ struct SDLX_sdl_gl_attrib_t {
     static void validate(SDLX_sdl_gl_attrib_t& self);
     static void defaults(SDLX_sdl_gl_attrib_t& self);
     // Upload the attributes to SDL.
-    static void upload(SDLX_sdl_gl_attrib_t& self);
+    void upload() const;
     // Download the attributes from SDL.
     static void download(SDLX_sdl_gl_attrib_t& self);
 };
@@ -130,7 +163,7 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
         static void report(SDLX_video_parameters_t& self);
         static void defaults(SDLX_video_parameters_t& self);
         static void download(SDLX_video_parameters_t& self, egoboo_config_t& cfg);
-        static bool upload(SDLX_video_parameters_t * v);
+        void upload() const;
     };
 
 //--------------------------------------------------------------------------------------------
@@ -145,7 +178,7 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s);
     bool      SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool display );
 
 /// Use a SDLX_video_parameters_t structure to create window
-    SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report );
+    SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report );
 
 /// Use a SDLX_video_parameters_t structure to try to set a SDL video mode directly
 /// on success, it returns a pointer to the actual data used to set the mode. On failure,

@@ -9,6 +9,8 @@ int GraphicsSystem::gfx_height = 600;
 SDLX_video_parameters_t GraphicsSystem::sdl_vparam;
 oglx_video_parameters_t GraphicsSystem::ogl_vparam;
 
+SDL_Window *GraphicsSystem::window = nullptr;
+
 bool GraphicsSystem::initialized = false;
 
 void GraphicsSystem::initialize() {
