@@ -1464,20 +1464,32 @@ std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const scrip
 
                 // tmpdistance value
                 case 'd':
-                case 'D':
                     result << scriptState.distance;
                 break;
 
                 // tmpx value
-                case 'X':
                 case 'x':
                     result << scriptState.x;
                 break;
 
                 // tmpy value
-                case 'Y':
                 case 'y':
                     result << scriptState.y;
+                break;
+
+                // tmpdistance value with fixed width
+                case 'D':
+                    result << std::setw(2) << scriptState.distance;
+                break;
+
+                //tmpx value with fixed width
+                case 'X':
+                    result << std::setw(2) << scriptState.x;
+                break;
+
+                //tmpy value with fixed width
+                case 'Y':
+                    result << std::setw(2) << scriptState.y;
                 break;
 
                 //Unknown escape character
@@ -1502,314 +1514,14 @@ std::string expandEscapeCodes(const std::shared_ptr<Object> &object, const scrip
         }
     }
 
-    return result.str();
+    //Ensure that the frist character in the string is always capitalized
+    std::string stringResult = result.str();
+    if(!stringResult.empty()) {
+        stringResult[0] = std::toupper(stringResult[0]);
+    }
+    return stringResult;
 }
 
-//--------------------------------------------------------------------------------------------
-void expand_escape_codes(const ObjectRef ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end)
-{
-    int    cnt;
-    STRING szTmp;
-
-    Object      * pchr, *ptarget;
-    ai_state_t * pai;
-
-    pchr    = !_currentModule->getObjectHandler().exists( ichr ) ? NULL : _currentModule->getObjectHandler().get( ichr );
-    pai     = ( NULL == pchr )    ? NULL : &( pchr->ai );
-
-    ptarget = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->getTarget() ) ) ? pchr : _currentModule->getObjectHandler().get( pai->getTarget() );
-    
-    cnt = 0;
-    while ( CSTR_END != *src && src < src_end && dst < dst_end )
-    {
-        if ( '%' == *src )
-        {
-            char cppToCBuffer[256];
-            char * ebuffer, * ebuffer_end;
-
-            // go to the escape character
-            src++;
-
-            // set up the buffer to hold the escape data
-            ebuffer     = szTmp;
-            ebuffer_end = szTmp + SDL_arraysize( szTmp ) - 1;
-
-            // make the excape buffer an empty string
-            *ebuffer = CSTR_END;
-
-            switch ( *src )
-            {
-                case '%' : // the % symbol
-                    {
-                        snprintf( szTmp, SDL_arraysize( szTmp ), "%%" );
-                    }
-                    break;
-
-                case 'n' : // Name
-                    {
-                        strncpy(szTmp, pchr->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
-                    }
-                    break;
-
-                case 'c':  // Class name
-                    {
-                        if ( NULL != pchr )
-                        {
-                            strncpy(cppToCBuffer, pchr->getProfile()->getClassName().c_str(), 256);
-                            ebuffer     = cppToCBuffer;
-                            ebuffer_end = ebuffer + pchr->getProfile()->getClassName().length();
-                        }
-                    }
-                    break;
-
-                case 't':  // Target name
-                    {
-                        if ( NULL != pai )
-                        {
-                            const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pai->getTarget()];
-                            if(target)
-                            {
-                                strncpy(szTmp, target->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
-                            }
-                        }
-                    }
-                    break;
-
-                case 'o':  // Owner name
-                    {
-                        const std::shared_ptr<Object> &owner = _currentModule->getObjectHandler()[pai->owner];
-                        if(owner)
-                        {
-                            strncpy(szTmp, owner->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
-                        }
-                    }
-                    break;
-
-                case 's':  // Target class name
-                    {
-                        if ( NULL != ptarget )
-                        {
-                            strncpy(cppToCBuffer, ptarget->getProfile()->getClassName().c_str(), 256);
-                            ebuffer     = cppToCBuffer;
-                            ebuffer_end = ebuffer + ptarget->getProfile()->getClassName().length();
-                        }
-                    }
-                    break;
-
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9': // Target's skin name
-                    {
-                        if ( NULL != ptarget )
-                        {
-                            strncpy(cppToCBuffer, ptarget->getProfile()->getSkinInfo((*src)-'0').name.c_str(), 256);
-                            ebuffer = cppToCBuffer;
-                            ebuffer_end = ebuffer + ptarget->getProfile()->getSkinInfo((*src)-'0').name.length();
-                        }
-                    }
-                    break;
-
-                case 'a':  // Character's ammo
-                    {
-                        if ( NULL != pchr )
-                        {
-                            if ( pchr->ammoknown )
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "%d", pchr->ammo );
-                            }
-                            else
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "?" );
-                            }
-                        }
-                    }
-                    break;
-
-                case 'k':  // Kurse state
-                    {
-                        if ( NULL != pchr )
-                        {
-                            if ( pchr->iskursed )
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "kursed" );
-                            }
-                            else
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "unkursed" );
-                            }
-                        }
-                    }
-                    break;
-
-                case 'p':  // Character's possessive
-                    {
-                        if ( NULL != pchr )
-                        {
-                            if ( pchr->gender == GENDER_FEMALE )
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "her" );
-                            }
-                            else if ( pchr->gender == GENDER_MALE )
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "his" );
-                            }
-                            else
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "its" );
-                            }
-                        }
-                    }
-                    break;
-
-                case 'm':  // Character's gender
-                    {
-                        if ( NULL != pchr )
-                        {
-                            if ( pchr->gender == GENDER_FEMALE )
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "female " );
-                            }
-                            else if ( pchr->gender == GENDER_MALE )
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "male " );
-                            }
-                            else
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), " " );
-                            }
-                        }
-                    }
-                    break;
-
-                case 'g':  // Target's possessive
-                    {
-                        if ( NULL != ptarget )
-                        {
-                            if ( ptarget->gender == GENDER_FEMALE )
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "her" );
-                            }
-                            else if ( ptarget->gender == GENDER_MALE )
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "his" );
-                            }
-                            else
-                            {
-                                snprintf( szTmp, SDL_arraysize( szTmp ), "its" );
-                            }
-                        }
-                    }
-                    break;
-
-                case '#':  // New line (enter)
-                    {
-                        snprintf( szTmp, SDL_arraysize( szTmp ), "\n" );
-                    }
-                    break;
-
-                case 'd':  // tmpdistance value
-                    {
-                        if ( NULL != pstate )
-                        {
-                            snprintf( szTmp, SDL_arraysize( szTmp ), "%d", pstate->distance );
-                        }
-                    }
-                    break;
-
-                case 'x':  // tmpx value
-                    {
-                        if ( NULL != pstate )
-                        {
-                            snprintf( szTmp, SDL_arraysize( szTmp ), "%d", pstate->x );
-                        }
-                    }
-                    break;
-
-                case 'y':  // tmpy value
-                    {
-                        if ( NULL != pstate )
-                        {
-                            snprintf( szTmp, SDL_arraysize( szTmp ), "%d", pstate->y );
-                        }
-                    }
-                    break;
-
-                case 'D':  // tmpdistance value
-                    {
-                        if ( NULL != pstate )
-                        {
-                            snprintf( szTmp, SDL_arraysize( szTmp ), "%2d", pstate->distance );
-                        }
-                    }
-                    break;
-
-                case 'X':  // tmpx value
-                    {
-                        if ( NULL != pstate )
-                        {
-                            snprintf( szTmp, SDL_arraysize( szTmp ), "%2d", pstate->x );
-                        }
-                    }
-                    break;
-
-                case 'Y':  // tmpy value
-                    {
-                        if ( NULL != pstate )
-                        {
-                            snprintf( szTmp, SDL_arraysize( szTmp ), "%2d", pstate->y );
-                        }
-                    }
-                    break;
-
-                default:
-                    snprintf( szTmp, SDL_arraysize( szTmp ), "%%%c???", ( *src ) );
-                    break;
-            }
-
-            if ( CSTR_END == *ebuffer )
-            {
-                ebuffer     = szTmp;
-                ebuffer_end = szTmp + SDL_arraysize( szTmp );
-                snprintf( szTmp, SDL_arraysize( szTmp ), "%%%c???", ( *src ) );
-            }
-
-            // make the line capitalized if necessary
-            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = Ego::toupper( *ebuffer );
-
-            // Copy the generated text
-            while ( CSTR_END != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )
-            {
-                *dst++ = *ebuffer++;
-            }
-            *dst = CSTR_END;
-        }
-        else
-        {
-            // Copy the letter
-            *dst = *src;
-            dst++;
-        }
-
-        src++;
-        cnt++;
-    }
-
-    // make sure the destination string is terminated
-    if ( dst < dst_end )
-    {
-        *dst = CSTR_END;
-    }
-    *dst_end = CSTR_END;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void game_reset_players()
 {
