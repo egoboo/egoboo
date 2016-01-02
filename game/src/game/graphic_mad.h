@@ -199,7 +199,6 @@ struct chr_instance_t
     uint8_t          sheen;                 ///< 0-15, how shiny it is
     bool         enviro;                ///< Environment map?
     bool         dont_cull_backfaces;   ///< Do we cull backfaces for this character or not?
-    bool         skin_has_transparency; ///< The object skin has partial transparency
 
     // color info
     uint8_t          redshift;        ///< Color channel shifting

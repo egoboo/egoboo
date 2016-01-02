@@ -1623,7 +1623,6 @@ chr_instance_t::chr_instance_t() :
     sheen(0),
     enviro(false),
     dont_cull_backfaces(false),
-    skin_has_transparency(false),
 
     redshift(0),
     grnshift(0),
