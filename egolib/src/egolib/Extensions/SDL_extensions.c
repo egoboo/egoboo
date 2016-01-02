@@ -530,15 +530,14 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
         }
     }
 
-    // update the video parameters
+
+    // Update the video parameters.
+    Ego::GraphicsSystem::window = ret;
     if ( NULL != ret )
     {
         SDLX_Get_Screen_Info( sdl_scr, make_report );
         SDLX_synch_video_parameters( ret, &v );
     }
-    
-    Ego::GraphicsSystem::window = ret;
-
     return ret;
 }
 

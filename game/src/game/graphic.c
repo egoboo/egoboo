@@ -887,9 +887,9 @@ void draw_mouse_cursor()
         SDL_GetMouseState(&x, &y);
 
         //Draw cursor
-        gfx_begin_2d();
+        _gameEngine->getUIManager()->beginRenderUI();
             _gameEngine->getUIManager()->drawImage(pcursor, x, y, pcursor->getWidth(), pcursor->getHeight(), Ego::Colour4f::white());
-        gfx_end_2d();
+        _gameEngine->getUIManager()->endRenderUI();
     }
 }
 
