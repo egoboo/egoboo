@@ -25,6 +25,7 @@
 
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/Log/_Include.hpp"
+#include "egolib/Graphics/GraphicsSystem.hpp"
 
 // SDL 2.0.1 adds high DPI support
 #if !SDL_VERSION_ATLEAST(2, 0, 1)
@@ -44,7 +45,6 @@ void SDLX_GetDrawableSize(SDL_Window *window, int *w, int *h)
 //--------------------------------------------------------------------------------------------
 
 SDLX_screen_info_t sdl_scr;
-SDL_Window *_window;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
     }
 
     // store the screen info for everyone to use
-    window = _window;
+    window = Ego::GraphicsSystem::window;
 	psi.window = window;
     SDL_GetWindowSize(window, &(psi.x), &(psi.y));
     SDLX_GetDrawableSize(window, &(psi.drawWidth), &(psi.drawHeight));
@@ -116,18 +116,49 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
 
 //--------------------------------------------------------------------------------------------
 
+SDLX_sdl_gl_multisampling_t::SDLX_sdl_gl_multisampling_t()
+    : multibuffers(1),
+      multisamples(4) {
+}
+
+bool SDLX_sdl_gl_multisampling_t::operator==(const SDLX_sdl_gl_multisampling_t& other) const {
+    return multibuffers == other.multibuffers
+        && multisamples == other.multisamples;
+}
+
+bool SDLX_sdl_gl_multisampling_t::operator!=(const SDLX_sdl_gl_multisampling_t& other) const {
+    return !((*this) == other);
+}
+
+void SDLX_sdl_gl_multisampling_t::upload() const {
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, multibuffers);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, multisamples);
+}
+
+void SDLX_sdl_gl_multisampling_t::download() {
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multibuffers);
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &multisamples);
+}
+
+Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_multisampling_t& s) {
+    // Multisampling.
+    e << "  " << "multisampling" << Log::EndOfLine;
+    e << "  " << "  " << "multisample buffers = " << s.multibuffers << Log::EndOfLine;
+    e << "  " << "  " << "multisamples = " << s.multisamples << Log::EndOfLine;
+    return e;
+}
+
 SDLX_sdl_gl_attrib_t::SDLX_sdl_gl_attrib_t()
     : colourBufferDepth(32, 8, 8, 8, 8),
     accumulationBufferDepth(0, 0, 0, 0, 0),
     doublebuffer(0),
-    stencil_size(0),
+    stencilBufferDepth(0),
     stereo(0),
     swap_control(0),
-    multi_buffers(1),
-    multi_samples(2),
+    multisampling(),
     accelerated_visual(1),
     buffer_size(32),
-    depth_size(8) {
+    depthBufferDepth(8) {
 }
 
 void SDLX_sdl_gl_attrib_t::defaults(SDLX_sdl_gl_attrib_t& self) {
@@ -177,34 +208,34 @@ void SDLX_sdl_gl_attrib_t::validate(SDLX_sdl_gl_attrib_t& self) {
 
 }
 
-void SDLX_sdl_gl_attrib_t::upload(SDLX_sdl_gl_attrib_t& self) {
+void SDLX_sdl_gl_attrib_t::upload() const {
     // (1) Set the colour buffer depth.
     const int colourBufferDepth_sdl[4]
-        = { self.colourBufferDepth.getRedDepth(),
-            self.colourBufferDepth.getGreenDepth(),
-            self.colourBufferDepth.getBlueDepth(),
-            self.colourBufferDepth.getAlphaDepth() };
+        = { colourBufferDepth.getRedDepth(),
+            colourBufferDepth.getGreenDepth(),
+            colourBufferDepth.getBlueDepth(),
+            colourBufferDepth.getAlphaDepth() };
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, colourBufferDepth_sdl[0]);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, colourBufferDepth_sdl[1]);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, colourBufferDepth_sdl[2]);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, colourBufferDepth_sdl[3]);
 
     // (2) Set the frame buffer depth.
-    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, self.buffer_size);
+    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, buffer_size);
 
     // (3) Enable/disable double buffering.
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, self.doublebuffer);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, doublebuffer);
 
     // (4) Set the depth buffer and stencil buffer depths.
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, self.depth_size);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, self.stencil_size);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthBufferDepth);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilBufferDepth);
 
     // (5) Set the accumulation buffer depth.
     const int accumulationBufferDepth_sdl[4]{
-        self.accumulationBufferDepth.getRedDepth(),
-        self.accumulationBufferDepth.getGreenDepth(),
-        self.accumulationBufferDepth.getBlueDepth(),
-        self.accumulationBufferDepth.getAlphaDepth()
+        accumulationBufferDepth.getRedDepth(),
+        accumulationBufferDepth.getGreenDepth(),
+        accumulationBufferDepth.getBlueDepth(),
+        accumulationBufferDepth.getAlphaDepth()
     };
     SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, accumulationBufferDepth_sdl[0]);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, accumulationBufferDepth_sdl[1]);
@@ -212,15 +243,14 @@ void SDLX_sdl_gl_attrib_t::upload(SDLX_sdl_gl_attrib_t& self) {
     SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, accumulationBufferDepth_sdl[3]);
     
     // (6) Enable/disable stereoscopic rendering.
-    SDL_GL_SetAttribute(SDL_GL_STEREO, self.stereo);
+    SDL_GL_SetAttribute(SDL_GL_STEREO, stereo);
 
     // (7) Set multisampling.
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, self.multi_buffers);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, self.multi_samples);
+    multisampling.upload();
 
     // (8) Enable/disable hardware acceleration.
 #if !defined(ID_LINUX)
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, self.accelerated_visual);
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, accelerated_visual);
 #endif
 }
 
@@ -237,8 +267,8 @@ void SDLX_sdl_gl_attrib_t::download(SDLX_sdl_gl_attrib_t& self) {
 
     SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE, &(self.buffer_size));
     SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &(self.doublebuffer));
-    SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &(self.depth_size));
-    SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &(self.stencil_size));
+    SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &(self.depthBufferDepth));
+    SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &(self.stencilBufferDepth));
 
     // (2) Get the accumulation buffer depth.
     SDL_GL_GetAttribute(SDL_GL_ACCUM_RED_SIZE, &(temporary[0]));
@@ -252,8 +282,8 @@ void SDLX_sdl_gl_attrib_t::download(SDLX_sdl_gl_attrib_t& self) {
 
     self.swap_control = SDL_GL_GetSwapInterval();
 
-    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &(self.multi_buffers));
-    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &(self.multi_samples));
+    self.multisampling.download();
+
 #if !defined(ID_LINUX)
     SDL_GL_GetAttribute(SDL_GL_ACCELERATED_VISUAL, &(self.accelerated_visual));
 #endif
@@ -274,10 +304,10 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s) {
         << "  " << "  " << "alpha depth = " << s.colourBufferDepth.getAlphaDepth() << Log::EndOfLine;
 
     // Depth buffer depth.
-    e << "  " << "depth depth = " << s.depth_size << Log::EndOfLine;
+    e << "  " << "depth buffer depth = " << s.depthBufferDepth << Log::EndOfLine;
 
     // Stencil buffer depth.
-    e << "  " << "stencil depth = " << s.stencil_size << Log::EndOfLine;
+    e << "  " << "stencil buffer depth = " << s.stencilBufferDepth << Log::EndOfLine;
 
     // Accumulation buffer depth.
     e << "  " << "accumulation buffer" << Log::EndOfLine
@@ -292,9 +322,7 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_attrib_t& s) {
     e << "  " << "stereoscopic rendering = " << s.stereo << Log::EndOfLine;
 
     // Multisampling.
-    e << "  " << "multisampling" << Log::EndOfLine;
-    e << "  " << "  " << "multisample buffers = " << s.multi_buffers << Log::EndOfLine;
-    e << "  " << "  " << "multisamples = " << s.multi_samples << Log::EndOfLine;
+    e << s.multisampling;
 
 #if !defined(ID_LINUX)
     e << "  " << "accelerated visual = " << s.accelerated_visual << Log::EndOfLine;
@@ -381,60 +409,56 @@ void SDLX_synch_video_parameters( SDL_Window * ret, SDLX_video_parameters_t * v 
 }
 
 //--------------------------------------------------------------------------------------------
-bool SDLX_video_parameters_t::upload( SDLX_video_parameters_t * v )
-{
-    if ( NULL == v ) return false;
-
-    if ( v->flags.opengl )
-    {
-        SDLX_sdl_gl_attrib_t::upload(v->gl_att);
+void SDLX_video_parameters_t::upload() const {
+    if (flags.opengl) {
+        gl_att.upload();
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
+SDL_GLContext SDLX_CreateContext(SDL_Window *window, const SDLX_sdl_gl_attrib_t& flags) {
+    flags.upload();
+    return SDL_GL_CreateContext(window);
+}
+SDL_Window *SDLX_CreateWindow(const SDLX_sdl_video_flags_t& flags) {
+    uint32_t flags_sdl = SDLX_sdl_video_flags_t::upload(flags);
+    SDL_Window *window = SDL_CreateWindow("SDL 2.x Window",
+                                          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                          320, 240, flags_sdl);
+    return window;
+}
+SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t& v, bool make_report )
 {
-    Uint32 flags;
     SDL_Window * ret = nullptr;
     int windowPos = SDL_WINDOWPOS_CENTERED;
     
-    if ( NULL == v ) return ret;
-    if (_window) return nullptr;
+    if (Ego::GraphicsSystem::window) return nullptr;
 
-    if ( !v->flags.opengl )
-    {
-        // set the
-        flags = SDLX_sdl_video_flags_t::upload( v->flags );
-
+    if (!v.flags.opengl) {
         // do our one-and-only video initialization
-        ret = SDL_CreateWindow("SDL App", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
-        if (!ret)
-        {
-			Log::get().message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
+        ret = SDLX_CreateWindow(v.flags);
+        if (!ret) {
+            Log::get().message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
+        } else {
+            SDL_SetWindowPosition(ret, windowPos, windowPos);
+            SDL_SetWindowSize(ret, v.horizontalResolution, v.verticalResolution);
         }
     }
     else
     {
-        SDLX_sdl_gl_attrib_t::validate(v->gl_att);
+        SDLX_sdl_gl_attrib_t::validate(v.gl_att);
 
         // synch some parameters between OpenGL and SDL
-        v->colorBufferDepth = v->gl_att.buffer_size;
-
-        // the GL_ATTRIB_* parameters must be set before opening the video mode
-        SDLX_video_parameters_t::upload( v );
-
-        // set the flags
-        flags = SDLX_sdl_video_flags_t::upload( v->flags );
-
+        v.colorBufferDepth = v.gl_att.buffer_size;
         // try a softer video initialization
         // if it fails, then it tries to get the closest possible valid video mode
-        ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
+        ret = SDLX_CreateWindow(v.flags);
         if ( nullptr == ret ) {
 			Log::get().warn("unable to create SDL window: %s\n", SDL_GetError());
         } else {
-            SDL_GLContext context = SDL_GL_CreateContext(ret);
+            SDL_SetWindowPosition(ret, windowPos, windowPos);
+            SDL_SetWindowSize(ret, v.horizontalResolution, v.verticalResolution);
+            SDL_GLContext context = SDLX_CreateContext(ret, v.gl_att);
             if (!context) {
 				Log::get().warn("unable to create GL context: %s\n", SDL_GetError());
                 SDL_DestroyWindow(ret);
@@ -444,28 +468,27 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
         
         if (!ret) {
             // if we're using multisamples, try lowering it until we succeed
-            if ( v->gl_att.multi_samples > 0 )
+            if ( v.gl_att.multisampling.multisamples > 0 )
             {
-                v->gl_att.multi_samples -= 1;
-                while ( v->gl_att.multi_samples > 1 && !ret )
+                v.gl_att.multisampling.multisamples -= 1;
+                while ( v.gl_att.multisampling.multisamples > 1 && !ret )
                 {
-                    v->gl_att.multi_buffers = 1;
-
-                    SDLX_video_parameters_t::upload( v );
-                    
-                    ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
+                    v.gl_att.multisampling.multibuffers = 1;                 
+                    ret = SDLX_CreateWindow(v.flags);
                     if ( nullptr == ret ) {
-						Log::get().warn("unable to create SDL window (%d multisamples): %s\n", v->gl_att.multi_samples, SDL_GetError());
+						Log::get().warn("unable to create SDL window (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
                     } else {
-                        SDL_GLContext context = SDL_GL_CreateContext(ret);
+                        SDL_SetWindowPosition(ret, windowPos, windowPos);
+                        SDL_SetWindowSize(ret, v.horizontalResolution, v.verticalResolution);
+                        SDL_GLContext context = SDLX_CreateContext(ret, v.gl_att);
                         if (!context) {
-							Log::get().warn("unable to create GL context (%d multisamples): %s\n", v->gl_att.multi_samples, SDL_GetError());
+							Log::get().warn("unable to create GL context (%d multisamples): %s\n", v.gl_att.multisampling.multisamples, SDL_GetError());
                             SDL_DestroyWindow(ret);
                             ret = nullptr;
                         }
                     }
 
-                    v->gl_att.multi_samples -= 1;
+                    v.gl_att.multisampling.multisamples -= 1;
                 }
             }
         }
@@ -475,15 +498,16 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
             // something is interfering with our ability to generate a screen.
             // assume that it is a complete incompatability with multisampling
             Log::get().warn("Disabled antialiasing\n");
+            v.gl_att.multisampling.multibuffers = 0;
+            v.gl_att.multisampling.multisamples = 0;
 
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-
-            ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
+            ret = SDLX_CreateWindow(v.flags);
             if ( nullptr == ret ) {
 				Log::get().warn("unable to create SDL window (no multisamples): %s\n", SDL_GetError());
             } else {
-                SDL_GLContext context = SDL_GL_CreateContext(ret);
+                SDL_SetWindowPosition(ret, windowPos, windowPos);
+                SDL_SetWindowSize(ret, v.horizontalResolution, v.verticalResolution);
+                SDL_GLContext context = SDLX_CreateContext(ret, v.gl_att);
                 if (!context) {
 					Log::get().warn("unable to create GL context (no multisamples): %s\n", SDL_GetError());
                     SDL_DestroyWindow(ret);
@@ -494,16 +518,15 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
 
         if (ret) {
             // grab the actual status of the multi_buffers and multi_samples
-            v->gl_att.multi_buffers = 0;
-            v->gl_att.multi_samples = 0;
-            v->gl_att.accelerated_visual = SDL_FALSE;
-            SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &(v->gl_att.multi_buffers));
-            SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &(v->gl_att.multi_samples));
+            v.gl_att.multisampling.multibuffers = 0;
+            v.gl_att.multisampling.multisamples = 0;
+            v.gl_att.accelerated_visual = SDL_FALSE;
+            v.gl_att.multisampling.download();
 #if !defined(ID_LINUX)
-            SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL, &( v->gl_att.accelerated_visual ) );
+            SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL, &( v.gl_att.accelerated_visual ) );
 #endif
             // Swap interval needs a current context
-            SDL_GL_SetSwapInterval(v->gl_att.swap_control);
+            SDL_GL_SetSwapInterval(v.gl_att.swap_control);
         }
     }
 
@@ -511,24 +534,47 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
     if ( NULL != ret )
     {
         SDLX_Get_Screen_Info( sdl_scr, make_report );
-        SDLX_synch_video_parameters( ret, v );
+        SDLX_synch_video_parameters( ret, &v );
     }
     
-    _window = ret;
+    Ego::GraphicsSystem::window = ret;
 
     return ret;
 }
 
 //--------------------------------------------------------------------------------------------
+
+SDLX_sdl_video_flags_t::SDLX_sdl_video_flags_t() :
+    resizable(0),
+    borderless(0),
+    use_desktop_size(0), 
+    highdpi(0), 
+    full_screen(1), 
+    opengl(1) {
+}
+
+SDLX_sdl_video_flags_t::SDLX_sdl_video_flags_t(const SDLX_sdl_video_flags_t& other) :
+    resizable(other.resizable),
+    borderless(other.borderless),
+    use_desktop_size(other.use_desktop_size),
+    highdpi(other.highdpi),
+    full_screen(1),
+    opengl(1) {
+}
+
+const SDLX_sdl_video_flags_t& SDLX_sdl_video_flags_t::operator=(const SDLX_sdl_video_flags_t& other) {
+    resizable = other.resizable;
+    borderless = other.borderless;
+    use_desktop_size = other.use_desktop_size;
+    highdpi = other.highdpi;
+    full_screen = other.full_screen;
+    opengl = other.opengl;
+    return *this;
+}
+
 void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t& self)
 {
-	self.resizable = 0;
-	self.borderless = 0;
-	self.use_desktop_size = 0;
-	self.highdpi = 0;
-
-    self.full_screen = 1;
-    self.opengl      = 1;
+    self = SDLX_sdl_video_flags_t();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -551,9 +597,9 @@ void SDLX_video_parameters_t::download(SDLX_video_parameters_t& self, egoboo_con
     self.colorBufferDepth = cfg.graphic_colorBuffer_bitDepth.getValue();
     self.flags.full_screen = cfg.graphic_fullscreen.getValue();
     self.gl_att.buffer_size = cfg.graphic_colorBuffer_bitDepth.getValue();
-    self.gl_att.depth_size = cfg.graphic_depthBuffer_bitDepth.getValue();
-    self.gl_att.multi_buffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;
-    self.gl_att.multi_samples = cfg.graphic_antialiasing.getValue();
+    self.gl_att.depthBufferDepth = cfg.graphic_depthBuffer_bitDepth.getValue();
+    self.gl_att.multisampling.multibuffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;
+    self.gl_att.multisampling.multisamples = cfg.graphic_antialiasing.getValue();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -624,7 +670,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     }
 
     // assume any problem with setting the graphics mode is with the multisampling
-    surface = SDLX_CreateWindow( &param_new, make_report );
+    surface = SDLX_CreateWindow( param_new, make_report );
 
     if ( make_report )
     {
@@ -643,7 +689,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     }
     else if ( NULL != v_old )
     {
-        surface = SDLX_CreateWindow( v_old, make_report );
+        surface = SDLX_CreateWindow( *v_old, make_report );
 
         if ( NULL == surface )
         {

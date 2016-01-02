@@ -390,6 +390,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\Physics\ParticlePhysics.cpp" />
     <ClCompile Include="src\game\GameStates\DebugFontRenderingState.cpp" />
     <ClCompile Include="src\game\GameStates\DebugMainMenuState.cpp" />
     <ClCompile Include="src\game\GameStates\DebugObjectLoadingState.cpp" />
@@ -401,7 +402,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\Shop.cpp" />
     <ClCompile Include="src\game\Physics\CollisionSystem.cpp" />
     <ClCompile Include="src\game\Physics\particle_collision.c" />
-    <ClCompile Include="src\game\Physics\particle_physics.c" />
     <ClCompile Include="src\game\GUI\ProgressBar.cpp" />
     <ClCompile Include="src\game\GameStates\AudioOptionsScreen.cpp" />
     <ClCompile Include="src\game\GUI\Slider.cpp" />
@@ -474,6 +474,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\Physics\ParticlePhysics.hpp" />
     <ClInclude Include="src\game\GameStates\DebugFontRenderingState.hpp" />
     <ClInclude Include="src\game\GameStates\DebugMainMenuState.hpp" />
     <ClInclude Include="src\game\GameStates\DebugObjectLoadingState.hpp" />
@@ -486,7 +487,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\Physics\Collidable.hpp" />
     <ClInclude Include="src\game\Physics\CollisionSystem.hpp" />
     <ClInclude Include="src\game\Physics\particle_collision.h" />
-    <ClInclude Include="src\game\Physics\particle_physics.h" />
     <ClInclude Include="src\game\Physics\PhysicalConstants.hpp" />
     <ClInclude Include="src\game\GUI\ProgressBar.hpp" />
     <ClInclude Include="src\game\GameStates\AudioOptionsScreen.hpp" />
@@ -543,7 +543,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\graphics\Camera.hpp" />
     <ClInclude Include="src\game\graphics\CameraSystem.hpp" />
     <ClInclude Include="src\game\module\Passage.hpp" />
-    <ClInclude Include="src\game\char.h" />
     <ClInclude Include="src\game\egoboo.h" />
     <ClInclude Include="src\game\egoboo_config.h" />
     <ClInclude Include="src\game\egoboo_doxygen.h" />

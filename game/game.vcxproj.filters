@@ -281,9 +281,6 @@
     <ClCompile Include="src\game\Physics\particle_collision.c">
       <Filter>Game Sources\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\Physics\particle_physics.c">
-      <Filter>Game Sources\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\Shop.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -311,11 +308,11 @@
     <ClCompile Include="src\game\GameStates\DebugObjectLoadingState.cpp">
       <Filter>Game Sources\GameStates</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Physics\ParticlePhysics.cpp">
+      <Filter>Game Sources\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\game\char.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\egoboo.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -553,9 +550,6 @@
     <ClInclude Include="src\game\Physics\particle_collision.h">
       <Filter>Game Header Files\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\Physics\particle_physics.h">
-      <Filter>Game Header Files\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\Physics\PhysicalConstants.hpp">
       <Filter>Game Header Files\Physics</Filter>
     </ClInclude>
@@ -585,6 +579,9 @@
     </ClInclude>
     <ClInclude Include="src\game\GameStates\DebugObjectLoadingState.hpp">
       <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Physics\ParticlePhysics.hpp">
+      <Filter>Game Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
