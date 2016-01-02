@@ -35,20 +35,18 @@ class AStar {
 
 public:
     struct Node {
-        Node(int ix, int iy, bool closed, float weight, Node* parent) :
-            ix(ix),
-            iy(iy),
-            closed(closed),
-            weight(weight),
-            parent(parent)
+        Node(int x, int y, float setWeight, const std::shared_ptr<Node>& setParent) :
+            ix(x),
+            iy(y),
+            weight(setWeight),
+            parent(setParent)
         {
             //ctor
         }
 
         float weight;
-        bool closed;
         int ix, iy;
-        Node *parent;
+        std::shared_ptr<Node> parent;
     };
 
 public:
@@ -60,13 +58,11 @@ private:
     static constexpr size_t MAX_ASTAR_NODES = 512;   ///< Maximum number of nodes to explore
     static constexpr size_t MAX_ASTAR_PATH = 128;    ///< Maximum length of the final path (before pruning)
 
-    std::vector<Node> nodeList;
-    Node *final_node;
-    Node *start_node;
+    std::shared_ptr<Node> final_node;
+    std::shared_ptr<Node> start_node;
 
 private:
-    Node *get_next_node();
-    Node *add_node(const int x, const int y, Node *parent, float weight, bool closed);
+    std::shared_ptr<Node> add_node(const int x, const int y, const std::shared_ptr<AStar::Node> &parent, float weight, std::priority_queue<std::shared_ptr<Node>>& openNodes);
     void reset();
 };
 
