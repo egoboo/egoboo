@@ -25,7 +25,7 @@
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
 #include "game/script_functions.h"
-#include "egolib/AI/AStar.h"
+#include "egolib/AI/AStar.hpp"
 #include "game/game.h"
 #include "game/Entities/_Include.hpp"
 #include "game/Core/GameEngine.hpp"
