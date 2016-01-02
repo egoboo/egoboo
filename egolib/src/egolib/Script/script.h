@@ -495,7 +495,7 @@ public:
 	 * @brief
 	 *	A map from function value codes to function pointers.
 	 */
-	std::unordered_map<uint32_t, NativeInterface::Function *> _functionValueCodeToFunctionPointer;
+	std::unordered_map<uint32_t, NativeInterface::Function*> _functionValueCodeToFunctionPointer;
 };
 
 } // namespace Script

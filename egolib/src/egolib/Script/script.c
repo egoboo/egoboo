@@ -767,7 +767,7 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     /// @details This is about half-way to what is needed for Lua integration
 
     // Mask out the indentation
-    Uint32 valuecode = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
+    uint32_t valuecode = script._instructions[script.get_pos()] & Instruction::VALUEBITS;
 
     // Assume that the function will pass, as most do
     Uint8 returncode = true;
@@ -781,11 +781,9 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
     // debug stuff
     if ( debug_scripts && debug_script_file )
     {
-        Uint32 i;
+        for (uint32_t i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file,  "  " ); }
 
-        for ( i = 0; i < script.indent; i++ ) { vfs_printf( debug_script_file,  "  " ); }
-
-        for ( i = 0; i < MAX_OPCODE; i++ )
+        for (uint32_t i = 0; i < MAX_OPCODE; i++ )
         {
             if ( Token::Type::Function == OpList.ary[i]._type && valuecode == OpList.ary[i].iValue )
             {
@@ -797,12 +795,13 @@ Uint8 script_state_t::run_function(script_state_t& self, ai_state_t& aiState, sc
 
     if ( valuecode > Ego::ScriptFunctions::SCRIPT_FUNCTIONS_COUNT )
     {
+    	//TODO: empty block? why?
     }
     else
     {
 		{ 
 			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(*g_scriptFunctionClock);
-			auto result = Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.find(valuecode);
+			const auto& result = Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.find(valuecode);
 			if (Ego::Script::Runtime::get()._functionValueCodeToFunctionPointer.cend() == result) {
 				Log::get().message("%s:%d:%s: script error - ai script \"%s\" - unhandled script function %d\n", \
 					               __FILE__, __LINE__, __FUNCTION__, script._name.c_str(), valuecode);

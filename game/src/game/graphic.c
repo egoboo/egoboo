@@ -2256,7 +2256,7 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
         _currentModule->getObjectHandler().findObjects(
             cam.getCenter()[kX], 
             cam.getCenter()[kY], 
-			Info<float>::Grid::Size() *10,  //@todo: use camera view size here instead
+			Info<float>::Grid::Size() * 10,  //@todo: use camera view size here instead
             true);
 
     for(const std::shared_ptr<Object> object : visibleObjects) {

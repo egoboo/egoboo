@@ -893,7 +893,8 @@ void Object::update()
 
         //Give Rally bonus to friends within 6 tiles
         if(hasPerk(Ego::Perks::RALLY)) {
-            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false))
+            std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false);
+            for(const std::shared_ptr<Object> &object : nearbyObjects)
             {
                 //Only valid objects that are on our team
                 if(object->isTerminated() || object->getTeam() != getTeam()) continue;
