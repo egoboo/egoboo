@@ -220,6 +220,9 @@ public:
 
     static void setSampler(TextureType type, const TextureSampler& sampler);
     static void bind(GLuint id, TextureType type, TextureAddressMode textureAddressModeS, TextureAddressMode textureAddressModeT);
+
+    static const std::string& toString(GLenum error);
+
 };
 
 struct PushAttrib {
@@ -284,23 +287,7 @@ struct oglx_caps_t
     GLboolean index_mode;            ///< True if color buffers store indices
     GLboolean doublebuffer;          ///< True if front and back buffers exist
     GLboolean stereo;                ///< True if left and right buffers exist
-#if 0
-    GLint     red_bits;              ///< Number of bits per red component in color buffers
-    GLint     green_bits;            ///< Number of bits per green component in color buffers
-    GLint     blue_bits;             ///< Number of bits per blue component in color buffers
-    GLint     alpha_bits;            ///< Number of bits per alpha component in color buffers
-#endif
     GLint     index_bits;            ///< Number of bits per index in color buffers
-#if 0
-    GLint     depth_bits;            ///< Number of depth-buffer bitplanes
-    GLint     stencil_bits;          ///< Number of stencil bitplanes
-#endif
-#if 0
-    GLint     accum_red_bits;        ///< Number of bits per red component in the accumulation buffer
-    GLint     accum_green_bits;      ///< Number of bits per green component in the accumulation buffer
-    GLint     accum_blue_bits;       ///< Number of bits per blue component in the accumulation buffer
-    GLint     accum_alpha_bits;      ///< Number of bits per blue component in the accumulation buffer
-#endif
 
     // Misc
     GLint max_lights;                    ///< Maximum number of lights

@@ -654,6 +654,58 @@ void Utilities::bind(GLuint id, TextureType target, TextureAddressMode addressMo
     }
 }
 
+const std::string& Utilities::toString(GLenum error) {
+    switch (error) {
+        case GL_NO_ERROR:
+        {
+            static const std::string string = "no error";
+            return string;
+        }
+        case GL_INVALID_ENUM:
+        {
+            static const std::string string = "invalid enum";
+            return string;
+        }
+        case GL_INVALID_VALUE:
+        {
+            static const std::string string = "invalid value";
+            return string;
+        }
+        case GL_INVALID_OPERATION:
+        {
+            static const std::string string = "invalid operation";
+            return string;
+        }
+        case GL_STACK_OVERFLOW:
+        {
+            static const std::string string = "stack overflow";
+            return string;
+        }
+        case GL_STACK_UNDERFLOW:
+        {
+            static const std::string string = "stack underflow";
+            return string;
+        }
+        case GL_OUT_OF_MEMORY:
+        {
+            static const std::string string = "out of memory";
+            return string;
+        }
+#if defined(GL_INVALID_FRAMEBUFFER_OPERATION)
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+        {
+            static const std::string string = "invalid framebuffer operation";
+            return string;
+        }
+#endif
+        default:
+        {
+            static const std::string string = "<unknown error>";
+            return string;
+        }
+    };
+}
+
 } // namespace OpenGL
 } // namespace Ego
 
