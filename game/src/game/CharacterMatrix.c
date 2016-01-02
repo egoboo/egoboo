@@ -410,7 +410,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
 
     if ( applied )
     {
-        chr_instance_t::apply_reflection_matrix(pchr->inst, pchr->getPosition());
+        chr_instance_t::update_ref(pchr->inst, pchr->getPosition(), true);
     }
 
     return applied;

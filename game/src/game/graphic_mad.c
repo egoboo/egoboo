@@ -471,12 +471,9 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
     // assume the best
 	gfx_rv retval = gfx_success;
 
-    if ( !pinst.ref.matrix_valid )
+    if (!pinst.ref.matrix_valid)
     {
-        if (!chr_instance_t::apply_reflection_matrix(pchr->inst, pchr->getPosition()))
-        {
-            return gfx_error;
-        }
+        return gfx_error;
     }
 
     {
@@ -1735,13 +1732,20 @@ gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::
 
 void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix)
 {
-	if (need_matrix) {
-		// reflect the ordinary matrix
-		chr_instance_t::apply_reflection_matrix(self, position);
-	}
+    const float meshElevation = _currentModule->getMeshPointer()->getElevation(Vector2f(position.x(), position.y()));
+
+    // reflect the ordinary matrix
+    if (need_matrix && self.matrix_cache.valid) {
+
+        self.ref.matrix = self.matrix;
+        self.ref.matrix(2, 0) = -self.ref.matrix(0, 2);
+        self.ref.matrix(2, 1) = -self.ref.matrix(1, 2);
+        self.ref.matrix(2, 2) = -self.ref.matrix(2, 2);
+        self.ref.matrix(2, 3) = 2.0f * meshElevation - position.z();
+        self.ref.matrix_valid = true;
+    }
 
     // determine the reflection alpha based on altitude above the mesh
-    const float meshElevation = _currentModule->getMeshPointer()->getElevation(Vector2f(position.x(), position.y()));
     const float altitudeAboveGround = std::max(0.0f, position.z() - meshElevation);
     float alpha = 255.0f - altitudeAboveGround;
     alpha *= 0.5f;
@@ -1941,40 +1945,7 @@ gfx_rv chr_instance_t::set_texture(chr_instance_t& self, const Ego::DeferredText
 	// get the texture
 	self.texture = itex.get_ptr();
 
-    // get the transparency info from the texture
-    if(self.texture != nullptr) {
-        self.skin_has_transparency = self.texture->hasAlpha();
-    }
-
 	return gfx_success;
-}
-
-bool chr_instance_t::apply_reflection_matrix(chr_instance_t& self, const Vector3f& position)
-{
-	/// @author BB
-	/// @details Generate the extra data needed to display a reflection for this character
-
-	// invalidate the current matrix
-	self.ref.matrix_valid = false;
-
-	// actually flip the matrix
-	if (self.matrix_cache.valid) {
-        const float meshElevation = _currentModule->getMeshPointer()->getElevation(Vector2f(position.x(), position.y()));
-
-		self.ref.matrix = self.matrix;
-
-		self.ref.matrix(2, 0) = -self.ref.matrix(0, 2);
-		self.ref.matrix(2, 1) = -self.ref.matrix(1, 2);
-		self.ref.matrix(2, 2) = -self.ref.matrix(2, 2);
-		self.ref.matrix(2, 3) = 2.0f * meshElevation - position.z();
-
-		self.ref.matrix_valid = true;
-
-		// fix the reflection
-		chr_instance_t::update_ref(self, position, false);
-	}
-
-	return self.ref.matrix_valid;
 }
 
 void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FIELD bits)

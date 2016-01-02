@@ -624,7 +624,7 @@ void GameModule::updateAllObjects()
         move_one_character_do_animation(object.get());
 
         // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
-        chr_instance_t::apply_reflection_matrix(object->inst, object->getPosition());
+        chr_instance_t::update_ref(object->inst, object->getPosition(), true);
 
         //Check if this object should be poofed (destroyed)
         bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );

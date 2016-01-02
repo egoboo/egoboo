@@ -286,8 +286,6 @@ public:
 
 	static float get_remaining_flip(chr_instance_t& self);
 	static void get_tint(chr_instance_t& self, GLfloat *tint, const BIT_FIELD bits);
-	static bool apply_reflection_matrix(chr_instance_t& self, const Vector3f& position);
-
 
 private:
 	static gfx_rv alloc(chr_instance_t& self, size_t vlst_size);
