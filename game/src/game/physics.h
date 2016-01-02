@@ -195,6 +195,3 @@ bool phys_estimate_collision_normal(const oct_bb_t& obb_a, const oct_bb_t& pobb_
 bool phys_estimate_pressure_normal(const oct_bb_t& obb_a, const oct_bb_t& pobb_b, const float exponent, oct_vec_v2_t& odepth, Vector3f& nrm, float& depth);
 
 bool phys_intersect_oct_bb(const oct_bb_t& src1, const Vector3f& pos1, const Vector3f& vel1, const oct_bb_t& src2, const Vector3f& pos2, const Vector3f& vel2, int test_platform, oct_bb_t& dst, float *tmin, float *tmax);
-
-bool get_prt_mass(Ego::Particle *pprt, Object *pchr, float *wt);
-void get_recoil_factors(float wta, float wtb, float * recoil_a, float * recoil_b);

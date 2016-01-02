@@ -207,7 +207,7 @@ struct AABB : public Internal::Entity<_VectorSpaceType>, public Translatable<_Ve
      *  Two AABBs x and y overlap if
      *  for each axis k x.min[k] >= y.min[k] and x
      */
-    bool overlaps(const MyType& other) const {
+    inline bool overlaps(const MyType& other) const {
         for (size_t i = 0; i < this->dimensionality(); ++i) {
             // If the minimum of the LHS is greater than the maximum of the RHS along one axis,
             // then they can not overlap.

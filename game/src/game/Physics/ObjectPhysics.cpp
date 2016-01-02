@@ -37,7 +37,9 @@ ObjectPhysics::ObjectPhysics(Object &object) :
     _object(object),
     _platformOffset(0.0f, 0.0f),
     _desiredVelocity(0.0f, 0.0f),
-    _traction(1.0f)
+    _traction(1.0f),
+    _groundElevation(0.0f),
+    _aabb2D()
 {
     //ctor
 }
@@ -199,14 +201,14 @@ void ObjectPhysics::updateHillslide()
 
 float ObjectPhysics::getLerpZ() const
 {
-    return Ego::Math::constrain((_object.getPosZ() - getGroundElevation()) / PLATTOLERANCE, 0.0f, 1.0f);
+    return Ego::Math::constrain((_object.getPosZ() - _groundElevation) / PLATTOLERANCE, 0.0f, 1.0f);
 }
 
 void ObjectPhysics::updateVelocityZ()
 {
     //Flying?
     if(_object.isFlying()) {
-        float flyLevel = std::max(0.0f, getGroundElevation());
+        float flyLevel = std::max(0.0f, _groundElevation);
         _object.vel.z() += (flyLevel + _object.getAttribute(Ego::Attribute::FLY_TO_HEIGHT) - _object.getPosZ()) * FLYDAMPEN;
         _object.jumpready = false;
         return;
@@ -279,8 +281,26 @@ void ObjectPhysics::updatePhysics()
         _object.vel.setZero();
     }
 
-    //Update animation (ZF> TODO: this should not be in physics should it?)
-    move_one_character_do_animation(&_object);
+    //Recalculate the altitude of the ground beneath our feet
+    //Apperantly this function is quite expensive so cache the result every update
+    _groundElevation = recalculateGroundElevation();
+}
+
+float ObjectPhysics::recalculateGroundElevation()
+{
+    //Standing on a platform?
+    const std::shared_ptr<Object> &platform = _object.getAttachedPlatform();
+    if (platform) {
+        return platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z];
+    }
+
+    //Walking on water?
+    if(_object.isOnWaterTile() && _object.getAttribute(Ego::Attribute::WALK_ON_WATER) > 0) {
+        return _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), true);
+    }
+
+    //Standing on regular ground
+    return _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false);
 }
 
 float ObjectPhysics::getMaxSpeed() const
@@ -507,7 +527,7 @@ void ObjectPhysics::updatePlatformPhysics()
     _platformOffset.y() += _object.vel.y();
 
     //Inherit position of platform with given offsets
-    float zCorrection = (getGroundElevation() - _object.getPosZ()) * 0.125f * lerp_z;
+    float zCorrection = (_groundElevation - _object.getPosZ()) * 0.125f * lerp_z;
     _object.setPosition(platform->getPosX() + _platformOffset.x(), platform->getPosY() + _platformOffset.y(), _object.getPosZ() + zCorrection);
 }
 
@@ -518,7 +538,8 @@ void ObjectPhysics::updateMeshCollision()
     // interaction with the mesh
     //if ( std::abs( _object.vel.z() ) > 0.0f )
     {
-        const float floorElevation = getGroundElevation() + 12;
+        //Make everything "float" a little above the mesh
+        const float floorElevation = _groundElevation + 10.0f;
 
         tmp_pos.z() += _object.vel.z();
         if (tmp_pos.z() <= floorElevation)
@@ -1013,6 +1034,12 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
 
     // convert the level 1 bounding box to a level 0 bounding box
     oct_bb_t::downgrade(bdst, _object.bump_stt, _object.bump, _object.bump_1);
+
+    //Recalculate the fast 2D collision box
+    _aabb2D._min.x() = _object.getPosX() + _object.chr_min_cv.getMin()[OCT_X];
+    _aabb2D._min.y() = _object.getPosY() + _object.chr_min_cv.getMin()[OCT_Y];
+    _aabb2D._max.x() = _object.getPosX() + _object.chr_min_cv.getMax()[OCT_X];
+    _aabb2D._max.y() = _object.getPosY() + _object.chr_min_cv.getMax()[OCT_Y];
 }
 
 bool ObjectPhysics::floorIsSlippy() const
@@ -1031,24 +1058,17 @@ bool ObjectPhysics::isTouchingGround() const
         return false;
     }
 
-    return std::abs(_object.getPosZ() - getGroundElevation()) <= FLOOR_TOLERANCE;
+    return std::abs(_object.getPosZ() - _groundElevation) <= FLOOR_TOLERANCE;
 }
 
 float ObjectPhysics::getGroundElevation() const
 {
-    //Standing on a platform?
-    const std::shared_ptr<Object> &platform = _object.getAttachedPlatform();
-    if (platform) {
-        return platform->getPosZ() + platform->chr_min_cv._maxs[OCT_Z];
-    }
+    return _groundElevation;
+}
 
-    //Walking on water?
-    if(_object.isOnWaterTile() && _object.getAttribute(Ego::Attribute::WALK_ON_WATER) > 0) {
-        return _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), true);
-    }
-
-    //Standing on regular ground
-    return _currentModule->getMeshPointer()->getElevation(Vector2f(_object.getPosX(), _object.getPosY()), false);
+const AABB2f& ObjectPhysics::getAABB2D() const
+{
+    return _aabb2D;
 }
 
 } //Physics
