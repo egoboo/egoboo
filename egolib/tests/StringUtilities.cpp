@@ -30,24 +30,24 @@ EgoTest_Test(split)
     std::vector<std::string> v;
 
     v = Ego::split(std::string(""), std::string("\n"));
-    if (v.size() != 0) throw std::runtime_error("");
+    EgoTest_Assert(0 == v.size());
     v.clear();
 
     v = Ego::split(std::string("\n"), std::string("\n"));
-    if (v.size() != 1) throw std::runtime_error("");
-    if (v[0] != "\n") throw std::runtime_error("");
+    EgoTest_Assert(1 == v.size());
+    EgoTest_Assert("\n" == v[0]);
     v.clear();
 
     v = Ego::split(std::string("x\ny"), std::string("\n"));
-    if (v.size() != 3) throw std::runtime_error("");
-    if (v[0] != "x") throw std::runtime_error("");
-    if (v[1] != "\n") throw std::runtime_error("");
-    if (v[2] != "y") throw std::runtime_error("");
+    EgoTest_Assert(3 == v.size());
+    EgoTest_Assert("x" == v[0]);
+    EgoTest_Assert("\n" == v[1]);
+    EgoTest_Assert("y" == v[2]);
     v.clear();
 
     v = Ego::split(std::string("x\n"), std::string("\n"));
-    if (v.size() != 2) throw std::runtime_error("");
-    if (v[0] != "x" || v[1] != "\n") throw std::runtime_error("");
+    EgoTest_Assert(2 == v.size());
+    EgoTest_Assert("x" == v[0] && "\n" == v[1]);
     v.clear();
 }
 
