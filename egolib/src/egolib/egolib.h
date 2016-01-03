@@ -76,6 +76,10 @@
 
 //--------------------------------------------------------------------------------------------
 
+#include "egolib/Signal/Signal.hpp"
+
+//--------------------------------------------------------------------------------------------
+
 #include "egolib/Time/LocalTime.hpp"
 #include "egolib/Time/SlidingWindow.hpp"
 #include "egolib/Time/Stopwatch.hpp"

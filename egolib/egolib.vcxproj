@@ -479,6 +479,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Signal\Signal.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\StencilBuffer.hpp" />
     <ClInclude Include="src\egolib\Renderer\RendererInfo.hpp" />
