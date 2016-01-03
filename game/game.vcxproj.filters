@@ -316,13 +316,7 @@
     <ClInclude Include="src\game\egoboo.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\egoboo_config.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\egoboo_doxygen.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\egoboo_typedef.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\game.h">

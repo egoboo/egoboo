@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "egolib/AI/WaypointList.h"
 
 /// @defgroup _bitwise_functions_ Bitwise Scripting Functions

@@ -25,7 +25,7 @@
 #pragma once
 
 #include "egolib/platform.h"
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 
 /// The description of a single team
 class Team

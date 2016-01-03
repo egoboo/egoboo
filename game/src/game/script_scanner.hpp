@@ -18,7 +18,7 @@
 //********************************************************************************************
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 
 #define MAX_OPCODE 1024 ///< Number of lines in AICODES.TXT
 

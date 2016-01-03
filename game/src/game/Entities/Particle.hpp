@@ -26,7 +26,7 @@
 #error(do not include directly, include `game/Entities/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "game/graphic_prt.h"
 #include "game/Entities/Common.hpp"
 #include "egolib/Graphics/Animation2D.hpp"

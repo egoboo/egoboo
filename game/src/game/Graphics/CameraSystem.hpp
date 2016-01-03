@@ -20,7 +20,7 @@
 /// @author Johan Jansen
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "game/input.h"
 #include "game/Graphics/Camera.hpp"
 

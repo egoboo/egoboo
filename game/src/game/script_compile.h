@@ -22,7 +22,7 @@
 #pragma once
 
 #include "game/script_scanner.hpp"
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "egolib/Script/script.h"
 
 //--------------------------------------------------------------------------------------------

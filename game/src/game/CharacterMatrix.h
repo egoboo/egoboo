@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 
 //Forward declarations
 class Object;

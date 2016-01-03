@@ -23,8 +23,7 @@
 
 #pragma once
 
-#include "egolib/egolib.h"
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "game/Logic/QuestLog.hpp"
 
 //Forward declarations

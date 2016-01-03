@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "game/lighting.h"
 #include "egolib/Mesh/Info.hpp"
 

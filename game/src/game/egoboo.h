@@ -26,8 +26,18 @@
 
 #pragma once
 
-/* Typedefs for various platforms */
-#include "game/egoboo_typedef.h"
+#pragma once
+
+#include "egolib/egolib.h"
+
+/**
+* @todo
+*	Remove this.
+*/
+typedef egolib_rv gfx_rv;
+#define gfx_error rv_error
+#define gfx_fail rv_fail
+#define gfx_success rv_success
 
 /// The following magic allows this include to work in multiple files
 #if defined(DECLARE_GLOBALS)

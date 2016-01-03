@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "game/mesh.h"
 #include "game/Graphics/CameraSystem.hpp"
 
