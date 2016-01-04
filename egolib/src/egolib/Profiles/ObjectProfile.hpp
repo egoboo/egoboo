@@ -722,7 +722,6 @@ private:
     bool         _forceShadow;                  ///< Draw a shadow?
     bool         _causesRipples;                ///< Spawn ripples?
     bool         _dontCullBackfaces;            ///< Force the drawing of backfaces?
-    bool         _skinHasTransparency;          ///< The skin has transparent areas
 
     // attack blocking info
     uint16_t       iframefacing;                ///< Invincibility frame

@@ -570,7 +570,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     //    pchr->isshopitem = true;
     //}
 
-    chr_instance_t::update_ref(pchr->inst, _mesh->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false), true );
+    chr_instance_t::update_ref(pchr->inst, pchr->getPosition(), true);
 
     // start the character out in the "dance" animation
     chr_start_anim(pchr.get(), ACTION_DA, true, true);
@@ -619,6 +619,12 @@ void GameModule::updateAllObjects()
 
         //Generate movement and attacks from input latches
         chr_do_latch_button(object.get());
+
+        //Update model animation
+        move_one_character_do_animation(object.get());
+
+        // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
+        chr_instance_t::update_ref(object->inst, object->getPosition(), true);
 
         //Check if this object should be poofed (destroyed)
         bool timeOut = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );

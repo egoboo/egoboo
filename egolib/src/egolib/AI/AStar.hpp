@@ -31,30 +31,37 @@ class ego_mesh_t;
 struct waypoint_list_t;
 
 /// Implementation of A* pathfinding algorithm.
-struct AStar {
+class AStar {
+
 public:
     struct Node {
+        Node(int x, int y, float setWeight, const std::shared_ptr<Node>& setParent) :
+            ix(x),
+            iy(y),
+            weight(setWeight),
+            parent(setParent)
+        {
+            //ctor
+        }
+
         float weight;
-        bool closed;
         int ix, iy;
-        Node *parent;
+        std::shared_ptr<Node> parent;
     };
+
 public:
     AStar();
-    bool find_path(std::shared_ptr<const ego_mesh_t> mesh, uint32_t stoppedBy, const int src_ix, const int src_iy, int dst_ix, int dst_iy);
+    bool find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t stoppedBy, const int src_ix, const int src_iy, int dst_ix, int dst_iy);
     bool get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst);
+
 private:
     static constexpr size_t MAX_ASTAR_NODES = 512;   ///< Maximum number of nodes to explore
     static constexpr size_t MAX_ASTAR_PATH = 128;    ///< Maximum length of the final path (before pruning)
-private:
-    Node node_list[MAX_ASTAR_NODES];
-    int node_list_length;
-    Node *final_node;
-    Node *start_node;
+
+    std::shared_ptr<Node> final_node;
+    std::shared_ptr<Node> start_node;
 
 private:
-    Node *get_next_node();
-    Node *add_node(const int x, const int y, Node *parent, float weight, bool closed);
     void reset();
 };
 

@@ -21,58 +21,21 @@
 /// @brief
 /// @details
 
-#include "egolib/AI/AStar.h"
+#include "egolib/AI/AStar.hpp"
 
 #include "game/renderer_3d.h" // for point debugging
 #include "egolib/Script/script.h"  // for waypoint list control
 #include "game/mesh.h"
 
-AStar::AStar()
-    : node_list(), node_list_length(), final_node(nullptr), start_node(nullptr)
+AStar::AStar() : 
+    final_node(nullptr), 
+    start_node(nullptr)
 {}
-
-AStar::Node *AStar::get_next_node()
-{
-    /// @author ZF
-    /// @details This function finds and returns the next cheapest open node
-
-    int i, best_node = -1;
-
-    for (i = 0; i < node_list_length; i++)
-    {
-        if (node_list[i].closed) continue;
-        if (best_node == -1 || node_list[i].weight < node_list[best_node].weight) best_node = i;
-    }
-
-    //return the node if found, a null pointer otherwise
-    return (best_node != -1) ? &node_list[best_node] : nullptr;
-}
-
-AStar::Node *AStar::add_node(const int x, const int y, AStar::Node *parent, float weight, bool closed)
-{
-    /// @author ZF
-    /// @details Adds one new node to the end of the node list
-
-    if (node_list_length >= MAX_ASTAR_NODES) return nullptr;
-
-    //add the node
-    node_list[node_list_length].ix = x;
-    node_list[node_list_length].iy = y;
-    node_list[node_list_length].closed = closed;
-    node_list[node_list_length].weight = weight;
-    node_list[node_list_length].parent = parent;
-    node_list_length++;
-
-    //return the new node
-    return &node_list[node_list_length - 1];
-}
 
 void AStar::reset()
 {
     /// @author ZF
-    /// @details Reset AStar memory. This doesn't actually clear anything to make it work as fast as possible
-
-    node_list_length = 0;
+    /// @details Reset AStar memory.
     final_node = nullptr;
     start_node = nullptr;
 }
@@ -87,22 +50,14 @@ struct Distance {
     }
 };
 
-bool AStar::find_path(std::shared_ptr<const ego_mesh_t> mesh, uint32_t stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy)
+bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy)
 {
     /// @author ZF
     /// @details Explores up to MAX_ASTAR_NODES number of nodes to find a path between the source coordinates and destination coordinates.
     //              The result is stored in a node list and can be accessed through AStar_get_path(). Returns false if no path was found.
 
-    int j, k, cnt;
-    bool done;
-    int deadend_count;
-    Node *popen;
     float weight;
 
-    // do not start if there is no mesh
-    if (!mesh) {
-        throw Id::RuntimeErrorException(__FILE__, __LINE__, "nullptr == mesh");
-    }
     // do not start if the initial point is off the mesh
     if (Index1D::Invalid == mesh->getTileIndex(Index2D(src_ix, src_iy)))
     {
@@ -112,149 +67,137 @@ bool AStar::find_path(std::shared_ptr<const ego_mesh_t> mesh, uint32_t stoppedby
         return false;
     }
 
+    struct Offset
+    {
+        Offset(int setX, int setY) : x(setX), y(setY) {}
+        int x;
+        int y;
+    };
+
+    //Explore all nearby nodes, including diagonal ones
+    static const std::array<Offset, 8> EXPLORE_NODES = {
+        Offset(-1, -1), Offset(-1, 0), Offset(-1, 1),
+        Offset(0, -1), Offset(1, -1), Offset(1, 1),
+        Offset(1, 0), Offset(0, 1)
+    };
+
+    //Node sorting algorithm (lowest weight first)
+    auto comparator = [](const std::shared_ptr<Node> &first, const std::shared_ptr<Node> &second){
+        return first->weight < second->weight;
+    };
+
+    //Set of closed nodes
+    std::unordered_set<int> closedNodes;
+    std::priority_queue<std::shared_ptr<Node>, 
+                        std::vector<std::shared_ptr<Node>>,
+                        decltype(comparator)> openNodes(comparator);
+
     //be a bit flexible if the destination is inside a wall
     if (mesh->tile_has_bits(Index2D(dst_ix, dst_iy), stoppedby))
     {
-        //check all tiles edging to this one, including corners
-        for (j = -1; j <= 1; j++)
-            for (k = -1; k <= 1; k++)
-            {
-                //we already checked this one
-                if (j == 0 && k == 0) continue;
+        bool foundOpenSpace = false;
 
-                //Did we find a free tile?
-                if (!mesh->tile_has_bits(Index2D(dst_ix + j, dst_iy + k), stoppedby))
-                {
-                    dst_ix = dst_ix + j;
-                    dst_iy = dst_iy + k;
-                    goto flexible_destination;
-                }
+        //check all tiles edging to this one, including corners
+        for(const auto& offset: EXPLORE_NODES) {
+
+            //Did we find a free tile?
+            if (!mesh->tile_has_bits(Index2D(dst_ix + offset.x, dst_iy + offset.y), stoppedby))
+            {
+                dst_ix = dst_ix + offset.x;
+                dst_iy = dst_iy + offset.y;
+                foundOpenSpace = true;
+                break;
             }
+        }
+
+        if(!foundOpenSpace) {
 #ifdef DEBUG_ASTAR
-        printf("AStar failed because goal position is impassable (and no nearby non-impassable tile found).\n");
+            printf("AStar failed because goal position is impassable (and no nearby non-impassable tile found).\n");
 #endif
-        return false;
+            return false;            
+        }
     }
-flexible_destination:
 
     // restart the algorithm
-    done = false;
     reset();
 
     // initialize the starting node
     weight = Distance()(src_ix, src_iy, dst_ix, dst_iy);
-    start_node = add_node(src_ix, src_iy, nullptr, weight, false);
+    start_node = std::make_shared<AStar::Node>(src_ix, src_iy, weight, nullptr);
+    openNodes.push(start_node);
 
     // do the algorithm
-    while (!done)
+    while (!openNodes.empty())
     {
-        int tmp_x, tmp_y;
-        bool stop;
-
         // list is completely full... we failed
-        if (node_list_length == MAX_ASTAR_NODES) break;
+        if (closedNodes.size() >= MAX_ASTAR_NODES) break;
 
         //Get the cheapest open node
-        popen = get_next_node();
-        if (nullptr != popen)
-        {
-            // find some child nodes
-            deadend_count = 0;
-            for (j = -1; j <= 1; j++)
+        std::shared_ptr<Node> currentNode = openNodes.top();
+        openNodes.pop();
+
+        // find some child nodes
+        for(const auto& offset: EXPLORE_NODES) {
+
+            // do not check diagonals
+            if (offset.x != 0 && offset.y != 0) continue;
+
+            //The node to explore
+            int tmp_x = currentNode->ix + offset.x;
+            int tmp_y = currentNode->iy + offset.y;
+
+            //Do not explore any node more than once
+            if(closedNodes.find(tmp_x | tmp_y << 16) != closedNodes.end()) {
+                continue;
+            }
+            closedNodes.insert(tmp_x | tmp_y << 16);
+
+            // check for the simplest case, is this the destination node?
+            if (tmp_x == dst_ix && tmp_y == dst_iy)
             {
-                tmp_x = popen->ix + j;
-
-                for (k = -1; k <= 1; k++)
-                {
-                    // do not recompute the open node!
-                    if (j == 0 && k == 0) continue;
-
-                    // do not check diagonals
-                    if (j != 0 && k != 0) continue;
-
-                    tmp_y = popen->iy + k;
-
-                    // check for the simplest case, is this the destination node?
-                    if (tmp_x == dst_ix && tmp_y == dst_iy)
-                    {
-                        weight = Distance()(tmp_x, tmp_y, popen->ix, popen->iy);
-                        final_node = add_node(tmp_x, tmp_y, popen, weight, false);
-                        done = true;
-                        continue;
-                    }
-
-                    // is the test node on the mesh?
-                    Index1D itile = mesh->getTileIndex(Index2D(tmp_x, tmp_y));
-                    if (Index1D::Invalid == itile)
-                    {
-                        deadend_count++;
-                        continue;
-                    }
-
-                    // is this already in the list? (must be checked before wall or fanoff)
-                    stop = false;
-                    for (cnt = 0; cnt < node_list_length; cnt++)
-                    {
-                        if (node_list[cnt].ix == tmp_x && node_list[cnt].iy == tmp_y)
-                        {
-                            deadend_count++;
-                            stop = true;
-                            break;
-                        }
-                    }
-                    if (stop) continue;
-
-                    //Dont walk into pits
-                    //@todo: might need to check tile Z level here instead
-                    const ego_tile_info_t& ptile = mesh->getTileInfo(itile);
-
-                    if (ptile.isFanOff())
-                    {
-                        // add the invalid tile to the list as a closed tile
-                        add_node(tmp_x, tmp_y, popen, 0xFFFF, true);
-                        deadend_count++;
-                        continue;
-                    }
-
-                    // is this a wall or impassable?
-                    if (mesh->tile_has_bits(Index2D(tmp_x, tmp_y), stoppedby))
-                    {
-                        // add the invalid tile to the list as a closed tile
-                        add_node(tmp_x, tmp_y, popen, 0xFFFF, true);
-                        deadend_count++;
-                        continue;
-                    }
-
-                    ///
-                    /// @todo  I need to check for collisions with static objects, like trees
-
-                    // OK. determine the weight (F + H)
-                    weight = Distance()(tmp_x, tmp_y, popen->ix, popen->iy)
-                           + Distance()(tmp_x, tmp_y, dst_ix, dst_iy);
-                    add_node(tmp_x, tmp_y, popen, weight, false);
-                }
+                weight = Distance()(tmp_x, tmp_y, currentNode->ix, currentNode->iy);
+                final_node = std::make_shared<AStar::Node>(tmp_x, tmp_y, weight, currentNode);
+                return true;
             }
 
-            if (deadend_count == 4)
+            // is the test node on the mesh?
+            Index1D itile = mesh->getTileIndex(Index2D(tmp_x, tmp_y));
+            if (Index1D::Invalid == itile)
             {
-                // this node is no longer active.
-                // move it to the closed list so that we do not get any loops
-                popen->closed = true;
+                continue;
             }
-        }
 
-        //Found no open nodes
-        else
-        {
-            break;
+            //Dont walk into pits
+            //@todo: might need to check tile Z level here instead
+            const ego_tile_info_t& ptile = mesh->getTileInfo(itile);
+            if (ptile.isFanOff())
+            {
+                // add the invalid tile to the list as a closed tile
+                continue;
+            }
+
+            // is this a wall or impassable?
+            if (mesh->tile_has_bits(Index2D(tmp_x, tmp_y), stoppedby))
+            {
+                // add the invalid tile to the list as a closed tile
+                continue;
+            }
+
+            ///
+            /// @todo  I need to check for collisions with static objects, like trees
+
+            // OK. determine the weight (F + H)
+            weight = Distance()(tmp_x, tmp_y, currentNode->ix, currentNode->iy)
+                   + Distance()(tmp_x, tmp_y, dst_ix, dst_iy);
+            openNodes.push(std::make_shared<AStar::Node>(tmp_x, tmp_y, weight, currentNode));
         }
     }
 
 #ifdef DEBUG_ASTAR
-    if (!done && node_list_length == MAX_ASTAR_NODES) printf("AStar failed because maximum number of nodes were explored (%d)\n", MAX_ASTAR_NODES);
+    if (closedNodes.size() >= MAX_ASTAR_NODES) printf("AStar failed because maximum number of nodes were explored (%d)\n", MAX_ASTAR_NODES);
 #endif
 
-    return done;
+    return false;
 }
 
 bool AStar::get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
@@ -274,18 +217,18 @@ bool AStar::get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
 
     //Fill the waypoint list as much as we can, the final waypoint will always be the destination waypoint
     waypoint_num = 0;
-    current_node = final_node;
-    last_waypoint = start_node;
+    current_node = final_node.get();
+    last_waypoint = start_node.get();
 
     //Build the local node path tree
     path_length = 0;
-    while (path_length < MAX_ASTAR_PATH && current_node != start_node)
+    while (path_length < MAX_ASTAR_PATH && current_node != start_node.get())
     {
         // add the node to the end of the path
         node_path[path_length++] = current_node;
 
         // get next node
-        current_node = current_node->parent;
+        current_node = current_node->parent.get();
     }
 
     //Begin at the end of the list, which contains the starting node

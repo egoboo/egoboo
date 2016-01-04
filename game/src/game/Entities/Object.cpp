@@ -276,7 +276,7 @@ void Object::setAlpha(const int alpha)
         inst.alpha = std::max<uint8_t>(128, inst.alpha);
     }
 
-    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
+    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 void Object::setLight(const int light)
@@ -289,13 +289,13 @@ void Object::setLight(const int light)
         inst.light = std::max<uint8_t>(128, inst.light);
     }
 
-    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
+    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 void Object::setSheen(const int sheen)
 {
     inst.sheen = Ego::Math::constrain(sheen, 0, 0xFF);
-    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false);
+    chr_instance_t::update_ref(inst, getPosition(), false);
 }
 
 bool Object::canMount(const std::shared_ptr<Object> mount) const
@@ -839,7 +839,7 @@ void Object::update()
     inst.redshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6);
     inst.grnshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6);
     inst.blushift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6);
-    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), false); //update reflection as well
+    chr_instance_t::update_ref(inst, getPosition(), false); //update reflection as well
 
     // do the mana and life regeneration for "living" characters
     if (isAlive()) {
@@ -893,7 +893,8 @@ void Object::update()
 
         //Give Rally bonus to friends within 6 tiles
         if(hasPerk(Ego::Perks::RALLY)) {
-            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false))
+            std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(getPosX(), getPosY(), WIDE, false);
+            for(const std::shared_ptr<Object> &object : nearbyObjects)
             {
                 //Only valid objects that are on our team
                 if(object->isTerminated() || object->getTeam() != getTeam()) continue;
@@ -1901,7 +1902,7 @@ void Object::respawn()
         reaffirm_attached_particles(getObjRef());
     }
 
-    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), true );
+    chr_instance_t::update_ref(inst, getPosition(), true );
 }
 
 float Object::getRawDamageResistance(const DamageType type, const bool includeArmor) const
@@ -2430,7 +2431,7 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
 
     ai_state_t::set_changed(ai);
 
-    chr_instance_t::update_ref(inst, _currentModule->getMeshPointer()->getElevation(Vector2f(getPosX(), getPosY()), false), true );
+    chr_instance_t::update_ref(inst, getPosition(), true);
 }
 
 bool Object::isInvictusDirection(FACING_T direction) const

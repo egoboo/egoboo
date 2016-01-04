@@ -196,7 +196,7 @@ int DisplayMsg_vprintf( const char *format, va_list args )
     {
         STRING szTmp;
 
-        retval = vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
+        retval = vsnprintf(szTmp, SDL_arraysize(szTmp), format, args);
         DisplayMsg_print( szTmp );
     }
 

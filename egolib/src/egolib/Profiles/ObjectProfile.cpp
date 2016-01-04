@@ -130,7 +130,6 @@ ObjectProfile::ObjectProfile() :
     _forceShadow(false),
     _causesRipples(false),
     _dontCullBackfaces(false),
-    _skinHasTransparency(false),
 
     // attack blocking info
     iframefacing(0), 
@@ -846,10 +845,6 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                         {
                             _dontCullBackfaces = true;
                         }
-                        else if ( 'T' == *ptr )
-                        {
-                            _skinHasTransparency = true;
-                        }
 
                         // start on the next character
                         ptr++;
@@ -1377,7 +1372,6 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
         if ( profile->_bumpOverrideSizeBig ) strcat( sz_tmp, "B" );
         if ( profile->_bumpOverrideHeight ) strcat( sz_tmp, "H" );
         if ( profile->_dontCullBackfaces ) strcat( sz_tmp, "C" );
-        if ( profile->_skinHasTransparency ) strcat( sz_tmp, "T" );
 
         if ( CSTR_END != sz_tmp[0] )
         {

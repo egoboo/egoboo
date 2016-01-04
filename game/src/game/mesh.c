@@ -931,7 +931,7 @@ Vector2f toWorldLT(const Index2D i) {
 
 float ego_mesh_t::getElevation(const Vector2f& p) const
 {
-    Index1D i1 = this->getTileIndex(p);
+    Index1D i1 = getTileIndex(p);
 	if (!grid_is_valid(i1)) {
 		return 0;
 	}
@@ -943,28 +943,28 @@ float ego_mesh_t::getElevation(const Vector2f& p) const
     float z3 = _tmem._plst[_tmem.get(i1)._vrtstart + 3][ZZ];
 
     //Calculate where on the tile we are relative to top left corner of the tile (0,0)
-    Vector2f posOnTile = Vector2f(std::fmod(p[kX], Info<float>::Grid::Size()), 
-                                  std::fmod(p[kY], Info<float>::Grid::Size()));
+    Vector2f posOnTile = Vector2f(static_cast<float>(static_cast<int>(p.x()) % Info<int>::Grid::Size()), 
+                                  static_cast<float>(static_cast<int>(p.y()) % Info<int>::Grid::Size()));
 
     // Get the weighted height of each side.
-    float zleft = (z0 * (Info<float>::Grid::Size() - posOnTile[kY]) + z3 * posOnTile[kY]) / Info<float>::Grid::Size();
-    float zright = (z1 * (Info<float>::Grid::Size() - posOnTile[kY]) + z2 * posOnTile[kY]) / Info<float>::Grid::Size();
-    float zdone = (zleft * (Info<float>::Grid::Size() - posOnTile[kX]) + zright * posOnTile[kX]) / Info<float>::Grid::Size();
+    float zleft = (z0 * (Info<float>::Grid::Size() - posOnTile.y()) + z3 * posOnTile.y()) / Info<float>::Grid::Size();
+    float zright = (z1 * (Info<float>::Grid::Size() - posOnTile.y()) + z2 * posOnTile.y()) / Info<float>::Grid::Size();
+    float zdone = (zleft * (Info<float>::Grid::Size() - posOnTile.x()) + zright * posOnTile.x()) / Info<float>::Grid::Size();
 
     return zdone;
 }
 
 Index1D ego_mesh_t::getTileIndex(const Vector2f& p) const
 {
-    if (p[kX] >= 0.0f && p[kX] < _tmem._edge_x && 
-		p[kY] >= 0.0f && p[kY] < _tmem._edge_y)
+    if (p.x() >= 0.0f && p.x() < _tmem._edge_x && 
+		p.y() >= 0.0f && p.y() < _tmem._edge_y)
     {
         // Map world coordinates to a tile index.
         // This function does not assume the point to be within the bounds of the mesh.
         // If a point is passed which is outside the bounds, the resulting index will
         // be invalid w.r.t. to the mesh.
-        Index2D i2 = Index2D(static_cast<int>(p[kX]) / Info<int>::Grid::Size(),
-                             static_cast<int>(p[kY]) / Info<int>::Grid::Size());
+        Index2D i2 = Index2D(static_cast<int>(p.x()) / Info<int>::Grid::Size(),
+                             static_cast<int>(p.y()) / Info<int>::Grid::Size());
 
         return getTileIndex(i2);
     }

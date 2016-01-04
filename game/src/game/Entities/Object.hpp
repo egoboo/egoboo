@@ -448,11 +448,7 @@ public:
 	/** @override */
 	BIT_FIELD test_wall(const Vector3f& pos) override;
 
-    inline AABB2f getAABB2D() const
-    {
-        return AABB2f(Vector2f(getPosX() + chr_min_cv.getMin()[OCT_X], getPosY() + chr_min_cv.getMin()[OCT_Y]),
-                      Vector2f(getPosX() + chr_min_cv.getMax()[OCT_X], getPosY() + chr_min_cv.getMax()[OCT_Y]));
-    }
+    inline const AABB2f& getAABB2D() const { return _objectPhysics.getAABB2D(); }
 
     /**
     * @brief

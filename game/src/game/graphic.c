@@ -887,9 +887,9 @@ void draw_mouse_cursor()
         SDL_GetMouseState(&x, &y);
 
         //Draw cursor
-        gfx_begin_2d();
+        _gameEngine->getUIManager()->beginRenderUI();
             _gameEngine->getUIManager()->drawImage(pcursor, x, y, pcursor->getWidth(), pcursor->getHeight(), Ego::Colour4f::white());
-        gfx_end_2d();
+        _gameEngine->getUIManager()->endRenderUI();
     }
 }
 
@@ -2256,7 +2256,7 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
         _currentModule->getObjectHandler().findObjects(
             cam.getCenter()[kX], 
             cam.getCenter()[kY], 
-			Info<float>::Grid::Size() *10,  //@todo: use camera view size here instead
+			Info<float>::Grid::Size() * 10,  //@todo: use camera view size here instead
             true);
 
     for(const std::shared_ptr<Object> object : visibleObjects) {

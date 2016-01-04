@@ -471,12 +471,9 @@ gfx_rv MadRenderer::render_ref( Camera& cam, const std::shared_ptr<Object>& pchr
     // assume the best
 	gfx_rv retval = gfx_success;
 
-    if ( !pinst.ref.matrix_valid )
+    if (!pinst.ref.matrix_valid)
     {
-        if (!chr_instance_t::apply_reflection_matrix(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false)))
-        {
-            return gfx_error;
-        }
+        return gfx_error;
     }
 
     {
@@ -1623,7 +1620,6 @@ chr_instance_t::chr_instance_t() :
     sheen(0),
     enviro(false),
     dont_cull_backfaces(false),
-    skin_has_transparency(false),
 
     redshift(0),
     grnshift(0),
@@ -1734,27 +1730,29 @@ gfx_rv chr_instance_t::set_mad(chr_instance_t& self, const std::shared_ptr<Ego::
     return updated ? gfx_success : gfx_fail;
 }
 
-void chr_instance_t::update_ref(chr_instance_t& self, float grid_level, bool need_matrix)
+void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, bool need_matrix)
 {
-	if (need_matrix) {
-		// reflect the ordinary matrix
-		chr_instance_t::apply_reflection_matrix(self, grid_level);
-	}
+    const float meshElevation = _currentModule->getMeshPointer()->getElevation(Vector2f(position.x(), position.y()));
 
-    int startalpha = 255;
-    if (self.ref.matrix_valid) {
-        // determine the reflection alpha
-        float pos_z = grid_level - self.ref.matrix(2, 3);
-		if (pos_z < 0.0f) {
-			pos_z = 0.0f;
-		}
-        startalpha -= 2.0f * pos_z;
-        startalpha *= 0.5f;
-        startalpha = Ego::Math::constrain(startalpha, 0, 255);
+    // reflect the ordinary matrix
+    if (need_matrix && self.matrix_cache.valid) {
+
+        self.ref.matrix = self.matrix;
+        self.ref.matrix(2, 0) = -self.ref.matrix(0, 2);
+        self.ref.matrix(2, 1) = -self.ref.matrix(1, 2);
+        self.ref.matrix(2, 2) = -self.ref.matrix(2, 2);
+        self.ref.matrix(2, 3) = 2.0f * meshElevation - position.z();
+        self.ref.matrix_valid = true;
     }
 
-	self.ref.alpha = (self.alpha * startalpha * INV_FF<float>());
-	self.ref.light = (255 == self.light) ? 255 : (self.light * startalpha * INV_FF<float>());
+    // determine the reflection alpha based on altitude above the mesh
+    const float altitudeAboveGround = std::max(0.0f, position.z() - meshElevation);
+    float alpha = 255.0f - altitudeAboveGround;
+    alpha *= 0.5f;
+    alpha = Ego::Math::constrain(alpha, 0.0f, 255.0f);
+
+	self.ref.alpha = (self.alpha * alpha * INV_FF<float>());
+	self.ref.light = (255 == self.light) ? 255 : (self.light * alpha * INV_FF<float>());
 
 	self.ref.redshift = self.redshift + 1;
 	self.ref.grnshift = self.grnshift + 1;
@@ -1796,7 +1794,7 @@ gfx_rv chr_instance_t::spawn(chr_instance_t& self, const PRO_REF profileID, cons
     chr_instance_t::play_action(self, ACTION_DA, true);
 
     // upload these parameters to the reflection cache, but don't compute the matrix
-    chr_instance_t::update_ref(self, 0, false);
+    chr_instance_t::update_ref(self, Vector3f::zero(), false);
 
     return gfx_success;
 }
@@ -1947,38 +1945,7 @@ gfx_rv chr_instance_t::set_texture(chr_instance_t& self, const Ego::DeferredText
 	// get the texture
 	self.texture = itex.get_ptr();
 
-    // get the transparency info from the texture
-    if(self.texture != nullptr) {
-        self.skin_has_transparency = self.texture->hasAlpha();
-    }
-
 	return gfx_success;
-}
-
-bool chr_instance_t::apply_reflection_matrix(chr_instance_t& self, float grid_level)
-{
-	/// @author BB
-	/// @details Generate the extra data needed to display a reflection for this character
-
-	// invalidate the current matrix
-	self.ref.matrix_valid = false;
-
-	// actually flip the matrix
-	if (self.matrix_cache.valid) {
-		self.ref.matrix = self.matrix;
-
-		self.ref.matrix(2, 0) = -self.ref.matrix(0, 2);
-		self.ref.matrix(2, 1) = -self.ref.matrix(1, 2);
-		self.ref.matrix(2, 2) = -self.ref.matrix(2, 2);
-		self.ref.matrix(2, 3) = 2 * grid_level - self.ref.matrix(3, 2);
-
-		self.ref.matrix_valid = true;
-
-		// fix the reflection
-		chr_instance_t::update_ref(self, grid_level, false);
-	}
-
-	return self.ref.matrix_valid;
 }
 
 void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FIELD bits)

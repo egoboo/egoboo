@@ -91,7 +91,7 @@ void UIManager::beginRenderUI()
 	renderer.setAlphaTestEnabled(true);
 	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
-	renderer.setViewportRectangle(0, 0, getScreenWidth(), getScreenHeight());
+	renderer.setViewportRectangle(0, 0, sdl_scr.drawWidth, sdl_scr.drawHeight);
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning

@@ -397,7 +397,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
                 mcache.rotate[kY] = Ego::Math::clipBits<16>( pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET);
                 mcache.rotate[kZ] = pchr->ori.facing_z;
 
-                mcache.pos =pchr->getPosition();
+                mcache.pos = pchr->getPosition();
 
                 applied = true;
             }
@@ -410,7 +410,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
 
     if ( applied )
     {
-        chr_instance_t::apply_reflection_matrix(pchr->inst, _currentModule->getMeshPointer()->getElevation(Vector2f(pchr->getPosX(), pchr->getPosY()), false));
+        chr_instance_t::update_ref(pchr->inst, pchr->getPosition(), true);
     }
 
     return applied;
