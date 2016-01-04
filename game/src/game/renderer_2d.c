@@ -341,6 +341,39 @@ void gfx_end_text()
 //--------------------------------------------------------------------------------------------
 // PRIMITIVES
 //--------------------------------------------------------------------------------------------
+void draw_quad_2d(const ego_frect_t scr_rect, bool use_alpha, const Ego::Colour4f& tint) {
+    Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+    {
+        auto& renderer = Ego::Renderer::get();
+        renderer.getTextureUnit().setActivated(nullptr);
+        renderer.setColour(tint);
+
+        if (use_alpha) {
+            renderer.setBlendingEnabled(true);
+            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+            renderer.setAlphaTestEnabled(true);
+            renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+        } else {
+            renderer.setBlendingEnabled(false);
+            renderer.setAlphaTestEnabled(false);
+        }
+
+        Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>());
+        {
+            struct Vertex {
+                float x, y;
+            };
+            Ego::VertexBufferScopedLock vblck(vb);
+            Vertex *vertices = vblck.get<Vertex>();
+            vertices[0].x = scr_rect.xmin; vertices[0].y = scr_rect.ymax;
+            vertices[1].x = scr_rect.xmax; vertices[1].y = scr_rect.ymax;
+            vertices[2].x = scr_rect.xmax; vertices[2].y = scr_rect.ymin;
+            vertices[3].x = scr_rect.xmin; vertices[3].y = scr_rect.ymin;
+        }
+        renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    }
+}
 void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
 {
     Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);

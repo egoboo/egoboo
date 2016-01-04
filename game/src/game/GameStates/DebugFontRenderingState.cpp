@@ -47,17 +47,17 @@ public:
     }
     
     void draw() override {
-        ego_frect_t src, tx;
+        ego_frect_t src;
         
         src.xmin = getX();
         src.ymin = getY();
         src.xmax = src.xmin + _maxWidth;
         src.ymax = src.ymin + _maxHeight;
-        draw_quad_2d(nullptr, src, tx, true, _maxColor);
+        draw_quad_2d(src, true, _maxColor);
         
         src.xmax = src.xmin + _textWidth;
         src.ymax = src.ymin + _textHeight;
-        draw_quad_2d(nullptr, src, tx, true, _textColor);
+        draw_quad_2d(src, true, _textColor);
         
         _textRenderer->render(getX(), getY());
     }
