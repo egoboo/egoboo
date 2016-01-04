@@ -168,11 +168,11 @@ bool Shop::canGrabItem(const std::shared_ptr<Object>& grabber, const std::shared
 
             if (!canGrab)
             {
-                DisplayMsg_printf("%s was detected!!", grabber->getName().c_str());
+                DisplayMsgs::get().printf("%s was detected!!", grabber->getName().c_str());
             }
             else
             {
-                DisplayMsg_printf("%s stole %s", grabber->getName().c_str(), item->getName(true, false, false).c_str());
+                DisplayMsgs::get().printf("%s stole %s", grabber->getName().c_str(), item->getName(true, false, false).c_str());
             }
         }
         else

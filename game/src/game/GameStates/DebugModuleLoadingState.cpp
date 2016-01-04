@@ -260,7 +260,7 @@ void DebugModuleLoadingState::loadModuleData()
         singleThreadRedrawHack("Beautifying graphics...");
 
         //Ready message display
-        DisplayMsg_reset();
+        DisplayMsgs::get().reset();
 
         // Reset all "profiles" in the "profile system".
         ProfileSystem::get().reset();
