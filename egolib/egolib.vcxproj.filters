@@ -130,6 +130,9 @@
     <Filter Include="Source Files\Script\Interpreter">
       <UniqueIdentifier>{13a9bb5e-f692-493c-90a0-1ad0c650b776}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Signal">
+      <UniqueIdentifier>{882ff1f1-8551-405a-9975-5ea8dbfdaf46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -1027,6 +1030,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Signal\Signal.hpp">
+      <Filter>Header Files\Signal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

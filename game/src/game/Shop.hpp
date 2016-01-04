@@ -21,7 +21,7 @@
 /// @brief Shop interaction
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 
 struct Shop {
 private:

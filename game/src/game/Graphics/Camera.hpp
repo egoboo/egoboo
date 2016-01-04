@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "game/physics.h"			//for orientation_t
 #include "egolib/Graphics/Camera.hpp"
 

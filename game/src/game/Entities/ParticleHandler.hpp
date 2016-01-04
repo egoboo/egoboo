@@ -25,7 +25,7 @@
 #error(do not include directly, include `game/Entities/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 #include "game/Entities/Particle.hpp"
 
 class ParticleHandler : public Ego::Core::Singleton<ParticleHandler>
@@ -113,6 +113,10 @@ public:
     *   Updates all particles and free particles that have been marked as terminated
     **/
     void updateAllParticles();
+
+    void download(egoboo_config_t& cfg);
+
+    void upload(egoboo_config_t& cfg);
 
     /**
      * @brief

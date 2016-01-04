@@ -21,18 +21,18 @@
 /// @brief Code for the main program process
 /// @details
 
-#define DECLARE_GLOBALS
 #include "game/egoboo.h"
-
-#include "egolib/egolib.h"
-
 #include "game/game.h"
 #include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 
-
 //--------------------------------------------------------------------------------------------
+
+local_stats_t local_stats;
+bool timeron = false;  ///< Game timer displayed?
+Uint32 timervalue = 0; ///< Timer time ( 50ths of a second )
+
 //--------------------------------------------------------------------------------------------
 
 /**
@@ -89,23 +89,14 @@ bool config_download( egoboo_config_t *cfg)
         return false;
     }
 
-    // Message display.
-    DisplayMsg_count = Ego::Math::constrain(cfg->hud_simultaneousMessages_max.getValue(), (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
-    DisplayMsg_on = cfg->hud_simultaneousMessages_max.getValue() > 0;
+    // Download configuration.
+    DisplayMsg_download(*cfg);
+    ParticleHandler::get().download(*cfg);
+    AudioSystem::get().download(*cfg);
 
-    // Particle display limit.
-    ParticleHandler::get().setDisplayLimit(cfg->graphic_simultaneousParticles_max.getValue());
-
-    // Camera options.
+    /// @todo Fix old-style download.
     CameraSystem::getCameraOptions().turnMode = cfg->camera_control.getValue();
-
-    // Sound options.
-    AudioSystem::get().reconfigure(*cfg);
-
-    // Rendering options.
     gfx_config_t::download(gfx, *cfg);
-
-    // Texture options.
     oglx_texture_parameters_t::download(g_ogl_textureParameters, *cfg);
 
     return true;
@@ -115,14 +106,13 @@ bool config_upload(egoboo_config_t *cfg)
 {
     if (!cfg) return false;
 
+    /// @todo Fix old-style upload.
     cfg->camera_control.setValue(CameraSystem::getCameraOptions().turnMode);
 
-    // Particle limit.
-    cfg->graphic_simultaneousParticles_max.setValue(ParticleHandler::get().getDisplayLimit());
-
-    // messages
-    cfg->hud_messages_enable.setValue(DisplayMsg_on);
-    cfg->hud_simultaneousMessages_max.setValue(!DisplayMsg_on ? 0 : std::max(EGO_MESSAGE_MIN, DisplayMsg_count));
+    // Upload configuration.
+    AudioSystem::get().upload(*cfg);
+    ParticleHandler::get().upload(*cfg);
+    DisplayMsg_upload(*cfg);
 
     return true;
 }

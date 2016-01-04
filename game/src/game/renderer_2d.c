@@ -28,8 +28,7 @@
 // EXTERNAL VARIABLES
 //--------------------------------------------------------------------------------------------
 
-StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg;
-
+StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg_elements;
 int DisplayMsg_timechange = 0;
 int DisplayMsg_count = EGO_MESSAGE_MAX;
 bool DisplayMsg_on = true;
@@ -111,92 +110,70 @@ int draw_string_raw( float x, float y, const char *format, ... )
     ///    bookends.
 
     va_list args;
-
     va_start( args, format );
     y = _va_draw_string( x, y, format, args );
     va_end( args );
-
     return y;
 }
 
 //--------------------------------------------------------------------------------------------
-// DisplayMsg IMPLEMENTATION
-//--------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
 void DisplayMsg_clear()
 {
     /// @author ZZ
     /// @details This function empties the message buffer
-    int cnt;
-
-    for ( cnt = 0; cnt < EGO_MESSAGE_MAX; cnt++ )
+    for (int cnt = 0; cnt < EGO_MESSAGE_MAX; cnt++ )
     {
-        DisplayMsg.ary[cnt].time = 0;
+        DisplayMsg_elements.ary[cnt].time = 0;
     }
 }
 
-//--------------------------------------------------------------------------------------------
 void DisplayMsg_reset()
 {
     /// @author ZZ
     /// @details This makes messages safe to use
-
-    int cnt;
-
     DisplayMsg_timechange = 0;
-    DisplayMsg.count = 0;
+    DisplayMsg_elements.count = 0;
 
-    for ( cnt = 0; cnt < EGO_MESSAGE_MAX; cnt++ )
-    {
-        DisplayMsg.ary[cnt].time = 0;
-    }
+    DisplayMsg_clear();
 }
 
-//--------------------------------------------------------------------------------------------
 int DisplayMsg_get_free()
 {
     /// @author ZZ
     /// @details This function finds the best message to use
     /// Pick the first one
 
-    int tnc = DisplayMsg.count;
+    int tnc = DisplayMsg_elements.count;
 
-    DisplayMsg.count++;
-    DisplayMsg.count %= DisplayMsg_count;
+    DisplayMsg_elements.count++;
+    DisplayMsg_elements.count %= DisplayMsg_count;
 
     return tnc;
 }
 
-//--------------------------------------------------------------------------------------------
 int DisplayMsg_printf( const char *format, ... )
 {
     va_list args;
-    int retval;
-
     va_start( args, format );
-    retval = DisplayMsg_vprintf( format, args );
+    int result = DisplayMsg_vprintf( format, args );
     va_end( args );
-
-    return retval;
+    return result;
 }
 
-//--------------------------------------------------------------------------------------------
 void DisplayMsg_print( const char *text )
 {
     /// @author ZZ
     /// @details This function sticks a message in the display queue and sets its timer
 
-    int          slot;
     const char * src;
     char       * dst, * dst_end;
-    msg_t      * pmsg;
 
     if ( INVALID_CSTR( text ) ) return;
 
     // Get a "free" message
-    slot = DisplayMsg_get_free();
-    pmsg = DisplayMsg.get_ptr(slot);
+    int slot = DisplayMsg_get_free();
+    msg_t *pmsg = DisplayMsg_elements.get_ptr(slot);
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + EGO_MESSAGE_SIZE;
@@ -211,7 +188,6 @@ void DisplayMsg_print( const char *text )
     pmsg->time = egoboo_config_t::get().hud_messageDuration.getValue();
 }
 
-//--------------------------------------------------------------------------------------------
 int DisplayMsg_vprintf( const char *format, va_list args )
 {
     int retval = 0;
@@ -227,7 +203,6 @@ int DisplayMsg_vprintf( const char *format, va_list args )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 float DisplayMsg_draw_all( float y )
 {
     int cnt, tnc;
@@ -236,19 +211,19 @@ float DisplayMsg_draw_all( float y )
     if ( DisplayMsg_on )
     {
         // Display the messages
-        tnc = DisplayMsg.count;
+        tnc = DisplayMsg_elements.count;
         for ( cnt = 0; cnt < DisplayMsg_count; cnt++ )
         {
-            if ( DisplayMsg.ary[tnc].time > 0 )
+            if ( DisplayMsg_elements.ary[tnc].time > 0 )
             {
-                y = draw_wrap_string( DisplayMsg.ary[tnc].textdisplay, 0, y, sdl_scr.x - WRAP_TOLERANCE );
-                if ( DisplayMsg.ary[tnc].time > DisplayMsg_timechange )
+                y = draw_wrap_string( DisplayMsg_elements.ary[tnc].textdisplay, 0, y, sdl_scr.x - WRAP_TOLERANCE );
+                if ( DisplayMsg_elements.ary[tnc].time > DisplayMsg_timechange )
                 {
-                    DisplayMsg.ary[tnc].time -= DisplayMsg_timechange;
+                    DisplayMsg_elements.ary[tnc].time -= DisplayMsg_timechange;
                 }
                 else
                 {
-                    DisplayMsg.ary[tnc].time = 0;
+                    DisplayMsg_elements.ary[tnc].time = 0;
                 }
             }
 
@@ -259,6 +234,28 @@ float DisplayMsg_draw_all( float y )
     }
 
     return y;
+}
+
+void DisplayMsg_initialize() {
+
+}
+
+void DisplayMsg_uninitialize() {
+
+}
+
+void DisplayMsg_update() {
+
+}
+
+void DisplayMsg_download(egoboo_config_t& cfg) {
+    DisplayMsg_count = Ego::Math::constrain<uint8_t>(cfg.hud_simultaneousMessages_max.getValue(), EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
+    DisplayMsg_on = cfg.hud_simultaneousMessages_max.getValue() > 0;
+}
+
+void DisplayMsg_upload(egoboo_config_t& cfg) {
+    cfg.hud_messages_enable.setValue(DisplayMsg_on);
+    cfg.hud_simultaneousMessages_max.setValue(!DisplayMsg_on ? 0 : std::max(EGO_MESSAGE_MIN, DisplayMsg_count));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -339,12 +336,6 @@ void gfx_end_text()
 {
     // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
     GL_DEBUG( glPopAttrib )();
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_reshape_viewport(int w, int h)
-{
-    Ego::Renderer::get().setViewportRectangle(0, 0, w, h);
 }
 
 //--------------------------------------------------------------------------------------------

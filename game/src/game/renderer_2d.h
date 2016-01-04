@@ -25,16 +25,6 @@
 #include "egolib/egolib.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct s_msg;
-typedef struct s_msg msg_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
-// ego_message_t
 
 /// the maximum length egoboo messages
 #define EGO_MESSAGE_SIZE      90
@@ -49,34 +39,35 @@ typedef struct s_msg msg_t;
 #define EGO_MESSAGE_MAX      8
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 /// A display messages
-struct s_msg
+struct msg_t
 {
     int time;                            ///< The remaining time for this message.
     char textdisplay[EGO_MESSAGE_SIZE];  ///< The displayed text.
 };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
+void DisplayMsg_clear();
+void DisplayMsg_reset();
+int DisplayMsg_get_free();
+int DisplayMsg_printf(const char *format, ...) GCC_PRINTF_FUNC(1);
+void DisplayMsg_print(const char *text);
+int DisplayMsg_vprintf(const char *format, va_list args);
+float DisplayMsg_draw_all(float y);
+void DisplayMsg_initialize();
+void DisplayMsg_uninitialize();
+void DisplayMsg_update();
+void DisplayMsg_download(egoboo_config_t& cfg);
+void DisplayMsg_upload(egoboo_config_t& cfg);
 
 /// An array of display messages.
-extern StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg;
-
-extern void  DisplayMsg_clear();
-extern void  DisplayMsg_reset();
-extern int   DisplayMsg_get_free();
-extern int   DisplayMsg_printf(const char *format, ...) GCC_PRINTF_FUNC( 1 );
-extern void  DisplayMsg_print(const char *text);
-extern int   DisplayMsg_vprintf(const char *format, va_list args);
-extern float DisplayMsg_draw_all(float y);
-
+extern StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg_elements;
 extern int  DisplayMsg_timechange;     ///< how much time has elapsed for messages
 extern int  DisplayMsg_count;          ///< maximum number of displayed messages
 extern bool DisplayMsg_on;             ///< Messages?
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // mode control
@@ -84,7 +75,6 @@ void gfx_begin_2d();
 void gfx_end_2d();
 void gfx_begin_text();
 void gfx_end_text();
-void gfx_reshape_viewport( int w, int h );
 
 // bitmap font functions
 /**
@@ -98,9 +88,6 @@ float draw_string(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 
 float draw_wrap_string(const char *szText, float x, float y, int maxx);
 void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype, float x, float y);
 int draw_string_raw(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
-
-// debugging functions
-int DisplayMsg_printf( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
 
 // graphics primitive functions
 void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());

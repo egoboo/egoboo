@@ -17,15 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file  game/egoboo_config.h
-/// @brief Compile switches.
-
-#pragma once
-
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// do the includes last so that the compile switches are always set
-
+#include "EgoTest/EgoTest.hpp"
 #include "egolib/egolib.h"
+
+EgoTest_DeclareTestCase(Signal)
+EgoTest_EndDeclaration()
+
+EgoTest_BeginTestCase(Signal)
+
+EgoTest_Test(signal) {
+    Ego::Signal<void(const std::string&)> signal;
+    // (1) Invoke with no subscriber.
+    signal("Hello, World!");
+    // (2) Invoke with one subscriber.
+    bool invoked = false;
+    auto function = [&invoked](const std::string& s) { if (s == "Hello, World!") { invoked = true; } };
+    auto subscription = signal.subscribe(function);
+    signal("Hello, World!");
+    signal.unsubscribe(subscription);
+    EgoTest_Assert(true == invoked);
+}
+
+EgoTest_EndTestCase()

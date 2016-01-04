@@ -23,7 +23,7 @@
 /// @author Johan Jansen
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/egoboo.h"
 
 //Forward declarations
 namespace Ego { class Font; }

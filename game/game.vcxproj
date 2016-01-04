@@ -544,9 +544,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\graphics\CameraSystem.hpp" />
     <ClInclude Include="src\game\module\Passage.hpp" />
     <ClInclude Include="src\game\egoboo.h" />
-    <ClInclude Include="src\game\egoboo_config.h" />
     <ClInclude Include="src\game\egoboo_doxygen.h" />
-    <ClInclude Include="src\game\egoboo_typedef.h" />
     <ClInclude Include="src\game\game.h" />
     <ClInclude Include="src\game\graphic.h" />
     <ClInclude Include="src\game\graphic_billboard.h" />

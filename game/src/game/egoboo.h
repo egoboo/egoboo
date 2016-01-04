@@ -26,44 +26,38 @@
 
 #pragma once
 
-/* Typedefs for various platforms */
-#include "game/egoboo_typedef.h"
+#include "egolib/egolib.h"
 
-/// The following magic allows this include to work in multiple files
-#if defined(DECLARE_GLOBALS)
-#    define EXTERN
-#    define EQ(x) = x
-#else
-#    define EXTERN extern
-#    define EQ(x)
-#endif
+/**
+* @todo
+*	Remove this.
+*/
+typedef egolib_rv gfx_rv;
+#define gfx_error rv_error
+#define gfx_fail rv_fail
+#define gfx_success rv_success
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------     
 
-#define NOSPARKLE           255                     ///< Dont sparkle icons
-#define SPELLBOOK           127                     ///< The spellbook model
-#define SEEINVISIBLE        128                     ///< Cutoff for invisible characters
+#define NOSPARKLE 255 ///< Dont sparkle icons
+#define SPELLBOOK 127 ///< The spellbook model
+#define SEEINVISIBLE 128 ///< Cutoff for invisible characters
 
 /// Messaging stuff
-#define DAMAGERAISE    25    ///< Tolerance for damage tiles
+#define DAMAGERAISE 25 ///< Tolerance for damage tiles
 
-#define ONESECOND      50    ///< How many game loop updates represent 1 second (50 UPS = 1 second)
+#define ONESECOND 50 ///< How many game loop updates represent 1 second (50 UPS = 1 second)
 
 #define WRAP_TOLERANCE 90    ///< Status bar
 
-//--------------------------------------------------------------------------------------------
+#define INVISIBLE 20 ///< The character can't be detected
+
 //--------------------------------------------------------------------------------------------
 // Timers
-//HUD
-EXTERN bool timeron EQ(false);  ///< Game timer displayed?
-EXTERN Uint32 timervalue EQ(0); ///< Timer time ( 50ths of a second )
+// HUD
+extern bool timeron;  ///< Game timer displayed?
+extern Uint32 timervalue; ///< Timer time ( 50ths of a second )
 
-/// EWWWW. GLOBALS ARE EVIL.
-
-#define INVISIBLE           20                      ///< The character can't be detected
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 struct local_stats_t
@@ -87,7 +81,7 @@ struct local_stats_t
     IDSZ2 sense_enemies_idsz;
 };
 
-EXTERN local_stats_t local_stats;
+extern local_stats_t local_stats;
 
 /**
  * @brief
@@ -101,7 +95,3 @@ EXTERN local_stats_t local_stats;
  *  is @a true, the values from the egoboo_config_data_t are uploaded into <tt>"setup.txt"</tt>.
  */
 bool config_synch(egoboo_config_t *pcfg, bool fromfile, bool tofile);
-
-//---------------------------------------------------------------------------------------------------------------------
-
-#include "egolib/egolib.h"

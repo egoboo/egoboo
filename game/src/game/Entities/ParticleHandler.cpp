@@ -184,6 +184,14 @@ std::shared_ptr<Ego::Particle> ParticleHandler::getFreeParticle(bool force)
     return particle;
 }
 
+void ParticleHandler::download(egoboo_config_t& cfg) {
+    setDisplayLimit(cfg.graphic_simultaneousParticles_max.getValue());
+}
+
+void ParticleHandler::upload(egoboo_config_t& cfg) {
+    cfg.graphic_simultaneousParticles_max.setValue(getDisplayLimit());
+}
+
 size_t ParticleHandler::getDisplayLimit() const
 {
     return _maxParticles;
