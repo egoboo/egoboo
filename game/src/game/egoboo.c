@@ -21,18 +21,18 @@
 /// @brief Code for the main program process
 /// @details
 
-#define DECLARE_GLOBALS
 #include "game/egoboo.h"
-
-#include "egolib/egolib.h"
-
 #include "game/game.h"
 #include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 
-
 //--------------------------------------------------------------------------------------------
+
+local_stats_t local_stats;
+bool timeron = false;  ///< Game timer displayed?
+Uint32 timervalue = 0; ///< Timer time ( 50ths of a second )
+
 //--------------------------------------------------------------------------------------------
 
 /**
