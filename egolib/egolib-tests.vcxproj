@@ -142,7 +142,7 @@
       <PrecompiledHeaderFile />
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <StringPooling>false</StringPooling>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -151,7 +151,12 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,8 +175,8 @@
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile />
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <SDLCheck>false</SDLCheck>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SDLCheck>true</SDLCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
@@ -182,6 +187,11 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -207,9 +217,9 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
@@ -217,6 +227,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -244,9 +255,9 @@
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <CompileAsManaged>false</CompileAsManaged>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
@@ -254,6 +265,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

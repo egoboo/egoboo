@@ -105,7 +105,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <StringPooling>false</StringPooling>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -116,7 +116,12 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,8 +155,8 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <SDLCheck>false</SDLCheck>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SDLCheck>true</SDLCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
@@ -162,6 +167,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -207,11 +218,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <UseFullPaths>true</UseFullPaths>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -258,12 +270,13 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
       <UseFullPaths>true</UseFullPaths>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

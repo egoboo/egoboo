@@ -106,7 +106,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -117,17 +117,22 @@
       </PrecompiledHeader>
       <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level4</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>false</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -166,7 +171,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile>
       <Optimization>Full</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <PreprocessorDefinitions>_MBCS;WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level1</WarningLevel>
@@ -187,11 +192,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <DisableSpecificWarnings>4820;4668;4255;4738;4710;4711;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -233,13 +239,13 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <MinimalRebuild>true</MinimalRebuild>
-      <SDLCheck>false</SDLCheck>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SDLCheck>true</SDLCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAsWinRT>false</CompileAsWinRT>
       <OmitFramePointers>false</OmitFramePointers>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -247,6 +253,10 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -276,7 +286,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
       <AdditionalIncludeDirectories>$(SolutionDir)/cartman/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_MBCS;WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
@@ -292,12 +302,13 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>

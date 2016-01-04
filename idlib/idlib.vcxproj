@@ -128,12 +128,15 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <CompileAsManaged>false</CompileAsManaged>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <StringPooling>false</StringPooling>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -148,8 +151,8 @@
       <OmitFramePointers>false</OmitFramePointers>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <SDLCheck>false</SDLCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <SDLCheck>true</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <StringPooling>false</StringPooling>
@@ -158,6 +161,11 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -171,7 +179,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -180,7 +188,7 @@
       <PreprocessorDefinitions>_MBCS;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -192,6 +200,7 @@
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -207,12 +216,12 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -228,6 +237,7 @@
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

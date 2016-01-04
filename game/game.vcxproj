@@ -124,7 +124,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>$(SolutionDir)/game/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <PreprocessKeepComments>false</PreprocessKeepComments>
@@ -137,7 +137,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level4</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4820%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ShowIncludes>false</ShowIncludes>
@@ -155,8 +155,11 @@
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
       <SmallerTypeCheck>false</SmallerTypeCheck>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -193,7 +196,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>$(SolutionDir)/game/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <PreprocessKeepComments>false</PreprocessKeepComments>
@@ -205,7 +208,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level4</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4820%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ShowIncludes>false</ShowIncludes>
@@ -223,9 +226,13 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <MinimalRebuild>true</MinimalRebuild>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <OmitFramePointers>false</OmitFramePointers>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -289,11 +296,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <OpenMPSupport>false</OpenMPSupport>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -356,11 +364,12 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <OpenMPSupport>false</OpenMPSupport>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>

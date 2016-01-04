@@ -121,7 +121,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -135,13 +135,16 @@
       <UndefinePreprocessorDefinitions>__cplusplus;</UndefinePreprocessorDefinitions>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);_CRT_SECURE_NO_WARNINGS;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <StringPooling>false</StringPooling>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
@@ -179,11 +182,12 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -240,12 +244,13 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <DisableSpecificWarnings>4820;4668;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Lib />
     <Lib>
@@ -267,11 +272,11 @@
       <OmitFramePointers>false</OmitFramePointers>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);_CRT_SECURE_NO_WARNINGS;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>true</MinimalRebuild>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <SDLCheck>false</SDLCheck>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SDLCheck>true</SDLCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <StringPooling>false</StringPooling>
@@ -281,6 +286,12 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
