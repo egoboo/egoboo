@@ -486,6 +486,12 @@
     <ClCompile Include="src\egolib\Graphics\GraphicsSystem.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\Buffer.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\VertexElementDescriptor.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -1033,6 +1039,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Signal\Signal.hpp">
       <Filter>Header Files\Signal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\Buffer.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

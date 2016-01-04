@@ -287,6 +287,17 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\Buffer.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Graphics\Buffer.asm</AssemblerListingLocation>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Graphics\Buffer.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Graphics\Buffer.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Graphics\Buffer.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Graphics\Buffer.asm</AssemblerListingLocation>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Graphics\Buffer.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Graphics\Buffer.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Graphics\Buffer.o</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\VertexElementDescriptor.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsSystem.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\StencilBuffer.cpp" />
     <ClCompile Include="src\egolib\Renderer\RendererInfo.cpp" />
@@ -479,6 +490,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\Buffer.hpp" />
+    <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp" />
     <ClInclude Include="src\egolib\Signal\Signal.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\StencilBuffer.hpp" />

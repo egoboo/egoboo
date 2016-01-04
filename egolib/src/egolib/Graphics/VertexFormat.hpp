@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/Graphics/VertexElementDescriptor.hpp"
 
 namespace Ego
 {
