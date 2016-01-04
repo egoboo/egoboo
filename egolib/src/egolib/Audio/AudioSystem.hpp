@@ -185,7 +185,8 @@ public:
      *  The audio system will adjust its settings to the specified configuration.
      *  and update the given configuration with information about its new settings.
      */
-    void reconfigure(egoboo_config_t &cfg);
+    void download(egoboo_config_t &cfg);
+    void upload(egoboo_config_t& cfg);
 
 	/**
 	 * @brief

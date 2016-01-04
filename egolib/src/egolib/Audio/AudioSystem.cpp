@@ -154,7 +154,7 @@ AudioSystem::~AudioSystem()
 	Mix_CloseAudio();
 }
 
-void AudioSystem::reconfigure(egoboo_config_t& cfg)
+void AudioSystem::download(egoboo_config_t& cfg)
 {
     // Clear all data.
     _loopingSounds.clear();
@@ -190,6 +190,9 @@ void AudioSystem::reconfigure(egoboo_config_t& cfg)
             }            
         }
     }
+}
+
+void AudioSystem::upload(egoboo_config_t& cfg) {
 }
 
 void AudioSystem::stopMusic()

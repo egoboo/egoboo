@@ -248,6 +248,16 @@ void DisplayMsg_update() {
 
 }
 
+void DisplayMsg_download(egoboo_config_t& cfg) {
+    DisplayMsg_count = Ego::Math::constrain<uint8_t>(cfg.hud_simultaneousMessages_max.getValue(), EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
+    DisplayMsg_on = cfg.hud_simultaneousMessages_max.getValue() > 0;
+}
+
+void DisplayMsg_upload(egoboo_config_t& cfg) {
+    cfg.hud_messages_enable.setValue(DisplayMsg_on);
+    cfg.hud_simultaneousMessages_max.setValue(!DisplayMsg_on ? 0 : std::max(EGO_MESSAGE_MIN, DisplayMsg_count));
+}
+
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------

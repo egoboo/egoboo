@@ -114,6 +114,10 @@ public:
     **/
     void updateAllParticles();
 
+    void download(egoboo_config_t& cfg);
+
+    void upload(egoboo_config_t& cfg);
+
     /**
      * @brief
      *  Get the display limit for particles.

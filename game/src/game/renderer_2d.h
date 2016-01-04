@@ -59,6 +59,8 @@ float DisplayMsg_draw_all(float y);
 void DisplayMsg_initialize();
 void DisplayMsg_uninitialize();
 void DisplayMsg_update();
+void DisplayMsg_download(egoboo_config_t& cfg);
+void DisplayMsg_upload(egoboo_config_t& cfg);
 
 /// An array of display messages.
 extern StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg_elements;
