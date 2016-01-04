@@ -94,6 +94,15 @@ public:
      */
     void drawImage(const std::shared_ptr<const Ego::Texture>& img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
+    /**
+    * @brief 
+    *   dumps the current screen (GL context) to a new bitmap file
+    *   right now it dumps it to whatever the current directory is
+    * @return 
+    *   true if successful, false otherwise
+    **/
+    bool dumpScreenshot();
+
 private:
     std::array<std::shared_ptr<Ego::Font>, NR_OF_UI_FONTS> _fonts;
     std::shared_ptr<Ego::Font> _defaultFont;

@@ -24,11 +24,17 @@
 #include "game/egoboo.h"
 #include "game/renderer_2d.h"
 
-//--------------------------------------------------------------------------------------------
+//TODO: Remove
+#include "game/Core/GameEngine.hpp"
+#include "game/GameStates/PlayingState.hpp"
+#include "game/GUI/MessageLog.hpp"
 // PRIVATE FUNCTIONS
 //--------------------------------------------------------------------------------------------
 
 static int  _va_draw_string( float x, float y, const char *format, va_list args );
+static int DisplayMsg_vprintf(const char *format, va_list args);
+static void gfx_begin_text();
+static void gfx_end_text();
 
 //--------------------------------------------------------------------------------------------
 // MODULE "PRIVATE" FUNCTIONS
@@ -107,39 +113,6 @@ int draw_string_raw( float x, float y, const char *format, ... )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
-
-void DisplayMsgs::clear()
-{
-    /// @author ZZ
-    /// @details This function empties the message buffer
-    for (int cnt = 0; cnt < EGO_MESSAGE_MAX; cnt++ )
-    {
-        elements.ary[cnt].time = 0;
-    }
-}
-
-void DisplayMsgs::reset()
-{
-    /// @author ZZ
-    /// @details This makes messages safe to use
-    timechange = 0;
-    elements.count = 0;
-
-    clear();
-}
-
-int DisplayMsgs::get_free()
-{
-    /// @author ZZ
-    /// @details This function finds the best message to use
-    /// Pick the first one
-
-    int index = elements.count; elements.count++;
-    elements.count %= count;
-    return index;
-}
-
 int DisplayMsgs::printf( const char *format, ... )
 {
     va_list args;
@@ -151,29 +124,7 @@ int DisplayMsgs::printf( const char *format, ... )
 
 void DisplayMsgs::print( const char *text )
 {
-    /// @author ZZ
-    /// @details This function sticks a message in the display queue and sets its timer
-
-    const char * src;
-    char       * dst, * dst_end;
-
-    if ( INVALID_CSTR( text ) ) return;
-
-    // Get a "free" message
-    int slot = get_free();
-    msg_t *pmsg = elements.get_ptr(slot);
-
-    // Copy the message
-    for ( src = text, dst = pmsg->textdisplay, dst_end = dst + EGO_MESSAGE_SIZE;
-          CSTR_END != *src && dst < dst_end;
-          src++, dst++ )
-    {
-        *dst = *src;
-    }
-    if ( dst < dst_end ) *dst = CSTR_END;
-
-    // Set the time
-    pmsg->time = egoboo_config_t::get().hud_messageDuration.getValue();
+    _gameEngine->getActivePlayingState()->getMessageLog()->addMessage(text);
 }
 
 int DisplayMsgs::vprintf( const char *format, va_list args )
@@ -188,61 +139,6 @@ int DisplayMsgs::vprintf( const char *format, va_list args )
     }
 
     return result;
-}
-
-float DisplayMsgs::draw_all( float y )
-{
-    int cnt, tnc;
-
-    // Messages
-    if ( on )
-    {
-        // Display the messages
-        tnc = elements.count;
-        for ( cnt = 0; cnt < count; cnt++ )
-        {
-            if ( elements.ary[tnc].time > 0 )
-            {
-                y = draw_wrap_string( elements.ary[tnc].textdisplay, 0, y, sdl_scr.x - WRAP_TOLERANCE );
-                if ( elements.ary[tnc].time > timechange )
-                {
-                    elements.ary[tnc].time -= timechange;
-                }
-                else
-                {
-                    elements.ary[tnc].time = 0;
-                }
-            }
-
-            tnc = ( tnc + 1 ) % count;
-        }
-
-        timechange = 0;
-    }
-
-    return y;
-}
-
-void DisplayMsgs::initialize() {
-
-}
-
-void DisplayMsgs::uninitialize() {
-
-}
-
-void DisplayMsgs::update() {
-
-}
-
-void DisplayMsgs::download(egoboo_config_t& cfg) {
-    count = Ego::Math::constrain<uint8_t>(cfg.hud_simultaneousMessages_max.getValue(), EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
-    on = cfg.hud_simultaneousMessages_max.getValue() > 0;
-}
-
-void DisplayMsgs::upload(egoboo_config_t& cfg) {
-    cfg.hud_messages_enable.setValue(on);
-    cfg.hud_simultaneousMessages_max.setValue(!on ? 0 : std::max(EGO_MESSAGE_MIN, count));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -403,12 +299,16 @@ void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frec
 //--------------------------------------------------------------------------------------------
 // BITMAP FONT FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype, float x_stt, float y_stt )
+void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype, float x_stt, float y_stt, const float alpha)
 {
     /// @author GAC
     /// @details Very nasty version for starters.  Lots of room for improvement.
     /// @author ZZ
     /// @details This function draws a letter or number
+
+    if(alpha <= 0.0f) {
+        return;
+    }
 
     GLfloat dx, dy, border;
 
@@ -434,224 +334,5 @@ void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype
     tx_rect.ymin += border;
     tx_rect.ymax -= border;
 
-    draw_quad_2d(ptex, sc_rect, tx_rect, true, Ego::Colour4f::white());
+    draw_quad_2d(ptex, sc_rect, tx_rect, true, Ego::Colour4f(1.0f, 1.0f, 1.0f, alpha));
 }
-
-//--------------------------------------------------------------------------------------------
-float draw_string( float x, float y, const char *format, ... )
-{
-    va_list args;
-
-    gfx_begin_2d();
-    {
-        va_start( args, format );
-        y = _va_draw_string( x, y, format, args );
-        va_end( args );
-    }
-    gfx_end_2d();
-
-    return y;
-}
-
-//--------------------------------------------------------------------------------------------
-float draw_wrap_string( const char *szText, float x, float y, int maxx )
-{
-    /// @author ZZ
-    /// @details This function spits a line of null terminated text onto the backbuffer,
-    ///    wrapping over the right side and returning the new y value
-
-    int stt_x = x;
-    Uint8 cTmp = szText[0];
-    int newy = y + fontyspacing;
-    Uint8 newword = true;
-    int cnt = 1;
-
-    const std::shared_ptr<Ego::Texture> &tx_ptr = TextureManager::get().getTexture("mp_data/font_new_shadow");
-    if ( nullptr == tx_ptr ) return y;
-
-    gfx_begin_text();
-
-    maxx = maxx + stt_x;
-
-    while ( CSTR_END != cTmp )
-    {
-        // Check each new word for wrapping
-        if ( newword )
-        {
-            int endx = x + font_bmp_length_of_word( szText + cnt - 1 );
-
-            newword = false;
-            if ( endx > maxx )
-            {
-                // Wrap the end and cut off spaces and tabs
-                x = stt_x + fontyspacing;
-                y += fontyspacing;
-                newy += fontyspacing;
-
-                while ( ' ' == cTmp || '~' == cTmp )
-                {
-                    cTmp = szText[cnt];
-                    cnt++;
-                }
-            }
-        }
-        else
-        {
-            Uint8 iTmp;
-
-            if ( '~' == cTmp )
-            {
-                // Use squiggle for tab
-                x = ( std::floor(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
-            }
-            else if ( C_LINEFEED_CHAR == cTmp )
-            {
-                x = stt_x;
-                y += fontyspacing;
-                newy += fontyspacing;
-            }
-            else if ( isspace( cTmp ) )
-            {
-                // other whitespace
-                iTmp = asciitofont[cTmp];
-                x += fontxspacing[iTmp] / 2;
-            }
-            else
-            {
-                // Normal letter
-                iTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr, iTmp, x, y );
-                x += fontxspacing[iTmp];
-            }
-
-            cTmp = szText[cnt];
-            cnt++;
-
-            if ( '~' == cTmp || C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || isspace( cTmp ) )
-            {
-                newword = true;
-            }
-        }
-    }
-
-    gfx_end_text();
-    return newy;
-}
-
-//--------------------------------------------------------------------------------------------
-// UTILITY FUNCTIONS
-//--------------------------------------------------------------------------------------------
-bool dump_screenshot()
-{
-    /// @author BB
-    /// @details dumps the current screen (GL context) to a new bitmap file
-    /// right now it dumps it to whatever the current directory is
-
-    // returns true if successful, false otherwise
-
-    int i;
-    bool saved     = false;
-    STRING szFilename, szResolvedFilename;
-
-    // find a valid file name
-    bool savefound = false;
-    i = 0;
-    while ( !savefound && ( i < 100 ) )
-    {
-        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.png", i );
-
-        // lame way of checking if the file already exists...
-        savefound = !vfs_exists( szFilename );
-        if ( !savefound )
-        {
-            i++;
-        }
-    }
-
-    if ( !savefound ) return false;
-
-    // convert the file path to the correct write path
-    strncpy( szResolvedFilename, szFilename, SDL_arraysize( szFilename ) );
-
-    // if we are not using OpenGL, use SDL to dump the screen
-    if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window), SDL_WINDOW_OPENGL))
-    {
-        return IMG_SavePNG_RW(SDL_GetWindowSurface(sdl_scr.window), vfs_openRWopsWrite(szResolvedFilename), 1);
-    }
-
-    // we ARE using OpenGL
-    {
-        Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
-        {
-            SDL_Surface *temp;
-
-            // create a SDL surface
-            const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
-            temp = SDL_CreateRGBSurface(0, sdl_scr.x, sdl_scr.y,
-                                        pixelFormatDescriptor.getColorDepth().getDepth(),
-                                        pixelFormatDescriptor.getRedMask(),
-                                        pixelFormatDescriptor.getGreenMask(),
-                                        pixelFormatDescriptor.getBlueMask(),
-                                        pixelFormatDescriptor.getAlphaMask());
-
-            if (NULL == temp) {
-                //Something went wrong
-                SDL_FreeSurface(temp);
-                return false;
-            }
-
-            //Now lock the surface so that we can read it
-            if (-1 != SDL_LockSurface(temp)) {
-                SDL_Rect rect = {0, 0, 0, 0};
-                if (0 == rect.w && 0 == rect.h) {
-                    rect.w = sdl_scr.x;
-                    rect.h = sdl_scr.y;
-                }
-                if (rect.w > 0 && rect.h > 0) {
-                    int y;
-                    Uint8 * pixels;
-
-                    GL_DEBUG(glGetError)();
-
-                    //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
-                    //// stolen from SDL ;)
-                    // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
-                    // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                    //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
-                    //// it is not necesssaty to mess with the alignment
-                    // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
-                    // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                    // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
-                    // relative to the SDL Screen memory
-
-                    // this is supposed to be a DirectX thing, so it needs to be tested out on glx
-                    // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
-                    pixels = (Uint8 *)temp->pixels;
-                    for (y = rect.y; y < rect.y + rect.h; y++) {
-                        GL_DEBUG(glReadPixels)(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-                        pixels += temp->pitch;
-                    }
-                    EGOBOO_ASSERT(GL_NO_ERROR == GL_DEBUG(glGetError)());
-                }
-
-                SDL_UnlockSurface(temp);
-
-                // Save the file as a .bmp
-                saved = (-1 != IMG_SavePNG_RW(temp, vfs_openRWopsWrite(szResolvedFilename), 1));
-            }
-
-            // free the SDL surface
-            SDL_FreeSurface(temp);
-            if (saved) {
-                // tell the user what we did
-                DisplayMsgs::get().printf("Saved to %s", szFilename);
-            }
-        }
-    }
-
-    return savefound && saved;
-}
-
-

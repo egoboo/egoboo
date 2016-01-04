@@ -177,9 +177,6 @@ void LoadingState::loadModuleData()
     // initialize the collision system
     setProgressText("Beautifying graphics...", 40);
 
-    //Ready message display
-    DisplayMsgs::get().reset();
-
     // Reset all loaded "profiles" in the "profile system".
     ProfileSystem::get().reset();
 

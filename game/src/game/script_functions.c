@@ -7496,7 +7496,7 @@ Uint8 scr_TakePicture( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = dump_screenshot();
+    returncode = _gameEngine->getUIManager()->dumpScreenshot();
 
     SCRIPT_FUNCTION_END();
 }

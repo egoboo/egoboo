@@ -259,9 +259,6 @@ void DebugModuleLoadingState::loadModuleData()
         // initialize the collision system
         singleThreadRedrawHack("Beautifying graphics...");
 
-        //Ready message display
-        DisplayMsgs::get().reset();
-
         // Reset all "profiles" in the "profile system".
         ProfileSystem::get().reset();
 

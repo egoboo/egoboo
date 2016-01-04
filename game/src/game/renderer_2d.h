@@ -25,42 +25,8 @@
 #include "egolib/egolib.h"
 
 //--------------------------------------------------------------------------------------------
-
-/// the maximum length egoboo messages
-#define EGO_MESSAGE_SIZE      90
-
-/// the minimum number of on-screen messages
-#define EGO_MESSAGE_MIN      1
-
-/// the normal number of on-screen messages
-#define EGO_MESSAGE_STD      4
-
-/// the maximum number of on-screen messages
-#define EGO_MESSAGE_MAX      8
-
-//--------------------------------------------------------------------------------------------
-
-/// A display messages
-struct msg_t
-{
-    int time;                            ///< The remaining time for this message.
-    char textdisplay[EGO_MESSAGE_SIZE];  ///< The displayed text.
-};
-
-//--------------------------------------------------------------------------------------------
-
-struct DisplayMsgs {
-    DisplayMsgs() : timechange(0), count(EGO_MESSAGE_MAX), elements(), on(true) {
-    }
     static DisplayMsgs& get() {
         static DisplayMsgs singleton;
-        return singleton;
-    }
-    void clear();
-    void reset();
-    int get_free();
-    int printf(const char *format, ...) GCC_PRINTF_FUNC(2);
-    void print(const char *text);
     int vprintf(const char *format, va_list args);
     float draw_all(float y);
     void initialize();
@@ -68,21 +34,12 @@ struct DisplayMsgs {
     void update();
     void download(egoboo_config_t& cfg);
     void upload(egoboo_config_t& cfg);
-
-    /// An array of display messages.
-    StaticArray<msg_t, EGO_MESSAGE_MAX> elements;
-    int timechange;     ///< how much time has elapsed for messages
-    int count;          ///< maximum number of displayed messages
-    bool on;             ///< Messages?
 };
 
 //--------------------------------------------------------------------------------------------
-
 // mode control
 void gfx_begin_2d();
 void gfx_end_2d();
-void gfx_begin_text();
-void gfx_end_text();
 
 // bitmap font functions
 /**
@@ -90,16 +47,14 @@ void gfx_end_text();
  * @details Uses gfx_begin_2d() ... gfx_end_2d() so that the function can basically be called from anywhere.
  *          The way they are currently implemented, this breaks the icon drawing in draw_status() if
  *          you use draw_string() and then draw_icon(). Use draw_string_raw(), instead.
- * @todo    Is there actually anything that does not break something else or is itself broken or conceptually flawed?
  */
-float draw_string(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
-float draw_wrap_string(const char *szText, float x, float y, int maxx);
-void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype, float x, float y);
+
+ //ZF> TODO: move these to UI manager
 int draw_string_raw(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
+void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype, float x, float y, float alpha = 1.0f);
 
 // graphics primitive functions
 /// Draw a coloured quad.
 void draw_quad_2d(const ego_frect_t scr_rect, bool use_alpha, const Ego::Math::Colour4f& tint);
 /// Draw a coloured and textured quad.
 void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
-bool dump_screenshot();

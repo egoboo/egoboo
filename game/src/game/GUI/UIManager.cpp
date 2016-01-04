@@ -156,3 +156,110 @@ void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, float 
     // Draw the image
     draw_quad_2d(img, destination, source, true, tint);
 }
+
+bool UIManager::dumpScreenshot()
+{
+    int i;
+    bool saved     = false;
+    STRING szFilename, szResolvedFilename;
+
+    // find a valid file name
+    bool savefound = false;
+    i = 0;
+    while ( !savefound && ( i < 100 ) )
+    {
+        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.png", i );
+
+        // lame way of checking if the file already exists...
+        savefound = !vfs_exists( szFilename );
+        if ( !savefound )
+        {
+            i++;
+        }
+    }
+
+    if ( !savefound ) return false;
+
+    // convert the file path to the correct write path
+    strncpy( szResolvedFilename, szFilename, SDL_arraysize( szFilename ) );
+
+    // if we are not using OpenGL, use SDL to dump the screen
+    if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window), SDL_WINDOW_OPENGL))
+    {
+        return IMG_SavePNG_RW(SDL_GetWindowSurface(sdl_scr.window), vfs_openRWopsWrite(szResolvedFilename), 1);
+    }
+
+    // we ARE using OpenGL
+    {
+        Ego::OpenGL::PushClientAttrib pca(GL_CLIENT_PIXEL_STORE_BIT);
+        {
+            SDL_Surface *temp;
+
+            // create a SDL surface
+            const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
+            temp = SDL_CreateRGBSurface(0, sdl_scr.x, sdl_scr.y,
+                                        pixelFormatDescriptor.getColorDepth().getDepth(),
+                                        pixelFormatDescriptor.getRedMask(),
+                                        pixelFormatDescriptor.getGreenMask(),
+                                        pixelFormatDescriptor.getBlueMask(),
+                                        pixelFormatDescriptor.getAlphaMask());
+
+            if (NULL == temp) {
+                //Something went wrong
+                SDL_FreeSurface(temp);
+                return false;
+            }
+
+            //Now lock the surface so that we can read it
+            if (-1 != SDL_LockSurface(temp)) {
+                SDL_Rect rect = {0, 0, 0, 0};
+                if (0 == rect.w && 0 == rect.h) {
+                    rect.w = sdl_scr.x;
+                    rect.h = sdl_scr.y;
+                }
+                if (rect.w > 0 && rect.h > 0) {
+                    int y;
+                    Uint8 * pixels;
+
+                    GL_DEBUG(glGetError)();
+
+                    //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
+                    //// stolen from SDL ;)
+                    // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
+                    // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+
+                    //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
+                    //// it is not necesssaty to mess with the alignment
+                    // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
+                    // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+
+                    // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
+                    // relative to the SDL Screen memory
+
+                    // this is supposed to be a DirectX thing, so it needs to be tested out on glx
+                    // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
+                    pixels = (Uint8 *)temp->pixels;
+                    for (y = rect.y; y < rect.y + rect.h; y++) {
+                        GL_DEBUG(glReadPixels)(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+                        pixels += temp->pitch;
+                    }
+                    EGOBOO_ASSERT(GL_NO_ERROR == GL_DEBUG(glGetError)());
+                }
+
+                SDL_UnlockSurface(temp);
+
+                // Save the file as a .bmp
+                saved = (-1 != IMG_SavePNG_RW(temp, vfs_openRWopsWrite(szResolvedFilename), 1));
+            }
+
+            // free the SDL surface
+            SDL_FreeSurface(temp);
+            if (saved) {
+                // tell the user what we did
+                DisplayMsg_printf("Saved to %s", szFilename);
+            }
+        }
+    }
+
+    return savefound && saved;
+}

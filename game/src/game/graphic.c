@@ -732,7 +732,6 @@ void draw_hud()
         y = draw_debug(y);
         y = draw_timer(y);
         y = draw_game_status(y);
-        y = DisplayMsgs::get().draw_all(y);
     }
     gfx_end_2d();
 }

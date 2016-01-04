@@ -1167,7 +1167,6 @@ void game_quit_module()
 
     // re-initialize all game/module data
     ProfileSystem::get().reset();
-    DisplayMsgs::get().reset();
     game_reset_players();
     reset_end_text();
 

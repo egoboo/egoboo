@@ -242,7 +242,7 @@ void GameEngine::renderOneFrame()
             _screenshotReady = false;
             _screenshotRequested = false;
             
-            if (!dump_screenshot())
+            if (!_uiManager->dumpScreenshot())
             {
                 DisplayMsgs::get().printf("Error writing screenshot!"); // send a failure message to the screen
 				Log::get().warn("Error writing screenshot\n");      // Log the error in log.txt
@@ -278,9 +278,6 @@ bool GameEngine::initialize()
     // >>> This must be done as the crappy old systems do not "pull" their configuration.
     //      More recent systems like video or audio system pull their configuraiton data
     //      by the time they are initialized.
-
-    // Message display.
-    DisplayMsgs::get().download(egoboo_config_t::get());
 
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
