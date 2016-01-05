@@ -375,9 +375,6 @@
     <ClCompile Include="src\egolib\Graphics\MD2Model.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\AI\AStar.c">
-      <Filter>Source Files\AI</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\AI\WaypointList.c">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
@@ -491,6 +488,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Graphics\VertexElementDescriptor.cpp">
       <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\AI\AStar.cpp">
+      <Filter>Source Files\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -833,9 +833,6 @@
     <ClInclude Include="src\egolib\Graphics\MD2Model.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\AI\AStar.h">
-      <Filter>Header Files\AI</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\AI\WaypointList.h">
       <Filter>Header Files\AI</Filter>
     </ClInclude>
@@ -1045,6 +1042,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\AI\AStar.hpp">
+      <Filter>Header Files\AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

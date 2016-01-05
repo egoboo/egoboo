@@ -120,8 +120,8 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -163,7 +163,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <PreprocessorDefinitions>_MBCS;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>None</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <BrowseInformation>false</BrowseInformation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
@@ -188,6 +188,7 @@
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -232,7 +233,7 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>None</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <PreprocessorDefinitions>_MBCS;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -251,6 +252,7 @@
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib />
     <Lib>
@@ -276,7 +278,7 @@
       <MinimalRebuild>true</MinimalRebuild>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SDLCheck>true</SDLCheck>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <StringPooling>false</StringPooling>
@@ -292,12 +294,14 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\AI\AStar.cpp" />
     <ClCompile Include="src\egolib\Graphics\Buffer.cpp">
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Graphics\Buffer.asm</AssemblerListingLocation>
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Graphics\Buffer.asm</AssemblerListingLocation>
@@ -351,7 +355,6 @@
     <ClCompile Include="src\egolib\Logic\Team.cpp" />
     <ClCompile Include="src\egolib\Math\Standard.cpp" />
     <ClCompile Include="src\egolib\VFS\Pathname.cpp" />
-    <ClCompile Include="src\egolib\AI\AStar.c" />
     <ClCompile Include="src\egolib\AI\WaypointList.c" />
     <ClCompile Include="src\egolib\Graphics\ModelDescriptor.cpp" />
     <ClCompile Include="src\egolib\Graphics\MD2Model.cpp" />
@@ -501,6 +504,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\AI\AStar.hpp" />
     <ClInclude Include="src\egolib\Graphics\Buffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp" />
     <ClInclude Include="src\egolib\Signal\Signal.hpp" />
@@ -565,7 +569,6 @@
     <ClInclude Include="src\egolib\Math\AABB.hpp" />
     <ClInclude Include="src\egolib\Math\Convex.hpp" />
     <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
-    <ClInclude Include="src\egolib\AI\AStar.h" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
     <ClInclude Include="src\egolib\Graphics\ModelDescriptor.hpp" />
     <ClInclude Include="src\egolib\Graphics\MD2Model.hpp" />
