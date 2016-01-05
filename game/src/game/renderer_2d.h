@@ -59,7 +59,7 @@ struct DisplayMsgs {
     void clear();
     void reset();
     int get_free();
-    int printf(const char *format, ...) GCC_PRINTF_FUNC(1);
+    int printf(const char *format, ...) GCC_PRINTF_FUNC(2);
     void print(const char *text);
     int vprintf(const char *format, va_list args);
     float draw_all(float y);
