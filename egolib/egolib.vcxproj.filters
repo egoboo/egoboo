@@ -851,9 +851,6 @@
     <ClInclude Include="src\egolib\Math\Dimensionality.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Entity.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Standard.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -1045,6 +1042,18 @@
     </ClInclude>
     <ClInclude Include="src\egolib\AI\AStar.hpp">
       <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\_Generator.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Line.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\EuclidianSpace.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Point.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

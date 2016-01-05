@@ -280,10 +280,10 @@ Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f
 Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Vector3f& P)
 {
     // move the cone origin to the origin of coordinates
-	Vector3f dist_vec = P - K.origin;
+	Vector3f dist_vec = P - K.getOrigin();
 
     // project the point's position onto the cone's axis
-    float para_dist = K.axis.dot(dist_vec);
+    float para_dist = K.getAxis().dot(dist_vec);
 
     if ( para_dist < 0.0f )
     {
@@ -383,7 +383,7 @@ Ego::Math::Relation cone_intersects_sphere(const Cone3f& K, const Sphere3f& S)
     // this is the distance that the origin of the cone must be moved to
     // produce a new cone with an offset equal to the radius of the sphere
     offset_length = S.getRadius() * K.inv_sin;
-	offset_vec = K.axis * offset_length;
+	offset_vec = K.getAxis() * offset_length;
 
     // assume the worst
     done   = false;
@@ -392,7 +392,7 @@ Ego::Math::Relation cone_intersects_sphere(const Cone3f& K, const Sphere3f& S)
     // completely inside the original cone
     // Shift the origin by the offset in the positive sense.
 	Cone3f K_new = K;
-    K_new.origin = K.origin + offset_vec;
+    K_new.origin = K.getOrigin() + offset_vec;
 
     // If the center of the sphere is inside this cone, it must be competely inside the original cone
     switch (cone_intersects_point(K_new, S.getCenter()))
@@ -418,7 +418,7 @@ Ego::Math::Relation cone_intersects_sphere(const Cone3f& K, const Sphere3f& S)
     {
         // Shift the origin by the offset in the negative sense.
 		K_new = K;
-        K_new.origin = K.origin - offset_vec;
+        K_new.origin = K.getOrigin() - offset_vec;
 
         // If the center of the sphere is inside this cone, it must be intersecting the original cone.
         // Since it failed test with the foreward cone, it must be merely intersecting the cone.

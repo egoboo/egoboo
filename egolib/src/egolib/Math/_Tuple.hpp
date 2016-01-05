@@ -18,17 +18,17 @@
 //********************************************************************************************
 
 /// @file   egolib/Math/_Tuple.hpp
-/// @brief  Vectors.
+/// @brief  Tuples.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/VectorSpace.hpp"
-#include "egolib/Log/_Include.hpp"
-#include "egolib/Float.hpp"
-#include "egolib/Debug.hpp"
-#include "egolib/Math/Math.hpp"
+
+
+#include "egolib/Math/Dimensionality.hpp"
 #include "egolib/Math/TemplateUtilities.hpp"
+
+
 
 namespace Ego {
 namespace Math {
@@ -37,22 +37,21 @@ namespace Internal {
 
 /**
  * @brief
- *  Derived from @a std::true_type if @a _VectorSpaceType::Dimensionality and @a ArgTypes
- *  fulfil the requirements for a constructor of a tuple, and derived from @a std::false_type
- *  otherwise.
- * @param _VectorSpaceType
- *  must fulfil the <em>vector space</em> concept
+ *  Derived from @a std::true_type if @a _Dimensionality and @a ArgTypes fulfil the requirements
+ *  for a constructor of a tuple, and derived from @a std::false_type otherwise.
+ * @param _ElementType
+ *  the type of the elements of the tuple
+ * @param _Dimensionality
+ *  the dimensionality of the tuple
  * @param _ArgTypes
- *  @a ArgTypes must have <tt>_VectorSpaceType::Dimensionality-1</tt> elements which are convertible into values of type @a _VectorSpaceType::ScalarType
- * @author
- *  Michael Heilmann
+ *  @a ArgTypes must have <tt>_Dimensionality-1</tt> elements which are convertible into values of type @a _ElementType
  */
-template <typename _VectorSpaceType, typename ... ArgTypes>
+template <typename _Type, size_t _Dimensionality, typename ... ArgTypes>
 struct TupleConstructorEnable
     : public std::conditional<
-      ((Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::dimensionality() - 1>::value)
+      ((Ego::Core::EqualTo<sizeof...(ArgTypes), _Dimensionality - 1>::value)
 	   &&
-	   (Ego::Core::AllTrue<std::is_convertible<ArgTypes,typename _VectorSpaceType::ScalarType>::value ...>::value)),
+	   (Ego::Core::AllTrue<std::is_convertible<ArgTypes,typename _Type>::value ...>::value)),
       std::true_type,
       std::false_type
       >::type
@@ -68,58 +67,34 @@ struct TupleConstructorEnable
  * @author
  *	Michael Heilmann
  */
-template <typename _UnderlayingType>
+template <typename _ElementType, size_t _Dimensionality>
 struct Tuple {
-
 public:
+    /** @brief The type of the elements of this tuple type. */
+    typedef _ElementType ElementType;
 
-	/**
-	 * @brief
-	 *  @a MyType is the type of this template/template specialization.
-	 */
-	typedef Tuple<_UnderlayingType> MyType;
+    /**
+     * @brief The dimensionality of this tuple.
+     * @return the dimensionality of this tuple
+     */
+    constexpr static size_t dimensionality() {
+        return _Dimensionality;
+    }
 
-	/**
-	 * @brief
-	 *	@a VectorSpaceType is the type of the vector space.
-	 */
-	typedef _UnderlayingType VectorSpaceType;
+    /** @invariant The dimensionality be a positive integral constant. */
+    static_assert(IsDimensionality<_Dimensionality>::value, "_Dimensionality must fulfil the dimensionality concept");
 
-	/**
-	 * @brief
-	 *  @a ScalarFieldType is the type of the underlaying scalar field.
-	 */
-	typedef typename _UnderlayingType::ScalarFieldType ScalarFieldType;
 
-	/**
-	 * @brief
-	 *  @a ScalarType is the type of the underlaying scalars.
-	 */
-	typedef typename _UnderlayingType::ScalarFieldType::ScalarType ScalarType;
+	/** @brief @a MyType is the type of this template/template specialization. */
+	typedef Tuple<ElementType, _Dimensionality> MyType;
 
-	/**
-	 * @invariant
-	 *  The dimensionality be a positive integral constant.
-	 */
-	static_assert(IsDimensionality<_UnderlayingType::dimensionality()>::value, "_UnderlayingType::Dimensionality must fulfil the dimensionality concept");
-
-	/**
-	 * @brief
-	 *	The dimensionality of this tuple.
-	 * @return
-	 *	the dimensionality of this tuple
-	 */
-	constexpr static size_t dimensionality() {
-		return _UnderlayingType::dimensionality();
-	}
 
 protected:
-
 	/**
 	 * @brief
 	 *  The elements of this tuple.
 	 */
-	std::array<ScalarType, _UnderlayingType::dimensionality()> _elements;
+	std::array<ElementType, _Dimensionality> _elements;
 
 	/**
 	 * @brief
@@ -127,10 +102,10 @@ protected:
 	 * @param v, ... args
 	 *	the element values
 	 */
-	template<typename ... ArgTypes, typename = typename std::enable_if<Internal::TupleConstructorEnable<_UnderlayingType, ArgTypes ...>::value>::type>
-	Tuple(ScalarType v, ArgTypes&& ... args)
+	template<typename ... ArgTypes, typename = std::enable_if_t<Internal::TupleConstructorEnable<_ElementType, _Dimensionality, ArgTypes ...>::value>>
+	Tuple(ElementType v, ArgTypes&& ... args)
 		: _elements{ v, args ... } {
-		static_assert(_UnderlayingType::dimensionality() - 1 == sizeof ... (args), "wrong number of arguments");
+		static_assert(dimensionality() - 1 == sizeof ... (args), "wrong number of arguments");
 	}
 
 	/**
@@ -168,22 +143,20 @@ protected:
 	 * @pre
 	 *	The index is within bounds.
 	 */
-	ScalarType& at(size_t const& index) {
+	ElementType& at(size_t const& index) {
 	#ifdef _DEBUG
-		EGOBOO_ASSERT(index < dimensionality());
+		ID_ASSERT(index < dimensionality());
 	#endif
 		return _elements[index];
 	}
 
-	const ScalarType& at(size_t const& index) const {
+	const ElementType& at(size_t const& index) const {
 	#ifdef _DEBUG
-		EGOBOO_ASSERT(index < dimensionality());
+		ID_ASSERT(index < dimensionality());
 	#endif
 		return _elements[index];
 	}
 
-	/**@}*/
-    
 };
 
 } // namespace Math

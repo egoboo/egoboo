@@ -1,7 +1,7 @@
 #include "egolib/Math/Standard.hpp"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/_math.h"
-
+#include "egolib/Float.hpp"
 
 #ifdef _DEBUG
 namespace Ego {

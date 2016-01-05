@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "egolib/Math/VectorSpace.hpp"
 #include "egolib/Math/AABB.hpp"
 #include "egolib/Math/Sphere.h"
 

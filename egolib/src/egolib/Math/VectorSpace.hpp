@@ -67,7 +67,7 @@ struct VectorSpace;
 
 template <typename _ScalarFieldType, size_t _Dimensionality>
 struct VectorSpace<_ScalarFieldType, _Dimensionality, 
-	               typename std::enable_if<Internal::VectorSpaceEnable<_ScalarFieldType, _Dimensionality>::value>::type> {
+	               std::enable_if_t<Internal::VectorSpaceEnable<_ScalarFieldType, _Dimensionality>::value>> {
 	
 	/**
 	 * @invariant

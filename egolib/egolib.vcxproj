@@ -504,6 +504,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Line.hpp" />
+    <ClInclude Include="src\egolib\Math\_Generator.hpp" />
     <ClInclude Include="src\egolib\AI\AStar.hpp" />
     <ClInclude Include="src\egolib\Graphics\Buffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp" />
@@ -563,7 +566,7 @@
     <ClInclude Include="src\egolib\Math\_Tuple.hpp" />
     <ClInclude Include="src\egolib\Logic\Team.hpp" />
     <ClInclude Include="src\egolib\Math\Dimensionality.hpp" />
-    <ClInclude Include="src\egolib\Math\Entity.hpp" />
+    <ClInclude Include="src\egolib\Math\EuclidianSpace.hpp" />
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />
     <ClInclude Include="src\egolib\Math\Standard.hpp" />
     <ClInclude Include="src\egolib\Math\AABB.hpp" />

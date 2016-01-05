@@ -24,7 +24,7 @@
 
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Standard.hpp" /// @todo Remove this.
-#include "egolib/Math/Entity.hpp"
+#include "egolib/Math/EuclidianSpace.hpp"
 
 namespace Ego {
 namespace Math {
@@ -41,28 +41,20 @@ namespace Math {
  *  Michael Heilmann
  */
 template <typename _ScalarType>
-struct Plane3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>,
-	            public Translatable<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>> {
-
+struct Plane3 : public Translatable<VectorSpace<Field<_ScalarType>, 3>> {
 public:
-
-    /**
-     * @brief
-     *  @a MyType is the type of this template/template specialization.
-     */
+    /// @brief The Euclidian space over which the cones are defined.
+    typedef EuclidianSpace<VectorSpace<Field<_ScalarType>, 3>> EuclidianSpace;
+    /// The vector space type (of the Euclidian space).
+    typedef typename EuclidianSpace::VectorSpaceType VectorSpaceType;
+    /// The scalar field type (of the vector space).
+    typedef typename EuclidianSpace::ScalarFieldType ScalarFieldType;
+    /// The vector type (of the vector space).
+    typedef typename EuclidianSpace::VectorType VectorType;
+    /// The scalar type (of the scalar field).
+    typedef typename EuclidianSpace::ScalarType ScalarType;
+    /// @brief @a MyType is the type of this template/template specialization.
     typedef Plane3<_ScalarType> MyType;
-
-    /**
-     * @brief
-     *  The scalar type.
-     */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>::ScalarType ScalarType;
-
-    /**
-     * @brief
-     *  The vector type.
-     */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>::VectorType VectorType;
 
 private:
 

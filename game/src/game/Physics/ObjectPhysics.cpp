@@ -1030,10 +1030,10 @@ void ObjectPhysics::updateCollisionSize(bool update_matrix)
     oct_bb_t::downgrade(bdst, _object.bump_stt, _object.bump, _object.bump_1);
 
     //Recalculate the fast 2D collision box
-    _aabb2D._min.x() = _object.getPosX() + _object.chr_min_cv.getMin()[OCT_X];
-    _aabb2D._min.y() = _object.getPosY() + _object.chr_min_cv.getMin()[OCT_Y];
-    _aabb2D._max.x() = _object.getPosX() + _object.chr_min_cv.getMax()[OCT_X];
-    _aabb2D._max.y() = _object.getPosY() + _object.chr_min_cv.getMax()[OCT_Y];
+    _aabb2D = AABB2f(Vector2f(_object.getPosX() + _object.chr_min_cv.getMin()[OCT_X],
+                              _object.getPosY() + _object.chr_min_cv.getMin()[OCT_Y]),
+                     Vector2f(_object.getPosX() + _object.chr_min_cv.getMax()[OCT_X],
+                              _object.getPosY() + _object.chr_min_cv.getMax()[OCT_Y]));
 }
 
 bool ObjectPhysics::floorIsSlippy() const
