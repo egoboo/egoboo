@@ -44,15 +44,15 @@ template <typename _ScalarType>
 struct Plane3 : public Translatable<VectorSpace<Field<_ScalarType>, 3>> {
 public:
     /// @brief The Euclidian space over which the cones are defined.
-    typedef EuclidianSpace<VectorSpace<Field<_ScalarType>, 3>> EuclidianSpace;
+    typedef EuclidianSpace<VectorSpace<Field<_ScalarType>, 3>> EuclidianSpaceType;
     /// The vector space type (of the Euclidian space).
-    typedef typename EuclidianSpace::VectorSpaceType VectorSpaceType;
+    typedef typename EuclidianSpaceType::VectorSpaceType VectorSpaceType;
     /// The scalar field type (of the vector space).
-    typedef typename EuclidianSpace::ScalarFieldType ScalarFieldType;
+    typedef typename EuclidianSpaceType::ScalarFieldType ScalarFieldType;
     /// The vector type (of the vector space).
-    typedef typename EuclidianSpace::VectorType VectorType;
+    typedef typename EuclidianSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
-    typedef typename EuclidianSpace::ScalarType ScalarType;
+    typedef typename EuclidianSpaceType::ScalarType ScalarType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef Plane3<_ScalarType> MyType;
 

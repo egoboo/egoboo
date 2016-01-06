@@ -139,8 +139,8 @@ public:
     *  the minimum of this cube
     */
     VectorType getMin() const {
-        typedef Generator < ScalarType, ConstantEngine < ScalarType > > MyGenerator;
-        return _center - VectorType(MyGenerator(_size));
+        typedef ConstantGenerator<ScalarType> MyGenerator;
+        return _center - VectorType(MyGenerator(_size), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
     }
 
     /**
@@ -150,8 +150,8 @@ public:
      *  the maximum of this cube
      */
     VectorType getMax() const {
-        typedef Generator < ScalarType, ConstantEngine < ScalarType > > MyGenerator;
-        return _center + VectorType(MyGenerator(_size));
+        typedef ConstantGenerator<ScalarType> MyGenerator;
+        return _center + VectorType(MyGenerator(_size), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
     }
 
     /**

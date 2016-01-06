@@ -63,7 +63,7 @@ public:
     /// @brief The vector space of this vector.
     typedef _VectorSpaceType VectorSpaceType;
     /// @brief The vector type (of the vector space).
-    typedef typename Vector<VectorSpaceType> VectorType;
+    typedef Vector<VectorSpaceType> VectorType;
 
 public:
     /// @brief The scalar field type (of the vector space).

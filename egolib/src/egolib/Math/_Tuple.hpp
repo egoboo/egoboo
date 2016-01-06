@@ -51,7 +51,7 @@ struct TupleConstructorEnable
     : public std::conditional<
       ((Ego::Core::EqualTo<sizeof...(ArgTypes), _Dimensionality - 1>::value)
 	   &&
-	   (Ego::Core::AllTrue<std::is_convertible<ArgTypes,typename _Type>::value ...>::value)),
+	   (Ego::Core::AllTrue<std::is_convertible<ArgTypes, _Type>::value ...>::value)),
       std::true_type,
       std::false_type
       >::type
