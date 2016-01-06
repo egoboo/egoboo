@@ -115,6 +115,16 @@ protected:
      * @tparam ... Index
      *  indices 0, 1, ..., dimensionality() - 1
      */
+    template <typename _GeneratorType, size_t ... Index>
+    Vector(const _GeneratorType& generator, std::index_sequence<Index ...>)
+        : Vector(generator(Index) ...) {
+    }
+
+public:
+    /**
+     * @brief
+     *  Default-construct this vector.
+     */
     Vector()
         : Vector(ConstantGenerator<ScalarType>(ScalarFieldType::additiveNeutral()), 
                  std::make_index_sequence<VectorSpaceType::dimensionality()>{}) {
