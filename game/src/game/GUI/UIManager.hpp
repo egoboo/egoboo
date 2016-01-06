@@ -103,11 +103,34 @@ public:
     **/
     bool dumpScreenshot();
 
+    /**
+    * @brief
+    *   Renders a text string using bitmap font
+    * @param startX
+    *   x screen coordinate
+    * @param startY
+    *   y screen coordinate
+    * @param text
+    *   the text string to render
+    * @param maxWidth
+    *   Maximum x width of the string, if it is bigger the function
+    *   will wrap to the next line
+    * @param alpha
+    *   Value between 1.0f (opaque) to 0.0f (transparent)
+    * @return
+    *   Y screen coordinate of the line below where the text was rendered
+    **/
+    float drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth, const float alpha);
+
+    //TODO: make private
+    void drawBitmapGlyph(int fonttype, float xPos, float yPos, const float alpha);
+    void drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
+
+private:
+
 private:
     std::array<std::shared_ptr<Ego::Font>, NR_OF_UI_FONTS> _fonts;
-    std::shared_ptr<Ego::Font> _defaultFont;
-    std::shared_ptr<Ego::Font> _floatingTextFont;
-    std::shared_ptr<Ego::Font> _debugFont;
-    std::shared_ptr<Ego::Font> _gameFont;
     int _renderSemaphore;
+    std::shared_ptr<Ego::Texture> _bitmapFontTexture;
+    Ego::VertexBuffer _textureQuadVertexBuffer;
 };

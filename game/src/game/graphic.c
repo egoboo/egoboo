@@ -449,7 +449,7 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y)
         sc_rect.ymin = y - (height / 2);
         sc_rect.ymax = y + (height / 2);
 
-        draw_quad_2d(ptex, sc_rect, tx_rect, true);
+        _gameEngine->getUIManager()->drawQuad2D(ptex, sc_rect, tx_rect, true);
     }
 }
 
@@ -495,7 +495,7 @@ float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d(ptex, sc_rect, tx_rect, useAlpha);
+    _gameEngine->getUIManager()->drawQuad2D(ptex, sc_rect, tx_rect, useAlpha);
 
     if (NOSPARKLE != sparkle_color)
     {

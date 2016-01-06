@@ -51,10 +51,6 @@ void gfx_end_2d();
 
  //ZF> TODO: move these to UI manager
 int draw_string_raw(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
-void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype, float x, float y, float alpha = 1.0f);
-
-// graphics primitive functions
 /// Draw a coloured quad.
 void draw_quad_2d(const ego_frect_t scr_rect, bool use_alpha, const Ego::Math::Colour4f& tint);
 /// Draw a coloured and textured quad.
-void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());

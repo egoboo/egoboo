@@ -52,8 +52,6 @@ float MessageLog::drawBitmapFontString(const float stt_x, const float stt_y, con
 	float x = stt_x;
 	float y = stt_y;
 
-    const std::shared_ptr<Ego::Texture> &fontTexture = TextureManager::get().getTexture("mp_data/font_new_shadow");
-
 	for(size_t cnt = 0; cnt < text.length(); ++cnt)
     {
     	const uint8_t cTmp = text[cnt];
@@ -95,7 +93,7 @@ float MessageLog::drawBitmapFontString(const float stt_x, const float stt_y, con
         // Normal letter
         else {
             uint8_t iTmp = asciitofont[cTmp];
-            draw_one_font(fontTexture, iTmp, x, y, alpha);
+            _gameEngine->getUIManager()->drawBitmapGlyph(iTmp, x, y, alpha);
             x += fontxspacing[iTmp];
         }
     }

@@ -28,7 +28,9 @@
 
 UIManager::UIManager() :
     _fonts(),
-    _renderSemaphore(0)
+    _renderSemaphore(0),
+    _bitmapFontTexture(TextureManager::get().getTexture("mp_data/font_new_shadow")),
+    _textureQuadVertexBuffer(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2FT2F>())
 {
     //Load fonts from true-type files
     _fonts[FONT_DEFAULT] = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
@@ -144,8 +146,8 @@ void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, float 
     ego_frect_t source;
     source.xmin = 0.0f;
     source.ymin = 0.0f;
-    source.xmax = ( float ) img->getSourceWidth()  / ( float ) img->getWidth();
-    source.ymax = ( float ) img->getSourceHeight() / ( float ) img->getHeight();
+    source.xmax = static_cast<float>(img->getSourceWidth())  / static_cast<float>(img->getWidth());
+    source.ymax = static_cast<float>(img->getSourceHeight()) / static_cast<float>(img->getHeight());
 
     ego_frect_t destination;
     destination.xmin  = x;
@@ -154,7 +156,7 @@ void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, float 
     destination.ymax  = y + height;
 
     // Draw the image
-    draw_quad_2d(img, destination, source, true, tint);
+    drawQuad2D(img, destination, source, true, tint);
 }
 
 bool UIManager::dumpScreenshot()
@@ -262,4 +264,126 @@ bool UIManager::dumpScreenshot()
     }
 
     return savefound && saved;
+}
+
+float UIManager::drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth, const float alpha)
+{
+    //Check if alpha is visible
+    if(alpha <= 0.0f) {
+        return startY;
+    }
+
+    //Current render position
+    float x = startX;
+    float y = startY;
+
+    for(size_t cnt = 0; cnt < text.length(); ++cnt)
+    {
+        const uint8_t cTmp = text[cnt];
+
+        // Check each new word for wrapping
+        if ('~' == cTmp || C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || std::isspace(cTmp)) {
+            int endx = x + font_bmp_length_of_word(text.c_str() + cnt - 1);
+
+            if (endx > maxWidth) {
+
+                // Wrap the end and cut off spaces and tabs
+                x = startX + fontyspacing;
+                y += fontyspacing;
+                while (std::isspace(text[cnt]) || '~' == text[cnt]) {
+                    cnt++;
+                }
+
+                continue;
+            }
+        }
+
+        // Use squiggle for tab
+        if ('~' == cTmp) {
+            x = (std::floor(x / TABADD) + 1.0f) * TABADD;
+        }
+
+        //Linefeed
+        else if (C_LINEFEED_CHAR == cTmp) {
+            x = startX;
+            y += fontyspacing;
+        }
+
+        //other whitespace
+        else if (std::isspace(cTmp)) {
+            uint8_t iTmp = asciitofont[cTmp];
+            x += fontxspacing[iTmp] / 2;
+        }
+
+        // Normal letter
+        else {
+            uint8_t iTmp = asciitofont[cTmp];
+            drawBitmapGlyph(iTmp, x, y, alpha);
+            x += fontxspacing[iTmp];
+        }
+    }
+
+    return y + fontyspacing;
+}
+
+void UIManager::drawBitmapGlyph(int fonttype, float xPos, float yPos, const float alpha)
+{
+    static constexpr GLfloat DX = 2.0f / 512.0f;
+    static constexpr GLfloat DY = 1.0f / 256.0f;
+    static constexpr GLfloat BORDER = 1.0f / 512.0f;
+
+    ego_frect_t sc_rect;
+    sc_rect.xmin = xPos;
+    sc_rect.xmax = xPos + fontrect[fonttype].w;
+    sc_rect.ymin = yPos + fontoffset - fontrect[fonttype].h;
+    sc_rect.ymax = yPos + fontoffset;
+
+    ego_frect_t tx_rect;
+    tx_rect.xmin = fontrect[fonttype].x * DX;
+    tx_rect.xmax = tx_rect.xmin + fontrect[fonttype].w * DX;
+    tx_rect.ymin = fontrect[fonttype].y * DY;
+    tx_rect.ymax = tx_rect.ymin + fontrect[fonttype].h * DY;
+
+    // shrink the texture size slightly
+    tx_rect.xmin += BORDER;
+    tx_rect.xmax -= BORDER;
+    tx_rect.ymin += BORDER;
+    tx_rect.ymax -= BORDER;
+
+    drawQuad2D(_bitmapFontTexture, sc_rect, tx_rect, true, Ego::Colour4f(1.0f, 1.0f, 1.0f, alpha));
+}
+
+void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint)
+{
+    Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+    {
+        auto& renderer = Ego::Renderer::get();
+        renderer.getTextureUnit().setActivated(texture.get());
+        renderer.setColour(tint);
+
+        if (useAlpha) {
+            renderer.setBlendingEnabled(true);
+            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+            renderer.setAlphaTestEnabled(true);
+            renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+        }
+        else {
+            renderer.setBlendingEnabled(false);
+            renderer.setAlphaTestEnabled(false);
+        }
+
+        struct Vertex {
+            float x, y;
+            float s, t;
+        };
+        Ego::VertexBufferScopedLock vblck(_textureQuadVertexBuffer);
+        Vertex *vertices = vblck.get<Vertex>();
+        vertices[0].x = scr_rect.xmin; vertices[0].y = scr_rect.ymax; vertices[0].s = tx_rect.xmin; vertices[0].t = tx_rect.ymax;
+        vertices[1].x = scr_rect.xmax; vertices[1].y = scr_rect.ymax; vertices[1].s = tx_rect.xmax; vertices[1].t = tx_rect.ymax;
+        vertices[2].x = scr_rect.xmax; vertices[2].y = scr_rect.ymin; vertices[2].s = tx_rect.xmax; vertices[2].t = tx_rect.ymin;
+        vertices[3].x = scr_rect.xmin; vertices[3].y = scr_rect.ymin; vertices[3].s = tx_rect.xmin; vertices[3].t = tx_rect.ymin;
+
+        renderer.render(_textureQuadVertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    }
 }

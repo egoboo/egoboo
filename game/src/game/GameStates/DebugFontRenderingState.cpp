@@ -53,11 +53,11 @@ public:
         src.ymin = getY();
         src.xmax = src.xmin + _maxWidth;
         src.ymax = src.ymin + _maxHeight;
-        draw_quad_2d(src, true, _maxColor);
+        _gameEngine->getUIManager()->drawQuad2D(nullptr, src, tx, true, _maxColor);
         
         src.xmax = src.xmin + _textWidth;
         src.ymax = src.ymin + _textHeight;
-        draw_quad_2d(src, true, _textColor);
+        _gameEngine->getUIManager()->drawQuad2D(nullptr, src, tx, true, _textColor);
         
         _textRenderer->render(getX(), getY());
     }

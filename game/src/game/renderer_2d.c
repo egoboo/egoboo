@@ -32,7 +32,6 @@
 //--------------------------------------------------------------------------------------------
 
 static int  _va_draw_string( float x, float y, const char *format, va_list args );
-static int DisplayMsg_vprintf(const char *format, va_list args);
 static void gfx_begin_text();
 static void gfx_end_text();
 
@@ -84,7 +83,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
             {
                 // Normal letter
                 iTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr, iTmp, x, y );
+                _gameEngine->getUIManager()->drawBitmapGlyph(iTmp, x, y, 1.0f);
                 x += fontxspacing[iTmp];
             }
 
@@ -115,30 +114,20 @@ int draw_string_raw( float x, float y, const char *format, ... )
 
 int DisplayMsgs::printf( const char *format, ... )
 {
+    STRING szTmp;
+    
     va_list args;
     va_start( args, format );
-    int result = vprintf( format, args );
+    int retval = vsnprintf(szTmp, SDL_arraysize(szTmp), format, args);
+    DisplayMsg_print(szTmp);
     va_end( args );
-    return result;
+
+    return retval;
 }
 
 void DisplayMsgs::print( const char *text )
 {
     _gameEngine->getActivePlayingState()->getMessageLog()->addMessage(text);
-}
-
-int DisplayMsgs::vprintf( const char *format, va_list args )
-{
-    int result = 0;
-
-    if ( VALID_CSTR( format ) )
-    {
-        STRING szTmp;
-        result = vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
-        print( szTmp );
-    }
-
-    return result;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -221,9 +210,6 @@ void gfx_end_text()
     GL_DEBUG( glPopAttrib )();
 }
 
-//--------------------------------------------------------------------------------------------
-// PRIMITIVES
-//--------------------------------------------------------------------------------------------
 void draw_quad_2d(const ego_frect_t scr_rect, bool use_alpha, const Ego::Colour4f& tint) {
     Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
     {
@@ -256,83 +242,4 @@ void draw_quad_2d(const ego_frect_t scr_rect, bool use_alpha, const Ego::Colour4
         }
         renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
-}
-void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
-{
-    Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
-    {
-		auto& renderer = Ego::Renderer::get();
-		renderer.getTextureUnit().setActivated(tex.get());
-		renderer.setColour(tint);
-
-        if ( use_alpha )
-        {
-			renderer.setBlendingEnabled(true);
-			renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
-
-			renderer.setAlphaTestEnabled(true);
-			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
-        }
-        else
-        {
-			renderer.setBlendingEnabled(false);
-			renderer.setAlphaTestEnabled(false);
-        }
-
-		Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2FT2F>());
-		{
-			struct Vertex {
-				float x, y;
-				float s, t;
-			};
-			Ego::VertexBufferScopedLock vblck(vb);
-			Vertex *vertices = vblck.get<Vertex>();
-			vertices[0].x = scr_rect.xmin; vertices[0].y = scr_rect.ymax; vertices[0].s = tx_rect.xmin; vertices[0].t = tx_rect.ymax;
-			vertices[1].x = scr_rect.xmax; vertices[1].y = scr_rect.ymax; vertices[1].s = tx_rect.xmax; vertices[1].t = tx_rect.ymax;
-			vertices[2].x = scr_rect.xmax; vertices[2].y = scr_rect.ymin; vertices[2].s = tx_rect.xmax; vertices[2].t = tx_rect.ymin;
-			vertices[3].x = scr_rect.xmin; vertices[3].y = scr_rect.ymin; vertices[3].s = tx_rect.xmin; vertices[3].t = tx_rect.ymin;
-		}
-		renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-// BITMAP FONT FUNCTIONS
-//--------------------------------------------------------------------------------------------
-void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype, float x_stt, float y_stt, const float alpha)
-{
-    /// @author GAC
-    /// @details Very nasty version for starters.  Lots of room for improvement.
-    /// @author ZZ
-    /// @details This function draws a letter or number
-
-    if(alpha <= 0.0f) {
-        return;
-    }
-
-    GLfloat dx, dy, border;
-
-    ego_frect_t tx_rect, sc_rect;
-
-    sc_rect.xmin  = x_stt;
-    sc_rect.xmax  = x_stt + fontrect[fonttype].w;
-    sc_rect.ymin  = y_stt + fontoffset - fontrect[fonttype].h;
-    sc_rect.ymax  = y_stt + fontoffset;
-
-    dx = 2.0f / 512.0f;
-    dy = 1.0f / 256.0f;
-    border = 1.0f / 512.0f;
-
-    tx_rect.xmin = fontrect[fonttype].x * dx;
-    tx_rect.xmax = tx_rect.xmin + fontrect[fonttype].w * dx;
-    tx_rect.ymin = fontrect[fonttype].y * dy;
-    tx_rect.ymax = tx_rect.ymin + fontrect[fonttype].h * dy;
-
-    // shrink the texture size slightly
-    tx_rect.xmin += border;
-    tx_rect.xmax -= border;
-    tx_rect.ymin += border;
-    tx_rect.ymax -= border;
-
-    draw_quad_2d(ptex, sc_rect, tx_rect, true, Ego::Colour4f(1.0f, 1.0f, 1.0f, alpha));
 }

@@ -127,7 +127,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 	sc_rect.ymin = y;
 	sc_rect.ymax = y + height;
 
-	draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+	_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 	// make the new left-hand margin after the tab
 	x_left = x_stt + width;
@@ -151,7 +151,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		y += height;
 		ticks -= NUMTICK;
@@ -177,7 +177,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		// move to the right after drawing the full ticks
 		x += width;
@@ -198,7 +198,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		y += height;
 		ticks = 0;
@@ -226,7 +226,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		y += height;
 		total_ticks -= NUMTICK;
@@ -253,7 +253,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		y += height;
 	}
@@ -291,7 +291,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 	sc_rect.ymin = y;
 	sc_rect.ymax = y + height;
 
-	draw_quad_2d(texture, sc_rect, tx_rect, true);
+	_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 
 	x += width;
 
@@ -311,7 +311,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(texture, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 	}
 
 	//---- Draw the remaining empty ones
@@ -327,7 +327,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(texture, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 	}
 
 	return y + height;
