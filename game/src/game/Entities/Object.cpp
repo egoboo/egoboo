@@ -29,7 +29,6 @@
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Logic/Player.hpp"
 #include "game/game.h"
-#include "game/renderer_2d.h"
 #include "egolib/Graphics/ModelDescriptor.hpp"
 #include "game/script_implementation.h" //for stealth
 #include "game/ObjectAnimation.h"

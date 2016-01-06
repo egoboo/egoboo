@@ -23,7 +23,6 @@
 
 #include "game/egoboo.h"
 #include "game/game.h"
-#include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 

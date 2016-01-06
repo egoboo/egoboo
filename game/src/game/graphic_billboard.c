@@ -23,7 +23,6 @@
 
 #include "egolib/_math.h"
 #include "game/graphic_billboard.h"
-#include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/Graphics/Camera.hpp"
 #include "game/Entities/_Include.hpp"

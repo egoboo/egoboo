@@ -24,7 +24,7 @@
 
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
-#include "game/renderer_2d.h"
+#include "game/game.h" //TODO: Remove only for DisplayMessagePrintf
 
 UIManager::UIManager() :
     _fonts(),
@@ -266,6 +266,18 @@ bool UIManager::dumpScreenshot()
     return savefound && saved;
 }
 
+float UIManager::drawBitmapFontStringFormat(const float x, const float y, const std::string &format, ...)
+{
+    std::array<char, 256> buffer;
+
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer.data(), buffer.size(), format.c_str(), args);
+    va_end(args);
+
+    return drawBitmapFontString(x, y, buffer.data(), 0, 1.0f);
+}
+
 float UIManager::drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth, const float alpha)
 {
     //Check if alpha is visible
@@ -282,19 +294,21 @@ float UIManager::drawBitmapFontString(const float startX, const float startY, co
         const uint8_t cTmp = text[cnt];
 
         // Check each new word for wrapping
-        if ('~' == cTmp || C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || std::isspace(cTmp)) {
-            int endx = x + font_bmp_length_of_word(text.c_str() + cnt - 1);
+        if(maxWidth > 0) {        
+            if ('~' == cTmp || C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || std::isspace(cTmp)) {
+                int endx = x + font_bmp_length_of_word(text.c_str() + cnt - 1);
 
-            if (endx > maxWidth) {
+                if (endx > maxWidth) {
 
-                // Wrap the end and cut off spaces and tabs
-                x = startX + fontyspacing;
-                y += fontyspacing;
-                while (std::isspace(text[cnt]) || '~' == text[cnt]) {
-                    cnt++;
+                    // Wrap the end and cut off spaces and tabs
+                    x = startX + fontyspacing;
+                    y += fontyspacing;
+                    while (std::isspace(text[cnt]) || '~' == text[cnt]) {
+                        cnt++;
+                    }
+
+                    continue;
                 }
-
-                continue;
             }
         }
 

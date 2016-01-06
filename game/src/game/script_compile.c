@@ -23,7 +23,6 @@
 
 #include "game/script_compile.h"
 #include "game/game.h"
-#include "game/renderer_2d.h"
 #include "game/egoboo.h"
 #include "egolib/Log/Entry.hpp"
 

@@ -36,7 +36,6 @@
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/link.h"
-#include "game/renderer_2d.h"
 #include "game/Module/Module.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
 

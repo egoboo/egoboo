@@ -120,7 +120,8 @@ public:
     * @return
     *   Y screen coordinate of the line below where the text was rendered
     **/
-    float drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth, const float alpha);
+    float drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth = 0, const float alpha = 1.0f);
+    float drawBitmapFontStringFormat(const float startX, const float startY, const std::string &format, ...);
 
     //TODO: make private
     void drawBitmapGlyph(int fonttype, float xPos, float yPos, const float alpha);

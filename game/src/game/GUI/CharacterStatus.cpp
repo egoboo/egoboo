@@ -22,7 +22,6 @@
 
 #include "CharacterStatus.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/renderer_2d.h"
 #include "game/Logic/Player.hpp"
 #include "game/GUI/ProgressBar.hpp"
 #include "game/game.h" //for update_wld
@@ -60,7 +59,7 @@ void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, flo
 			if ((!pitem->getProfile()->isStackable()) || pitem->ammo > 1)
 			{
 				// Show amount of ammo left
-				draw_string_raw(x, y - 8, "%2d", pitem->ammo);
+				_gameEngine->getUIManager()->drawBitmapFontString(x, y - 8, std::to_string(pitem->ammo));
 			}
 		}
 	}
@@ -378,10 +377,10 @@ void CharacterStatus::draw()
     int yOffset = getY();
 
     // draw the name
-    yOffset = draw_string_raw(getX() + 8, yOffset, "%s", pchr->getName(false, false, true).c_str());
+    yOffset = _gameEngine->getUIManager()->drawBitmapFontString(getX() + 8, yOffset, pchr->getName(false, false, true));
 
     // draw the character's money
-    yOffset = draw_string_raw(getX() + 8, yOffset, "$%4d", pchr->getMoney()) + 8;
+    yOffset = _gameEngine->getUIManager()->drawBitmapFontStringFormat(getX() + 8, yOffset, "$%4d", pchr->getMoney()) + 8;
 
     bool levelUp = false;
     if(pchr->isPlayer()) {

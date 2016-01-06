@@ -32,7 +32,6 @@
 #include "game/GUI/MessageLog.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
-#include "game/renderer_2d.h"
 #include "game/Logic/Player.hpp"
 
 //For cheats

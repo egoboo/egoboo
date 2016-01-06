@@ -21,7 +21,6 @@
 /// @author Johan Jansen
 
 #include "game/GUI/MessageLog.hpp"
-#include "game/renderer_2d.h"
 #include "egolib/font_bmp.h"
 
 namespace Ego
@@ -41,6 +40,7 @@ void MessageLog::draw()
 	//Render all text and remove old messages
 	_messages.remove_if([this, &yOffset](Message& message){
         const int millisRemaining = static_cast<int64_t>(message.lifeTime) - SDL_GetTicks();
+        if(millisRemaining <= 0) return true;
         yOffset = drawBitmapFontString(getX(), yOffset, message.text, millisRemaining > MESSAGE_FADE_TIME_MS ? 1.0f : millisRemaining / static_cast<float>(MESSAGE_FADE_TIME_MS));
 		return SDL_GetTicks() > message.lifeTime;
 	});

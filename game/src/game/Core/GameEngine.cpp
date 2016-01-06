@@ -27,7 +27,6 @@
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
-#include "game/renderer_2d.h"
 #include "game/game.h"
 #include "game/Entities/_Include.hpp"
 #include "game/Physics/CollisionSystem.hpp"

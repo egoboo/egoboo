@@ -27,8 +27,6 @@
 #include "game/GUI/Label.hpp"
 #include "game/GUI/ScrollableList.hpp"
 
-#include "game/renderer_2d.h"
-
 class DebugFontRenderingState::DebugLabel : public GUIComponent
 {
 public:

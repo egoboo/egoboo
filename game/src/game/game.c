@@ -35,7 +35,6 @@
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_billboard.h"
-#include "game/renderer_2d.h"
 #include "game/input.h"
 #include "game/script_compile.h"
 #include "game/script_implementation.h"
@@ -50,6 +49,7 @@
 #include "game/Physics/PhysicalConstants.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
+#include "game/GUI/MessageLog.hpp"
 
 //--------------------------------------------------------------------------------------------
 //Global variables! eww! TODO: remove these
@@ -3129,4 +3129,22 @@ void playMainMenuSong()
     else {
         AudioSystem::get().playMusic("themesong.ogg");
     }    
+}
+
+int DisplayMsg_printf( const char *format, ... )
+{
+    STRING szTmp;
+    
+    va_list args;
+    va_start( args, format );
+    int retval = vsnprintf(szTmp, SDL_arraysize(szTmp), format, args);
+    DisplayMsg_print(szTmp);
+    va_end( args );
+
+    return retval;
+}
+
+void DisplayMsg_print(const char *text)
+{
+    _gameEngine->getActivePlayingState()->getMessageLog()->addMessage(text);
 }

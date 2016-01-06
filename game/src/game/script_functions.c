@@ -34,7 +34,6 @@
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
 #include "game/graphic_billboard.h"
-#include "game/renderer_2d.h"
 #include "game/script_implementation.h"
 #include "game/ObjectAnimation.h"
 #include "game/Inventory.hpp"

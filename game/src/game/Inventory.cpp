@@ -2,7 +2,6 @@
 #include "game/Entities/_Include.hpp"
 
 #include "game/game.h"
-#include "game/renderer_2d.h"
 
 //Class constants
 const size_t Inventory::MAXNUMINPACK;
