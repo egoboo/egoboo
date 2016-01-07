@@ -41,64 +41,9 @@ void MessageLog::draw()
 	_messages.remove_if([this, &yOffset](Message& message){
         const int millisRemaining = static_cast<int64_t>(message.lifeTime) - SDL_GetTicks();
         if(millisRemaining <= 0) return true;
-        yOffset = drawBitmapFontString(getX(), yOffset, message.text, millisRemaining > MESSAGE_FADE_TIME_MS ? 1.0f : millisRemaining / static_cast<float>(MESSAGE_FADE_TIME_MS));
+        yOffset = _gameEngine->getUIManager()->drawBitmapFontString(getX(), yOffset, message.text, millisRemaining > MESSAGE_FADE_TIME_MS ? 1.0f : millisRemaining / static_cast<float>(MESSAGE_FADE_TIME_MS));
 		return SDL_GetTicks() > message.lifeTime;
 	});
-}
-
-float MessageLog::drawBitmapFontString(const float stt_x, const float stt_y, const std::string &text, const float alpha)
-{
-	//Current render position
-	float x = stt_x;
-	float y = stt_y;
-
-	for(size_t cnt = 0; cnt < text.length(); ++cnt)
-    {
-    	const uint8_t cTmp = text[cnt];
-
-        // Check each new word for wrapping
-        if ('~' == cTmp || C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || std::isspace(cTmp)) {
-            int endx = x + font_bmp_length_of_word(text.c_str() + cnt - 1);
-
-            if (endx > getWidth()) {
-
-                // Wrap the end and cut off spaces and tabs
-                x = stt_x + fontyspacing;
-                y += fontyspacing;
-                while (std::isspace(text[cnt]) || '~' == text[cnt]) {
-                    cnt++;
-                }
-
-	            continue;
-            }
-        }
-
-        // Use squiggle for tab
-        if ( '~' == cTmp ) {
-            x = (std::floor(x / TABADD) + 1.0f) * TABADD;
-        }
-
-        //Linefeed
-        else if (C_LINEFEED_CHAR == cTmp) {
-            x = stt_x;
-            y += fontyspacing;
-        }
-
-        //other whitespace
-        else if (std::isspace(cTmp)) {
-            uint8_t iTmp = asciitofont[cTmp];
-            x += fontxspacing[iTmp] / 2;
-        }
-
-        // Normal letter
-        else {
-            uint8_t iTmp = asciitofont[cTmp];
-            _gameEngine->getUIManager()->drawBitmapGlyph(iTmp, x, y, alpha);
-            x += fontxspacing[iTmp];
-        }
-    }
-
-    return y + fontyspacing;
 }
 
 void MessageLog::addMessage(const std::string &message)

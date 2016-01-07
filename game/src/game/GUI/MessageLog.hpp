@@ -39,9 +39,6 @@ public:
     void addMessage(const std::string &message);
 
 private:
-    float drawBitmapFontString(const float stt_x, const float stt_y, const std::string &text, const float alpha);
-
-private:
     static constexpr uint32_t MESSAGE_DURATION_MS = 3000;       //How many milliseconds a message should be rendered before it is removed
     static constexpr uint32_t MESSAGE_FADE_TIME_MS = 700;       //How many milliseconds it takes to fade away completely
 

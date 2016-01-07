@@ -123,13 +123,36 @@ public:
     float drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth = 0, const float alpha = 1.0f);
     float drawBitmapFontStringFormat(const float startX, const float startY, const std::string &format, ...); GCC_PRINTF_FUNC(2);
 
+    /**
+    * @brief
+    *   Fill a solid coloured rectangle
+    * @param x
+    *   x location of top left corner in rectangle
+    * @param y
+    *   y location of top left corner in rectangle
+    * @param width
+    *   the width of the rectangle in pixels
+    * @param height
+    *   the height of the rectangle in pixels
+    * @param useAlpha
+    *   enable or disable alpha channel
+    * @param tint
+    *   colour of the rectangle (including alpha channel)
+    **/
     void fillRectangle(const float x, const float y, const float width, const float height, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
-
-    //TODO: make private
-    void drawBitmapGlyph(int fonttype, float xPos, float yPos, const float alpha);
+    
+    /**
+    * @brief
+    *   Render a 2D texture quad
+    **/
     void drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, const ego_frect_t& scr_rect, const ego_frect_t& tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
 private:
+    /**
+    * @brief
+    *   Render a single bitmap glyph at the specified location
+    **/
+    void drawBitmapGlyph(int fonttype, float xPos, float yPos, const float alpha);
 
 private:
     std::array<std::shared_ptr<Ego::Font>, NR_OF_UI_FONTS> _fonts;
