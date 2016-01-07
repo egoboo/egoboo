@@ -44,18 +44,9 @@ public:
         redraw();
     }
     
-    void draw() override {
-        ego_frect_t src;
-        
-        src.xmin = getX();
-        src.ymin = getY();
-        src.xmax = src.xmin + _maxWidth;
-        src.ymax = src.ymin + _maxHeight;
-        _gameEngine->getUIManager()->drawQuad2D(nullptr, src, tx, true, _maxColor);
-        
-        src.xmax = src.xmin + _textWidth;
-        src.ymax = src.ymin + _textHeight;
-        _gameEngine->getUIManager()->drawQuad2D(nullptr, src, tx, true, _textColor);
+    void draw() override {        
+        _gameEngine->getUIManager()->fillRectangle(getX(), getY(), _maxWidth, _maxHeight, true, _maxColor);
+        _gameEngine->getUIManager()->fillRectangle(getX(), getY(), _textWidth, _textHeight, true, _textColor);
         
         _textRenderer->render(getX(), getY());
     }

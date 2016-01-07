@@ -214,43 +214,28 @@ bool UIManager::dumpScreenshot()
 
             //Now lock the surface so that we can read it
             if (-1 != SDL_LockSurface(temp)) {
-                SDL_Rect rect = {0, 0, 0, 0};
-                if (0 == rect.w && 0 == rect.h) {
-                    rect.w = sdl_scr.x;
-                    rect.h = sdl_scr.y;
+                SDL_Rect rect = {0, 0, getScreenWidth(), getScreenHeight()};
+
+                int y;
+                uint8_t * pixels;
+
+                GL_DEBUG(glGetError)();
+
+                // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
+                // relative to the SDL Screen memory
+
+                // this is supposed to be a DirectX thing, so it needs to be tested out on glx
+                // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
+                pixels = (uint8_t *)temp->pixels;
+                for (y = rect.y; y < rect.y + rect.h; y++) {
+                    GL_DEBUG(glReadPixels)(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+                    pixels += temp->pitch;
                 }
-                if (rect.w > 0 && rect.h > 0) {
-                    int y;
-                    Uint8 * pixels;
-
-                    GL_DEBUG(glGetError)();
-
-                    //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
-                    //// stolen from SDL ;)
-                    // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
-                    // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                    //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
-                    //// it is not necesssaty to mess with the alignment
-                    // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
-                    // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                    // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
-                    // relative to the SDL Screen memory
-
-                    // this is supposed to be a DirectX thing, so it needs to be tested out on glx
-                    // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
-                    pixels = (Uint8 *)temp->pixels;
-                    for (y = rect.y; y < rect.y + rect.h; y++) {
-                        GL_DEBUG(glReadPixels)(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-                        pixels += temp->pitch;
-                    }
-                    EGOBOO_ASSERT(GL_NO_ERROR == GL_DEBUG(glGetError)());
-                }
+                EGOBOO_ASSERT(GL_NO_ERROR == GL_DEBUG(glGetError)());
 
                 SDL_UnlockSurface(temp);
 
-                // Save the file as a .bmp
+                // Save the file as a .png
                 saved = (-1 != IMG_SavePNG_RW(temp, vfs_openRWopsWrite(szResolvedFilename), 1));
             }
 
@@ -399,5 +384,39 @@ void UIManager::drawQuad2D(const std::shared_ptr<const Ego::Texture>& texture, c
         vertices[3].x = scr_rect.xmin; vertices[3].y = scr_rect.ymin; vertices[3].s = tx_rect.xmin; vertices[3].t = tx_rect.ymin;
 
         renderer.render(_textureQuadVertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    }
+}
+
+void UIManager::fillRectangle(const float x, const float y, const float width, const float height, const bool useAlpha, const Ego::Colour4f& tint)
+{
+    Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+    {
+        auto& renderer = Ego::Renderer::get();
+        renderer.getTextureUnit().setActivated(nullptr);
+        renderer.setColour(tint);
+
+        if (useAlpha) {
+            renderer.setBlendingEnabled(true);
+            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+            renderer.setAlphaTestEnabled(true);
+            renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+        }
+        else {
+            renderer.setBlendingEnabled(false);
+            renderer.setAlphaTestEnabled(false);
+        }
+
+        struct Vertex {
+            float x, y;
+        };
+        Ego::VertexBufferScopedLock vblck(*_vertexBuffer);
+        Vertex *vertices = vblck.get<Vertex>();
+        vertices[0].x = x;         vertices[0].y = y + height;
+        vertices[1].x = x + width; vertices[1].y = y + height;
+        vertices[2].x = x + width; vertices[2].y = y;
+        vertices[3].x = x;         vertices[3].y = y;
+
+        renderer.render(*_vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
     }
 }

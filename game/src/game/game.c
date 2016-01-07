@@ -966,22 +966,22 @@ void show_armor( int statindex )
     const SkinInfo &skinInfo = profile->getSkinInfo(skinlevel);
 
     // Armor Name
-    DisplayMsgs::get().printf("=%s=", skinInfo.name.c_str());
+    DisplayMsg_printf("=%s=", skinInfo.name.c_str());
 
     // Armor Stats
-    DisplayMsgs::get().printf("~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", skinInfo.defence,
+    DisplayMsg_printf("~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", skinInfo.defence,
                               skinInfo.damageResistance[DAMAGE_SLASH]*100.0f,
                               skinInfo.damageResistance[DAMAGE_CRUSH]*100.0f,
                               skinInfo.damageResistance[DAMAGE_POKE ]*100.0f);
 
-    DisplayMsgs::get().printf("~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
+    DisplayMsg_printf("~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
                               skinInfo.damageResistance[DAMAGE_HOLY]*100.0f,
                               skinInfo.damageResistance[DAMAGE_EVIL]*100.0f,
                               skinInfo.damageResistance[DAMAGE_FIRE]*100.0f,
                               skinInfo.damageResistance[DAMAGE_ICE ]*100.0f,
                               skinInfo.damageResistance[DAMAGE_ZAP ]*100.0f );
 
-    DisplayMsgs::get().printf("~Type: %s", skinInfo.dressy ? "Light Armor" : "Heavy Armor");
+    DisplayMsg_printf("~Type: %s", skinInfo.dressy ? "Light Armor" : "Heavy Armor");
 
     // jumps
     tmps[0] = CSTR_END;
@@ -994,7 +994,7 @@ void show_armor( int statindex )
         default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", (int)pchr->getAttribute(Ego::Attribute::NUMBER_OF_JUMPS) ); break;
     };
 
-    DisplayMsgs::get().printf( "~Speed:~%3.0f~Jump Skill:~%s", skinInfo.maxAccel*80, tmps );
+    DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", skinInfo.maxAccel*80, tmps );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1011,22 +1011,22 @@ void show_full_status( int statindex )
     SKIN_T skinlevel = pchr->skin;
 
     // Enchanted?
-    DisplayMsgs::get().printf("=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf("=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted" );
 
     // Armor Stats
-    DisplayMsgs::get().printf("~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", pchr->getProfile()->getSkinInfo(skinlevel).defence,
+    DisplayMsg_printf("~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", pchr->getProfile()->getSkinInfo(skinlevel).defence,
                               pchr->getDamageReduction(DAMAGE_SLASH)*100.0f,
                               pchr->getDamageReduction(DAMAGE_CRUSH)*100.0f,
                               pchr->getDamageReduction(DAMAGE_POKE) *100.0f);
 
-    DisplayMsgs::get().printf("~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
+    DisplayMsg_printf("~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
                               pchr->getDamageReduction(DAMAGE_HOLY)*100.0f,
                               pchr->getDamageReduction(DAMAGE_EVIL)*100.0f,
                               pchr->getDamageReduction(DAMAGE_FIRE)*100.0f,
                               pchr->getDamageReduction(DAMAGE_ICE) *100.0f,
                               pchr->getDamageReduction(DAMAGE_ZAP) *100.0f);
 
-    DisplayMsgs::get().printf("Mana Regen:~%4.2f Life Regen:~%4.2f", pchr->getAttribute(Ego::Attribute::MANA_REGEN), pchr->getAttribute(Ego::Attribute::LIFE_REGEN));
+    DisplayMsg_printf("Mana Regen:~%4.2f Life Regen:~%4.2f", pchr->getAttribute(Ego::Attribute::MANA_REGEN), pchr->getAttribute(Ego::Attribute::LIFE_REGEN));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1041,18 +1041,18 @@ void show_magic_status( int statindex )
     }
 
     // Enchanted?
-    DisplayMsgs::get().printf("=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted");
+    DisplayMsg_printf("=%s is %s=", pchr->getName().c_str(), !pchr->getActiveEnchants().empty() ? "enchanted" : "unenchanted");
 
     // Enchantment status
-    DisplayMsgs::get().printf("~See Invisible: %s~~See Kurses: %s",
+    DisplayMsg_printf("~See Invisible: %s~~See Kurses: %s",
                               pchr->getAttribute(Ego::Attribute::SEE_INVISIBLE) > 0 ? "Yes" : "No",
                               pchr->getAttribute(Ego::Attribute::SENSE_KURSES) > 0 ? "Yes" : "No");
 
-    DisplayMsgs::get().printf("~Channel Life: %s~~Waterwalking: %s",
+    DisplayMsg_printf("~Channel Life: %s~~Waterwalking: %s",
                               pchr->getAttribute(Ego::Attribute::CHANNEL_LIFE) > 0 ? "Yes" : "No",
                               pchr->getAttribute(Ego::Attribute::WALK_ON_WATER) > 0 ? "Yes" : "No");
 
-    DisplayMsgs::get().printf("~Flying: %s", pchr->isFlying() ? "Yes" : "No");
+    DisplayMsg_printf("~Flying: %s", pchr->isFlying() ? "Yes" : "No");
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2613,7 +2613,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
         if (pchr->getShowStatus() || egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
             // Tell the player that they can't use this iweapon
-            DisplayMsgs::get().printf("%s can't use this item...", pchr->getName(false, true, true).c_str());
+            DisplayMsg_printf("%s can't use this item...", pchr->getName(false, true, true).c_str());
         }
         return false;
     }
@@ -3144,7 +3144,7 @@ int DisplayMsg_printf( const char *format, ... )
     return retval;
 }
 
-void DisplayMsg_print(const char *text)
+void DisplayMsg_print(const std::string &text)
 {
     _gameEngine->getActivePlayingState()->getMessageLog()->addMessage(text);
 }

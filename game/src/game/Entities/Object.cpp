@@ -1341,7 +1341,7 @@ void Object::checkLevelUp()
                 const std::shared_ptr<Ego::Player> &player = _currentModule->getPlayer(is_which_player);
                 if(!player->hasUnspentLevel()) {
                     player->setLevelUpIndicator(true);
-                    DisplayMsgs::get().printf("%s gained a level!!!", getName().c_str());
+                    DisplayMsg_printf("%s gained a level!!!", getName().c_str());
                     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
                 }
                 return;
@@ -1386,7 +1386,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
             //Refill to full Life instead!
             _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
             BillboardSystem::get().makeBillboard(getObjRef(), "Too Silly to Die", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
-            DisplayMsgs::get().printf("%s decided not to die after all!", getName(false, true, true).c_str());
+            DisplayMsg_printf("%s decided not to die after all!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_DRUMS));
             return;
         }
@@ -1401,7 +1401,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
             //Refill to full Life instead!
             _currentLife = getAttribute(Ego::Attribute::MAX_LIFE);
             BillboardSystem::get().makeBillboard(getObjRef(), "Guardian Angel", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::white(), 3, Billboard::Flags::All);
-            DisplayMsgs::get().printf("%s was saved by a Guardian Angel!", getName(false, true, true).c_str());
+            DisplayMsg_printf("%s was saved by a Guardian Angel!", getName(false, true, true).c_str());
             AudioSystem::get().playSound(getPosition(), AudioSystem::get().getGlobalSound(GSND_ANGEL_CHOIR));
             return;
         }
@@ -2520,7 +2520,7 @@ bool Object::activateStealth()
     //Do they have the required stealth Perk?
     if(!hasPerk(Ego::Perks::STEALTH)) {
         if(isPlayer()) {
-            DisplayMsgs::get().printf("%s does not know how to stealth...", getName().c_str());
+            DisplayMsg_printf("%s does not know how to stealth...", getName().c_str());
         }
         return false;
     }

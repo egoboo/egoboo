@@ -243,7 +243,7 @@ void GameEngine::renderOneFrame()
             
             if (!_uiManager->dumpScreenshot())
             {
-                DisplayMsgs::get().printf("Error writing screenshot!"); // send a failure message to the screen
+                DisplayMsg_printf("Error writing screenshot!"); // send a failure message to the screen
 				Log::get().warn("Error writing screenshot\n");      // Log the error in log.txt
             }
         }

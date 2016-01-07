@@ -476,7 +476,7 @@ Uint8 _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int 
     if ( !ppro->isValidMessageID(message) ) return false;
 
     std::string text = expandEscapeCodes(_currentModule->getObjectHandler()[ichr], *pstate, ppro->getMessage(message));
-    DisplayMsgs::get().printf("%s", text.c_str());
+    DisplayMsg_print(text);
 
     return true;
 }
