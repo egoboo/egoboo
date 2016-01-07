@@ -146,10 +146,7 @@ public:
     void clear(const float minX, const float minY, const float maxX, const float maxY)
     {
         //Reset bounds
-        _bounds._min[kX] = minX;
-        _bounds._min[kY] = minY;
-        _bounds._max[kX] = maxX;
-        _bounds._max[kY] = maxY;
+        _bounds = AABB2f(Vector2f(minX, minY), Vector2f(maxX, maxY));
 
         //Clear children and all elements
         _nodes.clear();

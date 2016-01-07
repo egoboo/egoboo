@@ -49,24 +49,32 @@ struct msg_t
 
 //--------------------------------------------------------------------------------------------
 
-void DisplayMsg_clear();
-void DisplayMsg_reset();
-int DisplayMsg_get_free();
-int DisplayMsg_printf(const char *format, ...) GCC_PRINTF_FUNC(1);
-void DisplayMsg_print(const char *text);
-int DisplayMsg_vprintf(const char *format, va_list args);
-float DisplayMsg_draw_all(float y);
-void DisplayMsg_initialize();
-void DisplayMsg_uninitialize();
-void DisplayMsg_update();
-void DisplayMsg_download(egoboo_config_t& cfg);
-void DisplayMsg_upload(egoboo_config_t& cfg);
+struct DisplayMsgs {
+    DisplayMsgs() : timechange(0), count(EGO_MESSAGE_MAX), elements(), on(true) {
+    }
+    static DisplayMsgs& get() {
+        static DisplayMsgs singleton;
+        return singleton;
+    }
+    void clear();
+    void reset();
+    int get_free();
+    int printf(const char *format, ...) GCC_PRINTF_FUNC(2);
+    void print(const char *text);
+    int vprintf(const char *format, va_list args);
+    float draw_all(float y);
+    void initialize();
+    void uninitialize();
+    void update();
+    void download(egoboo_config_t& cfg);
+    void upload(egoboo_config_t& cfg);
 
-/// An array of display messages.
-extern StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg_elements;
-extern int  DisplayMsg_timechange;     ///< how much time has elapsed for messages
-extern int  DisplayMsg_count;          ///< maximum number of displayed messages
-extern bool DisplayMsg_on;             ///< Messages?
+    /// An array of display messages.
+    StaticArray<msg_t, EGO_MESSAGE_MAX> elements;
+    int timechange;     ///< how much time has elapsed for messages
+    int count;          ///< maximum number of displayed messages
+    bool on;             ///< Messages?
+};
 
 //--------------------------------------------------------------------------------------------
 
@@ -90,5 +98,8 @@ void draw_one_font(const std::shared_ptr<const Ego::Texture>& ptex, int fonttype
 int draw_string_raw(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
 
 // graphics primitive functions
+/// Draw a coloured quad.
+void draw_quad_2d(const ego_frect_t scr_rect, bool use_alpha, const Ego::Math::Colour4f& tint);
+/// Draw a coloured and textured quad.
 void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::white());
 bool dump_screenshot();

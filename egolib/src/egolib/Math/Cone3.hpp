@@ -22,8 +22,9 @@
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
-#include "egolib/Math/Entity.hpp"
+#include "egolib/Math/OrderedField.hpp"
+#include "egolib/Math/VectorSpace.hpp"
+#include "egolib/Math/EuclidianSpace.hpp"
 
 namespace Ego {
 namespace Math {
@@ -35,33 +36,32 @@ namespace Math {
  *	Re-implement this crap.
  */
 template <typename _ScalarType>
-struct Cone3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>,3>> {
-    /**
-     * @brief
-     *  @a MyType is the type of this template/template specialization.
-     */
+struct Cone3 {
+public:
+    /// @brief The Euclidian space over which the cones are defined.
+    typedef EuclidianSpace<VectorSpace<Field<_ScalarType>, 3>> EuclidianSpaceType;
+    /// The vector space type (of the Euclidian space).
+    typedef typename EuclidianSpaceType::VectorSpaceType VectorSpaceType;
+    /// The scalar field type (of the vector space).
+    typedef typename EuclidianSpaceType::ScalarFieldType ScalarFieldType;
+    /// The vector type (of the vector space).
+    typedef typename EuclidianSpaceType::VectorType VectorType;
+    /// The scalar type (of the scalar field).
+    typedef typename EuclidianSpaceType::ScalarType ScalarType;
+    /// @brief @a MyType is the type of this template/template specialization.
     typedef Cone3<_ScalarType> MyType;
 
-    /**
-    * @brief
-    *  The scalar type.
-    */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>::ScalarType ScalarType;
-
-    /**
-    * @brief
-    *  The vector type.
-    */
-	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::Field<_ScalarType>, 3>>::VectorType VectorType;
-
+public:
     VectorType origin;
     VectorType axis;
 
+public:
     // use these values to pre-calculate trig functions based off of the opening angle
     ScalarType inv_sin;
     ScalarType sin_2;
     ScalarType cos_2;
 
+public:
     /// @todo Zero axis is not allowed.
     Cone3() :
         origin(0, 0, 0),

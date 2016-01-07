@@ -25,15 +25,6 @@
 #include "game/renderer_2d.h"
 
 //--------------------------------------------------------------------------------------------
-// EXTERNAL VARIABLES
-//--------------------------------------------------------------------------------------------
-
-StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg_elements;
-int DisplayMsg_timechange = 0;
-int DisplayMsg_count = EGO_MESSAGE_MAX;
-bool DisplayMsg_on = true;
-
-//--------------------------------------------------------------------------------------------
 // PRIVATE FUNCTIONS
 //--------------------------------------------------------------------------------------------
 
@@ -118,50 +109,47 @@ int draw_string_raw( float x, float y, const char *format, ... )
 
 //--------------------------------------------------------------------------------------------
 
-void DisplayMsg_clear()
+void DisplayMsgs::clear()
 {
     /// @author ZZ
     /// @details This function empties the message buffer
     for (int cnt = 0; cnt < EGO_MESSAGE_MAX; cnt++ )
     {
-        DisplayMsg_elements.ary[cnt].time = 0;
+        elements.ary[cnt].time = 0;
     }
 }
 
-void DisplayMsg_reset()
+void DisplayMsgs::reset()
 {
     /// @author ZZ
     /// @details This makes messages safe to use
-    DisplayMsg_timechange = 0;
-    DisplayMsg_elements.count = 0;
+    timechange = 0;
+    elements.count = 0;
 
-    DisplayMsg_clear();
+    clear();
 }
 
-int DisplayMsg_get_free()
+int DisplayMsgs::get_free()
 {
     /// @author ZZ
     /// @details This function finds the best message to use
     /// Pick the first one
 
-    int tnc = DisplayMsg_elements.count;
-
-    DisplayMsg_elements.count++;
-    DisplayMsg_elements.count %= DisplayMsg_count;
-
-    return tnc;
+    int index = elements.count; elements.count++;
+    elements.count %= count;
+    return index;
 }
 
-int DisplayMsg_printf( const char *format, ... )
+int DisplayMsgs::printf( const char *format, ... )
 {
     va_list args;
     va_start( args, format );
-    int result = DisplayMsg_vprintf( format, args );
+    int result = vprintf( format, args );
     va_end( args );
     return result;
 }
 
-void DisplayMsg_print( const char *text )
+void DisplayMsgs::print( const char *text )
 {
     /// @author ZZ
     /// @details This function sticks a message in the display queue and sets its timer
@@ -172,8 +160,8 @@ void DisplayMsg_print( const char *text )
     if ( INVALID_CSTR( text ) ) return;
 
     // Get a "free" message
-    int slot = DisplayMsg_get_free();
-    msg_t *pmsg = DisplayMsg_elements.get_ptr(slot);
+    int slot = get_free();
+    msg_t *pmsg = elements.get_ptr(slot);
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + EGO_MESSAGE_SIZE;
@@ -188,74 +176,73 @@ void DisplayMsg_print( const char *text )
     pmsg->time = egoboo_config_t::get().hud_messageDuration.getValue();
 }
 
-int DisplayMsg_vprintf( const char *format, va_list args )
+int DisplayMsgs::vprintf( const char *format, va_list args )
 {
-    int retval = 0;
+    int result = 0;
 
     if ( VALID_CSTR( format ) )
     {
         STRING szTmp;
-
-        retval = vsnprintf(szTmp, SDL_arraysize(szTmp), format, args);
-        DisplayMsg_print( szTmp );
+        result = vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
+        print( szTmp );
     }
 
-    return retval;
+    return result;
 }
 
-float DisplayMsg_draw_all( float y )
+float DisplayMsgs::draw_all( float y )
 {
     int cnt, tnc;
 
     // Messages
-    if ( DisplayMsg_on )
+    if ( on )
     {
         // Display the messages
-        tnc = DisplayMsg_elements.count;
-        for ( cnt = 0; cnt < DisplayMsg_count; cnt++ )
+        tnc = elements.count;
+        for ( cnt = 0; cnt < count; cnt++ )
         {
-            if ( DisplayMsg_elements.ary[tnc].time > 0 )
+            if ( elements.ary[tnc].time > 0 )
             {
-                y = draw_wrap_string( DisplayMsg_elements.ary[tnc].textdisplay, 0, y, sdl_scr.x - WRAP_TOLERANCE );
-                if ( DisplayMsg_elements.ary[tnc].time > DisplayMsg_timechange )
+                y = draw_wrap_string( elements.ary[tnc].textdisplay, 0, y, sdl_scr.x - WRAP_TOLERANCE );
+                if ( elements.ary[tnc].time > timechange )
                 {
-                    DisplayMsg_elements.ary[tnc].time -= DisplayMsg_timechange;
+                    elements.ary[tnc].time -= timechange;
                 }
                 else
                 {
-                    DisplayMsg_elements.ary[tnc].time = 0;
+                    elements.ary[tnc].time = 0;
                 }
             }
 
-            tnc = ( tnc + 1 ) % DisplayMsg_count;
+            tnc = ( tnc + 1 ) % count;
         }
 
-        DisplayMsg_timechange = 0;
+        timechange = 0;
     }
 
     return y;
 }
 
-void DisplayMsg_initialize() {
+void DisplayMsgs::initialize() {
 
 }
 
-void DisplayMsg_uninitialize() {
+void DisplayMsgs::uninitialize() {
 
 }
 
-void DisplayMsg_update() {
+void DisplayMsgs::update() {
 
 }
 
-void DisplayMsg_download(egoboo_config_t& cfg) {
-    DisplayMsg_count = Ego::Math::constrain<uint8_t>(cfg.hud_simultaneousMessages_max.getValue(), EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
-    DisplayMsg_on = cfg.hud_simultaneousMessages_max.getValue() > 0;
+void DisplayMsgs::download(egoboo_config_t& cfg) {
+    count = Ego::Math::constrain<uint8_t>(cfg.hud_simultaneousMessages_max.getValue(), EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
+    on = cfg.hud_simultaneousMessages_max.getValue() > 0;
 }
 
-void DisplayMsg_upload(egoboo_config_t& cfg) {
-    cfg.hud_messages_enable.setValue(DisplayMsg_on);
-    cfg.hud_simultaneousMessages_max.setValue(!DisplayMsg_on ? 0 : std::max(EGO_MESSAGE_MIN, DisplayMsg_count));
+void DisplayMsgs::upload(egoboo_config_t& cfg) {
+    cfg.hud_messages_enable.setValue(on);
+    cfg.hud_simultaneousMessages_max.setValue(!on ? 0 : std::max(EGO_MESSAGE_MIN, count));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -341,6 +328,39 @@ void gfx_end_text()
 //--------------------------------------------------------------------------------------------
 // PRIMITIVES
 //--------------------------------------------------------------------------------------------
+void draw_quad_2d(const ego_frect_t scr_rect, bool use_alpha, const Ego::Colour4f& tint) {
+    Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+    {
+        auto& renderer = Ego::Renderer::get();
+        renderer.getTextureUnit().setActivated(nullptr);
+        renderer.setColour(tint);
+
+        if (use_alpha) {
+            renderer.setBlendingEnabled(true);
+            renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+
+            renderer.setAlphaTestEnabled(true);
+            renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+        } else {
+            renderer.setBlendingEnabled(false);
+            renderer.setAlphaTestEnabled(false);
+        }
+
+        Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>());
+        {
+            struct Vertex {
+                float x, y;
+            };
+            Ego::VertexBufferScopedLock vblck(vb);
+            Vertex *vertices = vblck.get<Vertex>();
+            vertices[0].x = scr_rect.xmin; vertices[0].y = scr_rect.ymax;
+            vertices[1].x = scr_rect.xmax; vertices[1].y = scr_rect.ymax;
+            vertices[2].x = scr_rect.xmax; vertices[2].y = scr_rect.ymin;
+            vertices[3].x = scr_rect.xmin; vertices[3].y = scr_rect.ymin;
+        }
+        renderer.render(vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    }
+}
 void draw_quad_2d(const std::shared_ptr<const Ego::Texture>& tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
 {
     Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
@@ -626,7 +646,7 @@ bool dump_screenshot()
             SDL_FreeSurface(temp);
             if (saved) {
                 // tell the user what we did
-                DisplayMsg_printf("Saved to %s", szFilename);
+                DisplayMsgs::get().printf("Saved to %s", szFilename);
             }
         }
     }

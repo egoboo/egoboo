@@ -24,20 +24,26 @@
 
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Translatable.hpp"
-#include "egolib/Math/Entity.hpp"
+#include "egolib/Math/EuclidianSpace.hpp"
 
 namespace Ego {
 namespace Math {
 
 template <typename _VectorSpaceType>
-struct Cube : public Internal::Entity<_VectorSpaceType>, public Translatable<_VectorSpaceType> {
-
+struct Cube : public Translatable<_VectorSpaceType> {
 public:
-
-    typedef Cube<_VectorSpaceType> MyType;                 ///< @brief This type.
-	typedef Internal::Entity<_VectorSpaceType> EntityType; ///< @brief The type of the entity.
-	typedef typename EntityType::ScalarType ScalarType;    ///< @brief The type of the underlaying scalars.
-	typedef typename EntityType::VectorType VectorType;    ///< @brief The type of the underlaying vectors.
+    /// @brief The Euclidian space over which the cubes are defined.
+    typedef EuclidianSpace<_VectorSpaceType> EuclidianSpaceType;
+    /// The vector space type (of the Euclidian space).
+    typedef typename EuclidianSpaceType::VectorSpaceType VectorSpaceType;
+    /// The scalar field type (of the vector space).
+    typedef typename EuclidianSpaceType::ScalarFieldType ScalarFieldType;
+    /// The vector type (of the vector space).
+    typedef typename EuclidianSpaceType::VectorType VectorType;
+    /// The scalar type (of the scalar field).
+    typedef typename EuclidianSpaceType::ScalarType ScalarType;
+    /// @brief @a MyType is the type of this template/template specialization.
+    typedef Cube<_VectorSpaceType> MyType;
 
 private:
 
@@ -133,8 +139,8 @@ public:
     *  the minimum of this cube
     */
     VectorType getMin() const {
-        typedef Generator < ScalarType, ConstantEngine < ScalarType > > MyGenerator;
-        return _center - VectorType(MyGenerator(_size));
+        typedef ConstantGenerator<ScalarType> MyGenerator;
+        return _center - VectorType(MyGenerator(_size), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
     }
 
     /**
@@ -144,8 +150,8 @@ public:
      *  the maximum of this cube
      */
     VectorType getMax() const {
-        typedef Generator < ScalarType, ConstantEngine < ScalarType > > MyGenerator;
-        return _center + VectorType(MyGenerator(_size));
+        typedef ConstantGenerator<ScalarType> MyGenerator;
+        return _center + VectorType(MyGenerator(_size), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
     }
 
     /**

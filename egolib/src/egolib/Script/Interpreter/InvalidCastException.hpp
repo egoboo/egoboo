@@ -35,7 +35,7 @@ enum class Tag;
 /**
  * @brief An exception indicating an invalid cast.
  */
-class InvalidCastException : std::runtime_error {
+class InvalidCastException : public std::runtime_error {
 private:
     /**
      * @brief The tag of the source type.

@@ -74,7 +74,7 @@ bool Inventory::add_item( ObjectRef iowner, ObjectRef iitem, uint8_t inventorySl
 	{
 		// Flag the item as not put away.
 		SET_BIT(pitem->ai.alert, ALERTIF_NOTPUTAWAY);
-		if (powner->isPlayer()) DisplayMsg_printf("%s is sticky...", pitem->getName().c_str());
+		if (powner->isPlayer()) DisplayMsgs::get().printf("%s is sticky...", pitem->getName().c_str());
 		return false;
 	}
 
@@ -82,7 +82,7 @@ bool Inventory::add_item( ObjectRef iowner, ObjectRef iitem, uint8_t inventorySl
 	if (pitem->getProfile()->isBigItem())
 	{
 		SET_BIT(pitem->ai.alert, ALERTIF_NOTPUTAWAY);
-		if (powner->isPlayer()) DisplayMsg_printf("%s is too big to be put away...", pitem->getName().c_str());
+		if (powner->isPlayer()) DisplayMsgs::get().printf("%s is too big to be put away...", pitem->getName().c_str());
 		return false;
 	}
 
@@ -192,7 +192,7 @@ bool Inventory::swap_item( ObjectRef iobj, uint8_t inventory_slot, const slot_t 
         if(item && item->iskursed) {
             // Flag the last found_item as not put away
             SET_BIT( item->ai.alert, ALERTIF_NOTPUTAWAY );  // Same as ALERTIF_NOTTAKENOUT
-            if ( pobj->isPlayer() ) DisplayMsg_printf("%s is sticky...", item->getName().c_str());
+            if ( pobj->isPlayer() ) DisplayMsgs::get().printf("%s is sticky...", item->getName().c_str());
             return false;
 
         }
@@ -200,7 +200,7 @@ bool Inventory::swap_item( ObjectRef iobj, uint8_t inventory_slot, const slot_t 
         if(inventory_item && inventory_item->iskursed) {
             // Flag the last found_item as not removed
             SET_BIT( inventory_item->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-            if ( pobj->isPlayer() ) DisplayMsg_printf( "%s won't go out!", inventory_item->getName().c_str() );
+            if ( pobj->isPlayer() ) DisplayMsgs::get().printf( "%s won't go out!", inventory_item->getName().c_str() );
             return false;
 
         }
@@ -354,7 +354,7 @@ bool Inventory::removeItem(const std::shared_ptr<Object> &item, const bool ignor
             {
                 //Flag the item as not removed
                 SET_BIT( item->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-                DisplayMsg_printf( "%s won't go out!", item->getName().c_str());
+                DisplayMsgs::get().printf( "%s won't go out!", item->getName().c_str());
                 return false;
             }
 

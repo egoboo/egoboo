@@ -3,14 +3,19 @@
 #include "egolib/Math/AABB.hpp"
 #include "egolib/Math/Cone3.hpp"
 #include "egolib/Math/Cube.hpp"
+#include "egolib/Math/Line.hpp"
+#include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
+#include "egolib/Math/Point.hpp"
 #include "egolib/Math/Sphere.h"
 #include "egolib/Math/Vector.hpp"
-#include "egolib/Math/Matrix.hpp"
+
 
 /**
  * @brief
  *  Enumerated indices for the elements of vectors.
+ * @todo
+ *  Remove this.
  */
 enum {
     kX = 0, kY, kZ, kW
@@ -42,6 +47,12 @@ typedef Ego::Math::Cone3<float> Cone3f;
 
 /// A 3D cube.
 typedef Ego::Math::Cube<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Cube3f;
+
+/// A 3D line.
+typedef Ego::Math::Line<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Line3f;
+
+/// A 3D point.
+typedef Ego::Math::Point<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Point3f;
 
 /// A 3D plane.
 typedef Ego::Math::Plane3<float> Plane3f;

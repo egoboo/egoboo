@@ -30,9 +30,9 @@ namespace Math {
 
 namespace Internal {
 /**
- * @tparam _ElementType
- * @tparam _Unital
- * @tparam _Commutative
+ * @tparam _ElementType the element type
+ * @tparam _Unital @a true if the ring is a unital ring
+ * @tparam _Commutative @a true if the ring is commutative
  */
 template <typename _ElementType, bool _Unital, bool _Commutative>
 struct OrderedRing {
@@ -97,6 +97,18 @@ struct OrderedRing {
 		return x - y;
 	}
 
+    /**
+     * @brief
+     *  The additive inverse of an element.
+     * @param x
+     *  the element
+     * @return
+     *  the additive inverse of the element
+     */
+    static inline ElementType additiveInverse(const ElementType& x) {
+        return -x;
+    }
+
 	/**
 	 * @brief
 	 *  "equal to"
@@ -120,7 +132,7 @@ struct OrderedRing {
 			|| std::abs(x - y) <= std::numeric_limits<ElementType>::min();
 	}
 
-	static inline typename std::enable_if<std::is_floating_point<ElementType>::value, bool>::type equalToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
+	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool> equalToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
 		return std::abs(x - y) < tolerance;
 	}
 
@@ -136,11 +148,11 @@ struct OrderedRing {
 	 * @remark
 	 *	Only available if the element type is a floating-point type.
 	 */
-	static inline typename std::enable_if<std::is_floating_point<ElementType>::value, bool>::type notEqualToULP(const ElementType& x, const ElementType& y, const size_t ulp) {
+	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool> notEqualToULP(const ElementType& x, const ElementType& y, const size_t ulp) {
 		return !equalToULP(x, y, ulp);
 	}
 
-	static inline typename std::enable_if<std::is_floating_point<ElementType>::value, bool>::type notEqualToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
+	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool> notEqualToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
 		return !equalToTolerance(x, y, tolerance);
 	}
 
@@ -225,12 +237,12 @@ struct OrderedRing {
  *	A ring \f$(R, +, \cdot)\f$ is a set \f$R\f$ equipped with two binary operations
  *	\f$+: R \times R \rightarrow R\f$ and \f$\cdot : R \times R \rightarrow R\f$ with the following properties:
  *	<table>
- *		<tr><td>Closure: </td>                         <td>\f$a + b \in R\f$</td>                <td>\f$a \cdot b \in R\f$</td></tr>
- *		<tr><td>Commutativity: </td>                   <td>\f$a + b = b + a\f$</td>				 <td></td></tr>
- *		<tr><td>Associativity: </td>                   <td>\f$a + (b + c) = (a + b) + c\f$</td>  <td>\f$a \cdot (b \cdot c) = (a \cdot b) \cdot c\f$</td></tr>
- *		<tr><td>Existence of an identity element:</td> <td>\f$a + 0 = a\f$               </td>   <td></td></tr>
- *		<tr><td>Existence of an inverse element:</td>  <td>\f$\forall a \in R : \exists -a \in R : a + (-a) = 0\f$</td> <td></td></tr>
- *	    <tr><td>Distributivity of multiplication over addition:</td> <td>\f$a \cdot (b + c) = (a \cdot b) + (a \cdot c)\f$</td> <td></td></tr>
+ *		<tr><td>Closure: </td>                         <td>\f$a + b \in R\f$</td>                                               <td>\f$a \cdot b \in R\f$                          </td></tr>
+ *		<tr><td>Commutativity: </td>                   <td>\f$a + b = b + a\f$</td>				                                <td>                                               </td></tr>
+ *		<tr><td>Associativity: </td>                   <td>\f$a + (b + c) = (a + b) + c\f$</td>                                 <td>\f$a \cdot (b \cdot c) = (a \cdot b) \cdot c\f$</td></tr>
+ *		<tr><td>Existence of an identity element:</td> <td>\f$a + 0 = a\f$</td>                                                 <td>                                               </td></tr>
+ *		<tr><td>Existence of an inverse element:</td>  <td>\f$\forall a \in R : \exists -a \in R : a + (-a) = 0\f$</td>         <td>                                               </td></tr>
+ *	    <tr><td>Distributivity of multiplication over addition:</td> <td>\f$a \cdot (b + c) = (a \cdot b) + (a \cdot c)\f$</td> <td>                                               </td></tr>
  *	< / table>
  *	\f$+\f$ and \f$\cdot\f$ are commonly called addition and multiplication, \f$0\f$ is commonly called the zero / additive neutral element / neutral element of addition.
  * @remark
@@ -264,9 +276,9 @@ template <typename _ElementType, typename _Enabled = void>
 struct OrderedRing;
 
 template <typename _ElementType>
-struct OrderedRing<_ElementType, typename std::enable_if<std::is_integral<_ElementType>::value && std::is_signed<_ElementType>::value && !std::is_const<_ElementType>::value>::type>
+struct OrderedRing<_ElementType, std::enable_if_t<std::is_integral<_ElementType>::value && std::is_signed<_ElementType>::value && !std::is_const<_ElementType>::value>>
 	: public Internal::OrderedRing<_ElementType, true, true> {
-
+public:
 	typedef typename Internal::OrderedRing<_ElementType, true, true>::ElementType ElementType;
 
 	/**
@@ -275,7 +287,7 @@ struct OrderedRing<_ElementType, typename std::enable_if<std::is_integral<_Eleme
 	 * @return
 	 *  the zero/neutral element of addition/additive neutral element
 	 */
-	static inline ElementType additiveNeutral() {
+	static inline constexpr ElementType additiveNeutral() {
 		return 0;
 	}
 
@@ -285,39 +297,41 @@ struct OrderedRing<_ElementType, typename std::enable_if<std::is_integral<_Eleme
 	 * @return
 	 *  the multiplicative neutral element
 	 */
-	static inline ElementType muliplicativeNeutral() {
+	static inline constexpr ElementType multiplicativeNeutral() {
 		return 1;
 	}
 
-	/**
-	 * @brief
-	 *	"is negative"
-	 * @param x
-	 *  the scalar
-	 * @return @a true if <tt>x &lt; 0</tt>,
-	 *  @a false otherwise
-	 */
-	static inline bool isNegative(const ElementType& x) {
-		return x < additiveNeutral();
-	}
+public:
+    /**
+     * @brief
+     *  "is negative"
+     * @param x
+     *  the scalar
+     * @return @a true if <tt>x &lt; 0</tt>,
+     *  @a false otherwise
+     */
+    static inline bool isNegative(const ElementType& x) {
+        return x < additiveNeutral();
+    }
 
-	/**
-	 * @brief
-	 *  "is positive"
-	 * @param x
-	 *  the scalar
-	 * @return
-	 *  @a true if <tt>x &gt; 0</tt>, @a false otherwise
-	 */
-	static inline bool isPositive(const ElementType& x) {
-		return x > additiveNeutral();
-	}
+    /**
+     * @brief
+     *  "is positive"
+     * @param x
+     *  the scalar
+     * @return
+     *  @a true if <tt>x &gt; 0</tt>, @a false otherwise
+     */
+    static inline bool isPositive(const ElementType& x) {
+        return x > additiveNeutral();
+    }
+
 };
 
 template <typename _ElementType>
-struct OrderedRing<_ElementType, typename std::enable_if<std::is_same<_ElementType, float>::value>::type>
+struct OrderedRing<_ElementType, std::enable_if_t<std::is_same<_ElementType, float>::value>>
 	: public Internal::OrderedRing<_ElementType, true, true> {
-	
+public:
 	typedef typename Internal::OrderedRing<_ElementType, true, true>::ElementType ElementType;
 
 	/**
@@ -326,7 +340,7 @@ struct OrderedRing<_ElementType, typename std::enable_if<std::is_same<_ElementTy
 	 * @return
 	 *  the zero/neutral element of addition/additive neutral element
 	 */
-	static inline ElementType additiveNeutral() {
+	static inline constexpr ElementType additiveNeutral() {
 		return 0.0f;
 	}
 
@@ -336,40 +350,41 @@ struct OrderedRing<_ElementType, typename std::enable_if<std::is_same<_ElementTy
 	 * @return
 	 *  the multiplicative neutral element
 	 */
-	static inline ElementType muliplicativeNeutral() {
+	static inline constexpr ElementType multiplicativeNeutral() {
 		return 1.0f;
 	}
 
-	/**
-	 * @brief
-	 *	"is negative"
-	 * @param x
-	 *  the scalar
-	 * @return @a true if <tt>x &lt; 0</tt>,
-	 *	@a false otherwise
-	 */
-	static inline bool isNegative(const ElementType& x) {
-		return x < additiveNeutral();
-	}
+public:
+    /**
+     * @brief
+     *  "is negative"
+     * @param x
+     *  the scalar
+     *  @return @a true if <tt>x &lt; 0</tt>,
+     *  @a false otherwise
+     */
+    static inline bool isNegative(const ElementType& x) {
+        return x < additiveNeutral();
+    }
 
-	/**
-	 * @brief
-	 *  "is positive"
-	 * @param x
-	 *  the scalar
-	 * @return
-	 *  @a true if <tt>x &gt; 0</tt>, @a false otherwise
-	 */
-	static inline bool isPositive(const ElementType& x) {
-		return x > additiveNeutral();
-	}
+    /**
+     * @brief
+     *  "is positive"
+     * @param x
+     *  the scalar
+     * @return
+     *  @a true if <tt>x &gt; 0</tt>, @a false otherwise
+     */
+    static inline bool isPositive(const ElementType& x) {
+        return x > additiveNeutral();
+    }
 
 };
 
 template <typename _ElementType>
-struct OrderedRing<_ElementType, typename std::enable_if<std::is_same<_ElementType, double>::value>::type>
+struct OrderedRing<_ElementType, std::enable_if_t<std::is_same<_ElementType, double>::value>>
 	: public Internal::OrderedRing<_ElementType, true, true> {
-
+public:
 	typedef typename Internal::OrderedRing<_ElementType, true, true>::ElementType ElementType;
 
 	/**
@@ -378,7 +393,7 @@ struct OrderedRing<_ElementType, typename std::enable_if<std::is_same<_ElementTy
 	 * @return
 	 *  the zero/neutral element of addition/additive neutral element
 	 */
-	static inline ElementType additiveNeutral() {
+	static inline constexpr ElementType additiveNeutral() {
 		return 0.0;
 	}
 
@@ -388,33 +403,35 @@ struct OrderedRing<_ElementType, typename std::enable_if<std::is_same<_ElementTy
 	 * @return
 	 *  the multiplicative neutral element
 	 */
-	static inline ElementType muliplicativeNeutral() {
+	static inline constexpr ElementType multiplicativeNeutral() {
 		return 1.0;
 	}
 
-	/**
-	 * @brief
-	 *	"is negative"
-	 * @param x
-	 *  the scalar
-	 * @return @a true if <tt>x &lt; 0</tt>,
-	 *  @a false otherwise
-	 */
-	static inline bool isNegative(const ElementType& x) {
-		return x < additiveNeutral();
-	}
+public:
+    /**
+     * @brief
+     *  "is negative"
+     * @param x
+     *  the scalar
+     * @return @a true if <tt>x &lt; 0</tt>,
+     *  @a false otherwise
+     */
+    static inline bool isNegative(const ElementType& x) {
+        return x < additiveNeutral();
+    }
 
-	/**
-	 * @brief
-	 *  "is positive"
-	 * @param x
-	 *  the scalar
-	 * @return
-	 *  @a true if <tt>x &gt; 0</tt>, @a false otherwise
-	 */
-	static inline bool isPositive(const ElementType& x) {
-		return x > additiveNeutral();
-	}
+    /**
+     * @brief
+     *  "is positive"
+     * @param x
+     *  the scalar
+     * @return
+     *  @a true if <tt>x &gt; 0</tt>, @a false otherwise
+     */
+    static inline bool isPositive(const ElementType& x) {
+        return x > additiveNeutral();
+    }
+
 };
 
 } // namespace Math

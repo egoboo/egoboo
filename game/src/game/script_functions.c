@@ -3562,10 +3562,10 @@ Uint8 scr_DebugMessage( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    DisplayMsg_printf( "aistate %d, aicontent %d, target %" PRIuZ, self.state, self.content, self.getTarget().get() );
-    DisplayMsg_printf( "tmpx %d, tmpy %d", state.x, state.y );
-    DisplayMsg_printf( "tmpdistance %d, tmpturn %d", state.distance, state.turn );
-    DisplayMsg_printf( "tmpargument %d, selfturn %d", state.argument, pchr->ori.facing_z );
+    DisplayMsgs::get().printf( "aistate %d, aicontent %d, target %" PRIuZ, self.state, self.content, self.getTarget().get() );
+    DisplayMsgs::get().printf( "tmpx %d, tmpy %d", state.x, state.y );
+    DisplayMsgs::get().printf( "tmpdistance %d, tmpturn %d", state.distance, state.turn );
+    DisplayMsgs::get().printf( "tmpargument %d, selfturn %d", state.argument, pchr->ori.facing_z );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7001,7 +7001,7 @@ Uint8 scr_FollowLink( script_state_t& state, ai_state_t& self )
     returncode = link_follow_modname( ppro->getMessage(state.argument).c_str(), true );
     if ( !returncode )
     {
-        DisplayMsg_printf( "That's too scary for %s", pchr->getName().c_str() );
+        DisplayMsgs::get().printf( "That's too scary for %s", pchr->getName().c_str() );
     }
 
     SCRIPT_FUNCTION_END();

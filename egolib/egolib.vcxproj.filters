@@ -375,9 +375,6 @@
     <ClCompile Include="src\egolib\Graphics\MD2Model.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\AI\AStar.c">
-      <Filter>Source Files\AI</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\AI\WaypointList.c">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
@@ -485,6 +482,15 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Graphics\GraphicsSystem.cpp">
       <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\Buffer.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\VertexElementDescriptor.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\AI\AStar.cpp">
+      <Filter>Source Files\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -827,9 +833,6 @@
     <ClInclude Include="src\egolib\Graphics\MD2Model.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\AI\AStar.h">
-      <Filter>Header Files\AI</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\AI\WaypointList.h">
       <Filter>Header Files\AI</Filter>
     </ClInclude>
@@ -846,9 +849,6 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Dimensionality.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\Math\Entity.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Standard.hpp">
@@ -1033,6 +1033,27 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Signal\Signal.hpp">
       <Filter>Header Files\Signal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\Buffer.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\VertexElementDescriptor.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\AI\AStar.hpp">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\_Generator.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Line.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\EuclidianSpace.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Point.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

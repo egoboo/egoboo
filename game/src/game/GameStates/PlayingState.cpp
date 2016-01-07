@@ -127,7 +127,7 @@ void PlayingState::drawContainer()
 {
     gfx_system_main();
 
-    DisplayMsg_timechange++;
+    DisplayMsgs::get().timechange++;
 }
 
 void PlayingState::beginState()

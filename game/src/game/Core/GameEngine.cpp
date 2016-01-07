@@ -244,7 +244,7 @@ void GameEngine::renderOneFrame()
             
             if (!dump_screenshot())
             {
-                DisplayMsg_print("Error writing screenshot!"); // send a failure message to the screen
+                DisplayMsgs::get().printf("Error writing screenshot!"); // send a failure message to the screen
 				Log::get().warn("Error writing screenshot\n");      // Log the error in log.txt
             }
         }
@@ -280,8 +280,7 @@ bool GameEngine::initialize()
     //      by the time they are initialized.
 
     // Message display.
-    DisplayMsg_count = Ego::Math::constrain<uint8_t>(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(), EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
-    DisplayMsg_on = egoboo_config_t::get().hud_simultaneousMessages_max.getValue() > 0;
+    DisplayMsgs::get().download(egoboo_config_t::get());
 
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();

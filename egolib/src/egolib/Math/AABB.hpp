@@ -25,7 +25,7 @@
 
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Translatable.hpp"
-#include "egolib/Math/Entity.hpp"
+#include "egolib/Math/EuclidianSpace.hpp"
 #include "egolib/Math/Sphere.h"
 
 namespace Ego {
@@ -44,26 +44,22 @@ namespace Math {
  *  Michael Heilmann
  */
 template <typename _VectorSpaceType>
-struct AABB : public Internal::Entity<_VectorSpaceType>, public Translatable<_VectorSpaceType> {
-
-    /**
-     * @brief
-     *  @a MyType is the type of this template/template specialization.
-     */
+struct AABB : public Translatable<_VectorSpaceType> {
+public:
+    /// @brief The Euclidian space over which the AABBs are defined.
+    typedef EuclidianSpace<_VectorSpaceType> EuclidianSpaceType;
+    /// The vector space type (of the Euclidian space).
+    typedef typename EuclidianSpaceType::VectorSpaceType VectorSpaceType;
+    /// The scalar field type (of the vector space).
+    typedef typename EuclidianSpaceType::ScalarFieldType ScalarFieldType;
+    /// The vector type (of the vector space).
+    typedef typename EuclidianSpaceType::VectorType VectorType;
+    /// The scalar type (of the scalar field).
+    typedef typename EuclidianSpaceType::ScalarType ScalarType;
+    /// @brief @a MyType is the type of this template/template specialization.
     typedef AABB<_VectorSpaceType> MyType;
-    
-    /**
-     * @brief
-     *  The scalar type.
-     */
-    typedef typename Internal::Entity<_VectorSpaceType>::ScalarType ScalarType;
-    
-    /**
-     * @brief
-     *  The vector type.
-     */
-	typedef typename Internal::Entity<_VectorSpaceType>::VectorType VectorType;
 
+private:
     /**
      * @brief
      *  The minimum along each axis.
@@ -76,6 +72,7 @@ struct AABB : public Internal::Entity<_VectorSpaceType>, public Translatable<_Ve
      */
     VectorType _max;
 
+public:
     /**
      * @brief
      *  Construct this AABB with its default values.
@@ -99,7 +96,7 @@ struct AABB : public Internal::Entity<_VectorSpaceType>, public Translatable<_Ve
      */
     AABB(const VectorType& min, const VectorType& max)
         : _min(min), _max(max) {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < EuclidianSpaceType::dimensionality(); ++i) {
             if (min[i] > max[i]) {
                 throw std::logic_error("minimum along an axis is greater than the maximum along that axis");
             }
@@ -168,7 +165,7 @@ struct AABB : public Internal::Entity<_VectorSpaceType>, public Translatable<_Ve
      *  The result of the join was assigned to this AABB.
      */
     void join(const MyType& other) {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < EuclidianSpaceType::dimensionality(); ++i) {
             _min[i] = std::min(_min[i], other._min[i]);
             _max[i] = std::max(_max[i], other._max[i]);
         }
@@ -208,7 +205,7 @@ struct AABB : public Internal::Entity<_VectorSpaceType>, public Translatable<_Ve
      *  for each axis k x.min[k] >= y.min[k] and x
      */
     inline bool overlaps(const MyType& other) const {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < EuclidianSpaceType::dimensionality(); ++i) {
             // If the minimum of the LHS is greater than the maximum of the RHS along one axis,
             // then they can not overlap.
             if (_min[i] > other._max[i]) {

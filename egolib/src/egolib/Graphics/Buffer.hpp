@@ -17,33 +17,34 @@
 //*
 //********************************************************************************************
 
-#pragma once
+/// @file egolib/Graphics/Buffer.hpp
+/// @brief Abstract base class of all buffers.
+/// @author Michael Heilmann
 
-#include "egolib/Math/VectorSpace.hpp"
-#include "egolib/Math/AABB.hpp"
-#include "egolib/Math/Sphere.h"
+#include "egolib/platform.h"
 
 namespace Ego {
-namespace Math {
-
+    
 /**
  * @brief
- *  Compute the smallest volume enclosing a given volume.
- * @param source
- *  the source volume
- * @param target
- *  the target volume
+ *  The abstract base class of all buffers.
+ * @author
+ *  Michael Heilmann
  */
-template <typename SourceType, typename TargetType>
-TargetType convexHull(const SourceType& source);
+class Buffer : Id::NonCopyable {    
+protected:
+    /**
+     * @brief
+     *  Construct this buffer.
+     */
+    Buffer();
 
-template <>
-inline Sphere<VectorSpace<Field<float>, 3>> convexHull(const AABB<VectorSpace<Field<float>, 3>>& source) {
-    const auto center = source.getCenter();
-    const auto radius = (source.getMin() - center).length();
-    return Sphere<VectorSpace<Field<float>, 3>>(center, radius);
-}
-
-
-} // namespace Math
+    /** 
+     * @brief
+     *  Destruct this buffer.
+     */
+    virtual ~Buffer();
+    
+}; // class Buffer
+	
 } // namespace Ego

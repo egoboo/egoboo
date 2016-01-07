@@ -90,7 +90,7 @@ bool config_download( egoboo_config_t *cfg)
     }
 
     // Download configuration.
-    DisplayMsg_download(*cfg);
+    DisplayMsgs::get().download(*cfg);
     ParticleHandler::get().download(*cfg);
     AudioSystem::get().download(*cfg);
 
@@ -112,7 +112,7 @@ bool config_upload(egoboo_config_t *cfg)
     // Upload configuration.
     AudioSystem::get().upload(*cfg);
     ParticleHandler::get().upload(*cfg);
-    DisplayMsg_upload(*cfg);
+    DisplayMsgs::get().upload(*cfg);
 
     return true;
 }

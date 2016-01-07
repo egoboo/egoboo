@@ -17,33 +17,31 @@
 //*
 //********************************************************************************************
 
+/// @file   IdLib/DebugAssert.hpp
+/// @brief  Debug assertion functionality.
+/// @author Michael Heilmann
+
 #pragma once
 
-#include "egolib/Math/VectorSpace.hpp"
-#include "egolib/Math/AABB.hpp"
-#include "egolib/Math/Sphere.h"
-
-namespace Ego {
-namespace Math {
+#include "IdLib/AssertionFailedException.hpp"
 
 /**
  * @brief
- *  Compute the smallest volume enclosing a given volume.
- * @param source
- *  the source volume
- * @param target
- *  the target volume
+ *  Macro raising an exception if an assertion fails.
+ * @param assertion
+ *	the assertion
+ * @throw Id::AssertionFailedException
+ *  if the assertion fails
+ * @remark
+ *	This macro evaluates to the empty statement if #_DEBUG is not defined.
+ * @todo
+ *  Add Id::DebugAssertionFailedException and use here.
  */
-template <typename SourceType, typename TargetType>
-TargetType convexHull(const SourceType& source);
-
-template <>
-inline Sphere<VectorSpace<Field<float>, 3>> convexHull(const AABB<VectorSpace<Field<float>, 3>>& source) {
-    const auto center = source.getCenter();
-    const auto radius = (source.getMin() - center).length();
-    return Sphere<VectorSpace<Field<float>, 3>>(center, radius);
-}
-
-
-} // namespace Math
-} // namespace Ego
+#if defined(_DEBUG)
+    #define ID_ASSERT(assertion, ...) \
+	    if(!(assertion)) { \
+		    throw Id::AssertionFailedException(__FILE__, __LINE__, #assertion); \
+        }
+#else
+    #define ID_ASSERT(assertion) /* Empty statement. */;
+#endif

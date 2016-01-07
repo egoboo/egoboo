@@ -178,7 +178,7 @@ void LoadingState::loadModuleData()
     setProgressText("Beautifying graphics...", 40);
 
     //Ready message display
-    DisplayMsg_reset();
+    DisplayMsgs::get().reset();
 
     // Reset all loaded "profiles" in the "profile system".
     ProfileSystem::get().reset();
