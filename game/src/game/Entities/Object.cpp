@@ -1644,6 +1644,11 @@ bool Object::isBeingHeld() const
 
 bool Object::isInsideInventory() const
 {
+    //No valid ref?
+    if(inwhich_inventory == ObjectRef::Invalid) {
+        return false;
+    }
+
     //Check if inventory exists and not marked for removal
     const std::shared_ptr<Object> &holder = _currentModule->getObjectHandler()[inwhich_inventory];
     if(!holder || holder->isTerminated()) {
