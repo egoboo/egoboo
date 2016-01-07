@@ -34,7 +34,7 @@
 static const int WAWALITE_FILE_VERSION = 2;
 
 //--------------------------------------------------------------------------------------------
-void wawalite_water_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_water_t *profile)
+void wawalite_water_t::read(ReadContext& ctxt, wawalite_water_t *profile)
 {
     if (!profile)
     {
@@ -85,7 +85,7 @@ void wawalite_water_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawal
 }
 
 //--------------------------------------------------------------------------------------------
-void wawalite_light_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_light_t *profile)
+void wawalite_light_t::read(ReadContext& ctxt, wawalite_light_t *profile)
 {
     if (!profile)
     {
@@ -100,7 +100,7 @@ void wawalite_light_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawal
 }
 
 //--------------------------------------------------------------------------------------------
-void wawalite_physics_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_physics_t *profile)
+void wawalite_physics_t::read(ReadContext& ctxt, wawalite_physics_t *profile)
 {
     if (!profile)
     {
@@ -118,7 +118,7 @@ void wawalite_physics_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, waw
 }
 
 //--------------------------------------------------------------------------------------------
-void wawalite_animtile_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_animtile_t *profile)
+void wawalite_animtile_t::read(ReadContext& ctxt, wawalite_animtile_t *profile)
 {
     if (!profile)
     {
@@ -132,7 +132,7 @@ void wawalite_animtile_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wa
 }
 
 //--------------------------------------------------------------------------------------------
-void wawalite_damagetile_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_damagetile_t *profile)
+void wawalite_damagetile_t::read(ReadContext& ctxt, wawalite_damagetile_t *profile)
 {
     if (!profile)
     {
@@ -174,7 +174,7 @@ void wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, waw
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_graphics_t *wawalite_graphics_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_graphics_t *profile)
+wawalite_graphics_t *wawalite_graphics_t::read(ReadContext& ctxt, wawalite_graphics_t *profile)
 {
     if (!profile)
     {
@@ -190,7 +190,7 @@ wawalite_graphics_t *wawalite_graphics_t::read(ReadContext& ctxt, wawalite_data_
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_camera_t *wawalite_camera_t::read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_camera_t *profile)
+wawalite_camera_t *wawalite_camera_t::read(ReadContext& ctxt, wawalite_camera_t *profile)
 {
     if (!profile)
     {
@@ -206,7 +206,7 @@ wawalite_camera_t *wawalite_camera_t::read(ReadContext& ctxt, wawalite_data_t *e
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_fog_t *wawalite_fog_t::read(ReadContext &ctxt, wawalite_data_t *enclosing, wawalite_fog_t *profile)
+wawalite_fog_t *wawalite_fog_t::read(ReadContext &ctxt, wawalite_fog_t *profile)
 {
     if (!profile)
     {
@@ -262,15 +262,15 @@ wawalite_data_t *wawalite_data_read(const std::string& filename, wawalite_data_t
     //  the exit.  Door placement will be difficult.
     profile->seed = vfs_get_next_bool(ctxt);
 
-    wawalite_water_t::read(ctxt, profile, &(profile->water));
-    wawalite_light_t::read(ctxt, profile, &(profile->light));
-    wawalite_physics_t::read(ctxt, profile, &(profile->phys));
-    wawalite_animtile_t::read(ctxt, profile, &(profile->animtile));
-    wawalite_damagetile_t::read(ctxt, profile, &(profile->damagetile));
+    wawalite_water_t::read(ctxt, &(profile->water));
+    wawalite_light_t::read(ctxt, &(profile->light));
+    wawalite_physics_t::read(ctxt, &(profile->phys));
+    wawalite_animtile_t::read(ctxt, &(profile->animtile));
+    wawalite_damagetile_t::read(ctxt, &(profile->damagetile));
     wawalite_weather_t::read(ctxt, profile, &(profile->weather));
-    wawalite_graphics_t::read(ctxt, profile, &(profile->graphics));
-    wawalite_camera_t::read(ctxt, profile, &(profile->camera));
-    wawalite_fog_t::read(ctxt, profile, &(profile->fog));
+    wawalite_graphics_t::read(ctxt, &(profile->graphics));
+    wawalite_camera_t::read(ctxt, &(profile->camera));
+    wawalite_fog_t::read(ctxt, &(profile->fog));
     if (profile->fog.found)
     {
         // Read extra stuff for damage tile particles...
@@ -287,7 +287,7 @@ wawalite_data_t *wawalite_data_read(const std::string& filename, wawalite_data_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool wawalite_water_t::write(vfs_FILE * filewrite, const wawalite_data_t *enclosing, const wawalite_water_t *profile)
+bool wawalite_water_t::write(vfs_FILE * filewrite, const wawalite_water_t *profile)
 {
     if (!filewrite || !profile)
     {
@@ -337,7 +337,7 @@ bool wawalite_water_t::write(vfs_FILE * filewrite, const wawalite_data_t *enclos
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_light_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_light_t *profile)
+bool wawalite_light_t::write(vfs_FILE *filewrite, const wawalite_light_t *profile)
 {
     if (!filewrite || !profile) return false;
 
@@ -351,7 +351,7 @@ bool wawalite_light_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosi
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_physics_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_physics_t *profile)
+bool wawalite_physics_t::write(vfs_FILE *filewrite, const wawalite_physics_t *profile)
 {
     if (NULL == filewrite || NULL == profile) return false;
 
@@ -367,7 +367,7 @@ bool wawalite_physics_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclo
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_animtile_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_animtile_t *profile)
+bool wawalite_animtile_t::write(vfs_FILE *filewrite, const wawalite_animtile_t *profile)
 {
     if (NULL == filewrite || NULL == profile) return false;
 
@@ -379,7 +379,7 @@ bool wawalite_animtile_t::write(vfs_FILE *filewrite, const wawalite_data_t *encl
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_damagetile_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_damagetile_t *profile)
+bool wawalite_damagetile_t::write(vfs_FILE *filewrite, const wawalite_damagetile_t *profile)
 {
     if (NULL == filewrite || NULL == profile) return false;
 
@@ -392,7 +392,7 @@ bool wawalite_damagetile_t::write(vfs_FILE *filewrite, const wawalite_data_t *en
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_weather_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_weather_t *profile)
+bool wawalite_weather_t::write(vfs_FILE *filewrite, const wawalite_weather_t *profile)
 {
     if (NULL == filewrite || NULL == profile) return false;
 
@@ -405,7 +405,7 @@ bool wawalite_weather_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclo
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_graphics_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_graphics_t *profile)
+bool wawalite_graphics_t::write(vfs_FILE *filewrite, const wawalite_graphics_t *profile)
 {
     if (NULL == filewrite || NULL == profile) return false;
 
@@ -417,7 +417,7 @@ bool wawalite_graphics_t::write(vfs_FILE *filewrite, const wawalite_data_t *encl
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_camera_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_camera_t *profile)
+bool wawalite_camera_t::write(vfs_FILE *filewrite, const wawalite_camera_t *profile)
 {
     if (NULL == filewrite || NULL == profile) return false;
 
@@ -429,7 +429,7 @@ bool wawalite_camera_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclos
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_fog_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_fog_t *profile)
+bool wawalite_fog_t::write(vfs_FILE *filewrite, const wawalite_fog_t *profile)
 {
     if (NULL == filewrite || NULL == profile) return false;
 
@@ -437,11 +437,11 @@ bool wawalite_fog_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing
     if (!profile->found) return true;
 
     vfs_printf( filewrite, "\n\n// Fog Expansion...  Leave this out for no fog...\n" );
-    vfs_put_float(filewrite, "Fog top z ( 0 to 100 )                            :", profile->top);
-    vfs_put_float(filewrite, "Fog bottom z ( 0 )                                :", profile->bottom);
-    vfs_put_float(filewrite, "Fog Red ( 0.0 to 1.0 )                            :", profile->red);
-    vfs_put_float(filewrite, "Fog Green ( 0.0 to 1.0 )                          :", profile->grn);
-    vfs_put_float(filewrite, "Fog Blue ( 0.0 to 1.0 )                           :", profile->blu);
+    vfs_put_float(filewrite, "Fog top z ( 0 to 100 )                           :", profile->top);
+    vfs_put_float(filewrite, "Fog bottom z ( 0 )                               :", profile->bottom);
+    vfs_put_float(filewrite, "Fog Red ( 0.0 to 1.0 )                           :", profile->red);
+    vfs_put_float(filewrite, "Fog Green ( 0.0 to 1.0 )                         :", profile->grn);
+    vfs_put_float(filewrite, "Fog Blue ( 0.0 to 1.0 )                          :", profile->blu);
     vfs_put_bool(filewrite, "Fog affects water ( TRUE or FALSE )               :", profile->affects_water);
 
     return true;
@@ -480,15 +480,15 @@ bool wawalite_data_write(const std::string& filename,const wawalite_data_t *prof
     // random map
     vfs_put_int(filewrite.get(), "Random map ( TRUE or FALSE ) ( doesn't work )           :", profile->seed);
 
-    wawalite_water_t::write(filewrite.get(), profile, &(profile->water));
-    wawalite_light_t::write(filewrite.get(), profile, &(profile->light));
-    wawalite_physics_t::write(filewrite.get(), profile, &(profile->phys));
-    wawalite_animtile_t::write(filewrite.get(), profile, &(profile->animtile));
-    wawalite_damagetile_t::write(filewrite.get(), profile, &(profile->damagetile));
-    wawalite_weather_t::write(filewrite.get(), profile, &(profile->weather));
-    wawalite_graphics_t::write(filewrite.get(), profile, &(profile->graphics));
-    wawalite_camera_t::write(filewrite.get(), profile, &(profile->camera));
-    wawalite_fog_t::write(filewrite.get(), profile, &(profile->fog));
+    wawalite_water_t::write(filewrite.get(), &(profile->water));
+    wawalite_light_t::write(filewrite.get(), &(profile->light));
+    wawalite_physics_t::write(filewrite.get(), &(profile->phys));
+    wawalite_animtile_t::write(filewrite.get(), &(profile->animtile));
+    wawalite_damagetile_t::write(filewrite.get(), &(profile->damagetile));
+    wawalite_weather_t::write(filewrite.get(), &(profile->weather));
+    wawalite_graphics_t::write(filewrite.get(), &(profile->graphics));
+    wawalite_camera_t::write(filewrite.get(), &(profile->camera));
+    wawalite_fog_t::write(filewrite.get(), &(profile->fog));
 
     if (profile->fog.found)
     {
