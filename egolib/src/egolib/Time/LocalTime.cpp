@@ -49,6 +49,7 @@ LocalTime::LocalTime(const LocalTime& other)
 }
 
 LocalTime& LocalTime::operator=(const LocalTime& other) {
+    _localTime = other._localTime;
 	return *this;
 }
 
