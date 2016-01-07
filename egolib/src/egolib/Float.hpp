@@ -40,3 +40,51 @@ float float_fromBits(Uint32 x);
 bool float_infinite(float x);
 bool float_nan(float x);
 bool float_bad(float x);
+
+/**
+ * @brief
+ *  "equal to"
+ * @param x, y
+ *  the scalars
+ * @param ulp
+ *  desired
+ *  precision in ULPs (units in the last place) (size_t value)
+ * @return
+ *  @a true if <tt>x ~ y</tt>, @a false otherwise
+ * @remark
+ *	Only available if the type is a floating-point type.
+ * @tparam _Type
+ *  the type
+ */
+template<class _Type>
+typename std::enable_if_t<std::is_floating_point<_Type>::value, bool>
+float_equalToUlp(_Type x, _Type y, size_t ulp) {
+    // The machine epsilon has to be scaled to the magnitude of the values used
+    // and multiplied by the desired precision in ULPs (units in the last place).
+    return std::abs(x - y) < std::numeric_limits<_Type>::epsilon() * std::abs(x + y) * ulp
+        // Unless the result is subnormal.
+        || std::abs(x - y) < std::numeric_limits<_Type>::min();
+}
+
+/**
+ * @brief
+ *  "equal to"
+ * @param x, y
+ *  the scalars
+ * @param tolerance
+ *  upper-bound (inclusive) for the acceptable error magnitude.
+ *  The error magnitude is always non-negative,
+ *  so if @a tolerance is negative then the outcome of any comparison operation is negative.
+ * @return
+ *  @a true if <tt>x ~ y</tt>, @a false otherwise.
+ * @remark
+ *	Only available if the type is a floating-point type.
+ * @tparam _Type
+ *  the type
+ */
+template<class _Type>
+typename std::enable_if_t<std::is_floating_point<_Type>::value, bool>
+float_equalToTolerance(_Type x, _Type y, _Type tolerance) {
+    return std::abs(x - y) <= tolerance;
+}
+

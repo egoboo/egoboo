@@ -62,20 +62,25 @@ struct Point : public Tuple<typename _VectorSpaceType::ScalarType, _VectorSpaceT
 public:
     /// @brief The vector space of this vector.
     typedef _VectorSpaceType VectorSpaceType;
-    /// @brief The vector type (of the vector space).
-    typedef Vector<VectorSpaceType> VectorType;
-
-public:
+    /// @brief The dimensionality.
+    static constexpr size_t dimensionality() {
+        return VectorSpaceType::dimensionality();
+    }
     /// @brief The scalar field type (of the vector space).
     typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
+    /// @brief The vector type (of the vector space).
+    typedef typename VectorSpaceType::VectorType VectorType;
     /// @brief The scalar type (of the scalar field).
     typedef typename VectorSpaceType::ScalarType ScalarType;
 
 public:
-    /// @brief The tuple type.
-    typedef Tuple<typename VectorSpaceType::ScalarType, VectorSpaceType::dimensionality()> TupleType;
     /// @brief The type of this template/template specialization.
-    typedef Point<_VectorSpaceType> MyType;
+    typedef Point<VectorSpaceType> MyType;
+    /// @brief The tuple type.
+    typedef Tuple<ScalarType, MyType::dimensionality()> TupleType;
+
+public:
+
 
 public:
     /**
@@ -84,7 +89,7 @@ public:
      * @param v, ... args
      *  the element values
      */
-    template<typename ... ArgTypes, typename = std::enable_if_t<Internal::VectorConstructorEnable<VectorSpaceType, ArgTypes ...>::value>>
+    template<typename ... ArgTypes, typename = std::enable_if_t<Internal::PointConstructorEnable<VectorSpaceType, ArgTypes ...>::value>>
     Point(ScalarType v, ArgTypes&& ... args)
         : TupleType(std::forward<ScalarType>(v), args ...) {
         /* Intentionally empty. */
@@ -188,7 +193,7 @@ public:
      *  The sum <tt>(*this) + other</tt> was assigned to <tt>*this</tt>.
      */
     void add(const VectorType& other) {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
             this->_elements[i] = ScalarFieldType::sum(this->_elements[i], other[i]);
         }
     }
@@ -203,7 +208,7 @@ public:
      *  The difference <tt>(*this) - other</tt> was assigned to <tt>*this</tt>.
      */
     void sub(const VectorType& other) {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
             this->_elements[i] = ScalarFieldType::difference(this->_elements[i], other[i]);
         }
     }
@@ -218,7 +223,7 @@ public:
     *  @a true if this point equals the other point
     */
     bool equals(const MyType& other) const {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
             if (ScalarFieldType::notEqualTo(this->_elements[i], other._elements[i])) {
                 return false;
             }
@@ -232,13 +237,13 @@ public:
      * @param other
      *  the other point
      * @param ulp
-     *  desired precision in ULPs (units in the last place)
+     *  see ScalarFieldType::notEqualUlp
      * @return
      *  @a true if this point equals the other point
      */
-    bool equalsULP(const MyType& other, const size_t& ulp) const {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualToULP(this->_elements[i], other._elements[i], ulp)) {
+    bool equalsUlp(const MyType& other, const size_t& ulp) const {
+        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
+            if (ScalarFieldType::notEqualULP(this->_elements[i], other._elements[i], ulp)) {
                 return false;
             }
         }
@@ -251,15 +256,13 @@ public:
      * @param other
      *  the other point
      * @param tolerance
-     *  upper-bound (inclusive) for the acceptable error magnitude.
-     *  The error magnitude is always non-negative, so if @a tolerance is negative,
-     *  then the outcome of any comparison operation is negative.
+     *  see ScalarFieldType::notEqualTolerance
      * @return
      *  @a true if this point equals the other point
      */
     bool equalsTolerance(const MyType& other, const ScalarType& tolerance) const {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualToTolerance(this->_elements[i], other._elements[i], tolerance)) {
+        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
+            if (ScalarFieldType::notEqualTolerance(this->_elements[i], other._elements[i], tolerance)) {
                 return false;
             }
         }
@@ -276,7 +279,8 @@ public:
     }
 
 public:
-    const MyType& operator=(const MyType& other) {
+    // As always, return non-const reference in order to allow chaining for the sake of orthogonality.
+    MyType& operator=(const MyType& other) {
         assign(other);
         return *this;
     }
@@ -303,6 +307,25 @@ public:
         MyType t(*this);
         t -= other;
         return t;
+    }
+
+private:
+    /** @internal */
+    ScalarType sub(const MyType& other, size_t index) const {
+        return ScalarFieldType::difference(this->_elements[index], other._elements[index]);
+    }
+    /** @internal */
+    template <size_t... Index>
+    VectorType sub(const MyType& other, std::index_sequence<Index ...>) const {
+        return VectorType((sub(other, Index))...);
+    }
+    VectorType sub(const MyType& other) const {
+        return sub(other, std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+    }
+
+public:
+    VectorType operator-(const MyType& other) const {
+        return sub(other);
     }
 
 public:

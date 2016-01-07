@@ -25,6 +25,7 @@
 
 #include "egolib/Math/Dimensionality.hpp"
 #include "egolib/Math/OrderedField.hpp"
+#include "egolib/Math/Vector.hpp"
 
 namespace Ego {
 namespace Math {
@@ -47,19 +48,17 @@ struct VectorSpaceEnable
 	  >::type
 {};
 
-
 } // namespace Internal
 
 /**
  * @brief
- *	A vector space.
- * @param _ScalarFieldType
- *	the underlaying type. Must fulfil the scalar field concept.
- *	A line.
- * @todo
- *	Rename @a _ScalarFieldType to _UnderlayingType.
- * @author
- *	Michael Heilmann
+ *	An \f$n\f$-dimensional vector space.
+ * @tparam _ScalarFieldType
+ *  the underlying scalar field type.
+ *  Must fulfil the <em>ScalarField</tt> concept.
+ * @tparam _Dimensionality
+ *  the dimensionality of the vector space.
+ *  Must fulfil the <em>Dimensionality</tt> concept.
  */
 template <typename _ScalarFieldType, size_t _Dimensionality, 
 		  typename _Enabled = void>
@@ -68,35 +67,42 @@ struct VectorSpace;
 template <typename _ScalarFieldType, size_t _Dimensionality>
 struct VectorSpace<_ScalarFieldType, _Dimensionality, 
 	               std::enable_if_t<Internal::VectorSpaceEnable<_ScalarFieldType, _Dimensionality>::value>> {
-	
-	/**
-	 * @invariant
-	 *	@a _Dimensionality must fulfil the <em>dimensionality concept</em>.
-	 */
-	static_assert(IsDimensionality<_Dimensionality>::value, "_Dimensionality must fulfil the dimensionality concept");
+public:
+    /**
+     * @brief
+     *  The scalar field type.
+     */
+    typedef _ScalarFieldType ScalarFieldType;
 
-	/**
-	 * @brief
-	 *	The scalar type.
-	 */
-	typedef typename _ScalarFieldType::ScalarType ScalarType;
-	/**
-	 * @brief
-	 *	The scalar field type.
-	 */
-	typedef _ScalarFieldType ScalarFieldType;
+    /**
+     * @brief
+     *  The scalar type.
+     */
+    typedef typename ScalarFieldType::ScalarType ScalarType;
 
-	/**
-	 * @brief
-	 *	The dimensionality of the vector space.
-	 * @return
-	 *	the dimensionality of the vector space
-	 */
-	constexpr static size_t dimensionality() {
-		return _Dimensionality;
-	}
+    /**
+     * @brief
+     *  The type of this template/template specialization.
+     */
+    typedef VectorSpace<ScalarFieldType, _Dimensionality> MyType;
 
-};
+    /**
+     * @brief
+     *  The dimensionality of the vector space.
+     * @return
+     *  the dimensionality of the vector space
+     */
+    constexpr static size_t dimensionality() {
+        return _Dimensionality;
+    }
+
+    /**
+     * @brief
+     *  The vector type.
+     */
+    typedef Vector<ScalarFieldType, MyType::dimensionality()> VectorType;
+
+}; // struct VectorSpace
 
 } // namespace Math
 } // namespace Ego

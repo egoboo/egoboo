@@ -21,24 +21,34 @@ enum {
     kX = 0, kY, kZ, kW
 };
 
+typedef Ego::Math::Field<float> Fieldf;
 
 /// A 2D vector.
-typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 2>> Vector2f;
+typedef Ego::Math::Vector<Fieldf, 2> Vector2f;
 
 /// A 3D vector.
-typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Vector3f;
+typedef Ego::Math::Vector<Fieldf, 3> Vector3f;
 
 /// A 4D vector.
-typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::Field<float>, 4>> Vector4f;
+typedef Ego::Math::Vector<Fieldf, 4> Vector4f;
+
+/// A 2D vector space.
+typedef Ego::Math::VectorSpace<Fieldf, 2> VectorSpace2f;
+
+/// A 3D vector space.
+typedef Ego::Math::VectorSpace<Fieldf, 3> VectorSpace3f;
+
+/// A 4D vector space.
+typedef Ego::Math::VectorSpace<Fieldf, 4> VectorSpace4f;
 
 /// A 3D sphere.
-typedef Ego::Math::Sphere<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Sphere3f;
+typedef Ego::Math::Sphere<VectorSpace3f> Sphere3f;
 
 /// A 3D AABB.
-typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> AABB3f;
+typedef Ego::Math::AABB<VectorSpace3f> AABB3f;
 
 /// A 2D AABB.
-typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::Field<float>, 2>> AABB2f;
+typedef Ego::Math::AABB<VectorSpace2f> AABB2f;
 /// A 2D AABB can also be considered as a rectangle.
 typedef AABB2f Rectangle2f;
 
@@ -46,13 +56,13 @@ typedef AABB2f Rectangle2f;
 typedef Ego::Math::Cone3<float> Cone3f;
 
 /// A 3D cube.
-typedef Ego::Math::Cube<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Cube3f;
+typedef Ego::Math::Cube<VectorSpace3f> Cube3f;
 
 /// A 3D line.
-typedef Ego::Math::Line<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Line3f;
+typedef Ego::Math::Line<VectorSpace3f> Line3f;
 
 /// A 3D point.
-typedef Ego::Math::Point<Ego::Math::VectorSpace<Ego::Math::Field<float>, 3>> Point3f;
+typedef Ego::Math::Point<VectorSpace3f> Point3f;
 
 /// A 3D plane.
 typedef Ego::Math::Plane3<float> Plane3f;

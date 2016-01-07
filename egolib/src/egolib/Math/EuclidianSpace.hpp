@@ -24,39 +24,70 @@
 #pragma once
 
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Point.hpp"
 
 namespace Ego {
 namespace Math {
 
 /**
-* @brief An \f$n\f$-dimensional Euclidian space (sometimes called \f$n\f$-dimensional Cartesian space).
-* @tparam the underlying \f$n\f$-dimensional vector space
-*/
+ * @brief
+ *  An \f$n\f$-dimensional Euclidian space (sometimes called \f$n\f$-dimensional Cartesian space).
+ * @tparam _VectorSpaceType 
+ *  the underlying \f$n\f$-dimensional vector space type.
+ *  Must fulfil the <em>VectorSpace</tt> concept.
+ */
+template <typename _VectorSpaceType,
+          typename _Enabled = void>
+struct EuclidianSpace;
+
 template <typename _VectorSpaceType>
-struct EuclidianSpace {
-public:
-    /** @brief The type of the vector space. */
-    typedef _VectorSpaceType VectorSpaceType;
-
-    /** @brief The type of the scalar field. */
-    typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
-
-public:
-    /** @brief The type of a vector. */
-    typedef Vector<_VectorSpaceType> VectorType;
-
-    /** @brief The type of a scalar. */
-    typedef typename VectorSpaceType::ScalarType ScalarType;
-
-
+struct EuclidianSpace<_VectorSpaceType, std::enable_if_t<true>> {
 public:
     /**
-     * @brief Get the dimensionality.
-     * @return the dimensionality
+     * @brief
+     *  The type of the vector space.
      */
-    constexpr static size_t dimensionality() {
+    typedef _VectorSpaceType VectorSpaceType;
+
+    /**
+     * @brief
+     *  The type of this template/template specialization.
+     */
+    typedef EuclidianSpace<VectorSpaceType> MyType;
+
+    /**
+     * @brief
+     *  The type of the scalar field.
+     */
+    typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
+
+    /**
+     * @brief
+     *  Get the dimensionality.
+     * @return
+     *  the dimensionality
+     */
+    static constexpr size_t dimensionality() {
         return VectorSpaceType::dimensionality();
     }
+
+    /**
+     * @brief
+     *  The type of a scalar.
+     */
+    typedef typename VectorSpaceType::ScalarType ScalarType;
+
+    /**
+     * @brief
+     *  The type of a vector.
+     */
+    typedef typename VectorSpaceType::VectorType VectorType;
+
+    /**
+     * @brief
+     *  The type of a point.
+     */
+    typedef Point<VectorSpaceType> PointType;
 
 }; // struct EuclidianSpace
 

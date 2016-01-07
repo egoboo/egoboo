@@ -24,6 +24,7 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/Float.hpp"
 
 namespace Ego {
 namespace Math {
@@ -93,7 +94,7 @@ struct OrderedRing {
 	 * @return
 	 *  the difference <tt>x - y</tt>
 	 */
-	static inline ElementType difference(ElementType x, ElementType y) {
+	static inline ElementType difference(const ElementType& x, const ElementType& y) {
 		return x - y;
 	}
 
@@ -115,25 +116,32 @@ struct OrderedRing {
 	 * @param x, y
 	 *  the scalars
 	 * @param ulp
-	 *  desired precision in ULPs (units in the last place)
+     *  see float_equalToUlp
 	 * @return
-	 *  @a true if <tt>x == y</tt>, @a false otherwise
-	 * @remark
-	 *  Just taken from http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
-	 *  and those guys kinda collected that from Knuth and 1000ends of other articles.
+	 *  @a true if <tt>x ~ y</tt>, @a false otherwise
 	 * @remark
 	 *	Only available if the element type is a floating-point type.
 	 */
-	static inline typename std::enable_if<std::is_floating_point<ElementType>::value, bool>::type equalToULP(const ElementType& x, const ElementType& y, const size_t ulp) {
-		// The machine epsilon has to be scaled to the magnitude of the values used
-		// and multiplied by the desired precision in ULPs (units in the last place).
-		return std::abs(x - y) <= std::numeric_limits<ElementType>::epsilon() * std::abs(x + y) * ulp
-			// Unless the result is subnormal
-			|| std::abs(x - y) <= std::numeric_limits<ElementType>::min();
+	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool>
+    equalToUlp(const ElementType& x, const ElementType& y, const size_t ulp) {
+        return float_equalToUlp(x, y, ulp);
 	}
 
-	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool> equalToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
-		return std::abs(x - y) < tolerance;
+    /**
+     * @brief
+     *  "equal to"
+     * @param x, y
+     *  the scalars
+     * @param tolerance
+     *  see float_equalToTolerance
+     * @return
+     *  @a true if <tt>x ~ y</tt>, @a false otherwise
+     * @remark
+     *	Only available if the element type is a floating-point type.
+     */
+	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool>
+    equalToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
+        return float_equalToTolerance(x, y, tolerance);
 	}
 
 	/**
@@ -142,17 +150,33 @@ struct OrderedRing {
 	 * @param x, y
 	 *  the elements
 	 * @param ulp
-	 *  desired precision in ULPs (units in the last place)
+     *  desired
+     *  precision in ULPs (units in the last place) (size_t value)
 	 * @return
-	 *  @a true if <tt>x == y</tt>, @a false otherwise
+	 *  @a true if <tt>x !~ y</tt>, @a false otherwise
 	 * @remark
 	 *	Only available if the element type is a floating-point type.
 	 */
-	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool> notEqualToULP(const ElementType& x, const ElementType& y, const size_t ulp) {
-		return !equalToULP(x, y, ulp);
+	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool>
+    notEqualToUlp(const ElementType& x, const ElementType& y, const size_t ulp) {
+		return !equalToUlp(x, y, ulp);
 	}
 
-	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool> notEqualToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
+    /**
+     * @brief
+     *  "not equal to"
+     * @param x, y
+     *  the scalars
+     * @param tolerance
+     *  desired
+     *  tolerance (non-negative floating-point value)
+     * @return
+     *  @a true if <tt>x !~ y</tt>, @a false otherwise
+     * @remark
+     *	Only available if the element type is a floating-point type.
+     */
+	static inline std::enable_if_t<std::is_floating_point<ElementType>::value, bool>
+    notEqualToTolerance(const ElementType& x, const ElementType& y, const ElementType& tolerance) {
 		return !equalToTolerance(x, y, tolerance);
 	}
 

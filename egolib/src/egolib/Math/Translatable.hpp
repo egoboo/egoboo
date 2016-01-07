@@ -45,7 +45,7 @@ struct Translatable {
      * @brief
      *  The vector type.
      */
-    typedef Vector<VectorSpaceType> VectorType;
+    typedef Vector<typename VectorSpaceType::ScalarFieldType, VectorSpaceType::dimensionality()> VectorType;
     /** 
      * @brief
      *  Translate this entity.
