@@ -132,9 +132,10 @@
       <OpenMPSupport>false</OpenMPSupport>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -200,6 +201,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <UseFullPaths>true</UseFullPaths>
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -256,9 +258,10 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>false</BrowseInformation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -312,6 +315,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
       <WarningLevel>Level4</WarningLevel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>

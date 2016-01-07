@@ -120,7 +120,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
@@ -137,6 +137,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -163,9 +164,10 @@
       <BrowseInformation>false</BrowseInformation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -201,6 +203,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -238,6 +241,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

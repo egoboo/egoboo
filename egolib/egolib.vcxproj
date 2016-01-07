@@ -127,7 +127,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <BrowseInformation>false</BrowseInformation>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -145,6 +145,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
@@ -189,6 +190,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
       <WarningLevel>Level4</WarningLevel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -253,6 +255,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
       <WarningLevel>Level4</WarningLevel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Lib />
     <Lib>
@@ -290,11 +293,12 @@
       <BrowseInformation>false</BrowseInformation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

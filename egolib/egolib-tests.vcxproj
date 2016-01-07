@@ -154,9 +154,10 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -189,9 +190,10 @@
       <BrowseInformation>false</BrowseInformation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -228,6 +230,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -266,6 +269,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

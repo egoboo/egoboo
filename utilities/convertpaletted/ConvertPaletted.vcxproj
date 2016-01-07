@@ -119,9 +119,10 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -170,9 +171,10 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -224,6 +226,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <UseFullPaths>true</UseFullPaths>
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -277,6 +280,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

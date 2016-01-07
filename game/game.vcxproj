@@ -141,7 +141,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4820%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ShowIncludes>false</ShowIncludes>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>
@@ -160,6 +160,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -230,9 +231,10 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <CompileAsWinRT>false</CompileAsWinRT>
       <OmitFramePointers>false</OmitFramePointers>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -303,6 +305,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
       <WarningLevel>Level4</WarningLevel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -372,6 +375,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
       <CompileAsWinRT>false</CompileAsWinRT>
       <FloatingPointModel>Fast</FloatingPointModel>
       <WarningLevel>Level4</WarningLevel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
