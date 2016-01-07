@@ -38,9 +38,16 @@ public:
         : constantValue(constantValue) {
     }
 public:
+#if defined(_MSC_VER) // Disable sickening flood of warnings.
+    #pragma warning(push)
+    #pragma warning(disable: 4100)
+#endif
     ResultType operator()(size_t index) const {
         return constantValue;
     }
+#if defined(_MSC_VER)
+    #pragma warning(pop)
+#endif
 };
 
 /// A generator implementing an <tt>operator()</tt> which takes an index as its single argument.
