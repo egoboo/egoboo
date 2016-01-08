@@ -171,6 +171,7 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
     prt_instance_t& inst = pprt->inst;
 
     {
+        Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
         Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
         {
             auto& renderer = Ego::Renderer::get();
@@ -470,29 +471,14 @@ void draw_one_attachment_point(chr_instance_t& inst, int vrt_offset)
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
-
-    GL_DEBUG(glPointSize)(5);
-
-    // save the matrix mode
-    GLint matrix_mode[1];
-    GL_DEBUG(glGetIntegerv)(GL_MATRIX_MODE, matrix_mode);
-
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG(glMatrixMode)(GL_MODELVIEW);
-    GL_DEBUG(glPushMatrix)();
-    Ego::Renderer::get().multiplyMatrix(inst.matrix);
+    Ego::Renderer::get().setPointSize(5);
+    Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
+    Ego::Renderer::get().setWorldMatrix(inst.matrix);
     GL_DEBUG(glBegin(GL_POINTS));
     {
         GL_DEBUG(glVertex3fv)(inst.vrt_lst[vrt].pos);
     }
     GL_DEBUG_END();
-
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG(glMatrixMode)(GL_MODELVIEW);
-    GL_DEBUG(glPopMatrix)();
-
-    // restore the matrix mode
-    GL_DEBUG(glMatrixMode)(matrix_mode[0]);
 }
 
 void prt_draw_attached_point(const std::shared_ptr<Ego::Particle>& particle)

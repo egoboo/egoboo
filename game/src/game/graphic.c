@@ -875,6 +875,10 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     else
     {
     }
+    // Render water.
+    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
+    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
+    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 	Ego::Graphics::RenderPasses::g_reflective1.run(cam, tl, el);
 
 	if (egoboo_config_t::get().debug_mesh_renderHeightMap.getValue())
@@ -936,8 +940,14 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
     // Render solid entities.
 	Ego::Graphics::RenderPasses::g_solidEntities.run(cam, tl, el);
 	// Render water.
+    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
+    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
+    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 	Ego::Graphics::RenderPasses::g_water.run(cam, tl, el);
 	// Render transparent entities.
+    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
+    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
+    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
 
 #if defined(DRAW_PRT_GRIP_ATTACH)

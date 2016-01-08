@@ -925,25 +925,15 @@ void ogl_beginFrame()
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
 	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
-    renderer.loadMatrix(projection);
-
-    glMatrixMode( GL_MODELVIEW );
-    renderer.loadMatrix(Matrix4f4f::identity());
+    renderer.setProjectionMatrix(projection);
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+    renderer.setViewMatrix(Matrix4f4f::identity());
 }
 
 //--------------------------------------------------------------------------------------------
 void ogl_endFrame()
 {
-    // Restore the OpenGL matrices to what they were
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-
-    glMatrixMode( GL_MODELVIEW );
-    Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
-
     // Re-enable any states disabled by gui_beginFrame
     glPopAttrib();
 }
@@ -1029,17 +1019,10 @@ void cartman_begin_ortho_camera_hrz(Cartman::Window& pwin, camera_t * pcam, floa
     
 	Matrix4f4f matrix;
     auto &renderer = Ego::Renderer::get();
-
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
     matrix = Ego::Math::Transform::ortho(left, right, bottom, top, front, back);
-    renderer.loadMatrix(matrix);
-
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    matrix = Ego::Math::Transform::scaling({-1.0f, 1.0f, 1.0f});
-    matrix = matrix * Ego::Math::Transform::lookAt({pcam->x, pcam->y, back}, {pcam->x, pcam->y, front}, {0.0f, -1.0f, 0.0f});
-    renderer.loadMatrix(matrix);
+    renderer.setProjectionMatrix(matrix);
+    renderer.setWorldMatrix(Ego::Math::Transform::scaling({-1.0f, 1.0f, 1.0f}));
+    renderer.setViewMatrix(Ego::Math::Transform::lookAt({pcam->x, pcam->y, back}, {pcam->x, pcam->y, front}, {0.0f, -1.0f, 0.0f}));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1080,28 +1063,18 @@ void cartman_begin_ortho_camera_vrt(Cartman::Window& pwin, camera_t * pcam, floa
 	Matrix4f4f matrix;
     auto &renderer = Ego::Renderer::get();
 
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
     matrix = Ego::Math::Transform::ortho(left, right, bottom, top, front, back);
-    renderer.loadMatrix(matrix);
-
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
+    renderer.setProjectionMatrix(matrix);
     matrix = Ego::Math::Transform::lookAt({pcam->x, pcam->y, pcam->z}, {pcam->x, pcam->y + back, pcam->z}, {0.0f, 0.0f, 1.0f});
-    renderer.loadMatrix(matrix);
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+    renderer.setViewMatrix(matrix);
 }
 
 //--------------------------------------------------------------------------------------------
+
 void cartman_end_ortho_camera()
 {
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
 }
-
-//--------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------
 void load_img()
