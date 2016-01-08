@@ -6,7 +6,7 @@
 # Optional flags
 # Set TEST_CXXFLAGS for compiling your tests (default $CXXFLAGS)
 # Set TEST_LDFLAGS for liinking your tests (default $LDFLAGS)
-# Set TEST_BINARY to the test binary (and the generated cpp file) (default ./TestMain)
+# Set TEST_BINARY to the test binary (default ./TestMain)
 
 ifeq ($(TEST_LDFLAGS),)
 TEST_LDFLAGS := $(LDFLAGS)
@@ -20,7 +20,8 @@ ifeq ($(TEST_BINARY),)
 TEST_BINARY := ./TestMain
 endif
 
-TEST_GENERATED_FILES = gen/TestMain.cpp $(addprefix gen/, $(TEST_SOURCES))
+TEST_GENERATED_SOURCES = $(addprefix gen/, $(TEST_SOURCES))
+TEST_GENERATED_FILES = gen/TestMain.cpp $(TEST_GENERATED_SOURCES)
 TEST_GENERATED_OBJECTS = $(TEST_GENERATED_FILES:.cpp=.o)
 
 TEST_CXXFLAGS += -I$(EGOTEST_DIR)/src -DEGOTEST_USE_HANDWRITTEN -I.
@@ -37,6 +38,8 @@ $(TEST_BINARY): $(TEST_GENERATED_OBJECTS)
 
 $(TEST_GENERATED_OBJECTS): %.o: %.cpp
 	$(CXX) $(TEST_CXXFLAGS) -o $@ -c $^
+
+$(TEST_GENERATED_SOURCES): gen/TestMain.cpp
 
 gen/TestMain.cpp: ${TEST_SOURCES} $(TEST_REQUIREDFILES)
 	perl ${EGOTEST_DIR}/generate_test_files.pl cpp ${TEST_SOURCES}
