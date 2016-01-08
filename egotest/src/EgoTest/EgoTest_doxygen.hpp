@@ -28,47 +28,57 @@
 #endif
 
 /**
- * @brief
- * Declare a test case.
- * @param TESTCASENAME
- * The test case's class name.
- */
-#define EgoTest_DeclareTestCase(TESTCASENAME)
-
-/**
- * @brief
- * End the declaration of a test case.
- */
-#define EgoTest_EndDeclaration()
-
-/**
  * @brief 
- * Define a test case.
+ *  Define a test case.
  * @param TESTCASENAME
- * The test case's class name.
- * @note
- * The test case's class name should be the same as the one used by @c EgoTest_DeclareTestCase.
+ *  The test case's class name.
  */
-#define EgoTest_BeginTestCase(TESTCASENAME) class TESTCASENAME {
+#define EgoTest_TestCase(TESTCASENAME) \
+class TESTCASENAME
 
 /**
  * @brief
- * End a definition of a test case.
- */
-#define EgoTest_EndTestCase() };
-
-/**
- * @brief
- * Define a test.
+ *  Define a test.
  * @param TESTNAME
- * The test's method name.
+ *  The test's method name.
+ * @note
+ *  The method name may not be one of the following: setUp tearDown setUpClass tearDownClass
  */
-#define EgoTest_Test(TESTNAME) void TESTNAME()
+#define EgoTest_Test(TESTNAME) \
+void TESTNAME()
 
 /**
  * @brief
- * Test an expression.
+ *  Define a method that runs before each test.
+ */
+#define EgoTest_SetUpTest() \
+void setUp()
+
+/**
+ * @brief
+ *  Define a method that runs after each test.
+ */
+#define EgoTest_TearDownTest() \
+void tearDown()
+
+/**
+ * @brief
+ *  Define a method that runs before all tests.
+ */
+#define EgoTest_SetUpTestCase() \
+void setUpClass()
+
+/**
+ * @brief
+ *  Define a method that runs after all tests.
+ */
+#define EgoTest_TearDownTestCase() \
+void tearDownClass()
+
+/**
+ * @brief
+ *  Test an expression.
  * @param EXPRESSION
- * The expression to test, if it evaluates to @c false, the current test fails.
+ *  The expression to test, if it evaluates to @c false, the current test fails.
  */
 #define EgoTest_Assert(EXPRESSION)

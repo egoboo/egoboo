@@ -24,17 +24,23 @@
 #include "CppUnitTest.h"
 #include "CppUnitTestAssert.h"
 
-#define EgoTest_DeclareTestCase(TESTCASENAME)
-
-#define EgoTest_EndDeclaration()
-
-#define EgoTest_BeginTestCase(TESTCASENAME) \
-TEST_CLASS(TESTCASENAME) {
-
-#define EgoTest_EndTestCase() };
+#define EgoTest_TestCase(TESTCASENAME) \
+TEST_CLASS(TESTCASENAME)
 
 #define EgoTest_Test(TESTNAME) \
 TEST_METHOD(TESTNAME)
+
+#define EgoTest_SetUpTest() \
+TEST_METHOD_INITIALIZE(setUp)
+
+#define EgoTest_TearDownTest() \
+TEST_METHOD_CLEANUP(tearDown)
+
+#define EgoTest_SetUpTestCase() \
+TEST_CLASS_INITIALIZE(setUpClass)
+
+#define EgoTest_TearDownTestCase() \
+TEST_CLASS_CLEANUP(tearDownClass)
 
 #define EgoTest_Assert(EXPRESSION) \
     do { \
@@ -45,5 +51,3 @@ TEST_METHOD(TESTNAME)
             ::Microsoft::VisualStudio::CppUnitTestFramework::Assert::Fail(L"uncaught exception", &lineInfo); \
         } \
     } while (0)
-
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;

@@ -43,7 +43,13 @@ namespace EgoTest
     
     void doAssert(bool condition, const std::string &conditionStr, const std::string &function, const std::string &file, int line);
     
-    int handleTest(const std::string &testName, const std::function<void(void)> &test);
+    int handleTestFunc(const std::string &testName, const std::function<void(void)> &test);
+    
+    template <typename T>
+    int handleTest(const std::string &testName, T test) {
+        std::function<void(void)> testFunc(test);
+        return handleTestFunc(testName, testFunc);
+    }
 }
 
 #if defined(_MSC_VER)
@@ -54,19 +60,27 @@ namespace EgoTest
 #define EgoTest_FUNCTION __func__
 #endif
 
-#define EgoTest_DeclareTestCase(TESTCASENAME)
+#define EgoTest_TestCase(TESTCASENAME) \
+struct TESTCASENAME : ::EgoTest::TestCase
 
-#define EgoTest_EndDeclaration()
+#define EgoTest_Test(TESTNAME) \
+void TESTNAME()
 
-#define EgoTest_BeginTestCase(TESTCASENAME) struct TESTCASENAME : EgoTest::TestCase {
+#define EgoTest_SetUpTest() \
+void setUp()
 
-#define EgoTest_EndTestCase() };
+#define EgoTest_TearDownTest() \
+void tearDown()
 
-#define EgoTest_Test(TESTNAME) void TESTNAME()
+#define EgoTest_SetUpTestCase() \
+void setUpClass()
+
+#define EgoTest_TearDownTestCase() \
+void tearDownClass()
 
 #define EgoTest_Assert(EXPRESSION) \
-try { \
-    EgoTest::doAssert(EXPRESSION, "\"" #EXPRESSION "\" was false", EgoTest_FUNCTION, __FILE__, __LINE__); \
+do { try { \
+    ::EgoTest::doAssert(EXPRESSION, "\"" #EXPRESSION "\" was false", EgoTest_FUNCTION, __FILE__, __LINE__); \
 } catch (...) { \
-    EgoTest::doAssert(false, "uncaught exception", EgoTest_FUNCTION, __FILE__, __LINE__); \
-}
+    ::EgoTest::doAssert(false, "uncaught exception", EgoTest_FUNCTION, __FILE__, __LINE__); \
+}} while (0)

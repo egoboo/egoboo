@@ -20,10 +20,8 @@
 #include "EgoTest/EgoTest.hpp"
 #include "egolib/egolib.h"
 
-EgoTest_DeclareTestCase(VectorMath)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(VectorMath)
+EgoTest_TestCase(VectorMath)
+{
 
 #define TOLERANCE Vector3f::ScalarType(0.0001)
 
@@ -92,4 +90,4 @@ EgoTest_Test(length) {
     EgoTest_Assert(z[0] == 0.0f && z[1] == 0.0f);
 }
 
-EgoTest_EndTestCase()
+};

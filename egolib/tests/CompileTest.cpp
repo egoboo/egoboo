@@ -21,14 +21,12 @@
 
 #include <iostream>
 
-EgoTest_DeclareTestCase(CompileTest)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(CompileTest)
+EgoTest_TestCase(CompileTest)
+{
 
 EgoTest_Test(compileTest)
 {
     EgoTest_Assert(1 == 1);
 }
 
-EgoTest_EndTestCase()
+};

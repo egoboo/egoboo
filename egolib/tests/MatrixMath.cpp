@@ -20,10 +20,7 @@
 #include "EgoTest/EgoTest.hpp"
 #include "egolib/egolib.h"
 
-EgoTest_DeclareTestCase(MatrixMath)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(MatrixMath)
+EgoTest_TestCase(MatrixMath) {
 
 EgoTest_Test(constructor) {
 	Matrix4f4f a
@@ -70,4 +67,4 @@ EgoTest_Test(muls) {
     EgoTest_Assert(b * (1.0f/s) == a);
 }
 
-EgoTest_EndTestCase()
+};

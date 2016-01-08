@@ -6,7 +6,7 @@
 # Optional flags
 # Set TEST_CXXFLAGS for compiling your tests (default $CXXFLAGS)
 # Set TEST_LDFLAGS for liinking your tests (default $LDFLAGS)
-# Set TEST_BINARY to the test binary (and the generated cpp file) (default ./TestMain)
+# Set TEST_BINARY to the test binary (default ./TestMain)
 
 ifeq ($(TEST_LDFLAGS),)
 TEST_LDFLAGS := $(LDFLAGS)
@@ -20,26 +20,32 @@ ifeq ($(TEST_BINARY),)
 TEST_BINARY := ./TestMain
 endif
 
-TEST_CXXFLAGS += -I$(EGOTEST_DIR)/src
+TEST_GENERATED_SOURCES = $(addprefix gen/, $(TEST_SOURCES))
+TEST_GENERATED_FILES = gen/TestMain.cpp $(TEST_GENERATED_SOURCES)
+TEST_GENERATED_OBJECTS = $(TEST_GENERATED_FILES:.cpp=.o)
 
-TEST_REQUIREDFILES = ${EGOTEST_DIR}/generate_main_cpp ${EGOTEST_DIR}/src/EgoTest/EgoTest_Handwritten.cpp
+TEST_CXXFLAGS += -I$(EGOTEST_DIR)/src -DEGOTEST_USE_HANDWRITTEN -I.
+
+TEST_REQUIREDFILES = ${EGOTEST_DIR}/generate_test_files.pl ${EGOTEST_DIR}/src/EgoTest/EgoTest_Handwritten.cpp
 
 .PHONY: test_check_vars do_test test_clean
 
 do_test: test_check_vars $(TEST_BINARY)
 	$(TEST_BINARY)
 
-$(TEST_BINARY): $(TEST_BINARY).o
+$(TEST_BINARY): $(TEST_GENERATED_OBJECTS)
 	$(CXX) -o $@ $^ $(TEST_LDFLAGS)
 
-$(TEST_BINARY).o: $(TEST_BINARY).cpp
+$(TEST_GENERATED_OBJECTS): %.o: %.cpp
 	$(CXX) $(TEST_CXXFLAGS) -o $@ -c $^
 
-$(TEST_BINARY).cpp: ${TEST_SOURCES} $(TEST_REQUIREDFILES)
-	perl ${EGOTEST_DIR}/generate_main_cpp $@ ${TEST_SOURCES}
+$(TEST_GENERATED_SOURCES): gen/TestMain.cpp
+
+gen/TestMain.cpp: ${TEST_SOURCES} $(TEST_REQUIREDFILES)
+	perl ${EGOTEST_DIR}/generate_test_files.pl cpp ${TEST_SOURCES}
 
 test_clean:
-	rm -f $(TEST_BINARY) $(TEST_BINARY).cpp $(TEST_BINARY).o
+	rm -f $(TEST_BINARY) $(TEST_GENERATED_FILES) $(TEST_GENERATED_OBJECTS)
 
 test_check_vars:
 ifeq ($(EGOTEST_DIR),)

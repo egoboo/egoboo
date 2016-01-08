@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CD680EA11A91DC9B009171C5 /* Vec2Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB1042F1A91D5DA0077CD45 /* Vec2Test.cpp */; };
+		CD2CDE6A1BD50CF3000490EB /* ParserTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = CD2CDE691BD50CF3000490EB /* ParserTest.mm */; };
 		CD680EAF1A927B9E009171C5 /* FailureFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD680EAD1A927B9E009171C5 /* FailureFile.cpp */; };
 		CD680EB11A927BE8009171C5 /* libEgoTestExampleLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD680EA61A91DE4E009171C5 /* libEgoTestExampleLib.a */; };
-		CD680EB31A927CB7009171C5 /* FailureTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD680EB21A927CB7009171C5 /* FailureTest.cpp */; };
+		CDC2B5EB1ACC787600E09E03 /* FailureTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDC2B5E91ACC787600E09E03 /* FailureTest.mm */; };
+		CDC2B5EC1ACC787600E09E03 /* Vec2Test.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDC2B5EA1ACC787600E09E03 /* Vec2Test.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -24,19 +25,26 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CD2CDE671BD50B7D000490EB /* ParserTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParserTest.cpp; sourceTree = "<group>"; };
+		CD2CDE691BD50CF3000490EB /* ParserTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParserTest.mm; sourceTree = "<group>"; };
+		CD39FF861ABB18C800F1A2FB /* EgoTest_Handwritten.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EgoTest_Handwritten.cpp; sourceTree = "<group>"; };
+		CD39FF871ABB18C800F1A2FB /* EgoTest_Handwritten.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_Handwritten.hpp; sourceTree = "<group>"; };
 		CD680EA61A91DE4E009171C5 /* libEgoTestExampleLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libEgoTestExampleLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD680EAD1A927B9E009171C5 /* FailureFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FailureFile.cpp; sourceTree = "<group>"; };
 		CD680EAE1A927B9E009171C5 /* FailureFile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FailureFile.hpp; sourceTree = "<group>"; };
-		CD680EB21A927CB7009171C5 /* FailureTest.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = FailureTest.cpp; sourceTree = "<group>"; };
+		CD680EB21A927CB7009171C5 /* FailureTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FailureTest.cpp; sourceTree = "<group>"; };
 		CDB103EE1A91D4890077CD45 /* EgoTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest.hpp; sourceTree = "<group>"; };
 		CDB103EF1A91D4890077CD45 /* EgoTest_doxygen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_doxygen.hpp; sourceTree = "<group>"; };
 		CDB103F01A91D4890077CD45 /* EgoTest_VSCppUnitTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_VSCppUnitTest.hpp; sourceTree = "<group>"; };
 		CDB103F11A91D4890077CD45 /* EgoTest_XCTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_XCTest.hpp; sourceTree = "<group>"; };
 		CDB103F71A91D4BA0077CD45 /* EgoTestExample.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EgoTestExample.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDB1042C1A91D5BA0077CD45 /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
-		CDB1042F1A91D5DA0077CD45 /* Vec2Test.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Vec2Test.cpp; sourceTree = "<group>"; };
+		CDB1042F1A91D5DA0077CD45 /* Vec2Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec2Test.cpp; sourceTree = "<group>"; };
 		CDB104321A91D6200077CD45 /* vec2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = vec2.hpp; sourceTree = "<group>"; };
 		CDB104351A91D75F0077CD45 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		CDB83A461C39110400C13165 /* generate_test_files.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; name = generate_test_files.pl; path = ../../generate_test_files.pl; sourceTree = "<group>"; usesTabs = 0; };
+		CDC2B5E91ACC787600E09E03 /* FailureTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FailureTest.mm; sourceTree = "<group>"; };
+		CDC2B5EA1ACC787600E09E03 /* Vec2Test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Vec2Test.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,8 +89,11 @@
 		CDB103ED1A91D4890077CD45 /* EgoTest */ = {
 			isa = PBXGroup;
 			children = (
+				CDB83A461C39110400C13165 /* generate_test_files.pl */,
 				CDB103EE1A91D4890077CD45 /* EgoTest.hpp */,
 				CDB103EF1A91D4890077CD45 /* EgoTest_doxygen.hpp */,
+				CD39FF861ABB18C800F1A2FB /* EgoTest_Handwritten.cpp */,
+				CD39FF871ABB18C800F1A2FB /* EgoTest_Handwritten.hpp */,
 				CDB103F01A91D4890077CD45 /* EgoTest_VSCppUnitTest.hpp */,
 				CDB103F11A91D4890077CD45 /* EgoTest_XCTest.hpp */,
 			);
@@ -113,12 +124,25 @@
 		CDB1042E1A91D5DA0077CD45 /* EgoTestExampleTests */ = {
 			isa = PBXGroup;
 			children = (
+				CDC2B5E81ACC787600E09E03 /* generated */,
 				CD680EB21A927CB7009171C5 /* FailureTest.cpp */,
+				CD2CDE671BD50B7D000490EB /* ParserTest.cpp */,
 				CDB1042F1A91D5DA0077CD45 /* Vec2Test.cpp */,
 			);
 			name = EgoTestExampleTests;
 			path = tests;
 			sourceTree = "<group>";
+		};
+		CDC2B5E81ACC787600E09E03 /* generated */ = {
+			isa = PBXGroup;
+			children = (
+				CDC2B5E91ACC787600E09E03 /* FailureTest.mm */,
+				CD2CDE691BD50CF3000490EB /* ParserTest.mm */,
+				CDC2B5EA1ACC787600E09E03 /* Vec2Test.mm */,
+			);
+			name = generated;
+			path = gen/tests;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -143,6 +167,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CDB103FD1A91D4BB0077CD45 /* Build configuration list for PBXNativeTarget "EgoTestExample" */;
 			buildPhases = (
+				CD39FF881ABB1B2D00F1A2FB /* ShellScript */,
 				CDB103F31A91D4BA0077CD45 /* Sources */,
 				CDB103F41A91D4BA0077CD45 /* Frameworks */,
 				CDB103F51A91D4BA0077CD45 /* Resources */,
@@ -203,6 +228,23 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		CD39FF881ABB1B2D00F1A2FB /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd $SRCROOT\nexec perl $PROJECT_DIR/../generate_test_files.pl objc tests/*.cpp";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		CD680EA21A91DE4E009171C5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -216,8 +258,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CD680EB31A927CB7009171C5 /* FailureTest.cpp in Sources */,
-				CD680EA11A91DC9B009171C5 /* Vec2Test.cpp in Sources */,
+				CDC2B5EB1ACC787600E09E03 /* FailureTest.mm in Sources */,
+				CD2CDE6A1BD50CF3000490EB /* ParserTest.mm in Sources */,
+				CDC2B5EC1ACC787600E09E03 /* Vec2Test.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,7 +287,6 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -257,7 +299,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				EXECUTABLE_PREFIX = lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -270,13 +311,18 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NULLABLE_TO_NONNULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -287,11 +333,24 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -305,13 +364,18 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NULLABLE_TO_NONNULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
@@ -319,11 +383,24 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -344,7 +421,7 @@
 				);
 				INFOPLIST_FILE = "osx/Test-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../src $(PROJECT_DIR/src";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../src $(PROJECT_DIR)/src $(PROJECT_DIR)";
 			};
 			name = Debug;
 		};
@@ -362,7 +439,7 @@
 				);
 				INFOPLIST_FILE = "osx/Test-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../src $(PROJECT_DIR/src";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../src $(PROJECT_DIR)/src $(PROJECT_DIR)";
 			};
 			name = Release;
 		};
