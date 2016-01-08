@@ -71,6 +71,7 @@ public:
      * @return
      *  this local time object
      */
+    // As always, return non-const reference in order to allow chaining for the sake of orthogonality.
     LocalTime& operator=(const LocalTime& other);
 
 	/**

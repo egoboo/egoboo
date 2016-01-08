@@ -36,19 +36,21 @@ namespace Internal {
  *  Derived from @a std::true_type if @a _VectorSpace and @a ArgTypes
  *  fulfil the requirements for a constructor of a vector,
  *  and derived from @a std::false_type otherwise.
- * @tparam _VectorSpace
- *  must fulfil the <em>VectorSpace</em> concept
+ * @tparam _ScalarField
+ *  the scalar field type.
+ *  Must fulfil the <em>ScalarField</em> concept.
+ * @tparam _Dimensionality
+ *  the dimensionality.
+ *  Must fulfil the <em>Dimensionality</em> concept.
  * @param _ArgTypes
- *  @a ArgTypes must have <tt>_VectorSpaceType::dimensionality()-1</tt> elements which are convertible into values of type @a _VectorSpaceType::ScalarType
- * @author
- *  Michael Heilmann
+ *  @a ArgTypes must have <tt>_Dimensionality-1</tt> elements which are convertible into values of type @a _ScalarFieldType::ScalarType
  * @todo
- *  Fast-fail if the parameters are not convertible into @a _ScalarType.
+ *  Fast-fail if the parameters are not convertible into @a _ScalarFieldType::ScalarType.
  */
-template <typename _VectorSpaceType, typename ... ArgTypes>
+template <typename _ScalarFieldType, size_t _Dimensionality, typename ... ArgTypes>
 struct VectorConstructorEnable
     : public std::conditional<
-      (Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::dimensionality() - 1>::value),
+      (Ego::Core::EqualTo<sizeof...(ArgTypes), _Dimensionality - 1>::value),
       std::true_type,
       std::false_type
       >::type
@@ -59,28 +61,31 @@ struct VectorConstructorEnable
 /**
  * @brief
  *  A vector of a vector space.
- * @tparam _VectorSpaceType
- *	the vector space type
+ * @tparam _ScalarFieldType
+ *	the scalar field type
+ * @tparam _Dimensionality
+ *  the dimensionality
  * @author
  *  Michael Heilmann
  */
-template <typename _VectorSpaceType>
-struct Vector : public Tuple<typename _VectorSpaceType::ScalarType, _VectorSpaceType::dimensionality()> {
+template <typename _ScalarFieldType, size_t _Dimensionality>
+struct Vector : public Tuple<typename _ScalarFieldType::ScalarType, _Dimensionality> {
 public:
-    /// @brief The vector space of this vector.
-    typedef _VectorSpaceType VectorSpaceType;
+    /// @brief The scalar field type.
+    typedef _ScalarFieldType ScalarFieldType;
+    /// @brief The scalar type (of the scalar field).
+	typedef typename ScalarFieldType::ScalarType ScalarType;
 
 public:
-    /// @brief The scalar field type (of the vector space).
-    typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
-    ///< @brief The scalar type (of the scalar field).
-	typedef typename VectorSpaceType::ScalarType ScalarType;
-    
+    /// @brief The dimensionality.
+    static constexpr size_t dimensionality() {
+        return _Dimensionality;
+    }
 public:
     /// @brief The tuple type.
-    typedef Tuple<typename VectorSpaceType::ScalarType, VectorSpaceType::dimensionality()> TupleType;
+    typedef Tuple<ScalarType, _Dimensionality> TupleType;
     /// @brief The type of this template/template specialization.
-	typedef Vector<_VectorSpaceType> MyType;
+    typedef Vector<ScalarFieldType, _Dimensionality> MyType;
 
 public:
 	/**
@@ -89,7 +94,7 @@ public:
 	 * @param v, ... args
 	 *	the element values
 	 */
-    template<typename ... ArgTypes, typename = std::enable_if_t<Internal::VectorConstructorEnable<VectorSpaceType, ArgTypes ...>::value>>
+    template<typename ... ArgTypes, typename = std::enable_if_t<Internal::VectorConstructorEnable<ScalarFieldType, MyType::dimensionality(), ArgTypes ...>::value>>
     Vector(ScalarType v, ArgTypes&& ... args) 
 		: TupleType(std::forward<ScalarType>(v), args ...) {
 		/* Intentionally empty. */
@@ -127,7 +132,7 @@ public:
      */
     Vector()
         : Vector(ConstantGenerator<ScalarType>(ScalarFieldType::additiveNeutral()), 
-                 std::make_index_sequence<VectorSpaceType::dimensionality()>{}) {
+                 std::make_index_sequence<MyType::dimensionality()>{}) {
         /* Intentionally empty. */
     }
 
@@ -140,38 +145,38 @@ public:
      */
     static MyType unit(size_t index) {
         ConditionalGenerator<ScalarType> g(index, ScalarFieldType::multiplicativeNeutral(), ScalarFieldType::additiveNeutral());
-        return Vector(g, std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+        return Vector(g, std::make_index_sequence<MyType::dimensionality()>{});
     }
 
 public:
 
     inline ScalarType& x() {
-        static_assert(VectorSpaceType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
+        static_assert(MyType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
         return this->_elements[0];
     }
 
     inline ScalarType& y() {
-        static_assert(VectorSpaceType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
+        static_assert(MyType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
         return this->_elements[1];
     }
 
     inline ScalarType& z() {
-        static_assert(VectorSpaceType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
+        static_assert(MyType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
         return this->_elements[2];
     }
 
     inline const ScalarType& x() const {
-        static_assert(VectorSpaceType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
+        static_assert(MyType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
         return this->_elements[0];
     }
 
     inline const ScalarType& y() const {
-        static_assert(VectorSpaceType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
+        static_assert(MyType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
         return this->_elements[1];
     }
 
     inline const ScalarType& z() const {
-        static_assert(VectorSpaceType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
+        static_assert(MyType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
         return this->_elements[2];
     }
 
@@ -186,7 +191,7 @@ public:
      */
     ScalarType dot(const MyType& other) const {
         ScalarType t = ScalarFieldType::product(this->_elements[0], other._elements[0]);
-		for (size_t i = 1; i < this->dimensionality(); ++i) {
+		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
             t = ScalarFieldType::sum(t, ScalarFieldType::product(this->_elements[i], other._elements[i]));
         }
         return t;
@@ -224,8 +229,23 @@ public:
      *  The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
      */
     void multiply(ScalarType scalar) {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
             this->_elements[i] = ScalarFieldType::product(this->_elements[i], scalar);
+        }
+    }
+
+    /**
+     * @brief
+     *  Divide this vector by a scalar,
+     *  assign the result to this vector.
+     * @param scalar
+     *  the scalar
+     * @post
+     *  The quotient <tt>(1/scalar) * (*this)</tt> was assigned to <tt>*this</tt>.
+     */
+    void divide(ScalarType scalar) {
+        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
+            this->_elements[i] = ScalarFieldType::quotient(this->_elements[i], scalar);
         }
     }
     
@@ -239,7 +259,7 @@ public:
      *  The sum <tt>(*this) + other</tt> was assigned to <tt>*this</tt>.
      */
     void add(const MyType& other) {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
             this->_elements[i] = ScalarFieldType::sum(this->_elements[i], other._elements[i]);
         }
     }
@@ -254,7 +274,7 @@ public:
      *  The difference <tt>(*this) - other</tt> was assigned to <tt>*this</tt>.
      */
     void sub(const MyType& other) {
-		for (size_t i = 0; i < this->dimensionality(); ++i) {
+		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
             this->_elements[i] = ScalarFieldType::difference(this->_elements[i], other._elements[i]);
         }
     }
@@ -303,7 +323,7 @@ public:
      *  @a true if this vector equals the other vector
      */
     bool equals(const MyType& other) const {
-		for (size_t i = 0; i < this->dimensionality(); ++i) {
+		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
             if (ScalarFieldType::notEqualTo(this->_elements[i], other._elements[i])) {
                 return false;
             }
@@ -317,13 +337,13 @@ public:
      * @param other
      *  the other vector
      * @param ulp
-     *  desired precision in ULPs (units in the last place)
+     *  see ScalarFieldType::notEqualUlp
      * @return
      *  @a true if this vector equals the other vector
      */
-    bool equalsULP(const MyType& other, const size_t& ulp) const {
-		for (size_t i = 0; i < this->dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualToULP(this->_elements[i], other._elements[i], ulp)) {
+    bool equalsUlp(const MyType& other, const size_t& ulp) const {
+		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
+            if (ScalarFieldType::notEqualUlp(this->_elements[i], other._elements[i], ulp)) {
                 return false;
             }
         }
@@ -336,14 +356,12 @@ public:
      * @param other
      *  the other vector
      * @param tolerance
-     *  upper-bound (inclusive) for the acceptable error magnitude.
-     *  The error magnitude is always non-negative, so if @a tolerance is negative,
-     *  then the outcome of any comparison operation is negative.
+     *  see ScalarFieldType::notEqualTolerance
      * @return
      *  @a true if this vector equals the other vector
      */
     bool equalsTolerance(const MyType& other, const ScalarType& tolerance) const {
-		for (size_t i = 0; i < this->dimensionality(); ++i) {
+		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
             if (ScalarFieldType::notEqualToTolerance(this->_elements[i], other._elements[i], tolerance)) {
                 return false;
             }
@@ -373,11 +391,10 @@ public:
      *  \f]
      */
     MyType abs() const {
-        return abs(std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+        return abs(std::make_index_sequence<MyType::dimensionality()>{});
     }
 
 private:
-
     /** @internal */
     template <size_t ... Index>
     MyType min(std::index_sequence<Index ...>, const MyType& other) const {
@@ -399,11 +416,10 @@ public:
      *	\f]
      */
     MyType min(const MyType& other) const {
-        return min(std::index_sequence<VectorSpaceType::Dimensionality>{}, other);
+        return min(std::index_sequence<MyType::dimensionality()>{}, other);
     }
 
 private:
-
     /** @internal */
     template <size_t ... Index>
     MyType max(std::index_sequence<Index ...>, const MyType& other) const {
@@ -425,7 +441,7 @@ public:
      *  \f]
      */
     MyType max(const MyType& other) const {
-        return max(std::index_sequence<VectorSpaceType::Dimensionality>{},other);
+        return max(std::index_sequence<MyType::dimensionality()>{},other);
     }
 
 public:
@@ -439,7 +455,7 @@ public:
      */
     ScalarType length_2() const {
         ScalarType t = ScalarFieldType::product(this->_elements[0], this->_elements[0]);
-		for (size_t i = 1; i < this->dimensionality(); ++i) {
+		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
             t = ScalarFieldType::sum(t, ScalarFieldType::product(this->_elements[i], this->_elements[i]));
         }
         return t;
@@ -465,7 +481,7 @@ public:
      */
     ScalarType length_abs() const {
         ScalarType t = std::abs(this->_elements[0]);
-		for (size_t i = 1; i < this->dimensionality(); ++i) {
+		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
             t += std::abs(this->_elements[i]);
         }
         return t;
@@ -479,7 +495,7 @@ public:
      *  the length of this vector
      */
     ScalarType length_max() const {
-        return *std::max_element(this->_elements, this->_elements + this->dimensionality());
+        return *std::max_element(this->_elements, this->_elements + MyType::dimensionality());
     }
 
 public:
@@ -492,7 +508,8 @@ public:
     }
 
 public:
-    const MyType& operator=(const MyType& other) {
+    // As always, return non-const reference in order to allow chaining for the sake of orthogonality.
+    MyType& operator=(const MyType& other) {
         assign(other);
         return *this;
     }
@@ -520,6 +537,11 @@ public:
 public:
     MyType& operator*=(ScalarType scalar) {
         multiply(scalar);
+        return *this;
+    }
+
+    MyType& operator/=(ScalarType scalar) {
+        divide(scalar);
         return *this;
     }
 
@@ -582,7 +604,7 @@ public:
      */
     static const MyType& zero() {
 		static ConstantGenerator<ScalarType> g(ScalarFieldType::additiveNeutral());
-        static const auto v = MyType(g, std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+        static const auto v = MyType(g, std::make_index_sequence<MyType::dimensionality()>{});
 		return v;
 	}
 
@@ -686,8 +708,8 @@ public:
      *  = \vec{0}
      *  \f]
      */
-    template<size_t _Dummy = _VectorSpaceType::dimensionality()>
-	std::enable_if_t<_Dummy == 3 && _VectorSpaceType::dimensionality() == 3, MyType>
+    template<size_t _Dummy = MyType::dimensionality()>
+	std::enable_if_t<_Dummy == 3 && MyType::dimensionality() == 3, MyType>
     cross(const MyType& other) const {
         return
             MyType

@@ -104,11 +104,7 @@ const static float DYNALIGHT_KEEP = 0.9f;
 
 static dynalist_t _dynalist;
 
-renderlist_mgr_t *renderlist_mgr_t::_singleton = nullptr;
-dolist_mgr_t *dolist_mgr_t::_singleton = nullptr;
-
 //--------------------------------------------------------------------------------------------
-
 
 void reinitClocks() {
 	sortDoListUnreflected_timer.reinit();
@@ -174,84 +170,6 @@ static void   gfx_init_bar_data();
 static void   gfx_init_blip_data();
 
 //--------------------------------------------------------------------------------------------
-// renderlist manager implementation
-//--------------------------------------------------------------------------------------------
-
-renderlist_mgr_t::renderlist_mgr_t() :
-    Pool<Ego::Graphics::TileList, MAX_CAMERAS>()
-{}
-
-renderlist_mgr_t::~renderlist_mgr_t()
-{}
-
-void renderlist_mgr_t::initialize()
-{
-    if (_singleton)
-    {
-        return;
-    }
-    _singleton = new renderlist_mgr_t();
-}
-
-void renderlist_mgr_t::uninitialize()
-{
-    if (!_singleton)
-    {
-        return;
-    }
-    delete _singleton;
-    _singleton = nullptr;
-}
-
-renderlist_mgr_t& renderlist_mgr_t::get()
-{
-    if (!_singleton)
-    {
-        throw std::logic_error("renderlist manager is not initialized");
-    }
-    return *_singleton;
-}
-
-//--------------------------------------------------------------------------------------------
-// dolist manager implementation
-//--------------------------------------------------------------------------------------------
-
-dolist_mgr_t::dolist_mgr_t() :
-    Pool<Ego::Graphics::EntityList, MAX_CAMERAS>()
-{}
-
-dolist_mgr_t::~dolist_mgr_t()
-{}
-
-void dolist_mgr_t::initialize()
-{
-    if (_singleton)
-    {
-        return;
-    }
-    _singleton = new dolist_mgr_t();
-}
-
-void dolist_mgr_t::uninitialize()
-{
-    if (!_singleton)
-    {
-        return;
-    }
-    delete _singleton;
-    _singleton = nullptr;
-}
-
-dolist_mgr_t& dolist_mgr_t::get()
-{
-    if (!_singleton)
-    {
-        throw std::logic_error("dolist manager is not initialized");
-    }
-    return *_singleton;
-}
-
-//--------------------------------------------------------------------------------------------
 // GFX implementation
 //--------------------------------------------------------------------------------------------
 void GFX::initialize()
@@ -262,12 +180,6 @@ void GFX::initialize()
 
 	// Initialize the font manager.
     Ego::FontManager::initialize();
-
-    // Initialize the dolist manager.
-    dolist_mgr_t::initialize(); ///< @todo Error handling.
-
-    // Initialize the renderlist manager.
-    renderlist_mgr_t::initialize(); ///< @todo Error handling.
 
     // initialize the dynalist frame
     // otherwise, it will not update until the frame count reaches whatever
@@ -290,15 +202,8 @@ void GFX::uninitialize()
     // Uninitialize the texture atlas manager.
     Ego::Graphics::TextureAtlasManager::uninitialize();
 
-    // Uninitialize the renderlist manager.
-    renderlist_mgr_t::uninitialize();
-
-    // Uninitialize the dolist manager.
-    dolist_mgr_t::uninitialize();
-
-	// Uninitialize the profiling variables.
+    // Uninitialize the profiling variables.
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
-
     Ego::FontManager::uninitialize();
 
     GFX::uninitializeOpenGL();
@@ -453,35 +358,7 @@ void gfx_system_main()
 }
 
 //--------------------------------------------------------------------------------------------
-renderlist_mgr_t *gfx_system_get_renderlist_mgr()
-{
-    try
-    {
-        renderlist_mgr_t::initialize();
-    }
-    catch (...)
-    {
-        return nullptr;
-    }
 
-    return &renderlist_mgr_t::get();
-}
-
-//--------------------------------------------------------------------------------------------
-dolist_mgr_t *gfx_system_get_dolist_mgr()
-{
-    try
-    {
-        dolist_mgr_t::initialize();
-    }
-    catch (...)
-    {
-        return nullptr;
-    }
-    return &dolist_mgr_t::get();
-}
-
-//--------------------------------------------------------------------------------------------
 void gfx_system_load_assets()
 {
     /// @author ZF

@@ -99,14 +99,28 @@ protected:
 	 * @param dataPoint
 	 *	the data point
 	 */
+#if defined(_MSC_VER) // Disable sickening flood of warnings.
+    #pragma warning(push)
+    #pragma warning(disable: 4100)
+#endif
 	virtual void onRemove(const DataPointType& dataPoint) { }
+#if defined(_MSC_VER)
+    #pragma warning(pop)
+#endif
 	/**
 	 * @brief
 	 *	Invoked if a data point was added.
 	 * @param dataPoint
 	 *	the data point
 	 */
+#if defined(_MSC_VER) // Disable sickening flood of warnings.
+    #pragma warning(push)
+    #pragma warning(disable: 4100)
+#endif
 	virtual void onAdd(const DataPointType& dataPoint) { }
+#if defined(_MSC_VER)
+    #pragma warning(pop)
+#endif
 	/**
 	 * @brief
 	 *	Invoked if all data points were removed.

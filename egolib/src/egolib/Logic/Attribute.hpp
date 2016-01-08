@@ -147,7 +147,6 @@ namespace Attribute
             default:
             case NR_OF_ATTRIBUTES: throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
         }
-        throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 
     inline AttributeType resistFromDamageType(const DamageType type) {

@@ -18,42 +18,29 @@
 //********************************************************************************************
 #include "egolib/Float.hpp"
 
-Uint32 float_toBits(float x)
-{
+uint32_t float_toBits(float x) {
 	union { Uint32 i; float f; } val;
-
 	val.f = x;
-
 	return val.i;
 }
 
-float float_fromBits(Uint32 x)
-{
-	union { Uint32 i; float f; } val;
-
+float float_fromBits(uint32_t x) {
+	union { uint32_t i; float f; } val;
 	val.i = x;
-
 	return val.f;
-
 }
 
-bool float_infinite(float x)
-{
-	Uint32 u = float_toBits(x);
-
+bool float_infinite(float x) {
+	uint32_t u = float_toBits(x);
 	return (0 == (u & IEEE32_FRACTION)) && (IEEE32_EXPONENT == (u & IEEE32_EXPONENT));
 }
 
-bool float_nan(float x)
-{
-	Uint32 u = float_toBits(x);
-
+bool float_nan(float x) {
+    uint32_t u = float_toBits(x);
 	return (0 != (u&IEEE32_FRACTION)) && (IEEE32_EXPONENT == (u & IEEE32_EXPONENT));
 }
 
-bool float_bad(float x)
-{
-	Uint32 u = float_toBits(x);
-
+bool float_bad(float x) {
+    uint32_t u = float_toBits(x);
 	return (IEEE32_EXPONENT == (u & IEEE32_EXPONENT)) ? true : false;
 }

@@ -49,6 +49,7 @@ LocalTime::LocalTime(const LocalTime& other)
 }
 
 LocalTime& LocalTime::operator=(const LocalTime& other) {
+    _localTime = other._localTime;
 	return *this;
 }
 
@@ -65,8 +66,6 @@ bool LocalTime::operator == (const LocalTime& other) const {
 		&& _localTime.tm_yday == other._localTime.tm_yday
 		&& _localTime.tm_year == other._localTime.tm_year
 		;
-
-	return false;
 }
 
 bool LocalTime::operator != (const LocalTime& other) const {

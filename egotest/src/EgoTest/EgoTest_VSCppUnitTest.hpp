@@ -37,6 +37,13 @@ TEST_CLASS(TESTCASENAME) {
 TEST_METHOD(TESTNAME)
 
 #define EgoTest_Assert(EXPRESSION) \
-Assert::IsTrue(EXPRESSION)
+    do { \
+        ::Microsoft::VisualStudio::CppUnitTestFramework::__LineInfo lineInfo(__WFILE__, __FUNCTION__, __LINE__); \
+        try { \
+            ::Microsoft::VisualStudio::CppUnitTestFramework::Assert::IsTrue(EXPRESSION, L"" #EXPRESSION, &lineInfo); \
+        } catch (...) { \
+            ::Microsoft::VisualStudio::CppUnitTestFramework::Assert::Fail(L"uncaught exception", &lineInfo); \
+        } \
+    } while (0)
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

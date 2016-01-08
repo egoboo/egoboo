@@ -41,11 +41,16 @@ struct Rotatable {
      *  The vector space type.
      */
     typedef _VectorSpaceType VectorSpaceType;
+    /**
+     * @brief
+     *  The scalar field type.
+     */
+    typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
     /** 
      * @brief
      *  The vector type.
      */
-    typedef Vector<VectorSpaceType> VectorType;
+    typedef typename VectorSpaceType::VectorType VectorType;
     /**
      * @brief
      *  Rotate this entity.

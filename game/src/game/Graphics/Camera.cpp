@@ -91,27 +91,13 @@ Camera::Camera(const CameraOptions &options) :
     _ori.facing_z = TurnsToFacing(_turnZ_turns);
     resetView();
 
-    // Get renderlist manager pointer.
-    renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr();
-    if (!rmgr_ptr)
-    {
-        throw std::runtime_error("failed to get renderlist manager");
-    }
-
-    // Get dolist manager pointer.
-    dolist_mgr_t *dmgr_ptr = gfx_system_get_dolist_mgr();
-    if (!dmgr_ptr)
-    {
-        throw std::runtime_error("failed to get dolist manager");
-    }
-
     // Lock a tile list for this camera.
-    _tileList = rmgr_ptr->acquire();
+    _tileList = std::make_shared<Ego::Graphics::TileList>();
     // Connect the tile list to the mesh.
     _tileList->setMesh(_currentModule->getMeshPointer());
 
     // Lock an entity list for this camera.
-    _entityList = dmgr_ptr->acquire();
+    _entityList = std::make_shared<Ego::Graphics::EntityList>();
 
     // Assume that the camera is fullscreen.
     setScreen(0, 0, sdl_scr.x, sdl_scr.y);
