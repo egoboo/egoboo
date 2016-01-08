@@ -801,6 +801,66 @@ public:
      */
     virtual SharedPtr<Texture> createTexture() = 0;
 
+private:
+    Matrix4f4f projectionMatrix;
+    Matrix4f4f viewMatrix;
+    Matrix4f4f worldMatrix;
+
+public:
+    /**
+     * @brief
+     *  Set the projection matrix.
+     * @param projectionMatrix
+     *  the projection matrix
+     */
+    virtual void setProjectionMatrix(const Matrix4f4f& projectionMatrix);
+    /**
+     * @brief
+     *  Get the projection matrix.
+     * @return
+     *  the projection matrix
+     * @remark
+     *  The default projection matrix is a perspective projection matrix
+     *  with a field of view angle in the y direction of 45 degrees, an
+     *  aspect ratio in the x-direction of 4/3 with the near clipping
+     *  plane in distance 0.1 and the far clipping plane in distance 1000.
+     */
+    virtual Matrix4f4f getProjectionMatrix() const;
+
+    /**
+     * @brief
+     *  Set the view matrix.
+     * @param viewMatrix
+     *  the view matrix
+     */
+    virtual void setViewMatrix(const Matrix4f4f& viewMatrix);
+    /**
+     * @brief
+     *  Get the view matrix.
+     * @return
+     *  the view matrix
+     * @remark
+     *  The default view matrix is the identity matrix.
+     */
+    virtual Matrix4f4f getViewMatrix() const;
+
+    /**
+     * @brief
+     *  Set the world matrix.
+     * @param worldMatrix
+     *  the world matrix
+     */
+    virtual void setWorldMatrix(const Matrix4f4f& worldMatrix);
+    /**
+     * @brief
+     *  Get the world matrix.
+     * @return
+     *  the world matrix
+     * @remark
+     *  The default world matrix is the identity matrix.
+     */
+    virtual Matrix4f4f getWorldMatrix() const;
+
 };
 
 } // namespace Ego
