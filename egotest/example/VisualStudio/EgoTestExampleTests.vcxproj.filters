@@ -24,6 +24,9 @@
     <ClCompile Include="..\tests\Vec2Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\ParserTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\EgoTest\EgoTest.hpp">

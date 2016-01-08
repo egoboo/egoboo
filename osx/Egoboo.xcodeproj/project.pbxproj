@@ -13,7 +13,6 @@
 		27D3913812EEA51D0093D60A /* skull.icns in Resources */ = {isa = PBXBuildFile; fileRef = 27D3913312EEA51D0093D60A /* skull.icns */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		CD01E5181B51B509009F6161 /* DebugParticlesScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD01E5161B51B509009F6161 /* DebugParticlesScreen.cpp */; };
-		CD048BF51AB7515400E1E52D /* MathConstantTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD048BF41AB7515400E1E52D /* MathConstantTest.cpp */; };
 		CD0FE12F1A7B091300F3392B /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11A1A7B091300F3392B /* basicdat */; };
 		CD0FE1301A7B091300F3392B /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11A1A7B091300F3392B /* basicdat */; };
 		CD0FE1331A7B091300F3392B /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11C1A7B091300F3392B /* BUGS.txt */; };
@@ -63,13 +62,9 @@
 		CD1D86081B7FE60400617B49 /* Slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D86061B7FE60400617B49 /* Slider.cpp */; };
 		CD1D860B1B7FE61B00617B49 /* AudioOptionsScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D86091B7FE61B00617B49 /* AudioOptionsScreen.cpp */; };
 		CD1F4D6C1B1396240028C45E /* Standard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D691B1394E10028C45E /* Standard.cpp */; };
-		CD1F4D7A1B13F04C0028C45E /* Pathname.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D781B13F04C0028C45E /* Pathname.cpp */; };
-		CD1F4D7B1B13F04C0028C45E /* VectorMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D791B13F04C0028C45E /* VectorMath.cpp */; };
 		CD2336AD1AF55CB000E35ED1 /* System.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2336AB1AF55CB000E35ED1 /* System.cpp */; };
 		CD24A2EA1C0F802100C4042E /* LineOfSight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD24A2E71C0F802100C4042E /* LineOfSight.cpp */; };
 		CD24A2EB1C0F802700C4042E /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD24A2E41C0F7FBD00C4042E /* Time.cpp */; };
-		CD2C60FD1ACAF9E0003CF3D6 /* MatrixMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */; };
-		CD2C60FE1ACAF9E0003CF3D6 /* StringUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */; };
 		CD2F42B21B07FF4E00905E42 /* LocalParticleProfileRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2F42B01B07FF4E00905E42 /* LocalParticleProfileRef.cpp */; };
 		CD2F42B31B08086500905E42 /* MD2Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */; };
 		CD2F42B51B08086B00905E42 /* WaypointList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */; };
@@ -163,7 +158,6 @@
 		CD52A7DC1B56CC240061609B /* Perk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD52A7D81B56CC240061609B /* Perk.cpp */; };
 		CD52A7DD1B56CC240061609B /* PerkHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD52A7DA1B56CC240061609B /* PerkHandler.cpp */; };
 		CD52A7E01B56CCE90061609B /* LevelUpWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD52A7DE1B56CCE90061609B /* LevelUpWindow.cpp */; };
-		CD54B3351AAEE9C800C1F15D /* CompileTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */; };
 		CD5E73AF1AA5421A005999BC /* libIdLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD94B49E1A8B3E6000BECFC9 /* libIdLib.a */; };
 		CD6491861ADF618E00A3B264 /* ImageLoader_SDL_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD64917E1ADF618E00A3B264 /* ImageLoader_SDL_image.cpp */; };
 		CD6491871ADF618E00A3B264 /* ImageLoader_SDL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD6491801ADF618E00A3B264 /* ImageLoader_SDL.cpp */; };
@@ -370,8 +364,14 @@
 		CDFCCC4A1C3E8A5A00FE0B1B /* AStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC481C3E8A5A00FE0B1B /* AStar.cpp */; };
 		CDFCCC4F1C3E8A8900FE0B1B /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC4B1C3E8A8900FE0B1B /* Buffer.cpp */; };
 		CDFCCC501C3E8A8900FE0B1B /* VertexElementDescriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC4D1C3E8A8900FE0B1B /* VertexElementDescriptor.cpp */; };
-		CDFCCC541C3E8AB600FE0B1B /* Signal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC531C3E8AB600FE0B1B /* Signal.cpp */; };
-		CDFCCC581C3F6AFF00FE0B1B /* PointMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC571C3F6AFF00FE0B1B /* PointMath.cpp */; };
+		CDFCCC621C3F6BA000FE0B1B /* CompileTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC5A1C3F6BA000FE0B1B /* CompileTest.mm */; };
+		CDFCCC631C3F6BA000FE0B1B /* MathConstantTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC5B1C3F6BA000FE0B1B /* MathConstantTest.mm */; };
+		CDFCCC641C3F6BA000FE0B1B /* MatrixMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC5C1C3F6BA000FE0B1B /* MatrixMath.mm */; };
+		CDFCCC651C3F6BA000FE0B1B /* Pathname.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC5D1C3F6BA000FE0B1B /* Pathname.mm */; };
+		CDFCCC661C3F6BA000FE0B1B /* PointMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC5E1C3F6BA000FE0B1B /* PointMath.mm */; };
+		CDFCCC671C3F6BA000FE0B1B /* Signal.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC5F1C3F6BA000FE0B1B /* Signal.mm */; };
+		CDFCCC681C3F6BA000FE0B1B /* StringUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC601C3F6BA000FE0B1B /* StringUtilities.mm */; };
+		CDFCCC691C3F6BA000FE0B1B /* VectorMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDFCCC611C3F6BA000FE0B1B /* VectorMath.mm */; };
 		CDFE07B41A3F68A5005395E7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		CDFE07B51A3F68A5005395E7 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27085C3012ED49A90051AF5F /* OpenGL.framework */; };
 		CDFE07BA1A3F68A5005395E7 /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 275CAA5712ED5E9C00CE4247 /* libz.1.dylib */; };
@@ -1253,6 +1253,14 @@
 		CDFCCC531C3E8AB600FE0B1B /* Signal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Signal.cpp; sourceTree = "<group>"; };
 		CDFCCC551C3E8ACD00FE0B1B /* DebugAssert.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DebugAssert.hpp; sourceTree = "<group>"; };
 		CDFCCC571C3F6AFF00FE0B1B /* PointMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointMath.cpp; sourceTree = "<group>"; };
+		CDFCCC5A1C3F6BA000FE0B1B /* CompileTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CompileTest.mm; sourceTree = "<group>"; };
+		CDFCCC5B1C3F6BA000FE0B1B /* MathConstantTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MathConstantTest.mm; sourceTree = "<group>"; };
+		CDFCCC5C1C3F6BA000FE0B1B /* MatrixMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MatrixMath.mm; sourceTree = "<group>"; };
+		CDFCCC5D1C3F6BA000FE0B1B /* Pathname.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Pathname.mm; sourceTree = "<group>"; };
+		CDFCCC5E1C3F6BA000FE0B1B /* PointMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PointMath.mm; sourceTree = "<group>"; };
+		CDFCCC5F1C3F6BA000FE0B1B /* Signal.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Signal.mm; sourceTree = "<group>"; };
+		CDFCCC601C3F6BA000FE0B1B /* StringUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringUtilities.mm; sourceTree = "<group>"; };
+		CDFCCC611C3F6BA000FE0B1B /* VectorMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorMath.mm; sourceTree = "<group>"; };
 		CDFE07C61A3F68A5005395E7 /* Cartman.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cartman.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDFE07C71A3F68A6005395E7 /* Cartman-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Cartman-Info.plist"; path = "/Users/neptunium/egoboo/egoboo-git/osx/Cartman-Info.plist"; sourceTree = "<absolute>"; };
 		CDFE08381A3F6978005395E7 /* cartman_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cartman_config.h; sourceTree = "<group>"; };
@@ -1876,6 +1884,7 @@
 		CD39CD0F1AA537440005E3EA /* egolib */ = {
 			isa = PBXGroup;
 			children = (
+				CDFCCC591C3F6BA000FE0B1B /* gen */,
 				CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */,
 				CD048BF41AB7515400E1E52D /* MathConstantTest.cpp */,
 				CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */,
@@ -2583,6 +2592,22 @@
 			path = Signal;
 			sourceTree = "<group>";
 		};
+		CDFCCC591C3F6BA000FE0B1B /* gen */ = {
+			isa = PBXGroup;
+			children = (
+				CDFCCC5A1C3F6BA000FE0B1B /* CompileTest.mm */,
+				CDFCCC5B1C3F6BA000FE0B1B /* MathConstantTest.mm */,
+				CDFCCC5C1C3F6BA000FE0B1B /* MatrixMath.mm */,
+				CDFCCC5D1C3F6BA000FE0B1B /* Pathname.mm */,
+				CDFCCC5E1C3F6BA000FE0B1B /* PointMath.mm */,
+				CDFCCC5F1C3F6BA000FE0B1B /* Signal.mm */,
+				CDFCCC601C3F6BA000FE0B1B /* StringUtilities.mm */,
+				CDFCCC611C3F6BA000FE0B1B /* VectorMath.mm */,
+			);
+			name = gen;
+			path = ../gen/tests;
+			sourceTree = "<group>";
+		};
 		CDFE07C81A3F68EC005395E7 /* cartman */ = {
 			isa = PBXGroup;
 			children = (
@@ -2646,6 +2671,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CD39CD0E1AA536F20005E3EA /* Build configuration list for PBXNativeTarget "EgoLib Tests" */;
 			buildPhases = (
+				CDFCCC561C3F6A7400FE0B1B /* Generate XCTest-compatable Test Files */,
 				CD39CCFF1AA536F20005E3EA /* Sources */,
 				CD39CD001AA536F20005E3EA /* Frameworks */,
 				CD39CD011AA536F20005E3EA /* Resources */,
@@ -2936,6 +2962,23 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		CDFCCC561C3F6A7400FE0B1B /* Generate XCTest-compatable Test Files */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate XCTest-compatable Test Files";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd $PROJECT_DIR/../egolib/\nexec perl ../egotest/generate_test_files.pl objc tests/*.cpp";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		8D11072C0486CEB800E47090 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -3031,14 +3074,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CD2C60FD1ACAF9E0003CF3D6 /* MatrixMath.cpp in Sources */,
-				CD54B3351AAEE9C800C1F15D /* CompileTest.cpp in Sources */,
-				CDFCCC581C3F6AFF00FE0B1B /* PointMath.cpp in Sources */,
-				CD1F4D7A1B13F04C0028C45E /* Pathname.cpp in Sources */,
-				CD048BF51AB7515400E1E52D /* MathConstantTest.cpp in Sources */,
-				CDFCCC541C3E8AB600FE0B1B /* Signal.cpp in Sources */,
-				CD1F4D7B1B13F04C0028C45E /* VectorMath.cpp in Sources */,
-				CD2C60FE1ACAF9E0003CF3D6 /* StringUtilities.cpp in Sources */,
+				CDFCCC621C3F6BA000FE0B1B /* CompileTest.mm in Sources */,
+				CDFCCC691C3F6BA000FE0B1B /* VectorMath.mm in Sources */,
+				CDFCCC681C3F6BA000FE0B1B /* StringUtilities.mm in Sources */,
+				CDFCCC631C3F6BA000FE0B1B /* MathConstantTest.mm in Sources */,
+				CDFCCC671C3F6BA000FE0B1B /* Signal.mm in Sources */,
+				CDFCCC651C3F6BA000FE0B1B /* Pathname.mm in Sources */,
+				CDFCCC641C3F6BA000FE0B1B /* MatrixMath.mm in Sources */,
+				CDFCCC661C3F6BA000FE0B1B /* PointMath.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3450,7 +3493,7 @@
 				INFOPLIST_FILE = "egolib-tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../egotest/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src $(PROJECT_DIR)/../game/src";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../egotest/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src $(PROJECT_DIR)/../game/src $(PROJECT_DIR)/../egolib/";
 			};
 			name = Debug;
 		};
@@ -3468,7 +3511,7 @@
 				INFOPLIST_FILE = "egolib-tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../egotest/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src $(PROJECT_DIR)/../game/src";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../egotest/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src $(PROJECT_DIR)/../game/src $(PROJECT_DIR)/../egolib/";
 			};
 			name = Release;
 		};

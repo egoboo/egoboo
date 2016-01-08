@@ -20,10 +20,7 @@
 #include "EgoTest/EgoTest.hpp"
 #include "egolib/egolib.h"
 
-EgoTest_DeclareTestCase(Signal)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(Signal)
+EgoTest_TestCase(Signal) {
 
 EgoTest_Test(signal) {
     Ego::Signal<void(const std::string&)> signal;
@@ -38,4 +35,4 @@ EgoTest_Test(signal) {
     EgoTest_Assert(true == invoked);
 }
 
-EgoTest_EndTestCase()
+};

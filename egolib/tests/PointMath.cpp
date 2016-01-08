@@ -20,10 +20,7 @@
 #include "EgoTest/EgoTest.hpp"
 #include "egolib/egolib.h"
 
-EgoTest_DeclareTestCase(PointMath)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(PointMath)
+EgoTest_TestCase(PointMath) {
 
 #define TOLERANCE Point3f::ScalarType(0.0001)
 
@@ -51,4 +48,4 @@ EgoTest_Test(sub) {
     }
 }
 
-EgoTest_EndTestCase()
+};

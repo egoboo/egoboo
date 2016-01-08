@@ -21,10 +21,8 @@
 #include "egolib/Float.hpp"
 #include "egolib/_math.h" /// @todo Remove this.
 
-EgoTest_DeclareTestCase(MathConstants)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(MathConstants)
+EgoTest_TestCase(MathConstants)
+{
 
 EgoTest_Test(piFlt)
 {
@@ -161,4 +159,4 @@ EgoTest_Test(invSqrtTwoDbl)
     EgoTest_Assert(float_equalToUlp(x, y, 2));
 }
 
-EgoTest_EndTestCase()
+};

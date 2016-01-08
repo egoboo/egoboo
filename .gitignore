@@ -27,3 +27,6 @@ xcuserdata
 
 # Doxygen.
 /doc/doxygen
+
+# Generated files.
+gen

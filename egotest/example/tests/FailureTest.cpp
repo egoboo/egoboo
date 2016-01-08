@@ -21,19 +21,17 @@
 
 #include "FailureFile.hpp"
 
-EgoTest_DeclareTestCase(FailureTest)
-EgoTest_EndDeclaration()
+EgoTest_TestCase(FailureTest) {
 
-EgoTest_BeginTestCase(FailureTest)
+    EgoTest_Test(throwsNothing)
+    {
+        EgoTest_Assert(throwSomeException());
+    }
 
-EgoTest_Test(throwsNothing)
-{
-    EgoTest_Assert(throwSomeException());
-}
-
-EgoTest_Test(returnsTrue)
-{
-    EgoTest_Assert(returnSomething());
-}
-
-EgoTest_EndTestCase()
+    EgoTest_Test(returnsTrue)
+    {
+        EgoTest_Assert(returnSomething());
+        EgoTest_Assert(false);
+    }
+    
+};

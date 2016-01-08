@@ -83,7 +83,7 @@ void EgoTest::doAssert(bool condition, const std::string &conditionStr, const st
     std::cout << ColorCodes::RED << file << ":" << line << ": " << conditionStr << "\n" << ColorCodes::NORMAL;
 }
 
-int EgoTest::handleTest(const std::string &testName, const std::function<void(void)> &test)
+int EgoTest::handleTestFunc(const std::string &testName, const std::function<void(void)> &test)
 {
     currentTestFailures = 0;
     bool setUp = false;
@@ -110,7 +110,7 @@ int EgoTest::handleTest(const std::string &testName, const std::function<void(vo
         }
         catch (...)
         {
-            std::cout << ColorCodes::RED << "Uncaught exception in EgoTest::handleTest.\n" << ColorCodes::NORMAL;
+            std::cout << ColorCodes::RED << "Uncaught exception in EgoTest::handleTestFunc.\n" << ColorCodes::NORMAL;
             currentTestFailures++;
         }
         
