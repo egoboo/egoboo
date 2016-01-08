@@ -23,7 +23,6 @@
 
 #include "egolib/bbox.h"
 #include "game/graphic_prt.h"
-#include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/game.h"
 #include "game/input.h"

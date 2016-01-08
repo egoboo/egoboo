@@ -21,9 +21,9 @@
 /// @brief Shop interaction
 #include "game/Shop.hpp"
 #include "game/Module/Module.hpp"
-#include "game/renderer_2d.h" ///< todo For DisplayMsg_printf. Messages should be emitted to players not just being "printed".
 #include "game/Module/Passage.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/game.h"
 
 bool Shop::drop(const std::shared_ptr<Object>& dropper, const std::shared_ptr<Object>& item)
 {
@@ -168,11 +168,11 @@ bool Shop::canGrabItem(const std::shared_ptr<Object>& grabber, const std::shared
 
             if (!canGrab)
             {
-                DisplayMsgs::get().printf("%s was detected!!", grabber->getName().c_str());
+                DisplayMsg_printf("%s was detected!!", grabber->getName().c_str());
             }
             else
             {
-                DisplayMsgs::get().printf("%s stole %s", grabber->getName().c_str(), item->getName(true, false, false).c_str());
+                DisplayMsg_printf("%s stole %s", grabber->getName().c_str(), item->getName(true, false, false).c_str());
             }
         }
         else

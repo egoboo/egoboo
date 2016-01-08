@@ -31,6 +31,7 @@ class MiniMap;
 class Object;
 class CharacterStatus;
 namespace Ego { namespace GUI { class CharacterWindow; } }
+namespace Ego { namespace GUI { class MessageLog; } }
 
 class PlayingState : public GameState
 {
@@ -53,6 +54,8 @@ public:
 
     void displayCharacterWindow(uint8_t statusNumber);
 
+    const std::shared_ptr<Ego::GUI::MessageLog>& getMessageLog() const;
+
 protected:
     void drawContainer() override;
 
@@ -62,6 +65,7 @@ private:
 private:
 	std::shared_ptr<CameraSystem> _cameraSystem;
     std::shared_ptr<MiniMap> _miniMap;
+    std::shared_ptr<Ego::GUI::MessageLog> _messageLog;
     std::vector<std::weak_ptr<CharacterStatus>> _statusList;
     std::array<std::weak_ptr<Ego::GUI::CharacterWindow>, 8> _characterWindows;
 };

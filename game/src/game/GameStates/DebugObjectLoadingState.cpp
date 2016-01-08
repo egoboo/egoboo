@@ -40,7 +40,6 @@
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/link.h"
-#include "game/renderer_2d.h"
 #include "egolib/fileutil.h"
 
 class DebugObjectLoadingState::GrowableLabel : public GUIComponent

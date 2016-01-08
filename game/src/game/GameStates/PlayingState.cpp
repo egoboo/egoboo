@@ -29,9 +29,9 @@
 #include "game/GUI/MiniMap.hpp"
 #include "game/GUI/CharacterStatus.hpp"
 #include "game/GUI/CharacterWindow.hpp"
+#include "game/GUI/MessageLog.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
-#include "game/renderer_2d.h"
 #include "game/Logic/Player.hpp"
 
 //For cheats
@@ -41,6 +41,7 @@
 PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     _cameraSystem(cameraSystem),
     _miniMap(std::make_shared<MiniMap>()),
+    _messageLog(std::make_shared<Ego::GUI::MessageLog>()),
     _statusList()
 {
     //For debug only
@@ -61,6 +62,11 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     _miniMap->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
     _miniMap->setPosition(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight());
     addComponent(_miniMap);
+
+    //Add the message log
+    _messageLog->setSize(_gameEngine->getUIManager()->getScreenWidth() - WRAP_TOLERANCE, _gameEngine->getUIManager()->getScreenHeight() / 3);
+    _messageLog->setPosition(0, fontyspacing);
+    addComponent(_messageLog);
 
     //Show status display for all players
     for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
@@ -126,8 +132,6 @@ void PlayingState::update()
 void PlayingState::drawContainer()
 {
     gfx_system_main();
-
-    DisplayMsgs::get().timechange++;
 }
 
 void PlayingState::beginState()
@@ -277,4 +281,9 @@ void PlayingState::displayCharacterWindow(uint8_t statusNumber)
         //Close window if same button is pressed twice
         chrWindow->destroy();
     }
+}
+
+const std::shared_ptr<Ego::GUI::MessageLog>& PlayingState::getMessageLog() const
+{
+    return _messageLog;
 }

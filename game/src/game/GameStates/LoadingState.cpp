@@ -36,7 +36,6 @@
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/link.h"
-#include "game/renderer_2d.h"
 #include "game/Module/Module.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
 
@@ -176,9 +175,6 @@ void LoadingState::loadModuleData()
 
     // initialize the collision system
     setProgressText("Beautifying graphics...", 40);
-
-    //Ready message display
-    DisplayMsgs::get().reset();
 
     // Reset all loaded "profiles" in the "profile system".
     ProfileSystem::get().reset();

@@ -355,3 +355,7 @@ float get_mesh_max_vertex_1(ego_mesh_t *mesh, const Index2D& index2D, oct_bb_t& 
 float get_mesh_max_vertex_2(ego_mesh_t *mesh, Object *object);
 
 void playMainMenuSong();
+
+//Message printing functions (TODO: Rewrite to c++)
+int DisplayMsg_printf(const char *format, ...) GCC_PRINTF_FUNC(1);
+void DisplayMsg_print(const std::string &text);

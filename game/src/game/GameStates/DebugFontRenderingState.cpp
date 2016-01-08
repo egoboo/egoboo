@@ -27,8 +27,6 @@
 #include "game/GUI/Label.hpp"
 #include "game/GUI/ScrollableList.hpp"
 
-#include "game/renderer_2d.h"
-
 class DebugFontRenderingState::DebugLabel : public GUIComponent
 {
 public:
@@ -46,18 +44,9 @@ public:
         redraw();
     }
     
-    void draw() override {
-        ego_frect_t src;
-        
-        src.xmin = getX();
-        src.ymin = getY();
-        src.xmax = src.xmin + _maxWidth;
-        src.ymax = src.ymin + _maxHeight;
-        draw_quad_2d(src, true, _maxColor);
-        
-        src.xmax = src.xmin + _textWidth;
-        src.ymax = src.ymin + _textHeight;
-        draw_quad_2d(src, true, _textColor);
+    void draw() override {        
+        _gameEngine->getUIManager()->fillRectangle(getX(), getY(), _maxWidth, _maxHeight, true, _maxColor);
+        _gameEngine->getUIManager()->fillRectangle(getX(), getY(), _textWidth, _textHeight, true, _textColor);
         
         _textRenderer->render(getX(), getY());
     }

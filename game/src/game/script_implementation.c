@@ -30,7 +30,6 @@
 #include "egolib/egolib.h"
 
 #include "game/game.h"
-#include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
 #include "game/Module/Module.hpp"
@@ -477,7 +476,7 @@ Uint8 _display_message( const ObjectRef ichr, const PRO_REF iprofile, const int 
     if ( !ppro->isValidMessageID(message) ) return false;
 
     std::string text = expandEscapeCodes(_currentModule->getObjectHandler()[ichr], *pstate, ppro->getMessage(message));
-    DisplayMsgs::get().printf("%s", text.c_str());
+    DisplayMsg_print(text);
 
     return true;
 }

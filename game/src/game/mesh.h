@@ -68,16 +68,6 @@ public:
     ego_tile_info_t();
 	~ego_tile_info_t() { lighting_cache_t::init(_cache); }
 
-public:
-    // the "inherited" tile info
-    size_t _itile;
-    uint8_t _type;                             ///< Tile type
-    uint16_t _img;                             ///< Get texture from this
-    size_t _vrtstart;                          ///< Which vertex to start at
-
-    // some extra flags
-    bool _fanoff;                            ///< display this tile?
-
 	struct Cache {
 		/**
 		 * @brief
@@ -150,9 +140,6 @@ public:
 				(uint32_t)getLastFrame() + frameSkip >= thisFrame);
 		}
 	};
-
-    // tile corner lighting parameters
-    normal_cache_t _ncache;                     ///< the normals at the corners of this tile
     
 	struct LightingCache : Cache {
 		LightingCache()
@@ -171,11 +158,6 @@ public:
 		light_cache_t  _d1_cache; ///< the estimated change in the light at the corner of the tile
 		light_cache_t  _d2_cache; ///< the estimated change in the light at the corner of the tile
 	};
-	/// The vertex lighting cache of this tile.
-	VertexLightingCache _vertexLightingCache;
-
-    // the bounding boc of this tile
-    oct_bb_t       _oct;                        ///< the octagonal bounding box for this tile
 
 	/**
 	 * @brief
@@ -187,31 +169,8 @@ public:
 		return MAP_FANOFF == _img;
 	}
 
-	/**
-	* @brief
-	*  The special effect flags in the MPD.
-	* @warning
-	*  Do not modify.
-	*/
-	GRID_FX_BITS _base_fx;
-	/**
-	* @brief
-	*  The orientation of the file in the MPD.
-	* @warning
-	*  Do not modify.
-	*/
-	uint8_t _twist;
-
-	// 
-	GRID_FX_BITS    _pass_fx;                   ///< the working copy of base_fx, which might be modified by passages
-
-
-												// the lighting info in the upper left hand corner of a grid
-	Uint8            _a, _l;                   ///< the raw mesh lighting... pretty much ignored
-	lighting_cache_t _cache;                   ///< the per-grid lighting info
-	int              _cache_frame;             ///< the last frame in which the cache was calculated
-
 	GRID_FX_BITS testFX(const GRID_FX_BITS bits) const;
+
 	/**
 	* @brief
 	*  Get the FX of this grid point.
@@ -219,6 +178,7 @@ public:
 	*  the FX of this grid point
 	*/
 	GRID_FX_BITS getFX() const;
+
 	/**
 	* @brief
 	*  Set the FX of this grid point.
@@ -229,6 +189,7 @@ public:
 	*  @a false otherwise
 	*/
 	bool setFX(const GRID_FX_BITS bits);
+
 public:
 	/**
 	* @brief
@@ -250,6 +211,49 @@ public:
 	*  @a false otherwise
 	*/
 	bool removeFX(const GRID_FX_BITS bits);
+
+public:
+    // the "inherited" tile info
+    size_t _itile;
+    uint8_t _type;                             ///< Tile type
+    uint16_t _img;                             ///< Get texture from this
+    size_t _vrtstart;                          ///< Which vertex to start at
+
+    // some extra flags
+    bool _fanoff;                            ///< display this tile?
+
+    // tile corner lighting parameters
+    normal_cache_t _ncache;                     ///< the normals at the corners of this tile
+
+	/// The vertex lighting cache of this tile.
+	VertexLightingCache _vertexLightingCache;
+
+    // the bounding boc of this tile
+    oct_bb_t       _oct;                        ///< the octagonal bounding box for this tile
+
+	/**
+	* @brief
+	*  The special effect flags in the MPD.
+	* @warning
+	*  Do not modify.
+	*/
+	GRID_FX_BITS _base_fx;
+
+	/**
+	* @brief
+	*  The orientation of the file in the MPD.
+	* @warning
+	*  Do not modify.
+	*/
+	uint8_t _twist;
+
+	// 
+	GRID_FX_BITS    _pass_fx;                   ///< the working copy of base_fx, which might be modified by passages
+												// the lighting info in the upper left hand corner of a grid
+	uint8_t            _a, _l;                 ///< the raw mesh lighting... pretty much ignored
+	lighting_cache_t _cache;                   ///< the per-grid lighting info
+	int              _cache_frame;             ///< the last frame in which the cache was calculated
+
 };
 
 inline bool TILE_HAS_INVALID_IMAGE(const ego_tile_info_t& tileInfo) {

@@ -39,7 +39,6 @@
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/link.h"
-#include "game/renderer_2d.h"
 #include "egolib/fileutil.h"
 
 struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, public GUIComponent
@@ -258,9 +257,6 @@ void DebugModuleLoadingState::loadModuleData()
 
         // initialize the collision system
         singleThreadRedrawHack("Beautifying graphics...");
-
-        //Ready message display
-        DisplayMsgs::get().reset();
 
         // Reset all "profiles" in the "profile system".
         ProfileSystem::get().reset();

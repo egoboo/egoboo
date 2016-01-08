@@ -23,7 +23,6 @@
 
 #include "game/egoboo.h"
 #include "game/game.h"
-#include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/Module/Module.hpp"
 
@@ -90,7 +89,6 @@ bool config_download( egoboo_config_t *cfg)
     }
 
     // Download configuration.
-    DisplayMsgs::get().download(*cfg);
     ParticleHandler::get().download(*cfg);
     AudioSystem::get().download(*cfg);
 
@@ -112,7 +110,6 @@ bool config_upload(egoboo_config_t *cfg)
     // Upload configuration.
     AudioSystem::get().upload(*cfg);
     ParticleHandler::get().upload(*cfg);
-    DisplayMsgs::get().upload(*cfg);
 
     return true;
 }

@@ -22,7 +22,6 @@
 
 #include "CharacterStatus.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/renderer_2d.h"
 #include "game/Logic/Player.hpp"
 #include "game/GUI/ProgressBar.hpp"
 #include "game/game.h" //for update_wld
@@ -60,7 +59,7 @@ void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, flo
 			if ((!pitem->getProfile()->isStackable()) || pitem->ammo > 1)
 			{
 				// Show amount of ammo left
-				draw_string_raw(x, y - 8, "%2d", pitem->ammo);
+				_gameEngine->getUIManager()->drawBitmapFontString(x, y - 8, std::to_string(pitem->ammo));
 			}
 		}
 	}
@@ -127,7 +126,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 	sc_rect.ymin = y;
 	sc_rect.ymax = y + height;
 
-	draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+	_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 	// make the new left-hand margin after the tab
 	x_left = x_stt + width;
@@ -151,7 +150,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		y += height;
 		ticks -= NUMTICK;
@@ -177,7 +176,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		// move to the right after drawing the full ticks
 		x += width;
@@ -198,7 +197,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		y += height;
 		ticks = 0;
@@ -226,7 +225,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		y += height;
 		total_ticks -= NUMTICK;
@@ -253,7 +252,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(tx_ptr, sc_rect, tx_rect, true);
 
 		y += height;
 	}
@@ -291,7 +290,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 	sc_rect.ymin = y;
 	sc_rect.ymax = y + height;
 
-	draw_quad_2d(texture, sc_rect, tx_rect, true);
+	_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 
 	x += width;
 
@@ -311,7 +310,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(texture, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 	}
 
 	//---- Draw the remaining empty ones
@@ -327,7 +326,7 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 		sc_rect.ymin = y;
 		sc_rect.ymax = y + height;
 
-		draw_quad_2d(texture, sc_rect, tx_rect, true);
+		_gameEngine->getUIManager()->drawQuad2D(texture, sc_rect, tx_rect, true);
 	}
 
 	return y + height;
@@ -378,10 +377,10 @@ void CharacterStatus::draw()
     int yOffset = getY();
 
     // draw the name
-    yOffset = draw_string_raw(getX() + 8, yOffset, "%s", pchr->getName(false, false, true).c_str());
+    yOffset = _gameEngine->getUIManager()->drawBitmapFontString(getX() + 8, yOffset, pchr->getName(false, false, true));
 
     // draw the character's money
-    yOffset = draw_string_raw(getX() + 8, yOffset, "$%4d", pchr->getMoney()) + 8;
+    yOffset = _gameEngine->getUIManager()->drawBitmapFontStringFormat(getX() + 8, yOffset, "$%4d", pchr->getMoney()) + 8;
 
     bool levelUp = false;
     if(pchr->isPlayer()) {

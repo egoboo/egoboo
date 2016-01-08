@@ -27,7 +27,6 @@
 #include "game/graphic_mad.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_billboard.h"
-#include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/Logic/Player.hpp"
 #include "egolib/Script/script.h"
