@@ -405,6 +405,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\GUI\MessageLog.cpp" />
     <ClCompile Include="src\game\Physics\ParticlePhysics.cpp" />
     <ClCompile Include="src\game\GameStates\DebugFontRenderingState.cpp" />
     <ClCompile Include="src\game\GameStates\DebugMainMenuState.cpp" />
@@ -482,13 +483,13 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\link.c" />
     <ClCompile Include="src\game\mesh.c" />
     <ClCompile Include="src\game\physics.c" />
-    <ClCompile Include="src\game\renderer_2d.c" />
     <ClCompile Include="src\game\renderer_3d.c" />
     <ClCompile Include="src\game\script_compile.c" />
     <ClCompile Include="src\game\script_functions.c" />
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\GUI\MessageLog.hpp" />
     <ClInclude Include="src\game\Physics\ParticlePhysics.hpp" />
     <ClInclude Include="src\game\GameStates\DebugFontRenderingState.hpp" />
     <ClInclude Include="src\game\GameStates\DebugMainMenuState.hpp" />
@@ -570,9 +571,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\lighting.h" />
     <ClInclude Include="src\game\link.h" />
     <ClInclude Include="src\game\mesh.h" />
-    <ClInclude Include="src\game\network.h" />
     <ClInclude Include="src\game\physics.h" />
-    <ClInclude Include="src\game\renderer_2d.h" />
     <ClInclude Include="src\game\renderer_3d.h" />
     <ClInclude Include="src\game\script_compile.h" />
     <ClInclude Include="src\game\script_functions.h" />

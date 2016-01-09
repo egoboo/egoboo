@@ -66,9 +66,35 @@ TextureUnit::~TextureUnit()
 {}
 
 Renderer::Renderer()
+    : projectionMatrix(Transform::perspective(45.0f, 4.0f/3.0f, +0.1f, +1.0f)),
+      viewMatrix(Matrix4f4f::identity()), worldMatrix(Matrix4f4f::identity())
 {}
 
 Renderer::~Renderer()
 {}
+
+void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {
+    this->projectionMatrix = projectionMatrix;
+}
+
+Matrix4f4f Renderer::getProjectionMatrix() const {
+    return projectionMatrix;
+}
+
+void Renderer::setViewMatrix(const Matrix4f4f& viewMatrix) {
+    this->viewMatrix = viewMatrix;
+}
+
+Matrix4f4f Renderer::getViewMatrix() const {
+    return viewMatrix;
+}
+
+void Renderer::setWorldMatrix(const Matrix4f4f& worldMatrix) {
+    this->worldMatrix = worldMatrix;
+}
+
+Matrix4f4f Renderer::getWorldMatrix() const {
+    return worldMatrix;
+}
 
 } // namespace Ego

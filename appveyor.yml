@@ -1,7 +1,7 @@
 clone_depth: 1
 
 platform:
-    - win32
+    - Win32
     - x64
 configuration:
     - Debug
@@ -12,7 +12,9 @@ install:
 
 before_build:
     set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-    
+after_build:
+    7z a binaries-%CONFIGURATION%-%PLATFORM%.zip product\game\%CONFIGURATION%\%PLATFORM%\*.dll product\game\%CONFIGURATION%\%PLATFORM%\*.exe
+ 
 build:
     parallel: true                  # enable MSBuild parallel builds
     project: egoboo.sln             # path to Visual Studio solution or project
@@ -23,8 +25,23 @@ test_script:
         if ($platform -eq "Win32") { $platform = "x86" }
         vstest.console /Logger:Appveyor /Platform:$platform /inIsolation "product\egolib-tests\$env:configuration\$env:platform\egolib-tests.dll"
 
+# if one matrix entry fails, all fails
+# https://www.appveyor.com/docs/build-configuration#failing-strategy
+matrix:
+    fast_finish: true
+        
 notifications:
     - provider: Webhook
       url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
       on_build_success: true
       on_build_failure: true
+
+artifacts:
+    - path: binaries-Debug-Win32.zip
+      name: binaries-Debug-Win32
+    - path: binaries-Debug-x64.zip
+      name: binaries-Debug-x64
+    - path: binaries-Release-Win32.zip
+      name: binaries-Release-Win32
+    - path: binaries-Release-x64.zip
+      name: binaries-Release-x64

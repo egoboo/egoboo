@@ -99,15 +99,10 @@ void UIManager::beginRenderUI()
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
 
-    // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPushMatrix )();
 	Matrix4f4f projection = Ego::Math::Transform::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
-	renderer.loadMatrix(projection);
-
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-	renderer.loadMatrix(Matrix4f4f::identity());
+    renderer.setProjectionMatrix(projection);
+    renderer.setViewMatrix(Matrix4f4f::identity());
+    renderer.setWorldMatrix(Matrix4f4f::identity());
 }
 
 void UIManager::endRenderUI()
@@ -117,14 +112,6 @@ void UIManager::endRenderUI()
     if(_renderSemaphore > 0) {
         return;
     }
-
-    // Restore the GL_PROJECTION matrix
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPopMatrix )();
-
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    Ego::Renderer::get().loadMatrix(Matrix4f4f::identity());
 
     // Re-enable any states disabled by gui_beginFrame
     // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
@@ -249,18 +236,6 @@ bool UIManager::dumpScreenshot()
     }
 
     return savefound && saved;
-}
-
-float UIManager::drawBitmapFontStringFormat(const float x, const float y, const std::string &format, ...)
-{
-    std::array<char, 256> buffer;
-
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer.data(), buffer.size(), format.c_str(), args);
-    va_end(args);
-
-    return drawBitmapFontString(x, y, buffer.data(), 0, 1.0f);
 }
 
 float UIManager::drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth, const float alpha)

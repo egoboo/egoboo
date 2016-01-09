@@ -31,26 +31,15 @@
 //--------------------------------------------------------------------------------------------
 void gfx_begin_3d(Camera& camera)
 {
-    // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(camera.getProjectionMatrix());
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(camera.getViewMatrix());
+    auto& renderer = Ego::Renderer::get();
+    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+    renderer.setViewMatrix(camera.getViewMatrix());
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_end_3d()
 {
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    // Restore the GL_PROJECTION matrix
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPopMatrix )();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -261,12 +250,9 @@ bool render_aabb(AABB3f *bv)
 
     if (!bv) return false;
 
-    // save the matrix mode
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
+    Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
+    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
     {
         const auto& pmin = (bv->getMin());
         const auto& pmax = (bv->getMax());
@@ -313,13 +299,6 @@ bool render_aabb(AABB3f *bv)
         }
         GL_DEBUG_END();
     }
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    // restore the matrix mode
-    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
-
     return true;
 }
 
@@ -331,7 +310,7 @@ void render_oct_bb(const oct_bb_t &bb, bool drawSquare, bool drawDiamond, const 
     // disable texturing
     renderer.getTextureUnit().setActivated(nullptr);
 
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
+    Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT);
     {
 
         // Do not write write into the depth buffer.
@@ -467,5 +446,4 @@ void render_oct_bb(const oct_bb_t &bb, bool drawSquare, bool drawDiamond, const 
         }
 
     }
-    ATTRIB_POP( __FUNCTION__ );
 }

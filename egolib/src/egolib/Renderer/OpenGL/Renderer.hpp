@@ -221,6 +221,16 @@ public:
     /** @copydoc Ego::Renderer::createTexture */
     virtual SharedPtr<Ego::Texture> createTexture() override;
 
+public:
+    /** @copydoc Ego::Renderer::setProjectionMatrix */
+    void setProjectionMatrix(const Matrix4f4f& projectionMatrix) override;
+
+    /** @copydoc Ego::Renderer::setViewMatrix */
+    void setViewMatrix(const Matrix4f4f& viewMatrix) override;
+
+    /** @copydoc Ego::Renderer::setWorldMatrix */
+    void setWorldMatrix(const Matrix4f4f& worldMatrix) override;
+
 private:
     GLenum toOpenGL(BlendFunction source);
 

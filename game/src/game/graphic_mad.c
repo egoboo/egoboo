@@ -86,21 +86,13 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 
     float uoffset = pinst.uoffset - cam.getTurnZ_turns();
 
-    // save the matrix mode
-	GLint matrix_mode[1];
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-
 	if (HAS_SOME_BITS(bits, CHR_REFLECT))
 	{
-		Ego::Renderer::get().multiplyMatrix(pinst.ref.matrix);
+        Ego::Renderer::get().setWorldMatrix(pinst.ref.matrix);
 	}
 	else
 	{
-		Ego::Renderer::get().multiplyMatrix(pinst.matrix);
+		Ego::Renderer::get().setWorldMatrix(pinst.matrix);
 	}
 
     // Choose texture and matrix
@@ -169,14 +161,6 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
             }
         }
     }
-
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    // restore the matrix mode
-    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
-
     return gfx_success;
 }
 
@@ -267,22 +251,13 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
     };
     auto vertexBuffer = std::unique_ptr<Vertex[]>(new Vertex[vertexBufferCapacity]);
 
-    // save the matrix mode
-	GLint matrix_mode;
-    glGetIntegerv(GL_MATRIX_MODE, &matrix_mode);
-    Ego::OpenGL::Utilities::isError();
-
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    Ego::OpenGL::Utilities::isError();
     if (0 != (bits & CHR_REFLECT))
     {
-        Ego::Renderer::get().multiplyMatrix(pinst.ref.matrix);
+        Ego::Renderer::get().setWorldMatrix(pinst.ref.matrix);
     }
     else
     {
-        Ego::Renderer::get().multiplyMatrix(pinst.matrix);
+        Ego::Renderer::get().setWorldMatrix(pinst.matrix);
     }
 
     // Choose texture.
@@ -367,16 +342,6 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
             }
         }
     }
-
-    // Restore the GL_MODELVIEW matrix
-    glMatrixMode(GL_MODELVIEW);
-    Ego::OpenGL::Utilities::isError();
-    glPopMatrix();
-    Ego::OpenGL::Utilities::isError();
-    // restore the matrix mode
-    glMatrixMode(matrix_mode);
-    Ego::OpenGL::Utilities::isError();
-
     return gfx_success;
 }
 
@@ -720,13 +685,8 @@ void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int ver
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
-    // save the matrix mode
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().multiplyMatrix(pchr->inst.matrix);
+    Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
+	Ego::Renderer::get().setWorldMatrix(pchr->inst.matrix);
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
         for ( cnt = vmin; cnt < vmax; cnt++ )
@@ -735,13 +695,6 @@ void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int ver
         }
     }
     GL_DEBUG_END();
-
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    // restore the matrix mode
-    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 }
 #endif
 
@@ -755,22 +708,11 @@ void draw_one_grip( chr_instance_t * pinst, int slot )
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
-    // save the matrix mode
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
+    Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
+    Ego::Renderer::get().setWorldMatrix(pinst->matrix);
 	Ego::Renderer::get().multiplyMatrix(pinst->matrix);
 
     _draw_one_grip_raw( pinst, slot );
-
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    // restore the matrix mode
-    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 }
 
 void _draw_one_grip_raw( chr_instance_t * pinst, int slot )

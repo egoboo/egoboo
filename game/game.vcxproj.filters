@@ -101,9 +101,6 @@
     <ClCompile Include="src\game\physics.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\renderer_2d.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\renderer_3d.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -311,6 +308,9 @@
     <ClCompile Include="src\game\Physics\ParticlePhysics.cpp">
       <Filter>Game Sources\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\MessageLog.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -349,13 +349,7 @@
     <ClInclude Include="src\game\mesh.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\network.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\physics.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\renderer_2d.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\renderer_3d.h">
@@ -576,6 +570,9 @@
     </ClInclude>
     <ClInclude Include="src\game\Physics\ParticlePhysics.hpp">
       <Filter>Game Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\MessageLog.hpp">
+      <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

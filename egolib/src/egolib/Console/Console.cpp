@@ -233,27 +233,16 @@ void ConsoleHandler::draw_begin()
     // of a frame
 
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPushMatrix )();
 	Matrix4f4f matrix = Ego::Math::Transform::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
-	renderer.loadMatrix(matrix);
+	renderer.setProjectionMatrix(matrix);
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-	renderer.loadMatrix(Matrix4f4f::identity());
+    renderer.setViewMatrix(Matrix4f4f::identity());
+	renderer.setWorldMatrix(Matrix4f4f::identity());
 }
 
 void ConsoleHandler::draw_end()
 {
-    // Restore the GL_PROJECTION matrix
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPopMatrix )();
-
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
     // Re-enable any states disabled by gui_beginFrame
     // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
     GL_DEBUG( glPopAttrib )();

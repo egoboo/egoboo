@@ -598,5 +598,27 @@ SharedPtr<Ego::Texture> Renderer::createTexture() {
     return MakeShared<Texture>();
 }
 
+void Renderer::setProjectionMatrix(const Matrix4f4f& projectionMatrix) {
+    this->Ego::Renderer::setProjectionMatrix(projectionMatrix);
+    glMatrixMode(GL_PROJECTION);
+    loadMatrix(projectionMatrix);
+}
+
+void Renderer::setViewMatrix(const Matrix4f4f& viewMatrix) {
+    this->Ego::Renderer::setViewMatrix(viewMatrix);
+    glMatrixMode(GL_MODELVIEW);
+    // model -> world, world -> view
+    auto matrix = getViewMatrix() * getWorldMatrix();
+    loadMatrix(matrix);
+}
+
+void Renderer::setWorldMatrix(const Matrix4f4f& worldMatrix) {
+    this->Ego::Renderer::setWorldMatrix(worldMatrix);
+    glMatrixMode(GL_MODELVIEW);
+    // model -> world, world -> view
+    auto matrix = getViewMatrix() * getWorldMatrix();
+    loadMatrix(matrix);
+}
+
 } // namespace OpenGL
 } // namespace Ego
