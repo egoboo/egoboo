@@ -671,8 +671,6 @@ void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int ver
     /// @details a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
 
-    GLint matrix_mode[1];
-
     int vmin, vmax, cnt;
 
     vmin = vrt_offset;
@@ -701,9 +699,6 @@ void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int ver
 #if _DEBUG
 void draw_one_grip( chr_instance_t * pinst, int slot )
 {
-    GLint matrix_mode[1];
-
-
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);

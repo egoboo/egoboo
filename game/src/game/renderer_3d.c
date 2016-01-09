@@ -246,8 +246,6 @@ void PointList::draw_all(Camera& camera)
 //--------------------------------------------------------------------------------------------
 bool render_aabb(AABB3f *bv)
 {
-    GLint matrix_mode[1];
-
     if (!bv) return false;
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
