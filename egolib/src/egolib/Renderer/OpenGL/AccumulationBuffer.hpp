@@ -31,9 +31,8 @@ namespace OpenGL {
 using namespace Math;
 
 class AccumulationBuffer : public Ego::AccumulationBuffer {
-
 private:
-    Ego::ColorDepth colourDepth;
+    ColourDepth colourDepth;
 
 public:
 
@@ -58,7 +57,7 @@ public:
     virtual void setClearValue(const Colour4f& value) override;
 
     /** @copydoc Ego::AccumulationBuffer::getColourDepth */
-    virtual const ColorDepth& getColourDepth() override;
+    virtual const ColourDepth& getColourDepth() override;
 
 }; // class AccumulationBuffer
 

@@ -471,9 +471,6 @@
     <ClCompile Include="src\egolib\Renderer\TextureSampler.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Graphics\ColorDepth.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Renderer\RendererInfo.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -491,6 +488,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\AI\AStar.cpp">
       <Filter>Source Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\ColourDepth.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1019,9 +1019,6 @@
     <ClInclude Include="src\egolib\Core\Singleton.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Graphics\ColorDepth.hpp">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Renderer\RendererInfo.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -1054,6 +1051,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Point.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\ColourDepth.hpp">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "egolib/Graphics/ColorDepth.hpp"
+#include "egolib/Graphics/ColourDepth.hpp"
 
 namespace Ego {
 
@@ -198,9 +198,9 @@ private:
 private:
     /**
      * @brief
-     *  The color depth of this pixel format.
+     *  The colour depth of this pixel format.
      */
-    ColorDepth colorDepth;
+    ColourDepth colourDepth;
 
 protected:
 
@@ -213,15 +213,15 @@ protected:
      *  the shifts for Bits of the the red, green, blue and alpha components
      * @param redMask, greenMask, blueMask, alphaMask
      *  the masks for Bits of the red, green, blue and alpha components
-     * @param colorDepth
-     *  the color depth of this pixel format
+     * @param colourDepth
+     *  the colour depth of this pixel format
      */
     PixelFormatDescriptor(PixelFormat pixelFormat,
                           uint32_t redShift, uint32_t greenShift,
                           uint32_t blueShift, uint32_t alphaShift,
                           uint32_t redMask, uint32_t greenMask,
                           uint32_t blueMask, uint32_t alphaMask,
-                          const ColorDepth& colorDepth);
+                          const ColourDepth& colourDepth);
 
 public:
     /**
@@ -292,11 +292,11 @@ public:
 public:
     /**
      * @brief
-     *  Get the color depth of this pixel format.
+     *  Get the colour depth of this pixel format.
      * @return
-     *  the color depth of this pixel format
+     *  the colour depth of this pixel format
      */
-    const ColorDepth& getColorDepth() const;
+    const ColourDepth& getColourDepth() const;
 
 public:
     /**

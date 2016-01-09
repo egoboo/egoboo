@@ -31,7 +31,7 @@ using namespace Math;
 
 class ColourBuffer : public Ego::ColourBuffer {
 private:
-    Ego::ColorDepth colourDepth;
+    Ego::ColourDepth colourDepth;
 
 public:
 
@@ -56,7 +56,7 @@ public:
     virtual void setClearValue(const Colour4f& value) override;
 
     /** @copydoc Ego::ColourBuffer::getColourDepth */
-    virtual const ColorDepth& getColourDepth() override;
+    virtual const ColourDepth& getColourDepth() override;
 
 }; // class ColourBuffer
 

@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/ColorDepth.hpp
-/// @brief  Information on the depths of a colors and color components
+/// @file   egolib/Graphics/ColourDepth.hpp
+/// @brief  Information on the depths of a colours and colour components
 /// @author Michael Heilmann
 
 #pragma once
@@ -28,13 +28,13 @@
 namespace Ego {
 
 /**
- * @brief The "depth" of a color is the number of bits used to represent a color value.
+ * @brief The "depth" of a colour is the number of bits used to represent a colour value.
  * The number of bits used to represent the red, green, blue or alpha component is called
- * the "red depth", "green depth", "blue depth" and "alpha depth" of the color.
+ * the "red depth", "green depth", "blue depth" and "alpha depth" of the colour.
  */
-struct ColorDepth {
+struct ColourDepth {
 private:
-	/// @brief The color depth.
+	/// @brief The colour depth.
 	uint16_t depth;
 
 	/// @brief The red depth.
@@ -51,39 +51,39 @@ private:
 
 public:
 	/** 
-	 * @brief Construct this color depth.
-	 * @param depth the color depth
+	 * @brief Construct this colour depth.
+	 * @param depth the colour depth
 	 * @param redDepth, greenDepth, blueDepth, alphaDepth the red, green, blue and alpha depth
 	 */
-	ColorDepth(uint16_t depth, uint8_t redDepth, uint8_t greenDepth, uint8_t blueDepth, uint8_t alphaDepth);
+    ColourDepth(uint16_t depth, uint8_t redDepth, uint8_t greenDepth, uint8_t blueDepth, uint8_t alphaDepth);
 
 	/** 
-	 * @brief Construct this color depth.
-	 * @param other the other color depth
+	 * @brief Construct this colour depth.
+	 * @param other the other colour depth
 	 */
-	ColorDepth(const ColorDepth& other);
+    ColourDepth(const ColourDepth& other);
 
 	/**
-	 * @brief Assign this color depth.
-	 * @param other the other color depth
-	 * @return this color depth
+	 * @brief Assign this colour depth.
+	 * @param other the other colour depth
+	 * @return this colour depth
 	 */
-	const ColorDepth& operator=(const ColorDepth& other);
+	const ColourDepth& operator=(const ColourDepth& other);
 
 public:
 	/**
-	 * @brief Get if this color depth is equal to another color depth.
-	 * @param other the other color depth
-	 * @return @a true if this color depth is equal to the other color depth, @a false otherwise
+	 * @brief Get if this colour depth is equal to another colour depth.
+	 * @param other the other colour depth
+	 * @return @a true if this colour depth is equal to the other colour depth, @a false otherwise
 	 */
-	bool operator==(const ColorDepth& other) const;
+	bool operator==(const ColourDepth& other) const;
 
 	/**
-	 * @brief Get if this color depth is not equal to another color depth.
-	 * @param other the other color depth
-	 * @return @a true if this color depth is not equal to the other color depth, @a false otherwise
+	 * @brief Get if this colour depth is not equal to another colour depth.
+	 * @param other the other colour depth
+	 * @return @a true if this colour depth is not equal to the other colour depth, @a false otherwise
 	 */
-	bool operator!=(const ColorDepth& other) const;
+	bool operator!=(const ColourDepth& other) const;
 	
 public:
 	/**
@@ -116,6 +116,6 @@ public:
 	 */
 	uint8_t getAlphaDepth() const;
 
-}; // struct ColorDepth
+}; // struct ColourDepth
 
 } // namespace Ego

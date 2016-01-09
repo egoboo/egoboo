@@ -203,8 +203,8 @@ void SDLX_sdl_gl_attrib_t::validate(SDLX_sdl_gl_attrib_t& self) {
 
     // Recompute the frame buffer depth and colour buffer depth.
     self.buffer_size = frameBufferSize;
-    self.colourBufferDepth = Ego::ColorDepth(colorBufferRedDepth + colorBufferGreenDepth + colorBufferBlueDepth + colorBufferAlphaDepth,
-                                             colorBufferRedDepth, colorBufferGreenDepth, colorBufferBlueDepth, colorBufferAlphaDepth);
+    self.colourBufferDepth = Ego::ColourDepth(colorBufferRedDepth + colorBufferGreenDepth + colorBufferBlueDepth + colorBufferAlphaDepth,
+                                              colorBufferRedDepth, colorBufferGreenDepth, colorBufferBlueDepth, colorBufferAlphaDepth);
 
 }
 
@@ -262,8 +262,8 @@ void SDLX_sdl_gl_attrib_t::download(SDLX_sdl_gl_attrib_t& self) {
     SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &(temporary[1]));
     SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &(temporary[2]));
     SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &(temporary[3]));
-    self.colourBufferDepth = Ego::ColorDepth(temporary[0] + temporary[1] + temporary[2] + temporary[3],
-                                             temporary[0], temporary[1], temporary[2], temporary[3]);
+    self.colourBufferDepth = Ego::ColourDepth(temporary[0] + temporary[1] + temporary[2] + temporary[3],
+                                              temporary[0], temporary[1], temporary[2], temporary[3]);
 
     SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE, &(self.buffer_size));
     SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &(self.doublebuffer));
@@ -275,8 +275,8 @@ void SDLX_sdl_gl_attrib_t::download(SDLX_sdl_gl_attrib_t& self) {
     SDL_GL_GetAttribute(SDL_GL_ACCUM_GREEN_SIZE, &(temporary[1]));
     SDL_GL_GetAttribute(SDL_GL_ACCUM_BLUE_SIZE, &(temporary[1]));
     SDL_GL_GetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, &(temporary[2]));
-    self.accumulationBufferDepth = Ego::ColorDepth(temporary[0] + temporary[1] + temporary[2] + temporary[3],
-                                                   temporary[0], temporary[1], temporary[2], temporary[3]);
+    self.accumulationBufferDepth = Ego::ColourDepth(temporary[0] + temporary[1] + temporary[2] + temporary[3],
+                                                    temporary[0], temporary[1], temporary[2], temporary[3]);
 
     SDL_GL_GetAttribute(SDL_GL_STEREO, &(self.stereo));
 

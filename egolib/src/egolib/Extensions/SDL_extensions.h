@@ -29,7 +29,7 @@
 
 #include "egolib/file_common.h"
 #include "egolib/egoboo_setup.h"
-#include "egolib/Graphics/ColorDepth.hpp"
+#include "egolib/Graphics/ColourDepth.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -93,10 +93,10 @@ Log::Entry& operator<<(Log::Entry& e, const SDLX_sdl_gl_multisampling_t& s);
 struct SDLX_sdl_gl_attrib_t {
     /// The depth of the colour buffer.
     /// SDL_GL_RED_SIZE, SDL_GL_GREEN_SIZE, SDL_GL_BLUE_SIZE, SDL_GL_ALPHA_SIZE
-    Ego::ColorDepth colourBufferDepth;
+    Ego::ColourDepth colourBufferDepth;
     /// The depth of the accumulation buffer.
     /// SDL_GL_ACCUM_RED_SIZE, SDL_GL_ACCUM_GREEN_SIZE, SDL_GL_ACCUM_BLUE_SIZE, SDL_GL_ACCUM_ALPHA_SIZE
-    Ego::ColorDepth accumulationBufferDepth;
+    Ego::ColourDepth accumulationBufferDepth;
     int buffer_size;        ///< SDL_GL_BUFFER_SIZE
     int doublebuffer;       ///< SDL_GL_DOUBLEBUFFER
     int depthBufferDepth;         ///< SDL_GL_DEPTH_SIZE

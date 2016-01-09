@@ -126,7 +126,7 @@ public:
      * @return
      *  the colour depth of this accumulation buffer
      */
-    virtual const ColorDepth& getColourDepth() = 0;
+    virtual const ColourDepth& getColourDepth() = 0;
 
 };
 
@@ -159,7 +159,7 @@ public:
      * @return
      *  the colour depth of this colour buffer
      */
-    virtual const ColorDepth& getColourDepth() = 0;
+    virtual const ColourDepth& getColourDepth() = 0;
 
 };
 

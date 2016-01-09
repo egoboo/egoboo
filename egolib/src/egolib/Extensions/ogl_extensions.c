@@ -230,7 +230,7 @@ uint8_t Utilities::getStencilBufferDepth() {
     return depth;
 }
 
-ColorDepth Utilities::getColourBufferColourDepth() {
+ColourDepth Utilities::getColourBufferColourDepth() {
     // Get the colour buffer colour depth.
     GLint redDepth, greenDepth, blueDepth, alphaDepth;
     glGetIntegerv(GL_RED_BITS, &redDepth);
@@ -240,11 +240,11 @@ ColorDepth Utilities::getColourBufferColourDepth() {
     if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
-    return ColorDepth(redDepth + greenDepth + blueDepth + alphaDepth,
-                      redDepth, greenDepth, blueDepth, alphaDepth);
+    return ColourDepth(redDepth + greenDepth + blueDepth + alphaDepth,
+                       redDepth, greenDepth, blueDepth, alphaDepth);
 }
 
-ColorDepth Utilities::getAccumulationBufferColourDepth() {
+ColourDepth Utilities::getAccumulationBufferColourDepth() {
     // Get the accumulation buffer colour depth.
     GLint redDepth, greenDepth, blueDepth, alphaDepth;
     glGetIntegerv(GL_ACCUM_RED_BITS, &redDepth);
@@ -254,8 +254,8 @@ ColorDepth Utilities::getAccumulationBufferColourDepth() {
     if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
-    return ColorDepth(redDepth + greenDepth + blueDepth + alphaDepth,
-                      redDepth, greenDepth, blueDepth, alphaDepth);
+    return ColourDepth(redDepth + greenDepth + blueDepth + alphaDepth,
+                       redDepth, greenDepth, blueDepth, alphaDepth);
 }
 
 UnorderedSet<Utilities::String> Utilities::getExtensions() {
@@ -519,7 +519,7 @@ void Utilities::upload_2d_mipmap(const PixelFormatDescriptor& pfd, GLsizei w, GL
         redMask = pfd.getRedMask(),
         greenMask = pfd.getGreenMask(),
         blueMask = pfd.getBlueMask();
-    int bpp = pfd.getColorDepth().getDepth();
+    int bpp = pfd.getColourDepth().getDepth();
     
     SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)data, w, h, bpp, w * bpp / 8, redMask, greenMask, blueMask, alphaMask);
     SDL_assert(surf != nullptr);

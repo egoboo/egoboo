@@ -155,7 +155,7 @@ std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage() {
 
 std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t height, const Ego::PixelFormatDescriptor& pixelFormatDescriptor) {
     SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
-                                                pixelFormatDescriptor.getColorDepth().getDepth(),
+                                                pixelFormatDescriptor.getColourDepth().getDepth(),
                                                 pixelFormatDescriptor.getRedMask(),
                                                 pixelFormatDescriptor.getGreenMask(),
                                                 pixelFormatDescriptor.getBlueMask(),

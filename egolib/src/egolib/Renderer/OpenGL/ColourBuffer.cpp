@@ -42,7 +42,7 @@ void ColourBuffer::setClearValue(const Colour4f& value) {
     Utilities::isError();
 }
 
-const ColorDepth& ColourBuffer::getColourDepth() {
+const ColourDepth& ColourBuffer::getColourDepth() {
     return colourDepth;
 }
 
