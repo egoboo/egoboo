@@ -21,6 +21,8 @@
 #include "egolib/Float.hpp"
 #include "egolib/_math.h" /// @todo Remove this.
 
+namespace Ego { namespace Math { namespace Test {
+
 EgoTest_TestCase(MathConstants)
 {
 
@@ -160,3 +162,5 @@ EgoTest_Test(invSqrtTwoDbl)
 }
 
 };
+    
+} } } // end namespaces Ego::Math::Test

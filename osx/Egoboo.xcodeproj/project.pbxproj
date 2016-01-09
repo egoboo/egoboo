@@ -297,6 +297,7 @@
 		CDCE212E1A6404770084D934 /* CameraSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDCE212B1A6404770084D934 /* CameraSystem.cpp */; };
 		CDD104F41A9FC38900EFF37D /* InternalDebugWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDD104F21A9FC38900EFF37D /* InternalDebugWindow.cpp */; };
 		CDD9D6C81C41239000965E50 /* MessageLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDD9D6C61C41239000965E50 /* MessageLog.cpp */; };
+		CDD9D6CE1C4126C500965E50 /* QuadTreeTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDD9D6CC1C4126BE00965E50 /* QuadTreeTest.mm */; };
 		CDDE9A2E1B10621500C32D47 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDDE9A291B10621500C32D47 /* SDL2_image.framework */; };
 		CDDE9A2F1B10621500C32D47 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDDE9A2A1B10621500C32D47 /* SDL2_mixer.framework */; };
 		CDDE9A301B10621500C32D47 /* SDL2_net.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDDE9A2B1B10621500C32D47 /* SDL2_net.framework */; };
@@ -1164,6 +1165,8 @@
 		CDD104F31A9FC38900EFF37D /* InternalDebugWindow.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = InternalDebugWindow.hpp; sourceTree = "<group>"; };
 		CDD9D6C61C41239000965E50 /* MessageLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageLog.cpp; sourceTree = "<group>"; };
 		CDD9D6C71C41239000965E50 /* MessageLog.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MessageLog.hpp; sourceTree = "<group>"; };
+		CDD9D6C91C41261B00965E50 /* QuadTreeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadTreeTest.cpp; sourceTree = "<group>"; };
+		CDD9D6CC1C4126BE00965E50 /* QuadTreeTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadTreeTest.mm; sourceTree = "<group>"; };
 		CDDB1A921B12667A009BE567 /* SDL_image.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_image.xcodeproj; path = "SDL2_image-2.0.0/Xcode/SDL_image.xcodeproj"; sourceTree = "<group>"; };
 		CDDB1A951B12667A009BE567 /* SDL_mixer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_mixer.xcodeproj; path = "SDL2_mixer-2.0.0/Xcode/SDL_mixer.xcodeproj"; sourceTree = "<group>"; };
 		CDDB1A981B12667A009BE567 /* SDL_net.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_net.xcodeproj; path = "SDL2_net-2.0.0/Xcode/SDL_net.xcodeproj"; sourceTree = "<group>"; };
@@ -1884,6 +1887,7 @@
 				CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */,
 				CD1F4D781B13F04C0028C45E /* Pathname.cpp */,
 				CDFCCC571C3F6AFF00FE0B1B /* PointMath.cpp */,
+				CDD9D6C91C41261B00965E50 /* QuadTreeTest.cpp */,
 				CDFCCC531C3E8AB600FE0B1B /* Signal.cpp */,
 				CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */,
 				CD1F4D791B13F04C0028C45E /* VectorMath.cpp */,
@@ -2596,6 +2600,7 @@
 				CDFCCC5C1C3F6BA000FE0B1B /* MatrixMath.mm */,
 				CDFCCC5D1C3F6BA000FE0B1B /* Pathname.mm */,
 				CDFCCC5E1C3F6BA000FE0B1B /* PointMath.mm */,
+				CDD9D6CC1C4126BE00965E50 /* QuadTreeTest.mm */,
 				CDFCCC5F1C3F6BA000FE0B1B /* Signal.mm */,
 				CDFCCC601C3F6BA000FE0B1B /* StringUtilities.mm */,
 				CDFCCC611C3F6BA000FE0B1B /* VectorMath.mm */,
@@ -3076,6 +3081,7 @@
 				CDFCCC631C3F6BA000FE0B1B /* MathConstantTest.mm in Sources */,
 				CDFCCC671C3F6BA000FE0B1B /* Signal.mm in Sources */,
 				CDFCCC651C3F6BA000FE0B1B /* Pathname.mm in Sources */,
+				CDD9D6CE1C4126C500965E50 /* QuadTreeTest.mm in Sources */,
 				CDFCCC641C3F6BA000FE0B1B /* MatrixMath.mm in Sources */,
 				CDFCCC661C3F6BA000FE0B1B /* PointMath.mm in Sources */,
 			);

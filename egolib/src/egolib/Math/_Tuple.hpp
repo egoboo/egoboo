@@ -104,7 +104,7 @@ protected:
 	 */
 	template<typename ... ArgTypes, typename = std::enable_if_t<Internal::TupleConstructorEnable<_ElementType, _Dimensionality, ArgTypes ...>::value>>
 	Tuple(ElementType v, ArgTypes&& ... args)
-		: _elements{ v, args ... } {
+		: _elements{ v, static_cast<ElementType>(args) ... } {
 		static_assert(dimensionality() - 1 == sizeof ... (args), "wrong number of arguments");
 	}
 
