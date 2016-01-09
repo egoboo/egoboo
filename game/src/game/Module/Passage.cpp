@@ -28,16 +28,27 @@
 
 const ObjectRef Passage::SHOP_NOOWNER = ObjectRef::Invalid;
 
-Passage::Passage(GameModule &module, const irect_t& area, const uint8_t mask) :
+Passage::Passage(GameModule &module, const AABB2f& area, const uint8_t mask) :
     _module(module),
     _area(area),
     _music(NO_MUSIC),
     _mask(mask),
     _open(true),
     _isShop(false),
-    _shopOwner(SHOP_NOOWNER)
+    _shopOwner(SHOP_NOOWNER),
+    _passageFans()
 {
-    //ctor
+    //Build the list of all tiles contained within this passage
+    int left = _area.getMin().x() / Info<float>::Grid::Size();
+    int top = _area.getMin().y() / Info<float>::Grid::Size();
+    int right = _area.getMax().x() / Info<float>::Grid::Size();
+    int bottom = _area.getMax().y() / Info<float>::Grid::Size();
+
+    for (int y = top; y <= bottom; y++) {
+        for (int x = left; x <= right; x++) {
+            _passageFans.push_back(module.getMeshPointer()->getTileIndex(Index2D(x, y)));
+        }
+    }
 }
 
 bool Passage::isOpen() const
@@ -48,23 +59,16 @@ bool Passage::isOpen() const
 void Passage::open()
 {
     //no need to do this if it already is open
-    if ( isOpen() ) {
+    if (isOpen()) {
        return; 
     } 
 
-    if ( _area._top <= _area._bottom )
-    {
-        _open = true;
-        for ( int y = _area._top; y <= _area._bottom; y++ )
-        {
-            for ( int x = _area._left; x <= _area._right; x++ )
-            {
-                //clear impassable and wall bits
-				auto mesh = _module.getMeshPointer();
-                Index1D fan = mesh->getTileIndex(Index2D(x, y));
-				mesh->clear_fx( fan, MAPFX_WALL | MAPFX_IMPASS );
-            }
-        }
+    auto mesh = _module.getMeshPointer();
+    _open = true;
+
+    //clear impassable and wall bits
+    for(const Index1D &fan : _passageFans) {
+        mesh->clear_fx(fan, MAPFX_WALL | MAPFX_IMPASS);
     }
 
 }
@@ -77,30 +81,23 @@ bool Passage::close()
     }
 
     // don't compute all of this for nothing
-    if ( EMPTY_BIT_FIELD == _mask ) {
+    if (EMPTY_BIT_FIELD == _mask) {
         return true;
     }
 
     // check to see if a wall can close
-    if ( 0 != HAS_SOME_BITS( _mask, MAPFX_IMPASS | MAPFX_WALL ) )
+    if (0 != HAS_SOME_BITS(_mask, MAPFX_IMPASS | MAPFX_WALL))
     {
         std::vector<std::shared_ptr<Object>> crushedCharacters;
 
         // Make sure it isn't blocked
         for(const std::shared_ptr<Object> &object : _module.getObjectHandler().iterator())
         {
-            if(object->isTerminated()) {
-                continue;
-            }
-
-            //Don't do held items
-            if (object->isBeingHeld()) continue;
-
-            if ( 0.0f != object->bump_stt.size )
+            if (object->canCollide())
             {
-                if ( objectIsInPassage( object->getPosX(), object->getPosY(), object->bump_1.size ) )
+                if (objectIsInPassage(object))
                 {
-                    if ( !object->canbecrushed || ( object->isAlive() && object->getProfile()->canOpenStuff() ) )
+                    if (!object->canbecrushed || (object->isAlive() && object->getProfile()->canOpenStuff()))
                     {
                         // Someone is blocking who can open stuff, stop here
                         return false;
@@ -121,31 +118,16 @@ bool Passage::close()
 
     // Close it off
     _open = false;
-    for ( int y = _area._top; y <= _area._bottom; y++ )
-    {
-        for ( int x = _area._left; x <= _area._right; x++ )
-        {
-            Index1D fan = _module.getMeshPointer()->getTileIndex(Index2D(x, y));
-			_module.getMeshPointer()->add_fx( fan, _mask );
-        }
+    for(const Index1D &fan : _passageFans) {
+        _module.getMeshPointer()->add_fx(fan, _mask);
     }
 
     return true;    
 }
 
-//--------------------------------------------------------------------------------------------
-bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
+bool Passage::objectIsInPassage(const std::shared_ptr<Object> &object) const
 {
-    frect_t tmp_rect;
-
-    // Passage area
-    radius += CLOSE_TOLERANCE;
-    tmp_rect._left   = ( _area._left          * Info<float>::Grid::Size()) - radius;
-    tmp_rect._top    = ( _area._top           * Info<float>::Grid::Size()) - radius;
-    tmp_rect._right  = (( _area._right + 1 )  * Info<float>::Grid::Size()) + radius;
-    tmp_rect._bottom = (( _area._bottom + 1 ) * Info<float>::Grid::Size()) + radius;
-
-    return tmp_rect.point_inside(xpos, ypos);
+    return _area.overlaps(object->getAABB2D());
 }
 
 ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, const BIT_FIELD targeting_bits, const IDSZ2& require_item ) const
@@ -168,7 +150,7 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
         if ( !chr_check_target( psrc, pchr, idsz, targeting_bits ) ) continue;
 
         //Now check if it actually is inside the passage area
-        if ( objectIsInPassage( pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size ) )
+        if ( objectIsInPassage(pchr) )
         {
             // Found a live one, do we need to check for required items as well?
             if ( IDSZ2::None == require_item )
@@ -203,49 +185,37 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
 
 void Passage::flashColor(uint8_t color)
 {
-    for (int y = _area._top; y <= _area._bottom; y++ )
+    for(const Index1D &fan : _passageFans)
     {
-        for (int x = _area._left; x <= _area._right; x++ )
+        ego_tile_info_t& ptile = _module.getMeshPointer()->getTileInfo(fan);
+
+        for (size_t cnt = 0; cnt < 4; ++cnt)
         {
-            Index1D fan = _module.getMeshPointer()->getTileIndex(Index2D(x, y));
+            // set the color
+            ptile._lightingCache._contents[cnt] = color;
 
-            ego_tile_info_t& ptile = _module.getMeshPointer()->getTileInfo(fan);
-
-            for (size_t cnt = 0; cnt < 4; ++cnt)
-            {
-                // set the color
-                ptile._lightingCache._contents[cnt] = color;
-
-                // force the lighting code to update
-                ptile._vertexLightingCache.setNeedUpdate(true);
-                ptile._vertexLightingCache._lastFrame = -1;
-            }
+            // force the lighting code to update
+            ptile._vertexLightingCache.setNeedUpdate(true);
+            ptile._vertexLightingCache._lastFrame = -1;
         }
     }
 }
 
-bool Passage::isPointInside( float xpos, float ypos ) const
+bool Passage::isPointInside(float xpos, float ypos) const
 {
-    frect_t tmp_rect;
-
-    // Passage area
-    tmp_rect._left   = _area._left * Info<float>::Grid::Size();
-    tmp_rect._top    = _area._top * Info<float>::Grid::Size();
-    tmp_rect._right  = ( _area._right + 1 ) * Info<float>::Grid::Size();
-    tmp_rect._bottom = ( _area._bottom + 1 ) * Info<float>::Grid::Size();
-
-    return tmp_rect.point_inside(xpos, ypos );
+    return xpos >= _area.getMin().x() && 
+           xpos <= _area.getMax().x() &&
+           ypos >= _area.getMin().y() && 
+           ypos <= _area.getMax().y();
 }
 
-bool Passage::checkPassageMusic(const Object * pchr) const
+bool Passage::checkPassageMusic(const std::shared_ptr<Object> &pchr) const
 {
-    if (_music == INVALID_SOUND_ID)
-    {
+    if (_music == INVALID_SOUND_ID) {
        return false; 
     } 
 
-    if(!objectIsInPassage(pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size))
-    {
+    if(!objectIsInPassage(pchr)) {
         return false;
     }
 
@@ -285,11 +255,11 @@ void Passage::makeShop(ObjectRef owner)
 
         if ( object->isitem )
         {
-            if ( objectIsInPassage( object->getPosX(), object->getPosY(), object->bump_1.size ) )
+            if (objectIsInPassage(object))
             {
                 object->isshopitem = true;               // Full value
                 object->iskursed   = false;              // Shop items are never kursed
-                object->nameknown  = true;
+                object->nameknown  = true;               // Identify it!
             }
         }
     }    
@@ -303,4 +273,9 @@ void Passage::removeShop()
 
     _isShop = false;
     _shopOwner = SHOP_NOOWNER;
+}
+
+const AABB2f& Passage::getAABB2f() const
+{
+    return _area;
 }

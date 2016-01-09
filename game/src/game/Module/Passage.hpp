@@ -24,6 +24,7 @@
 #pragma once
 
 #include "game/egoboo.h"
+#include "game/mesh.h"	//for Index1D
 
 //Forward declarations
 class Object;
@@ -54,27 +55,7 @@ public:
 	/**
 	* @brief Constructor
 	**/
-	Passage(GameModule& module, const irect_t& area, const uint8_t mask);
-
-	/**
-	* @brief get left coordinate of passage
-	**/
-	inline int getLeft() const {return _area._left;}
-
-	/**
-	* @brief get top coordinate of passage
-	**/
-	inline int getTop() const {return _area._top;}
-
-	/**
-	* @brief get right coordinate of passage
-	**/
-	inline int getRight() const {return _area._right;}
-
-	/**
-	* @brief get bottom coordinate of passage
-	**/
-	inline int getBottom() const {return _area._bottom;}
+	Passage(GameModule& module, const AABB2f& area, const uint8_t mask);
 
 	/**
 	* @brief returns true if this passage is currently open (not impassable)
@@ -98,7 +79,7 @@ public:
     * @return true if object is inside this passage
     */
 
-	bool objectIsInPassage(float xpos, float ypos, float radius) const;
+	bool objectIsInPassage(const std::shared_ptr<Object> &object) const;
 
 	/**
 	* @brief This function makes a passage flash the specified color
@@ -124,7 +105,7 @@ public:
     * @brief Plays the passage music assigned to this passage if the specified character is inside this passage
     * @return true if a new song is now playing
     **/
-    bool checkPassageMusic(const Object *pobj) const;
+    bool checkPassageMusic(const std::shared_ptr<Object> &pobj) const;
 
     /**
     * @return Sets the MusicID of this passage. If a player character enters this passage, the specified MusicID will be played
@@ -142,14 +123,21 @@ public:
 
     void removeShop();
 
+    /**
+    * @brief
+    *	Get the AABB for area that this passage covers.
+    **/
+    const AABB2f& getAABB2f() const;
+
 private:
-    GameModule& _module;		///< Reference to the module we are inside
+    GameModule& _module;			   ///< Reference to the module we are inside
 
-    irect_t _area;			///< Passage area
-    int32_t _music;   		///< Music track appointed to the specific passage
-    uint8_t _mask;  		///< Is it IMPASSABLE, SLIPPERY or whatever
-    bool _open;   			///< Is the passage open?
+    AABB2f _area;					   ///< Passage area
+    int32_t _music;   				   ///< Music track appointed to the specific passage
+    uint8_t _mask;  				   ///< Is it IMPASSABLE, SLIPPERY or whatever
+    bool _open;   					   ///< Is the passage open?
 
-    bool _isShop;			///< True if this passage is a shop
-    ObjectRef _shopOwner;	///< object reference of the owner of this shop
+    bool _isShop;					   ///< True if this passage is a shop
+    ObjectRef _shopOwner;			   ///< object reference of the owner of this shop
+    std::vector<Index1D> _passageFans; //List of all tile indexes contained in this passage
 };

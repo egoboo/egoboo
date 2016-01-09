@@ -359,7 +359,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( img >= loc_starttile && img < endtile )
             {
-                if ( passage->objectIsInPassage( pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size ) )
+                if (passage->objectIsInPassage(pchr))
                 {
                     // Remember where the hit occured.
                     *ptilex = pchr->getPosX();
@@ -422,24 +422,23 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     const std::shared_ptr<Passage> &passage = _currentModule->getPassageByID(passageID);
     if ( !passage ) return false;
 
+    int x = std::max<int>(x0, passage->getAABB2f().getMin().x()) / Info<int>::Grid::Size();
+    int y = std::max<int>(y0, passage->getAABB2f().getMin().y()) / Info<int>::Grid::Size();
+    int right = passage->getAABB2f().getMax().x() / Info<float>::Grid::Size();
+    int bottom = passage->getAABB2f().getMax().y() / Info<float>::Grid::Size();
+
     // Do the first row
-    int x = x0 / Info<int>::Grid::Size();
-    int y = y0 / Info<int>::Grid::Size();
-
-    if (x < passage->getLeft())  x = passage->getLeft();
-    if (y < passage->getTop())   y = passage->getTop();
-
-    if ( y < passage->getBottom() )
+    if (y < bottom)
     {
-        for ( /*nothing*/; x <= passage->getRight(); x++ )
+        for ( /*nothing*/; x <= right; x++ )
         {
             Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
 
 			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->getTileInfo(fan);
             if (tiletype == ( ptile._img & TILE_LOWER_MASK ) )
             {
-                *px1 = ( x * Info<int>::Grid::Size()) + 64;
-                *py1 = ( y * Info<int>::Grid::Size()) + 64;
+                *px1 = x * Info<float>::Grid::Size() + 64;
+                *py1 = y * Info<float>::Grid::Size() + 64;
                 return true;
             }
         }
@@ -447,17 +446,17 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     }
 
     // Do all remaining rows
-    for ( /* nothing */; y <= passage->getBottom(); y++ )
+    for ( /* nothing */; y <= bottom; y++ )
     {
-        for ( x = passage->getLeft(); x <= passage->getRight(); x++ )
+        for ( x = passage->getAABB2f().getMin().x() / Info<int>::Grid::Size(); x <= right; x++ )
         {
             Index1D fan = _currentModule->getMeshPointer()->getTileIndex(Index2D(x, y));
 
 			ego_tile_info_t& ptile = _currentModule->getMeshPointer()->getTileInfo(fan);
             if (tiletype == ( ptile._img & TILE_LOWER_MASK ) )
             {
-                *px1 = x * Info<int>::Grid::Size() + 64;
-                *py1 = y * Info<int>::Grid::Size() + 64;
+                *px1 = x * Info<float>::Grid::Size() + 64;
+                *py1 = y * Info<float>::Grid::Size() + 64;
                 return true;
             }
         }
