@@ -28,9 +28,10 @@
 
 const ObjectRef Passage::SHOP_NOOWNER = ObjectRef::Invalid;
 
-Passage::Passage(GameModule &module, const AABB2f& area, const uint8_t mask) :
+Passage::Passage(GameModule &module, const int x0, const int y0, const int x1, const int y1, const uint8_t mask) :
     _module(module),
-    _area(area),
+    _area(Vector2f(x0 * Info<float>::Grid::Size(), y0 * Info<float>::Grid::Size()),
+          Vector2f(x1 * Info<float>::Grid::Size(), y1 * Info<float>::Grid::Size())),
     _music(NO_MUSIC),
     _mask(mask),
     _open(true),
@@ -39,13 +40,8 @@ Passage::Passage(GameModule &module, const AABB2f& area, const uint8_t mask) :
     _passageFans()
 {
     //Build the list of all tiles contained within this passage
-    int left = _area.getMin().x() / Info<float>::Grid::Size();
-    int top = _area.getMin().y() / Info<float>::Grid::Size();
-    int right = _area.getMax().x() / Info<float>::Grid::Size();
-    int bottom = _area.getMax().y() / Info<float>::Grid::Size();
-
-    for (int y = top; y <= bottom; y++) {
-        for (int x = left; x <= right; x++) {
+    for (int y = y0; y <= y1; ++y) {
+        for (int x = x0; x <= x1; ++x) {
             _passageFans.push_back(module.getMeshPointer()->getTileIndex(Index2D(x, y)));
         }
     }
@@ -62,15 +58,12 @@ void Passage::open()
     if (isOpen()) {
        return; 
     } 
-
-    auto mesh = _module.getMeshPointer();
     _open = true;
 
     //clear impassable and wall bits
     for(const Index1D &fan : _passageFans) {
-        mesh->clear_fx(fan, MAPFX_WALL | MAPFX_IMPASS);
+        _module.getMeshPointer()->clear_fx(fan, MAPFX_WALL | MAPFX_IMPASS);
     }
-
 }
 
 bool Passage::close()
@@ -121,7 +114,7 @@ bool Passage::close()
     for(const Index1D &fan : _passageFans) {
         _module.getMeshPointer()->add_fx(fan, _mask);
     }
-
+ 
     return true;    
 }
 
@@ -150,8 +143,9 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
         if ( !chr_check_target( psrc, pchr, idsz, targeting_bits ) ) continue;
 
         //Now check if it actually is inside the passage area
-        if ( objectIsInPassage(pchr) )
+        if (objectIsInPassage(pchr))
         {
+
             // Found a live one, do we need to check for required items as well?
             if ( IDSZ2::None == require_item )
             {
@@ -171,7 +165,7 @@ ObjectRef Passage::whoIsBlockingPassage( ObjectRef objRef, const IDSZ2& idsz, co
                 {
                     if ( pitem->getProfile()->hasTypeIDSZ(require_item) )
                     {
-                        // It has the ipacked in inventory...
+                        // It has the required item in inventory...
                         return pchr->getObjRef();
                     }
                 }

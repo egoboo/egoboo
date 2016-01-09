@@ -24,7 +24,7 @@
 #pragma once
 
 #include "game/egoboo.h"
-#include "game/mesh.h"	//for Index1D
+#include "egolib/Mesh/Info.hpp"
 
 //Forward declarations
 class Object;
@@ -55,7 +55,7 @@ public:
 	/**
 	* @brief Constructor
 	**/
-	Passage(GameModule& module, const AABB2f& area, const uint8_t mask);
+	Passage(GameModule& module, const int x0, const int y0, const int x1, const int y1, const uint8_t mask);
 
 	/**
 	* @brief returns true if this passage is currently open (not impassable)
@@ -78,7 +78,6 @@ public:
     *    	 radius is how much offset we allow outside the passage
     * @return true if object is inside this passage
     */
-
 	bool objectIsInPassage(const std::shared_ptr<Object> &object) const;
 
 	/**

@@ -104,6 +104,14 @@ public:
     }
 
     /**
+    * @brief
+    *   Copy constructor
+    **/
+    AABB(const AABB &other) : AABB(other._min, other._max) {
+        /* Intentionally empty. */        
+    }
+
+    /**
      * @brief
      *  Get the minimum.
      * @return
@@ -183,7 +191,7 @@ public:
      *  This function is <em>not</em> commutative.
      */
     bool contains(const MyType& other) const {
-        for (size_t i = 0; i < this->dimensionality(); ++i) {
+        for (size_t i = 0; i < EuclidianSpaceType::dimensionality(); ++i) {
             if (_max[i] > other._max[i]) return false;
             if (_min[i] < other._min[i]) return false;
         }

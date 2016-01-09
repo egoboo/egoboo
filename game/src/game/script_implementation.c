@@ -424,8 +424,8 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
 
     int x = std::max<int>(x0, passage->getAABB2f().getMin().x()) / Info<int>::Grid::Size();
     int y = std::max<int>(y0, passage->getAABB2f().getMin().y()) / Info<int>::Grid::Size();
-    int right = passage->getAABB2f().getMax().x() / Info<float>::Grid::Size();
-    int bottom = passage->getAABB2f().getMax().y() / Info<float>::Grid::Size();
+    int right = passage->getAABB2f().getMax().x() / Info<int>::Grid::Size();
+    int bottom = passage->getAABB2f().getMax().y() / Info<int>::Grid::Size();
 
     // Do the first row
     if (y < bottom)

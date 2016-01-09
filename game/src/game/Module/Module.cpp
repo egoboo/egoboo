@@ -177,14 +177,10 @@ void GameModule::loadAllPassages()
     while (ctxt.skipToColon(true))
     {
         //read passage area and constrain passage area within the level
-        Vector2f min = Vector2f(Ego::Math::constrain<float>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1),
-                                Ego::Math::constrain<float>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1));
-        Vector2f max = Vector2f(Ego::Math::constrain<float>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1),
-                                Ego::Math::constrain<float>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1));
-
-        //Scale passage collision box into real world coordinates
-        min *= Info<float>::Grid::Size();
-        max *= Info<float>::Grid::Size();
+        int x0 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1);
+        int y0 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1);
+        int x1 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1);
+        int y1 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();
@@ -194,7 +190,7 @@ void GameModule::loadAllPassages()
         if (ctxt.readBool()) mask = MAPFX_IMPASS;
         if (ctxt.readBool()) mask = MAPFX_SLIPPY;
 
-        std::shared_ptr<Passage> passage = std::make_shared<Passage>(*this, AABB2f(min, max), mask);
+        std::shared_ptr<Passage> passage = std::make_shared<Passage>(*this, x0, y0, x1, y1, mask);
 
         //check if we need to close the passage
         if (!open) {
