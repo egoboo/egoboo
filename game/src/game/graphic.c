@@ -633,7 +633,7 @@ float draw_debug(float y)
                << " " << std::setw(4) << std::setprecision(2) << pchr->getRawDamageResistance(DAMAGE_ICE)
                << " " << std::setw(4) << std::setprecision(2) << pchr->getRawDamageResistance(DAMAGE_ZAP);
             y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
-            os.clear();
+            os = std::ostringstream();
             os << std::setw(5) << std::setprecision(1) << (pchr->getPosX() / Info<float>::Grid::Size())
                << std::setw(5) << std::setprecision(1) << (pchr->getPosY() / Info<float>::Grid::Size());
             y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
@@ -656,16 +656,16 @@ float draw_debug(float y)
         // More debug information
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, "!!!DEBUG MODE-6!!!");
         
-        os.clear(); os << "~~FREEPRT: " << ParticleHandler::get().getFreeCount();
+        os = std::ostringstream(); os << "~~FREEPRT: " << ParticleHandler::get().getFreeCount();
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "~~FREECHR: " << OBJECTS_MAX - _currentModule->getObjectHandler().getObjectCount();
+        os = std::ostringstream(); os << "~~FREECHR: " << OBJECTS_MAX - _currentModule->getObjectHandler().getObjectCount();
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
 
-        os.clear(); os << "~~EXPORT:  " << (_currentModule->isExportValid() ? "TRUE" : "FALSE");
+        os = std::ostringstream(); os << "~~EXPORT:  " << (_currentModule->isExportValid() ? "TRUE" : "FALSE");
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
 
-        os.clear(); os << "~~PASS:    " << _currentModule->getPassageCount();
+        os = std::ostringstream(); os << "~~PASS:    " << _currentModule->getPassageCount();
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
     }
 
@@ -677,41 +677,41 @@ float draw_debug(float y)
         // White debug mode
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, "!!!DEBUG MODE-7!!!");
 
-        os.clear(); os << "CAM <"
+        os = std::ostringstream(); os << "CAM <"
             << camera->getViewMatrix()(0, 0) << ", "
             << camera->getViewMatrix()(0, 1) << ", "
             << camera->getViewMatrix()(0, 2) << ", "
             << camera->getViewMatrix()(0, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM <"
+        os = std::ostringstream(); os << "CAM <"
             << camera->getViewMatrix()(1, 0) << ", "
             << camera->getViewMatrix()(1, 1) << ", "
             << camera->getViewMatrix()(1, 2) << ", "
             << camera->getViewMatrix()(1, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM <"
+        os = std::ostringstream(); os << "CAM <"
             << camera->getViewMatrix()(2, 0) << ", "
             << camera->getViewMatrix()(2, 1) << ", "
             << camera->getViewMatrix()(2, 2) << ", "
             << camera->getViewMatrix()(2, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM <"
+        os = std::ostringstream(); os << "CAM <"
             << camera->getViewMatrix()(3, 0) << ", "
             << camera->getViewMatrix()(3, 1) << ", "
             << camera->getViewMatrix()(3, 2) << ", "
             << camera->getViewMatrix()(3, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM center <"
+        os = std::ostringstream(); os << "CAM center <"
             << camera->getCenter()[0] << ", "
             << camera->getCenter()[1] << ", "
             << camera->getCenter()[2] << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM turn " << static_cast<int>(camera->getTurnMode()) << " " << camera->getTurnTime();
+        os = std::ostringstream(); os << "CAM turn " << static_cast<int>(camera->getTurnMode()) << " " << camera->getTurnTime();
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
     }
 
