@@ -380,7 +380,9 @@ void CharacterStatus::draw()
     yOffset = _gameEngine->getUIManager()->drawBitmapFontString(getX() + 8, yOffset, pchr->getName(false, false, true));
 
     // draw the character's money
-    yOffset = _gameEngine->getUIManager()->drawBitmapFontStringFormat(getX() + 8, yOffset, "$%4d", pchr->getMoney()) + 8;
+    std::ostringstream os;
+    os << std::setw(4) << pchr->getMoney();
+    yOffset = _gameEngine->getUIManager()->drawBitmapFontString(getX() + 8, yOffset, os.str()) + 8;
 
     bool levelUp = false;
     if(pchr->isPlayer()) {

@@ -238,18 +238,6 @@ bool UIManager::dumpScreenshot()
     return savefound && saved;
 }
 
-float UIManager::drawBitmapFontStringFormat(const float x, const float y, const std::string &format, ...)
-{
-    std::array<char, 256> buffer;
-
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer.data(), buffer.size(), format.c_str(), args);
-    va_end(args);
-
-    return drawBitmapFontString(x, y, buffer.data(), 0, 1.0f);
-}
-
 float UIManager::drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth, const float alpha)
 {
     //Check if alpha is visible

@@ -121,7 +121,6 @@ public:
     *   Y screen coordinate of the line below where the text was rendered
     **/
     float drawBitmapFontString(const float startX, const float startY, const std::string &text, const uint32_t maxWidth = 0, const float alpha = 1.0f);
-    float drawBitmapFontStringFormat(const float startX, const float startY, const std::string &format, ...); GCC_PRINTF_FUNC(2);
 
     /**
     * @brief
