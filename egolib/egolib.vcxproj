@@ -320,7 +320,7 @@
     <ClCompile Include="src\egolib\Graphics\GraphicsSystem.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\StencilBuffer.cpp" />
     <ClCompile Include="src\egolib\Renderer\RendererInfo.cpp" />
-    <ClCompile Include="src\egolib\Graphics\ColorDepth.cpp" />
+    <ClCompile Include="src\egolib\Graphics\ColourDepth.cpp" />
     <ClCompile Include="src\egolib\Renderer\TextureSampler.cpp" />
     <ClCompile Include="src\egolib\Logic\TreasureTables.cpp" />
     <ClCompile Include="src\egolib\Logic\MissileTreatment.cpp" />
@@ -518,7 +518,7 @@
     <ClInclude Include="src\egolib\Graphics\GraphicsSystem.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\StencilBuffer.hpp" />
     <ClInclude Include="src\egolib\Renderer\RendererInfo.hpp" />
-    <ClInclude Include="src\egolib\Graphics\ColorDepth.hpp" />
+    <ClInclude Include="src\egolib\Graphics\ColourDepth.hpp" />
     <ClInclude Include="src\egolib\Core\Singleton.hpp" />
     <ClInclude Include="src\egolib\Logic\TreasureTables.hpp" />
     <ClInclude Include="src\egolib\Logic\MissileTreatment.hpp" />

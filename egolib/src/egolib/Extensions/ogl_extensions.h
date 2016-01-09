@@ -81,7 +81,7 @@ public:
      * @return
      *  the colour buffer colour depth
      */
-    static ColorDepth getColourBufferColourDepth();
+    static ColourDepth getColourBufferColourDepth();
 
     /**
      * @brief
@@ -89,7 +89,7 @@ public:
      * @return
      *  the accumulation colour depth
      */
-    static ColorDepth getAccumulationBufferColourDepth();
+    static ColourDepth getAccumulationBufferColourDepth();
 
 public:
     /**

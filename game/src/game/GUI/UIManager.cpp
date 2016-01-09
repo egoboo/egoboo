@@ -187,7 +187,7 @@ bool UIManager::dumpScreenshot()
             // create a SDL surface
             const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
             temp = SDL_CreateRGBSurface(0, sdl_scr.x, sdl_scr.y,
-                                        pixelFormatDescriptor.getColorDepth().getDepth(),
+                                        pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
                                         pixelFormatDescriptor.getGreenMask(),
                                         pixelFormatDescriptor.getBlueMask(),

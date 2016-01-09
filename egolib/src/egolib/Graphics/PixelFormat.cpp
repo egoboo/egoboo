@@ -31,11 +31,11 @@ PixelFormatDescriptor::PixelFormatDescriptor(PixelFormat pixelFormat,
                                              uint32_t blueShift, uint32_t alphaShift,
                                              uint32_t redMask, uint32_t greenMask,
                                              uint32_t blueMask, uint32_t alphaMask,
-                                             const ColorDepth& colorDepth) :
+                                             const ColourDepth& colourDepth) :
     pixelFormat(pixelFormat),
     redShift(redShift), greenShift(greenShift), blueShift(blueShift), alphaShift(alphaShift),
     redMask(redMask), greenMask(greenMask), blueMask(blueMask), alphaMask(alphaMask),
-    colorDepth(colorDepth) {}
+    colourDepth(colourDepth) {}
 
 uint32_t PixelFormatDescriptor::getAlphaShift() const {
     return alphaShift;
@@ -69,8 +69,8 @@ uint32_t PixelFormatDescriptor::getRedMask() const {
     return redMask;
 }
 
-const ColorDepth& PixelFormatDescriptor::getColorDepth() const {
-    return colorDepth;
+const ColourDepth& PixelFormatDescriptor::getColourDepth() const {
+    return colourDepth;
 }
 
 PixelFormat PixelFormatDescriptor::getPixelFormat() const {
@@ -145,7 +145,7 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8>() {
             PixelFormat::R8G8B8A8,
             redShift, greenShift, blueShift, alphaShift,
             redMask, greenMask, blueMask, alphaMask,
-            ColorDepth(24, 8, 8, 8, 0)
+            ColourDepth(24, 8, 8, 8, 0)
             );
     return INSTANCE;
 }
@@ -189,7 +189,7 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8A8>()
             PixelFormat::B8G8R8A8,
             redShift, greenShift, blueShift, alphaShift,
             redMask, greenMask, blueMask, alphaMask,
-            ColorDepth(32, 8, 8, 8, 8)
+            ColourDepth(32, 8, 8, 8, 8)
             );
     return INSTANCE;
 }
@@ -233,7 +233,7 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8>() {
             PixelFormat::R8G8B8,
             redShift, greenShift, blueShift, alphaShift,
             redMask, greenMask, blueMask, alphaMask,
-            ColorDepth(24, 8, 8, 8, 0)
+            ColourDepth(24, 8, 8, 8, 0)
             );
     return INSTANCE;
 }
@@ -277,7 +277,7 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
             PixelFormat::R8G8B8A8,
             redShift, greenShift, blueShift, alphaShift,
             redMask, greenMask, blueMask, alphaMask,
-            ColorDepth(32, 8, 8, 8, 8)
+            ColourDepth(32, 8, 8, 8, 8)
             );
     return INSTANCE;
 }

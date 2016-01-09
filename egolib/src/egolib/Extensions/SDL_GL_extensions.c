@@ -192,7 +192,7 @@ PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source) {
         PixelFormatDescriptor::get<PixelFormat::R8G8B8>()
     };
     for (size_t i = 0; i < 4; ++i) {
-        if (source.BytesPerPixel == pfds[i].getColorDepth().getDepth() / 8 &&
+        if (source.BytesPerPixel == pfds[i].getColourDepth().getDepth() / 8 &&
             source.Amask == pfds[i].getAlphaMask() &&
             source.Rmask == pfds[i].getRedMask() &&
             source.Gmask == pfds[i].getGreenMask() &&
@@ -201,7 +201,7 @@ PixelFormatDescriptor getPixelFormat(const SDL_PixelFormat& source) {
             source.Rshift == pfds[i].getRedShift() &&
             source.Gshift == pfds[i].getGreenShift() &&
             source.Bshift == pfds[i].getBlueShift() &&
-            source.BitsPerPixel == pfds[i].getColorDepth().getDepth()) {
+            source.BitsPerPixel == pfds[i].getColourDepth().getDepth()) {
             return pfds[i];
         }
     }
@@ -213,7 +213,7 @@ uint32_t getEnumeratedPixelFormat(const PixelFormatDescriptor& pixelFormatDescri
         blueMask = pixelFormatDescriptor.getBlueMask(),
         greenMask = pixelFormatDescriptor.getGreenMask(),
         redMask = pixelFormatDescriptor.getRedMask();
-    int bitsPerPixel = pixelFormatDescriptor.getColorDepth().getDepth();
+    int bitsPerPixel = pixelFormatDescriptor.getColourDepth().getDepth();
 
     uint32_t pixelFormatEnum_sdl = SDL_MasksToPixelFormatEnum(bitsPerPixel, redMask, greenMask, blueMask, alphaMask);
     if (SDL_PIXELFORMAT_UNKNOWN == pixelFormatEnum_sdl) {
@@ -387,7 +387,7 @@ SharedPtr<SDL_Surface> convertPixelFormat(const SharedPtr<SDL_Surface>& surface,
         blueMask = pixelFormatDescriptor.getBlueMask(),
         greenMask = pixelFormatDescriptor.getGreenMask(),
         redMask = pixelFormatDescriptor.getRedMask();
-    int bpp = pixelFormatDescriptor.getColorDepth().getDepth();
+    int bpp = pixelFormatDescriptor.getColourDepth().getDepth();
 
     uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, redMask, greenMask, blueMask, alphaMask);
     if (newFormat == SDL_PIXELFORMAT_UNKNOWN) {

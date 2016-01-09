@@ -43,7 +43,7 @@ void AccumulationBuffer::setClearValue(const Colour4f& value) {
     Utilities::isError();
 }
 
-const ColorDepth& AccumulationBuffer::getColourDepth() {
+const ColourDepth& AccumulationBuffer::getColourDepth() {
     return colourDepth;
 }
 

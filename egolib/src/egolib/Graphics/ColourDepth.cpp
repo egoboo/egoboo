@@ -17,25 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Graphics/ColorDepth.hpp
-/// @brief  Information on the depths of a colors and color components
+/// @file   egolib/Graphics/ColourDepth.hpp
+/// @brief  Information on the depths of a colours and colour components
 /// @author Michael Heilmann
 
-#include "egolib/Graphics/ColorDepth.hpp"
+#include "egolib/Graphics/ColourDepth.hpp"
 
 namespace Ego {
 
-ColorDepth::ColorDepth(uint16_t depth, uint8_t redDepth, uint8_t greenDepth, uint8_t blueDepth, uint8_t alphaDepth)
+ColourDepth::ColourDepth(uint16_t depth, uint8_t redDepth, uint8_t greenDepth, uint8_t blueDepth, uint8_t alphaDepth)
 	: depth(depth),
 	  redDepth(redDepth), greenDepth(greenDepth), blueDepth(blueDepth), alphaDepth(alphaDepth) {
 }
 
-ColorDepth::ColorDepth(const ColorDepth& other)
+ColourDepth::ColourDepth(const ColourDepth& other)
 	: depth(other.getDepth()), 
 	  redDepth(other.getRedDepth()), greenDepth(other.getGreenDepth()), blueDepth(other.getBlueDepth()), alphaDepth(other.getAlphaDepth()) {
 }
 
-const ColorDepth& ColorDepth::operator=(const ColorDepth& other) {
+const ColourDepth& ColourDepth::operator=(const ColourDepth& other) {
 	depth = other.depth;
 	redDepth = other.redDepth;
 	greenDepth = other.greenDepth;
@@ -44,7 +44,7 @@ const ColorDepth& ColorDepth::operator=(const ColorDepth& other) {
 	return *this;
 }
 
-bool ColorDepth::operator==(const ColorDepth& other) const {
+bool ColourDepth::operator==(const ColourDepth& other) const {
 	return depth == other.depth
 		&& redDepth == other.redDepth
 		&& greenDepth == other.greenDepth
@@ -52,27 +52,27 @@ bool ColorDepth::operator==(const ColorDepth& other) const {
 		&& alphaDepth == other.alphaDepth;
 }
 
-bool ColorDepth::operator!=(const ColorDepth& other) const {
+bool ColourDepth::operator!=(const ColourDepth& other) const {
 	return !((*this) == other);
 }
 
-uint16_t ColorDepth::getDepth() const {
+uint16_t ColourDepth::getDepth() const {
 	return depth;
 }
 
-uint8_t ColorDepth::getRedDepth() const {
+uint8_t ColourDepth::getRedDepth() const {
 	return redDepth;
 }
 
-uint8_t ColorDepth::getGreenDepth() const {
+uint8_t ColourDepth::getGreenDepth() const {
 	return greenDepth;
 }
 
-uint8_t ColorDepth::getBlueDepth() const {
+uint8_t ColourDepth::getBlueDepth() const {
 	return blueDepth;
 }
 
-uint8_t ColorDepth::getAlphaDepth() const {
+uint8_t ColourDepth::getAlphaDepth() const {
 	return alphaDepth;
 }
 
