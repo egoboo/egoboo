@@ -51,7 +51,7 @@ const string& Error::getMessage() const {
 }
 
 struct Parser {
-    typedef typename function<bool(const string::const_iterator&, const string::const_iterator&, const string::const_iterator&)> Predicate;
+    typedef function<bool(const string::const_iterator&, const string::const_iterator&, const string::const_iterator&)> Predicate;
     /// @brief Get if the current character fulfills the specified property.
     /// @return @a true if the current input character fulfills the specified property,
     ///         @a false otherwise

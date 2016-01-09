@@ -39,7 +39,7 @@ void EnchantTxtValidator::run(const Vector<SharedPtr<Option>>& arguments) {
             sb << "unrecognized argument" << EndOfLine;
             throw RuntimeError(sb.str());
         }
-        auto& pathnameArgument = static_pointer_cast<UnnamedValue>(argument);
+        auto pathnameArgument = static_pointer_cast<UnnamedValue>(argument);
         queue.emplace_back(FileSystem::sanitize(pathnameArgument->getValue()));
     }
     while (!queue.empty()) {

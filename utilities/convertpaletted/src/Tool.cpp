@@ -26,11 +26,11 @@ FileSystem::PathStat FileSystem::stat(const std::string &pathname) {
     int success = lstat(pathname.c_str(), &out);
     if (success == -1) {
         std::cerr << pathname << ": " << strerror(errno) << std::endl;
-        return FileSystem::PathStat::FAILURE;
+        return FileSystem::PathStat::Failure;
     }
-    if (S_ISREG(out.st_mode)) return FileSystem::PathStat::FILE;
-    if (S_ISDIR(out.st_mode)) return FileSystem::PathStat::DIRECTORY;
-    return FileSystem::PathStat::OTHER;
+    if (S_ISREG(out.st_mode)) return FileSystem::PathStat::File;
+    if (S_ISDIR(out.st_mode)) return FileSystem::PathStat::Directory;
+    return FileSystem::PathStat::Other;
 }
 #endif
 
