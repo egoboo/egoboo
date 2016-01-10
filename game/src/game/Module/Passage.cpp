@@ -31,7 +31,7 @@ const ObjectRef Passage::SHOP_NOOWNER = ObjectRef::Invalid;
 Passage::Passage(GameModule &module, const int x0, const int y0, const int x1, const int y1, const uint8_t mask) :
     _module(module),
     _area(Vector2f(x0 * Info<float>::Grid::Size(), y0 * Info<float>::Grid::Size()),
-          Vector2f(x1 * Info<float>::Grid::Size(), y1 * Info<float>::Grid::Size())),
+          Vector2f((x1+1) * Info<float>::Grid::Size(), (y1+1) * Info<float>::Grid::Size())),
     _music(NO_MUSIC),
     _mask(mask),
     _open(true),
@@ -86,6 +86,11 @@ bool Passage::close()
         // Make sure it isn't blocked
         for(const std::shared_ptr<Object> &object : _module.getObjectHandler().iterator())
         {
+            //Scenery can neither be crushed nor prevents doors from closing
+            if(object->isScenery()) {
+                continue;
+            }
+
             if (object->canCollide())
             {
                 if (objectIsInPassage(object))
