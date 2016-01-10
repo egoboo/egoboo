@@ -627,26 +627,25 @@ static void draw_chr_bbox(const std::shared_ptr<Object>& pchr)
     // Draw the object bounding box as a part of the graphics debug mode F7.
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7))
     {
-        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
-        Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
+        Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 
         if (drawLeftSlot)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition(), bb);
-            render_oct_bb(bb, true, true,  Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
+            render_oct_bb(bb, true, true);
         }
         if (drawRightSlot)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition(), bb);
-            render_oct_bb(bb, true, true,  Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
+            render_oct_bb(bb, true, true);
         }
         if (drawCharacter)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bb);
-            render_oct_bb(bb, true, true,  Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
+            render_oct_bb(bb, true, true);
         }
     }
 

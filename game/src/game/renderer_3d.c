@@ -324,8 +324,10 @@ void render_oct_bb(const oct_bb_t &bb, bool drawSquare, bool drawDiamond, const 
 		renderer.setCullingMode(Ego::CullingMode::None); // GL_ENABLE_BIT
 
         // make them transparent
-        renderer.setBlendingEnabled(false);
+        renderer.setBlendingEnabled(true);
 		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+        renderer.setAlphaTestEnabled(true);
+        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
         // deactivate texturing
 		renderer.getTextureUnit().setActivated(nullptr);
