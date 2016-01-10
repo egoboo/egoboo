@@ -44,6 +44,7 @@
 #include "game/Entities/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
+#include "game/Module/Passage.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -999,16 +1000,42 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 
     // Render solid entities.
 	Ego::Graphics::RenderPasses::g_solidEntities.run(cam, tl, el);
+
 	// Render water.
     Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
     Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
     Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 	Ego::Graphics::RenderPasses::g_water.run(cam, tl, el);
+
 	// Render transparent entities.
     Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
     Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
     Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
+
+    //Draw all passages
+    if(keyb.is_key_down(SDLK_F8)) {
+        for(int i = 0; i < _currentModule->getPassageCount(); ++i) {
+            const AABB2f& passageAABB = _currentModule->getPassageByID(i)->getAABB2f();
+
+            //AABB2f to octagonal collision box
+            oct_bb_t bb;
+            bb._mins[OCT_X] = passageAABB.getMin().x();
+            bb._maxs[OCT_X] = passageAABB.getMax().x();
+            bb._mins[OCT_Y] = passageAABB.getMin().y();
+            bb._maxs[OCT_Y] = passageAABB.getMax().y();
+
+            bb._mins[OCT_XY] = bb._mins[OCT_X];
+            bb._maxs[OCT_XY] = bb._maxs[OCT_X];
+            bb._mins[OCT_YX] = bb._mins[OCT_Y];
+            bb._maxs[OCT_YX] = bb._maxs[OCT_Y];
+
+            bb._mins[OCT_Z] = -100.0f;
+            bb._maxs[OCT_Z] = 100.0f;
+
+            render_oct_bb(bb, true, false);
+        }
+    }
 
 #if defined(DRAW_PRT_GRIP_ATTACH)
     render_all_prt_attachment();

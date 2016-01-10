@@ -91,4 +91,4 @@ void gfx_begin_3d(Camera& camera);
 void gfx_end_3d();
 
 void render_oct_bb(const oct_bb_t &bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5f, 1, 0.5f), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5f, 1, 1, 0.5f));
-bool render_aabb(AABB3f *bv);
+void render_aabb(const AABB3f& bv, const Ego::Math::Colour4f& colour);
