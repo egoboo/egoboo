@@ -628,27 +628,25 @@ static void draw_chr_bbox(const std::shared_ptr<Object>& pchr)
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7))
     {
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+        Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
         if (drawLeftSlot)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition(), bb);
-            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-            render_oct_bb(bb, true, true);
+            render_oct_bb(bb, true, true,  Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
         }
         if (drawRightSlot)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition(), bb);
-            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-            render_oct_bb(bb, true, true);
+            render_oct_bb(bb, true, true,  Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
         }
         if (drawCharacter)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bb);
-            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-            render_oct_bb(bb, true, true);
+            render_oct_bb(bb, true, true,  Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
         }
     }
 
