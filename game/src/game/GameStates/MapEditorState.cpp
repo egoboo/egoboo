@@ -25,6 +25,7 @@
 #include "game/GameStates/InGameMenuState.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/MiniMap.hpp"
+#include "game/GUI/Button.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/Graphics/TextureAtlasManager.hpp"
@@ -46,7 +47,24 @@ MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
     _miniMap->setVisible(true);
     addComponent(_miniMap);
 
+    //Load the module
     loadModuleData(module);
+
+    //Add edit modes
+    std::shared_ptr<Button> editObjectModeButton = std::make_shared<Button>("Objects");
+    editObjectModeButton->setSize(120, 30);
+    editObjectModeButton->setPosition(50, 0);
+    addComponent(editObjectModeButton);
+
+    std::shared_ptr<Button> editPassagesModeButton = std::make_shared<Button>("Passages");
+    editPassagesModeButton->setSize(120, 30);
+    editPassagesModeButton->setPosition(editObjectModeButton->getX() + editObjectModeButton->getWidth() + 5, 0);
+    addComponent(editPassagesModeButton);
+
+    std::shared_ptr<Button> editMeshModeButton = std::make_shared<Button>("Mesh");
+    editMeshModeButton->setSize(120, 30);
+    editMeshModeButton->setPosition(editPassagesModeButton->getX() + editPassagesModeButton->getWidth() + 5, 0);
+    addComponent(editMeshModeButton);
 
     //Center the camera in the middle of the map
     Vector3f mapCenter;

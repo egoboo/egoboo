@@ -292,24 +292,29 @@ void Camera::updateCenter()
 
 void Camera::updateFreeControl()
 {
-    //Forward and backwards
-    if (keyb.is_key_down(SDLK_KP_2)) {
-        _center.x() += std::sin(_turnZ_radians) * 50.0f;
-        _center.y() += std::cos(_turnZ_radians) * 50.0f;
+    float moveSpeed = 25.0f;
+    if(keyb.is_key_down(SDLK_LSHIFT) || keyb.is_key_down(SDLK_RSHIFT)) {
+        moveSpeed += 25.0f;
     }
-    else if (keyb.is_key_down(SDLK_KP_8)) {
-        _center.x() -= std::sin(_turnZ_radians) * 50.0f;
-        _center.y() -= std::cos(_turnZ_radians) * 50.0f;
+
+    //Forward and backwards
+    if (keyb.is_key_down(SDLK_KP_2) || keyb.is_key_down(SDLK_DOWN)) {
+        _center.x() += std::sin(_turnZ_radians) * moveSpeed;
+        _center.y() += std::cos(_turnZ_radians) * moveSpeed;
+    }
+    else if (keyb.is_key_down(SDLK_KP_8) || keyb.is_key_down(SDLK_UP)) {
+        _center.x() -= std::sin(_turnZ_radians) * moveSpeed;
+        _center.y() -= std::cos(_turnZ_radians) * moveSpeed;
     }
     
     //Left and right
-    if (keyb.is_key_down(SDLK_KP_4)) {
-        _center.x() -= std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * 50;
-        _center.y() -= std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * 50;
+    if (keyb.is_key_down(SDLK_KP_4) || keyb.is_key_down(SDLK_LEFT)) {
+        _center.x() -= std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
+        _center.y() -= std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
     }
-    else if (keyb.is_key_down(SDLK_KP_6)) {
-        _center.x() += std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * 50;
-        _center.y() += std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * 50;
+    else if (keyb.is_key_down(SDLK_KP_6) || keyb.is_key_down(SDLK_RIGHT)) {
+        _center.x() += std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
+        _center.y() += std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
     }
     
     //Rotate left or right
@@ -320,20 +325,20 @@ void Camera::updateFreeControl()
         _turnZAdd -= DEFAULT_TURN_KEY * 2.0f;
     }
 
-    //Zoom in or out
-    if (keyb.is_key_down(SDLK_KP_PLUS)) {
-        _center.z() -= 10.0f;
+    //Up and down
+    if (keyb.is_key_down(SDLK_KP_PLUS) || keyb.is_key_down(SDLK_SPACE)) {
+        _center.z() -= moveSpeed * 0.2f;
     }
-    else if (keyb.is_key_down(SDLK_KP_MINUS)) {
-        _center.z() += 10.0f;
+    else if (keyb.is_key_down(SDLK_KP_MINUS) || keyb.is_key_down(SDLK_LCTRL)) {
+        _center.z() += moveSpeed * 0.2f;
     }
 
     //Pitch camera
     if(keyb.is_key_down(SDLK_PAGEDOWN)) {
-        _pitch += Ego::Math::radToDeg(15.0f);
+        _pitch += Ego::Math::degToRad(7.5f);
     }
     else if(keyb.is_key_down(SDLK_PAGEUP)) {
-        _pitch -= Ego::Math::radToDeg(15.0f);
+        _pitch -= Ego::Math::degToRad(7.5f);
     }
 
     //Constrain between 0 and 90 degrees pitch (and a little extra to avoid singularities)
