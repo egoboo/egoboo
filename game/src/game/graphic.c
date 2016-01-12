@@ -1015,26 +1015,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 
     //Draw all passages
     if(keyb.is_key_down(SDLK_F8)) {
-        for(int i = 0; i < _currentModule->getPassageCount(); ++i) {
-            const AABB2f& passageAABB = _currentModule->getPassageByID(i)->getAABB2f();
-
-            //AABB2f to octagonal collision box
-            oct_bb_t bb;
-            bb._mins[OCT_X] = passageAABB.getMin().x();
-            bb._maxs[OCT_X] = passageAABB.getMax().x();
-            bb._mins[OCT_Y] = passageAABB.getMin().y();
-            bb._maxs[OCT_Y] = passageAABB.getMax().y();
-
-            bb._mins[OCT_XY] = bb._mins[OCT_X];
-            bb._maxs[OCT_XY] = bb._maxs[OCT_X];
-            bb._mins[OCT_YX] = bb._mins[OCT_Y];
-            bb._maxs[OCT_YX] = bb._maxs[OCT_Y];
-
-            bb._mins[OCT_Z] = -100.0f;
-            bb._maxs[OCT_Z] = 100.0f;
-
-            render_oct_bb(bb, true, false);
-        }
+        draw_passages(cam);
     }
 
 #if defined(DRAW_PRT_GRIP_ATTACH)
@@ -1051,6 +1032,42 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
     render_all_prt_bbox();
 #endif
     return retval;
+}
+
+void draw_passages(Camera& cam)
+{
+    /**
+    * @brief
+    *   Renders all passages using bboxes
+    * @todo
+    *   this is unoptimized and renders stuff off-screen
+    **/
+
+    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
+    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
+    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
+
+    for(int i = 0; i < _currentModule->getPassageCount(); ++i) {
+        const AABB2f& passageAABB = _currentModule->getPassageByID(i)->getAABB2f();
+
+        //AABB2f to octagonal collision box
+        oct_bb_t bb;
+        bb._mins[OCT_X] = passageAABB.getMin().x();
+        bb._maxs[OCT_X] = passageAABB.getMax().x();
+        bb._mins[OCT_Y] = passageAABB.getMin().y();
+        bb._maxs[OCT_Y] = passageAABB.getMax().y();
+
+        bb._mins[OCT_XY] = bb._mins[OCT_X];
+        bb._maxs[OCT_XY] = bb._maxs[OCT_X];
+        bb._mins[OCT_YX] = bb._mins[OCT_Y];
+        bb._maxs[OCT_YX] = bb._maxs[OCT_Y];
+
+        //TODO: should be mesh highest elevation at OCT_X and OCT_Y
+        bb._mins[OCT_Z] = -100.0f;
+        bb._maxs[OCT_Z] = 100.0f;
+
+        render_oct_bb(bb, true, false);
+    }    
 }
 
 gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, std::shared_ptr<Ego::Graphics::EntityList> pel)

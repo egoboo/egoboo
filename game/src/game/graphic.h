@@ -246,6 +246,7 @@ float draw_icon_texture(const std::shared_ptr<const Ego::Texture>& ptex, float x
 float draw_game_icon(const std::shared_ptr<const Ego::Texture>& icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
 void draw_blip(float sizeFactor, Uint8 color, float x, float y);
 void draw_mouse_cursor();
+void draw_passages(Camera& cam);
 
 /// The active dynamic lights
 struct dynalist_t

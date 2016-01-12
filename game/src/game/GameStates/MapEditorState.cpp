@@ -39,7 +39,9 @@ namespace GameStates
 {
 
 MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
-    _miniMap(std::make_shared<MiniMap>())
+    _miniMap(std::make_shared<MiniMap>()),
+    _modeButtons(),
+    _editMode(EditorMode::MAP_EDIT_NONE)
 {
     //Add minimap to the list of GUI components to render
     _miniMap->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
@@ -51,20 +53,9 @@ MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
     loadModuleData(module);
 
     //Add edit modes
-    std::shared_ptr<Button> editObjectModeButton = std::make_shared<Button>("Objects");
-    editObjectModeButton->setSize(120, 30);
-    editObjectModeButton->setPosition(50, 0);
-    addComponent(editObjectModeButton);
-
-    std::shared_ptr<Button> editPassagesModeButton = std::make_shared<Button>("Passages");
-    editPassagesModeButton->setSize(120, 30);
-    editPassagesModeButton->setPosition(editObjectModeButton->getX() + editObjectModeButton->getWidth() + 5, 0);
-    addComponent(editPassagesModeButton);
-
-    std::shared_ptr<Button> editMeshModeButton = std::make_shared<Button>("Mesh");
-    editMeshModeButton->setSize(120, 30);
-    editMeshModeButton->setPosition(editPassagesModeButton->getX() + editPassagesModeButton->getWidth() + 5, 0);
-    addComponent(editMeshModeButton);
+    addModeEditButton(EditorMode::MAP_EDIT_OBJECTS, "Objects");
+    addModeEditButton(EditorMode::MAP_EDIT_PASSAGES, "Passages");
+    addModeEditButton(EditorMode::MAP_EDIT_MESH, "Mesh");
 
     //Center the camera in the middle of the map
     Vector3f mapCenter;
@@ -72,6 +63,22 @@ MapEditorState::MapEditorState(std::shared_ptr<ModuleProfile> module) :
     mapCenter.y() = _currentModule->getMeshPointer()->_info.getTileCountY()*Info<float>::Grid::Size() * 0.5f;
     mapCenter.z() = _currentModule->getMeshPointer()->getElevation(Vector2f(mapCenter.x(), mapCenter.y()), false);
     _cameraSystem->getMainCamera()->setPosition(mapCenter);
+}
+
+void MapEditorState::addModeEditButton(EditorMode mode, const std::string &label)
+{
+    std::shared_ptr<Button> editModeButton = std::make_shared<Button>(label);
+    editModeButton->setSize(120, 30);
+    editModeButton->setPosition(_modeButtons.size() * (editModeButton->getWidth() + 5), 0);
+    editModeButton->setOnClickFunction([this, mode, editModeButton]{
+        _editMode = mode;
+        for(const std::shared_ptr<Button> &button : _modeButtons) {
+            button->setEnabled(true);
+        }
+        editModeButton->setEnabled(false);
+    });
+    addComponent(editModeButton);
+    _modeButtons.push_back(editModeButton);    
 }
 
 void MapEditorState::update()
@@ -98,6 +105,11 @@ void MapEditorState::update()
 void MapEditorState::drawContainer()
 {
     gfx_system_main();
+
+    //Draw passages?
+    if(_editMode == EditorMode::MAP_EDIT_PASSAGES) {
+        draw_passages(*_cameraSystem->getMainCamera());
+    }
 }
 
 void MapEditorState::beginState()
