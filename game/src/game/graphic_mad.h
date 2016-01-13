@@ -120,6 +120,22 @@ struct matrix_cache_t
 
 //--------------------------------------------------------------------------------------------
 
+struct colorshift_t {
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    colorshift_t(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0)
+        : red(red), green(green), blue(blue) {}
+    colorshift_t(const colorshift_t& other)
+        : red(other.red), green(other.green), blue(other.blue) {}
+    colorshift_t& operator=(const colorshift_t& other) {
+        red = other.red;
+        green = other.green;
+        blue = other.blue;
+        return *this;
+    }
+};
+
 /// some pre-computed parameters for reflection
 struct chr_reflection_cache_t
 {
@@ -129,9 +145,7 @@ struct chr_reflection_cache_t
         alpha(127),
         light(0xFF),
         sheen(0),
-        redshift(0),
-        grnshift(0),
-        blushift(0),
+        colorshift(),
         update_wld(0)
     {
         //ctor
@@ -142,10 +156,7 @@ struct chr_reflection_cache_t
     uint8_t    alpha;
     uint8_t    light;
     uint8_t    sheen;
-    uint8_t    redshift;
-    uint8_t    grnshift;
-    uint8_t    blushift;
-
+    colorshift_t colorshift;
     uint32_t   update_wld;
 };
 
@@ -200,10 +211,8 @@ struct chr_instance_t
     bool         enviro;                ///< Environment map?
     bool         dont_cull_backfaces;   ///< Do we cull backfaces for this character or not?
 
-    // color info
-    uint8_t          redshift;        ///< Color channel shifting
-    uint8_t          grnshift;
-    uint8_t          blushift;
+    // color channel shifting
+    colorshift_t     colorshift;
 
     // texture info
     std::shared_ptr<const Ego::Texture> texture;  ///< The texture of the character's skin

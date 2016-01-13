@@ -835,9 +835,9 @@ void Object::update()
     inst.voffset += getProfile()->getTextureMovementRateY();
 
     // Texture tint
-    inst.redshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6);
-    inst.grnshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6);
-    inst.blushift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6);
+    inst.colorshift = colorshift_t(Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6),
+                                   Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6),
+                                   Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6));
     chr_instance_t::update_ref(inst, getPosition(), false); //update reflection as well
 
     // do the mana and life regeneration for "living" characters
