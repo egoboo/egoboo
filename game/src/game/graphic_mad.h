@@ -255,8 +255,7 @@ struct chr_instance_t
 
 public:
 	chr_instance_t();
-
-	static chr_instance_t *dtor(chr_instance_t& self);
+    ~chr_instance_t();
 
 	/// This function sets a object's lighting.
 	static void flash(chr_instance_t& self, uint8_t value);

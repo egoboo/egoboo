@@ -209,10 +209,6 @@ Object::~Object()
         // remove any attached particles
         disaffirm_attached_particles(getObjRef());    
     }
-
-    chr_instance_t::dtor(inst);
-
-    EGOBOO_ASSERT( nullptr == inst.vrt_lst );    
 }
 
 bool Object::setSkin(const size_t skinNumber)

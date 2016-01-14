@@ -1527,18 +1527,6 @@ void chr_instance_t::clear_cache(chr_instance_t& self)
     self.lighting_frame_all  = -1;
 }
 
-chr_instance_t *chr_instance_t::dtor(chr_instance_t& self)
-{
-    chr_instance_t::dealloc(self);
-
-    EGOBOO_ASSERT(!self.vrt_lst);
-
-    //Reset data
-    self = chr_instance_t();
-
-    return &self;
-}
-
 chr_instance_t::chr_instance_t() :
     // set the update frame to an invalid value
     update_frame(-1),
@@ -1597,6 +1585,13 @@ chr_instance_t::chr_instance_t() :
 {
     // set the initial cache parameters
     chr_instance_t::clear_cache(*this);
+}
+
+chr_instance_t::~chr_instance_t() {
+    if (vrt_lst) {
+        delete[] vrt_lst;
+        vrt_lst = nullptr;
+    }
 }
 
 void chr_instance_t::dealloc(chr_instance_t& self)
