@@ -627,27 +627,24 @@ static void draw_chr_bbox(const std::shared_ptr<Object>& pchr)
     // Draw the object bounding box as a part of the graphics debug mode F7.
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && keyb.is_key_down(SDLK_F7))
     {
-        Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
+        Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 
         if (drawLeftSlot)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition(), bb);
-            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
             render_oct_bb(bb, true, true);
         }
         if (drawRightSlot)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition(), bb);
-            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
             render_oct_bb(bb, true, true);
         }
         if (drawCharacter)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bb);
-            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
             render_oct_bb(bb, true, true);
         }
     }
@@ -670,8 +667,6 @@ void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int ver
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
-
-    GLint matrix_mode[1];
 
     int vmin, vmax, cnt;
 
@@ -701,9 +696,6 @@ void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int ver
 #if _DEBUG
 void draw_one_grip( chr_instance_t * pinst, int slot )
 {
-    GLint matrix_mode[1];
-
-
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);

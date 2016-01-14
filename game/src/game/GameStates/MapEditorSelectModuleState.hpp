@@ -17,36 +17,46 @@
 //*
 //********************************************************************************************
 
-/// @file game/GameStates/InGameMenuState.hpp
-/// @details Menu while PlayingState is running in background
+/// @file game/GameStates/MapEditorSelectModuleState.hpp
 /// @author Johan Jansen
 
 #pragma once
 
 #include "game/GameStates/GameState.hpp"
+#include "egolib/Graphics/Font.hpp"
 
 //Forward declarations
+class ModuleProfile;
 class Button;
-class PlayingState;
+class Label;
 
-class InGameMenuState : public GameState
+namespace Ego
+{
+namespace GameStates
 {
 
+class MapEditorSelectModuleState : public GameState
+{
 public:
+    MapEditorSelectModuleState();
 
-    InGameMenuState(GameState &backgroundState);
+    void update() override {};
 
-    void update() override;
-
-    void beginState() override;
+    void beginState() override {};
 
 protected:
-
     void drawContainer() override;
 
 private:
+	void setSelectedModule(const std::shared_ptr<ModuleProfile> &profile);
 
-    std::forward_list<std::shared_ptr<Button>> _slidyButtons;
+private:
+	std::shared_ptr<ModuleProfile> _selectedModule;
+	std::shared_ptr<Button> _selectedButton;
+	std::shared_ptr<Label> _moduleName;
 
-    GameState &_backgroundState;
+    std::shared_ptr<Ego::Font::LaidTextRenderer> _moduleDescription;
 };
+
+} //GameStates
+} //Ego

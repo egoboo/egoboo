@@ -28,7 +28,6 @@
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
 #include "game/Logic/Player.hpp"
-#include "game/mesh.h"
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"
 #include "game/ObjectAnimation.h"
@@ -177,18 +176,11 @@ void GameModule::loadAllPassages()
     //Load all passages in file
     while (ctxt.skipToColon(true))
     {
-        //read passage area
-        irect_t area;
-        area._left = ctxt.readIntegerLiteral();
-        area._top = ctxt.readIntegerLiteral();
-        area._right = ctxt.readIntegerLiteral();
-        area._bottom = ctxt.readIntegerLiteral();
-
-        //constrain passage area within the level
-        area._left = Ego::Math::constrain(area._left, 0, int(_mesh->_info.getTileCountX()) - 1);
-        area._top = Ego::Math::constrain(area._top, 0, int(_mesh->_info.getTileCountY()) - 1);
-        area._right = Ego::Math::constrain(area._right, 0, int(_mesh->_info.getTileCountX()) - 1);
-        area._bottom = Ego::Math::constrain(area._bottom, 0, int(_mesh->_info.getTileCountY()) - 1);
+        //read passage area and constrain passage area within the level
+        int x0 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1);
+        int y0 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1);
+        int x1 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountX() - 1);
+        int y1 = Ego::Math::constrain<int>(ctxt.readIntegerLiteral(), 0, _mesh->_info.getTileCountY() - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();
@@ -198,7 +190,7 @@ void GameModule::loadAllPassages()
         if (ctxt.readBool()) mask = MAPFX_IMPASS;
         if (ctxt.readBool()) mask = MAPFX_SLIPPY;
 
-        std::shared_ptr<Passage> passage = std::make_shared<Passage>(*this, area, mask);
+        std::shared_ptr<Passage> passage = std::make_shared<Passage>(*this, x0, y0, x1, y1, mask);
 
         //check if we need to close the passage
         if (!open) {
@@ -226,7 +218,7 @@ void GameModule::checkPassageMusic()
         //Loop through every passage
         for (const std::shared_ptr<Passage>& passage : _passages)
         {
-            if (passage->checkPassageMusic(pchr.get()))
+            if (passage->checkPassageMusic(pchr))
             {
                 return;
             }

@@ -65,7 +65,7 @@ void CharacterStatus::draw_one_character_icon(const ObjectRef item, float x, flo
 	}
 }
 
-float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxticks)
+float CharacterStatus::draw_one_bar(uint8_t bartype, float x_stt, float y_stt, int ticks, int maxticks)
 {
 	/// @author ZZ
 	/// @details This function draws a bar and returns the y position for the next one
@@ -260,7 +260,7 @@ float CharacterStatus::draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int
 	return y;
 }
 
-float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
+float CharacterStatus::draw_one_xp_bar(float x, float y, uint8_t ticks)
 {
 	/// @author ZF
 	/// @details This function draws a xp bar and returns the y position for the next one
@@ -268,10 +268,10 @@ float CharacterStatus::draw_one_xp_bar(float x, float y, Uint8 ticks)
 	const std::shared_ptr<Ego::Texture> &texture = TextureManager::get().getTexture("mp_data/xpbar");
 
 	int width, height;
-	Uint8 cnt;
+	uint8_t cnt;
 	ego_frect_t tx_rect, sc_rect;
 
-	ticks = std::min(ticks, (Uint8)NUMTICK);
+	ticks = std::min(ticks, (uint8_t)NUMTICK);
 
 	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
@@ -370,10 +370,6 @@ void CharacterStatus::draw()
         return;
     }
 
-    int life_pips = pchr->getLife();
-    int life_pips_max = pchr->getAttribute(Ego::Attribute::MAX_LIFE);
-    int mana_pips = pchr->getMana();
-    int mana_pips_max = pchr->getAttribute(Ego::Attribute::MAX_MANA);
     int yOffset = getY();
 
     // draw the name
@@ -381,7 +377,7 @@ void CharacterStatus::draw()
 
     // draw the character's money
     std::ostringstream os;
-    os << std::setw(4) << pchr->getMoney();
+    os << '$' << std::setw(4) << pchr->getMoney();
     yOffset = _gameEngine->getUIManager()->drawBitmapFontString(getX() + 8, yOffset, os.str()) + 8;
 
     bool levelUp = false;
@@ -407,18 +403,19 @@ void CharacterStatus::draw()
     // Draw the life bar
     if (pchr->isAlive())
     {
-        yOffset = draw_one_bar(pchr->getAttribute(Ego::Attribute::LIFE_BARCOLOR), getX(), yOffset, life_pips, life_pips_max);
+        yOffset = draw_one_bar(pchr->getAttribute(Ego::Attribute::LIFE_BARCOLOR), getX(), yOffset, pchr->getLife(), pchr->getAttribute(Ego::Attribute::MAX_LIFE));
     }
     else
     {
         // Draw a black bar
-        yOffset = draw_one_bar(0, getX(), yOffset, 0, life_pips_max);
+        yOffset = draw_one_bar(0, getX(), yOffset, 0, pchr->getAttribute(Ego::Attribute::MAX_LIFE));
     }
 
     // Draw the mana bar
+    int mana_pips_max = pchr->getAttribute(Ego::Attribute::MAX_MANA);
     if (mana_pips_max > 0)
     {
-        yOffset = draw_one_bar(pchr->getAttribute(Ego::Attribute::MANA_BARCOLOR), getX(), yOffset, mana_pips, mana_pips_max);
+        yOffset = draw_one_bar(pchr->getAttribute(Ego::Attribute::MANA_BARCOLOR), getX(), yOffset, pchr->getMana(), mana_pips_max);
     }
 
     //After rendering we know how high this GUI component actually is

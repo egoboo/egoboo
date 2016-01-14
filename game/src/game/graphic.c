@@ -44,6 +44,7 @@
 #include "game/Entities/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
 #include "game/Graphics/TextureAtlasManager.hpp"
+#include "game/Module/Passage.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -633,7 +634,7 @@ float draw_debug(float y)
                << " " << std::setw(4) << std::setprecision(2) << pchr->getRawDamageResistance(DAMAGE_ICE)
                << " " << std::setw(4) << std::setprecision(2) << pchr->getRawDamageResistance(DAMAGE_ZAP);
             y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
-            os.clear();
+            os.str(std::string());
             os << std::setw(5) << std::setprecision(1) << (pchr->getPosX() / Info<float>::Grid::Size())
                << std::setw(5) << std::setprecision(1) << (pchr->getPosY() / Info<float>::Grid::Size());
             y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
@@ -656,16 +657,16 @@ float draw_debug(float y)
         // More debug information
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, "!!!DEBUG MODE-6!!!");
         
-        os.clear(); os << "~~FREEPRT: " << ParticleHandler::get().getFreeCount();
+        os.str(std::string()); os << "~~FREEPRT: " << ParticleHandler::get().getFreeCount();
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "~~FREECHR: " << OBJECTS_MAX - _currentModule->getObjectHandler().getObjectCount();
+        os.str(std::string()); os << "~~FREECHR: " << OBJECTS_MAX - _currentModule->getObjectHandler().getObjectCount();
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
 
-        os.clear(); os << "~~EXPORT:  " << (_currentModule->isExportValid() ? "TRUE" : "FALSE");
+        os.str(std::string()); os << "~~EXPORT:  " << (_currentModule->isExportValid() ? "TRUE" : "FALSE");
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
 
-        os.clear(); os << "~~PASS:    " << _currentModule->getPassageCount();
+        os.str(std::string()); os << "~~PASS:    " << _currentModule->getPassageCount();
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
     }
 
@@ -677,41 +678,41 @@ float draw_debug(float y)
         // White debug mode
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, "!!!DEBUG MODE-7!!!");
 
-        os.clear(); os << "CAM <"
+        os.str(std::string()); os << "CAM <"
             << camera->getViewMatrix()(0, 0) << ", "
             << camera->getViewMatrix()(0, 1) << ", "
             << camera->getViewMatrix()(0, 2) << ", "
             << camera->getViewMatrix()(0, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM <"
+        os.str(std::string()); os << "CAM <"
             << camera->getViewMatrix()(1, 0) << ", "
             << camera->getViewMatrix()(1, 1) << ", "
             << camera->getViewMatrix()(1, 2) << ", "
             << camera->getViewMatrix()(1, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM <"
+        os.str(std::string()); os << "CAM <"
             << camera->getViewMatrix()(2, 0) << ", "
             << camera->getViewMatrix()(2, 1) << ", "
             << camera->getViewMatrix()(2, 2) << ", "
             << camera->getViewMatrix()(2, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM <"
+        os.str(std::string()); os << "CAM <"
             << camera->getViewMatrix()(3, 0) << ", "
             << camera->getViewMatrix()(3, 1) << ", "
             << camera->getViewMatrix()(3, 2) << ", "
             << camera->getViewMatrix()(3, 3) << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM center <"
+        os.str(std::string()); os << "CAM center <"
             << camera->getCenter()[0] << ", "
             << camera->getCenter()[1] << ", "
             << camera->getCenter()[2] << ">";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
         
-        os.clear(); os << "CAM turn " << static_cast<int>(camera->getTurnMode()) << " " << camera->getTurnTime();
+        os.str(std::string()); os << "CAM turn " << static_cast<int>(camera->getTurnMode()) << " " << camera->getTurnTime();
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0, 1.0f);
     }
 
@@ -999,16 +1000,23 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 
     // Render solid entities.
 	Ego::Graphics::RenderPasses::g_solidEntities.run(cam, tl, el);
+
 	// Render water.
     Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
     Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
     Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 	Ego::Graphics::RenderPasses::g_water.run(cam, tl, el);
+
 	// Render transparent entities.
     Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
     Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
     Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
 	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
+
+    //Draw all passages
+    if(keyb.is_key_down(SDLK_F8)) {
+        draw_passages(cam);
+    }
 
 #if defined(DRAW_PRT_GRIP_ATTACH)
     render_all_prt_attachment();
@@ -1024,6 +1032,42 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
     render_all_prt_bbox();
 #endif
     return retval;
+}
+
+void draw_passages(Camera& cam)
+{
+    /**
+    * @brief
+    *   Renders all passages using bboxes
+    * @todo
+    *   this is unoptimized and renders stuff off-screen
+    **/
+
+    Ego::Renderer::get().setProjectionMatrix(cam.getProjectionMatrix());
+    Ego::Renderer::get().setViewMatrix(cam.getViewMatrix());
+    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
+
+    for(int i = 0; i < _currentModule->getPassageCount(); ++i) {
+        const AABB2f& passageAABB = _currentModule->getPassageByID(i)->getAABB2f();
+
+        //AABB2f to octagonal collision box
+        oct_bb_t bb;
+        bb._mins[OCT_X] = passageAABB.getMin().x();
+        bb._maxs[OCT_X] = passageAABB.getMax().x();
+        bb._mins[OCT_Y] = passageAABB.getMin().y();
+        bb._maxs[OCT_Y] = passageAABB.getMax().y();
+
+        bb._mins[OCT_XY] = bb._mins[OCT_X];
+        bb._maxs[OCT_XY] = bb._maxs[OCT_X];
+        bb._mins[OCT_YX] = bb._mins[OCT_Y];
+        bb._maxs[OCT_YX] = bb._maxs[OCT_Y];
+
+        //TODO: should be mesh highest elevation at OCT_X and OCT_Y
+        bb._mins[OCT_Z] = -100.0f;
+        bb._maxs[OCT_Z] = 100.0f;
+
+        render_oct_bb(bb, true, false);
+    }    
 }
 
 gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, std::shared_ptr<Ego::Graphics::EntityList> pel)

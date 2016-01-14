@@ -244,18 +244,37 @@ void PointList::draw_all(Camera& camera)
 //--------------------------------------------------------------------------------------------
 // AXIS BOUNDING BOX IMPLEMENTATION(S)
 //--------------------------------------------------------------------------------------------
-bool render_aabb(AABB3f *bv)
+void render_aabb(const AABB3f& bv, const Ego::Math::Colour4f& colour)
 {
-    GLint matrix_mode[1];
+    auto& renderer = Ego::Renderer::get();
 
-    if (!bv) return false;
+    renderer.setViewMatrix(Matrix4f4f::identity());
+    renderer.setWorldMatrix(Matrix4f4f::identity());
 
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
-    Ego::Renderer::get().setWorldMatrix(Matrix4f4f::identity());
+    Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT);
     {
-        const auto& pmin = (bv->getMin());
-        const auto& pmax = (bv->getMax());
+        // Do not write write into the depth buffer.
+        renderer.setDepthWriteEnabled(false);
+
+        // do not draw hidden surfaces
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
+
+        // draw draw front and back faces of polygons
+        renderer.setCullingMode(Ego::CullingMode::None); // GL_ENABLE_BIT
+
+        // make them transparent
+        renderer.setBlendingEnabled(true);
+        renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+        renderer.setAlphaTestEnabled(true);
+        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+
+        // deactivate texturing
+        renderer.getTextureUnit().setActivated(nullptr);
+        renderer.setColour(colour);
+
+        const auto& pmin = (bv.getMin());
+        const auto& pmax = (bv.getMax());
 
         // !!!! there must be an optimized way of doing this !!!!
 
@@ -299,7 +318,6 @@ bool render_aabb(AABB3f *bv)
         }
         GL_DEBUG_END();
     }
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -326,8 +344,10 @@ void render_oct_bb(const oct_bb_t &bb, bool drawSquare, bool drawDiamond, const 
 		renderer.setCullingMode(Ego::CullingMode::None); // GL_ENABLE_BIT
 
         // make them transparent
-        renderer.setBlendingEnabled(false);
+        renderer.setBlendingEnabled(true);
 		renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
+        renderer.setAlphaTestEnabled(true);
+        renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
         // deactivate texturing
 		renderer.getTextureUnit().setActivated(nullptr);

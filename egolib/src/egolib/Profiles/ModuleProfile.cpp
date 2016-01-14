@@ -50,14 +50,13 @@ ModuleProfile::ModuleProfile() :
     _unlockQuestLevel(-1), //-1 means none
     _moduleType(FILTER_SIDE_QUEST),
     _beaten(false),
-    _icon(std::make_shared<Ego::OpenGL::Texture>()),
+    _icon(),
     _vfsPath(_name),
     _folderName(_name)
 {}
 
 ModuleProfile::~ModuleProfile()
 {
-    _icon = nullptr;
 }
 
 bool ModuleProfile::isModuleUnlocked() const
@@ -200,13 +199,11 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     // save the module path
     result->_vfsPath = folderPath;
 
-    /// @note just because we can't load the title image DOES NOT mean that we ignore the module
     // load title image
-    ego_texture_load_vfs(result->_icon, (folderPath + "/gamedat/title").c_str());
+    result->_icon = Ego::DeferredTexture(folderPath + "/gamedat/title");
 
-    /// @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
-    // If that changes, this line must be changed as well.
-    result->_folderName = folderPath.substr(11);
+    //Strip the prefix path and get just the folder name of the module
+    result->_folderName = folderPath.substr(folderPath.find_first_of('/')+1);
 
     return result;
 }

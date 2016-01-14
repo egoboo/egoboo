@@ -58,11 +58,11 @@ Camera::Camera(const CameraOptions &options) :
     _zadd(CAM_ZADD_AVG),
     _zaddGoto(CAM_ZADD_AVG),
     _zGoto(CAM_ZADD_AVG),
+    _pitch(Ego::Math::pi<float>() * 0.5f),
 
     _turnZ_radians(-Ego::Math::piOverFour<float>()),
     _turnZ_turns(Ego::Math::RadiansToTurns(_turnZ_radians)),
     _turnZAdd(0.0f),
-    _turnZSustain(0.60f),
 
     _forward{0.0f, 0.0f, 0.0f},
     _up{0.0f, 0.0f, 0.0f},
@@ -132,14 +132,12 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
 
 void Camera::resetView()
 {
-    float roll_deg = Ego::Math::radToDeg(_roll);
-
     // Check for stupidity.
     if (_position != _center)
     {
         static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
-        Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, roll_deg);
-        _viewMatrix = tmp *  Ego::Math::Transform::lookAt(_position, _center, Z);
+        Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, Ego::Math::radToDeg(_roll));
+        _viewMatrix = tmp * Ego::Math::Transform::lookAt(_position, _center, Z);
     }
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -197,7 +195,7 @@ void Camera::updateZoom()
     _zadd = 0.9f * _zadd  + 0.1f * _zaddGoto; /// @todo Use Ego::Math::lerp.
 
     // Update zoom.
-    float percentmax = (_zaddGoto - CAM_ZADD_MIN ) / (float )( CAM_ZADD_MAX - CAM_ZADD_MIN);
+    float percentmax = (_zaddGoto - CAM_ZADD_MIN) / static_cast<float>(CAM_ZADD_MAX - CAM_ZADD_MIN);
     float percentmin = 1.0f - percentmax;
     _zoom = (CAM_ZOOM_MIN * percentmin) + (CAM_ZOOM_MAX * percentmax);
 
@@ -220,7 +218,7 @@ void Camera::updateZoom()
         _turnZ_turns = FacingToTurns(_ori.facing_z);
         _turnZ_radians = Ego::Math::TurnsToRadians(_turnZ_turns);
     }
-    _turnZAdd *= _turnZSustain;
+    _turnZAdd *= TURN_Z_SUSTAIN;
 }
 
 void Camera::updateCenter()
@@ -292,6 +290,77 @@ void Camera::updateCenter()
     _center.z() = _center.z() * 0.9f + _trackPos.z() * 0.1f; /// @todo Use Ego::Math::lerp
 }
 
+void Camera::updateFreeControl()
+{
+    float moveSpeed = 25.0f;
+    if(keyb.is_key_down(SDLK_LSHIFT) || keyb.is_key_down(SDLK_RSHIFT)) {
+        moveSpeed += 25.0f;
+    }
+
+    //Forward and backwards
+    if (keyb.is_key_down(SDLK_KP_2) || keyb.is_key_down(SDLK_DOWN)) {
+        _center.x() += std::sin(_turnZ_radians) * moveSpeed;
+        _center.y() += std::cos(_turnZ_radians) * moveSpeed;
+    }
+    else if (keyb.is_key_down(SDLK_KP_8) || keyb.is_key_down(SDLK_UP)) {
+        _center.x() -= std::sin(_turnZ_radians) * moveSpeed;
+        _center.y() -= std::cos(_turnZ_radians) * moveSpeed;
+    }
+    
+    //Left and right
+    if (keyb.is_key_down(SDLK_KP_4) || keyb.is_key_down(SDLK_LEFT)) {
+        _center.x() -= std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
+        _center.y() -= std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
+    }
+    else if (keyb.is_key_down(SDLK_KP_6) || keyb.is_key_down(SDLK_RIGHT)) {
+        _center.x() += std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
+        _center.y() += std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
+    }
+    
+    //Rotate left or right
+    if (keyb.is_key_down(SDLK_KP_7)) {
+        _turnZAdd += DEFAULT_TURN_KEY * 2.0f;
+    }
+    else if (keyb.is_key_down(SDLK_KP_9)) {
+        _turnZAdd -= DEFAULT_TURN_KEY * 2.0f;
+    }
+
+    //Up and down
+    if (keyb.is_key_down(SDLK_KP_PLUS) || keyb.is_key_down(SDLK_SPACE)) {
+        _center.z() -= moveSpeed * 0.2f;
+    }
+    else if (keyb.is_key_down(SDLK_KP_MINUS) || keyb.is_key_down(SDLK_LCTRL)) {
+        _center.z() += moveSpeed * 0.2f;
+    }
+
+    //Pitch camera
+    if(keyb.is_key_down(SDLK_PAGEDOWN)) {
+        _pitch += Ego::Math::degToRad(7.5f);
+    }
+    else if(keyb.is_key_down(SDLK_PAGEUP)) {
+        _pitch -= Ego::Math::degToRad(7.5f);
+    }
+
+    //Constrain between 0 and 90 degrees pitch (and a little extra to avoid singularities)
+    _pitch = Ego::Math::constrain(_pitch, 0.05f, Ego::Math::pi<float>() - 0.05f);
+
+    //Prevent the camera target from being below the mesh
+    _center.z() = std::max(_center.z(), _currentModule->getMeshPointer()->getElevation(Vector2f(_center.x(), _center.y())));
+
+    //Calculate camera position from desired zoom and rotation
+    _position.x() = _center.x() + _zoom * std::sin(_turnZ_radians);
+    _position.y() = _center.y() + _zoom * std::cos(_turnZ_radians);
+    _position.z() = _center.z() + _zoom * _pitch;
+
+    //Prevent the camera from being below the mesh
+    _position.z() = std::max(_position.z(), 180.0f + _currentModule->getMeshPointer()->getElevation(Vector2f(_position.x(), _position.y())));
+
+    updateZoom();
+    makeMatrix();
+
+    _trackPos = _center;
+}
+
 void Camera::updateTrack(const ego_mesh_t *mesh)
 {
     // The default camera motion is to do nothing.
@@ -299,45 +368,6 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 
     switch(_moveMode)
     {
-    // The camera is controlled by the keypad.
-    case CameraMovementMode::Free:
-            if (keyb.is_key_down(SDLK_KP_8))
-            {
-                _trackPos.x() -= _viewMatrix(1, 0) * 50;
-                _trackPos.y() -= _viewMatrix(1, 1) * 50;
-            }
-
-            if (keyb.is_key_down(SDLK_KP_2))
-            {
-                _trackPos.x() += _viewMatrix(1, 0) * 50;
-                _trackPos.y() += _viewMatrix(1, 1) * 50;
-            }
-
-            if (keyb.is_key_down(SDLK_KP_4))
-            {
-                _trackPos.x() += _viewMatrix(0, 0) * 50;
-                _trackPos.y() += _viewMatrix(0, 1) * 50;
-            }
-
-            if (keyb.is_key_down(SDLK_KP_6))
-            {
-                _trackPos.x() -= _viewMatrix(0, 0) * 10;
-                _trackPos.y() -= _viewMatrix(0, 1) * 10;
-            }
-
-            if (keyb.is_key_down(SDLK_KP_7))
-            {
-                _turnZAdd += DEFAULT_TURN_KEY;
-            }
-
-            if (keyb.is_key_down(SDLK_KP_9))
-            {
-                _turnZAdd -= DEFAULT_TURN_KEY;
-            }
-
-            _trackPos[kZ] = 128 + mesh->getElevation(Vector2f(_trackPos.x(), _trackPos.y()));
-
-       break;
 
     // The camera is (re-)focuses in on a one or more objects.
     case CameraMovementMode::Reset:
@@ -348,10 +378,8 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
 
             for(ObjectRef objectRef : _trackList)
             {
-                if (!_currentModule->getObjectHandler().exists(objectRef)) continue;
-                Object *object = _currentModule->getObjectHandler().get(objectRef);
-
-                if (!object->isAlive()) continue;
+                const std::shared_ptr<Object>& object = _currentModule->getObjectHandler()[objectRef];
+                if (!object || object->isTerminated() || !object->isAlive()) continue;
 
                 sum_pos += object->getPosition() + Vector3f(0.0f, 0.0f, object->chr_min_cv._maxs[OCT_Z] * 0.9f);
                 sum_level += object->getObjectPhysics().getGroundElevation();
@@ -364,7 +392,10 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
                 new_track = sum_pos * (1.0f / sum_wt);
             }
         }
-        break;
+
+        // Reset the camera mode.
+        _moveMode = CameraMovementMode::Player;
+    break;
 
     // The camera is (re-)focuses in on a one or more player objects.
     // "Show me the drama!"
@@ -426,21 +457,21 @@ void Camera::updateTrack(const ego_mesh_t *mesh)
             }
         }
         break;
+
+    default:
+        break;
     }
 
 
-    if (CameraMovementMode::Reset == _moveMode)
-    {
-        // Just set the position.
-        _trackPos = new_track;
-
-        // Reset the camera mode.
-        _moveMode = CameraMovementMode::Player;
-    }
-    else
+    if (CameraMovementMode::Player == _moveMode)
     {
         // Smoothly interpolate the camera tracking position.
         _trackPos = _trackPos * 0.9f + new_track * 0.1f;           /// @todo Use Ego::Math::lerp.
+    }
+    else
+    {
+        // Just set the position.
+        _trackPos = new_track;
     }
 }
 
@@ -750,4 +781,9 @@ void Camera::initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::
 void Camera::addTrackTarget(ObjectRef targetRef)
 {
     _trackList.push_front(targetRef);
+}
+
+void Camera::setPosition(const Vector3f &position)
+{
+    _center = position;
 }
