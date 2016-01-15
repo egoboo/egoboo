@@ -42,8 +42,22 @@ enum
     LIGHTING_VEC_SIZE
 };
 
-void lighting_vector_evaluate( const std::array<float, LIGHTING_VEC_SIZE> &lvec, const Vector3f& nrm, float * direct, float * amb );
-void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const Vector3f& nrm, const float direct, const float ambient );
+/**
+ * @brief A lighting vector. Its components denote the directed and undirected (aka ambient) light
+ * @todo Egoboo's lighting vectors do not denote the color of the light (yet).
+ */
+typedef std::array<float, LIGHTING_VEC_SIZE> LightingVector;
+
+/**
+ * @brief Evaluate a lighting vector w.r.t. to a given surface normal.
+ * @param lvec the lighting vector
+ * @param nrm the surface normal
+ * @param [out] direct the resulting directed lighting
+ * @param [out] amb the resulting undirected (aka ambient) lighting
+ * @todo Properly describe what the resulting directed and undirected lighting are.
+ */
+void lighting_vector_evaluate( const LightingVector& lvec, const Vector3f& nrm, float& direct, float& amb);
+void lighting_vector_sum(LightingVector& lvec, const Vector3f& nrm, const float direct, const float ambient);
 
 //--------------------------------------------------------------------------------------------
 struct lighting_cache_base_t
@@ -56,12 +70,13 @@ struct lighting_cache_base_t
         _lighting.fill(0.0f);
     }
 
-    float             _max_light;  ///< max amplitude of direct light
-    float             _max_delta;  ///< max change in the light amplitude
-    std::array<float, LIGHTING_VEC_SIZE> _lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
+    float          _max_light;  ///< max amplitude of direct light
+    float          _max_delta;  ///< max change in the light amplitude
+    LightingVector _lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
 
-	static void init(lighting_cache_base_t& self);
-	static void max_light(lighting_cache_base_t& self);
+	void init();
+    /// Recompute the maximal amplitude of the directed light.
+	void max_light();
 	// Blend another cache into this cache.
 	static void blend(lighting_cache_base_t& self, const lighting_cache_base_t& other, float keep);
 	static float evaluate(const lighting_cache_base_t& self, const Vector3f& nrm, float& amb);
@@ -87,8 +102,9 @@ struct lighting_cache_t
     lighting_cache_base_t low;
     lighting_cache_base_t hgh;
 
-	static void init(lighting_cache_t& self);
-	static void max_light(lighting_cache_t& self);
+	void init();
+    /// Recompute the maximal amplitude of the directed light.
+	void max_light();
 	/// Blend another cache into this cache.
 	static void blend(lighting_cache_t& self, lighting_cache_t& other, float keep);
 
@@ -124,7 +140,7 @@ extern Vector3f light_nrm;
 float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float& low_max_diff, float& hgh_max_diff );
 
 
-bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTING_VEC_SIZE> &lighting, const Vector3f& nrm );
+bool sum_dyna_lighting( const dynalight_data_t * pdyna, LightingVector& lighting, const Vector3f& nrm );
 
 /// @author BB
 /// @details In the Aaron's lighting, the falloff function was

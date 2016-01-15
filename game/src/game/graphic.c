@@ -2091,7 +2091,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         lighting_cache_t& pcache_old = ptile._cache;
 
         lighting_cache_t cache_new;
-        lighting_cache_t::init(cache_new);
+        cache_new.init(); /// @todo Not needed because of constructor.
 
         // copy the global lighting
         for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
@@ -2165,7 +2165,7 @@ gfx_rv GridIllumination::do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_
         lighting_cache_t::blend(pcache_old, cache_new, local_keep);
 
         // find the max intensity
-        lighting_cache_t::max_light(pcache_old);
+        pcache_old.max_light();
 
         ptile._cache_frame = game_frame_all;
     }
