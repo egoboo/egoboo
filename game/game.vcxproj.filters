@@ -311,6 +311,15 @@
     <ClCompile Include="src\game\GUI\MessageLog.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GameStates\MapEditorSelectModuleState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GameStates\MapEditorState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GameStates\InputOptionsScreen.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\egoboo.h">
@@ -573,6 +582,15 @@
     </ClInclude>
     <ClInclude Include="src\game\GUI\MessageLog.hpp">
       <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\MapEditorSelectModuleState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\MapEditorState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\InputOptionsScreen.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
