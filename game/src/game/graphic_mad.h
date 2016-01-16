@@ -193,6 +193,148 @@ struct vlst_cache_t
 
 //--------------------------------------------------------------------------------------------
 
+/// The state of an object's action.
+struct ActionState {
+    /// Ready to play a new action.
+    bool _action_ready;
+    /// The objects's action.
+    int _action_which;
+    /// Keep the action playing.
+    bool _action_keep;
+    /// Loop the action.
+    bool _action_loop;
+    /// The action to play next.
+    int _action_next;
+public:
+    /// Construct this action state.
+    ActionState();
+    /// Destruct this action state.
+    ~ActionState();
+public:
+    bool get_action_keep() const {
+        return _action_keep;
+    }
+    void set_action_keep(bool action_keep) {
+        _action_keep = action_keep;
+    }
+
+public:
+    bool get_action_ready() const {
+        return _action_ready;
+    }
+    void set_action_ready(bool action_ready) {
+        _action_ready = action_ready;
+    }
+
+public:
+    bool get_action_loop() const {
+        return _action_loop;
+    }
+    void set_action_loop(bool action_loop) {
+        _action_loop = action_loop;
+    }
+
+public:
+    int get_action_next() const {
+        return _action_next;
+    }
+    void set_action_next(int action_next) {
+        if (action_next < 0 || action_next > ACTION_COUNT) {
+            throw Id::InvalidArgumentException(__FILE__, __LINE__, "action must be within the bounds of [0, ACTION_COUNT]");
+        }
+        _action_next = action_next;
+    }
+};
+
+/// The state of an object's animation.
+struct AnimationState {
+// model info
+    /// The object's model.
+    std::shared_ptr<Ego::ModelDescriptor> _modelDescriptor;
+
+// animation info
+    /// The objects's frame.
+    uint16_t _frame_nxt;
+    /// The objects's last frame.
+    uint16_t _frame_lst;
+    /// The objects's frame in betweening.
+    uint8_t _ilip;
+    /// The objects's frame in betweening.
+    float _flip;
+    /// The animation rate.
+    float _rate;
+
+public:
+    AnimationState();
+    ~AnimationState();
+
+public:
+    const std::shared_ptr<Ego::ModelDescriptor> getModelDescriptor() const {
+        return _modelDescriptor;
+    }
+    void setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
+        _modelDescriptor = modelDescriptor;
+    }
+
+public:
+    /**
+     * @brief Get the index of the next frame.
+     * @return the index of the next frame
+     */
+    int getNextFrameIndex() const {
+        return _frame_nxt;
+    }
+    /**
+     * @brief Get the next frame.
+     * @return the next frame
+     * @throw Id::RuntimeErrorException if the frame index is out of bounds
+     */
+    const MD2_Frame& getNextFrame() const {
+        if (getNextFrameIndex() > getModelDescriptor()->getMD2()->getFrames().size()) {
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+            e << "invalid frame " << getNextFrameIndex() << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+            Log::get() << e;
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+        }
+
+        return getModelDescriptor()->getMD2()->getFrames()[getNextFrameIndex()];
+    }
+    /**
+     * @brief Get the last frame index.
+     * @return the last frame index
+     */
+    int getLastFrameIndex() const {
+        return _frame_lst;
+    }
+    /**
+     * @brief Get the last frame.
+     * @return the last frame
+     * @throw Id::RuntimeErrorException if the last frame index is out of bounds
+     */
+    const MD2_Frame& getLastFrame() const {
+        if (getLastFrameIndex() > getModelDescriptor()->getMD2()->getFrames().size()) {
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+            e << "invalid frame " << getLastFrameIndex() << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+            Log::get() << e;
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+        }
+
+        return getModelDescriptor()->getMD2()->getFrames()[getLastFrameIndex()];
+    }
+
+public:
+    float get_flip() const {
+        return _flip;
+    }
+    void set_flip(float flip) {
+        _flip = flip;
+    }
+    float get_remaining_flip() const {
+        return (_ilip + 1) * 0.25f - _flip;
+    }
+
+};
+
 /// All the data that the renderer needs to draw the character
 struct chr_instance_t
 {

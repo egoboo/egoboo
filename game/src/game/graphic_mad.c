@@ -1527,6 +1527,31 @@ void chr_instance_t::clear_cache(chr_instance_t& self)
     self.lighting_frame_all  = -1;
 }
 
+ActionState::ActionState() :
+    _action_ready(true), // Idiotic: This must be set at the beginning, script's spawn animations do not work!
+    _action_which(ACTION_DA),
+    _action_keep(false),
+    _action_loop(false),
+    _action_next(ACTION_DA) {
+}
+
+ActionState::~ActionState() {
+}
+
+AnimationState::AnimationState() :
+    // model info
+    _modelDescriptor(nullptr),
+    // animation info
+    _frame_nxt(0),
+    _frame_lst(0),
+    _ilip(0),
+    _flip(0.0f),
+    _rate(1.0f) {
+}
+
+AnimationState::~AnimationState() {
+}
+
 chr_instance_t::chr_instance_t() :
     // set the update frame to an invalid value
     update_frame(-1),
