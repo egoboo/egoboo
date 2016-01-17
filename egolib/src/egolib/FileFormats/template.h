@@ -24,7 +24,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
-#include "egolib/Profiles/LocalParticleProfileRef.hpp"
+#include "egolib/Profiles/_Include.hpp"
 #include "egolib/IDSZ.hpp"
 
 vfs_FILE* template_open_vfs( const char * filename );
@@ -42,7 +42,8 @@ void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool truth );
 void template_put_damage_type( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 damagetype );
 void template_put_local_particle_profile_ref(vfs_FILE *filetetemp, vfs_FILE *filewrite, const LocalParticleProfileRef& lppref);
 void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action );
-void template_put_gender( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender );
+void template_put_gender(vfs_FILE* filetemp, vfs_FILE* filewrite, Gender gender);
+void template_put_gender_profile( vfs_FILE* filetemp, vfs_FILE* filewrite, GenderProfile gender );
 void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val );
 void template_put_range( vfs_FILE* filetemp, vfs_FILE* filewrite, FRange val );
 void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const char* usename );

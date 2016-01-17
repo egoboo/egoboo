@@ -514,7 +514,7 @@ public:
     * @return
     *   The gender of this Object (if applicable)
     **/
-    CharacterGender getGender() const { return static_cast<CharacterGender>(gender); }
+    Gender getGender() const { return gender; }
 
     /**
     * @brief
@@ -805,7 +805,7 @@ public:
     latch_t        latch;
 
     // character stats
-    uint8_t        gender;          ///< Gender
+    Gender  gender;          ///< Gender
 
     uint32_t       experience;      ///< Experience
     uint8_t        experiencelevel; ///< Experience Level

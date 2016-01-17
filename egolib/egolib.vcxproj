@@ -508,6 +508,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Profiles\GenderProfile.hpp" />
     <ClInclude Include="src\egolib\Math\Point.hpp" />
     <ClInclude Include="src\egolib\Math\Line.hpp" />
     <ClInclude Include="src\egolib\Math\_Generator.hpp" />

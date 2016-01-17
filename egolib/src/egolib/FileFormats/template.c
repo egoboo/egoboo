@@ -317,17 +317,24 @@ void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action 
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_gender( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender )
-{
-    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
-    {
-        switch ( gender )
-        {
-            case GENDER_MALE  : vfs_printf( filewrite, "MALE" ); break;
-            case GENDER_FEMALE: vfs_printf( filewrite, "FEMALE" ); break;
-            default:
-            case GENDER_OTHER : vfs_printf( filewrite, "OTHER" ); break;
-        }
+void template_put_gender(vfs_FILE* filetemp, vfs_FILE* filewrite, Gender gender) {
+    if (template_copy_to_marker(filetemp, filewrite, "#%")) {
+        switch (gender) {
+            case Gender::Male: vfs_printf(filewrite, "MALE"); break;
+            case Gender::Female: vfs_printf(filewrite, "FEMALE"); break;
+            case Gender::Neuter: vfs_printf(filewrite, "OTHER"); break;
+        };
+    }
+}
+
+void template_put_gender_profile(vfs_FILE* filetemp, vfs_FILE* filewrite, GenderProfile gender) {
+    if (template_copy_to_marker(filetemp, filewrite, "#%")) {
+        switch (gender) {
+            case GenderProfile::Male: vfs_printf(filewrite, "MALE"); break;
+            case GenderProfile::Female: vfs_printf(filewrite, "FEMALE"); break;
+            case GenderProfile::Neuter: vfs_printf(filewrite, "OTHER"); break;
+            case GenderProfile::Random: vfs_printf(filewrite, "RANDOM"); break;
+        };
     }
 }
 

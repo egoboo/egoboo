@@ -1055,6 +1055,9 @@
     <ClInclude Include="src\egolib\Graphics\ColourDepth.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\GenderProfile.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

@@ -47,7 +47,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     spawn_data(),
     ai(),
     latch(),
-    gender(GENDER_MALE),
+    gender(Gender::Male),
     experience(0),
     experiencelevel(0),
     ammomax(0),
@@ -2300,10 +2300,21 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     ammo    = _profile->getAmmo();
 
     // Gender
-    if(_profile->getGender() != GENDER_RANDOM)  // GENDER_RANDOM means keep old gender
-    {
-        gender = _profile->getGender();
-    }
+    switch (_profile->getGender()) {
+        case GenderProfile::Female:
+            gender = Gender::Female;
+            break;
+        case GenderProfile::Male:
+            gender = Gender::Male;
+            break;
+        case GenderProfile::Neuter:
+            gender = Gender::Neuter;
+            break;
+        case GenderProfile::Random:
+            /// @todo Random means, retain current gender, which is not intuitive.
+            //gender = Random::getRandomElement(std::vector<Gender>{Gender::Female, Gender::Male, Gender::Neuter});
+            break;
+    };
 
     // AI stuff
     ai.state = 0;

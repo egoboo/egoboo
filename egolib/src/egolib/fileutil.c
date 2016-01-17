@@ -509,7 +509,7 @@ void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action )
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
+void vfs_put_gender_profile( vfs_FILE* filewrite, const char* text, GenderProfile gender )
 {
     /// @author ZZ
     /// @details This function kinda mimics vfs_printf for the output of
@@ -519,10 +519,10 @@ void vfs_put_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 
     switch ( gender )
     {
-        case GENDER_MALE  : vfs_printf( filewrite, "MALE\n" ); break;
-        case GENDER_FEMALE: vfs_printf( filewrite, "FEMALE\n" ); break;
-        default:
-        case GENDER_OTHER : vfs_printf( filewrite, "OTHER\n" ); break;
+        case GenderProfile::Random: vfs_printf(filewrite, "Random\n"); break;
+        case GenderProfile::Male: vfs_printf( filewrite, "Male\n" ); break;
+        case GenderProfile::Female: vfs_printf( filewrite, "Female\n" ); break;
+        case GenderProfile::Neuter: vfs_printf( filewrite, "Neuter\n" ); break;
     }
 }
 
