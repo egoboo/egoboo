@@ -73,7 +73,7 @@ ObjectProfile::ObjectProfile() :
     _money(0),
 
     // characer stats
-    _gender(GENDER_OTHER),
+    _gender(GenderProfile::Neuter),
 
     //for imports
     _spawnLife(PERFECTBIG),
@@ -444,10 +444,10 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // Gender
     switch (Ego::toupper(vfs_get_next_printable(ctxt)))
     {
-        case 'F': _gender = GENDER_FEMALE; break;
-        case 'M': _gender = GENDER_MALE; break;
-        case 'R': _gender = GENDER_RANDOM; break;
-        default:  _gender = GENDER_OTHER; break;
+        case 'F': _gender = GenderProfile::Female; break;
+        case 'M': _gender = GenderProfile::Male; break;
+        case 'R': _gender = GenderProfile::Random; break;
+        default:  _gender = GenderProfile::Neuter; break;            
     }
 
     // Read in the starting stats

@@ -47,7 +47,7 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     spawn_data(),
     ai(),
     latch(),
-    gender(GENDER_MALE),
+    gender(Gender::Male),
     experience(0),
     experiencelevel(0),
     ammomax(0),
@@ -209,10 +209,6 @@ Object::~Object()
         // remove any attached particles
         disaffirm_attached_particles(getObjRef());    
     }
-
-    chr_instance_t::dtor(inst);
-
-    EGOBOO_ASSERT( nullptr == inst.vrt_lst );    
 }
 
 bool Object::setSkin(const size_t skinNumber)
@@ -835,9 +831,9 @@ void Object::update()
     inst.voffset += getProfile()->getTextureMovementRateY();
 
     // Texture tint
-    inst.redshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6);
-    inst.grnshift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6);
-    inst.blushift = Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6);
+    inst.colorshift = colorshift_t(Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::RED_SHIFT), 0, 6),
+                                   Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::GREEN_SHIFT), 0, 6),
+                                   Ego::Math::constrain<int>(1 + getAttribute(Ego::Attribute::BLUE_SHIFT), 0, 6));
     chr_instance_t::update_ref(inst, getPosition(), false); //update reflection as well
 
     // do the mana and life regeneration for "living" characters
@@ -2304,10 +2300,21 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     ammo    = _profile->getAmmo();
 
     // Gender
-    if(_profile->getGender() != GENDER_RANDOM)  // GENDER_RANDOM means keep old gender
-    {
-        gender = _profile->getGender();
-    }
+    switch (_profile->getGender()) {
+        case GenderProfile::Female:
+            gender = Gender::Female;
+            break;
+        case GenderProfile::Male:
+            gender = Gender::Male;
+            break;
+        case GenderProfile::Neuter:
+            gender = Gender::Neuter;
+            break;
+        case GenderProfile::Random:
+            /// @todo Random means, retain current gender, which is not intuitive.
+            //gender = Random::getRandomElement(std::vector<Gender>{Gender::Female, Gender::Male, Gender::Neuter});
+            break;
+    };
 
     // AI stuff
     ai.state = 0;

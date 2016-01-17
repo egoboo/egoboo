@@ -1527,16 +1527,29 @@ void chr_instance_t::clear_cache(chr_instance_t& self)
     self.lighting_frame_all  = -1;
 }
 
-chr_instance_t *chr_instance_t::dtor(chr_instance_t& self)
-{
-    chr_instance_t::dealloc(self);
+ActionState::ActionState() :
+    _action_ready(true), // Idiotic: This must be set at the beginning, script's spawn animations do not work!
+    _action_which(ACTION_DA),
+    _action_keep(false),
+    _action_loop(false),
+    _action_next(ACTION_DA) {
+}
 
-    EGOBOO_ASSERT(!self.vrt_lst);
+ActionState::~ActionState() {
+}
 
-    //Reset data
-    self = chr_instance_t();
+AnimationState::AnimationState() :
+    // model info
+    _modelDescriptor(nullptr),
+    // animation info
+    _frame_nxt(0),
+    _frame_lst(0),
+    _ilip(0),
+    _flip(0.0f),
+    _rate(1.0f) {
+}
 
-    return &self;
+AnimationState::~AnimationState() {
 }
 
 chr_instance_t::chr_instance_t() :
@@ -1554,9 +1567,7 @@ chr_instance_t::chr_instance_t() :
     enviro(false),
     dont_cull_backfaces(false),
 
-    redshift(0),
-    grnshift(0),
-    blushift(0),
+    colorshift(),
 
     texture(nullptr),
     uoffset(0),
@@ -1599,6 +1610,13 @@ chr_instance_t::chr_instance_t() :
 {
     // set the initial cache parameters
     chr_instance_t::clear_cache(*this);
+}
+
+chr_instance_t::~chr_instance_t() {
+    if (vrt_lst) {
+        delete[] vrt_lst;
+        vrt_lst = nullptr;
+    }
 }
 
 void chr_instance_t::dealloc(chr_instance_t& self)
@@ -1687,9 +1705,7 @@ void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, 
 	self.ref.alpha = (self.alpha * alpha * INV_FF<float>());
 	self.ref.light = (255 == self.light) ? 255 : (self.light * alpha * INV_FF<float>());
 
-	self.ref.redshift = self.redshift + 1;
-	self.ref.grnshift = self.grnshift + 1;
-	self.ref.blushift = self.blushift + 1;
+    self.ref.colorshift = colorshift_t(self.colorshift.red + 1, self.colorshift.green + 1, self.colorshift.blue + 1);
 
 	self.ref.sheen = self.sheen >> 1;
 }
@@ -1697,9 +1713,7 @@ void chr_instance_t::update_ref(chr_instance_t& self, const Vector3f &position, 
 gfx_rv chr_instance_t::spawn(chr_instance_t& self, const PRO_REF profileID, const int skin)
 {
     // Remember any previous color shifts in case of lasting enchantments
-	int8_t greensave = self.grnshift;
-	int8_t redsave = self.redshift;
-	int8_t bluesave = self.blushift;
+    colorshift_t colorshift_save = self.colorshift;
 
     // clear the instance
     self = chr_instance_t();
@@ -1715,9 +1729,7 @@ gfx_rv chr_instance_t::spawn(chr_instance_t& self, const PRO_REF profileID, cons
 	self.alpha = profile->getAlpha();
 	self.light = profile->getLight();
 	self.sheen = profile->getSheen();
-	self.grnshift = greensave;
-	self.redshift = redsave;
-	self.blushift = bluesave;
+    self.colorshift = colorshift_save;
 	self.dont_cull_backfaces = profile->isDontCullBackfaces();
 
     // model parameters
@@ -1890,9 +1902,7 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 	int local_alpha;
 	int local_light;
 	int local_sheen;
-	int local_redshift;
-	int local_grnshift;
-	int local_blushift;
+    colorshift_t local_colorshift;
 
 	if (NULL == tint) tint = local_tint;
 
@@ -1902,9 +1912,7 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 		local_alpha = self.ref.alpha;
 		local_light = self.ref.light;
 		local_sheen = self.ref.sheen;
-		local_redshift = self.ref.redshift;
-		local_grnshift = self.ref.grnshift;
-		local_blushift = self.ref.blushift;
+        local_colorshift = self.ref.colorshift;
 	}
 	else
 	{
@@ -1912,9 +1920,7 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 		local_alpha = self.alpha;
 		local_light = self.light;
 		local_sheen = self.sheen;
-		local_redshift = self.redshift;
-		local_grnshift = self.grnshift;
-		local_blushift = self.blushift;
+        local_colorshift = self.colorshift;
 	}
 
 	// modify these values based on local character abilities
@@ -1931,9 +1937,9 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 		// the alpha channel is not important
 		weight_sum += 1.0f;
 
-		tint[RR] += 1.0f / (1 << local_redshift);
-		tint[GG] += 1.0f / (1 << local_grnshift);
-		tint[BB] += 1.0f / (1 << local_blushift);
+		tint[RR] += 1.0f / (1 << local_colorshift.red);
+		tint[GG] += 1.0f / (1 << local_colorshift.green);
+		tint[BB] += 1.0f / (1 << local_colorshift.blue);
 		tint[AA] += 1.0f;
 	}
 
@@ -1942,9 +1948,9 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 		// alpha characters are blended onto the canvas using the alpha channel
 		weight_sum += 1.0f;
 
-		tint[RR] += 1.0f / (1 << local_redshift);
-		tint[GG] += 1.0f / (1 << local_grnshift);
-		tint[BB] += 1.0f / (1 << local_blushift);
+		tint[RR] += 1.0f / (1 << local_colorshift.red);
+		tint[GG] += 1.0f / (1 << local_colorshift.green);
+		tint[BB] += 1.0f / (1 << local_colorshift.blue);
 		tint[AA] += local_alpha * INV_FF<float>();
 	}
 
@@ -1958,9 +1964,9 @@ void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FI
 
 		if (local_light < 255)
 		{
-			tint[RR] += local_light * INV_FF<float>() / (1 << local_redshift);
-			tint[GG] += local_light * INV_FF<float>() / (1 << local_grnshift);
-			tint[BB] += local_light * INV_FF<float>() / (1 << local_blushift);
+			tint[RR] += local_light * INV_FF<float>() / (1 << local_colorshift.red);
+			tint[GG] += local_light * INV_FF<float>() / (1 << local_colorshift.green);
+			tint[BB] += local_light * INV_FF<float>() / (1 << local_colorshift.blue);
 		}
 
 		tint[AA] += 1.0f;

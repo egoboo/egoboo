@@ -375,7 +375,11 @@ public:
 
     inline uint16_t getAmmo() const {return _ammo;}
 
-    inline CharacterGender getGender() const {return _gender;}
+    /**
+     * @brief Get the gender profile.
+     * @return the gender profile
+     */
+    inline GenderProfile getGender() const {return _gender;}
 
     inline bool hasStickyButt() const {return _stickyButt;}
 
@@ -666,7 +670,7 @@ private:
     int16_t        _money;                         ///< Money
 
     // characer stats
-    CharacterGender _gender;                    ///< Gender
+    GenderProfile _gender;                    ///< Gender
 
     //for imports
     UFP8_T       _spawnLife;                    ///< Life left from last module (8.8 fixed point)

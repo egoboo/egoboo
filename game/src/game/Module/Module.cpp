@@ -371,18 +371,25 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     pchr->ammo = ppro->getAmmo();
 
     // Gender
-    pchr->gender = ppro->getGender();
-    if ( pchr->gender == GENDER_RANDOM )
-    {
-        //50% male or female
-        if(Random::nextBool())
-        {
-            pchr->gender = GENDER_FEMALE;
-        }
-        else
-        {
-            pchr->gender = GENDER_MALE;
-        }
+    switch (ppro->getGender()) {
+        case GenderProfile::Male:
+            pchr->gender = Gender::Male;
+            break;
+        case GenderProfile::Female:
+            pchr->gender = Gender::Female;
+            break;
+        case GenderProfile::Neuter:
+            pchr->gender = Gender::Neuter;
+            break;
+        case GenderProfile::Random:
+            /// 50% male or female.
+            /// @todo And what about Neuter?
+            if (Random::nextBool()) {
+                pchr->gender = Gender::Female;
+            } else {
+                pchr->gender = Gender::Male;
+            }
+            break;
     }
 
     // Life and Mana bars

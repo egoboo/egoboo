@@ -2316,7 +2316,7 @@ Uint8 scr_IfTargetIsMale( script_state_t& state, ai_state_t& self )
 	Object *pself_target;
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->gender == GENDER_MALE );
+    returncode = ( pself_target->gender == Gender::Male );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2334,7 +2334,7 @@ Uint8 scr_IfTargetIsFemale( script_state_t& state, ai_state_t& self )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->gender == GENDER_FEMALE );
+    returncode = ( pself_target->gender == Gender::Female );
 
     SCRIPT_FUNCTION_END();
 }

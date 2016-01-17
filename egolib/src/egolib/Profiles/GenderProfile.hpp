@@ -16,32 +16,22 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+/// @file egolib/Profiles/ObjectProfile.hpp
+/// @author Michael Heilmann
+
 #pragma once
 
-#include "egolib/platform.h"
-
-/**
- * @brief
- *  What gender a character can be spawned with.
- * @todo
- *  MH: This will become an enum class.
- */
-enum class Gender : uint8_t
-{
-    /**
-     * @brief
-     *  "female" gender.
-     */
-    Female = 0,
-    /**
-     * @brief
-     *  "male" gender.
-     */
+/// Specification of a gender choice.
+enum class GenderProfile {
+    /// Male.
     Male,
-    /**
-     * @brief
-     *  "neutral/other" gender.
-     */
+    /// Female.
+    Female,
+    /// Neuter.
     Neuter,
+    /// Randomly choose either
+    /// GenderProfile::Male, GenderProfile::Female, or GenderProfile::Neuter
+    Random,
 };
 

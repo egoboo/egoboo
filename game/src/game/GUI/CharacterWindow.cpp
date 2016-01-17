@@ -163,8 +163,8 @@ void CharacterWindow::buildCharacterStatisticTab()
         buffer << " level ";
 
         //Gender
-        if     (_character->getGender() == GENDER_MALE)   buffer << "male ";
-        else if(_character->getGender() == GENDER_FEMALE) buffer << "female ";        
+        if     (_character->getGender() == Gender::Male)   buffer << "male ";
+        else if(_character->getGender() == Gender::Female) buffer << "female ";        
     }
     else
     {

@@ -30,9 +30,9 @@
 #include "egolib/Log/_Include.hpp"
 #include "egolib/file_common.h"
 #include "egolib/Logic/Damage.hpp"
-#include "egolib/Logic/Gender.hpp"
 #include "egolib/IDSZ.hpp"
 #include "egolib/Profiles/LocalParticleProfileRef.hpp"
+#include "egolib/Profiles/_Include.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -479,7 +479,7 @@ void vfs_put_sfp8(vfs_FILE* filewrite, const char* text, SFP8_T value);
 void vfs_put_bool(vfs_FILE* filewrite, const char* text, bool value);
 void vfs_put_damage_type(vfs_FILE* filewrite, const char* text, Uint8 value);
 void vfs_put_action(vfs_FILE* filewrite, const char* text, Uint8 value);
-void vfs_put_gender(vfs_FILE* filewrite, const char* text, Uint8 value);
+void vfs_put_gender_profile(vfs_FILE* filewrite, const char* text, GenderProfile value);
 void vfs_put_range(vfs_FILE* filewrite, const char* text, FRange value);
 void vfs_put_pair(vfs_FILE* filewrite, const char* text, IPair value);
 void vfs_put_string_under(vfs_FILE* filewrite, const char* text, const char* usename);

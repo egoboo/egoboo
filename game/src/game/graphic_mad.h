@@ -120,6 +120,22 @@ struct matrix_cache_t
 
 //--------------------------------------------------------------------------------------------
 
+struct colorshift_t {
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    colorshift_t(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0)
+        : red(red), green(green), blue(blue) {}
+    colorshift_t(const colorshift_t& other)
+        : red(other.red), green(other.green), blue(other.blue) {}
+    colorshift_t& operator=(const colorshift_t& other) {
+        red = other.red;
+        green = other.green;
+        blue = other.blue;
+        return *this;
+    }
+};
+
 /// some pre-computed parameters for reflection
 struct chr_reflection_cache_t
 {
@@ -129,9 +145,7 @@ struct chr_reflection_cache_t
         alpha(127),
         light(0xFF),
         sheen(0),
-        redshift(0),
-        grnshift(0),
-        blushift(0),
+        colorshift(),
         update_wld(0)
     {
         //ctor
@@ -142,10 +156,7 @@ struct chr_reflection_cache_t
     uint8_t    alpha;
     uint8_t    light;
     uint8_t    sheen;
-    uint8_t    redshift;
-    uint8_t    grnshift;
-    uint8_t    blushift;
-
+    colorshift_t colorshift;
     uint32_t   update_wld;
 };
 
@@ -182,6 +193,148 @@ struct vlst_cache_t
 
 //--------------------------------------------------------------------------------------------
 
+/// The state of an object's action.
+struct ActionState {
+    /// Ready to play a new action.
+    bool _action_ready;
+    /// The objects's action.
+    int _action_which;
+    /// Keep the action playing.
+    bool _action_keep;
+    /// Loop the action.
+    bool _action_loop;
+    /// The action to play next.
+    int _action_next;
+public:
+    /// Construct this action state.
+    ActionState();
+    /// Destruct this action state.
+    ~ActionState();
+public:
+    bool get_action_keep() const {
+        return _action_keep;
+    }
+    void set_action_keep(bool action_keep) {
+        _action_keep = action_keep;
+    }
+
+public:
+    bool get_action_ready() const {
+        return _action_ready;
+    }
+    void set_action_ready(bool action_ready) {
+        _action_ready = action_ready;
+    }
+
+public:
+    bool get_action_loop() const {
+        return _action_loop;
+    }
+    void set_action_loop(bool action_loop) {
+        _action_loop = action_loop;
+    }
+
+public:
+    int get_action_next() const {
+        return _action_next;
+    }
+    void set_action_next(int action_next) {
+        if (action_next < 0 || action_next > ACTION_COUNT) {
+            throw Id::InvalidArgumentException(__FILE__, __LINE__, "action must be within the bounds of [0, ACTION_COUNT]");
+        }
+        _action_next = action_next;
+    }
+};
+
+/// The state of an object's animation.
+struct AnimationState {
+// model info
+    /// The object's model.
+    std::shared_ptr<Ego::ModelDescriptor> _modelDescriptor;
+
+// animation info
+    /// The objects's frame.
+    uint16_t _frame_nxt;
+    /// The objects's last frame.
+    uint16_t _frame_lst;
+    /// The objects's frame in betweening.
+    uint8_t _ilip;
+    /// The objects's frame in betweening.
+    float _flip;
+    /// The animation rate.
+    float _rate;
+
+public:
+    AnimationState();
+    ~AnimationState();
+
+public:
+    const std::shared_ptr<Ego::ModelDescriptor> getModelDescriptor() const {
+        return _modelDescriptor;
+    }
+    void setModelDescriptor(const std::shared_ptr<Ego::ModelDescriptor>& modelDescriptor) {
+        _modelDescriptor = modelDescriptor;
+    }
+
+public:
+    /**
+     * @brief Get the index of the next frame.
+     * @return the index of the next frame
+     */
+    int getNextFrameIndex() const {
+        return _frame_nxt;
+    }
+    /**
+     * @brief Get the next frame.
+     * @return the next frame
+     * @throw Id::RuntimeErrorException if the frame index is out of bounds
+     */
+    const MD2_Frame& getNextFrame() const {
+        if (getNextFrameIndex() > getModelDescriptor()->getMD2()->getFrames().size()) {
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+            e << "invalid frame " << getNextFrameIndex() << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+            Log::get() << e;
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+        }
+
+        return getModelDescriptor()->getMD2()->getFrames()[getNextFrameIndex()];
+    }
+    /**
+     * @brief Get the last frame index.
+     * @return the last frame index
+     */
+    int getLastFrameIndex() const {
+        return _frame_lst;
+    }
+    /**
+     * @brief Get the last frame.
+     * @return the last frame
+     * @throw Id::RuntimeErrorException if the last frame index is out of bounds
+     */
+    const MD2_Frame& getLastFrame() const {
+        if (getLastFrameIndex() > getModelDescriptor()->getMD2()->getFrames().size()) {
+            Log::Entry e(Log::Level::Error, __FILE__, __LINE__);
+            e << "invalid frame " << getLastFrameIndex() << "/" << getModelDescriptor()->getMD2()->getFrames().size() << Log::EndOfEntry;
+            Log::get() << e;
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, e.getText());
+        }
+
+        return getModelDescriptor()->getMD2()->getFrames()[getLastFrameIndex()];
+    }
+
+public:
+    float get_flip() const {
+        return _flip;
+    }
+    void set_flip(float flip) {
+        _flip = flip;
+    }
+    float get_remaining_flip() const {
+        return (_ilip + 1) * 0.25f - _flip;
+    }
+
+};
+
 /// All the data that the renderer needs to draw the character
 struct chr_instance_t
 {
@@ -200,10 +353,8 @@ struct chr_instance_t
     bool         enviro;                ///< Environment map?
     bool         dont_cull_backfaces;   ///< Do we cull backfaces for this character or not?
 
-    // color info
-    uint8_t          redshift;        ///< Color channel shifting
-    uint8_t          grnshift;
-    uint8_t          blushift;
+    // color channel shifting
+    colorshift_t     colorshift;
 
     // texture info
     std::shared_ptr<const Ego::Texture> texture;  ///< The texture of the character's skin
@@ -246,8 +397,7 @@ struct chr_instance_t
 
 public:
 	chr_instance_t();
-
-	static chr_instance_t *dtor(chr_instance_t& self);
+    ~chr_instance_t();
 
 	/// This function sets a object's lighting.
 	static void flash(chr_instance_t& self, uint8_t value);

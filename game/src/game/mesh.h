@@ -66,7 +66,7 @@ public:
     static const std::shared_ptr<ego_tile_info_t> NULL_TILE;
 
     ego_tile_info_t();
-	~ego_tile_info_t() { lighting_cache_t::init(_cache); }
+	~ego_tile_info_t() { _cache.init(); }
 
 	struct Cache {
 		/**
