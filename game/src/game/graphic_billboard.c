@@ -248,7 +248,7 @@ bool BillboardSystem::render_one(Billboard& billboard, const Vector3f& cameraUp,
 
 void BillboardSystem::render_all(Camera& camera)
 {
-    gfx_begin_3d(camera);
+    Renderer3D::begin3D(camera);
     {
         Ego::OpenGL::PushAttrib pa(GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
         {
@@ -278,7 +278,7 @@ void BillboardSystem::render_all(Camera& camera)
             }
         }
     }
-    gfx_end_3d();
+    Renderer3D::end3D();
 }
 
 std::shared_ptr<Billboard> BillboardSystem::makeBillboard(ObjectRef obj_ref, const std::string& text, const Ego::Math::Colour4f& textColor, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits, const float size)

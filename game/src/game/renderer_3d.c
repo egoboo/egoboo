@@ -26,24 +26,7 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-// MODE CONTROL
-//--------------------------------------------------------------------------------------------
-void gfx_begin_3d(Camera& camera)
-{
-    auto& renderer = Ego::Renderer::get();
-    renderer.setProjectionMatrix(camera.getProjectionMatrix());
-    renderer.setWorldMatrix(Matrix4f4f::identity());
-    renderer.setViewMatrix(camera.getViewMatrix());
-}
 
-//--------------------------------------------------------------------------------------------
-void gfx_end_3d()
-{
-}
-
-//--------------------------------------------------------------------------------------------
-// Lines.
 //--------------------------------------------------------------------------------------------
 
 LineSegmentList g_lineSegmentList;
@@ -99,7 +82,7 @@ void LineSegmentList::draw_all(Camera& camera)
     // disable texturing
 	renderer.getTextureUnit().setActivated(nullptr);
 
-    gfx_begin_3d(camera);
+    Renderer3D::begin3D(camera);
     {
         {
             Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
@@ -141,11 +124,9 @@ void LineSegmentList::draw_all(Camera& camera)
             }
         }
     }
-    gfx_end_3d();
+    Renderer3D::end3D();
 }
 
-//--------------------------------------------------------------------------------------------
-// Points.
 //--------------------------------------------------------------------------------------------
 
 PointList g_pointList;
@@ -198,7 +179,7 @@ void PointList::draw_all(Camera& camera)
     // disable texturing
 	renderer.getTextureUnit().setActivated(nullptr);
 
-    gfx_begin_3d(camera);
+    Renderer3D::begin3D(camera);
     {
         Ego::OpenGL::PushAttrib pa(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
         {
@@ -238,13 +219,22 @@ void PointList::draw_all(Camera& camera)
             }
         }
     }
-    gfx_end_3d();
+    Renderer3D::end3D();
 }
 
 //--------------------------------------------------------------------------------------------
-// AXIS BOUNDING BOX IMPLEMENTATION(S)
-//--------------------------------------------------------------------------------------------
-void render_aabb(const AABB3f& bv, const Ego::Math::Colour4f& colour)
+
+void Renderer3D::begin3D(Camera& camera) {
+    auto& renderer = Ego::Renderer::get();
+    renderer.setProjectionMatrix(camera.getProjectionMatrix());
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+    renderer.setViewMatrix(camera.getViewMatrix());
+}
+
+void Renderer3D::end3D() {}
+
+
+void Renderer3D::renderAABB(const AABB3f& bv, const Ego::Math::Colour4f& colour)
 {
     auto& renderer = Ego::Renderer::get();
 
@@ -320,8 +310,7 @@ void render_aabb(const AABB3f& bv, const Ego::Math::Colour4f& colour)
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void render_oct_bb(const oct_bb_t &bb, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour, const Ego::Math::Colour4f& diamondColour)
+void Renderer3D::renderOctBB(const oct_bb_t &bb, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour, const Ego::Math::Colour4f& diamondColour)
 {
     auto& renderer = Ego::Renderer::get();
 

@@ -296,7 +296,7 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
         throw std::invalid_argument("nullptr == camera");
     }
 
-    gfx_begin_3d(*camera);
+    Renderer3D::begin3D(*camera);
     {
 		Ego::Graphics::RenderPasses::g_background.run(*camera, *tileList, *entityList);
         render_scene(*camera, tileList, entityList);
@@ -317,7 +317,7 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
             GL_DEBUG(glAccum)(GL_RETURN, 1.0f);
         }
     }
-    gfx_end_3d();
+    Renderer3D::end3D();
 
     // Render the billboards
     BillboardSystem::get().render_all(*camera);
@@ -1066,7 +1066,7 @@ void draw_passages(Camera& cam)
         bb._mins[OCT_Z] = -100.0f;
         bb._maxs[OCT_Z] = 100.0f;
 
-        render_oct_bb(bb, true, false);
+        Renderer3D::renderOctBB(bb, true, false);
     }    
 }
 

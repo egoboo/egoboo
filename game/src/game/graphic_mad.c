@@ -633,19 +633,19 @@ static void draw_chr_bbox(const std::shared_ptr<Object>& pchr)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition(), bb);
-            render_oct_bb(bb, true, true);
+            Renderer3D::renderOctBB(bb, true, true);
         }
         if (drawRightSlot)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition(), bb);
-            render_oct_bb(bb, true, true);
+            Renderer3D::renderOctBB(bb, true, true);
         }
         if (drawCharacter)
         {
             oct_bb_t bb;
             oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bb);
-            render_oct_bb(bb, true, true);
+            Renderer3D::renderOctBB(bb, true, true);
         }
     }
 
