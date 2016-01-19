@@ -702,7 +702,6 @@ void draw_one_grip( chr_instance_t * pinst, int slot )
 
     Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
     Ego::Renderer::get().setWorldMatrix(pinst->matrix);
-	Ego::Renderer::get().multiplyMatrix(pinst->matrix);
 
     _draw_one_grip_raw( pinst, slot );
 }

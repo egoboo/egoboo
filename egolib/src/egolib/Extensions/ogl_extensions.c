@@ -278,7 +278,7 @@ Utilities::String Utilities::getRenderer() {
 
 Utilities::String Utilities::getVendor() {
     clearError();
-    const GLubyte *bytes = glGetString(GL_RENDERER);
+    const GLubyte *bytes = glGetString(GL_VENDOR);
     if (isError()) {
         throw RuntimeErrorException(__FILE__, __LINE__, "unable to acquire renderer back-end information");
     }
