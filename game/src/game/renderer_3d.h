@@ -25,14 +25,12 @@
 #include "egolib/egolib.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 // Forward declarations.
 class Camera;
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// some lines to be drawn in the display
+// Draw lines
 
 namespace Ego {
 struct LineSegment {
@@ -58,7 +56,7 @@ extern LineSegmentList g_lineSegmentList;
 
 
 //--------------------------------------------------------------------------------------------
-// some points to be drawn in the display
+// Draw points
 
 namespace Ego {
 struct Point {
@@ -83,12 +81,12 @@ struct PointList {
 
 extern PointList g_pointList;
 
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void gfx_begin_3d(Camera& camera);
-void gfx_end_3d();
-
-void render_oct_bb(const oct_bb_t &bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5f, 1, 0.5f), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5f, 1, 1, 0.5f));
-void render_aabb(const AABB3f& bv, const Ego::Math::Colour4f& colour);
+struct Renderer3D {
+public:
+    static void begin3D(Camera& camera);
+    static void end3D();
+    static void renderAABB(const AABB3f& bv, const Ego::Math::Colour4f& colour);
+    static void renderOctBB(const oct_bb_t &bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5f, 1, 0.5f), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5f, 1, 1, 0.5f));
+};

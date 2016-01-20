@@ -925,6 +925,6 @@ void render_prt_bbox(const std::shared_ptr<Ego::Particle>& particle)
 
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
-        render_oct_bb(loc_bb, true, true, Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
+        Renderer3D::renderOctBB(loc_bb, true, true, Ego::Math::Colour4f::red(), Ego::Math::Colour4f::yellow());
     }
 }
