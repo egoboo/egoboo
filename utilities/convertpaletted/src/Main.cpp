@@ -1,4 +1,3 @@
-#include "convertpaletted.hpp"
 #include <stdlib.h>
 #include <SDL.h>
 

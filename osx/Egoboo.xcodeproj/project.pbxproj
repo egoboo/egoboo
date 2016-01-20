@@ -90,7 +90,6 @@
 		CD39B4721A37506100B377BE /* link.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4131A37506100B377BE /* link.c */; };
 		CD39B47E1A37506100B377BE /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4261A37506100B377BE /* mesh.c */; };
 		CD39B4881A37506100B377BE /* physics.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4371A37506100B377BE /* physics.c */; };
-		CD39B48F1A37506100B377BE /* renderer_2d.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4421A37506100B377BE /* renderer_2d.c */; };
 		CD39B4901A37506100B377BE /* renderer_3d.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4441A37506100B377BE /* renderer_3d.c */; };
 		CD39B4921A37506100B377BE /* script_compile.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4481A37506100B377BE /* script_compile.c */; };
 		CD39B4931A37506100B377BE /* script_functions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44A1A37506100B377BE /* script_functions.c */; };
@@ -190,6 +189,9 @@
 		CD79F08A1B4AD778000DDF06 /* CharacterWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD79F0841B4AD778000DDF06 /* CharacterWindow.cpp */; };
 		CD79F08B1B4AD778000DDF06 /* InternalWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD79F0861B4AD778000DDF06 /* InternalWindow.cpp */; };
 		CD79F08C1B4AD778000DDF06 /* InventorySlot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD79F0881B4AD778000DDF06 /* InventorySlot.cpp */; };
+		CD7C91FC1C4C22130035449D /* InputOptionsScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD7C91F61C4C22130035449D /* InputOptionsScreen.cpp */; };
+		CD7C91FD1C4C22130035449D /* MapEditorSelectModuleState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD7C91F81C4C22130035449D /* MapEditorSelectModuleState.cpp */; };
+		CD7C91FE1C4C22130035449D /* MapEditorState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD7C91FA1C4C22130035449D /* MapEditorState.cpp */; };
 		CD80C4E21AB2089B00D915FF /* LERP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4DE1AB2089B00D915FF /* LERP.cpp */; };
 		CD80C4E71AB2092400D915FF /* OptionsButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4E51AB2092400D915FF /* OptionsButton.cpp */; };
 		CD8B716D1B8B52F0005DA5D4 /* ProgressBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD8B716B1B8B52F0005DA5D4 /* ProgressBar.cpp */; };
@@ -297,6 +299,8 @@
 		CDCE212D1A6404770084D934 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDCE21291A6404770084D934 /* Camera.cpp */; };
 		CDCE212E1A6404770084D934 /* CameraSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDCE212B1A6404770084D934 /* CameraSystem.cpp */; };
 		CDD104F41A9FC38900EFF37D /* InternalDebugWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDD104F21A9FC38900EFF37D /* InternalDebugWindow.cpp */; };
+		CDD9D6C81C41239000965E50 /* MessageLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDD9D6C61C41239000965E50 /* MessageLog.cpp */; };
+		CDD9D6CE1C4126C500965E50 /* QuadTreeTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDD9D6CC1C4126BE00965E50 /* QuadTreeTest.mm */; };
 		CDDE9A2E1B10621500C32D47 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDDE9A291B10621500C32D47 /* SDL2_image.framework */; };
 		CDDE9A2F1B10621500C32D47 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDDE9A2A1B10621500C32D47 /* SDL2_mixer.framework */; };
 		CDDE9A301B10621500C32D47 /* SDL2_net.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDDE9A2B1B10621500C32D47 /* SDL2_net.framework */; };
@@ -342,7 +346,7 @@
 		CDE4D6AD1ADD9D7600B6A3B3 /* TextFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4D6A71ADD9D7600B6A3B3 /* TextFile.cpp */; };
 		CDE4D6AE1ADD9D7600B6A3B3 /* TextInputFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4D6A91ADD9D7600B6A3B3 /* TextInputFile.cpp */; };
 		CDE4EC651A71AEFC00A4BC62 /* Module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC631A71AEFC00A4BC62 /* Module.cpp */; };
-		CDEB28BE1C33B61400890BEE /* ColorDepth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDEB28BC1C33B61400890BEE /* ColorDepth.cpp */; };
+		CDEB28BE1C33B61400890BEE /* ColourDepth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDEB28BC1C33B61400890BEE /* ColourDepth.cpp */; };
 		CDEB28C41C33B62900890BEE /* MissileTreatment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDEB28BF1C33B62900890BEE /* MissileTreatment.cpp */; };
 		CDEB28C51C33B62900890BEE /* TreasureTables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDEB28C21C33B62900890BEE /* TreasureTables.cpp */; };
 		CDEB28C81C33B67C00890BEE /* TextureSampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDEB28C61C33B67C00890BEE /* TextureSampler.cpp */; };
@@ -777,9 +781,7 @@
 		CD39B38B1A374B6000B377BE /* typedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = typedef.h; sourceTree = "<group>"; };
 		CD39B38C1A374B6000B377BE /* vfs.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = vfs.c; sourceTree = "<group>"; };
 		CD39B38D1A374B6000B377BE /* vfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vfs.h; sourceTree = "<group>"; };
-		CD39B3EE1A37506100B377BE /* egoboo_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_config.h; sourceTree = "<group>"; };
 		CD39B3EF1A37506100B377BE /* egoboo_doxygen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_doxygen.h; sourceTree = "<group>"; };
-		CD39B3F41A37506100B377BE /* egoboo_typedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_typedef.h; sourceTree = "<group>"; };
 		CD39B3F51A37506100B377BE /* egoboo.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = egoboo.c; sourceTree = "<group>"; };
 		CD39B3F61A37506100B377BE /* egoboo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo.h; sourceTree = "<group>"; };
 		CD39B3FF1A37506100B377BE /* game.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = game.c; sourceTree = "<group>"; };
@@ -806,8 +808,6 @@
 		CD39B4271A37506100B377BE /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh.h; sourceTree = "<group>"; };
 		CD39B4371A37506100B377BE /* physics.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = physics.c; sourceTree = "<group>"; };
 		CD39B4381A37506100B377BE /* physics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = physics.h; sourceTree = "<group>"; };
-		CD39B4421A37506100B377BE /* renderer_2d.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = renderer_2d.c; sourceTree = "<group>"; };
-		CD39B4431A37506100B377BE /* renderer_2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_2d.h; sourceTree = "<group>"; };
 		CD39B4441A37506100B377BE /* renderer_3d.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = renderer_3d.c; sourceTree = "<group>"; };
 		CD39B4451A37506100B377BE /* renderer_3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_3d.h; sourceTree = "<group>"; };
 		CD39B4481A37506100B377BE /* script_compile.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = script_compile.c; sourceTree = "<group>"; };
@@ -957,6 +957,13 @@
 		CD79F0881B4AD778000DDF06 /* InventorySlot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InventorySlot.cpp; sourceTree = "<group>"; };
 		CD79F0891B4AD778000DDF06 /* InventorySlot.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = InventorySlot.hpp; sourceTree = "<group>"; };
 		CD79F08D1B4AD7C4000DDF06 /* Attribute.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Attribute.hpp; sourceTree = "<group>"; };
+		CD7C91F61C4C22130035449D /* InputOptionsScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputOptionsScreen.cpp; sourceTree = "<group>"; };
+		CD7C91F71C4C22130035449D /* InputOptionsScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = InputOptionsScreen.hpp; sourceTree = "<group>"; };
+		CD7C91F81C4C22130035449D /* MapEditorSelectModuleState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapEditorSelectModuleState.cpp; sourceTree = "<group>"; };
+		CD7C91F91C4C22130035449D /* MapEditorSelectModuleState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MapEditorSelectModuleState.hpp; sourceTree = "<group>"; };
+		CD7C91FA1C4C22130035449D /* MapEditorState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapEditorState.cpp; sourceTree = "<group>"; };
+		CD7C91FB1C4C22130035449D /* MapEditorState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MapEditorState.hpp; sourceTree = "<group>"; };
+		CD7C91FF1C4C22420035449D /* GenderProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GenderProfile.hpp; sourceTree = "<group>"; };
 		CD80C4D91AB1F06600D915FF /* CollectionUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CollectionUtilities.hpp; sourceTree = "<group>"; };
 		CD80C4DB1AB1F06600D915FF /* StringUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StringUtilities.hpp; sourceTree = "<group>"; };
 		CD80C4DE1AB2089B00D915FF /* LERP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LERP.cpp; sourceTree = "<group>"; };
@@ -1166,6 +1173,10 @@
 		CDCE212C1A6404770084D934 /* CameraSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CameraSystem.hpp; sourceTree = "<group>"; };
 		CDD104F21A9FC38900EFF37D /* InternalDebugWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InternalDebugWindow.cpp; sourceTree = "<group>"; };
 		CDD104F31A9FC38900EFF37D /* InternalDebugWindow.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = InternalDebugWindow.hpp; sourceTree = "<group>"; };
+		CDD9D6C61C41239000965E50 /* MessageLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageLog.cpp; sourceTree = "<group>"; };
+		CDD9D6C71C41239000965E50 /* MessageLog.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MessageLog.hpp; sourceTree = "<group>"; };
+		CDD9D6C91C41261B00965E50 /* QuadTreeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadTreeTest.cpp; sourceTree = "<group>"; };
+		CDD9D6CC1C4126BE00965E50 /* QuadTreeTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadTreeTest.mm; sourceTree = "<group>"; };
 		CDDB1A921B12667A009BE567 /* SDL_image.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_image.xcodeproj; path = "SDL2_image-2.0.0/Xcode/SDL_image.xcodeproj"; sourceTree = "<group>"; };
 		CDDB1A951B12667A009BE567 /* SDL_mixer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_mixer.xcodeproj; path = "SDL2_mixer-2.0.0/Xcode/SDL_mixer.xcodeproj"; sourceTree = "<group>"; };
 		CDDB1A981B12667A009BE567 /* SDL_net.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_net.xcodeproj; path = "SDL2_net-2.0.0/Xcode/SDL_net.xcodeproj"; sourceTree = "<group>"; };
@@ -1201,8 +1212,8 @@
 		CDEA079A1AB7564200A5C523 /* Matrix.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Matrix.hpp; sourceTree = "<group>"; };
 		CDEB28BA1C33B5BD00890BEE /* Singleton.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Singleton.hpp; sourceTree = "<group>"; };
 		CDEB28BB1C33B61400890BEE /* Camera.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Camera.hpp; sourceTree = "<group>"; };
-		CDEB28BC1C33B61400890BEE /* ColorDepth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColorDepth.cpp; sourceTree = "<group>"; };
-		CDEB28BD1C33B61400890BEE /* ColorDepth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ColorDepth.hpp; sourceTree = "<group>"; };
+		CDEB28BC1C33B61400890BEE /* ColourDepth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColourDepth.cpp; sourceTree = "<group>"; };
+		CDEB28BD1C33B61400890BEE /* ColourDepth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ColourDepth.hpp; sourceTree = "<group>"; };
 		CDEB28BF1C33B62900890BEE /* MissileTreatment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MissileTreatment.cpp; sourceTree = "<group>"; };
 		CDEB28C01C33B62900890BEE /* MissileTreatment.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MissileTreatment.hpp; sourceTree = "<group>"; };
 		CDEB28C11C33B62900890BEE /* ObjectSlot.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ObjectSlot.hpp; sourceTree = "<group>"; };
@@ -1437,9 +1448,7 @@
 				CD331EA81BED13D000A02B0A /* Physics */,
 				CD9145BB1B095309008EABB3 /* CharacterMatrix.c */,
 				CD9145BC1B095309008EABB3 /* CharacterMatrix.h */,
-				CD39B3EE1A37506100B377BE /* egoboo_config.h */,
 				CD39B3EF1A37506100B377BE /* egoboo_doxygen.h */,
-				CD39B3F41A37506100B377BE /* egoboo_typedef.h */,
 				CD39B3F51A37506100B377BE /* egoboo.c */,
 				CD39B3F61A37506100B377BE /* egoboo.h */,
 				CD39B3FF1A37506100B377BE /* game.c */,
@@ -1468,8 +1477,6 @@
 				CDA937B21B408743008CC620 /* ObjectAnimation.h */,
 				CD39B4371A37506100B377BE /* physics.c */,
 				CD39B4381A37506100B377BE /* physics.h */,
-				CD39B4421A37506100B377BE /* renderer_2d.c */,
-				CD39B4431A37506100B377BE /* renderer_2d.h */,
 				CD39B4441A37506100B377BE /* renderer_3d.c */,
 				CD39B4451A37506100B377BE /* renderer_3d.h */,
 				CD39B4481A37506100B377BE /* script_compile.c */,
@@ -1626,8 +1633,8 @@
 				CDFCCC4B1C3E8A8900FE0B1B /* Buffer.cpp */,
 				CDFCCC4C1C3E8A8900FE0B1B /* Buffer.hpp */,
 				CDEB28BB1C33B61400890BEE /* Camera.hpp */,
-				CDEB28BC1C33B61400890BEE /* ColorDepth.cpp */,
-				CDEB28BD1C33B61400890BEE /* ColorDepth.hpp */,
+				CDEB28BC1C33B61400890BEE /* ColourDepth.cpp */,
+				CDEB28BD1C33B61400890BEE /* ColourDepth.hpp */,
 				CD113DB81ABF31B20067B227 /* Font.cpp */,
 				CD113DB91ABF31B20067B227 /* Font.hpp */,
 				CD113DBA1ABF31B20067B227 /* FontManager.cpp */,
@@ -1679,6 +1686,7 @@
 				CD1329791A90130300D1B221 /* EnchantProfile.hpp */,
 				CD13297C1A90130300D1B221 /* EnchantProfileWriter.cpp */,
 				CD13297D1A90130300D1B221 /* EnchantProfileWriter.hpp */,
+				CD7C91FF1C4C22420035449D /* GenderProfile.hpp */,
 				CD2F42B01B07FF4E00905E42 /* LocalParticleProfileRef.cpp */,
 				CD2F42B11B07FF4E00905E42 /* LocalParticleProfileRef.hpp */,
 				CD792C311A88204E0086270E /* ModuleProfile.cpp */,
@@ -1890,6 +1898,7 @@
 				CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */,
 				CD1F4D781B13F04C0028C45E /* Pathname.cpp */,
 				CDFCCC571C3F6AFF00FE0B1B /* PointMath.cpp */,
+				CDD9D6C91C41261B00965E50 /* QuadTreeTest.cpp */,
 				CDFCCC531C3E8AB600FE0B1B /* Signal.cpp */,
 				CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */,
 				CD1F4D791B13F04C0028C45E /* VectorMath.cpp */,
@@ -2069,12 +2078,18 @@
 				CD792BFA1A881FE20086270E /* GameState.hpp */,
 				CD792BFB1A881FE20086270E /* InGameMenuState.cpp */,
 				CD792BFC1A881FE20086270E /* InGameMenuState.hpp */,
+				CD7C91F61C4C22130035449D /* InputOptionsScreen.cpp */,
+				CD7C91F71C4C22130035449D /* InputOptionsScreen.hpp */,
 				CD792BFD1A881FE20086270E /* LoadingState.cpp */,
 				CD792BFE1A881FE20086270E /* LoadingState.hpp */,
 				CD792BFF1A881FE20086270E /* LoadPlayerElement.cpp */,
 				CD792C001A881FE20086270E /* LoadPlayerElement.hpp */,
 				CD792C011A881FE20086270E /* MainMenuState.cpp */,
 				CD792C021A881FE20086270E /* MainMenuState.hpp */,
+				CD7C91F81C4C22130035449D /* MapEditorSelectModuleState.cpp */,
+				CD7C91F91C4C22130035449D /* MapEditorSelectModuleState.hpp */,
+				CD7C91FA1C4C22130035449D /* MapEditorState.cpp */,
+				CD7C91FB1C4C22130035449D /* MapEditorState.hpp */,
 				CD4ABB001AAED52300A87097 /* OptionsScreen.cpp */,
 				CD4ABB011AAED52300A87097 /* OptionsScreen.hpp */,
 				CD792C031A881FE20086270E /* PlayingState.cpp */,
@@ -2122,6 +2137,8 @@
 				CD792C1B1A881FE20086270E /* Label.hpp */,
 				CD52A7DE1B56CCE90061609B /* LevelUpWindow.cpp */,
 				CD52A7DF1B56CCE90061609B /* LevelUpWindow.hpp */,
+				CDD9D6C61C41239000965E50 /* MessageLog.cpp */,
+				CDD9D6C71C41239000965E50 /* MessageLog.hpp */,
 				CDA937AD1B408725008CC620 /* MiniMap.cpp */,
 				CDA937AE1B408725008CC620 /* MiniMap.hpp */,
 				CD792C1C1A881FE20086270E /* ModuleSelector.cpp */,
@@ -2600,6 +2617,7 @@
 				CDFCCC5C1C3F6BA000FE0B1B /* MatrixMath.mm */,
 				CDFCCC5D1C3F6BA000FE0B1B /* Pathname.mm */,
 				CDFCCC5E1C3F6BA000FE0B1B /* PointMath.mm */,
+				CDD9D6CC1C4126BE00965E50 /* QuadTreeTest.mm */,
 				CDFCCC5F1C3F6BA000FE0B1B /* Signal.mm */,
 				CDFCCC601C3F6BA000FE0B1B /* StringUtilities.mm */,
 				CDFCCC611C3F6BA000FE0B1B /* VectorMath.mm */,
@@ -2984,15 +3002,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD7C91FD1C4C22130035449D /* MapEditorSelectModuleState.cpp in Sources */,
 				CD331EB31BED13D000A02B0A /* CollisionSystem.cpp in Sources */,
 				CD39B4711A37506100B377BE /* lighting.c in Sources */,
-				CD39B48F1A37506100B377BE /* renderer_2d.c in Sources */,
 				CD80C4E71AB2092400D915FF /* OptionsButton.cpp in Sources */,
 				CDCE212D1A6404770084D934 /* Camera.cpp in Sources */,
 				CD792C2F1A881FE20086270E /* Label.cpp in Sources */,
 				CD39B4941A37506100B377BE /* script_implementation.c in Sources */,
 				CD792C1F1A881FE20086270E /* GameState.cpp in Sources */,
 				CDEB28E71C33B6F400890BEE /* Player.cpp in Sources */,
+				CD7C91FE1C4C22130035449D /* MapEditorState.cpp in Sources */,
 				CDEB28E91C33B70500890BEE /* DebugFontRenderingState.cpp in Sources */,
 				CD1B63B31C20A917001414BB /* TextureAtlasManager.cpp in Sources */,
 				CD79F08B1B4AD778000DDF06 /* InternalWindow.cpp in Sources */,
@@ -3000,6 +3019,7 @@
 				CD39B46F1A37506100B377BE /* graphic.c in Sources */,
 				CD39B4681A37506100B377BE /* game.c in Sources */,
 				CDA937B31B408743008CC620 /* ObjectAnimation.c in Sources */,
+				CD7C91FC1C4C22130035449D /* InputOptionsScreen.cpp in Sources */,
 				CD792C2D1A881FE20086270E /* Image.cpp in Sources */,
 				CD97C1651A629E2500179A2C /* Passage.cpp in Sources */,
 				CD707DC91C15CDBC009A9B75 /* Shop.cpp in Sources */,
@@ -3046,6 +3066,7 @@
 				CD39B4931A37506100B377BE /* script_functions.c in Sources */,
 				CD792C2B1A881FE20086270E /* GUIComponent.cpp in Sources */,
 				CD792C301A881FE20086270E /* ModuleSelector.cpp in Sources */,
+				CDD9D6C81C41239000965E50 /* MessageLog.cpp in Sources */,
 				CD792C2A1A881FE20086270E /* ComponentContainer.cpp in Sources */,
 				CD39B4621A37506100B377BE /* egoboo.c in Sources */,
 				CD792C241A881FE20086270E /* PlayingState.cpp in Sources */,
@@ -3080,6 +3101,7 @@
 				CDFCCC631C3F6BA000FE0B1B /* MathConstantTest.mm in Sources */,
 				CDFCCC671C3F6BA000FE0B1B /* Signal.mm in Sources */,
 				CDFCCC651C3F6BA000FE0B1B /* Pathname.mm in Sources */,
+				CDD9D6CE1C4126C500965E50 /* QuadTreeTest.mm in Sources */,
 				CDFCCC641C3F6BA000FE0B1B /* MatrixMath.mm in Sources */,
 				CDFCCC661C3F6BA000FE0B1B /* PointMath.mm in Sources */,
 			);
@@ -3269,7 +3291,7 @@
 				CDFCCC4F1C3E8A8900FE0B1B /* Buffer.cpp in Sources */,
 				CD2F42B51B08086B00905E42 /* WaypointList.c in Sources */,
 				CD2F42B71B08088D00905E42 /* ProfileSystem.cpp in Sources */,
-				CDEB28BE1C33B61400890BEE /* ColorDepth.cpp in Sources */,
+				CDEB28BE1C33B61400890BEE /* ColourDepth.cpp in Sources */,
 				CDAC595E1C01363C00E4886F /* Entry.cpp in Sources */,
 				CDCA1FB41A3F57D000002E76 /* file_common.c in Sources */,
 				CD9059341A69A67C00DC425D /* Random.cpp in Sources */,

@@ -680,7 +680,6 @@ void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int ver
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
-    Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
 	Ego::Renderer::get().setWorldMatrix(pchr->inst.matrix);
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
@@ -700,9 +699,7 @@ void draw_one_grip( chr_instance_t * pinst, int slot )
     // not the texture color of the last vertex we drawn
     Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
 
-    Ego::Renderer::get().setViewMatrix(Matrix4f4f::identity());
     Ego::Renderer::get().setWorldMatrix(pinst->matrix);
-	Ego::Renderer::get().multiplyMatrix(pinst->matrix);
 
     _draw_one_grip_raw( pinst, slot );
 }

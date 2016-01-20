@@ -103,16 +103,20 @@ Font::LaidTextRenderer::LaidTextRenderer(const std::shared_ptr<Ego::Texture> &at
 {}
 
 void Font::LaidTextRenderer::render(int x, int y, const Ego::Math::Colour4f &colour) {
-    auto &renderer = Ego::Renderer::get();
     struct MatrixStack {
-        MatrixStack() { GL_DEBUG(glPushMatrix)(); }
-        ~MatrixStack() { GL_DEBUG(glPopMatrix)(); }
-    } stack;
+        MatrixStack() :matrix(Ego::Renderer::get().getProjectionMatrix()) {}
+        ~MatrixStack() { Ego::Renderer::get().setProjectionMatrix(matrix); }
+        const Matrix4f4f matrix;
+    };
+    
+    auto &renderer = Ego::Renderer::get();
+    MatrixStack stack;
     
     Vector3f pos(static_cast<float>(x), static_cast<float>(y), 0.0f);
     Matrix4f4f transMat = Transform::translation(pos);
+    Matrix4f4f projMatrix = stack.matrix * transMat;
     
-    renderer.multiplyMatrix(transMat);
+    renderer.setProjectionMatrix(projMatrix);
     renderer.setColour(colour);
     renderer.getTextureUnit().setActivated(_atlas.get());
     renderer.render(*(_vertexBuffer.get()), Ego::PrimitiveType::Quadriliterals, 0, _vertexBuffer->getNumberOfVertices());
@@ -788,8 +792,7 @@ std::vector<uint16_t> Font::splitUTF8StringToCodepoints(const std::string &text)
     return retval;
 }
 
-// assume the next version of SDL_ttf is 2.0.13,
-// as of this writing (2015-07-26), the hg version where this is fixed is still 2.0.12
+// SDL_ttf 2.0.13 contains the fixed API
 #define IS_KERNING_FIXED(MAJOR, MINOR, PATCH) (SDL_VERSIONNUM(MAJOR, MINOR, PATCH) >= SDL_VERSIONNUM(2, 0, 13))
 
 #define USING_FIXED_API IS_KERNING_FIXED(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL)
@@ -802,13 +805,15 @@ int Font::getFontKerning(uint16_t prevCodepoint, uint16_t nextCodepoint) const {
 #if USING_FIXED_API
     // This errors-out if we're not actually compiling with the fixed API,
     // if you get a error here, please file a bug!
-    //int (*compileCheck)(TTF_Font *, uint16_t, uint16_t) = TTF_GetFontKerningSize;
+    static_assert(std::is_same<decltype(TTF_GetFontKerningSize), int (TTF_Font *, uint16_t, uint16_t)>::value,
+                  "Expected SDL_ttf 2.0.13's kerning API, got something different");
     
     return TTF_GetFontKerningSize(_ttfFont, prevCodepoint, nextCodepoint);
 #else
     // This errors-out if we're actually compiling with the fixed API,
     // if you get an error here, please file a bug!
-    //int (*compileCheck)(TTF_Font *, int, int) = TTF_GetFontKerningSize;
+    static_assert(std::is_same<decltype(TTF_GetFontKerningSize), int (TTF_Font *, int, int)>::value,
+                    "Expected SDL_ttf 2.0.11's kerning API, got something different");
     
     // Abuse the fact that TTF_GlyphIsProvided just calls FT_Get_Char_Index and returns the value
     // instead of returning if the value is not equal to 0

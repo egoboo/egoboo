@@ -25,6 +25,9 @@ IDLIB_TARGET      := libidlib.a
 CARTMAN_DIR       := cartman
 CARTMAN_TARGET    := cartman
 
+EGOTOOL_DIR       := utilities/convertpaletted
+EGOTOOL_TARGET    := egotool
+
 INSTALL_DIR       := data
 
 #---------------------
@@ -64,26 +67,29 @@ CXXFLAGS += $(TMPFLAGS)
 LDFLAGS  += $(LUA_LDFLAGS)
 LDFLAGS  += ${SDLCONF_L} -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lphysfs -lenet -lGL
 
-export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET
+export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET EGOTOOL_TARGET
 
 #------------------------------------
 # definitions of the target projects
 
-.PHONY: all clean idlib egolib egoboo cartman install doxygen external_lua test
+.PHONY: all clean idlib egolib egoboo cartman install doxygen external_lua test egotool
 
-all: idlib egolib egoboo cartman
+all: idlib egolib egoboo cartman egotool
 
 idlib: external_lua
 	${MAKE} -C $(IDLIB_DIR)
 
-egolib: idlib external_lua
+egolib: idlib
 	${MAKE} -C $(EGOLIB_DIR)
 
-egoboo: idlib external_lua egolib
+egoboo: egolib
 	${MAKE} -C $(EGO_DIR)
 
-cartman: idlib external_lua egolib
+cartman: egolib
 	${MAKE} -C $(CARTMAN_DIR)
+
+egotool: egolib
+	${MAKE} -C $(EGOTOOL_DIR)
 
 test: all
 	${MAKE} -C ${IDLIB_DIR} test
@@ -99,6 +105,7 @@ clean:
 	${MAKE} -C $(EGOLIB_DIR) clean
 	${MAKE} -C $(EGO_DIR) clean
 	${MAKE} -C $(CARTMAN_DIR) clean
+	${MAKE} -C $(EGOTOOL_DIR) clean
 ifeq ($(USE_EXTERNAL_LUA), 1)
 	${MAKE} -C $(EXTERNAL_LUA) clean
 endif
