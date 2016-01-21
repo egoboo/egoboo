@@ -448,11 +448,8 @@ private:
 	static void interpolate_vertices_raw(GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
 };
 
-
-
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 struct MadRenderer {
 	static gfx_rv render(Camera& cam, const std::shared_ptr<Object>& object, GLXvector4f tint, const BIT_FIELD bits);
     
@@ -469,4 +466,14 @@ private:
 	static gfx_rv render_enviro(Camera& cam, const std::shared_ptr<Object>& object, GLXvector4f tint, const BIT_FIELD bits);
 	/// Draw model with texturing.
 	static gfx_rv render_tex(Camera& cam, const std::shared_ptr<Object>& object, GLXvector4f tint, const BIT_FIELD bits);
+
+#if _DEBUG
+    static void draw_chr_verts(const std::shared_ptr<Object>&pchr, int vrt_offset, int verts);
+    static void _draw_one_grip_raw(chr_instance_t * pinst, int slot);
+    static void draw_one_grip(chr_instance_t * pinst, int slot);
+    //static void draw_chr_grips( Object * pchr );
+    static void draw_chr_attached_grip(const std::shared_ptr<Object>& pchr);
+    static void draw_chr_bbox(const std::shared_ptr<Object>& pchr);
+#endif
+
 };

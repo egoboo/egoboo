@@ -35,27 +35,10 @@
 #include "game/CharacterMatrix.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 // the flip tolerance is the default flip increment / 2
 static constexpr float FLIP_TOLERANCE = 0.25f * 0.5f;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if _DEBUG
-static void draw_chr_verts(const std::shared_ptr<Object>&pchr, int vrt_offset, int verts );
-static void _draw_one_grip_raw( chr_instance_t * pinst, int slot );
-static void draw_one_grip( chr_instance_t * pinst, int slot );
-//static void draw_chr_grips( Object * pchr );
-static void draw_chr_attached_grip(const std::shared_ptr<Object>& pchr);
-static void draw_chr_bbox(const std::shared_ptr<Object>& pchr);
-#endif
-
-// these functions are only called by render_one_mad()
-
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
@@ -618,7 +601,7 @@ gfx_rv MadRenderer::render_solid( Camera& cam, const std::shared_ptr<Object> &pc
 
 //--------------------------------------------------------------------------------------------
 #if _DEBUG
-static void draw_chr_bbox(const std::shared_ptr<Object>& pchr)
+void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 {
     static constexpr bool drawLeftSlot = false;
     static constexpr bool drawRightSlot = false;
@@ -662,7 +645,7 @@ static void draw_chr_bbox(const std::shared_ptr<Object>& pchr)
 #endif
 
 #if _DEBUG
-void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int verts )
+void MadRenderer::draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int verts )
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
@@ -693,7 +676,7 @@ void draw_chr_verts(const std::shared_ptr<Object>& pchr, int vrt_offset, int ver
 #endif
 
 #if _DEBUG
-void draw_one_grip( chr_instance_t * pinst, int slot )
+void MadRenderer::draw_one_grip( chr_instance_t * pinst, int slot )
 {
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
@@ -704,7 +687,7 @@ void draw_one_grip( chr_instance_t * pinst, int slot )
     _draw_one_grip_raw( pinst, slot );
 }
 
-void _draw_one_grip_raw( chr_instance_t * pinst, int slot )
+void MadRenderer::_draw_one_grip_raw( chr_instance_t * pinst, int slot )
 {
     int vmin, vmax, cnt;
 
@@ -754,7 +737,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, int slot )
 	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 }
 
-void draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
+void MadRenderer::draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
 {
     const std::shared_ptr<Object> &pholder = pchr->getHolder();
     if (!pholder || pholder->isTerminated()) return;
@@ -764,7 +747,7 @@ void draw_chr_attached_grip(const std::shared_ptr<Object>& pchr)
 #endif
 
 #if 0
-void draw_chr_grips( Object * pchr )
+void MadRenderer::draw_chr_grips( Object * pchr )
 {
     mad_t * pmad;
 
