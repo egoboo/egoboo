@@ -1058,6 +1058,12 @@
     <ClInclude Include="src\egolib\Profiles\GenderProfile.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\VectorProjection.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\VectorRejection.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

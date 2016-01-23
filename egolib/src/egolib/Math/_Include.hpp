@@ -19,4 +19,6 @@
 #include "egolib/Math/Standard.hpp"
 #include "egolib/Math/Transform.hpp"
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/VectorProjection.hpp"
+#include "egolib/Math/VectorRejection.hpp"
 #undef EGOLIB_MATH_PRIVATE
