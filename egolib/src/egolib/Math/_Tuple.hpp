@@ -157,6 +157,46 @@ protected:
 		return _elements[index];
 	}
 
+
+
+private:
+    /** @internal */
+    template <size_t ... Index>
+    ElementType minhelper(std::index_sequence<Index ...>) const {
+        return std::min({(this->_elements[Index]) ...});
+    }
+
+public:
+    /**
+     * @brief
+     *  Get the smallest element value of this tuple.
+     * @return
+     *  the smallest element value of this tuple
+     */
+    ElementType min() const {
+        return minhelper(std::index_sequence<MyType::dimensionality()>{});
+    }
+
+
+
+private:
+    /** @internal */
+    template <size_t ... Index>
+    ElementType maxhelper(std::index_sequence<Index ...>) const {
+        return std::max({(this->_elements[Index]) ...});
+    }
+
+public:
+    /**
+     * @brief
+     *  Get the greatest component value of this tuple.
+     * @return
+     *  the greatest component value of this tuple
+     */
+    ElementType max() const {
+        return maxhelper(std::index_sequence<MyType::dimensionality()>{});
+    }
+
 };
 
 } // namespace Math

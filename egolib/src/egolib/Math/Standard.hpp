@@ -41,14 +41,23 @@ typedef Ego::Math::VectorSpace<Fieldf, 3> VectorSpace3f;
 /// A 4D vector space.
 typedef Ego::Math::VectorSpace<Fieldf, 4> VectorSpace4f;
 
+/// A 2D Euclidean space.
+typedef Ego::Math::EuclideanSpace<VectorSpace2f> EuclideanSpace2f;
+
+/// A 3D Euclidean space.
+typedef Ego::Math::EuclideanSpace<VectorSpace3f> EuclideanSpace3f;
+
+/// A 4D Euclidean space.
+typedef Ego::Math::EuclideanSpace<VectorSpace4f> EuclideanSpace4f;
+
 /// A 3D sphere.
-typedef Ego::Math::Sphere<VectorSpace3f> Sphere3f;
+typedef Ego::Math::Sphere<EuclideanSpace3f> Sphere3f;
 
 /// A 3D AABB.
-typedef Ego::Math::AABB<VectorSpace3f> AABB3f;
+typedef Ego::Math::AABB<EuclideanSpace3f> AABB3f;
 
 /// A 2D AABB.
-typedef Ego::Math::AABB<VectorSpace2f> AABB2f;
+typedef Ego::Math::AABB<EuclideanSpace2f> AABB2f;
 /// A 2D AABB can also be considered as a rectangle.
 typedef AABB2f Rectangle2f;
 
@@ -56,10 +65,10 @@ typedef AABB2f Rectangle2f;
 typedef Ego::Math::Cone3<float> Cone3f;
 
 /// A 3D cube.
-typedef Ego::Math::Cube<VectorSpace3f> Cube3f;
+typedef Ego::Math::Cube<EuclideanSpace3f> Cube3f;
 
 /// A 3D line.
-typedef Ego::Math::Line<VectorSpace3f> Line3f;
+typedef Ego::Math::Line<EuclideanSpace3f> Line3f;
 
 /// A 3D point.
 typedef Ego::Math::Point<VectorSpace3f> Point3f;
