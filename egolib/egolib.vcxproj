@@ -573,7 +573,7 @@
     <ClInclude Include="src\egolib\Math\_Tuple.hpp" />
     <ClInclude Include="src\egolib\Logic\Team.hpp" />
     <ClInclude Include="src\egolib\Math\Dimensionality.hpp" />
-    <ClInclude Include="src\egolib\Math\EuclidianSpace.hpp" />
+    <ClInclude Include="src\egolib\Math\EuclideanSpace.hpp" />
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />
     <ClInclude Include="src\egolib\Math\Standard.hpp" />
     <ClInclude Include="src\egolib\Math\AABB.hpp" />

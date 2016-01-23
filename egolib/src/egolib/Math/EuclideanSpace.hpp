@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/EuclidianSpace.hpp
-/// @brief  The \f$n\f$-dimensional Euclidian space (aka \f$n\f$-dimensional Cartesian space).
+/// @file   egolib/Math/EuclideanSpace.hpp
+/// @brief  The \f$n\f$-dimensional Euclidean space (aka \f$n\f$-dimensional Cartesian space).
 /// @author Michael Heilmann
 
 #pragma once
@@ -31,17 +31,17 @@ namespace Math {
 
 /**
  * @brief
- *  An \f$n\f$-dimensional Euclidian space (sometimes called \f$n\f$-dimensional Cartesian space).
+ *  An \f$n\f$-dimensional Euclidean space (sometimes called \f$n\f$-dimensional Cartesian space).
  * @tparam _VectorSpaceType 
  *  the underlying \f$n\f$-dimensional vector space type.
  *  Must fulfil the <em>VectorSpace</tt> concept.
  */
 template <typename _VectorSpaceType,
           typename _Enabled = void>
-struct EuclidianSpace;
+struct EuclideanSpace;
 
 template <typename _VectorSpaceType>
-struct EuclidianSpace<_VectorSpaceType, std::enable_if_t<true>> {
+struct EuclideanSpace<_VectorSpaceType, std::enable_if_t<true>> {
 public:
     /**
      * @brief
@@ -53,7 +53,7 @@ public:
      * @brief
      *  The type of this template/template specialization.
      */
-    typedef EuclidianSpace<VectorSpaceType> MyType;
+    typedef EuclideanSpace<VectorSpaceType> MyType;
 
     /**
      * @brief
@@ -89,7 +89,7 @@ public:
      */
     typedef Point<VectorSpaceType> PointType;
 
-}; // struct EuclidianSpace
+}; // struct EuclideanSpace
 
 } // namespace Math
 } // namespace Ego

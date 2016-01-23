@@ -449,7 +449,7 @@ public:
     /**
      * @brief
      *  Get the squared length of this vector
-     *  (using the Euclidian metric).
+     *  (using the Euclidean metric).
      * @return
      *  the squared length of this vector
      */
@@ -464,7 +464,7 @@ public:
     /**
      * @brief
      *  Get the length of this vector
-     *  (using the Euclidian metric).
+     *  (using the Euclidean metric).
      * @return
      *  the length of this vector
      */

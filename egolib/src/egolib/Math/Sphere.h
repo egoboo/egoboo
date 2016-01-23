@@ -23,7 +23,7 @@
 #pragma once
 
 #include "egolib/Math/Vector.hpp"
-#include "egolib/Math/EuclidianSpace.hpp"
+#include "egolib/Math/EuclideanSpace.hpp"
 
 namespace Ego {
 namespace Math {
@@ -37,16 +37,16 @@ namespace Math {
 template <typename _VectorSpaceType>
 struct Sphere : public Translatable<_VectorSpaceType> {
 public:
-    /// @brief The Euclidian space over which the lines are defined.
-    typedef EuclidianSpace<_VectorSpaceType> EuclidianSpaceType;
-    /// The vector space type (of the Euclidian space).
-    typedef typename EuclidianSpaceType::VectorSpaceType VectorSpaceType;
+    /// @brief The Euclidean space over which the lines are defined.
+    typedef EuclideanSpace<_VectorSpaceType> EuclideanSpaceType;
+    /// The vector space type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
     /// The scalar field type (of the vector space).
-    typedef typename EuclidianSpaceType::ScalarFieldType ScalarFieldType;
+    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
     /// The vector type (of the vector space).
-    typedef typename EuclidianSpaceType::VectorType VectorType;
+    typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
-    typedef typename EuclidianSpaceType::ScalarType ScalarType;
+    typedef typename EuclideanSpaceType::ScalarType ScalarType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef Sphere<_VectorSpaceType> MyType;
 
