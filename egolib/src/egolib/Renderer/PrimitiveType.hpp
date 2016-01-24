@@ -46,6 +46,21 @@ enum class PrimitiveType {
 
     /**
      * @brief
+     *  The vertices \f$i-1\f$ and \f$i\f$ define a line.
+     *  Given \f$n\f$ vertices, \f$n-1\f$ lines are drawn.
+     */
+    LineStrip,
+
+    /**
+     * @brief
+     *  The vertices \f$i-1\f$ and \f4i\f$ define a line.
+     *  Given \f$n\f$ vertices, \f$n-1\f$ lines are drawn
+     *  plus one line between from the last vertex \f$n\f$ to the first vertex \f$1\f$.
+     */
+    LineLoop,
+
+    /**
+     * @brief
      *  Vertices \f$3i-2\f$, \f$3i-1\f$, and \f$3i\f$ define triangle \f$i\f$.
      *  Given \f$n\f$ vertices, \f$\frac{n}{3}\f$ triangles are drawn.
      */
