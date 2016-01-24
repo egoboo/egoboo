@@ -339,6 +339,10 @@ GLenum Utilities::toOpenGL(PrimitiveType primitiveType)
             return GL_POINTS;
         case PrimitiveType::Lines:
             return GL_LINES;
+        case PrimitiveType::LineLoop:
+            return GL_LINE_LOOP;
+        case PrimitiveType::LineStrip:
+            return GL_LINE_STRIP;
         case PrimitiveType::Triangles:
             return GL_TRIANGLES;
         case PrimitiveType::TriangleFan:

@@ -25,7 +25,7 @@
 
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Translatable.hpp"
-#include "egolib/Math/EuclidianSpace.hpp"
+#include "egolib/Math/EuclideanSpace.hpp"
 
 
 
@@ -42,21 +42,21 @@ namespace Math {
 *  \end{align*}
 *  where \$A, B\f$ are location vectors in \f$\mathbb{R}^n\f$.
 */
-template <typename _VectorSpaceType>
-struct Line : public Translatable<_VectorSpaceType> {
+template <typename _EuclideanSpaceType>
+struct Line : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidian space over which the lines are defined.
-    typedef EuclidianSpace<_VectorSpaceType> EuclidianSpaceType;
-    /// The vector space type (of the Euclidian space).
-    typedef typename EuclidianSpaceType::VectorSpaceType VectorSpaceType;
+    /// @brief The Euclidean space over which the lines are defined.
+    typedef _EuclideanSpaceType EuclideanSpaceType;
+    /// The vector space type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
     /// The scalar field type (of the vector space).
-    typedef typename EuclidianSpaceType::ScalarFieldType ScalarFieldType;
+    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
     /// The vector type (of the vector space).
-    typedef typename EuclidianSpaceType::VectorType VectorType;
+    typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
-    typedef typename EuclidianSpaceType::ScalarType ScalarType;
+    typedef typename EuclideanSpaceType::ScalarType ScalarType;
     /// @brief @a MyType is the type of this template/template specialization.
-    typedef Line<_VectorSpaceType> MyType;
+    typedef Line<_EuclideanSpaceType> MyType;
 
 private:
     /// The 1st \f$A\f$.
@@ -128,7 +128,24 @@ public:
     const VectorType& getB() const {
         return b;
     }
+    
+    /**
+     * @brief
+     *  Get a point \f$P(t)\f$ along this line.
+     * @param t
+     *  the parameter \f$t\f$
+     * @return
+     *  the point \f$P(t) = \vec{a} + t(\vec{b} - \vec{a})\f$ along the line
+     * @remark
+     *  The point \f$P(t)\f$ with parameter \f$t \in \mathbb{R}\f$ along the line
+     *  \f$L = \left\{ A + t (B - A) | t \in \mathbb{R} \right\}$
+     *  is defined as \f$P(t) = A + t (B-A)\f$.
+     */
+    VectorType getPoint(ScalarType t) const {
+        return a + (b - a) * t;
+    }
 
+public:
     /** @copydoc Translatable::translate */
     virtual void translate(const VectorType& t) {
         a += t;

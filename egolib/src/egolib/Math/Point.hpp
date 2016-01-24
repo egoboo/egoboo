@@ -55,8 +55,8 @@ struct PointConstructorEnable
 
 } // namespace Internal
 
-/// @brief A point in the \f$n\f$-dimensional Euclidian space.
-/// @tparam _EuclidianSpace the Euclidian space over which the points are defined.
+/// @brief A point in the \f$n\f$-dimensional Euclidean space.
+/// @tparam _EuclideanSpace the Euclidean space over which the points are defined.
 template <typename _VectorSpaceType>
 struct Point : public Tuple<typename _VectorSpaceType::ScalarType, _VectorSpaceType::dimensionality()> {
 public:

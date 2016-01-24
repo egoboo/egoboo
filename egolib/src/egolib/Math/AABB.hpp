@@ -25,7 +25,7 @@
 
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Translatable.hpp"
-#include "egolib/Math/EuclidianSpace.hpp"
+#include "egolib/Math/EuclideanSpace.hpp"
 #include "egolib/Math/Sphere.h"
 
 namespace Ego {
@@ -43,21 +43,21 @@ namespace Math {
  * @author
  *  Michael Heilmann
  */
-template <typename _VectorSpaceType>
-struct AABB : public Translatable<_VectorSpaceType> {
+template <typename _EuclideanSpaceType>
+struct AABB : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
-    /// @brief The Euclidian space over which the AABBs are defined.
-    typedef EuclidianSpace<_VectorSpaceType> EuclidianSpaceType;
-    /// The vector space type (of the Euclidian space).
-    typedef typename EuclidianSpaceType::VectorSpaceType VectorSpaceType;
+    /// @brief The Euclidean space over which the AABBs are defined.
+    typedef _EuclideanSpaceType EuclideanSpaceType;
+    /// The vector space type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
     /// The scalar field type (of the vector space).
-    typedef typename EuclidianSpaceType::ScalarFieldType ScalarFieldType;
+    typedef typename EuclideanSpaceType::ScalarFieldType ScalarFieldType;
     /// The vector type (of the vector space).
-    typedef typename EuclidianSpaceType::VectorType VectorType;
+    typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
-    typedef typename EuclidianSpaceType::ScalarType ScalarType;
+    typedef typename EuclideanSpaceType::ScalarType ScalarType;
     /// @brief @a MyType is the type of this template/template specialization.
-    typedef AABB<_VectorSpaceType> MyType;
+    typedef AABB<_EuclideanSpaceType> MyType;
 
 private:
     /**
@@ -96,7 +96,7 @@ public:
      */
     AABB(const VectorType& min, const VectorType& max)
         : _min(min), _max(max) {
-        for (size_t i = 0; i < EuclidianSpaceType::dimensionality(); ++i) {
+        for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             if (min[i] > max[i]) {
                 throw std::logic_error("minimum along an axis is greater than the maximum along that axis");
             }
@@ -173,7 +173,7 @@ public:
      *  The result of the join was assigned to this AABB.
      */
     void join(const MyType& other) {
-        for (size_t i = 0; i < EuclidianSpaceType::dimensionality(); ++i) {
+        for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             _min[i] = std::min(_min[i], other._min[i]);
             _max[i] = std::max(_max[i], other._max[i]);
         }
@@ -191,7 +191,7 @@ public:
      *  This function is <em>not</em> commutative.
      */
     bool contains(const MyType& other) const {
-        for (size_t i = 0; i < EuclidianSpaceType::dimensionality(); ++i) {
+        for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             if (_max[i] > other._max[i]) return false;
             if (_min[i] < other._min[i]) return false;
         }
@@ -213,7 +213,7 @@ public:
      *  for each axis k x.min[k] >= y.min[k] and x
      */
     inline bool overlaps(const MyType& other) const {
-        for (size_t i = 0; i < EuclidianSpaceType::dimensionality(); ++i) {
+        for (size_t i = 0; i < EuclideanSpaceType::dimensionality(); ++i) {
             // If the minimum of the LHS is greater than the maximum of the RHS along one axis,
             // then they can not overlap.
             if (_min[i] > other._max[i]) {

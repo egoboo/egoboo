@@ -1046,9 +1046,6 @@
     <ClInclude Include="src\egolib\Math\Line.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\EuclidianSpace.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Point.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -1057,6 +1054,15 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Profiles\GenderProfile.hpp">
       <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\VectorProjection.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\VectorRejection.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\EuclideanSpace.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
