@@ -23,39 +23,32 @@
 
 #include "egolib/Graphics/VertexBuffer.hpp"
 
-namespace Ego
-{
-
+namespace Ego {
 
 VertexBuffer::VertexBuffer(size_t numberOfVertices,
                            const VertexFormatDescriptor& vertexFormatDescriptor) :
-    _numberOfVertices(numberOfVertices), _vertexFormatDescriptor(vertexFormatDescriptor),
-    _vertices(new char[vertexFormatDescriptor.getVertexSize()*numberOfVertices])
+    numberOfVertices(numberOfVertices), vertexFormatDescriptor(vertexFormatDescriptor),
+    vertices(new char[vertexFormatDescriptor.getVertexSize()*numberOfVertices])
 {}
 
-VertexBuffer::~VertexBuffer()
-{
-    delete[] _vertices;
-    _vertices = nullptr;
+VertexBuffer::~VertexBuffer() {
+    delete[] vertices;
+	vertices = nullptr;
 }
 
-size_t VertexBuffer::getNumberOfVertices() const
-{
-    return _numberOfVertices;
+size_t VertexBuffer::getNumberOfVertices() const {
+    return numberOfVertices;
 }
 
-const VertexFormatDescriptor& VertexBuffer::getVertexFormatDescriptor() const
-{
-    return _vertexFormatDescriptor;
+const VertexFormatDescriptor& VertexBuffer::getVertexFormatDescriptor() const {
+    return vertexFormatDescriptor;
 }
 
-void *VertexBuffer::lock()
-{
-    return _vertices;
+void *VertexBuffer::lock() {
+    return vertices;
 }
 
-void VertexBuffer::unlock()
-{
+void VertexBuffer::unlock() {
     /* Intentionally empty for the moment. */
 }
 

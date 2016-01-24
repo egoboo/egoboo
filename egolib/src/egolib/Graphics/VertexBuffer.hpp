@@ -26,8 +26,7 @@
 
 #include "egolib/Graphics/VertexFormat.hpp"
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
@@ -38,31 +37,27 @@ namespace Ego
  * @author
  *  Michael Heilmann
  */
-class VertexBuffer : Id::NonCopyable
-{
-
+class VertexBuffer : Id::NonCopyable {
 protected:
-
     /**
      * @brief
      *  The number of vertices.
      */
-    size_t _numberOfVertices;
+    size_t numberOfVertices;
 
     /**
      * @brief
      *  The vertex format descriptor.
      */
-    VertexFormatDescriptor _vertexFormatDescriptor;
+    VertexFormatDescriptor vertexFormatDescriptor;
 
     /**
      * @brief
      *  The vertices.
      */
-    char *_vertices;
+    char *vertices;
 
 public:
-
     /** 
      * @brief
      *  Construct this vertex buffer.
@@ -97,23 +92,23 @@ public:
     
     /**
      * @brief
-     *  Lock this vertex buffer.
+     *  Lock this buffer.
      * @return
-     *  a pointer to the vertex data
+     *  a pointer to the buffer data
 	 * @throw Ego::Core::LockFailedException
-	 *  if locking the vertex buffer failed
+	 *  if locking the buffer failed
      */
     void *lock();
      
     /**
      * @brief
-     *  Unlock this vertex buffer.
+     *  Unlock this buffer.
 	 * @remark
-	 *  If the vertex buffer is not locked, a call to this method is a no-op.
+	 *  If the buffer is not locked, a call to this method is a no-op.
      */
     void unlock();
 
-};
+}; // class VertexBuffer
 
 /**
  * @brief
@@ -121,19 +116,18 @@ public:
  * @author
  *  Michael Heilmann
  */
-struct VertexBufferScopedLock
-{
+struct VertexBufferScopedLock {
 private:
 	/**
 	 * @brief
 	 *  A pointer to the backing memory of the vertex buffer.
 	 */
-	void *_pointer;
+	void *pointer;
 	/**
 	 * @brief
 	 *  A pointer to the vertex buffer.
 	 */
-	VertexBuffer *_vertexBuffer;
+	VertexBuffer *vertexBuffer;
 public:
 	/**
 	 * @brief
@@ -146,16 +140,15 @@ public:
 	 *  Use an other exception type than std::runtime_error.
 	 */
 	VertexBufferScopedLock(VertexBuffer& vertexBuffer)
-		: _vertexBuffer(&vertexBuffer) {
-		_pointer = _vertexBuffer->lock();
+		: vertexBuffer(&vertexBuffer), pointer(vertexBuffer.lock()) {
 	}
 
 	/**
 	 * @brief
 	 *  Destruct his vertex buffer scoped lock, unlocking the vertex buffer.
 	 */
-	virtual ~VertexBufferScopedLock() {
-		_vertexBuffer->unlock();
+	~VertexBufferScopedLock() {
+		vertexBuffer->unlock();
 	}
 
 	/**
@@ -164,11 +157,11 @@ public:
 	 * @return
 	 *  a pointer to the backing memory of the vertex buffer
 	 */
-	template <typename _Type>
-	_Type *get() {
-		return static_cast<_Type *>(_pointer);
+	template <typename Type>
+	Type *get() {
+		return static_cast<Type *>(pointer);
 	}
 
-};
+}; // struct VertexBufferScopedLock
 
 } // namespace Ego
