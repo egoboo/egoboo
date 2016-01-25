@@ -23,13 +23,28 @@
 
 #include "egolib/Graphics/VertexFormat.hpp"
 
-namespace Ego
-{
+namespace Ego {
 
-const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFormat)
-{
-    switch (vertexFormat)
-    {
+VertexFormatDescriptor::VertexFormatDescriptor(std::initializer_list<VertexElement> vertexElements)
+    : vertexElements(vertexElements), vertexSize(0) {
+    // (1) Compute the vertex size.
+    for (const auto& vertexElement : vertexElements) {
+        vertexSize = std::max(vertexSize, vertexElement.getOffset() + vertexElement.getSize());
+    }
+}
+
+VertexFormatDescriptor::VertexFormatDescriptor(const VertexFormatDescriptor& other)
+    : vertexElements(other.vertexElements), vertexSize(other.vertexSize) {
+}
+
+const VertexFormatDescriptor& VertexFormatDescriptor::operator=(const VertexFormatDescriptor& other) {
+    vertexElements = other.vertexElements;
+    vertexSize = other.vertexSize;
+    return *this;
+}
+
+const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFormat) {
+    switch (vertexFormat) {
         case VertexFormat::P2F:          return get<VertexFormat::P2F>();
 		case VertexFormat::P2FT2F:       return get<VertexFormat::P2FT2F>();
         case VertexFormat::P3F:          return get<VertexFormat::P3F>();
@@ -44,161 +59,76 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFor
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2F>()
-{
-    static const VertexElementDescriptor position(0, VertexElementSyntax::F2, VertexElementSemantics::Position);
-    static const size_t size = position.getOffset() + position.getSize();
-    static const VertexFormatDescriptor INSTANCE
-        (
-			VertexFormat::P2F,
-			size,
-			position.getSize(), // position
-			0,                  // colour
-			0,                  // texture
-			0                   // normal
-        );
-    return INSTANCE;
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2F>() {
+    static const VertexElement position(0, VertexElement::Syntax::F2, VertexElement::Semantics::Position);
+    static const VertexFormatDescriptor descriptor({position});
+    return descriptor;
 }
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2FT2F>()
 {
-    static const VertexElementDescriptor position(0, VertexElementSyntax::F2, VertexElementSemantics::Position);
-    static const VertexElementDescriptor texture(position.getOffset() + position.getSize(), VertexElementSyntax::F2, VertexElementSemantics::Texture);
-    static const size_t size = std::max({position.getOffset() + position.getSize(),
-                                         texture.getOffset() + texture.getSize()});
-	static const VertexFormatDescriptor INSTANCE
-		(
-			VertexFormat::P2FT2F,
-			size,
-			position.getSize(), // position
-			0,                  // colour
-			texture.getSize(),  // texture
-			0                   // normal
-		);
-	return INSTANCE;
+    static const VertexElement position(0, VertexElement::Syntax::F2, VertexElement::Semantics::Position);
+    static const VertexElement texture(position.getOffset() + position.getSize(), VertexElement::Syntax::F2, VertexElement::Semantics::Texture);
+    static const VertexFormatDescriptor descriptor({position, texture});
+    return descriptor;
 }
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3F>()
 {
-    static const VertexElementDescriptor position(0, VertexElementSyntax::F3, VertexElementSemantics::Position);
-    static const size_t size = std::max({position.getOffset() + position.getSize()});
-    static const VertexFormatDescriptor INSTANCE
-        (
-			VertexFormat::P3F,
-			size,
-            position.getSize(), // position
-			0 ,                 // colour
-			0,                  // texture
-			0                   // normal
-        );
-    return INSTANCE;
+    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
+    static const VertexFormatDescriptor descriptor({position});
+    return descriptor;
 }
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4F>()
 {
-    static const VertexElementDescriptor position(0, VertexElementSyntax::F3, VertexElementSemantics::Position);
-    static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementSyntax::F4, VertexElementSemantics::Colour);
-    static const size_t size = std::max({position.getOffset() + position.getSize(),
-                                         colour.getOffset() + colour.getSize()});
-    static const VertexFormatDescriptor INSTANCE
-        (
-            VertexFormat::P3FC4F,
-            size,
-            position.getSize(), // position
-            colour.getSize(),   // colour
-            0,                  // texture
-            0                   // normal
-        );
-    return INSTANCE;
+    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
+    static const VertexElement colour(position.getOffset() + position.getSize(), VertexElement::Syntax::F4, VertexElement::Semantics::Colour);
+    static const VertexFormatDescriptor descriptor({position, colour});
+    return descriptor;
 }
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FT2F>()
 {
-    static const VertexElementDescriptor position(0, VertexElementSyntax::F3, VertexElementSemantics::Position);
-    static const VertexElementDescriptor texture(position.getOffset() + position.getSize(), VertexElementSyntax::F2, VertexElementSemantics::Texture);
-    static const size_t size = std::max({position.getOffset() + position.getSize(),
-                                         texture.getOffset() + texture.getSize()});
-    static const VertexFormatDescriptor INSTANCE
-        (
-			VertexFormat::P3FT2F,
-			size,
-			position.getSize(), // position
-			0,                  // colour
-			texture.getSize(),  // texture
-			0                   // normal
-        );
-    return INSTANCE;
+    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
+    static const VertexElement texture(position.getOffset() + position.getSize(), VertexElement::Syntax::F2, VertexElement::Semantics::Texture);
+    static const VertexFormatDescriptor descriptor({position, texture});
+    return descriptor;
 }
-
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FN3F>()
 {
-    static const VertexElementDescriptor position(0, VertexElementSyntax::F3, VertexElementSemantics::Position);
-    static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementSyntax::F4, VertexElementSemantics::Colour);
-    static const VertexElementDescriptor normal(colour.getOffset() + colour.getSize(), VertexElementSyntax::F3, VertexElementSemantics::Normal);
-    static const size_t size = std::max({position.getOffset() + position.getSize(),
-                                         colour.getOffset() + colour.getSize(),
-                                         normal.getOffset() + normal.getSize()});
-    static const VertexFormatDescriptor INSTANCE
-        (
-            VertexFormat::P3FC4FN3F,
-            size,
-            position.getSize(), // position
-            colour.getSize(),   // colour
-            0,                  // texture
-            normal.getSize()    // normal
-        );
-    return INSTANCE;
+    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
+    static const VertexElement colour(position.getOffset() + position.getSize(), VertexElement::Syntax::F4, VertexElement::Semantics::Colour);
+    static const VertexElement normal(colour.getOffset() + colour.getSize(), VertexElement::Syntax::F3, VertexElement::Semantics::Normal);
+    static const VertexFormatDescriptor descriptor({position, colour, normal});
+    return descriptor;
 }
-
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2F>()
 {
-    static const VertexElementDescriptor position(0, VertexElementSyntax::F3, VertexElementSemantics::Position);
-    static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementSyntax::F4, VertexElementSemantics::Colour);
-    static const VertexElementDescriptor texture(colour.getOffset() + colour.getSize(), VertexElementSyntax::F2, VertexElementSemantics::Texture);
-    static const size_t size = std::max({position.getOffset() + position.getSize(),
-                                         colour.getOffset() + colour.getSize(),
-                                         texture.getOffset() + texture.getSize()});
-    static const VertexFormatDescriptor INSTANCE
-        (
-            VertexFormat::P3FC4FT2F,
-            size,
-            position.getSize(), // position
-            colour.getSize(),   // colour
-            texture.getSize(),  // texture
-            0                   // normal
-        );
-    return INSTANCE;
+    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
+    static const VertexElement colour(position.getOffset() + position.getSize(), VertexElement::Syntax::F4, VertexElement::Semantics::Colour);
+    static const VertexElement texture(colour.getOffset() + colour.getSize(), VertexElement::Syntax::F2, VertexElement::Semantics::Texture);
+    static const VertexFormatDescriptor descriptor({position, colour, texture});
+    return descriptor;
 }
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2FN3F>()
 {
-    static const VertexElementDescriptor position(0, VertexElementSyntax::F3, VertexElementSemantics::Position);
-    static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementSyntax::F4, VertexElementSemantics::Colour);
-    static const VertexElementDescriptor texture(colour.getOffset() + colour.getSize(), VertexElementSyntax::F2, VertexElementSemantics::Texture);
-    static const VertexElementDescriptor normal(texture.getOffset() + texture.getSize(), VertexElementSyntax::F3, VertexElementSemantics::Normal);
-    static const size_t size = std::max({position.getOffset() + position.getSize(),
-                                         colour.getOffset() + colour.getSize(),
-                                         texture.getOffset() + texture.getSize(),
-                                         normal.getOffset() + normal.getOffset()});
-    static const VertexFormatDescriptor INSTANCE
-        (
-            VertexFormat::P3FC4FT2FN3F,
-            size,
-            position.getSize(), // position
-            colour.getSize(),   // colour
-            texture.getSize(),  // texture
-            normal.getSize()    // normal
-        );
-    return INSTANCE;
+    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
+    static const VertexElement colour(position.getOffset() + position.getSize(), VertexElement::Syntax::F4, VertexElement::Semantics::Colour);
+    static const VertexElement texture(colour.getOffset() + colour.getSize(), VertexElement::Syntax::F2, VertexElement::Semantics::Texture);
+    static const VertexElement normal(texture.getOffset() + texture.getSize(), VertexElement::Syntax::F3, VertexElement::Semantics::Normal);
+    static const VertexFormatDescriptor descriptor({position, colour, texture, normal});
+    return descriptor;
 }
 
 } // namespace Ego

@@ -27,65 +27,64 @@
 
 namespace Ego {
 
-/// An enum class of the syntactic forms of vertex elements.
-enum class VertexElementSyntax {
-    /// One <tt>float</tt> value.
-    F1,
-    /// Two <tt>float</tt> values.
-    F2,
-    /// Three <tt>float</tt> values.
-    F3,
-    /// Four <tt>float</tt> values.
-    F4,
-}; // enum class VertexElementSyntax
-
-/// An enum class of the semantic forms of vertex elements.
-enum class VertexElementSemantics {
-    /// Position.
-    Position,
-    /// Colour.
-    Colour,
-    /// Normal.
-    Normal,
-    /// Texture.
-    Texture,
-}; // enum class VertexElementSemantics
-
 /// The description of a vertex element.
-class VertexElementDescriptor {
+class VertexElement {
 public:
+    /// An enum class of the syntactic forms of vertex elements.
+    enum class Syntax {
+        /// One <tt>float</tt> value.
+        F1,
+        /// Two <tt>float</tt> values.
+        F2,
+        /// Three <tt>float</tt> values.
+        F3,
+        /// Four <tt>float</tt> values.
+        F4,
+    }; // enum class Syntax
+
+    /// An enum class of the semantic forms of vertex elements.
+    enum class Semantics {
+        /// Position.
+        Position,
+        /// Colour.
+        Colour,
+        /// Normal.
+        Normal,
+        /// Texture.
+        Texture,
+    }; // enum class Semantics
   
 private:
     /**
      * @brief
-     *  The offset, in Bytes, of this vertex element from the beginning of the vertex.
+     *  The offset, in Bytes, of the vertex element from the beginning of the vertex.
      */
     size_t offset;
 
     /**
      * @brief
-     *  The syntax of this vertex element.
+     *  The syntax of the vertex element.
      */
-    VertexElementSyntax syntax;
+    Syntax syntax;
 
     /**
      * @brief
-     *  The semantics of this vertex element.
+     *  The semantics of the vertex element.
      */
-    VertexElementSemantics semantics;
+    Semantics semantics;
 
 public:
     /** 
      * @brief
      *  Construct this vertex element descriptor.
      * @param offset
-     *  the offset, in Bytes, of this vertex element from the beginning of the vertex
+     *  the offset, in Bytes, of the vertex element from the beginning of the vertex
      * @param syntax
-     *  the syntax of this vertex element
+     *  the syntax of the vertex element
      * @param semantics
-     *  the semantics of this vertex element
+     *  the semantics of the vertex element
      */
-    VertexElementDescriptor(size_t offset, VertexElementSyntax syntax, VertexElementSemantics semantics);
+    VertexElement(size_t offset, Syntax syntax, Semantics semantics);
 
     /** 
      * @brief
@@ -93,15 +92,17 @@ public:
      * @param other
      *  the other vertex element descriptor
      */
-    VertexElementDescriptor(const VertexElementDescriptor& other);
+    VertexElement(const VertexElement& other);
 
     /**
      * @brief
      *  Assign this vertex element descriptor from another vertex element descriptor.
      * @param other
      *  the other vertex element descriptor
+     * @return
+     *  this vertex element descriptor
      */
-    const VertexElementDescriptor& operator=(const VertexElementDescriptor& other);
+    const VertexElement& operator=(const VertexElement& other);
     
 public:
     /** 
@@ -110,9 +111,10 @@ public:
      * @param other
      *  the other vertex element descriptor
      * @return
-     *  @a true if this vertex element descriptor is equivalent to the other vertex element descriptor, @a false otherwise
+     *  @a true if this vertex element descriptor is equivalent to the other vertex element descriptor,
+     *  @a false otherwise
      */
-    bool operator==(const VertexElementDescriptor& other) const;
+    bool operator==(const VertexElement& other) const;
 
     /** 
      * @brief
@@ -120,16 +122,17 @@ public:
      * @param other
      *  the other vertex element descriptor
      * @return
-     *  @a true if this vertex element descriptor is not equivalent to the other vertex element descriptor, @a false otherwise
+     *  @a true if this vertex element descriptor is not equivalent to the other vertex element descriptor,
+     *  @a false otherwise
      */
-    bool operator!=(const VertexElementDescriptor& other) const;
+    bool operator!=(const VertexElement& other) const;
     
 public:
     /** 
      * @brief
      *  Get the offset, in Bytes, of the vertex element from the beginning of the vertex.
      * @return
-     *  Get the offset, in Bytes, of the vertex element from the beginning of the vertex.
+     *  the offset, in Bytes, of the vertex element from the beginning of the vertex
      */
     size_t getOffset() const;
 
@@ -137,9 +140,9 @@ public:
      * @brief
      *  Get the syntax of the vertex element.
      * @return
-     *  the syntax of the vertex element
+     *  the syntax of this vertex element
      */
-    VertexElementSyntax getSyntax() const;
+    Syntax getSyntax() const;
 
     /** 
      * @brief
@@ -147,7 +150,7 @@ public:
      * @return
      *  the semantics of the vertex element
      */
-    VertexElementSemantics getSemantics() const;
+    Semantics getSemantics() const;
 
     /**
      * @brief
@@ -157,6 +160,6 @@ public:
      */
     size_t getSize() const;
 
-}; // class VertexElementDescriptor
+}; // class VertexElement
     
 } // namespace Ego

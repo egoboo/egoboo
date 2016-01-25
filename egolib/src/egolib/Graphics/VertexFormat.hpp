@@ -25,8 +25,7 @@
 
 #include "egolib/Graphics/VertexElementDescriptor.hpp"
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
@@ -34,36 +33,40 @@ namespace Ego
  * @author
  *  Michael Heilmann
  */
-enum class VertexFormat
-{
+enum class VertexFormat {
     /**
      * @brief
      *  Two floats for the position component.
      */
     P2F,
+
 	/**
 	 * @brief
 	 *	Two floats for the position component,
 	 *	two floats for the texture component.
 	 */
 	P2FT2F,
+
     /**
      * @brief
      *  Three floats for the position component.
      */
     P3F,
+
     /**
      * @brief
      *  Three floats for the position component and
      *  four floats for colour component.
      */
     P3FC4F,
+
     /**
      * @brief
      *  Three floats for the position component and
      *  two floats for the texture component.
      */
     P3FT2F,
+
     /**
      * @brief
      *  Three floats for the position component,
@@ -71,6 +74,7 @@ enum class VertexFormat
      *  three floats for the normal component.
      */
     P3FC4FN3F,
+
     /**
      * @brief
      *  Three floats for the position component,
@@ -78,6 +82,7 @@ enum class VertexFormat
      *  two floats for the texture component.
      */
     P3FC4FT2F,
+
     /**
      * @brief
      *  Three floats for the position component,
@@ -86,7 +91,8 @@ enum class VertexFormat
      *  three floats for the normal component.
      */
      P3FC4FT2FN3F,
-};
+
+}; // enum class VertexFormat
 
 /**
  * @brief
@@ -95,134 +101,83 @@ enum class VertexFormat
  * @author
  *  Michael Heilmann
  */
-class VertexFormatDescriptor
-{
-
+class VertexFormatDescriptor {
 private:
-
     /**
      * @brief
-     *  The vertex format.
+     *  The list of vertex elements.
      */
-    VertexFormat _vertexFormat;
+    std::vector<VertexElement> vertexElements;
 
     /**
      * @brief
      *  The size, in Bytes, of a vertex.
      */
-    size_t _vertexSize;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of the position component.
-     */
-    size_t _positionSize;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of the colour component
-     */
-    size_t _colourSize;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of the normal component.
-     */
-    size_t _normalSize;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of the texture component.
-     */
-    size_t _textureSize;
+    size_t vertexSize;
     
+public:
     /**
      * @brief
      *  Construct this vertex format descriptor.
-     * @param vertexFormat
-     *  the vertex format
-     * @param vertexSize
-     *  the size, in Bytes, of a vertex
-     * @param positionSize, colourSize, textureSize, normalSize
-     *  the sizes, in Bytes, of the position, colour, texture, and normal components
+     * @param vertexElements
+     *  the vertex elements
      */
-    VertexFormatDescriptor(VertexFormat vertexFormat, size_t vertexSize, size_t positionSize, size_t colourSize,
-                           size_t textureSize, size_t normalSize) :
-        _vertexFormat(vertexFormat), 
-        _vertexSize(vertexSize),
-        _positionSize(positionSize), 
-        _colourSize(colourSize), 
-        _normalSize(normalSize),
-        _textureSize(textureSize)
-    {}
+    VertexFormatDescriptor(std::initializer_list<VertexElement> vertexElements);
+
+    /**
+     * @brief
+     *  Copy-construct this vertex format descriptor.
+     * @param other
+     *  the other vertex format descriptor
+     */
+    VertexFormatDescriptor(const VertexFormatDescriptor& other);
+
+    /**
+     * @brief
+     *  Assign this vertex format descriptor.
+     * @param other
+     *  the other vertex format descriptor
+     * @return
+     *  this vertex format descriptor
+     */
+    const VertexFormatDescriptor& operator=(const VertexFormatDescriptor& other);
     
-    
+   
 public:
+    /** @brief The type of an iterator of the vertex element descriptors. */
+    typedef std::vector<VertexElement>::const_iterator const_iterator;
+    /** @brief The type of an iterator over the vertex element descriptors. */
+    typedef std::vector<VertexElement>::iterator iterator;
 
+    /**@{*/
     /**
-     * @brief
-     *  Get the size, in Bytes, of the position component.
-     * @return
-     *  the size, in Bytes, of the position component.
+     * @brief Return an iterator to the beginning.
+     * @return an iterator to the beginning
      */
-    size_t getPositionSize() const
-    {
-        return _positionSize;
-    }
+    iterator begin() { return vertexElements.begin(); }
+    const_iterator begin() const { return vertexElements.begin(); }
+    const_iterator cbegin() const { return vertexElements.cbegin(); }
+    /**@}*/
 
+    /**@{*/
     /**
-     * @brief
-     *  Get the size, in Bytes, of the colour component.
-     * @return
-     *  the size, in Bytes, of the colour component
-     */
-    size_t getColorSize() const
-    {
-        return _colourSize;
-    }
+    * @brief Return an iterator to the end.
+    * @return an iterator to the end
+    */
+    iterator end() { return vertexElements.end(); }
+    const_iterator end() const { return vertexElements.end(); }
+    const_iterator cend() const { return vertexElements.cend(); }
+    /**@}*/
 
-    /**
-     * @brief
-     *  Get the size, in Bytes, of the normal component.
-     * @return
-     *  the size, in Bytes, of the normal component
-     */
-    size_t getNormalSize() const
-    {
-        return _normalSize;
-    }
-
-    /**
-     * @brief
-     *  Get the size, in Bytes, of the texture component.
-     * @return
-     *  the size, in Bytes, of the texture component
-     */
-    size_t getTextureSize() const
-    {
-        return _textureSize;
-    }
-    
+public:
     /**
      * @brief
      *  Get the size, in Bytes, of a vertex.
      * @return
      *  the size, in Bytes, of a vertex.
      */
-    size_t getVertexSize() const
-    {
-        return _vertexSize;
-    }
-    
-    /**
-     * @brief
-     *  Get the vertex format.
-     * @return
-     *  the vertex format
-     */
-    VertexFormat getVertexFormat() const
-    {
-        return _vertexFormat;
+    size_t getVertexSize() const {
+        return vertexSize;
     }
 
     template <VertexFormat _VertexFormat>
@@ -238,7 +193,7 @@ public:
      */
     static const VertexFormatDescriptor& get(VertexFormat vertexFormat);
 
-};
+}; // class VertexFormatDescriptor
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2F>();

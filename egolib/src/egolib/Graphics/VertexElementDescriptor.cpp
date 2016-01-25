@@ -25,54 +25,54 @@
 
 namespace Ego {
 
-VertexElementDescriptor::VertexElementDescriptor(size_t offset, VertexElementSyntax syntax, VertexElementSemantics semantics)
+VertexElement::VertexElement(size_t offset, Syntax syntax, Semantics semantics)
     : offset(offset), syntax(syntax), semantics(semantics) {
 }
 
-VertexElementDescriptor::VertexElementDescriptor(const VertexElementDescriptor& other)
+VertexElement::VertexElement(const VertexElement& other)
     : offset(other.offset), syntax(other.syntax), semantics(other.semantics) {
 }
 
-const VertexElementDescriptor& VertexElementDescriptor::operator=(const VertexElementDescriptor& other) {
+const VertexElement& VertexElement::operator=(const VertexElement& other) {
     offset = other.offset;
     syntax = other.syntax;
     semantics = other.semantics;
     return *this;
 }
 
-bool VertexElementDescriptor::operator==(const VertexElementDescriptor& other) const {
+bool VertexElement::operator==(const VertexElement& other) const {
     return offset == other.offset
         && syntax == other.syntax
         && semantics == other.semantics;
 }
 
-bool VertexElementDescriptor::operator!=(const VertexElementDescriptor& other) const {
+bool VertexElement::operator!=(const VertexElement& other) const {
     return offset != other.offset
         || syntax != other.syntax
         || semantics != other.semantics;
 }
 
-size_t VertexElementDescriptor::getOffset() const {
+size_t VertexElement::getOffset() const {
     return offset;
 }
 
-VertexElementSyntax VertexElementDescriptor::getSyntax() const {
+VertexElement::Syntax VertexElement::getSyntax() const {
     return syntax;
 }
 
-VertexElementSemantics VertexElementDescriptor::getSemantics() const {
+VertexElement::Semantics VertexElement::getSemantics() const {
     return semantics;
 }
 
-size_t VertexElementDescriptor::getSize() const {
+size_t VertexElement::getSize() const {
     switch (syntax) {
-        case VertexElementSyntax::F1:
+        case Syntax::F1:
             return sizeof(float) * 1;
-        case VertexElementSyntax::F2:
+        case Syntax::F2:
             return sizeof(float) * 2;
-        case VertexElementSyntax::F3:
+        case Syntax::F3:
             return sizeof(float) * 3;
-        case VertexElementSyntax::F4:
+        case Syntax::F4:
             return sizeof(float) * 4;
         default:
             throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
