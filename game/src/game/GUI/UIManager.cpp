@@ -30,7 +30,7 @@ UIManager::UIManager() :
     _fonts(),
     _renderSemaphore(0),
     _bitmapFontTexture(TextureManager::get().getTexture("mp_data/font_new_shadow")),
-    _textureQuadVertexBuffer(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2FT2F>())
+    _textureQuadVertexBuffer(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2FT2F>())
 {
     //Load fonts from true-type files
     _fonts[FONT_DEFAULT] = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
@@ -52,7 +52,7 @@ UIManager::UIManager() :
     }
 #endif
 
-    const auto& vertexFormat = Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>();
+    const auto& vertexFormat = Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>();
     _vertexBuffer = std::make_shared<Ego::VertexBuffer>(4, vertexFormat);
 }
 

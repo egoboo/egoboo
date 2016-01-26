@@ -113,7 +113,7 @@ gfx_rv render_one_prt_solid(const ParticleRef iprt)
     if (SPRITE_SOLID != pprt->type) return gfx_fail;
 
     // billboard for the particle
-    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
+    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
     calc_billboard_verts(*vb, pinst, pinst.size, false);
 
     {
@@ -239,7 +239,7 @@ gfx_rv render_one_prt_trans(const ParticleRef iprt)
             }
 
             if (drawParticle) {
-                auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
+                auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
                 calc_billboard_verts(*vb, inst, inst.size, false);
 
                 renderer.setColour(particleColour);
@@ -341,7 +341,7 @@ gfx_rv render_one_prt_ref(const ParticleRef iprt)
                 if (draw_particle) {
                     // Calculate the position of the four corners of the billboard
                     // used to display the particle.
-                    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FT2F>());
+                    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P3FT2F>());
                     calc_billboard_verts(*vb, inst, inst.size, true);
 
                     renderer.setColour(particle_colour); // GL_CURRENT_BIT

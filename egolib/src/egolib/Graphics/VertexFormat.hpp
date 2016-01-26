@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "egolib/Graphics/VertexElementDescriptor.hpp"
+#include "egolib/Graphics/VertexDescriptor.hpp"
 
 namespace Ego {
 
@@ -94,129 +94,45 @@ enum class VertexFormat {
 
 }; // enum class VertexFormat
 
-/**
- * @brief
- *  A vertex format descriptor suitable to describe the vertex formats
- *  as specified by the Ego::VertexFormat enumeration.
- * @author
- *  Michael Heilmann
- */
-class VertexFormatDescriptor {
-private:
+
+
+struct GraphicsUtilities {
     /**
      * @brief
-     *  The list of vertex elements.
-     */
-    std::vector<VertexElement> vertexElements;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of a vertex.
-     */
-    size_t vertexSize;
-    
-public:
-    /**
-     * @brief
-     *  Construct this vertex format descriptor.
-     * @param vertexElements
-     *  the vertex elements
-     */
-    VertexFormatDescriptor(std::initializer_list<VertexElement> vertexElements);
-
-    /**
-     * @brief
-     *  Copy-construct this vertex format descriptor.
-     * @param other
-     *  the other vertex format descriptor
-     */
-    VertexFormatDescriptor(const VertexFormatDescriptor& other);
-
-    /**
-     * @brief
-     *  Assign this vertex format descriptor.
-     * @param other
-     *  the other vertex format descriptor
-     * @return
-     *  this vertex format descriptor
-     */
-    const VertexFormatDescriptor& operator=(const VertexFormatDescriptor& other);
-    
-   
-public:
-    /** @brief The type of an iterator of the vertex element descriptors. */
-    typedef std::vector<VertexElement>::const_iterator const_iterator;
-    /** @brief The type of an iterator over the vertex element descriptors. */
-    typedef std::vector<VertexElement>::iterator iterator;
-
-    /**@{*/
-    /**
-     * @brief Return an iterator to the beginning.
-     * @return an iterator to the beginning
-     */
-    iterator begin() { return vertexElements.begin(); }
-    const_iterator begin() const { return vertexElements.begin(); }
-    const_iterator cbegin() const { return vertexElements.cbegin(); }
-    /**@}*/
-
-    /**@{*/
-    /**
-    * @brief Return an iterator to the end.
-    * @return an iterator to the end
-    */
-    iterator end() { return vertexElements.end(); }
-    const_iterator end() const { return vertexElements.end(); }
-    const_iterator cend() const { return vertexElements.cend(); }
-    /**@}*/
-
-public:
-    /**
-     * @brief
-     *  Get the size, in Bytes, of a vertex.
-     * @return
-     *  the size, in Bytes, of a vertex.
-     */
-    size_t getVertexSize() const {
-        return vertexSize;
-    }
-
-    template <VertexFormat _VertexFormat>
-    static const VertexFormatDescriptor& get();
-
-    /**
-     * @brief
-     *  Get the vertex format descriptor for a vertex format.
+     *  Get the vertex descriptor for a vertex format.
      * @param vertexFormat
      *  the vertex format
      * @return
-     *  the vertex format descriptor for the vertex format
+     *  the vertex descriptor for the vertex format
      */
-    static const VertexFormatDescriptor& get(VertexFormat vertexFormat);
+    static const VertexDescriptor& get(VertexFormat vertexFormat);
 
-}; // class VertexFormatDescriptor
-
-template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2F>();
-
-template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2FT2F>();
+    template <VertexFormat _VertexFormat>
+    static const VertexDescriptor& get();
+};
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P2F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FT2F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P2FT2F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FN3F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FT2F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2FN3F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FN3F>();
+
+template <>
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FT2F>();
+
+template <>
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FT2FN3F>();
 
 } // namespace Ego

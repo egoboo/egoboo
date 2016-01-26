@@ -25,46 +25,46 @@
 
 namespace Ego {
 
-VertexElement::VertexElement(size_t offset, Syntax syntax, Semantics semantics)
+VertexElementDescriptor::VertexElementDescriptor(size_t offset, Syntax syntax, Semantics semantics)
     : offset(offset), syntax(syntax), semantics(semantics) {
 }
 
-VertexElement::VertexElement(const VertexElement& other)
+VertexElementDescriptor::VertexElementDescriptor(const VertexElementDescriptor& other)
     : offset(other.offset), syntax(other.syntax), semantics(other.semantics) {
 }
 
-const VertexElement& VertexElement::operator=(const VertexElement& other) {
+const VertexElementDescriptor& VertexElementDescriptor::operator=(const VertexElementDescriptor& other) {
     offset = other.offset;
     syntax = other.syntax;
     semantics = other.semantics;
     return *this;
 }
 
-bool VertexElement::operator==(const VertexElement& other) const {
+bool VertexElementDescriptor::operator==(const VertexElementDescriptor& other) const {
     return offset == other.offset
         && syntax == other.syntax
         && semantics == other.semantics;
 }
 
-bool VertexElement::operator!=(const VertexElement& other) const {
+bool VertexElementDescriptor::operator!=(const VertexElementDescriptor& other) const {
     return offset != other.offset
         || syntax != other.syntax
         || semantics != other.semantics;
 }
 
-size_t VertexElement::getOffset() const {
+size_t VertexElementDescriptor::getOffset() const {
     return offset;
 }
 
-VertexElement::Syntax VertexElement::getSyntax() const {
+VertexElementDescriptor::Syntax VertexElementDescriptor::getSyntax() const {
     return syntax;
 }
 
-VertexElement::Semantics VertexElement::getSemantics() const {
+VertexElementDescriptor::Semantics VertexElementDescriptor::getSemantics() const {
     return semantics;
 }
 
-size_t VertexElement::getSize() const {
+size_t VertexElementDescriptor::getSize() const {
     switch (syntax) {
         case Syntax::F1:
             return sizeof(float) * 1;

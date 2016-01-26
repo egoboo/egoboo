@@ -26,9 +26,9 @@
 namespace Ego {
 
 VertexBuffer::VertexBuffer(size_t numberOfVertices,
-                           const VertexFormatDescriptor& vertexFormatDescriptor) :
-    numberOfVertices(numberOfVertices), vertexFormatDescriptor(vertexFormatDescriptor),
-    vertices(new char[vertexFormatDescriptor.getVertexSize()*numberOfVertices])
+                           const VertexDescriptor& vertexDescriptor) :
+    numberOfVertices(numberOfVertices), vertexDescriptor(vertexDescriptor),
+    vertices(new char[vertexDescriptor.getVertexSize()*numberOfVertices])
 {}
 
 VertexBuffer::~VertexBuffer() {
@@ -40,8 +40,8 @@ size_t VertexBuffer::getNumberOfVertices() const {
     return numberOfVertices;
 }
 
-const VertexFormatDescriptor& VertexBuffer::getVertexFormatDescriptor() const {
-    return vertexFormatDescriptor;
+const VertexDescriptor& VertexBuffer::getVertexDescriptor() const {
+    return vertexDescriptor;
 }
 
 void *VertexBuffer::lock() {

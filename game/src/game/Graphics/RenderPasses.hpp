@@ -112,7 +112,7 @@ struct Background : public RenderPass {
 public:
 	Background()
 		: RenderPass("background"),
-		  _vertexBuffer(4, VertexFormatDescriptor::get<VertexFormat::P3FT2F>()) {
+		  _vertexBuffer(4, GraphicsUtilities::get<VertexFormat::P3FT2F>()) {
 	}
 protected:
 	/// A vertex type used by this render pass.
@@ -130,7 +130,7 @@ struct Foreground : public RenderPass {
 public:
 	Foreground()
 		: RenderPass("foreground"),
-		  _vertexBuffer(4, VertexFormatDescriptor::get<VertexFormat::P3FT2F>()) {
+		  _vertexBuffer(4, GraphicsUtilities::get<VertexFormat::P3FT2F>()) {
 	}
 protected:
 	/// A vertex type used by this render pass.
@@ -199,7 +199,7 @@ struct EntityShadows : public RenderPass {
 public:
 	EntityShadows()
 		: RenderPass("entityShadows"),
-		  _vertexBuffer(4, VertexFormatDescriptor::get<VertexFormat::P3FT2F>()) {
+		  _vertexBuffer(4, GraphicsUtilities::get<VertexFormat::P3FT2F>()) {
 	}
 protected:
 	void doRun(::Camera& cam, const TileList& tl, const EntityList& el) override;

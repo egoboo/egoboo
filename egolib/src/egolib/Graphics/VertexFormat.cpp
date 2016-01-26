@@ -25,25 +25,7 @@
 
 namespace Ego {
 
-VertexFormatDescriptor::VertexFormatDescriptor(std::initializer_list<VertexElement> vertexElements)
-    : vertexElements(vertexElements), vertexSize(0) {
-    // (1) Compute the vertex size.
-    for (const auto& vertexElement : vertexElements) {
-        vertexSize = std::max(vertexSize, vertexElement.getOffset() + vertexElement.getSize());
-    }
-}
-
-VertexFormatDescriptor::VertexFormatDescriptor(const VertexFormatDescriptor& other)
-    : vertexElements(other.vertexElements), vertexSize(other.vertexSize) {
-}
-
-const VertexFormatDescriptor& VertexFormatDescriptor::operator=(const VertexFormatDescriptor& other) {
-    vertexElements = other.vertexElements;
-    vertexSize = other.vertexSize;
-    return *this;
-}
-
-const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFormat) {
+const VertexDescriptor& GraphicsUtilities::get(VertexFormat vertexFormat) {
     switch (vertexFormat) {
         case VertexFormat::P2F:          return get<VertexFormat::P2F>();
 		case VertexFormat::P2FT2F:       return get<VertexFormat::P2FT2F>();
@@ -59,75 +41,75 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFor
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2F>() {
-    static const VertexElement position(0, VertexElement::Syntax::F2, VertexElement::Semantics::Position);
-    static const VertexFormatDescriptor descriptor({position});
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P2F>() {
+    static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Position);
+    static const VertexDescriptor descriptor({position});
     return descriptor;
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2FT2F>()
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P2FT2F>()
 {
-    static const VertexElement position(0, VertexElement::Syntax::F2, VertexElement::Semantics::Position);
-    static const VertexElement texture(position.getOffset() + position.getSize(), VertexElement::Syntax::F2, VertexElement::Semantics::Texture);
-    static const VertexFormatDescriptor descriptor({position, texture});
+    static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Position);
+    static const VertexElementDescriptor texture(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Texture);
+    static const VertexDescriptor descriptor({position, texture});
     return descriptor;
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3F>()
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3F>()
 {
-    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
-    static const VertexFormatDescriptor descriptor({position});
+    static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
+    static const VertexDescriptor descriptor({position});
     return descriptor;
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4F>()
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4F>()
 {
-    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
-    static const VertexElement colour(position.getOffset() + position.getSize(), VertexElement::Syntax::F4, VertexElement::Semantics::Colour);
-    static const VertexFormatDescriptor descriptor({position, colour});
+    static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
+    static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F4, VertexElementDescriptor::Semantics::Colour);
+    static const VertexDescriptor descriptor({position, colour});
     return descriptor;
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FT2F>()
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FT2F>()
 {
-    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
-    static const VertexElement texture(position.getOffset() + position.getSize(), VertexElement::Syntax::F2, VertexElement::Semantics::Texture);
-    static const VertexFormatDescriptor descriptor({position, texture});
+    static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
+    static const VertexElementDescriptor texture(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Texture);
+    static const VertexDescriptor descriptor({position, texture});
     return descriptor;
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FN3F>()
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FN3F>()
 {
-    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
-    static const VertexElement colour(position.getOffset() + position.getSize(), VertexElement::Syntax::F4, VertexElement::Semantics::Colour);
-    static const VertexElement normal(colour.getOffset() + colour.getSize(), VertexElement::Syntax::F3, VertexElement::Semantics::Normal);
-    static const VertexFormatDescriptor descriptor({position, colour, normal});
+    static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
+    static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F4, VertexElementDescriptor::Semantics::Colour);
+    static const VertexElementDescriptor normal(colour.getOffset() + colour.getSize(), VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Normal);
+    static const VertexDescriptor descriptor({position, colour, normal});
     return descriptor;
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2F>()
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FT2F>()
 {
-    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
-    static const VertexElement colour(position.getOffset() + position.getSize(), VertexElement::Syntax::F4, VertexElement::Semantics::Colour);
-    static const VertexElement texture(colour.getOffset() + colour.getSize(), VertexElement::Syntax::F2, VertexElement::Semantics::Texture);
-    static const VertexFormatDescriptor descriptor({position, colour, texture});
+    static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
+    static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F4, VertexElementDescriptor::Semantics::Colour);
+    static const VertexElementDescriptor texture(colour.getOffset() + colour.getSize(), VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Texture);
+    static const VertexDescriptor descriptor({position, colour, texture});
     return descriptor;
 }
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2FN3F>()
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FT2FN3F>()
 {
-    static const VertexElement position(0, VertexElement::Syntax::F3, VertexElement::Semantics::Position);
-    static const VertexElement colour(position.getOffset() + position.getSize(), VertexElement::Syntax::F4, VertexElement::Semantics::Colour);
-    static const VertexElement texture(colour.getOffset() + colour.getSize(), VertexElement::Syntax::F2, VertexElement::Semantics::Texture);
-    static const VertexElement normal(texture.getOffset() + texture.getSize(), VertexElement::Syntax::F3, VertexElement::Semantics::Normal);
-    static const VertexFormatDescriptor descriptor({position, colour, texture, normal});
+    static const VertexElementDescriptor position(0, VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Position);
+    static const VertexElementDescriptor colour(position.getOffset() + position.getSize(), VertexElementDescriptor::Syntax::F4, VertexElementDescriptor::Semantics::Colour);
+    static const VertexElementDescriptor texture(colour.getOffset() + colour.getSize(), VertexElementDescriptor::Syntax::F2, VertexElementDescriptor::Semantics::Texture);
+    static const VertexElementDescriptor normal(texture.getOffset() + texture.getSize(), VertexElementDescriptor::Syntax::F3, VertexElementDescriptor::Semantics::Normal);
+    static const VertexDescriptor descriptor({position, colour, texture, normal});
     return descriptor;
 }
 

@@ -434,118 +434,118 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     const char *vertices = static_cast<char *>(vertexBuffer.lock());
-    const auto& vertexFormatDescriptor = vertexBuffer.getVertexFormatDescriptor();
-    for (auto it = vertexFormatDescriptor.begin(); it != vertexFormatDescriptor.end(); ++it) {
-        const auto& vertexElement = (*it);
-        switch (vertexElement.getSemantics()) {
-            case VertexElement::Semantics::Position:
+    const auto& vertexDescriptor = vertexBuffer.getVertexDescriptor();
+    for (auto it = vertexDescriptor.begin(); it != vertexDescriptor.end(); ++it) {
+        const auto& vertexElementDescriptor = (*it);
+        switch (vertexElementDescriptor.getSemantics()) {
+            case VertexElementDescriptor::Semantics::Position:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_VERTEX_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElement.getSyntax())
+                switch (vertexElementDescriptor.getSyntax())
                 {
-                    case VertexElement::Syntax::F2:
+                    case VertexElementDescriptor::Syntax::F2:
                         size = 2;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F3:
+                    case VertexElementDescriptor::Syntax::F3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F4:
+                    case VertexElementDescriptor::Syntax::F4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F1:
+                    case VertexElementDescriptor::Syntax::F1:
                         throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
                     default:
                         throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
                 };
-                glVertexPointer(size, type, vertexFormatDescriptor.getVertexSize(),
-                                vertices + vertexElement.getOffset());
+                glVertexPointer(size, type, vertexDescriptor.getVertexSize(),
+                                vertices + vertexElementDescriptor.getOffset());
             }
             break;
-            case VertexElement::Semantics::Colour:
+            case VertexElementDescriptor::Semantics::Colour:
             {
                 // Enable required client-side capabilities.
                 glEnableClientState(GL_COLOR_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElement.getSyntax()) {
-                    case VertexElement::Syntax::F3:
+                switch (vertexElementDescriptor.getSyntax()) {
+                    case VertexElementDescriptor::Syntax::F3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F4:
+                    case VertexElementDescriptor::Syntax::F4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F1:
-                    case VertexElement::Syntax::F2:
+                    case VertexElementDescriptor::Syntax::F1:
+                    case VertexElementDescriptor::Syntax::F2:
                         throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
                     default:
                         throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
                 };
-                glColorPointer(size, type, vertexFormatDescriptor.getVertexSize(),
-                               vertices + vertexElement.getOffset());
+                glColorPointer(size, type, vertexDescriptor.getVertexSize(),
+                               vertices + vertexElementDescriptor.getOffset());
             }
             break;
-            case VertexElement::Semantics::Normal:
+            case VertexElementDescriptor::Semantics::Normal:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_NORMAL_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElement.getSyntax()) {
-                    case VertexElement::Syntax::F3:
+                switch (vertexElementDescriptor.getSyntax()) {
+                    case VertexElementDescriptor::Syntax::F3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F1:
-                    case VertexElement::Syntax::F2:
-                    case VertexElement::Syntax::F4:
+                    case VertexElementDescriptor::Syntax::F1:
+                    case VertexElementDescriptor::Syntax::F2:
+                    case VertexElementDescriptor::Syntax::F4:
                         throw Id::RuntimeErrorException(__FILE__, __LINE__, "vertex format not supported");
                     default:
                         throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
                 };
-                glNormalPointer(type, vertexFormatDescriptor.getVertexSize(),
-                                vertices + vertexElement.getOffset());
+                glNormalPointer(type, vertexDescriptor.getVertexSize(),
+                                vertices + vertexElementDescriptor.getOffset());
             }
             break;
-            case VertexElement::Semantics::Texture:
+            case VertexElementDescriptor::Semantics::Texture:
             {
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 // Set the pointers.
                 GLint size;
                 GLenum type;
-                switch (vertexElement.getSyntax()) {
-                    case VertexElement::Syntax::F1:
+                switch (vertexElementDescriptor.getSyntax()) {
+                    case VertexElementDescriptor::Syntax::F1:
                         size = 1;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F2:
+                    case VertexElementDescriptor::Syntax::F2:
                         size = 2;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F3:
+                    case VertexElementDescriptor::Syntax::F3:
                         size = 3;
                         type = GL_FLOAT;
                         break;
-                    case VertexElement::Syntax::F4:
+                    case VertexElementDescriptor::Syntax::F4:
                         size = 4;
                         type = GL_FLOAT;
                         break;
                     default:
                         throw Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
                 };
-                glTexCoordPointer(size, type, vertexFormatDescriptor.getVertexSize(),
-                                  vertices + vertexElement.getOffset());
+                glTexCoordPointer(size, type, vertexDescriptor.getVertexSize(),
+                                  vertices + vertexElementDescriptor.getOffset());
             }
             break;
             default:

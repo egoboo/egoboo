@@ -28,7 +28,7 @@
 namespace Ego {
 
 /// The description of a vertex element.
-class VertexElement {
+class VertexElementDescriptor {
 public:
     /// An enum class of the syntactic forms of vertex elements.
     enum class Syntax {
@@ -84,7 +84,7 @@ public:
      * @param semantics
      *  the semantics of the vertex element
      */
-    VertexElement(size_t offset, Syntax syntax, Semantics semantics);
+    VertexElementDescriptor(size_t offset, Syntax syntax, Semantics semantics);
 
     /** 
      * @brief
@@ -92,7 +92,7 @@ public:
      * @param other
      *  the other vertex element descriptor
      */
-    VertexElement(const VertexElement& other);
+    VertexElementDescriptor(const VertexElementDescriptor& other);
 
     /**
      * @brief
@@ -102,7 +102,7 @@ public:
      * @return
      *  this vertex element descriptor
      */
-    const VertexElement& operator=(const VertexElement& other);
+    const VertexElementDescriptor& operator=(const VertexElementDescriptor& other);
     
 public:
     /** 
@@ -114,7 +114,7 @@ public:
      *  @a true if this vertex element descriptor is equivalent to the other vertex element descriptor,
      *  @a false otherwise
      */
-    bool operator==(const VertexElement& other) const;
+    bool operator==(const VertexElementDescriptor& other) const;
 
     /** 
      * @brief
@@ -125,7 +125,7 @@ public:
      *  @a true if this vertex element descriptor is not equivalent to the other vertex element descriptor,
      *  @a false otherwise
      */
-    bool operator!=(const VertexElement& other) const;
+    bool operator!=(const VertexElementDescriptor& other) const;
     
 public:
     /** 
@@ -160,6 +160,6 @@ public:
      */
     size_t getSize() const;
 
-}; // class VertexElement
+}; // class VertexElementDescriptor
     
 } // namespace Ego

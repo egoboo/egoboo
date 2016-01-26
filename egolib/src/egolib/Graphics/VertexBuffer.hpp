@@ -47,9 +47,9 @@ protected:
 
     /**
      * @brief
-     *  The vertex format descriptor.
+     *  The vertex descriptor.
      */
-    VertexFormatDescriptor vertexFormatDescriptor;
+    VertexDescriptor vertexDescriptor;
 
     /**
      * @brief
@@ -63,10 +63,10 @@ public:
      *  Construct this vertex buffer.
      * @param numberOfVertices
      *  the number of vertices
-     * @param vertexFormatDescriptor
-     *  the vertex format descriptor
+     * @param vertexDescriptor
+     *  the vertex descriptor
      */
-    VertexBuffer(size_t numberOfVertices, const VertexFormatDescriptor& vertexFormatDescriptor);
+    VertexBuffer(size_t numberOfVertices, const VertexDescriptor& vertexDescriptor);
 
     /**
      * @brief
@@ -88,7 +88,7 @@ public:
      * @return
      *  the vertex descriptor of this vertex buffer
      */
-    const VertexFormatDescriptor& getVertexFormatDescriptor() const;
+    const VertexDescriptor& getVertexDescriptor() const;
     
     /**
      * @brief
