@@ -94,7 +94,7 @@ void ModuleSelector::drawContainer()
 	renderer.getTextureUnit().setActivated(nullptr);
     
     renderer.setColour(backDrop);
-	Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>());
+	Ego::VertexBuffer vb(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>());
 	{
 		struct Vertex {
 			float x, y;
@@ -204,7 +204,7 @@ void ModuleSelector::ModuleButton::draw()
         renderer.setColour( DEFAULT_BUTTON_COLOUR );
     }
 
-	Ego::VertexBuffer vb(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>());
+	Ego::VertexBuffer vb(4, Ego::GraphicsUtilities::get<Ego::VertexFormat::P2F>());
 	{
 		struct Vertex {
 			float x, y;

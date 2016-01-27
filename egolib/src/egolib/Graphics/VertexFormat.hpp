@@ -23,10 +23,9 @@
 
 #pragma once
 
-#include "egolib/Graphics/VertexElementDescriptor.hpp"
+#include "egolib/Graphics/VertexDescriptor.hpp"
 
-namespace Ego
-{
+namespace Ego {
 
 /**
  * @brief
@@ -34,36 +33,40 @@ namespace Ego
  * @author
  *  Michael Heilmann
  */
-enum class VertexFormat
-{
+enum class VertexFormat {
     /**
      * @brief
      *  Two floats for the position component.
      */
     P2F,
+
 	/**
 	 * @brief
 	 *	Two floats for the position component,
 	 *	two floats for the texture component.
 	 */
 	P2FT2F,
+
     /**
      * @brief
      *  Three floats for the position component.
      */
     P3F,
+
     /**
      * @brief
      *  Three floats for the position component and
      *  four floats for colour component.
      */
     P3FC4F,
+
     /**
      * @brief
      *  Three floats for the position component and
      *  two floats for the texture component.
      */
     P3FT2F,
+
     /**
      * @brief
      *  Three floats for the position component,
@@ -71,6 +74,7 @@ enum class VertexFormat
      *  three floats for the normal component.
      */
     P3FC4FN3F,
+
     /**
      * @brief
      *  Three floats for the position component,
@@ -78,6 +82,7 @@ enum class VertexFormat
      *  two floats for the texture component.
      */
     P3FC4FT2F,
+
     /**
      * @brief
      *  Three floats for the position component,
@@ -86,182 +91,48 @@ enum class VertexFormat
      *  three floats for the normal component.
      */
      P3FC4FT2FN3F,
-};
 
-/**
- * @brief
- *  A vertex format descriptor suitable to describe the vertex formats
- *  as specified by the Ego::VertexFormat enumeration.
- * @author
- *  Michael Heilmann
- */
-class VertexFormatDescriptor
-{
+}; // enum class VertexFormat
 
-private:
 
+
+struct GraphicsUtilities {
     /**
      * @brief
-     *  The vertex format.
-     */
-    VertexFormat _vertexFormat;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of a vertex.
-     */
-    size_t _vertexSize;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of the position component.
-     */
-    size_t _positionSize;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of the colour component
-     */
-    size_t _colourSize;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of the normal component.
-     */
-    size_t _normalSize;
-
-    /**
-     * @brief
-     *  The size, in Bytes, of the texture component.
-     */
-    size_t _textureSize;
-    
-    /**
-     * @brief
-     *  Construct this vertex format descriptor.
+     *  Get the vertex descriptor for a vertex format.
      * @param vertexFormat
      *  the vertex format
-     * @param vertexSize
-     *  the size, in Bytes, of a vertex
-     * @param positionSize, colourSize, textureSize, normalSize
-     *  the sizes, in Bytes, of the position, colour, texture, and normal components
-     */
-    VertexFormatDescriptor(VertexFormat vertexFormat, size_t vertexSize, size_t positionSize, size_t colourSize,
-                           size_t textureSize, size_t normalSize) :
-        _vertexFormat(vertexFormat), 
-        _vertexSize(vertexSize),
-        _positionSize(positionSize), 
-        _colourSize(colourSize), 
-        _normalSize(normalSize),
-        _textureSize(textureSize)
-    {}
-    
-    
-public:
-
-    /**
-     * @brief
-     *  Get the size, in Bytes, of the position component.
      * @return
-     *  the size, in Bytes, of the position component.
+     *  the vertex descriptor for the vertex format
      */
-    size_t getPositionSize() const
-    {
-        return _positionSize;
-    }
-
-    /**
-     * @brief
-     *  Get the size, in Bytes, of the colour component.
-     * @return
-     *  the size, in Bytes, of the colour component
-     */
-    size_t getColorSize() const
-    {
-        return _colourSize;
-    }
-
-    /**
-     * @brief
-     *  Get the size, in Bytes, of the normal component.
-     * @return
-     *  the size, in Bytes, of the normal component
-     */
-    size_t getNormalSize() const
-    {
-        return _normalSize;
-    }
-
-    /**
-     * @brief
-     *  Get the size, in Bytes, of the texture component.
-     * @return
-     *  the size, in Bytes, of the texture component
-     */
-    size_t getTextureSize() const
-    {
-        return _textureSize;
-    }
-    
-    /**
-     * @brief
-     *  Get the size, in Bytes, of a vertex.
-     * @return
-     *  the size, in Bytes, of a vertex.
-     */
-    size_t getVertexSize() const
-    {
-        return _vertexSize;
-    }
-    
-    /**
-     * @brief
-     *  Get the vertex format.
-     * @return
-     *  the vertex format
-     */
-    VertexFormat getVertexFormat() const
-    {
-        return _vertexFormat;
-    }
+    static const VertexDescriptor& get(VertexFormat vertexFormat);
 
     template <VertexFormat _VertexFormat>
-    static const VertexFormatDescriptor& get();
-
-    /**
-     * @brief
-     *  Get the vertex format descriptor for a vertex format.
-     * @param vertexFormat
-     *  the vertex format
-     * @return
-     *  the vertex format descriptor for the vertex format
-     */
-    static const VertexFormatDescriptor& get(VertexFormat vertexFormat);
-
+    static const VertexDescriptor& get();
 };
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P2F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2FT2F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P2FT2F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FT2F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FT2F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FN3F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FN3F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FT2F>();
 
 template <>
-const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2FN3F>();
+const VertexDescriptor& GraphicsUtilities::get<VertexFormat::P3FC4FT2FN3F>();
 
 } // namespace Ego

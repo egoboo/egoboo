@@ -17,39 +17,30 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Graphics/VertexBuffer.cpp
-/// @brief Vertex buffers.
+/// @file   egolib/Graphics/VertexDescriptor.cpp
+/// @brief  Descriptions of vertices.
 /// @author Michael Heilmann
 
-#include "egolib/Graphics/VertexBuffer.hpp"
+#include "egolib/Graphics/VertexDescriptor.hpp"
 
 namespace Ego {
 
-VertexBuffer::VertexBuffer(size_t numberOfVertices,
-                           const VertexDescriptor& vertexDescriptor) :
-    numberOfVertices(numberOfVertices), vertexDescriptor(vertexDescriptor),
-    vertices(new char[vertexDescriptor.getVertexSize()*numberOfVertices])
-{}
-
-VertexBuffer::~VertexBuffer() {
-    delete[] vertices;
-	vertices = nullptr;
+VertexDescriptor::VertexDescriptor(std::initializer_list<VertexElementDescriptor> vertexElementDescriptors)
+    : vertexElementDescriptors(vertexElementDescriptors), vertexSize(0) {
+    // (1) Compute the vertex size.
+    for (const auto& vertexElementDescriptor : vertexElementDescriptors) {
+        vertexSize = std::max(vertexSize, vertexElementDescriptor.getOffset() + vertexElementDescriptor.getSize());
+    }
 }
 
-size_t VertexBuffer::getNumberOfVertices() const {
-    return numberOfVertices;
+VertexDescriptor::VertexDescriptor(const VertexDescriptor& other)
+    : vertexElementDescriptors(other.vertexElementDescriptors), vertexSize(other.vertexSize) {
 }
 
-const VertexDescriptor& VertexBuffer::getVertexDescriptor() const {
-    return vertexDescriptor;
+const VertexDescriptor& VertexDescriptor::operator=(const VertexDescriptor& other) {
+    vertexElementDescriptors = other.vertexElementDescriptors;
+    vertexSize = other.vertexSize;
+    return *this;
 }
-
-void *VertexBuffer::lock() {
-    return vertices;
-}
-
-void VertexBuffer::unlock() {
-    /* Intentionally empty for the moment. */
-}
-
+    
 } // namespace Ego

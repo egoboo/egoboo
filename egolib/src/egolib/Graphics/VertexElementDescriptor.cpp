@@ -25,7 +25,7 @@
 
 namespace Ego {
 
-VertexElementDescriptor::VertexElementDescriptor(size_t offset, VertexElementSyntax syntax, VertexElementSemantics semantics)
+VertexElementDescriptor::VertexElementDescriptor(size_t offset, Syntax syntax, Semantics semantics)
     : offset(offset), syntax(syntax), semantics(semantics) {
 }
 
@@ -56,23 +56,23 @@ size_t VertexElementDescriptor::getOffset() const {
     return offset;
 }
 
-VertexElementSyntax VertexElementDescriptor::getSyntax() const {
+VertexElementDescriptor::Syntax VertexElementDescriptor::getSyntax() const {
     return syntax;
 }
 
-VertexElementSemantics VertexElementDescriptor::getSemantics() const {
+VertexElementDescriptor::Semantics VertexElementDescriptor::getSemantics() const {
     return semantics;
 }
 
 size_t VertexElementDescriptor::getSize() const {
     switch (syntax) {
-        case VertexElementSyntax::F1:
+        case Syntax::F1:
             return sizeof(float) * 1;
-        case VertexElementSyntax::F2:
+        case Syntax::F2:
             return sizeof(float) * 2;
-        case VertexElementSyntax::F3:
+        case Syntax::F3:
             return sizeof(float) * 3;
-        case VertexElementSyntax::F4:
+        case Syntax::F4:
             return sizeof(float) * 4;
         default:
             throw Id::UnhandledSwitchCaseException(__FILE__, __LINE__);
