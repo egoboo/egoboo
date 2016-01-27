@@ -51,7 +51,7 @@ using namespace Math;
  *  A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
  */
 template <typename DataType>
-class Buffer : public Id::NonCopyable {
+class BufferFacade : public Id::NonCopyable {
 protected:
     /**
      * @brief
@@ -59,7 +59,7 @@ protected:
      * @remark
      *  Intentionally protected.
      */
-    Buffer() {}
+    BufferFacade() {}
 
     /**
      * @brief
@@ -67,7 +67,7 @@ protected:
      * @remark
      *  Intentionally protected.
      */
-    virtual ~Buffer() {}
+    virtual ~BufferFacade() {}
 
 public:
     /**
@@ -100,7 +100,7 @@ public:
  * @brief
  *  A facade for an accumulation buffer.
  */
-class AccumulationBuffer : public Ego::Buffer<Colour4f> {
+class AccumulationBuffer : public Ego::BufferFacade<Colour4f> {
 protected:
 
     /**
@@ -134,7 +134,7 @@ public:
  * @brief
  *  A facade for a colour buffer.
  */
-class ColourBuffer : public Ego::Buffer<Colour4f> {
+class ColourBuffer : public Ego::BufferFacade<Colour4f> {
 protected:
     /**
      * @brief
@@ -167,7 +167,7 @@ public:
  * @brief
  *  A facade for an depth buffer.
  */
-class DepthBuffer : public Ego::Buffer<float> {
+class DepthBuffer : public Ego::BufferFacade<float> {
 protected:
     /**
      * @brief
@@ -200,7 +200,7 @@ public:
  * @brief
  *  A facade for a stencil buffer.
  */
-class StencilBuffer : public Ego::Buffer<float> {
+class StencilBuffer : public Ego::BufferFacade<float> {
 protected:
     /**
      * @brief

@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "egolib/Graphics/Buffer.hpp"
 #include "egolib/Graphics/VertexFormat.hpp"
 
 namespace Ego {
@@ -31,14 +32,9 @@ namespace Ego {
 /**
  * @brief
  *  A vertex buffer.
- * @todo
- *  A not really elaborated solution for rendering vertices without resorting
- *  to deprecated OpenGL functions.
- * @author
- *  Michael Heilmann
  */
-class VertexBuffer : Id::NonCopyable {
-protected:
+class VertexBuffer : public Ego::Buffer {
+private:
     /**
      * @brief
      *  The number of vertices.
@@ -90,23 +86,11 @@ public:
      */
     const VertexDescriptor& getVertexDescriptor() const;
     
-    /**
-     * @brief
-     *  Lock this buffer.
-     * @return
-     *  a pointer to the buffer data
-	 * @throw Ego::Core::LockFailedException
-	 *  if locking the buffer failed
-     */
-    void *lock();
+    /** @copydoc Buffer::lock */
+    void *lock() override;
      
-    /**
-     * @brief
-     *  Unlock this buffer.
-	 * @remark
-	 *  If the buffer is not locked, a call to this method is a no-op.
-     */
-    void unlock();
+    /** @copydoc Buffer::unlock */
+    void unlock() override;
 
 }; // class VertexBuffer
 
