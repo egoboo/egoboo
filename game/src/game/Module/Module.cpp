@@ -96,7 +96,8 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
     loadProfiles();
 
     //Load mesh
-    _mesh = LoadMesh(profile->getPath());
+    MeshLoader meshLoader;
+    _mesh = meshLoader(profile->getPath());
 
     //Load passage.txt
     loadAllPassages();

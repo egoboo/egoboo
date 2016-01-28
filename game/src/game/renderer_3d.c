@@ -29,7 +29,6 @@
 
 //--------------------------------------------------------------------------------------------
 
-LineSegmentList g_lineSegmentList;
 
 void LineSegmentList::init()
 {
@@ -129,8 +128,6 @@ void LineSegmentList::draw_all(Camera& camera)
 
 //--------------------------------------------------------------------------------------------
 
-PointList g_pointList;
-
 void PointList::init()
 {
     for (size_t i = 0; i < capacity; ++i)
@@ -223,6 +220,10 @@ void PointList::draw_all(Camera& camera)
 }
 
 //--------------------------------------------------------------------------------------------
+
+
+PointList Renderer3D::pointList;
+LineSegmentList Renderer3D::lineSegmentList;
 
 void Renderer3D::begin3D(Camera& camera) {
     auto& renderer = Ego::Renderer::get();

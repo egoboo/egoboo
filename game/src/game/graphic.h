@@ -269,6 +269,8 @@ struct dynalight_registry_t {
 /// Illuminate the "grid".
 struct GridIllumination {
 private:
+    static float grid_get_mix(float u0, float u, float v0, float v);
+    static float ego_mesh_interpolate_vertex(const ego_tile_info_t& info, const GLXvector3f& position);
 	static void test_one_corner(const ego_mesh_t& mesh, GLXvector3f pos, float& pdelta);
 	static bool test_corners(const ego_mesh_t& mesh, ego_tile_info_t& tile, float threshold);
 	static void light_one_corner(ego_mesh_t& mesh, ego_tile_info_t& tile, const bool reflective, const Vector3f& pos, const Vector3f& nrm, float& plight);
