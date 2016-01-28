@@ -17,20 +17,39 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Graphics/Buffer.cpp
-/// @brief Abstract base class of all buffers.
+/// @file egolib/Graphics/IndexBuffer.hpp
+/// @brief Index buffers.
 /// @author Michael Heilmann
 
-#include "egolib/Graphics/Buffer.hpp"
+#include "egolib/Graphics/IndexBuffer.hpp"
 
 namespace Ego {
+IndexBuffer::IndexBuffer(size_t numberOfIndices,
+                         const IndexDescriptor& indexDescriptor) :
+    Buffer(indexDescriptor.getIndexSize() * numberOfIndices),
+    numberOfIndices(numberOfIndices), indexDescriptor(indexDescriptor),
+    indices(new char[indexDescriptor.getIndexSize() * numberOfIndices]) {}
 
-Buffer::Buffer(size_t size) : size(size) {}
-
-Buffer::~Buffer() {}
-
-size_t Buffer::getSize() const {
-    return size;
+IndexBuffer::~IndexBuffer() {
+    delete[] indices;
+    indices = nullptr;
 }
+
+size_t IndexBuffer::getNumberOfIndices() const {
+    return numberOfIndices;
+}
+
+const IndexDescriptor& IndexBuffer::getIndexDescriptor() const {
+    return indexDescriptor;
+}
+
+void *IndexBuffer::lock() {
+    return indices;
+}
+
+void IndexBuffer::unlock() {
+    /* Intentionally empty for the moment. */
+}
+
 
 } // namespace Ego

@@ -80,8 +80,8 @@ Camera::Camera(const CameraOptions &options) :
     _trackList(),
     _screen(),
     _lastFrame(-1),
-    _tileList(nullptr),
-    _entityList(nullptr)
+    _tileList(std::make_shared<Ego::Graphics::TileList>()),
+    _entityList(std::make_shared<Ego::Graphics::EntityList>())
 {
     // Derived values.
     _trackPos = _center;
@@ -91,13 +91,8 @@ Camera::Camera(const CameraOptions &options) :
     _ori.facing_z = TurnsToFacing(_turnZ_turns);
     resetView();
 
-    // Lock a tile list for this camera.
-    _tileList = std::make_shared<Ego::Graphics::TileList>();
     // Connect the tile list to the mesh.
     _tileList->setMesh(_currentModule->getMeshPointer());
-
-    // Lock an entity list for this camera.
-    _entityList = std::make_shared<Ego::Graphics::EntityList>();
 
     // Assume that the camera is fullscreen.
     setScreen(0, 0, sdl_scr.x, sdl_scr.y);
@@ -764,18 +759,6 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
     // Set the maximum depth to be the "largest possible size" of a mesh.
     float frustum_far  = Info<int>::Grid::Size() * 256 * Ego::Math::sqrtTwo<float>();
     updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
-}
-
-void Camera::initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList)
-{
-    // Make the default viewport fullscreen.
-    _screen.xmin = 0.0f;
-    _screen.xmax = sdl_scr.x;
-    _screen.ymin = 0.0f;
-    _screen.ymax = sdl_scr.y;
-
-    _tileList = tileList;
-    _entityList = entityList;
 }
 
 void Camera::addTrackTarget(ObjectRef targetRef)

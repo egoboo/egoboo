@@ -29,7 +29,6 @@
 // external types
 //--------------------------------------------------------------------------------------------
 
-struct ego_mesh_info_t;
 namespace Ego {
 namespace OpenGL {
 struct Texture;
@@ -45,17 +44,10 @@ constexpr uint32_t GRIDS_Y_MAX =
 constexpr uint32_t GRIDS_MAX =
 	GRIDS_X_MAX * GRIDS_Y_MAX;
 
-#define VALID_GRID(PMPD, ID) ( (INVALID_TILE!=(ID)) && (NULL != (PMPD)) && (ID < (PMPD)->info.tiles_count) )
-
-/// mesh physics
-#define SLIDE                           0.04f         ///< Acceleration for steep hills
-#define SLIDEFIX                        0.08f         ///< To make almost flat surfaces flat
-
 //--------------------------------------------------------------------------------------------
 
 typedef GLXvector3f normal_cache_t[4];
 typedef std::array<float, 4> light_cache_t;
-
 
 //--------------------------------------------------------------------------------------------
 typedef BIT_FIELD GRID_FX_BITS;
@@ -526,8 +518,8 @@ extern MeshStats g_meshStats;
 //--------------------------------------------------------------------------------------------
 
 /// loading/saving
-std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName);
-
-float ego_mesh_interpolate_vertex(const ego_tile_info_t& info, const GLXvector3f& position);
-
-Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);
+struct MeshLoader {
+    std::shared_ptr<ego_mesh_t> operator()(const std::string& moduleName) const;
+private:
+    std::shared_ptr<ego_mesh_t> convert(const map_t& source) const;
+};

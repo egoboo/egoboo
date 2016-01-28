@@ -493,7 +493,7 @@ void Background::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 	float Qx, Qy;
 
 	{
-		VertexBufferScopedLock lock(_vertexBuffer);
+		BufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
 		// Figure out the coordinates of its corners
 		Qx = -tmem._edge_x;
@@ -634,7 +634,7 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		float loc_foregroundrepeat = _currentModule->getWater()._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
 
 		{
-			VertexBufferScopedLock lock(_vertexBuffer);
+			BufferScopedLock lock(_vertexBuffer);
 			Vertex *vertices = lock.get<Vertex>();
 
 			vertices[0].x = x + cossize;
@@ -917,7 +917,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	float size = pchr->shadow_size * height_factor;
 
 	{
-		VertexBufferScopedLock lock(_vertexBuffer);
+		BufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
 		vertices[0].x = (float)x + size;
 		vertices[0].y = (float)y - size;
@@ -941,7 +941,7 @@ void EntityShadows::doLowQualityShadow(const ObjectRef character) {
 	int itex_style = SPRITE_LIGHT; //ZF> Note: index 1 is for SPRITE_LIGHT
 
 	{
-		VertexBufferScopedLock lock(_vertexBuffer);
+		BufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
 		vertices[0].s = CALCULATE_PRT_U0(itex_style, 236);
 		vertices[0].t = CALCULATE_PRT_V0(itex_style, 236);
@@ -1018,7 +1018,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 
 	// GOOD SHADOW
 	{
-		VertexBufferScopedLock lock(_vertexBuffer);
+		BufferScopedLock lock(_vertexBuffer);
 		Vertex *vertices = lock.get<Vertex>();
 
 		vertices[0].s = CALCULATE_PRT_U0(itex_style, 238);
@@ -1036,7 +1036,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 	if (size_penumbra > 0)
 	{
 		{
-			VertexBufferScopedLock lock(_vertexBuffer);
+			BufferScopedLock lock(_vertexBuffer);
 			Vertex *vertices = lock.get<Vertex>();
 			
 			vertices[0].x = x + size_penumbra;
@@ -1061,7 +1061,7 @@ void EntityShadows::doHighQualityShadow(const ObjectRef character) {
 	if (size_umbra > 0)
 	{
 		{
-			VertexBufferScopedLock lock(_vertexBuffer);
+			BufferScopedLock lock(_vertexBuffer);
 			Vertex *vertices = lock.get<Vertex>();
 
 			vertices[0].x = x + size_umbra;

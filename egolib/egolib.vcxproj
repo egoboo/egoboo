@@ -305,6 +305,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="src\egolib\Graphics\IndexDescriptor.cpp" />
     <ClCompile Include="src\egolib\Graphics\VertexDescriptor.cpp" />
     <ClCompile Include="src\egolib\AI\AStar.cpp" />
     <ClCompile Include="src\egolib\Graphics\Buffer.cpp">
@@ -509,6 +511,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\IndexBuffer.hpp" />
+    <ClInclude Include="src\egolib\Graphics\IndexDescriptor.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexDescriptor.hpp" />
     <ClInclude Include="src\egolib\Math\VectorProjection.hpp" />
     <ClInclude Include="src\egolib\Math\VectorRejection.hpp" />

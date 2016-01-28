@@ -27,8 +27,9 @@ namespace Ego {
 
 VertexBuffer::VertexBuffer(size_t numberOfVertices,
                            const VertexDescriptor& vertexDescriptor) :
+    Buffer(vertexDescriptor.getVertexSize() * numberOfVertices),
     numberOfVertices(numberOfVertices), vertexDescriptor(vertexDescriptor),
-    vertices(new char[vertexDescriptor.getVertexSize()*numberOfVertices])
+    vertices(new char[vertexDescriptor.getVertexSize() * numberOfVertices])
 {}
 
 VertexBuffer::~VertexBuffer() {

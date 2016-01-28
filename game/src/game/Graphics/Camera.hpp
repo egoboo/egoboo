@@ -133,22 +133,22 @@ private:
 
 public:
 
-	/** @copydoc ICamera::getProjectionMatrix */
+	/** @copydoc Ego::Graphics::Camera::getProjectionMatrix */
 	inline const Matrix4f4f& getProjectionMatrix() const override { return _projectionMatrix; }
 
-	/** @copydoc ICamera::getViewMatrix */
+	/** @copydoc Ego::Graphics::Camera::getViewMatrix */
 	inline const Matrix4f4f& getViewMatrix() const override { return _viewMatrix; }
 
-	/** @copydoc ICamera::getPosition */
+	/** @copydoc Ego::Graphics::Camera::getPosition */
 	inline const Vector3f& getPosition() const override { return _position; }
 
-	/** @copydoc ICamera::getUp */
+	/** @copydoc Ego::Graphics::Camera::getUp */
 	inline const Vector3f& getUp() const override { return _up; }
 	
-	/** @copydoc ICamera::getRight */
+	/** @copydoc Ego::Graphics::Camera::getRight */
 	inline const Vector3f& getRight() const override { return _right; }
 	
-	/** @copydoc ICamera::getForward */
+	/** @copydoc Ego::Graphics::Camera::getForward */
 	inline const Vector3f& getForward() const override { return _forward; }
 
 	/**@}*/
@@ -184,12 +184,6 @@ public:
 
     static const float CAM_ZADD_AVG;
     static const float CAM_ZOOM_AVG;
-
-    /**
-     * @brief
-     *  Initialization that has to be after object construction.
-     */
-    void initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList);
 
     // various getters
     inline const Ego::Graphics::Frustum& getFrustum() const {

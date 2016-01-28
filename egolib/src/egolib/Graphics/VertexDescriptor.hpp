@@ -44,7 +44,7 @@ private:
      *  The size, in Bytes, of a vertex.
      */
     size_t vertexSize;
-    
+
 public:
     /**
      * @brief
@@ -56,7 +56,7 @@ public:
 
     /**
      * @brief
-     *  Copy-construct this vertex descriptor.
+     *  Copy-construct this vertex descriptor with the values of another vertex descriptor.
      * @param other
      *  the other vertex descriptor
      */
@@ -64,15 +64,15 @@ public:
 
     /**
      * @brief
-     *  Assign this vertex descriptor.
+     *  Assign this vertex descriptor with the values of another vertex descriptor.
      * @param other
      *  the other vertex descriptor
      * @return
      *  this vertex descriptor
      */
     const VertexDescriptor& operator=(const VertexDescriptor& other);
-    
-   
+
+
 public:
     /** @brief The type of an iterator of the vertex element descriptors. */
     typedef std::vector<VertexElementDescriptor>::const_iterator const_iterator;
@@ -99,6 +99,7 @@ public:
     const_iterator cend() const { return vertexElementDescriptors.cend(); }
     /**@}*/
 
+
 public:
     /**
      * @brief
@@ -109,6 +110,22 @@ public:
     size_t getVertexSize() const {
         return vertexSize;
     }
+
+public:
+    /**
+     * @brief Compare this vertex descriptor with another vertex descriptor for equality.
+     * @param other the other index descriptor
+     * @return @a true if this vertex descriptor is equal to the other vertex descriptor,
+     *         @a false otherwise
+     */
+    bool operator==(const VertexDescriptor&) const;
+    /**
+     * @brief Compare this vertex descriptor with another index descriptor for inequality.
+     * @param other the other vertex descriptor
+     * @return @a true if this vertex descriptor is not equal to the other vertex descriptor,
+     *         @a false otherwise
+     */
+    bool operator!=(const VertexDescriptor&) const;
 
 }; // class VertexDescriptor
 

@@ -137,7 +137,6 @@ static void _flip_pages();
 static gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam);
 static gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
 static gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el);
-static gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> tl, std::shared_ptr<Ego::Graphics::EntityList> pel);
 
 /**
  * @brief
@@ -295,11 +294,18 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
     {
         throw std::invalid_argument("nullptr == camera");
     }
+    if (!tileList) {
+        throw std::invalid_argument("nullptr == tileList");
+    }
+
+    if (!entityList) {
+        throw std::invalid_argument("nullptr == entityList");
+    }
 
     Renderer3D::begin3D(*camera);
     {
 		Ego::Graphics::RenderPasses::g_background.run(*camera, *tileList, *entityList);
-        render_scene(*camera, tileList, entityList);
+        render_scene(*camera, *tileList, *entityList);
 		Ego::Graphics::RenderPasses::g_foreground.run(*camera, *tileList, *entityList);
 
         if (camera->getMotionBlur() > 0)
@@ -1024,8 +1030,8 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 
 #if defined(DRAW_LISTS)
     // draw some debugging lines
-    g_lineSegmentList.draw_all(cam);
-    g_pointList.draw_all(cam);
+    Renderer3D::lineSegmentList.draw_all(cam);
+    Renderer3D::pointList.draw_all(cam);
 #endif
 
 #if defined(DRAW_PRT_BBOX)
@@ -1068,24 +1074,6 @@ void draw_passages(Camera& cam)
 
         Renderer3D::renderOctBB(bb, true, false);
     }    
-}
-
-gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, std::shared_ptr<Ego::Graphics::EntityList> pel)
-{
-    /// @author ZZ
-    /// @details This function draws 3D objects
-    if (!ptl)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock a tile list");
-        return gfx_error;
-    }
-
-    if (!pel)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock an entity list");
-        return gfx_error;
-    }
-    return render_scene(cam, *ptl, *pel);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1647,6 +1635,74 @@ void GridIllumination::light_fans_update_lcache(Ego::Graphics::TileList& tl)
 }
 
 //--------------------------------------------------------------------------------------------
+
+float GridIllumination::grid_get_mix(float u0, float u, float v0, float v) {
+    // Get the distance of u and v from u0 and v0.
+    float du = u - u0,
+        dv = v - v0;
+
+    // If the absolute distance du or dv is greater than 1,
+    // return 0.
+    if (std::abs(du) > 1.0f || std::abs(dv) > 1.0f) {
+        return 0.0f;
+    }
+    // The distances are within the bounds of [-1,+1] at this point.
+    // The original formulas are
+    // wt_u = (1.0f - du)*(1.0f + du)
+    // wt_v = (1.0f - dv)*(1.0f + dv)
+    // However, a term of the form
+    // y = (1 - x) * (1 + x)
+    // can be simplified to
+    // y = (1 - x) * 1 + (1 - x) * x
+    //   = (1 - x) + (1 - x) * x
+    //   = 1 - x + x - x^2
+    //   = 1 - x^2
+    // Hence the original formulas become
+    // wt_u = 1.0f - du * du)
+    // wt_v = 1.0f - dv * dv
+    float wt_u = 1.0f - du * du,
+        wt_v = 1.0f - dv * dv;
+
+    return wt_u * wt_v;
+}
+
+float GridIllumination::ego_mesh_interpolate_vertex(const ego_tile_info_t& info, const GLXvector3f& position) {
+    const oct_bb_t& boundingBox = info._oct;
+    const light_cache_t& lightCache = info._lightingCache._contents;
+
+    // Set the lighting to 0.
+    float light = 0.0f;
+
+    // Determine texture coordinates of the specified point.
+    float u = (position[XX] - boundingBox._mins[OCT_X]) / (boundingBox._maxs[OCT_X] - boundingBox._mins[OCT_X]);
+    float v = (position[YY] - boundingBox._mins[OCT_Y]) / (boundingBox._maxs[OCT_Y] - boundingBox._mins[OCT_Y]);
+
+    // Interpolate the lighting at the four vertices of the tile.
+    // to determine the final lighting at the specified point.
+    float weightedSum = 0.0f;
+    for (size_t i = 0; i < 4; ++i) {
+        // Mix the u, v coordinate pairs (0,0),
+        // (1,0), (1,1), and (0,1) using the
+        // texture coordinates of the specified
+        // point.
+        static const float ix_off[4] = {0.0f, 1.0f, 1.0f, 0.0f},
+            iy_off[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+        float mix = grid_get_mix(ix_off[i], u, iy_off[i], v);
+
+        weightedSum += mix;
+        light += mix * lightCache[i];
+    }
+
+    // Normalize to the weighted sum.
+    if (light > 0.0f && weightedSum > 0.0f) {
+        light /= weightedSum;
+        light = Ego::Math::constrain(light, 0.0f, 255.0f);
+    } else {
+        light = 0.0f;
+    }
+    return light;
+}
+
 void GridIllumination::light_fans_update_clst(Ego::Graphics::TileList& tl)
 {
     /// @author BB

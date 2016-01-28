@@ -431,31 +431,33 @@ bool Console::draw()
 
 	auto& renderer = Renderer::get();
 	renderer.getTextureUnit().setActivated(nullptr);
-	auto white = Math::Colour4f::white();
-	auto black = Math::Colour4f::black();
+
+    // The colour white.
+	static const auto white = Math::Colour4f::white();
+    // The colour black.
+	static const auto black = Math::Colour4f::black();
+    // The vertex data structure and the vertex descriptor.
+    struct Vertex { float x, y; };
+    static const Ego::VertexDescriptor vertexDescriptor({Ego::VertexElementDescriptor(0, Ego::VertexElementDescriptor::Syntax::F2, Ego::VertexElementDescriptor::Semantics::Position)});
+
 
 	renderer.setColour(white);
 	renderer.setLineWidth(5);
-	GL_DEBUG(glBegin)(GL_LINE_LOOP);
-	{
-		GL_DEBUG(glVertex2i)(pwin->x, pwin->y);
-		GL_DEBUG(glVertex2i)(pwin->x + pwin->w, pwin->y);
-		GL_DEBUG(glVertex2i)(pwin->x + pwin->w, pwin->y + pwin->h);
-		GL_DEBUG(glVertex2i)(pwin->x, pwin->y + pwin->h);
-	}
-	GL_DEBUG_END();
-
+    Ego::VertexBuffer vertexBuffer(4, vertexDescriptor);
+    {
+        Ego::BufferScopedLock lock(vertexBuffer);
+        Vertex *vertex = lock.get<Vertex>();
+        vertex->x = pwin->x;           vertex->y = pwin->y;           ++vertex;
+        vertex->x = pwin->x + pwin->w; vertex->y = pwin->y;           ++vertex;
+        vertex->x = pwin->x + pwin->w; vertex->y = pwin->y + pwin->h; ++vertex;
+        vertex->x = pwin->x;           vertex->y = pwin->y + pwin->h;
+    }
+    renderer.render(vertexBuffer, Ego::PrimitiveType::LineLoop, 0, 4);
 	renderer.setLineWidth(1);
 
 	renderer.setColour(black);
-	GL_DEBUG(glBegin)(GL_QUADS);
-	{
-		GL_DEBUG(glVertex2i)(pwin->x, pwin->y);
-		GL_DEBUG(glVertex2i)(pwin->x + pwin->w, pwin->y);
-		GL_DEBUG(glVertex2i)(pwin->x + pwin->w, pwin->y + pwin->h);
-		GL_DEBUG(glVertex2i)(pwin->x, pwin->y + pwin->h);
-	}
-	GL_DEBUG_END();
+    renderer.render(vertexBuffer, Ego::PrimitiveType::Quadriliterals, 0, 4);
+
 
     {
         Ego::OpenGL::PushAttrib pa(GL_SCISSOR_BIT | GL_ENABLE_BIT);
@@ -473,7 +475,7 @@ bool Console::draw()
             // draw the current command line
             sprintf(buffer, "%s ", ConsoleSettings::InputSettings::Prompt.c_str());
 
-            strncat(buffer, buffer, 1022);
+            strncat(buffer, this->buffer, 1022);
             buffer[1022] = CSTR_END;
 
             this->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);

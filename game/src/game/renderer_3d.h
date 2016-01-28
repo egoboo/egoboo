@@ -52,9 +52,6 @@ struct LineSegmentList {
 	void draw_all(Camera& camera);
 };
 
-extern LineSegmentList g_lineSegmentList;
-
-
 //--------------------------------------------------------------------------------------------
 // Draw points
 
@@ -79,12 +76,14 @@ struct PointList {
 	void draw_all(Camera& camera);
 };
 
-extern PointList g_pointList;
+
 
 //--------------------------------------------------------------------------------------------
 
 struct Renderer3D {
 public:
+    static LineSegmentList lineSegmentList;
+    static PointList pointList;
     static void begin3D(Camera& camera);
     static void end3D();
     static void renderAABB(const AABB3f& bv, const Ego::Math::Colour4f& colour);

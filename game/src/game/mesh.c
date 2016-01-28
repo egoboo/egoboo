@@ -33,11 +33,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-
-static std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source);
-
-static float grid_get_mix( float u0, float u, float v0, float v );
-
 //Static class variables
 const std::shared_ptr<ego_tile_info_t> ego_tile_info_t::NULL_TILE = nullptr;
 
@@ -101,7 +96,7 @@ void tile_mem_t::computeVertexIndices(const tile_dictionary_t& dict)
 
 //--------------------------------------------------------------------------------------------
 
-std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source)
+std::shared_ptr<ego_mesh_t> MeshLoader::convert(const map_t& source) const
 {
     // Create a mesh.
     auto target = std::make_shared<ego_mesh_t>(Ego::MeshInfo(source._info.getVertexCount(), source._info.getTileCountX(), source._info.getTileCountY()));
@@ -111,7 +106,7 @@ std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source)
     // copy all the per-tile info
     for (Index1D cnt = 0; cnt < info_dst.getTileCount(); cnt++)
     {
-        tile_info_t& ptile_src = source._mem.tiles[cnt.getI()];
+        const tile_info_t& ptile_src = source._mem.tiles[cnt.getI()];
         ego_tile_info_t& ptile_dst = tmem_dst.get(cnt);
 
         // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
@@ -162,34 +157,33 @@ std::shared_ptr<ego_mesh_t> ego_mesh_convert(map_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-std::shared_ptr<ego_mesh_t> LoadMesh(const std::string& moduleName)
+std::shared_ptr<ego_mesh_t> MeshLoader::operator()(const std::string& moduleName) const
 {
-	map_t local_mpd;
+	map_t map;
 	// Load the map data.
 	tile_dictionary_load_vfs("mp_data/fans.txt", &tile_dict, -1);
-	if (!local_mpd.load("mp_data/level.mpd"))
+	if (!map.load("mp_data/level.mpd"))
 	{
-		std::ostringstream os;
-		os << "unable to load mesh of module `" << moduleName << "`";
-		Log::get().error("%s\n", os.str().c_str());
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
+        Log::Entry entry(Log::Level::Error, __FILE__, __LINE__);
+	    entry << "unable to load mesh of module `" << moduleName << "`" << Log::EndOfEntry;
+        Log::get() << entry;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, entry.getText());
 	}
 	// Create the mesh from map.
-	std::shared_ptr<ego_mesh_t> mesh = ego_mesh_convert(local_mpd);
+	std::shared_ptr<ego_mesh_t> mesh = convert(map);
 	if (!mesh)
 	{
-		std::ostringstream os;
-		os << "unable to convert mesh of module `" << moduleName << "`";
-		Log::get().error("%s\n", os.str().c_str());
-		throw Id::RuntimeErrorException(__FILE__, __LINE__, os.str());
+        Log::Entry entry(Log::Level::Error, __FILE__, __LINE__);
+        entry << "unable to convert mesh of module `" << moduleName << "`" << Log::EndOfEntry;
+        Log::get() << entry;
+		throw Id::RuntimeErrorException(__FILE__, __LINE__, entry.getText());
 	}
 	mesh->finalize();
 	return mesh;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 MeshLookupTables g_meshLookupTables;
 
 MeshLookupTables::MeshLookupTables() {
@@ -415,73 +409,6 @@ void ego_mesh_t::make_normals()
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_interpolate_vertex(const ego_tile_info_t& info, const GLXvector3f& position)
-{
-	const oct_bb_t& boundingBox = info._oct;
-	const light_cache_t& lightCache = info._lightingCache._contents;
-
-	// Set the lighting to 0.
-	float light = 0.0f;
-
-    // Determine texture coordinates of the specified point.
-    float u = (position[XX] - boundingBox._mins[OCT_X]) / (boundingBox._maxs[OCT_X] - boundingBox._mins[OCT_X]);
-    float v = (position[YY] - boundingBox._mins[OCT_Y]) / (boundingBox._maxs[OCT_Y] - boundingBox._mins[OCT_Y]);
-
-    // Interpolate the lighting at the four vertices of the tile.
-	// to determine the final lighting at the specified point.
-    float weightedSum = 0.0f;
-    for (size_t i = 0; i < 4; ++i) {
-		// Mix the u, v coordinate pairs (0,0),
-		// (1,0), (1,1), and (0,1) using the
-		// texture coordinates of the specified
-		// point.
-		static const float ix_off[4] = { 0.0f, 1.0f, 1.0f, 0.0f },
-			               iy_off[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
-        float mix = grid_get_mix(ix_off[i], u, iy_off[i], v);
-		
-		weightedSum += mix;
-        light += mix * lightCache[i];
-    }
-
-	// Normalize to the weighted sum.
-    if (light > 0.0f && weightedSum > 0.0f) {
-        light /= weightedSum;
-        light = Ego::Math::constrain(light, 0.0f, 255.0f);
-    } else {
-        light = 0.0f;
-    }
-	return light;
-}
-
-float grid_get_mix(float u0, float u, float v0, float v) {
-	// Get the distance of u and v from u0 and v0.
-	float du = u - u0, 
-		  dv = v - v0;
-
-	// If the absolute distance du or dv is greater than 1,
-	// return 0.
-	if (std::abs(du) > 1.0f || std::abs(dv) > 1.0f) {
-		return 0.0f;
-	}
-	// The distances are within the bounds of [-1,+1] at this point.
-	// The original formulas are
-	// wt_u = (1.0f - du)*(1.0f + du)
-	// wt_v = (1.0f - dv)*(1.0f + dv)
-	// However, a term of the form
-	// y = (1 - x) * (1 + x)
-	// can be simplified to
-	// y = (1 - x) * 1 + (1 - x) * x
-	//   = (1 - x) + (1 - x) * x
-	//   = 1 - x + x - x^2
-	//   = 1 - x^2
-	// Hence the original formulas become
-	// wt_u = 1.0f - du * du)
-	// wt_v = 1.0f - dv * dv
-	float wt_u = 1.0f - du * du,
-		  wt_v = 1.0f - dv * dv;
-
-	return wt_u * wt_v;
-}
 
 BIT_FIELD ego_mesh_t::test_wall(const BIT_FIELD bits, const mesh_wall_data_t& data) const
 {
@@ -911,12 +838,6 @@ bool ego_mesh_t::tile_has_bits( const Index2D& i, const BIT_FIELD bits ) const
     GRID_FX_BITS fx = _tmem.get(j).getFX();
 
     return HAS_SOME_BITS(fx, bits);
-}
-
-Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test )
-{
-	g_meshStats.mpdfxTests++;
-    return HAS_SOME_BITS( mpdfx, test );
 }
 
 bool ego_mesh_t::grid_is_valid(const Index1D& i) const
