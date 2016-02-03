@@ -24,7 +24,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/Math/Colour4f.hpp"
+#include "egolib/Math/_Include.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
 
 namespace Ego {

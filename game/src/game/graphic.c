@@ -998,10 +998,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 	{
 		// Sort dolist for unreflected rendering.
 		ClockScope<ClockPolicy::NonRecursive> scope(sortDoListUnreflected_timer);
-		if (gfx_error == el.sort(cam, false))
-		{
-			retval = gfx_error;
-		}
+        el.sort(cam, false);
 	}
 
     // Render solid entities.
@@ -2282,14 +2279,8 @@ gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
 {
-	if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
-        return gfx_error;
-    }
-
     // Remove all entities from the entity list.
-    el.reset();
+    el.clear();
 
     // collide the characters with the frustum
     std::vector<std::shared_ptr<Object>> visibleObjects = 
@@ -2300,26 +2291,11 @@ gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
             true);
 
     for(const std::shared_ptr<Object> object : visibleObjects) {
-        if (!el.test_obj(*object.get())) continue;
-
-        if (gfx_error == el.add_obj_raw(*object.get()))
-        {
-            return gfx_error;
-        }
+        el.add(cam, *object.get());
     }
 
-    // collide the particles with the frustum
-    for(const std::shared_ptr<Ego::Particle> particle : ParticleHandler::get().iterator())
-    {
-        if (!el.test_prt(particle)) continue;
-
-        if(Ego::Math::Relation::outside != cam.getFrustum().intersects(Sphere3f(particle->getPosition(), particle->bump_real.size_big), false))
-        {
-            if (gfx_error == el.add_prt_raw(particle))
-            {
-                return gfx_error;
-            }
-        }
+    for(const std::shared_ptr<Ego::Particle> particle : ParticleHandler::get().iterator()) {
+        el.add(cam, *particle.get());
     }
 
     return gfx_success;

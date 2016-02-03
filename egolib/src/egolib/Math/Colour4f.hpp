@@ -28,218 +28,123 @@
 namespace Ego {
 namespace Math {
 
-/**
- * @brief
- *  A colour value in RGBA colour space represented by
- *      four single-precision floating point values
- *          each within the range of 0 (inclusive) to 1 (inclusive).
- * @author
- *  Michael Heilmann
- */
-class Colour4f {
+template <>
+struct Colour<RGBA, float> : public ColourComponents<RGBA, float> {
+public:
+    typedef float ComponentType;
+    typedef RGBA ColourSpaceType;
+    typedef Colour<ColourSpaceType, ComponentType> MyType;
 
 public:
-
     /**
      * @brief The colour "red".
      * @return the colour "red"
-     * @see Ego::Math::Colour3f::red()
+     * @see Ego::Math::Colour<RGB,float>::red()
      */
-    static const Colour4f& red() {
-        static const Colour4f colour(Colour3f::red(), 1.0f);
+    static const MyType& red() {
+        static const MyType colour(Colour<RGB,float>::red(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "green".
      * @return the colour "green"
-     * @see Ego::Math::Colour3f::green()
+     * @see Ego::Math::Colour<RGB,float>::green()
      */
-    static const Colour4f& green() {
-        static const Colour4f colour(Colour3f::green(), 1.0f);
+    static const MyType& green() {
+        static const MyType colour(Colour<RGB,float>::green(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "blue".
      * @return the colour "blue"
-     * @see Ego::Math::Colour3f::blue()
+     * @see Ego::Math::Colour<RGB,float>::blue()
      */
-    static const Colour4f blue() {
-        static const Colour4f colour(Colour3f::blue(), 1.0f);
+    static const MyType blue() {
+        static const MyType colour(Colour<RGB,float>::blue(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "white".
      * @return the colour "white"
-     * @see Ego::Math::Colour3f::white()
+     * @see Ego::Math::Colour<RGB,float>::white()
      */
-    static const Colour4f white() {
-        static const Colour4f colour(Colour3f::white(), 1.0f);
+    static const MyType white() {
+        static const MyType colour(Colour<RGB,float>::white(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "black".
      * @return the colour "black"
-     * @see Ego::Math::Colour3f::black()
+     * @see Ego::Math::Colour<RGB,float>::black()
      */
-    static const Colour4f black() {
-        static const Colour4f colour(Colour3f::black(), 1.0f);
+    static const MyType black() {
+        static const MyType colour(Colour<RGB,float>::black(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "cyan".
      * @return the colour "cyan"
-     * @see Ego::Math::Colour3f::cyan()
+     * @see Ego::Math::Colour<RGB,float>::cyan()
      */
-    static const Colour4f cyan() {
-        static const Colour4f colour(Colour3f::cyan(), 1.0f);
+    static const MyType cyan() {
+        static const MyType colour(Colour<RGB,float>::cyan(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "magenta".
      * @return the colour "magenta"
-     * @see Ego::Math::Colour3f::magenta()
+     * @see Ego::Math::Colour<RGB,float>::magenta()
      */
-    static const Colour4f magenta() {
-        static const Colour4f colour(Colour3f::magenta(), 1.0f);
+    static const MyType magenta() {
+        static const MyType colour(Colour<RGB,float>::magenta(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "yellow".
      * @return the colour "yellow"
-     * @see Ego::Math::Colour3f::yellow()
+     * @see Ego::Math::Colour<RGB,float>::yellow()
      */
-    static const Colour4f yellow() {
-        static const Colour4f colour(Colour3f::yellow(), 1.0f);
+    static const MyType yellow() {
+        static const MyType colour(Colour<RGB,float>::yellow(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "purple".
      * @return the colour "purple"
-     * @see Ego::Math::Colour3f::purple()
+     * @see Ego::Math::Colour<RGB,float>::purple()
      */
-    static const Colour4f purple() {
-        static const Colour4f colour(Colour3f::purple(), 1.0f);
+    static const MyType purple() {
+        static const MyType colour(Colour<RGB,float>::purple(), 1.0f);
         return colour;
     }
 
     /**
      * @brief The colour "grey".
      * @return the colour "grey"
-     * @see Ego::Math::Colour3f::grey()
+     * @see Ego::Math::Colour<RGB,float>::grey()
      */
-    static const Colour4f grey() {
-        static const Colour4f colour(Colour3f::grey(), 1.0f);
+    static const MyType grey() {
+        static const MyType colour(Colour<RGB,float>::grey(), 1.0f);
         return colour;
     }
 
-private:
-
-    /**
-     * @brief
-     *  The red component.
-     * @invariant
-     *  0.0f <= r <= 1.0f
-     */
-    float _r;
-
-    /**
-     * @brief
-     *  The green component.
-     * @invariant
-     *  0.0f <= r <= 1.0f
-     */
-    float _g;
-
-    /**
-     * @brief
-     *  The blue component.
-     * @invariant
-     *  0.0f <= r <= 1.0f
-     */
-    float _b;
-
-    /**
-     * @brief
-     *  The alpha component.
-     * @invariant
-     *  0.0f <= r <= 1.0f
-     * @remark
-     *  0.0f is completely transparent, 1.0f is completely opaque.
-     */
-    float _a;
-
 public:
-
     /**
      * @brief
-     *  Get the value of the red component.
-     * @return
-     *  the value of the red component
+     *  Create a colour default constructor (opaque black)
      */
-    float getRed() const {
-        return _r;
+    Colour() :
+        ColourComponents<ColourSpaceType, ComponentType>(ColourComponents<ColourSpaceType, ComponentType>::min(), ColourComponents<ColourSpaceType, ComponentType>::min(), ColourComponents<ColourSpaceType, ComponentType>::min(), ColourComponents<ColourSpaceType, ComponentType>::max()) {
+        // Intentionally empty
     }
-
-    /**
-     * @brief
-     *  Get the value of the green component.
-     * @return
-     *  the value of the green component
-     */
-    float getGreen() const {
-        return _g;
-    }
-
-    /**
-     * @brief
-     *  Get the value of the blue component.
-     * @return
-     *  the value of the blue component
-     */
-    float getBlue() const {
-        return _b;
-    }
-
-    /**
-     * @brief
-     *  Get the value of the alpha component.
-     * @return
-     *  the value of the alpha component
-     */
-    float getAlpha() const {
-        return _a;
-    }
-
-    /**
-     * @brief
-     *  Set the value of the alpha component.
-     * @param a
-     *  the value of the alpha component
-     */
-    void setAlpha(const float a) {
-        if (_a < 0.0f || _a > 1.0f) {
-            throw std::domain_error("alpha component outside bounds");
-        }
-        _a = a;
-    }
-
-    /**
-     * @brief
-     *  Create a colour default constructor (BLACK)
-     */
-    Colour4f() :
-        _r(0.0f),
-        _g(0.0f),
-        _b(0.0f),
-        _a(0.0f) {}
 
     /**
      * @brief
@@ -250,14 +155,8 @@ public:
      * @param a
      *  the alpha component
      */
-    Colour4f(const Colour3f& other, float a) :
-        _r(other.getRed()),
-        _g(other.getGreen()),
-        _b(other.getBlue()),
-        _a(a) {
-        if (_a < 0.0f || _a > 1.0f) {
-            throw std::domain_error("alpha component outside bounds");
-        }
+    Colour(const Colour<RGB,float>& other, float a) :
+        ColourComponents<RGBA,float>(other, a) {
     }
 
     /**
@@ -266,11 +165,10 @@ public:
      * @param other
      *  the other colour
      */
-    Colour4f(const Colour4f& other) :
-        _r(other._r),
-        _g(other._g),
-        _b(other._b),
-        _a(other._a) {}
+    Colour(const Colour& other) :
+        ColourComponents<ColourSpaceType, ComponentType>(other) {
+        // Intentionally empty.
+    }
 
     /**
      * @brief
@@ -286,23 +184,14 @@ public:
      * @throws std::domain_error
      *  if @a a, @a g, @a b or @a a are not within the range of 0 (inclusive) and 1 (inclusive)
      */
-    Colour4f(float r, float g, float b, float a) :
-        _r(r),
-        _g(g),
-        _b(b),
-        _a(a) {
-        if (_r < 0.0f || _r > 1.0f) {
-            throw std::domain_error("red component outside bounds");
-        }
-        if (_g < 0.0f || _g > 1.0f) {
-            throw std::domain_error("green component outside bounds");
-        }
-        if (_b < 0.0f || _b > 1.0f) {
-            throw std::domain_error("blue component outside bounds");
-        }
-        if (_a < 0.0f || _a > 1.0f) {
-            throw std::domain_error("alpha component outside bounds");
-        }
+    Colour(ComponentType r, ComponentType g, ComponentType b, ComponentType a) :
+        ColourComponents<ColourSpaceType, ComponentType>(r, g, b, a) {
+        // Intentionally empty.
+    }
+
+    const MyType& operator=(const MyType& other) {
+        assign(other);
+        return *this;
     }
 
     /**
@@ -317,8 +206,8 @@ public:
      * @remark
      *  The corresponding inverted colour is also known as the complementary colour.
      */
-    Colour4f invert() const {
-        return Colour4f(1.0f - _r, 1.0f - _g, 1.0f - _b, _a);
+    MyType invert() const {
+        return MyType(1.0f - getRed(), 1.0f - getGreen(), 1.0f - getBlue(), getAlpha());
     }
 
     /**
@@ -333,10 +222,10 @@ public:
      *  then corresponding inverted colour is \f$(brighness*r,brighness*1,brighness*1,a)\f$. This conversion
      *  is not reverrsible.
      */
-    Colour4f brighter(float brightness) const {
+    MyType brighter(float brightness) const {
         if (brightness <= 0.0f) return *this;
         brightness += 1.0f;
-        return Colour4f(std::min(1.0f, _r*brightness), std::min(1.0f, _g*brightness), std::min(1.0f, _b*brightness), _a);
+        return MyType(std::min(1.0f, getRed()*brightness), std::min(1.0f, getGreen()*brightness), std::min(1.0f, getBlue()*brightness), getAlpha());
     }
 
     /**
@@ -355,10 +244,9 @@ public:
      * @return
      *  the colour
      */
-    static Colour4f parse(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-        return Colour4f(((float)r) / 255.0f, ((float)g) / 255.0f, ((float)b) / 255.0f, ((float)a) / 255.0f);
+    static MyType parse(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+        return MyType(((float)r) / 255.0f, ((float)g) / 255.0f, ((float)b) / 255.0f, ((float)a) / 255.0f);
     }
-
 };
 
 } // namespace Math

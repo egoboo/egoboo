@@ -23,7 +23,8 @@
 
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/Math/Colour3f.hpp"
+#include "egolib/Math/Colour4f.hpp"
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Standard.hpp" /// @todo Remove this.
 
@@ -31,9 +32,6 @@ namespace Ego
 {
 namespace Math
 {
-
-class Colour3f;
-class Colour4f;
 
 /**
  * @ingroup math

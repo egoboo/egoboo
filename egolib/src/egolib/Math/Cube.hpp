@@ -43,7 +43,7 @@ public:
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
     /// @brief @a MyType is the type of this template/template specialization.
-    typedef Cube<_EuclideanSpaceType> MyType;
+    typedef Cube<EuclideanSpaceType> MyType;
 
 private:
 
