@@ -17,13 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/geometry.c
-/// @brief
+/// @file     egolib/geometry.c
+/// @brief   functions for manipulating geometric primitives
 /// @details
 
 #include "egolib/geometry.h"
 
-#include "egolib/_math.h"
 #include "egolib/_math.h"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Sphere.h"
@@ -178,9 +177,10 @@ bool two_plane_intersection(Vector3f& p, Vector3f& d, const Plane3f& p0, const P
     d = n0.cross(n1);
     
     // If \f$\vec{v}\f$ is the zero vector, then the planes do not intersect.
-    if (0 == d.normalize()) {
+    if (d.isZero()) {
         return false;
     }
+    d.normalize();
     if (0.0f != d[kZ])
     {
         p[kX] = (n0[kY] * n1[kW] - n0[kW] * n1[kY]) / d[kZ];
@@ -273,176 +273,66 @@ Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f
     }
 }
 
-//--------------------------------------------------------------------------------------------
-// cone functions
-//--------------------------------------------------------------------------------------------
-
 Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Vector3f& P)
 {
-    // move the cone origin to the origin of coordinates
-	Vector3f dist_vec = P - K.getOrigin();
-
-    // project the point's position onto the cone's axis
-    float para_dist = K.getAxis().dot(dist_vec);
-
-    if ( para_dist < 0.0f )
-    {
-		return Ego::Math::Relation::outside;
-    }
-    else
-    {
-        // the square of the total distance
-        float dist_2 = dist_vec.length_2();
-
-        // the square of the parallel distance
-        float para_dist_2 = para_dist * para_dist;
-
-        // the square of the perpendicular distance
-        float perp_dist_2 = dist_2 - para_dist_2;
-
-        if ( perp_dist_2 < 0.0f || K.sin_2 < 0.0f )
-        {
-			return Ego::Math::Relation::error;
-        }
-        else if ( 0.0f == perp_dist_2 && K.sin_2 > 0.0f )
-        {
-			return Ego::Math::Relation::inside;
-        }
-        else
-        {
-			float test3;
-
-            // the test for being inside:
-            //     the perp distance from the axis (squared, perp_dist_2) must be less than
-            //     the radius of the cone at that distance along the cone (squared, dist_2 * K->sin_2)
-            //test1 = dist_2 * K.sin_2 - perp_dist_2;
-
-            // alternate test 1 for being inside:
-            // the sine of the angle between the point and the axis must be less than the given sine
-            // sqrt( 1.0f - para_dist_2 / dist_2 ) < sqrt( K.sin_2 )
-            // 1.0f - para_dist_2 / dist_2 < K->sin_2
-            // para_dist_2 / dist_2 > 1.0f - K->sin_2
-            // para_dist_2 > dist_2 * (1.0f - K->sin_2)
-            // test2 = para_dist_2 - dist_2 * (1.0f - K.sin_2);
-
-            // alternate test 2 for being inside:
-            // the cosine of the of the angle between the point and the axis must be greater than the given cosine
-            // sqrt( para_dist_2 / dist_2 ) > sqrt( K.cos_2 )
-            // para_dist_2 > dist_2 * K.cos_2
-            test3 = para_dist_2 - dist_2 * K.cos_2;
-
-            // is the point inside the cone?
-            if ( test3 > 0.0f )
-            {
-				return Ego::Math::Relation::inside;
-            }
-            else if ( 0.0f == test3 )
-            {
-				return Ego::Math::Relation::intersect;
-            }
-            else
-            {
-				return Ego::Math::Relation::outside;
-            }
-        }
+    // If \f$\hat{d} \cdot \left(P-O\right) = \left|P-O\right|\cos \theta\f$ then the point
+    // is on the cone and if \$\hat{d} \cdot \left(P-O\right) > \left|P-O\right|\cos \theta\f$
+    // then it is in the cone. Otherwise it is outside the cone.
+    // Compute \$t = P - O\f$.
+	const auto t = P - K.getOrigin();
+    // Compute \$\left|t\right|\cos\theta\f$.
+    const auto rhs = t.length() * std::cos(Ego::Math::DegreesToRadians(K.getAngle()));
+    // Compute \f$\hat{d} \cdot \left(t\right)\f$.
+    const auto lhs = K.getAxis().dot(t);
+    if (lhs > rhs) {
+        return Ego::Math::Relation::inside;
+    } else if (lhs < rhs) {
+        return Ego::Math::Relation::outside;
+    } else {
+        return Ego::Math::Relation::on;
     }
 }
 
-//--------------------------------------------------------------------------------------------
-Ego::Math::Relation cone_intersects_sphere(const Cone3f& K, const Sphere3f& S)
-{
-    /// @author BB
-    ///
-    /// @details  An approximation to the complete sphere-cone test.
-    ///
-    /// @notes
-    /// Tests to remove some volume between the foreward and rear versions of the cone are not implemented,
-    /// so this will over-estimate the cone volume. The smaller the opening angle, the worse the overestimation
-    /// will be
-    ///
-    /// the return values deal with the sphere being inside the cone or not
-    /// geometry_error     - obvious
-    /// geometry_outside   - the aabb is outside the frustum
-    /// geometry_intersect - the aabb and the frustum partially overlap
-    /// geometry_inside    - the aabb is completely inside the frustum
+bool sphere_intersects_cone(const Sphere3f& S, const Cone3f& K) {
+    // \$\sin\left(\theta\right)\f$
+    const float s = std::sin(Ego::Math::DegreesToRadians(K.getAngle()));
+    // \f$\cos\left(\theta\right)\f$
+    const float c = std::cos(Ego::Math::DegreesToRadians(K.getAngle()));
+    // The reciprocal of \f$\sin\left(\theta\right)\f$: \f$\frac{1}{\sin\left(\theta\right)}\f$.
+    const float s_r = 1.0f / s;
 
-	Ego::Math::Relation retval = Ego::Math::Relation::error;
-    bool done;
+    // Compute the forward cone.
+    auto origin_p = K.getOrigin() - K.getAxis() * (S.getRadius() * s_r),
+         direction_p = K.getAxis();
 
-    float offset_length;
-	Vector3f offset_vec;
+    Vector3f t; float lhs, rhs;
 
-    // cones with bad data are not useful
-	/// @todo Encapsulte cone such that this may not happen.
-    if ( K.sin_2 <= 0.0f || K.sin_2 > 1.0f || K.cos_2 >= 1.0f )
-    {
-		throw std::runtime_error("invalid cone");
+    // Determine the relation of the center to the forward cone.
+    t = S.getCenter() - origin_p;
+    rhs = t.length() * c;
+    lhs = direction_p.dot(t);
+    if (lhs < rhs) {
+        // The center is outside the forward cone, the sphere is outside the cone.
+        return false;
     }
-
-
-    // this is the distance that the origin of the cone must be moved to
-    // produce a new cone with an offset equal to the radius of the sphere
-    offset_length = S.getRadius() * K.inv_sin;
-	offset_vec = K.getAxis() * offset_length;
-
-    // assume the worst
-    done   = false;
-
-    // being instide the forward cone means that the sphere is
-    // completely inside the original cone
-    // Shift the origin by the offset in the positive sense.
-	Cone3f K_new = K;
-    K_new.origin = K.getOrigin() + offset_vec;
-
-    // If the center of the sphere is inside this cone, it must be competely inside the original cone
-    switch (cone_intersects_point(K_new, S.getCenter()))
-    {
-		case Ego::Math::Relation::outside: // the center of the sphere is outside the foreward cone
-            /* do nothing */
-            break;
-
-		case Ego::Math::Relation::intersect: // the origin of the cone is exactly on the foreward cone
-		case Ego::Math::Relation::inside:    // the origin of the sphere is inside the foreward cone
-
-            // the sphere is completely inside the original cone
-			retval = Ego::Math::Relation::inside;
-            done = true;
-            break;
-
-        case Ego::Math::Relation::error:
-            throw std::runtime_error("invalid cone");
+    // (At this point, the sphere is either inside or on the forward cone).
+    // Compute the backward cone.
+    auto origin_m = K.getOrigin(),
+         direction_m = -K.getAxis();
+    // Determine the relation of the center to the backward cone.
+    t = S.getCenter() - origin_m;
+    rhs = t.length() * s; // \f$\cos\left(90-\theta\right) = \sin(\theta)\f$
+    lhs = direction_m.dot(t);
+    if (lhs < rhs) {
+        // The sphere does not intersect the backward cone is inside (on) the cone
+        // if and only if \f$\left|C - V\right| < r\f$ (\f$\left|C - V\right | = r\f$).
+        t = S.getCenter() - K.getOrigin();
+        // We use the squared length and the squared radius.
+        float l2 = t.length_2(), r2 = S.getRadius() * S.getRadius();
+        return l2 <= r2;
+    } else {
+        // The sphere and the forward cone and the sphere and the backward cone intersect.
+        // Hence, there sphere intersects the cone.
+        return true;
     }
-
-    // test for intersection with the back cone.
-    if ( !done )
-    {
-        // Shift the origin by the offset in the negative sense.
-		K_new = K;
-        K_new.origin = K.getOrigin() - offset_vec;
-
-        // If the center of the sphere is inside this cone, it must be intersecting the original cone.
-        // Since it failed test with the foreward cone, it must be merely intersecting the cone.
-        switch ( cone_intersects_point( K_new, S.getCenter() ) )
-        {
-			case Ego::Math::Relation::outside:
-				retval = Ego::Math::Relation::outside;
-                done = true;
-                break;
-
-			case Ego::Math::Relation::intersect:
-			case Ego::Math::Relation::inside:
-				retval = Ego::Math::Relation::intersect;
-                done = true;
-                break;
-
-            case Ego::Math::Relation::error:
-                throw std::runtime_error("invalid cone");
-        }
-    }
-
-	return !done ? Ego::Math::Relation::error : retval;
 }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-

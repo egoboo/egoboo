@@ -66,7 +66,7 @@ typedef Ego::Math::AABB<EuclideanSpace2f> AABB2f;
 typedef AABB2f Rectangle2f;
 
 /// A 3D cone.
-typedef Ego::Math::Cone3<float> Cone3f;
+typedef Ego::Math::Cone3<EuclideanSpace3f> Cone3f;
 
 /// A 3D cube.
 typedef Ego::Math::Cube<EuclideanSpace3f> Cube3f;

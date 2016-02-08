@@ -278,14 +278,14 @@ struct Transform {
      * @throw std::invalid_argument
      *  if the rotation axis is the zero vector
      * @remark
-     *  Given an axis of rotation represented by the unit vector \f$\hat{\vec{r}}=(k_x,k_y,k_z,1)\f$ and an angle
+     *  Given an axis of rotation represented by the unit vector \f$\hat{r}=(k_x,k_y,k_z,1)\f$ and an angle
      *  \f$\theta\f$ in degrees, we shall obtain a \f$4 \times 4\f$ matrix \f$\mathcal{T}\f$ called the Rodrigues rotation
-     *  matrix \f$R\f$ for the axis of rotation \f$\hat{\vec{k}}\f$ and the angle \f$\theta\f$. This matrix has
+     *  matrix \f$R\f$ for the axis of rotation \f$\hat{k}\f$ and the angle \f$\theta\f$. This matrix has
      *  represents the transformation of rotating counter-clockwise by \f$\theta\f$ degrees about the axis
      *  \f$\hat{k}\f$ i.e. for any point \f$\vec{v}=(v_x,v_y,v_z,1)\f$
-     *  \[
+     *  \f[
      *  \vec{v}' = \mathbf{L} \vec{v}
-     *  \]
+     *  \f]
      *  is the counter-clockwise rotation of \f$\vec{v}\f$ by \f$\theta\f$ degrees about the axis \f$\hat{\vec{r}}\f$.
      *  </br>
      *  The derivation of that matrix is provided here for reference, the geometric reasoning is omitted.
