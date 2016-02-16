@@ -40,11 +40,11 @@ namespace Math {
  * @author
  *  Michael Heilmann
  */
-template <typename _ScalarType>
-struct Plane3 : public Translatable<VectorSpace<Field<_ScalarType>, 3>> {
+template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
+struct Plane3 : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
     /// @brief The Euclidean space over which the cones are defined.
-    typedef EuclideanSpace<VectorSpace<Field<_ScalarType>, 3>> EuclideanSpaceType;
+    typedef _EuclideanSpaceType EuclideanSpaceType;
     /// The vector space type (of the Euclidean space).
     typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
     /// The scalar field type (of the vector space).
@@ -54,7 +54,7 @@ public:
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
     /// @brief @a MyType is the type of this template/template specialization.
-    typedef Plane3<_ScalarType> MyType;
+    typedef Plane3<EuclideanSpaceType> MyType;
 
 private:
 
@@ -99,7 +99,7 @@ public:
     Plane3(const ScalarType& a, const ScalarType& b, const ScalarType& c, const ScalarType& d)
         : _n(a, b, c), _d(d) {
         auto l = _n.length();
-        if (0.0f == l) {
+        if (ScalarFieldType::additiveNeutral() == l) {
             throw std::domain_error("normal vector is zero vector");
         }
         auto il = 1.0f / l;
@@ -309,10 +309,10 @@ public:
 	 * @return
 	 *	a point on this plane
 	 * @remark
-	 *	The point \f$X = (-d) \cdot \hat{n}\f$ is guaranteed to be on the plane.
+	 *	The point \f$X = (-d) \hat{n}\f$ is guaranteed to be on the plane.
 	 *	To see that, insert \f$X\f$ into the plane equation:
 	 *	\f{align*}{
-	 *	\hat{n} \cdot X + d = \hat{n} \cdot \left[(-d) \cdot \hat{n}\right] + d
+	 *	\hat{n} \cdot X + d = \hat{n} \cdot \left[(-d) \hat{n}\right] + d
 	 *	= (-d) \left(\hat{n} \cdot \hat{n}\right] + d
 	 *	\f}
 	 *	As \f$\hat{n}\f$ is a unit vector

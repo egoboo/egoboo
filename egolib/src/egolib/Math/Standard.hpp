@@ -2,13 +2,17 @@
 
 #include "egolib/Math/AABB.hpp"
 #include "egolib/Math/Cone3.hpp"
+#include "egolib/Math/Colour3f.hpp"
+#include "egolib/Math/Colour4f.hpp"
 #include "egolib/Math/Cube.hpp"
+#include "egolib/Math/OrderedField.hpp"
 #include "egolib/Math/Line.hpp"
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Point.hpp"
 #include "egolib/Math/Sphere.h"
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/VectorSpace.hpp"
 
 
 /**
@@ -62,7 +66,7 @@ typedef Ego::Math::AABB<EuclideanSpace2f> AABB2f;
 typedef AABB2f Rectangle2f;
 
 /// A 3D cone.
-typedef Ego::Math::Cone3<float> Cone3f;
+typedef Ego::Math::Cone3<EuclideanSpace3f> Cone3f;
 
 /// A 3D cube.
 typedef Ego::Math::Cube<EuclideanSpace3f> Cube3f;
@@ -74,7 +78,21 @@ typedef Ego::Math::Line<EuclideanSpace3f> Line3f;
 typedef Ego::Math::Point<VectorSpace3f> Point3f;
 
 /// A 3D plane.
-typedef Ego::Math::Plane3<float> Plane3f;
+typedef Ego::Math::Plane3<EuclideanSpace3f> Plane3f;
+
+namespace Ego {
+namespace Math {
+
+/// A colour in RGB colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
+/// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
+typedef Colour<RGB, float> Colour3f;
+
+/// A colour in RGBA colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
+/// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
+typedef Colour<RGBA, float> Colour4f;
+
+} // namespace Math
+} // namespace Ego
 
 #ifdef _DEBUG
 namespace Ego {

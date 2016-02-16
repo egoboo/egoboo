@@ -408,7 +408,7 @@ void vfs_read_string_lit(ReadContext& ctxt, char *buf, size_t max);
  * @brief Read a string.
  * @param [out] receiver
  * @see ReadContext::readString
- * @remark A consecutive sequence of characters <tt>'_'</tt> is mapped to <tt>' '</tt> and <tt>'~'</tt> is mapped to <tt>'\t'</tt>.
+ * @remark A consecutive sequence of characters <tt>'_'</tt> is mapped to <tt>' '</tt> and <tt>'~'</tt> is mapped to <tt>'\\t'</tt>.
  */
 void vfs_read_string_lit(ReadContext& ctxt, std::string& literal);
 /**

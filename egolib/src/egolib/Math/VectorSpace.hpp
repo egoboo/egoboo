@@ -55,10 +55,10 @@ struct VectorSpaceEnable
  *	An \f$n\f$-dimensional vector space.
  * @tparam _ScalarFieldType
  *  the underlying scalar field type.
- *  Must fulfil the <em>ScalarField</tt> concept.
+ *  Must fulfil the <em>ScalarField</em> concept.
  * @tparam _Dimensionality
  *  the dimensionality of the vector space.
- *  Must fulfil the <em>Dimensionality</tt> concept.
+ *  Must fulfil the <em>Dimensionality</em> concept.
  */
 template <typename _ScalarFieldType, size_t _Dimensionality, 
 		  typename _Enabled = void>

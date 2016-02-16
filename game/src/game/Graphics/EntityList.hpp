@@ -35,8 +35,7 @@ namespace Graphics {
  *
  *  Entities in this are sorted based on their position from the camera before drawing.
  */
-struct EntityList
-{
+struct EntityList {
     /**
      * @brief
      *    The (fixed) capacity of a do list.
@@ -44,69 +43,84 @@ struct EntityList
     static constexpr size_t CAPACITY = OBJECTS_MAX + PARTICLES_MAX;
     /**
      * @brief
-     *    An eleemnt of a do list.
+     *  An entry of an entity list.
      */
-    struct element_t
-    {
-        element_t(const element_t& other)
-            : iobj(other.iobj), iprt(other.iprt), dist(other.dist)
-        { }
-        element_t(ObjectRef iobj, ParticleRef iprt)
-            : iobj(iobj), iprt(iprt), dist(0.0f)
-        { }
+    struct Element {
+        Element()
+            : iobj(ObjectRef::Invalid), iprt(ParticleRef::Invalid), dist(0.0f) {}
+        Element(const Element& other)
+            : iobj(other.iobj), iprt(other.iprt), dist(other.dist) {}
+        Element(ObjectRef iobj, ParticleRef iprt)
+            : iobj(iobj), iprt(iprt), dist(0.0f) {}
 
         ObjectRef iobj;
         ParticleRef iprt;
         float dist;
     };
     struct Compare {
-        bool operator()(const element_t& x, const element_t& y) const {
+        bool operator()(const Element& x, const Element& y) const {
             return x.dist < y.dist;
         }
     };
-protected:
+private:
+    /** An array of the entities in this entity list. */
+    std::vector<Element> list;
+    /** For checking in amortized constant time if an object is already in this entity list. */
+    std::unordered_set<void *> set;
+
+private:
+    /**
+     * @brief Test if the specified object entity is eligible for addition.
+     * @return @a true if the specified object entity is eligible for addition, @a false otherwise
+     */
+    bool test(::Camera& camera, const Object& object);
 
     /**
-    * @brief
-    *  An array of dolist elements.
-    */
-    std::vector<element_t> _lst;
+     * @brief Test if the specified particle entity is eligible for addition.
+     * @return @a true if the specified particle entity is eligible for addition, @a false otherwise
+     * @todo Should be a reference to a particle.
+     */
+    bool test(::Camera& camera, const Ego::Particle& particle);
 
 public:
     EntityList();
-    void init();
-    
-    const element_t& get(size_t index) const
-    {
-        if (index >= _lst.size())
-        {
+
+    const Element& get(size_t index) const {
+        if (index >= list.size()) {
             throw std::out_of_range("index out of range");
         }
-        return _lst[index];
+        return list[index];
     }
 
-    element_t& get(size_t index)
-    {
-        if (index >= _lst.size())
-        {
+    Element& get(size_t index) {
+        if (index >= list.size()) {
             throw std::out_of_range("index out of range");
         }
-        return _lst[index];
-    }
-    
-    size_t getSize() const
-    {
-        return _lst.size();
+        return list[index];
     }
 
-    gfx_rv reset();
-    gfx_rv sort(Camera& camera, const bool reflect);
+    size_t getSize() const {
+        return list.size();
+    }
 
-    gfx_rv test_obj(const Object& obj);
-    gfx_rv add_obj_raw(Object& obj);
+    /** @brief Clear this entity list. */
+    void clear();
+    void sort(Camera& camera, const bool reflect);
 
-    gfx_rv test_prt(const std::shared_ptr<Ego::Particle>& prt);
-    gfx_rv add_prt_raw(const std::shared_ptr<Ego::Particle>& prt);    
+    /**
+     * @brief Add an object entity if it is eligible for addition.
+     * @param obj the object entity to add
+     * @return the total number of entities added
+     */
+    size_t add(::Camera& camera, const Object& object);
+
+    /**
+     * @brief Add a particle entity if it is eligible for addition.
+     * @param obj the particle entity to add
+     * @return the total number of entities added
+     * @todo Should be a reference to a particle.
+     */
+    size_t add(::Camera& camera, const Ego::Particle& particle);
 };
 
 } // namespace Graphics

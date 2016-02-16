@@ -19,8 +19,8 @@
 
 /// @file    egolib/geometry.h
 /// @brief   functions for manipulating geometric primitives
-/// @details The frustum code was inspired by Ben Humphrey (DigiBen at http://www.gametutorials.com), who was inspired by
-///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)
+/// @details The frustum code was inspired by Ben Humphrey (DigiBen at <a href="http://www.gametutorials.com">http://www.gametutorials.com</a>), who was inspired by
+///          Mark Morely (through the now vanished tutorial at <a href="http://www.markmorley.com/opengl/frustumculling.html">http://www.markmorley.com/opengl/frustumculling.html</a>)
 
 #pragma once
 
@@ -33,10 +33,10 @@
 namespace Ego {
 namespace Math {
 enum class Relation {
-	error,
 	outside,
 	intersect,
-	inside
+	inside,
+    on,
 };
 } // namespace Math
 } // namespace Ego
@@ -59,9 +59,13 @@ enum class Relation {
  */
 Ego::Math::Relation point_intersects_aabb(const Vector3f& point, const Vector3f& corner1, const Vector3f& corner2);
 
+/** @internal */
 Ego::Math::Relation aabb_intersects_aabb(const AABB3f& lhs, const AABB3f& rhs);
 
+/** @internal */
 Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs);
+
+/** @internal */
 Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs);
 
 /**
@@ -95,20 +99,65 @@ Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f
  *	a cone
  * @param rhs
  *	a point
+ * @return
+ *  - Ego::Math::Relation::On if the point is on the cone
+ *  - Ego::Math::Relation::Inside if the point is inside of the cone
+ *  - Ego::Math::Relation::Outside otherwise
+ * @remark
+ *  A definition of the relation of a point and a cone is provided in Ego::Math::Cone3.
+ * @see
+ *  Ego::Math::Cone3
  */
 Ego::Math::Relation cone_intersects_point(const Cone3f& lhs, const Vector3f& rhs);
 
 /**
  * @brief
- *  Get the relation of a cone to a sphere.
+ *  Get the relation of a sphere to an infinite cone.
  * @param lhs
- *  the cone
- * @param rhs
  *  the sphere
- * @todo
- *  Document return value.
+ * @param rhs
+ *  the cone
+ * @return
+ *  @a true if the sphere and the cone intersect, @a false otherwise
+ * @remark
+ *  Let \f$K\f$ be a cone with an origin \f$O\f$, a direction \f$\hat{d}\f$, and an acute angle \f$\theta\f$.
+ *  Let \f$S\f$ be a sphere with a center \f$C\f$ and a radius \f$r\f$. We shall determine if the cone and
+ *  the sphere intersect.
+ *
+ *  The backward cone \f$K^-\f$ has
+ *  - the origin \f$O^- = O\f$,
+ *  - the direction \f$\hat{d}^- = -\hat{d}\f$, and
+ *  - the angle \f$\theta^- = 90 - \theta\f$.
+ *  The forward cone \f$K^+\f$ has
+ *  - the origin \f$O^+ = O - \left(\frac{r}{\sin\theta}\right) \hat{d}\f$,
+ *  - the direction \f$\hat{d}^+ = \hat{d}\f$, and
+ *  - the angle \f$\theta^+ = \theta\f$.
+ *  The condition wether the sphere does or does not intersect the cone are as follows:
+ *  - If the sphere does not intersect the forward cone,
+ *      then it does not intersect the cone.
+ *  - If the sphere intersects the forward cone and does not intersect the backward cone,
+ *      then the sphere intersects the cone
+ *        if and only if \f$\left|C - V\right| \leq r\f$.
+ *  - If the sphere intersects both the forward and the backward cone,
+ *       then the sphere intersects the cone.
+ *
+ * @remark
+ *  \image html Cone-Sphere-Intersection-1.svg
+ *  illustrates the computation of the forward cone using trigonometry. As
+ *  \f{align*}{
+ *  \sin\theta=\frac{\mathit{opposite}}{\mathit{hypotenuse}}\\
+ *  \hookrightarrow \mathit{hypotenuse}=\frac{\mathit{opposite}}{\sin\theta}\\
+ *  \hookrightarrow \mathit{hypotenuse}=\frac{r}{\sin\theta}
+ *  \f}
+ *
+ * @remark
+ *  Wether a point is inside, on, or outside a cone, is explained in the point-cone
+ *  intersection, however, it is restated here for conveninence: "If \f$\hat{d} \cdot
+ *  \left(P-O\right) = \left|P-O\right|\cos \theta\f$ then the point is on the cone
+ *  and if \f$\hat{d} \cdot \left(P-O\right) > \left|P-O\right|\cos \theta\f$ then it is
+ *  in the cone. Otherwise it is outside the cone."
  */
-Ego::Math::Relation cone_intersects_sphere(const Cone3f& lhs, const Sphere3f& rhs);
+bool sphere_intersects_cone(const Sphere3f& lhs, const Cone3f& rhs);
 
 /**
  * @brief

@@ -51,6 +51,81 @@ typedef float Radians;
 typedef float Turns;
 
 /**
+ * @brief Enumeration of units in which angles are measured.
+ */
+enum class AngleUnit {
+    /** @brief The unit degrees with its canonical range of \f$[0,360)\f$. */
+    Degrees,
+    /** @brief The unit radians with its canonical range of \f$[0,2\pi)\f$. */
+    Radians,
+    /** @brief The unit turns with its canonical range of \f$[0,1)\f$. */
+    Turns,
+};
+
+/**
+ * @brief Functor to determine if an angle is an acute angle.
+ * @details The functor provides an <tt>operator()</tt> which
+ * takes the angle as its single argument and returns @a true
+ * or @a false depending on wether that angle is an acute angle.
+ * @remark An acute angle is an angle which has a measure between
+ * that of a right angle and that of a zero angle.
+ * @tparam _UnitType the unit in which the angle is measured in.
+ * Implementations for all enumeration elements of Ego::Math::Angle unit are provided.
+ */
+template <AngleUnit>
+struct IsAcute;
+
+/**
+ * @brief Implementation of IsAcute for angles measured in degrees.
+ */
+template <>
+struct IsAcute<AngleUnit::Degrees> {
+    /**
+     * @brief Get if an angle, in degrees, is an acute angle.
+     * @param x the angle, in degrees
+     * @return @a true if the angle is an acute angle, @a false otherwise
+     * @remark An angle \f$\alpha\f$ in degrees is an acute angle if \f$0 < a < 90\f$.
+     */
+    bool operator()(Degrees x) const {
+        return 0 < x && x < 90;
+    }
+};
+
+/**
+ * @brief Implementation of IsAcute for angles measured in radians.
+ */
+template <>
+struct IsAcute<AngleUnit::Radians> {
+    /**
+     * @brief Get if an angle, in radians, is an acute angle.
+     * @param x the angle, in radians
+     * @return @a true if the angle is an acute angle, @a false otherwise
+     * @remark An acute angle is an angle which has a measure between that of a right angle and that of a zero angle.
+     * In other words: An angle \f$\alpha\f$ in radians is an acute angle if \f$0 < a < \frac{\pi}{2}\f$.
+     */
+    static bool isAcute_rad(Radians x) {
+        return 0 < x && x < twoPi<float>();
+    }
+};
+
+/**
+ * @brief Implementation of IsAcute for angles measured in turns.
+ */
+template <>
+struct IsAcute<AngleUnit::Turns> {
+    /**
+     * @brief Get if an angle, in turns, is an acute angle.
+     * @param x the angle, in turns
+     * @return @a true if the angle is an acute angle, @a false otherwise
+     * @remark An acute angle is an angle which has a measure between that of a right angle and that of a zero angle.
+     * In other words: An angle \f$\alpha\f$ in turns is an acute angle if \f$0 < a < \frac{1}{4}\f$.
+     */
+    static bool isAcute_rad(Turns x) {
+        return 0 < x && x < 0.25f;
+    }
+};
+
+/**
  * @brief
  *  Convert an angle from radians (\f$[0,2\pi]\f$) to turns (\f$[0,1]\f$).
  * @param x

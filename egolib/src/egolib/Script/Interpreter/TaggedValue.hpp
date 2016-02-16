@@ -105,8 +105,8 @@ public:
     TaggedValue(IntegerValue other);
 
     /**
-     * @brief Construct this tagged value with the specified \Object\f$ value.
-     * @param other the \Object\f$ value
+     * @brief Construct this tagged value with the specified \f$Object\f$ value.
+     * @param other the \f$Object\f$ value
      */
     TaggedValue(ObjectValue other);
 
@@ -117,7 +117,7 @@ public:
     TaggedValue(RealValue other);
 
     /**
-     * @brief Construct this tagged value with the specified \Vector2\f$ value.
+     * @brief Construct this tagged value with the specified \f$Vector2\f$ value.
      * @param other the \f$Vector2\f$ value
      */
     TaggedValue(Vector2Value other);
@@ -129,8 +129,8 @@ public:
     TaggedValue(Vector3Value other);
 
     /**
-     * @brief Construct this tagged value with the specified \Void\f$ value.
-     * @param other the \Void\f$ value
+     * @brief Construct this tagged value with the specified \f$Void\f$ value.
+     * @param other the \f$Void\f$ value
      */
     TaggedValue(VoidValue other);
 

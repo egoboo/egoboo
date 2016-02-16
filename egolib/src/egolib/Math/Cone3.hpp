@@ -18,12 +18,11 @@
 //********************************************************************************************
 
 /// @file  egolib/Math/Cone3.hpp
-/// @brief Cones.
+/// @brief Single infinite cones.
 
 #pragma once
 
-#include "egolib/Math/OrderedField.hpp"
-#include "egolib/Math/VectorSpace.hpp"
+#include "egolib/Math/Angle.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
 
 namespace Ego {
@@ -31,15 +30,47 @@ namespace Math {
 
 /**
  * @brief
- *  A cone given by its origin, an axis and its opening angle.
- * @todo
- *	Re-implement this crap.
+ *  An single infinite cone is defined an origin point \f$O\f$, an axis ray whose origin is at
+ *  \f$O\f$ and unit length direction is \f$\hat{d}\f$, and and an acute angle \f$\theta\in\left
+ *  (0, 90\right)\f$. A single cone is not bounded by its
+ * @remark
+ *  A point \$P\f$ is inside a cone if the angle between the axis ray \f$\hat{d}\f$ and \f$P - O\f$ is in \f$[0,\theta)\f$
+ *  and one a cone if that angle is exactly 180.
+ *
+ *  That is, if \f$\alpha \in [0,180]\f$ is the angle between those vectors, then \f$\alpha \leq \theta\f$
+ *  has to hold. Note that the cosine is a strictly(!) decreasing function over the interval \$[0,180]\$
+ *  (ranging from 1 to 0). Hence \f$\alpha \leq \theta\f$ holds iff \f$\cos\alpha \geq \cos \theta\f$
+ *  holds.
+ *
+ *  \f$\cos\alpha\f$ can be computed using the dot product
+ *  \f{align*}{
+ *             &\hat{d} \cdot \left(P-O\right) = |\hat{d}||P-O| \cos \alpha\\
+ *  \Rightarrow&\hat{d} \cdot \left(P-O\right) = \cos \alpha\\
+ *  \Rightarrow&\frac{\hat{d} \cdot \left(P-O\right) }{|P-O|} = \cos \alpha\\
+ *  \Rightarrow&\hat{d} \cdot \frac{P-O}{|P-O|} = \cos \alpha
+ *  \f}
+ *  Consequently, the point \f$P\f$ is in the cone if
+ *  \f{align*}{
+ *  \hat{d} \cdot \frac{P-O}{|P-O|}  \geq \cos \theta
+ *  \f}
+ *  holds. This equation only holds if \f$P \neq O\f$. Rewriting the equation, one
+ *  obtains
+ *  \f{align*}{
+ *  \hat{d} \cdot (P-O) \geq |P-O|\cos \theta
+ *  \f}
+ *  In this form, no test if \f$P \neq O\f$ holds is required. This is easy to see as
+ *  when \$P=O\f$ holds, then \f$P\f$ is obviously inside the cone. In that case the
+ *  inequality holds as both sides evaluate to zero.
+ *
+ *  To summarize: The point is on the cone if \f$\hat{d} \cdot (P-O) = |P-O|\cos \theta\f$
+ *  and is inside the cone if \f$\hat{d} \cdot (P-O) > |P-O|\cos \theta\$. Otherwise it is
+ *  outside of the cone.
  */
-template <typename _ScalarType>
-struct Cone3 {
+template <typename _EuclideanSpaceType, typename _EnabledType = std::enable_if_t<_EuclideanSpaceType::dimensionality() == 3>>
+struct Cone3 : public Translatable<typename _EuclideanSpaceType::VectorSpaceType> {
 public:
     /// @brief The Euclidean space over which the cones are defined.
-    typedef EuclideanSpace<VectorSpace<Field<_ScalarType>, 3>> EuclideanSpaceType;
+    typedef _EuclideanSpaceType EuclideanSpaceType;
     /// The vector space type (of the Euclidean space).
     typedef typename EuclideanSpaceType::VectorSpaceType VectorSpaceType;
     /// The scalar field type (of the vector space).
@@ -49,28 +80,44 @@ public:
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
     /// @brief @a MyType is the type of this template/template specialization.
-    typedef Cone3<_ScalarType> MyType;
+    typedef Cone3<EuclideanSpaceType> MyType;
 
 public:
+    /** @brief The origin point \f$P\f$ of the cone. */
     VectorType origin;
+    /** @brief The unit axis vector \f$\hat{a}\f$ of the cone. */
     VectorType axis;
+    /** @brief The angle, in degrees, \f$\theta \in \left(0,90\right)\f$. */
+    ScalarType angle;
 
 public:
-    // use these values to pre-calculate trig functions based off of the opening angle
-    ScalarType inv_sin;
-    ScalarType sin_2;
-    ScalarType cos_2;
-
-public:
-    /// @todo Zero axis is not allowed.
+    /**
+     * @brief Construct this cone with default values.
+     * @remark The default values of a cone are
+     * \f$O=\left(0,0,0\right)\f$,
+     * \f$\hat{a}=\left(0,0,1\right)$, and
+     * \f$\theta=60\f$.
+     */
     Cone3() :
-        origin(0, 0, 0),
-        axis(0, 0, 0),
-        inv_sin(0.0f),
-        sin_2(0.0f),
-        cos_2(0.0f)
-    {
+        origin(0, 0, 0), axis(0, 0, 1), angle(60) {
         /* Intentionally empty. */
+    }
+
+    /**
+     * @brief Construct this cone.
+     * @param origin the origin point \f$O\f$ of this cone
+     * @param axis the axis vector \f$\vec{a},\vec{a} \neq \vec{0}\f$ of this cone
+     * @param angle the acute angle \f$\theta\f$, in degrees
+     * @throw Id::RuntimeErrorException \f$\vec{a} = \vec{0}\f$
+     * @throw Id::RuntimeErrorException \f$\theta\f$ is not an acute angle 
+     */
+    Cone3(const VectorType& origin, const VectorType& axis, const ScalarType& angle)
+        : origin(origin), axis(axis), angle(angle) {
+        this->axis.normalized();
+        IsAcute<AngleUnit::Degrees> isAcute;
+        if (!isAcute(angle)) {
+            throw Id::RuntimeErrorException(__FILE__, __LINE__, "the angle is not an acute angle");
+        }
     }
 
     /**
@@ -84,9 +131,7 @@ public:
     void assign(const MyType& other) {
         origin = other.origin;
         axis = other.axis;
-        inv_sin = other.inv_sin;
-        sin_2 = other.sin_2;
-        cos_2 = other.cos_2;
+        angle = other.angle;
     }
 
     /**
@@ -116,9 +161,9 @@ public:
 
     /**
      * @brief
-     *  Get the axis of this cone.
+     *  Get the unit axis vector \f$\hat{a}\f$ of this cone.
      * @return
-     *  the axis of this cone
+     *  the unit axis vector of \f$\hat{a}\f$ of this cone
      */
     const VectorType& getAxis() const {
         return axis;
@@ -126,11 +171,63 @@ public:
 
     /**
      * @brief
-     *  Translate this cone.
-     * @param t
-     *  the translation vector
+     *  Get the angle, in degrees, \f$\theta \in \left(0,90\right)\f$ of this cone
+     * @return
+     *  the angle, in degrees, \f$\theta \in \left(0,90\right)\f$ of this cone
      */
-    void translate(const VectorType& t) {
+    const ScalarType& getAngle() const {
+        return angle;
+    }
+
+    /**
+     * @brief
+     *  Get the radius of this cone at the specified height \f$h \in \left[0,+\infty\right)\f$.
+     * @param height
+     *   the height \f$h \in \left[0,+\infty\right)\f$.
+     * @return
+     *  the radius at the specified height
+     * @throw Id::RuntimeErrorException
+     *  if the height is negative
+     * @remark
+     *  Given a right triangle, it is known that \f$\tan\alpha=
+     *  \frac{\mathit{opposite}}{\mathit{adjacent}}\f$.
+     *
+     *  The height \f$h\f$ is the adjacent, the radius \f$r\f$ is
+     *  the opposite and the angle is \f$\theta\f$, one   obtains
+     *  \f$\tan\alpha = \frac{r}{h}\f$, hence \f$r=h \tan\alpha\f$.
+     */
+    ScalarType getRadiusAt(ScalarType height) const {
+        return height * std::tan(DegreesToRadians(angle));
+    }
+
+    /**
+     * @brief
+     *  Get the slant height of this cone at the specified height \f$h \in \left[0,+\infty\right)\f$.
+     * @param height
+     *   the height \f$h \in \left[0,+\infty\right)\f$.
+     * @return
+     *  the slant height at the specified height
+     * @throw Id::RuntimeErrorException
+     *  if the height is negative
+     * @remark
+     *  Given a right triangle, it is known that \f$\cos\alpha=
+     *  \frac{\mathit{adjacent}}{\mathit{hypotenuse}}\f$.
+     *
+     *  The height \f$h\f$ is the adjacent, the slant height \f$s\f$ is
+     *  the hypotenuse and the angle is \f$\theta\f$,    one   obtains
+     *  \f$\cos\alpha = \frac{h}{s}\f$, hence \f$s = \frac{h}{\cos\alpha}\f$.
+     * @remark
+     *  The Pythagorean theorem provides is with \f$s=\sqrt{r^2+h^2}\f$,
+     *  however, squaring two numbers and taking the square root seems
+     *  more expensive than just taking the cosine.
+     */
+    ScalarType getSlantHeight(ScalarType height) const {
+        return height / std::cos(DegreesToRadians(angle));
+    }
+
+public:
+    /** @copydoc Ego::Math::Translatable */
+    void translate(const VectorType& t) override {
         origin += t;
     }
 

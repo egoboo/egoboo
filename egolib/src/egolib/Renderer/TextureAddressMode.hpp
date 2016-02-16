@@ -63,7 +63,7 @@ enum class TextureAddressMode {
      *  i.e. the integer part is <em>ignored</em>.
      * @remark
      *  \f$\{x\} = 1 - \lfloor x \rfloor\f$ denotes the fractional part
-     *  of a real number \f$x\f$ e.g. \f$\{2.0\}\f = 0.0$,
+     *  of a real number \f$x\f$ e.g. \f$\{2.0\} = 0.0\f$,
      *  \f$\{2.9\} = 0.9\f$, ...
      */
     Repeat,
@@ -73,7 +73,7 @@ enum class TextureAddressMode {
      *  A value \f$t\f$ is set to \f$\{t\}\f$
      *  if \f$t\f$ is even
      *  i.e. the integer part is <em>ignored</em>
-     *  (cfg Ego::TextureAddressMode::REPEAT).
+     *  (cfg Ego::TextureAddressMode::Repeat).
      *  However, if the integer part of \f$t\f$ is odd,
      *  then the \f$\f$ is set to \f$1 - \{t\}\f$.
      */

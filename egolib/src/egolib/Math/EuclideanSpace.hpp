@@ -34,7 +34,7 @@ namespace Math {
  *  An \f$n\f$-dimensional Euclidean space (sometimes called \f$n\f$-dimensional Cartesian space).
  * @tparam _VectorSpaceType 
  *  the underlying \f$n\f$-dimensional vector space type.
- *  Must fulfil the <em>VectorSpace</tt> concept.
+ *  Must fulfil the <em>VectorSpace</em> concept.
  */
 template <typename _VectorSpaceType,
           typename _Enabled = void>

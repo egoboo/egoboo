@@ -84,7 +84,7 @@ enum class PrimitiveType {
      * @brief
      *  Vertices \f$i\f$,\f$i+1\f$, and \f$i+2\f$ define triangle \f$i\f$ if \f$i\f$ is odd.
      *  For even \f$i\f$, vertices \f$i+1\f$, \f$i\f$ , and \f$i+2\f$ define triangle \f$i\f$.
-     *  Given \f$n\$ vertices, \f$n-2\f$ triangles are drawn.
+     *  Given \f$n\f$ vertices, \f$n-2\f$ triangles are drawn.
      */
     TriangleStrip,
     
