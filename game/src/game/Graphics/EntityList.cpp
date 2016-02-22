@@ -15,15 +15,34 @@ void EntityList::clear() {
     }
 
     set.clear();
+    auto& objectHandler = _currentModule->getObjectHandler();
+    auto& particleHandler = ParticleHandler::get();
+    for (auto& entry : list) {
+        if (ParticleRef::Invalid == entry.iprt && ObjectRef::Invalid != entry.iobj) {
+            auto obj = objectHandler.get(entry.iobj);
+            if (nullptr != obj) {
+                obj->inst.indolist = false;
+            }
+        } else if (ObjectRef::Invalid == entry.iobj && entry.iprt != ParticleRef::Invalid) {
+            auto prt = particleHandler[entry.iprt];
+            if (nullptr != prt) {
+                prt->inst.indolist = false;
+            }
+        } else {
+            continue;
+        }
+    }
     list.clear();
 }
 
-size_t EntityList::add(::Camera& camera, const Object& object) {
+size_t EntityList::add(::Camera& camera, Object& object) {
     size_t count = 0;
     // Only add the object if it is eligible for addition.
     if (!test(camera, object)) {
+        object.inst.indolist = false;
         return count;
     }
+    object.inst.indolist = true;
 
     // Add the object.
     list.emplace_back(object.getObjRef(), ParticleRef::Invalid);
@@ -43,11 +62,13 @@ size_t EntityList::add(::Camera& camera, const Object& object) {
     return count;
 }
 
-size_t EntityList::add(::Camera& camera, const Ego::Particle& particle) {
+size_t EntityList::add(::Camera& camera, Ego::Particle& particle) {
     size_t count = 0;
     if (!test(camera, particle)) {
+        particle.inst.indolist = false;
         return count;
     }
+    particle.inst.indolist = true;
 
     list.emplace_back(ObjectRef::Invalid, particle.getParticleID());
     set.emplace((void *)(&particle));
@@ -139,13 +160,6 @@ bool EntityList::test(::Camera& camera, const Ego::Particle& particle) {
         return false;
     }
 
-    // The particle is not a candidate if its bounding sphere is outside of the frustum.
-    const auto& frustum = camera.getFrustum();
-    const Sphere3f sphere(particle.getPosition(), particle.bump_real.size_big);
-    if (Ego::Math::Relation::outside != frustum.intersects(sphere, false)) {
-        return false;
-    }
-
     // The particle is not a candidate if it is not displayed.
     if (particle.isTerminated()) {
         return false;
@@ -155,6 +169,18 @@ bool EntityList::test(::Camera& camera, const Ego::Particle& particle) {
     if (particle.isHidden() || 0 == particle.size) {
         return false;
     }
+
+    // The particle is not a candidate if
+    // both its bounding sphere and its reflected bounding sphere
+    // are outside of the frustum.
+    const auto& frustum = camera.getFrustum();
+    const Sphere3f sphere(particle.getPosition(), particle.bump_real.size_big);
+    const Sphere3f reflectedSphere(particle.inst.ref_pos, particle.bump_real.size_big);
+    if (Ego::Math::Relation::outside == frustum.intersects(sphere, false) &&
+        Ego::Math::Relation::outside == frustum.intersects(reflectedSphere, false)) {
+        return false;
+    }
+
     return set.find((void *)(&particle)) == set.cend();
 }
 
