@@ -111,16 +111,21 @@ public:
      * @brief Add an object entity if it is eligible for addition.
      * @param obj the object entity to add
      * @return the total number of entities added
+     * @remark A (legacy) occlusion test is performed. If the object is occluded,
+     * then object.getInstance().isOccluded() is set to @a true, otherwise it is
+     * set to @a false.
      */
-    size_t add(::Camera& camera, const Object& object);
+    size_t add(::Camera& camera, Object& object);
 
     /**
      * @brief Add a particle entity if it is eligible for addition.
      * @param obj the particle entity to add
      * @return the total number of entities added
-     * @todo Should be a reference to a particle.
+     * @remark A (legacy) occlusion test is performed. If the particle is occluded,
+     * then particle.getInstance().isOccluded() is set to @a true, otherwise it is
+     * set to @a false.
      */
-    size_t add(::Camera& camera, const Ego::Particle& particle);
+    size_t add(::Camera& camera, Ego::Particle& particle);
 };
 
 } // namespace Graphics
