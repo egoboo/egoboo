@@ -473,8 +473,8 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const Ve
 {
     //Calculate the average position and rotation of all cameras
     Vector2f averageCameraPosition = Vector2f::zero();
-    float averageRotation = 0.0f;
-    for(const std::shared_ptr<Camera> &camera : CameraSystem::get()->getCameraList()) {
+    auto averageRotation = Ego::Math::Turns(0.0f);
+    for(const std::shared_ptr<Camera>& camera : CameraSystem::get()->getCameraList()) {
         averageCameraPosition.x() += camera->getCenter().x();
         averageCameraPosition.y() += camera->getCenter().y();
         averageRotation += camera->getTurnZ_turns();
@@ -486,16 +486,16 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const Ve
     distance *= 255.0f / _maxSoundDistance;
 
     //Calculate angle from camera to sound origin
-    float angle = std::atan2(averageCameraPosition.y() - soundPosition.y(), averageCameraPosition.x() - soundPosition.x());
+    auto angle = Ego::Math::Radians(std::atan2(averageCameraPosition.y() - soundPosition.y(), averageCameraPosition.x() - soundPosition.x()));
 
     //Adjust for camera rotation
-    angle += Ego::Math::TurnsToRadians(averageRotation);
+    angle += (Ego::Math::Radians)averageRotation;
 
     //limited global sound volume
     Mix_Volume(channel, (128 * egoboo_config_t::get().sound_effects_volume.getValue()) / 100);
 
     //Do 3D sound mixing
-    Mix_SetPosition(channel, angle, distance);
+    Mix_SetPosition(channel, float(Ego::Math::Degrees(angle)), distance);
 }
 
 void AudioSystem::playSoundLooped(const SoundID soundID, ObjectRef ownerRef)

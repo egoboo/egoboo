@@ -115,8 +115,8 @@ inline float FACING_TO_RAD(FACING_T facing) {
  * @return
  *  the angle in "facing"
  */
-inline FACING_T TurnsToFacing(float x) {
-	return Ego::Math::clipBits<16>((int)(x * (float)0x00010000));
+inline FACING_T TurnsToFacing(const Ego::Math::Angle<Ego::Math::AngleUnit::Turns>& x) {
+	return Ego::Math::clipBits<16>((int)(((float)x) * (float)0x00010000));
 }
 
 /**
@@ -127,8 +127,8 @@ inline FACING_T TurnsToFacing(float x) {
  * @return
  *  the angle in turns
  */
-inline float FacingToTurns(FACING_T x) {
-	return ((float)Ego::Math::clipBits<16>(x) / (float)0x00010000);
+inline Ego::Math::Angle<Ego::Math::AngleUnit::Turns> FacingToTurns(FACING_T x) {
+	return Ego::Math::Angle<Ego::Math::AngleUnit::Turns>((float)Ego::Math::clipBits<16>(x) / (float)0x00010000);
 }
 
 //--------------------------------------------------------------------------------------------

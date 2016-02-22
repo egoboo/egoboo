@@ -204,8 +204,8 @@ public:
      */
     inline const Vector3f& getCenter() const { return _center; }
     inline uint8_t getTurnTime() const { return _turnTime; }
-    inline float getTurnZ_turns() const { return _turnZ_turns; }
-    inline float getTurnZ_radians() const { return _turnZ_radians; }
+    inline Ego::Math::Turns getTurnZ_turns() const { return _turnZ_turns; }
+    inline Ego::Math::Radians getTurnZ_radians() const { return _turnZ_radians; }
 
 
     inline float getMotionBlur() const { return _motionBlur; }
@@ -367,9 +367,9 @@ private:
     float _pitch;
 
     // Turning
-    float _turnZ_radians;   ///< Camera z rotation (in radians).
-    float _turnZ_turns;     ///< Camera z rotation (in turns).
-    float _turnZAdd;        ///< Turning rate.
+    Ego::Math::Radians _turnZ_radians;   ///< Camera z rotation (in radians).
+    Ego::Math::Turns _turnZ_turns;       ///< Camera z rotation (in turns).
+    float _turnZAdd;                     ///< Turning rate (in turns).
 
     // Effects
     float _motionBlur;         ///< Blurry effect.
