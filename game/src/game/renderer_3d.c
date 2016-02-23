@@ -91,6 +91,7 @@ void LineSegmentList::draw_all(Camera& camera)
 
                 // don't write into the depth buffer (disable glDepthMask for transparent objects)
                 renderer.setDepthWriteEnabled(false); // GL_DEPTH_BUFFER_BIT
+                renderer.setAlphaTestEnabled(false);
 
                 // do not draw hidden surfaces
                 renderer.setDepthTestEnabled(true);
@@ -185,6 +186,7 @@ void PointList::draw_all(Camera& camera)
 
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
             renderer.setDepthWriteEnabled(false); // GL_DEPTH_BUFFER_BIT
+            renderer.setAlphaTestEnabled(false);
 
             // do not draw hidden surfaces
             renderer.setDepthTestEnabled(true);

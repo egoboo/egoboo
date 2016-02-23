@@ -62,10 +62,20 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
     if (Index1D::Invalid == mesh->getTileIndex(Index2D(src_ix, src_iy)))
     {
 #ifdef DEBUG_ASTAR
-        printf("AStar failed because source position is off the mesh.\n");
+        Log::get().debug("AStar failed because source position is off the mesh.\n");
 #endif
         return false;
     }
+
+    //Is the destination is inside a wall or outside the map?
+    if (mesh->tile_has_bits(Index2D(dst_ix, dst_iy), stoppedby) != 0 || Index1D::Invalid == mesh->getTileIndex(Index2D(dst_ix, dst_iy)))
+    {
+#ifdef DEBUG_ASTAR
+        Log::get().debug("AStar failed because goal position is impassable.\n");
+#endif
+        return false;
+    }
+
 
     struct Offset
     {
@@ -74,10 +84,9 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
         int y;
     };
 
-    //Explore all nearby nodes, including diagonal ones
-    static const std::array<Offset, 8> EXPLORE_NODES = {
-        Offset(-1, -1), Offset(-1, 0), Offset(-1, 1),
-        Offset(0, -1), Offset(1, -1), Offset(1, 1),
+    //Explore all nearby nodes, not including diagonal ones
+    static const std::array<Offset, 4> EXPLORE_NODES = {
+        Offset(-1, 0), Offset(0, -1),
         Offset(1, 0), Offset(0, 1)
     };
 
@@ -92,32 +101,6 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
                         std::vector<std::shared_ptr<Node>>,
                         decltype(comparator)> openNodes(comparator);
 
-    //be a bit flexible if the destination is inside a wall
-    if (mesh->tile_has_bits(Index2D(dst_ix, dst_iy), stoppedby))
-    {
-        bool foundOpenSpace = false;
-
-        //check all tiles edging to this one, including corners
-        for(const auto& offset: EXPLORE_NODES) {
-
-            //Did we find a free tile?
-            if (!mesh->tile_has_bits(Index2D(dst_ix + offset.x, dst_iy + offset.y), stoppedby))
-            {
-                dst_ix = dst_ix + offset.x;
-                dst_iy = dst_iy + offset.y;
-                foundOpenSpace = true;
-                break;
-            }
-        }
-
-        if(!foundOpenSpace) {
-#ifdef DEBUG_ASTAR
-            printf("AStar failed because goal position is impassable (and no nearby non-impassable tile found).\n");
-#endif
-            return false;            
-        }
-    }
-
     // restart the algorithm
     reset();
 
@@ -130,7 +113,12 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
     while (!openNodes.empty())
     {
         // list is completely full... we failed
-        if (closedNodes.size() >= MAX_ASTAR_NODES) break;
+        if (closedNodes.size() >= MAX_ASTAR_NODES) {
+#ifdef DEBUG_ASTAR
+            Log::get().debug("AStar failed because maximum number of nodes were explored (%lu)\n", MAX_ASTAR_NODES);
+#endif
+            break;
+        }
 
         //Get the cheapest open node
         std::shared_ptr<Node> currentNode = openNodes.top();
@@ -192,10 +180,6 @@ bool AStar::find_path(const std::shared_ptr<const ego_mesh_t>& mesh, uint32_t st
             openNodes.push(std::make_shared<AStar::Node>(tmp_x, tmp_y, weight, currentNode));
         }
     }
-
-#ifdef DEBUG_ASTAR
-    if (closedNodes.size() >= MAX_ASTAR_NODES) printf("AStar failed because maximum number of nodes were explored (%d)\n", MAX_ASTAR_NODES);
-#endif
 
     return false;
 }
@@ -281,9 +265,13 @@ bool AStar::get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
 #ifdef DEBUG_ASTAR
             // using >> for division only works if you know for certainty that the value
             // you are shifting is not intended to be neative
-            printf("Waypoint %d: X: %d, Y: %d \n", waypoint_num, static_cast<int>(way_x / GRID_ISIZE), static_cast<int>(way_y / GRID_ISIZE));
-            point_list_add(way_x, way_y, 200, 800);
-            line_list_add(last_waypoint->ix*GRID_FSIZE + (GRID_ISIZE / 2), last_waypoint->iy*GRID_FSIZE + (GRID_ISIZE / 2), 200, way_x, way_y, 200, 800);
+            Log::get().debug("Waypoint %lu: X: %d, Y: %d \n", waypoint_num, static_cast<int>(way_x / Info<int>::Grid::Size()), static_cast<int>(way_y / Info<int>::Grid::Size()));
+            Renderer3D::pointList.add(Vector3f(way_x, way_y, 100.0f), 800);
+            Renderer3D::lineSegmentList.add(
+                Vector3f(last_waypoint->ix*Info<float>::Grid::Size() + (Info<int>::Grid::Size() / 2), last_waypoint->iy*Info<float>::Grid::Size() + (Info<int>::Grid::Size() / 2), 200.0f),
+                Vector3f(way_x, way_y, 100.0f),
+                800
+            );
 #endif
 
             // add the node to the waypoint list
@@ -303,7 +291,9 @@ bool AStar::get_path(const int pos_x, const int dst_y, waypoint_list_t& wplst)
     }
 
 #ifdef DEBUG_ASTAR
-    if (waypoint_num > 0) point_list_add(start_node->ix*GRID_FSIZE + (GRID_ISIZE / 2), start_node->iy*GRID_FSIZE + (GRID_ISIZE / 2), 200, 80);
+    if (waypoint_num > 0) {
+        Renderer3D::pointList.add(Vector3f(start_node->ix*Info<float>::Grid::Size() + (Info<int>::Grid::Size() / 2), start_node->iy*Info<float>::Grid::Size() + (Info<int>::Grid::Size() / 2), 100.0f), 800);
+    }
 #endif
 
     return waypoint_num > 0;

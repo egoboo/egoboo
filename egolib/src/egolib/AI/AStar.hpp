@@ -30,6 +30,8 @@
 class ego_mesh_t;
 struct waypoint_list_t;
 
+#undef DEBUG_ASTAR     //< Macro for enabling extra debugging info to the A* algorithm
+
 /// Implementation of A* pathfinding algorithm.
 class AStar {
 
