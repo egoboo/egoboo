@@ -555,8 +555,9 @@ float draw_fps(float y)
     if (egoboo_config_t::get().hud_displayFramesPerSecond.getValue())
     {
         std::ostringstream os;
-        os << std::setw(2) << std::setprecision(3) << _gameEngine->getFPS() << " FPS, " 
-           << std::setw(2) << std::setprecision(3) << _gameEngine->getUPS() << " UPS, " 
+        os.setf(std::ios_base::fixed, std::ios_base::floatfield);
+        os << std::setw(2) << std::setprecision(2) << _gameEngine->getFPS() << " FPS, " 
+           << std::setw(2) << std::setprecision(2) << _gameEngine->getUPS() << " UPS, " 
            << _gameEngine->getFrameSkip() << " update lag";
         y = _gameEngine->getUIManager()->drawBitmapFontString(0, y, os.str(), 0.0f, 1.0f);
 
