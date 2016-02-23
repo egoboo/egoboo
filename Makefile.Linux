@@ -17,6 +17,7 @@ COMPILE_WARNINGS += -Wno-sign-compare -Wno-reorder -Wno-unused-parameter
 
 #Enable some extra warnings
 COMPILE_WARNINGS += -Wcast-align -Wpointer-arith -Wwrite-strings -Wunreachable-code
+COMPILE_WARNINGS += -Wno-div-by-zero -Wlogical-op -Wunreachable-code -Wformat=2
 #-Wcast-qual -Wswitch-enum -Wstrict-overflow=5 -Wshadow
 
 set_sanitizer_flags:
