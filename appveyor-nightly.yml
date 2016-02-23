@@ -46,3 +46,13 @@ artifacts:
       name: binaries-Release-Win32
     - path: binaries-Release-x64.zip
       name: binaries-Release-x64
+
+deploy:
+    release: Egoboo-Nightly
+    description: 'Egoboo Nightly'
+    provider: GitHub
+    auth_token:
+        secure: kxr/+rin/StoIdTBFp4+OG+nxeoI1TGjLYiPXgttgjyjcDy/3V+G10AAukyTxDIx
+    artifact: binaries-Debug-Win32 binaries-Debug-x64 binaries-Release-Win32 binaries-Release-x64
+    draft: false
+    prerelease: false
