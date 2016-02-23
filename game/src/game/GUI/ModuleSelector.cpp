@@ -34,6 +34,8 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
+    const int MODULE_BUTTON_SIZE = Ego::Math::constrain((SCREEN_WIDTH) / 6, 138, 256);
+
     // Figure out at what offset we want to draw the module menu.
     int moduleMenuOffsetX = (800 - 640) / 2;
     moduleMenuOffsetX = std::max(0, moduleMenuOffsetX);
@@ -43,7 +45,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
 
     //Set backdrop size and position
     setSize(30 + SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-    setPosition(moduleMenuOffsetX + 21, moduleMenuOffsetY + 173);
+    setPosition(moduleMenuOffsetX + 21, moduleMenuOffsetY + MODULE_BUTTON_SIZE + 40);
 
     //Next and previous buttons
     _nextModuleButton->setPosition(SCREEN_WIDTH - 50, moduleMenuOffsetY + 74);
@@ -66,12 +68,12 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     });
     addComponent(_previousModuleButton);
 
-    const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth() - _nextModuleButton->getWidth()) / 158);
+    const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth() - _nextModuleButton->getWidth()) / (MODULE_BUTTON_SIZE+20));
 
     //Add as many modules as we can fit with current screen width
     for (int i = 0; i < numberOfModuleButtons; ++i) {
         std::shared_ptr<ModuleButton> moduleButton = std::make_shared<ModuleButton>(this, i);
-        moduleButton->setSize(138, 138);
+        moduleButton->setSize(MODULE_BUTTON_SIZE, MODULE_BUTTON_SIZE);
         moduleButton->setPosition(moduleMenuOffsetX + 93, moduleMenuOffsetY + 20);
         moduleButton->setOnClickFunction(
             [this, i]{
