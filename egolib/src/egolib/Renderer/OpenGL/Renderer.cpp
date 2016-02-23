@@ -499,11 +499,9 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
                 // Enable the required client-side capabilities.
                 glEnableClientState(GL_NORMAL_ARRAY);
                 // Set the pointers.
-                GLint size;
                 GLenum type;
                 switch (vertexElementDescriptor.getSyntax()) {
                     case VertexElementDescriptor::Syntax::F3:
-                        size = 3;
                         type = GL_FLOAT;
                         break;
                     case VertexElementDescriptor::Syntax::F1:
