@@ -167,8 +167,11 @@ public:
 	 */
     virtual ~Camera();
 
-    /// The default field of view angle (in degrees).
-    static const float DEFAULT_FOV;
+    /**
+     * @brief The default field of view angle in degrees.
+     *        The current value is 60.
+     */
+    static const Ego::Math::Degrees DEFAULT_FOV;
 
     /// The default joystick turn rotation.
     /// @todo What unit is that?

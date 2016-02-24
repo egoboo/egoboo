@@ -26,7 +26,7 @@
 #include "game/mesh.h"
 #include "game/Entities/_Include.hpp"
 
-const float Camera::DEFAULT_FOV = 60.0f;
+const Ego::Math::Degrees Camera::DEFAULT_FOV = Ego::Math::Degrees(60.0f);
 
 const float Camera::DEFAULT_TURN_JOY = 64;
 
@@ -230,7 +230,7 @@ void Camera::updateCenter()
         Vector3f trackError = _trackPos - _position;
 
         // Determine the size of the dead zone.
-        float track_fov = DEFAULT_FOV * 0.25f;
+        Ego::Math::Degrees track_fov = DEFAULT_FOV * 0.25f;
         float track_dist = trackError.length();
         float track_size = track_dist * std::tan(track_fov);
         float track_size_x = track_size;
@@ -758,7 +758,7 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
     float frustum_near = Info<int>::Grid::Size() * 0.25f;
     // Set the maximum depth to be the "largest possible size" of a mesh.
     float frustum_far  = Info<int>::Grid::Size() * 256 * Ego::Math::sqrtTwo<float>();
-    updateProjection(Ego::Math::Degrees(DEFAULT_FOV), aspect_ratio, frustum_near, frustum_far);
+    updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
 }
 
 void Camera::addTrackTarget(ObjectRef targetRef)
