@@ -68,7 +68,7 @@ public:
      * @brief Construct this index descriptor.
      * @param syntax the synax
      */
-    IndexDescriptor(Syntax syntax) noexcept;
+    IndexDescriptor(Syntax syntax);
 
     /**
      * @brief Copy-construct this index descriptor with the values of another index descriptor.
