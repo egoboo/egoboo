@@ -272,6 +272,11 @@ public:
         return 0.0f < angle && angle < 0.25f;
     }
 
+public:
+    Angle abs() const {
+        return Angle(std::abs(angle));
+    }
+
 };
 
 /// The type of an angle in degrees.
@@ -331,6 +336,11 @@ template <Ego::Math::AngleUnit _AngleUnitType>
 float tan(const Ego::Math::Angle<_AngleUnitType>& x) {
     using TargetAngleType = Ego::Math::Angle<Ego::Math::AngleUnit::Radians>;
     return tan(float(TargetAngleType(x)));
+}
+
+template <Ego::Math::AngleUnit _AngleUnitType>
+Ego::Math::Angle<_AngleUnitType> abs(const Ego::Math::Angle<_AngleUnitType>& x) {
+    return x.abs();
 }
 
 }

@@ -734,7 +734,7 @@ void Camera::updateEffects()
         //mat_Multiply( _mView.v, mat_RotateY( tmp1.v, _roll ), mat_Copy( tmp2.v, _mView.v ) );
 
         // Come to a standstill at some point
-        if ( std::fabs( _roll ) < 0.001f )
+        if ( std::abs( _roll ) < 0.001f )
         {
             _roll = 0;
             _swing = 0;
