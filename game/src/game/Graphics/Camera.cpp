@@ -117,9 +117,9 @@ float Camera::multiplyFOV(const float old_fov_deg, const float factor)
     return new_fov_deg;
 }
 
-void Camera::updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near, const float frustum_far)
+void Camera::updateProjection(const Ego::Math::Degrees& fov, const float aspect_ratio, const float frustum_near, const float frustum_far)
 {
-    _projectionMatrix = Ego::Math::Transform::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
+    _projectionMatrix = Ego::Math::Transform::perspective(fov, aspect_ratio, frustum_near, frustum_far);
 
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -131,7 +131,7 @@ void Camera::resetView()
     if (_position != _center)
     {
         static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
-        Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, Ego::Math::radToDeg(_roll));
+        Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, Ego::Math::Degrees(Ego::Math::radToDeg(_roll)));
         _viewMatrix = tmp * Ego::Math::Transform::lookAt(_position, _center, Z);
     }
     // Invalidate the frustum.
@@ -758,7 +758,7 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
     float frustum_near = Info<int>::Grid::Size() * 0.25f;
     // Set the maximum depth to be the "largest possible size" of a mesh.
     float frustum_far  = Info<int>::Grid::Size() * 256 * Ego::Math::sqrtTwo<float>();
-    updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
+    updateProjection(Ego::Math::Degrees(DEFAULT_FOV), aspect_ratio, frustum_near, frustum_far);
 }
 
 void Camera::addTrackTarget(ObjectRef targetRef)

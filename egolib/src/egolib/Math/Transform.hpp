@@ -37,10 +37,10 @@ struct Transform {
         return
             Matrix4f4f
             (
-             s[kX],  s[kY],  s[kZ], 0.0f,
-             u[kX],  u[kY],  u[kZ], 0.0f,
-            -f[kX], -f[kY], -f[kZ], 0.0f,
-              0.0f,   0.0f,   0.0f, 1.0f
+                 s[kX],  s[kY],  s[kZ], 0.0f,
+                 u[kX],  u[kY],  u[kZ], 0.0f,
+                -f[kX], -f[kY], -f[kZ], 0.0f,
+                  0.0f,   0.0f,   0.0f, 1.0f
             )
             *
             Transform::translation(-eye);
@@ -72,8 +72,7 @@ struct Transform {
      *      \f$t_y = -\frac{top+bottom}{top-bottom}\f$,
      *      \f$t_z = -\frac{zFar+zNear}{zFar-zNear}\f$.
      */
-    static Matrix4f4f ortho(const float left, const float right, const float bottom, const float top, const float zNear, const float zFar)
-    {
+    static Matrix4f4f ortho(const float left, const float right, const float bottom, const float top, const float zNear, const float zFar) {
         float dx = right - left, dy = top - bottom, dz = zFar - zNear;
         EGOBOO_ASSERT(dx != 0.0f && dy != 0.0f && dz != 0.0f);
         float tx = -(right + left) / dx, ty = -(top + bottom) / dy, tz = -(zFar + zNear) / (dz);
@@ -88,11 +87,13 @@ struct Transform {
             );
     }
 
+    /**@{*/
+
     /**
      * @brief
      *  Get a perspective projection (~ view space -> normalized device coordinate space) matrix.
      * @param fovy
-     *  the field of view angle, in degrees, in the y direction
+     *  the field of view angle in the y direction
      * @param aspect
      *  the aspect ratio in the x direction
      * @param zNear
@@ -118,13 +119,20 @@ struct Transform {
      *  \f]
      *  where \f$f = cot(0.5 fovy)\f$.
      */
-    static Matrix4f4f perspective(const float fovy, const float aspect, const float zNear, const float zFar)
-    {
+    static Matrix4f4f perspective(const Ego::Math::Degrees& fovy, const float aspect, const float zNear, const float zFar) {
+        return perspective(Ego::Math::Radians(fovy), aspect, zNear, zFar);
+    }
+
+    static Matrix4f4f perspestive(const Ego::Math::Turns& fovy, const float aspect, const float zNear, const float zFar) {
+        return perspective(Ego::Math::Radians(fovy), aspect, zNear, zFar);
+    }
+
+    static Matrix4f4f perspective(const Ego::Math::Radians& fovy, const float aspect, const float zNear, const float zFar) {
         EGOBOO_ASSERT(aspect != 0.0f);
         EGOBOO_ASSERT(zFar > 0.0f && zNear > 0.0f);
         EGOBOO_ASSERT((zNear - zFar) != 0.0f);
 
-        float tan = std::tan(Ego::Math::degToRad(fovy) * 0.5f);
+        float tan = std::tan(fovy * 0.5f);
         EGOBOO_ASSERT(tan != 0.0f);
         float f = 1 / tan;
 
@@ -137,6 +145,8 @@ struct Transform {
                 0.0f,       0.0f, -1.0f,                           1.0f
             );
     }
+
+    /**@}*/
 
     /**
      * @brief
@@ -154,8 +164,7 @@ struct Transform {
      *  \end{matrix}\right]
      *  \f]
      */
-    static Matrix4f4f translation(const Vector3f& t)
-    {
+    static Matrix4f4f translation(const Vector3f& t) {
         return
             Matrix4f4f
             (
@@ -166,11 +175,13 @@ struct Transform {
             );
     }
 
+    /**@{*/
+
     /**
      * @brief
      *  Get a matrix representing an anticlockwise rotation around the x-axis.
      * @param a
-     *  the angle of rotation, in Radians
+     *  the angle of rotation
      * @return
      *  the matrix
      * @remark
@@ -183,11 +194,16 @@ struct Transform {
      *  \end{matrix}\right]
      *  \f]
      *  where \f$c=\cos(a)\f$ and \f$s=\sin(a)\f$.
-     * @todo
-     *  Angles should be in degrees.
      */
-    static Matrix4f4f rotationX(const float a)
-    {
+    static Matrix4f4f rotationX(const Ego::Math::Degrees& a) {
+        return rotationX(Ego::Math::Radians(a));
+    }
+
+    static Matrix4f4f rotationX(const Ego::Math::Turns& a) {
+        return rotationX(Ego::Math::Radians(a));
+    }
+
+    static Matrix4f4f rotationX(const Ego::Math::Radians& a) {
         float c = std::cos(a), s = std::sin(a);
         return
             Matrix4f4f
@@ -199,11 +215,15 @@ struct Transform {
             );
     }
 
+    /**@}*/
+
+    /**@{*/
+
     /**
      * @brief
      *  Get a matrix representing a anticlockwise rotation around the y-axis.
      * @param a
-     *  the angle of rotation, in Radians
+     *  the angle of rotation
      * @return
      *  the matrix
      * @remark
@@ -216,11 +236,16 @@ struct Transform {
      *  \end{matrix}\right]
      *  \f]
      *  where \f$c=\cos(a)\f$ and \f$s=\sin(a)\f$.
-     * @todo
-     *  Angles should be in degree.
      */
-    static Matrix4f4f rotationY(const float a)
-    {
+    static Matrix4f4f rotationY(const Ego::Math::Degrees& a) {
+        return rotationY(Ego::Math::Radians(a));
+    }
+
+    static Matrix4f4f rotationY(const Ego::Math::Turns& a) {
+        return rotationY(Ego::Math::Turns(a));
+    }
+
+    static Matrix4f4f rotationY(const Ego::Math::Radians& a) {
         float c = std::cos(a), s = std::sin(a);
         return
             Matrix4f4f
@@ -232,11 +257,15 @@ struct Transform {
             );
     }
 
+    /**@}*/
+
+    /**@{*/
+
     /**
      * @brief
      *  Get a matrix representing an anticlockwise rotation about the z-axis.
      * @param a
-     *  the angle of rotation, in Radians
+     *  the angle of rotation
      * @return
      *  the matrix
      * @remark
@@ -248,12 +277,18 @@ struct Transform {
      *  0 &  0 & 0 & 1 \\
      *  \end{matrix}\right]
      *  \f]
-     *  where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
-     * @todo
-     *  Angles should be in degrees.
+     *  where \f$c=\cos(a)\f$ and \f$s=\sin(a)\f$.
      */
-    static Matrix4f4f rotationZ(const float a)
-    {
+    static Matrix4f4f rotationZ(const Ego::Math::Degrees& a) {
+        return rotationZ(Ego::Math::Radians(a));
+
+    }
+
+    static Matrix4f4f rotationZ(const Ego::Math::Turns& a) {
+        return rotationZ(Ego::Math::Radians(a));
+    }
+
+    static Matrix4f4f rotationZ(const Ego::Math::Radians& a) {
         float c = std::cos(a), s = std::sin(a);
         return
             Matrix4f4f
@@ -265,6 +300,10 @@ struct Transform {
             );
     }
 
+    /**@}*/
+
+
+    /**@{*/
 
     /**
      * @brief
@@ -279,14 +318,14 @@ struct Transform {
      *  if the rotation axis is the zero vector
      * @remark
      *  Given an axis of rotation represented by the unit vector \f$\hat{r}=(k_x,k_y,k_z,1)\f$ and an angle
-     *  \f$\theta\f$ in degrees, we shall obtain a \f$4 \times 4\f$ matrix \f$\mathcal{T}\f$ called the Rodrigues rotation
+     *  \f$\theta\f$, we shall obtain a \f$4 \times 4\f$ matrix \f$\mathcal{T}\f$ called the Rodrigues rotation
      *  matrix \f$R\f$ for the axis of rotation \f$\hat{k}\f$ and the angle \f$\theta\f$. This matrix has
-     *  represents the transformation of rotating counter-clockwise by \f$\theta\f$ degrees about the axis
+     *  represents the transformation of rotating counter-clockwise by \f$\theta\f$ about the axis
      *  \f$\hat{k}\f$ i.e. for any point \f$\vec{v}=(v_x,v_y,v_z,1)\f$
      *  \f[
      *  \vec{v}' = \mathbf{L} \vec{v}
      *  \f]
-     *  is the counter-clockwise rotation of \f$\vec{v}\f$ by \f$\theta\f$ degrees about the axis \f$\hat{\vec{r}}\f$.
+     *  is the counter-clockwise rotation of \f$\vec{v}\f$ by \f$\theta\f$ about the axis \f$\hat{\vec{r}}\f$.
      *  </br>
      *  The derivation of that matrix is provided here for reference, the geometric reasoning is omitted.
      *  </br>
@@ -309,7 +348,7 @@ struct Transform {
      *  shown in Vector3f::decompose(const Vector3f&,const Vector3f&,Vector3f&,Vector3f&).
      *  </br>
      *  If in \f$\mathbb{R}^2\f$ one rotates the vector \f$\vec{i}=(1,0)\f$ by \f$\theta\f$
-     *  degrees in the plane of rotation spanned by the standard basis \f$\vec{i}=(1,0)\f$,
+     *  in the plane of rotation spanned by the standard basis \f$\vec{i}=(1,0)\f$,
      *  \f$\vec{j}=(0,1)\f$ for \f$\mathbb{R}^2\f$, the result is the vector
      *  \f{align*}{
      *  \vec{i}' = \cos(\theta)\vec{i} + \sin(\theta) \vec{j}
@@ -470,10 +509,16 @@ struct Transform {
      *  \f}
      *  This implementation performs this form of elimination of common subexpressions.
      */
-    static Matrix4f4f rotation(const Vector3f& axis, float angle)
-    {
-        float a = Ego::Math::degToRad(angle);
-        float c = std::cos(a), s = std::sin(a);
+    static Matrix4f4f rotation(const Vector3f& axis, const Ego::Math::Degrees& angle) {
+        return rotation(axis, Ego::Math::Radians(angle));
+    }
+
+    static Matrix4f4f rotation(const Vector3f& axis, const Ego::Math::Turns& angle) {
+        return rotation(axis, Ego::Math::Radians(angle));
+    }
+
+    static Matrix4f4f rotation(const Vector3f& axis, const Ego::Math::Radians& angle) {
+        float c = std::cos(angle), s = std::sin(angle);
         float t = 1.0f - c;
         float x = axis[kX], y = axis[kY], z = axis[kZ];
         float xx = x*x, yy = y*y, zz = z*z;
@@ -489,12 +534,14 @@ struct Transform {
 
         return Matrix4f4f
             (
-            tx * x + c, txy - sz,   txz + sy,   0,
-            txy + sz,   ty * y + c, tyz - sx,   0,
-            txz - sy,   tyz + sx,   tz * z + c, 0,
-            0,          0,          0,          1
+                tx * x + c, txy - sz,   txz + sy,   0,
+                txy + sz,   ty * y + c, tyz - sx,   0,
+                txz - sy,   tyz + sx,   tz * z + c, 0,
+                0,          0,          0,          1
             );
     }
+
+    /**@}*/
 
     /**
      * @brief
@@ -515,8 +562,7 @@ struct Transform {
      *  \end{matrix}\right]
      *  \f]
      */
-    static Matrix4f4f scaling(const Vector3f& s)
-    {
+    static Matrix4f4f scaling(const Vector3f& s) {
         return
             Matrix4f4f
             (

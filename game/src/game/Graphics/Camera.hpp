@@ -327,7 +327,7 @@ protected:
 
 	void resetView();
 
-	void updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near = 1.0f, const float frustum_far = 20.0f);
+	void updateProjection(const Ego::Math::Degrees& fov, const float aspect_ratio, const float frustum_near = 1.0f, const float frustum_far = 20.0f);
 
 private:
     static constexpr float TURN_Z_SUSTAIN = 0.60f;    ///< Turning rate falloff.
