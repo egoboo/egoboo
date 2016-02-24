@@ -88,7 +88,7 @@ public:
     /** @brief The unit axis vector \f$\hat{a}\f$ of the cone. */
     VectorType axis;
     /** @brief The angle, in degrees, \f$\theta \in \left(0,90\right)\f$. */
-    ScalarType angle;
+    Angle<AngleUnit::Degrees> angle;
 
 public:
     /**
@@ -99,7 +99,7 @@ public:
      * \f$\theta=60\f$.
      */
     Cone3() :
-        origin(0, 0, 0), axis(0, 0, 1), angle(60) {
+        origin(0, 0, 0), axis(0, 0, 1), angle(60.0f) {
         /* Intentionally empty. */
     }
 
@@ -111,11 +111,10 @@ public:
      * @throw Id::RuntimeErrorException \f$\vec{a} = \vec{0}\f$
      * @throw Id::RuntimeErrorException \f$\theta\f$ is not an acute angle 
      */
-    Cone3(const VectorType& origin, const VectorType& axis, const ScalarType& angle)
+    Cone3(const VectorType& origin, const VectorType& axis, const Angle<AngleUnit::Degrees>& angle)
         : origin(origin), axis(axis), angle(angle) {
         this->axis.normalized();
-        IsAcute<AngleUnit::Degrees> isAcute;
-        if (!isAcute(angle)) {
+        if (!angle.isAcute()) {
             throw Id::RuntimeErrorException(__FILE__, __LINE__, "the angle is not an acute angle");
         }
     }
@@ -175,7 +174,7 @@ public:
      * @return
      *  the angle, in degrees, \f$\theta \in \left(0,90\right)\f$ of this cone
      */
-    const ScalarType& getAngle() const {
+    const Angle<AngleUnit::Degrees>& getAngle() const {
         return angle;
     }
 
@@ -197,7 +196,7 @@ public:
      *  \f$\tan\alpha = \frac{r}{h}\f$, hence \f$r=h \tan\alpha\f$.
      */
     ScalarType getRadiusAt(ScalarType height) const {
-        return height * std::tan(DegreesToRadians(angle));
+        return height * std::tan(angle);
     }
 
     /**
@@ -222,7 +221,7 @@ public:
      *  more expensive than just taking the cosine.
      */
     ScalarType getSlantHeight(ScalarType height) const {
-        return height / std::cos(DegreesToRadians(angle));
+        return height / std::cos(angle);
     }
 
 public:

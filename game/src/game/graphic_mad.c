@@ -67,7 +67,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 		ptex = pinst.texture;
 	}
 
-    float uoffset = pinst.uoffset - cam.getTurnZ_turns();
+    float uoffset = pinst.uoffset - float(cam.getTurnZ_turns());
 
 	if (HAS_SOME_BITS(bits, CHR_REFLECT))
 	{

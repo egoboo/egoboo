@@ -61,7 +61,7 @@ Camera::Camera(const CameraOptions &options) :
     _pitch(Ego::Math::pi<float>() * 0.5f),
 
     _turnZ_radians(-Ego::Math::piOverFour<float>()),
-    _turnZ_turns(Ego::Math::RadiansToTurns(_turnZ_radians)),
+    _turnZ_turns(_turnZ_radians),
     _turnZAdd(0.0f),
 
     _forward{0.0f, 0.0f, 0.0f},
@@ -87,7 +87,7 @@ Camera::Camera(const CameraOptions &options) :
     _trackPos = _center;
     _position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
 
-    _turnZ_turns = Ego::Math::RadiansToTurns(_turnZ_radians);
+    _turnZ_turns = (Ego::Math::Turns)_turnZ_radians;
     _ori.facing_z = TurnsToFacing(_turnZ_turns);
     resetView();
 
@@ -147,8 +147,8 @@ void Camera::updatePosition()
 #if 0
     if ( 0 != _turnTime )
     {
-        _turnZRad = std::atan2(_center[kY] - pos[kY], _center[kX] - pos[kX]);  // xgg
-        _turnZOne = RadiansToTurns(_turnZRad);
+        _turnZRad = Ego::Math::Radians(std::atan2(_center[kY] - pos[kY], _center[kX] - pos[kX]));  // xgg
+        _turnZOne = Ego::Math::Turns(_turnZRad);
         _ori.facing_z = TurnsToFacing(_turnZ_turns);
     }
 #endif
@@ -211,7 +211,7 @@ void Camera::updateZoom()
         _ori.facing_z = newAngle;
 
         _turnZ_turns = FacingToTurns(_ori.facing_z);
-        _turnZ_radians = Ego::Math::TurnsToRadians(_turnZ_turns);
+        _turnZ_radians = (Ego::Math::Radians)_turnZ_turns;
     }
     _turnZAdd *= TURN_Z_SUSTAIN;
 }
@@ -304,12 +304,12 @@ void Camera::updateFreeControl()
     
     //Left and right
     if (keyb.is_key_down(SDLK_KP_4) || keyb.is_key_down(SDLK_LEFT)) {
-        _center.x() -= std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
-        _center.y() -= std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
+        _center.x() -= std::sin(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
+        _center.y() -= std::cos(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
     }
     else if (keyb.is_key_down(SDLK_KP_6) || keyb.is_key_down(SDLK_RIGHT)) {
-        _center.x() += std::sin(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
-        _center.y() += std::cos(_turnZ_radians + Ego::Math::pi<float>() * 0.5f) * moveSpeed;
+        _center.x() += std::sin(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
+        _center.y() += std::cos(_turnZ_radians + Ego::Math::Radians(Ego::Math::pi<float>() * 0.5f)) * moveSpeed;
     }
     
     //Rotate left or right
@@ -624,7 +624,7 @@ void Camera::reset(const ego_mesh_t *mesh)
     _zadd = CAM_ZADD_AVG;
     _zaddGoto = CAM_ZADD_AVG;
     _zGoto = CAM_ZADD_AVG;
-    _turnZ_radians = -Ego::Math::piOverFour<float>();
+    _turnZ_radians = Ego::Math::Radians(-Ego::Math::piOverFour<float>());
     _turnZAdd = 0.0f;
     _roll = 0.0f;
 
@@ -640,7 +640,7 @@ void Camera::reset(const ego_mesh_t *mesh)
     _position.y() += _zoom * std::cos(_turnZ_radians);
     _position.z() += CAM_ZADD_MAX;
 
-    _turnZ_turns = Ego::Math::RadiansToTurns(_turnZ_radians);
+    _turnZ_turns = (Ego::Math::Turns)_turnZ_radians;
     _ori.facing_z = TurnsToFacing(_turnZ_turns);
 
     // Get optional parameters.

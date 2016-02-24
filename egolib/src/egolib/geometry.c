@@ -281,7 +281,7 @@ Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Vector3f& P)
     // Compute \$t = P - O\f$.
 	const auto t = P - K.getOrigin();
     // Compute \$\left|t\right|\cos\theta\f$.
-    const auto rhs = t.length() * std::cos(Ego::Math::DegreesToRadians(K.getAngle()));
+    const auto rhs = t.length() * std::cos(K.getAngle());
     // Compute \f$\hat{d} \cdot \left(t\right)\f$.
     const auto lhs = K.getAxis().dot(t);
     if (lhs > rhs) {
@@ -295,9 +295,9 @@ Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Vector3f& P)
 
 bool sphere_intersects_cone(const Sphere3f& S, const Cone3f& K) {
     // \$\sin\left(\theta\right)\f$
-    const float s = std::sin(Ego::Math::DegreesToRadians(K.getAngle()));
+    const float s = std::sin(K.getAngle());
     // \f$\cos\left(\theta\right)\f$
-    const float c = std::cos(Ego::Math::DegreesToRadians(K.getAngle()));
+    const float c = std::cos(K.getAngle());
     // The reciprocal of \f$\sin\left(\theta\right)\f$: \f$\frac{1}{\sin\left(\theta\right)}\f$.
     const float s_r = 1.0f / s;
 
