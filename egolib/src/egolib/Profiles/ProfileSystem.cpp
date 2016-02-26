@@ -192,8 +192,7 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     //Success! Store object into the loaded profile map
     _profilesLoaded[iobj] = profile;
     _profilesLoadedByName[profile->getPathname().substr(profile->getPathname().find_last_of('/') + 1)] = profile;
-    Log::get().debug("ProfileSystem::loadOneProfile() - Loaded (%s) into %s\n", pathName.c_str(), profile->getPathname().substr(profile->getPathname().find_last_of('/') + 1).c_str());
-
+    //Log::get().debug("ProfileSystem::loadOneProfile() - Loaded (%s) into %s\n", pathName.c_str(), profile->getPathname().substr(profile->getPathname().find_last_of('/') + 1).c_str());
 
     return iobj;
 }

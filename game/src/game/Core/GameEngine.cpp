@@ -95,7 +95,7 @@ void GameEngine::start()
     {
         // Test the panic button
         const uint8_t *keyboardState = SDL_GetKeyboardState(nullptr);
-        if ( keyboardState[SDL_SCANCODE_Q] && keyboardState[SDL_SCANCODE_LCTRL] )
+        if (keyboardState[SDL_SCANCODE_Q] && keyboardState[SDL_SCANCODE_LCTRL])
         {
             // Terminate the program
             shutdown();
@@ -103,13 +103,13 @@ void GameEngine::start()
         }
 
         // Check if it is time to update everything
-        for(_frameSkip = 0; _frameSkip < MAX_FRAMESKIP && getMicros() >= _updateTimeout; ++_frameSkip)
+        for(_frameSkip = 0; _frameSkip < MAX_FRAMESKIP && getMicros() > _updateTimeout; ++_frameSkip)
         {
             updateOneFrame();
             _updateTimeout += DELAY_PER_UPDATE_FRAME;
         }
 
-        //Prevent accumalating more than 1 second of game updates (can happen in severe frame drops or breakpoints while debugging)
+        //Prevent accumulating more than 1 second of game updates (can happen in severe frame drops or breakpoints while debugging)
         const uint64_t now = getMicros();
         if(now > _updateTimeout + GAME_TARGET_UPS*DELAY_PER_UPDATE_FRAME) {
             _updateTimeout = now + DELAY_PER_UPDATE_FRAME;
@@ -119,9 +119,6 @@ void GameEngine::start()
         // Check if it is time to draw everything
         if(getMicros() >= _renderTimeout)
         {
-            // Calculate estimations for FPS and UPS
-            estimateFrameRate();
-
             // Draw the current frame
             renderOneFrame();
 
@@ -144,6 +141,9 @@ void GameEngine::start()
                 std::this_thread::sleep_for(std::chrono::microseconds(delay));
             }
         }
+
+        // Calculate estimations for FPS and UPS
+        estimateFrameRate();        
     }
 
     uninitialize();

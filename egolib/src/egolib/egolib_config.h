@@ -191,8 +191,6 @@
 
 #undef  DEBUG_WAYPOINTS       ///< display error messages when adding waypoints. It will also prevent "unsafe" waypoint being added to the waypoint list.
 
-#undef  DEBUG_ASTAR           ///< Debug AStar pathfinding
-
 #undef DRAW_PRT_GRIP_ATTACH   ///< display which grip a particle is attached to
 #define DRAW_CHR_BBOX         ///< display selected character bounding boxes
 #define DRAW_PRT_BBOX         ///< display selected particle bounding boxes

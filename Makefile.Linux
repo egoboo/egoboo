@@ -1,6 +1,7 @@
 .PHONY: idlib egolib egoboo clean set_debug_flags debug
 	
 debug: set_debug_flags all
+debug-extra: set_debug_flags set_sanitizer_flags all
 release: set_release_flags all
 
 all: idlib egolib egoboo
@@ -16,22 +17,25 @@ COMPILE_WARNINGS += -Wno-sign-compare -Wno-reorder -Wno-unused-parameter
 
 #Enable some extra warnings
 COMPILE_WARNINGS += -Wcast-align -Wpointer-arith -Wwrite-strings -Wunreachable-code
+COMPILE_WARNINGS += -Wno-div-by-zero -Wlogical-op -Wunreachable-code -Wformat=2
 #-Wcast-qual -Wswitch-enum -Wstrict-overflow=5 -Wshadow
 
+set_sanitizer_flags:
+	$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
+	$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)
+	$(eval SANITIZER_FLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr)
+	$(eval SANITIZER_FLAGS += -fsanitize=bool -fsanitize=alignment)
+	$(eval SANITIZER_FLAGS += -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow)
+	#-fsanitize-undefined-trap-on-error
+
 set_debug_flags:
-	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -D_DEBUG -fvar-tracking-assignments -pg)
+	$(eval COMPILE_DEBUG_FLAGS += -ggdb3 -D_DEBUG -fvar-tracking-assignments)
 	$(eval COMPILE_OPTIMIZE := -Og)
-#$(eval SANITIZER_FLAGS := -fsanitize=undefined -fsanitize=leak -fsanitize=address)
-#$(eval SANITIZER_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift)
-#$(eval SANITIZER_FLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr)
-#$(eval SANITIZER_FLAGS += -fsanitize=bool -fsanitize=alignment)
-#$(eval SANITIZER_FLAGS += -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow)
-#-fsanitize-undefined-trap-on-error
 
 set_release_flags:
 	$(eval COMPILE_DEBUG_FLAGS += -DNDEBUG)
 	$(eval COMPILE_OPTIMIZE := -O3)
-	$(eval SANITIZER_FLAGS := -fno-sanitize=all)
+	$(eval COMPILE_OPTIMIZE += -mfpmath=sse -m64 -mmmx -msse -msse2 -msse3 -m3dnow)
 
 export COMPILE_FLAGS COMPILE_OPTIMIZE COMPILE_WARNINGS COMPILE_DEBUG_FLAGS SANITIZER_FLAGS
 
