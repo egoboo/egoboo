@@ -6,64 +6,112 @@ namespace Ego {
 namespace Math {
 
 /// @brief The RGB colour space type.
-struct RGB {
+struct RGBf {
+    typedef float ComponentType;
+    static constexpr bool isRgb() { return true; }
+    static constexpr bool hasA() { return false; }
+
     /// @brief The number of components of a colour in this colour space.
     /// @return the number of components of a colour in this colour space
-    static constexpr size_t components() { return 3; }
+    static constexpr size_t count() { return 3; }
+    /**
+     * @brief Get the minimum component value.
+     * @return the minimum component value
+     */
+    static constexpr ComponentType min() { return 0.0f; }
+    /**
+     * @brief Get the maximum component value.
+     *  @return the maximum component value
+     */
+    static constexpr ComponentType max() { return 1.0f; }
+
 };
 
 /// @brief The RGBA colour space type.
-struct RGBA {
+struct RGBAf {
+    typedef float ComponentType;
+    static constexpr bool isRgb() { return true; }
+    static constexpr bool hasA() { return true; }
+
     /// @brief The number of components of a colour in this colour space.
     /// @return the number of components of a colour in this colour space
-    static constexpr size_t components() { return 4; }
+    static constexpr size_t count() { return 4; }
+    /**
+     * @brief Get the minimum component value.
+     * @return the minimum component value
+     */
+    static constexpr ComponentType min() { return 0.0f; }
+    /**
+     * @brief Get the maximum component value.
+     *  @return the maximum component value
+     */
+    static constexpr ComponentType max() { return 1.0f; }
+
 };
 
+#if 0
 /// @brief The HSV colour space type.
 struct HSV {
     /// @brief The number of components of a colour in this colour space.
     /// @return the number of components of a colour in this colour space
     static constexpr size_t components() { return 3; }
 };
+#endif
 
+#if 0
 /// @brief The HSVA colour space type.
 struct HSVA {
     /// @brief The number of components of a colour in this colour space.
     /// @return the number of components of a colour in this colour space
     static constexpr size_t components() { return 4; }
 };
+#endif
 
-template <typename _ColourSpaceType, typename _ComponentType, typename _Enabled = void>
+/**
+ * @brief Get the type of the opaque color space of a specified color space.
+ * @remark The opaque color space consists of all opaque colors of the specified color space.
+ */
+template <typename _ColourSpaceType>
+struct _Opaque;
+
+template <>
+struct _Opaque<RGBf> { typedef RGBf Type; };
+template <>
+struct _Opaque<RGBAf> { typedef RGBf Type; };
+
+template <typename _ColourSpaceType>
+using Opaque = typename _Opaque<_ColourSpaceType>::Type;
+
+template <typename _ColourSpaceType, typename _Enabled = void>
 struct ColourComponents;
 
-template <typename _ComponentType>
-struct ColourComponents<RGB, _ComponentType, std::enable_if_t<std::is_floating_point<_ComponentType>::value>> {
+namespace Internal {
+
+template <typename _ColourSpaceType>
+struct IsRgb : public std::enable_if<_ColourSpaceType::isRgb() && !_ColourSpaceType::hasA()> {};
+
+}
+
+template <typename _ColourSpaceType>
+struct ColourComponents<_ColourSpaceType, typename Internal::IsRgb<_ColourSpaceType>::type> {
 protected:
-    typedef _ComponentType ComponentType;
-    /**
-     * @brief Get the minimum component value.
-     * @return the minimum component value
-     */
-    static constexpr ComponentType min() { return ComponentType(0); }
-    /**
-     * @brief Get the maximum component value.
-     *  @return the maximum component value
-     */
-    static constexpr ComponentType max() { return ComponentType(1); }
+    typedef _ColourSpaceType ColourSpaceType;
+    typedef typename ColourSpaceType::ComponentType ComponentType;
+
 private:
     /**
      * @brief The red component value.
-     * @invariant Within the bounds of MyType::min() (inclusive) and MyType::max() (inclusive).
+     * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
     ComponentType r;
     /**
      * @brief The green component value.
-     * @invariant Within the bounds of MyType::min() (inclusive) and MyType::max() (inclusive).
+     * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
     ComponentType g;
     /**
      * @brief The blue component value.
-     * @invariant Within the bounds of MyType::min() (inclusive) and MyType::max() (inclusive).
+     * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
      */
     ComponentType b;
 protected:
@@ -86,13 +134,13 @@ protected:
      */
     ColourComponents(ComponentType r, ComponentType g, ComponentType b)
         : r(r), g(g), b(b) {
-        if (r < min() || r > max()) {
+        if (r < ColourSpaceType::min() || r > ColourSpaceType::max()) {
             throw Id::RuntimeErrorException(__FILE__, __LINE__, "red component out of range");
         }
-        if (g < min() || g > max()) {
+        if (g < ColourSpaceType::min() || g > ColourSpaceType::max()) {
             throw Id::RuntimeErrorException(__FILE__, __LINE__, "green component out of range");
         }
-        if (b < min() || b > max()) {
+        if (b < ColourSpaceType::min() || b > ColourSpaceType::max()) {
             throw Id::RuntimeErrorException(__FILE__, __LINE__, "blue component out of range");
         }
     }
@@ -121,7 +169,7 @@ public:
      *  the value of the red component
      */
     void setRed(ComponentType r) {
-        if (r < 0.0f || r > 1.0f) {
+        if (r < ColourSpaceType::min() || r > ColourSpaceType::max()) {
             throw std::domain_error("red component outside range");
         }
         this->r = r;
@@ -144,7 +192,7 @@ public:
      *  the value of the green component
      */
     void setGreen(ComponentType g) {
-        if (g < 0.0f || g > 1.0f) {
+        if (g < ColourSpaceType::min() || g > ColourSpaceType::max()) {
             throw std::domain_error("green component outside range");
         }
         this->g = g;
@@ -167,30 +215,36 @@ public:
      *  the value of the blue component
      */
     void setBlue(ComponentType b) {
-        if (b < 0.0f || b > 1.0f) {
+        if (b < ColourSpaceType::min() || b > ColourSpaceType::max()) {
             throw std::domain_error("blue component outside range");
         }
         this->b = b;
     }
 };
 
-template <typename _ComponentType>
-struct ColourComponents<RGBA, _ComponentType, std::enable_if_t<std::is_floating_point<_ComponentType>::value>> :
-    public ColourComponents<RGB, _ComponentType> {
+namespace Internal {
+
+template <typename _ColourSpaceType>
+struct IsRgba : public std::enable_if<_ColourSpaceType::isRgb() && _ColourSpaceType::hasA()> {};
+
+}
+
+template <typename _ColourSpaceType>
+struct ColourComponents<_ColourSpaceType, typename Internal::IsRgba<_ColourSpaceType>::type> :
+    public ColourComponents<Opaque<_ColourSpaceType>> {
 protected:
-    typedef RGBA ColourSpaceType;
-    typedef _ComponentType ComponentType;
-    static constexpr ComponentType min() { return ComponentType(0); }
-    static constexpr ComponentType max() { return ComponentType(1); }
+    typedef _ColourSpaceType ColourSpaceType;
+    typedef typename ColourSpaceType::ComponentType ComponentType;
+
 private:
     /**
      * @brief The blue component value.
-     * @invariant Within the bounds of MyType::min() (inclusive) and MyType::max() (inclusive).
+     * @invariant Within the bounds of ComponentType::min() (inclusive) and ComponentType::max() (inclusive).
      */
     ComponentType a;
 protected:
     ColourComponents(const ColourComponents& other)
-        : ColourComponents<RGB, ComponentType>(other), a(other.a) {
+        : ColourComponents<Opaque<ColourSpaceType>>(other), a(other.a) {
         // Intentionally empty.
     }
     /**
@@ -205,11 +259,11 @@ protected:
      * @param a
      *  the component value of the alpha component
      * @throws std::domain_error
-     *  if @a a, @a g, @a b or @a a are not within the range of 0 (inclusive) and 1 (inclusive)
+     *  if @a a, @a g, @a b or @a a are not within the range of ComponentType::min() (inclusive) and ComponentType::max() (inclusive)
      */
     ColourComponents(ComponentType r, ComponentType g, ComponentType b, ComponentType a)
-        : ColourComponents<RGB, ComponentType>(r, g, b), a(a) {
-        if (a < min() || a > max()) {
+        : ColourComponents<Opaque<ColourSpaceType>>(r, g, b), a(a) {
+        if (a < ColourSpaceType::min() || a > ColourSpaceType::max()) {
             throw Id::RuntimeErrorException(__FILE__, __LINE__, "alpha component out of range");
         }
     }
@@ -221,17 +275,19 @@ protected:
     *  the colour in RGB space
     * @param a
     *  the alpha component
+    * @throws std::domain_error
+    *  if @a a, @a g, @a b or @a a are not within the range of ComponentType::min() (inclusive) and ComponentType::max() (inclusive)
     */
-    ColourComponents(const ColourComponents<RGB, ComponentType>& other, ComponentType a) :
-        ColourComponents<RGB, ComponentType>(other),
+    ColourComponents(const ColourComponents<Opaque<ColourSpaceType>>& other, ComponentType a) :
+        ColourComponents<Opaque<ColourSpaceType>>(other),
         a(a) {
-        if (a < 0.0f || a > 1.0f) {
+        if (a < ColourSpaceType::min() || a > ColourSpaceType::max()) {
             throw std::domain_error("alpha component out of bounds");
         }
     }
 
     void assign(const ColourComponents& other) {
-        ColourComponents<RGB, ComponentType>::assign(other);
+        ColourComponents<Opaque<ColourSpaceType>>::assign(other);
         a = other.a;
     }
 public:
@@ -252,14 +308,14 @@ public:
      *  the value of the alpha component
      */
     void setAlpha(const ComponentType a) {
-        if (a < 0.0f || a > 1.0f) {
+        if (a < ColourSpaceType::min() || a > ColourSpaceType::max()) {
             throw std::domain_error("alpha component out of range");
         }
         this->a = a;
     }
 };
 
-template <typename _ColourSpaceType, typename _ComponentType>
+template <typename _ColourSpaceType>
 struct Colour;
 
 } // namespace Math
