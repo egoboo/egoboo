@@ -85,11 +85,11 @@ namespace Math {
 
 /// A colour in RGB colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-typedef Colour<RGB, float> Colour3f;
+typedef Colour<RGBf> Colour3f;
 
 /// A colour in RGBA colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
-typedef Colour<RGBA, float> Colour4f;
+typedef Colour<RGBAf> Colour4f;
 
 } // namespace Math
 } // namespace Ego

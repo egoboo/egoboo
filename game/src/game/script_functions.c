@@ -3602,7 +3602,7 @@ Uint8 scr_SendMessageNear( script_state_t& state, ai_state_t& self )
     min_distance = -1;
     for(std::shared_ptr<Camera> camera : CameraSystem::get()->getCameraList())
     {
-        iTmp = std::fabs( pchr->getOldPosition()[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->getOldPosition()[kY] - camera->getTrackPosition()[kY] );
+        iTmp = std::abs( pchr->getOldPosition()[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->getOldPosition()[kY] - camera->getTrackPosition()[kY] );
 
         if ( -1 == min_distance || iTmp < min_distance )
         {

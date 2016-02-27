@@ -116,7 +116,27 @@ struct matrix_cache_t
 
     // the body fixed scaling
     Vector3f  self_scale;
+
+    /**
+     * Get if this matrix cache is valid.
+     * @return @a true if this matrix cache is valid, @a false otherwise
+     * @remark A matrix cache is valid if the cache is valid and the matrix is valid.
+     */
+    bool isValid() const;
 };
+
+/**
+ * @brief
+ *  Compare matrix caches.
+ * @param lhs
+ *  the first matrix cache
+ * @param rhs
+ *  the second matrix cache
+ * @return
+ * \$0<\f$ (\f$0>\f$) if the first matrix cache is smaller (greater) than the second matrix cache,
+ * \f$0=\f$ if both matrix caches are equal
+ */
+int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs);
 
 //--------------------------------------------------------------------------------------------
 

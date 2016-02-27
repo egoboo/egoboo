@@ -35,11 +35,11 @@ namespace Math {
  *          each within the range of 0 (inclusive) to 1 (inclusive).
  */
 template <>
-struct Colour<RGB, float> : public ColourComponents<RGB, float> {
+struct Colour<RGBf> : public ColourComponents<RGBf> {
 public:
-    typedef float ComponentType;
-    typedef RGB ColourSpaceType;
-    typedef Colour<ColourSpaceType, ComponentType> MyType;
+    typedef RGBf ColourSpaceType;
+    typedef typename ColourSpaceType::ComponentType ComponentType;
+    typedef Colour<ColourSpaceType> MyType;
 
 public:
     /**
@@ -152,7 +152,7 @@ public:
      *  the other colour
      */
     Colour(const Colour& other) :
-        ColourComponents<ColourSpaceType, ComponentType>(other) {
+        ColourComponents<ColourSpaceType>(other) {
         // Intentionally empty.
     }
 
@@ -161,7 +161,7 @@ public:
      *  Default constructor (opaque black)
      */
     Colour() :
-        ColourComponents<ColourSpaceType, ComponentType>(0.0f, 0.0f, 0.0f) {
+        ColourComponents<ColourSpaceType>(ColourSpaceType::min(), ColourSpaceType::min(), ColourSpaceType::min()) {
         // Intentionally empty.
     }
 
@@ -178,7 +178,7 @@ public:
      *  if @a a, @a g or @a b a are not within the range of 0 (inclusive) and 1 (inclusive)
      */
     Colour(ComponentType r, ComponentType g, ComponentType b) :
-        ColourComponents<ColourSpaceType, ComponentType>(r, g, b) {
+        ColourComponents<ColourSpaceType>(r, g, b) {
     }
 
     const MyType& operator=(const MyType& other) {
@@ -199,7 +199,9 @@ public:
      *  The corresponding inverted colour is also known as the complementary colour.
      */
     MyType invert() const {
-        return MyType(1.0f - getRed(), 1.0f - getGreen(), 1.0f - getBlue());
+        return MyType(ColourSpaceType::max() - getRed(),
+                      ColourSpaceType::max() - getGreen(),
+                      ColourSpaceType::max() - getBlue());
     }
 
     /**

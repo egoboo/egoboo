@@ -26,7 +26,7 @@
 #include "game/mesh.h"
 #include "game/Entities/_Include.hpp"
 
-const float Camera::DEFAULT_FOV = 60.0f;
+const Ego::Math::Degrees Camera::DEFAULT_FOV = Ego::Math::Degrees(60.0f);
 
 const float Camera::DEFAULT_TURN_JOY = 64;
 
@@ -117,9 +117,9 @@ float Camera::multiplyFOV(const float old_fov_deg, const float factor)
     return new_fov_deg;
 }
 
-void Camera::updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near, const float frustum_far)
+void Camera::updateProjection(const Ego::Math::Degrees& fov, const float aspect_ratio, const float frustum_near, const float frustum_far)
 {
-    _projectionMatrix = Ego::Math::Transform::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
+    _projectionMatrix = Ego::Math::Transform::perspective(fov, aspect_ratio, frustum_near, frustum_far);
 
     // Invalidate the frustum.
     _frustumInvalid = true;
@@ -131,7 +131,7 @@ void Camera::resetView()
     if (_position != _center)
     {
         static const Vector3f Z = Vector3f(0.0f, 0.0f, 1.0f);
-        Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, Ego::Math::radToDeg(_roll));
+        Matrix4f4f tmp = Ego::Math::Transform::scaling(Vector3f(-1.0f, 1.0f, 1.0f)) *  Ego::Math::Transform::rotation(Z, Ego::Math::Degrees(Ego::Math::radToDeg(_roll)));
         _viewMatrix = tmp * Ego::Math::Transform::lookAt(_position, _center, Z);
     }
     // Invalidate the frustum.
@@ -230,7 +230,7 @@ void Camera::updateCenter()
         Vector3f trackError = _trackPos - _position;
 
         // Determine the size of the dead zone.
-        float track_fov = DEFAULT_FOV * 0.25f;
+        Ego::Math::Degrees track_fov = DEFAULT_FOV * 0.25f;
         float track_dist = trackError.length();
         float track_size = track_dist * std::tan(track_fov);
         float track_size_x = track_size;
@@ -734,7 +734,7 @@ void Camera::updateEffects()
         //mat_Multiply( _mView.v, mat_RotateY( tmp1.v, _roll ), mat_Copy( tmp2.v, _mView.v ) );
 
         // Come to a standstill at some point
-        if ( std::fabs( _roll ) < 0.001f )
+        if ( std::abs( _roll ) < 0.001f )
         {
             _roll = 0;
             _swing = 0;

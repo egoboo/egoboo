@@ -25,7 +25,7 @@
 
 namespace Ego {
 
-IndexDescriptor::IndexDescriptor(IndexDescriptor::Syntax syntax) noexcept :
+IndexDescriptor::IndexDescriptor(IndexDescriptor::Syntax syntax) :
     syntax(syntax), indexSize(0) {
     // Compute the index size.
     switch (syntax) {
