@@ -39,6 +39,81 @@
 // the flip tolerance is the default flip increment / 2
 static constexpr float FLIP_TOLERANCE = 0.25f * 0.5f;
 
+bool matrix_cache_t::isValid() const {
+    return valid && matrix_valid;
+}
+
+int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs) {
+    // handle problems with pointers
+    if (&lhs == &rhs) {
+        return 0;
+    }
+
+    // handle one of both if the matrix caches being invalid
+    if (!lhs.valid && !rhs.valid) {
+        return 0;
+    } else if (!lhs.valid) {
+        return 1;
+    } else if (!rhs.valid) {
+        return -1;
+    }
+
+    // handle differences in the type
+    int itmp = lhs.type_bits - rhs.type_bits;
+    if (0 != itmp) goto cmp_matrix_cache_end;
+
+    //---- check for differences in the MAT_WEAPON data
+    if (HAS_SOME_BITS(lhs.type_bits, MAT_WEAPON)) {
+        itmp = (signed)REF_TO_INT(lhs.grip_chr.get()) - (signed)REF_TO_INT(rhs.grip_chr.get());
+        if (0 != itmp) goto cmp_matrix_cache_end;
+
+        itmp = (signed)lhs.grip_slot - (signed)rhs.grip_slot;
+        if (0 != itmp) goto cmp_matrix_cache_end;
+
+        for (int cnt = 0; cnt < GRIP_VERTS; cnt++) {
+            itmp = (signed)lhs.grip_verts[cnt] - (signed)rhs.grip_verts[cnt];
+            if (0 != itmp) goto cmp_matrix_cache_end;
+        }
+
+        // handle differences in the scale of our mount
+        for (int cnt = 0; cnt < 3; cnt++) {
+            float ftmp = lhs.grip_scale[cnt] - rhs.grip_scale[cnt];
+            if (0.0f != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+        }
+    }
+
+    //---- check for differences in the MAT_CHARACTER data
+    if (HAS_SOME_BITS(lhs.type_bits, MAT_CHARACTER)) {
+        // handle differences in the "Euler" rotation angles in 16-bit form
+        for (int cnt = 0; cnt < 3; cnt++) {
+            float ftmp = lhs.rotate[cnt] - rhs.rotate[cnt];
+            if (0.0f != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+        }
+
+        // handle differences in the translate vector
+        for (int cnt = 0; cnt < 3; cnt++) {
+            float ftmp = lhs.pos[cnt] - rhs.pos[cnt];
+            if (0.0f != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+        }
+    }
+
+    //---- check for differences in the shared data
+    if (HAS_SOME_BITS(lhs.type_bits, MAT_WEAPON) || HAS_SOME_BITS(lhs.type_bits, MAT_CHARACTER)) {
+        // handle differences in our own scale
+        for (int cnt = 0; cnt < 3; cnt++) {
+            float ftmp = lhs.self_scale[cnt] - rhs.self_scale[cnt];
+            if (0.0f != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+        }
+    }
+
+    // if it got here, the data is all the same
+    itmp = 0;
+
+cmp_matrix_cache_end:
+
+    return SGN(itmp);
+}
+
 //--------------------------------------------------------------------------------------------
 gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {

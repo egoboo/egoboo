@@ -36,19 +36,18 @@ static bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t& mcache );
 static int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], Vector4f   dst_point[] );
 static int convert_grip_to_global_points( const ObjectRef iholder, Uint16 grip_verts[], Vector4f   dst_point[] );
 
-// definition that is consistent with using it as a callback in qsort() or some similar function
-static int  cmp_matrix_cache( const matrix_cache_t& lhs, const matrix_cache_t& rhs );
 
 
-bool chr_matrix_valid( const Object * pchr )
-{
+/// @brief Determine wether the object has a valid matrix cache.
+/// @param pobj a pointer to the object
+/// @return @a false if a @a pobj is a null pointer or if the object's matrix cache is invalid,
+/// @a true otherwise
+bool chr_matrix_valid(const Object *pobj) {
     /// @author BB
     /// @details Determine whether the character has a valid matrix
 
-    if ( nullptr == pchr ) return false;
-
-    // both the cache and the matrix need to be valid
-    return pchr->inst.matrix_cache.valid && pchr->inst.matrix_cache.matrix_valid;
+    if (!pobj) return false;
+    return pobj->inst.matrix_cache.isValid();
 }
 
 
@@ -414,106 +413,6 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
     }
 
     return applied;
-}
-
-//--------------------------------------------------------------------------------------------
-int cmp_matrix_cache( const matrix_cache_t& lhs, const matrix_cache_t& rhs )
-{
-    /// @author BB
-    /// @details check for differences between the data pointed to
-    ///     by vlhs and vrhs, assuming that they point to matrix_cache_t data.
-    ///
-    ///    The function is implemented this way so that in pronciple
-    ///    if could be used in a function like qsort().
-    ///
-    ///    We could almost certainly make something easier and quicker by
-    ///    using the function memcmp()
-
-    int   itmp, cnt;
-    float ftmp;
-
-    // handle problems with pointers
-    if ( &lhs == &rhs )
-    {
-        return 0;
-    }
-
-    // handle one of both if the matrix caches being invalid
-    if ( !lhs.valid && !rhs.valid )
-    {
-        return 0;
-    }
-    else if ( !lhs.valid )
-    {
-        return 1;
-    }
-    else if ( !rhs.valid )
-    {
-        return -1;
-    }
-
-    // handle differences in the type
-    itmp = lhs.type_bits - rhs.type_bits;
-    if ( 0 != itmp ) goto cmp_matrix_cache_end;
-
-    //---- check for differences in the MAT_WEAPON data
-    if ( HAS_SOME_BITS( lhs.type_bits, MAT_WEAPON ) )
-    {
-        itmp = ( signed )REF_TO_INT( lhs.grip_chr.get() ) - ( signed )REF_TO_INT( rhs.grip_chr.get() );
-        if ( 0 != itmp ) goto cmp_matrix_cache_end;
-
-        itmp = ( signed )lhs.grip_slot - ( signed )rhs.grip_slot;
-        if ( 0 != itmp ) goto cmp_matrix_cache_end;
-
-        for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
-        {
-            itmp = ( signed )lhs.grip_verts[cnt] - ( signed )rhs.grip_verts[cnt];
-            if ( 0 != itmp ) goto cmp_matrix_cache_end;
-        }
-
-        // handle differences in the scale of our mount
-        for ( cnt = 0; cnt < 3; cnt ++ )
-        {
-            ftmp = lhs.grip_scale[cnt] - rhs.grip_scale[cnt];
-            if ( 0.0f != ftmp ) { itmp = SGN( ftmp ); goto cmp_matrix_cache_end; }
-        }
-    }
-
-    //---- check for differences in the MAT_CHARACTER data
-    if ( HAS_SOME_BITS( lhs.type_bits, MAT_CHARACTER ) )
-    {
-        // handle differences in the "Euler" rotation angles in 16-bit form
-        for ( cnt = 0; cnt < 3; cnt++ )
-        {
-            ftmp = lhs.rotate[cnt] - rhs.rotate[cnt];
-            if ( 0.0f != ftmp ) { itmp = SGN( ftmp ); goto cmp_matrix_cache_end; }
-        }
-
-        // handle differences in the translate vector
-        for ( cnt = 0; cnt < 3; cnt++ )
-        {
-            ftmp = lhs.pos[cnt] - rhs.pos[cnt];
-            if ( 0.0f != ftmp ) { itmp = SGN( ftmp ); goto cmp_matrix_cache_end; }
-        }
-    }
-
-    //---- check for differences in the shared data
-    if ( HAS_SOME_BITS( lhs.type_bits, MAT_WEAPON ) || HAS_SOME_BITS( lhs.type_bits, MAT_CHARACTER ) )
-    {
-        // handle differences in our own scale
-        for ( cnt = 0; cnt < 3; cnt ++ )
-        {
-            ftmp = lhs.self_scale[cnt] - rhs.self_scale[cnt];
-            if ( 0.0f != ftmp ) { itmp = SGN( ftmp ); goto cmp_matrix_cache_end; }
-        }
-    }
-
-    // if it got here, the data is all the same
-    itmp = 0;
-
-cmp_matrix_cache_end:
-
-    return SGN( itmp );
 }
 
 //--------------------------------------------------------------------------------------------
