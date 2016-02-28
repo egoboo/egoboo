@@ -139,7 +139,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
 
 	if (nullptr == ptex)
 	{
-		ptex = pinst.texture;
+		ptex = pchr->getSkinTexture();
 	}
 
     float uoffset = pinst.uoffset - float(cam.getTurnZ_turns());
@@ -280,7 +280,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
     const std::shared_ptr<MD2Model> &pmd2 = pchr->getProfile()->getModel()->getMD2();
 
     // To make life easier
-    std::shared_ptr<const Ego::Texture> ptex = pinst.texture;
+    std::shared_ptr<const Ego::Texture> ptex = pchr->getSkinTexture();
 
     float uoffset = pinst.uoffset * INV_FFFF<float>();
     float voffset = pinst.voffset * INV_FFFF<float>();
@@ -1624,7 +1624,6 @@ chr_instance_t::chr_instance_t() :
 
     colorshift(),
 
-    texture(nullptr),
     uoffset(0),
     voffset(0),
 
@@ -1779,7 +1778,6 @@ gfx_rv chr_instance_t::spawn(chr_instance_t& self, const PRO_REF profileID, cons
     }
 
     // lighting parameters
-    chr_instance_t::set_texture(self, profile->getSkin(skin));
 	self.enviro = profile->isPhongMapped();
 	self.alpha = profile->getAlpha();
 	self.light = profile->getLight();
@@ -1938,14 +1936,6 @@ gfx_rv chr_instance_t::update_one_flip(chr_instance_t& self, float dflip)
 float chr_instance_t::get_remaining_flip(chr_instance_t& self)
 {
 	return (self.ilip + 1) * 0.25f - self.flip;
-}
-
-gfx_rv chr_instance_t::set_texture(chr_instance_t& self, const Ego::DeferredTexture& itex)
-{
-	// get the texture
-	self.texture = itex.get_ptr();
-
-	return gfx_success;
 }
 
 void chr_instance_t::get_tint(chr_instance_t& self, GLfloat * tint, const BIT_FIELD bits)

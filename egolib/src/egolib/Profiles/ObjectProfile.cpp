@@ -47,6 +47,8 @@ ObjectProfile::ObjectProfile() :
 
     _texturesLoaded(),
     _iconsLoaded(),
+    _texturesLoadedHD(),
+    _iconsLoadedHD(),
 
     _messageList(),
     _soundMap(),
@@ -237,9 +239,11 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     //Clear texture references
     _texturesLoaded.clear();
     _iconsLoaded.clear();
+    _texturesLoadedHD.clear();
+    _iconsLoadedHD.clear();
 
     // Load the skins and icons
-    for (int cnt = 0; cnt < SKINS_PEROBJECT_MAX*2; cnt++)
+    for (size_t cnt = 0; cnt < 30; cnt++)
     {
         // do the texture
         const std::string skinPath = folderPath + "/tris" + std::to_string(cnt);
@@ -248,23 +252,34 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
             _texturesLoaded[cnt] = Ego::DeferredTexture(skinPath);
         }
 
+        //Attempt to load HD skin
+        if(ego_texture_exists_vfs(skinPath + "_HD")) {
+            _texturesLoadedHD[cnt] = Ego::DeferredTexture(skinPath + "_HD");
+            Log::get().debug("Loaded HD texture: %s_HD\n", skinPath.c_str());
+        }
+
         // do the icon
         const std::string iconPath = folderPath + "/icon" + std::to_string(cnt);
 	    if(ego_texture_exists_vfs(iconPath))
         {
             _iconsLoaded[cnt] = Ego::DeferredTexture(iconPath);
         }
+
+        //Attempt to load HD icon
+        if(ego_texture_exists_vfs(iconPath + "_HD")) {
+            _iconsLoadedHD[cnt] = Ego::DeferredTexture(iconPath + "_HD");
+        }
     }
 
     // If we didn't get a skin, set it to the water texture
-    if ( _texturesLoaded.empty() )
+    if (_texturesLoaded.empty())
     {
         _texturesLoaded[0] = Ego::DeferredTexture("mp_data/waterlow");
 		Log::get().warn("Object is missing a skin (%s)!\n", getPathname().c_str());
     }
 
     // If we didn't get a icon, set it to the NULL icon
-    if ( _iconsLoaded.empty())
+    if (_iconsLoaded.empty())
     {
         _iconsLoaded[0] = Ego::DeferredTexture("mp_data/nullicon");
 		Log::get().debug("Object is missing an icon (%s)!\n", getPathname().c_str());
@@ -359,6 +374,14 @@ const IDSZ2& ObjectProfile::getIDSZ(size_t type) const
 
 const Ego::DeferredTexture& ObjectProfile::getSkin(size_t index)
 {
+    //Prefer to use HD texture if enabled and available
+    if(egoboo_config_t::get().graphic_hd_textures_enable.getValue()) {
+        const auto& result = _texturesLoadedHD.find(index);
+        if(result != _texturesLoadedHD.end()) {            
+            return result->second;
+        }
+    }
+
     if(_texturesLoaded.find(index) == _texturesLoaded.end()) {
         return _texturesLoaded[0];
     }
@@ -368,6 +391,14 @@ const Ego::DeferredTexture& ObjectProfile::getSkin(size_t index)
 
 const Ego::DeferredTexture& ObjectProfile::getIcon(size_t index)
 {
+    //Prefer to use HD texture if enabled and available
+    if(egoboo_config_t::get().graphic_hd_textures_enable.getValue()) {
+        const auto& result = _iconsLoadedHD.find(index);
+        if(result != _iconsLoadedHD.end()) {            
+            return result->second;
+        }
+    }
+
     if(_iconsLoaded.find(index) == _iconsLoaded.end()) {
         return _iconsLoaded[0];
     }
@@ -388,7 +419,7 @@ PIP_REF ObjectProfile::getParticleProfile(const LocalParticleProfileRef& lppref)
         return INVALID_PIP_REF;
     }
 
-    return (*result).second;
+    return result->second;
 }
 
 uint16_t ObjectProfile::getSkinOverride() const

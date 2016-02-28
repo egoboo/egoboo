@@ -533,7 +533,7 @@ public:
             graphic_simultaneousDynamicLights_max,
             graphic_framesPerSecond_max,
             graphic_simultaneousParticles_max,
-            graphic_hd_textures,
+            graphic_hd_textures_enable,
             //
             sound_effects_enable,
             sound_effects_volume,
@@ -807,7 +807,7 @@ public:
     * @remark
     *   Default value is @a true.
     **/
-    StandardVariable<bool> graphic_hd_textures;
+    StandardVariable<bool> graphic_hd_textures_enable;
 
     // Sound configuration section.
 

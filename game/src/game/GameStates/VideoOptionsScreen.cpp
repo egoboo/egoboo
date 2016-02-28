@@ -201,12 +201,12 @@ VideoOptionsScreen::VideoOptionsScreen() :
         
         //String description of current state
         []{ 
-            return egoboo_config_t::get().graphic_hd_textures.getValue() ? "Enabled" : "Disabled";
+            return egoboo_config_t::get().graphic_hd_textures_enable.getValue() ? "Enabled" : "Disabled";
         },
 
         //Change option effect
         []{
-            egoboo_config_t::get().graphic_hd_textures.setValue(!egoboo_config_t::get().graphic_hd_textures.getValue());
+            egoboo_config_t::get().graphic_hd_textures_enable.setValue(!egoboo_config_t::get().graphic_hd_textures_enable.getValue());
         }
     );    
 
