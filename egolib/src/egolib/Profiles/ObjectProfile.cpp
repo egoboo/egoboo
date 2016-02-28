@@ -239,7 +239,7 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     _iconsLoaded.clear();
 
     // Load the skins and icons
-    for (int cnt = 0; cnt < SKINS_PEROBJECT_MAX*2; cnt++)
+    for (size_t cnt = 0; cnt < 30; cnt++)
     {
         // do the texture
         const std::string skinPath = folderPath + "/tris" + std::to_string(cnt);
@@ -257,14 +257,14 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     }
 
     // If we didn't get a skin, set it to the water texture
-    if ( _texturesLoaded.empty() )
+    if (_texturesLoaded.empty())
     {
         _texturesLoaded[0] = Ego::DeferredTexture("mp_data/waterlow");
 		Log::get().warn("Object is missing a skin (%s)!\n", getPathname().c_str());
     }
 
     // If we didn't get a icon, set it to the NULL icon
-    if ( _iconsLoaded.empty())
+    if (_iconsLoaded.empty())
     {
         _iconsLoaded[0] = Ego::DeferredTexture("mp_data/nullicon");
 		Log::get().debug("Object is missing an icon (%s)!\n", getPathname().c_str());
@@ -359,20 +359,22 @@ const IDSZ2& ObjectProfile::getIDSZ(size_t type) const
 
 const Ego::DeferredTexture& ObjectProfile::getSkin(size_t index)
 {
-    if(_texturesLoaded.find(index) == _texturesLoaded.end()) {
+    const auto& result = _texturesLoaded.find(index);
+    if(result == _texturesLoaded.end()) {
         return _texturesLoaded[0];
     }
 
-    return _texturesLoaded[index];
+    return result->second;
 }
 
 const Ego::DeferredTexture& ObjectProfile::getIcon(size_t index)
 {
-    if(_iconsLoaded.find(index) == _iconsLoaded.end()) {
+    const auto& result = _iconsLoaded.find(index);
+    if(result == _iconsLoaded.end()) {
         return _iconsLoaded[0];
     }
 
-    return _iconsLoaded[index];
+    return result->second;
 }
 
 PIP_REF ObjectProfile::getParticleProfile(const LocalParticleProfileRef& lppref) const
@@ -388,7 +390,7 @@ PIP_REF ObjectProfile::getParticleProfile(const LocalParticleProfileRef& lppref)
         return INVALID_PIP_REF;
     }
 
-    return (*result).second;
+    return result->second;
 }
 
 uint16_t ObjectProfile::getSkinOverride() const

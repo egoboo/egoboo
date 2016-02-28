@@ -377,7 +377,6 @@ struct chr_instance_t
     colorshift_t     colorshift;
 
     // texture info
-    std::shared_ptr<const Ego::Texture> texture;  ///< The texture of the character's skin
     SFP8_T uoffset;                               ///< For moving textures (8.8 fixed point)
     SFP8_T voffset;                               ///< For moving textures (8.8 fixed point)
 

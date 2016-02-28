@@ -240,7 +240,6 @@ bool Object::setSkin(const size_t skinNumber)
             getObjectPhysics().updateCollisionSize(true);
         }
     }
-    chr_instance_t::set_texture(this->inst, getProfile()->getSkin(this->skin));
 
     return true;
 }
@@ -2985,4 +2984,9 @@ void Object::resetBoredTimer()
 {
     //5-8 seconds
     bore_timer = Random::next<uint16_t>(250, 800);
+}
+
+const std::shared_ptr<const Ego::Texture> Object::getSkinTexture() const
+{
+    return getProfile()->getSkin(this->skin).get_ptr();
 }

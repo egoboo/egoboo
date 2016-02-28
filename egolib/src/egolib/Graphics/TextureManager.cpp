@@ -87,7 +87,7 @@ void TextureManager::updateDeferredLoading()
 const std::shared_ptr<Ego::Texture>& TextureManager::getTexture(const std::string &filePath)
 {
     //Not loaded yet?
-    auto result = _textureCache.find(filePath);
+    const auto &result = _textureCache.find(filePath);
     if(result == _textureCache.end()) {
 
         if(SDL_GL_GetCurrentContext() != nullptr) {
@@ -109,6 +109,6 @@ const std::shared_ptr<Ego::Texture>& TextureManager::getTexture(const std::strin
 
     //Get cached texture
     else {
-        return (*result).second;
+        return result->second;
     }
 }

@@ -112,7 +112,13 @@ public:
     **/
     const std::shared_ptr<ObjectProfile>& getProfile() const;
 
+    /**
+    * @return
+    *   true if this Entity can collide physically with other Entities
+    **/
     bool canCollide() const override;
+
+    const std::shared_ptr<const Ego::Texture> getSkinTexture() const;
 
     /**
     * @return

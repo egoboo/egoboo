@@ -14,9 +14,9 @@ public:
 
     DeferredTexture(const std::string &filePath);
 
-    std::shared_ptr<const Texture> get_ptr() const { return const_cast<DeferredTexture*>(this)->get(); }
+    std::shared_ptr<const Texture> get_ptr() const { return get(); } //TODO: remove
 
-    std::shared_ptr<const Texture> get();
+    std::shared_ptr<const Texture> get() const;
 
     void release();
 
@@ -33,9 +33,11 @@ public:
     }
 
 private:
-    std::shared_ptr<Texture> _texture;
+    mutable std::shared_ptr<Texture> _texture;
+    mutable std::shared_ptr<Texture> _textureHD;
+    mutable bool _loaded;
+    mutable bool _loadedHD;
     std::string _filePath;
-    bool _loaded;
 };
 
 } // namespace Ego

@@ -533,6 +533,7 @@ public:
             graphic_simultaneousDynamicLights_max,
             graphic_framesPerSecond_max,
             graphic_simultaneousParticles_max,
+            graphic_hd_textures_enable,
             //
             sound_effects_enable,
             sound_effects_volume,
@@ -795,6 +796,18 @@ public:
      *  Default value is @a 768.
      */
     StandardVariable<uint16_t> graphic_simultaneousParticles_max;
+
+
+    /**
+    * @brief
+    *   If true, the game will try to load HD versions of textures if
+    *   they are available and default back to normal version if not.
+    *   HD textures are textures with higher resolution and end with
+    *   _HD before the file type suffix (e.g myTexture_HD.png).
+    * @remark
+    *   Default value is @a true.
+    **/
+    StandardVariable<bool> graphic_hd_textures_enable;
 
     // Sound configuration section.
 

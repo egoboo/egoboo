@@ -83,6 +83,8 @@ egoboo_config_t::egoboo_config_t() :
     graphic_simultaneousDynamicLights_max(32, "graphic.simultaneousDynamicLights.max", "inclusive upper bound of simultaneous dynamic lights"),
     graphic_framesPerSecond_max(30, "graphic.framesPerSecond.max", "inclusive upper bound of frames per second"),
     graphic_simultaneousParticles_max(768, "graphic.simultaneousParticles.max", "inclusive upper bound of simultaneous particles"),
+    graphic_hd_textures_enable(true, "graphic.graphic_hd_textures_enable", "enable/disable HD textures"),
+
     // Sound configuration section.
     sound_effects_enable(true, "sound.effects.enable", "enable/disable effects"),
     sound_effects_volume(90, "sound.effects.volume", "effects volume"),
@@ -168,6 +170,7 @@ egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
     graphic_simultaneousDynamicLights_max = other.graphic_simultaneousDynamicLights_max;
     graphic_framesPerSecond_max = other.graphic_framesPerSecond_max;
     graphic_simultaneousParticles_max = other.graphic_simultaneousParticles_max;
+    graphic_hd_textures_enable = other.graphic_hd_textures_enable;
 
     // Sound configuration section.
     sound_effects_enable = other.sound_effects_enable;
