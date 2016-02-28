@@ -43,7 +43,10 @@ protected:
     void drawContainer() override;
 
 private:
-	void addInputOption(const std::string& label);
+	void addInputOption(const int xPos, const int yPos, const std::string& label);
+
+private:
+	int _maxLabelWidth;
 };
 
 
