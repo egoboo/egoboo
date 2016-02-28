@@ -5,7 +5,7 @@ namespace Ego
 namespace Input
 {
 
-std::array<InputDevice, 4> InputDevice::DeviceList = 
+std::array<InputDevice, MAX_PLAYER> InputDevice::DeviceList = 
 {
     InputDevice("Player 1"), 
     InputDevice("Player 2"), 

@@ -2,6 +2,7 @@
 
 #include "IdLib/IdLib.hpp"
 #include "egolib/platform.h"
+#include "egolib/egolib_config.h"
 
 namespace Ego
 {
@@ -11,7 +12,7 @@ namespace Input
 class InputDevice
 {
 public:
-    static std::array<InputDevice, 4> DeviceList;
+    static std::array<InputDevice, MAX_PLAYER> DeviceList;
 
     InputDevice(const std::string &name);
 
