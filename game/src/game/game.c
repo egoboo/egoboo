@@ -217,7 +217,6 @@ egolib_rv export_all_players( bool require_local )
 
     egolib_rv export_chr_rv;
     egolib_rv retval;
-    bool is_local;
     int number;
 
     // Stop if export isnt valid
@@ -230,9 +229,6 @@ egolib_rv export_all_players( bool require_local )
     for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
         ObjectRef item;
 
-        is_local = ( nullptr != player->getInputDevice() );
-        if ( require_local && !is_local ) continue;
-
         // Is it alive?
         std::shared_ptr<Object> pchr = player->getObject();
         if(!pchr || pchr->isTerminated()) continue;
@@ -243,7 +239,7 @@ egolib_rv export_all_players( bool require_local )
         if ( !pchr->isAlive() ) continue;
 
         // Export the character
-        export_chr_rv = export_one_character( character, character, -1, is_local );
+        export_chr_rv = export_one_character( character, character, -1, true );
         if ( rv_error == export_chr_rv )
         {
             retval = rv_error;
@@ -253,7 +249,7 @@ egolib_rv export_all_players( bool require_local )
         item = pchr->holdingwhich[SLOT_LEFT];
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
-            export_chr_rv = export_one_character( item, character, SLOT_LEFT, is_local );
+            export_chr_rv = export_one_character( item, character, SLOT_LEFT, true );
             if ( rv_error == export_chr_rv )
             {
                 retval = rv_error;
@@ -264,7 +260,7 @@ egolib_rv export_all_players( bool require_local )
         item = pchr->holdingwhich[SLOT_RIGHT];
         if ( _currentModule->getObjectHandler().exists( item ) )
         {
-            export_chr_rv = export_one_character( item, character, SLOT_RIGHT, is_local );
+            export_chr_rv = export_one_character( item, character, SLOT_RIGHT, true );
             if ( rv_error == export_chr_rv )
             {
                 retval = rv_error;
@@ -277,7 +273,7 @@ egolib_rv export_all_players( bool require_local )
         {
             if ( number >= pchr->getInventory().getMaxItems() ) break;
 
-            export_chr_rv = export_one_character( pitem->getObjRef(), character, number + SLOT_COUNT, is_local );
+            export_chr_rv = export_one_character( pitem->getObjRef(), character, number + SLOT_COUNT, true);
             if ( rv_error == export_chr_rv )
             {
                 retval = rv_error;
@@ -378,9 +374,6 @@ void updateLocalStats()
     int numalive = 0;
     for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList())
     {
-        // only interested in local players
-        if ( nullptr == player->getInputDevice() ) continue;
-
         std::shared_ptr<Object> pchr = player->getObject();
         if(!pchr || pchr->isTerminated()) {
             continue;
@@ -798,7 +791,6 @@ void readPlayerInput()
             && _currentModule->isRespawnValid()
             && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
             && !InputSystem::get().keyboard.chat_mode
-            && player->getInputDevice() != nullptr)
         {
             pchr->latch.b[LATCHBUTTON_RESPAWN] = true;
         }
@@ -2170,8 +2162,6 @@ egolib_rv import_list_t::from_players(import_list_t& self)
             continue;
         }
 
-		bool is_local = (nullptr != player->getInputDevice());
-
 		// grab a pointer
 		import_element_t *import_ptr = self.lst + self.count;
 		self.count++;
@@ -2181,16 +2171,7 @@ egolib_rv import_list_t::from_players(import_list_t& self)
 		import_ptr->srcDir[0] = CSTR_END;
 		import_ptr->dstDir[0] = CSTR_END;
 		strncpy(import_ptr->name, pchr->getName().c_str(), SDL_arraysize(import_ptr->name));
-
-		// only copy the "source" directory if the player is local
-		if (is_local)
-		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->getName()).c_str());
-		}
-		else
-		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->getName()).c_str());
-		}
+		snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->getName()).c_str());
 	}
 
 	return (self.count > 0) ? rv_success : rv_fail;

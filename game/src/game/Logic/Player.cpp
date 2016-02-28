@@ -31,7 +31,7 @@
 namespace Ego
 {
 
-Player::Player(const std::shared_ptr<Object>& object, input_device_t *pdevice) :
+Player::Player(const std::shared_ptr<Object>& object, const Ego::Input::InputDevice &device) :
     _object(object),
     _unspentLevelUp(false),
 
@@ -46,7 +46,7 @@ Player::Player(const std::shared_ptr<Object>& object, input_device_t *pdevice) :
 
     _questLog(),
 
-    _pdevice(pdevice),
+    _inputDevice(device),
     _localLatch()
 {
     // initialize the latches
@@ -58,9 +58,9 @@ std::shared_ptr<Object> Player::getObject() const
     return _object.lock();
 }
 
-input_device_t* Player::getInputDevice()
+const Ego::Input::InputDevice& Player::getInputDevice() const
 {
-    return _pdevice;
+    return _inputDevice;
 }
 
 Ego::QuestLog& Player::getQuestLog()
@@ -70,20 +70,9 @@ Ego::QuestLog& Player::getQuestLog()
 
 void Player::updateLatches()
 {
-    // is the device a local device or an internet device?
-    input_device_t *pdevice = getInputDevice();
-    if (nullptr == pdevice) {
-        return;
-    }
-
     //Ensure this player is controlling a valid object
     std::shared_ptr<Object> object = getObject();
     if(!object || object->isTerminated()) {
-        return;
-    }
-
-    //No need to continue if device is not enabled
-    if ( !input_device_t::is_enabled(pdevice) ) {
         return;
     }
 
@@ -108,13 +97,13 @@ void Player::updateLatches()
     float fsin = std::sin(pcam->getOrientation().facing_z);
     float fcos = std::cos(pcam->getOrientation().facing_z);
 
-    float scale;
-
-    switch(pdevice->device_type)
+    if(fast_camera_turn || !getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::CAMERA_CONTROL))
     {
-        // Mouse routines
-        case INPUT_DEVICE_MOUSE:
-            if (fast_camera_turn || !input_device_t::control_active(pdevice,  CONTROL_CAMERA))  // Don't allow movement in camera control mode
+
+        switch(getInputDevice().getDeviceType())
+        {
+            // Mouse routines
+            case Ego::Input::InputDevice::InputDeviceType::MOUSE:
             {
                 // Get the distance the mouse was moved.
                 float dist = InputSystem::get().mouse.getOffset().length();
@@ -134,34 +123,44 @@ void Player::updateLatches()
                     joy_pos[XX] = InputSystem::get().mouse.getOffset().x() * scale;
                     joy_pos[YY] = InputSystem::get().mouse.getOffset().y() * scale;
 
-                    //if ( fast_camera_turn && !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
-
+                    //Rotate movement input from body frame to earth frame
                     movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
                     movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
                 }
             }
-        break;
+            break;
 
-        // Keyboard routines
-        case INPUT_DEVICE_KEYBOARD:
-            if ( fast_camera_turn || !input_device_t::control_active( pdevice, CONTROL_CAMERA ) )
+            // Keyboard routines
+            case Ego::Input::InputDevice::InputDeviceType::KEYBOARD:
             {
-                if ( input_device_t::control_active( pdevice,  CONTROL_RIGHT ) )   joy_pos[XX]++;
-                if ( input_device_t::control_active( pdevice,  CONTROL_LEFT ) )    joy_pos[XX]--;
-                if ( input_device_t::control_active( pdevice,  CONTROL_DOWN ) )    joy_pos[YY]++;
-                if ( input_device_t::control_active( pdevice,  CONTROL_UP ) )      joy_pos[YY]--;
+                if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_RIGHT)) {
+                    joy_pos[XX]++;
+                }   
+                if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_LEFT)) {
+                    joy_pos[XX]--;
+                }   
+                if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_DOWN)) {
+                    joy_pos[YY]++;
+                }   
+                if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::MOVE_UP)) {
+                    joy_pos[YY]--;
+                }   
 
-                if ( fast_camera_turn )  joy_pos[XX] = 0;
+                if (fast_camera_turn) {
+                    joy_pos[XX] = 0;
+                }
 
+                //Rotate movement input from body frame to earth frame
                 movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
                 movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
             }
-        break;
+            break;
 
-        // Joystick routines
-        default:
-            if (IS_VALID_JOYSTICK(pdevice->device_type))
+            // Joystick routines
+            case Ego::Input::InputDevice::InputDeviceType::JOYSTICK:
             {
+                //TODO: Not implemented yet
+                /*
                 //Figure out which joystick we are using
                 joystick_data_t *joystick;
                 joystick = InputSystem::get().joysticks[pdevice->device_type - MAX_JOYSTICK].get();
@@ -183,14 +182,14 @@ void Player::updateLatches()
                     movementInput.x() = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
                     movementInput.y() = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
                 }
+                */
             }
-            else
-            {
-                // unknown device type.
-                pdevice = nullptr;
-                return;
-            }
-        break;
+            break;
+
+            default:
+                //unknown device type.
+            return;
+        }
     }
 
     // Update movement (if any)
@@ -200,21 +199,20 @@ void Player::updateLatches()
     // Read control buttons
     if (!_inventoryMode)
     {
-        if ( input_device_t::control_active( pdevice, CONTROL_JUMP ) ) 
+        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::JUMP)) 
             sum.b[LATCHBUTTON_JUMP] = true;
-        if ( input_device_t::control_active( pdevice, CONTROL_LEFT_USE ) )
+        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT))
             sum.b[LATCHBUTTON_LEFT] = true;
-        if ( input_device_t::control_active( pdevice, CONTROL_LEFT_GET ) )
+        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT))
             sum.b[LATCHBUTTON_ALTLEFT] = true;
-        if ( input_device_t::control_active( pdevice, CONTROL_RIGHT_USE ) )
+        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_RIGHT))
             sum.b[LATCHBUTTON_RIGHT] = true;
-        if ( input_device_t::control_active( pdevice, CONTROL_RIGHT_GET ) )
+        if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_RIGHT))
             sum.b[LATCHBUTTON_ALTRIGHT] = true;
 
         // Now update movement and input
-        input_device_t::add_latch(pdevice, sum.input);
-
-        _localLatch.input = pdevice->latch.input;
+        _localLatch.x = sum.x;
+        _localLatch.y = sum.y;
         _localLatch.b = sum.b;
     }
 
@@ -223,8 +221,8 @@ void Player::updateLatches()
     {
         int new_selected = _inventorySlot;
 
-        //dirty hack here... mouse seems to be inverted in inventory mode?
-        if (pdevice->device_type == INPUT_DEVICE_MOUSE)
+        //ZF> dirty hack here... mouse seems to be inverted in inventory mode?
+        if (getInputDevice().getDeviceType() == Ego::Input::InputDevice::InputDeviceType::MOUSE)
         {
             joy_pos[XX] = -joy_pos[XX];
             joy_pos[YY] = -joy_pos[YY];
@@ -255,7 +253,7 @@ void Player::updateLatches()
         if ( object->inst.actionState.action_ready && 0 == object->reload_timer )
         {
             //handle LEFT hand control
-            if ( input_device_t::control_active( pdevice, CONTROL_LEFT_USE ) || input_device_t::control_active(pdevice, CONTROL_LEFT_GET) )
+            if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_LEFT) || getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_LEFT))
             {
                 //put it away and swap with any existing item
                 Inventory::swap_item(object->getObjRef(), _inventorySlot, SLOT_LEFT, false);
@@ -266,7 +264,7 @@ void Player::updateLatches()
             }
 
             //handle RIGHT hand control
-            if ( input_device_t::control_active( pdevice, CONTROL_RIGHT_USE) || input_device_t::control_active( pdevice, CONTROL_RIGHT_GET) )
+            if (getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::USE_RIGHT) || getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::GRAB_RIGHT))
             {
                 // put it away and swap with any existing item
                 Inventory::swap_item(object->getObjRef(), _inventorySlot, SLOT_RIGHT, false);
@@ -282,7 +280,7 @@ void Player::updateLatches()
     }
 
     //enable inventory mode?
-    if ( update_wld > _inventoryCooldown && input_device_t::control_active( pdevice, CONTROL_INVENTORY ) )
+    if ( update_wld > _inventoryCooldown && getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::INVENTORY) )
     {
         for(uint8_t ipla = 0; ipla < _currentModule->getPlayerList().size(); ++ipla) {
             if(_currentModule->getPlayer(ipla).get() == this) {
@@ -294,7 +292,7 @@ void Player::updateLatches()
     }
 
     //Enter or exit stealth mode?
-    if(input_device_t::control_active(pdevice, CONTROL_SNEAK) && update_wld > _inventoryCooldown) {
+    if(getInputDevice().isButtonPressed(Ego::Input::InputDevice::InputButton::STEALTH) && update_wld > _inventoryCooldown) {
         if(!object->isStealthed()) {
             object->activateStealth();
         }

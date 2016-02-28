@@ -1,14 +1,18 @@
 #include "game/GameStates/InputOptionsScreen.hpp"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Label.hpp"
-#include "egolib/InputControl/InputDevice.hpp"
 
 namespace Ego
 {
 namespace GameStates
 {
 
-InputOptionsScreen::InputOptionsScreen()
+InputOptionsScreen::InputOptionsScreen() :
+    _maxLabelWidth(0),
+    _bindingButtonPosX(0),
+    _bindingButtonPosY(0),
+    _activeButton(nullptr),
+    _activeBinding(Ego::Input::InputDevice::InputButton::COUNT)
 {
     //const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
@@ -18,14 +22,28 @@ InputOptionsScreen::InputOptionsScreen()
     mainLabel->setPosition(Point2f(20, 20));
     addComponent(mainLabel);
 
-    int xPos = 20;
-    int yPos = mainLabel->getY() + mainLabel->getHeight() + 20;
+    _bindingButtonPosX = 20;
+    _bindingButtonPosY = mainLabel->getY() + mainLabel->getHeight() + 20;
 
-    Ego::Input::InputDevice &inputDevice = Ego::Input::InputDevice::DeviceList[0];
-    inputDevice.setInputMapping(Ego::Input::InputDevice::InputButton::MOVE_LEFT, SDL_SCANCODE_LEFT);
+    addInputOption("Move Up: ", Ego::Input::InputDevice::InputButton::MOVE_UP);
+    addInputOption("Move Right: ", Ego::Input::InputDevice::InputButton::MOVE_RIGHT);
+    addInputOption("Move Down: ", Ego::Input::InputDevice::InputButton::MOVE_DOWN);
+    addInputOption("Move Left: ", Ego::Input::InputDevice::InputButton::MOVE_LEFT);
+    addInputOption("Jump: ", Ego::Input::InputDevice::InputButton::JUMP);
+    addInputOption("Stealth: ", Ego::Input::InputDevice::InputButton::STEALTH);
 
-    addInputOption(xPos, yPos, "Move Left: ");
+    addInputOption("Use Left: ", Ego::Input::InputDevice::InputButton::USE_LEFT);
+    addInputOption("Grab Left: ", Ego::Input::InputDevice::InputButton::GRAB_LEFT);
+    addInputOption("Pack Left: ", Ego::Input::InputDevice::InputButton::PACK_LEFT);
 
+    addInputOption("Use Right: ", Ego::Input::InputDevice::InputButton::USE_RIGHT);
+    addInputOption("Grab Right: ", Ego::Input::InputDevice::InputButton::GRAB_RIGHT);
+    addInputOption("Pack Right: ", Ego::Input::InputDevice::InputButton::PACK_RIGHT);
+
+    addInputOption("Camera Zoom In: ", Ego::Input::InputDevice::InputButton::CAMERA_ZOOM_IN);
+    addInputOption("Camera Zoom Out: ", Ego::Input::InputDevice::InputButton::CAMERA_ZOOM_OUT);
+    addInputOption("Camera Rotate Left: ", Ego::Input::InputDevice::InputButton::CAMERA_LEFT);
+    addInputOption("Camera Rotate Right: ", Ego::Input::InputDevice::InputButton::CAMERA_RIGHT);
 
     //Shift all buttons to the right of the widest label
     for(std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator()) {
@@ -64,23 +82,62 @@ void InputOptionsScreen::drawContainer()
 
 }
 
-void InputOptionsScreen::addInputOption(const int xPos, const int yPos, const std::string& label)
+bool InputOptionsScreen::notifyKeyDown(const int keyCode)
+{
+    if(_activeButton == nullptr) {
+        return ComponentContainer::notifyKeyDown(keyCode);
+    }
+    else {
+        getActiveInputDevice().setInputMapping(_activeBinding, keyCode);
+        _activeButton->setText(getActiveInputDevice().getMappedInputName(_activeBinding));
+        _activeBinding = Ego::Input::InputDevice::InputButton::COUNT;
+        _activeButton->setEnabled(true);
+        _activeButton = nullptr;
+        return true;
+    }
+}
+
+
+void InputOptionsScreen::addInputOption(const std::string &label, const Ego::Input::InputDevice::InputButton binding)
 {
     //Label
     auto name = std::make_shared<Ego::GUI::Label>(label);
-    name->setPosition(xPos, yPos);
+    name->setPosition(_bindingButtonPosX, _bindingButtonPosY);
     addComponent(name);
     _maxLabelWidth = std::max(_maxLabelWidth, name->getWidth());
 
     //Button
-    auto inputOption = std::make_shared<Ego::GUI::Button>("N/A");
-    inputOption->setPosition(xPos + 50, yPos);
+    std::shared_ptr<Button> inputOption = std::make_shared<Button>(getActiveInputDevice().getMappedInputName(binding));
+    inputOption->setPosition(_bindingButtonPosX + 50, _bindingButtonPosY);
     inputOption->setSize(200, 25);
     inputOption->setOnClickFunction(
-    []{
-    	//TODO
+    [this, inputOption]{
+    	inputOption->setText("[Press Key]");
+
+        //Unselect last button if applicable
+        if(_activeButton != nullptr) {
+            _activeButton->setText(getActiveInputDevice().getMappedInputName(_activeBinding));
+            _activeButton->setEnabled(true);
+        }
+
+        //Make this the new selected button
+        _activeButton = inputOption;
+        _activeBinding = Ego::Input::InputDevice::InputButton::MOVE_LEFT;
+        inputOption->setEnabled(false);
     });
     addComponent(inputOption);
+
+    //Move down to next position and wrap around if out of screen space
+    _bindingButtonPosY += name->getHeight();
+    if(_bindingButtonPosY >= _gameEngine->getUIManager()->getScreenHeight()) {
+        _bindingButtonPosY = 50;
+        _bindingButtonPosX += _gameEngine->getUIManager()->getScreenWidth() / 2;
+    }
+}
+
+Ego::Input::InputDevice& InputOptionsScreen::getActiveInputDevice() const
+{
+    return Ego::Input::InputDevice::DeviceList[0];
 }
 
 } //GameStates

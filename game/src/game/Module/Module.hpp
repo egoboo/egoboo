@@ -40,6 +40,7 @@ class ModuleProfile;
 class Passage;
 class Team;
 namespace Ego { class Player; }
+namespace Ego { namespace Input { class InputDevice; } }
 
 /// The actual in-game state of the damage tiles
 struct damagetile_instance_t
@@ -229,7 +230,7 @@ public:
 
     const std::vector<std::shared_ptr<Ego::Player>>& getPlayerList() const;
 
-    bool addPlayer(const std::shared_ptr<Object>& object, input_device_t *pdevice);
+    bool addPlayer(const std::shared_ptr<Object>& object, const Ego::Input::InputDevice &device);
 
     /**
     * @brief

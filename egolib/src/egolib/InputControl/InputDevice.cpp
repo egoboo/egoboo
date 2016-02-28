@@ -15,9 +15,10 @@ std::array<InputDevice, MAX_PLAYER> InputDevice::DeviceList =
 
 InputDevice::InputDevice(const std::string &name) :
     _name(name),
-    _keyMap()
+    _keyMap(),
+    _type(InputDeviceType::UNKNOWN)
 {
-    _keyMap.fill(SDL_SCANCODE_UNKNOWN);
+    _keyMap.fill(SDLK_UNKNOWN);
 }
 
 bool InputDevice::isButtonPressed(const InputButton button) const
@@ -26,12 +27,12 @@ bool InputDevice::isButtonPressed(const InputButton button) const
         return false;
     }
 
-    const SDL_Scancode key = _keyMap[static_cast<size_t>(button)];
+    const SDL_Keycode key = _keyMap[static_cast<size_t>(button)];
 
     return SDL_GetKeyboardState(nullptr)[key];
 }
 
-void InputDevice::setInputMapping(const InputButton button, const SDL_Scancode key)
+void InputDevice::setInputMapping(const InputButton button, const SDL_Keycode key)
 {
     if(button != InputButton::COUNT) {
         _keyMap[static_cast<size_t>(button)] = key;
@@ -40,13 +41,18 @@ void InputDevice::setInputMapping(const InputButton button, const SDL_Scancode k
 
 std::string InputDevice::getMappedInputName(const InputButton button) const
 {
-    SDL_Scancode key = SDL_SCANCODE_UNKNOWN;
+    SDL_Keycode key = SDLK_UNKNOWN;
 
     if(button != InputButton::COUNT) {
         key = _keyMap[static_cast<size_t>(button)];
     }
 
-    return SDL_GetKeyName(SDL_GetKeyFromScancode(key));
+    return SDL_GetKeyName(key);
+}
+
+InputDevice::InputDeviceType InputDevice::getDeviceType() const
+{
+    return _type;
 }
 
 } //Input

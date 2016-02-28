@@ -312,9 +312,6 @@ void CameraSystem::autoSetTargets()
     // put all the valid players into camera 0
     for(const std::shared_ptr<Ego::Player> &player : _currentModule->getPlayerList()) {
 
-        // only look at local players
-        if ( player->getInputDevice() == nullptr ) continue;
-
         // wrap around if there are less cameras than players
         if(cameraIndex >= _cameraList.size()) {
             cameraIndex = 0;

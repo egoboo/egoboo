@@ -24,7 +24,7 @@
 
 #include "IdLib/IdLib.hpp"
 #include "egolib/IDSZ.hpp"
-#include "egolib/Input/input_device.h"
+#include "egolib/InputControl/InputDevice.hpp"
 #include "game/Logic/QuestLog.hpp"
 
 //Forward declarations
@@ -37,7 +37,7 @@ namespace Ego
 class Player
 {
 public:
-    Player(const std::shared_ptr<Object>& object, input_device_t *pdevice);
+    Player(const std::shared_ptr<Object>& object, const Ego::Input::InputDevice &device);
 
     /**
     * @brief
@@ -51,7 +51,7 @@ public:
     * @return
     *   the input device controlling the movement of this Player
     **/
-    input_device_t* getInputDevice();
+    const Ego::Input::InputDevice& getInputDevice() const;
 
     /**
     * @return
@@ -150,7 +150,7 @@ private:
     Ego::QuestLog _questLog;          ///< lists all the character's quests
 
     /// the buffered input from the local input devices
-    input_device_t* _pdevice;
+    const Ego::Input::InputDevice& _inputDevice;
 
     /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t _localLatch;

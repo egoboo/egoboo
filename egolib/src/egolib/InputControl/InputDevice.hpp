@@ -36,21 +36,35 @@ public:
 
         CAMERA_LEFT,    //< Rotate camera counter-clockwise
         CAMERA_RIGHT,   //< Rotate camera clockwise
-        CAMERA_IN,      //< Zoom camera in
-        CAMERA_OUT,     //< Zoom camera out
+        CAMERA_ZOOM_IN, //< Zoom camera in
+        CAMERA_ZOOM_OUT,//< Zoom camera out
+
+        CAMERA_CONTROL, //< TODO: replace other camera stuff?
+        INVENTORY,      //< Open inventory
 
         COUNT           //< Always last
     };
 
+    enum class InputDeviceType
+    {
+        KEYBOARD,
+        MOUSE,
+        JOYSTICK,
+        UNKNOWN
+    };
+
     bool isButtonPressed(const InputButton button) const;
 
-    void setInputMapping(const InputButton button, const SDL_Scancode key);
+    void setInputMapping(const InputButton button, const SDL_Keycode key);
 
     std::string getMappedInputName(const InputButton button) const;
 
+    InputDeviceType getDeviceType() const;
+
 private:
+    InputDeviceType _type;
     std::string _name;
-    std::array<SDL_Scancode, static_cast<size_t>(InputButton::COUNT)> _keyMap;
+    std::array<SDL_Keycode, static_cast<size_t>(InputButton::COUNT)> _keyMap;
 };
 
 } //Input
