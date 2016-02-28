@@ -47,8 +47,6 @@ ObjectProfile::ObjectProfile() :
 
     _texturesLoaded(),
     _iconsLoaded(),
-    _texturesLoadedHD(),
-    _iconsLoadedHD(),
 
     _messageList(),
     _soundMap(),
@@ -239,8 +237,6 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     //Clear texture references
     _texturesLoaded.clear();
     _iconsLoaded.clear();
-    _texturesLoadedHD.clear();
-    _iconsLoadedHD.clear();
 
     // Load the skins and icons
     for (size_t cnt = 0; cnt < 30; cnt++)
@@ -252,22 +248,11 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
             _texturesLoaded[cnt] = Ego::DeferredTexture(skinPath);
         }
 
-        //Attempt to load HD skin
-        if(ego_texture_exists_vfs(skinPath + "_HD")) {
-            _texturesLoadedHD[cnt] = Ego::DeferredTexture(skinPath + "_HD");
-            Log::get().debug("Loaded HD texture: %s_HD\n", skinPath.c_str());
-        }
-
         // do the icon
         const std::string iconPath = folderPath + "/icon" + std::to_string(cnt);
 	    if(ego_texture_exists_vfs(iconPath))
         {
             _iconsLoaded[cnt] = Ego::DeferredTexture(iconPath);
-        }
-
-        //Attempt to load HD icon
-        if(ego_texture_exists_vfs(iconPath + "_HD")) {
-            _iconsLoadedHD[cnt] = Ego::DeferredTexture(iconPath + "_HD");
         }
     }
 
@@ -374,36 +359,22 @@ const IDSZ2& ObjectProfile::getIDSZ(size_t type) const
 
 const Ego::DeferredTexture& ObjectProfile::getSkin(size_t index)
 {
-    //Prefer to use HD texture if enabled and available
-    if(egoboo_config_t::get().graphic_hd_textures_enable.getValue()) {
-        const auto& result = _texturesLoadedHD.find(index);
-        if(result != _texturesLoadedHD.end()) {            
-            return result->second;
-        }
-    }
-
-    if(_texturesLoaded.find(index) == _texturesLoaded.end()) {
+    const auto& result = _texturesLoaded.find(index);
+    if(result == _texturesLoaded.end()) {
         return _texturesLoaded[0];
     }
 
-    return _texturesLoaded[index];
+    return result->second;
 }
 
 const Ego::DeferredTexture& ObjectProfile::getIcon(size_t index)
 {
-    //Prefer to use HD texture if enabled and available
-    if(egoboo_config_t::get().graphic_hd_textures_enable.getValue()) {
-        const auto& result = _iconsLoadedHD.find(index);
-        if(result != _iconsLoadedHD.end()) {            
-            return result->second;
-        }
-    }
-
-    if(_iconsLoaded.find(index) == _iconsLoaded.end()) {
+    const auto& result = _iconsLoaded.find(index);
+    if(result == _iconsLoaded.end()) {
         return _iconsLoaded[0];
     }
 
-    return _iconsLoaded[index];
+    return result->second;
 }
 
 PIP_REF ObjectProfile::getParticleProfile(const LocalParticleProfileRef& lppref) const

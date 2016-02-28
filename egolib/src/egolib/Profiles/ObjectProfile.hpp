@@ -639,8 +639,6 @@ private:
     // the profile skins
     std::unordered_map<size_t, Ego::DeferredTexture> _texturesLoaded;
     std::unordered_map<size_t, Ego::DeferredTexture> _iconsLoaded;
-    std::unordered_map<size_t, Ego::DeferredTexture> _texturesLoadedHD;
-    std::unordered_map<size_t, Ego::DeferredTexture> _iconsLoadedHD;
 
     // the profile message info
     std::vector<std::string> _messageList;   ///< Dynamic array of messages
