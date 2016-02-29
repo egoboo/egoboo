@@ -27,9 +27,9 @@ bool InputDevice::isButtonPressed(const InputButton button) const
         return false;
     }
 
-    const SDL_Keycode key = _keyMap[static_cast<size_t>(button)];
+    const SDL_Scancode code = SDL_GetScancodeFromKey(_keyMap[static_cast<size_t>(button)]);
 
-    return SDL_GetKeyboardState(nullptr)[key];
+    return SDL_GetKeyboardState(nullptr)[code];
 }
 
 void InputDevice::setInputMapping(const InputButton button, const SDL_Keycode key)
