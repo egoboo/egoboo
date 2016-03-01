@@ -247,9 +247,6 @@ void DebugModuleLoadingState::loadModuleData()
         singleThreadRedrawHack("Calculating some math...");
         BillboardSystem::get().reset();
 
-        //initialize math objects
-        make_turntosin();
-
         // Linking system
 		Log::get().info("Initializing module linking... ");
         if (link_build_vfs( "mp_data/link.txt", LinkList)) Log::get().message("Success!\n");

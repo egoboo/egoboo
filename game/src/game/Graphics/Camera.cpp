@@ -154,8 +154,8 @@ void Camera::updatePosition()
 #endif
 
     // Update the camera position.
-    TURN_T turnsin = TO_TURN(_ori.facing_z);
-    Vector3f pos_new = _center + Vector3f(_zoom * turntosin[turnsin], _zoom * turntocos[turnsin], _zGoto);
+    TLT::Index index = TLT::get().fromFacing(_ori.facing_z);
+    Vector3f pos_new = _center + Vector3f(_zoom * TLT::get().sin(index), _zoom * TLT::get().cos(index), _zGoto);
 
     if((_position-pos_new).length() < Info<float>::Grid::Size()*10.0f) {
         // Make the camera motion smooth using a low-pass filter
@@ -724,7 +724,7 @@ void Camera::updateEffects()
     //mat_Multiply( _mView.v, mat_Translate( tmp1.v, pos[kX], -pos[kY], pos[kZ] ), _mViewSave.v );  // xgg
     if ( local_swingamp > 0.001f )
     {
-        _roll = turntosin[_swing] * local_swingamp;
+        _roll = TLT::get().sin(_swing) * local_swingamp;
         //mat_Multiply( _mView.v, mat_RotateY( tmp1.v, roll ), mat_Copy( tmp2.v, _mView.v ) );
     }
     // If the camera stops swinging for some reason, slowly return to _original position

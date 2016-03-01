@@ -97,9 +97,6 @@ signed SFP8_TO_SINT(const T& val)
 /// Some custom Egoboo unit within the bounds of \f$[0,2^16-1]\f$.
 typedef uint16_t FACING_T;
 
-/// the type for the 14-bit value used to store angles
-typedef FACING_T TURN_T;
-
 //--------------------------------------------------------------------------------------------
 // 16.16 fixed point types
 

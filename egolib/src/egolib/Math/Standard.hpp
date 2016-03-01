@@ -361,8 +361,11 @@ bool mat_getCamForward(const Matrix4f4f& mat, Vector3f& forward);
 
 Vector3f mat_getTranslate(const Matrix4f4f& mat);
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& mat, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate);
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& mat, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate);
+#include "egolib/TrigonometricTable.hpp"
+
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& mat, const Vector3f& scale, const TLT::Index& turn_z, const TLT::Index& turn_x, const TLT::Index& turn_y, const Vector3f& translate);
+/// @details Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& mat, const Vector3f& scale, const TLT::Index& turn_z, const TLT::Index& turn_x, const TLT::Index& turn_y, const Vector3f& translate);
 
 
 /**

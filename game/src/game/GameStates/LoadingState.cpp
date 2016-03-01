@@ -166,9 +166,6 @@ void LoadingState::loadModuleData()
     setProgressText("Calculating some math...", 10);
     BillboardSystem::get().reset();
 
-    //initialize math objects
-    make_turntosin();
-
     // Linking system
     setProgressText("Initializing module linking... ", 20);
     if (!link_build_vfs( "mp_data/link.txt", LinkList)) Log::get().warn("Failed to initialize module linking\n");

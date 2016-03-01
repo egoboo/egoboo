@@ -2841,9 +2841,9 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             }
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
-            TURN_T turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
-            pthrown->vel.x() += turntocos[turn] * velocity;
-            pthrown->vel.y() += turntosin[turn] * velocity;
+            TLT::Index turn = TLT::get().fromFacing( pchr->ori.facing_z + ATK_BEHIND );
+            pthrown->vel.x() += TLT::get().cos(turn) * velocity;
+            pthrown->vel.y() += TLT::get().sin(turn) * velocity;
             pthrown->vel.z() = Object::DROPZVEL;
 
             //Was that the last one?

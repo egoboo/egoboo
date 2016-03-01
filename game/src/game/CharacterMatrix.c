@@ -338,7 +338,9 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t& mc_tmp )
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
             pchr->inst.matrix,
             mc_tmp.self_scale,
-            TO_TURN( mc_tmp.rotate[kZ] ), TO_TURN( mc_tmp.rotate[kX] ), TO_TURN( mc_tmp.rotate[kY] ),
+            TLT::get().fromFacing(mc_tmp.rotate[kZ]),
+            TLT::get().fromFacing(mc_tmp.rotate[kX]),
+            TLT::get().fromFacing(mc_tmp.rotate[kY]),
             mc_tmp.pos);
     }
     else
@@ -346,7 +348,9 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t& mc_tmp )
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
             pchr->inst.matrix,
             mc_tmp.self_scale,
-            TO_TURN( mc_tmp.rotate[kZ] ), TO_TURN( mc_tmp.rotate[kX] ), TO_TURN( mc_tmp.rotate[kY] ),
+            TLT::get().fromFacing(mc_tmp.rotate[kZ]),
+            TLT::get().fromFacing(mc_tmp.rotate[kX]),
+            TLT::get().fromFacing(mc_tmp.rotate[kY]),
             mc_tmp.pos);
     }
 
@@ -840,9 +844,9 @@ void make_one_character_matrix( const ObjectRef ichr )
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
                 pinst.matrix,
 				Vector3f(pchr->fat, pchr->fat, pchr->fat),
-                TO_TURN( pchr->ori.facing_z ),
-                TO_TURN( pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET),
-                TO_TURN( pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET),
+                TLT::get().fromFacing( pchr->ori.facing_z ),
+                TLT::get().fromFacing( pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET),
+                TLT::get().fromFacing( pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET),
                 pchr->getPosition());
         }
         else
@@ -850,9 +854,9 @@ void make_one_character_matrix( const ObjectRef ichr )
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
                 pinst.matrix,
 				Vector3f(pchr->fat, pchr->fat, pchr->fat),
-                TO_TURN( pchr->ori.facing_z ),
-                TO_TURN( pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET),
-                TO_TURN( pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET),
+                TLT::get().fromFacing( pchr->ori.facing_z ),
+                TLT::get().fromFacing( pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET),
+                TLT::get().fromFacing( pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET),
                 pchr->getPosition());
         }
 

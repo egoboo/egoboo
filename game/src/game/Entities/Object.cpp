@@ -2830,8 +2830,6 @@ void Object::dropKeys()
     //check each inventory item
     for(const std::shared_ptr<Object> &pkey : getInventory().iterate())
     {
-        TURN_T turn;
-
         const IDSZ2& idsz_parent = pkey->getProfile()->getIDSZ(IDSZ_PARENT);
         const IDSZ2& idsz_type   = pkey->getProfile()->getIDSZ(IDSZ_TYPE);
 
@@ -2840,7 +2838,7 @@ void Object::dropKeys()
             ( idsz_type.toUint32() < testa.toUint32() && idsz_type.toUint32() > testz.toUint32() ) ) continue;
 
         FACING_T direction = Random::next(std::numeric_limits<FACING_T>::max());
-        turn      = TO_TURN(direction);
+        TLT::Index turn = TLT::get().fromFacing(direction);
 
         //remove it from inventory
         getInventory().removeItem(pkey, true);
@@ -2858,8 +2856,8 @@ void Object::dropKeys()
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
-        pkey->vel[kX]                  += turntocos[ turn ] * DROPXYVEL;
-        pkey->vel[kY]                  += turntosin[ turn ] * DROPXYVEL;
+        pkey->vel[kX]                  += TLT::get().cos(turn) * DROPXYVEL;
+        pkey->vel[kY]                  += TLT::get().sin(turn) * DROPXYVEL;
         pkey->vel[kZ]                  += DROPZVEL;
 
         // do some more complicated things
@@ -2913,9 +2911,9 @@ void Object::dropAllItems()
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity
-        TURN_T turn = TO_TURN(direction);
-        pitem->vel.x() += turntocos[turn] * DROPXYVEL;
-        pitem->vel.y() += turntosin[turn] * DROPXYVEL;
+        TLT::Index turn = TLT::get().fromFacing(direction);
+        pitem->vel.x() += TLT::get().cos(turn) * DROPXYVEL;
+        pitem->vel.y() += TLT::get().sin(turn) * DROPXYVEL;
         pitem->vel.z() += DROPZVEL;
 
         // do some more complicated things

@@ -136,9 +136,6 @@ void MapEditorState::loadModuleData(std::shared_ptr<ModuleProfile> module)
     //Make sure any old data is cleared first
     game_quit_module();
 
-    //initialize math objects
-    make_turntosin();
-
     // Reset all loaded "profiles" in the "profile system".
     ProfileSystem::get().reset();
 
