@@ -5,7 +5,7 @@ release: set_release_flags all
 
 all: idlib egolib egoboo
 
-COMPILE_FLAGS := -D__USE_MINGW_ANSI_STDIO=1 -I../external/mingw/include/SDL2 -I../external/physfs-2.1.1 -std=c++11 -D_CONSOLE -static-libstdc++
+COMPILE_FLAGS := -D__USE_MINGW_ANSI_STDIO=1 -I../external/mingw/include/SDL2 -I../external/physfs-2.1.1 -std=c++14 -D_CONSOLE -static-libstdc++
 COMPILE_WARNINGS := -Wall -Wextra -Werror -Wfatal-errors
 COMPILE_DEBUG_FLAGS := -fdiagnostics-color=always
 COMPILE_OPTIMIZE := -O0
