@@ -23,6 +23,8 @@
 
 #include "egolib/FileFormats/map_file-v3.h"
 
+#include "egolib/_math.h"
+#include "egolib/Math/_Include.hpp"
 #include "egolib/Log/_Include.hpp"
 #include "egolib/strutil.h"
 

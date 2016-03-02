@@ -22,6 +22,7 @@
 /// @details This is the remainder of non-inlined math functions that deal with initialization
 
 #include "egolib/_math.h"
+#include "egolib/TrigonometricTable.hpp"
 #include "egolib/Math/Random.hpp"
 
 

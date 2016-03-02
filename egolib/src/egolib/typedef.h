@@ -93,9 +93,6 @@ signed SFP8_TO_SINT(const T& val)
 #   define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )               ///< this  will fail if V1 has bits in the upper 8 bits
 
 //--------------------------------------------------------------------------------------------
-/// the type for the 16-bit value used to store angles
-/// Some custom Egoboo unit within the bounds of \f$[0,2^16-1]\f$.
-typedef uint16_t FACING_T;
 
 //--------------------------------------------------------------------------------------------
 // 16.16 fixed point types
