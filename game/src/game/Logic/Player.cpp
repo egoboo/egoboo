@@ -105,9 +105,9 @@ void Player::updateLatches()
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera
-    TURN_T turnsin = TO_TURN( pcam->getOrientation().facing_z );
-    float fsin    = turntosin[turnsin];
-    float fcos    = turntocos[turnsin];
+    TLT::Index turnsin = TLT::get().fromFacing( pcam->getOrientation().facing_z );
+    float fsin    = TLT::get().sin(turnsin);
+    float fcos    = TLT::get().cos(turnsin);
 
     float scale;
 

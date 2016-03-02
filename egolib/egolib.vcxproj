@@ -511,6 +511,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\TrigonometricTable.hpp" />
     <ClInclude Include="src\egolib\Math\Ray.hpp" />
     <ClInclude Include="src\egolib\Math\ColourSpace.hpp" />
     <ClInclude Include="src\egolib\Graphics\IndexBuffer.hpp" />

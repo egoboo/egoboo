@@ -1393,8 +1393,6 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
 
             if (vertices != 0)
             {
-                TURN_T   turn;
-
                 auto vertex_occupied = std::make_unique<ParticleRef[]>(vertices);
                 auto vertex_distance = std::make_unique<float[]>(vertices);
 
@@ -1405,9 +1403,9 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                 // clear the occupied list
                 z = pprt->getPosZ() - pchr->getPosZ();
                 facing = pprt->facing - pchr->ori.facing_z;
-                turn = TO_TURN(facing);
-                fsin = turntosin[turn];
-                fcos = turntocos[turn];
+                TLT::Index turn = TLT::get().fromFacing(facing);
+                fsin = TLT::get().sin(turn);
+                fcos = TLT::get().cos(turn);
                 x = dist * fcos;
                 y = dist * fsin;
 

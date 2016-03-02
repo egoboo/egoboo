@@ -26,26 +26,6 @@
 
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
-float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine
-
-//--------------------------------------------------------------------------------------------
-void make_turntosin( void )
-{
-    /// @author ZZ
-    /// @details This function makes the lookup table for chrturn...
-
-    int cnt;
-    const float ftmp = Ego::Math::twoPi<float>() / ( float )TRIG_TABLE_SIZE;
-
-    for ( cnt = 0; cnt < TRIG_TABLE_SIZE; cnt++ )
-    {
-        turntosin[cnt] = std::sin( cnt * ftmp );
-        turntocos[cnt] = std::cos( cnt * ftmp );
-    }
-}
-
 
 // conversion functions
     FACING_T vec_to_facing( const float dx, const float dy );
@@ -76,16 +56,16 @@ FACING_T vec_to_facing( const float dx, const float dy )
 //--------------------------------------------------------------------------------------------
 void facing_to_vec( const FACING_T facing, float * dx, float * dy )
 {
-    TURN_T turn = TO_TURN( facing - 0x8000 );
+    TLT::Index turn = TLT::get().fromFacing(facing - 0x8000);
 
     if ( NULL != dx )
     {
-        *dx = turntocos[turn];
+        *dx = TLT::get().cos(turn);
     }
 
     if ( NULL != dy )
     {
-        *dy = turntosin[turn];
+        *dy = TLT::get().sin(turn);
     }
 }
 

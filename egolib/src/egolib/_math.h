@@ -134,10 +134,6 @@ inline Ego::Math::Angle<Ego::Math::AngleUnit::Turns> FacingToTurns(FACING_T x) {
 //--------------------------------------------------------------------------------------------
 // the lookup tables for sine and cosine
 
-#define TRIG_TABLE_BITS   14
-#define TRIG_TABLE_SIZE   (1<<TRIG_TABLE_BITS)
-#define TRIG_TABLE_MASK   (TRIG_TABLE_SIZE-1)
-#define TRIG_TABLE_OFFSET (TRIG_TABLE_SIZE>>2)
 
 #if defined(__cplusplus)
 extern "C"
@@ -148,8 +144,6 @@ extern "C"
 ///         I think that we should use "face" or "facing" to mean the fill 16-bit value
 ///         and use "turn" to be the TRIG_TABLE_BITS-bit value
 
-    extern float turntosin[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to sine
-    extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to cosine
 
 /// pre defined directions
 static constexpr uint16_t FACE_WEST =  0x0000; ///< Character facings
@@ -163,10 +157,6 @@ static constexpr uint16_t ATK_RIGHT =  FACE_NORTH;
 static constexpr uint16_t ATK_BEHIND = FACE_EAST;
 static constexpr uint16_t ATK_LEFT =   FACE_SOUTH;
 
-inline TURN_T TO_TURN(const FACING_T &facing)
-{
-    return static_cast<TURN_T>( (static_cast<FACING_T>(facing) >> 2) & TRIG_TABLE_MASK);
-}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -195,10 +185,6 @@ inline TURN_T TO_TURN(const FACING_T &facing)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-// prototypes of other math functions
-
-    void make_turntosin( void );
 
 // conversion functions
     FACING_T vec_to_facing( const float dx, const float dy );

@@ -60,14 +60,14 @@ void validate<::Cube3f>(const char *file, int line, const ::Cube3f& object) {
 } // namespace Ego
 #endif
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate)
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vector3f& scale, const TLT::Index& turn_z, const TLT::Index& turn_x, const TLT::Index& turn_y, const Vector3f& translate)
 {
-    float cx = turntocos[turn_x & TRIG_TABLE_MASK];
-    float sx = turntosin[turn_x & TRIG_TABLE_MASK];
-    float cy = turntocos[turn_y & TRIG_TABLE_MASK];
-    float sy = turntosin[turn_y & TRIG_TABLE_MASK];
-    float cz = turntocos[turn_z & TRIG_TABLE_MASK];
-    float sz = turntosin[turn_z & TRIG_TABLE_MASK];
+    float cx = TLT::get().cos(turn_x);
+    float sx = TLT::get().sin(turn_x);
+    float cy = TLT::get().cos(turn_y);
+    float sy = TLT::get().sin(turn_y);
+    float cz = TLT::get().cos(turn_z);
+    float sz = TLT::get().sin(turn_z);
 
     DST(0,0) = scale[kX] * (cz * cy);
     DST(1,0) = scale[kX] * (cz * sy * sx + sz * cx);
@@ -90,16 +90,14 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vecto
     DST(3,3) = 1.0f;
 }
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& DST, const Vector3f& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const Vector3f& translate)
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& DST, const Vector3f& scale, const TLT::Index& turn_z, const TLT::Index& turn_x, const TLT::Index& turn_y, const Vector3f& translate)
 {
-    /// @details Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
-
-    float cx = turntocos[turn_x & TRIG_TABLE_MASK];
-    float sx = turntosin[turn_x & TRIG_TABLE_MASK];
-    float cy = turntocos[turn_y & TRIG_TABLE_MASK];
-    float sy = turntosin[turn_y & TRIG_TABLE_MASK];
-    float cz = turntocos[turn_z & TRIG_TABLE_MASK];
-    float sz = turntosin[turn_z & TRIG_TABLE_MASK];
+    float cx = TLT::get().cos(turn_x);
+    float sx = TLT::get().sin(turn_x);
+    float cy = TLT::get().cos(turn_y);
+    float sy = TLT::get().sin(turn_y);
+    float cz = TLT::get().cos(turn_z);
+    float sz = TLT::get().sin(turn_z);
 
     DST(0,0) = scale[kX] * (cz * cy - sz * sy * sx);
     DST(1,0) = scale[kX] * (sz * cy + cz * sy * sx);
