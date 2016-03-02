@@ -32,7 +32,7 @@ LocalTime::LocalTimeType LocalTime::convert(const LocalTime::SystemTimePoint& so
 
 LocalTime::LocalTimeType LocalTime::convert(const std::time_t& source) {
 	LocalTimeType target;
-#if defined(_MSC_VER)
+#if defined(ID_WINDOWS)
 	if (0 != localtime_s(&target, &source)) {
 		throw Id::EnvironmentErrorException(__FILE__, __LINE__, "Ego::Time", "localtime_s failed");
 	}
