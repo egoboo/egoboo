@@ -1,6 +1,7 @@
 #include "game/GameStates/InputOptionsScreen.hpp"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Label.hpp"
+#include "egolib/InputControl/ControlSettingsFile.hpp"
 
 namespace Ego
 {
@@ -61,8 +62,8 @@ InputOptionsScreen::InputOptionsScreen() :
     [this]{
         endState();
 
-        // save the setup file
-        setup_upload(&egoboo_config_t::get());
+        // save the new input settings
+        input_settings_save_vfs("/controls.txt");
     });
     addComponent(backButton);
 }
@@ -111,7 +112,7 @@ void InputOptionsScreen::addInputOption(const std::string &label, const Ego::Inp
     inputOption->setPosition(_bindingButtonPosX + 50, _bindingButtonPosY);
     inputOption->setSize(200, 25);
     inputOption->setOnClickFunction(
-    [this, inputOption]{
+    [this, inputOption, binding]{
     	inputOption->setText("[Press Key]");
 
         //Unselect last button if applicable
@@ -122,7 +123,7 @@ void InputOptionsScreen::addInputOption(const std::string &label, const Ego::Inp
 
         //Make this the new selected button
         _activeButton = inputOption;
-        _activeBinding = Ego::Input::InputDevice::InputButton::MOVE_LEFT;
+        _activeBinding = binding;
         inputOption->setEnabled(false);
     });
     addComponent(inputOption);

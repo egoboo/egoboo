@@ -26,6 +26,7 @@
 #include "egolib/Events/MouseMovedEventArgs.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/FileFormats/Globals.hpp"
+#include "egolib/InputControl/ControlSettingsFile.hpp"
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/game.h"
@@ -355,7 +356,7 @@ bool GameEngine::initialize()
     config_synch(&egoboo_config_t::get(), false, false);
 
     // load input
-    input_settings_load_vfs("/controls.txt", -1);
+    input_settings_load_vfs("/controls.txt");
 
     // Initialize Perks
     Ego::Perks::PerkHandler::initialize();
@@ -435,7 +436,7 @@ void GameEngine::uninitialize()
     gfx_system_release_all_graphics();
 
     // make sure that the current control configuration is written
-    input_settings_save_vfs("controls.txt", -1);
+    input_settings_save_vfs("controls.txt");
 
     // @todo This should be 'UIManager::uninitialize'.
     _uiManager.reset(nullptr);

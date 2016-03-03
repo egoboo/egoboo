@@ -47,6 +47,10 @@ std::string InputDevice::getMappedInputName(const InputButton button) const
         key = _keyMap[static_cast<size_t>(button)];
     }
 
+    if(key == SDLK_UNKNOWN) {
+        return "SDLK_UNKNOWN";
+    }
+
     return SDL_GetKeyName(key);
 }
 

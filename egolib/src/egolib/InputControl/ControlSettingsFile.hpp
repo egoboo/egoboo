@@ -17,12 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/FileFormats/controls_file-v1.h
-/// @brief Routines for reading and writing version 1 of <tt>"controls.txt"</tt>.
+/// @brief Routines for reading and writing <tt>"controls.txt"</tt>.
 
 #pragma once
 
-#include "egolib/typedef.h"
-
-bool input_settings_load_vfs_1(const char *szFilename);
-bool input_settings_save_vfs_1(const char *szFilename);
+bool input_settings_load_vfs(const char *szFilename);
+bool input_settings_save_vfs(const char* szFilename);
