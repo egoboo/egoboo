@@ -19,6 +19,7 @@
 
 #include "EgoTest/EgoTest.hpp"
 #include "egolib/Float.hpp"
+#include "egolib/Math/_Include.hpp"
 #include "egolib/_math.h" /// @todo Remove this.
 
 namespace Ego {

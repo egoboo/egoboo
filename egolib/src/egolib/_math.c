@@ -22,6 +22,7 @@
 /// @details This is the remainder of non-inlined math functions that deal with initialization
 
 #include "egolib/_math.h"
+#include "egolib/TrigonometricTable.hpp"
 #include "egolib/Math/Random.hpp"
 
 
@@ -50,11 +51,11 @@
 
 FACING_T vec_to_facing( const float dx, const float dy )
 {
-    return (FACING_T)(RAD_TO_FACING(std::atan2(dy, dx) + Ego::Math::pi<float>()));
+    return RadianToFacing(Ego::Math::Radians(std::atan2(dy, dx) + Ego::Math::pi<float>()));
 }
 
 //--------------------------------------------------------------------------------------------
-void facing_to_vec( const FACING_T facing, float * dx, float * dy )
+void facing_to_vec( const FACING_T& facing, float * dx, float * dy )
 {
     TLT::Index turn = TLT::get().fromFacing(facing - 0x8000);
 
@@ -72,7 +73,7 @@ void facing_to_vec( const FACING_T facing, float * dx, float * dy )
 //--------------------------------------------------------------------------------------------
 // ROTATION FUNCTIONS
 //--------------------------------------------------------------------------------------------
-int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight )
+int terp_dir( const FACING_T& majordir, const FACING_T& minordir, const int weight )
 {
     /// @author ZZ
     /// @details This function returns a direction between the major and minor ones, closer

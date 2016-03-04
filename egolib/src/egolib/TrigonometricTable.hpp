@@ -1,6 +1,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/_math.h"
 
 /**
  * @brief A lookup table for the trigonometric functions sine and cosine.

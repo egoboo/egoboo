@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "egolib/_math.h"
+#include "egolib/Math/_Include.hpp"
 #include "egolib/Core/Singleton.hpp"
 #include "egolib/Renderer/BlendFunction.hpp"
 #include "egolib/Renderer/CompareFunction.hpp"

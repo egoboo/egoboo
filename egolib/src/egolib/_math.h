@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
-#include "egolib/Math/_Include.hpp"
+#include "egolib/Math/Angle.hpp"
+#include "egolib/Math/Random.hpp"
 #include "egolib/Log/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -37,7 +37,21 @@
 #    define LOG_NAN(XX)
 #endif
 
+typedef uint16_t FACING_T;
+
 #define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
+
+/// pre defined directions
+static constexpr FACING_T FACE_WEST = 0x0000; ///< Character facings
+static constexpr FACING_T FACE_NORTH = 0x4000;
+static constexpr FACING_T FACE_EAST = 0x8000;
+static constexpr FACING_T FACE_SOUTH = 0xC000;
+
+//Directional aliases
+static constexpr FACING_T ATK_FRONT = FACE_WEST;
+static constexpr FACING_T ATK_RIGHT = FACE_NORTH;
+static constexpr FACING_T ATK_BEHIND = FACE_EAST;
+static constexpr FACING_T ATK_LEFT = FACE_SOUTH;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -89,9 +103,10 @@ inline double INV_FFFF<double>() {
  * @return
  *  the angle in "facing"
  */
-inline FACING_T RAD_TO_FACING(float x) {
-	// UINT16_MAX / (2 * PI).
-	return Ego::Math::clipBits<16>(x * (std::numeric_limits<FACING_T>::max() / Ego::Math::twoPi<float>()));
+inline FACING_T RadianToFacing(const Ego::Math::Radians& x) {
+	// s := UINT16_MAX / (2 * PI).
+    static const float s = std::numeric_limits<FACING_T>::max() / Ego::Math::twoPi<float>();
+	return FACING_T(Ego::Math::clipBits<16>(float(x) * s));
 }
 
 /**
@@ -102,9 +117,10 @@ inline FACING_T RAD_TO_FACING(float x) {
  * @return
  *  the angle in radians
  */
-inline float FACING_TO_RAD(FACING_T facing) {
-	// (2 * PI) / UINT16_MAX
-	return facing * (Ego::Math::twoPi<float>() / std::numeric_limits<FACING_T>::max());
+inline Ego::Math::Radians FacingToRadian(const FACING_T& x) {
+	// s := (2 * PI) / UINT16_MAX
+    static const float s = Ego::Math::twoPi<float>() / std::numeric_limits<FACING_T>::max();
+	return Ego::Math::Radians(uint16_t(x) * s);
 }
 
 /**
@@ -115,8 +131,12 @@ inline float FACING_TO_RAD(FACING_T facing) {
  * @return
  *  the angle in "facing"
  */
-inline FACING_T TurnsToFacing(const Ego::Math::Angle<Ego::Math::AngleUnit::Turns>& x) {
-	return Ego::Math::clipBits<16>((int)(((float)x) * (float)0x00010000));
+inline FACING_T TurnToFacing(const Ego::Math::Turns& x) {
+    // 0x00010000 = UINT16_MAX.
+    // s := UINT16_MAX + 1.
+    // TODO: Why is +1 added?
+    static const float s = (float)0x00010000;
+	return FACING_T(Ego::Math::clipBits<16>(int(float(x) * s)));
 }
 
 /**
@@ -127,9 +147,20 @@ inline FACING_T TurnsToFacing(const Ego::Math::Angle<Ego::Math::AngleUnit::Turns
  * @return
  *  the angle in turns
  */
-inline Ego::Math::Angle<Ego::Math::AngleUnit::Turns> FacingToTurns(FACING_T x) {
-	return Ego::Math::Angle<Ego::Math::AngleUnit::Turns>((float)Ego::Math::clipBits<16>(x) / (float)0x00010000);
+inline Ego::Math::Turns FacingToTurn(const FACING_T& x) {
+    // 0x00010000 = UINT16_MAX.
+    // s := 1 / (UINT16_T + 1).
+    // TODO: why is +1 added?
+    static const float s = 1.0f / (float)0x00010000;
+	return Ego::Math::Turns(uint16_t(x) * s);
 }
+
+// conversion functions
+FACING_T vec_to_facing(const float dx, const float dy);
+void     facing_to_vec(const FACING_T& facing, float * dx, float * dy);
+
+// rotation functions
+int terp_dir(const FACING_T& majordir, const FACING_T& minordir, const int weight);
 
 //--------------------------------------------------------------------------------------------
 // the lookup tables for sine and cosine
@@ -145,17 +176,7 @@ extern "C"
 ///         and use "turn" to be the TRIG_TABLE_BITS-bit value
 
 
-/// pre defined directions
-static constexpr uint16_t FACE_WEST =  0x0000; ///< Character facings
-static constexpr uint16_t FACE_NORTH = 0x4000;
-static constexpr uint16_t FACE_EAST =  0x8000;
-static constexpr uint16_t FACE_SOUTH = 0xC000;
 
-//Directional aliases
-static constexpr uint16_t ATK_FRONT =  FACE_WEST;
-static constexpr uint16_t ATK_RIGHT =  FACE_NORTH;
-static constexpr uint16_t ATK_BEHIND = FACE_EAST;
-static constexpr uint16_t ATK_LEFT =   FACE_SOUTH;
 
 
 //--------------------------------------------------------------------------------------------
@@ -186,12 +207,7 @@ static constexpr uint16_t ATK_LEFT =   FACE_SOUTH;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// conversion functions
-    FACING_T vec_to_facing( const float dx, const float dy );
-    void     facing_to_vec( const FACING_T facing, float * dx, float * dy );
 
-// rotation functions
-    int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight );
 
 // limiting functions
     void getadd_int( const int min, const int value, const int max, int* valuetoadd );

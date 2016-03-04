@@ -1187,7 +1187,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     //Throw us forward if we can collide with the holder (for example the Stool)
     //This prevents us from being dropped into the collision box of the holder
     if(bump.size > 0) {
-        float angle = FACING_TO_RAD(ori.facing_z + ATK_BEHIND);
+        Ego::Math::Radians angle = FacingToRadian(ori.facing_z + ATK_BEHIND);
         vel[kX] += std::cos(angle) * DROPXYVEL * 0.5f;
         vel[kY] += std::sin(angle) * DROPXYVEL * 0.5f;
     }

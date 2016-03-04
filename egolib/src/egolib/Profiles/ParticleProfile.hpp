@@ -23,6 +23,7 @@
 #endif
 
 #include "egolib/Profiles/AbstractProfile.hpp"
+#include "egolib/_math.h"
 
 /// Pre-defined global particle types
 /// @note I can't place all the money particles in the same place because it is expected

@@ -88,7 +88,7 @@ Camera::Camera(const CameraOptions &options) :
     _position = _center + Vector3f(_zoom * std::sin(_turnZ_radians), _zoom * std::cos(_turnZ_radians), CAM_ZADD_MAX);
 
     _turnZ_turns = (Ego::Math::Turns)_turnZ_radians;
-    _ori.facing_z = TurnsToFacing(_turnZ_turns);
+    _ori.facing_z = TurnToFacing(_turnZ_turns);
     resetView();
 
     // Connect the tile list to the mesh.
@@ -210,7 +210,7 @@ void Camera::updateZoom()
         }
         _ori.facing_z = newAngle;
 
-        _turnZ_turns = FacingToTurns(_ori.facing_z);
+        _turnZ_turns = FacingToTurn(_ori.facing_z);
         _turnZ_radians = (Ego::Math::Radians)_turnZ_turns;
     }
     _turnZAdd *= TURN_Z_SUSTAIN;
@@ -641,7 +641,7 @@ void Camera::reset(const ego_mesh_t *mesh)
     _position.z() += CAM_ZADD_MAX;
 
     _turnZ_turns = (Ego::Math::Turns)_turnZ_radians;
-    _ori.facing_z = TurnsToFacing(_turnZ_turns);
+    _ori.facing_z = TurnToFacing(_turnZ_turns);
 
     // Get optional parameters.
     _swing = _options.swing;
