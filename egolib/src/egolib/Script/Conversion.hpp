@@ -26,7 +26,107 @@ namespace Ego
 namespace Script
 {
 
-using namespace std;
+/// EgoScript knows five type categories.
+/// Those are:
+/// a) integer types,
+/// b) natural types,
+/// c) boolean types,
+/// d) real types,
+/// e) character types, and
+/// f) string types.
+
+/// From C++:
+/// a) char, unsigned char, signed char are three distinct types.
+/// b) Furthermore, neither uint8_t is necessarily the same type as unsigned char nor int8_t is necessarily the same type as signed char.
+/// From EgoScript:
+/// a) signed char is an EgoScript integer type and unsigned char is an EgoScript natural type.
+/// b) float and double are EgoScript real types.
+/// c) bool is an EgoScript boolean type.
+/// d) char is an EgoScript character type.
+/// e) std::string is an EgoScript string type.
+template <typename Type, typename Enabled = void>
+struct IsInteger;
+template <typename Type, typename Enabled = void>
+struct IsNatural;
+template <typename Type, typename Enabled = void>
+struct IsReal;
+template <typename Type, typename Enabled = void>
+struct IsBoolean;
+template <typename Type, typename Enabled = void>
+struct IsCharacter;
+template <typename Type, typename Enabled = void>
+struct IsString;
+
+
+template <typename Type>
+struct IsInteger<
+    Type,
+    std::enable_if_t<
+        std::is_integral<Type>::value    &&
+        std::is_signed<Type>::value      &&
+        !std::is_same<Type, bool>::value &&
+        !std::is_same<Type, char>::value
+    >
+> {
+    static constexpr bool value = true;
+};
+
+
+
+template <typename Type>
+struct IsNatural<
+    Type,
+    std::enable_if_t<
+        std::is_integral<Type>::value    &&
+        std::is_unsigned<Type>::value    &&
+        !std::is_same<Type, bool>::value &&
+        !std::is_same<Type, char>::value
+    >
+> {
+    static constexpr bool value = true;
+};
+
+template <typename Type>
+struct IsReal<
+    Type,
+    std::enable_if_t<
+        std::is_floating_point<Type>::value
+    >
+> {
+    static constexpr bool value = true;
+};
+
+template <typename Type>
+struct IsBoolean <
+    Type,
+    std::enable_if_t<
+        std::is_same<Type, bool>::value
+    >
+> {
+    static constexpr bool value = true;
+};
+
+template <typename Type>
+struct IsCharacter <
+    Type,
+    std::enable_if_t<
+        std::is_same<Type, char>::value
+    >
+> {
+    static constexpr bool value = true;
+};
+
+template <typename Type>
+struct IsString <
+    Type,
+    std::enable_if_t<
+        std::is_same<Type, std::string>::value
+    >
+> {
+    static constexpr bool value = true;
+};
+
+
 
 /**
  * @brief
@@ -35,8 +135,7 @@ using namespace std;
  *  Michael Heilmann
  */
 template <typename TargetType, typename Enabled = void>
-struct Decoder
-{
+struct Decoder {
     /**
      * @brief
      *  Convert a string representing an EgoScript value into a C++ value.
@@ -56,33 +155,42 @@ struct Decoder
      * @remark
      *  This operator doesnot raise exceptions.
      */
-    bool operator()(const string& source, TargetType& target);
+    bool operator()(const std::string& source, TargetType& target) const;
 
 };
 
+namespace Internal {
+
+// Helper for to float and to double conversion.
+template <typename T>
+T to(const std::string& x, std::size_t *n);
+
+template <>
+inline float to<float>(const std::string& x, std::size_t* n) {
+    return std::stof(x, n);
+}
+
+template <>
+inline double to<double>(const std::string& x, std::size_t* n) {
+    return std::stod(x, n);
+}
+}
+
 /**
  * @brief
- *  Specialization for character type.
- * @todo
- *  Should be mor terse and more efficient.
+ *  Specialization for EgoScript character types.
  */
 template <typename TargetType>
-struct Decoder<TargetType, typename enable_if< is_same<TargetType, char>::value >::type>
-{
-	bool operator()(const string& source, TargetType& target)
-	{
-		static_assert(is_same<TargetType, char>::value,
-			          "TargetType must be `char`");
-		try
-		{
-			if (source.length() != 1)
-			{
-				throw invalid_argument("not a valid EgoScript character integral");
+struct Decoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::value>> {
+	bool operator()(const std::string& source, TargetType& target) const {
+		static_assert(IsCharacter<TargetType>::value,
+			          "TargetType must be an EgoScript character type");
+		try {
+			if (source.length() != 1) {
+				throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript character integral");
 			}
 			target = source[0];
-		}
-		catch (invalid_argument&)
-		{
+		} catch (const Id::InvalidArgumentException&) {
 			return false;
 		}
 		return true;
@@ -91,52 +199,43 @@ struct Decoder<TargetType, typename enable_if< is_same<TargetType, char>::value 
 
 /** 
  * @brief
- *  Specialization for signed integral types without the @a bool and @a char type.
- * @todo
- *  Should be mor terse and more efficient.
+ *  Specialization for EgoScript integer types.
  */
 template <typename TargetType>
-struct Decoder<TargetType, typename enable_if<is_integral<TargetType>::value && !is_same<TargetType, bool>::value && !is_same<TargetType, char>::value && is_signed<TargetType>::value >::type>
-{
-    bool operator()(const string& source, TargetType& target)
-    {
-        static_assert(is_integral<TargetType>::value && !is_same<TargetType, bool>::value && !is_same<TargetType, char>::value && is_signed<TargetType>::value,
-                      "TargetType must be an signed integral type and must not be bool nor char");
-        try
-        {
-            try
-            {
-                if (source.empty() || isspace(source[0]))
-                {
-                    throw invalid_argument("not a valid EgoScript signed integral");
+struct Decoder<TargetType, std::enable_if_t<IsInteger<TargetType>::value>> {
+    bool operator()(const std::string& source, TargetType& target) const {
+        static_assert(IsInteger<TargetType>::value,
+                      "TargetType must be an EgoScript integer type");
+        try {
+            try {
+                if (source.empty() || isspace(source[0])) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript integer literal");
                 }
                 size_t pos;
-                long long x = stoll(source, &pos);
-                if (pos != source.length())
-                {
-                    throw std::invalid_argument("not a valid EgoScript signed integral");
+                long long x;
+                try {
+                    x = stoll(source, &pos);
+                } catch (const std::invalid_argument&) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "conversion failed");
+                } catch (const std::out_of_range&) {
+                    throw Id::OutOfBoundsException(__FILE__, __LINE__, "conversion failed");
                 }
-                if (x > std::numeric_limits<TargetType>::max())
-                {
-                    throw out_of_range("EgoScript signed integral too big");
+                if (pos != source.length()) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript integer literal");
                 }
-                if (x < std::numeric_limits<TargetType>::min())
-                {
-                    throw out_of_range("EgoScript signed integral too small");
+                if (x > std::numeric_limits<TargetType>::max()) {
+                    throw Id::OutOfBoundsException(__FILE__, __LINE__, std::string("the value of the EgoScript integer literal is greater than the greatest value representable by the EgoScript integer type `") + typeid(TargetType).name() + "`");
+                }
+                if (x < std::numeric_limits<TargetType>::min()) {
+                    throw Id::OutOfBoundsException(__FILE__, __LINE__, std::string("the value of the EgoScript integer literal is smaller than the smallest value representable by the EgoScript integer type `") + typeid(TargetType).name() + "`");
                 }
                 target = x;
-            }
-            catch (invalid_argument&)
-            {
+            } catch (const Id::InvalidArgumentException&) {
+                return false;
+            } catch (const Id::OutOfBoundsException&) {
                 return false;
             }
-            catch (out_of_range&)
-            {
-                return false;
-            }
-        }
-        catch (...)
-        {
+        } catch (...) {
             return false;
         }
         return true;
@@ -145,49 +244,41 @@ struct Decoder<TargetType, typename enable_if<is_integral<TargetType>::value && 
 
 /**
  * @brief
- *  Specialization for unsigned integral types without the @a bool type.
- * @todo
- *  Should be mor terse and more efficient.
+ *  Specialization for EgoScript natural types.
  */
 template <typename TargetType>
-struct Decoder<TargetType, typename enable_if<is_integral<TargetType>::value && !is_same<TargetType, bool>::value && !is_signed<TargetType>::value >::type>
-{
-public:
-    bool operator()(const string& source, TargetType& target)
-    {
-        static_assert(is_integral<TargetType>::value && !is_same<TargetType, bool>::value && !is_signed<TargetType>::value,
-                      "TargetType must be an unsigned integral type and must not be bool");
-        try
-        {
-            try
-            {
-                if (source.empty() || isspace(source[0]))
-                {
-                    throw invalid_argument("not a valid EgoScript unsigned integral value");
+struct Decoder<TargetType, std::enable_if_t<IsNatural<TargetType>::value>> {
+    bool operator()(const std::string& source, TargetType& target) const {
+        static_assert(IsNatural<TargetType>::value,
+                      "TargetType must be an EgoScript natural type");
+        try {
+            try {
+                if (source.empty() || isspace(source[0])) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript natural literal");
                 }
                 size_t pos;
-                unsigned long long x = stoull(source, &pos);
-                if (pos != source.length())
-                {
-                    throw std::invalid_argument("not a valid EgoScript unsigned integral value");
+                unsigned long long x;
+                try {
+                    x = stoull(source, &pos);
+                } catch (const std::invalid_argument&) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "conversion failed");
+                } catch (const std::out_of_range&) {
+                    throw Id::OutOfBoundsException(__FILE__, __LINE__, "conversion failed");
                 }
-                if (x > std::numeric_limits<TargetType>::max())
-                {
-                    throw out_of_range("EgoScript unsigned integral too big value");
+                if (pos != source.length()) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript natural literal");
+                }
+                if (x > std::numeric_limits<TargetType>::max()) {
+                    throw Id::OutOfBoundsException(__FILE__, __LINE__, std::string("the value of the EgoScript natural literal is greater than the greatest value representable by the EgoScript natural type `") + typeid(TargetType).name() + "`");
+
                 }
                 target = x;
-            }
-            catch (const invalid_argument&)
-            {
+            } catch (const Id::InvalidArgumentException&) {
+                return false;
+            } catch (const Id::OutOfBoundsException&) {
                 return false;
             }
-            catch (const out_of_range&)
-            {
-                return false;
-            }
-        }
-        catch (...)
-        {
+        } catch (...) {
             return false;
         }
         return true;
@@ -196,129 +287,82 @@ public:
 
 /**
  * @brief
- *  Specialization for @a bool.
- * @remark
- *  Accepts exactly
- *  @code
- *  true | false
- *  @endcode
+ *  Specialization for EgoScript boolean types.
  */
 template <typename TargetType>
-struct Decoder<TargetType, typename enable_if<is_same<TargetType, bool>::value>::type>
-{
-    bool operator()(const string& source, TargetType& target)
-    {
-        if (source == "true")
-        {
+struct Decoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::value>> {
+    bool operator()(const std::string& source, TargetType& target) const {
+        static_assert(IsBoolean<TargetType>::value,
+                      "TargetType must be an EgoScript boolean type");
+        if (source == "true") {
             target = true;
             return true;
-        }
-        else if (source == "false")
-        {
+        } else if (source == "false") {
             target = false;
             return true;
-        }
-        else
-        {
-            return false;
+        } else {
+            throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript boolean literal");
         }
     }
 };
 
-// Specialization for @a std::string.
+/**
+ * @brief
+ *  Specialization for EgoScript string types.
+ */
 template <typename TargetType>
-struct Decoder<TargetType, typename enable_if<is_same<TargetType, string>::value>::type>
-{
-    bool operator()(const string& source, TargetType& target)
-    {
+struct Decoder<TargetType, std::enable_if_t<IsString<TargetType>::value>> {
+    bool operator()(const std::string& source, TargetType& target) const {
+        static_assert(IsString<TargetType>::value,
+                      "TargetType must be an EgoScript string type");
         target = source;
         return true;
     }
 };
 
 
-// Specialization for @a float.
+
+
+/**
+ * @brief
+ *  Specialization for EgoScript real types.
+ */
 template <typename TargetType>
-struct Decoder<TargetType, typename enable_if<is_same<TargetType, float>::value>::type>
-{
-    bool operator()(const string& source, float& target)
-    {
-        static_assert(is_same<TargetType,float>::value,
-                      "TargetType must be `float`");
-        try
-        {
-            try
-            {
-                if (source.empty() || isspace(source[0]))
-                {
-                    throw invalid_argument("not a valid EgoScript `float` value");
+struct Decoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>> {
+    bool operator()(const std::string& source, TargetType& target) const {
+        static_assert(std::is_same<TargetType, TargetType>::value,
+                      "TargetType must be an EgoScript real type");
+        try {
+            try {
+                if (source.empty() || isspace(source[0])) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript real literal");
                 }
                 size_t pos;
-                double x = std::stof(source, &pos);
-                if (pos != source.length())
-                {
-                    throw std::invalid_argument("not a valid EgoScript `float` value");
+                TargetType x;
+                try {
+                    x = Internal::to<TargetType>(source, &pos);
+                } catch (const std::invalid_argument&) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "conversion failed");
+                } catch (const std::out_of_range&) {
+                    throw Id::OutOfBoundsException(__FILE__, __LINE__, "conversion failed");
+                }
+                if (pos != source.length()) {
+                    throw Id::InvalidArgumentException(__FILE__, __LINE__, "not a valid EgoScript real literal");
                 }
                 target = x;
-            }
-            catch (const invalid_argument&)
-            {
+            } catch (const std::invalid_argument&) {
+
+            } catch (const Id::InvalidArgumentException&) {
+                return false;
+            } catch (const Id::OutOfBoundsException&) {
                 return false;
             }
-            catch (const out_of_range&)
-            {
-                return false;
-            }
-        }
-        catch (...)
-        {
+        } catch (...) {
             return false;
         }
         return true;
     }
 };
-
-// Specialization for @a double.
-template <typename TargetType>
-struct Decoder<TargetType, typename enable_if<is_same<TargetType, double>::value>::type>
-{
-    bool operator()(const string& source, double& target)
-    {
-        static_assert(is_same<TargetType, double>::value,
-                      "TargetType must be `double`");
-        try
-        {
-            try
-            {
-                if (source.empty() || isspace(source[0]))
-                {
-                    throw invalid_argument("not a valid EgoScript `double` value");
-                }
-                size_t pos;
-                double x = std::stod(source, &pos);
-                if (pos != source.length())
-                {
-                    throw std::invalid_argument("not a valid EgoScript `double` value");
-                }
-                target = x;
-            }
-            catch (const invalid_argument&)
-            {
-                return false;
-            }
-            catch (const out_of_range&)
-            {
-                return false;
-            }
-        }
-        catch (...)
-        {
-            return false;
-        }
-        return true;
-    }
-};
-
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -350,7 +394,7 @@ struct Encoder
      * @remark
      *  This operator doesnot raise exceptions.
      */
-    bool operator()(SourceType& source, string& target);
+    bool operator()(SourceType& source, std::string& target);
 
 };
 
@@ -361,11 +405,11 @@ struct Encoder
  *  Should be mor terse and more efficient.
  */
 template <typename SourceType>
-struct Encoder<SourceType, typename enable_if<is_floating_point<SourceType>::value>::type>
+struct Encoder<SourceType, std::enable_if_t<std::is_floating_point<SourceType>::value>>
 {
-    bool operator()(const SourceType& source, string& target)
+    bool operator()(const SourceType& source, std::string& target)
     {
-        static_assert(is_floating_point<SourceType>::value,
+        static_assert(std::is_floating_point<SourceType>::value,
                       "SourceType must be an floating point type");
         try
         {
@@ -386,11 +430,11 @@ struct Encoder<SourceType, typename enable_if<is_floating_point<SourceType>::val
  *  Should be mor terse and more efficient.
  */
 template <typename SourceType>
-struct Encoder<SourceType, typename enable_if<is_integral<SourceType>::value && !is_same<SourceType, bool>::value && is_signed<SourceType>::value>::type>
+struct Encoder<SourceType, std::enable_if_t<std::is_integral<SourceType>::value && !std::is_same<SourceType, bool>::value && std::is_signed<SourceType>::value>>
 {
-    bool operator()(const SourceType& source, string& target)
+    bool operator()(const SourceType& source, std::string& target)
     {
-        static_assert(is_integral<SourceType>::value && !is_same<SourceType, bool>::value && is_signed<SourceType>::value,
+        static_assert(std::is_integral<SourceType>::value && !std::is_same<SourceType, bool>::value && std::is_signed<SourceType>::value,
                       "SourceType must be an unsigned integral type and must not be bool");
         try
         {
@@ -411,12 +455,12 @@ struct Encoder<SourceType, typename enable_if<is_integral<SourceType>::value && 
  *  Should be mor terse and more efficient.
  */
 template <typename SourceType>
-struct Encoder<SourceType, typename enable_if<is_integral<SourceType>::value && !is_same<SourceType, int8_t>::value && !is_same<SourceType, uint8_t>::value && !is_same<SourceType, bool>::value && !is_signed<SourceType>::value >::type>
+struct Encoder<SourceType, std::enable_if_t<std::is_integral<SourceType>::value && !std::is_same<SourceType, int8_t>::value && !std::is_same<SourceType, uint8_t>::value && !std::is_same<SourceType, bool>::value && !std::is_signed<SourceType>::value>>
 {
 
-    bool operator()(const SourceType& source, string& target)
+    bool operator()(const SourceType& source, std::string& target)
     {
-        static_assert(is_integral<SourceType>::value && !is_same<SourceType, int8_t>::value &&!is_same<SourceType, uint8_t>::value && !is_same<SourceType, bool>::value && !is_signed<SourceType>::value,
+        static_assert(std::is_integral<SourceType>::value && !std::is_same<SourceType, int8_t>::value && !std::is_same<SourceType, uint8_t>::value && !std::is_same<SourceType, bool>::value && !std::is_signed<SourceType>::value,
                       "SourceType must be an unsigned integral type and must not be bool, int8_t or uint8_t");
         try
         {
@@ -435,9 +479,9 @@ struct Encoder<SourceType, typename enable_if<is_integral<SourceType>::value && 
  *  Specialization for std::string.
  */
 template <typename SourceType>
-struct Encoder<SourceType, typename enable_if<is_same<SourceType, string>::value>::type>
+struct Encoder<SourceType, std::enable_if_t<std::is_same<SourceType, std::string>::value>>
 {
-    bool operator()(const SourceType& source, string& target)
+    bool operator()(const SourceType& source, std::string& target)
     {
         target = source;
         return true;
@@ -449,11 +493,11 @@ struct Encoder<SourceType, typename enable_if<is_same<SourceType, string>::value
  *  Specialization for the @a int8_t type.
  */
 template <typename SourceType>
-struct Encoder<SourceType, typename enable_if<is_same<SourceType, int8_t>::value>::type>
+struct Encoder<SourceType, std::enable_if_t<std::is_same<SourceType, int8_t>::value>>
 {
-    bool operator()(const SourceType& source, string& target)
+    bool operator()(const SourceType& source, std::string& target)
     {
-        static_assert(is_same<SourceType, int8_t>::value,
+        static_assert(std::is_same<SourceType, int8_t>::value,
                       "SourceType must be int8_t");
         try
         {
@@ -472,11 +516,11 @@ struct Encoder<SourceType, typename enable_if<is_same<SourceType, int8_t>::value
 *  Specialization for the @a uint8_t type.
 */
 template <typename SourceType>
-struct Encoder<SourceType, typename enable_if<is_same<SourceType, uint8_t>::value>::type>
+struct Encoder<SourceType, std::enable_if_t<std::is_same<SourceType, uint8_t>::value>>
 {
-    bool operator()(const SourceType& source, string& target)
+    bool operator()(const SourceType& source, std::string& target)
     {
-        static_assert(is_same<SourceType, uint8_t>::value,
+        static_assert(std::is_same<SourceType, uint8_t>::value,
                       "SourceType must be uint8_t");
         try
         {
@@ -495,9 +539,9 @@ struct Encoder<SourceType, typename enable_if<is_same<SourceType, uint8_t>::valu
  *  Specialization for the @a bool type.
  */
 template <typename SourceType>
-struct Encoder<SourceType, typename enable_if<is_same<SourceType, bool>::value>::type>
+struct Encoder<SourceType, std::enable_if_t<std::is_same<SourceType, bool>::value>>
 {
-    bool operator()(const SourceType& source, string& target)
+    bool operator()(const SourceType& source, std::string& target)
     {
         target = source ? "true" : "false";
         return true;
