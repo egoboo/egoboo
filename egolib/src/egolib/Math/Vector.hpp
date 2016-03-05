@@ -29,35 +29,6 @@
 namespace Ego {
 namespace Math {
 
-namespace Internal {
-
-/**
- * @brief
- *  Derived from @a std::true_type if @a _VectorSpace and @a ArgTypes
- *  fulfil the requirements for a constructor of a vector,
- *  and derived from @a std::false_type otherwise.
- * @tparam _ScalarField
- *  the scalar field type.
- *  Must fulfil the <em>ScalarField</em> concept.
- * @tparam _Dimensionality
- *  the dimensionality.
- *  Must fulfil the <em>Dimensionality</em> concept.
- * @param _ArgTypes
- *  @a ArgTypes must have <tt>_Dimensionality-1</tt> elements which are convertible into values of type @a _ScalarFieldType::ScalarType
- * @todo
- *  Fast-fail if the parameters are not convertible into @a _ScalarFieldType::ScalarType.
- */
-template <typename _ScalarFieldType, size_t _Dimensionality, typename ... ArgTypes>
-struct VectorConstructorEnable
-    : public std::conditional<
-      (Ego::Core::EqualTo<sizeof...(ArgTypes), _Dimensionality - 1>::value),
-      std::true_type,
-      std::false_type
-      >::type
-{};
-
-} // namespace Internal
-
 /**
  * @brief
  *  A vector of a vector space.
@@ -90,15 +61,22 @@ public:
 
 public:
 	/**
-	 * @brief
-	 *	Construct this tuple with the specified element values.
-	 * @param v, ... args
-	 *	the element values
+	 * @brief Construct this vector with the specified element values.
+	 * @param first, ... rest the element values
+     * @pre The number of specified element values must be equal to the dimensionality of the vector type.
+     * @pre Each specified element value must be convertible into the element type of the vector type.
 	 */
-    template<typename ... ArgTypes, typename = std::enable_if_t<Internal::VectorConstructorEnable<ScalarFieldType, MyType::dimensionality(), ArgTypes ...>::value>>
-    Vector(ScalarType v, ArgTypes&& ... args) 
-		: TupleType(std::forward<ScalarType>(v), args ...) {
-		/* Intentionally empty. */
+    template<
+        typename ... ArgumentTypes, 
+        typename =
+            std::enable_if_t<
+                ((sizeof...(ArgumentTypes)) + 1) == MyType::dimensionality() &&
+                Core::AllTrue<std::is_convertible<ArgumentTypes, ScalarType>::value ...>::value
+            >
+    >
+    Vector(ScalarType first, ArgumentTypes&& ... rest) 
+		: TupleType(std::forward<ScalarType>(first), rest ...) {
+        static_assert(dimensionality() == 1 + sizeof ... (rest), "wrong number of arguments");
     }
 
     /**
@@ -122,8 +100,8 @@ public:
      *  indices 0, 1, ..., dimensionality() - 1
      */
     template <typename _GeneratorType, size_t ... Index>
-    Vector(const _GeneratorType& generator, std::index_sequence<Index ...>)
-        : Vector(generator(Index) ...) {
+    Vector(const _GeneratorType& generator, std::index_sequence<Index ...> indexSequence)
+        : TupleType(generator, indexSequence) {
     }
 
 public:
@@ -153,32 +131,32 @@ public:
 
     inline ScalarType& x() {
         static_assert(MyType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
-        return this->_elements[0];
+        return this->at(0);
     }
 
     inline ScalarType& y() {
         static_assert(MyType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
-        return this->_elements[1];
+        return this->at(1);
     }
 
     inline ScalarType& z() {
         static_assert(MyType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
-        return this->_elements[2];
+        return this->at(2);
     }
 
     inline const ScalarType& x() const {
         static_assert(MyType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
-        return this->_elements[0];
+        return this->at(0);
     }
 
     inline const ScalarType& y() const {
         static_assert(MyType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
-        return this->_elements[1];
+        return this->at(1);
     }
 
     inline const ScalarType& z() const {
         static_assert(MyType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
-        return this->_elements[2];
+        return this->at(2);
     }
 
 public:
@@ -191,9 +169,9 @@ public:
      *  the dot product <tt>(*this) * other</tt> of this vector and the other vector
      */
     ScalarType dot(const MyType& other) const {
-        ScalarType t = ScalarFieldType::product(this->_elements[0], other._elements[0]);
+        ScalarType t = ScalarFieldType::product(this->at(0), other.at(0));
 		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
-            t = ScalarFieldType::sum(t, ScalarFieldType::product(this->_elements[i], other._elements[i]));
+            t = ScalarFieldType::sum(t, ScalarFieldType::product(this->at(i), other.at(i)));
         }
         return t;
     }
@@ -231,7 +209,7 @@ public:
      */
     void multiply(ScalarType scalar) {
         for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->_elements[i] = ScalarFieldType::product(this->_elements[i], scalar);
+            this->at(i) = ScalarFieldType::product(this->at(i), scalar);
         }
     }
 
@@ -246,7 +224,7 @@ public:
      */
     void divide(ScalarType scalar) {
         for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->_elements[i] = ScalarFieldType::quotient(this->_elements[i], scalar);
+            this->at(i) = ScalarFieldType::quotient(this->at(i), scalar);
         }
     }
     
@@ -261,7 +239,7 @@ public:
      */
     void add(const MyType& other) {
         for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->_elements[i] = ScalarFieldType::sum(this->_elements[i], other._elements[i]);
+            this->at(i) = ScalarFieldType::sum(this->at(i), other.at(i));
         }
     }
 
@@ -276,7 +254,7 @@ public:
      */
     void sub(const MyType& other) {
 		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->_elements[i] = ScalarFieldType::difference(this->_elements[i], other._elements[i]);
+            this->at(i) = ScalarFieldType::difference(this->at(i), other.at(i));
         }
     }
 
@@ -325,7 +303,7 @@ public:
      */
     bool equals(const MyType& other) const {
 		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualTo(this->_elements[i], other._elements[i])) {
+            if (ScalarFieldType::notEqualTo(this->at(i), other.at(i))) {
                 return false;
             }
         }
@@ -344,7 +322,7 @@ public:
      */
     bool equalsUlp(const MyType& other, const size_t& ulp) const {
 		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualUlp(this->_elements[i], other._elements[i], ulp)) {
+            if (ScalarFieldType::notEqualUlp(this->at(i), other.at(i), ulp)) {
                 return false;
             }
         }
@@ -363,7 +341,7 @@ public:
      */
     bool equalsTolerance(const MyType& other, const ScalarType& tolerance) const {
 		for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualToTolerance(this->_elements[i], other._elements[i], tolerance)) {
+            if (ScalarFieldType::notEqualToTolerance(this->at(i), other.at(i), tolerance)) {
                 return false;
             }
         }
@@ -375,7 +353,7 @@ private:
     /** @internal */
     template <size_t ... Index>
     MyType abs(std::index_sequence<Index ...>) const {
-        return MyType(std::abs(this->_elements[Index]) ...);
+        return MyType(std::abs(this->at(Index)) ...);
     }
 
 public:
@@ -399,13 +377,13 @@ private:
     /** @internal */
     template <size_t ... Index>
     MyType max(std::index_sequence<Index ...>, const MyType& other) const {
-        return MyType(std::max(this->_elements[Index], other._elements[Index]) ...);
+        return MyType(std::max(this->at(Index), other.at(Index)) ...);
     }
 
     /** @internal */
     template <size_t ... Index>
     MyType min(std::index_sequence<Index ...>, const MyType& other) const {
-        return MyType(std::min(this->_elements[Index],other._elements[Index]) ...);
+        return MyType(std::min(this->at(Index),other.at(Index)) ...);
     }
 
 public:
@@ -459,9 +437,9 @@ public:
      *  the squared length of this vector
      */
     ScalarType length_2() const {
-        ScalarType t = ScalarFieldType::product(this->_elements[0], this->_elements[0]);
+        ScalarType t = ScalarFieldType::product(this->at(0), this->at(0));
 		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
-            t = ScalarFieldType::sum(t, ScalarFieldType::product(this->_elements[i], this->_elements[i]));
+            t = ScalarFieldType::sum(t, ScalarFieldType::product(this->at(i), this->at(i)));
         }
         return t;
     }
@@ -485,9 +463,9 @@ public:
      *  the length of this vector
      */
     ScalarType length_abs() const {
-        ScalarType t = std::abs(this->_elements[0]);
+        ScalarType t = std::abs(this->at(0));
 		for (size_t i = 1; i < MyType::dimensionality(); ++i) {
-            t += std::abs(this->_elements[i]);
+            t += std::abs(this->at(i));
         }
         return t;
     }
@@ -719,9 +697,9 @@ public:
         return
             MyType
             (
-                this->_elements[1] * other._elements[2] - this->_elements[2] * other._elements[1],
-                this->_elements[2] * other._elements[0] - this->_elements[0] * other._elements[2],
-                this->_elements[0] * other._elements[1] - this->_elements[1] * other._elements[0]
+                this->at(1) * other.at(2) - this->at(2) * other.at(1),
+                this->at(2) * other.at(0) - this->at(0) * other.at(2),
+                this->at(0) * other.at(1) - this->at(1) * other.at(0)
             );
     }
 };
