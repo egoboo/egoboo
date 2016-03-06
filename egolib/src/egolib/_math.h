@@ -72,7 +72,7 @@ inline float INV_FF<float>() {
 
 template <>
 inline double INV_FF<double>() {
-    return 0.000015259021896696421759365224689097;
+    return 0.003921568627450980392156862745098;
 }
 
 
