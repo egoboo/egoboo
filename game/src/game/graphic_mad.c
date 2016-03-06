@@ -175,61 +175,69 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
     {
         Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
         {
+            // Get the maximum number of vertices per command.
+            size_t vertexBufferCapacity = 0;
+            for (const MD2_GLCommand& glcommand : pmd2->getGLCommands()) {
+                vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
+            }
+            // Allocate a vertex buffer.
+            auto vertexBuffer = std::unique_ptr<Md2Vertex[]>(new Md2Vertex[vertexBufferCapacity]);
             // Render each command
             for (const MD2_GLCommand &glcommand : pmd2->getGLCommands()) {
-                GL_DEBUG(glBegin)(glcommand.glMode);
-                {
-                    for (const id_glcmd_packed_t& cmd : glcommand.data) {
-                        uint16_t vertexIndex = cmd.index;
-                        if (vertexIndex >= pinst.vrt_count) continue;
-                        const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
+                // Pre-render this command.
+                size_t vertexBufferSize = 0;
+                for (const id_glcmd_packed_t& cmd : glcommand.data) {
+                    uint16_t vertexIndex = cmd.index;
+                    if (vertexIndex >= pinst.vrt_count) continue;
+                    const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
+                    auto& v = vertexBuffer[vertexBufferSize++];
+                    v.position.x = pvrt.pos[XX];
+                    v.position.y = pvrt.pos[YY];
+                    v.position.z = pvrt.pos[ZZ];
+                    v.normal.x = pvrt.nrm[XX];
+                    v.normal.y = pvrt.nrm[YY];
+                    v.normal.z = pvrt.nrm[ZZ];
 
-                        Md2Vertex v;
+                    // normalize the color so it can be modulated by the phong/environment map
+                    v.colour.r = pvrt.color_dir * INV_FF<float>();
+                    v.colour.g = pvrt.color_dir * INV_FF<float>();
+                    v.colour.b = pvrt.color_dir * INV_FF<float>();
+                    v.colour.a = 1.0f;
 
-                        v.position.x = pvrt.pos[XX];
-                        v.position.y = pvrt.pos[YY];
-                        v.position.z = pvrt.pos[ZZ];
-                        v.normal.x = pvrt.nrm[XX];
-                        v.normal.y = pvrt.nrm[YY];
-                        v.normal.z = pvrt.nrm[ZZ];
+                    float cmax = std::max({v.colour.r, v.colour.g, v.colour.b});
 
-                        // normalize the color so it can be modulated by the phong/environment map
-                        v.colour.r = pvrt.color_dir * INV_FF<float>();
-                        v.colour.g = pvrt.color_dir * INV_FF<float>();
-                        v.colour.b = pvrt.color_dir * INV_FF<float>();
-                        v.colour.a = 1.0f;
-
-                        float cmax = std::max({v.colour.r, v.colour.g, v.colour.b});
-
-                        if (cmax != 0.0f) {
-                            v.colour.r /= cmax;
-                            v.colour.g /= cmax;
-                            v.colour.b /= cmax;
-                        }
-
-                        // apply the tint
-                        v.colour.r *= tint[RR];
-                        v.colour.g *= tint[GG];
-                        v.colour.b *= tint[BB];
-                        v.colour.a *= tint[AA];
-
-                        v.texture.s = pvrt.env[XX] + uoffset;
-                        v.texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
-
-                        if (0 != (bits & CHR_PHONG)) {
-                            // determine the phong texture coordinates
-                            // the default phong is bright in both the forward and back directions...
-                            v.texture.t = v.texture.t * 0.5f + 0.5f;
-                        }
-
-                        GL_DEBUG(glColor4f)(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
-                        GL_DEBUG(glNormal3f)(v.normal.x, v.normal.y, v.normal.z);
-                        GL_DEBUG(glTexCoord2f)(v.texture.s, v.texture.t);
-                        GL_DEBUG(glVertex3f)(v.position.x, v.position.y, v.position.z);
+                    if (cmax != 0.0f) {
+                        v.colour.r /= cmax;
+                        v.colour.g /= cmax;
+                        v.colour.b /= cmax;
                     }
 
+                    // apply the tint
+                    v.colour.r *= tint[RR];
+                    v.colour.g *= tint[GG];
+                    v.colour.b *= tint[BB];
+                    v.colour.a *= tint[AA];
+
+                    v.texture.s = pvrt.env[XX] + uoffset;
+                    v.texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
+
+                    if (0 != (bits & CHR_PHONG)) {
+                        // determine the phong texture coordinates
+                        // the default phong is bright in both the forward and back directions...
+                        v.texture.t = v.texture.t * 0.5f + 0.5f;
+                    }
                 }
-                GL_DEBUG_END();
+                glBegin(glcommand.glMode);
+                {
+                    for (size_t vertexIndex = 0; vertexIndex < vertexBufferSize; ++vertexIndex) {
+                        const auto& v = vertexBuffer[vertexIndex];
+                        glColor4f(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
+                        glNormal3f(v.normal.x, v.normal.y, v.normal.z);
+                        glTexCoord2f(v.texture.s, v.texture.t);
+                        glVertex3f(v.position.x, v.position.y, v.position.z);
+                    }
+                }
+                glEnd();
             }
         }
     }
