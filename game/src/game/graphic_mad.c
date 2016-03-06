@@ -188,42 +188,49 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
                         if (vertexIndex >= pinst.vrt_count) continue;
                         const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
 
-                        // normalize the color so it can be modulated by the phong/environment map
-                        GLXvector4f col;
-                        col[RR] = pvrt.color_dir * INV_FF<float>();
-                        col[GG] = pvrt.color_dir * INV_FF<float>();
-                        col[BB] = pvrt.color_dir * INV_FF<float>();
-                        col[AA] = 1.0f;
+                        Md2Vertex v;
 
-                        GLfloat cmax = std::max(std::max(col[RR], col[GG]), col[BB]);
+                        v.position.x = pvrt.pos[XX];
+                        v.position.y = pvrt.pos[YY];
+                        v.position.z = pvrt.pos[ZZ];
+                        v.normal.x = pvrt.nrm[XX];
+                        v.normal.y = pvrt.nrm[YY];
+                        v.normal.z = pvrt.nrm[ZZ];
+
+                        // normalize the color so it can be modulated by the phong/environment map
+                        v.colour.r = pvrt.color_dir * INV_FF<float>();
+                        v.colour.g = pvrt.color_dir * INV_FF<float>();
+                        v.colour.b = pvrt.color_dir * INV_FF<float>();
+                        v.colour.a = 1.0f;
+
+                        float cmax = std::max({v.colour.r, v.colour.g, v.colour.b});
 
                         if (cmax != 0.0f) {
-                            col[RR] /= cmax;
-                            col[GG] /= cmax;
-                            col[BB] /= cmax;
+                            v.colour.r /= cmax;
+                            v.colour.g /= cmax;
+                            v.colour.b /= cmax;
                         }
 
                         // apply the tint
                         /// @todo not sure why curr_color is important, removing it fixes phong
-                        col[RR] *= tint[RR];// * curr_color[RR];
-                        col[GG] *= tint[GG];// * curr_color[GG];
-                        col[BB] *= tint[BB];// * curr_color[BB];
-                        col[AA] *= tint[AA];// * curr_color[AA];
+                        v.colour.r *= tint[RR];// * curr_color[RR];
+                        v.colour.g *= tint[GG];// * curr_color[GG];
+                        v.colour.b *= tint[BB];// * curr_color[BB];
+                        v.colour.a *= tint[AA];// * curr_color[AA];
 
-                        GLfloat tex[2];
-                        tex[0] = pvrt.env[XX] + uoffset;
-                        tex[1] = Ego::Math::constrain(cmax, 0.0f, 1.0f);
+                        v.texture.s = pvrt.env[XX] + uoffset;
+                        v.texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
 
                         if (0 != (bits & CHR_PHONG)) {
                             // determine the phong texture coordinates
                             // the default phong is bright in both the forward and back directions...
-                            tex[1] = tex[1] * 0.5f + 0.5f;
+                            v.texture.t = v.texture.t * 0.5f + 0.5f;
                         }
 
-                        GL_DEBUG(glColor4fv)(col);
-                        GL_DEBUG(glNormal3fv)(pvrt.nrm);
-                        GL_DEBUG(glTexCoord2fv)(tex);
-                        GL_DEBUG(glVertex3fv)(pvrt.pos);
+                        GL_DEBUG(glColor4f)(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
+                        GL_DEBUG(glNormal3f)(v.normal.x, v.normal.y, v.normal.z);
+                        GL_DEBUG(glTexCoord2f)(v.texture.s, v.texture.t);
+                        GL_DEBUG(glVertex3f)(v.position.x, v.position.y, v.position.z);
                     }
 
                 }
