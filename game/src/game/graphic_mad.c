@@ -131,6 +131,46 @@ struct Md2Vertex {
     } texture;
 };
 
+struct Md2VertexBuffer {
+    size_t size;
+    Md2Vertex *vertices;
+    Md2VertexBuffer(size_t size) : size(size), vertices(new Md2Vertex[size]) {
+        // Intentionally empty.
+    }
+    Md2VertexBuffer() : Md2VertexBuffer(0) {
+        // Intentionally empty.
+    }
+    ~Md2VertexBuffer() {
+        if (nullptr != vertices) {
+            delete[] vertices;
+            vertices = nullptr;
+        }
+    }
+    void ensureSize(size_t requiredSize) {
+        if (requiredSize > size) {
+            Md2Vertex *requiredVertices = new Md2Vertex[requiredSize];
+            for (size_t i = 0; i < size; ++i) {
+                requiredVertices[i] = vertices[i];
+            }
+            delete[] vertices;
+            vertices = requiredVertices;
+            size = requiredSize;
+        }
+    }
+    void render(GLenum mode, size_t start, size_t length) {
+        glBegin(mode); {
+            for (size_t vertexIndex = start; vertexIndex < start + length; ++vertexIndex) {
+                const auto& v = vertices[vertexIndex];
+                glColor4f(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
+                glNormal3f(v.normal.x, v.normal.y, v.normal.z);
+                glTexCoord2f(v.texture.s, v.texture.t);
+                glVertex3f(v.position.x, v.position.y, v.position.z);
+            }
+        }
+        glEnd();
+    }
+};
+
 gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
 	chr_instance_t& pinst = pchr->inst;
@@ -181,7 +221,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
                 vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
             }
             // Allocate a vertex buffer.
-            auto vertexBuffer = std::unique_ptr<Md2Vertex[]>(new Md2Vertex[vertexBufferCapacity]);
+            Md2VertexBuffer vertexBuffer(vertexBufferCapacity);
             // Render each command
             for (const MD2_GLCommand &glcommand : pmd2->getGLCommands()) {
                 // Pre-render this command.
@@ -190,7 +230,7 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
                     uint16_t vertexIndex = cmd.index;
                     if (vertexIndex >= pinst.vrt_count) continue;
                     const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
-                    auto& v = vertexBuffer[vertexBufferSize++];
+                    auto& v = vertexBuffer.vertices[vertexBufferSize++];
                     v.position.x = pvrt.pos[XX];
                     v.position.y = pvrt.pos[YY];
                     v.position.z = pvrt.pos[ZZ];
@@ -227,17 +267,8 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
                         v.texture.t = v.texture.t * 0.5f + 0.5f;
                     }
                 }
-                glBegin(glcommand.glMode);
-                {
-                    for (size_t vertexIndex = 0; vertexIndex < vertexBufferSize; ++vertexIndex) {
-                        const auto& v = vertexBuffer[vertexIndex];
-                        glColor4f(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
-                        glNormal3f(v.normal.x, v.normal.y, v.normal.z);
-                        glTexCoord2f(v.texture.s, v.texture.t);
-                        glVertex3f(v.position.x, v.position.y, v.position.z);
-                    }
-                }
-                glEnd();
+                // Render this command.
+                vertexBuffer.render(glcommand.glMode, 0, vertexBufferSize);
             }
         }
     }
@@ -322,7 +353,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
         vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
     }
     // Allocate a vertex buffer.
-    auto vertexBuffer = std::unique_ptr<Md2Vertex[]>(new Md2Vertex[vertexBufferCapacity]);
+    Md2VertexBuffer vertexBuffer(vertexBufferCapacity);
 
     if (0 != (bits & CHR_REFLECT))
     {
@@ -349,7 +380,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                         continue;
                     }
                     const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
-                    auto& v = vertexBuffer[vertexBufferSize++];
+                    auto& v = vertexBuffer.vertices[vertexBufferSize++];
                     v.position.x = pvrt.pos[XX];
                     v.position.y = pvrt.pos[YY];
                     v.position.z = pvrt.pos[ZZ];
@@ -401,17 +432,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                     }
                 }
                 // Render this command.
-                glBegin(glcommand.glMode);
-                {
-                    for (size_t vertexIndex = 0; vertexIndex < vertexBufferSize; ++vertexIndex) {
-                        const auto& v = vertexBuffer[vertexIndex];
-                        glColor4f(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
-                        glNormal3f(v.normal.x, v.normal.y, v.normal.z);
-                        glTexCoord2f(v.texture.s, v.texture.t);
-                        glVertex3f(v.position.x, v.position.y, v.position.z);
-                    }
-                }
-                glEnd();
+                vertexBuffer.render(glcommand.glMode, 0, vertexBufferSize);
             }
         }
     }
