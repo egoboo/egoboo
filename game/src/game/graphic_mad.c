@@ -175,10 +175,6 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
     {
         Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
         {
-            GLXvector4f curr_color;
-
-            GL_DEBUG(glGetFloatv)(GL_CURRENT_COLOR, curr_color);
-
             // Render each command
             for (const MD2_GLCommand &glcommand : pmd2->getGLCommands()) {
                 GL_DEBUG(glBegin)(glcommand.glMode);
@@ -212,11 +208,10 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
                         }
 
                         // apply the tint
-                        /// @todo not sure why curr_color is important, removing it fixes phong
-                        v.colour.r *= tint[RR];// * curr_color[RR];
-                        v.colour.g *= tint[GG];// * curr_color[GG];
-                        v.colour.b *= tint[BB];// * curr_color[BB];
-                        v.colour.a *= tint[AA];// * curr_color[AA];
+                        v.colour.r *= tint[RR];
+                        v.colour.g *= tint[GG];
+                        v.colour.b *= tint[BB];
+                        v.colour.a *= tint[AA];
 
                         v.texture.s = pvrt.env[XX] + uoffset;
                         v.texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
