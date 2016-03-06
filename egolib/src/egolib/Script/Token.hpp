@@ -148,73 +148,102 @@ public:
  * @throw Id::LexicalErrorException
  *  if conversion fails
  */
-template <typename TargetType>
+template <typename TargetType, typename EnabledType = void>
 struct TextTokenDecoder {
 	TargetType operator()(const TextToken& token) const;
 };
 
-template<>
-struct TextTokenDecoder<char> {
-	char operator()(const TextToken& token) const {
-		char temporary;
-		if (!Decoder<char>()(token.getLexeme(), temporary)) {
+/**
+ * @brief Specialization for EgoScript boolean types.
+ */
+template <typename TargetType>
+struct TextTokenDecoder<TargetType, std::enable_if_t<IsBoolean<TargetType>::value>> {
+    TargetType operator()(const TextToken& token) const {
+        TargetType temporary;
+        if (!Decoder<TargetType>()(token.getLexeme(), temporary)) {
+            throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
+                                            "unable to convert literal `" + token.getLexeme() +
+                                            "` into a value of EgoScript boolean type `" + typeid(TargetType).name() + "`");
+        }
+        return temporary;
+    }
+};
+
+/**
+ * @brief Specialization for EgoScript character types.
+ */
+template <typename TargetType>
+struct TextTokenDecoder<TargetType, std::enable_if_t<IsCharacter<TargetType>::value>> {
+    TargetType operator()(const TextToken& token) const {
+        TargetType temporary;
+		if (!Decoder<TargetType>()(token.getLexeme(), temporary)) {
 			throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
-				"unable to convert lexeme `" + token.getLexeme() +
-				"` into a value of type " + "`char`");
+				                            "unable to convert literal `" + token.getLexeme() +
+				                            "` into a value of EgoScript character type `" + typeid(TargetType).name() + "`");
 		}
 		return temporary;
 	}
 };
 
-template<>
-struct TextTokenDecoder<float> {
-	float operator()(const TextToken& token) const {
-		float temporary;
-		if (!Decoder<float>()(token.getLexeme(), temporary)) {
+/**
+ * @brief Specialization for EgoScript real types.
+ */
+template <typename TargetType>
+struct TextTokenDecoder<TargetType, std::enable_if_t<IsReal<TargetType>::value>> {
+    TargetType operator()(const TextToken& token) const {
+		TargetType temporary;
+		if (!Decoder<TargetType>()(token.getLexeme(), temporary)) {
 			throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
-				"unable to convert lexeme `" + token.getLexeme() +
-				"` into a value of type " + "`float`");
+				                            "unable to convert literal `" + token.getLexeme() +
+				                            "` into a value of EgoScript real type " + "`" + typeid(TargetType).name() + "`");
 		}
 		return temporary;
 	}
 };
 
-template<>
-struct TextTokenDecoder<signed int> {
-	signed int operator()(const TextToken& token) const {
-		signed int temporary;
-		if (!Decoder<signed int>()(token.getLexeme(), temporary)) {
+/**
+ * @brief Specialization for EgoScript integer types.
+ */
+template <typename TargetType>
+struct TextTokenDecoder<TargetType, std::enable_if_t<IsInteger<TargetType>::value>> {
+    TargetType operator()(const TextToken& token) const {
+        TargetType temporary;
+		if (!Decoder<TargetType>()(token.getLexeme(), temporary)) {
 			throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
-				"unable to convert lexeme `" + token.getLexeme() +
-				"` into a value of type " + "`signed int`");
+				                            "unable to convert literal `" + token.getLexeme() +
+				                            "` into a value of EgoScript integer type " + "`" + typeid(TargetType).name() + "`");
 		}
 		return temporary;
 	}
 };
 
-template<>
-struct TextTokenDecoder<unsigned int> {
-
-	unsigned int operator()(const TextToken& token) const {
-		unsigned int temporary;
-		if (!Decoder<unsigned int>()(token.getLexeme(), temporary)) {
+/**
+ * @brief Specialization for EgoScript natural types.
+ */
+template<typename TargetType>
+struct TextTokenDecoder<TargetType, std::enable_if_t<IsNatural<TargetType>::value>> {
+    TargetType operator()(const TextToken& token) const {
+		TargetType temporary;
+		if (!Decoder<TargetType>()(token.getLexeme(), temporary)) {
 			throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
-				"unable to convert lexeme `" + token.getLexeme() +
-				"` into a value of type " + "`unsigned int`");
+				                            "unable to convert literal `" + token.getLexeme() +
+				                            "` into a value of EgoScript natural type " + "`" + typeid(int).name() + "`");
 		}
 		return temporary;
 	}
 };
 
-template<>
-struct TextTokenDecoder<std::string> {
-
-	std::string operator()(const TextToken& token) const {
-		std::string temporary;
-		if (!Decoder<std::string>()(token.getLexeme(), temporary)) {
+/** 
+ * @brief Specialization for EgoScript string types.
+ */
+template <typename TargetType>
+struct TextTokenDecoder<TargetType, std::enable_if_t<IsString<TargetType>::value>> {
+    TargetType operator()(const TextToken& token) const {
+        TargetType temporary;
+		if (!Decoder<TargetType>()(token.getLexeme(), temporary)) {
 			throw Id::LexicalErrorException(__FILE__, __LINE__, token.getLocation(),
-				"unable to convert lexeme `" + token.getLexeme() +
-				"` into a value of type " + "`std::string`");
+				                            "unable to convert literal `" + token.getLexeme() +
+				                            "` into a value of EgoScript string type " + "`" + typeid(TargetType).name() + "`");
 		}
 		return temporary;
 	}

@@ -29,32 +29,6 @@
 namespace Ego {
 namespace Math {
 
-namespace Internal {
-
-/**
- * @brief
- *  Derived from @a std::true_type if @a _VectorSpace and @a ArgTypes
- *  fulfil the requirements for a constructor of a vector,
- *  and derived from @a std::false_type otherwise.
- * @tparam _VectorSpace
- *  must fulfil the <em>VectorSpace</em> concept
- * @param _ArgTypes
- *  @a ArgTypes must have <tt>_VectorSpaceType::dimensionality()-1</tt> elements which are convertible into values of type @a _VectorSpaceType::ScalarType
- * @author
- *  Michael Heilmann
- * @todo
- *  Fast-fail if the parameters are not convertible into @a _ScalarType.
- */
-template <typename _VectorSpaceType, typename ... ArgTypes>
-struct PointConstructorEnable
-    : public std::conditional<
-    (Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::dimensionality() - 1>::value),
-    std::true_type,
-    std::false_type
-    >::type {};
-
-} // namespace Internal
-
 /// @brief A point in the \f$n\f$-dimensional Euclidean space.
 /// @tparam _EuclideanSpace the Euclidean space over which the points are defined.
 template <typename _VectorSpaceType>
@@ -80,19 +54,23 @@ public:
     typedef Tuple<ScalarType, MyType::dimensionality()> TupleType;
 
 public:
-
-
-public:
     /**
-     * @brief
-     *  Construct this point with the specified element values.
-     * @param v, ... args
-     *  the element values
+     * @brief Construct this point with the specified element values.
+     * @param first, ... rest the element values
+     * @pre The number of specified element values must be equal to the dimensionality of the point type.
+     * @pre Each specified element value must be convertible into the element type of the point type.
      */
-    template<typename ... ArgTypes, typename = std::enable_if_t<Internal::PointConstructorEnable<VectorSpaceType, ArgTypes ...>::value>>
-    Point(ScalarType v, ArgTypes&& ... args)
-        : TupleType(std::forward<ScalarType>(v), args ...) {
-        /* Intentionally empty. */
+    template<
+        typename ... ArgumentTypes,
+        typename =
+            std::enable_if_t<
+                ((sizeof...(ArgumentTypes)) + 1) == MyType::dimensionality() &&
+                Core::AllTrue<std::is_convertible<ArgumentTypes, ScalarType>::value ...>::value
+            >
+    >
+    Point(ScalarType first, ArgumentTypes&& ... rest)
+        : TupleType(std::forward<ScalarType>(first), rest ...) {
+        static_assert(dimensionality() == 1 + sizeof ... (rest), "wrong number of arguments");
     }
 
     /**
@@ -133,32 +111,32 @@ public:
 public:
     inline ScalarType& x() {
         static_assert(VectorSpaceType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
-        return this->_elements[0];
+        return this->at(0);
     }
 
     inline ScalarType& y() {
         static_assert(VectorSpaceType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
-        return this->_elements[1];
+        return this->at(1);
     }
 
     inline ScalarType& z() {
         static_assert(VectorSpaceType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
-        return this->_elements[2];
+        return this->at(2);
     }
 
     inline const ScalarType& x() const {
         static_assert(VectorSpaceType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
-        return this->_elements[0];
+        return this->at(0);
     }
 
     inline const ScalarType& y() const {
         static_assert(VectorSpaceType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
-        return this->_elements[1];
+        return this->at(1);
     }
 
     inline const ScalarType& z() const {
         static_assert(VectorSpaceType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
-        return this->_elements[2];
+        return this->at(2);
     }
 
 public:
@@ -194,7 +172,7 @@ public:
      */
     void add(const VectorType& other) {
         for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->_elements[i] = ScalarFieldType::sum(this->_elements[i], other[i]);
+            this->at(i) = ScalarFieldType::sum(this->at(i), other.at(i));
         }
     }
 
@@ -209,7 +187,7 @@ public:
      */
     void sub(const VectorType& other) {
         for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->_elements[i] = ScalarFieldType::difference(this->_elements[i], other[i]);
+            this->at(i) = ScalarFieldType::difference(this->at(i), other.at(i));
         }
     }
 
@@ -224,7 +202,7 @@ public:
     */
     bool equals(const MyType& other) const {
         for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualTo(this->_elements[i], other._elements[i])) {
+            if (ScalarFieldType::notEqualTo(this->at(i), other.at(i))) {
                 return false;
             }
         }
@@ -243,7 +221,7 @@ public:
      */
     bool equalsUlp(const MyType& other, const size_t& ulp) const {
         for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualULP(this->_elements[i], other._elements[i], ulp)) {
+            if (ScalarFieldType::notEqualULP(this->at(i), other.at(i), ulp)) {
                 return false;
             }
         }
@@ -262,7 +240,7 @@ public:
      */
     bool equalsTolerance(const MyType& other, const ScalarType& tolerance) const {
         for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualTolerance(this->_elements[i], other._elements[i], tolerance)) {
+            if (ScalarFieldType::notEqualTolerance(this->at(i), other.at(i), tolerance)) {
                 return false;
             }
         }
@@ -312,7 +290,7 @@ public:
 private:
     /** @internal */
     ScalarType sub(const MyType& other, size_t index) const {
-        return ScalarFieldType::difference(this->_elements[index], other._elements[index]);
+        return ScalarFieldType::difference(this->at(index), other.at(index));
     }
     /** @internal */
     template <size_t... Index>

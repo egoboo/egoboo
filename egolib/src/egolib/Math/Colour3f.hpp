@@ -34,10 +34,11 @@ namespace Math {
  *       three single - precision floating point values
  *          each within the range of 0 (inclusive) to 1 (inclusive).
  */
-template <>
-struct Colour<RGBf> : public ColourComponents<RGBf> {
+template <typename _ColourSpaceType>
+struct Colour<_ColourSpaceType, std::enable_if_t<Internal::IsRgb<_ColourSpaceType>::value>> :
+    public ColourComponents<_ColourSpaceType> {
 public:
-    typedef RGBf ColourSpaceType;
+    typedef _ColourSpaceType ColourSpaceType;
     typedef typename ColourSpaceType::ComponentType ComponentType;
     typedef Colour<ColourSpaceType> MyType;
 
@@ -161,7 +162,9 @@ public:
      *  Default constructor (opaque black)
      */
     Colour() :
-        ColourComponents<ColourSpaceType>(ColourSpaceType::min(), ColourSpaceType::min(), ColourSpaceType::min()) {
+        ColourComponents<ColourSpaceType>(ColourSpaceType::min(),
+                                          ColourSpaceType::min(),
+                                          ColourSpaceType::min()) {
         // Intentionally empty.
     }
 
@@ -174,15 +177,15 @@ public:
      *  the component value of the green component
      * @param b
      *  the component value of the blue component
-     * @throws std::domain_error
-     *  if @a a, @a g or @a b a are not within the range of 0 (inclusive) and 1 (inclusive)
+     * @throws Id::OutOfBoundsException
+     *  if @a r, @a g, or @a b a are not within the range of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
      */
     Colour(ComponentType r, ComponentType g, ComponentType b) :
         ColourComponents<ColourSpaceType>(r, g, b) {
     }
 
     const MyType& operator=(const MyType& other) {
-        assign(other);
+        this->ColourComponents<ColourSpaceType>::assign(other);
         return *this;
     }
 
@@ -199,9 +202,9 @@ public:
      *  The corresponding inverted colour is also known as the complementary colour.
      */
     MyType invert() const {
-        return MyType(ColourSpaceType::max() - getRed(),
-                      ColourSpaceType::max() - getGreen(),
-                      ColourSpaceType::max() - getBlue());
+        return MyType(ColourSpaceType::max() - this->getRed(),
+                      ColourSpaceType::max() - this->getGreen(),
+                      ColourSpaceType::max() - this->getBlue());
     }
 
     /**

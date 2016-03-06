@@ -28,10 +28,11 @@
 namespace Ego {
 namespace Math {
 
-template <>
-struct Colour<RGBAf> : public ColourComponents<RGBAf> {
+template <typename _ColourSpaceType>
+struct Colour<_ColourSpaceType, std::enable_if_t<Internal::IsRgba<_ColourSpaceType>::value>> : 
+    public ColourComponents<_ColourSpaceType> {
 public:
-    typedef RGBAf ColourSpaceType;
+    typedef _ColourSpaceType ColourSpaceType;
     typedef typename ColourSpaceType::ComponentType ComponentType;
     typedef Colour<ColourSpaceType> MyType;
 
@@ -167,6 +168,8 @@ public:
      *  the colour in RGB space
      * @param a
      *  the alpha component
+     * @throws Id::OutOfBoundsException
+     *  if @a a is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
      */
     Colour(const Colour<Opaque<ColourSpaceType>>& other, ComponentType a) :
         ColourComponents<ColourSpaceType>(other, a) {
@@ -203,7 +206,7 @@ public:
     }
 
     const MyType& operator=(const MyType& other) {
-        assign(other);
+        this->ColourComponents<ColourSpaceType>::assign(other);
         return *this;
     }
 
@@ -220,10 +223,10 @@ public:
      *  The corresponding inverted colour is also known as the complementary colour.
      */
     MyType invert() const {
-        return MyType(ColourSpaceType::max() - getRed(),
-                      ColourSpaceType::max() - getGreen(),
-                      ColourSpaceType::max() - getBlue(),
-                      getAlpha());
+        return MyType(ColourSpaceType::max() - this->getRed(),
+                      ColourSpaceType::max() - this->getGreen(),
+                      ColourSpaceType::max() - this->getBlue(),
+                      this->getAlpha());
     }
 
     /**
@@ -241,10 +244,10 @@ public:
     MyType brighter(float brightness) const {
         if (brightness <= 0.0f) return *this;
         brightness += 1.0f;
-        return MyType(std::min(ColourSpaceType::max(), getRed()*brightness),
-                      std::min(ColourSpaceType::max(), getGreen()*brightness),
-                      std::min(ColourSpaceType::max(), getBlue()*brightness),
-                      getAlpha());
+        return MyType(std::min(ColourSpaceType::max(), this->getRed()*brightness),
+                      std::min(ColourSpaceType::max(), this->getGreen()*brightness),
+                      std::min(ColourSpaceType::max(), this->getBlue()*brightness),
+                      this->getAlpha());
     }
 
     /**

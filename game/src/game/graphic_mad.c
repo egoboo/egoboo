@@ -115,6 +115,22 @@ cmp_matrix_cache_end:
 }
 
 //--------------------------------------------------------------------------------------------
+
+struct Md2Vertex {
+    struct {
+        float x, y, z;
+    } position;
+    struct {
+        float x, y, z;
+    } normal;
+    struct {
+        float r, g, b, a;
+    } colour;
+    struct {
+        float s, t;
+    } texture;
+};
+
 gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
 	chr_instance_t& pinst = pchr->inst;
@@ -168,50 +184,53 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
                 GL_DEBUG(glBegin)(glcommand.glMode);
                 {
                     for (const id_glcmd_packed_t& cmd : glcommand.data) {
-                        GLfloat     cmax;
-                        GLXvector4f col;
-                        GLfloat     tex[2];
-                        GLvertex   *pvrt;
+                        uint16_t vertexIndex = cmd.index;
+                        if (vertexIndex >= pinst.vrt_count) continue;
+                        const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
 
-                        uint16_t vertex = cmd.index;
-                        if (vertex >= pinst.vrt_count) continue;
+                        Md2Vertex v;
 
-                        pvrt = pinst.vrt_lst + vertex;
+                        v.position.x = pvrt.pos[XX];
+                        v.position.y = pvrt.pos[YY];
+                        v.position.z = pvrt.pos[ZZ];
+                        v.normal.x = pvrt.nrm[XX];
+                        v.normal.y = pvrt.nrm[YY];
+                        v.normal.z = pvrt.nrm[ZZ];
 
                         // normalize the color so it can be modulated by the phong/environment map
-                        col[RR] = pvrt->color_dir * INV_FF<float>();
-                        col[GG] = pvrt->color_dir * INV_FF<float>();
-                        col[BB] = pvrt->color_dir * INV_FF<float>();
-                        col[AA] = 1.0f;
+                        v.colour.r = pvrt.color_dir * INV_FF<float>();
+                        v.colour.g = pvrt.color_dir * INV_FF<float>();
+                        v.colour.b = pvrt.color_dir * INV_FF<float>();
+                        v.colour.a = 1.0f;
 
-                        cmax = std::max(std::max(col[RR], col[GG]), col[BB]);
+                        float cmax = std::max({v.colour.r, v.colour.g, v.colour.b});
 
                         if (cmax != 0.0f) {
-                            col[RR] /= cmax;
-                            col[GG] /= cmax;
-                            col[BB] /= cmax;
+                            v.colour.r /= cmax;
+                            v.colour.g /= cmax;
+                            v.colour.b /= cmax;
                         }
 
                         // apply the tint
                         /// @todo not sure why curr_color is important, removing it fixes phong
-                        col[RR] *= tint[RR];// * curr_color[RR];
-                        col[GG] *= tint[GG];// * curr_color[GG];
-                        col[BB] *= tint[BB];// * curr_color[BB];
-                        col[AA] *= tint[AA];// * curr_color[AA];
+                        v.colour.r *= tint[RR];// * curr_color[RR];
+                        v.colour.g *= tint[GG];// * curr_color[GG];
+                        v.colour.b *= tint[BB];// * curr_color[BB];
+                        v.colour.a *= tint[AA];// * curr_color[AA];
 
-                        tex[0] = pvrt->env[XX] + uoffset;
-                        tex[1] = Ego::Math::constrain(cmax, 0.0f, 1.0f);
+                        v.texture.s = pvrt.env[XX] + uoffset;
+                        v.texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
 
                         if (0 != (bits & CHR_PHONG)) {
                             // determine the phong texture coordinates
                             // the default phong is bright in both the forward and back directions...
-                            tex[1] = tex[1] * 0.5f + 0.5f;
+                            v.texture.t = v.texture.t * 0.5f + 0.5f;
                         }
 
-                        GL_DEBUG(glColor4fv)(col);
-                        GL_DEBUG(glNormal3fv)(pvrt->nrm);
-                        GL_DEBUG(glTexCoord2fv)(tex);
-                        GL_DEBUG(glVertex3fv)(pvrt->pos);
+                        GL_DEBUG(glColor4f)(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
+                        GL_DEBUG(glNormal3f)(v.normal.x, v.normal.y, v.normal.z);
+                        GL_DEBUG(glTexCoord2f)(v.texture.s, v.texture.t);
+                        GL_DEBUG(glVertex3f)(v.position.x, v.position.y, v.position.z);
                     }
 
                 }
@@ -300,14 +319,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
         vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
     }
     // Allocate a vertex buffer.
-    struct Vertex
-    {
-        float px, py, pz;
-        float nx, ny, nz;
-        float r, g, b, a;
-        float s, t;
-    };
-    auto vertexBuffer = std::unique_ptr<Vertex[]>(new Vertex[vertexBufferCapacity]);
+    auto vertexBuffer = std::unique_ptr<Md2Vertex[]>(new Md2Vertex[vertexBufferCapacity]);
 
     if (0 != (bits & CHR_REFLECT))
     {
@@ -333,28 +345,28 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                     if (vertexIndex >= pinst.vrt_count) {
                         continue;
                     }
+                    const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
                     auto& v = vertexBuffer[vertexBufferSize++];
-                    GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
-                    v.px = pvrt.pos[XX];
-                    v.py = pvrt.pos[YY];
-                    v.pz = pvrt.pos[ZZ];
-                    v.nx = pvrt.nrm[XX];
-                    v.ny = pvrt.nrm[YY];
-                    v.nz = pvrt.nrm[ZZ];
+                    v.position.x = pvrt.pos[XX];
+                    v.position.y = pvrt.pos[YY];
+                    v.position.z = pvrt.pos[ZZ];
+                    v.normal.x = pvrt.nrm[XX];
+                    v.normal.y = pvrt.nrm[YY];
+                    v.normal.z = pvrt.nrm[ZZ];
 
                     // Determine the texture coordinates.
-                    v.s = cmd.s + uoffset;
-                    v.t = cmd.t + voffset;
+                    v.texture.s = cmd.s + uoffset;
+                    v.texture.t = cmd.t + voffset;
 
                     // Perform lighting.
                     if (HAS_NO_BITS(bits, CHR_LIGHT) && HAS_NO_BITS(bits, CHR_ALPHA)) {
                         // The directional lighting.
                         float fcol = pvrt.color_dir * INV_FF<float>();
 
-                        v.r = fcol;
-                        v.g = fcol;
-                        v.b = fcol;
-                        v.a = 1.0f;
+                        v.colour.r = fcol;
+                        v.colour.g = fcol;
+                        v.colour.b = fcol;
+                        v.colour.a = 1.0f;
 
                         // Ambient lighting.
                         if (HAS_NO_BITS(bits, CHR_PHONG)) {
@@ -363,26 +375,26 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
 
                             float acol = base_amb + pinst.color_amb * INV_FF<float>();
 
-                            v.r += acol;
-                            v.g += acol;
-                            v.b += acol;
+                            v.colour.r += acol;
+                            v.colour.g += acol;
+                            v.colour.b += acol;
                         }
 
                         // clip the colors
-                        v.r = Ego::Math::constrain(v.r, 0.0f, 1.0f);
-                        v.g = Ego::Math::constrain(v.g, 0.0f, 1.0f);
-                        v.b = Ego::Math::constrain(v.b, 0.0f, 1.0f);
+                        v.colour.r = Ego::Math::constrain(v.colour.r, 0.0f, 1.0f);
+                        v.colour.g = Ego::Math::constrain(v.colour.g, 0.0f, 1.0f);
+                        v.colour.b = Ego::Math::constrain(v.colour.b, 0.0f, 1.0f);
 
                         // tint the object
-                        v.r *= tint[RR];
-                        v.g *= tint[GG];
-                        v.b *= tint[BB];
+                        v.colour.r *= tint[RR];
+                        v.colour.g *= tint[GG];
+                        v.colour.b *= tint[BB];
                     } else {
                         // Set the basic tint.
-                        v.r = tint[RR];
-                        v.g = tint[GG];
-                        v.b = tint[BB];
-                        v.a = tint[AA];
+                        v.colour.r = tint[RR];
+                        v.colour.g = tint[GG];
+                        v.colour.b = tint[BB];
+                        v.colour.a = tint[AA];
                     }
                 }
                 // Render this command.
@@ -390,10 +402,10 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                 {
                     for (size_t vertexIndex = 0; vertexIndex < vertexBufferSize; ++vertexIndex) {
                         const auto& v = vertexBuffer[vertexIndex];
-                        glColor4f(v.r, v.g, v.b, v.a);
-                        glNormal3f(v.nx, v.ny, v.nz);
-                        glTexCoord2f(v.s, v.t);
-                        glVertex3f(v.px, v.py, v.pz);
+                        glColor4f(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
+                        glNormal3f(v.normal.x, v.normal.y, v.normal.z);
+                        glTexCoord2f(v.texture.s, v.texture.t);
+                        glVertex3f(v.position.x, v.position.y, v.position.z);
                     }
                 }
                 glEnd();
