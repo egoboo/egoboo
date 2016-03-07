@@ -423,7 +423,6 @@
     <ClCompile Include="src\egolib\FileFormats\map_file.c" />
     <ClCompile Include="src\egolib\FileFormats\map_tile_dictionary.c" />
     <ClCompile Include="src\egolib\FileFormats\scancode_file.c" />
-    <ClCompile Include="src\egolib\FileFormats\SDL_md2.c" />
     <ClCompile Include="src\egolib\FileFormats\spawn_file.c" />
     <ClCompile Include="src\egolib\FileFormats\template.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
@@ -645,7 +644,6 @@
     <ClInclude Include="src\egolib\FileFormats\map_file.h" />
     <ClInclude Include="src\egolib\FileFormats\map_tile_dictionary.h" />
     <ClInclude Include="src\egolib\FileFormats\scancode_file.h" />
-    <ClInclude Include="src\egolib\FileFormats\SDL_md2.h" />
     <ClInclude Include="src\egolib\FileFormats\spawn_file.h" />
     <ClInclude Include="src\egolib\FileFormats\template.h" />
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />
