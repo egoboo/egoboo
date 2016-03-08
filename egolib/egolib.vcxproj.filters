@@ -279,9 +279,6 @@
     <ClCompile Include="src\egolib\FileFormats\scancode_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\FileFormats\SDL_md2.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\spawn_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -696,9 +693,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\scancode_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\FileFormats\SDL_md2.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\spawn_file.h">

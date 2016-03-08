@@ -131,6 +131,46 @@ struct Md2Vertex {
     } texture;
 };
 
+struct Md2VertexBuffer {
+    size_t size;
+    Md2Vertex *vertices;
+    Md2VertexBuffer(size_t size) : size(size), vertices(new Md2Vertex[size]) {
+        // Intentionally empty.
+    }
+    Md2VertexBuffer() : Md2VertexBuffer(0) {
+        // Intentionally empty.
+    }
+    ~Md2VertexBuffer() {
+        if (nullptr != vertices) {
+            delete[] vertices;
+            vertices = nullptr;
+        }
+    }
+    void ensureSize(size_t requiredSize) {
+        if (requiredSize > size) {
+            Md2Vertex *requiredVertices = new Md2Vertex[requiredSize];
+            for (size_t i = 0; i < size; ++i) {
+                requiredVertices[i] = vertices[i];
+            }
+            delete[] vertices;
+            vertices = requiredVertices;
+            size = requiredSize;
+        }
+    }
+    void render(GLenum mode, size_t start, size_t length) {
+        glBegin(mode); {
+            for (size_t vertexIndex = start; vertexIndex < start + length; ++vertexIndex) {
+                const auto& v = vertices[vertexIndex];
+                glColor4f(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
+                glNormal3f(v.normal.x, v.normal.y, v.normal.z);
+                glTexCoord2f(v.texture.s, v.texture.t);
+                glVertex3f(v.position.x, v.position.y, v.position.z);
+            }
+        }
+        glEnd();
+    }
+};
+
 gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& pchr, GLXvector4f tint, const BIT_FIELD bits )
 {
 	chr_instance_t& pinst = pchr->inst;
@@ -175,66 +215,60 @@ gfx_rv MadRenderer::render_enviro( Camera& cam, const std::shared_ptr<Object>& p
     {
         Ego::OpenGL::PushAttrib pa(GL_CURRENT_BIT);
         {
-            GLXvector4f curr_color;
-
-            GL_DEBUG(glGetFloatv)(GL_CURRENT_COLOR, curr_color);
-
+            // Get the maximum number of vertices per command.
+            size_t vertexBufferCapacity = 0;
+            for (const MD2_GLCommand& glcommand : pmd2->getGLCommands()) {
+                vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
+            }
+            // Allocate a vertex buffer.
+            Md2VertexBuffer vertexBuffer(vertexBufferCapacity);
             // Render each command
             for (const MD2_GLCommand &glcommand : pmd2->getGLCommands()) {
-                GL_DEBUG(glBegin)(glcommand.glMode);
-                {
-                    for (const id_glcmd_packed_t& cmd : glcommand.data) {
-                        uint16_t vertexIndex = cmd.index;
-                        if (vertexIndex >= pinst.vrt_count) continue;
-                        const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
+                // Pre-render this command.
+                size_t vertexBufferSize = 0;
+                for (const id_glcmd_packed_t& cmd : glcommand.data) {
+                    uint16_t vertexIndex = cmd.index;
+                    if (vertexIndex >= pinst.vrt_count) continue;
+                    const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
+                    auto& v = vertexBuffer.vertices[vertexBufferSize++];
+                    v.position.x = pvrt.pos[XX];
+                    v.position.y = pvrt.pos[YY];
+                    v.position.z = pvrt.pos[ZZ];
+                    v.normal.x = pvrt.nrm[XX];
+                    v.normal.y = pvrt.nrm[YY];
+                    v.normal.z = pvrt.nrm[ZZ];
 
-                        Md2Vertex v;
+                    // normalize the color so it can be modulated by the phong/environment map
+                    v.colour.r = pvrt.color_dir * INV_FF<float>();
+                    v.colour.g = pvrt.color_dir * INV_FF<float>();
+                    v.colour.b = pvrt.color_dir * INV_FF<float>();
+                    v.colour.a = 1.0f;
 
-                        v.position.x = pvrt.pos[XX];
-                        v.position.y = pvrt.pos[YY];
-                        v.position.z = pvrt.pos[ZZ];
-                        v.normal.x = pvrt.nrm[XX];
-                        v.normal.y = pvrt.nrm[YY];
-                        v.normal.z = pvrt.nrm[ZZ];
+                    float cmax = std::max({v.colour.r, v.colour.g, v.colour.b});
 
-                        // normalize the color so it can be modulated by the phong/environment map
-                        v.colour.r = pvrt.color_dir * INV_FF<float>();
-                        v.colour.g = pvrt.color_dir * INV_FF<float>();
-                        v.colour.b = pvrt.color_dir * INV_FF<float>();
-                        v.colour.a = 1.0f;
-
-                        float cmax = std::max({v.colour.r, v.colour.g, v.colour.b});
-
-                        if (cmax != 0.0f) {
-                            v.colour.r /= cmax;
-                            v.colour.g /= cmax;
-                            v.colour.b /= cmax;
-                        }
-
-                        // apply the tint
-                        /// @todo not sure why curr_color is important, removing it fixes phong
-                        v.colour.r *= tint[RR];// * curr_color[RR];
-                        v.colour.g *= tint[GG];// * curr_color[GG];
-                        v.colour.b *= tint[BB];// * curr_color[BB];
-                        v.colour.a *= tint[AA];// * curr_color[AA];
-
-                        v.texture.s = pvrt.env[XX] + uoffset;
-                        v.texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
-
-                        if (0 != (bits & CHR_PHONG)) {
-                            // determine the phong texture coordinates
-                            // the default phong is bright in both the forward and back directions...
-                            v.texture.t = v.texture.t * 0.5f + 0.5f;
-                        }
-
-                        GL_DEBUG(glColor4f)(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
-                        GL_DEBUG(glNormal3f)(v.normal.x, v.normal.y, v.normal.z);
-                        GL_DEBUG(glTexCoord2f)(v.texture.s, v.texture.t);
-                        GL_DEBUG(glVertex3f)(v.position.x, v.position.y, v.position.z);
+                    if (cmax != 0.0f) {
+                        v.colour.r /= cmax;
+                        v.colour.g /= cmax;
+                        v.colour.b /= cmax;
                     }
 
+                    // apply the tint
+                    v.colour.r *= tint[RR];
+                    v.colour.g *= tint[GG];
+                    v.colour.b *= tint[BB];
+                    v.colour.a *= tint[AA];
+
+                    v.texture.s = pvrt.env[XX] + uoffset;
+                    v.texture.t = Ego::Math::constrain(cmax, 0.0f, 1.0f);
+
+                    if (0 != (bits & CHR_PHONG)) {
+                        // determine the phong texture coordinates
+                        // the default phong is bright in both the forward and back directions...
+                        v.texture.t = v.texture.t * 0.5f + 0.5f;
+                    }
                 }
-                GL_DEBUG_END();
+                // Render this command.
+                vertexBuffer.render(glcommand.glMode, 0, vertexBufferSize);
             }
         }
     }
@@ -319,7 +353,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
         vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
     }
     // Allocate a vertex buffer.
-    auto vertexBuffer = std::unique_ptr<Md2Vertex[]>(new Md2Vertex[vertexBufferCapacity]);
+    Md2VertexBuffer vertexBuffer(vertexBufferCapacity);
 
     if (0 != (bits & CHR_REFLECT))
     {
@@ -346,7 +380,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                         continue;
                     }
                     const GLvertex& pvrt = pinst.vrt_lst[vertexIndex];
-                    auto& v = vertexBuffer[vertexBufferSize++];
+                    auto& v = vertexBuffer.vertices[vertexBufferSize++];
                     v.position.x = pvrt.pos[XX];
                     v.position.y = pvrt.pos[YY];
                     v.position.z = pvrt.pos[ZZ];
@@ -398,17 +432,7 @@ gfx_rv MadRenderer::render_tex(Camera& camera, const std::shared_ptr<Object>& pc
                     }
                 }
                 // Render this command.
-                glBegin(glcommand.glMode);
-                {
-                    for (size_t vertexIndex = 0; vertexIndex < vertexBufferSize; ++vertexIndex) {
-                        const auto& v = vertexBuffer[vertexIndex];
-                        glColor4f(v.colour.r, v.colour.g, v.colour.b, v.colour.a);
-                        glNormal3f(v.normal.x, v.normal.y, v.normal.z);
-                        glTexCoord2f(v.texture.s, v.texture.t);
-                        glVertex3f(v.position.x, v.position.y, v.position.z);
-                    }
-                }
-                glEnd();
+                vertexBuffer.render(glcommand.glMode, 0, vertexBufferSize);
             }
         }
     }
