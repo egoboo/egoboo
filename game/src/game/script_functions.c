@@ -7936,7 +7936,7 @@ Uint8 scr_DrawBillboard( script_state_t& state, ai_state_t& self )
     /// @author ZF
     /// @details This function draws one of those billboards above the character
 
-    const auto text_color = Ego::Math::Colour4f::parse(0xFF, 0xFF, 0xFF, 0xFF);
+    const auto text_color = Ego::Math::Colour4f(Ego::Math::Colour4b(255, 255, 255, 255));
 
     //List of avalible colours
     const auto tint_red  = Ego::Math::Colour4f{ 1.00f, 0.25f, 0.25f, 1.00f };

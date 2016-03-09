@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Colour3.hpp
-/// @brief  Colours in RGB colour space.
+/// @file   egolib/Math/ColourRgb.hpp
+/// @brief  Colours in RGB colour spaces.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/ColourSpace.hpp"
+#include "egolib/Math/Colour.hpp"
 
 namespace Ego {
 namespace Math {
@@ -48,7 +48,7 @@ public:
      * @return the colour "red"
      */
     static const MyType& red() {
-        static const MyType colour = parse(0xff, 0x00, 0x00);
+        static const MyType colour(Colour<RGBb>(255, 0, 0));
         return colour;
     }
 
@@ -57,7 +57,7 @@ public:
      * @return the colour "green"
      */
     static const MyType& green() {
-        static const MyType colour = parse(0x00, 0xff, 0x00);
+        static const MyType colour(Colour<RGBb>(0, 255, 0));
         return colour;
     }
 
@@ -66,7 +66,7 @@ public:
      * @return the colour "blue"
      */
     static const MyType& blue() {
-        static const MyType colour = parse(0x00, 0x00, 0xff);
+        static const MyType colour(Colour<RGBb>(0, 0, 255));
         return colour;
     }
 
@@ -75,7 +75,7 @@ public:
      * @return the colour "white"
      */
     static const MyType& white() {
-        static const MyType colour = parse(0xff, 0xff, 0xff);
+        static const MyType colour(Colour<RGBb>(255, 255, 255));
         return colour;
     }
 
@@ -84,7 +84,7 @@ public:
      * @return the colour "black"
      */
     static const MyType& black() {
-        static const MyType colour = parse(0x00, 0x00, 0x00);
+        static const MyType colour(Colour<RGBb>(0, 0, 0));
         return colour;
     }
 
@@ -94,7 +94,7 @@ public:
      * @remark The colour "cyan" is the complementary colour of the colour "red".
      */
     static const MyType& cyan() {
-        static const MyType colour = parse(0x00, 0xff, 0xff);
+        static const MyType colour(Colour<RGBb>(0, 255, 255));
         return colour;
     }
 
@@ -104,7 +104,7 @@ public:
      * @remark The colour "magenta" is the complementary colour of the colour "green".
      */
     static const MyType& magenta() {
-        static const MyType colour = parse(0xff, 0x00, 0xff);
+        static const MyType colour(Colour<RGBb>(255, 0, 255));
         return colour;
     }
 
@@ -114,25 +114,25 @@ public:
      * @remark The colour "yellow" is the complementary colour of the colour "blue".
      */
     static const MyType& yellow() {
-        static const MyType colour = parse(0xff, 0xff, 0x00);
+        static const MyType colour(Colour<RGBb>(255, 255, 0));
         return colour;
     }
 
     /**
-     * @brief The colour "mauve" (224, 176, 255).
+     * @brief The colour "mauve" (224, 176, 255) [Maerz and Paul].
      * @return the colour "mauve".
      */
     static const MyType& mauve() {
-        static const MyType colour = parse(0xe0, 0xb0, 0xff);
+        static const MyType colour(Colour<RGBb>(224, 176, 255));
         return colour;
     }
 
     /**
-     * @brief The colour "purple" (153, 0, 153).
+     * @brief The colour "purple" (128, 0, 128).
      * @return the colour "purple".
      */
     static const MyType& purple() {
-        static const MyType colour = parse(0x99, 0, 0x99);
+        static const MyType colour(Colour<RGBb>(128, 0, 128));
         return colour;
     }
 
@@ -141,25 +141,26 @@ public:
      * @return the colour "grey".
      */
     static const MyType& grey() {
-        static const MyType colour = parse(75, 75, 75);
+        static const MyType colour(Colour<RGBb>(75, 75, 75));
         return colour;
     }
 
 public:
     /**
      * @brief
-     *  Create a colour.
+     *  Construct this colour from the component values of a specified other colour.
      * @param other
      *  the other colour
      */
-    Colour(const Colour& other) :
+    template <typename _OtherColourSpaceType>
+    Colour(const Colour<_OtherColourSpaceType>& other) :
         ColourComponents<ColourSpaceType>(other) {
         // Intentionally empty.
     }
 
     /**
      * @brief
-     *  Default constructor (opaque black)
+     *  Default construct with component values corresponding to "opaque black".
      */
     Colour() :
         ColourComponents<ColourSpaceType>(ColourSpaceType::min(),
@@ -170,7 +171,7 @@ public:
 
     /**
      * @brief
-     *  Create a color.
+     *  Construct this colour from the specified component values
      * @param r
      *  the component value of the red component
      * @param g
@@ -184,11 +185,18 @@ public:
         ColourComponents<ColourSpaceType>(r, g, b) {
     }
 
+public:
+    /**
+     * @brief Assign this colour from another colour.
+     * @param other the other colour
+     * @return this colour
+     */
     const MyType& operator=(const MyType& other) {
         this->ColourComponents<ColourSpaceType>::assign(other);
         return *this;
     }
 
+public:
     /**
      * @brief
      *  Invert this colour value.
@@ -205,24 +213,6 @@ public:
         return MyType(ColourSpaceType::max() - this->getRed(),
                       ColourSpaceType::max() - this->getGreen(),
                       ColourSpaceType::max() - this->getBlue());
-    }
-
-    /**
-     * @brief
-     *  Convert a colour value in RGB colour space represented by
-     *      three Byte values
-     *  into the internal representation.
-     * @param r
-     *  the Byte value of the red component
-     * @param g
-     *  the Byte value of the green component
-     * @param b
-     *  the Byte value of the blue component
-     * @return
-     *  the colour
-     */
-    static MyType parse(uint8_t r, uint8_t g, uint8_t b) {
-        return MyType(((float)r) / 255.0f, ((float)g) / 255.0f, ((float)b) / 255.0f);
     }
 
 }; // struct Colour

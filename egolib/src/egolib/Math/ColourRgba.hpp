@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Colour4f.hpp
-/// @brief  Colours in RGBA colour space.
+/// @file   egolib/Math/ColourRgba.hpp
+/// @brief  Colours in RGBA colour spaces.
 /// @author Michael Heilmann
 
 #pragma once
 
-#include "egolib/Math/Colour3f.hpp"
+#include "egolib/Math/ColourRgb.hpp"
 
 namespace Ego {
 namespace Math {
@@ -40,7 +40,7 @@ public:
     /**
      * @brief The colour "red".
      * @return the colour "red"
-     * @see Ego::Math::Colour<RGBf>::red()
+     * @see Ego::Math::Colour<RGBb>::red()
      */
     static const MyType& red() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::red(),
@@ -51,7 +51,7 @@ public:
     /**
      * @brief The colour "green".
      * @return the colour "green"
-     * @see Ego::Math::Colour<RGBf>::green()
+     * @see Ego::Math::Colour<RGBb>::green()
      */
     static const MyType& green() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::green(),
@@ -62,7 +62,7 @@ public:
     /**
      * @brief The colour "blue".
      * @return the colour "blue"
-     * @see Ego::Math::Colour<RGBf>::blue()
+     * @see Ego::Math::Colour<RGBb>::blue()
      */
     static const MyType blue() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::blue(),
@@ -73,7 +73,7 @@ public:
     /**
      * @brief The colour "white".
      * @return the colour "white"
-     * @see Ego::Math::Colour<RGBf>::white()
+     * @see Ego::Math::Colour<RGBb>::white()
      */
     static const MyType white() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::white(),
@@ -84,7 +84,7 @@ public:
     /**
      * @brief The colour "black".
      * @return the colour "black"
-     * @see Ego::Math::Colour<RGBf>::black()
+     * @see Ego::Math::Colour<RGBb>::black()
      */
     static const MyType black() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::black(),
@@ -95,7 +95,7 @@ public:
     /**
      * @brief The colour "cyan".
      * @return the colour "cyan"
-     * @see Ego::Math::Colour<RGBf>::cyan()
+     * @see Ego::Math::Colour<RGBb>::cyan()
      */
     static const MyType cyan() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::cyan(),
@@ -106,7 +106,7 @@ public:
     /**
      * @brief The colour "magenta".
      * @return the colour "magenta"
-     * @see Ego::Math::Colour<RGBf>::magenta()
+     * @see Ego::Math::Colour<RGBb>::magenta()
      */
     static const MyType magenta() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::magenta(),
@@ -117,7 +117,7 @@ public:
     /**
      * @brief The colour "yellow".
      * @return the colour "yellow"
-     * @see Ego::Math::Colour<RGBf>::yellow()
+     * @see Ego::Math::Colour<RGBb>::yellow()
      */
     static const MyType yellow() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::yellow(),
@@ -128,7 +128,7 @@ public:
     /**
      * @brief The colour "purple".
      * @return the colour "purple"
-     * @see Ego::Math::Colour<RGBf>::purple()
+     * @see Ego::Math::Colour<RGBb>::purple()
      */
     static const MyType purple() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::purple(),
@@ -139,7 +139,7 @@ public:
     /**
      * @brief The colour "grey".
      * @return the colour "grey"
-     * @see Ego::Math::Colour<RGBf>::grey()
+     * @see Ego::Math::Colour<RGBb>::grey()
      */
     static const MyType grey() {
         static const MyType colour(Colour<Opaque<ColourSpaceType>>::grey(),
@@ -150,7 +150,7 @@ public:
 public:
     /**
      * @brief
-     *  Create a colour default constructor (opaque black)
+     *  Default construct with component values corresponding to "opaque black".
      */
     Colour() :
         ColourComponents<ColourSpaceType>(ColourSpaceType::min(),
@@ -162,12 +162,11 @@ public:
 
     /**
      * @brief
-     *  Create a colour.
+     *  Construct this colour from the specified color of the corresponding opaque colour space and the specified alpha component value.
      * @param rgb
      *  the red, green and blue components of the colour as a colour in RGB colour space
-     *  the colour in RGB space
      * @param a
-     *  the alpha component
+     *  the component value of the blue component
      * @throws Id::OutOfBoundsException
      *  if @a a is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
      */
@@ -177,18 +176,19 @@ public:
 
     /**
      * @brief
-     *  Create a colour.
+     *  Construct this colour from the component values of a specified other colour.
      * @param other
      *  the other colour
      */
-    Colour(const Colour& other) :
+    template <typename _OtherColourSpaceType>
+    Colour(const Colour<_OtherColourSpaceType>& other) :
         ColourComponents<ColourSpaceType>(other) {
         // Intentionally empty.
     }
 
     /**
      * @brief
-     *  Create a color.
+     *  Construct this colour from the specified component values.
      * @param r
      *  the component value of the red component
      * @param g
@@ -205,6 +205,12 @@ public:
         // Intentionally empty.
     }
 
+public:
+    /**
+     * @brief Assign this colour from another colour.
+     * @param other the other colour
+     * @return this colour
+     */
     const MyType& operator=(const MyType& other) {
         this->ColourComponents<ColourSpaceType>::assign(other);
         return *this;
@@ -250,25 +256,6 @@ public:
                       this->getAlpha());
     }
 
-    /**
-     * @brief
-     *  Convert a colour value in RGBA colour space represented by
-     *      four Byte values
-     *  into the internal representation.
-     * @param r
-     *  the Byte value of the red component
-     * @param g
-     *  the Byte value of the green component
-     * @param b
-     *  the Byte value of the blue component
-     * @param a
-     *  the Byte value of the alpha component
-     * @return
-     *  the colour
-     */
-    static MyType parse(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-        return MyType(((float)r) / 255.0f, ((float)g) / 255.0f, ((float)b) / 255.0f, ((float)a) / 255.0f);
-    }
 };
 
 } // namespace Math

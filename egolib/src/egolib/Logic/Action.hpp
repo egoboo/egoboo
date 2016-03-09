@@ -29,6 +29,7 @@
 const Ego::Math::Colour3f getBlockActionColour()
 {
     using Colour3f = Ego::Math::Colour3f;
-    static const auto& blockActionColour = Colour3f::parse(0x00, 0xbf, 0xff);
+    using Colour3b = Ego::Math::Colour3b;
+    static const auto blockActionColour = Colour3f(Colour3b(0x00, 0xbf, 0xff));
     return blockActionColour;
 }

@@ -17,8 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Colour3f.cpp
-/// @brief  Colours in RGB colour space.
+/// @file   egolib/Math/Colour.hpp
+/// @brief  Colours.
 /// @author Michael Heilmann
 
-#include "egolib/Math/Colour3f.hpp"
+#pragma once
+
+#include "egolib/Math/ColourComponents.hpp"
+
+namespace Ego {
+namespace Math {
+
+template <typename _ColourSpaceType, typename _Enabled = void>
+struct Colour;
+
+} // namespace Math
+} // namespace Ego

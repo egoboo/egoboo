@@ -27,7 +27,7 @@
 
 #include "egolib/Renderer/DeferredTexture.hpp"
 #include "egolib/Logic/Attribute.hpp"
-#include "egolib/Math/Colour4f.hpp"
+#include "egolib/Math/_Include.hpp"
 
 namespace Ego
 {
