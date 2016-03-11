@@ -37,6 +37,109 @@
 #    define LOG_NAN(XX)
 #endif
 
+/// the type for the 16-bit value used to store angles
+/// Some custom Egoboo unit within the bounds of \f$[0,2^16-1]\f$.
+struct Facing {
+private:
+    // The canonical range of unit facing is 0 = UINT16_MIN, 360 = 2^16-1 = UINT16_MAX.
+    // for the
+    uint16_t angle;
+public:
+    explicit Facing(const Ego::Math::Turns& x) : angle(0) {
+        static const float s = (float)0x00010000; // UINT16_MAX + 1.
+        this->angle = Ego::Math::clipBits<16>(int(float(x) * s));
+    }
+    explicit Facing(const Ego::Math::Degrees& x) : Facing(Ego::Math::Turns(x)) {
+        /* Intentionally left empty. */
+    }
+    explicit Facing(const Ego::Math::Radians& x) : Facing(Ego::Math::Turns(x)) {
+        /* Intentionally left empty. */
+    }
+    // int32_t always fits into int32_t.
+    explicit Facing(int32_t angle) : angle(0) {
+        // Important: Normalize the angle.
+        static constexpr int32_t min = static_cast<int32_t>(std::numeric_limits<uint16_t>::min()),
+            max = static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
+        while (angle < min) { angle += max; }
+        while (angle > max) { angle -= max; }
+        this->angle = angle;
+    }
+    // uint16_t always fits into int32_t.
+    // uint16_t is always in the correct range of 0 and 2^16-1.
+    explicit Facing(uint16_t angle) : angle(static_cast<int32_t>(angle)) {
+        /* Intentionally left empty. */
+    }
+    Facing() : angle(0) {
+        /* Intentionally left empty. */
+    }
+    Facing(const Facing& other) : angle(other.angle) {
+        /* Intentionally left empty. */
+    }
+    explicit operator int32_t() const {
+        // angle is always in the canonical range of 0 and 2^16-1.
+        return angle;
+    }
+    explicit operator uint16_t() const {
+        // angle is always in the canonical range of 0 and 2^16-1.
+        return angle;
+    }
+    explicit operator Ego::Math::Turns() const {
+        static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
+        static const float s = 1.0f / float(m);
+        return Ego::Math::Turns(float(angle) * s);
+    }
+    explicit operator Ego::Math::Radians() const {
+        return Ego::Math::Radians((Ego::Math::Turns)(*this));
+    }
+    explicit operator Ego::Math::Degrees() const {
+        return Ego::Math::Degrees((Ego::Math::Turns)(*this));
+    }
+
+public:
+    Facing operator+(const Facing& other) const {
+        // this.angle and other.angle are in the canonical range of 0 and 2^16-1.
+        // (2^16 - 1) + (2^16-1) is always smaller than the maximum value of int32_t.
+        return Facing(int32_t(angle) + int32_t(other.angle));
+    }
+    Facing operator-(const Facing& other) const {
+        // this angle and other.angle are in the canonical range of 0 and 2^16-1.
+        // 0         -    2^16-1 is always greater than the minimum value of int32_t.
+        return Facing(int32_t(angle) - int32_t(other.angle));
+    }
+    const Facing& operator+=(const Facing& other) {
+        (*this) = (*this) + other;
+        return *this;
+    }
+    const Facing& operator-=(const Facing& other) {
+        (*this) = (*this) - other;
+        return *this;
+    }
+
+public:
+    bool operator<(const Facing& other) const {
+        return angle < other.angle;
+    }
+    bool operator<=(const Facing& other) const {
+        return angle <= other.angle;
+    }
+    bool operator>(const Facing& other) const {
+        return angle > other.angle;
+    }
+    bool operator>=(const Facing& other) const {
+        return angle >= other.angle;
+    }
+    bool operator==(const Facing& other) const {
+        return angle == other.angle;
+    }
+    bool operator!=(const Facing& other) const {
+        return angle != other.angle;
+    }
+    static Facing random() {
+        const uint16_t angle = Random::next<uint16_t>(std::numeric_limits<uint16_t>::max());
+        return Facing(angle);
+    }
+};
+
 typedef uint16_t FACING_T;
 
 #define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
