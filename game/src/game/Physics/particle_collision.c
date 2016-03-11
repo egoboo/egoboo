@@ -810,7 +810,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                             IPair grimReaperDamage;
                             grimReaperDamage.base = FLOAT_TO_FP8(50.0f);
                             grimReaperDamage.rand = 0.0f;
-                            pdata->pchr->damage(direction, grimReaperDamage, DAMAGE_EVIL, pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], false, true, false);
+                            pdata->pchr->damage(Facing(direction), grimReaperDamage, DAMAGE_EVIL, pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], false, true, false);
                             BillboardSystem::get().makeBillboard(powner->getObjRef(), "Grim Reaper!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::red(), 3, Billboard::Flags::All);
                             AudioSystem::get().playSound(powner->getPosition(), AudioSystem::get().getGlobalSound(GSND_CRITICAL_HIT));
                         }
@@ -864,7 +864,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             }
 
             // Damage the character
-            pdata->actual_damage = pdata->pchr->damage(direction, modifiedDamage, pdata->pprt->damagetype, 
+            pdata->actual_damage = pdata->pchr->damage(Facing(direction), modifiedDamage, pdata->pprt->damagetype, 
                 pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], pdata->ppip->hasBit(DAMFX_ARMO), !pdata->ppip->hasBit(DAMFX_TIME), false);
         }
     }

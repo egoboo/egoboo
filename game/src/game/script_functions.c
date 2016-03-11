@@ -1568,8 +1568,8 @@ Uint8 scr_DamageTarget( script_state_t& state, ai_state_t& self )
     tmp_damage.base = state.argument;
     tmp_damage.rand = 1;
 
-    target->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pchr->damagetarget_damagetype), 
-        pchr->team, _currentModule->getObjectHandler()[self.getSelf()], false, false, true);
+    target->damage(Facing(ATK_FRONT), tmp_damage, static_cast<DamageType>(pchr->damagetarget_damagetype), 
+                   pchr->team, _currentModule->getObjectHandler()[self.getSelf()], false, false, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -7905,7 +7905,7 @@ Uint8 scr_TargetDamageSelf( script_state_t& state, ai_state_t& self )
     tmp_damage.base = state.argument;
     tmp_damage.rand = 1;
 
-    pchr->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(state.distance), target->getTeam().toRef(), target, false, false, true);
+    pchr->damage(Facing(ATK_FRONT), tmp_damage, static_cast<DamageType>(state.distance), target->getTeam().toRef(), target, false, false, true);
 
     SCRIPT_FUNCTION_END();
 }

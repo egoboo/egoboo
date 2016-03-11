@@ -331,7 +331,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     return has_ride_anim;
 }
 
-int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
+int Object::damage(Facing direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
                    const std::shared_ptr<Object> &attacker, const bool ignoreArmour, const bool setDamageTime, const bool ignoreInvictus)
 {
     int action;
@@ -417,7 +417,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
     // Remember the actual_damage type
     ai.damagetypelast = damagetype;
-    ai.directionlast  = direction;
+    ai.directionlast  = FACING_T(direction);
 
     // Check for characters who are immune to this damage, no need to continue if they have
     bool immune_to_damage = HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || (actual_damage > 0 && actual_damage <= damage_threshold);
@@ -467,8 +467,9 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 {
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
-                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
-                                            ObjectRef::Invalid, GRIP_LAST, attackerTeam, _objRef);
+                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + FACING_T(direction),
+                                                              _profile->getSlotNumber(), _profile->getBludParticleProfile(),
+                                                              ObjectRef::Invalid, GRIP_LAST, attackerTeam, _objRef);
                     }
                 }
 

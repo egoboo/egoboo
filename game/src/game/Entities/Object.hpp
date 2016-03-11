@@ -293,7 +293,7 @@ public:
     * @param ignore_invictus 
     *   if this is true, then we allow damaging this object even though it is normally immune to damage.
     **/
-    int damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
+    int damage(Facing direction, const IPair  damage, const DamageType damagetype, const TEAM_REF attackerTeam,
                const std::shared_ptr<Object> &attacker, const bool ignoreArmour, const bool setDamageTime, const bool ignoreInvictus);
 
     /**
