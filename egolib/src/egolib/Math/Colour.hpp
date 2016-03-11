@@ -17,8 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Colour4f.cpp
-/// @brief  Colours in RGBA colour space.
+/// @file   egolib/Math/Colour.hpp
+/// @brief  Colours.
 /// @author Michael Heilmann
 
-#include "egolib/Math/Colour4f.hpp"
+#pragma once
+
+#include "egolib/Math/ColourComponents.hpp"
+
+namespace Ego {
+namespace Math {
+
+template <typename _ColourSpaceType, typename _Enabled = void>
+struct Colour;
+
+} // namespace Math
+} // namespace Ego

@@ -100,9 +100,6 @@ signed SFP8_TO_SINT(const T& val)
     typedef Uint32 UFP16_T;
     typedef Sint32 SFP16_T;
 
-#   define FLOAT_TO_FP16( V1 )  ( (Uint32)((V1) * 0x00010000) )
-#   define FP16_TO_FLOAT( V1 )  ( (float )((V1) * 0.0000152587890625f ) )
-
 //--------------------------------------------------------------------------------------------
 // BIT FIELDS
     typedef Uint32 BIT_FIELD;                              ///< A big string supporting 32 bits

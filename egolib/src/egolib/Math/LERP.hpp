@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "egolib/Math/Colour3f.hpp"
-#include "egolib/Math/Colour4f.hpp"
+#include "egolib/Math/ColourRgb.hpp"
+#include "egolib/Math/ColourRgba.hpp"
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Standard.hpp" /// @todo Remove this.
 

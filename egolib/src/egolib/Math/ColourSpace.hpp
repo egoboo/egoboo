@@ -5,64 +5,140 @@
 namespace Ego {
 namespace Math {
 
-/// @brief The RGB colour space type.
-struct RGBf {
+/**
+ * The type of an L colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
+ * A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
+ */
+struct Lf {
+    /**
+    * @brief The component type.
+    */
     typedef float ComponentType;
-    static constexpr bool isRgb() { return true; }
+
+    /**
+     * @brief Get if the colour space has RGB components.
+     * @return @a true if the colour space has RGB components, @a false otherwise
+     */
+    static constexpr bool hasRgb() { return false; }
+
+    /**
+     * @brief Get if the colour space has an A component.
+     * @return @a true if the colour space has an A component, @a false otherwise
+     */
     static constexpr bool hasA() { return false; }
 
-    /// @brief The number of components of a colour in this colour space.
-    /// @return the number of components of a colour in this colour space
-    static constexpr size_t count() { return 3; }
+    /**
+     * @brief Get if the colour space has a L component.
+     * @return @a true if the colour space has an L component, @a false otherwise
+     */
+    static constexpr bool hasL() { return true; }
+
+    /**
+     * @brief Get the number of components of a colour in the colour space.
+     * @return the number of components of a colour in the colour space
+     */
+    static constexpr size_t count() { return 1; }
+
     /**
      * @brief Get the minimum component value.
      * @return the minimum component value
      */
     static constexpr ComponentType min() { return 0.0f; }
+
     /**
      * @brief Get the maximum component value.
      *  @return the maximum component value
      */
     static constexpr ComponentType max() { return 1.0f; }
-
 };
 
-/// @brief The RGBA colour space type.
-struct RGBAf {
+/**
+* The type of an LA colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
+* A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
+*/
+struct LAf {
+    /**
+     * @brief The component type.
+     */
     typedef float ComponentType;
-    static constexpr bool isRgb() { return true; }
+
+    /**
+     * @brief Get if the colour space has RGB components.
+     * @return @a true if the colour space has RGB components, @a false otherwise
+     */
+    static constexpr bool hasRgb() { return false; }
+
+    /**
+     * @brief Get if the colour space has an A component.
+     * @return @a true if the colour space has an A component, @a false otherwise
+     */
     static constexpr bool hasA() { return true; }
 
-    /// @brief The number of components of a colour in this colour space.
-    /// @return the number of components of a colour in this colour space
-    static constexpr size_t count() { return 4; }
+    /**
+     * @brief Get if the colour space has a L component.
+     * @return @a true if the colour space has an L component, @a false otherwise
+     */
+    static constexpr bool hasL() { return true; }
+
+    /**
+     * @brief Get the number of components of a colour in the colour space.
+     * @return the number of components of a colour in the colour space
+     */
+    static constexpr size_t count() { return 2; }
+
     /**
      * @brief Get the minimum component value.
      * @return the minimum component value
      */
     static constexpr ComponentType min() { return 0.0f; }
+
     /**
      * @brief Get the maximum component value.
      *  @return the maximum component value
      */
     static constexpr ComponentType max() { return 1.0f; }
-
 };
 
-/// @brief The RGB colour space type.
-struct RGBb {
+/**
+ * The type of an L colour space with unsigned integer components each within the range from 0 (inclusive) to 1 (inclusive).
+ * A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
+ */
+struct Lb {
+    /**
+     * @brief The component type.
+     */
     typedef uint8_t ComponentType;
-    static constexpr bool isRgb() { return true; }
+
+    /**
+     * @brief Get if the colour space has RGB components.
+     * @return @a true if the colour space has RGB components, @a false otherwise
+     */
+    static constexpr bool hasRgb() { return false; }
+
+    /**
+     * @brief Get if the colour space has an A component.
+     * @return @a true if the colour space has an A component, @a false otherwise
+     */
     static constexpr bool hasA() { return false; }
 
-    /// @brief The number of components of a colour in this colour space.
-    /// @return the number of components of a colour in this colour space
-    static constexpr size_t count() { return 3; }
+    /**
+     * @brief Get if the colour space has a L component.
+     * @return @a true if the colour space has an L component, @a false otherwise
+     */
+    static constexpr bool hasL() { return true; }
+
+    /**
+     * @brief Get the number of components of a colour in the colour space.
+     * @return the number of components of a colour in the colour space
+     */
+    static constexpr size_t count() { return 1; }
+
     /**
      * @brief Get the minimum component value.
      * @return the minimum component value
      */
     static constexpr ComponentType min() { return 0; }
+
     /**
      * @brief Get the maximum component value.
      *  @return the maximum component value
@@ -70,24 +146,240 @@ struct RGBb {
     static constexpr ComponentType max() { return 255; }
 };
 
-/// @brief The RGBA colour space type.
-struct RGBAb {
+/**
+ * The type of an LA colour space with unsigned integer components each within the range from 0 (inclusive) to 1 (inclusive).
+ * A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
+ */
+struct LAb {
+    /**
+     * @brief The component type.
+     */
     typedef uint8_t ComponentType;
-    static constexpr bool isRgb() { return true; }
+
+    /**
+     * @brief Get if the colour space has RGB components.
+     * @return @a true if the colour space has RGB components, @a false otherwise
+     */
+    static constexpr bool hasRgb() { return false; }
+
+    /**
+     * @brief Get if the colour space has an A component.
+     * @return @a true if the colour space has an A component, @a false otherwise
+     */
     static constexpr bool hasA() { return true; }
 
-    /// @brief The number of components of a colour in this colour space.
-    /// @return the number of components of a colour in this colour space
-    static constexpr size_t count() { return 4; }
     /**
-    * @brief Get the minimum component value.
-    * @return the minimum component value
-    */
+     * @brief Get if the colour space has a L component.
+     * @return @a true if the colour space has an L component, @a false otherwise
+     */
+    static constexpr bool hasL() { return true; }
+
+    /**
+     * @brief Get the number of components of a colour in the colour space.
+     * @return the number of components of a colour in the colour space
+     */
+    static constexpr size_t count() { return 2; }
+
+    /**
+     * @brief Get the minimum component value.
+     * @return the minimum component value
+     */
     static constexpr ComponentType min() { return 0; }
+
     /**
-    * @brief Get the maximum component value.
-    *  @return the maximum component value
-    */
+     * @brief Get the maximum component value.
+     *  @return the maximum component value
+     */
+    static constexpr ComponentType max() { return 255; }
+};
+
+/**
+ * The type of an RGB colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
+ * A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
+ */
+struct RGBf {
+    /**
+     * @brief The component type.
+     */
+    typedef float ComponentType;
+    
+    /**
+     * @brief Get if the colour space has RGB components.
+     * @return @a true if the colour space has RGB components, @a false otherwise 
+     */
+    static constexpr bool hasRgb() { return true; }
+    
+    /**
+     * @brief Get if the colour space has an A component.
+     * @return @a true if the colour space has an A component, @a false otherwise
+     */
+    static constexpr bool hasA() { return false; }
+
+    /**
+     * @brief Get if the colour space has a L component.
+     * @return @a true if the colour space has an L component, @a false otherwise
+     */
+    static constexpr bool hasL() { return false; }
+
+    /**
+     * @brief Get the number of components of a colour in the colour space.
+     * @return the number of components of a colour in the colour space
+     */
+    static constexpr size_t count() { return 3; }
+    
+    /**
+     * @brief Get the minimum component value.
+     * @return the minimum component value
+     */
+    static constexpr ComponentType min() { return 0.0f; }
+
+    /**
+     * @brief Get the maximum component value.
+     *  @return the maximum component value
+     */
+    static constexpr ComponentType max() { return 1.0f; }
+
+};
+
+/**
+ * The type of an RGBA colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
+ * A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
+ */
+struct RGBAf {
+    /**
+     * @brief The component type.
+     */
+    typedef float ComponentType;
+
+    /**
+     * @brief Get if the colour space has RGB components.
+     * @return @a true if the colour space has RGB components, @a false otherwise
+     */
+    static constexpr bool hasRgb() { return true; }
+
+    /**
+     * @brief Get if the colour space has an A component.
+     * @return @a true if the colour space has an A component, @a false otherwise
+     */
+    static constexpr bool hasA() { return true; }
+
+    /**
+     * @brief Get if the colour space has an L component.
+     * @return @a true if the colour space has an L component, @a false otherwise
+     */
+    static constexpr bool hasL() { return false; }
+
+    /**
+     * @brief Get the number of components of a colour in the colour space.
+     * @return the number of components of a colour in the colour space
+     */
+    static constexpr size_t count() { return 4; }
+
+    /**
+     * @brief Get the minimum component value.
+     * @return the minimum component value
+     */
+    static constexpr ComponentType min() { return 0.0f; }
+
+    /**
+     * @brief Get the maximum component value.
+     *  @return the maximum component value
+     */
+    static constexpr ComponentType max() { return 1.0f; }
+
+};
+
+/**
+ * The type of an RGB colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
+ * A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
+ */
+struct RGBb {
+    /**
+     * @brief The component type.
+     */
+    typedef uint8_t ComponentType;
+
+    /**
+     * @brief Get if the colour space has RGB components.
+     * @return @a true if the colour space has RGB components, @a false otherwise
+     */
+    static constexpr bool hasRgb() { return true; }
+
+    /**
+     * @brief Get if the colour space has an A component.
+     * @return @a true if the colour space has an A component, @a false otherwise
+     */
+    static constexpr bool hasA() { return false; }
+
+    /**
+     * @brief Get if the colour space has an L component.
+     * @return @a true if the colour space has an L component, @a false otherwise
+     */
+    static constexpr bool hasL() { return false; }
+
+    /**
+     * @brief Get the number of components of a colour in the colour space.
+     * @return the number of components of a colour in the colour space
+     */
+    static constexpr size_t count() { return 3; }
+
+    /**
+     * @brief Get the minimum component value.
+     * @return the minimum component value
+     */
+    static constexpr ComponentType min() { return 0; }
+
+    /**
+     * @brief Get the maximum component value.
+     *  @return the maximum component value
+     */
+    static constexpr ComponentType max() { return 255; }
+};
+
+/**
+ * The type of an RGBA colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
+ * A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
+ */
+struct RGBAb {
+    /**
+     * @brief The component type.
+     */
+    typedef uint8_t ComponentType;
+
+    /**
+     * @brief Get if the colour space has RGB components.
+     * @return @a true if the colour space has RGB components, @a false otherwise
+     */
+    static constexpr bool hasRgb() { return true; }
+
+    /**
+     * @brief Get if the colour space has an A component.
+     * @return @a true if the colour space has an A component, @a false otherwise
+     */
+    static constexpr bool hasA() { return true; }
+
+    /**
+     * @brief Get if the colour space has an L component.
+     * @return @a true if the colour space has an L component, @a false otherwise
+     */
+    static constexpr bool hasL() { return false; }
+
+    /**
+     * @brief Get the number of components in the colour space.
+     * @return the number of components of a colour in the colour space
+     */
+    static constexpr size_t count() { return 4; }
+
+    /**
+     * @brief Get the minimum component value.
+     * @return the minimum component value
+     */
+    static constexpr ComponentType min() { return 0; }
+
+    /**
+     * @brief Get the maximum component value.
+     *  @return the maximum component value
+     */
     static constexpr ComponentType max() { return 255; }
 };
 
@@ -99,260 +391,57 @@ template <typename _ColourSpaceType>
 struct _Opaque;
 
 template <>
+struct _Opaque<RGBb> { typedef RGBb Type; };
+template <>
 struct _Opaque<RGBf> { typedef RGBf Type; };
 template <>
+struct _Opaque<Lb> { typedef Lb Type; };
+template <>
+struct _Opaque<Lf> { typedef Lf Type; };
+
+template <>
+struct _Opaque<RGBAb> { typedef RGBb Type; };
+template <>
 struct _Opaque<RGBAf> { typedef RGBf Type; };
+template <>
+struct _Opaque<LAb> { typedef Lb Type; };
+template <>
+struct _Opaque<LAf> { typedef Lf Type; };
 
 template <typename _ColourSpaceType>
 using Opaque = typename _Opaque<_ColourSpaceType>::Type;
-
-template <typename _ColourSpaceType, typename _Enabled = void>
-struct ColourComponents;
 
 namespace Internal {
 
 template <typename _ColourSpaceType>
 struct IsRgb {
-    static constexpr bool value = _ColourSpaceType::isRgb() && !_ColourSpaceType::hasA();
+    static constexpr bool value = _ColourSpaceType::hasRgb()
+                               && !_ColourSpaceType::hasL()
+                               && !_ColourSpaceType::hasA();
 };
-
-}
-
-template <typename _ColourSpaceType>
-struct ColourComponents<_ColourSpaceType, std::enable_if_t<Internal::IsRgb<_ColourSpaceType>::value>> {
-protected:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
-
-private:
-    /**
-     * @brief The red component value.
-     * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
-     */
-    ComponentType r;
-    /**
-     * @brief The green component value.
-     * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
-     */
-    ComponentType g;
-    /**
-     * @brief The blue component value.
-     * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
-     */
-    ComponentType b;
-protected:
-    ColourComponents(const ColourComponents& other)
-        : r(other.r), g(other.g), b(other.b) {
-        // Intentionally empty.
-    }
-
-    /**
-     * @brief
-     *  Create a color.
-     * @param r
-     *  the component value of the red component
-     * @param g
-     *  the component value of the green component
-     * @param b
-     *  the component value of the blue component
-     * @throws Id::OutOfBoundsException
-     *  if @a r, @a g, or @a b are not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
-     */
-    ColourComponents(ComponentType r, ComponentType g, ComponentType b)
-        : r(r), g(g), b(b) {
-        if (r < ColourSpaceType::min() || r > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "red component out of bounds");
-        }
-        if (g < ColourSpaceType::min() || g > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "green component out of bounds");
-        }
-        if (b < ColourSpaceType::min() || b > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "blue component out of bounds");
-        }
-    }
-
-    void assign(const ColourComponents& other) {
-        r = other.r;
-        g = other.g;
-        b = other.b;
-    }
-
-public:
-    /**
-     * @brief
-     *  Get the value of the red component.
-     * @return
-     *  the value of the red component
-     */
-    ComponentType getRed() const {
-        return r;
-    }
-
-    /**
-     * @brief
-     *  Set the value of the red component.
-     * @param r
-     *  the value of the red component
-     * @throws Id::OutOfBoundsException
-     *  if @a r is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
-     */
-    void setRed(ComponentType r) {
-        if (r < ColourSpaceType::min() || r > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "red component out of bounds");
-        }
-        this->r = r;
-    }
-
-    /**
-     * @brief
-     *  Get the value of the green component.
-     * @return
-     *  the value of the green component
-     */
-    ComponentType getGreen() const {
-        return g;
-    }
-
-    /**
-     * @brief
-     *  Set the value of the green component.
-     * @param g
-     *  the value of the green component
-     * @throws Id::OutOfBoundsException
-     *  if @a g is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
-     */
-    void setGreen(ComponentType g) {
-        if (g < ColourSpaceType::min() || g > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "green component out of bounds");
-        }
-        this->g = g;
-    }
-
-    /**
-     * @brief
-     *  Get the value of the blue component.
-     * @return
-     *  the value of the blue component
-     */
-    ComponentType getBlue() const {
-        return b;
-    }
-
-    /**
-     * @brief
-     *  Set the value of the blue component.
-     * @param b
-     *  the value of the blue component
-     * @throws Id::OutOfBoundsException
-     *  if @a b is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
-     */
-    void setBlue(ComponentType b) {
-        if (b < ColourSpaceType::min() || b > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "blue component out of bounds");
-        }
-        this->b = b;
-    }
-};
-
-namespace Internal {
 
 template <typename _ColourSpaceType>
 struct IsRgba {
-    static constexpr bool value = _ColourSpaceType::isRgb() && _ColourSpaceType::hasA();
+    static constexpr bool value = _ColourSpaceType::hasRgb()
+                               && !_ColourSpaceType::hasL()
+                               && _ColourSpaceType::hasA();
 };
-
-}
 
 template <typename _ColourSpaceType>
-struct ColourComponents<_ColourSpaceType, std::enable_if_t<Internal::IsRgba<_ColourSpaceType>::value>> :
-    public ColourComponents<Opaque<_ColourSpaceType>> {
-protected:
-    typedef _ColourSpaceType ColourSpaceType;
-    typedef typename ColourSpaceType::ComponentType ComponentType;
-
-private:
-    /**
-     * @brief The blue component value.
-     * @invariant Within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive).
-     */
-    ComponentType a;
-protected:
-    ColourComponents(const ColourComponents& other)
-        : ColourComponents<Opaque<ColourSpaceType>>(other), a(other.a) {
-        // Intentionally empty.
-    }
-    /**
-     * @brief
-     *  Create a color.
-     * @param r
-     *  the component value of the red component
-     * @param g
-     *  the component value of the green component
-     * @param b
-     *  the component value of the blue component
-     * @param a
-     *  the component value of the alpha component
-     * @throws Id::OutOfBoundsException
-     *  if @a r, @a g, @a b, or @a a are not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
-     */
-    ColourComponents(ComponentType r, ComponentType g, ComponentType b, ComponentType a)
-        : ColourComponents<Opaque<ColourSpaceType>>(r, g, b), a(a) {
-        if (a < ColourSpaceType::min() || a > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "alpha component out of range");
-        }
-    }
-    /**
-     * @brief
-     *  Create a colour.
-     * @param rgb
-     *  the red, green and blue components of the colour as a colour in RGB colour space
-     *  the colour in RGB space
-     * @param a
-     *  the alpha component
-     * @throws Id::OutOfBoundsException
-     *  if @a a is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
-     */
-    ColourComponents(const ColourComponents<Opaque<ColourSpaceType>>& other, ComponentType a) :
-        ColourComponents<Opaque<ColourSpaceType>>(other),
-        a(a) {
-        if (a < ColourSpaceType::min() || a > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "alpha component out of bounds");
-        }
-    }
-
-    void assign(const ColourComponents& other) {
-        ColourComponents<Opaque<ColourSpaceType>>::assign(other);
-        a = other.a;
-    }
-public:
-    /**
-     * @brief
-     *  Get the value of the alpha component.
-     * @return
-     *  the value of the alpha component
-     */
-    ComponentType getAlpha() const {
-        return a;
-    }
-
-    /**
-     * @brief
-     *  Set the value of the alpha component.
-     * @param a
-     *  the value of the alpha component
-     * @throws Id::OutOfBoundsException
-     *  if @a a is not within the bounds of ColourSpaceType::min() (inclusive) and ColourSpaceType::max() (inclusive)
-     */
-    void setAlpha(const ComponentType a) {
-        if (a < ColourSpaceType::min() || a > ColourSpaceType::max()) {
-            throw Id::OutOfBoundsException(__FILE__, __LINE__, "alpha component out of bounds");
-        }
-        this->a = a;
-    }
+struct IsL {
+    static constexpr bool value = !_ColourSpaceType::hasRgb()
+                               && _ColourSpaceType::hasL()
+                               && !_ColourSpaceType::hasA();
 };
 
-template <typename _ColourSpaceType, typename _Enabled = void>
-struct Colour;
+template <typename _ColourSpaceType>
+struct IsLA {
+    static constexpr bool value = !_ColourSpaceType::hasRgb()
+                               && _ColourSpaceType::hasL()
+                               && _ColourSpaceType::hasA();
+};
+
+} // namespace Internal
 
 } // namespace Math
 } // namespace Ego

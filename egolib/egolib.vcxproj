@@ -447,22 +447,6 @@
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\OpenGL\Renderer.asm</AssemblerListingLocation>
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\OpenGL\Renderer.asm</AssemblerListingLocation>
     </ClCompile>
-    <ClCompile Include="src\egolib\math\Colour3f.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\Colour3f.o</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Colour3f.o</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\Colour3f.o</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\Colour3f.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\Colour3f.asm</AssemblerListingLocation>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\Colour3f.asm</AssemblerListingLocation>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\Colour3f.asm</AssemblerListingLocation>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Colour3f.asm</AssemblerListingLocation>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\Colour4f.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\Colour4f.o</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\Colour4f.o</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\Colour4f.o</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Colour4f.o</ObjectFileName>
-    </ClCompile>
     <ClCompile Include="src\egolib\Renderer\Renderer.cpp">
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\Renderer.asm</AssemblerListingLocation>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\Renderer.o</ObjectFileName>
@@ -510,6 +494,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Colour.hpp" />
+    <ClInclude Include="src\egolib\Math\ColourLa.hpp" />
+    <ClInclude Include="src\egolib\Math\ColourComponents.hpp" />
     <ClInclude Include="src\egolib\TrigonometricTable.hpp" />
     <ClInclude Include="src\egolib\Math\Ray.hpp" />
     <ClInclude Include="src\egolib\Math\ColourSpace.hpp" />
@@ -672,8 +659,8 @@
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
-    <ClInclude Include="src\egolib\math\Colour3f.hpp" />
-    <ClInclude Include="src\egolib\math\Colour4f.hpp" />
+    <ClInclude Include="src\egolib\math\ColourRgb.hpp" />
+    <ClInclude Include="src\egolib\math\ColourRgba.hpp" />
     <ClInclude Include="src\egolib\math\Vector.hpp" />
     <ClInclude Include="src\egolib\math\Cube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.h" />
@@ -733,6 +720,7 @@
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
     </ClInclude>
+    <None Include="src\egolib\Math\ColourL.hpp" />
     <None Include="src\egolib\Script\Functions.in" />
     <None Include="src\egolib\Script\Operators.in" />
     <None Include="src\egolib\Script\Variables.in" />

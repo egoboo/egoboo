@@ -17,8 +17,37 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Math/Colour3f.cpp
-/// @brief  Colours in RGB colour space.
-/// @author Michael Heilmann
+#include "EgoTest/EgoTest.hpp"
+#include "egolib/Math/_Include.hpp"
 
-#include "egolib/Math/Colour3f.hpp"
+namespace Ego {
+namespace Math {
+namespace Test {
+
+EgoTest_TestCase(ColourMathTest) {
+    
+    EgoTest_Test(Lb2Lb)
+    {}
+    EgoTest_Test(Lf2Lf)
+    {}
+
+    EgoTest_Test(LAb2LAb)
+    {}
+    EgoTest_Test(LAf2LAf)
+    {}
+
+    EgoTest_Test(RGBb2RGBb)
+    {}
+    EgoTest_Test(RGBf2RGBf)
+    {}
+    
+    EgoTest_Test(RGBAb2RGBAb)
+    {}
+    EgoTest_Test(RGBAf2RGBAf)
+    {}
+
+};
+
+}
+}
+} // end namespaces Ego::Math::Test

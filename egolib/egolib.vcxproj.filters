@@ -195,12 +195,6 @@
     <ClCompile Include="src\egolib\math\Random.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\math\Colour4f.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\Colour3f.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -576,12 +570,6 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\math\Sphere.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\math\Colour4f.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\math\Colour3f.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp">
@@ -1085,6 +1073,21 @@
     <ClInclude Include="src\egolib\TrigonometricTable.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\ColourComponents.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\ColourRgba.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\ColourRgb.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\ColourLa.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Colour.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
@@ -1107,6 +1110,9 @@
     </None>
     <None Include="src\egolib\Script\Operators.in">
       <Filter>Header Files\Script</Filter>
+    </None>
+    <None Include="src\egolib\Math\ColourL.hpp">
+      <Filter>Header Files\Math</Filter>
     </None>
   </ItemGroup>
 </Project>

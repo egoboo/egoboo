@@ -37,6 +37,109 @@
 #    define LOG_NAN(XX)
 #endif
 
+/// the type for the 16-bit value used to store angles
+/// Some custom Egoboo unit within the bounds of \f$[0,2^16-1]\f$.
+struct Facing {
+private:
+    // The canonical range of unit facing is 0 = UINT16_MIN, 360 = 2^16-1 = UINT16_MAX.
+    // for the
+    uint16_t angle;
+public:
+    explicit Facing(const Ego::Math::Turns& x) : angle(0) {
+        static const float s = (float)0x00010000; // UINT16_MAX + 1.
+        this->angle = Ego::Math::clipBits<16>(int(float(x) * s));
+    }
+    explicit Facing(const Ego::Math::Degrees& x) : Facing(Ego::Math::Turns(x)) {
+        /* Intentionally left empty. */
+    }
+    explicit Facing(const Ego::Math::Radians& x) : Facing(Ego::Math::Turns(x)) {
+        /* Intentionally left empty. */
+    }
+    // int32_t always fits into int32_t.
+    explicit Facing(int32_t angle) : angle(0) {
+        // Important: Normalize the angle.
+        static constexpr int32_t min = static_cast<int32_t>(std::numeric_limits<uint16_t>::min()),
+            max = static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
+        while (angle < min) { angle += max; }
+        while (angle > max) { angle -= max; }
+        this->angle = angle;
+    }
+    // uint16_t always fits into int32_t.
+    // uint16_t is always in the correct range of 0 and 2^16-1.
+    explicit Facing(uint16_t angle) : angle(static_cast<int32_t>(angle)) {
+        /* Intentionally left empty. */
+    }
+    Facing() : angle(0) {
+        /* Intentionally left empty. */
+    }
+    Facing(const Facing& other) : angle(other.angle) {
+        /* Intentionally left empty. */
+    }
+    explicit operator int32_t() const {
+        // angle is always in the canonical range of 0 and 2^16-1.
+        return angle;
+    }
+    explicit operator uint16_t() const {
+        // angle is always in the canonical range of 0 and 2^16-1.
+        return angle;
+    }
+    explicit operator Ego::Math::Turns() const {
+        static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
+        static const float s = 1.0f / float(m);
+        return Ego::Math::Turns(float(angle) * s);
+    }
+    explicit operator Ego::Math::Radians() const {
+        return Ego::Math::Radians((Ego::Math::Turns)(*this));
+    }
+    explicit operator Ego::Math::Degrees() const {
+        return Ego::Math::Degrees((Ego::Math::Turns)(*this));
+    }
+
+public:
+    Facing operator+(const Facing& other) const {
+        // this.angle and other.angle are in the canonical range of 0 and 2^16-1.
+        // (2^16 - 1) + (2^16-1) is always smaller than the maximum value of int32_t.
+        return Facing(int32_t(angle) + int32_t(other.angle));
+    }
+    Facing operator-(const Facing& other) const {
+        // this angle and other.angle are in the canonical range of 0 and 2^16-1.
+        // 0         -    2^16-1 is always greater than the minimum value of int32_t.
+        return Facing(int32_t(angle) - int32_t(other.angle));
+    }
+    const Facing& operator+=(const Facing& other) {
+        (*this) = (*this) + other;
+        return *this;
+    }
+    const Facing& operator-=(const Facing& other) {
+        (*this) = (*this) - other;
+        return *this;
+    }
+
+public:
+    bool operator<(const Facing& other) const {
+        return angle < other.angle;
+    }
+    bool operator<=(const Facing& other) const {
+        return angle <= other.angle;
+    }
+    bool operator>(const Facing& other) const {
+        return angle > other.angle;
+    }
+    bool operator>=(const Facing& other) const {
+        return angle >= other.angle;
+    }
+    bool operator==(const Facing& other) const {
+        return angle == other.angle;
+    }
+    bool operator!=(const Facing& other) const {
+        return angle != other.angle;
+    }
+    static Facing random() {
+        const uint16_t angle = Random::next<uint16_t>(std::numeric_limits<uint16_t>::max());
+        return Facing(angle);
+    }
+};
+
 typedef uint16_t FACING_T;
 
 #define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
@@ -94,35 +197,6 @@ inline double INV_FFFF<double>() {
     return 0.000015259021896696421759365224689097;
 }
 
-
-/**
- * @brief
- *  Convert an angle from radians to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
- * @param x
- *  the angle in radians
- * @return
- *  the angle in "facing"
- */
-inline FACING_T RadianToFacing(const Ego::Math::Radians& x) {
-	// s := UINT16_MAX / (2 * PI).
-    static const float s = std::numeric_limits<FACING_T>::max() / Ego::Math::twoPi<float>();
-	return FACING_T(Ego::Math::clipBits<16>(float(x) * s));
-}
-
-/**
- * @brief
- *  Convert an angle "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$) to radians.
- * @param x
- *  the angle in facing
- * @return
- *  the angle in radians
- */
-inline Ego::Math::Radians FacingToRadian(const FACING_T& x) {
-	// s := (2 * PI) / UINT16_MAX
-    static const float s = Ego::Math::twoPi<float>() / std::numeric_limits<FACING_T>::max();
-	return Ego::Math::Radians(uint16_t(x) * s);
-}
-
 /**
  * @brief
  *  Convert an angle from turns to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
@@ -132,10 +206,11 @@ inline Ego::Math::Radians FacingToRadian(const FACING_T& x) {
  *  the angle in "facing"
  */
 inline FACING_T TurnToFacing(const Ego::Math::Turns& x) {
-    // 0x00010000 = UINT16_MAX.
+    // 0x00010000 = UINT16_MAX + 1.
     // s := UINT16_MAX + 1.
     // TODO: Why is +1 added?
-    static const float s = (float)0x00010000;
+    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
+    static const float s = (float)m;
 	return FACING_T(Ego::Math::clipBits<16>(int(float(x) * s)));
 }
 
@@ -148,11 +223,48 @@ inline FACING_T TurnToFacing(const Ego::Math::Turns& x) {
  *  the angle in turns
  */
 inline Ego::Math::Turns FacingToTurn(const FACING_T& x) {
-    // 0x00010000 = UINT16_MAX.
+    // 0x00010000 = UINT16_MAX + 1.
     // s := 1 / (UINT16_T + 1).
     // TODO: why is +1 added?
-    static const float s = 1.0f / (float)0x00010000;
-	return Ego::Math::Turns(uint16_t(x) * s);
+    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
+    static const float s = 1.0f / (float)m;
+	return Ego::Math::Turns(float(x) * s);
+}
+inline Ego::Math::Turns FacingToTurn(const Facing& x) {
+    // 0x00010000 = UINT16_MAX + 1.
+    // s := 1 / (UINT16_T + 1).
+    // TODO: why is +1 added?
+    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
+    static const float s = 1.0f / (float)m;
+    return Ego::Math::Turns(float(uint16_t(x)) * s);
+}
+
+
+/**
+ * @brief
+ *  Convert an angle "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$) to radians.
+ * @param x
+ *  the angle in facing
+ * @return
+ *  the angle in radians
+ */
+inline Ego::Math::Radians FacingToRadian(const FACING_T& x) {
+    return Ego::Math::Radians(FacingToTurn(x));
+}
+inline Ego::Math::Radians FacingToRadian(const Facing& x) {
+    return Ego::Math::Radians(FacingToTurn(x));
+}
+
+/**
+ * @brief
+ *  Convert an angle from radians to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
+ * @param x
+ *  the angle in radians
+ * @return
+ *  the angle in "facing"
+ */
+inline FACING_T RadianToFacing(const Ego::Math::Radians& x) {
+    return TurnToFacing(Ego::Math::Turns(x));
 }
 
 // conversion functions
@@ -163,21 +275,11 @@ void     facing_to_vec(const FACING_T& facing, float * dx, float * dy);
 int terp_dir(const FACING_T& majordir, const FACING_T& minordir, const int weight);
 
 //--------------------------------------------------------------------------------------------
-// the lookup tables for sine and cosine
-
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
-
-/// @note - Aaron uses two terms without much attention to their meaning
-///         I think that we should use "face" or "facing" to mean the fill 16-bit value
-///         and use "turn" to be the TRIG_TABLE_BITS-bit value
-
-
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

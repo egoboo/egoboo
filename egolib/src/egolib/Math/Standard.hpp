@@ -2,8 +2,8 @@
 
 #include "egolib/Math/AABB.hpp"
 #include "egolib/Math/Cone3.hpp"
-#include "egolib/Math/Colour3f.hpp"
-#include "egolib/Math/Colour4f.hpp"
+#include "egolib/Math/ColourRgb.hpp"
+#include "egolib/Math/ColourRgba.hpp"
 #include "egolib/Math/Cube.hpp"
 #include "egolib/Math/OrderedField.hpp"
 #include "egolib/Math/Line.hpp"
@@ -90,6 +90,14 @@ typedef Colour<RGBf> Colour3f;
 /// A colour in RGBA colour space with floating-point components each within the range from 0 (inclusive) to 1 (inclusive).
 /// A component value of 0 indicates minimal intensity of the component and 1 indicates maximal intensity of the component.
 typedef Colour<RGBAf> Colour4f;
+
+/// A colour in RGB colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
+/// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
+typedef Colour<RGBb> Colour3b;
+
+/// A colour in RGBA colour space with unsigned integer components each within the range from 0 (inclusive) to 255 (inclusive).
+/// A component value of 0 indicates minimal intensity of the component and 255 indicates maximal intensity of the component.
+typedef Colour<RGBAb> Colour4b;
 
 } // namespace Math
 } // namespace Ego
