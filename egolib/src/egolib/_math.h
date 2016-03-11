@@ -30,6 +30,10 @@
 // IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
 //--------------------------------------------------------------------------------------------
 
+template <typename Type>
+int sgn(const Type& x) {
+    return LAMBDA(0 == x, 0, LAMBDA(x > 0, 1, -1));
+}
 
 #if defined(TEST_NAN_RESULT)
 #    define LOG_NAN(XX)      if( ieee32_bad(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
@@ -37,17 +41,25 @@
 #    define LOG_NAN(XX)
 #endif
 
-/// the type for the 16-bit value used to store angles
-/// Some custom Egoboo unit within the bounds of \f$[0,2^16-1]\f$.
 struct Facing {
 private:
     // The canonical range of unit facing is 0 = UINT16_MIN, 360 = 2^16-1 = UINT16_MAX.
-    // for the
-    uint16_t angle;
+    int32_t angle;
+
+    static void constrain(int32_t& angle) {
+        while (angle < -static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) {
+            angle = angle + static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
+        }
+        while (angle > +static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) {
+            angle = angle - static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
+        }
+    }
+
 public:
-    explicit Facing(const Ego::Math::Turns& x) : angle(0) {
-        static const float s = (float)0x00010000; // UINT16_MAX + 1.
-        this->angle = Ego::Math::clipBits<16>(int(float(x) * s));
+    explicit Facing(const Ego::Math::Turns& other) : angle(0) {
+        static const float s = static_cast<float>(static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1);
+        this->angle = int32_t(float(other) * s);
+        constrain(this->angle);
     }
     explicit Facing(const Ego::Math::Degrees& x) : Facing(Ego::Math::Turns(x)) {
         /* Intentionally left empty. */
@@ -57,12 +69,9 @@ public:
     }
     // int32_t always fits into int32_t.
     explicit Facing(int32_t angle) : angle(0) {
-        // Important: Normalize the angle.
-        static constexpr int32_t min = static_cast<int32_t>(std::numeric_limits<uint16_t>::min()),
-            max = static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
-        while (angle < min) { angle += max; }
-        while (angle > max) { angle -= max; }
+        // Do *not* normalize the angle.
         this->angle = angle;
+        constrain(this->angle);
     }
     // uint16_t always fits into int32_t.
     // uint16_t is always in the correct range of 0 and 2^16-1.
@@ -75,17 +84,22 @@ public:
     Facing(const Facing& other) : angle(other.angle) {
         /* Intentionally left empty. */
     }
-    explicit operator int32_t() const {
-        // angle is always in the canonical range of 0 and 2^16-1.
-        return angle;
-    }
     explicit operator uint16_t() const {
-        // angle is always in the canonical range of 0 and 2^16-1.
+        int32_t x = angle;
+        while (x < -static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) {
+            x = x + static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
+        }
+        while (x > +static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) {
+            x = x - static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
+        }
+        return x;
+    }
+    explicit operator int32_t() const {
         return angle;
     }
     explicit operator Ego::Math::Turns() const {
-        static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
-        static const float s = 1.0f / float(m);
+        static const int32_t s = static_cast<float>(static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) + 1;
+        static const float inv_s = 1.0f / s;
         return Ego::Math::Turns(float(angle) * s);
     }
     explicit operator Ego::Math::Radians() const {
@@ -96,20 +110,32 @@ public:
     }
 
 public:
+    Facing operator-() const {
+        return Facing(-angle);
+    }
+
+public:
+    Facing operator*(float other) const {
+        return Facing(int32_t(float(angle) * other));
+    }
+
     Facing operator+(const Facing& other) const {
         // this.angle and other.angle are in the canonical range of 0 and 2^16-1.
         // (2^16 - 1) + (2^16-1) is always smaller than the maximum value of int32_t.
-        return Facing(int32_t(angle) + int32_t(other.angle));
+        return Facing(angle + other.angle);
     }
+
     Facing operator-(const Facing& other) const {
         // this angle and other.angle are in the canonical range of 0 and 2^16-1.
         // 0         -    2^16-1 is always greater than the minimum value of int32_t.
-        return Facing(int32_t(angle) - int32_t(other.angle));
+        return Facing(angle - other.angle);
     }
+
     const Facing& operator+=(const Facing& other) {
         (*this) = (*this) + other;
         return *this;
     }
+
     const Facing& operator-=(const Facing& other) {
         (*this) = (*this) - other;
         return *this;
@@ -119,26 +145,82 @@ public:
     bool operator<(const Facing& other) const {
         return angle < other.angle;
     }
+
     bool operator<=(const Facing& other) const {
         return angle <= other.angle;
     }
+
     bool operator>(const Facing& other) const {
         return angle > other.angle;
     }
+
     bool operator>=(const Facing& other) const {
         return angle >= other.angle;
     }
+
     bool operator==(const Facing& other) const {
         return angle == other.angle;
     }
+
     bool operator!=(const Facing& other) const {
         return angle != other.angle;
     }
-    static Facing random() {
-        const uint16_t angle = Random::next<uint16_t>(std::numeric_limits<uint16_t>::max());
-        return Facing(angle);
+
+public:
+    static Facing random(bool negative = false) {
+        int32_t x = static_cast<int32_t>(Random::next<uint16_t>(std::numeric_limits<uint16_t>::max()));
+        if (negative) {
+            x = Random::nextBool() ? -x : -x;
+        }
+        return Facing(x);
     }
 };
+
+struct EulerFacing {
+    Facing x, y, z;
+    EulerFacing() : x(), y(), z() {}
+    EulerFacing(const Facing& x, const Facing& y, const Facing& z) : x(x), y(y), z(z) {}
+    EulerFacing(const EulerFacing& other) : x(other.x), y(other.y), z(other.z) {}
+    const Facing& operator[](size_t index) const {
+        switch (index) {
+            case 0:
+                return x;
+            case 1:
+                return y;
+            case 2:
+                return z;
+            default:
+                throw Id::OutOfBoundsException(__FILE__, __LINE__, "index out of range");
+        };
+    }
+    Facing& operator[](size_t index) {
+        switch (index) {
+            case 0:
+                return x;
+            case 1:
+                return y;
+            case 2:
+                return z;
+            default:
+                throw Id::OutOfBoundsException(__FILE__, __LINE__, "index out of range");
+        };
+    }
+};
+
+template <>
+inline int sgn<Facing>(const Facing& x) {
+    return sgn(int32_t(x));
+}
+
+namespace std {
+inline float sin(const Facing& x) {
+    return sin((Ego::Math::Radians)x);
+}
+
+inline float cos(const Facing& x) {
+    return cos((Ego::Math::Radians)x);
+}
+}
 
 typedef uint16_t FACING_T;
 
@@ -205,13 +287,8 @@ inline double INV_FFFF<double>() {
  * @return
  *  the angle in "facing"
  */
-inline FACING_T TurnToFacing(const Ego::Math::Turns& x) {
-    // 0x00010000 = UINT16_MAX + 1.
-    // s := UINT16_MAX + 1.
-    // TODO: Why is +1 added?
-    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
-    static const float s = (float)m;
-	return FACING_T(Ego::Math::clipBits<16>(int(float(x) * s)));
+inline Facing TurnToFacing(const Ego::Math::Turns& x) {
+    return Facing(x);
 }
 
 /**
@@ -222,21 +299,8 @@ inline FACING_T TurnToFacing(const Ego::Math::Turns& x) {
  * @return
  *  the angle in turns
  */
-inline Ego::Math::Turns FacingToTurn(const FACING_T& x) {
-    // 0x00010000 = UINT16_MAX + 1.
-    // s := 1 / (UINT16_T + 1).
-    // TODO: why is +1 added?
-    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
-    static const float s = 1.0f / (float)m;
-	return Ego::Math::Turns(float(x) * s);
-}
 inline Ego::Math::Turns FacingToTurn(const Facing& x) {
-    // 0x00010000 = UINT16_MAX + 1.
-    // s := 1 / (UINT16_T + 1).
-    // TODO: why is +1 added?
-    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
-    static const float s = 1.0f / (float)m;
-    return Ego::Math::Turns(float(uint16_t(x)) * s);
+    return static_cast<Ego::Math::Turns>(x);
 }
 
 
@@ -248,11 +312,8 @@ inline Ego::Math::Turns FacingToTurn(const Facing& x) {
  * @return
  *  the angle in radians
  */
-inline Ego::Math::Radians FacingToRadian(const FACING_T& x) {
-    return Ego::Math::Radians(FacingToTurn(x));
-}
 inline Ego::Math::Radians FacingToRadian(const Facing& x) {
-    return Ego::Math::Radians(FacingToTurn(x));
+    return static_cast<Ego::Math::Radians>(x);
 }
 
 /**
@@ -263,18 +324,22 @@ inline Ego::Math::Radians FacingToRadian(const Facing& x) {
  * @return
  *  the angle in "facing"
  */
-inline FACING_T RadianToFacing(const Ego::Math::Radians& x) {
+inline Facing RadianToFacing(const Ego::Math::Radians& x) {
     return TurnToFacing(Ego::Math::Turns(x));
 }
 
 // conversion functions
 FACING_T vec_to_facing(const float dx, const float dy);
-void     facing_to_vec(const FACING_T& facing, float * dx, float * dy);
+void     facing_to_vec(const Facing& facing, float * dx, float * dy);
 
 // rotation functions
 int terp_dir(const FACING_T& majordir, const FACING_T& minordir, const int weight);
 
 //--------------------------------------------------------------------------------------------
+
+#if !defined(SGN)
+#    define SGN(X) sgn(X)
+#endif
 
 #if defined(__cplusplus)
 extern "C"
@@ -284,9 +349,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if !defined(SGN)
-#    define SGN(X)  LAMBDA( 0 == (X), 0, LAMBDA( (X) > 0, 1, -1) )
-#endif
 
 #if !defined(SQR)
 #    define SQR(A) ((A)*(A))

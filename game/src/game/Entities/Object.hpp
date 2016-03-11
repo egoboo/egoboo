@@ -66,11 +66,11 @@ struct chr_spawn_data_t
         //ctor
     }
 
-    Vector3f     pos;
+    Vector3f    pos;
     PRO_REF     profile;
     TEAM_REF    team;
     int         skin;
-    FACING_T    facing;
+    Facing      facing;
     STRING      name;
     ObjectRef   override;
 };
@@ -340,7 +340,7 @@ public:
     * @result
     *   Success returns true, failure returns false;
     **/
-    bool teleport(const Vector3f& position, const FACING_T facing_z);
+    bool teleport(const Vector3f& position, Facing facing_z);
 
     /**
     * @brief

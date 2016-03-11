@@ -29,11 +29,7 @@
 //--------------------------------------------------------------------------------------------
 
 // conversion functions
-    FACING_T vec_to_facing( const float dx, const float dy );
-    void     facing_to_vec( const FACING_T facing, float * dx, float * dy );
 
-// rotation functions
-    int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight );
 
 // limiting functions
     void getadd_flt( const float min, const float value, const float max, float* valuetoadd );
@@ -51,13 +47,13 @@
 
 FACING_T vec_to_facing( const float dx, const float dy )
 {
-    return RadianToFacing(Ego::Math::Radians(std::atan2(dy, dx) + Ego::Math::pi<float>()));
+    return uint16_t(RadianToFacing(Ego::Math::Radians(std::atan2(dy, dx) + Ego::Math::pi<float>())));
 }
 
 //--------------------------------------------------------------------------------------------
-void facing_to_vec( const FACING_T& facing, float * dx, float * dy )
+void facing_to_vec( const Facing& facing, float * dx, float * dy )
 {
-    TLT::Index turn = TLT::get().fromFacing(facing - 0x8000);
+    TLT::Index turn = TLT::get().fromFacing(FACING_T(facing - Facing(0x8000)));
 
     if ( NULL != dx )
     {

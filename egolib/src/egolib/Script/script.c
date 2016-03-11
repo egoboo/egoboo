@@ -564,7 +564,7 @@ void scr_run_chr_script(Object *pchr) {
 		vfs_printf(scr_file, "\tupdate_wld == %d\n", update_wld);
 
 		// ai memory from the last event
-		vfs_printf(scr_file, "\tdirectionlast  == %d\n", aiState.directionlast);
+		vfs_printf(scr_file, "\tdirectionlast  == %d\n", uint16_t(aiState.directionlast));
 		vfs_printf(scr_file, "\tbumped         == %" PRIuZ "\n", aiState.getBumped().get());
 		vfs_printf(scr_file, "\tlast attacker  == %" PRIuZ "\n", aiState.getLastAttacker().get());
 		vfs_printf(scr_file, "\thitlast        == %" PRIuZ "\n", aiState.hitlast.get());
@@ -939,7 +939,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARSELFTURN:
                 varname = "SELFTURN";
-                iTmp = pchr->ori.facing_z;
+                iTmp = uint16_t(pchr->ori.facing_z);
                 break;
 
             case VARSELFCOUNTER:
@@ -987,7 +987,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARTARGETTURN:
                 varname = "TARGETTURN";
-                iTmp = ( nullptr == ptarget ) ? 0 : ptarget->ori.facing_z;
+                iTmp = ( nullptr == ptarget ) ? 0 : uint16_t(ptarget->ori.facing_z);
                 break;
 
             case VARLEADERX:
@@ -1030,9 +1030,9 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VARLEADERTURN:
                 varname = "LEADERTURN";
-                iTmp = pchr->ori.facing_z;
+                iTmp = uint16_t(pchr->ori.facing_z);
                 if ( _currentModule->getTeamList()[pchr->team].getLeader() )
-                    iTmp = _currentModule->getTeamList()[pchr->team].getLeader()->ori.facing_z;
+                    iTmp = uint16_t(_currentModule->getTeamList()[pchr->team].getLeader()->ori.facing_z);
 
                 break;
 
@@ -1276,7 +1276,7 @@ void script_state_t::run_operand( script_state_t& state, ai_state_t& aiState, sc
 
             case VAROWNERTURN:
                 varname = "OWNERTURN";
-                iTmp = ( NULL == powner ) ? 0 : powner->ori.facing_z;
+                iTmp = ( NULL == powner ) ? 0 : uint16_t(powner->ori.facing_z);
                 break;
 
             case VAROWNERDISTANCE:
@@ -1679,7 +1679,7 @@ ai_state_t::ai_state_t()
 	bumplast_time = 0;
 
 	hitlast = ObjectRef::Invalid;
-	directionlast = 0;
+	directionlast = Facing(0);
 	damagetypelast = DamageType::DAMAGE_DIRECT;
 	lastitemused = ObjectRef::Invalid;
 
@@ -1733,7 +1733,7 @@ void ai_state_t::reset(ai_state_t& self)
 
 
 	self.hitlast = ObjectRef::Invalid;
-	self.directionlast = 0;
+	self.directionlast = Facing(0);
 	self.damagetypelast = DamageType::DAMAGE_DIRECT;
 	self.lastitemused = ObjectRef::Invalid;
 

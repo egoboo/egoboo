@@ -761,7 +761,7 @@ void WeatherState::animate()
             if (pchr)
             {
                 // Yes, so spawn nearby that character
-                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), ATK_FRONT, part_gpip, 0, over_water);
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), Facing(ATK_FRONT), part_gpip, 0, over_water);
                 if (particle)
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
@@ -1136,7 +1136,7 @@ int reaffirm_attached_particles(ObjectRef objectRef) {
     int number_added = 0;
     for (int attempts = 0; attempts < amount && number_attached < amount; ++attempts) {
         std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
-			object->getPosition(), object->ori.facing_z, object->getProfile()->getSlotNumber(),
+			object->getPosition(), Facing(FACING_T(object->ori.facing_z)), object->getProfile()->getSlotNumber(),
 			object->getProfile()->getAttachedParticleProfile(), objectRef, GRIP_LAST + number_attached,
 			object->getTeam().toRef(), objectRef, ParticleRef::Invalid, number_attached);
 
@@ -2822,7 +2822,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, FACING_T(pchr->ori.facing_z), pweapon->getName(), ObjectRef::Invalid);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -2841,7 +2841,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             }
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
-            TLT::Index turn = TLT::get().fromFacing( pchr->ori.facing_z + ATK_BEHIND );
+            TLT::Index turn = TLT::get().fromFacing( FACING_T(pchr->ori.facing_z + Facing(ATK_BEHIND)) );
             pthrown->vel.x() += TLT::get().cos(turn) * velocity;
             pthrown->vel.y() += TLT::get().sin(turn) * velocity;
             pthrown->vel.z() = Object::DROPZVEL;
@@ -2905,7 +2905,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
                     // make the weapon's holder the owner of the attack particle?
                     // will this mess up wands?
                     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), 
-                        pchr->ori.facing_z, weaponProfile->getSlotNumber(), 
+                        Facing(FACING_T(pchr->ori.facing_z)), weaponProfile->getSlotNumber(), 
                         attackParticle, weaponProfile->hasAttachParticleToWeapon() ? iweapon : ObjectRef::Invalid,  
                         spawn_vrt_offset, pholder->getTeam().toRef(), iholder);
 

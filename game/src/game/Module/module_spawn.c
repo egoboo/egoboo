@@ -385,13 +385,13 @@ void tilt_characters_to_terrain()
         if ( object->getProfile()->hasStickyButt() )
         {
             twist = _currentModule->getMeshPointer()->get_twist( object->getTile() );
-            object->ori.map_twist_facing_y = g_meshLookupTables.twist_facing_y[twist];
-            object->ori.map_twist_facing_x = g_meshLookupTables.twist_facing_x[twist];
+            object->ori.map_twist_facing_y = Facing(g_meshLookupTables.twist_facing_y[twist]);
+            object->ori.map_twist_facing_x = Facing(g_meshLookupTables.twist_facing_x[twist]);
         }
         else
         {
-            object->ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;
-            object->ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
+            object->ori.map_twist_facing_y = Facing(orientation_t::MAP_TURN_OFFSET);
+            object->ori.map_twist_facing_x = Facing(orientation_t::MAP_TURN_OFFSET);
         }
     }
 }

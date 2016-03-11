@@ -105,7 +105,7 @@ void Player::updateLatches()
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera
-    TLT::Index turnsin = TLT::get().fromFacing( pcam->getOrientation().facing_z );
+    TLT::Index turnsin = TLT::get().fromFacing( FACING_T(pcam->getOrientation().facing_z) );
     float fsin    = TLT::get().sin(turnsin);
     float fcos    = TLT::get().cos(turnsin);
 
