@@ -197,35 +197,6 @@ inline double INV_FFFF<double>() {
     return 0.000015259021896696421759365224689097;
 }
 
-
-/**
- * @brief
- *  Convert an angle from radians to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
- * @param x
- *  the angle in radians
- * @return
- *  the angle in "facing"
- */
-inline FACING_T RadianToFacing(const Ego::Math::Radians& x) {
-	// s := UINT16_MAX / (2 * PI).
-    static const float s = std::numeric_limits<FACING_T>::max() / Ego::Math::twoPi<float>();
-	return FACING_T(Ego::Math::clipBits<16>(float(x) * s));
-}
-
-/**
- * @brief
- *  Convert an angle "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$) to radians.
- * @param x
- *  the angle in facing
- * @return
- *  the angle in radians
- */
-inline Ego::Math::Radians FacingToRadian(const FACING_T& x) {
-	// s := (2 * PI) / UINT16_MAX
-    static const float s = Ego::Math::twoPi<float>() / std::numeric_limits<FACING_T>::max();
-	return Ego::Math::Radians(uint16_t(x) * s);
-}
-
 /**
  * @brief
  *  Convert an angle from turns to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
@@ -235,10 +206,11 @@ inline Ego::Math::Radians FacingToRadian(const FACING_T& x) {
  *  the angle in "facing"
  */
 inline FACING_T TurnToFacing(const Ego::Math::Turns& x) {
-    // 0x00010000 = UINT16_MAX.
+    // 0x00010000 = UINT16_MAX + 1.
     // s := UINT16_MAX + 1.
     // TODO: Why is +1 added?
-    static const float s = (float)0x00010000;
+    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
+    static const float s = (float)m;
 	return FACING_T(Ego::Math::clipBits<16>(int(float(x) * s)));
 }
 
@@ -251,11 +223,48 @@ inline FACING_T TurnToFacing(const Ego::Math::Turns& x) {
  *  the angle in turns
  */
 inline Ego::Math::Turns FacingToTurn(const FACING_T& x) {
-    // 0x00010000 = UINT16_MAX.
+    // 0x00010000 = UINT16_MAX + 1.
     // s := 1 / (UINT16_T + 1).
     // TODO: why is +1 added?
-    static const float s = 1.0f / (float)0x00010000;
-	return Ego::Math::Turns(uint16_t(x) * s);
+    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
+    static const float s = 1.0f / (float)m;
+	return Ego::Math::Turns(float(x) * s);
+}
+inline Ego::Math::Turns FacingToTurn(const Facing& x) {
+    // 0x00010000 = UINT16_MAX + 1.
+    // s := 1 / (UINT16_T + 1).
+    // TODO: why is +1 added?
+    static const int32_t m = static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1;
+    static const float s = 1.0f / (float)m;
+    return Ego::Math::Turns(float(uint16_t(x)) * s);
+}
+
+
+/**
+ * @brief
+ *  Convert an angle "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$) to radians.
+ * @param x
+ *  the angle in facing
+ * @return
+ *  the angle in radians
+ */
+inline Ego::Math::Radians FacingToRadian(const FACING_T& x) {
+    return Ego::Math::Radians(FacingToTurn(x));
+}
+inline Ego::Math::Radians FacingToRadian(const Facing& x) {
+    return Ego::Math::Radians(FacingToTurn(x));
+}
+
+/**
+ * @brief
+ *  Convert an angle from radians to "facing" (some custom Egoboo unit in the interval \f$[0,2^16-1]\f$).
+ * @param x
+ *  the angle in radians
+ * @return
+ *  the angle in "facing"
+ */
+inline FACING_T RadianToFacing(const Ego::Math::Radians& x) {
+    return TurnToFacing(Ego::Math::Turns(x));
 }
 
 // conversion functions
@@ -266,21 +275,11 @@ void     facing_to_vec(const FACING_T& facing, float * dx, float * dy);
 int terp_dir(const FACING_T& majordir, const FACING_T& minordir, const int weight);
 
 //--------------------------------------------------------------------------------------------
-// the lookup tables for sine and cosine
-
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
-
-/// @note - Aaron uses two terms without much attention to their meaning
-///         I think that we should use "face" or "facing" to mean the fill 16-bit value
-///         and use "turn" to be the TRIG_TABLE_BITS-bit value
-
-
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

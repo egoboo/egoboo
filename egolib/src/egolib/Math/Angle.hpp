@@ -34,11 +34,11 @@ namespace Math {
  * @brief Enumeration of units in which angles are measured.
  */
 enum class AngleUnit {
-    /** @brief The unit degrees with its canonical range of \f$[0,360)\f$. */
+    /** @brief The unit degree with its canonical range of \f$[0,360)\f$. */
     Degrees,
-    /** @brief The unit radians with its canonical range of \f$[0,2\pi)\f$. */
+    /** @brief The unit radian with its canonical range of \f$[0,2\pi)\f$. */
     Radians,
-    /** @brief The unit turns with its canonical range of \f$[0,1)\f$. */
+    /** @brief The unit turn with its canonical range of \f$[0,1)\f$. */
     Turns,
 };
 
