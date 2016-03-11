@@ -3118,25 +3118,28 @@ Uint8 scr_SetAlpha( script_state_t& state, ai_state_t& self )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_IfHitFromBehind( script_state_t& state, ai_state_t& self )
-{
-    // IfHitFromBehind()
+Uint8 scr_IfHitFromBehind(script_state_t& state, ai_state_t& self) {
+    /// IfHitFromBehind()
     /// @author ZZ
-    /// @details This function proceeds if the last attack to the character came from behind
+    /// @details This function proceeds if the last attack to the character came
+    /// from behind
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( self.directionlast >= ATK_BEHIND - 8192 && self.directionlast < ATK_BEHIND + 8192 )
+    // (8192 / (2^16-1)) * 360 ~ 45 degrees
+    static const Facing tolerance(8192);
+    Facing lastAttackDirection(self.directionlast);
+    if (lastAttackDirection >= (Facing(ATK_BEHIND) - tolerance) && lastAttackDirection < (Facing(ATK_BEHIND) + tolerance)) {
         returncode = true;
+    }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_IfHitFromFront( script_state_t& state, ai_state_t& self )
-{
-    // IfHitFromFront()
+Uint8 scr_IfHitFromFront(script_state_t& state, ai_state_t& self) {
+    /// IfHitFromFront()
     /// @author ZZ
     /// @details This function proceeds if the last attack to the character came
     /// from the front
@@ -3144,16 +3147,19 @@ Uint8 scr_IfHitFromFront( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( self.directionlast >= ATK_LEFT + 8192 || self.directionlast < ATK_FRONT + 8192 )
+    // (8192 / (2^16-1)) * 360 ~ 45 degrees
+    static const Facing tolerance(8192);
+    Facing lastAttackDirection(self.directionlast);
+    if (lastAttackDirection >= (Facing(ATK_FRONT) - tolerance) && lastAttackDirection < (Facing(ATK_FRONT) + tolerance)) {
         returncode = true;
+    }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_IfHitFromLeft( script_state_t& state, ai_state_t& self )
-{
-    // IfHitFromLeft()
+Uint8 scr_IfHitFromLeft(script_state_t& state, ai_state_t& self) {
+    /// IfHitFromLeft()
     /// @author ZZ
     /// @details This function proceeds if the last attack to the character came
     /// from the left
@@ -3161,16 +3167,19 @@ Uint8 scr_IfHitFromLeft( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( self.directionlast >= ATK_LEFT - 8192 && self.directionlast < ATK_LEFT + 8192 )
+    // (8192 / (2^16-1)) * 360 ~ 45 degrees
+    static const Facing tolerance(8192);
+    Facing lastAttackDirection(self.directionlast);
+    if (lastAttackDirection >= (Facing(ATK_LEFT) - tolerance) && lastAttackDirection < (Facing(ATK_LEFT) + tolerance)) {
         returncode = true;
+    }
 
     SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_IfHitFromRight( script_state_t& state, ai_state_t& self )
-{
-    // IfHitFromRight()
+Uint8 scr_IfHitFromRight(script_state_t& state, ai_state_t& self) {
+    /// IfHitFromRight()
     /// @author ZZ
     /// @details This function proceeds if the last attack to the character came
     /// from the right
@@ -3178,8 +3187,12 @@ Uint8 scr_IfHitFromRight( script_state_t& state, ai_state_t& self )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( self.directionlast >= ATK_RIGHT - 8192 && self.directionlast < ATK_RIGHT + 8192 )
+    // (8192 / (2^16-1)) * 360 ~ 45 degrees
+    static const Facing tolerance(8192);
+    Facing lastAttackDirection(self.directionlast);
+    if (lastAttackDirection >= (Facing(ATK_RIGHT) - tolerance) && lastAttackDirection < (Facing(ATK_RIGHT) + tolerance)) {
         returncode = true;
+    }
 
     SCRIPT_FUNCTION_END();
 }
