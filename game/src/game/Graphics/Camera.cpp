@@ -154,7 +154,7 @@ void Camera::updatePosition()
 #endif
 
     // Update the camera position.
-    TLT::Index index = TLT::get().fromFacing(uint16_t(_ori.facing_z));
+    TLT::Index index = TLT::get().fromFacing(_ori.facing_z);
     Vector3f pos_new = _center + Vector3f(_zoom * TLT::get().sin(index), _zoom * TLT::get().cos(index), _zGoto);
 
     if((_position-pos_new).length() < Info<float>::Grid::Size()*10.0f) {

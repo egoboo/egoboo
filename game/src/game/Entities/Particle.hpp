@@ -306,7 +306,7 @@ public:
     * @note
     *   Should only ever be used by the ParticleHandler! *Do not use*
     **/
-    bool initialize(const ParticleRef particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+    bool initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
                     const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                     const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                     const bool onlyOverWater);

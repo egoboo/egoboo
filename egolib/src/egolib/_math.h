@@ -110,6 +110,9 @@ public:
     }
 
 public:
+    Facing operator+() const {
+        return *this;
+    }
     Facing operator-() const {
         return Facing(-angle);
     }
@@ -329,8 +332,8 @@ inline Facing RadianToFacing(const Ego::Math::Radians& x) {
 }
 
 // conversion functions
-FACING_T vec_to_facing(const float dx, const float dy);
-void     facing_to_vec(const Facing& facing, float * dx, float * dy);
+Facing vec_to_facing(const float dx, const float dy);
+void facing_to_vec(const Facing& facing, float * dx, float * dy);
 
 // rotation functions
 int terp_dir(const FACING_T& majordir, const FACING_T& minordir, const int weight);

@@ -844,9 +844,9 @@ void make_one_character_matrix( const ObjectRef ichr )
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
                 pinst.matrix,
 				Vector3f(pchr->fat, pchr->fat, pchr->fat),
-                TLT::get().fromFacing( uint16_t(pchr->ori.facing_z) ),
-                TLT::get().fromFacing( uint16_t(pchr->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET))),
-                TLT::get().fromFacing( uint16_t(pchr->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET))),
+                TLT::get().fromFacing(pchr->ori.facing_z),
+                TLT::get().fromFacing(pchr->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET)),
+                TLT::get().fromFacing(pchr->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET)),
                 pchr->getPosition());
         }
         else
@@ -854,9 +854,9 @@ void make_one_character_matrix( const ObjectRef ichr )
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
                 pinst.matrix,
 				Vector3f(pchr->fat, pchr->fat, pchr->fat),
-                TLT::get().fromFacing(uint16_t(pchr->ori.facing_z)),
-                TLT::get().fromFacing(uint16_t(pchr->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET))),
-                TLT::get().fromFacing(uint16_t(pchr->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET))),
+                TLT::get().fromFacing(pchr->ori.facing_z),
+                TLT::get().fromFacing(pchr->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET)),
+                TLT::get().fromFacing(pchr->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET)),
                 pchr->getPosition());
         }
 

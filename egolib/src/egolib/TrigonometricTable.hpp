@@ -58,6 +58,9 @@ public:
     Index fromFacing(const FACING_T& x) const {
         return Index((x >> 2) & mask);
     }
+    Index fromFacing(const Facing& x) const {
+        return fromFacing(FACING_T(x));
+    }
 
     static const TLT& get() {
         static const TLT g_instance;

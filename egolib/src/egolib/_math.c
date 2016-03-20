@@ -45,15 +45,15 @@
 // CONVERSION FUNCTIONS
 //--------------------------------------------------------------------------------------------
 
-FACING_T vec_to_facing( const float dx, const float dy )
+Facing vec_to_facing( const float dx, const float dy )
 {
-    return uint16_t(RadianToFacing(Ego::Math::Radians(std::atan2(dy, dx) + Ego::Math::pi<float>())));
+    return Facing(FACING_T(RadianToFacing(Ego::Math::Radians(std::atan2(dy, dx) + Ego::Math::pi<float>()))));
 }
 
 //--------------------------------------------------------------------------------------------
 void facing_to_vec( const Facing& facing, float * dx, float * dy )
 {
-    TLT::Index turn = TLT::get().fromFacing(FACING_T(facing - Facing(0x8000)));
+    TLT::Index turn = TLT::get().fromFacing(facing - Facing(0x8000));
 
     if ( NULL != dx )
     {

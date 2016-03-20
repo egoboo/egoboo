@@ -546,7 +546,7 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 
         if ( target_friend || target_enemy )
         {
-            FACING_T angle = - facing + vec_to_facing( pchr->getPosX() - pos[kX] , pchr->getPosY() - pos[kY] );
+            FACING_T angle = - facing + FACING_T(vec_to_facing( pchr->getPosX() - pos[kX] , pchr->getPosY() - pos[kY] ));
 
             // Only proceed if we are facing the target
             if ( angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
@@ -2822,7 +2822,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, FACING_T(pchr->ori.facing_z), pweapon->getName(), ObjectRef::Invalid);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -2841,7 +2841,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             }
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
-            TLT::Index turn = TLT::get().fromFacing( FACING_T(pchr->ori.facing_z + Facing(ATK_BEHIND)) );
+            TLT::Index turn = TLT::get().fromFacing(pchr->ori.facing_z + Facing(ATK_BEHIND));
             pthrown->vel.x() += TLT::get().cos(turn) * velocity;
             pthrown->vel.y() += TLT::get().sin(turn) * velocity;
             pthrown->vel.z() = Object::DROPZVEL;

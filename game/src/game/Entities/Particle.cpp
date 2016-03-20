@@ -722,7 +722,7 @@ void Particle::destroy()
     //Spawn an Object on particle end? (happens through a special script function)
     if (SPAWNNOCHARACTER != endspawn_characterstate)
     {
-        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, FACING_T(facing), "", ObjectRef::Invalid);
+        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, "", ObjectRef::Invalid);
         if (child)
         {
             child->ai.state = endspawn_characterstate;
@@ -755,7 +755,7 @@ void Particle::playSound(int8_t sound)
     }
 }
 
-bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
                           const PIP_REF particleProfile, const ObjectRef spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
                           const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget,
                           const bool onlyOverWater)
@@ -792,7 +792,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     // In cpp, will be passed by reference, so we do not want to alter the
     // components of the original vector.
 	Vector3f tmp_pos = spawnPos;
-    FACING_T loc_facing = spawnFacing;
+    Facing loc_facing = spawnFacing;
 
     // try to get an idea of who our owner is even if we are
     // given bogus info
@@ -820,7 +820,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     attachedto_vrt_off = vrt_offset;
 
     // Correct loc_facing
-    loc_facing += getProfile()->getSpawnFacing().base;
+    loc_facing += Facing(getProfile()->getSpawnFacing().base);
 
     // Targeting...
     vel.z() = 0;
@@ -850,13 +850,13 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
 
             // Find a target
             FACING_T targetAngle;
-            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
+            _target = prt_find_target(spawnPos, FACING_T(loc_facing), _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
             const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
 
             if (target && !getProfile()->homing)
             {
                 //Correct angle to new target
-                loc_facing -= targetAngle;
+                loc_facing -= Facing(targetAngle);
             }
 
             //Agility determines how good we aim towards the target
@@ -926,11 +926,11 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
         // Correct loc_facing for randomness
         offsetfacing = generate_irand_pair(getProfile()->getSpawnFacing()) - (getProfile()->getSpawnFacing().base + getProfile()->getSpawnFacing().rand / 2);
     }
-    loc_facing += offsetfacing;
+    loc_facing += Facing(offsetfacing);
     facing = Facing(loc_facing);
 
     // this is actually pointing in the opposite direction?
-    TLT::Index turn = TLT::get().fromFacing(loc_facing);
+    TLT::Index turn = TLT::get().fromFacing((FACING_T)loc_facing);
 
     // Location data from arguments
     newrand = generate_irand_pair(getProfile()->getSpawnPositionOffsetXY());

@@ -2458,7 +2458,7 @@ bool Object::isInvictusDirection(FACING_T direction) const
     {
         //I Frame
         direction -= getProfile()->getInvictusFrameFacing();
-        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getProfile()->getInvictusFrameAngle()) );
+        left       = static_cast<FACING_T>(Facing(0x00010000L) - Facing(getProfile()->getInvictusFrameAngle()));
         right      = getProfile()->getInvictusFrameAngle();
 
         // If using shield, use the shield invictus instead
@@ -2470,13 +2470,13 @@ bool Object::isInvictusDirection(FACING_T direction) const
             if (parry_left && getLeftHandItem())
             {
                 // Check left hand
-                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getLeftHandItem()->getProfile()->getInvictusFrameAngle()) );
+                left = static_cast<FACING_T>(Facing(0x00010000L) - Facing(getLeftHandItem()->getProfile()->getInvictusFrameAngle()));
                 right = getLeftHandItem()->getProfile()->getInvictusFrameAngle();
             }
             else if(getRightHandItem())
             {
                 // Check right hand
-                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getRightHandItem()->getProfile()->getInvictusFrameAngle()) );
+                left = static_cast<FACING_T>(Facing(0x00010000L) - Facing(getRightHandItem()->getProfile()->getInvictusFrameAngle()));
                 right = getRightHandItem()->getProfile()->getInvictusFrameAngle();
             }
         }
@@ -2485,7 +2485,7 @@ bool Object::isInvictusDirection(FACING_T direction) const
     {
         // Non invictus Frame
         direction -= getProfile()->getNormalFrameFacing();
-        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getProfile()->getNormalFrameAngle()) );
+        left       = static_cast<FACING_T>(Facing(0x00010000L) - Facing(getProfile()->getNormalFrameAngle()));
         right      = getProfile()->getNormalFrameAngle();
     }
 

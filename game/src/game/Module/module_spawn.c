@@ -196,7 +196,7 @@ std::shared_ptr<Object> activate_spawn_file_spawn(spawn_file_info_t& psp_info, c
     }
 
     // Spawn the character
-    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, psp_info.facing, psp_info.pname == nullptr ? "" : psp_info.pname, ObjectRef::Invalid);
+    std::shared_ptr<Object> pobject = _currentModule->spawnObject(psp_info.pos, iprofile, psp_info.team, psp_info.skin, Facing(FACING_T(psp_info.facing)), psp_info.pname == nullptr ? "" : psp_info.pname, ObjectRef::Invalid);
 
     //Failed to spawn?
     if (!pobject) {
