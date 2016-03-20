@@ -1923,7 +1923,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
         {
             self.child = pchild->getObjRef();
 
-            TLT::Index turn = TLT::get().fromFacing( pchr->ori.facing_z + ATK_BEHIND );
+            TLT::Index turn = TLT::get().fromFacing(uint16_t(Facing(pchr->ori.facing_z) + Facing(ATK_BEHIND)));
             pchild->vel[kX] += TLT::get().cos(turn) * state.distance;
             pchild->vel[kY] += TLT::get().sin(turn) * state.distance;
 
@@ -2190,7 +2190,7 @@ Uint8 scr_SpawnParticle( script_state_t& state, ai_state_t& self )
     }
 
     std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), 
-                                                   pchr->ori.facing_z, 
+                                                   Facing(uint16_t(pchr->ori.facing_z)), 
                                                    pchr->getProfileID(),
                                                    LocalParticleProfileRef(state.argument), self.getSelf(),
                                                    state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
@@ -2384,7 +2384,7 @@ Uint8 scr_GetAttackTurn( script_state_t& state, ai_state_t& self )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    state.turn = self.directionlast;
+    state.turn = FACING_T(self.directionlast);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2861,7 +2861,7 @@ Uint8 scr_TeleportTarget( script_state_t& state, ai_state_t& self )
         return false;
     }
 
-    returncode = target->teleport(Vector3f(float(state.x), float(state.y), float(state.distance)), state.turn);
+    returncode = target->teleport(Vector3f(float(state.x), float(state.y), float(state.distance)), Facing(state.turn));
 
     SCRIPT_FUNCTION_END();
 }
@@ -3129,8 +3129,7 @@ Uint8 scr_IfHitFromBehind(script_state_t& state, ai_state_t& self) {
     returncode = false;
     // (8192 / (2^16-1)) * 360 ~ 45 degrees
     static const Facing tolerance(8192);
-    Facing lastAttackDirection(self.directionlast);
-    if (lastAttackDirection >= (Facing(ATK_BEHIND) - tolerance) && lastAttackDirection < (Facing(ATK_BEHIND) + tolerance)) {
+    if (self.directionlast >= (Facing(ATK_BEHIND) - tolerance) && self.directionlast < (Facing(ATK_BEHIND) + tolerance)) {
         returncode = true;
     }
 
@@ -3149,8 +3148,7 @@ Uint8 scr_IfHitFromFront(script_state_t& state, ai_state_t& self) {
     returncode = false;
     // (8192 / (2^16-1)) * 360 ~ 45 degrees
     static const Facing tolerance(8192);
-    Facing lastAttackDirection(self.directionlast);
-    if (lastAttackDirection >= (Facing(ATK_FRONT) - tolerance) && lastAttackDirection < (Facing(ATK_FRONT) + tolerance)) {
+    if (self.directionlast >= (Facing(ATK_FRONT) - tolerance) && self.directionlast < (Facing(ATK_FRONT) + tolerance)) {
         returncode = true;
     }
 
@@ -3169,8 +3167,7 @@ Uint8 scr_IfHitFromLeft(script_state_t& state, ai_state_t& self) {
     returncode = false;
     // (8192 / (2^16-1)) * 360 ~ 45 degrees
     static const Facing tolerance(8192);
-    Facing lastAttackDirection(self.directionlast);
-    if (lastAttackDirection >= (Facing(ATK_LEFT) - tolerance) && lastAttackDirection < (Facing(ATK_LEFT) + tolerance)) {
+    if (self.directionlast >= (Facing(ATK_LEFT) - tolerance) && self.directionlast < (Facing(ATK_LEFT) + tolerance)) {
         returncode = true;
     }
 
@@ -3189,8 +3186,7 @@ Uint8 scr_IfHitFromRight(script_state_t& state, ai_state_t& self) {
     returncode = false;
     // (8192 / (2^16-1)) * 360 ~ 45 degrees
     static const Facing tolerance(8192);
-    Facing lastAttackDirection(self.directionlast);
-    if (lastAttackDirection >= (Facing(ATK_RIGHT) - tolerance) && lastAttackDirection < (Facing(ATK_RIGHT) + tolerance)) {
+    if (self.directionlast >= (Facing(ATK_RIGHT) - tolerance) && self.directionlast < (Facing(ATK_RIGHT) + tolerance)) {
         returncode = true;
     }
 
@@ -3576,7 +3572,7 @@ Uint8 scr_DebugMessage( script_state_t& state, ai_state_t& self )
     DisplayMsg_printf( "aistate %d, aicontent %d, target %" PRIuZ, self.state, self.content, self.getTarget().get() );
     DisplayMsg_printf( "tmpx %d, tmpy %d", state.x, state.y );
     DisplayMsg_printf( "tmpdistance %d, tmpturn %d", state.distance, state.turn );
-    DisplayMsg_printf( "tmpargument %d, selfturn %d", state.argument, pchr->ori.facing_z );
+    DisplayMsg_printf( "tmpargument %d, selfturn %d", state.argument, int32_t(pchr->ori.facing_z) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4030,7 +4026,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t& state, ai_state_t& self )
 		iself = iholder;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
                                                                       LocalParticleProfileRef(state.argument), self.getSelf(),
                                                                       state.distance, pchr->team, iself, ParticleRef::Invalid, 0,
                                                                       ObjectRef::Invalid);
@@ -4061,7 +4057,7 @@ Uint8 scr_SpawnExactParticle( script_state_t& state, ai_state_t& self )
 				Interpreter::safeCast<float>(state.distance)
             );
 
-        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
+        returncode = nullptr != ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
                                                                           LocalParticleProfileRef(state.argument),
                                                                           ObjectRef::Invalid, 0, pchr->team, ichr,
                                                                           ParticleRef::Invalid, 0, ObjectRef::Invalid);
@@ -4546,7 +4542,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t& state, ai_state_t& self )
         ichr = pchr->attachedto;
     }
 
-    std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, 
+    std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(uint16_t(pchr->ori.facing_z)), 
                                                                                         pchr->getProfileID(), LocalParticleProfileRef(state.argument), self.getSelf(),
                                                                                         state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
                                                                                         ObjectRef::Invalid);
@@ -4656,7 +4652,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t& state, ai_state_t& self )
         ichr = pchr->attachedto;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Ego::Math::clipBits<16>( state.turn ),
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(Ego::Math::clipBits<16>( state.turn )),
                                                                       pchr->getProfileID(), LocalParticleProfileRef(state.argument),
                                                                       self.getSelf(), state.distance, pchr->team, ichr, ParticleRef::Invalid,
                                                                       0, ObjectRef::Invalid);
@@ -4715,7 +4711,7 @@ Uint8 scr_Teleport( script_state_t& state, ai_state_t& self )
     auto location = Vector3f(Interpreter::safeCast<float>(state.x),
                              Interpreter::safeCast<float>(state.y),
                              pchr->getPosZ());
-    returncode = pchr->teleport(location, pchr->ori.facing_z);
+    returncode = pchr->teleport(location, Facing(pchr->ori.facing_z));
 
     SCRIPT_FUNCTION_END();
 }
@@ -4987,7 +4983,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t& state, ai_state_t& self )
         ichr = pchr->attachedto;
     }
 
-    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), pchr->ori.facing_z, pchr->getProfileID(),
+    returncode = nullptr != ParticleHandler::get().spawnLocalParticle(pchr->getPosition(), Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
                                                                       LocalParticleProfileRef(state.argument), ichr,
                                                                       state.distance, pchr->team, ichr, ParticleRef::Invalid, 0,
                                                                       ObjectRef::Invalid);
@@ -5502,7 +5498,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t& state, ai_state_t& self )
 				Interpreter::safeCast<float>(state.distance)
             );
 
-        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
                                                              ObjectRef::Invalid, 0, pchr->team, ichr, ParticleRef::Invalid,
                                                              0, ObjectRef::Invalid);
@@ -6715,7 +6711,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t& state, ai_state_t& self )
 				float(state.distance)
             );
 
-        particle = ParticleHandler::get().spawnLocalParticle(vtmp, pchr->ori.facing_z, pchr->getProfileID(),
+        particle = ParticleHandler::get().spawnLocalParticle(vtmp, Facing(uint16_t(pchr->ori.facing_z)), pchr->getProfileID(),
                                                              LocalParticleProfileRef(state.argument),
                                                              ObjectRef::Invalid, 0, pchr->team, ichr, ParticleRef::Invalid,
                                                              0, ObjectRef::Invalid);
@@ -6756,10 +6752,10 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
         const float posOffsetBase = static_cast<float>(state.y);
         const float damage_rand = ppip->damage.to - ppip->damage.from;
 
-        FACING_T facing_z = pchr->ori.facing_z;
+        FACING_T facing_z = uint16_t(pchr->ori.facing_z);
         for (int cnt = 0; cnt < pchr->getProfile()->getParticlePoofAmount(); cnt++)
         {
-            std::shared_ptr<Ego::Particle> poofParticle = ParticleHandler::get().spawnParticle(pchr->getOldPosition(), facing_z, pchr->getProfile()->getSlotNumber(), ipip,
+            std::shared_ptr<Ego::Particle> poofParticle = ParticleHandler::get().spawnParticle(pchr->getOldPosition(), Facing(facing_z), pchr->getProfile()->getSlotNumber(), ipip,
                                                  ObjectRef::Invalid, GRIP_LAST, pchr->team, pchr->ai.owner, ParticleRef::Invalid, cnt);
 
             // set some values
@@ -7114,7 +7110,9 @@ Uint8 scr_IfBackstabbed( script_state_t& state, ai_state_t& self )
         if (!pLastAttacker || pLastAttacker->isTerminated()) return false;
 
         //Only if hit from behind
-        if ( self.directionlast >= ATK_BEHIND - 8192 && self.directionlast < ATK_BEHIND + 8192 )
+        // (8192 / (2^16-1)) * 360 ~ 45 degrees
+        static const Facing tolerance(8192);
+        if ( self.directionlast >= (Facing(ATK_BEHIND) - tolerance) && self.directionlast < (Facing(ATK_BEHIND) + tolerance) )
         {
             //And require the backstab skill
             if (pLastAttacker->hasPerk(Ego::Perks::BACKSTAB) )
@@ -8020,7 +8018,7 @@ Uint8 scr_IfTargetIsFacingSelf( script_state_t& state, ai_state_t& self )
 
 	FACING_T sTmp = 0;
     sTmp = vec_to_facing( pchr->getPosX() - pself_target->getPosX() , pchr->getPosY() - pself_target->getPosY() );
-    sTmp -= pself_target->ori.facing_z;
+    sTmp -= uint16_t(pself_target->ori.facing_z);
     returncode = ( sTmp > 55535 || sTmp < 10000 );
 
     SCRIPT_FUNCTION_END();

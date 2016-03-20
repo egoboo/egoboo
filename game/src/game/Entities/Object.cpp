@@ -167,8 +167,8 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     equipment.fill(ObjectRef::Invalid);
 
     // Set up position
-    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
-    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = Facing(orientation_t::MAP_TURN_OFFSET);  // These two mean on level surface
+    ori.map_twist_facing_x = Facing(orientation_t::MAP_TURN_OFFSET);
 
     //Initialize primary attributes
     for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
@@ -417,7 +417,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
 
     // Remember the actual_damage type
     ai.damagetypelast = damagetype;
-    ai.directionlast  = FACING_T(direction);
+    ai.directionlast  = direction;
 
     // Check for characters who are immune to this damage, no need to continue if they have
     bool immune_to_damage = HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS) || (actual_damage > 0 && actual_damage <= damage_threshold);
@@ -467,7 +467,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                 {
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
-                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + FACING_T(direction),
+                        ParticleHandler::get().spawnParticle( getPosition(), Facing(FACING_T(ori.facing_z + Facing(direction))),
                                                               _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                                               ObjectRef::Invalid, GRIP_LAST, attackerTeam, _objRef);
                     }
@@ -671,7 +671,7 @@ bool Object::isAttacking() const
     return inst.action_which >= ACTION_UA && inst.action_which <= ACTION_FD;
 }
 
-bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
+bool Object::teleport(const Vector3f& position, Facing facing_z)
 {
     //Cannot teleport outside the level
     if(!_currentModule->isInside(position[kX], position[kY])) return false;
@@ -685,11 +685,11 @@ bool Object::teleport(const Vector3f& position, const FACING_T facing_z)
         // Yeah!  It worked!
 
         // update the old position
-        ori_old.facing_z = facing_z;
+        ori_old.facing_z = Facing(uint16_t(facing_z));
 
         // update the new position
         setPosition(newPosition);
-        ori.facing_z = facing_z;
+        ori.facing_z = Facing(uint16_t(facing_z));
 
         if (!detatchFromHolder(true, false))
         {
@@ -742,7 +742,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), Facing(ATK_FRONT), LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -780,7 +780,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getObjRef().get()) & ripand ))
                     {
-                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level()), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level()), Facing(ATK_FRONT), LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -1095,8 +1095,8 @@ void Object::requestTerminate()
 
  bool Object::isFacingLocation(const float x, const float y) const
  {
-    FACING_T facing = vec_to_facing(x - getPosX(), y - getPosY());
-    facing -= ori.facing_z;
+    FACING_T facing = FACING_T(vec_to_facing(x - getPosX(), y - getPosY()));
+    facing -= FACING_T(ori.facing_z);
     return (facing > 55535 || facing < 10000);
  }
 
@@ -1188,7 +1188,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     //Throw us forward if we can collide with the holder (for example the Stool)
     //This prevents us from being dropped into the collision box of the holder
     if(bump.size > 0) {
-        Ego::Math::Radians angle = FacingToRadian(ori.facing_z + ATK_BEHIND);
+        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + Facing(ATK_BEHIND));
         vel[kX] += std::cos(angle) * DROPXYVEL * 0.5f;
         vel[kY] += std::sin(angle) * DROPXYVEL * 0.5f;
     }
@@ -1216,8 +1216,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Set twist
-    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;
-    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = Facing(orientation_t::MAP_TURN_OFFSET);
+    ori.map_twist_facing_x = Facing(orientation_t::MAP_TURN_OFFSET);
 
     // turn off keeping, unless the object is dead
     if (!isAlive())
@@ -1847,8 +1847,8 @@ void Object::respawn()
     vel = Vector3f::zero();
     team = team_base;
     canbecrushed = false;
-    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
-    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
+    ori.map_twist_facing_y = Facing(orientation_t::MAP_TURN_OFFSET);  // These two mean on level surface
+    ori.map_twist_facing_x = Facing(orientation_t::MAP_TURN_OFFSET);
     if ( !getTeam().getLeader() )  getTeam().setLeader( _currentModule->getObjectHandler()[getObjRef()] );
     if ( !isInvincible() )         getTeam().increaseMorale();
 
@@ -2814,7 +2814,7 @@ void Object::dropMoney(int amount)
 
         for (size_t tnc = 0; tnc < count; tnc++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc);
+            ParticleHandler::get().spawnGlobalParticle(pos, Facing(ATK_FRONT), LocalParticleProfileRef(pips[cnt]), tnc);
         }
     }
 }
@@ -2853,7 +2853,7 @@ void Object::dropKeys()
         // fix some flags
         pkey->hitready               = true;
         pkey->isequipped             = false;
-        pkey->ori.facing_z           = direction + ATK_BEHIND;
+        pkey->ori.facing_z           = Facing(uint16_t(direction + ATK_BEHIND));
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
@@ -2891,7 +2891,7 @@ void Object::dropAllItems()
     const FACING_T diradd = (std::numeric_limits<FACING_T>::max()/2) / pack_count;
 
     // now drop each item in turn
-    FACING_T direction = ori.facing_z + ATK_BEHIND - diradd * (pack_count/2);
+    FACING_T direction = FACING_T(ori.facing_z + Facing(ATK_BEHIND)) - diradd * (pack_count/2);
     for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
     {
         //remove it from inventory
@@ -2908,7 +2908,7 @@ void Object::dropAllItems()
 
         // fix some flags
         pitem->hitready               = true;
-        pitem->ori.facing_z           = direction + ATK_BEHIND;
+        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + Facing(ATK_BEHIND)));
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity

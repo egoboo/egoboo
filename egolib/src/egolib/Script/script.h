@@ -376,7 +376,7 @@ public:
     int            bumplast_time;   ///< The last time that a ALERTIF_BUMPED was sent
 
     ObjectRef      hitlast;         ///< Last character it hit
-    FACING_T       directionlast;   ///< Direction of last attack/healing
+    Facing         directionlast;   ///< Direction of last attack/healing
     DamageType     damagetypelast;  ///< Last damage type
     ObjectRef      lastitemused;    ///< The last item the character used
 

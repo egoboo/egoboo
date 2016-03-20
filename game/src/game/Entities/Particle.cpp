@@ -70,7 +70,7 @@ void Particle::reset(ParticleRef ref)
 
     attachedto_vrt_off = 0;
     type = SPRITE_LIGHT;
-    facing = 0;
+    facing = Facing(0);
     team = 0;
 
     vel_stt = Vector3f::zero();
@@ -418,7 +418,7 @@ void Particle::updateWater()
         if (spawn_valid)
         {
             // Splash for particles is just a ripple
-            ParticleHandler::get().spawnGlobalParticle(vtmp, 0, global_pip_index, 0);
+            ParticleHandler::get().spawnGlobalParticle(vtmp, Facing(0), global_pip_index, 0);
         }
 
         enviro.inwater = true;
@@ -491,7 +491,7 @@ void Particle::updateAnimation()
     }
 
     // spin the particle
-    facing += getProfile()->facingadd;
+    facing += Facing(getProfile()->facingadd);
 
     // frames_remaining refers to the number of animation updates, not the
     // number of frames displayed
@@ -562,15 +562,15 @@ size_t Particle::updateContinuousSpawning()
     // reset the spawn timer
     contspawn_timer = getProfile()->contspawn._delay;
 
-    FACING_T facingAdd = this->facing;
+    Facing facingAdd = this->facing;
     for (size_t tnc = 0; tnc < getProfile()->contspawn._amount; tnc++)
     {
         std::shared_ptr<Ego::Particle> prt_child;
         if(_spawnerProfile == INVALID_PRO_REF) {
-            prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), facingAdd, getProfile()->contspawn._lpip, tnc);
+            prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), Facing(FACING_T(facingAdd)), getProfile()->contspawn._lpip, tnc);
         }
         else {
-            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facingAdd, _spawnerProfile, getProfile()->contspawn._lpip,
+            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), Facing(FACING_T(facingAdd)), _spawnerProfile, getProfile()->contspawn._lpip,
                                                                   ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
         }
 
@@ -580,7 +580,7 @@ size_t Particle::updateContinuousSpawning()
             spawn_count++;
         }
 
-        facingAdd += getProfile()->contspawn._facingAdd;
+        facingAdd += Facing(getProfile()->contspawn._facingAdd);
     }
 
     return spawn_count;
@@ -699,30 +699,30 @@ void Particle::destroy()
     // Spawn new particles if time for old one is up
     if (getProfile()->endspawn._amount > 0 && LocalParticleProfileRef::Invalid != getProfile()->endspawn._lpip)
     {
-        FACING_T facingAdd = this->facing;
+        Facing facingAdd = this->facing;
         for (size_t tnc = 0; tnc < getProfile()->endspawn._amount; tnc++)
         {
             if(_spawnerProfile == INVALID_PRO_REF)
             {
                 //Global particle
-                ParticleHandler::get().spawnGlobalParticle(getOldPosition(), facingAdd, getProfile()->endspawn._lpip, tnc);
+                ParticleHandler::get().spawnGlobalParticle(getOldPosition(), Facing(FACING_T(facingAdd)), getProfile()->endspawn._lpip, tnc);
             }
             else
             {
                 //Local particle
-                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facingAdd, _spawnerProfile, getProfile()->endspawn._lpip,
+                ParticleHandler::get().spawnLocalParticle(getOldPosition(), Facing(FACING_T(facingAdd)), _spawnerProfile, getProfile()->endspawn._lpip,
                                                           ObjectRef::Invalid, GRIP_LAST, team, owner_ref,
                                                           _particleID, tnc, _target);
             }
 
-            facingAdd += getProfile()->endspawn._facingAdd;
+            facingAdd += Facing(getProfile()->endspawn._facingAdd);
         }
     }
 
     //Spawn an Object on particle end? (happens through a special script function)
     if (SPAWNNOCHARACTER != endspawn_characterstate)
     {
-        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, facing, "", ObjectRef::Invalid);
+        std::shared_ptr<Object> child = _currentModule->spawnObject(getPosition(), _spawnerProfile, team, 0, FACING_T(facing), "", ObjectRef::Invalid);
         if (child)
         {
             child->ai.state = endspawn_characterstate;
@@ -927,7 +927,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
         offsetfacing = generate_irand_pair(getProfile()->getSpawnFacing()) - (getProfile()->getSpawnFacing().base + getProfile()->getSpawnFacing().rand / 2);
     }
     loc_facing += offsetfacing;
-    facing = loc_facing;
+    facing = Facing(loc_facing);
 
     // this is actually pointing in the opposite direction?
     TLT::Index turn = TLT::get().fromFacing(loc_facing);
@@ -1176,7 +1176,7 @@ bool Particle::attach(const ObjectRef attach)
     // Correct facing so swords knock characters in the right direction...
     if (getProfile()->hasBit(DAMFX_TURN))
     {
-        facing = pchr->ori.facing_z;
+        facing = Facing(FACING_T(pchr->ori.facing_z));
     }
 
     return true;

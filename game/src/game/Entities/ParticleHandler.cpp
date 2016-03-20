@@ -25,7 +25,7 @@
 #include "game/Entities/_Include.hpp"
 #include "egolib/Logic/Team.hpp"
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3f& pos, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const Vector3f& pos, const Facing& facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                                                    const ObjectRef chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                                                                    const ObjectRef chr_origin, const ParticleRef prt_origin, int multispawn, const ObjectRef oldtarget)
 {
@@ -60,17 +60,17 @@ const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const Particl
     return (*result).second;
 }
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const Vector3f& spawnPos, const FACING_T spawnFacing,
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const Vector3f& spawnPos, const Facing& spawnFacing,
                                                                     const LocalParticleProfileRef& pip_index, int multispawn, const bool onlyOverWater)
 {
     //Get global particle profile
     PIP_REF globalProfile = ((pip_index.get() < 0) || (pip_index.get() > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index.get());
 
-    return spawnParticle(spawnPos, spawnFacing, INVALID_PRO_REF, globalProfile, ObjectRef::Invalid, GRIP_LAST, Team::TEAM_NULL,
+    return spawnParticle(spawnPos, Facing(spawnFacing), INVALID_PRO_REF, globalProfile, ObjectRef::Invalid, GRIP_LAST, Team::TEAM_NULL,
                          ObjectRef::Invalid, ParticleRef::Invalid, multispawn, ObjectRef::Invalid, onlyOverWater);
 }
 
-std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& spawnPos, const Facing& spawnFacing, const PRO_REF spawnProfile,
                                                               const PIP_REF particleProfile, const ObjectRef spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                                                               const ObjectRef spawnOrigin, const ParticleRef spawnParticleOrigin, const int multispawn, const ObjectRef spawnTarget, const bool onlyOverWater)
 {
@@ -95,7 +95,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
     std::shared_ptr<Ego::Particle> particle = getFreeParticle(ppip->force);
     if(particle) {
         //Initialize particle and add it into the game
-        if(particle->initialize(ParticleRef(_totalParticlesSpawned++), spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, 
+        if(particle->initialize(ParticleRef(_totalParticlesSpawned++), spawnPos, FACING_T(spawnFacing), spawnProfile, particleProfile, spawnAttach, vrt_offset, 
                                 spawnTeam, spawnOrigin, ParticleRef(spawnParticleOrigin), multispawn, spawnTarget, onlyOverWater)) 
         {
             _pendingParticles.push_back(particle);
@@ -279,13 +279,13 @@ std::shared_ptr<const Ego::Texture> ParticleHandler::getTransparentParticleTextu
 
 void ParticleHandler::spawnPoof(const std::shared_ptr<Object> &object)
 {
-    FACING_T facing_z = object->ori.facing_z;
+    Facing facing_z = object->ori.facing_z;
     for (int cnt = 0; cnt < object->getProfile()->getParticlePoofAmount(); cnt++)
     {
         ParticleHandler::get().spawnParticle(object->getOldPosition(), facing_z, object->getProfile()->getSlotNumber(), object->getProfile()->getParticlePoofProfile(),
                                              ObjectRef::Invalid, GRIP_LAST, object->team, object->ai.owner, ParticleRef::Invalid, cnt);
 
-        facing_z += object->getProfile()->getParticlePoofFacingAdd();
+        facing_z += Facing(object->getProfile()->getParticlePoofFacingAdd());
     }
 }
 

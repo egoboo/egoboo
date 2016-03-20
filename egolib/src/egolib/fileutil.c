@@ -413,6 +413,11 @@ void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival )
     vfs_printf( filewrite, "%s %d\n", text, ival );
 }
 
+void vfs_put_int32(vfs_FILE *filewrite, const char *text, int32_t ival)
+{
+    vfs_printf(filewrite, "%s %d\n", text, ival);
+}
+
 //--------------------------------------------------------------------------------------------
 void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval )
 {
@@ -1373,6 +1378,14 @@ int vfs_get_next_int(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
     return ctxt.readIntegerLiteral();
+}
+
+int32_t vfs_get_next_int32(ReadContext& ctxt)
+{
+    ctxt.skipToColon(false);
+    ctxt.skipWhiteSpaces();
+    auto token = ctxt.parseIntegerLiteral();
+    return TextTokenDecoder<int32_t>()(token);
 }
 
 unsigned int vfs_get_next_nat(ReadContext& ctxt)

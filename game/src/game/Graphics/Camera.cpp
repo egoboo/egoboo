@@ -154,7 +154,7 @@ void Camera::updatePosition()
 #endif
 
     // Update the camera position.
-    TLT::Index index = TLT::get().fromFacing(_ori.facing_z);
+    TLT::Index index = TLT::get().fromFacing(uint16_t(_ori.facing_z));
     Vector3f pos_new = _center + Vector3f(_zoom * TLT::get().sin(index), _zoom * TLT::get().cos(index), _zGoto);
 
     if((_position-pos_new).length() < Info<float>::Grid::Size()*10.0f) {
@@ -202,15 +202,10 @@ void Camera::updateZoom()
     else
     {
         //Make it wrap around
-        float newAngle = static_cast<float>(_ori.facing_z) +_turnZAdd;
-        if (newAngle < 0.0f) {
-            newAngle += 0xFFFF;
-        } else if(newAngle > 0xFFFF) {
-            newAngle -= 0xFFFF;
-        }
-        _ori.facing_z = newAngle;
+        int32_t newAngle = static_cast<int32_t>(static_cast<float>(FACING_T(_ori.facing_z)) +_turnZAdd);
+        _ori.facing_z = Facing(uint16_t(Facing(newAngle)));
 
-        _turnZ_turns = FacingToTurn(_ori.facing_z);
+        _turnZ_turns = FacingToTurn(Facing(_ori.facing_z));
         _turnZ_radians = (Ego::Math::Radians)_turnZ_turns;
     }
     _turnZAdd *= TURN_Z_SUSTAIN;

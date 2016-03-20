@@ -247,8 +247,6 @@ extern char   endtext[MAXENDTEXT];     ///< The end-module text
 extern size_t endtext_carat;
 
 extern bool    overrideslots;          ///< Override existing slots?
-extern FACING_T  glouseangle;            ///< global return value from prt_find_target() - actually still used
-
 extern import_list_t g_importList;
 
 // various clocks and timers

@@ -377,10 +377,10 @@ public:
      */
     ParticleRef parent_ref;
 
-    uint16_t   attachedto_vrt_off;             ///< It's vertex offset
-    uint8_t    type;                           ///< Transparency mode, 0-2
-    FACING_T facing;                           ///< Direction of the part
-    TEAM_REF team;                             ///< Team
+    uint16_t attachedto_vrt_off;            ///< It's vertex offset
+    uint8_t type;                           ///< Transparency mode, 0-2
+    Facing facing;                          ///< Direction of the part
+    TEAM_REF team;                          ///< Team
 
 	Vector3f vel_stt;                          ///< Starting/initial velocity.
 

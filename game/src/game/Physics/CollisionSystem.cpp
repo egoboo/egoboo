@@ -245,7 +245,7 @@ void CollisionSystem::update()
         if ( particle->getProfile()->rotatetoface )
         {
             // Turn to face new direction
-            particle->facing = vec_to_facing( particle->vel[kX] , particle->vel[kY] );
+            particle->facing = Facing(vec_to_facing( particle->vel[kX] , particle->vel[kY] ));
         }
 
         if ( position_updated )

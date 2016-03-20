@@ -362,6 +362,7 @@ bool vfs_get_next_range(ReadContext& ctxt, FRange *range);
 bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair);
 IDSZ2 vfs_get_next_idsz(ReadContext& ctxt);
 bool vfs_get_next_bool(ReadContext& ctxt);
+int32_t vfs_get_next_int32(ReadContext& ctxt);
 void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max);
 UFP8_T vfs_get_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_sfp8(ReadContext& ctxt);
@@ -473,6 +474,7 @@ bool ego_texture_exists_vfs(const std::string &filename);
 // Stuff to encapsulte in a WriterContext.
 bool vfs_put_version(vfs_FILE* filewrite, const int version);
 void vfs_put_int(vfs_FILE* filewrite, const char* text, int value);
+void vfs_put_int32(vfs_FILE *filewrite, const char* text, int32_t value);
 void vfs_put_float(vfs_FILE* filewrite, const char* text, float value);
 void vfs_put_ufp8(vfs_FILE* filewrite, const char* text, UFP8_T value);
 void vfs_put_sfp8(vfs_FILE* filewrite, const char* text, SFP8_T value);

@@ -240,7 +240,7 @@ void ParticlePhysics::updateMovement()
                 fy *= -1;
             }
 
-            _particle.facing = vec_to_facing(fx, fy);
+            _particle.facing = Facing(vec_to_facing(fx, fy));
         }
     }
 
@@ -255,14 +255,14 @@ void ParticlePhysics::updateMovement()
         if (std::abs(_particle.vel.x()) + std::abs(_particle.vel.y()) > FLT_EPSILON)
         {
             // use velocity to find the angle
-            _particle.facing = vec_to_facing(_particle.vel.x(), _particle.vel.y());
+            _particle.facing = Facing(vec_to_facing(_particle.vel.x(), _particle.vel.y()));
         }
         else if (_particle.hasValidTarget())
         {
             const std::shared_ptr<Object> &ptarget = _particle.getTarget();
 
             // face your target
-            _particle.facing = vec_to_facing(ptarget->getPosX() - tmp_pos.x(), ptarget->getPosY() - tmp_pos.y());
+            _particle.facing = Facing(vec_to_facing(ptarget->getPosX() - tmp_pos.x(), ptarget->getPosY() - tmp_pos.y()));
         }
     }
 
