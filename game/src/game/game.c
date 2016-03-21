@@ -504,9 +504,9 @@ int update_game()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
+ObjectRef prt_find_target( const Vector3f& pos, Facing facing,
                            const PIP_REF particletype, const TEAM_REF team, 
-	                       ObjectRef donttarget, ObjectRef oldtarget, FACING_T *targetAngle )
+	                       ObjectRef donttarget, ObjectRef oldtarget, Facing *targetAngle )
 {
     /// @author ZF
     /// @details This is the new improved targeting system for particles. Also includes distance in the Z direction.
@@ -517,6 +517,8 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 
     ObjectRef besttarget = ObjectRef::Invalid;
     float  longdist2 = max_dist2;
+
+    facing = Facing(FACING_T(facing));
 
     if ( !LOADED_PIP( particletype ) ) return ObjectRef::Invalid;
     ppip = ProfileSystem::get().ParticleProfileSystem.get_ptr( particletype );
@@ -546,10 +548,10 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 
         if ( target_friend || target_enemy )
         {
-            FACING_T angle = - facing + FACING_T(vec_to_facing( pchr->getPosX() - pos[kX] , pchr->getPosY() - pos[kY] ));
+            Facing angle = Facing(FACING_T(-facing + vec_to_facing( pchr->getPosX() - pos[kX] , pchr->getPosY() - pos[kY] )));
 
             // Only proceed if we are facing the target
-            if ( angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
+            if ( angle < Facing(ppip->targetangle) || angle > Facing( 0xFFFF - ppip->targetangle ))
             {
                 float dist2 = (pchr->getPosition() - pos).length_2();
 

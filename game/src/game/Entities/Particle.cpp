@@ -849,8 +849,8 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
             }
 
             // Find a target
-            FACING_T targetAngle;
-            _target = prt_find_target(spawnPos, FACING_T(loc_facing), _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
+            Facing targetAngle;
+            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
             const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
 
             if (target && !getProfile()->homing)
