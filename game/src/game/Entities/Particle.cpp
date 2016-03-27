@@ -668,7 +668,7 @@ void Particle::updateAttachedDamage()
     }
 
     //---- do the damage
-    int actual_damage = attachedObject->damage(Facing(ATK_BEHIND), local_damage, static_cast<DamageType>(damagetype), team,
+    int actual_damage = attachedObject->damage(Facing::ATK_BEHIND, local_damage, static_cast<DamageType>(damagetype), team,
                                                _currentModule->getObjectHandler()[owner_ref], getProfile()->hasBit(DAMFX_ARMO),
                                                !getProfile()->hasBit(DAMFX_TIME), false);
 

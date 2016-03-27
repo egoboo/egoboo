@@ -41,6 +41,10 @@ int sgn(const Type& x) {
 #    define LOG_NAN(XX)
 #endif
 
+typedef uint16_t FACING_T;
+
+#define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
+
 struct Facing {
 private:
     // The canonical range of unit facing is 0 = UINT16_MIN, 360 = 2^16-1 = UINT16_MAX.
@@ -177,6 +181,27 @@ public:
         }
         return Facing(x);
     }
+
+public:
+    /// Directional alias for "an attack from front".
+    static const Facing ATK_FRONT;
+    /// Directional alias for "an attack from right".
+    static const Facing ATK_RIGHT;
+    /// Directional alias for "an attack from behind".
+    static const Facing ATK_BEHIND;
+    /// Directional alias for "an attack from left".
+    static const Facing ATK_LEFT;
+
+public:
+    /// Facing alias for "west".
+    static const Facing FACE_WEST;
+    /// Facing alias for "north".
+    static const Facing FACE_NORTH;
+    /// Facing alias for "east".
+    static const Facing FACE_EAST;
+    /// Facing alias for "south".
+    static const Facing FACE_SOUTH;
+
 };
 
 struct EulerFacing {
@@ -224,22 +249,6 @@ inline float cos(const Facing& x) {
     return cos((Ego::Math::Radians)x);
 }
 }
-
-typedef uint16_t FACING_T;
-
-#define FACE_RANDOM  Random::next<FACING_T>(std::numeric_limits<FACING_T>::max())
-
-/// pre defined directions
-static constexpr FACING_T FACE_WEST = 0x0000; ///< Character facings
-static constexpr FACING_T FACE_NORTH = 0x4000;
-static constexpr FACING_T FACE_EAST = 0x8000;
-static constexpr FACING_T FACE_SOUTH = 0xC000;
-
-//Directional aliases
-static constexpr FACING_T ATK_FRONT = FACE_WEST;
-static constexpr FACING_T ATK_RIGHT = FACE_NORTH;
-static constexpr FACING_T ATK_BEHIND = FACE_EAST;
-static constexpr FACING_T ATK_LEFT = FACE_SOUTH;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

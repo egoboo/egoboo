@@ -30,6 +30,17 @@
 
 // conversion functions
 
+const Facing Facing::ATK_FRONT = Facing(0x0000);
+const Facing Facing::ATK_RIGHT = Facing(0x4000);
+const Facing Facing::ATK_BEHIND = Facing(0x8000);
+const Facing Facing::ATK_LEFT = Facing(0xC000);
+
+/// pre defined directions
+const Facing Facing::FACE_WEST = Facing(0x0000); ///< Character facings
+const Facing Facing::FACE_NORTH = Facing(0x4000);
+const Facing Facing::FACE_EAST = Facing(0x8000);
+const Facing Facing::FACE_SOUTH = Facing(0xC000);
+
 
 // limiting functions
     void getadd_flt( const float min, const float value, const float max, float* valuetoadd );

@@ -467,7 +467,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                 {
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
-                        ParticleHandler::get().spawnParticle( getPosition(), Facing(FACING_T(ori.facing_z + Facing(direction))),
+                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + Facing(direction),
                                                               _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                                               ObjectRef::Invalid, GRIP_LAST, attackerTeam, _objRef);
                     }
@@ -742,7 +742,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), Facing(ATK_FRONT), LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -780,7 +780,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getObjRef().get()) & ripand ))
                     {
-                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level()), Facing(ATK_FRONT), LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level()), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -1188,7 +1188,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     //Throw us forward if we can collide with the holder (for example the Stool)
     //This prevents us from being dropped into the collision box of the holder
     if(bump.size > 0) {
-        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + Facing(ATK_BEHIND));
+        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + Facing::ATK_BEHIND);
         vel[kX] += std::cos(angle) * DROPXYVEL * 0.5f;
         vel[kY] += std::sin(angle) * DROPXYVEL * 0.5f;
     }
@@ -2814,7 +2814,7 @@ void Object::dropMoney(int amount)
 
         for (size_t tnc = 0; tnc < count; tnc++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, Facing(ATK_FRONT), LocalParticleProfileRef(pips[cnt]), tnc);
+            ParticleHandler::get().spawnGlobalParticle(pos, Facing::ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc);
         }
     }
 }
@@ -2853,7 +2853,7 @@ void Object::dropKeys()
         // fix some flags
         pkey->hitready               = true;
         pkey->isequipped             = false;
-        pkey->ori.facing_z           = Facing(uint16_t(direction + ATK_BEHIND));
+        pkey->ori.facing_z           = Facing(uint16_t(Facing(direction) + Facing::ATK_BEHIND));
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
@@ -2891,7 +2891,7 @@ void Object::dropAllItems()
     const FACING_T diradd = (std::numeric_limits<FACING_T>::max()/2) / pack_count;
 
     // now drop each item in turn
-    FACING_T direction = FACING_T(ori.facing_z + Facing(ATK_BEHIND)) - diradd * (pack_count/2);
+    FACING_T direction = FACING_T(ori.facing_z + Facing::ATK_BEHIND) - diradd * (pack_count/2);
     for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
     {
         //remove it from inventory
@@ -2908,7 +2908,7 @@ void Object::dropAllItems()
 
         // fix some flags
         pitem->hitready               = true;
-        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + Facing(ATK_BEHIND)));
+        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + Facing::ATK_BEHIND));
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity
