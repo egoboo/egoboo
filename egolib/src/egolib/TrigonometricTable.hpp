@@ -46,6 +46,7 @@ public:
         return tocos[i.i];
     }
 
+private:
     // Maps an angle in "facings" x to a trigonometric lookup table index i.
     // The mapping is defined as
     // \f{align*}{
@@ -58,6 +59,8 @@ public:
     Index fromFacing(const FACING_T& x) const {
         return Index((x >> 2) & mask);
     }
+
+public:
     Index fromFacing(const Facing& x) const {
         return fromFacing(FACING_T(x));
     }

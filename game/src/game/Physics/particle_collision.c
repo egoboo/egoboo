@@ -1402,9 +1402,9 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                 // clear the occupied list
                 z = pprt->getPosZ() - pchr->getPosZ();
                 facing = FACING_T(pprt->facing - pchr->ori.facing_z);
-                TLT::Index turn = TLT::get().fromFacing(facing);
-                fsin = TLT::get().sin(turn);
-                fcos = TLT::get().cos(turn);
+                Facing turn = Facing(facing);
+                fsin = std::sin(turn);
+                fcos = std::cos(turn);
                 x = dist * fcos;
                 y = dist * fsin;
 

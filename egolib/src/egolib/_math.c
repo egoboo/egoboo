@@ -64,16 +64,16 @@ Facing vec_to_facing( const float dx, const float dy )
 //--------------------------------------------------------------------------------------------
 void facing_to_vec( const Facing& facing, float * dx, float * dy )
 {
-    TLT::Index turn = TLT::get().fromFacing(facing - Facing(0x8000));
+    Facing turn = facing - Facing(0x8000);
 
     if ( NULL != dx )
     {
-        *dx = TLT::get().cos(turn);
+        *dx = std::cos(turn);
     }
 
     if ( NULL != dy )
     {
-        *dy = TLT::get().sin(turn);
+        *dy = std::sin(turn);
     }
 }
 

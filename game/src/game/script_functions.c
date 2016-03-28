@@ -1923,9 +1923,9 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
         {
             self.child = pchild->getObjRef();
 
-            TLT::Index turn = TLT::get().fromFacing(pchr->ori.facing_z + Facing::ATK_BEHIND);
-            pchild->vel[kX] += TLT::get().cos(turn) * state.distance;
-            pchild->vel[kY] += TLT::get().sin(turn) * state.distance;
+            Facing turn = pchr->ori.facing_z + Facing::ATK_BEHIND;
+            pchild->vel[kX] += std::cos(turn) * state.distance;
+            pchild->vel[kY] += std::sin(turn) * state.distance;
 
             pchild->iskursed = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = self.passage;

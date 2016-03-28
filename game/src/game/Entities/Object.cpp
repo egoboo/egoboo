@@ -2839,7 +2839,7 @@ void Object::dropKeys()
             ( idsz_type.toUint32() < testa.toUint32() && idsz_type.toUint32() > testz.toUint32() ) ) continue;
 
         Facing direction = Facing::random();
-        TLT::Index turn = TLT::get().fromFacing(direction);
+        Facing turn = direction;
 
         //remove it from inventory
         getInventory().removeItem(pkey, true);
@@ -2857,8 +2857,8 @@ void Object::dropKeys()
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
-        pkey->vel[kX]                  += TLT::get().cos(turn) * DROPXYVEL;
-        pkey->vel[kY]                  += TLT::get().sin(turn) * DROPXYVEL;
+        pkey->vel[kX]                  += std::cos(turn) * DROPXYVEL;
+        pkey->vel[kY]                  += std::sin(turn) * DROPXYVEL;
         pkey->vel[kZ]                  += DROPZVEL;
 
         // do some more complicated things
