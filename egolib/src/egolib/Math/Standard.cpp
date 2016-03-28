@@ -60,14 +60,14 @@ void validate<::Cube3f>(const char *file, int line, const ::Cube3f& object) {
 } // namespace Ego
 #endif
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vector3f& scale, const TLT::Index& turn_z, const TLT::Index& turn_x, const TLT::Index& turn_y, const Vector3f& translate)
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate)
 {
-    float cx = TLT::get().cos(turn_x);
-    float sx = TLT::get().sin(turn_x);
-    float cy = TLT::get().cos(turn_y);
-    float sy = TLT::get().sin(turn_y);
-    float cz = TLT::get().cos(turn_z);
-    float sz = TLT::get().sin(turn_z);
+    float cx = std::cos(turn_x);
+    float sx = std::sin(turn_x);
+    float cy = std::cos(turn_y);
+    float sy = std::sin(turn_y);
+    float cz = std::cos(turn_z);
+    float sz = std::sin(turn_z);
 
     DST(0,0) = scale[kX] * (cz * cy);
     DST(1,0) = scale[kX] * (cz * sy * sx + sz * cx);
@@ -90,14 +90,14 @@ void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vecto
     DST(3,3) = 1.0f;
 }
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& DST, const Vector3f& scale, const TLT::Index& turn_z, const TLT::Index& turn_x, const TLT::Index& turn_y, const Vector3f& translate)
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& DST, const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate)
 {
-    float cx = TLT::get().cos(turn_x);
-    float sx = TLT::get().sin(turn_x);
-    float cy = TLT::get().cos(turn_y);
-    float sy = TLT::get().sin(turn_y);
-    float cz = TLT::get().cos(turn_z);
-    float sz = TLT::get().sin(turn_z);
+    float cx = std::cos(turn_x);
+    float sx = std::sin(turn_x);
+    float cy = std::cos(turn_y);
+    float sy = std::sin(turn_y);
+    float cz = std::cos(turn_z);
+    float sz = std::sin(turn_z);
 
     DST(0,0) = scale[kX] * (cz * cy - sz * sy * sx);
     DST(1,0) = scale[kX] * (sz * cy + cz * sy * sx);

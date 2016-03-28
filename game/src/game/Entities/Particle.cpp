@@ -930,12 +930,10 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     facing = Facing(loc_facing);
 
     // this is actually pointing in the opposite direction?
-    TLT::Index turn = TLT::get().fromFacing(loc_facing);
-
     // Location data from arguments
     newrand = generate_irand_pair(getProfile()->getSpawnPositionOffsetXY());
-    offset[kX] = -TLT::get().cos(turn) * newrand;
-    offset[kY] = -TLT::get().sin(turn) * newrand;
+    offset[kX] = -std::cos(loc_facing) * newrand;
+    offset[kY] = -std::sin(loc_facing) * newrand;
 
     tmp_pos[kX] += offset[kX];
     tmp_pos[kY] += offset[kY];
@@ -953,8 +951,8 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     }
 
     // Velocity data
-    vel.x() = -TLT::get().cos(turn) * velocity;
-    vel.y() = -TLT::get().sin(turn) * velocity;
+    vel.x() = -std::cos(loc_facing) * velocity;
+    vel.y() = -std::sin(loc_facing) * velocity;
     vel.z() += generate_irand_pair(getProfile()->getSpawnVelocityOffsetZ()) - (getProfile()->getSpawnVelocityOffsetZ().rand / 2);
     this->vel = vel_old = vel_stt = vel;
 

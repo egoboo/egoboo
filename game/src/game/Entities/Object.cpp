@@ -467,7 +467,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                 {
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
-                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + Facing(direction),
+                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction,
                                                               _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                                               ObjectRef::Invalid, GRIP_LAST, attackerTeam, _objRef);
                     }
@@ -2838,7 +2838,7 @@ void Object::dropKeys()
         if (( idsz_parent.toUint32() < testa.toUint32() && idsz_parent.toUint32() > testz.toUint32() ) &&
             ( idsz_type.toUint32() < testa.toUint32() && idsz_type.toUint32() > testz.toUint32() ) ) continue;
 
-        FACING_T direction = Random::next(std::numeric_limits<FACING_T>::max());
+        Facing direction = Facing::random();
         TLT::Index turn = TLT::get().fromFacing(direction);
 
         //remove it from inventory
@@ -2853,7 +2853,7 @@ void Object::dropKeys()
         // fix some flags
         pkey->hitready               = true;
         pkey->isequipped             = false;
-        pkey->ori.facing_z           = Facing(uint16_t(Facing(direction) + Facing::ATK_BEHIND));
+        pkey->ori.facing_z           = Facing(FACING_T(direction + Facing::ATK_BEHIND));
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
@@ -2891,7 +2891,7 @@ void Object::dropAllItems()
     const FACING_T diradd = (std::numeric_limits<FACING_T>::max()/2) / pack_count;
 
     // now drop each item in turn
-    FACING_T direction = FACING_T(ori.facing_z + Facing::ATK_BEHIND) - diradd * (pack_count/2);
+    Facing direction = ori.facing_z + Facing::ATK_BEHIND - Facing(diradd * (pack_count/2));
     for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
     {
         //remove it from inventory
@@ -2912,9 +2912,8 @@ void Object::dropAllItems()
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity
-        TLT::Index turn = TLT::get().fromFacing(direction);
-        pitem->vel.x() += TLT::get().cos(turn) * DROPXYVEL;
-        pitem->vel.y() += TLT::get().sin(turn) * DROPXYVEL;
+        pitem->vel.x() += std::cos(direction) * DROPXYVEL;
+        pitem->vel.y() += std::sin(direction) * DROPXYVEL;
         pitem->vel.z() += DROPZVEL;
 
         // do some more complicated things
@@ -2922,7 +2921,7 @@ void Object::dropAllItems()
         pitem->setPosition(getPosition());
 
         //drop out evenly in all directions
-        direction += diradd;
+        direction += Facing(diradd);
     }
 }
 
