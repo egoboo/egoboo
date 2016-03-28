@@ -88,9 +88,10 @@ public:
     Facing(const Facing& other) : angle(other.angle) {
         /* Intentionally left empty. */
     }
+    // Explicit cast. Canonicalizes angles. 
     explicit operator uint16_t() const {
         int32_t x = angle;
-        while (x < -static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) {
+        while (x < 0) {
             x = x + static_cast<int32_t>(std::numeric_limits<uint16_t>::max());
         }
         while (x > +static_cast<int32_t>(std::numeric_limits<uint16_t>::max())) {
@@ -98,6 +99,7 @@ public:
         }
         return x;
     }
+    // Explicit cast.
     explicit operator int32_t() const {
         return angle;
     }
