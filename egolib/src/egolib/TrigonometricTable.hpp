@@ -67,3 +67,17 @@ public:
         return g_instance;
     }
 };
+
+namespace std {
+
+inline float sin(const Facing& x) {
+    auto i = TLT::get().fromFacing(x);
+    return TLT::get().sin(i);
+}
+
+inline float cos(const Facing& x) {
+    auto i = TLT::get().fromFacing(x);
+    return TLT::get().cos(i);
+}
+
+}

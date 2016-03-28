@@ -1923,7 +1923,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
         {
             self.child = pchild->getObjRef();
 
-            TLT::Index turn = TLT::get().fromFacing(Facing(pchr->ori.facing_z) + Facing::ATK_BEHIND);
+            TLT::Index turn = TLT::get().fromFacing(pchr->ori.facing_z + Facing::ATK_BEHIND);
             pchild->vel[kX] += TLT::get().cos(turn) * state.distance;
             pchild->vel[kY] += TLT::get().sin(turn) * state.distance;
 

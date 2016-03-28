@@ -567,10 +567,10 @@ size_t Particle::updateContinuousSpawning()
     {
         std::shared_ptr<Ego::Particle> prt_child;
         if(_spawnerProfile == INVALID_PRO_REF) {
-            prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), Facing(FACING_T(facingAdd)), getProfile()->contspawn._lpip, tnc);
+            prt_child = ParticleHandler::get().spawnGlobalParticle(getPosition(), facingAdd, getProfile()->contspawn._lpip, tnc);
         }
         else {
-            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), Facing(FACING_T(facingAdd)), _spawnerProfile, getProfile()->contspawn._lpip,
+            prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facingAdd, _spawnerProfile, getProfile()->contspawn._lpip,
                                                                   ObjectRef::Invalid, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
         }
 
@@ -705,12 +705,12 @@ void Particle::destroy()
             if(_spawnerProfile == INVALID_PRO_REF)
             {
                 //Global particle
-                ParticleHandler::get().spawnGlobalParticle(getOldPosition(), Facing(FACING_T(facingAdd)), getProfile()->endspawn._lpip, tnc);
+                ParticleHandler::get().spawnGlobalParticle(getOldPosition(), facingAdd, getProfile()->endspawn._lpip, tnc);
             }
             else
             {
                 //Local particle
-                ParticleHandler::get().spawnLocalParticle(getOldPosition(), Facing(FACING_T(facingAdd)), _spawnerProfile, getProfile()->endspawn._lpip,
+                ParticleHandler::get().spawnLocalParticle(getOldPosition(), facingAdd, _spawnerProfile, getProfile()->endspawn._lpip,
                                                           ObjectRef::Invalid, GRIP_LAST, team, owner_ref,
                                                           _particleID, tnc, _target);
             }
@@ -850,7 +850,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
 
             // Find a target
             Facing targetAngle;
-            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
+            _target = prt_find_target(spawnPos, Facing(FACING_T(loc_facing)), _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
             const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
 
             if (target && !getProfile()->homing)
@@ -930,7 +930,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     facing = Facing(loc_facing);
 
     // this is actually pointing in the opposite direction?
-    TLT::Index turn = TLT::get().fromFacing((FACING_T)loc_facing);
+    TLT::Index turn = TLT::get().fromFacing(loc_facing);
 
     // Location data from arguments
     newrand = generate_irand_pair(getProfile()->getSpawnPositionOffsetXY());

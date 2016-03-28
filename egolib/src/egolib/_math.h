@@ -240,16 +240,6 @@ inline int sgn<Facing>(const Facing& x) {
     return sgn(int32_t(x));
 }
 
-namespace std {
-inline float sin(const Facing& x) {
-    return sin((Ego::Math::Radians)x);
-}
-
-inline float cos(const Facing& x) {
-    return cos((Ego::Math::Radians)x);
-}
-}
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // basic constants
