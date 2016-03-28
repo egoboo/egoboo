@@ -678,7 +678,7 @@ public:
     * @return
     *   true if this Object is immune to damage from the specified direction
     **/
-    bool isInvictusDirection(FACING_T direction) const;
+    bool isInvictusDirection(Facing direction) const;
 
     /**
     * @return 

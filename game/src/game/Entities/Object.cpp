@@ -2445,10 +2445,11 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     chr_instance_t::update_ref(inst, getPosition(), true);
 }
 
-bool Object::isInvictusDirection(FACING_T direction) const
+bool Object::isInvictusDirection(Facing direction) const
 {
-    FACING_T left;
-    FACING_T right;
+    Facing left, right;
+
+    static const Facing MAX = Facing(std::numeric_limits<uint16_t>::max());
 
     // if the invictus flag is set, we are invictus
     if (isInvincible()) return true;
@@ -2457,9 +2458,9 @@ bool Object::isInvictusDirection(FACING_T direction) const
     if (HAS_SOME_BITS(chr_instance_t::get_framefx(inst), MADFX_INVICTUS))
     {
         //I Frame
-        direction -= getProfile()->getInvictusFrameFacing();
-        left       = static_cast<FACING_T>(Facing(0x00010000L) - Facing(getProfile()->getInvictusFrameAngle()));
-        right      = getProfile()->getInvictusFrameAngle();
+        direction -= Facing(getProfile()->getInvictusFrameFacing());
+        left       = MAX - Facing(getProfile()->getInvictusFrameAngle());
+        right      = Facing(getProfile()->getInvictusFrameAngle());
 
         // If using shield, use the shield invictus instead
         if (ACTION_IS_TYPE(inst.action_which, P))
@@ -2470,23 +2471,24 @@ bool Object::isInvictusDirection(FACING_T direction) const
             if (parry_left && getLeftHandItem())
             {
                 // Check left hand
-                left = static_cast<FACING_T>(Facing(0x00010000L) - Facing(getLeftHandItem()->getProfile()->getInvictusFrameAngle()));
-                right = getLeftHandItem()->getProfile()->getInvictusFrameAngle();
+                // 0x00010000L ~ 65536 ~ 2^16
+                left = MAX - Facing(getLeftHandItem()->getProfile()->getInvictusFrameAngle());
+                right = Facing(getLeftHandItem()->getProfile()->getInvictusFrameAngle());
             }
             else if(getRightHandItem())
             {
                 // Check right hand
-                left = static_cast<FACING_T>(Facing(0x00010000L) - Facing(getRightHandItem()->getProfile()->getInvictusFrameAngle()));
-                right = getRightHandItem()->getProfile()->getInvictusFrameAngle();
+                left = MAX - Facing(getRightHandItem()->getProfile()->getInvictusFrameAngle());
+                right = Facing(getRightHandItem()->getProfile()->getInvictusFrameAngle());
             }
         }
     }
     else
     {
         // Non invictus Frame
-        direction -= getProfile()->getNormalFrameFacing();
-        left       = static_cast<FACING_T>(Facing(0x00010000L) - Facing(getProfile()->getNormalFrameAngle()));
-        right      = getProfile()->getNormalFrameAngle();
+        direction -= Facing(getProfile()->getNormalFrameFacing());
+        left = MAX - Facing(getProfile()->getNormalFrameAngle());
+        right = Facing(getProfile()->getNormalFrameAngle());
     }
 
     // Check that direction
