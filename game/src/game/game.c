@@ -504,9 +504,9 @@ int update_game()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
+ObjectRef prt_find_target( const Vector3f& pos, Facing facing,
                            const PIP_REF particletype, const TEAM_REF team, 
-	                       ObjectRef donttarget, ObjectRef oldtarget, FACING_T *targetAngle )
+	                       ObjectRef donttarget, ObjectRef oldtarget, Facing *targetAngle )
 {
     /// @author ZF
     /// @details This is the new improved targeting system for particles. Also includes distance in the Z direction.
@@ -517,6 +517,8 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 
     ObjectRef besttarget = ObjectRef::Invalid;
     float  longdist2 = max_dist2;
+
+    facing = Facing(FACING_T(facing));
 
     if ( !LOADED_PIP( particletype ) ) return ObjectRef::Invalid;
     ppip = ProfileSystem::get().ParticleProfileSystem.get_ptr( particletype );
@@ -546,10 +548,10 @@ ObjectRef prt_find_target( const Vector3f& pos, FACING_T facing,
 
         if ( target_friend || target_enemy )
         {
-            FACING_T angle = - facing + vec_to_facing( pchr->getPosX() - pos[kX] , pchr->getPosY() - pos[kY] );
+            Facing angle = Facing(FACING_T(-facing + vec_to_facing( pchr->getPosX() - pos[kX] , pchr->getPosY() - pos[kY] )));
 
             // Only proceed if we are facing the target
-            if ( angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
+            if ( angle < Facing(ppip->targetangle) || angle > Facing( 0xFFFF - ppip->targetangle ))
             {
                 float dist2 = (pchr->getPosition() - pos).length_2();
 
@@ -761,7 +763,7 @@ void WeatherState::animate()
             if (pchr)
             {
                 // Yes, so spawn nearby that character
-                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), Facing(ATK_FRONT), part_gpip, 0, over_water);
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle(pchr->getPosition(), Facing::ATK_FRONT, part_gpip, 0, over_water);
                 if (particle)
                 {
                     // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
@@ -2822,7 +2824,7 @@ void character_swipe( ObjectRef ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, FACING_T(pchr->ori.facing_z), pweapon->getName(), ObjectRef::Invalid);
+        std::shared_ptr<Object> pthrown = _currentModule->spawnObject(pchr->getPosition(), pweapon->getProfileID(), pholder->getTeam().toRef(), pweapon->skin, pchr->ori.facing_z, pweapon->getName(), ObjectRef::Invalid);
         if (pthrown)
         {
             pthrown->iskursed = false;
@@ -2841,9 +2843,9 @@ void character_swipe( ObjectRef ichr, slot_t slot )
             }
             velocity = Ego::Math::constrain( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
-            TLT::Index turn = TLT::get().fromFacing( FACING_T(pchr->ori.facing_z + Facing(ATK_BEHIND)) );
-            pthrown->vel.x() += TLT::get().cos(turn) * velocity;
-            pthrown->vel.y() += TLT::get().sin(turn) * velocity;
+            Facing turn = pchr->ori.facing_z + Facing::ATK_BEHIND;
+            pthrown->vel.x() += std::cos(turn) * velocity;
+            pthrown->vel.y() += std::sin(turn) * velocity;
             pthrown->vel.z() = Object::DROPZVEL;
 
             //Was that the last one?

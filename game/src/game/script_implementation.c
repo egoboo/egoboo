@@ -280,10 +280,10 @@ bool Compass( Vector2f& pos, int facing, float distance )
     /// tmpdistance and tmpturn.  It acts like one of those Compass thing
     /// with the two little needle legs
 
-    TLT::Index turn = TLT::get().fromFacing(facing);
+    Facing turn = Facing(facing);
 
-    pos[kX] -= TLT::get().cos(turn) * distance;
-    pos[kY] -= TLT::get().sin(turn) * distance;
+    pos[kX] -= std::cos(turn) * distance;
+    pos[kY] -= std::sin(turn) * distance;
 
     return true;
 }

@@ -371,9 +371,9 @@ Vector3f mat_getTranslate(const Matrix4f4f& mat);
 
 #include "egolib/TrigonometricTable.hpp"
 
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& mat, const Vector3f& scale, const TLT::Index& turn_z, const TLT::Index& turn_x, const TLT::Index& turn_y, const Vector3f& translate);
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& mat, const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate);
 /// @details Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
-void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& mat, const Vector3f& scale, const TLT::Index& turn_z, const TLT::Index& turn_x, const TLT::Index& turn_y, const Vector3f& translate);
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(Matrix4f4f& mat, const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate);
 
 
 /**

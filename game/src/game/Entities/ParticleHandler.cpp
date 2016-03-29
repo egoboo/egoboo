@@ -66,7 +66,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const Vector
     //Get global particle profile
     PIP_REF globalProfile = ((pip_index.get() < 0) || (pip_index.get() > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index.get());
 
-    return spawnParticle(spawnPos, Facing(spawnFacing), INVALID_PRO_REF, globalProfile, ObjectRef::Invalid, GRIP_LAST, Team::TEAM_NULL,
+    return spawnParticle(spawnPos, spawnFacing, INVALID_PRO_REF, globalProfile, ObjectRef::Invalid, GRIP_LAST, Team::TEAM_NULL,
                          ObjectRef::Invalid, ParticleRef::Invalid, multispawn, ObjectRef::Invalid, onlyOverWater);
 }
 
@@ -95,7 +95,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
     std::shared_ptr<Ego::Particle> particle = getFreeParticle(ppip->force);
     if(particle) {
         //Initialize particle and add it into the game
-        if(particle->initialize(ParticleRef(_totalParticlesSpawned++), spawnPos, FACING_T(spawnFacing), spawnProfile, particleProfile, spawnAttach, vrt_offset, 
+        if(particle->initialize(ParticleRef(_totalParticlesSpawned++), spawnPos, Facing(FACING_T(spawnFacing)), spawnProfile, particleProfile, spawnAttach, vrt_offset, 
                                 spawnTeam, spawnOrigin, ParticleRef(spawnParticleOrigin), multispawn, spawnTarget, onlyOverWater)) 
         {
             _pendingParticles.push_back(particle);

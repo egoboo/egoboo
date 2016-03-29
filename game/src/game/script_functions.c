@@ -1568,7 +1568,7 @@ Uint8 scr_DamageTarget( script_state_t& state, ai_state_t& self )
     tmp_damage.base = state.argument;
     tmp_damage.rand = 1;
 
-    target->damage(Facing(ATK_FRONT), tmp_damage, static_cast<DamageType>(pchr->damagetarget_damagetype), 
+    target->damage(Facing::ATK_FRONT, tmp_damage, static_cast<DamageType>(pchr->damagetarget_damagetype), 
                    pchr->team, _currentModule->getObjectHandler()[self.getSelf()], false, false, true);
 
     SCRIPT_FUNCTION_END();
@@ -1905,7 +1905,7 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), 0.0f);
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, Ego::Math::clipBits<16>( state.turn ), "", ObjectRef::Invalid);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, pchr->getProfileID(), pchr->team, 0, Facing(Ego::Math::clipBits<16>( state.turn )), "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -1923,9 +1923,9 @@ Uint8 scr_SpawnCharacter( script_state_t& state, ai_state_t& self )
         {
             self.child = pchild->getObjRef();
 
-            TLT::Index turn = TLT::get().fromFacing(uint16_t(Facing(pchr->ori.facing_z) + Facing(ATK_BEHIND)));
-            pchild->vel[kX] += TLT::get().cos(turn) * state.distance;
-            pchild->vel[kY] += TLT::get().sin(turn) * state.distance;
+            Facing turn = pchr->ori.facing_z + Facing::ATK_BEHIND;
+            pchild->vel[kX] += std::cos(turn) * state.distance;
+            pchild->vel[kY] += std::sin(turn) * state.distance;
 
             pchild->iskursed = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = self.passage;
@@ -3129,7 +3129,7 @@ Uint8 scr_IfHitFromBehind(script_state_t& state, ai_state_t& self) {
     returncode = false;
     // (8192 / (2^16-1)) * 360 ~ 45 degrees
     static const Facing tolerance(8192);
-    if (self.directionlast >= (Facing(ATK_BEHIND) - tolerance) && self.directionlast < (Facing(ATK_BEHIND) + tolerance)) {
+    if (self.directionlast >= (Facing::ATK_BEHIND - tolerance) && self.directionlast < (Facing::ATK_BEHIND + tolerance)) {
         returncode = true;
     }
 
@@ -3148,7 +3148,7 @@ Uint8 scr_IfHitFromFront(script_state_t& state, ai_state_t& self) {
     returncode = false;
     // (8192 / (2^16-1)) * 360 ~ 45 degrees
     static const Facing tolerance(8192);
-    if (self.directionlast >= (Facing(ATK_FRONT) - tolerance) && self.directionlast < (Facing(ATK_FRONT) + tolerance)) {
+    if (self.directionlast >= (Facing::ATK_FRONT - tolerance) && self.directionlast < (Facing::ATK_FRONT + tolerance)) {
         returncode = true;
     }
 
@@ -3167,7 +3167,7 @@ Uint8 scr_IfHitFromLeft(script_state_t& state, ai_state_t& self) {
     returncode = false;
     // (8192 / (2^16-1)) * 360 ~ 45 degrees
     static const Facing tolerance(8192);
-    if (self.directionlast >= (Facing(ATK_LEFT) - tolerance) && self.directionlast < (Facing(ATK_LEFT) + tolerance)) {
+    if (self.directionlast >= (Facing::ATK_LEFT - tolerance) && self.directionlast < (Facing::ATK_LEFT + tolerance)) {
         returncode = true;
     }
 
@@ -3186,7 +3186,7 @@ Uint8 scr_IfHitFromRight(script_state_t& state, ai_state_t& self) {
     returncode = false;
     // (8192 / (2^16-1)) * 360 ~ 45 degrees
     static const Facing tolerance(8192);
-    if (self.directionlast >= (Facing(ATK_RIGHT) - tolerance) && self.directionlast < (Facing(ATK_RIGHT) + tolerance)) {
+    if (self.directionlast >= (Facing::ATK_RIGHT - tolerance) && self.directionlast < (Facing::ATK_RIGHT + tolerance)) {
         returncode = true;
     }
 
@@ -5358,7 +5358,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, Ego::Math::clipBits<16>( state.turn ), "", ObjectRef::Invalid );
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject( pos, pchr->getProfileID(), pchr->team, 0, Facing(Ego::Math::clipBits<16>( state.turn )), "", ObjectRef::Invalid );
     if (pchild == nullptr)
     {
 		Log::get().warn("%s:%d: object %s failed to spawn a copy of itself\n", __FILE__, __LINE__, pchr->getName().c_str() );
@@ -5400,7 +5400,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t& state, ai_state_t& self )
 			Interpreter::safeCast<float>(state.distance)
         );
 
-    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, Ego::Math::clipBits<16>(state.turn), "", ObjectRef::Invalid);
+    const std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, static_cast<PRO_REF>(state.argument), pchr->team, 0, Facing(Ego::Math::clipBits<16>(state.turn)), "", ObjectRef::Invalid);
 
     if ( !pchild )
     {
@@ -6752,11 +6752,11 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
         const float posOffsetBase = static_cast<float>(state.y);
         const float damage_rand = ppip->damage.to - ppip->damage.from;
 
-        FACING_T facing_z = uint16_t(pchr->ori.facing_z);
+        Facing facing_z = pchr->ori.facing_z;
         for (int cnt = 0; cnt < pchr->getProfile()->getParticlePoofAmount(); cnt++)
         {
-            std::shared_ptr<Ego::Particle> poofParticle = ParticleHandler::get().spawnParticle(pchr->getOldPosition(), Facing(facing_z), pchr->getProfile()->getSlotNumber(), ipip,
-                                                 ObjectRef::Invalid, GRIP_LAST, pchr->team, pchr->ai.owner, ParticleRef::Invalid, cnt);
+            auto poofParticle = ParticleHandler::get().spawnParticle(pchr->getOldPosition(), facing_z, pchr->getProfile()->getSlotNumber(), ipip,
+                                                                     ObjectRef::Invalid, GRIP_LAST, pchr->team, pchr->ai.owner, ParticleRef::Invalid, cnt);
 
             // set some values
             if(poofParticle) {
@@ -6778,7 +6778,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t& state, ai_state_t& self )
                 returncode = true;
             }
 
-            facing_z += pchr->getProfile()->getParticlePoofFacingAdd();
+            facing_z += Facing(pchr->getProfile()->getParticlePoofFacingAdd());
         }
     }
 
@@ -7112,7 +7112,7 @@ Uint8 scr_IfBackstabbed( script_state_t& state, ai_state_t& self )
         //Only if hit from behind
         // (8192 / (2^16-1)) * 360 ~ 45 degrees
         static const Facing tolerance(8192);
-        if ( self.directionlast >= (Facing(ATK_BEHIND) - tolerance) && self.directionlast < (Facing(ATK_BEHIND) + tolerance) )
+        if ( self.directionlast >= (Facing::ATK_BEHIND - tolerance) && self.directionlast < (Facing::ATK_BEHIND + tolerance) )
         {
             //And require the backstab skill
             if (pLastAttacker->hasPerk(Ego::Perks::BACKSTAB) )
@@ -7370,7 +7370,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t& state, ai_state_t& self )
 
 	Vector3f pos = Vector3f(float(state.x), float(state.y), float(state.distance));
 
-    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, FACE_NORTH, "", ObjectRef::Invalid);
+    std::shared_ptr<Object> pchild = _currentModule->spawnObject(pos, (PRO_REF)state.argument, pchr->team, 0, Facing::FACE_NORTH, "", ObjectRef::Invalid);
     returncode = pchild != nullptr;
 
     if ( !returncode )
@@ -7916,7 +7916,7 @@ Uint8 scr_TargetDamageSelf( script_state_t& state, ai_state_t& self )
     tmp_damage.base = state.argument;
     tmp_damage.rand = 1;
 
-    pchr->damage(Facing(ATK_FRONT), tmp_damage, static_cast<DamageType>(state.distance), target->getTeam().toRef(), target, false, false, true);
+    pchr->damage(Facing::ATK_FRONT, tmp_damage, static_cast<DamageType>(state.distance), target->getTeam().toRef(), target, false, false, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -8017,8 +8017,8 @@ Uint8 scr_IfTargetIsFacingSelf( script_state_t& state, ai_state_t& self )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
 	FACING_T sTmp = 0;
-    sTmp = vec_to_facing( pchr->getPosX() - pself_target->getPosX() , pchr->getPosY() - pself_target->getPosY() );
-    sTmp -= uint16_t(pself_target->ori.facing_z);
+    sTmp = FACING_T(vec_to_facing( pchr->getPosX() - pself_target->getPosX() , pchr->getPosY() - pself_target->getPosY() ));
+    sTmp -= FACING_T(pself_target->ori.facing_z);
     returncode = ( sTmp > 55535 || sTmp < 10000 );
 
     SCRIPT_FUNCTION_END();

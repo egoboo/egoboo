@@ -484,9 +484,9 @@ private:
 struct MeshLookupTables {
 	Vector3f twist_nrm[256];
 	/// For surface normal of the mesh.
-	FACING_T twist_facing_y[256];
+	Facing twist_facing_y[256];
 	/// For surface normal of the mesh.
-	FACING_T twist_facing_x[256];
+	Facing twist_facing_x[256];
 	/// Precomputed velocity (acceleration?) for sliding (down?) steep hills.
 	Vector3f twist_vel[256];
 	/// Is (something) flat?

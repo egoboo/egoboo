@@ -47,7 +47,7 @@ enum
 //--------------------------------------------------------------------------------------------
 struct orientation_t
 {
-    static constexpr FACING_T MAP_TURN_OFFSET = 0x8000;
+    static const Facing MAP_TURN_OFFSET;
     
     Facing facing_z;            ///< Character's z-rotation 0 to 0xFFFF
     Facing map_twist_facing_y;  ///< Character's y-rotation 0 to 0xFFFF

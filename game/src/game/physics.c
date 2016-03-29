@@ -42,6 +42,8 @@ static bool phys_warp_normal(const float exponent, Vector3f& nrm);
 static bool phys_get_pressure_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_vec_v2_t& odepth);
 static bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_vec_v2_t& odepth);
 
+const Facing orientation_t::MAP_TURN_OFFSET(0x8000);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_vec_v2_t& odepth)

@@ -454,8 +454,8 @@ bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata)
     }
 
     // find the "attack direction" of the particle
-    FACING_T direction = vec_to_facing(pdata->pchr->getPosX() - pdata->pprt->getPosX(), pdata->pchr->getPosY() - pdata->pprt->getPosY());
-    direction = FACING_T(pdata->pchr->ori.facing_z) - direction + ATK_BEHIND;
+    Facing direction = Facing(FACING_T(vec_to_facing(pdata->pchr->getPosX() - pdata->pprt->getPosX(), pdata->pchr->getPosY() - pdata->pprt->getPosY())));
+    direction = pdata->pchr->ori.facing_z - Facing(direction) + Facing::ATK_BEHIND;
 
     // shield block?
     // if the effect is shield piercing, ignore shielding
@@ -701,8 +701,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             //Damage adjusted for attributes and weaknesses
             IPair modifiedDamage = pdata->pprt->damage;
 
-            FACING_T direction = vec_to_facing( pdata->pprt->vel.x() , pdata->pprt->vel.y() );
-            direction = FACING_T(pdata->pchr->ori.facing_z) - direction + ATK_BEHIND;
+            FACING_T direction = FACING_T(vec_to_facing( pdata->pprt->vel.x() , pdata->pprt->vel.y() ));
+            direction = FACING_T(pdata->pchr->ori.facing_z - Facing(direction) + Facing::ATK_BEHIND);
 
             // These things only apply if the particle has an owner
             if ( nullptr != powner )
@@ -759,7 +759,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                             BillboardSystem::get().makeBillboard(pdata->pchr->getObjRef(), "Disintegrated!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::purple(), 6, Billboard::Flags::All);
 
                             //Disintegrate effect
-                            ParticleHandler::get().spawnGlobalParticle(pdata->pchr->getPosition(), Facing(ATK_FRONT), LocalParticleProfileRef(PIP_DISINTEGRATE_START), 0);
+                            ParticleHandler::get().spawnGlobalParticle(pdata->pchr->getPosition(), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_DISINTEGRATE_START), 0);
                         }
                     }
                 }
@@ -1323,7 +1323,6 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
     int      bs_count;
     float    x, y, z;
     FACING_T facing;
-    FACING_T direction;
     float    fsin, fcos;
 
     const std::shared_ptr<Ego::Particle> &pprt = ParticleHandler::get()[particle];
@@ -1343,8 +1342,8 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
     bs_count = 0;
 
     // Only damage if hitting from proper direction
-    direction = vec_to_facing(pprt->vel[kX], pprt->vel[kY]);
-    direction = ATK_BEHIND + (FACING_T(pchr->ori.facing_z) - direction);
+    Facing direction = vec_to_facing(pprt->vel[kX], pprt->vel[kY]);
+    direction = Facing::ATK_BEHIND + pchr->ori.facing_z - direction;
 
     // Check that direction
     if (ppip->hasBit(DAMFX_NBLOC) || !pchr->isInvictusDirection(direction))
@@ -1403,9 +1402,9 @@ int spawn_bump_particles(ObjectRef character, const ParticleRef particle)
                 // clear the occupied list
                 z = pprt->getPosZ() - pchr->getPosZ();
                 facing = FACING_T(pprt->facing - pchr->ori.facing_z);
-                TLT::Index turn = TLT::get().fromFacing(facing);
-                fsin = TLT::get().sin(turn);
-                fcos = TLT::get().cos(turn);
+                Facing turn = Facing(facing);
+                fsin = std::sin(turn);
+                fcos = std::cos(turn);
                 x = dist * fcos;
                 y = dist * fsin;
 

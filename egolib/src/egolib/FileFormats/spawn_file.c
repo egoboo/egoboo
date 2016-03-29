@@ -42,7 +42,7 @@ spawn_file_info_t::spawn_file_info_t() :
     skin(0),
     stat(false),
     team(Team::TEAM_NULL),
-    facing(FACE_NORTH),
+    facing(Facing::FACE_NORTH),
     attach(ATTACH_NONE)
 {
     //ctor
@@ -123,15 +123,15 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t& info)
         info.pos[kY] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
         info.pos[kZ] = ctxt.readRealLiteral() * Info<float>::Grid::Size();
 
-        info.facing = FACE_NORTH;
+        info.facing = FACING_T(Facing::FACE_NORTH);
         info.attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
         switch (Ego::toupper(chr))
         {
-            case 'S': info.facing = FACE_SOUTH;       break;
-            case 'E': info.facing = FACE_EAST;        break;
-            case 'W': info.facing = FACE_WEST;        break;
-            case 'N': info.facing = FACE_NORTH;       break;
+            case 'S': info.facing = FACING_T(Facing::FACE_SOUTH);       break;
+            case 'E': info.facing = FACING_T(Facing::FACE_EAST);        break;
+            case 'W': info.facing = FACING_T(Facing::FACE_WEST);        break;
+            case 'N': info.facing = FACING_T(Facing::FACE_NORTH);       break;
             case '?': info.facing = FACE_RANDOM;      break;
             case 'L': info.attach = ATTACH_LEFT;      break;
             case 'R': info.attach = ATTACH_RIGHT;     break;

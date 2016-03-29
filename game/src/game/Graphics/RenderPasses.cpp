@@ -628,9 +628,9 @@ void Foreground::doRun(::Camera& cam, const TileList& tl, const EntityList& el) 
 		float y = sdl_scr.y << 6;
 		float z = 0;
 		float size = x + y + 1;
-		TLT::Index default_turn = TLT::get().fromFacing((3 * 2047) << 2);
-		float sinsize = TLT::get().sin(default_turn) * size;
-		float cossize = TLT::get().cos(default_turn) * size;
+		static const Facing default_turn = Facing((3 * 2047) << 2);
+		float sinsize = std::sin(default_turn) * size;
+		float cossize = std::cos(default_turn) * size;
 		float loc_foregroundrepeat = _currentModule->getWater()._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
 
 		{

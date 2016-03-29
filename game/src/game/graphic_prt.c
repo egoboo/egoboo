@@ -710,9 +710,8 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
     }
     else
     {
-        TLT::Index turn = TLT::get().fromFacing(pprt->rotate);
-        float cosval = TLT::get().cos(turn);
-        float sinval = TLT::get().sin(turn);
+        float cosval = std::cos(pprt->rotate);
+        float sinval = std::sin(pprt->rotate);
 
         inst.up = vup * cosval - vright * sinval;
 

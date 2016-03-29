@@ -199,8 +199,8 @@ MeshLookupTables::MeshLookupTables() {
 
 		twist_nrm[cnt] = nrm;
 
-		twist_facing_x[cnt] = (FACING_T)(-vec_to_facing(nrm[kZ], nrm[kY]));
-		twist_facing_y[cnt] = vec_to_facing(nrm[kZ], nrm[kX]);
+		twist_facing_x[cnt] = Facing((FACING_T)(-vec_to_facing(nrm[kZ], nrm[kY])));
+		twist_facing_y[cnt] = Facing((FACING_T)(+vec_to_facing(nrm[kZ], nrm[kX])));
 
 		// this is about 5 degrees off of vertical
 		twist_flat[cnt] = false;

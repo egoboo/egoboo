@@ -46,6 +46,7 @@ public:
         return tocos[i.i];
     }
 
+private:
     // Maps an angle in "facings" x to a trigonometric lookup table index i.
     // The mapping is defined as
     // \f{align*}{
@@ -59,8 +60,27 @@ public:
         return Index((x >> 2) & mask);
     }
 
+public:
+    Index fromFacing(const Facing& x) const {
+        return fromFacing(FACING_T(x));
+    }
+
     static const TLT& get() {
         static const TLT g_instance;
         return g_instance;
     }
 };
+
+namespace std {
+
+inline float sin(const Facing& x) {
+    auto i = TLT::get().fromFacing(x);
+    return TLT::get().sin(i);
+}
+
+inline float cos(const Facing& x) {
+    auto i = TLT::get().fromFacing(x);
+    return TLT::get().cos(i);
+}
+
+}

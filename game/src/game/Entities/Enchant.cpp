@@ -229,16 +229,16 @@ void Enchantment::update()
         if(_spawnParticlesTimer == 0) {
             _spawnParticlesTimer = _enchantProfile->contspawn._delay;
 
-            FACING_T facing = FACING_T(target->ori.facing_z);
+            Facing facing = target->ori.facing_z;
             for (uint8_t i = 0; i < _enchantProfile->contspawn._amount; ++i)
             {
-                ParticleHandler::get().spawnLocalParticle(target->getPosition(), Facing(facing), _spawnerProfileID, _enchantProfile->contspawn._lpip,
+                ParticleHandler::get().spawnLocalParticle(target->getPosition(), facing, _spawnerProfileID, _enchantProfile->contspawn._lpip,
                                                           ObjectRef::Invalid, GRIP_LAST, 
                                                           owner != nullptr ? owner->getTeam().toRef() : static_cast<TEAM_REF>(Team::TEAM_DAMAGE), 
                                                           owner != nullptr ? owner->getObjRef() : ObjectRef::Invalid,
                                                           ParticleRef::Invalid, i, ObjectRef::Invalid);
 
-                facing += _enchantProfile->contspawn._facingAdd;
+                facing += Facing(_enchantProfile->contspawn._facingAdd);
             }
         }
     }
@@ -348,7 +348,7 @@ void Enchantment::applyEnchantment(std::shared_ptr<Object> target)
     // Create an overlay character?
     if (_enchantProfile->spawn_overlay)
     {
-        std::shared_ptr<Object> overlay = _currentModule->spawnObject(target->getPosition(), _spawnerProfileID, target->team, 0, FACING_T(target->ori.facing_z), "", ObjectRef::Invalid );
+        std::shared_ptr<Object> overlay = _currentModule->spawnObject(target->getPosition(), _spawnerProfileID, target->team, 0, target->ori.facing_z, "", ObjectRef::Invalid );
         if (overlay)
         {
             _overlay = overlay;                             //Kill this character on end...

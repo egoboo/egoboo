@@ -467,7 +467,7 @@ int Object::damage(Facing direction, const IPair  damage, const DamageType damag
                 {
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
-                        ParticleHandler::get().spawnParticle( getPosition(), Facing(FACING_T(ori.facing_z + Facing(direction))),
+                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction,
                                                               _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                                               ObjectRef::Invalid, GRIP_LAST, attackerTeam, _objRef);
                     }
@@ -742,7 +742,7 @@ void Object::update()
         if (!inwater)
         {
             // Splash
-            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), Facing(ATK_FRONT), LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level() + 10), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( _currentModule->getWater()._is_water )
             {
@@ -780,7 +780,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getObjRef().get()) & ripand ))
                     {
-                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level()), Facing(ATK_FRONT), LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle(Vector3f(getPosX(), getPosY(), _currentModule->getWater().get_level()), Facing::ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -1188,7 +1188,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     //Throw us forward if we can collide with the holder (for example the Stool)
     //This prevents us from being dropped into the collision box of the holder
     if(bump.size > 0) {
-        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + Facing(ATK_BEHIND));
+        Ego::Math::Radians angle = FacingToRadian(Facing(ori.facing_z) + Facing::ATK_BEHIND);
         vel[kX] += std::cos(angle) * DROPXYVEL * 0.5f;
         vel[kY] += std::sin(angle) * DROPXYVEL * 0.5f;
     }
@@ -2445,10 +2445,11 @@ void Object::polymorphObject(const PRO_REF profileID, const SKIN_T newSkin)
     chr_instance_t::update_ref(inst, getPosition(), true);
 }
 
-bool Object::isInvictusDirection(FACING_T direction) const
+bool Object::isInvictusDirection(Facing direction) const
 {
-    FACING_T left;
-    FACING_T right;
+    Facing left, right;
+
+    static const Facing MAX = Facing(std::numeric_limits<uint16_t>::max());
 
     // if the invictus flag is set, we are invictus
     if (isInvincible()) return true;
@@ -2457,9 +2458,9 @@ bool Object::isInvictusDirection(FACING_T direction) const
     if (HAS_SOME_BITS(chr_instance_t::get_framefx(inst), MADFX_INVICTUS))
     {
         //I Frame
-        direction -= getProfile()->getInvictusFrameFacing();
-        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getProfile()->getInvictusFrameAngle()) );
-        right      = getProfile()->getInvictusFrameAngle();
+        direction -= Facing(getProfile()->getInvictusFrameFacing());
+        left       = MAX - Facing(getProfile()->getInvictusFrameAngle());
+        right      = Facing(getProfile()->getInvictusFrameAngle());
 
         // If using shield, use the shield invictus instead
         if (ACTION_IS_TYPE(inst.action_which, P))
@@ -2470,23 +2471,24 @@ bool Object::isInvictusDirection(FACING_T direction) const
             if (parry_left && getLeftHandItem())
             {
                 // Check left hand
-                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getLeftHandItem()->getProfile()->getInvictusFrameAngle()) );
-                right = getLeftHandItem()->getProfile()->getInvictusFrameAngle();
+                // 0x00010000L ~ 65536 ~ 2^16
+                left = MAX - Facing(getLeftHandItem()->getProfile()->getInvictusFrameAngle());
+                right = Facing(getLeftHandItem()->getProfile()->getInvictusFrameAngle());
             }
             else if(getRightHandItem())
             {
                 // Check right hand
-                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getRightHandItem()->getProfile()->getInvictusFrameAngle()) );
-                right = getRightHandItem()->getProfile()->getInvictusFrameAngle();
+                left = MAX - Facing(getRightHandItem()->getProfile()->getInvictusFrameAngle());
+                right = Facing(getRightHandItem()->getProfile()->getInvictusFrameAngle());
             }
         }
     }
     else
     {
         // Non invictus Frame
-        direction -= getProfile()->getNormalFrameFacing();
-        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(getProfile()->getNormalFrameAngle()) );
-        right      = getProfile()->getNormalFrameAngle();
+        direction -= Facing(getProfile()->getNormalFrameFacing());
+        left = MAX - Facing(getProfile()->getNormalFrameAngle());
+        right = Facing(getProfile()->getNormalFrameAngle());
     }
 
     // Check that direction
@@ -2814,7 +2816,7 @@ void Object::dropMoney(int amount)
 
         for (size_t tnc = 0; tnc < count; tnc++)
         {
-            ParticleHandler::get().spawnGlobalParticle(pos, Facing(ATK_FRONT), LocalParticleProfileRef(pips[cnt]), tnc);
+            ParticleHandler::get().spawnGlobalParticle(pos, Facing::ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc);
         }
     }
 }
@@ -2838,8 +2840,8 @@ void Object::dropKeys()
         if (( idsz_parent.toUint32() < testa.toUint32() && idsz_parent.toUint32() > testz.toUint32() ) &&
             ( idsz_type.toUint32() < testa.toUint32() && idsz_type.toUint32() > testz.toUint32() ) ) continue;
 
-        FACING_T direction = Random::next(std::numeric_limits<FACING_T>::max());
-        TLT::Index turn = TLT::get().fromFacing(direction);
+        Facing direction = Facing::random();
+        Facing turn = direction;
 
         //remove it from inventory
         getInventory().removeItem(pkey, true);
@@ -2853,12 +2855,12 @@ void Object::dropKeys()
         // fix some flags
         pkey->hitready               = true;
         pkey->isequipped             = false;
-        pkey->ori.facing_z           = Facing(uint16_t(direction + ATK_BEHIND));
+        pkey->ori.facing_z           = Facing(FACING_T(direction + Facing::ATK_BEHIND));
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
-        pkey->vel[kX]                  += TLT::get().cos(turn) * DROPXYVEL;
-        pkey->vel[kY]                  += TLT::get().sin(turn) * DROPXYVEL;
+        pkey->vel[kX]                  += std::cos(turn) * DROPXYVEL;
+        pkey->vel[kY]                  += std::sin(turn) * DROPXYVEL;
         pkey->vel[kZ]                  += DROPZVEL;
 
         // do some more complicated things
@@ -2891,7 +2893,7 @@ void Object::dropAllItems()
     const FACING_T diradd = (std::numeric_limits<FACING_T>::max()/2) / pack_count;
 
     // now drop each item in turn
-    FACING_T direction = FACING_T(ori.facing_z + Facing(ATK_BEHIND)) - diradd * (pack_count/2);
+    Facing direction = ori.facing_z + Facing::ATK_BEHIND - Facing(diradd * (pack_count/2));
     for(const std::shared_ptr<Object> &pitem : getInventory().iterate())
     {
         //remove it from inventory
@@ -2908,13 +2910,12 @@ void Object::dropAllItems()
 
         // fix some flags
         pitem->hitready               = true;
-        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + Facing(ATK_BEHIND)));
+        pitem->ori.facing_z           = Facing(FACING_T(Facing(direction) + Facing::ATK_BEHIND));
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity
-        TLT::Index turn = TLT::get().fromFacing(direction);
-        pitem->vel.x() += TLT::get().cos(turn) * DROPXYVEL;
-        pitem->vel.y() += TLT::get().sin(turn) * DROPXYVEL;
+        pitem->vel.x() += std::cos(direction) * DROPXYVEL;
+        pitem->vel.y() += std::sin(direction) * DROPXYVEL;
         pitem->vel.z() += DROPZVEL;
 
         // do some more complicated things
@@ -2922,7 +2923,7 @@ void Object::dropAllItems()
         pitem->setPosition(getPosition());
 
         //drop out evenly in all directions
-        direction += diradd;
+        direction += Facing(diradd);
     }
 }
 
