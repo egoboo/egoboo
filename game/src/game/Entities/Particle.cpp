@@ -792,7 +792,7 @@ bool Particle::initialize(const ParticleRef particleID, const Vector3f& spawnPos
     // In cpp, will be passed by reference, so we do not want to alter the
     // components of the original vector.
 	Vector3f tmp_pos = spawnPos;
-    Facing loc_facing = spawnFacing;
+    Facing loc_facing = Facing(FACING_T(spawnFacing));
 
     // try to get an idea of who our owner is even if we are
     // given bogus info

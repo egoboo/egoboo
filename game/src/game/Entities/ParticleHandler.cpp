@@ -95,7 +95,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const Vector3f& sp
     std::shared_ptr<Ego::Particle> particle = getFreeParticle(ppip->force);
     if(particle) {
         //Initialize particle and add it into the game
-        if(particle->initialize(ParticleRef(_totalParticlesSpawned++), spawnPos, Facing(FACING_T(spawnFacing)), spawnProfile, particleProfile, spawnAttach, vrt_offset, 
+        if(particle->initialize(ParticleRef(_totalParticlesSpawned++), spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, 
                                 spawnTeam, spawnOrigin, ParticleRef(spawnParticleOrigin), multispawn, spawnTarget, onlyOverWater)) 
         {
             _pendingParticles.push_back(particle);
