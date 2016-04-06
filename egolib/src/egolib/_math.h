@@ -75,7 +75,7 @@ public:
     explicit Facing(int32_t angle) : angle(0) {
         // Do *not* normalize the angle.
         this->angle = angle;
-        constrain(this->angle);
+        //constrain(this->angle);
     }
     // uint16_t always fits into int32_t.
     // uint16_t is always in the correct range of 0 and 2^16-1.
@@ -337,7 +337,16 @@ Facing vec_to_facing(const float dx, const float dy);
 void facing_to_vec(const Facing& facing, float * dx, float * dy);
 
 // rotation functions
-int terp_dir(const FACING_T& majordir, const FACING_T& minordir, const int weight);
+
+/**
+ * @brief Rotate from a source angle into a target angle.
+ * @param source the source angle
+ * @param target the target angle
+ * @param weight the weight, must be positive
+ * @return the value <tt>source + (target-source)/weight</tt>
+ * @pre <tt>weight</tt> must be positive.
+ */
+Facing rotate(const Facing& source, const Facing& target, const int weight);
 
 //--------------------------------------------------------------------------------------------
 

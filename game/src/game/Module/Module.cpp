@@ -540,7 +540,7 @@ std::shared_ptr<Object> GameModule::spawnObject(const Vector3f& pos, const PRO_R
     // Particle attachments
     for ( uint8_t tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
-        ParticleHandler::get().spawnParticle( pchr->getPosition(), Facing(FACING_T(pchr->ori.facing_z)), ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
+        ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
                                               pchr->getObjRef(), GRIP_LAST + tnc, pchr->team, pchr->getObjRef(), ParticleRef::Invalid, tnc);
     }
 
