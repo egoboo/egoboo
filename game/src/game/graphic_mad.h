@@ -77,7 +77,7 @@ struct matrix_cache_t
         valid(false),
         matrix_valid(false),
         type_bits(MAT_UNKNOWN),
-        rotate(0.0f, 0.0f, 0.0f),
+        rotate(Facing(0), Facing(0), Facing(0)),
         pos(),
         grip_chr(),
         grip_slot(SLOT_LEFT),
@@ -100,7 +100,7 @@ struct matrix_cache_t
     //---- MAT_CHARACTER data
 
     // the "Euler" rotation angles in 16-bit form
-    Vector3f   rotate;
+    EulerFacing rotate;
 
     // the translate vector
     Vector3f   pos;

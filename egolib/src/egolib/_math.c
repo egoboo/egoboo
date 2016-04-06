@@ -80,27 +80,10 @@ void facing_to_vec( const Facing& facing, float * dx, float * dy )
 //--------------------------------------------------------------------------------------------
 // ROTATION FUNCTIONS
 //--------------------------------------------------------------------------------------------
-int terp_dir( const FACING_T& majordir, const FACING_T& minordir, const int weight )
-{
-    /// @author ZZ
-    /// @details This function returns a direction between the major and minor ones, closer
-    ///    to the major.
-
-    int diff;
-
-    // Align major direction with 0
-    diff = ( int )minordir - ( int )majordir;
-
-    if ( diff <= -( int )0x8000L )
-    {
-        diff += ( int )0x00010000L;
-    }
-    else if ( diff >= ( int )0x8000L )
-    {
-        diff -= ( int )0x00010000L;
-    }
-
-    return diff / weight;
+Facing rotate(const Facing& source, const Facing& target, const int weight) {
+    int32_t delta = int32_t(target) - int32_t(source);
+    int32_t weightedDelta = delta / weight;
+    return source + Facing(weightedDelta);
 }
 
 //--------------------------------------------------------------------------------------------

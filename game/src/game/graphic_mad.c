@@ -86,8 +86,8 @@ int cmp_matrix_cache(const matrix_cache_t& lhs, const matrix_cache_t& rhs) {
     if (HAS_SOME_BITS(lhs.type_bits, MAT_CHARACTER)) {
         // handle differences in the "Euler" rotation angles in 16-bit form
         for (int cnt = 0; cnt < 3; cnt++) {
-            float ftmp = lhs.rotate[cnt] - rhs.rotate[cnt];
-            if (0.0f != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+            Facing ftmp = lhs.rotate[cnt] - rhs.rotate[cnt];
+            if (Facing(0) != ftmp) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
         }
 
         // handle differences in the translate vector

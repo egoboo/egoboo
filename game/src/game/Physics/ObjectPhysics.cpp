@@ -403,12 +403,12 @@ void ObjectPhysics::updateFacing()
                     if (_object.isPlayer())
                     {
                         // Players turn quickly
-                        _object.ori.facing_z = Facing(( int )FACING_T(_object.ori.facing_z) + terp_dir( FACING_T(_object.ori.facing_z), FACING_T(vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y())), 2 ));
+                        _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 2 )));
                     }
                     else
                     {
                         // AI turn slowly
-                        _object.ori.facing_z = Facing(( int )FACING_T(_object.ori.facing_z) + terp_dir( FACING_T(_object.ori.facing_z), FACING_T(vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y())), 8 ));
+                        _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 )));
                     }
                 }
             }
@@ -419,7 +419,7 @@ void ObjectPhysics::updateFacing()
             {
                 if (_desiredVelocity.length_abs() > WATCHMIN )
                 {
-                    _object.ori.facing_z = Facing(FACING_T(static_cast<int32_t>(FACING_T(_object.ori.facing_z)) + terp_dir( FACING_T(_object.ori.facing_z), FACING_T(vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y())), 8 )));
+                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing(_desiredVelocity.x(), _desiredVelocity.y()), 8 )));
                 }
             }
             break;
@@ -429,7 +429,7 @@ void ObjectPhysics::updateFacing()
             {
                 if ( _object.getObjRef() != _object.ai.getTarget() )
                 {
-                    _object.ori.facing_z = Facing(FACING_T(static_cast<int32_t>(FACING_T(_object.ori.facing_z)) + terp_dir( FACING_T(_object.ori.facing_z), FACING_T(vec_to_facing( _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosX() - _object.getPosX() , _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosY() - _object.getPosY() )), 8 )));
+                    _object.ori.facing_z = Facing(FACING_T(rotate(_object.ori.facing_z, vec_to_facing( _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosX() - _object.getPosX() , _currentModule->getObjectHandler().get(_object.ai.getTarget())->getPosY() - _object.getPosY()), 8 )));
                 }
             }
             break;
