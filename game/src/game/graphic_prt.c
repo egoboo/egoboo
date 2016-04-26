@@ -700,13 +700,18 @@ gfx_rv prt_instance_t::update_vertices(prt_instance_t& inst, Camera& camera, Ego
     }
 
     // Calculate the actual vectors using the particle rotation.
-    if (0 == pprt->rotate)
+    /// @todo An optimization for the special case where the angle
+    /// a is 0, taking advantage of the obvious fact that cos(a)=1,
+    /// sin(a)=0 for a = 0. However, it is a quite special optimization,
+    /// as it does not take into account the cases a = n * 360, n =
+    /// ..., -1, 0, +1, ...
+    if (Facing(0) == pprt->rotate)
     {
-        inst.up = vup;
-        inst.right = vright;
+        inst.up = vup; // vup * 1 - vright * 0
+        inst.right = vright; // vup * 0 + vright * 1
 
-        inst.ref_up = vup_ref;
-        inst.ref_right = vright_ref;
+        inst.ref_up = vup_ref; // vup_ref * 1 - vright_ref * 0
+        inst.ref_right = vright_ref; // vup_ref * 0 + vright_ref * 1
     }
     else
     {
