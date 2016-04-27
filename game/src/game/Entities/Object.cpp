@@ -167,8 +167,8 @@ Object::Object(const PRO_REF proRef, ObjectRef objRef) :
     equipment.fill(ObjectRef::Invalid);
 
     // Set up position
-    ori.map_twist_facing_y = Facing(orientation_t::MAP_TURN_OFFSET);  // These two mean on level surface
-    ori.map_twist_facing_x = Facing(orientation_t::MAP_TURN_OFFSET);
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
 
     //Initialize primary attributes
     for(size_t i = 0; i < Ego::Attribute::NR_OF_PRIMARY_ATTRIBUTES; ++i) {
@@ -1216,8 +1216,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Set twist
-    ori.map_twist_facing_y = Facing(orientation_t::MAP_TURN_OFFSET);
-    ori.map_twist_facing_x = Facing(orientation_t::MAP_TURN_OFFSET);
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
 
     // turn off keeping, unless the object is dead
     if (!isAlive())
@@ -1847,8 +1847,8 @@ void Object::respawn()
     vel = Vector3f::zero();
     team = team_base;
     canbecrushed = false;
-    ori.map_twist_facing_y = Facing(orientation_t::MAP_TURN_OFFSET);  // These two mean on level surface
-    ori.map_twist_facing_x = Facing(orientation_t::MAP_TURN_OFFSET);
+    ori.map_twist_facing_y = orientation_t::MAP_TURN_OFFSET;  // These two mean on level surface
+    ori.map_twist_facing_x = orientation_t::MAP_TURN_OFFSET;
     if ( !getTeam().getLeader() )  getTeam().setLeader( _currentModule->getObjectHandler()[getObjRef()] );
     if ( !isInvincible() )         getTeam().increaseMorale();
 

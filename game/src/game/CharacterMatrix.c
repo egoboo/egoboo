@@ -169,8 +169,8 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
             mc_tmp.valid   = true;
             SET_BIT( mc_tmp.type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
-            mc_tmp.rotate[kX] = ptarget->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET);
-            mc_tmp.rotate[kY] = ptarget->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET);
+            mc_tmp.rotate[kX] = ptarget->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET;
+            mc_tmp.rotate[kY] = ptarget->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET;
             mc_tmp.rotate[kZ] = ptarget->ori.facing_z;
 
             mc_tmp.pos = ptarget->getPosition();
@@ -396,8 +396,8 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t& mc_tmp )
 
                 mcache.grip_scale = mcache.self_scale;
 
-                mcache.rotate[kX] = pchr->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET);
-                mcache.rotate[kY] = pchr->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET);
+                mcache.rotate[kX] = pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET;
+                mcache.rotate[kY] = pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET;
                 mcache.rotate[kZ] = pchr->ori.facing_z;
 
                 mcache.pos = pchr->getPosition();
@@ -845,8 +845,8 @@ void make_one_character_matrix( const ObjectRef ichr )
                 pinst.matrix,
 				Vector3f(pchr->fat, pchr->fat, pchr->fat),
                 pchr->ori.facing_z,
-                pchr->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET),
-                pchr->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET),
+                pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET,
+                pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET,
                 pchr->getPosition());
         }
         else
@@ -855,8 +855,8 @@ void make_one_character_matrix( const ObjectRef ichr )
                 pinst.matrix,
 				Vector3f(pchr->fat, pchr->fat, pchr->fat),
                 pchr->ori.facing_z,
-                pchr->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET),
-                pchr->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET),
+                pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET,
+                pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET,
                 pchr->getPosition());
         }
 
@@ -866,8 +866,8 @@ void make_one_character_matrix( const ObjectRef ichr )
 
         pinst.matrix_cache.self_scale = Vector3f(pchr->fat, pchr->fat, pchr->fat);
 
-        pinst.matrix_cache.rotate[kX] = pchr->ori.map_twist_facing_x - Facing(orientation_t::MAP_TURN_OFFSET);
-        pinst.matrix_cache.rotate[kY] = pchr->ori.map_twist_facing_y - Facing(orientation_t::MAP_TURN_OFFSET);
+        pinst.matrix_cache.rotate[kX] = pchr->ori.map_twist_facing_x - orientation_t::MAP_TURN_OFFSET;
+        pinst.matrix_cache.rotate[kY] = pchr->ori.map_twist_facing_y - orientation_t::MAP_TURN_OFFSET;
         pinst.matrix_cache.rotate[kZ] = pchr->ori.facing_z;
 
         pinst.matrix_cache.pos = pchr->getPosition();
