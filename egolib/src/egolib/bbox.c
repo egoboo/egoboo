@@ -571,22 +571,22 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
 	return rv_success;
 }
 
-egolib_rv oct_bb_t::intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
+oct_bb_t oct_bb_t::intersection(const oct_bb_t& src1, const oct_bb_t& src2)
 {
-	/// @todo Obviously the author does not know how set intersection works.
+	// Intersection of two empty bounds is an empty bound.
     if (src1._empty && src2._empty) {
-        dst = oct_bb_t();
-        return rv_fail;
+        return oct_bb_t();
     }
 
-    // no simple case. do the hard work
+    /// @todo Rewrite this in some fluffy C++ fashion.
+    oct_bb_t dst;
     for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
         dst._mins[i]  = std::max(src1._mins[i], src2._mins[i]);
         dst._maxs[i]  = std::min(src1._maxs[i], src2._maxs[i]);
     }
 
     dst._empty = oct_bb_t::empty_raw(dst);
-	return rv_success;
+	return dst;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -609,16 +609,16 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-void oct_bb_t::translate(const oct_bb_t& src, const Vector3f& t, oct_bb_t& dst) {
-    dst = src;
+oct_bb_t oct_bb_t::translate(const oct_bb_t& src, const Vector3f& t) {
+    auto dst = src;
     dst.translate(t);
-    dst._empty = oct_bb_t::empty_raw(dst);
+    return dst;
 }
 
-void oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
-    dst = src;
-    dst.translate(oct_vec_v2_t(t));
-    dst._empty = oct_bb_t::empty_raw(dst);
+oct_bb_t oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t) {
+    auto dst = src;
+    dst.translate(t);
+    return dst;
 }
 
 //--------------------------------------------------------------------------------------------

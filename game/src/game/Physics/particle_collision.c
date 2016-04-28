@@ -346,13 +346,13 @@ bool do_chr_prt_collision_get_details(chr_prt_collision_data_t& pdata, const flo
     bool handled = false;
 
     // shift the source bounding boxes to be centered on the given positions
-    oct_bb_t::translate(pdata.pchr->chr_min_cv, pdata.pchr->getPosition(), cv_chr);
+    cv_chr = oct_bb_t::translate(pdata.pchr->chr_min_cv, pdata.pchr->getPosition());
 
     // the smallest particle collision volume
-    oct_bb_t::translate(pdata.pprt->prt_min_cv, pdata.pprt->getPosition(), cv_prt_min);
+    cv_prt_min = oct_bb_t::translate(pdata.pprt->prt_min_cv, pdata.pprt->getPosition());
 
     // the largest particle collision volume (the hit-box)
-    oct_bb_t::translate(pdata.pprt->prt_max_cv, pdata.pprt->getPosition(), cv_prt_max);
+    cv_prt_max = oct_bb_t::translate(pdata.pprt->prt_max_cv, pdata.pprt->getPosition());
 
     if ( tmin <= 0.0f || std::abs( tmin ) > 1e6 || std::abs( tmax ) > 1e6 )
     {

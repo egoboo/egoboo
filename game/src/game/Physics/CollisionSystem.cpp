@@ -709,8 +709,8 @@ bool do_chr_chr_collision(const std::shared_ptr<Object> &objectA, const std::sha
 	oct_bb_t map_bb_a, map_bb_b;
 
     // shift the character bounding boxes to be centered on their positions
-    oct_bb_t::translate(objectA->chr_min_cv, objectA->getPosition(), map_bb_a);
-    oct_bb_t::translate(objectB->chr_min_cv, objectB->getPosition(), map_bb_b);
+    map_bb_a = oct_bb_t::translate(objectA->chr_min_cv, objectA->getPosition());
+    map_bb_b = oct_bb_t::translate(objectB->chr_min_cv, objectB->getPosition());
 
     // make the object more like a table if there is a platform-like interaction
     float exponent = 1.0f;

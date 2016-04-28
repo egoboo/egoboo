@@ -925,7 +925,7 @@ void render_prt_bbox(const std::shared_ptr<Ego::Particle>& particle)
 
         // shift the source bounding boxes to be centered on the given positions
         oct_bb_t loc_bb;
-        oct_bb_t::translate(exp_bb, particle->getPosition(), loc_bb);
+        loc_bb = oct_bb_t::translate(exp_bb, particle->getPosition());
 
         Ego::Renderer::get().getTextureUnit().setActivated(nullptr);
         Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());

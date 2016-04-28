@@ -743,7 +743,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
     {
-		oct_bb_t::translate(tmp_cv, Vector3f(grip_nupoints[0][kX], grip_nupoints[0][kY], grip_nupoints[0][kZ]), *grip_cv_ptr);
+        *grip_cv_ptr = oct_bb_t::translate(tmp_cv, Vector3f(grip_nupoints[0][kX], grip_nupoints[0][kY], grip_nupoints[0][kZ]));
     }
 
     return true;

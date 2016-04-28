@@ -726,19 +726,19 @@ void MadRenderer::draw_chr_bbox(const std::shared_ptr<Object>& pchr)
         if (drawLeftSlot)
         {
             oct_bb_t bb;
-            oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition(), bb);
+            bb = oct_bb_t::translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
         if (drawRightSlot)
         {
             oct_bb_t bb;
-            oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition(), bb);
+            bb = oct_bb_t::translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
         if (drawCharacter)
         {
             oct_bb_t bb;
-            oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bb);
+            bb = oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition());
             Renderer3D::renderOctBB(bb, true, true);
         }
     }
