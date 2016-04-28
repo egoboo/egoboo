@@ -593,7 +593,7 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const Vector3f& pos1, cons
     if (0 != test_platform)
     {
         dst._maxs[OCT_Z] += PLATTOLERANCE;
-        oct_bb_t::validate(dst);
+        dst._empty = oct_bb_t::empty_raw(dst);
     }
 
     if (dst._empty) return false;
