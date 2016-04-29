@@ -494,7 +494,7 @@
 
 		static oct_bb_t intersection(const oct_bb_t& src1, const oct_bb_t& src2);
 
-		static void interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip);
+		static oct_bb_t interpolate(const oct_bb_t& src1, const oct_bb_t& src2, float flip);
 
 		static void validate_index(oct_bb_t& self, int index);
 		static bool empty_index_raw(const oct_bb_t& self, int index);

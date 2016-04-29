@@ -1015,7 +1015,7 @@ gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
     } else if (self.flip == 1.0f) {
         self.bbox = nextFrame.bb;
     } else {
-        oct_bb_t::interpolate(lastFrame.bb, nextFrame.bb, self.bbox, self.flip);
+        self.bbox = oct_bb_t::interpolate(lastFrame.bb, nextFrame.bb, self.flip);
     }
 
     return gfx_success;

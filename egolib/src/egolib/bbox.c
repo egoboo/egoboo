@@ -415,24 +415,25 @@ egolib_rv oct_bb_t::downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt,
 		return rv_success;
 }
 
-void oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip)
+oct_bb_t oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, float flip)
 {
 	if (src1._empty && src2._empty) {
-        dst = oct_bb_t();
+        return oct_bb_t();
     } else if (!src1._empty && 0.0f == flip) {
-        oct_bb_t::copy(dst, src1);
+        return src1;
     } else if (!src2._empty && 1.0f == flip) {
-        oct_bb_t::copy(dst, src2);
+        return src2;
     } else if (src1._empty || src2._empty) {
-        dst = oct_bb_t();
+        return oct_bb_t();
     }
 
+    oct_bb_t dst;
     for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
         dst._mins[i] = src1._mins[i] + (src2._mins[i] - src1._mins[i]) * flip;
         dst._maxs[i] = src1._maxs[i] + (src2._maxs[i] - src1._maxs[i]) * flip;
     }
-
     dst._empty = oct_bb_t::empty_raw(dst);
+    return dst;
 }
 
 //--------------------------------------------------------------------------------------------
