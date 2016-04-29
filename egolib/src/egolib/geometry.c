@@ -25,7 +25,7 @@
 
 #include "egolib/_math.h"
 #include "egolib/Math/Plane.hpp"
-#include "egolib/Math/Sphere.h"
+#include "egolib/Math/Sphere.hpp"
 #include "egolib/frustum.h"
 
 Ego::Math::Relation point_intersects_aabb(const Vector3f& point, const Vector3f& corner1, const Vector3f& corner2)

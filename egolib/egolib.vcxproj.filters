@@ -569,9 +569,6 @@
     <ClInclude Include="src\egolib\math\Cube.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\math\Sphere.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -1086,6 +1083,9 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Colour.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\Sphere.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>

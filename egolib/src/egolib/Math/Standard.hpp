@@ -10,7 +10,7 @@
 #include "egolib/Math/Matrix.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Point.hpp"
-#include "egolib/Math/Sphere.h"
+#include "egolib/Math/Sphere.hpp"
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/VectorSpace.hpp"
 

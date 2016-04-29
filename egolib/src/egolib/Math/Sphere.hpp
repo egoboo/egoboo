@@ -141,12 +141,22 @@ public:
 
     /**
      * @brief
-     *  Get the radius of this  sphere.
+     *  Get the radius of this sphere.
      * @return
      *  the radius of this sphere
      */
     const ScalarType& getRadius() const {
         return _radius;
+    }
+
+    /**
+     * @brief
+     *  Get the squared radius of this sphere.
+     * @return
+     *  the squared radius of this sphere
+     */
+    const ScalarType& getRadiusSquared() const {
+        return _radius * _radius;
     }
 
     /**
@@ -182,6 +192,7 @@ public:
         _center = other._center;
     }
     
+#if 0
     /**
      * @brief
      *  Get if this sphere intersects with a point.
@@ -211,7 +222,9 @@ public:
         // Otherwise they don't intersect.
         return false;
     }
+#endif
 
+#if 0
     /**
      * @brief
      *  Get if this sphere intersects with another sphere.
@@ -244,6 +257,7 @@ public:
         // Otherwise they don't intersect.
         return false;
     }
+#endif
 
 	/** @copydoc Ego::Math::translatable */
 	void translate(const VectorType& t) override {

@@ -663,7 +663,7 @@
     <ClInclude Include="src\egolib\math\ColourRgba.hpp" />
     <ClInclude Include="src\egolib\math\Vector.hpp" />
     <ClInclude Include="src\egolib\math\Cube.hpp" />
-    <ClInclude Include="src\egolib\math\Sphere.h" />
+    <ClInclude Include="src\egolib\math\Sphere.hpp" />
     <ClInclude Include="src\egolib\math\Plane.hpp" />
     <ClInclude Include="src\egolib\math\Random.hpp" />
     <ClInclude Include="src\egolib\bbox.h" />

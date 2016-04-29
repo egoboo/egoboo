@@ -26,7 +26,7 @@
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Translatable.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
-#include "egolib/Math/Sphere.h"
+#include "egolib/Math/Sphere.hpp"
 
 namespace Ego {
 namespace Math {
