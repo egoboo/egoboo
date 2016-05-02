@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "egolib/Math/_Include.hpp"
 #include "egolib/Math/Standard.hpp"
 
 namespace Ego
@@ -51,7 +52,7 @@ public:
     *   Constructor with bounded limits
     **/
     QuadTree(const float minX, const float minY, const float maxX, const float maxY) :
-        _bounds(Vector2f(minX, minY), Vector2f(maxX, maxY)),
+        _bounds(Point2f(minX, minY), Point2f(maxX, maxY)),
         _nodes(),
         _northWest(nullptr),
         _northEast(nullptr),
@@ -69,8 +70,9 @@ public:
     **/
     bool insert(const std::shared_ptr<T> &element)
     {
+        Ego::Math::Intersects<AABB2f,AABB2f> intersects;
         //Element does not belong in this tree
-        if(!_bounds.overlaps(element->getAABB2D())) {
+        if(!intersects(_bounds, element->getAABB2D())) {
             return false;
         }
 
@@ -106,8 +108,9 @@ public:
     **/
     void find(const AABB2f &searchArea, std::vector<std::shared_ptr<T>> &result) const
     {
+        Ego::Math::Intersects<AABB2f, AABB2f> intersects;
         //Search grid is not part of our bounds
-        if(!_bounds.overlaps(searchArea)) {
+        if(!intersects(_bounds, searchArea)) {
             return;
         }
 
@@ -124,7 +127,8 @@ public:
                 }
 
                 //Check if element is within search area
-                if(element->getAABB2D().overlaps(searchArea)) {
+                Ego::Math::Intersects<AABB2f, AABB2f> intersects;
+                if(intersects(element->getAABB2D(), searchArea)) {
                     result.push_back(element);
                 }
             }
@@ -146,7 +150,7 @@ public:
     void clear(const float minX, const float minY, const float maxX, const float maxY)
     {
         //Reset bounds
-        _bounds = AABB2f(Vector2f(minX, minY), Vector2f(maxX, maxY));
+        _bounds = AABB2f(Point2f(minX, minY), Point2f(maxX, maxY));
 
         //Clear children and all elements
         _nodes.clear();

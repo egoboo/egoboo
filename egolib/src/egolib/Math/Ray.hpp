@@ -44,6 +44,8 @@ public:
     typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
+    /// The point type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::PointType PointType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef Ray<EuclideanSpaceType> MyType;
 
@@ -54,7 +56,7 @@ public:
      * @param direction the direction vector \f$\vec{d}\f$
      * @throw Id::RuntimeErrorException if the direction vector \f$\vec{d}\f$ is the zero vector 
      */
-    Ray3(const VectorType& origin, const VectorType& direction)
+    Ray3(const PointType& origin, const VectorType& direction)
         : origin(origin), direction(directio) {
         direction = direction.normalize_new();
     }
@@ -84,7 +86,7 @@ public:
      * @brief Get the origin of this ray.
      * @return the origin of this ray
      */
-    const VectorType& getOrigin() const {
+    const PointType& getOrigin() const {
         return origin;
     }
 

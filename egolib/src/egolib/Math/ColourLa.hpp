@@ -24,7 +24,6 @@
 #pragma once
 
 #include "egolib/Math/Colour.hpp"
-#include "egolib/Math/ColourComponents.hpp"
 
 namespace Ego {
 namespace Math {

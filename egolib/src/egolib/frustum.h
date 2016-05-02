@@ -68,7 +68,7 @@ struct Frustum
 	Plane3f _planes[Planes::COUNT];
 
     // data for intersection optimization
-    Vector3f _origin;
+    Point3f _origin;
     Sphere3f _sphere;
 
 public:
@@ -98,7 +98,7 @@ public:
 	 *  If a point is behind one of the frustum planes (i.e. its distance to the plane is
 	 *  negative), then the point is outside the frustum, otherwise it is inside the frustum.
 	 */
-	Math::Relation intersects(const Vector3f& point, const bool doEnds) const;
+	Math::Relation intersects(const Point3f& point, const bool doEnds) const;
 
 	/**
 	 * @brief
@@ -156,7 +156,7 @@ public:
      *      <li>geometry_inside    - the AABB is completely inside the frustum</li>
      *	</ul>
      */
-	Math::Relation intersects_aabb(const Vector3f& corner1, const Vector3f& corner2, bool doEnds) const;
+	Math::Relation intersects_aabb(const Point3f& corner1, const Point3f& corner2, bool doEnds) const;
 	Math::Relation intersects(const AABB3f& aabb, bool doEnds) const;
 
 	/// @todo Should return geometry_rv.

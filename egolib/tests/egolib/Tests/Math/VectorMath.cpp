@@ -17,8 +17,11 @@
 //*
 //********************************************************************************************
 
-#include "EgoTest/EgoTest.hpp"
-#include "egolib/egolib.h"
+#include "egolib/Tests/Math/MathTestUtilities.hpp"
+
+namespace Ego {
+namespace Math {
+namespace Test {
 
 EgoTest_TestCase(VectorMath)
 {
@@ -91,3 +94,7 @@ EgoTest_Test(length) {
 }
 
 };
+
+} // namespace Test
+} // namespace Math
+} // namespace Ego

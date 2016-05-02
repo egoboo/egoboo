@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "egolib/Math/ColourComponents.hpp"
+#include "egolib/Math/Colour.hpp"
 
 namespace Ego {
 namespace Math {

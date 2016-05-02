@@ -3,63 +3,6 @@
 #include "egolib/_math.h"
 #include "egolib/Float.hpp"
 
-#ifdef _DEBUG
-namespace Ego {
-namespace Debug {
-
-template <>
-void validate<float>(const char *file, int line, const float& object) {
-    if (float_bad(object)) {
-		std::ostringstream os;
-		os << file << ":" << line << ": invalid floating point value" << std::endl;
-		Log::get().error("%s", os.str().c_str());
-		throw std::runtime_error(os.str());
-    }
-}
-
-template <>
-void validate<::Vector2f>(const char *file, int line, const ::Vector2f& object) {
-    for (size_t i = 0; i < 2; ++i) {
-        validate(file, line, object[i]);
-    }
-}
-
-template <>
-void validate<::Vector3f>(const char *file, int line, const ::Vector3f& object) {
-    for (size_t i = 0; i < 3; ++i) {
-        validate(file, line, object[i]);
-    }
-}
-
-template <>
-void validate<::Vector4f>(const char *file, int line, const ::Vector4f& object) {
-    for (size_t i = 0; i < 4; ++i) {
-        validate(file, line, object[i]);
-    }
-}
-
-template <>
-void validate<::AABB3f>(const char *file, int line, const ::AABB3f& object) {
-    validate(file, line, object.getMin());
-    validate(file, line, object.getMax());
-}
-
-template <>
-void validate<::Sphere3f>(const char *file, int line, const ::Sphere3f& object) {
-    validate(file, line, object.getCenter());
-    validate(file, line, object.getRadius());
-}
-
-template <>
-void validate<::Cube3f>(const char *file, int line, const ::Cube3f& object) {
-    validate(file, line, object.getCenter());
-    validate(file, line, object.getSize());
-}
-
-} // namespace Debug
-} // namespace Ego
-#endif
-
 void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(Matrix4f4f& DST, const Vector3f& scale, const Facing& turn_z, const Facing& turn_x, const Facing& turn_y, const Vector3f& translate)
 {
     float cx = std::cos(turn_x);

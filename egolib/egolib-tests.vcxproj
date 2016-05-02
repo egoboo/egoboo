@@ -24,16 +24,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests\ColourMath.cpp" />
-    <ClCompile Include="tests\ConvexHullMath.cpp" />
-    <ClCompile Include="tests\PointMath.cpp" />
-    <ClCompile Include="tests\Signal.cpp" />
-    <ClCompile Include="tests\VectorMath.cpp" />
-    <ClCompile Include="tests\Pathname.cpp" />
-    <ClCompile Include="tests\MatrixMath.cpp" />
-    <ClCompile Include="tests\StringUtilities.cpp" />
-    <ClCompile Include="tests\MathConstantTest.cpp" />
-    <ClCompile Include="tests\CompileTest.cpp" />
+    <ClInclude Include="tests\egolib\Tests\Math\MathTestUtilities.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tests\egolib\Tests\Compilation.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\ColourMath.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\Contains.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\ConvexHullMath.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\Intersects.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\MathConstants.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\MatrixMath.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\PointMath.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Math\VectorMath.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Pathname.cpp" />
+    <ClCompile Include="tests\egolib\Tests\QuadTreeTest.cpp" />
+    <ClCompile Include="tests\egolib\Tests\Signal.cpp" />
+    <ClCompile Include="tests\egolib\Tests\StringUtilities.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{72193166-DDB9-4393-8413-59E8D843DD9D}</ProjectGuid>
@@ -139,7 +145,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\egolib\tests;$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>EGOTEST_USE_VSCPPUNITTEST;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile />
@@ -174,7 +180,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\egolib\tests;$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>EGOTEST_USE_VSCPPUNITTEST;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile />
@@ -212,7 +218,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\egolib\tests;$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>EGOTEST_USE_VSCPPUNITTEST;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
@@ -251,7 +257,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\egolib\tests;$(SolutionDir)\egotest\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>EGOTEST_USE_VSCPPUNITTEST;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>

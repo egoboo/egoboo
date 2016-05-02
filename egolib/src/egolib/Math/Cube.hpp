@@ -42,6 +42,8 @@ public:
     typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
+    /// The point type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::PointType PointType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef Cube<EuclideanSpaceType> MyType;
 
@@ -51,7 +53,7 @@ private:
      * @brief
      *  The center of the cube.
      */
-    VectorType _center;
+    PointType _center;
     
     /**
      * @brief
@@ -90,7 +92,7 @@ public:
      * @post
      *  The cube was constructed with the specified values.
      */
-    Cube(const VectorType& center, const ScalarType& size)
+    Cube(const PointType& center, const ScalarType& size)
         : _center(center), _size(size) {
         if (_size < 0) {
             throw std::domain_error("cube size is negative");
@@ -118,7 +120,7 @@ public:
      * @return
      *  the center of this cube
      */
-    const VectorType getCenter() const {
+    const PointType& getCenter() const {
         return _center;
     }
 
@@ -138,9 +140,9 @@ public:
     * @return
     *  the minimum of this cube
     */
-    VectorType getMin() const {
+    PointType getMin() const {
         typedef ConstantGenerator<ScalarType> MyGenerator;
-        return _center - VectorType(MyGenerator(_size), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+        return _center - VectorType(MyGenerator(_size/2.0f), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
     }
 
     /**
@@ -149,9 +151,9 @@ public:
      * @return
      *  the maximum of this cube
      */
-    VectorType getMax() const {
+    PointType getMax() const {
         typedef ConstantGenerator<ScalarType> MyGenerator;
-        return _center + VectorType(MyGenerator(_size), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+        return _center + VectorType(MyGenerator(_size/2.0f), std::make_index_sequence<VectorSpaceType::dimensionality()>{});
     }
 
     /**

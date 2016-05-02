@@ -92,16 +92,13 @@ Ego::Math::Relation aabb_intersects_aabb(const AABB3f& lhs, const AABB3f& rhs)
     return retval;
 }
 
-Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs)
+Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Point3f& mins, const Point3f& maxs)
 {
-    int   j;
-    float dist, tmp;
-
     // find the point-plane distance for the most-positive points of the aabb
-    dist = 0.0f;
-    for (j = 0; j < 3; j++)
+    float dist = 0.0f;
+    for (int j = 0; j < 3; j++)
     {
-        tmp = (plane.getNormal()[j] > 0.0f) ? maxs[j] : mins[j];
+        float tmp = (plane.getNormal()[j] > 0.0f) ? maxs[j] : mins[j];
         dist += tmp * plane.getNormal()[j];
     }
     dist += plane.getDistance();
@@ -120,16 +117,13 @@ Ego::Math::Relation plane_intersects_aabb_max(const Plane3f& plane, const Vector
     }
 }
 
-Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs)
+Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Point3f& mins, const Point3f& maxs)
 {
-    int   j;
-    float dist, tmp;
-
     // find the point-plane distance for the most-negative points of the aabb
-    dist = 0.0f;
-    for (j = 0; j < 3; j++)
+    float dist = 0.0f;
+    for (int j = 0; j < 3; j++)
     {
-        tmp = (plane.getNormal()[j] > 0.0f) ? mins[j] : maxs[j];
+        float tmp = (plane.getNormal()[j] > 0.0f) ? mins[j] : maxs[j];
         dist += tmp * plane.getNormal()[j];
     }
     dist += plane.getDistance();
@@ -148,10 +142,11 @@ Ego::Math::Relation plane_intersects_aabb_min(const Plane3f& plane, const Vector
     }
 }
 
-Ego::Math::Relation plane_intersects_aabb(const Plane3f& plane, const Vector3f& mins, const Vector3f& maxs)
+Ego::Math::Relation plane_intersects_aabb(const Plane3f& plane, const AABB3f& aabb)
 {
 	Ego::Math::Relation retval = Ego::Math::Relation::inside;
-
+    const auto mins = aabb.getMin(),
+               maxs = aabb.getMax();
 	if (Ego::Math::Relation::outside == plane_intersects_aabb_max(plane, mins, maxs))
     {
 		retval = Ego::Math::Relation::outside;
@@ -194,7 +189,7 @@ bool two_plane_intersection(Vector3f& p, Vector3f& d, const Plane3f& p0, const P
     return true;
 }
 
-bool three_plane_intersection(Vector3f& dst_pos, const Plane3f& p0, const Plane3f& p1, const Plane3f& p2)
+bool three_plane_intersection(Point3f& dst_pos, const Plane3f& p0, const Plane3f& p1, const Plane3f& p2)
 {
 	Vector3f n0 = p0.getNormal(),
              n1 = p1.getNormal(),
@@ -273,7 +268,7 @@ Ego::Math::Relation sphere_intersects_sphere(const Sphere3f& lhs, const Sphere3f
     }
 }
 
-Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Vector3f& P)
+Ego::Math::Relation cone_intersects_point(const Cone3f& K, const Point3f& P)
 {
     // If \f$\hat{d} \cdot \left(P-O\right) = \left|P-O\right|\cos \theta\f$ then the point
     // is on the cone and if \$\hat{d} \cdot \left(P-O\right) > \left|P-O\right|\cos \theta\f$
@@ -302,8 +297,8 @@ bool sphere_intersects_cone(const Sphere3f& S, const Cone3f& K) {
     const float s_r = 1.0f / s;
 
     // Compute the forward cone.
-    auto origin_p = K.getOrigin() - K.getAxis() * (S.getRadius() * s_r),
-         direction_p = K.getAxis();
+    auto origin_p = K.getOrigin() - K.getAxis() * (S.getRadius() * s_r);
+    auto direction_p = K.getAxis();
 
     Vector3f t; float lhs, rhs;
 
@@ -317,8 +312,8 @@ bool sphere_intersects_cone(const Sphere3f& S, const Cone3f& K) {
     }
     // (At this point, the sphere is either inside or on the forward cone).
     // Compute the backward cone.
-    auto origin_m = K.getOrigin(),
-         direction_m = -K.getAxis();
+    auto origin_m = K.getOrigin();
+    auto direction_m = -K.getAxis();
     // Determine the relation of the center to the backward cone.
     t = S.getCenter() - origin_m;
     rhs = t.length() * s; // \f$\cos\left(90-\theta\right) = \sin(\theta)\f$

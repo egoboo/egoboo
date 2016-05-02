@@ -494,6 +494,26 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Intersects_Cube_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_Cube_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Cube_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AABB_Cube.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Cube_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_Sphere_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AABB_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_Point_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_AABB_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_AABB_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Contains_Sphere_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_AABB_AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Sphere_Point.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Sphere_Sphere.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects.hpp" />
+    <ClInclude Include="src\egolib\Math\Intersects_Point_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Colour.hpp" />
     <ClInclude Include="src\egolib\Math\ColourLa.hpp" />
     <ClInclude Include="src\egolib\Math\ColourComponents.hpp" />

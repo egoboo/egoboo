@@ -23,8 +23,10 @@
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Point.hpp"
+#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/OrderedField.hpp"
+#include "egolib/Math/VectorSpace.hpp"
 
 namespace Ego {
 namespace Math {
@@ -88,6 +90,26 @@ public:
      *  The type of a point.
      */
     typedef Point<VectorSpaceType> PointType;
+
+private:
+    /**
+     * @brief Invoke the constructor of type <tt>TargetType</tt> with
+     * passing the arguments <tt>source[0]</tt>,<tt>source[1]</tt>, ...,
+     * <tt>source[n]</tt>. 
+     * @todo Can we re-use this in other places?
+     */
+    template <typename TargetType, typename SourceType, std::size_t... Index>
+    static decltype(auto) invoke(const SourceType& source, std::index_sequence<Index ...>) {
+        return TargetType(source[Index]...);
+    }
+
+public:
+    static decltype(auto) toVector(const PointType& source) {
+        return invoke<VectorType>(source, std::make_index_sequence<MyType::dimensionality()>{});
+    }
+    static decltype(auto) toPoint(const VectorType& source) {
+        return invoke<PointType>(source, std::make_index_sequence<MyType::dimensionality()>{});
+    }
 
 }; // struct EuclideanSpace
 

@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "egolib/Math/Point.hpp"
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Translatable.hpp"
 #include "egolib/Math/EuclideanSpace.hpp"
@@ -55,15 +56,17 @@ public:
     typedef typename EuclideanSpaceType::VectorType VectorType;
     /// The scalar type (of the scalar field).
     typedef typename EuclideanSpaceType::ScalarType ScalarType;
+    /// The point type (of the Euclidean space).
+    typedef typename EuclideanSpaceType::PointType PointType;
     /// @brief @a MyType is the type of this template/template specialization.
     typedef Line<_EuclideanSpaceType> MyType;
 
 private:
     /// The 1st \f$A\f$.
-    VectorType a;
+    PointType a;
 
     /// The 2nd point \f$B\f$.
-    VectorType b;
+    PointType b;
 
 public:
 
@@ -73,7 +76,7 @@ public:
      * @post
      *  The line starts at the origin and is of zero length.
      */
-    Line() : Line(VectorType(), VectorType()) {
+    Line() : Line(PointType(), PointType()) {
     }
 
     /**
@@ -82,9 +85,8 @@ public:
      * @param a, b
      *   the points
      */
-    Line(const VectorType& a, const VectorType& b) : a(a), b(b) {
+    Line(const PointType& a, const PointType& b) : a(a), b(b) {
     }
-
 
     /**
      * @brief
@@ -115,7 +117,7 @@ public:
      * @return
      *  the first endpoint of the line
      */
-    const VectorType& getA() const {
+    const PointType& getA() const {
         return a;
     }
 
@@ -125,7 +127,7 @@ public:
      * @return
      *  the second endpoint of the line
      */
-    const VectorType& getB() const {
+    const PointType& getB() const {
         return b;
     }
     

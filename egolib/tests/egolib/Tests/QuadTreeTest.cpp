@@ -10,7 +10,7 @@ EgoTest_TestCase(QuadTreeTest)
 class QuadTreeElement
 {
 public:
-    QuadTreeElement(float x, float y, float size) : _bounds(Vector2f(x-size, y-size), Vector2f(x+size, y+size))
+    QuadTreeElement(float x, float y, float size) : _bounds(Point2f(x-size, y-size), Point2f(x+size, y+size))
     {
         //ctor
     }
@@ -24,7 +24,7 @@ private:
 };
     
 static AABB2f anAABBFromARect(float centerX, float centerY, float size) {
-    return AABB2f(Vector2f(centerX - size, centerY - size), Vector2f(centerX + size, centerY + size));
+    return AABB2f(Point2f(centerX - size, centerY - size), Point2f(centerX + size, centerY + size));
 }
 
 EgoTest_Test(runQuadTreeTestStatic)
@@ -85,7 +85,7 @@ EgoTest_Test(runQuadTreeTestStatic)
     for(int i = 0; i < _testElements.size(); ++i) {
         float x = Random::next(128, 256);
         float y = Random::next(128, 256);
-        _testElements[i]->getAABB2D() = AABB2f(Vector2f(x, y), Vector2f(x+10, y+10));
+        _testElements[i]->getAABB2D() = AABB2f(Point2f(x, y), Point2f(x+10, y+10));
     }
 
     //Rebuild the tree
@@ -96,13 +96,13 @@ EgoTest_Test(runQuadTreeTestStatic)
 
     //All elements should be found in bottom right now
     std::vector<std::shared_ptr<QuadTreeElement>> result;
-    AABB2f searchArea = AABB2f(Vector2f(128, 128), Vector2f(256, 256));
+    AABB2f searchArea = AABB2f(Point2f(128, 128), Point2f(256, 256));
     _quadTree.find(searchArea, result);
     EgoTest_Assert(result.size() == _testElements.size());
 
     //If we look top half, we should find nothing now
     result.clear();
-    searchArea = AABB2f(Vector2f(0, 0), Vector2f(256, 127));
+    searchArea = AABB2f(Point2f(0, 0), Point2f(256, 127));
     _quadTree.find(searchArea, result);
     EgoTest_Assert(result.empty());
 }

@@ -225,8 +225,8 @@ MeshLookupTables::MeshLookupTables() {
 //--------------------------------------------------------------------------------------------
 void ego_mesh_t::make_bbox()
 {
-    _tmem._bbox = AABB3f(Vector3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]),
-		                 Vector3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]));
+    _tmem._bbox = AABB3f(Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]),
+		                 Point3f(_tmem._plst[0][XX], _tmem._plst[0][YY], _tmem._plst[0][ZZ]));
 
 	for (Index1D cnt = 0; cnt < _info.getTileCount(); cnt++)
 	{
