@@ -23,8 +23,7 @@
 
 #include "game/lighting.h"
 
-#include "egolib/_math.h"
-#include "egolib/Math/Vector.hpp"
+#include "egolib/egolib.h"
 
 //--------------------------------------------------------------------------------------------
 

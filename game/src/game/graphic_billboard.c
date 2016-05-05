@@ -21,7 +21,6 @@
 /// @brief
 /// @details
 
-#include "egolib/_math.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_3d.h"
 #include "game/Graphics/Camera.hpp"

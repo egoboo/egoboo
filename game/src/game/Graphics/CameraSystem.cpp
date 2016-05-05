@@ -18,8 +18,6 @@
 //********************************************************************************************
 #include "game/Graphics/CameraSystem.hpp"
 
-#include "egolib/_math.h"
-
 #include "game/mesh.h"
 #include "game/graphic.h"
 #include "game/game.h"
