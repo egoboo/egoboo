@@ -390,7 +390,7 @@ void Cartman::Window::render()
     {
         auto& renderer = Ego::Renderer::get();
 		renderer.setScissorTestEnabled(true);
-        renderer.setScissorRectangle(x, sdl_scr.y - ( y + surfacey ), surfacex, surfacey);
+        renderer.setScissorRectangle(x, sdl_scr.height - ( y + surfacey ), surfacex, surfacey);
 
         make_onscreen( pmesh );
 
@@ -466,8 +466,8 @@ void unbound_mouse()
     {
         Input::get()._mouse.tlx = 0;
         Input::get()._mouse.tly = 0;
-        Input::get()._mouse.brx = sdl_scr.x - 1;
-        Input::get()._mouse.bry = sdl_scr.y - 1;
+        Input::get()._mouse.brx = sdl_scr.width - 1;
+        Input::get()._mouse.bry = sdl_scr.height - 1;
     }
 }
 
@@ -1503,24 +1503,24 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 #endif
 
     // Tell user what keys are important
-    gfx_font_ptr->drawText("O = Overlay (Water)", 0, sdl_scr.y - 120);
-    gfx_font_ptr->drawText("R = Reflective", 0, sdl_scr.y - 112);
-    gfx_font_ptr->drawText("D = Draw Reflection", 0, sdl_scr.y - 104);
-    gfx_font_ptr->drawText("A = Animated", 0, sdl_scr.y - 96);
-    gfx_font_ptr->drawText("B = Barrier (Slit)", 0, sdl_scr.y - 88);
-    gfx_font_ptr->drawText("I = Impassable (Wall)", 0, sdl_scr.y - 80);
-    gfx_font_ptr->drawText("H = Hurt", 0, sdl_scr.y - 72);
-    gfx_font_ptr->drawText("S = Slippy", 0, sdl_scr.y - 64);
+    gfx_font_ptr->drawText("O = Overlay (Water)", 0, sdl_scr.height - 120);
+    gfx_font_ptr->drawText("R = Reflective", 0, sdl_scr.height - 112);
+    gfx_font_ptr->drawText("D = Draw Reflection", 0, sdl_scr.height - 104);
+    gfx_font_ptr->drawText("A = Animated", 0, sdl_scr.height - 96);
+    gfx_font_ptr->drawText("B = Barrier (Slit)", 0, sdl_scr.height - 88);
+    gfx_font_ptr->drawText("I = Impassable (Wall)", 0, sdl_scr.height - 80);
+    gfx_font_ptr->drawText("H = Hurt", 0, sdl_scr.height - 72);
+    gfx_font_ptr->drawText("S = Slippy", 0, sdl_scr.height - 64);
 
     // Vertices left
-    gfx_font_ptr->drawText("Vertices " + std::to_string(pmesh->vrt_free), 0, sdl_scr.y - 56);
+    gfx_font_ptr->drawText("Vertices " + std::to_string(pmesh->vrt_free), 0, sdl_scr.height - 56);
 
     // Misc data
-    gfx_font_ptr->drawText("Ambient   " + std::to_string(ambi), 0, sdl_scr.y - 40);
-    gfx_font_ptr->drawText("Ambicut   " + std::to_string(ambicut), 0, sdl_scr.y - 32);
-    gfx_font_ptr->drawText("Direct    " + std::to_string(direct), 0, sdl_scr.y - 24);
-    gfx_font_ptr->drawText("Brush amount " + std::to_string(brushamount), 0, sdl_scr.y - 16);
-    gfx_font_ptr->drawText("Brush size   " + std::to_string(brushsize), 0, sdl_scr.y - 8);
+    gfx_font_ptr->drawText("Ambient   " + std::to_string(ambi), 0, sdl_scr.height - 40);
+    gfx_font_ptr->drawText("Ambicut   " + std::to_string(ambicut), 0, sdl_scr.height - 32);
+    gfx_font_ptr->drawText("Direct    " + std::to_string(direct), 0, sdl_scr.height - 24);
+    gfx_font_ptr->drawText("Brush amount " + std::to_string(brushamount), 0, sdl_scr.height - 16);
+    gfx_font_ptr->drawText("Brush size   " + std::to_string(brushsize), 0, sdl_scr.height - 8);
 
     // Cursor
     //if (mos.x >= 0 && mos.x < sdl_scr.x && mos.y >= 0 && mos.y < sdl_scr.y)
@@ -1653,7 +1653,7 @@ void draw_main( cartman_mpd_t * pmesh )
     dunframe++;
     secframe++;
 
-    SDL_GL_SwapWindow(sdl_scr.window);
+    SDL_GL_SwapWindow(sdl_scr.window->get());
 }
 
 //--------------------------------------------------------------------------------------------

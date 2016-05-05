@@ -17,11 +17,11 @@ void VertexView::render(Window& window, float zoom_hrz, float zoom_vrt) {
     glPushAttrib(GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT);
     {
         // set the viewport transformation
-        Ego::Renderer::get().setViewportRectangle(window.x, sdl_scr.y - (window.y + window.surfacey), window.surfacex, window.surfacey);
+        Ego::Renderer::get().setViewportRectangle(window.x, sdl_scr.height - (window.y + window.surfacey), window.surfacex, window.surfacey);
 
         // clip the viewport
         Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(window.x, sdl_scr.y - (window.y + window.surfacey), window.surfacex, window.surfacey);
+        Ego::Renderer::get().setScissorRectangle(window.x, sdl_scr.height - (window.y + window.surfacey), window.surfacex, window.surfacey);
 
         cartman_begin_ortho_camera_hrz(window, &cam, zoom_hrz, zoom_hrz);
         {

@@ -138,7 +138,7 @@ void PlayingState::beginState()
 {
     // in-game settings
     SDL_ShowCursor(egoboo_config_t::get().debug_hideMouse.getValue() ? SDL_DISABLE : SDL_ENABLE );
-    SDL_SetWindowGrab(sdl_scr.window, egoboo_config_t::get().debug_grabMouse.getValue() ? SDL_TRUE : SDL_FALSE);
+    sdl_scr.window->setGrabEnabled(egoboo_config_t::get().debug_grabMouse.getValue());
 
 //    if(egoboo_config_t::get().debug_hideMouse.getValue())
 //    {

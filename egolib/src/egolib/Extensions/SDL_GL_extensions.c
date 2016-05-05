@@ -118,7 +118,7 @@ bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
 //--------------------------------------------------------------------------------------------
 void SDL_GL_report_mode(SDLX_video_parameters_t& retval)
 {
-	SDL_Window * surface = retval.surface;
+	Ego::GraphicsWindow *surface = retval.surface;
 
     SDLX_report_mode(surface, retval);
 

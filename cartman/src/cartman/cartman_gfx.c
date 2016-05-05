@@ -920,12 +920,12 @@ void ogl_beginFrame()
     renderer.setBlendingEnabled(true);
     renderer.setBlendFunction(Ego::BlendFunction::SourceAlpha, Ego::BlendFunction::OneMinusSourceAlpha);
 
-    renderer.setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
+    renderer.setViewportRectangle(0, 0, sdl_scr.width, sdl_scr.height);
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
+	Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.width, sdl_scr.height, 0, -1, 1);
     renderer.setProjectionMatrix(projection);
     renderer.setWorldMatrix(Matrix4f4f::identity());
     renderer.setViewMatrix(Matrix4f4f::identity());

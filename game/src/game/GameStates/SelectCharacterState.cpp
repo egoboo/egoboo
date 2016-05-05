@@ -134,5 +134,5 @@ void SelectCharacterState::drawContainer()
 void SelectCharacterState::beginState()
 {
     // menu settings
-    SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
+    sdl_scr.window->setGrabEnabled(false);
 }

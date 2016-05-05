@@ -87,9 +87,9 @@ void do_cursor()
 
     // This function implements a mouse cursor
     ui.cur_x = Cartman::Input::get()._mouse.x;
-    if ( ui.cur_x < 6 )  ui.cur_x = 6;  if ( ui.cur_x > sdl_scr.x - 6 )  ui.cur_x = sdl_scr.x - 6;
+    if ( ui.cur_x < 6 )  ui.cur_x = 6;  if ( ui.cur_x > sdl_scr.width - 6 )  ui.cur_x = sdl_scr.width - 6;
     ui.cur_y = Cartman::Input::get()._mouse.y;
-    if ( ui.cur_y < 6 )  ui.cur_y = 6;  if ( ui.cur_y > sdl_scr.y - 6 )  ui.cur_y = sdl_scr.y - 6;
+    if ( ui.cur_y < 6 )  ui.cur_y = 6;  if ( ui.cur_y > sdl_scr.height - 6 )  ui.cur_y = sdl_scr.height - 6;
 
     left_press = CART_BUTTONDOWN(SDL_BUTTON_LEFT);
 
@@ -134,7 +134,7 @@ void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue,
 
 //--------------------------------------------------------------------------------------------
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour) {
-	gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.y - 16, textColour);
+	gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.height - 16, textColour);
 }
 
 //--------------------------------------------------------------------------------------------

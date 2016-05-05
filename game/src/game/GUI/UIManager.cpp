@@ -120,12 +120,12 @@ void UIManager::endRenderUI()
 
 int UIManager::getScreenWidth() const
 {
-    return sdl_scr.x;
+    return sdl_scr.width;
 }
 
 int UIManager::getScreenHeight() const
 {
-    return sdl_scr.y;
+    return sdl_scr.height;
 }
 
 void UIManager::drawImage(const std::shared_ptr<const Ego::Texture>& img, float x, float y, float width, float height, const Ego::Colour4f& tint)
@@ -173,9 +173,9 @@ bool UIManager::dumpScreenshot()
     strncpy( szResolvedFilename, szFilename, SDL_arraysize( szFilename ) );
 
     // if we are not using OpenGL, use SDL to dump the screen
-    if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window), SDL_WINDOW_OPENGL))
+    if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window->get()), SDL_WINDOW_OPENGL))
     {
-        return IMG_SavePNG_RW(SDL_GetWindowSurface(sdl_scr.window), vfs_openRWopsWrite(szResolvedFilename), 1);
+        return IMG_SavePNG_RW(SDL_GetWindowSurface(sdl_scr.window->get()), vfs_openRWopsWrite(szResolvedFilename), 1);
     }
 
     // we ARE using OpenGL
@@ -186,7 +186,7 @@ bool UIManager::dumpScreenshot()
 
             // create a SDL surface
             const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
-            temp = SDL_CreateRGBSurface(0, sdl_scr.x, sdl_scr.y,
+            temp = SDL_CreateRGBSurface(0, sdl_scr.width, sdl_scr.height,
                                         pixelFormatDescriptor.getColourDepth().getDepth(),
                                         pixelFormatDescriptor.getRedMask(),
                                         pixelFormatDescriptor.getGreenMask(),

@@ -120,7 +120,7 @@ void OptionsScreen::drawContainer()
 void OptionsScreen::beginState()
 {
     // menu settings
-    SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
+    sdl_scr.window->setGrabEnabled(false);
     _gameEngine->enableMouseCursor();
 
     float offset = 0;

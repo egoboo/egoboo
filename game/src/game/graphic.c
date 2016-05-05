@@ -1498,7 +1498,7 @@ void _flip_pages()
     // draw the console on top of everything
     Ego::Core::ConsoleHandler::get().draw_all();
 
-    SDL_GL_SwapWindow(sdl_scr.window);
+    SDL_GL_SwapWindow(sdl_scr.window->get());
 
 }
 
