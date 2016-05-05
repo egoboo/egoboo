@@ -1074,6 +1074,11 @@ void cartman_begin_ortho_camera_vrt(Cartman::Window& pwin, camera_t * pcam, floa
 
 void cartman_end_ortho_camera()
 {
+    auto &renderer = Ego::Renderer::get();
+    Matrix4f4f projection = Ego::Math::Transform::ortho(0, sdl_scr.width, sdl_scr.height, 0, -1, 1);
+    renderer.setProjectionMatrix(projection);
+    renderer.setWorldMatrix(Matrix4f4f::identity());
+    renderer.setViewMatrix(Matrix4f4f::identity());
 }
 
 //--------------------------------------------------------------------------------------------
