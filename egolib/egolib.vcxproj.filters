@@ -121,9 +121,6 @@
     <Filter Include="Header Files\Grid">
       <UniqueIdentifier>{e898f2e9-599e-43b7-b93f-861629aa904f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Grid">
-      <UniqueIdentifier>{d7424ce7-77b8-4fb9-b88c-7b9e19bf74a2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Script\Interpreter">
       <UniqueIdentifier>{7c0c723a-212e-4081-919d-497e22efc2fb}</UniqueIdentifier>
     </Filter>

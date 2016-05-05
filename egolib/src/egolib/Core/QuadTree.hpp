@@ -127,7 +127,6 @@ public:
                 }
 
                 //Check if element is within search area
-                Ego::Math::Intersects<AABB2f, AABB2f> intersects;
                 if(intersects(element->getAABB2D(), searchArea)) {
                     result.push_back(element);
                 }
