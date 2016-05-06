@@ -27,7 +27,6 @@
 #include "egolib/FileFormats/Globals.hpp"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 enum
 {
@@ -39,7 +38,6 @@ enum
 };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 static void weld_TL( cartman_mpd_t * pmesh, int mapx, int mapy );
 static void weld_TR( cartman_mpd_t * pmesh, int mapx, int mapy );
@@ -49,7 +47,7 @@ static void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy );
 static void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, int mapx, int mapy );
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 float dist_from_border( cartman_mpd_t * pmesh, float x, float y )
 {
     float x_dst, y_dst;
@@ -69,7 +67,6 @@ float dist_from_border( cartman_mpd_t * pmesh, float x, float y )
     return ( x < y ) ? x : y;
 }
 
-//--------------------------------------------------------------------------------------------
 int dist_from_edge( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -86,6 +83,7 @@ int dist_from_edge( cartman_mpd_t * pmesh, int mapx, int mapy )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void fix_corners( cartman_mpd_t * pmesh )
 {
     // ZZ> This function corrects corners across entire mesh
@@ -101,7 +99,6 @@ void fix_corners( cartman_mpd_t * pmesh )
     }
 }
 
-//--------------------------------------------------------------------------------------------
 void fix_edges(cartman_mpd_t *pmesh) {
     // ZZ> This function seals the tile edges across the entire mesh
     if (!pmesh) pmesh = &mesh;
@@ -114,7 +111,6 @@ void fix_edges(cartman_mpd_t *pmesh) {
     }
 }
 
-//--------------------------------------------------------------------------------------------
 void fix_mesh( cartman_mpd_t * pmesh )
 {
     // ZZ> This function corrects corners across entire mesh
@@ -125,7 +121,6 @@ void fix_mesh( cartman_mpd_t * pmesh )
     fix_edges( pmesh );
 }
 
-//--------------------------------------------------------------------------------------------
 void fix_vertices( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     if ( NULL == pmesh ) pmesh = &mesh;

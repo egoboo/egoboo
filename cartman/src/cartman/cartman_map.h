@@ -27,7 +27,6 @@
 #include "egolib/Mesh/Info.hpp"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 #define TINYXY   4              // Plan tiles
 #define SMALLXY 32              // Small tiles
@@ -48,7 +47,6 @@
 #define CART_VALID_VERTEX_RANGE(IVRT) ( (CHAINEND != (IVRT)) && VALID_MPD_VERTEX_RANGE(IVRT) )
 #define GRID_TO_POS( GRID ) ( (float)(GRID) / 3.0f * Info<float>::Grid::Size() )
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct cartman_mpd_create_info_t
 {
@@ -492,7 +490,6 @@ void cartman_mpd_free_vertices(cartman_mpd_t *self);
 bool cartman_mpd_link_vertex(cartman_mpd_t *self, int iparent, int child);
 Uint8 cartman_mpd_get_fan_twist(cartman_mpd_t *self, Uint32 fan);
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 extern cartman_mpd_t mesh;

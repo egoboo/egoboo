@@ -31,11 +31,9 @@
 #include "cartman/Clocks.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 static bool _ogl_initialized = false;
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 const Ego::Math::Colour4f WHITE = Ego::Math::Colour4f::white();
@@ -43,7 +41,6 @@ const Ego::Math::Colour4f BLACK = Ego::Math::Colour4f::black();
 
 std::shared_ptr<Ego::Font> gfx_font_ptr = NULL;
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 camera_t cam;
@@ -69,14 +66,11 @@ int     numsmalltile = 0;   //
 int     numbigtile = 0;     //
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 static void get_small_tiles( SDL_Surface* bmpload );
 static void get_big_tiles( SDL_Surface* bmpload );
-static void gfx_system_init_SDL_graphics();
 static int  gfx_init_ogl();
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 void gfx_system_begin()
@@ -95,6 +89,7 @@ void gfx_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
+
 void gfx_system_end()
 {
     gfx_font_ptr.reset();
@@ -106,8 +101,7 @@ void gfx_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     Uint16 tx_bits, basetile;
@@ -171,6 +165,7 @@ std::shared_ptr<Ego::Texture> tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int
 }
 
 //--------------------------------------------------------------------------------------------
+
 std::shared_ptr<Ego::Texture> tile_at( cartman_mpd_t * pmesh, int fan )
 {
     int    img;
@@ -226,6 +221,7 @@ std::shared_ptr<Ego::Texture> tile_at( cartman_mpd_t * pmesh, int fan )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void make_hitemap( cartman_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -253,6 +249,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void make_planmap( cartman_mpd_t * pmesh )
 {
     int x, y, putx, puty;
@@ -293,7 +290,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 {
     // ZZ> This function draws the line drawing preview of the tile type...
@@ -395,6 +392,7 @@ void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt )
 {
     // ZZ> This function draws the line drawing preview of the tile type...
@@ -488,6 +486,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 }
 
 //--------------------------------------------------------------------------------------------
+
 void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, int y)
 {
     // ZZ> This function draws the line drawing preview of the tile type...
@@ -533,6 +532,7 @@ void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, i
 }
 
 //--------------------------------------------------------------------------------------------
+
 void draw_top_tile( float x0, float y0, int fan, std::shared_ptr<Ego::Texture> tx_tile, bool draw_tile, cartman_mpd_t * pmesh )
 {
     static simple_vertex_t loc_vrt[4];
@@ -644,6 +644,7 @@ void draw_top_tile( float x0, float y0, int fan, std::shared_ptr<Ego::Texture> t
 }
 
 //--------------------------------------------------------------------------------------------
+
 void draw_tile_fx( float x, float y, Uint8 fx, float scale )
 {
     const int ioff_0 = Info<int>::Grid::Size() >> 3;
@@ -752,6 +753,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
 }
 
 //--------------------------------------------------------------------------------------------
+
 void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, float width, float height )
 {
     float w, h;
@@ -800,7 +802,6 @@ void ogl_draw_sprite_2d(std::shared_ptr<Ego::Texture> img, float x, float y, flo
     glEnd();
 }
 
-//--------------------------------------------------------------------------------------------
 void ogl_draw_sprite_3d(std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height )
 {
     float w, h;
@@ -867,6 +868,7 @@ void ogl_draw_sprite_3d(std::shared_ptr<Ego::Texture> img, cart_vec_t pos, cart_
 }
 
 //--------------------------------------------------------------------------------------------
+
 void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[] )
 {
     glPushAttrib( GL_ENABLE_BIT );
@@ -887,7 +889,6 @@ void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[]
     glPopAttrib();
 };
 
-//--------------------------------------------------------------------------------------------
 void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[] )
 {
     glPushAttrib( GL_ENABLE_BIT );

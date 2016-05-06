@@ -25,7 +25,6 @@
 #include "cartman/cartman_gfx.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 namespace Cartman {
 GUI_Cursor::GUI_Cursor() :
@@ -77,10 +76,8 @@ void Cartman::GUI::uninitialize()
     _window_lst.clear();
 }
 
-
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 void do_cursor()
 {
     bool left_press;
@@ -102,6 +99,7 @@ void do_cursor()
 }
 
 //--------------------------------------------------------------------------------------------
+
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue )
 {
     int cnt;
@@ -133,6 +131,7 @@ void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue,
 }
 
 //--------------------------------------------------------------------------------------------
+
 void show_name(const std::string& newLoadName, const Ego::Math::Colour4f& textColour) {
 	gfx_font_ptr->drawText(newLoadName, 0, sdl_scr.height - 16, textColour);
 }
