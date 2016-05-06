@@ -75,16 +75,12 @@ static int  gfx_init_ogl();
 
 void gfx_system_begin()
 {
-    // Initialize the graphics system.
-    Ego::GraphicsSystem::initialize();
+    Ego::App::initialize();
+
     // Set the window title.
     Ego::GraphicsSystem::setTitle(NAME " " VERSION_STR);
-    ImageManager::initialize();
-    Ego::Renderer::initialize();
-    TextureManager::initialize();
-    gfx_init_ogl();
 
-    Ego::FontManager::initialize();
+    gfx_init_ogl();   
     gfx_font_ptr = Ego::FontManager::loadFont("editor/pc8x8.fon", 12);
 }
 
@@ -93,11 +89,7 @@ void gfx_system_begin()
 void gfx_system_end()
 {
     gfx_font_ptr.reset();
-    Ego::FontManager::uninitialize();
-    TextureManager::uninitialize();
-    Ego::Renderer::uninitialize();
-    ImageManager::uninitialize();
-    Ego::GraphicsSystem::uninitialize();
+    Ego::App::uninitialize();
 }
 
 //--------------------------------------------------------------------------------------------

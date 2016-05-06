@@ -177,8 +177,7 @@ void GFX::initialize()
     GFX::initializeSDLGraphics(); ///< @todo Error handling.
     GFX::initializeOpenGL();      ///< @todo Error handling.
 
-	// Initialize the font manager.
-    Ego::FontManager::initialize();
+
 
     // initialize the dynalist frame
     // otherwise, it will not update until the frame count reaches whatever
@@ -203,7 +202,6 @@ void GFX::uninitialize()
 
     // Uninitialize the profiling variables.
 	reinitClocks(); // Important: clear out the sliding windows of the clocks.
-    Ego::FontManager::uninitialize();
 
     GFX::uninitializeOpenGL();
     GFX::uninitializeSDLGraphics();
@@ -211,17 +209,11 @@ void GFX::uninitialize()
 
 void GFX::uninitializeOpenGL()
 {
-    TextureManager::uninitialize();
-    Ego::Renderer::uninitialize();
 }
 
 int GFX::initializeOpenGL()
 {
     using namespace Ego;
-    // Start-up the renderer.
-    Renderer::initialize(); ///< @todo Add error handling.
-    // Start-up the texture manager.
-    TextureManager::initialize(); ///< @todo Add error handling.
 
     auto& renderer = Renderer::get();
     // Set clear colour and clear depth.
@@ -273,12 +265,12 @@ int GFX::initializeOpenGL()
 //--------------------------------------------------------------------------------------------
 void GFX::uninitializeSDLGraphics()
 {
-    Ego::GraphicsSystem::uninitialize();
+    Ego::App::uninitialize();
 }
 
 void GFX::initializeSDLGraphics()
 {
-    Ego::GraphicsSystem::initialize();
+    Ego::App::initialize();
     // Set the window title.
     Ego::GraphicsSystem::setTitle(std::string("Egoboo ") + GameEngine::GAME_VERSION);
 }

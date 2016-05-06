@@ -293,9 +293,6 @@ bool GameEngine::initialize()
     // Initialize the input system.
     InputSystem::initialize();
 
-    // Initialize the image manager.
-    ImageManager::initialize();
-
     // Initialize GFX system.
     GFX::initialize();
 

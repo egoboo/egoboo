@@ -305,6 +305,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\App.cpp" />
     <ClCompile Include="src\egolib\Graphics\GraphicsWindow.cpp" />
     <ClCompile Include="src\egolib\Graphics\IndexBuffer.cpp" />
     <ClCompile Include="src\egolib\Graphics\IndexDescriptor.cpp" />
@@ -495,6 +496,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\App.hpp" />
     <ClInclude Include="src\egolib\Math\Intersects_Cube_Point.hpp" />
     <ClInclude Include="src\egolib\Math\Intersects_Point_Cube.hpp" />
     <ClInclude Include="src\egolib\Graphics\GraphicsWindow.hpp" />
