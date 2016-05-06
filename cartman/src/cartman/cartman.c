@@ -1630,7 +1630,7 @@ void draw_main( cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    glClear( GL_COLOR_BUFFER_BIT );
+    Ego::Renderer::get().getColourBuffer().clear();
 
     ogl_beginFrame();
     {

@@ -19,7 +19,6 @@
 //*
 //********************************************************************************************
 
-#include "egolib/egolib.h"
 #include "cartman/Vertex.hpp"
 #include "cartman/cartman_typedef.h"
 #include "cartman/Tile.hpp"

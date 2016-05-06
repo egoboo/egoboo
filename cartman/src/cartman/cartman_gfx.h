@@ -19,8 +19,6 @@
 //*
 //********************************************************************************************
 
-#include "egolib/egolib.h"
-
 #include "cartman/cartman_typedef.h"
 #include "cartman/cartman_math.h"
 
@@ -64,7 +62,7 @@ struct simple_vertex_t
 
 //--------------------------------------------------------------------------------------------
 
-#define MAXTILE 256             //
+#define MAXTILE 256
 
 inline void make_rgba(float *color, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     *(color + 0) = r / 255.0f;

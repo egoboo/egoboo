@@ -915,7 +915,7 @@ void ogl_beginFrame()
     auto& renderer = Ego::Renderer::get();
     glPushAttrib( GL_ENABLE_BIT );
 	renderer.setDepthTestEnabled(false);
-    glDisable( GL_CULL_FACE );
+    renderer.setCullingMode(Ego::CullingMode::None);
     glEnable( GL_TEXTURE_2D );
 
     renderer.setBlendingEnabled(true);
