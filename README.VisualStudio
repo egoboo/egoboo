@@ -1,11 +1,11 @@
-= Compiling Egoboo using Visual Studio 2015
+= Compiling Egoboo using Microsoft Visual Studio Community 2015 Update 2
 
-This document describes the process of building Egoboo under and
-for Windows (32- and 64-Bit) using Visual C++ 2015. 
+This document describes the process of building Egoboo under and for
+Windows (32- and 64-Bit) using Microsoft Visual Studio Community 2015
+Update 2.
 
 For the following process to succeed, the latest version of the Windows SDK
 needs to be installed on your system.
-
 
 Open the solution `egoboo.sln`. There are two configurations (`Debug` and
 `Release`) and two platform configurations (`Win32` for 32-Bit and `x64` for
