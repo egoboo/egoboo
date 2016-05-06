@@ -126,9 +126,6 @@ Cartman::FxView Views::fxView;
 Cartman::VertexView Views::vertexView;
 Cartman::SideView Views::sideView;
 
-
-static void draw_window_background(std::shared_ptr<Cartman::Window> pwin);
-static void draw_all_windows();
 static void draw_lotsa_stuff( cartman_mpd_t * pmesh );
 
 static void draw_main( cartman_mpd_t * pmesh );
@@ -431,25 +428,6 @@ void load_all_windows( cartman_mpd_t& mesh )
     _window_lst[1]->load_window(1, "editor/window.png", 410, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   &mesh );
     _window_lst[2]->load_window(2, "editor/window.png", 180, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   &mesh );
     _window_lst[3]->load_window(3, "editor/window.png", 410, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     &mesh );
-}
-
-//--------------------------------------------------------------------------------------------
-
-void draw_window_background(std::shared_ptr<Cartman::Window> pwin)
-{
-    if (!pwin || !pwin->on ) return;
-
-    ogl_draw_sprite_2d(pwin->border.texture, pwin->x, pwin->y, pwin->surfacex, pwin->surfacey );
-}
-
-//--------------------------------------------------------------------------------------------
-
-void draw_all_windows()
-{
-    for (auto window : _window_lst)
-    {
-        draw_window_background(window);
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1636,9 +1614,7 @@ void draw_main( cartman_mpd_t * pmesh )
     {
         int itmp;
 
-        Cartman::GUI::renderAllWindows();
-
-        draw_all_windows();
+        Cartman::GUI::render();
 
         itmp = ambi;
         draw_slider( 0, 250, 19, 350, &ambi,          0, 200 );

@@ -91,6 +91,8 @@ struct Window {
      *  Render the window.
      */
     void render();
+    void renderBackground() const;
+
 };
 }
 
@@ -119,7 +121,7 @@ namespace Cartman
         static void initialize();
         static void uninitialize();
         static std::shared_ptr<Cartman::Window> findWindow(int x, int y);
-        static void renderAllWindows();
+        static void render();
 
     };
 }

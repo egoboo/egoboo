@@ -178,6 +178,12 @@ bool Window::isOver(int x, int y) const {
     }
     return true;
 }
+
+void Window::renderBackground() const {
+    if (!on) return;
+    ogl_draw_sprite_2d(border.texture, x, y, surfacex, surfacey);
+}
+
 }
 
 std::shared_ptr<Cartman::Window> Cartman::GUI::findWindow(int x, int y)
@@ -194,8 +200,11 @@ std::shared_ptr<Cartman::Window> Cartman::GUI::findWindow(int x, int y)
     return result;
 }
 
-void Cartman::GUI::renderAllWindows() {
+void Cartman::GUI::render() {
     for (auto window : _window_lst) {
         window->render();
+    }
+    for (auto window : _window_lst) {
+        window->renderBackground();
     }
 }
