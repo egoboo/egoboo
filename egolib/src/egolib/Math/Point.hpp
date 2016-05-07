@@ -239,17 +239,17 @@ public:
 public:
     // Core operators.
     MyType operator+(const VectorType& other) const {
-        ScalarFieldType::SumFunctor functor;
+        static const typename ScalarFieldType::SumFunctor functor;
         return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
 
     MyType operator-(const VectorType& other) const {
-        ScalarFieldType::DifferenceFunctor functor;
+        static const typename ScalarFieldType::DifferenceFunctor functor;
         return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
     }
 
     VectorType operator-(const MyType& other) const {
-        static const ScalarFieldType::DifferenceFunctor functor;
+        static const typename ScalarFieldType::DifferenceFunctor functor;
         return TupleUtilities::mapTT<VectorType>(functor, *this, other, IndexSequence{});
     }
 
@@ -282,7 +282,7 @@ public:
      *  the zero point
      */
     static const MyType& zero() {
-        static ConstantGenerator<ScalarType> g(ScalarFieldType::additiveNeutral());
+        static const ConstantGenerator<ScalarType> g(ScalarFieldType::additiveNeutral());
         static const auto v = MyType(g, IndexSequence{});
         return v;
     }
