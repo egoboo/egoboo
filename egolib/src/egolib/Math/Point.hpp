@@ -55,6 +55,8 @@ public:
     /// @brief The tuple type.
     typedef Tuple<ScalarType, MyType::dimensionality()> TupleType;
 
+    typedef std::make_index_sequence<MyType::dimensionality()> IndexSequence;
+
 public:
     /**
      * @brief Construct this point with the specified element values.
@@ -106,38 +108,38 @@ public:
      */
     Point()
         : Point(ConstantGenerator<ScalarType>(ScalarFieldType::additiveNeutral()),
-                std::make_index_sequence<VectorSpaceType::dimensionality()>{}) {
+                IndexSequence{}) {
         /* Intentionally empty. */
     }
 
 public:
     inline ScalarType& x() {
-        static_assert(VectorSpaceType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
+        static_assert(MyType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
         return this->at(0);
     }
 
     inline ScalarType& y() {
-        static_assert(VectorSpaceType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
+        static_assert(MyType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
         return this->at(1);
     }
 
     inline ScalarType& z() {
-        static_assert(VectorSpaceType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
+        static_assert(MyType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
         return this->at(2);
     }
 
     inline const ScalarType& x() const {
-        static_assert(VectorSpaceType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
+        static_assert(MyType::dimensionality() >= 1, "cannot call for member x() with dimensionality less than 1");
         return this->at(0);
     }
 
     inline const ScalarType& y() const {
-        static_assert(VectorSpaceType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
+        static_assert(MyType::dimensionality() >= 2, "cannot call for member y() with dimensionality less than 2");
         return this->at(1);
     }
 
     inline const ScalarType& z() const {
-        static_assert(VectorSpaceType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
+        static_assert(MyType::dimensionality() >= 3, "cannot call for member z() with dimensionality less than 3");
         return this->at(2);
     }
 
@@ -160,37 +162,6 @@ public:
      */
     void setZero() {
         (*this) = MyType();
-    }
-
-public:
-    /**
-     * @brief
-     *  Add a vector to this point,
-     *  assign the result to this point.
-     * @param other
-     *  the vector
-     * @post
-     *  The sum <tt>(*this) + other</tt> was assigned to <tt>*this</tt>.
-     */
-    void add(const VectorType& other) {
-        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->at(i) = ScalarFieldType::sum(this->at(i), other.at(i));
-        }
-    }
-
-    /**
-     * @brief
-     *  Subtract a vector from this point,
-     *  assign the result to this point.
-     * @param other
-     *  the vector
-     * @post
-     *  The difference <tt>(*this) - other</tt> was assigned to <tt>*this</tt>.
-     */
-    void sub(const VectorType& other) {
-        for (size_t i = 0; i < MyType::dimensionality(); ++i) {
-            this->at(i) = ScalarFieldType::difference(this->at(i), other.at(i));
-        }
     }
 
 public:
@@ -266,46 +237,32 @@ public:
     }
 
 public:
+    // Core operators.
+    MyType operator+(const VectorType& other) const {
+        ScalarFieldType::SumFunctor functor;
+        return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
+    }
+
+    MyType operator-(const VectorType& other) const {
+        ScalarFieldType::DifferenceFunctor functor;
+        return TupleUtilities::mapTT<MyType>(functor, *this, other, IndexSequence{});
+    }
+
+    VectorType operator-(const MyType& other) const {
+        static const ScalarFieldType::DifferenceFunctor functor;
+        return TupleUtilities::mapTT<VectorType>(functor, *this, other, IndexSequence{});
+    }
+
+public:
+    // Derived operators.
     MyType& operator+=(const VectorType& other) {
-        add(other);
+        *this = *this + other;
         return *this;
     }
 
     MyType& operator-=(const VectorType& other) {
-        sub(other);
+        *this = *this - other;
         return *this;
-    }
-
-public:
-    MyType operator+(const VectorType& other) const {
-        MyType t(*this);
-        t += other;
-        return t;
-    }
-
-    MyType operator-(const VectorType& other) const {
-        MyType t(*this);
-        t -= other;
-        return t;
-    }
-
-private:
-    /** @internal */
-    ScalarType sub(const MyType& other, size_t index) const {
-        return ScalarFieldType::difference(this->at(index), other.at(index));
-    }
-    /** @internal */
-    template <size_t... Index>
-    VectorType sub(const MyType& other, std::index_sequence<Index ...>) const {
-        return VectorType((sub(other, Index))...);
-    }
-    VectorType sub(const MyType& other) const {
-        return sub(other, std::make_index_sequence<VectorSpaceType::dimensionality()>{});
-    }
-
-public:
-    VectorType operator-(const MyType& other) const {
-        return sub(other);
     }
 
 public:
@@ -326,7 +283,7 @@ public:
      */
     static const MyType& zero() {
         static ConstantGenerator<ScalarType> g(ScalarFieldType::additiveNeutral());
-        static const auto v = MyType(g, std::make_index_sequence<VectorSpaceType::dimensionality()>{});
+        static const auto v = MyType(g, IndexSequence{});
         return v;
     }
 

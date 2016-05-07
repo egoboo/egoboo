@@ -69,6 +69,12 @@ struct OrderedRing {
 	static inline ElementType sum(const ElementType& x, const ElementType& y) {
 		return x + y;
 	}
+    struct SumFunctor {
+        typedef ElementType ResultType;
+        ElementType operator()(const ElementType& a, const ElementType& b) const {
+            return sum(a,b);
+        }
+    };
 
 	/**
 	 * @brief
@@ -83,6 +89,12 @@ struct OrderedRing {
 	static inline ElementType product(const ElementType& x, const ElementType& y) {
 		return x * y;
 	}
+    struct ProductFunctor {
+        typedef ElementType ResultType;
+        ElementType operator()(const ElementType& a, const ElementType& b) const {
+            return product(a, b);
+        }
+    };
 
 	/**
 	 * @brief
@@ -97,6 +109,12 @@ struct OrderedRing {
 	static inline ElementType difference(const ElementType& x, const ElementType& y) {
 		return x - y;
 	}
+    struct DifferenceFunctor {
+        typedef ElementType ResultType;
+        ElementType operator()(const ElementType& a, const ElementType& b) const {
+            return difference(a, b);
+        }
+    };
 
     /**
      * @brief
@@ -109,6 +127,12 @@ struct OrderedRing {
     static inline ElementType additiveInverse(const ElementType& x) {
         return -x;
     }
+    struct AdditiveInverseFunctor {
+        typedef ElementType ResultType;
+        ElementType operator()(const ElementType& a) const {
+            return additiveInverse(a);
+        }
+    };
 
 	/**
 	 * @brief

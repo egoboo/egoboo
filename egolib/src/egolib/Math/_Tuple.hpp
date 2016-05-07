@@ -200,3 +200,63 @@ public:
 
 } // namespace Math
 } // namespace Ego
+
+namespace Ego {
+namespace Math {
+/**
+ * Provide map functions for tuple, tuple x tuple, and tuple x tuple-element.
+ * Provide fold functions for tuple and tuple x tuple.
+ */
+struct TupleUtilities {
+public:
+    /**
+     * Given a tuple operand \f$x\f$ (of type \f$X\f$) compute a
+     * tuple-like result \f$z\f$ (of type \f$Z\f$ ) such that
+     * \f$z = Z(f(x[n]), ..., f(x[m]))\f$ where where \f$n \leq m\f$ and f is
+     * binary functor \f$f : E(X) \rightarrow E(Z)\f$.
+     */
+    template <typename ResultType, typename ElementType, size_t Dimensionality, typename FunctorType, size_t... Index>
+    static ResultType mapT(FunctorType functor, const Tuple<ElementType, Dimensionality>& x, std::index_sequence<Index ...>) {
+        return ResultType((functor(x.at(Index)))...);
+    }
+    /**
+     * Given one tuple-like operand \$x\f$
+     * and one tuple-element-like operand \f$y\f$
+     * compute a tuple-like result \f$z\f$ such that
+     * \f$z = Z(f(x[n],y), ..., f(x[m],y))\f$ where \f$n \leq m\f$ and f is an unary functor
+     * \f$f : E(X) \times Y \rightarrow E(Z)\f$.
+     */
+    template <typename ResultType, typename ElementType0, typename ElementType1, size_t Dimensionality, typename FunctorType, size_t... Index>
+    static ResultType mapTe(FunctorType functor, const Tuple<ElementType0,Dimensionality>& x, const ElementType1& y, std::index_sequence<Index ...>) {
+        return ResultType((functor(x.at(Index),y))...);
+    }
+    // Given two tuple-like operands \f$x\f$ (of type \f$X\f$) and \f$y\f$ (of type \f$Y\f$),
+    // compute a tuple-like result \f$z\f$ (of type \f$Z\f$) such that
+    // \f$z = Z(f(x[n],y[n]),...,f(x[m],y[m]))\f$ where \f$n \leq m \f$ and \f$f\$ is
+    // a binary functor \f$f : E(X) \times E(Y) \rightarrow E(Z)\f$.
+    template <typename ResultType, typename ElementType0, typename ElementType1, size_t Dimensionality, typename FunctorType, size_t... Index>
+    static ResultType mapTT(FunctorType functor, const Tuple<ElementType0, Dimensionality>& x, const Tuple<ElementType1, Dimensionality>& y, std::index_sequence<Index ...>) {
+        return ResultType((functor(x.at(Index), y.at(Index)))...);
+    }
+
+public:
+    template <typename FunctorType, typename ElementType, size_t Dimensionality>
+    static decltype(auto) foldT(FunctorType functor, const Tuple<ElementType, Dimensionality>& x) {
+        auto t = typename FunctorType::ResultType();
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            t = functor(t, x.at(i));
+        }
+        return t;
+    }
+
+    template <typename FunctorType, typename ElementType0, typename ElementType1, size_t Dimensionality>
+    static decltype(auto) foldTT(FunctorType functor, const Tuple<ElementType0, Dimensionality>& x, const Tuple<ElementType1, Dimensionality>& y) {
+        auto t = typename FunctorType::ResultType();
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            t = functor(t, x.at(i), y.at(i));
+        }
+        return t;
+    }
+};
+} // namespace Math
+} // namespace Ego
