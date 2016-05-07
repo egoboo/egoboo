@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Cartman.
@@ -22,7 +20,7 @@
 /// @file cartman_typedef.h
 /// @details base type definitions and config options
 
-#include "egolib/egolib.h"
+#pragma once
 
 #include "cartman/cartman_config.h"
 

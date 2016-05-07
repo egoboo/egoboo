@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Cartman.
@@ -18,6 +16,8 @@
 //*    along with Cartman.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+#pragma once
 
 #include "cartman/cartman_typedef.h"
 
