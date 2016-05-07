@@ -19,3 +19,47 @@
 //********************************************************************************************
 
 #include "cartman/View.hpp"
+#include "cartman/cartman_gui.h"
+#include "cartman/cartman_gfx.h"
+
+namespace Cartman {
+void View::beginRender(Cartman::Gui::Window& window, float zoom_hrz, float zoom_vrt) {
+    auto& renderer = Ego::Renderer::get();
+    // Compute left, bottom, width, height in pixels.
+    int left = window.position.getX();
+    int bottom = sdl_scr.height - (window.position.getY() + window.surfacey);
+    int width = window.surfacex;
+    int height = window.surfacey;
+    // Set viewport.
+    renderer.setViewportRectangle(left, bottom, width, height);
+    // Enable scissor tests.
+    Ego::Renderer::get().setScissorTestEnabled(true);
+    // Set scissor rectangle.
+    Ego::Renderer::get().setScissorRectangle(left, bottom , width, height);
+}
+
+void View::getTileRange(camera_t& camera, cartman_mpd_t& mesh, std::vector<std::pair<int, int>>& indices) {
+    int mapxstt, mapystt, mapxend, mapyend;
+    getTileRange(camera, mesh, mapxstt, mapystt, mapxend, mapyend);
+    // Loop over the tails and get index pairs.
+    for (int mapy = mapystt; mapy <= mapyend; mapy++) {
+        if (mapy < 0 || mapy >= mesh.info.getTileCountY()) continue;
+        for (int mapx = mapxstt; mapx <= mapxend; mapx++) {
+            if (mapx < 0 || mapx >= mesh.info.getTileCountX()) continue;
+            indices.push_back(std::make_pair(mapx, mapy));
+        }
+    }
+}
+
+void View::getTileRange(camera_t& camera, cartman_mpd_t& mesh, int& startx, int& starty, int& endx, int& endy) {
+    // half-width/half-size to the left divided by the grid size, rounding down the nearest integer.
+    // -1.0f is subtract for unknown reasons.
+    startx = std::floor((camera.x - camera.w  * 0.5f) / Info<float>::Grid::Size()) - 1.0f;
+    starty = std::floor((camera.y - camera.h  * 0.5f) / Info<float>::Grid::Size()) - 1.0f;
+
+    // half-width/half-size to the right divided by the grid size, rounding up to the nearest integer.
+    // +1.0f is added for unknown reasons.
+    endx = std::ceil((camera.x + camera.w  * 0.5f) / Info<float>::Grid::Size()) + 1.0f;
+    endy = std::ceil((camera.y + camera.h  * 0.5f) / Info<float>::Grid::Size()) + 1.0f;
+}
+}

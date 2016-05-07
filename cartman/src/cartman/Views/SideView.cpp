@@ -36,34 +36,17 @@ void SideView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
 
     glPushAttrib(GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT);
     {
-        // set the viewport transformation
-        Ego::Renderer::get().setViewportRectangle(window.position.getX(),
-                                                  sdl_scr.height - (window.position.getY() + window.surfacey), window.surfacex, window.surfacey);
-
-        // clip the viewport
-        Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(window.position.getX(),
-                                                 sdl_scr.height - (window.position.getY() + window.surfacey), window.surfacex, window.surfacey);
-
+        beginRender(window, zoom_hrz, zoom_vrt);
         cartman_begin_ortho_camera_vrt(window, &cam, zoom_hrz, zoom_vrt * 2.0f);
         {
-            int mapxstt = std::floor((cam.x - cam.w * 0.5f) / Info<float>::Grid::Size()) - 1.0f;
-            int mapystt = std::floor((cam.y - cam.h * 0.5f) / Info<float>::Grid::Size()) - 1.0f;
+            std::vector<std::pair<int, int>> indices;
+            getTileRange(cam, *window.pmesh, indices);
 
-            int mapxend = std::ceil((cam.x + cam.w * 0.5f) / Info<float>::Grid::Size()) + 1;
-            int mapyend = std::ceil((cam.y + cam.h * 0.5f) / Info<float>::Grid::Size()) + 1;
+            for (auto index : indices) {
+                int fan = window.pmesh->get_ifan(index.first, index.second);
+                if (!VALID_MPD_TILE_RANGE(fan)) continue;
 
-            for (int mapy = mapystt; mapy <= mapyend; mapy++) {
-                if (mapy < 0 || mapy >= window.pmesh->info.getTileCountY()) continue;
-
-                for (int mapx = mapxstt; mapx <= mapxend; mapx++) {
-                    if (mapx < 0 || mapx >= window.pmesh->info.getTileCountX()) continue;
-
-                    int fan = window.pmesh->get_ifan(mapx, mapy);
-                    if (!VALID_MPD_TILE_RANGE(fan)) continue;
-
-                    draw_side_fan(mdata.win_select, fan, zoom_hrz, zoom_vrt);
-                }
+                draw_side_fan(mdata.win_select, fan, zoom_hrz, zoom_vrt);
             }
 
             if (mdata.rect_draw) {

@@ -150,8 +150,13 @@ void make_hitemap( cartman_mpd_t * pmesh );
 void make_planmap( cartman_mpd_t * pmesh );
 
 // tile rendering routines
-void draw_top_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt );
-void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt );
+/// Draw a fan from top perspective in wireframe mode.
+/// Draw vertex selection indicators.
+void draw_top_fan(select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt);
+/// Draw a fan from side perspective in wireframe mode.
+/// Draw vertex selection indicators.
+void draw_side_fan(select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt);
+
 void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int x, int y);
 void draw_top_tile( float x0, float y0, int fan, std::shared_ptr<Ego::Texture> tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
 void draw_tile_fx( float x, float y, Uint8 fx, float scale );

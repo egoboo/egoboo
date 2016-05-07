@@ -32,6 +32,10 @@ namespace Cartman {
 
 /// The views a window may contain w.r.t. the mesh.
 struct View {
+    void beginRender(Gui::Window& window, float zoom_hrz, float zoom_vrt);
+    /// Compute the range of tiles to be rendered.
+    void getTileRange(camera_t& camera, cartman_mpd_t& mesh, int& startx, int& starty, int& endx, int& endy);
+    void getTileRange(camera_t& camera, cartman_mpd_t& mesh, std::vector<std::pair<int, int>>& indices);
     /// Render a view.
     /// @param window the window to render the view into
     /// qparam zoom_hrz, zoom_vrt the horizontal and vertical zoom
