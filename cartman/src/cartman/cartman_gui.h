@@ -24,14 +24,8 @@
 
 //--------------------------------------------------------------------------------------------
 
-namespace Cartman {
-struct Window;
-struct GUI_Cursor;
-}
-
-//--------------------------------------------------------------------------------------------
-
-#define MAXWIN 8            // Number of windows
+/// @brief The number of windows.
+#define MAXWIN 8
 
 #define DEFAULT_WINDOW_W 200
 #define DEFAULT_WINDOW_H 200
@@ -42,35 +36,63 @@ struct GUI_Cursor;
 
 //--------------------------------------------------------------------------------------------
 
-namespace Cartman {
+namespace Cartman { namespace Gui {
+
 struct Border {
-    std::shared_ptr<Ego::Texture> texture; ///< The border texture.
-    int width;             ///< The border width.
-    int height;            ///< The border height.
-    /** @brief Construct this border. */
+    /// @brief The border texutre.
+    std::shared_ptr<Ego::Texture> texture;
+
+    /// @brief The border size.
+    /// @todo Should be <tt>Size2i size</tt>.
+    int width, height;
+
+    /**
+     * @brief Construct this border.
+     * @todo Should be <tt>Border(Size2i size = Size2i())</tt>.
+     */
     Border(int width = 0, int height = 0);
-    /** @brief Load a texture to be used as the border texture. */
-    void loadTexture(const std::string& textureFileName);
-};
+
+    /**
+     * @brief Load a texture to be used as the border texture.
+     * @param pathname the pathname of the texture
+     */
+    void loadTexture(const std::string& pathname);
+
+}; // struct Border
+
+} } // namespace Cartman::Gui
+
+//--------------------------------------------------------------------------------------------
+
+namespace Cartman { namespace Gui {
 
 struct Window {
-    Uint8             on;       // Draw it?
+    /// @brief Is the window enabled?
+    /// @todo Should be <tt>bool enabled</tt>.
+    Uint8 on;
 
-    // Window position
-    int               x;
-    int               y;
+    /// @brief The window position.
+    /// @todo Should be <tt>Point2i position</tt>.
+    int x, y;
 
-    // The window border.
+    /// @brief The window border.
     Border border;
 
-    int               surfacex;
-    int               surfacey;
+    /// @brief The window size.
+    /// @todo Should be <tt>Size2i size</tt>.
+    int surfacex, surfacey;
 
-    // window data
-    int id;                // unique window id
-    Uint16 mode;           // display mode bits
+    /// @brief Unique ID of this window.
+    int id;
+    /// @brief The display mode of this window.
+    Uint16 mode;
+    /// @brief The mesh,
     cartman_mpd_t *pmesh;  // which mesh
 
+    /**
+     * @brief Construct this window.
+     * @todo Add corresponding destructor.
+     */
     Window();
 
     /**
@@ -93,13 +115,30 @@ struct Window {
     void render();
     void renderBackground() const;
 
-};
-}
+}; // struct Manager
+
+} } // namespace Cartman::Gui
 
 //--------------------------------------------------------------------------------------------
 
-struct ui_state_t
-{
+namespace Cartman { namespace Gui {
+
+struct Manager {
+    static void initialize();
+    static void uninitialize();
+    static std::shared_ptr<Window> findWindow(int x, int y);
+    static void render();
+
+}; // struct Manager
+
+} } // namespace Cartman::Gui
+
+extern std::vector<std::shared_ptr<Cartman::Gui::Window>> g_windowList;
+extern std::shared_ptr<Cartman::Gui::Cursor> g_cursor;
+
+//--------------------------------------------------------------------------------------------
+
+struct ui_state_t {
     /// @brief The cursor position.
     /// @todo Use Point2i and rename to cursorPosition;
     int cur_x, cur_y;
@@ -112,41 +151,29 @@ struct ui_state_t
     bool HideMouse;
 };
 
-//--------------------------------------------------------------------------------------------
-
-namespace Cartman
-{
-    struct GUI
-    {
-        static void initialize();
-        static void uninitialize();
-        static std::shared_ptr<Cartman::Window> findWindow(int x, int y);
-        static void render();
-
-    };
-}
-
-
-extern std::vector<std::shared_ptr<Cartman::Window>> _window_lst;
-extern std::shared_ptr<Cartman::GUI_Cursor> _cursor_2;
 extern ui_state_t ui;
 
+//--------------------------------------------------------------------------------------------
+
 namespace Cartman {
+namespace Gui {
 /**
- * @brief
- *  An image cursor.
- * @todo
- *  The SDL surface is not used as it seems.
+ * @brief An image cursor.
+ * @todo The SDL surface is not used as it seems.
  */
-struct GUI_Cursor {
-    /// The cursor image.
+struct Cursor {
+    /// @brief The cursor image.
     std::shared_ptr<SDL_Surface> _surface;
-    /// Create a cursor.
-    GUI_Cursor();
-    /// Destroy a cursor.
-    virtual ~GUI_Cursor();
-};
-}
+
+    /// @brief Construct this cursor.
+    Cursor();
+
+    /// @brief Destruct this cursor.
+    virtual ~Cursor();
+
+}; // struct Cursor
+
+} } // namespace Cartman::Gui
 
 //--------------------------------------------------------------------------------------------
 

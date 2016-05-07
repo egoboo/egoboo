@@ -5,7 +5,7 @@
 namespace Cartman {
 
 struct VertexView : public View {
-    void render(Window& window, float zoom_hrz, float zoom_vrt) override;
+    void render(Gui::Window& window, float zoom_hrz, float zoom_vrt) override;
 };
 
 } // namespace Cartman

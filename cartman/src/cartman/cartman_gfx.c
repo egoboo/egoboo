@@ -479,7 +479,7 @@ void draw_side_fan( select_lst_t& plst, int fan, float zoom_hrz, float zoom_vrt 
 
 //--------------------------------------------------------------------------------------------
 
-void draw_schematic(std::shared_ptr<Cartman::Window> pwin, int fantype, int x, int y)
+void draw_schematic(std::shared_ptr<Cartman::Gui::Window> pwin, int fantype, int x, int y)
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     The wireframe on the left side of the theSurface.
@@ -976,7 +976,7 @@ SDL_Surface *cartman_LoadIMG(const char *name)
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_hrz(Cartman::Window& pwin, camera_t * pcam, float zoom_x, float zoom_y)
+void cartman_begin_ortho_camera_hrz(Cartman::Gui::Window& pwin, camera_t * pcam, float zoom_x, float zoom_y)
 {
     float w, h, d;
     float aspect;
@@ -1019,7 +1019,7 @@ void cartman_begin_ortho_camera_hrz(Cartman::Window& pwin, camera_t * pcam, floa
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_vrt(Cartman::Window& pwin, camera_t * pcam, float zoom_x, float zoom_z)
+void cartman_begin_ortho_camera_vrt(Cartman::Gui::Window& pwin, camera_t * pcam, float zoom_x, float zoom_z)
 {
     float w, h, d;
     float aspect;

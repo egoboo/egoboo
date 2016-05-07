@@ -194,4 +194,12 @@ namespace Cartman {
 typedef Ego::Math::Discrete::Vector2<int> Vector2i;
 typedef Ego::Math::Discrete::Point2<int> Point2i;
 typedef Ego::Math::Discrete::Size2<int> Size2i;
-}
+} // namespace Cartman
+
+// Forward declarations.
+namespace Cartman { namespace Gui {
+struct Cursor;
+struct Manager;
+struct Window;
+} } // namespace Cartman::Gui
+

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cartman/cartman_typedef.h"
+
 namespace Cartman {
 
 #define WINMODE_NOTHING 0   // Default window display mode.
@@ -8,15 +10,12 @@ namespace Cartman {
 #define WINMODE_SIDE 4      //
 #define WINMODE_FX 8        //
 
-// Forward declaration.
-struct Window;
-
 /// The views a window may contain w.r.t. the mesh.
 struct View {
     /// Render a view.
     /// @param window the window to render the view into
     /// qparam zoom_hrz, zoom_vrt the horizontal and vertical zoom
-    virtual void render(Window& window, float zoom_hrz, float zoom_vrt) = 0;
+    virtual void render(Gui::Window& window, float zoom_hrz, float zoom_vrt) = 0;
 };
 
 } // namespace Cartman

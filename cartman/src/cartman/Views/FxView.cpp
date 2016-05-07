@@ -7,7 +7,7 @@
 
 namespace Cartman {
 
-void FxView::render(Window& window, float zoom_hrz, float zoom_vrt) {
+void FxView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
     if (!window.on || !HAS_BITS(window.mode, WINMODE_FX)) return;
 
     if (NULL == window.pmesh) window.pmesh = &mesh;

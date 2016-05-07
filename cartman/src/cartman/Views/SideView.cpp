@@ -9,7 +9,7 @@
 
 namespace Cartman {
 
-void SideView::render(Window& window, float zoom_hrz, float zoom_vrt) {
+void SideView::render(Gui::Window& window, float zoom_hrz, float zoom_vrt) {
     if (!window.on || !HAS_BITS(window.mode, WINMODE_SIDE)) return;
 
     if (NULL == window.pmesh) window.pmesh = &mesh;

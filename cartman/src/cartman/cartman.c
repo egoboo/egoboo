@@ -90,7 +90,7 @@ static bool _ttf_atexit_registered = false;
 //--------------------------------------------------------------------------------------------
 
 // ui functions
-static void draw_cursor_in_window(Cartman::Window& pwin);
+static void draw_cursor_in_window(Cartman::Gui::Window& pwin);
 static void unbound_mouse();
 static void bound_mouse();
 static bool cartman_check_keys( const char *modname, cartman_mpd_t * pmesh );
@@ -147,10 +147,10 @@ static int cartman_get_vertex(cartman_mpd_t *pmesh, int mapx, int mapy, int num)
 
 
 
-static void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
-static void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt);
 
 // shutdown function
 static void main_end();
@@ -191,7 +191,7 @@ struct LightModel {
         numlight++;
     }
 
-    static void draw_light(int number, std::shared_ptr<Cartman::Window> pwin, float zoom_hrz) {
+    static void draw_light(int number, std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz) {
         int xdraw = (light_lst[number].x / FOURNUM * zoom_hrz) - cam.x + (pwin->surfacex >> 1) - SMALLXY;
         int ydraw = (light_lst[number].y / FOURNUM * zoom_hrz) - cam.y + (pwin->surfacey >> 1) - SMALLXY;
         int radius = std::abs(light_lst[number].radius) / FOURNUM * zoom_hrz;
@@ -204,7 +204,7 @@ struct LightModel {
 
 //--------------------------------------------------------------------------------------------
 
-void draw_cursor_in_window(Cartman::Window& pwin)
+void draw_cursor_in_window(Cartman::Gui::Window& pwin)
 {
     using namespace Cartman;
 
@@ -214,8 +214,8 @@ void draw_cursor_in_window(Cartman::Window& pwin)
     {
         int size = POINT_SIZE( 10 );
 
-        int x = pwin.x + ( Input::get()._mouse.x - _window_lst[mdata.win_id]->x );
-        int y = pwin.y + ( Input::get()._mouse.y - _window_lst[mdata.win_id]->y );
+        int x = pwin.x + ( Input::get()._mouse.x - g_windowList[mdata.win_id]->x );
+        int y = pwin.y + ( Input::get()._mouse.y - g_windowList[mdata.win_id]->y );
 
         ogl_draw_sprite_2d(Resources::get().tx_pointon, x - size / 2, y - size / 2, size, size );
     }
@@ -380,7 +380,7 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 
-void Cartman::Window::render()
+void Cartman::Gui::Window::render()
 {
     if ( !on ) return;
 
@@ -424,10 +424,10 @@ void load_all_windows( cartman_mpd_t& mesh )
 {
     static const int border_width = 7;
     static const int border_height = 9;
-    _window_lst[0]->load_window(0, "editor/window.png", 180, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, &mesh );
-    _window_lst[1]->load_window(1, "editor/window.png", 410, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   &mesh );
-    _window_lst[2]->load_window(2, "editor/window.png", 180, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   &mesh );
-    _window_lst[3]->load_window(3, "editor/window.png", 410, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     &mesh );
+    g_windowList[0]->load_window(0, "editor/window.png", 180, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, &mesh );
+    g_windowList[1]->load_window(1, "editor/window.png", 410, 16,  border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   &mesh );
+    g_windowList[2]->load_window(2, "editor/window.png", 180, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   &mesh );
+    g_windowList[3]->load_window(3, "editor/window.png", 410, 248, border_width, border_height, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     &mesh );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -460,7 +460,7 @@ void bound_mouse()
     using namespace Cartman;
     if (mdata.win_id != -1)
     {
-        auto window = _window_lst[mdata.win_id];
+        auto window = g_windowList[mdata.win_id];
         Input::get()._mouse.tlx = window->x + window->border.width;
         Input::get()._mouse.tly = window->y + window->border.height;
         Input::get()._mouse.brx = Input::get()._mouse.tlx + window->surfacex - 1;
@@ -595,7 +595,7 @@ void move_camera( cartman_mpd_info_t * pinfo )
 
 //--------------------------------------------------------------------------------------------
 
-void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_side(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int    mpix_x, mpix_z;
@@ -762,7 +762,7 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman::Window> pwin, float zoom_
 
 //--------------------------------------------------------------------------------------------
 
-void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_tile(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int fan_tmp;
@@ -875,7 +875,7 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman::Window> pwin, float zoom_
 
 //--------------------------------------------------------------------------------------------
 
-void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_fx(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int mpix_x, mpix_y;
@@ -976,7 +976,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman::Window> pwin, float zoom_hr
 
 //--------------------------------------------------------------------------------------------
 
-void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Window> pwin, float zoom_hrz, float zoom_vrt)
+void cartman_check_mouse_vertex(std::shared_ptr<Cartman::Gui::Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     using namespace Cartman;
     int mpix_x, mpix_y;
@@ -1145,7 +1145,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     {
         mdata.win_id = -1;
 
-        for (auto window : _window_lst)
+        for (auto& window : g_windowList)
         {
             cartman_check_mouse_tile(window, cartman_zoom_hrz, cartman_zoom_vrt);
             cartman_check_mouse_vertex(window, cartman_zoom_hrz, cartman_zoom_vrt);
@@ -1614,7 +1614,7 @@ void draw_main( cartman_mpd_t * pmesh )
     {
         int itmp;
 
-        Cartman::GUI::render();
+        Cartman::Gui::Manager::render();
 
         itmp = ambi;
         draw_slider( 0, 250, 19, 350, &ambi,          0, 200 );
@@ -1716,7 +1716,7 @@ int SDL_main( int argcnt, char* argtext[] )
     }
 
     fill_fpstext();                     // Make the FPS text
-    Cartman::GUI::initialize();
+    Cartman::Gui::Manager::initialize();
     load_all_windows( mesh );          // Load windows
     load_img();                         // Load cartman icons
 
@@ -1735,7 +1735,7 @@ int SDL_main( int argcnt, char* argtext[] )
 
         Clocks::update();
     }
-    Cartman::GUI::uninitialize();
+    Cartman::Gui::Manager::uninitialize();
     Ego::Core::ConsoleHandler::uninitialize();
     Resources::uninitialize();
     gfx_system_end();
