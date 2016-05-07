@@ -195,6 +195,9 @@ typedef Ego::Math::Discrete::Size2<int> Size2i;
 } // namespace Cartman
 
 // Forward declarations.
+struct camera_t;
+struct cartman_mpd_t;
+struct select_lst_t;
 namespace Cartman { namespace Gui {
 struct Cursor;
 struct Manager;
